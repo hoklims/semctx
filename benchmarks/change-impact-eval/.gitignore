@@ -1,0 +1,9 @@
+# Regenerated evaluation artifacts and local config — never committed.
+# The frozen public narrative lives in RESULTS.md (committed). The raw corpus and
+# machine-readable scores (data/) are private — regenerated locally, never committed.
+output/
+data/
+.env
+.semctx-bench/
+__pycache__/
+*.pyc

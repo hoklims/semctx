@@ -1,0 +1,7 @@
+{
+  "name": "semctx",
+  "description": "Verify the semantic blast radius of a change — affected symbols, exported contracts, declared invariants and relevant tests, with a PASS/WARN/BLOCK verdict. Local-first, deterministic, no LLM required. Not a code-search tool.",
+  "version": "0.1.0",
+  "author": "semctx",
+  "keywords": ["verify", "change-impact", "invariants", "contracts", "ci-gate"]
+}

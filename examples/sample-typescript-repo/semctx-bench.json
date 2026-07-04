@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "id": "overbooking-bugfix",
+      "task": "Fix the overbooking that happens when a reservation is confirmed concurrently.",
+      "mode": "bugfix",
+      "expect": {
+        "requiredReads": [
+          "src/domain/confirmation.ts",
+          "src/domain/capacity.ts",
+          "src/app/confirm-reservation-handler.ts",
+          "migrations/0001_create_reservations.sql"
+        ],
+        "forbiddenReads": [
+          "docs/legacy-capacity-notes.md",
+          "src/app/notification-templates.ts"
+        ],
+        "requiredTests": ["test/confirmation.test.ts", "test/capacity.test.ts"],
+        "requiredHardConstraintKinds": ["invariant"],
+        "requiredImpactPathContains": ["handleConfirmReservation", "confirmReservation", "remainingCapacity"],
+        "requiredContradictions": ["legacy"],
+        "forbiddenAuthoritativeStatuses": ["deprecated", "contradicted"],
+        "mustBeDeterministic": true
+      }
+    },
+    {
+      "id": "capacity-accounting-audit",
+      "task": "Audit how capacity accounting decides which reservations consume a slot.",
+      "mode": "audit",
+      "expect": {
+        "requiredReads": ["src/domain/capacity.ts"],
+        "forbiddenReads": ["docs/legacy-capacity-notes.md"],
+        "forbiddenAuthoritativeStatuses": ["deprecated", "contradicted"],
+        "mustBeDeterministic": true
+      }
+    }
+  ]
+}

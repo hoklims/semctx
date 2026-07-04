@@ -1,0 +1,16 @@
+{
+  "name": "@semantic-context/eval",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@semantic-context/core": "workspace:*",
+    "@semantic-context/context-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@semantic-context/test-fixtures": "workspace:*"
+  }
+}

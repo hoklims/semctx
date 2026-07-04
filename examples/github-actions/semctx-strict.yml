@@ -1,0 +1,31 @@
+# Strict PR gate: BLOCK and WARN both fail the check, and the JSON report is uploaded.
+# Use this only when your team has opted into treating advisory findings as blocking.
+# Copy to .github/workflows/semctx.yml in your repository.
+name: Semctx (strict)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  semctx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: semctx
+        uses: hoklims/semctx/packages/github-action@v0.1.0
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.sha }}
+          fail-on: warn
+          upload-report: "true"
+
+      - name: Show verdict
+        if: always()
+        run: echo "Verdict: ${{ steps.semctx.outputs.verdict }} (${{ steps.semctx.outputs.block-count }} block, ${{ steps.semctx.outputs.warn-count }} warn)"

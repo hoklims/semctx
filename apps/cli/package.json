@@ -1,0 +1,24 @@
+{
+  "name": "@semantic-context/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "semctx CLI — verify the semantic blast radius of a change (PASS/WARN/BLOCK). Runs under Bun.",
+  "license": "Apache-2.0",
+  "author": "hoklims <hoklims@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoklims/semctx.git",
+    "directory": "apps/cli"
+  },
+  "files": ["src"],
+  "engines": { "bun": ">=1.3.0" },
+  "bin": { "semctx": "./src/index.ts" },
+  "dependencies": {
+    "@semantic-context/core": "workspace:*",
+    "@semantic-context/ts-analyzer": "workspace:*",
+    "@semantic-context/repository-store": "workspace:*",
+    "@semantic-context/context-engine": "workspace:*",
+    "@semantic-context/cocoindex-adapter": "workspace:*",
+    "@semantic-context/eval": "workspace:*"
+  }
+}

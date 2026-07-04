@@ -1,0 +1,7 @@
+// Opt into guarded mode: copy to <project>/.semctx/guard.json
+// The PreToolUse guard will then block `git commit` / `git push` until the current working diff
+// has been verified with `semctx verify diff --record` (and the recorded verdict is not BLOCK).
+// Strictly disable at any time with the environment variable SEMCTX_GUARD=off.
+{
+  "enabled": true
+}

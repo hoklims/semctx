@@ -1,0 +1,7 @@
+{
+  "name": "consumer-typescript-repo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal example of a repository that adopts semctx via `semctx init --preset github-claude`."
+}

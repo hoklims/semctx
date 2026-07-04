@@ -1,0 +1,5 @@
+# Our own unit/integration tests live under packages/*/test and apps/*/test.
+# The example repo (examples/sample-typescript-repo) is DATA that semctx analyzes;
+# its Vitest files are never executed by our runner. Run tests with:  bun run test
+[test]
+coverage = false

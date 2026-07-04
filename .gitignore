@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.semctx/
+!examples/**/.semctx-keep
+*.log
+.DS_Store

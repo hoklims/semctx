@@ -1,0 +1,13 @@
+{
+  "name": "@semantic-context/github-action",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GitHub Action adapter for semctx verify diff (composite action; ADR 0006). Consumes the verify JSON report and emits annotations, a job summary, and outputs.",
+  "license": "Apache-2.0",
+  "files": [
+    "action.yml",
+    "src/adapter.mjs",
+    "README.md"
+  ]
+}

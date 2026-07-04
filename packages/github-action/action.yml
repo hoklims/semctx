@@ -1,0 +1,109 @@
+name: "Semctx change-impact verify"
+description: "Map a PR diff to affected symbols, contracts, invariants and tests; emit a PASS/WARN/BLOCK verdict. Not a code-search tool."
+author: "semctx"
+branding:
+  icon: "git-pull-request"
+  color: "blue"
+
+inputs:
+  base:
+    description: "Base ref to compare against (e.g. the PR base SHA). Required."
+    required: true
+  head:
+    description: "Head ref to analyse."
+    required: false
+    default: "HEAD"
+  fail-on:
+    description: "Fail the job on this verdict or worse: block | warn | none."
+    required: false
+    default: "block"
+  working-directory:
+    description: "Directory of the repository to analyse."
+    required: false
+    default: "."
+  config-path:
+    description: "Optional path to a semctx config.json to use instead of the generated default."
+    required: false
+    default: ""
+  report-path:
+    description: "Path (relative to working-directory) for the JSON report artifact."
+    required: false
+    default: "semctx-report.json"
+  upload-report:
+    description: "If 'true', upload the JSON report as a workflow artifact."
+    required: false
+    default: "false"
+
+outputs:
+  verdict:
+    description: "PASS | WARN | BLOCK."
+    value: ${{ steps.adapter.outputs.verdict }}
+  block-count:
+    description: "Number of blocking findings."
+    value: ${{ steps.adapter.outputs.block-count }}
+  warn-count:
+    description: "Number of warning findings."
+    value: ${{ steps.adapter.outputs.warn-count }}
+  changed-symbol-count:
+    description: "Number of changed symbols."
+    value: ${{ steps.adapter.outputs.changed-symbol-count }}
+  recommended-test-count:
+    description: "Number of recommended tests."
+    value: ${{ steps.adapter.outputs.recommended-test-count }}
+  report-path:
+    description: "Path to the written JSON report."
+    value: ${{ steps.adapter.outputs.report-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: "1.3.13"
+
+    - name: Install semctx dependencies
+      shell: bash
+      run: bun install --frozen-lockfile
+      working-directory: ${{ github.action_path }}/../..
+
+    - name: Index and verify
+      id: verify
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      # All user-controlled inputs are passed through env and referenced as shell variables, so
+      # the shell — not the ${{ }} template engine — handles the values (no Actions injection).
+      env:
+        SEMCTX_CLI: ${{ github.action_path }}/../../apps/cli/src/index.ts
+        SEMCTX_CONFIG: ${{ inputs.config-path }}
+        SEMCTX_REPORT: ${{ inputs.report-path }}
+        SEMCTX_BASE: ${{ inputs.base }}
+        SEMCTX_HEAD: ${{ inputs.head }}
+      run: |
+        set -euo pipefail
+        bun "$SEMCTX_CLI" init --root .
+        if [ -n "$SEMCTX_CONFIG" ]; then
+          cp "$SEMCTX_CONFIG" .semctx/config.json
+        fi
+        bun "$SEMCTX_CLI" index --root .
+        # Always produce the report (fail-on none); the adapter owns the job exit code.
+        bun "$SEMCTX_CLI" verify diff --root . \
+          --base "$SEMCTX_BASE" --head "$SEMCTX_HEAD" \
+          --format json --output "$SEMCTX_REPORT" --fail-on none
+
+    - name: Annotate, summarise, enforce
+      id: adapter
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REPORT_PATH: ${{ inputs.report-path }}
+      run: node "$GITHUB_ACTION_PATH/src/adapter.mjs" "$INPUT_REPORT_PATH"
+
+    - name: Upload report
+      if: ${{ always() && inputs.upload-report == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: semctx-report
+        path: ${{ inputs.working-directory }}/${{ inputs.report-path }}
+        if-no-files-found: warn

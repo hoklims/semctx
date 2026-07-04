@@ -1,0 +1,10 @@
+{
+  "name": "sample-booking-repo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture repo analysed by semctx: booking domain with an overbooking bug, an invariant, a migration, tests, an ADR, a deprecated contradictory doc and a lexical decoy.",
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
