@@ -1,0 +1,55 @@
+/** Public surface of @semantic-context/semantic-engine — files ↔ model, links, slice, change, verify, handoff. */
+
+export * from "./paths";
+export { ensureSemanticGitignore, computeGitignore } from "./gitignore";
+export type { GitignoreResult } from "./gitignore";
+
+export {
+  loadSemanticModel,
+  loadActiveChange,
+  loadModelWithWorking,
+  writeKindFile,
+  writeChangeFile,
+  removeChangeFile,
+  writeActiveChange,
+  clearActiveChange,
+  initSemanticScaffold,
+} from "./store";
+export type { LoadResult, ScaffoldPlan } from "./store";
+
+export { DEFAULT_SEMANTIC_POLICY, resolveSemanticPolicy } from "./config";
+
+export { resolveRepositoryLinks, findDanglingReferences } from "./links";
+export type { RepositoryFacts, LinkResolution, DanglingReference, LinkReport } from "./links";
+
+export { sliceSemanticModel } from "./slice";
+export type { SemanticSlice, SliceScope } from "./slice";
+
+export { renderSlice } from "./slice-render";
+export type { SliceNotation } from "./slice-render";
+
+export { newChangeContract, applyChangePatch, isTerminalLifecycle, TERMINAL_LIFECYCLES } from "./change";
+export type { NewChangeInput, ChangePatch } from "./change";
+
+export { verifyChangeContract, lifecycleForVerdict, CHANGE_VERIFY_SCHEMA_VERSION } from "./verify";
+export type {
+  ChangeVerifyReport,
+  SemanticVerdict,
+  PreservedInvariant,
+  PreservedState,
+  EvidenceState,
+  UnknownState,
+  SemanticFinding,
+  SemanticFindingKind,
+  SemanticFindingSeverity,
+  VerifyChangeArgs,
+} from "./verify";
+
+export { checkSemanticModel } from "./check";
+export type { CheckReport, CheckArgs, InvalidId } from "./check";
+
+export { inspectSemantic } from "./inspect";
+export type { SemanticInspection, IncomingReference } from "./inspect";
+
+export { captureHandoff, buildHandoffCapsule, readHandoff, renderHandoffMarkdown, HANDOFF_SCHEMA_VERSION } from "./handoff";
+export type { HandoffCapsule, CaptureArgs } from "./handoff";

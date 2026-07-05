@@ -47,6 +47,14 @@ export const BlockingRuleSchema = z.object({
   tier: z.enum(["strict", "advisory"]).optional(),
 });
 
+export const SemanticPolicyConfigSchema = z.object({
+  enabled: z.boolean(),
+  criticalInvariantTags: z.array(z.string()),
+  openUnknownSeverity: z.enum(["warn", "block"]),
+  supersededDecisionSeverity: z.enum(["warn", "block"]),
+  requireProofForActiveChange: z.boolean(),
+});
+
 export const SemctxConfigSchema = z.object({
   version: z.number().int(),
   repositoryRoot: z.string(),
@@ -57,6 +65,9 @@ export const SemctxConfigSchema = z.object({
   testGlobs: z.array(z.string()),
   semanticProvider: z.enum(["none", "cocoindex"]),
   blockingRules: z.array(BlockingRuleSchema),
+  // Additive & optional: pre-semantic configs still validate; unknown-key stripping no longer
+  // silently drops a `semantic` block now that it is part of the schema.
+  semantic: SemanticPolicyConfigSchema.optional(),
 });
 
 export type SemctxConfigParsed = z.infer<typeof SemctxConfigSchema>;
