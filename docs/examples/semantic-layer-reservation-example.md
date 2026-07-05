@@ -130,6 +130,17 @@ verdict: VERIFIED
 semctx change close change.confirm-retry-safe        # lifecycle -> verified
 ```
 
+## Automated stress harness
+
+An automated version of this walkthrough — plus the **BLOCKED**, **STALE**, **diagnostics** and
+**determinism** cases — is in [`scripts/semantic-stress-test.sh`](../../scripts/semantic-stress-test.sh).
+It scaffolds a throwaway `@invariant`-marked repo and asserts every verdict and exit code:
+
+```bash
+bash scripts/semantic-stress-test.sh        # runs in Git Bash; CLI runs under Bun
+KEEP=1 bash scripts/semantic-stress-test.sh  # keep the throwaway repo for inspection
+```
+
 ## What this demonstrates
 
 - The verdict is **never more optimistic than the data**: PARTIAL until the proof is actually
