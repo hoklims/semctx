@@ -90,6 +90,25 @@ function walk(dir: string, root: string, acc: string[]): void {
 }
 
 /**
+ * Fast count of the TypeScript files the analyzer will actually parse — the same whole-repo walk
+ * and ignore rules as `discoverFiles`, but without reading file contents. Used to announce the
+ * index scale before the (blocking) analysis. NOTE: discovery walks the whole tree and honours
+ * `config.exclude`/ignored dirs, not `config.include`.
+ */
+export function countTypeScriptFiles(config: SemctxConfig): number {
+  const root = config.repositoryRoot;
+  const absPaths: string[] = [];
+  walk(root, root, absPaths);
+  let count = 0;
+  for (const absPath of absPaths) {
+    const relPath = normalizePath(relative(root, absPath));
+    if (isExcluded(relPath, config)) continue;
+    if (TS_FILE_RE.test(relPath)) count += 1;
+  }
+  return count;
+}
+
+/**
  * Discover and classify repository files, deterministically (sorted order).
  * Only source, test, document and migration files are returned; "other" is dropped.
  */
