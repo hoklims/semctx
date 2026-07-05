@@ -1,0 +1,93 @@
+import { describe, it, expect } from "bun:test";
+import {
+  semanticId,
+  kindOfSemanticId,
+  isValidSemanticId,
+  repositoryLinkFromRef,
+  repositoryLinkToRef,
+  mergeModels,
+  SemanticIndex,
+  emptyModel,
+  DEFAULT_STATUS_BY_KIND,
+  PROVEN_STATUSES,
+} from "@semantic-context/semantic-model";
+import type { SemanticModel } from "@semantic-context/semantic-model";
+
+describe("semantic ids", () => {
+  it("is idempotent on an already-namespaced id", () => {
+    expect(semanticId("goal", "goal.checkout.reliable-payment")).toBe("goal.checkout.reliable-payment");
+  });
+
+  it("builds a namespaced id from a free label, preserving dots", () => {
+    expect(semanticId("invariant", "payment.idempotent")).toBe("invariant.payment.idempotent");
+    expect(semanticId("goal", "Checkout Reliable Payment")).toBe("goal.checkout-reliable-payment");
+  });
+
+  it("infers the kind from an id prefix, including the proof→evidence alias", () => {
+    expect(kindOfSemanticId("invariant.payment.idempotent")).toBe("invariant");
+    expect(kindOfSemanticId("proof.test.webhook-duplicate-event")).toBe("evidence");
+    expect(kindOfSemanticId("evidence.test.x")).toBe("evidence");
+    expect(kindOfSemanticId("no-prefix")).toBeUndefined();
+  });
+
+  it("validates prefix ↔ kind agreement", () => {
+    expect(isValidSemanticId("goal", "goal.checkout.reliable-payment")).toBe(true);
+    expect(isValidSemanticId("goal", "invariant.x")).toBe(false);
+    expect(isValidSemanticId("invariant", "invariant.")).toBe(false);
+  });
+});
+
+describe("repository link inference", () => {
+  it("maps Plane-A id prefixes to link kinds", () => {
+    expect(repositoryLinkFromRef("sym:function:src/x.ts:foo:1")).toEqual({ kind: "symbol", ref: "sym:function:src/x.ts:foo:1" });
+    expect(repositoryLinkFromRef("inv:confirmed-never-exceeds-capacity")).toEqual({ kind: "invariant", ref: "inv:confirmed-never-exceeds-capacity" });
+    expect(repositoryLinkFromRef("claim:invariant:x")).toEqual({ kind: "claim", ref: "claim:invariant:x" });
+    expect(repositoryLinkFromRef("test:test/x.test.ts")).toEqual({ kind: "test", ref: "test:test/x.test.ts" });
+  });
+
+  it("treats bare paths and file: refs as file links, round-tripping the ref", () => {
+    expect(repositoryLinkFromRef("src/domain/confirmation.ts")).toEqual({ kind: "file", ref: "src/domain/confirmation.ts" });
+    expect(repositoryLinkFromRef("file:src/x.ts")).toEqual({ kind: "file", ref: "src/x.ts" });
+    expect(repositoryLinkToRef({ kind: "file", ref: "src/x.ts" })).toBe("file:src/x.ts");
+    expect(repositoryLinkToRef({ kind: "symbol", ref: "sym:function:a:b:1" })).toBe("sym:function:a:b:1");
+  });
+});
+
+describe("model helpers", () => {
+  const model: SemanticModel = {
+    nodes: [
+      { id: "goal.b", kind: "goal", statement: "B", status: "declared", provenance: "author", sourceRefs: [], repositoryLinks: [], relations: [], tags: [] },
+      { id: "goal.a", kind: "goal", statement: "A", status: "declared", provenance: "author", sourceRefs: [], repositoryLinks: [], relations: [], tags: [] },
+      { id: "invariant.x", kind: "invariant", statement: "X", status: "declared", provenance: "author", sourceRefs: [], repositoryLinks: [], relations: [], tags: [] },
+    ],
+    changes: [
+      { id: "change.c", statement: "C", lifecycle: "draft", provenance: "author", sourceRefs: [], serves: [], preserves: [], requiresEvidence: [], openUnknowns: [], repositoryLinks: [], tags: [] },
+    ],
+  };
+
+  it("indexes and looks up nodes and changes", () => {
+    const index = new SemanticIndex(model);
+    expect(index.node("goal.a")?.statement).toBe("A");
+    expect(index.change("change.c")?.lifecycle).toBe("draft");
+    expect(index.has("invariant.x")).toBe(true);
+    expect(index.nodesOfKind("goal").map((n) => n.id)).toEqual(["goal.a", "goal.b"]);
+  });
+
+  it("merges deterministically with later models winning and sorted output", () => {
+    const overlay: SemanticModel = {
+      ...emptyModel(),
+      changes: [{ id: "change.c", statement: "C2", lifecycle: "active", provenance: "agent", sourceRefs: [], serves: [], preserves: [], requiresEvidence: [], openUnknowns: [], repositoryLinks: [], tags: [] }],
+    };
+    const merged = mergeModels(model, overlay);
+    expect(merged.changes).toHaveLength(1);
+    expect(merged.changes[0]?.statement).toBe("C2");
+    expect(merged.nodes.map((n) => n.id)).toEqual(["goal.a", "goal.b", "invariant.x"]);
+  });
+
+  it("exposes default statuses and the proven set", () => {
+    expect(DEFAULT_STATUS_BY_KIND.assumption).toBe("assumed");
+    expect(DEFAULT_STATUS_BY_KIND.goal).toBe("declared");
+    expect(PROVEN_STATUSES.has("tested")).toBe(true);
+    expect(PROVEN_STATUSES.has("declared")).toBe(false);
+  });
+});

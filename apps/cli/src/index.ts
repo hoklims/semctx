@@ -10,6 +10,8 @@ import { runVerifyDiff } from "./commands/verify";
 import { runInspect } from "./commands/inspect";
 import { runBenchCmd } from "./commands/bench";
 import { runDoctor } from "./commands/doctor";
+import { runSemantic } from "./commands/semantic";
+import { runChange } from "./commands/change";
 
 const HELP = `semctx — repository change-impact analyzer
 
@@ -31,6 +33,10 @@ Core:
       --dry-run                      show the resolved range + config; no analysis, no writes
   inspect symbol|capability <q>    inspect the graph around a symbol or capability
   doctor                           workspace health check
+
+Semantic layer (authored intent, invariants, decisions, evidence, change contracts):
+  semantic <init|check|inspect|render|format|slice|handoff|resume>
+  change   <open|update|inspect|verify|close> <id>
 
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
   task create --from-file <file>   create a TaskFrame (also: --text "...", --mode <m>)
@@ -88,6 +94,10 @@ async function dispatch(args: ParsedArgs): Promise<number> {
       fail(`unknown 'verify' subcommand: ${sub ?? "(none)"} (expected: diff)`);
       return 2;
     }
+    case "semantic":
+      return runSemantic(root, args);
+    case "change":
+      return runChange(root, args);
     case "doctor":
       return runDoctor(root, args);
     default:

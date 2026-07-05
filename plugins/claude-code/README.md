@@ -8,10 +8,15 @@ with no LLM in the analysis and no network.
 
 - **MCP tools** (`mcp.json`): `semctx_verify_change` (primary) and `semctx_inspect`.
   `semctx_prepare_task` is exposed but experimental — not a code-search retriever (ADR 0005).
-- **Skill** (`skills/semctx-verify`): tells the agent to verify after non-trivial edits, run the
-  recommended tests, and never finish on a BLOCK.
+- **Semantic-layer MCP tools**: `semctx_semantic_slice`, `semctx_change_open`,
+  `semctx_change_update`, `semctx_change_verify`, `semctx_semantic_inspect`, `semctx_handoff`,
+  `semctx_resume` — authored intent/invariants/decisions/evidence + proof-carrying change contracts
+  (Plane B). Advisory; they never block. See `docs/integrations/claude-code-semantic-layer.md`.
+- **Skills**: `skills/semctx-verify` (verify after edits, never finish on a BLOCK) and
+  `skills/semctx-semantic` (carry a change contract: slice → edit → verify → compose → prove).
 - **Guard hook** (`hooks/`): a `PreToolUse` guard that is **inert by default** (advisory) and, when
   the project opts into guarded mode, blocks only `git commit` / `git push` on an unverified diff.
+  The semantic tools are advisory and do not change this behaviour.
 
 ## Two profiles
 

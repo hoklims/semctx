@@ -27,6 +27,25 @@ regress the committed benchmark or the fixture.
 
 ---
 
+## Shipping — semantic layer (Plane B)
+
+Authored intent beside the derived graph (ADR 0009). v1 is implemented (model, `.sem` DSL, links +
+stale, slice, proof-carrying change contracts, composed `change verify`, handoff/resume, CLI, MCP +
+skill). Hardening/extension items on that base:
+
+- [ ] **Multi-line `.sem` statements** — same limitation as `@markers`; single-line today.
+- [ ] **Evidence corroboration from the graph** — surface that a linked test exists and covers the
+      change (advisory), without ever auto-upgrading a `declared` proof to proven (stays honest).
+- [ ] **Merge-aware duplicate-id resolution** — richer diagnostics when two `.sem` files declare an id.
+- [ ] **Optional compiled semantic index** — a regenerable SQLite cache for large models (Git stays
+      the source of truth; not required for correctness).
+- [ ] **`change verify` lifecycle write-back** — opt-in `--set-status` to persist the verdict's
+      lifecycle onto the contract.
+
+Definition of done is unchanged: deterministic, tested, documented, no regression to `verify diff`.
+
+---
+
 ## Research — content-first context retrieval (spike, not a promise)
 
 Branch: **`research/content-first-context-retrieval`**. Protocol:

@@ -25,6 +25,24 @@ export interface BlockingRule {
   tier?: SeverityTier;
 }
 
+/**
+ * Semantic Layer policy (Plane B). Optional and additive: when absent, `resolveSemanticPolicy`
+ * (in `@semantic-context/semantic-engine`) applies these defaults. Governs how the authored
+ * semantic model composes with `verify diff` in `change verify`.
+ */
+export interface SemanticPolicyConfig {
+  /** Master switch for the semantic layer's verdict contribution. */
+  enabled: boolean;
+  /** Invariant tags that make a preserved-but-unproven invariant a BLOCK, not a WARN. */
+  criticalInvariantTags: string[];
+  /** Verdict weight of an open, non-critical unknown on an active change. */
+  openUnknownSeverity: "warn" | "block";
+  /** Verdict weight of an active change that relies on a superseded decision. */
+  supersededDecisionSeverity: "warn" | "block";
+  /** When true, an active change that declares it preserves an invariant must carry proof. */
+  requireProofForActiveChange: boolean;
+}
+
 export interface SemctxConfig {
   version: number;
   repositoryRoot: string;
@@ -36,4 +54,6 @@ export interface SemctxConfig {
   /** Optional semantic candidate provider. "none" keeps the tool fully local. */
   semanticProvider: "none" | "cocoindex";
   blockingRules: BlockingRule[];
+  /** Optional Semantic Layer policy (Plane B). Absent = defaults. */
+  semantic?: SemanticPolicyConfig;
 }

@@ -7,6 +7,37 @@ nothing has been published to a package registry (npm) or the GitHub Marketplace
 
 ## [Unreleased]
 
+### Added
+
+- **Semantic layer (Plane B)** — authored intent beside the derived repository graph (ADR 0009):
+  - `@semantic-context/semantic-model`: `SemanticNode` / `ChangeContract` types, statuses,
+    relations, deterministic ids, Zod boundary schemas.
+  - `@semantic-context/semantic-dsl`: a tolerant line/indentation `.sem` parser with file/line/column
+    diagnostics, a deterministic idempotent formatter, and `symbols` / `ascii` renderers (glyphs are
+    a view — never required to parse).
+  - `@semantic-context/semantic-engine`: Git-versioned `.semctx/semantic/**` file store, repository
+    link resolution + stale detection, a bounded deterministic **semantic slice** (explicit scopes
+    only — not code search), proof-carrying **change contracts** with a composed `change verify`
+    (VERIFIED / PARTIAL / BLOCKED / STALE), and `handoff` / `resume` working deltas.
+  - CLI: `semctx semantic <init|check|inspect|render|format|slice|handoff|resume>` and
+    `semctx change <open|update|inspect|verify|close>`. `change verify` **composes** `verify diff`
+    (via the extracted `computeVerifyReport`) and is never more optimistic than the data.
+  - MCP: advisory tools `semctx_semantic_slice`, `semctx_change_open`/`_update`/`_verify`,
+    `semctx_semantic_inspect`, `semctx_handoff`, `semctx_resume`; a `semctx-semantic` skill. The
+    first-class `semctx_verify_change` and the guarded hook are unchanged.
+  - Config: optional, additive `semantic` policy block on `.semctx/config.json`.
+  - `.gitignore` policy refined so `.semctx/semantic/` is tracked while the rest of `.semctx/` stays
+    local (migrates a blanket `.semctx/` rule).
+  - Docs: semantic-layer-v1, semantic-model, change-contracts, the Claude Code integration guide, a
+    reservation walkthrough, and ADR 0009.
+
+### Changed
+
+- `SemctxConfigSchema` gains an optional `semantic` object (backward-compatible; pre-semantic configs
+  still validate, and a `semantic` block is no longer silently stripped).
+- `verify diff` internals: the report computation is extracted into a reusable `computeVerifyReport`
+  so `change verify` composes it verbatim (no behaviour change to `verify diff`).
+
 ## [0.1.0] - 2026-07-04
 
 First public release. The GitHub Action is referenced as

@@ -1,0 +1,32 @@
+# Reservation domain — authored semantic truth (Plane B). Comments start with '#'.
+
+goal goal.checkout.reliable-payment
+  statement: A payment event must be applied at most once.
+  status: declared
+  tag: checkout
+
+invariant invariant.payment.idempotent
+  rule: retry(event) is equivalent to apply_once(event)
+  status: declared
+  link: inv:confirmed-never-exceeds-capacity
+  link: sym:function:src/domain/confirmation.ts:confirmReservation:12
+  serves: goal.checkout.reliable-payment
+  tag: critical
+
+unknown unknown.cancellation-race
+  statement: A cancellation racing a confirmation may double-free a seat.
+
+evidence proof.test.webhook-duplicate-event
+  statement: The duplicate-event webhook test asserts single application.
+  status: declared
+  link: test:test/confirmation.test.ts
+
+change change.stripe-webhook-retry
+  statement: Make the Stripe webhook retry-safe.
+  status: active
+  serves: [goal.checkout.reliable-payment]
+  preserves:
+    - invariant.payment.idempotent
+  requires: proof.test.webhook-duplicate-event
+  unknown: unknown.cancellation-race
+  link: sym:function:src/domain/confirmation.ts:confirmReservation:12

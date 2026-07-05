@@ -40,6 +40,9 @@
     "@semantic-context/repository-store": "workspace:*",
     "@semantic-context/context-engine": "workspace:*",
     "@semantic-context/cocoindex-adapter": "workspace:*",
+    "@semantic-context/semantic-model": "workspace:*",
+    "@semantic-context/semantic-dsl": "workspace:*",
+    "@semantic-context/semantic-engine": "workspace:*",
     "@semantic-context/eval": "workspace:*"
   }
 }
