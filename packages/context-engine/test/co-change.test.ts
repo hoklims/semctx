@@ -1,18 +1,26 @@
 import { describe, it, expect } from "bun:test";
-import { parseNameOnlyLog, computeCoChanges } from "@semantic-context/context-engine";
+import { parseNameStatusLog, computeCoChanges, GraphIndex, analyzeDiff, buildVerifyReport } from "@semantic-context/context-engine";
+import { createDefaultConfig } from "@semantic-context/core";
+import type { CoChange, VerifyReportGitMeta } from "@semantic-context/context-engine";
+import type { RepositoryGraph } from "@semantic-context/core";
 
-describe("parseNameOnlyLog", () => {
-  it("splits git log by record separator into per-commit file lists", () => {
-    const log = "\x1e\na.ts\nb.ts\n\x1e\na.ts\nc.ts\n";
-    expect(parseNameOnlyLog(log)).toEqual([
+describe("parseNameStatusLog", () => {
+  it("splits by record separator and reads <status>\\t<path> lines", () => {
+    const log = "\x1e\nM\ta.ts\nA\tb.ts\n\x1e\nM\ta.ts\nD\tc.ts\n";
+    expect(parseNameStatusLog(log)).toEqual([
       ["a.ts", "b.ts"],
       ["a.ts", "c.ts"],
     ]);
   });
 
+  it("folds a rename (R<score>\\told\\tnew) into BOTH paths so history survives the rename", () => {
+    const log = "\x1e\nR096\told/x.ts\tnew/x.ts\nM\ta.ts\n";
+    expect(parseNameStatusLog(log)).toEqual([["old/x.ts", "new/x.ts", "a.ts"]]);
+  });
+
   it("dedupes files within a commit and drops empty commits", () => {
-    const log = "\x1e\na.ts\na.ts\n\x1e\n\n";
-    expect(parseNameOnlyLog(log)).toEqual([["a.ts"]]);
+    const log = "\x1e\nM\ta.ts\nM\ta.ts\n\x1e\n\n";
+    expect(parseNameStatusLog(log)).toEqual([["a.ts"]]);
   });
 });
 
@@ -24,7 +32,6 @@ describe("computeCoChanges", () => {
       ["a.ts", "c.ts"],
       ["x.ts", "y.ts"],
     ];
-    // a.ts ↔ b.ts twice (kept), a.ts ↔ c.ts once (dropped at minSupport 2).
     expect(computeCoChanges(commits, ["a.ts"], { minSupport: 2 })).toEqual([
       { file: "a.ts", coChanged: [{ file: "b.ts", commits: 2 }] },
     ]);
@@ -42,9 +49,26 @@ describe("computeCoChanges", () => {
       ["a.ts", "b.ts"],
       ["a.ts", "c.ts"],
     ];
-    // b.ts: 2, c.ts: 2 -> tie broken by path asc; cap 1 keeps b.ts.
     expect(computeCoChanges(commits, ["a.ts"], { minSupport: 2, maxPerFile: 1 })).toEqual([
       { file: "a.ts", coChanged: [{ file: "b.ts", commits: 2 }] },
     ]);
+  });
+});
+
+describe("co-change projection into VerifyReport", () => {
+  const config = createDefaultConfig(".");
+  const emptyGraph: RepositoryGraph = { nodes: [], edges: [] };
+  const meta: VerifyReportGitMeta = { base: null, head: "HEAD", mergeBase: null, range: null };
+  const result = () => analyzeDiff({ index: new GraphIndex(emptyGraph), claims: [], config, diffText: "" });
+
+  it("projects a non-empty CoChange[] into report.coChangedFiles (additive, correct shape)", () => {
+    const coChanges: CoChange[] = [{ file: "a.ts", coChanged: [{ file: "b.ts", commits: 3 }] }];
+    const report = buildVerifyReport(result(), meta, config.blockingRules, coChanges);
+    expect(report.coChangedFiles).toEqual([{ file: "a.ts", coChanged: [{ file: "b.ts", commits: 3 }] }]);
+  });
+
+  it("omits coChangedFiles entirely when empty (ADR 0008: present only when non-empty)", () => {
+    const report = buildVerifyReport(result(), meta, config.blockingRules, []);
+    expect("coChangedFiles" in report).toBe(false);
   });
 });

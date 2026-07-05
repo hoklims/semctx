@@ -29,14 +29,17 @@ function fixtureGraph(): RepositoryGraph {
       node("F", "function", "src/a.ts", true, 1),
       node("C", "interface", "src/a.ts", true, 5),
       node("G", "function", "src/b.ts", true, 1),
+      node("D", "function", "src/c.ts", true, 1),
       node("modA", "module", "src/a.ts", false),
       node("modB", "module", "src/b.ts", false),
+      node("modC", "module", "src/c.ts", false),
     ],
     edges: [
       edge("calls", "G", "F"),
       edge("declares", "modA", "F"),
       edge("declares", "modA", "C"),
       edge("declares", "modB", "G"),
+      edge("declares", "modC", "D"),
       edge("imports", "modB", "modA"),
     ],
   };
@@ -75,5 +78,13 @@ describe("impacted consumers", () => {
     expect(fEntry?.consumers.map((c) => c.id).sort()).toEqual(["G", "modB"]);
     // G is exported and impacted only if b.ts changes; here it must not appear as a subject.
     expect(report.impactedConsumers?.some((c) => c.symbol.id === "G")).toBe(false);
+  });
+
+  it("omits an impacted export that has no in-repo consumer, and the report field entirely", () => {
+    // D is exported and impacted, but nothing imports its module (modC) or calls it.
+    const result = analyzeDiff({ index, claims: [], config, diffText: "--- a/src/c.ts\n+++ b/src/c.ts\n@@ -1 +1,1 @@\n-old\n+new\n" });
+    expect(result.impactedConsumers.some((c) => c.symbol.id === "D")).toBe(false);
+    const report = buildVerifyReport(result, { base: null, head: "HEAD", mergeBase: null, range: null }, config.blockingRules);
+    expect("impactedConsumers" in report).toBe(false);
   });
 });

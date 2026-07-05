@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { SemctxError } from "@semantic-context/core";
 import type { VerifyReport } from "@semantic-context/core";
 import { loadConfig, openStore } from "@semantic-context/repository-store";
-import { GraphIndex, analyzeDiff, buildVerifyReport, computeCoChanges, parseNameOnlyLog } from "@semantic-context/context-engine";
+import { GraphIndex, analyzeDiff, buildVerifyReport, computeCoChanges, parseNameStatusLog } from "@semantic-context/context-engine";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
@@ -35,11 +35,13 @@ const CO_CHANGE_DEPTH = 400;
  * Historical co-change signal from `git log` (advisory). Never fails verification: a git error
  * (shallow clone, no history) yields an empty signal rather than throwing.
  */
-function computeCoChangeSignal(root: string, changedFiles: readonly string[]): CoChange[] {
+function computeCoChangeSignal(root: string, changedFiles: readonly string[], head: string): CoChange[] {
   if (changedFiles.length === 0) return [];
-  const log = git(root, ["log", "--no-merges", "--name-only", "--format=%x1e", "-n", String(CO_CHANGE_DEPTH)]);
+  // Mine from the RESOLVED head ref (not the implicit worktree HEAD): under --base/--head the
+  // analysed ref can differ from the checkout. --name-status --find-renames keeps rename history.
+  const log = git(root, ["log", head, "--no-merges", "--name-status", "--find-renames", "--format=%x1e", "-n", String(CO_CHANGE_DEPTH)]);
   if (log.code !== 0) return [];
-  return computeCoChanges(parseNameOnlyLog(log.out), changedFiles);
+  return computeCoChanges(parseNameStatusLog(log.out), changedFiles);
 }
 
 interface Resolved {
@@ -270,7 +272,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
 
   const { diffText, git: g } = resolveRange(root, args, false);
   const result = analyzeDiff({ index: new GraphIndex(graph), claims, config, diffText: diffText ?? "" });
-  const coChanges = computeCoChangeSignal(root, result.changedFiles);
+  const coChanges = computeCoChangeSignal(root, result.changedFiles, g.head);
   const report = buildVerifyReport(result, g, config.blockingRules, coChanges);
 
   if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);

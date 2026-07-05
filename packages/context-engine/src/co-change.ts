@@ -1,4 +1,4 @@
-import { normalizePath } from "@semantic-context/core";
+import { normalizePath, compareIds } from "@semantic-context/core";
 
 /** Record separator (0x1e) used with `git log --format=%x1e` to delimit commits. */
 const COMMIT_SEP = "\x1e";
@@ -23,18 +23,28 @@ export interface CoChangeOptions {
 }
 
 /**
- * Parse `git log --no-merges --name-only --format=%x1e` output into one file-list per commit.
- * The record separator (0x1e) starts each commit; a commit's files are the non-empty lines.
+ * Parse `git log --no-merges --name-status --find-renames --format=%x1e` into one file-list per
+ * commit. The record separator (0x1e) starts each commit; each file line is `<status>\t<path>`,
+ * and a rename/copy is `R<score>\t<old>\t<new>` — we fold BOTH paths in so a file's co-change
+ * history survives a rename within the mined window (name-only would drop the pre-rename history).
  */
-export function parseNameOnlyLog(logText: string): string[][] {
+export function parseNameStatusLog(logText: string): string[][] {
   const commits: string[][] = [];
   for (const chunk of logText.split(COMMIT_SEP)) {
-    const files = chunk
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-      .map((s) => normalizePath(s));
-    if (files.length > 0) commits.push([...new Set(files)]);
+    const files = new Set<string>();
+    for (const raw of chunk.split(/\r?\n/)) {
+      const line = raw.trim();
+      if (line.length === 0) continue;
+      const [status, a, b] = line.split("\t");
+      if (status === undefined || a === undefined) continue;
+      if ((status.startsWith("R") || status.startsWith("C")) && b !== undefined) {
+        files.add(normalizePath(a)); // old path — keep its history
+        files.add(normalizePath(b)); // new path
+      } else {
+        files.add(normalizePath(a));
+      }
+    }
+    if (files.size > 0) commits.push([...files]);
   }
   return commits;
 }
@@ -70,12 +80,12 @@ export function computeCoChanges(
   }
 
   const result: CoChange[] = [];
-  for (const file of [...changed].sort()) {
+  for (const file of [...changed].sort(compareIds)) {
     const row = counts.get(file);
     if (row === undefined) continue;
     const coChanged = [...row.entries()]
       .filter(([, n]) => n >= minSupport)
-      .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+      .sort((a, b) => b[1] - a[1] || compareIds(a[0], b[0]))
       .slice(0, maxPerFile)
       .map(([f, n]) => ({ file: f, commits: n }));
     if (coChanged.length > 0) result.push({ file, coChanged });
