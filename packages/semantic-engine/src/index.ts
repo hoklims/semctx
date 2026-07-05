@@ -14,8 +14,9 @@ export {
   writeActiveChange,
   clearActiveChange,
   initSemanticScaffold,
+  formatSemanticFiles,
 } from "./store";
-export type { LoadResult, ScaffoldPlan } from "./store";
+export type { LoadResult, ScaffoldPlan, FormatOutcome } from "./store";
 
 export { DEFAULT_SEMANTIC_POLICY, resolveSemanticPolicy } from "./config";
 

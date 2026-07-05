@@ -241,6 +241,35 @@ function recordVerification(root: string, verdict: VerifyReport["verdict"]): str
   return path;
 }
 
+export interface VerifyComputation {
+  result: VerifyResult;
+  report: VerifyReport;
+  git: VerifyReportGitMeta;
+  coChanges: CoChange[];
+}
+
+/**
+ * Compute the impact analysis + versioned report for a range. The single reusable entry point so
+ * that `change verify` (semantic layer) composes this verbatim instead of re-deriving it.
+ */
+export function computeVerifyReport(root: string, args: ParsedArgs): VerifyComputation {
+  const config = loadConfig(root);
+  const store = openStore(root);
+  if (!store.isIndexed()) {
+    store.close();
+    throw new SemctxError("REPO_NOT_INDEXED", "repository is not indexed; run 'semctx index' first");
+  }
+  const graph = store.loadGraph();
+  const claims = store.loadClaims();
+  store.close();
+
+  const { diffText, git } = resolveRange(root, args, false);
+  const result = analyzeDiff({ index: new GraphIndex(graph), claims, config, diffText: diffText ?? "" });
+  const coChanges = computeCoChangeSignal(root, result.changedFiles, git.head);
+  const report = buildVerifyReport(result, git, config.blockingRules, coChanges);
+  return { result, report, git, coChanges };
+}
+
 /** `semctx verify diff` — analyse a git range (or the current diff) for impact and violations. */
 export function runVerifyDiff(root: string, args: ParsedArgs): number {
   const format = resolveFormat(args);
@@ -260,20 +289,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
     return 0;
   }
 
-  const config = loadConfig(root);
-  const store = openStore(root);
-  if (!store.isIndexed()) {
-    store.close();
-    throw new SemctxError("REPO_NOT_INDEXED", "repository is not indexed; run 'semctx index' first");
-  }
-  const graph = store.loadGraph();
-  const claims = store.loadClaims();
-  store.close();
-
-  const { diffText, git: g } = resolveRange(root, args, false);
-  const result = analyzeDiff({ index: new GraphIndex(graph), claims, config, diffText: diffText ?? "" });
-  const coChanges = computeCoChangeSignal(root, result.changedFiles, g.head);
-  const report = buildVerifyReport(result, g, config.blockingRules, coChanges);
+  const { result, report, git: g, coChanges } = computeVerifyReport(root, args);
 
   if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);
   const recordedPath = flagBool(args, "record") ? recordVerification(root, report.verdict) : undefined;

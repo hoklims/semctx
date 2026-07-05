@@ -102,6 +102,35 @@ export function clearActiveChange(root: string): void {
   if (existsSync(path)) rmSync(path);
 }
 
+export interface FormatOutcome {
+  file: string;
+  changed: boolean;
+  /** True when the file parsed to an empty model (comments/blank only) and was left untouched. */
+  skipped: boolean;
+}
+
+/**
+ * Canonicalise every versioned `.sem` file. Dry by default (reports what differs); pass `write` to
+ * apply. Canonical form omits comments, so comment-only files (empty model) are skipped to avoid
+ * blanking scaffold guidance; comments inside content files are dropped on write (canonical form).
+ */
+export function formatSemanticFiles(root: string, write: boolean): FormatOutcome[] {
+  const out: FormatOutcome[] = [];
+  for (const file of listSemFiles(semanticDir(root))) {
+    const before = readFileSync(file, "utf8");
+    const parsed = parseSemanticSource(before, relFile(root, file));
+    if (parsed.model.nodes.length === 0 && parsed.model.changes.length === 0) {
+      out.push({ file: relFile(root, file), changed: false, skipped: true });
+      continue;
+    }
+    const after = formatModel(parsed.model);
+    const changed = after !== before;
+    if (changed && write) writeAtomic(file, after);
+    out.push({ file: relFile(root, file), changed, skipped: false });
+  }
+  return out;
+}
+
 export interface ScaffoldPlan {
   file: string;
   action: "create" | "skip-exists" | "overwrite";
