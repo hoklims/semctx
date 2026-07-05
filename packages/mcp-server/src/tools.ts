@@ -16,12 +16,12 @@ import {
   type InspectKind,
 } from "@semantic-context/context-engine";
 
-function nowIso(): string {
+export function nowIso(): string {
   return new Date().toISOString();
 }
 
 /** Ensure the repo is initialised and indexed; return an open store. */
-function ensureReady(root: string): SqliteRepositoryStore {
+export function ensureReady(root: string): SqliteRepositoryStore {
   if (!isInitialized(root)) initWorkspace(root);
   const config = loadConfig(root);
   const store = openStore(root);

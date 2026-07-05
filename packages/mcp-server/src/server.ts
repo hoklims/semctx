@@ -1,6 +1,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
+import {
+  semanticSliceTool,
+  changeOpenTool,
+  changeUpdateTool,
+  changeVerifyTool,
+  semanticInspectTool,
+  handoffTool,
+  resumeTool,
+} from "./semantic-tools";
+
+const CHANGE_LIFECYCLE = z.enum(["draft", "active", "verified", "partial", "blocked", "stale", "superseded"]);
 
 interface TextResult {
   [key: string]: unknown;
@@ -82,6 +93,155 @@ export function createSemctxServer(root: string): McpServer {
     async ({ task, mode }) => {
       try {
         return ok(await prepareTaskTool(root, mode !== undefined ? { task, mode } : { task }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  // --- Semantic layer (Plane B): authored intent, invariants, decisions, evidence, change contracts.
+  server.registerTool(
+    "semctx_semantic_slice",
+    {
+      title: "Semantic slice (bounded context capsule)",
+      description:
+        "Produce a compact, deterministic capsule of authored semantic truth — intentions, invariants, decisions, linked symbols/claims, obtained evidence, open unknowns, safety constraints and next proofs — for an EXPLICIT scope. NOT code search: pass a change id and/or a repository symbol/claim ref; it never guesses relevance from free text. Bounded by maxNodes; every line points to a source; absent items are shown as unknown.",
+      inputSchema: {
+        changeId: z.string().optional().describe("a change contract id (change.*) to slice around"),
+        symbolRef: z.string().optional().describe("a repository graph id (e.g. sym:.., inv:..) whose linked semantic nodes seed the slice"),
+        claimRef: z.string().optional().describe("a repository claim id (claim:..) whose linked semantic nodes seed the slice"),
+        maxNodes: z.number().int().positive().optional().describe("node cap (default 60)"),
+      },
+    },
+    async ({ changeId, symbolRef, claimRef, maxNodes }) => {
+      try {
+        return ok(semanticSliceTool(root, { ...(changeId !== undefined ? { changeId } : {}), ...(symbolRef !== undefined ? { symbolRef } : {}), ...(claimRef !== undefined ? { claimRef } : {}), ...(maxNodes !== undefined ? { maxNodes } : {}) }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_change_open",
+    {
+      title: "Open a change contract",
+      description:
+        "Open a proof-carrying change contract before/while modifying code: declare the goal it serves, the invariants it must preserve, the evidence it requires, and the unknowns still open. Authored as provenance=agent, versioned in .semctx/semantic/changes/, and set as the active change. Defaults to lifecycle 'active'.",
+      inputSchema: {
+        id: z.string().min(1).describe("change id (change.*; a bare slug is namespaced automatically)"),
+        statement: z.string().min(1).describe("what the change does, in one line"),
+        serves: z.array(z.string()).optional().describe("goal ids this change serves"),
+        preserves: z.array(z.string()).optional().describe("invariant ids this change must preserve"),
+        requires: z.array(z.string()).optional().describe("evidence ids this change requires as proof"),
+        unknowns: z.array(z.string()).optional().describe("unknown ids that remain open"),
+        links: z.array(z.string()).optional().describe("repository links (sym:.., file:.., etc.)"),
+        tags: z.array(z.string()).optional().describe("free-form tags"),
+        draft: z.boolean().optional().describe("open as draft instead of active"),
+      },
+    },
+    async (input) => {
+      try {
+        return ok(changeOpenTool(root, input));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_change_update",
+    {
+      title: "Update a change contract",
+      description:
+        "Additively patch a change contract: refine the statement/lifecycle, add served goals, preserved invariants, required evidence, open unknowns, resolve unknowns, add links or tags. Use to record progress (e.g. resolve an unknown once proven).",
+      inputSchema: {
+        id: z.string().min(1),
+        statement: z.string().optional(),
+        status: CHANGE_LIFECYCLE.optional(),
+        addServes: z.array(z.string()).optional(),
+        addPreserves: z.array(z.string()).optional(),
+        addRequires: z.array(z.string()).optional(),
+        addUnknowns: z.array(z.string()).optional(),
+        resolveUnknowns: z.array(z.string()).optional(),
+        addLinks: z.array(z.string()).optional(),
+        addTags: z.array(z.string()).optional(),
+      },
+    },
+    async (input) => {
+      try {
+        return ok(changeUpdateTool(root, input));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_change_verify",
+    {
+      title: "Verify a change contract (composed)",
+      description:
+        "Compose semctx_verify_change with the change contract: run the deterministic impact analysis, then check preserved invariants, required evidence, open unknowns and stale links. Returns VERIFIED / PARTIAL / BLOCKED / STALE — never more optimistic than the data, and never turns PARTIAL into VERIFIED on its own (running tests and updating evidence status is your job). Use after editing and after semctx_verify_change.",
+      inputSchema: {
+        changeId: z.string().min(1).describe("the change contract to verify"),
+        gitDiff: z.string().optional().describe("a unified diff; if omitted, the current 'git diff HEAD' is used"),
+      },
+    },
+    async ({ changeId, gitDiff }) => {
+      try {
+        return ok(changeVerifyTool(root, gitDiff !== undefined ? { changeId, gitDiff } : { changeId }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_semantic_inspect",
+    {
+      title: "Inspect a semantic id",
+      description:
+        "Inspect a single authored semantic node or change contract: its declaration, who references it, and how its repository links resolve (including stale links). Read-only.",
+      inputSchema: { id: z.string().min(1).describe("a semantic id (goal.* / invariant.* / decision.* / change.* / …)") },
+    },
+    async ({ id }) => {
+      try {
+        return ok(semanticInspectTool(root, { id }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_handoff",
+    {
+      title: "Capture a handoff capsule",
+      description:
+        "Capture the working delta (active change, touched invariants, obtained/pending proofs, open unknowns, explored links, next validations) into a compact capsule, before a context compaction or an agent handoff. Persisted locally in .semctx/working/.",
+      inputSchema: { note: z.string().optional().describe("an optional free-text note to carry across the handoff") },
+    },
+    async ({ note }) => {
+      try {
+        return ok(handoffTool(root, note !== undefined ? { note } : {}));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_resume",
+    {
+      title: "Resume from a handoff capsule",
+      description:
+        "Re-emit the last handoff capsule (or one rebuilt from the active change) so a fresh agent context can rehydrate the semantic state: what change is active, which invariants to preserve, what is proven, what remains open.",
+      inputSchema: {},
+    },
+    async () => {
+      try {
+        return ok(resumeTool(root));
       } catch (err) {
         return errorResult(err);
       }
