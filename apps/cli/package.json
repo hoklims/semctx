@@ -1,6 +1,6 @@
 {
   "name": "semctx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Deterministic, local-first repository change-impact analyzer: computes the semantic blast radius of a git diff and enforces contracts and invariants (PASS/WARN/BLOCK). Not a code-search replacement (ADR 0005).",
   "license": "Apache-2.0",

@@ -52,7 +52,9 @@ async function dispatch(args: ParsedArgs): Promise<number> {
 
   if (command === undefined) {
     info(HELP);
-    return 1;
+    // `--help` with no command is an explicit help request (exit 0); a bare invocation with no
+    // command and no help flag is a usage error (exit 1).
+    return flagBool(args, "help") ? 0 : 1;
   }
   if (command === "help" || flagBool(args, "help")) {
     info(HELP);
