@@ -164,11 +164,47 @@ BLOCK rules — they are how you tell `semctx` which changes must be proven.
 
 ---
 
+## Semantic layer (Plane B, optional)
+
+Beside the derived repository graph, `semctx` can carry **authored** intent that must survive while
+an agent transforms a system: goals, business invariants, decisions, assumptions, unknowns and
+**proof-carrying change contracts**, each explicitly linked to code. It answers a different question
+from `verify diff`:
+
+```
+verify diff       →  "given this change, what did it put at risk, and is it proven?"   (derived facts)
+semantic layer    →  "which intention, invariants, decisions, evidence and unknowns must survive
+                      while I change this system?"                                       (authored truth)
+```
+
+It is a **separate plane** (ADR 0009), never conflated with the graph, and it is **not** code search
+(the slice seeds only from explicit scopes; ADR 0005 stands). Authored declarations live in
+Git-versioned `.semctx/semantic/**.sem` (a small, deterministic, ASCII DSL — the `◇ □ ⊳ Δ ⊢ ?` glyphs
+are a view, never required to parse). It works with no LLM and is better with Claude Code.
+
+```bash
+semctx semantic init                                   # scaffold .semctx/semantic/ (versioned)
+semctx semantic check                                  # validate the model + repository links
+semctx change open change.<slug> --preserves <inv-ids> --requires <ev-ids> --unknown <unk-ids>
+semctx semantic slice --change change.<slug> --format agent   # bounded rehydration capsule
+semctx change verify change.<slug> --base origin/main  # composes verify diff -> VERIFIED/PARTIAL/BLOCKED/STALE
+```
+
+`change verify` **composes** `verify diff` (never bypasses it) and is **never more optimistic than
+the data** — it will not turn PARTIAL into VERIFIED on its own; obtaining a proof (running the test,
+recording the evidence status) is your step. Full walkthrough:
+[`docs/examples/semantic-layer-reservation-example.md`](docs/examples/semantic-layer-reservation-example.md);
+design: [`docs/architecture/semantic-layer-v1.md`](docs/architecture/semantic-layer-v1.md) and
+[ADR 0009](docs/adr/0009-semantic-layer-is-separate-from-the-repository-graph.md).
+
 ## MCP server (agents)
 
 The first-class tool is **`semctx_verify_change`** — hand it a diff, get the impact analysis and
-verdict; `semctx_inspect` queries the graph. The easiest path is the Claude Code plugin above; to
-register the server directly (stdio):
+verdict; `semctx_inspect` queries the graph. The semantic layer adds advisory tools
+(`semctx_semantic_slice`, `semctx_change_open` / `_update` / `_verify`, `semctx_semantic_inspect`,
+`semctx_handoff` / `semctx_resume`) — see
+[`docs/integrations/claude-code-semantic-layer.md`](docs/integrations/claude-code-semantic-layer.md).
+The easiest path is the Claude Code plugin above; to register the server directly (stdio):
 
 ```json
 {
@@ -202,7 +238,10 @@ Monorepo (Bun workspaces, TypeScript strict):
 | `@semantic-context/ts-analyzer` | TS Compiler API → graph; docs, tests, migrations, `@markers` |
 | `@semantic-context/repository-store` | `bun:sqlite` persistence behind a `RepositoryStore` interface |
 | `@semantic-context/context-engine` | graph index, claims, **impact analysis + verify**, gates |
-| `@semantic-context/mcp-server` | MCP server: `verify_change` (first-class), `inspect` |
+| `@semantic-context/semantic-model` | authored semantic truth (Plane B): nodes, change contracts, ids |
+| `@semantic-context/semantic-dsl` | tolerant `.sem` parser + deterministic formatter + renderers |
+| `@semantic-context/semantic-engine` | links, stale, slice, change contracts, composed verify, handoff |
+| `@semantic-context/mcp-server` | MCP server: `verify_change` (first-class), `inspect`, semantic tools |
 | `@semantic-context/github-action` | composite GitHub Action + Node annotation/summary adapter |
 | `apps/cli` | the `semctx` CLI (zero-framework arg router) |
 | `plugins/claude-code` | Claude Code plugin: MCP + skill + guarded hook |
@@ -250,7 +289,10 @@ Implemented and tested (full suite via `bun test`):
 - MCP server (`verify_change`, `inspect`) + Claude Code plugin (advisory + guarded hook);
 - composite GitHub Action (annotations, summary, PASS/WARN/BLOCK gate);
 - `init --preset github-claude` bootstrap; contributor dev container;
-- committed comparative benchmark (`benchmarks/change-impact-eval`).
+- committed comparative benchmark (`benchmarks/change-impact-eval`);
+- **semantic layer (Plane B)**: authored model + `.sem` DSL (parser/formatter/renderer), semantic
+  slice, proof-carrying change contracts, composed `change verify` (VERIFIED/PARTIAL/BLOCKED/STALE),
+  handoff/resume, CLI (`semantic`/`change`), MCP tools + skill (ADR 0009).
 
 ### Known limitations
 
@@ -258,6 +300,10 @@ Implemented and tested (full suite via `bun test`):
 - Semantic markers are single-line; multi-line marker statements are not yet parsed.
 - Concurrency/runtime properties are surfaced as **unknowns**, not statically proven — by design.
 - `context prepare` (task → pack) is experimental and **not** a code-search replacement (ADR 0005).
+- The semantic layer is **authored**, not inferred: `semctx` never invents goals/invariants; a
+  proof is obtained only when you run the test and record the evidence status (static, not dynamic).
+- `.sem` statements are single-line (like `@markers`); the semantic slice does not do content
+  retrieval (explicit scopes only); no SQLite index for Plane B in v1 (Git is the source of truth).
 
 See [`ROADMAP.md`](ROADMAP.md) for the shipping vs research split.
 
