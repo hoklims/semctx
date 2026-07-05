@@ -137,8 +137,15 @@ An automated version of this walkthrough — plus the **BLOCKED**, **STALE**, **
 It scaffolds a throwaway `@invariant`-marked repo and asserts every verdict and exit code:
 
 ```bash
-bash scripts/semantic-stress-test.sh        # runs in Git Bash; CLI runs under Bun
+bash scripts/semantic-stress-test.sh        # Git Bash; CLI runs under Bun
 KEEP=1 bash scripts/semantic-stress-test.sh  # keep the throwaway repo for inspection
+```
+
+From PowerShell, a thin wrapper delegates to the same script through Git Bash:
+
+```powershell
+.\scripts\semantic-stress-test.ps1
+$env:KEEP = '1'; .\scripts\semantic-stress-test.ps1   # keep the throwaway repo
 ```
 
 ## What this demonstrates
