@@ -78,13 +78,17 @@ bun install
 bun apps/cli/src/index.ts --help              # aliased as `semctx` below
 ```
 
-Then, in your TypeScript repo:
+Then, in your TypeScript repo — **one command** gets you ready (config + graph index + semantic
+scaffold + validation, idempotent):
 
 ```bash
-semctx init --preset github-claude            # preview + write config, CI workflow, Claude note
-semctx index                                  # build the deterministic graph
+semctx setup                                  # ← the "just works" entry point
 semctx verify diff --base origin/main         # analyse the branch → PASS / WARN / BLOCK
 ```
+
+`semctx setup --preset github-claude` also drops a CI workflow and a Claude Code note. The
+individual steps are still available if you want them (`init`, `index`, `semantic init`,
+`semantic check`).
 
 `init --preset` previews everything first, never overwrites without `--force`, and adds no
 blocking hook by default. Example verdict on a change that alters an invariant-constrained symbol
