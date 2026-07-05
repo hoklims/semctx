@@ -1,7 +1,8 @@
 import { describe, it, expect } from "bun:test";
 // The guard ships as runnable Node ESM (it runs on machines without Bun). bun:test imports it
 // directly; main() is guarded by an argv check so importing does not execute it.
-import { isTerminalGitCommand, guardEnabled, guardDecision } from "../hooks/semctx-guard.mjs";
+import { isTerminalGitCommand, guardEnabled, guardDecision, resolveGitCwd } from "../hooks/semctx-guard.mjs";
+import { resolve } from "node:path";
 
 describe("isTerminalGitCommand — structural detection (no shell eval)", () => {
   it("detects commit and push, including global options and env assignments", () => {
@@ -66,5 +67,42 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
     const d = guardDecision({ enabled: true, terminalVerb: "commit", state: { diffHash: HASH, verdict: "BLOCK" }, currentHash: HASH });
     expect(d.block).toBe(true);
     expect(d.reason).toContain("was BLOCK");
+  });
+});
+
+describe("resolveGitCwd — evaluate the repo the command targets, not the session cwd", () => {
+  const SESSION = resolve("/session/root");
+
+  it("falls back to inputCwd for a plain git commit", () => {
+    expect(resolveGitCwd("git commit -m x", SESSION)).toBe(SESSION);
+  });
+
+  it("honors git -C <relative>, resolved against inputCwd", () => {
+    expect(resolveGitCwd("git -C sub commit -m x", SESSION)).toBe(resolve(SESSION, "sub"));
+  });
+
+  it("honors a `cd <path> &&` prefix", () => {
+    expect(resolveGitCwd("cd repo && git commit -m x", SESSION)).toBe(resolve(SESSION, "repo"));
+  });
+
+  it("accumulates chained cd, and applies -C on top of the running cd", () => {
+    expect(resolveGitCwd("cd a && cd b && git commit", SESSION)).toBe(resolve(SESSION, "a", "b"));
+    expect(resolveGitCwd("cd a && git -C c commit", SESSION)).toBe(resolve(SESSION, "a", "c"));
+  });
+
+  it("skips env assignments before git", () => {
+    expect(resolveGitCwd("GIT_AUTHOR_NAME=x git -C sub commit", SESSION)).toBe(resolve(SESSION, "sub"));
+  });
+
+  it("resolves an absolute -C path independently of inputCwd", () => {
+    const abs = resolve("/other/repo");
+    expect(resolveGitCwd(`git -C ${abs} commit`, SESSION)).toBe(abs);
+  });
+
+  it("regression: a git -C into another repo is NOT evaluated against the session repo", () => {
+    // The cross-repo bug: `git -C <other> commit` from a guarded session must resolve to <other>,
+    // whose (absent) guard.json makes it advisory — never the session repo's guard state.
+    const other = resolve("/other/repo");
+    expect(resolveGitCwd(`git -C ${other} commit -m x`, SESSION)).not.toBe(SESSION);
   });
 });
