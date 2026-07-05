@@ -12,6 +12,7 @@ import type {
   VerifyReportSymbol,
 } from "@semantic-context/core";
 import { GraphIndex } from "./graph-index";
+import type { CoChange } from "./co-change";
 
 export interface DiffHunk {
   oldStart: number;
@@ -329,6 +330,7 @@ export function buildVerifyReport(
   result: VerifyResult,
   git: VerifyReportGitMeta,
   blockingRules: readonly BlockingRule[],
+  coChanges: readonly CoChange[] = [],
 ): VerifyReport {
   const tierByRule = new Map<BlockingCondition, "strict" | "advisory">();
   for (const rule of blockingRules) if (!tierByRule.has(rule.when)) tierByRule.set(rule.when, tierOf(rule));
@@ -383,6 +385,14 @@ export function buildVerifyReport(
     unknowns: result.unknowns,
     findings,
     ...(impactedConsumers.length > 0 ? { impactedConsumers } : {}),
+    ...(coChanges.length > 0
+      ? {
+          coChangedFiles: coChanges.map((c) => ({
+            file: c.file,
+            coChanged: c.coChanged.map((x) => ({ file: x.file, commits: x.commits })),
+          })),
+        }
+      : {}),
     summary: {
       blockCount: findings.filter((f) => f.severity === "block").length,
       warnCount: findings.filter((f) => f.severity === "warn").length,

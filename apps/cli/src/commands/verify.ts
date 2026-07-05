@@ -4,8 +4,8 @@ import { createHash } from "node:crypto";
 import { SemctxError } from "@semantic-context/core";
 import type { VerifyReport } from "@semantic-context/core";
 import { loadConfig, openStore } from "@semantic-context/repository-store";
-import { GraphIndex, analyzeDiff, buildVerifyReport } from "@semantic-context/context-engine";
-import type { VerifyResult, VerifyReportGitMeta } from "@semantic-context/context-engine";
+import { GraphIndex, analyzeDiff, buildVerifyReport, computeCoChanges, parseNameOnlyLog } from "@semantic-context/context-engine";
+import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, json, c, success, warn, fail, nowIso } from "../output";
@@ -26,6 +26,20 @@ function git(root: string, gitArgs: string[]): { code: number; out: string; err:
 
 function refExists(root: string, ref: string): boolean {
   return git(root, ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`]).code === 0;
+}
+
+/** How many recent commits to mine for the historical co-change signal. */
+const CO_CHANGE_DEPTH = 400;
+
+/**
+ * Historical co-change signal from `git log` (advisory). Never fails verification: a git error
+ * (shallow clone, no history) yields an empty signal rather than throwing.
+ */
+function computeCoChangeSignal(root: string, changedFiles: readonly string[]): CoChange[] {
+  if (changedFiles.length === 0) return [];
+  const log = git(root, ["log", "--no-merges", "--name-only", "--format=%x1e", "-n", String(CO_CHANGE_DEPTH)]);
+  if (log.code !== 0) return [];
+  return computeCoChanges(parseNameOnlyLog(log.out), changedFiles);
 }
 
 interface Resolved {
@@ -149,7 +163,7 @@ function renderGithub(report: VerifyReport): void {
   );
 }
 
-function renderText(result: VerifyResult, meta: VerifyReportGitMeta): void {
+function renderText(result: VerifyResult, meta: VerifyReportGitMeta, coChanges: readonly CoChange[] = []): void {
   const label =
     result.verdict === "PASS" ? c.green("PASS") : result.verdict === "WARN" ? c.yellow("WARN") : c.red("BLOCK");
   heading(`Verdict: ${label}`);
@@ -174,6 +188,16 @@ function renderText(result: VerifyResult, meta: VerifyReportGitMeta): void {
   if (result.unknowns.length > 0) {
     heading("Unknowns");
     for (const u of result.unknowns) info(`  ${c.dim("?")} ${u}`);
+  }
+  if (coChanges.length > 0) {
+    heading("Historically co-changed (advisory)");
+    for (const cc of coChanges) {
+      const tops = cc.coChanged
+        .slice(0, 5)
+        .map((x) => `${x.file} (${x.commits})`)
+        .join(", ");
+      info(`  ${c.dim("~")} ${cc.file} -> ${tops}`);
+    }
   }
   heading("Findings");
   if (result.findings.length === 0) info(c.dim("  none"));
@@ -246,14 +270,15 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
 
   const { diffText, git: g } = resolveRange(root, args, false);
   const result = analyzeDiff({ index: new GraphIndex(graph), claims, config, diffText: diffText ?? "" });
-  const report = buildVerifyReport(result, g, config.blockingRules);
+  const coChanges = computeCoChangeSignal(root, result.changedFiles);
+  const report = buildVerifyReport(result, g, config.blockingRules, coChanges);
 
   if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);
   const recordedPath = flagBool(args, "record") ? recordVerification(root, report.verdict) : undefined;
 
   if (format === "json") json(report);
   else if (format === "github") renderGithub(report);
-  else renderText(result, g);
+  else renderText(result, g, coChanges);
 
   if (recordedPath !== undefined && format === "text") info(c.dim(`recorded verification state -> ${recordedPath}`));
 

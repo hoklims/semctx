@@ -19,8 +19,11 @@ export type { ContradictionReport } from "./contradiction";
 export { buildContextPack } from "./context-pack-builder";
 export type { BuildPackOptions } from "./context-pack-builder";
 
-export { analyzeDiff, parseUnifiedDiff, buildVerifyReport } from "./verify-diff";
-export type { VerifyResult, VerifyFinding, DiffFile, DiffHunk, VerifyReportGitMeta } from "./verify-diff";
+export { analyzeDiff, parseUnifiedDiff, buildVerifyReport, computeImpactedConsumers } from "./verify-diff";
+export type { VerifyResult, VerifyFinding, DiffFile, DiffHunk, VerifyReportGitMeta, ImpactedConsumers } from "./verify-diff";
+
+export { computeCoChanges, parseNameOnlyLog } from "./co-change";
+export type { CoChange, CoChangedFile, CoChangeOptions } from "./co-change";
 
 export { inspectGraph } from "./inspect";
 export type { InspectionResult, InspectKind, InspectRelation } from "./inspect";

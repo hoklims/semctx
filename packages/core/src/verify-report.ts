@@ -55,6 +55,13 @@ export interface VerifyReportConsumer {
   consumers: VerifyReportSymbol[];
 }
 
+export interface VerifyReportCoChange {
+  /** A file from the diff. */
+  file: string;
+  /** Files that historically changed together with `file` (not in the diff), ranked by support. */
+  coChanged: { file: string; commits: number }[];
+}
+
 export interface VerifyReport {
   schemaVersion: typeof VERIFY_REPORT_SCHEMA_VERSION;
   verdict: "PASS" | "WARN" | "BLOCK";
@@ -77,5 +84,11 @@ export interface VerifyReport {
    * Present only when at least one impacted export has consumers; omitted otherwise.
    */
   impactedConsumers?: VerifyReportConsumer[];
+  /**
+   * Historical git co-change signal (ADR 0008 additive field, schemaVersion 1): files that
+   * changed together with the diff's files in past commits but are not in the diff. Advisory —
+   * a structural impact axis the static graph cannot see. Present only when non-empty.
+   */
+  coChangedFiles?: VerifyReportCoChange[];
   summary: { blockCount: number; warnCount: number };
 }
