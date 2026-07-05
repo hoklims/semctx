@@ -66,14 +66,21 @@ and derived from `severity` when absent. `BLOCK` exits non-zero — usable as a 
 
 ## Get started in ~5 minutes
 
-Requires [Bun](https://bun.sh) ≥ 1.3. `semctx` is not yet on npm; run it from source
-(`bun apps/cli/src/index.ts …`, aliased below as `semctx`). Once published the same commands run
-as `bunx @semantic-context/cli …`.
+Requires [Bun](https://bun.sh) ≥ 1.3. `semctx` publishes as a single self-contained bundle
+(`bunx semctx`); until the first npm release you can run it from source (see
+[`docs/publishing.md`](docs/publishing.md) for the release state).
 
 ```bash
-bun install                                   # once, in this repo
+bunx semctx --help                            # once published to npm
 
-# in your TypeScript repo:
+# …or from source in this repo (dev / pre-release):
+bun install
+bun apps/cli/src/index.ts --help              # aliased as `semctx` below
+```
+
+Then, in your TypeScript repo:
+
+```bash
 semctx init --preset github-claude            # preview + write config, CI workflow, Claude note
 semctx index                                  # build the deterministic graph
 semctx verify diff --base origin/main         # analyse the branch → PASS / WARN / BLOCK

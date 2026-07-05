@@ -1,7 +1,7 @@
 # CLI reference
 
 `semctx <command> [options]`. In this repository the CLI is `bun apps/cli/src/index.ts`; once
-published it is `bunx @semantic-context/cli`. Global options: `--root <path>` (repository root,
+published it is `bunx semctx`. Global options: `--root <path>` (repository root,
 default cwd), `--json` (machine output where supported).
 
 ## `init`

@@ -1,19 +1,40 @@
 {
-  "name": "@semantic-context/cli",
+  "name": "semctx",
   "version": "0.1.0",
   "type": "module",
-  "description": "semctx CLI — verify the semantic blast radius of a change (PASS/WARN/BLOCK). Runs under Bun.",
+  "description": "Deterministic, local-first repository change-impact analyzer: computes the semantic blast radius of a git diff and enforces contracts and invariants (PASS/WARN/BLOCK). Not a code-search replacement (ADR 0005).",
   "license": "Apache-2.0",
   "author": "hoklims <hoklims@gmail.com>",
+  "homepage": "https://github.com/hoklims/semctx#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hoklims/semctx.git",
     "directory": "apps/cli"
   },
-  "files": ["src"],
+  "bugs": {
+    "url": "https://github.com/hoklims/semctx/issues"
+  },
+  "keywords": [
+    "change-impact",
+    "verify",
+    "invariants",
+    "contracts",
+    "ci-gate",
+    "git-diff",
+    "blast-radius",
+    "typescript",
+    "bun",
+    "claude-code",
+    "mcp"
+  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "engines": { "bun": ">=1.3.0" },
-  "bin": { "semctx": "./src/index.ts" },
-  "dependencies": {
+  "bin": { "semctx": "./dist/index.js" },
+  "scripts": {
+    "build": "bun build src/index.ts --target=bun --minify --outfile=dist/index.js",
+    "prepublishOnly": "bun build src/index.ts --target=bun --minify --outfile=dist/index.js"
+  },
+  "devDependencies": {
     "@semantic-context/core": "workspace:*",
     "@semantic-context/ts-analyzer": "workspace:*",
     "@semantic-context/repository-store": "workspace:*",
