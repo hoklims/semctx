@@ -28,6 +28,14 @@ timestamp), **inspectable** (every finding resolves to file+line evidence), and 
 - require an LLM;
 - upload repository code, comment on PRs, or need a secret by default.
 
+> **Static, not dynamic — a scope selector for runtime checks.** semctx is a *static* impact
+> analyzer: it reasons about the diff against the graph without building or running the code. It is
+> **complementary** to *dynamic* verification (build-and-run harnesses such as a coding agent's
+> `/verify` step). semctx answers *"what did this change put at risk, and what should be
+> re-tested?"* **before** the dynamic step answers *"does it still work when actually run?"*. Use
+> semctx to select the scope; use a runtime check to confirm behaviour. They compose — impact
+> first, behaviour second — they do not compete.
+
 ---
 
 ## What it does

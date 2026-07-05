@@ -118,3 +118,46 @@ describe("verify diff --base (CLI, real git)", () => {
     expect(["PASS", "WARN", "BLOCK"]).toContain(state.verdict);
   });
 });
+
+describe("verify diff co-change signal (CLI, real git history)", () => {
+  let coRepo: string;
+
+  beforeAll(() => {
+    coRepo = mkdtempSync(join(tmpdir(), "semctx-cochange-"));
+    mkdirSync(join(coRepo, "src"), { recursive: true });
+    writeFileSync(join(coRepo, "package.json"), JSON.stringify({ name: "tmp-cochange", version: "0.0.0" }));
+    writeFileSync(join(coRepo, ".gitignore"), ".semctx/\n");
+    git(coRepo, ["init", "-q"]);
+    git(coRepo, ["branch", "-M", "main"]);
+    const w = (name: string, v: number) => writeFileSync(join(coRepo, "src", name), `export const ${name.replace(".ts", "")} = ${v};\n`);
+    // c1 & c2: a.ts and b.ts change together (support 2). c3: a.ts and c.ts together (support 1).
+    w("a.ts", 1); w("b.ts", 1); git(coRepo, ["add", "-A"]); git(coRepo, ["commit", "-q", "-m", "c1"]);
+    w("a.ts", 2); w("b.ts", 2); git(coRepo, ["add", "-A"]); git(coRepo, ["commit", "-q", "-m", "c2"]);
+    w("a.ts", 3); w("c.ts", 1); git(coRepo, ["add", "-A"]); git(coRepo, ["commit", "-q", "-m", "c3"]);
+    semctx(["init"], coRepo);
+    semctx(["index"], coRepo);
+    w("a.ts", 4); // uncommitted working-tree change
+  });
+
+  afterAll(() => {
+    rmSync(coRepo, { recursive: true, force: true });
+  });
+
+  it("reports files historically co-changed with a changed file, above minSupport only", () => {
+    const r = semctx(["verify", "diff", "--format", "json", "--fail-on", "none"], coRepo);
+    const report = JSON.parse(r.out);
+    const entry = report.coChangedFiles?.find((c: { file: string }) => c.file === "src/a.ts");
+    expect(entry).toBeDefined();
+    const files = entry.coChanged.map((x: { file: string }) => x.file);
+    expect(files).toContain("src/b.ts"); // co-changed in c1 and c2 → support 2
+    expect(files).not.toContain("src/c.ts"); // co-changed only in c3 → support 1 < 2
+  });
+
+  it("emits no co-change field when the diff is empty (nothing changed)", () => {
+    git(coRepo, ["stash", "-q"]); // clean the working tree
+    const r = semctx(["verify", "diff", "--format", "json", "--fail-on", "none"], coRepo);
+    git(coRepo, ["stash", "pop", "-q"]);
+    const report = JSON.parse(r.out);
+    expect("coChangedFiles" in report).toBe(false);
+  });
+});

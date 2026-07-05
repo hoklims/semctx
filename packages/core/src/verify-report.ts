@@ -44,6 +44,24 @@ export interface VerifyReportFinding {
   locations: VerifyReportLocation[];
 }
 
+export interface VerifyReportConsumer {
+  /** The impacted exported symbol whose in-repo dependents are listed. */
+  symbol: VerifyReportSymbol;
+  /**
+   * In-repo nodes that depend on `symbol`: symbol-level callers (via `calls`) and file-level
+   * importers of the declaring module (via `imports`). Granularity is mixed because the static
+   * graph resolves calls symbol-to-symbol but imports file-to-file (call graph is best-effort).
+   */
+  consumers: VerifyReportSymbol[];
+}
+
+export interface VerifyReportCoChange {
+  /** A file from the diff. */
+  file: string;
+  /** Files that historically changed together with `file` (not in the diff), ranked by support. */
+  coChanged: { file: string; commits: number }[];
+}
+
 export interface VerifyReport {
   schemaVersion: typeof VERIFY_REPORT_SCHEMA_VERSION;
   verdict: "PASS" | "WARN" | "BLOCK";
@@ -61,5 +79,16 @@ export interface VerifyReport {
   contradictions: VerifyReportClaim[];
   unknowns: string[];
   findings: VerifyReportFinding[];
+  /**
+   * Per-impacted-export list of in-repo consumers (ADR 0008 additive field, schemaVersion 1).
+   * Present only when at least one impacted export has consumers; omitted otherwise.
+   */
+  impactedConsumers?: VerifyReportConsumer[];
+  /**
+   * Historical git co-change signal (ADR 0008 additive field, schemaVersion 1): files that
+   * changed together with the diff's files in past commits but are not in the diff. Advisory —
+   * a structural impact axis the static graph cannot see. Present only when non-empty.
+   */
+  coChangedFiles?: VerifyReportCoChange[];
   summary: { blockCount: number; warnCount: number };
 }

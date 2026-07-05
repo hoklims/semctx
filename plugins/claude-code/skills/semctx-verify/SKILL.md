@@ -35,6 +35,10 @@ After a non-trivial change, **before** committing or pushing:
 - **Never invent evidence.** Only cite findings, contracts, invariants and tests that appear in
   the report. If the report does not show something, do not claim it.
 - **Do not oversell.** semctx verifies impact; it does not "understand the whole repository".
+- **Static, not dynamic — semctx is the scope selector.** semctx never builds or runs the code.
+  It says *what to re-test*; a runtime `/verify` step then *runs and observes* behaviour. Pair them
+  — impact first, behaviour second — and never treat a semctx PASS as proof the code still works
+  at runtime.
 
 ## Optional: guarded mode
 
