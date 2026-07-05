@@ -11,7 +11,7 @@
     },
     "apps/cli": {
       "name": "semctx",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "bin": {
         "semctx": "./dist/index.js",
       },
@@ -94,6 +94,22 @@
         "@semantic-context/test-fixtures": "workspace:*",
       },
     },
+    "packages/semantic-dsl": {
+      "name": "@semantic-context/semantic-dsl",
+      "version": "0.1.0",
+      "dependencies": {
+        "@semantic-context/core": "workspace:*",
+        "@semantic-context/semantic-model": "workspace:*",
+      },
+    },
+    "packages/semantic-model": {
+      "name": "@semantic-context/semantic-model",
+      "version": "0.1.0",
+      "dependencies": {
+        "@semantic-context/core": "workspace:*",
+        "zod": "^3.23.8",
+      },
+    },
     "packages/test-fixtures": {
       "name": "@semantic-context/test-fixtures",
       "version": "0.1.0",
@@ -131,6 +147,10 @@
     "@semantic-context/mcp-server": ["@semantic-context/mcp-server@workspace:packages/mcp-server"],
 
     "@semantic-context/repository-store": ["@semantic-context/repository-store@workspace:packages/repository-store"],
+
+    "@semantic-context/semantic-dsl": ["@semantic-context/semantic-dsl@workspace:packages/semantic-dsl"],
+
+    "@semantic-context/semantic-model": ["@semantic-context/semantic-model@workspace:packages/semantic-model"],
 
     "@semantic-context/test-fixtures": ["@semantic-context/test-fixtures@workspace:packages/test-fixtures"],
 
