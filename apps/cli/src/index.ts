@@ -2,6 +2,7 @@
 import { isSemctxError } from "@semantic-context/core";
 import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args";
 import { fail, info, c } from "./output";
+import { runSetup } from "./commands/setup";
 import { runInit } from "./commands/init";
 import { runIndex } from "./commands/index-cmd";
 import { runTaskCreate } from "./commands/task";
@@ -18,6 +19,7 @@ const HELP = `semctx — repository change-impact analyzer
 Usage: semctx <command> [options]
 
 Core:
+  setup [--preset github-claude]   one command: config + index + semantic scaffold + check (idempotent)
   init [--preset github-claude]    initialise .semctx/ (db + config)
       --dry-run --force            preview / overwrite existing files
       --with-github-action --with-claude-code --with-devcontainer   preset extras
@@ -68,6 +70,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
   }
 
   switch (command) {
+    case "setup":
+      return runSetup(root, args);
     case "init":
       return runInit(root, args);
     case "index":
