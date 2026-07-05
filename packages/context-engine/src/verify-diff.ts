@@ -9,6 +9,7 @@ import type {
   VerifyReport,
   VerifyReportFinding,
   VerifyReportLocation,
+  VerifyReportSymbol,
 } from "@semantic-context/core";
 import { GraphIndex } from "./graph-index";
 
@@ -44,6 +45,13 @@ export interface VerifyResult {
   contradictions: Claim[];
   unknowns: string[];
   findings: VerifyFinding[];
+  impactedConsumers: ImpactedConsumers[];
+}
+
+/** An impacted exported symbol and the in-repo nodes that depend on it. */
+export interface ImpactedConsumers {
+  symbol: RepositoryNode;
+  consumers: RepositoryNode[];
 }
 
 const OLD_FILE_RE = /^--- (?:a\/(.+)|\/dev\/null)\s*$/;
@@ -115,6 +123,34 @@ function hunkTouchesRange(hunk: DiffHunk, range: { start: number; end: number })
 
 function isTested(index: GraphIndex, nodeId: string): boolean {
   return index.outEdges(nodeId, ["tested_by"]).length > 0;
+}
+
+/**
+ * For each impacted EXPORTED symbol, the in-repo nodes that depend on it. Two edge kinds are
+ * followed, both structurally derived (no LLM): `calls` gives symbol-level callers, and `imports`
+ * on the declaring module gives file-level importers. A symbol with no in-repo consumer is omitted.
+ */
+export function computeImpactedConsumers(
+  index: GraphIndex,
+  impactedNodes: readonly RepositoryNode[],
+): ImpactedConsumers[] {
+  const out: ImpactedConsumers[] = [];
+  for (const node of impactedNodes) {
+    if (node.exported !== true) continue;
+    const consumerIds = new Set<string>();
+    for (const e of index.inEdges(node.id, ["calls"])) consumerIds.add(e.from);
+    for (const decl of index.inEdges(node.id, ["declares"])) {
+      for (const imp of index.inEdges(decl.from, ["imports"])) consumerIds.add(imp.from);
+    }
+    consumerIds.delete(node.id);
+    const consumers = [...consumerIds]
+      .map((id) => index.node(id))
+      .filter((n): n is RepositoryNode => n !== undefined)
+      .sort((a, b) => compareIds(a.id, b.id));
+    if (consumers.length === 0) continue;
+    out.push({ symbol: node, consumers });
+  }
+  return out.sort((a, b) => compareIds(a.symbol.id, b.symbol.id));
 }
 
 /** Analyse a diff against the graph: impacted nodes/claims, tests, verdict. */
@@ -224,6 +260,7 @@ export function analyzeDiff(args: {
     contradictions,
     unknowns,
     findings,
+    impactedConsumers: computeImpactedConsumers(index, impactedNodes),
   };
 }
 
@@ -319,6 +356,15 @@ export function buildVerifyReport(
 
   const claim = (c: Claim) => ({ statement: c.statement, kind: c.kind, verificationStatus: c.verificationStatus });
 
+  const toReportSymbol = (n: RepositoryNode): VerifyReportSymbol =>
+    n.filePath === undefined
+      ? { id: n.id, name: n.name, kind: n.kind }
+      : { id: n.id, name: n.name, kind: n.kind, file: n.filePath };
+  const impactedConsumers = result.impactedConsumers.map((c) => ({
+    symbol: toReportSymbol(c.symbol),
+    consumers: c.consumers.map(toReportSymbol),
+  }));
+
   return {
     schemaVersion: 1,
     verdict: result.verdict,
@@ -336,6 +382,7 @@ export function buildVerifyReport(
     contradictions: result.contradictions.map(claim),
     unknowns: result.unknowns,
     findings,
+    ...(impactedConsumers.length > 0 ? { impactedConsumers } : {}),
     summary: {
       blockCount: findings.filter((f) => f.severity === "block").length,
       warnCount: findings.filter((f) => f.severity === "warn").length,
