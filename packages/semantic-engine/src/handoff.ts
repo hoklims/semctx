@@ -125,12 +125,23 @@ export function captureHandoff(args: CaptureArgs): HandoffCapsule {
   return capsule;
 }
 
-/** Read a previously captured handoff capsule, if any. */
+const REQUIRED_ARRAYS = ["touchedInvariants", "proofsObtained", "pendingProofs", "activeAssumptions", "exploredLinks", "openUnknowns", "nextValidations"] as const;
+
+/** Structural guard at the file boundary: a hand-edited/stale handoff.json must not crash resume. */
+function isHandoffCapsule(value: unknown): value is HandoffCapsule {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  if (typeof v["createdAt"] !== "string") return false;
+  return REQUIRED_ARRAYS.every((key) => Array.isArray(v[key]));
+}
+
+/** Read a previously captured handoff capsule, if any. Rejects malformed/partial files (→ undefined). */
 export function readHandoff(root: string): HandoffCapsule | undefined {
   const path = handoffJsonPath(root);
   if (!existsSync(path)) return undefined;
   try {
-    return JSON.parse(readFileSync(path, "utf8")) as HandoffCapsule;
+    const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+    return isHandoffCapsule(parsed) ? parsed : undefined;
   } catch {
     return undefined;
   }

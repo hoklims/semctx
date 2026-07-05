@@ -155,7 +155,10 @@ export function parseSemanticSource(text: string, file: string): ParseResult {
       continue;
     }
     listKey = undefined;
-    const inlineList = value.startsWith("[") && value.endsWith("]");
+    // Inline-list `[a, b]` is a multi-value form only for list/relation keys. A scalar key
+    // (statement/rule/status/provenance) keeps its literal text — never split it, or a bracketed
+    // statement would silently lose data.
+    const inlineList = value.startsWith("[") && value.endsWith("]") && !SCALAR_KEYS.has(key);
     if (inlineList) {
       const inner = value.slice(1, -1);
       for (const part of inner.split(",")) {
@@ -185,10 +188,12 @@ function collectCommon(
   block: RawBlock,
   file: string,
   diagnostics: Diagnostic[],
-): { statement: string; provenance: SemanticProvenance; statusRaw: string | undefined; links: RepositoryLink[]; tags: string[]; metadata: Record<string, string> } {
+): { statement: string; provenance: SemanticProvenance; statusRaw: string | undefined; statusLine: number; statusColumn: number; links: RepositoryLink[]; tags: string[]; metadata: Record<string, string> } {
   let statement = "";
   let provenance: SemanticProvenance = "author";
   let statusRaw: string | undefined;
+  let statusLine = block.headerLine;
+  let statusColumn = 1;
   const links: RepositoryLink[] = [];
   const tags: string[] = [];
   const metadata: Record<string, string> = {};
@@ -201,6 +206,8 @@ function collectCommon(
         break;
       case "status":
         statusRaw = field.value;
+        statusLine = field.line;
+        statusColumn = field.column;
         break;
       case "provenance":
         if (isSemanticProvenance(field.value)) provenance = field.value;
@@ -222,13 +229,18 @@ function collectCommon(
         break;
       }
       default:
-        break; // relation / unknown keys handled by the caller
+        // Relation / unknown keys are handled by the caller; a key that is neither a known scalar/
+        // link/tag/meta nor a relation/unknown key is a typo — surface it instead of dropping it.
+        if (RELATION_FIELD[field.key] === undefined && field.key !== "unknown") {
+          diagnostics.push({ file, line: field.line, column: field.column, severity: "warning", message: `unknown field "${field.key}" (ignored)` });
+        }
+        break;
     }
   }
   if (statement === "") {
     diagnostics.push({ file, line: block.headerLine, column: 1, severity: "warning", message: `${block.kind} "${block.id}" has no statement` });
   }
-  return { statement, provenance, statusRaw, links, tags, metadata };
+  return { statement, provenance, statusRaw, statusLine, statusColumn, links, tags, metadata };
 }
 
 function finalizeNode(block: RawBlock, file: string, diagnostics: Diagnostic[]): SemanticNode {
@@ -237,7 +249,7 @@ function finalizeNode(block: RawBlock, file: string, diagnostics: Diagnostic[]):
   let status: SemanticStatus = DEFAULT_STATUS_BY_KIND[kind] ?? "declared";
   if (common.statusRaw !== undefined) {
     if (isSemanticStatus(common.statusRaw)) status = common.statusRaw;
-    else diagnostics.push({ file, line: block.headerLine, column: 1, severity: "error", message: `unknown status "${common.statusRaw}" for ${block.kind}` });
+    else diagnostics.push({ file, line: common.statusLine, column: common.statusColumn, severity: "error", message: `unknown status "${common.statusRaw}" for ${block.kind}` });
   }
 
   const relations: SemanticRelation[] = [];
@@ -270,7 +282,7 @@ function finalizeChange(block: RawBlock, file: string, diagnostics: Diagnostic[]
   let lifecycle: ChangeContract["lifecycle"] = "draft";
   if (common.statusRaw !== undefined) {
     if (isChangeLifecycle(common.statusRaw)) lifecycle = common.statusRaw;
-    else diagnostics.push({ file, line: block.headerLine, column: 1, severity: "error", message: `unknown change lifecycle "${common.statusRaw}" (expected draft|active|verified|partial|blocked|stale|superseded)` });
+    else diagnostics.push({ file, line: common.statusLine, column: common.statusColumn, severity: "error", message: `unknown change lifecycle "${common.statusRaw}" (expected draft|active|verified|partial|blocked|stale|superseded)` });
   }
 
   const serves: string[] = [];

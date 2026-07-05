@@ -47,6 +47,7 @@ export type SemanticFindingSeverity = "warn" | "block" | "stale";
 
 export type SemanticFindingKind =
   | "underlying_block"
+  | "underlying_warn"
   | "critical_invariant_unproven"
   | "invariant_unproven"
   | "invariant_contradicted"
@@ -104,6 +105,13 @@ function underlyingBlockNodeIds(report: VerifyReport): Set<string> {
   return ids;
 }
 
+/** Node ids flagged by an *advisory* (warn) underlying finding — touched, but not test-backed. */
+function underlyingWarnNodeIds(report: VerifyReport): Set<string> {
+  const ids = new Set<string>();
+  for (const f of report.findings) if (f.severity === "warn") for (const id of f.nodeIds) ids.add(id);
+  return ids;
+}
+
 function underlyingTouchedIds(report: VerifyReport): Set<string> {
   const ids = new Set<string>(report.changedSymbols.map((s) => s.id));
   for (const f of report.findings) for (const id of f.nodeIds) ids.add(id);
@@ -123,11 +131,15 @@ export function verifyChangeContract(args: VerifyChangeArgs): ChangeVerifyReport
   const stale: SemanticFinding[] = [];
 
   const blockNodeIds = underlyingBlockNodeIds(verifyReport);
+  const warnNodeIds = underlyingWarnNodeIds(verifyReport);
   const touchedIds = underlyingTouchedIds(verifyReport);
 
-  // --- underlying verdict
+  // --- underlying verdict: fold in BLOCK *and* WARN so the composite is never more optimistic than
+  // the impact analysis it composes. An underlying WARN floors the composite at PARTIAL.
   if (verifyReport.verdict === "BLOCK") {
     findings.push({ kind: "underlying_block", severity: "block", message: `verify diff returned BLOCK (${verifyReport.summary.blockCount} blocking finding(s))`, refs: [] });
+  } else if (verifyReport.verdict === "WARN") {
+    findings.push({ kind: "underlying_warn", severity: "warn", message: `verify diff returned WARN (${verifyReport.summary.warnCount} advisory finding(s))`, refs: [] });
   }
 
   // --- preserved invariants
@@ -147,11 +159,16 @@ export function verifyChangeContract(args: VerifyChangeArgs): ChangeVerifyReport
     if (node.status === "contradicted") {
       state = "contradicted";
       findings.push({ kind: "invariant_contradicted", severity: "block", message: `preserved invariant "${invId}" is marked contradicted`, refs: [invId] });
-    } else if (intersects(footprint, blockNodeIds)) {
+    } else if (intersects(footprint, blockNodeIds) || intersects(footprint, warnNodeIds)) {
+      // Touched with no covering test. The underlying finding may be strict (block) or advisory
+      // (warn) per repo config, but either way this invariant is NOT proven for this change — never
+      // label it "proved". The semantic layer asserts its own criticality: a critical invariant is
+      // BLOCK-worthy even when the repo relaxed the rule to warn.
       state = "unproven";
       if (critical) findings.push({ kind: "critical_invariant_unproven", severity: "block", message: `critical invariant "${invId}" is touched by the change with no covering test`, refs: [invId, ...footprint] });
       else if (policy.requireProofForActiveChange && contract.lifecycle === "active") findings.push({ kind: "invariant_unproven", severity: "warn", message: `invariant "${invId}" is touched with no covering test`, refs: [invId, ...footprint] });
     } else if (intersects(footprint, touchedIds)) {
+      // Touched by the diff with no block/warn finding referencing it → covered.
       state = "proved";
     } else {
       state = "untouched";

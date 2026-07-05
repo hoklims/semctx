@@ -26,11 +26,16 @@ you can apply with `change update --status`).
 then folds in the contract:
 
 1. **Underlying impact** — the `VerifyReport` (impacted symbols/contracts/invariants, recommended
-   tests, PASS/WARN/BLOCK), embedded verbatim under `underlying`.
+   tests, PASS/WARN/BLOCK), embedded verbatim under `underlying`. An underlying **BLOCK** contributes
+   a `block` finding; an underlying **WARN** contributes a `warn` finding — so the composite can
+   never be more optimistic than the impact analysis it composes (a WARN floors it at PARTIAL).
 2. **Preserved invariants** — for each `preserves` id, the invariant's Plane-A **footprint** (its
    linked `inv:`/`sym:` ids, expanded through `constrained_by`) is intersected with the underlying
-   findings: touching it with a blocking finding → `unproven`; touched and covered → `proved`; not in
-   the diff → `untouched`; declared `contradicted` → `contradicted`; not declared → `missing`.
+   findings: touched with a blocking **or advisory** finding (i.e. changed without a covering test,
+   regardless of the repo's rule tier) → `unproven`; touched with no finding on it (covered) →
+   `proved`; not in the diff → `untouched`; declared `contradicted` → `contradicted`; not declared →
+   `missing`. A `critical`-tagged invariant that is `unproven` is BLOCK-worthy **even when the repo
+   relaxed its rule to warn** — the semantic layer asserts its own criticality.
 3. **Required evidence** — each `requires_evidence` id must have a *proven* status
    (`tested`/`statically_verified`/`runtime_verified`); otherwise it is a pending proof obligation.
 4. **Open unknowns** — listed; non-critical contribute PARTIAL, critical (tagged) escalate.
@@ -47,8 +52,8 @@ verdict = BLOCKED  if any block finding      (underlying BLOCK, critical unprove
                                               contradicted invariant, critical open unknown,
                                               or a superseded decision when policy = block)
         | STALE    else if any stale finding  (a link no longer resolves; a ref is not declared)
-        | PARTIAL  else if any warn finding    (pending evidence, open non-critical unknown,
-                                              non-critical unproven invariant on an active change)
+        | PARTIAL  else if any warn finding    (underlying WARN, pending evidence, open non-critical
+                                              unknown, non-critical unproven invariant)
         | VERIFIED otherwise
 ```
 
