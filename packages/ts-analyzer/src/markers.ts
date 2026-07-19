@@ -4,11 +4,11 @@
  * Markers are the ONLY way code declares semantic intent to semctx. Nothing here is
  * inferred: a capability/invariant/contract exists because the author wrote a tag.
  *
- *   @capability reservation-confirmation
- *   @invariant confirmed-never-exceeds-capacity: confirming must never overbook a slot
- *   @contract reservation-repository-port: getSlot / save / ...
- *   @risk overbooking-on-concurrency: read-then-write without a guard
- *   @boundedContext booking
+ *   @capability checkout-payment
+ *   @invariant payment-applied-at-most-once: applying a payment must be idempotent
+ *   @contract payment-gateway-port: charge / refund / ...
+ *   @risk double-apply-on-retry: read-then-write without a guard
+ *   @boundedContext payments
  */
 
 export type MarkerTag = "capability" | "invariant" | "contract" | "risk" | "boundedContext";

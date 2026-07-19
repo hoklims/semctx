@@ -25,7 +25,7 @@ const MODE_KEYWORDS: Array<[TaskMode, string[]]> = [
   ["migration", ["migrate", "migration", "upgrade", "port to", "move to"]],
   ["refactor", ["refactor", "clean up", "restructure", "rename", "extract"]],
   ["audit", ["audit", "review", "assess", "inventory"]],
-  ["bugfix", ["fix", "bug", "overbook", "incorrect", "wrong", "broken", "regression", "race"]],
+  ["bugfix", ["fix", "bug", "incorrect", "wrong", "broken", "regression", "race"]],
   ["feature", ["add", "implement", "support", "introduce", "new feature", "enable"]],
 ];
 
@@ -83,8 +83,9 @@ function matchKnown(text: string, known: readonly string[]): string[] {
   for (const slug of known) {
     const words = slug.split(/[^a-z0-9]+/i).filter((w) => w.length >= 4);
     // A slug word matches only at a token boundary — exact, or as a token prefix so that
-    // "reservation" still matches "reservations". This rejects free substring matches,
-    // which would let a short slug word hit inside an unrelated word ("book" in "notebook").
+    // singular/plural forms still match (e.g. "order" ↔ "orders"). This rejects free
+    // substring matches, which would let a short slug word hit inside an unrelated word
+    // ("book" in "notebook").
     const hit = words.some((w) => tokens.some((t) => t.startsWith(w)));
     if (hit) matched.push(slug);
   }

@@ -144,8 +144,8 @@ goal goal.example.reliable-writes
   status: declared
 `,
   [KIND_FILE.invariant]: `# Invariants — business rules a change must preserve. Link to code once indexed:
-#   link: inv:confirmed-never-exceeds-capacity   (a repo invariant id)
-#   link: sym:function:src/domain/confirmation.ts:confirmReservation:12
+#   link: inv:<invariant-slug>                    (a repo invariant id from @invariant markers)
+#   link: sym:function:src/path/to/file.ts:name:12
 # Run 'semctx semantic check' to validate links against the indexed graph.
 
 invariant invariant.example.idempotent-write
