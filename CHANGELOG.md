@@ -21,6 +21,12 @@ nothing has been published to a package registry (npm) or the GitHub Marketplace
   - Architecture contract: `docs/architecture/control-plane-v1.md`.
   - Repo-local Codex plugin `semctx-control`: MCP registration, an implicit proof-honest workflow
     skill, a local marketplace entry, and an installation/agent-usage guide.
+  - Codex and Claude Code now share one byte-identical `semctx-control` workflow contract across
+    Planes A/B/C, including the generic project demo objective, verdict namespaces and
+    `READY`-is-not-authority rule. The Claude plugin gains a validated local marketplace manifest
+    and uses the same `semctx-mcp` executable as Codex through a cache-safe launcher; its skills,
+    hook and MCP server live in Claude Code's standard auto-discovery locations and validate as
+    installable components.
 
 - **Semantic layer (Plane B)** — authored intent beside the derived repository graph (ADR 0009):
   - `@semantic-context/semantic-model`: `SemanticNode` / `ChangeContract` types, statuses,

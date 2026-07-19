@@ -9,6 +9,9 @@ description: >-
 
 # Working a change with the semctx semantic layer
 
+This is the focused Plane B workflow. Use `semctx-control` when the task also needs repository
+impact, L0-L6 tracing, migration planning, or the shared Codex/Claude completion contract.
+
 The semantic layer is **authored truth** (Plane B) that sits beside the deterministic repository
 graph (Plane A). It answers *"which intention, invariants, decisions, evidence and unknowns must
 survive while I change this system?"* — it does **not** find files for a task (that is grep/BM25/

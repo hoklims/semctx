@@ -8,6 +8,9 @@ description: >-
 
 # Verifying a change with semctx
 
+This is the focused Plane A verification workflow. Use `semctx-control` when the task also needs
+authored intent, L0-L6 tracing, migration planning, or the shared Codex/Claude completion contract.
+
 `semctx` maps a diff to the symbols, exported contracts, declared invariants and tests it
 affects, and returns a **PASS / WARN / BLOCK** verdict with evidence. It is **not** a code-search
 tool — do not use it to find files for a task.

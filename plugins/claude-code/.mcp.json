@@ -2,7 +2,7 @@
   "mcpServers": {
     "semctx": {
       "command": "bun",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/../../packages/mcp-server/src/index.ts"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/semctx-mcp-launcher.ts"],
       "env": {
         "SEMCTX_ROOT": "${CLAUDE_PROJECT_DIR}"
       }

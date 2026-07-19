@@ -5,6 +5,10 @@ The `semctx-control` Codex plugin combines two surfaces:
 - a skill that tells the agent when and how to use semctx without overstating certainty;
 - a local stdio MCP server that exposes deterministic repository, semantic, and control-plane tools.
 
+The workflow skill is byte-identical to `plugins/claude-code/skills/semctx-control/SKILL.md`, so
+Codex and Claude Code use the same lanes, verdict semantics, generic demo objective and completion
+contract. Host-specific installation, approval and guard behaviour remains separate.
+
 The plugin does not add an executor. It helps Codex trace intent, compile a shadow-first plan, and
 prove a change; Codex still edits code with its normal tools and runs the repository's real tests.
 
@@ -54,6 +58,10 @@ The skill is eligible for implicit use on migrations, architecture reconstructio
 refactors, invariant-preservation work, and verification in a semctx-enabled repository. It can also
 be invoked explicitly as `$semctx-control`.
 
+For a generic demonstration, it identifies the project's most critical functional path from
+repository evidence, reconstructs its contracts and invariants, and selects a weakness only when it
+can prove one. Otherwise it reports the leading risk and missing proof instead of inventing work.
+
 Typical tool sequence:
 
 1. Use normal Git/code search to find the implementation surface.
@@ -77,7 +85,7 @@ application code themselves.
 - `WARN` says the change needs attention but the configured static policy does not block it.
 - `BLOCK`, `BLOCKED`, and `STALE` prevent a completion claim.
 - `PARTIAL` must remain partial until the missing evidence is actually obtained.
-- `READY` is a planning state, not authority to execute a cutover or delete legacy code.
+- `READY` is a planning state, never execution authority for a cutover or legacy deletion.
 
 The control plane stays fail-closed: missing target architecture, unresolved unknowns, stale links,
 or insufficient deletion proof remain explicit blockers instead of being filled in by the model.

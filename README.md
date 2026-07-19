@@ -123,18 +123,21 @@ A documented **pre-commit gate** (`docs/examples/pre-commit-hook.md`) runs `veri
 
 ### Claude Code
 
-The plugin ([`plugins/claude-code`](plugins/claude-code)) exposes `semctx_verify_change` (MCP)
-and a skill that has the agent verify after non-trivial edits and never finish on a `BLOCK`. An
-opt-in **guarded mode** blocks `git commit`/`git push` until the diff is verified. Advisory (never
-blocks) is the default. See [`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
+The plugin ([`plugins/claude-code`](plugins/claude-code)) exposes the same shared
+`semctx-control` workflow as Codex: `semctx_control_trace`, `semctx_control_plan`, proof-carrying
+change contracts, and `semctx_verify_change`. The narrower `semctx-semantic` and `semctx-verify`
+skills remain available for focused Plane B or Plane A work. `READY` is a planning verdict, never
+execution authority. An opt-in **guarded mode** blocks `git commit`/`git push` until the diff is
+verified; advisory mode is the default. See
+[`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
 
 ### Codex
 
 The repo-local [`semctx-control`](plugins/semctx-control) plugin gives Codex the full semctx MCP
-surface plus a proof-honest workflow skill. It traces repository and semantic coordinates, compiles
-fail-closed migration plans, maintains proof-carrying change contracts on write-scoped tasks, and
-verifies the resulting diff. It never treats a plan as execution authority and Plane C remains
-read-only. Install and usage guide:
+surface plus the same proof-honest workflow shipped for Claude Code. It uses
+`semctx_control_trace` and `semctx_control_plan`, maintains proof-carrying change contracts on
+write-scoped tasks, and verifies the resulting diff. It never treats `READY` as execution authority
+and Plane C remains read-only. Install and usage guide:
 [`docs/integrations/codex-control-plane.md`](docs/integrations/codex-control-plane.md).
 
 ### GitHub Actions
@@ -276,7 +279,7 @@ Monorepo (Bun workspaces, TypeScript strict):
 | `@semantic-context/mcp-server` | MCP server: `verify_change` (first-class), `inspect`, semantic tools |
 | `@semantic-context/github-action` | composite GitHub Action + Node annotation/summary adapter |
 | `apps/cli` | the `semctx` CLI (zero-framework arg router) |
-| `plugins/claude-code` | Claude Code plugin: MCP + skill + guarded hook |
+| `plugins/claude-code` | Claude Code plugin: shared control skill + focused skills + guarded hook |
 | `benchmarks/change-impact-eval` | the comparative retrieval benchmark behind ADR 0005 |
 
 `@semantic-context/cocoindex-adapter` and the `context prepare` command remain in the tree but
@@ -318,7 +321,8 @@ Implemented and tested (full suite via `bun test`):
 - `verify diff` — impact analysis + strict/advisory PASS/WARN/BLOCK, with provenance;
   `--base/--head` merge-base ranges, `text/json/github` formats (versioned JSON contract),
   `--fail-on`, `--output`, `--record`;
-- MCP server (`verify_change`, `inspect`) + Claude Code plugin (advisory + guarded hook);
+- MCP server (Planes A/B/C) + aligned Codex/Claude Code plugins (shared control workflow;
+  Claude advisory + guarded profiles);
 - composite GitHub Action (annotations, summary, PASS/WARN/BLOCK gate);
 - `init --preset github-claude` bootstrap; contributor dev container;
 - committed comparative benchmark (`benchmarks/change-impact-eval`);

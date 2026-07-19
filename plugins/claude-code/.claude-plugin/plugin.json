@@ -1,7 +1,14 @@
 {
   "name": "semctx",
-  "description": "Verify the semantic blast radius of a change — affected symbols, exported contracts, declared invariants and relevant tests, with a PASS/WARN/BLOCK verdict. Local-first, deterministic, no LLM required. Not a code-search tool.",
-  "version": "0.1.0",
-  "author": "semctx",
-  "keywords": ["verify", "change-impact", "invariants", "contracts", "ci-gate"]
+  "description": "Trace repository impact, authored intent and fail-closed migration plans, then verify changes with proof-honest verdicts. Local-first and deterministic.",
+  "version": "0.1.6",
+  "author": {
+    "name": "hoklims",
+    "email": "hoklims@gmail.com",
+    "url": "https://github.com/hoklims"
+  },
+  "homepage": "https://github.com/hoklims/semctx#readme",
+  "repository": "https://github.com/hoklims/semctx",
+  "license": "Apache-2.0",
+  "keywords": ["verify", "change-impact", "semantic-context", "invariants", "contracts", "migration", "control-plane"]
 }

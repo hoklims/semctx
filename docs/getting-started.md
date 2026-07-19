@@ -66,7 +66,8 @@ Now a change to `confirmReservation` without a covering test is a strict-tier `B
 
 - **Locally**: a [pre-commit hook](examples/pre-commit-hook.md) running `verify diff --staged`.
 - **In CI**: the [GitHub Action](integrations/github-actions.md).
-- **In an agent**: the [Claude Code plugin](integrations/claude-code.md).
+- **In an agent**: the Codex and Claude Code plugins share the same `semctx-control` workflow;
+  choose the matching guide under [`docs/integrations`](integrations/claude-code.md).
 
 ## Next
 

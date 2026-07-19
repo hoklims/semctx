@@ -1,0 +1,22 @@
+{
+  "name": "semctx",
+  "description": "Local semctx plugins for proof-honest repository changes",
+  "owner": {
+    "name": "hoklims",
+    "email": "hoklims@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "semctx",
+      "source": "./plugins/claude-code",
+      "description": "Trace repository impact, authored intent and fail-closed migration plans in Claude Code.",
+      "version": "0.1.6",
+      "author": {
+        "name": "hoklims",
+        "email": "hoklims@gmail.com"
+      },
+      "category": "Development",
+      "tags": ["change-impact", "semantic-context", "migration", "verification"]
+    }
+  ]
+}

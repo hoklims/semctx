@@ -1,6 +1,6 @@
 {
   "name": "semctx-control",
-  "version": "0.1.0+codex.20260719202917",
+  "version": "0.1.6",
   "description": "Give Codex deterministic repository impact analysis, authored intent, and fail-closed migration planning.",
   "author": {
     "name": "hoklims",
