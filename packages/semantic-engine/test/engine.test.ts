@@ -179,4 +179,21 @@ describe("gitignore policy", () => {
     expect(twice).toBe(once);
     expect(computeGitignore(once).changed).toBe(false);
   });
+
+  it("preserves an explicit project-only semantic policy without widening it", () => {
+    const projectOnly = [
+      "node_modules/",
+      ".semctx/*",
+      "!.semctx/semantic/",
+      ".semctx/semantic/*",
+      "!.semctx/semantic/project/",
+      "!.semctx/semantic/project/**",
+      "",
+    ].join("\n");
+
+    const result = computeGitignore(projectOnly);
+
+    expect(result.changed).toBe(false);
+    expect(result.content).toBe(projectOnly);
+  });
 });

@@ -1,0 +1,14 @@
+interface:
+  display_name: "Semctx Control"
+  short_description: "Trace and verify repository migrations"
+  default_prompt: "Use $semctx-control to trace this change and compile a fail-closed migration plan."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semctx"
+      description: "Deterministic semctx repository analysis and control-plane tools"
+      transport: "stdio"
+
+policy:
+  allow_implicit_invocation: true

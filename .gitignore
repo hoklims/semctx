@@ -1,7 +1,11 @@
 node_modules/
 dist/
 *.tsbuildinfo
-.semctx/
+.semctx/*
+!.semctx/semantic/
+.semctx/semantic/*
+!.semctx/semantic/project/
+!.semctx/semantic/project/**
 !examples/**/.semctx-keep
 *.log
 .DS_Store

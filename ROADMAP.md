@@ -46,6 +46,25 @@ Definition of done is unchanged: deterministic, tested, documented, no regressio
 
 ---
 
+## Shipping — reconstruction control plane (Plane C)
+
+The read-only v1 coordinates Plane A+B without conflating their authority. It adds bounded L0-L6
+traversal, explicit current/target architecture comparison, shadow-first migration plans and
+fail-closed proof admission. It does not execute changes.
+
+- [x] **Typed read-only vertical slice** — coordinates, coverage, architecture delta, migration DAG,
+      state/risk policy, deletion denial, CLI and MCP reports.
+- [ ] **Golden replay corpus** — compare planner/report output across real repository migrations.
+- [ ] **Runtime proof collectors** — observe dependency traffic and shadow equivalence without
+      upgrading authored claims implicitly.
+- [ ] **Persisted Plane C state** — only after a versioned SQLite/config migration runner exists.
+- [ ] **Worktree executor** — separate component, gated on replay and shadow evidence; never part of
+      the read-only engine.
+
+Definition of done remains deterministic, versioned, proof-honest and non-regressive.
+
+---
+
 ## Research — content-first context retrieval (spike, not a promise)
 
 Branch: **`research/content-first-context-retrieval`**. Protocol:

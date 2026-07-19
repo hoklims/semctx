@@ -18,9 +18,14 @@
       "devDependencies": {
         "@semantic-context/cocoindex-adapter": "workspace:*",
         "@semantic-context/context-engine": "workspace:*",
+        "@semantic-context/control-engine": "workspace:*",
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
         "@semantic-context/eval": "workspace:*",
         "@semantic-context/repository-store": "workspace:*",
+        "@semantic-context/semantic-dsl": "workspace:*",
+        "@semantic-context/semantic-engine": "workspace:*",
+        "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
       },
     },
@@ -42,6 +47,22 @@
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
+      },
+    },
+    "packages/control-engine": {
+      "name": "@semantic-context/control-engine",
+      "version": "0.1.0",
+      "dependencies": {
+        "@semantic-context/control-model": "workspace:*",
+        "@semantic-context/core": "workspace:*",
+        "@semantic-context/semantic-model": "workspace:*",
+      },
+    },
+    "packages/control-model": {
+      "name": "@semantic-context/control-model",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^3.23.8",
       },
     },
     "packages/core": {
@@ -75,8 +96,13 @@
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.0.4",
         "@semantic-context/context-engine": "workspace:*",
+        "@semantic-context/control-engine": "workspace:*",
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
         "@semantic-context/repository-store": "workspace:*",
+        "@semantic-context/semantic-dsl": "workspace:*",
+        "@semantic-context/semantic-engine": "workspace:*",
+        "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
         "zod": "^3.23.8",
       },
@@ -100,6 +126,20 @@
       "dependencies": {
         "@semantic-context/core": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
+      },
+    },
+    "packages/semantic-engine": {
+      "name": "@semantic-context/semantic-engine",
+      "version": "0.1.0",
+      "dependencies": {
+        "@semantic-context/context-engine": "workspace:*",
+        "@semantic-context/core": "workspace:*",
+        "@semantic-context/repository-store": "workspace:*",
+        "@semantic-context/semantic-dsl": "workspace:*",
+        "@semantic-context/semantic-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@semantic-context/test-fixtures": "workspace:*",
       },
     },
     "packages/semantic-model": {
@@ -138,6 +178,10 @@
 
     "@semantic-context/context-engine": ["@semantic-context/context-engine@workspace:packages/context-engine"],
 
+    "@semantic-context/control-engine": ["@semantic-context/control-engine@workspace:packages/control-engine"],
+
+    "@semantic-context/control-model": ["@semantic-context/control-model@workspace:packages/control-model"],
+
     "@semantic-context/core": ["@semantic-context/core@workspace:packages/core"],
 
     "@semantic-context/eval": ["@semantic-context/eval@workspace:packages/eval"],
@@ -149,6 +193,8 @@
     "@semantic-context/repository-store": ["@semantic-context/repository-store@workspace:packages/repository-store"],
 
     "@semantic-context/semantic-dsl": ["@semantic-context/semantic-dsl@workspace:packages/semantic-dsl"],
+
+    "@semantic-context/semantic-engine": ["@semantic-context/semantic-engine@workspace:packages/semantic-engine"],
 
     "@semantic-context/semantic-model": ["@semantic-context/semantic-model@workspace:packages/semantic-model"],
 

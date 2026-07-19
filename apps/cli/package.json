@@ -43,6 +43,8 @@
     "@semantic-context/semantic-model": "workspace:*",
     "@semantic-context/semantic-dsl": "workspace:*",
     "@semantic-context/semantic-engine": "workspace:*",
+    "@semantic-context/control-model": "workspace:*",
+    "@semantic-context/control-engine": "workspace:*",
     "@semantic-context/eval": "workspace:*"
   }
 }

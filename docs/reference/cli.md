@@ -57,6 +57,30 @@ contradictions, files to read. `--json` for machine output.
 
 Workspace health check.
 
+## `control trace`
+
+Traverse the read-only Plane C coordinate graph from a plane-qualified id.
+
+```text
+semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower]
+  [--max-depth <n>] [--max-results <n>] [--json]
+```
+
+`lift` only returns paths ending at a higher requested level; `lower` does the inverse. Results are
+bounded, deterministic and evidence-backed. Unsupported/unmapped inputs remain explicit.
+
+## `control plan`
+
+Compare the current read-only architecture with an explicit target and compile a shadow-first plan.
+
+```text
+semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
+```
+
+Without `--target`, the command succeeds as a diagnostic but reports
+`BLOCKED / target_architecture_missing`; it never invents a target. A supplied delta is checked
+against the computed current/target delta. Neither control command creates or updates `.semctx`.
+
 ## Experimental
 
 `task create` and `context prepare` (the `task → ContextPack` retriever) and `bench` remain in the

@@ -9,6 +9,19 @@ nothing has been published to a package registry (npm) or the GitHub Marketplace
 
 ### Added
 
+- **Semantic Reconstruction Control Plane (Plane C, read-only)**:
+  - `@semantic-context/control-model`: L0-L6 coordinates, explicit coverage, architecture
+    snapshots/deltas, proof attestations, migration states/steps and versioned authorization reports.
+  - `@semantic-context/control-engine`: deterministic lift/lower/impact/explanation traversal,
+    current/target comparison, shadow-first migration planning and fail-closed step/deletion policy.
+  - CLI `semctx control trace` / `control plan` and MCP `semctx_control_trace` /
+    `semctx_control_plan`, backed by a strict read-only SQLite reader.
+  - A bounded project intent kernel under `.semctx/semantic/project/**`; sibling local scaffold files
+    remain ignored and the default full-semantic gitignore policy remains compatible.
+  - Architecture contract: `docs/architecture/control-plane-v1.md`.
+  - Repo-local Codex plugin `semctx-control`: MCP registration, an implicit proof-honest workflow
+    skill, a local marketplace entry, and an installation/agent-usage guide.
+
 - **Semantic layer (Plane B)** — authored intent beside the derived repository graph (ADR 0009):
   - `@semantic-context/semantic-model`: `SemanticNode` / `ChangeContract` types, statuses,
     relations, deterministic ids, Zod boundary schemas.

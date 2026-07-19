@@ -10,6 +10,18 @@ import {
   handoffTool,
   resumeTool,
 } from "./semantic-tools";
+import { controlPlanTool, controlTraceTool } from "./control-tools";
+import {
+  ArchitectureDeltaSchema,
+  ArchitectureSnapshotSchema,
+  QualifiedCoordinateIdSchema,
+  SemanticLevelSchema,
+  TraversalDirectionSchema,
+  type ArchitectureDelta,
+  type ArchitectureSnapshot,
+  type QualifiedCoordinateId,
+  type SemanticLevel,
+} from "@semantic-context/control-model";
 
 const CHANGE_LIFECYCLE = z.enum(["draft", "active", "verified", "partial", "blocked", "stale", "superseded"]);
 
@@ -106,6 +118,12 @@ export function createSemctxServer(root: string): McpServer {
       title: "Semantic slice (bounded context capsule)",
       description:
         "Produce a compact, deterministic capsule of authored semantic truth — intentions, invariants, decisions, linked symbols/claims, obtained evidence, open unknowns, safety constraints and next proofs — for an EXPLICIT scope. NOT code search: pass a change id and/or a repository symbol/claim ref; it never guesses relevance from free text. Bounded by maxNodes; every line points to a source; absent items are shown as unknown.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
       inputSchema: {
         changeId: z.string().optional().describe("a change contract id (change.*) to slice around"),
         symbolRef: z.string().optional().describe("a repository graph id (e.g. sym:.., inv:..) whose linked semantic nodes seed the slice"),
@@ -237,11 +255,84 @@ export function createSemctxServer(root: string): McpServer {
       title: "Resume from a handoff capsule",
       description:
         "Re-emit the last handoff capsule (or one rebuilt from the active change) so a fresh agent context can rehydrate the semantic state: what change is active, which invariants to preserve, what is proven, what remains open.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
       inputSchema: {},
     },
     async () => {
       try {
         return ok(resumeTool(root));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  // --- Control plane (Plane C): read-only coordinates and fail-closed migration planning.
+  server.registerTool(
+    "semctx_control_trace",
+    {
+      title: "Trace semantic coordinates",
+      description:
+        "Read-only, deterministic and bounded traversal between repository/semantic coordinates and L0-L6. Does not initialize, index, or mutate the repository.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: {
+        sourceId: QualifiedCoordinateIdSchema.describe("qualified coordinate id: repo:<id> or semantic:<id>"),
+        targetLevel: SemanticLevelSchema.optional().describe("target semantic level; defaults to L6 for lift and L0 for lower"),
+        direction: TraversalDirectionSchema.optional().describe("lift (default) or lower"),
+        maxDepth: z.number().int().min(0).max(100).optional(),
+        maxResults: z.number().int().min(1).max(10_000).optional(),
+      },
+    },
+    async ({ sourceId, targetLevel, direction, maxDepth, maxResults }) => {
+      try {
+        return ok(controlTraceTool(root, {
+          sourceId: sourceId as QualifiedCoordinateId,
+          ...(targetLevel !== undefined ? { targetLevel: targetLevel as SemanticLevel } : {}),
+          ...(direction !== undefined ? { direction } : {}),
+          ...(maxDepth !== undefined ? { maxDepth } : {}),
+          ...(maxResults !== undefined ? { maxResults } : {}),
+        }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_plan",
+    {
+      title: "Compile a migration plan",
+      description:
+        "Read-only fail-closed migration planning. Without an explicit target architecture the result is BLOCKED with target_architecture_missing; no step is executed.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: {
+        changeId: z.string().min(1).describe("an authored change contract id"),
+        target: ArchitectureSnapshotSchema.optional().describe("explicit target architecture snapshot"),
+        delta: ArchitectureDeltaSchema.optional().describe("optional delta that must correspond to current and target snapshot ids"),
+      },
+    },
+    async ({ changeId, target, delta }) => {
+      try {
+        return ok(controlPlanTool(root, {
+          changeId,
+          ...(target !== undefined ? { target: target as ArchitectureSnapshot } : {}),
+          ...(delta !== undefined ? { delta: delta as ArchitectureDelta } : {}),
+        }));
       } catch (err) {
         return errorResult(err);
       }
