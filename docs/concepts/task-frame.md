@@ -37,7 +37,7 @@ The extractor accepts three shapes, all without any LLM:
 
 ## Heuristics (all deterministic, all labelled as heuristic)
 
-- **mode** — explicit hint, else keyword detection ("fix"/"overbook" -> bugfix, etc.).
+- **mode** — explicit hint, else keyword detection ("fix"/"bug"/"regression" -> bugfix, etc.).
 - **capabilities / invariants / bounded contexts** — explicit hints, plus any known graph
   slug whose significant word (>=4 chars) appears in the task text.
 - **graph wiring** — a matched capability additionally pulls in the invariants and

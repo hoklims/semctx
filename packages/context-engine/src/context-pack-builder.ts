@@ -366,7 +366,7 @@ function buildUnknowns(
   const concurrencyRisk = taskFrame.riskSurfaces.some((r) => /concurr|race|lock|atomic/i.test(r));
   if (concurrencyRisk) {
     unknowns.push(
-      "Static analysis cannot prove a concurrency race; the overbooking must be confirmed by running or reading the confirmation path under concurrent execution.",
+      "Static analysis cannot prove a concurrency race; confirm the behaviour by running or reading the affected path under concurrent execution.",
     );
   }
   return [...new Set(unknowns)];
@@ -385,7 +385,7 @@ function buildVerificationPlan(inputs: PlanInputs): VerificationPlan {
 
   if (inputs.relevantTests.length > 0) {
     steps.push({
-      description: "Run the tests that cover the touched confirmation path; they must stay green.",
+      description: "Run the tests that cover the touched code paths; they must stay green.",
       kind: "run_test",
       command: "bun run test",
       targetNodeIds: inputs.relevantTests.map((t) => t.id),
@@ -405,7 +405,7 @@ function buildVerificationPlan(inputs: PlanInputs): VerificationPlan {
   const concurrency = inputs.taskFrame.riskSurfaces.some((r) => /concurr|race|lock|atomic/i.test(r)) || inputs.taskFrame.mode === "bugfix";
   if (concurrency && inputs.entrypoints.size > 0) {
     steps.push({
-      description: "Add and run a reproduction test exercising concurrent confirmations, proving the invariant holds after the fix.",
+      description: "Add and run a reproduction test exercising concurrent execution on the entrypoints, proving the invariant holds after the fix.",
       kind: "reproduce",
       targetNodeIds: [...inputs.entrypoints],
       evidenceIds: [],

@@ -10,7 +10,7 @@ an injected timestamp).
 - `hardConstraints` — eligible invariant claims (non-negotiable).
 - `authoritativeClaims` — the top eligible non-invariant claims, ranked.
 - `primaryNodes` / `secondaryNodes` — the code to read first vs. supporting context.
-- `impactPaths` — call paths from the task entrypoints (e.g. the confirmation path).
+- `impactPaths` — call paths from the task entrypoints (e.g. the primary write path).
 - `relevantTests` — tests covering the primary symbols.
 - `contradictions` — deprecated/contradicted claims, shown as **non-normative**.
 - `unknowns` — what could not be verified (e.g. a concurrency race that static analysis
