@@ -1,4 +1,6 @@
-import { Database } from "bun:sqlite";
+import { constants, Database } from "bun:sqlite";
+import { existsSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { SemctxError } from "@semantic-context/core";
 import type {
   RepositoryGraph,
@@ -78,6 +80,72 @@ export interface RepositoryStore {
   close(): void;
 }
 
+/** Narrow read-only storage port for consumers that must never mutate repository state. */
+export interface ReadonlyRepositoryStore {
+  loadGraph(): RepositoryGraph;
+  loadEvidence(): EvidenceRecord[];
+  loadClaims(): Claim[];
+  getMeta(key: string): string | undefined;
+  isIndexed(): boolean;
+  close(): void;
+}
+
+/**
+ * Existing-database reader. Opening this class never creates or migrates a store,
+ * changes its journal mode, or writes metadata.
+ */
+export class SqliteRepositoryReader implements ReadonlyRepositoryStore {
+  readonly #db: Database;
+
+  private constructor(db: Database) {
+    this.#db = db;
+  }
+
+  static openExisting(dbPath: string): SqliteRepositoryReader {
+    if (!existsSync(dbPath)) {
+      throw new SemctxError("STORE_ERROR", `repository store does not exist at ${dbPath}`, { dbPath });
+    }
+    if (existsSync(`${dbPath}-wal`) || existsSync(`${dbPath}-shm`)) {
+      throw new SemctxError("STORE_ERROR", `repository store has active WAL sidecars at ${dbPath}`, {
+        dbPath,
+        reason: "close the writer and checkpoint the database before opening an immutable reader",
+      });
+    }
+
+    // Bun's DatabaseOptions cannot combine `strict: true` with SQLITE_OPEN_URI.
+    // The immutable URI is stricter for this port: SQLite cannot write, create
+    // journals, or acquire locks, while the narrow methods bind every parameter.
+    const immutableUri = `${pathToFileURL(dbPath).href}?immutable=1`;
+    const flags = constants.SQLITE_OPEN_READONLY | constants.SQLITE_OPEN_URI;
+    const db = new Database(immutableUri, flags);
+    return new SqliteRepositoryReader(db);
+  }
+
+  loadGraph(): RepositoryGraph {
+    return loadGraph(this.#db);
+  }
+
+  loadEvidence(): EvidenceRecord[] {
+    return loadEvidence(this.#db);
+  }
+
+  loadClaims(): Claim[] {
+    return loadClaims(this.#db);
+  }
+
+  getMeta(key: string): string | undefined {
+    return getMeta(this.#db, key);
+  }
+
+  isIndexed(): boolean {
+    return isIndexed(this.#db);
+  }
+
+  close(): void {
+    this.#db.close();
+  }
+}
+
 export class SqliteRepositoryStore implements RepositoryStore {
   private readonly db: Database;
 
@@ -140,17 +208,11 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   loadGraph(): RepositoryGraph {
-    const nodeRows = this.db.query(`SELECT * FROM nodes ORDER BY id`).all() as NodeRow[];
-    const edgeRows = this.db.query(`SELECT * FROM edges ORDER BY id`).all() as EdgeRow[];
-    return {
-      nodes: nodeRows.map(rowToNode),
-      edges: edgeRows.map(rowToEdge),
-    };
+    return loadGraph(this.db);
   }
 
   loadEvidence(): EvidenceRecord[] {
-    const rows = this.db.query(`SELECT * FROM evidence ORDER BY id`).all() as EvidenceRow[];
-    return rows.map(rowToEvidence);
+    return loadEvidence(this.db);
   }
 
   replaceClaims(claims: Claim[]): void {
@@ -182,8 +244,7 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   loadClaims(): Claim[] {
-    const rows = this.db.query(`SELECT * FROM claims ORDER BY id`).all() as ClaimRow[];
-    return rows.map(rowToClaim);
+    return loadClaims(this.db);
   }
 
   saveTaskFrame(taskFrame: TaskFrame): void {
@@ -218,18 +279,45 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   getMeta(key: string): string | undefined {
-    const row = this.db.query(`SELECT value FROM meta WHERE key = ?`).get(key) as { value: string } | null;
-    return row === null ? undefined : row.value;
+    return getMeta(this.db, key);
   }
 
   isIndexed(): boolean {
-    const row = this.db.query(`SELECT COUNT(*) AS c FROM nodes`).get() as { c: number } | null;
-    return row !== null && row.c > 0;
+    return isIndexed(this.db);
   }
 
   close(): void {
     this.db.close();
   }
+}
+
+function loadGraph(db: Database): RepositoryGraph {
+  const nodeRows = db.query(`SELECT * FROM nodes ORDER BY id`).all() as NodeRow[];
+  const edgeRows = db.query(`SELECT * FROM edges ORDER BY id`).all() as EdgeRow[];
+  return {
+    nodes: nodeRows.map(rowToNode),
+    edges: edgeRows.map(rowToEdge),
+  };
+}
+
+function loadEvidence(db: Database): EvidenceRecord[] {
+  const rows = db.query(`SELECT * FROM evidence ORDER BY id`).all() as EvidenceRow[];
+  return rows.map(rowToEvidence);
+}
+
+function loadClaims(db: Database): Claim[] {
+  const rows = db.query(`SELECT * FROM claims ORDER BY id`).all() as ClaimRow[];
+  return rows.map(rowToClaim);
+}
+
+function getMeta(db: Database, key: string): string | undefined {
+  const row = db.query(`SELECT value FROM meta WHERE key = ?`).get(key) as { value: string } | null;
+  return row === null ? undefined : row.value;
+}
+
+function isIndexed(db: Database): boolean {
+  const row = db.query(`SELECT COUNT(*) AS c FROM nodes`).get() as { c: number } | null;
+  return row !== null && row.c > 0;
 }
 
 function parseJsonArray(text: string): unknown[] {

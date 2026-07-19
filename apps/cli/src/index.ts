@@ -13,6 +13,7 @@ import { runBenchCmd } from "./commands/bench";
 import { runDoctor } from "./commands/doctor";
 import { runSemantic } from "./commands/semantic";
 import { runChange } from "./commands/change";
+import { runControl } from "./commands/control";
 
 const HELP = `semctx — repository change-impact analyzer
 
@@ -39,6 +40,10 @@ Core:
 Semantic layer (authored intent, invariants, decisions, evidence, change contracts):
   semantic <init|check|inspect|render|format|slice|handoff|resume>
   change   <open|update|inspect|verify|close> <id>
+
+Control plane (read-only semantic coordinates and migration planning):
+  control trace <qualified-id> [--to 0..6] [--direction lift|lower] [--json]
+  control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
 
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
   task create --from-file <file>   create a TaskFrame (also: --text "...", --mode <m>)
@@ -102,6 +107,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
       return runSemantic(root, args);
     case "change":
       return runChange(root, args);
+    case "control":
+      return runControl(root, args);
     case "doctor":
       return runDoctor(root, args);
     default:

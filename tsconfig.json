@@ -11,6 +11,8 @@
       "@semantic-context/semantic-model": ["./packages/semantic-model/src/index.ts"],
       "@semantic-context/semantic-dsl": ["./packages/semantic-dsl/src/index.ts"],
       "@semantic-context/semantic-engine": ["./packages/semantic-engine/src/index.ts"],
+      "@semantic-context/control-model": ["./packages/control-model/src/index.ts"],
+      "@semantic-context/control-engine": ["./packages/control-engine/src/index.ts"],
       "@semantic-context/mcp-server": ["./packages/mcp-server/src/index.ts"],
       "@semantic-context/test-fixtures": ["./packages/test-fixtures/src/index.ts"]
     }

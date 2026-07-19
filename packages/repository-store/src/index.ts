@@ -1,6 +1,6 @@
 /** Public surface of @semantic-context/repository-store. */
-export { SqliteRepositoryStore } from "./store";
-export type { RepositoryStore } from "./store";
+export { SqliteRepositoryReader, SqliteRepositoryStore } from "./store";
+export type { ReadonlyRepositoryStore, RepositoryStore } from "./store";
 export { SCHEMA_SQL, SCHEMA_VERSION } from "./schema";
 export {
   SEMCTX_DIR,

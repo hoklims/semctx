@@ -46,6 +46,10 @@ timestamp stamped on outputs, injected through a `Clock` so tests pin it.
 | `@semantic-context/ts-analyzer` | TypeScript Compiler API -> graph nodes/edges; docs, tests, migrations, semantic markers. |
 | `@semantic-context/repository-store` | SQLite (`bun:sqlite`) persistence of graph, claims, evidence, task frames, packs. |
 | `@semantic-context/context-engine` | TaskFrame extraction, claim building, authority policies, priority gates, contradiction detection, pack + verify assembly. |
+| `@semantic-context/semantic-model` | Authored semantic truth (Plane B): goals, invariants, decisions and change contracts. |
+| `@semantic-context/semantic-engine` | Plane B file model, link/stale checks, bounded slices, composed verification and handoff. |
+| `@semantic-context/control-model` | Plane C coordinates, snapshots/deltas, plans, proofs and versioned authorization reports. |
+| `@semantic-context/control-engine` | Read-only A+B projection, bounded traversal, architecture comparison and fail-closed migration policy. |
 | `@semantic-context/cocoindex-adapter` | Optional `SemanticCandidateProvider` interface + isolated CocoIndex adapter. |
 | `@semantic-context/mcp-server`  | MCP server exposing `prepare_task`, `inspect`, `verify_change`. |
 | `@semantic-context/test-fixtures` | Fixture repo paths + helpers for end-to-end tests.       |
@@ -58,6 +62,7 @@ timestamp stamped on outputs, injected through a `Clock` so tests pin it.
 - **Ranking** (`context-engine`) never touches the filesystem AST directly; it consumes
   the stored graph + claims and produces packs and verdicts.
 - **CLI / MCP** are thin transports over the engine. No business logic lives there.
+- **Plane C** reads A+B through explicit adapters; it never mutates either source and has no executor.
 - `core` depends on nothing but Zod. Everything depends on `core`.
 
 ## Determinism & provenance

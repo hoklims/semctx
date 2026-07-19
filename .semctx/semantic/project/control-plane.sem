@@ -1,0 +1,56 @@
+# Semantic Reconstruction Control Plane — bounded project intent kernel.
+
+goal goal.semctx.reconstructive-control
+  statement: Semctx must reconstruct intent across code and architecture while keeping every conclusion traceable to explicit evidence.
+  status: declared
+  tag: control-plane
+  tag: critical
+
+invariant invariant.semctx.plane-separation
+  statement: Derived repository facts, authored semantic intent, and migration control state remain distinct typed planes.
+  status: declared
+  serves: goal.semctx.reconstructive-control
+  file: docs/architecture/semantic-layer-v1.md
+  tag: critical
+
+invariant invariant.semctx.fail-closed-control
+  statement: Missing targets, deltas, runtime observations, or sufficient proofs must block cutover and deletion.
+  status: declared
+  serves: goal.semctx.reconstructive-control
+  tag: critical
+
+decision decision.semctx.read-only-plane-c
+  statement: Plane C is an additive read-only control surface until replay and shadow evidence justify a separate executor.
+  status: declared
+  justifies: invariant.semctx.plane-separation
+  justifies: invariant.semctx.fail-closed-control
+  tag: architecture
+
+assumption assumption.semctx.index-is-current
+  statement: A coordinate trace is useful only when the repository index represents the requested commit.
+  status: assumed
+  tag: freshness
+
+unknown unknown.semctx.runtime-dependencies
+  statement: Static repository facts cannot prove that a legacy path has no runtime consumers.
+  status: declared
+  tag: deletion
+
+evidence proof.semctx.baseline-suite
+  statement: Before Plane C implementation, typecheck and 195 repository tests passed on the working baseline.
+  status: tested
+  tag: regression-baseline
+
+change change.semctx.control-plane-mvp
+  statement: Add deterministic semantic coordinates, architecture delta planning, and fail-closed proof authorization without execution authority.
+  status: active
+  provenance: author
+  serves: goal.semctx.reconstructive-control
+  preserves:
+    - invariant.semctx.plane-separation
+    - invariant.semctx.fail-closed-control
+  requires: proof.semctx.baseline-suite
+  unknown: unknown.semctx.runtime-dependencies
+  file: docs/architecture/semantic-layer-v1.md
+  tag: control-plane
+  tag: shadow-first

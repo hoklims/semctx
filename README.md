@@ -128,6 +128,15 @@ and a skill that has the agent verify after non-trivial edits and never finish o
 opt-in **guarded mode** blocks `git commit`/`git push` until the diff is verified. Advisory (never
 blocks) is the default. See [`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
 
+### Codex
+
+The repo-local [`semctx-control`](plugins/semctx-control) plugin gives Codex the full semctx MCP
+surface plus a proof-honest workflow skill. It traces repository and semantic coordinates, compiles
+fail-closed migration plans, maintains proof-carrying change contracts on write-scoped tasks, and
+verifies the resulting diff. It never treats a plan as execution authority and Plane C remains
+read-only. Install and usage guide:
+[`docs/integrations/codex-control-plane.md`](docs/integrations/codex-control-plane.md).
+
 ### GitHub Actions
 
 A composite action ([`packages/github-action`](packages/github-action)) gates PRs — annotations,
@@ -201,6 +210,22 @@ recording the evidence status) is your step. Full walkthrough:
 design: [`docs/architecture/semantic-layer-v1.md`](docs/architecture/semantic-layer-v1.md) and
 [ADR 0009](docs/adr/0009-semantic-layer-is-separate-from-the-repository-graph.md).
 
+## Reconstruction control plane (Plane C, read-only)
+
+Plane C projects the observed graph and authored intent into explicit L0-L6 coordinates. It can trace
+up/down the model, compare an explicit target architecture, compile a typed shadow-first migration
+plan, and explain why a step is blocked. It is deliberately fail-closed: no target means `BLOCKED`,
+LLM-only evidence authorizes nothing, and legacy deletion stays denied without fresh static, runtime,
+test and human proof.
+
+```bash
+semctx control trace repo:<graph-id> --direction lift --to 5 --json
+semctx control plan change.<slug> --target target-architecture.json --json
+```
+
+The v1 surface is materially read-only and has no executor. See
+[`docs/architecture/control-plane-v1.md`](docs/architecture/control-plane-v1.md).
+
 ## MCP server (agents)
 
 The first-class tool is **`semctx_verify_change`** — hand it a diff, get the impact analysis and
@@ -208,7 +233,8 @@ verdict; `semctx_inspect` queries the graph. The semantic layer adds advisory to
 (`semctx_semantic_slice`, `semctx_change_open` / `_update` / `_verify`, `semctx_semantic_inspect`,
 `semctx_handoff` / `semctx_resume`) — see
 [`docs/integrations/claude-code-semantic-layer.md`](docs/integrations/claude-code-semantic-layer.md).
-The easiest path is the Claude Code plugin above; to register the server directly (stdio):
+Plane C adds the read-only `semctx_control_trace` and `semctx_control_plan` tools.
+The easiest path is the Codex or Claude Code plugin above; to register the server directly (stdio):
 
 ```json
 {
@@ -245,6 +271,8 @@ Monorepo (Bun workspaces, TypeScript strict):
 | `@semantic-context/semantic-model` | authored semantic truth (Plane B): nodes, change contracts, ids |
 | `@semantic-context/semantic-dsl` | tolerant `.sem` parser + deterministic formatter + renderers |
 | `@semantic-context/semantic-engine` | links, stale, slice, change contracts, composed verify, handoff |
+| `@semantic-context/control-model` | Plane C coordinates, architecture snapshots/deltas, plans, proofs and authorization reports |
+| `@semantic-context/control-engine` | deterministic traversal, architecture comparison, migration planning and fail-closed policy |
 | `@semantic-context/mcp-server` | MCP server: `verify_change` (first-class), `inspect`, semantic tools |
 | `@semantic-context/github-action` | composite GitHub Action + Node annotation/summary adapter |
 | `apps/cli` | the `semctx` CLI (zero-framework arg router) |

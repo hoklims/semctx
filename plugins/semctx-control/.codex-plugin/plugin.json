@@ -1,0 +1,42 @@
+{
+  "name": "semctx-control",
+  "version": "0.1.0+codex.20260719202917",
+  "description": "Give Codex deterministic repository impact analysis, authored intent, and fail-closed migration planning.",
+  "author": {
+    "name": "hoklims",
+    "email": "hoklims@gmail.com",
+    "url": "https://github.com/hoklims"
+  },
+  "homepage": "https://github.com/hoklims/semctx#readme",
+  "repository": "https://github.com/hoklims/semctx",
+  "license": "Apache-2.0",
+  "keywords": [
+    "codex",
+    "change-impact",
+    "semantic-context",
+    "migration",
+    "invariants",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Semctx Control Plane",
+    "shortDescription": "Trace, plan, and verify repository migrations",
+    "longDescription": "Semctx Control Plane gives Codex a deterministic view of repository impact, authored goals and invariants, proof-carrying change contracts, and a read-only L0-L6 migration planner. It fails closed when targets, evidence, or authority are missing and never executes a cutover or deletion.",
+    "developerName": "hoklims",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/hoklims/semctx",
+    "defaultPrompt": [
+      "Trace this change from code to goals and invariants",
+      "Compile a fail-closed migration plan for this change",
+      "Verify this diff and list every missing proof"
+    ],
+    "brandColor": "#3B82F6"
+  },
+  "mcpServers": "./.mcp.json"
+}

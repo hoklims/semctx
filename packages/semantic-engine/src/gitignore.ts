@@ -11,7 +11,18 @@ import { join } from "node:path";
 
 const IGNORE_CHILDREN = ".semctx/*";
 const TRACK_SEMANTIC = "!.semctx/semantic/";
+const IGNORE_SEMANTIC_CHILDREN = ".semctx/semantic/*";
+const TRACK_PROJECT = "!.semctx/semantic/project/";
+const TRACK_PROJECT_DESCENDANTS = "!.semctx/semantic/project/**";
 const BLANKET_RE = /^\.semctx\/?$/;
+
+const PROJECT_ONLY_POLICY = [
+  IGNORE_CHILDREN,
+  TRACK_SEMANTIC,
+  IGNORE_SEMANTIC_CHILDREN,
+  TRACK_PROJECT,
+  TRACK_PROJECT_DESCENDANTS,
+] as const;
 
 export interface GitignoreResult {
   path: string;
@@ -21,6 +32,11 @@ export interface GitignoreResult {
 export function computeGitignore(existing: string | undefined): { content: string; changed: boolean } {
   const original = existing ?? "";
   const lines = original.length === 0 ? [] : original.replace(/\n+$/, "").split(/\r?\n/);
+  const trimmedLines = new Set(lines.map((line) => line.trim()));
+  if (PROJECT_ONLY_POLICY.every((line) => trimmedLines.has(line))) {
+    const content = normalizeTrailing(original);
+    return { content, changed: content !== original };
+  }
   const out: string[] = [];
   let sawIgnore = false;
   let sawTrack = false;
