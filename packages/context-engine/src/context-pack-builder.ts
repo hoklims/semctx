@@ -343,6 +343,11 @@ function rank(priority: ReadPriority): number {
   return priority === "critical" ? 3 : priority === "high" ? 2 : 1;
 }
 
+/** Explicit concurrency/race risk on the task — shared by unknowns and the verification plan. */
+function hasConcurrencyRisk(taskFrame: TaskFrame): boolean {
+  return taskFrame.riskSurfaces.some((r) => /concurr|race|lock|atomic/i.test(r));
+}
+
 function buildUnknowns(
   index: GraphIndex,
   taskFrame: TaskFrame,
@@ -363,8 +368,7 @@ function buildUnknowns(
   for (const hyp of taskFrame.hypotheses) {
     if (hyp.status === "unverified") unknowns.push(`Hypothesis not yet verified: ${hyp.statement}`);
   }
-  const concurrencyRisk = taskFrame.riskSurfaces.some((r) => /concurr|race|lock|atomic/i.test(r));
-  if (concurrencyRisk) {
+  if (hasConcurrencyRisk(taskFrame)) {
     unknowns.push(
       "Static analysis cannot prove a concurrency race; confirm the behaviour by running or reading the affected path under concurrent execution.",
     );
@@ -382,6 +386,7 @@ interface PlanInputs {
 function buildVerificationPlan(inputs: PlanInputs): VerificationPlan {
   const steps: VerificationStep[] = [];
   const testPaths = inputs.relevantTests.map((t) => t.filePath).filter((p): p is string => p !== undefined);
+  const entrypointIds = [...inputs.entrypoints];
 
   if (inputs.relevantTests.length > 0) {
     steps.push({
@@ -402,12 +407,24 @@ function buildVerificationPlan(inputs: PlanInputs): VerificationPlan {
     });
   }
 
-  const concurrency = inputs.taskFrame.riskSurfaces.some((r) => /concurr|race|lock|atomic/i.test(r)) || inputs.taskFrame.mode === "bugfix";
-  if (concurrency && inputs.entrypoints.size > 0) {
+  // Bugfixes get an observed-vs-expected reproduction step; concurrent execution is a
+  // separate concern and only attaches when an explicit concurrency risk is present.
+  if (inputs.taskFrame.mode === "bugfix") {
     steps.push({
-      description: "Add and run a reproduction test exercising concurrent execution on the entrypoints, proving the invariant holds after the fix.",
+      description:
+        "Add and run a reproduction that demonstrates the observed behaviour and proves the expected behaviour after the fix.",
       kind: "reproduce",
-      targetNodeIds: [...inputs.entrypoints],
+      targetNodeIds: entrypointIds,
+      evidenceIds: [],
+    });
+  }
+
+  if (hasConcurrencyRisk(inputs.taskFrame) && entrypointIds.length > 0) {
+    steps.push({
+      description:
+        "Add and run a reproduction test exercising concurrent execution on the entrypoints, proving the invariant holds after the fix.",
+      kind: "reproduce",
+      targetNodeIds: entrypointIds,
       evidenceIds: [],
     });
   }

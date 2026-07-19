@@ -111,3 +111,119 @@ describe("semantic-provider candidates (optional, ADR 0004)", () => {
     for (const claim of withCandidate.authoritativeClaims) expect(claim.verificationStatus).not.toBe("deprecated");
   });
 });
+
+/** Non-booking task frames: assert verification-plan policy without domain-coupled wording. */
+function packForTask(rawTask: string): ContextPack {
+  const frame = defaultTaskExtractor.extract(parseTaskDocument(rawTask), extractionContext(analysis.graph, NOW));
+  return prepareContextPack({
+    graph: analysis.graph,
+    evidence: analysis.evidence,
+    claims,
+    taskFrame: frame,
+    now: NOW,
+    candidateProviders: [],
+  });
+}
+
+function reproduceSteps(p: ContextPack) {
+  return p.verificationPlan.steps.filter((s) => s.kind === "reproduce");
+}
+
+function isConcurrentReproduce(description: string): boolean {
+  return /concurrent execution/i.test(description);
+}
+
+function isObservedExpectedReproduce(description: string): boolean {
+  return /observed behaviour/i.test(description) && /expected behaviour/i.test(description);
+}
+
+describe("verification plan — mode vs concurrency risk (non-booking)", () => {
+  it("detects bugfix mode from generic keywords (no domain-specific terms)", () => {
+    const frame = defaultTaskExtractor.extract(
+      parseTaskDocument("Fix the null pointer when applying a payment refund"),
+      extractionContext(analysis.graph, NOW),
+    );
+    expect(frame.mode).toBe("bugfix");
+    expect(frame.riskSurfaces).toEqual([]);
+  });
+
+  it("bugfix without concurrency risk gets observed-vs-expected reproduce, not concurrent", () => {
+    const p = packForTask(
+      [
+        "Fix the null pointer when applying a payment refund",
+        "",
+        "mode: bugfix",
+        "capability: reservation-confirmation",
+        "Observed: refund throws when the payment id is missing",
+        "Expected: refund returns a not-found error without throwing",
+      ].join("\n"),
+    );
+    expect(p.taskFrame.mode).toBe("bugfix");
+    expect(p.unknowns.some((u) => /concurrency race/i.test(u))).toBe(false);
+
+    const repro = reproduceSteps(p);
+    expect(repro.length).toBe(1);
+    expect(isObservedExpectedReproduce(repro[0]!.description)).toBe(true);
+    expect(isConcurrentReproduce(repro[0]!.description)).toBe(false);
+    // Generic wording — no leftover booking-domain phrases in the plan.
+    for (const step of p.verificationPlan.steps) {
+      expect(step.description.toLowerCase()).not.toMatch(/overbook|confirmation path|confirmations/);
+    }
+  });
+
+  it("explicit concurrency risk alone yields concurrent reproduce (and matching unknown)", () => {
+    const p = packForTask(
+      [
+        "Harden payment application against double-apply",
+        "",
+        "mode: feature",
+        "capability: reservation-confirmation",
+        "Risk: race on concurrent payment retries without a lock",
+      ].join("\n"),
+    );
+    expect(p.taskFrame.mode).toBe("feature");
+    expect(p.taskFrame.riskSurfaces.some((r) => /race|concurr|lock|atomic/i.test(r))).toBe(true);
+    expect(p.unknowns.some((u) => /concurrency race/i.test(u))).toBe(true);
+
+    const repro = reproduceSteps(p);
+    expect(repro.length).toBe(1);
+    expect(isConcurrentReproduce(repro[0]!.description)).toBe(true);
+    expect(isObservedExpectedReproduce(repro[0]!.description)).toBe(false);
+    expect(repro[0]!.targetNodeIds.length).toBeGreaterThan(0);
+  });
+
+  it("bugfix + explicit concurrency risk yields both reproduce steps", () => {
+    const p = packForTask(
+      [
+        "Fix double-apply under concurrent retries",
+        "",
+        "mode: bugfix",
+        "capability: reservation-confirmation",
+        "Observed: two concurrent retries both charge the card",
+        "Expected: at most one charge is applied",
+        "Risk: race on concurrent retries without an atomic guard",
+      ].join("\n"),
+    );
+    expect(p.taskFrame.mode).toBe("bugfix");
+
+    const repro = reproduceSteps(p);
+    expect(repro.length).toBe(2);
+    expect(repro.some((s) => isObservedExpectedReproduce(s.description))).toBe(true);
+    expect(repro.some((s) => isConcurrentReproduce(s.description))).toBe(true);
+    expect(p.unknowns.some((u) => /concurrency race/i.test(u))).toBe(true);
+  });
+
+  it("feature without concurrency risk does not emit a reproduce step", () => {
+    const p = packForTask(
+      [
+        "Add support for multi-currency refunds",
+        "",
+        "mode: feature",
+        "capability: reservation-confirmation",
+      ].join("\n"),
+    );
+    expect(p.taskFrame.mode).toBe("feature");
+    expect(reproduceSteps(p)).toEqual([]);
+    expect(p.unknowns.some((u) => /concurrency race/i.test(u))).toBe(false);
+  });
+});
