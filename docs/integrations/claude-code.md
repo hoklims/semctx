@@ -1,61 +1,136 @@
-# Claude Code integration
+# Claude Code integration: semctx control workflow
 
-The Claude Code plugin (`plugins/claude-code`) gives an agent a verify-before-commit reflex,
-locally and deterministically. Two things ship:
+The Claude Code plugin (`plugins/claude-code`) now ships the same `semctx-control` workflow contract
+as the Codex plugin. Both hosts use the same `semctx-mcp` server and the same proof semantics; only
+host integration differs. Claude Code additionally provides an opt-in commit/push guard.
 
-1. **MCP tools** — `semctx_verify_change` (primary) and `semctx_inspect`.
-2. **A skill** — instructs the agent to verify after non-trivial edits, run the recommended
-   tests, and never finish on a BLOCK.
-
-A guard hook is also included but is **inert by default** (advisory). See
-[claude-code-guarded-mode.md](./claude-code-guarded-mode.md) to opt into enforcement.
-
-## Install
-
-The plugin lives in this repository under `plugins/claude-code`. Point Claude Code at it as a
-plugin (repo-hosted). It requires:
-
-- **Bun** on PATH — the MCP server runs under Bun.
-- **Node** on PATH — the guard hook runs under Node (works even without Bun).
-
-Initialise the project once so there is a graph to verify against:
-
-```bash
-semctx init && semctx index
-# or, with the bootstrap preset:
-semctx init --preset github-claude
+```text
+user request
+  -> shared semctx-control skill chooses a read or write lane
+  -> normal search and Git establish repository facts
+  -> Plane A: observed graph and diff impact
+  -> Plane B: authored goals, invariants, evidence and unknowns
+  -> Plane C: bounded L0-L6 trace and fail-closed migration plan
+  -> host edits only inside the user's write authority
+  -> semctx verdicts + runtime tests close the proof loop
 ```
+
+## Install from a clone
+
+Requirements: Claude Code with plugin support, Bun 1.3 or newer, Node for the optional guard hook,
+and this repository's dependencies.
+
+```powershell
+bun install --frozen-lockfile
+Push-Location packages/mcp-server
+bun link
+Pop-Location
+claude plugin marketplace add ./
+claude plugin install semctx@semctx --scope user
+```
+
+`bun link` registers the `semctx-mcp` package executable used by both plugins. Claude Code launches
+the bundled `bin/semctx-mcp-launcher.ts`, which asks Bun for its global-bin directory instead of
+assuming Claude's subprocess `PATH` contains it. Claude Code copies installed plugins into its
+cache, so the launcher itself never reaches back into the source checkout. `SEMCTX_ROOT` binds the
+server to `${CLAUDE_PROJECT_DIR}`.
+
+Restart Claude Code after installation. Then initialise each target repository once:
+
+```text
+semctx setup
+```
+
+If semctx was previously registered directly in the user MCP configuration, remove that legacy
+entry after installing the plugin to avoid two servers exposing the same tools:
+
+```powershell
+claude mcp remove semctx -s user
+```
+
+For a local development reinstall:
+
+```powershell
+claude plugin update semctx@semctx
+```
+
+## Shared skills
+
+- `semctx-control`: the complete Plane A/B/C workflow, byte-identical to the Codex skill.
+- `semctx-semantic`: a focused Plane B compatibility workflow for change contracts and handoffs.
+- `semctx-verify`: a focused Plane A compatibility workflow for diff verification.
+
+Use `semctx-control` for non-trivial changes, architecture reconstruction, migrations, invariant
+preservation, or a generic project demonstration.
+
+## MCP tools
+
+| plane | tools | role |
+| --- | --- | --- |
+| A | `semctx_inspect`, `semctx_verify_change` | observed graph, impact, recommended tests, `PASS/WARN/BLOCK` |
+| B | `semctx_semantic_slice`, `semctx_semantic_inspect`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_handoff`, `semctx_resume` | authored intent, proof-carrying contracts and rehydration |
+| C | `semctx_control_trace`, `semctx_control_plan` | read-only L0-L6 trace and fail-closed migration planning |
+
+`semctx_prepare_task` remains experimental and is not a code-search replacement.
+
+## Agent workflow
+
+1. Use normal repository search and Git inspection first.
+2. Resume or slice existing authored intent when it exists.
+3. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
+4. Call `semctx_control_plan` only with an explicit target architecture.
+5. For a user-authorized write, open or update a change contract before substantial edits.
+6. Make the smallest coherent change.
+7. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
+   compose `semctx_change_verify` when a contract exists.
+8. Write a handoff only for write-scoped work; read-only work remains mutation-free.
+
+## Decision semantics
+
+- Plane A: `PASS`, `WARN`, `BLOCK`.
+- Plane B: `VERIFIED`, `PARTIAL`, `BLOCKED`, `STALE`.
+- Plane C: `READY`, `BLOCKED`.
+
+`PASS` does not replace runtime tests. `PARTIAL` must name the missing proof. `STALE` requires
+re-linking. `READY` is a planning state, never execution authority. Plane C has no executor and
+never performs a cutover, deployment or deletion.
+
+## Generic demonstration objective
+
+When the user asks for a repository-independent demonstration, the shared skill uses this objective:
+
+> Identify the project's most critical functional path, reconstruct its real behaviour and
+> invariants, then correct or strengthen one concrete weakness with the smallest safe, verifiable
+> change. If no weakness is proved, report the leading risk and missing proof instead of inventing
+> a change.
+
+## Claude-specific guarded mode
+
+The `PreToolUse` hook is advisory by default. When `.semctx/guard.json` enables guarded mode, it
+blocks only `git commit` and `git push` until the current diff hash has a recorded non-`BLOCK`
+verification. It never blocks edits, tests, exploration, trace or plan tools. See
+[`claude-code-guarded-mode.md`](./claude-code-guarded-mode.md).
 
 ## MCP without the plugin
 
-If you prefer to register the MCP server directly (no plugin), add:
+If only the MCP server is needed, register the linked executable directly:
 
 ```json
 {
   "mcpServers": {
     "semctx": {
-      "command": "bun",
-      "args": ["/abs/path/semantic-context-compiler/packages/mcp-server/src/index.ts"],
+      "command": "semctx-mcp",
+      "args": [],
       "env": { "SEMCTX_ROOT": "." }
     }
   }
 }
 ```
 
-The server resolves its repository from `SEMCTX_ROOT`, falling back to the working directory.
+## Uninstall
 
-## The tools
-
-| tool | use |
-| --- | --- |
-| `semctx_verify_change` | **primary.** Analyse a diff (or the current `git diff HEAD`) → impacted invariants/contracts, recommended tests, PASS/WARN/BLOCK, with evidence. |
-| `semctx_inspect` | Inspect the graph around a symbol/capability. |
-| `semctx_prepare_task` | **experimental** — not a code-search retriever (ADR 0005). |
-
-## The agent workflow (from the skill)
-
-1. After a non-trivial change, call `semctx_verify_change`.
-2. `PASS` → proceed. `WARN` → consider a test, not a blocker. `BLOCK` → resolve before finishing.
-3. Run the `recommendedTests`.
-4. Never declare the work done while a BLOCK is unresolved. Never cite evidence absent from the
-   report. Do not claim "full repository understanding" — semctx verifies impact, nothing more.
+```powershell
+claude plugin uninstall semctx@semctx
+claude plugin marketplace remove semctx
+bun unlink @semantic-context/mcp-server
+```

@@ -1,8 +1,9 @@
 # Claude Code — semantic layer integration
 
-The Claude Code plugin exposes the semantic layer as **advisory** MCP tools plus a skill. It never
-blocks exploration, reading, editing or tests; the existing guarded hook (ADR 0007) is unchanged and
-still only gates `git commit` / `git push` on opt-in.
+The Claude Code plugin exposes the semantic layer as **advisory** MCP tools plus focused and shared
+skills. Use `semctx-semantic` for Plane B alone or `semctx-control` for the byte-identical Plane
+A/B/C workflow shipped with Codex. Neither skill blocks exploration, reading, editing or tests; the
+existing guarded hook (ADR 0007) still only gates `git commit` / `git push` on opt-in.
 
 ## MCP tools
 
@@ -16,7 +17,7 @@ still only gates `git commit` / `git push` on opt-in.
 | `semctx_semantic_inspect` | inspect a semantic id: declaration, incoming refs, link resolution |
 | `semctx_handoff` / `semctx_resume` | capture / rehydrate the working delta across a compaction |
 
-All are served by the same MCP server (`mcp.json`); no extra registration is needed. The server
+All are served by the same MCP server (`.mcp.json`); no extra registration is needed. The server
 resolves its repo from `SEMCTX_ROOT` (`${CLAUDE_PROJECT_DIR}`).
 
 ## Agent loop (skill `semctx-semantic`)
