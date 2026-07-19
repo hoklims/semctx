@@ -6,7 +6,7 @@ import {
   defaultTaskExtractor,
   extractionContext,
 } from "@semantic-context/context-engine";
-import type { ContextPack } from "@semantic-context/core";
+import type { ContextPack, RepositoryGraph } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED } from "@semantic-context/test-fixtures";
 
 const { analysis, claims } = analyzeAndBuildClaims(sampleConfig());
@@ -190,6 +190,49 @@ describe("verification plan — mode vs concurrency risk (non-booking)", () => {
     expect(isConcurrentReproduce(repro[0]!.description)).toBe(true);
     expect(isObservedExpectedReproduce(repro[0]!.description)).toBe(false);
     expect(repro[0]!.targetNodeIds.length).toBeGreaterThan(0);
+  });
+
+  it("concurrency risk with a lexical entrypoint does not invent an invariant", () => {
+    const graph: RepositoryGraph = {
+      nodes: [
+        {
+          id: "sym:function:src/notifications.ts:sendEmail:1",
+          kind: "function",
+          name: "sendEmail",
+          filePath: "src/notifications.ts",
+          evidence: [],
+          tags: [],
+          metadata: {},
+        },
+      ],
+      edges: [],
+    };
+    const frame = defaultTaskExtractor.extract(
+      parseTaskDocument(
+        [
+          "Harden sendEmail against concurrent retries",
+          "",
+          "mode: feature",
+          "Risk: race on concurrent retries without a lock",
+        ].join("\n"),
+      ),
+      extractionContext(graph, NOW),
+    );
+    const p = prepareContextPack({
+      graph,
+      evidence: [],
+      claims: [],
+      taskFrame: frame,
+      now: NOW,
+      candidateProviders: [],
+    });
+    expect(p.hardConstraints).toEqual([]);
+
+    const repro = reproduceSteps(p);
+    expect(repro.length).toBe(1);
+    expect(isConcurrentReproduce(repro[0]!.description)).toBe(true);
+    expect(repro[0]!.targetNodeIds.length).toBeGreaterThan(0);
+    expect(repro[0]!.description).not.toMatch(/\binvariant\b/i);
   });
 
   it("bugfix + explicit concurrency risk yields both reproduce steps", () => {

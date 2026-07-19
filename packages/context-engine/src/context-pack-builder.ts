@@ -422,7 +422,7 @@ function buildVerificationPlan(inputs: PlanInputs): VerificationPlan {
   if (hasConcurrencyRisk(inputs.taskFrame) && entrypointIds.length > 0) {
     steps.push({
       description:
-        "Add and run a reproduction test exercising concurrent execution on the entrypoints, proving the invariant holds after the fix.",
+        "Add and run a reproduction test exercising concurrent execution on the entrypoints, proving the expected behaviour holds after the fix.",
       kind: "reproduce",
       targetNodeIds: entrypointIds,
       evidenceIds: [],
