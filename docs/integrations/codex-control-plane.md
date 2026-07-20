@@ -25,22 +25,19 @@ user request
 
 ## Install from a clone
 
-Requirements: Codex CLI with plugin support, Bun 1.3 or newer, and this repository's dependencies.
+Requirements: Codex CLI with plugin support and Bun 1.3 or newer. The plugin contains its own MCP
+runtime; no global package link is required.
 
 ```powershell
-bun install --frozen-lockfile
-Push-Location packages/mcp-server
-bun link
-Pop-Location
 codex plugin marketplace add .
 codex plugin add semctx-control@personal
 ```
 
-`bun link` registers the `semctx-mcp` executable in Bun's global bin directory. The plugin launches
-that executable without forcing a `cwd`, so Codex starts it against the active workspace. The link
-continues to point at this clone: pull the repository and run `bun install` to update the server code.
-Read-only Plane C tools are auto-approved from their MCP annotations; tools that may initialize an
-index or write authored state retain Codex's approval prompt.
+Codex launches the committed `dist/semctx-mcp.js` bundle from the plugin cache through Bun. Because
+Codex does not currently expose the active workspace root to a plugin-launched MCP process, the
+shared skill passes the absolute `repositoryRoot` on every tool call. The server then targets that
+repository instead of the plugin cache. Read-only Plane C tools are auto-approved from their MCP
+annotations; authored-state writes retain Codex's approval prompt.
 
 If semctx was previously registered directly in `~/.codex/config.toml`, remove that legacy entry
 after the plugin is installed to avoid duplicate server definitions:
@@ -75,6 +72,9 @@ Typical tool sequence:
    `semctx_change_verify` when a change contract exists.
 7. Call `semctx_handoff` before context compaction and `semctx_resume` in the next task.
 
+Every call includes the absolute `repositoryRoot`. Each target repository must first be prepared
+once with `semctx setup`; inspect and verify fail closed and never initialize or index implicitly.
+
 For a read-only request, the skill forbids the mutating change-contract and handoff tools. For a
 write request, those tools may version authored intent under `.semctx/semantic/`; they never modify
 application code themselves.
@@ -104,5 +104,4 @@ To remove the integration completely:
 
 ```powershell
 codex plugin remove semctx-control@personal
-bun unlink @semantic-context/mcp-server
 ```

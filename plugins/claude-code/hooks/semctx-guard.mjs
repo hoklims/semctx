@@ -10,15 +10,32 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve, isAbsolute } from "node:path";
 
+function shellCommandBody(command) {
+  const match = String(command ?? "").match(/(?:^|[;&|\n]\s*)(?:bash|sh|zsh)\s+-c\s+(["'])([\s\S]*?)\1/i);
+  return match?.[2] ?? null;
+}
+
+function gitTokenIndex(tokens) {
+  let i = 0;
+  while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i += 1;
+  if (stripQuotes(tokens[i]) === "command") i += 1;
+  const executable = stripQuotes(tokens[i]).replace(/\\/g, "/").split("/").pop()?.toLowerCase();
+  return executable === "git" || executable === "git.exe" ? i : -1;
+}
+
 /** Detect a terminal git verb (commit|push) in a shell command, structurally. Returns the verb or null. */
 export function isTerminalGitCommand(command) {
+  const nested = shellCommandBody(command);
+  if (nested !== null) {
+    const verb = isTerminalGitCommand(nested);
+    if (verb !== null) return verb;
+  }
   const segments = String(command ?? "").split(/&&|\|\||;|\||\n/);
   for (const seg of segments) {
     const tokens = seg.trim().split(/\s+/).filter(Boolean);
-    let i = 0;
-    while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i += 1; // skip env assignments
-    if (tokens[i] !== "git") continue;
-    i += 1;
+    const gitIndex = gitTokenIndex(tokens);
+    if (gitIndex < 0) continue;
+    let i = gitIndex + 1;
     while (i < tokens.length) {
       const t = tokens[i];
       if (t === "-C" || t === "-c") { i += 2; continue; } // options that take a value
@@ -53,7 +70,14 @@ function resolveUnder(base, p) {
  * fail-open) rather than blocking the wrong repo. Falls back to inputCwd.
  */
 export function resolveGitCwd(command, inputCwd) {
-  const segments = String(command ?? "").split(/&&|\|\||;|\||\n/);
+  const text = String(command ?? "");
+  const nested = shellCommandBody(text);
+  if (nested !== null) {
+    const shellIndex = text.search(/(?:^|[;&|\n]\s*)(?:bash|sh|zsh)\s+-c\s+/i);
+    const nestedBase = shellIndex > 0 ? resolveGitCwd(text.slice(0, shellIndex), inputCwd) : inputCwd;
+    return resolveGitCwd(nested, nestedBase);
+  }
+  const segments = text.split(/&&|\|\||;|\||\n/);
   let cwd = inputCwd;
   for (const seg of segments) {
     const tokens = seg.trim().split(/\s+/).filter(Boolean);
@@ -63,8 +87,9 @@ export function resolveGitCwd(command, inputCwd) {
       cwd = resolveUnder(cwd, tokens[i + 1]);
       continue;
     }
-    if (tokens[i] !== "git") continue;
-    i += 1;
+    const gitIndex = gitTokenIndex(tokens);
+    if (gitIndex < 0) continue;
+    i = gitIndex + 1;
     let gitCwd = cwd;
     while (i < tokens.length) {
       const t = tokens[i];

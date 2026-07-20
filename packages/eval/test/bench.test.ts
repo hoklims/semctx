@@ -1,7 +1,7 @@
 import { describe, it, expect } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { analyzeAndBuildClaims } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import { runBench } from "@semantic-context/eval";
 import type { BenchCase } from "@semantic-context/eval";
 import { sampleConfig, SAMPLE_REPO, must } from "@semantic-context/test-fixtures";

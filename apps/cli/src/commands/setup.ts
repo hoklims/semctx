@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { createDefaultConfig } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
 import { isInitialized, loadConfig, saveConfig, openStore, semctxDir } from "@semantic-context/repository-store";
-import { analyzeAndBuildClaims } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import { countTypeScriptFiles } from "@semantic-context/ts-analyzer";
 import { initSemanticScaffold, loadSemanticModel, checkSemanticModel, type RepositoryFacts } from "@semantic-context/semantic-engine";
 import { runPreset } from "./preset";

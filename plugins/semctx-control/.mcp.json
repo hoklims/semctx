@@ -1,8 +1,9 @@
 {
   "mcpServers": {
     "semctx": {
-      "command": "semctx-mcp",
-      "args": [],
+      "command": "bun",
+      "args": ["./dist/semctx-mcp.js"],
+      "cwd": ".",
       "default_tools_approval_mode": "writes"
     }
   }

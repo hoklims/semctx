@@ -168,6 +168,7 @@ LLM inference. That is what makes the verdict deterministic and traceable:
 ```ts
 /**
  * @capability reservation-confirmation
+ * @tag critical
  * @invariant  confirmed-never-exceeds-capacity: confirming must never overbook a slot
  * @contract   reservation-repository-port: getSlot / save
  */
@@ -177,6 +178,8 @@ export function confirmReservation(/* ... */) { /* ... */ }
 Markers are **optional**: without them `verify diff` still reports impacted symbols, exported
 contracts, and `tested_by` links. Markers are what unlock the strict-tier invariant/contract
 BLOCK rules — they are how you tell `semctx` which changes must be proven.
+`@tag critical` arms the critical exported-contract rule and `@tag security` arms the security
+surface rule on the annotated symbol; these defaults are marker-driven, never inferred from names.
 
 ---
 

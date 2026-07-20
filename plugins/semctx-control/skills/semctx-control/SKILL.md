@@ -7,6 +7,8 @@ description: Use semctx through its MCP tools for repository impact analysis, au
 
 Use the `semctx` MCP server as a proof surface, not as a replacement for repository search or runtime tests. This workflow contract is shared by the Codex and Claude Code plugins.
 
+For every MCP call, pass `repositoryRoot` as the absolute root of the repository being analyzed. The server rejects missing or relative roots, so both hosts use the same explicit target contract even when Claude also binds `SEMCTX_ROOT`.
+
 ## Choose the lane
 
 - **Read-only audit or explanation:** use only inspect, trace, slice, plan, verify, and resume tools. Do not create or update semantic files and do not write a handoff.
@@ -22,7 +24,7 @@ Use the `semctx` MCP server as a proof surface, not as a replacement for reposit
 4. Use `semctx_control_plan` only for an explicit target architecture. Treat `BLOCKED` for a missing target, open unknowns, stale links, or insufficient proof as the correct fail-closed result.
 5. On a write-scoped task, use `semctx_change_open` or `semctx_change_update` to record the goal, preserved invariants, required evidence, and unresolved unknowns before substantial edits.
 6. Make the smallest coherent change. Run the runtime tests selected by the impact report; semctx never runs or replaces them.
-7. After edits, call `semctx_verify_change`, record only evidence actually obtained, then call `semctx_change_verify` when a change contract exists. Resolve unknowns only when evidence resolves them.
+7. After edits, call `semctx_verify_change`, record only evidence actually obtained, then call `semctx_change_verify` when a change contract exists. Resolve an unknown only after its authored node has a `proved_by` relation to evidence in a proven status. A `verified` lifecycle is derived by composed verification and cannot be asserted through a generic update.
 8. Before compaction or handoff on a write-scoped task, call `semctx_handoff`. In a fresh context, call `semctx_resume` first. A read-only task must remain mutation-free.
 
 ## Verdict namespaces

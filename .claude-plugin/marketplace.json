@@ -10,7 +10,7 @@
       "name": "semctx",
       "source": "./plugins/claude-code",
       "description": "Trace repository impact, authored intent and fail-closed migration plans in Claude Code.",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "author": {
         "name": "hoklims",
         "email": "hoklims@gmail.com"

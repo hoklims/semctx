@@ -1,30 +1,10 @@
 import { SemctxError } from "@semantic-context/core";
-import { loadConfig, openStore } from "@semantic-context/repository-store";
-import {
-  loadModelWithWorking,
-  loadActiveChange,
-  writeChangeFile,
-  writeActiveChange,
-  clearActiveChange,
-  ensureSemanticGitignore,
-  newChangeContract,
-  applyChangePatch,
-  verifyChangeContract,
-  resolveSemanticPolicy,
-  changeFilePath,
-  type RepositoryFacts,
-  type ChangeVerifyReport,
-  type ChangePatch,
-} from "@semantic-context/semantic-engine";
+import { closeChange, normalizeChangeId, openChange, updateChange, verifyAuthoredChange } from "@semantic-context/app-services";
+import { changeFilePath, loadModelWithWorking, type ChangeVerifyReport } from "@semantic-context/semantic-engine";
 import { renderChange } from "@semantic-context/semantic-dsl";
 import type { ChangeContract, ChangeLifecycle } from "@semantic-context/semantic-model";
-import { isChangeLifecycle, kindOfSemanticId, semanticId } from "@semantic-context/semantic-model";
-
-/** Normalise a bare id into a `change.*` id; pass through anything already namespaced. */
-function semanticIdOrPassthrough(kind: "change", id: string): string {
-  return kindOfSemanticId(id) === undefined ? semanticId(kind, id) : id;
-}
-import { computeVerifyReport } from "./verify";
+import { isChangeLifecycle } from "@semantic-context/semantic-model";
+import { verifySourceFromArgs } from "./verify";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, success, warn, fail, json, c } from "../output";
@@ -37,12 +17,12 @@ Usage: semctx change <subcommand> <id> [options]
       --statement "<text>" --serves <ids> --preserves <ids> --requires <ids>
       --unknown <ids> --link <refs> --tag <tags>   (comma-separated lists)
   update <id>    patch a change contract (additive)
-      --statement --status <lifecycle> --serves --preserves --requires --unknown
-      --resolve-unknown <ids> --link --tag
+      --statement --status <non-verified-lifecycle> --serves --preserves --requires --unknown
+      --resolve-unknown <ids> --link --tag   (resolution requires proved_by evidence)
   inspect <id>   show a change contract
   verify <id>    compose 'verify diff' with the contract -> VERIFIED|PARTIAL|BLOCKED|STALE
       --base <ref> --head <ref> --staged --from-file <f> --format text|json --fail-on block|partial|none
-  close <id>     mark verified (or --superseded); clears the active pointer
+  close <id>     derive verified after a fresh composed check (or --superseded)
 `;
 
 function list(args: ParsedArgs, name: string): string[] {
@@ -51,17 +31,10 @@ function list(args: ParsedArgs, name: string): string[] {
   return raw.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
 }
 
-function loadFacts(root: string): RepositoryFacts {
-  const store = openStore(root);
-  const facts: RepositoryFacts = { graph: store.loadGraph(), claims: store.loadClaims(), evidence: store.loadEvidence() };
-  store.close();
-  return facts;
-}
-
 function requireId(args: ParsedArgs, verb: string): string {
   const id = args.positionals[2];
   if (id === undefined) throw new SemctxError("INVALID_TASK_INPUT", `usage: semctx change ${verb} <id>`);
-  return semanticIdOrPassthrough("change", id);
+  return normalizeChangeId(id);
 }
 
 function findChange(root: string, id: string): ChangeContract | undefined {
@@ -91,7 +64,7 @@ export function runChange(root: string, args: ParsedArgs): number {
 function changeOpen(root: string, args: ParsedArgs): number {
   const id = requireId(args, "open");
   const lifecycle: ChangeLifecycle = flagBool(args, "draft") ? "draft" : "active";
-  const contract = newChangeContract({
+  const contract = openChange(root, {
     id,
     statement: flagString(args, "statement") ?? "TODO: describe the change",
     lifecycle,
@@ -102,11 +75,7 @@ function changeOpen(root: string, args: ParsedArgs): number {
     openUnknowns: list(args, "unknown"),
     links: list(args, "link"),
     tags: list(args, "tag"),
-    file: `.semctx/semantic/changes/${id}.sem`,
   });
-  ensureSemanticGitignore(root);
-  writeChangeFile(root, contract);
-  writeActiveChange(root, contract);
   if (flagBool(args, "json")) {
     json({ opened: id, lifecycle, file: changeFilePath(root, id), contract });
     return 0;
@@ -119,16 +88,13 @@ function changeOpen(root: string, args: ParsedArgs): number {
 
 function changeUpdate(root: string, args: ParsedArgs): number {
   const id = requireId(args, "update");
-  const existing = findChange(root, id);
-  if (existing === undefined) {
-    fail(`no change contract "${id}" (open it first with 'semctx change open ${id}')`);
-    return 1;
-  }
   const statusRaw = flagString(args, "status");
   if (statusRaw !== undefined && !isChangeLifecycle(statusRaw)) {
     throw new SemctxError("INVALID_TASK_INPUT", `--status must be a change lifecycle (draft|active|verified|partial|blocked|stale|superseded), got "${statusRaw}"`);
   }
-  const patch: ChangePatch = {
+  const updated = updateChange(root, {
+    id,
+    provenance: "author",
     ...(flagString(args, "statement") !== undefined ? { statement: flagString(args, "statement") } : {}),
     ...(statusRaw !== undefined ? { lifecycle: statusRaw as ChangeLifecycle } : {}),
     addServes: list(args, "serves"),
@@ -138,10 +104,7 @@ function changeUpdate(root: string, args: ParsedArgs): number {
     resolveUnknowns: list(args, "resolve-unknown"),
     addLinks: list(args, "link"),
     addTags: list(args, "tag"),
-  };
-  const updated = applyChangePatch(existing, patch);
-  writeChangeFile(root, updated);
-  if (loadActiveChange(root)?.id === id) writeActiveChange(root, updated);
+  });
   if (flagBool(args, "json")) {
     json({ updated: id, contract: updated });
     return 0;
@@ -174,11 +137,7 @@ function changeVerify(root: string, args: ParsedArgs): number {
     fail(`no change contract "${id}" (open it first)`);
     return 1;
   }
-  const { report: underlying } = computeVerifyReport(root, args); // reuses 'verify diff' verbatim; errors if not indexed
-  const { model } = loadModelWithWorking(root);
-  const facts = loadFacts(root);
-  const policy = resolveSemanticPolicy(loadConfig(root));
-  const composed = verifyChangeContract({ contract: change, model, facts, verifyReport: underlying, policy });
+  const composed = verifyAuthoredChange(root, id, verifySourceFromArgs(args));
 
   if (flagString(args, "format") === "json" || flagBool(args, "json")) {
     json(composed);
@@ -195,10 +154,9 @@ function changeClose(root: string, args: ParsedArgs): number {
     fail(`no change contract "${id}"`);
     return 1;
   }
-  const lifecycle: ChangeLifecycle = flagBool(args, "superseded") ? "superseded" : "verified";
-  const closed: ChangeContract = { ...change, lifecycle };
-  writeChangeFile(root, closed);
-  if (loadActiveChange(root)?.id === id) clearActiveChange(root);
+  const superseded = flagBool(args, "superseded");
+  const closed = closeChange(root, { id, superseded, source: verifySourceFromArgs(args) });
+  const lifecycle = closed.lifecycle;
   if (flagBool(args, "json")) {
     json({ closed: id, lifecycle });
     return 0;

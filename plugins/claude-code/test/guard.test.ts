@@ -14,6 +14,13 @@ describe("isTerminalGitCommand — structural detection (no shell eval)", () => 
     expect(isTerminalGitCommand("GIT_AUTHOR_NAME=x git commit")).toBe("commit");
   });
 
+  it("detects common wrapper, quoted, absolute-path, and shell -c shapes", () => {
+    expect(isTerminalGitCommand("/usr/bin/git commit -m x")).toBe("commit");
+    expect(isTerminalGitCommand('"git" push origin main')).toBe("push");
+    expect(isTerminalGitCommand("command git commit -m x")).toBe("commit");
+    expect(isTerminalGitCommand("bash -c 'git push origin main'")).toBe("push");
+  });
+
   it("does not fire on non-terminal or look-alike commands", () => {
     expect(isTerminalGitCommand("git status")).toBeNull();
     expect(isTerminalGitCommand("git log --grep=commit")).toBeNull();
@@ -92,6 +99,16 @@ describe("resolveGitCwd — evaluate the repo the command targets, not the sessi
 
   it("skips env assignments before git", () => {
     expect(resolveGitCwd("GIT_AUTHOR_NAME=x git -C sub commit", SESSION)).toBe(resolve(SESSION, "sub"));
+  });
+
+  it("honors -C when git is invoked through an absolute path or command wrapper", () => {
+    expect(resolveGitCwd("/usr/bin/git -C sub commit", SESSION)).toBe(resolve(SESSION, "sub"));
+    expect(resolveGitCwd("command git -C sub push", SESSION)).toBe(resolve(SESSION, "sub"));
+  });
+
+  it("resolves the same nested shell body used for terminal-command detection", () => {
+    expect(resolveGitCwd("bash -c 'git -C ../other commit -m x'", SESSION)).toBe(resolve(SESSION, "../other"));
+    expect(resolveGitCwd("sh -c 'cd nested && git push origin main'", SESSION)).toBe(resolve(SESSION, "nested"));
   });
 
   it("resolves an absolute -C path independently of inputCwd", () => {

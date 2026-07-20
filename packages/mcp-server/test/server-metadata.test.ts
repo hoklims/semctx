@@ -24,6 +24,15 @@ describe("semctx MCP tool metadata", () => {
     const { tools } = await client.listTools();
     const byName = new Map(tools.map((tool) => [tool.name, tool]));
 
+    expect(byName.has("semctx_change_close")).toBe(true);
+
+    for (const tool of tools) {
+      const schema = tool.inputSchema as { properties?: Record<string, unknown>; required?: string[] };
+      const properties = schema.properties ?? {};
+      expect(properties["repositoryRoot"]).toBeDefined();
+      expect(schema.required ?? []).toContain("repositoryRoot");
+    }
+
     for (const name of [
       "semctx_semantic_slice",
       "semctx_resume",
@@ -40,6 +49,14 @@ describe("semctx MCP tool metadata", () => {
 
     expect(byName.get("semctx_change_open")?.annotations?.readOnlyHint).not.toBe(true);
     expect(byName.get("semctx_change_update")?.annotations?.readOnlyHint).not.toBe(true);
+    expect(byName.get("semctx_change_close")?.annotations?.readOnlyHint).not.toBe(true);
     expect(byName.get("semctx_handoff")?.annotations?.readOnlyHint).not.toBe(true);
+
+    const invalidRoot = await client.callTool({
+      name: "semctx_verify_change",
+      arguments: { repositoryRoot: ".", gitDiff: "" },
+    });
+    expect(invalidRoot.isError).toBe(true);
+    expect(JSON.stringify(invalidRoot.content)).toContain("repositoryRoot must be absolute");
   });
 });

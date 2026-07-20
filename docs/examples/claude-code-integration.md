@@ -1,13 +1,14 @@
 # Using semctx from Claude Code
 
-semctx ships an MCP server exposing three tools:
+semctx ships an MCP server whose primary Plane-A tools are:
 
 - `semctx_prepare_task` — compile a task into a justified ContextPack;
 - `semctx_inspect` — inspect the repository graph around a symbol/capability;
 - `semctx_verify_change` — analyse a diff for impact + a PASS/WARN/BLOCK verdict.
 
-The server is **local-first and deterministic**: no LLM, no network, no CocoIndex. On
-first use it auto-initialises `.semctx/` and indexes the repository it is pointed at.
+The server is **local-first and deterministic**: no LLM, no network, no CocoIndex. It fails closed
+when a repository is not prepared; run `semctx setup` once before using MCP tools. Read-only calls
+never create `.semctx/` or silently re-index the repository.
 
 ## 1. Install (local, from the repo)
 
@@ -36,8 +37,8 @@ Create `.mcp.json` at your project root:
 }
 ```
 
-`SEMCTX_ROOT` is the repository semctx should analyse. When omitted, it defaults to the
-server process's working directory.
+`SEMCTX_ROOT` binds the server process for compatibility. Every tool call must still pass the
+absolute target as `repositoryRoot`; missing or relative roots are rejected.
 
 ### Option B — `claude mcp add`
 
@@ -45,7 +46,7 @@ server process's working directory.
 claude mcp add semctx -- bun /absolute/path/to/semantic-context-compiler/packages/mcp-server/src/index.ts
 ```
 
-Set `SEMCTX_ROOT` in the environment if the analysed repo differs from the cwd.
+Pass the analysed repository's absolute `repositoryRoot` on every call.
 
 ## 3. Use it
 
@@ -64,8 +65,7 @@ In a Claude Code session:
 Everything the MCP server does is also available on the CLI:
 
 ```bash
-semctx init
-semctx index
+semctx setup
 semctx task create --from-file task.md
 semctx context prepare <task-id>
 semctx inspect capability reservation-confirmation

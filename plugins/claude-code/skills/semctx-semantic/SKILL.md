@@ -17,6 +17,9 @@ graph (Plane A). It answers *"which intention, invariants, decisions, evidence a
 survive while I change this system?"* — it does **not** find files for a task (that is grep/BM25/
 embeddings; see ADR 0005). Everything is deterministic and works with no LLM; you make it better.
 
+Pass the absolute project root as `repositoryRoot` on every MCP call. The server rejects missing or
+relative roots so a plugin-cache working directory can never become the implicit target.
+
 ## The loop (non-trivial change)
 
 1. **Open or select a change contract.**
@@ -48,10 +51,12 @@ embeddings; see ADR 0005). Everything is deterministic and works with no LLM; yo
 6. **Run the recommended tests** from the impact report. They must pass.
 
 7. **Record progress.** When you actually obtain a proof (you ran the test and it passed), update the
-   evidence node's status to `tested` / `runtime_verified`, and resolve unknowns with
-   `semctx_change_update { id, resolveUnknowns: [...] }`. `change_verify` will **not** turn PARTIAL
-   into VERIFIED on its own — obtaining proof is your job (semctx is static; running the test is the
-   dynamic step).
+   evidence node's status to `tested` / `runtime_verified`. Before resolving an unknown, ensure its
+   authored node declares `proved_by` to that proven evidence; then use
+   `semctx_change_update { id, resolveUnknowns: [...] }`.
+
+8. **Close through proof.** `semctx_change_close { id }` reruns composed verification and derives
+   `verified` only from a VERIFIED result. Generic updates cannot assert that lifecycle.
 
 ## Rules
 

@@ -46,9 +46,15 @@ re-run `semctx verify diff --record`.
 - **Per project**: set `.semctx/guard.json` to `{ "enabled": false }`, or delete it.
 - **Entirely**: remove the hook from the plugin install; advisory mode never blocks.
 
-## Guarantees
+## Workflow guarantees and non-goals
 
 - `BLOCK` is honoured: a recorded BLOCK verdict never satisfies the gate, even if the diff is
   unchanged.
 - No false positive can block editing or testing — only `git commit` / `git push` are gated.
 - The state file `.semctx/verification-state.json` is git-ignored and written atomically.
+
+This is a cooperative soft gate, not a sandbox or hostile-agent boundary. The same local principal
+can edit `verification-state.json`, set `SEMCTX_GUARD=off`, invoke Git outside Claude Code, or use a
+command shape/tool the hook does not recognize. Detection covers direct Bash invocations plus common
+quoted/path/`command`/`bash -c` forms, but aliases, shell functions, arbitrary nesting and non-Bash
+tools remain outside the contract. A syntactically valid state is still an authored assertion.

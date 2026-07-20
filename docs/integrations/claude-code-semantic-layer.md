@@ -12,13 +12,15 @@ existing guarded hook (ADR 0007) still only gates `git commit` / `git push` on o
 | `semctx_verify_change` | **primary, unchanged** — Plane-A impact + PASS/WARN/BLOCK for a diff |
 | `semctx_semantic_slice` | bounded, deterministic capsule for an explicit scope (change/symbol/claim) — **not** code search |
 | `semctx_change_open` | open a proof-carrying change contract (provenance `agent`), set active |
-| `semctx_change_update` | additively patch a change (add/resolve unknowns, add evidence, set status) |
+| `semctx_change_update` | additively patch a change; unknown resolution requires proven `proved_by` evidence |
 | `semctx_change_verify` | compose `verify diff` + the contract → VERIFIED/PARTIAL/BLOCKED/STALE |
+| `semctx_change_close` | derive `verified` after a fresh VERIFIED composed check, or mark superseded |
 | `semctx_semantic_inspect` | inspect a semantic id: declaration, incoming refs, link resolution |
 | `semctx_handoff` / `semctx_resume` | capture / rehydrate the working delta across a compaction |
 
-All are served by the same MCP server (`.mcp.json`); no extra registration is needed. The server
-resolves its repo from `SEMCTX_ROOT` (`${CLAUDE_PROJECT_DIR}`).
+All are served by the same MCP server (`.mcp.json`); no extra registration is needed. Every call
+must pass `repositoryRoot` as the absolute project root. The explicit machine contract prevents a
+plugin-cache working directory from becoming the accidental target.
 
 ## Agent loop (skill `semctx-semantic`)
 
@@ -31,8 +33,10 @@ For a non-trivial change:
 4. `semctx_verify_change` — Plane-A impact + recommended tests.
 5. `semctx_change_verify { changeId }` — the composed verdict.
 6. Run the recommended tests.
-7. `semctx_change_update` — record obtained proofs (set evidence status) and resolve unknowns.
-8. **Never conclude "done" on BLOCKED.** On **PARTIAL**, state exactly what remains unproven
+7. Record obtained proofs in the authored evidence, ensure each resolved unknown declares a
+   `proved_by` relation to proven evidence, then use `semctx_change_update` to resolve it.
+8. `semctx_change_close` — derive `verified` only after the fresh composed check passes.
+9. **Never conclude "done" on BLOCKED.** On **PARTIAL**, state exactly what remains unproven
    (pending evidence + open unknowns). On **STALE**, re-link before trusting the verdict.
 
 ## Handoff across compaction

@@ -1,6 +1,5 @@
 import { describe, it, expect } from "bun:test";
 import {
-  analyzeAndBuildClaims,
   GraphIndex,
   classifyQuestion,
   policyFor,
@@ -11,6 +10,7 @@ import {
   extractionContext,
   type PriorityContext,
 } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import type { Claim, RepositoryGraph, TaskFrame, VerificationStatus } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED, must } from "@semantic-context/test-fixtures";
 

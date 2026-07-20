@@ -1,5 +1,3 @@
-import { analyzeRepository } from "@semantic-context/ts-analyzer";
-import type { AnalysisResult } from "@semantic-context/ts-analyzer";
 import { resolveProvider } from "@semantic-context/cocoindex-adapter";
 import type { SemanticCandidate } from "@semantic-context/cocoindex-adapter";
 import type {
@@ -12,16 +10,8 @@ import type {
   NodeKind,
 } from "@semantic-context/core";
 import { GraphIndex } from "./graph-index";
-import { buildClaims } from "./claim-builder";
 import { buildContextPack } from "./context-pack-builder";
 import { HeuristicTaskFrameExtractor, type TaskExtractionContext } from "./task-frame-extractor";
-
-/** Analyse a repository and derive its claims in one call (used by `semctx index`). */
-export function analyzeAndBuildClaims(config: SemctxConfig): { analysis: AnalysisResult; claims: Claim[] } {
-  const analysis = analyzeRepository(config);
-  const claims = buildClaims(new GraphIndex(analysis.graph));
-  return { analysis, claims };
-}
 
 /** Build the extractor context (known vocabulary + capability wiring) from a graph. */
 export function extractionContext(graph: RepositoryGraph, now: string): TaskExtractionContext {

@@ -55,12 +55,16 @@ Markers tell semctx which changes must be **proven**:
 ```ts
 /**
  * @capability reservation-confirmation
+ * @tag critical
  * @invariant  confirmed-never-exceeds-capacity: confirming must never overbook a slot
  */
 export function confirmReservation(/* ... */) { /* ... */ }
 ```
 
 Now a change to `confirmReservation` without a covering test is a strict-tier `BLOCK`.
+Use `@tag critical` for an exported contract that must keep test coverage, or `@tag security` for a
+security-sensitive symbol. These blocking rules arm only from explicit tags; semctx never guesses
+criticality from a symbol or file name.
 
 ## 5. Gate it
 

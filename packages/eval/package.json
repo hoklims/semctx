@@ -11,6 +11,7 @@
     "@semantic-context/context-engine": "workspace:*"
   },
   "devDependencies": {
+    "@semantic-context/app-services": "workspace:*",
     "@semantic-context/test-fixtures": "workspace:*"
   }
 }
