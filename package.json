@@ -31,6 +31,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "bun test packages apps plugins",
+    "plugin:build": "bun scripts/build-plugin-runtime.ts",
+    "plugin:check": "bun scripts/build-plugin-runtime.ts --check",
     "semctx": "bun apps/cli/src/index.ts"
   },
   "devDependencies": {

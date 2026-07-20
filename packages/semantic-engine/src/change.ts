@@ -1,7 +1,8 @@
 /** Change-contract lifecycle helpers (Section 4.4). Pure: transformations return new contracts. */
 
-import { repositoryLinkFromRef } from "@semantic-context/semantic-model";
-import type { ChangeContract, ChangeLifecycle, SemanticProvenance, RepositoryLink } from "@semantic-context/semantic-model";
+import { PROVEN_STATUSES, repositoryLinkFromRef } from "@semantic-context/semantic-model";
+import type { ChangeContract, ChangeLifecycle, SemanticModel, SemanticProvenance, RepositoryLink } from "@semantic-context/semantic-model";
+import { SemctxError } from "@semantic-context/core";
 
 export interface NewChangeInput {
   id: string;
@@ -83,6 +84,28 @@ export function applyChangePatch(change: ChangeContract, patch: ChangePatch): Ch
     repositoryLinks: [...linkMap.values()],
     tags: mergeList(change.tags, patch.addTags),
   };
+}
+
+/** Require an auditable proved_by edge before an authored unknown can be removed from a change. */
+export function assertUnknownResolutionsProven(model: SemanticModel, unknownIds: readonly string[]): void {
+  const nodes = new Map(model.nodes.map((node) => [node.id, node]));
+  for (const unknownId of uniqueStrings(unknownIds)) {
+    const unknown = nodes.get(unknownId);
+    const proven =
+      unknown?.kind === "unknown" &&
+      unknown.relations.some((relation) => {
+        if (relation.kind !== "proved_by") return false;
+        const evidence = nodes.get(relation.to);
+        return evidence?.kind === "evidence" && PROVEN_STATUSES.has(evidence.status);
+      });
+    if (!proven) {
+      throw new SemctxError(
+        "INVALID_TASK_INPUT",
+        `cannot resolve unknown "${unknownId}" without a proved_by relation to proved evidence`,
+        { unknownId },
+      );
+    }
+  }
 }
 
 export const TERMINAL_LIFECYCLES: ReadonlySet<ChangeLifecycle> = new Set<ChangeLifecycle>(["verified", "superseded"]);

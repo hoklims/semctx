@@ -29,7 +29,7 @@ export type { SemanticSlice, SliceScope } from "./slice";
 export { renderSlice } from "./slice-render";
 export type { SliceNotation } from "./slice-render";
 
-export { newChangeContract, applyChangePatch, isTerminalLifecycle, TERMINAL_LIFECYCLES } from "./change";
+export { newChangeContract, applyChangePatch, assertUnknownResolutionsProven, isTerminalLifecycle, TERMINAL_LIFECYCLES } from "./change";
 export type { NewChangeInput, ChangePatch } from "./change";
 
 export { verifyChangeContract, lifecycleForVerdict, CHANGE_VERIFY_SCHEMA_VERSION } from "./verify";

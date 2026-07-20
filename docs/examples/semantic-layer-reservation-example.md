@@ -36,6 +36,7 @@ invariant invariant.booking.no-overbooking
 
 unknown unknown.booking.concurrency-race
   statement: two concurrent confirmations can both pass the capacity check and overbook.
+  proved_by: proof.test.confirmation
 
 evidence proof.test.confirmation
   statement: test/confirmation.test.ts asserts capacity is enforced on confirmation.
@@ -111,7 +112,8 @@ Run the test, then record the obtained proof and close the unknown (add a guard 
 real — here we assume it was addressed):
 
 ```bash
-# in .semctx/semantic/evidence.sem, set: status: tested
+# after the test passes, in .semctx/semantic/evidence.sem set: status: tested
+# the unknown already declares: proved_by: proof.test.confirmation
 semctx change update change.confirm-retry-safe --resolve-unknown unknown.booking.concurrency-race
 semctx change verify change.confirm-retry-safe --base origin/main
 ```
@@ -127,7 +129,7 @@ verdict: VERIFIED
 ```
 
 ```bash
-semctx change close change.confirm-retry-safe        # lifecycle -> verified
+semctx change close change.confirm-retry-safe        # reruns composed verification, then derives verified
 ```
 
 ## Automated stress harness

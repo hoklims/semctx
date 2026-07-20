@@ -9,9 +9,10 @@
  *   @contract payment-gateway-port: charge / refund / ...
  *   @risk double-apply-on-retry: read-then-write without a guard
  *   @boundedContext payments
+ *   @tag critical
  */
 
-export type MarkerTag = "capability" | "invariant" | "contract" | "risk" | "boundedContext";
+export type MarkerTag = "capability" | "invariant" | "contract" | "risk" | "boundedContext" | "tag";
 
 export interface ParsedMarker {
   tag: MarkerTag;
@@ -21,7 +22,7 @@ export interface ParsedMarker {
 }
 
 const MARKER_RE =
-  /@(capability|invariant|contract|risk|boundedcontext)[ \t]+([A-Za-z0-9][A-Za-z0-9_-]*)[ \t]*(?::[ \t]*([^\r\n*][^\r\n]*))?/gi;
+  /@(capability|invariant|contract|risk|boundedcontext|tag)[ \t]+([A-Za-z0-9][A-Za-z0-9_-]*)[ \t]*(?::[ \t]*([^\r\n*][^\r\n]*))?/gi;
 
 function normalizeTag(raw: string): MarkerTag {
   const lower = raw.toLowerCase();

@@ -74,6 +74,14 @@ describe("semctx semantic — CLI", () => {
 describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
   const CHANGE = "change.payment-webhook-retry";
 
+  it("rejects a prefixed traversal id before writing outside changes", () => {
+    const escaped = join(root, ".semctx", "evil-payload.sem");
+    expect(() =>
+      run(runChange, ["change", "open", "change.x/../../../evil-payload", "--statement", "must stay contained"]),
+    ).toThrow();
+    expect(existsSync(escaped)).toBe(false);
+  });
+
   it("opens a change contract, tracked and set active", () => {
     const opened = run(runChange, ["change", "open", CHANGE, "--statement", "retry-safe", "--preserves", "invariant.example.idempotent-write", "--unknown", "unknown.example.concurrency-race"]);
     expect(opened.code).toBe(0);
@@ -96,7 +104,30 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
     expect(report.underlying.verdict).toBe("PASS");
   });
 
+  it("cannot claim verified through update or close before composed verification passes", () => {
+    expect(() => run(runChange, ["change", "update", CHANGE, "--status", "verified"])).toThrow(
+      "use 'semctx change close'",
+    );
+    expect(() => run(runChange, ["change", "close", CHANGE, "--from-file", emptyDiff])).toThrow(
+      "composed verification is PARTIAL",
+    );
+    expect(loadActiveChange(root)?.lifecycle).toBe("active");
+  });
+
   it("verify returns VERIFIED once the unknown is resolved", () => {
+    expect(() =>
+      run(runChange, ["change", "update", CHANGE, "--resolve-unknown", "unknown.example.concurrency-race"]),
+    ).toThrow("proved evidence");
+    writeFileSync(
+      join(root, ".semctx", "semantic", "unknowns.sem"),
+      "unknown unknown.example.concurrency-race\n  statement: Concurrent writers may race.\n  status: declared\n  proved_by: evidence.example.race-test\n",
+      "utf8",
+    );
+    writeFileSync(
+      join(root, ".semctx", "semantic", "evidence.sem"),
+      "evidence evidence.example.race-test\n  statement: Concurrency regression passes.\n  status: tested\n",
+      "utf8",
+    );
     const upd = run(runChange, ["change", "update", CHANGE, "--resolve-unknown", "unknown.example.concurrency-race"]);
     expect(upd.code).toBe(0);
     const v = run(runChange, ["change", "verify", CHANGE, "--from-file", emptyDiff, "--format", "json"]);
@@ -112,8 +143,8 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
     expect(JSON.parse(resume.out).activeChangeId).toBe(CHANGE);
   });
 
-  it("close marks the change verified and clears the active pointer", () => {
-    const c = run(runChange, ["change", "close", CHANGE]);
+  it("close marks the change verified only after composed verification passes", () => {
+    const c = run(runChange, ["change", "close", CHANGE, "--from-file", emptyDiff]);
     expect(c.code).toBe(0);
     expect(loadActiveChange(root)).toBeUndefined();
     const model = loadSemanticModel(root);

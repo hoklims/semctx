@@ -1,11 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { isAbsolute, resolve } from "node:path";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
 import {
   semanticSliceTool,
   changeOpenTool,
   changeUpdateTool,
   changeVerifyTool,
+  changeCloseTool,
   semanticInspectTool,
   handoffTool,
   resumeTool,
@@ -23,7 +25,14 @@ import {
   type SemanticLevel,
 } from "@semantic-context/control-model";
 
-const CHANGE_LIFECYCLE = z.enum(["draft", "active", "verified", "partial", "blocked", "stale", "superseded"]);
+const CHANGE_LIFECYCLE = z.enum(["draft", "active", "partial", "blocked", "stale", "superseded"]);
+const REPOSITORY_ROOT = z.string().min(1).refine(isAbsolute, "repositoryRoot must be absolute").describe(
+  "absolute repository root; required on every call so plugin-cache launch directories cannot become implicit targets",
+);
+
+function requestRoot(_boundRoot: string, repositoryRoot: string): string {
+  return resolve(repositoryRoot);
+}
 
 interface TextResult {
   [key: string]: unknown;
@@ -42,7 +51,7 @@ function errorResult(err: unknown): TextResult {
 
 /** Build the semctx MCP server bound to a repository root. */
 export function createSemctxServer(root: string): McpServer {
-  const server = new McpServer({ name: "semctx", version: "0.1.0" });
+  const server = new McpServer({ name: "semctx", version: "0.1.7" });
 
   // --- Primary tool: change-impact analysis + verdict. Deterministic, marker-independent.
   server.registerTool(
@@ -52,12 +61,13 @@ export function createSemctxServer(root: string): McpServer {
       description:
         "PRIMARY TOOL. Analyse a unified git diff (or the current one if omitted) for its semantic blast radius: impacted symbols, exported contracts and annotated invariants at risk, the tests that cover the changed code, touched contradictions, unknowns, and a PASS/WARN/BLOCK verdict with findings — each traced to file+line evidence. Deterministic: no LLM, no network. Use this before committing a change.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         gitDiff: z.string().optional().describe("a unified diff; if omitted, the current 'git diff HEAD' is used"),
       },
     },
-    async ({ gitDiff }) => {
+    async ({ repositoryRoot, gitDiff }) => {
       try {
-        return ok(verifyChangeTool(root, gitDiff !== undefined ? { gitDiff } : {}));
+        return ok(verifyChangeTool(requestRoot(root, repositoryRoot), gitDiff !== undefined ? { gitDiff } : {}));
       } catch (err) {
         return errorResult(err);
       }
@@ -71,6 +81,7 @@ export function createSemctxServer(root: string): McpServer {
       description:
         "Inspect the deterministic repository graph around a query: matched nodes, related claims (by authority), relations, contradictory/deprecated sources (non-normative), and files to read.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         query: z.string().min(1).describe("symbol name, capability slug, or free text"),
         kind: z
           .enum(["symbol", "capability", "invariant", "contract", "test", "document", "any"])
@@ -78,9 +89,9 @@ export function createSemctxServer(root: string): McpServer {
           .describe("restrict the search to a node kind"),
       },
     },
-    async ({ query, kind }) => {
+    async ({ repositoryRoot, query, kind }) => {
       try {
-        return ok(inspectTool(root, kind !== undefined ? { query, kind } : { query }));
+        return ok(inspectTool(requestRoot(root, repositoryRoot), kind !== undefined ? { query, kind } : { query }));
       } catch (err) {
         return errorResult(err);
       }
@@ -95,6 +106,7 @@ export function createSemctxServer(root: string): McpServer {
       description:
         "EXPERIMENTAL — not a code-search replacement (ADR 0005): on un-annotated code this retriever is outperformed by plain content search, so do not rely on it to find the files a task touches. Compiles a task into a ContextPack (hard constraints, claims, justified reads, impact paths, tests, contradictions) over the deterministic graph. Useful mainly on repos with rich @markers; prefer semctx_verify_change for change analysis.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         task: z.string().min(1).describe("the coding task in natural language"),
         mode: z
           .enum(["bugfix", "feature", "refactor", "audit", "performance", "security", "migration"])
@@ -102,9 +114,9 @@ export function createSemctxServer(root: string): McpServer {
           .describe("optional task mode; inferred from the text when omitted"),
       },
     },
-    async ({ task, mode }) => {
+    async ({ repositoryRoot, task, mode }) => {
       try {
-        return ok(await prepareTaskTool(root, mode !== undefined ? { task, mode } : { task }));
+        return ok(await prepareTaskTool(requestRoot(root, repositoryRoot), mode !== undefined ? { task, mode } : { task }));
       } catch (err) {
         return errorResult(err);
       }
@@ -125,15 +137,16 @@ export function createSemctxServer(root: string): McpServer {
         openWorldHint: false,
       },
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         changeId: z.string().optional().describe("a change contract id (change.*) to slice around"),
         symbolRef: z.string().optional().describe("a repository graph id (e.g. sym:.., inv:..) whose linked semantic nodes seed the slice"),
         claimRef: z.string().optional().describe("a repository claim id (claim:..) whose linked semantic nodes seed the slice"),
         maxNodes: z.number().int().positive().optional().describe("node cap (default 60)"),
       },
     },
-    async ({ changeId, symbolRef, claimRef, maxNodes }) => {
+    async ({ repositoryRoot, changeId, symbolRef, claimRef, maxNodes }) => {
       try {
-        return ok(semanticSliceTool(root, { ...(changeId !== undefined ? { changeId } : {}), ...(symbolRef !== undefined ? { symbolRef } : {}), ...(claimRef !== undefined ? { claimRef } : {}), ...(maxNodes !== undefined ? { maxNodes } : {}) }));
+        return ok(semanticSliceTool(requestRoot(root, repositoryRoot), { ...(changeId !== undefined ? { changeId } : {}), ...(symbolRef !== undefined ? { symbolRef } : {}), ...(claimRef !== undefined ? { claimRef } : {}), ...(maxNodes !== undefined ? { maxNodes } : {}) }));
       } catch (err) {
         return errorResult(err);
       }
@@ -147,6 +160,7 @@ export function createSemctxServer(root: string): McpServer {
       description:
         "Open a proof-carrying change contract before/while modifying code: declare the goal it serves, the invariants it must preserve, the evidence it requires, and the unknowns still open. Authored as provenance=agent, versioned in .semctx/semantic/changes/, and set as the active change. Defaults to lifecycle 'active'.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         id: z.string().min(1).describe("change id (change.*; a bare slug is namespaced automatically)"),
         statement: z.string().min(1).describe("what the change does, in one line"),
         serves: z.array(z.string()).optional().describe("goal ids this change serves"),
@@ -160,7 +174,7 @@ export function createSemctxServer(root: string): McpServer {
     },
     async (input) => {
       try {
-        return ok(changeOpenTool(root, input));
+        return ok(changeOpenTool(requestRoot(root, input.repositoryRoot), input));
       } catch (err) {
         return errorResult(err);
       }
@@ -172,8 +186,9 @@ export function createSemctxServer(root: string): McpServer {
     {
       title: "Update a change contract",
       description:
-        "Additively patch a change contract: refine the statement/lifecycle, add served goals, preserved invariants, required evidence, open unknowns, resolve unknowns, add links or tags. Use to record progress (e.g. resolve an unknown once proven).",
+        "Additively patch a change contract: refine its non-verified lifecycle, add served goals, preserved invariants, required evidence, open unknowns, links or tags. Resolving an unknown requires its authored node to have a proved_by relation to evidence in a proven status. The verified lifecycle is derived only by semctx_change_close after composed verification.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         id: z.string().min(1),
         statement: z.string().optional(),
         status: CHANGE_LIFECYCLE.optional(),
@@ -188,7 +203,7 @@ export function createSemctxServer(root: string): McpServer {
     },
     async (input) => {
       try {
-        return ok(changeUpdateTool(root, input));
+        return ok(changeUpdateTool(requestRoot(root, input.repositoryRoot), input));
       } catch (err) {
         return errorResult(err);
       }
@@ -202,13 +217,40 @@ export function createSemctxServer(root: string): McpServer {
       description:
         "Compose semctx_verify_change with the change contract: run the deterministic impact analysis, then check preserved invariants, required evidence, open unknowns and stale links. Returns VERIFIED / PARTIAL / BLOCKED / STALE — never more optimistic than the data, and never turns PARTIAL into VERIFIED on its own (running tests and updating evidence status is your job). Use after editing and after semctx_verify_change.",
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         changeId: z.string().min(1).describe("the change contract to verify"),
         gitDiff: z.string().optional().describe("a unified diff; if omitted, the current 'git diff HEAD' is used"),
       },
     },
-    async ({ changeId, gitDiff }) => {
+    async ({ repositoryRoot, changeId, gitDiff }) => {
       try {
-        return ok(changeVerifyTool(root, gitDiff !== undefined ? { changeId, gitDiff } : { changeId }));
+        return ok(changeVerifyTool(requestRoot(root, repositoryRoot), gitDiff !== undefined ? { changeId, gitDiff } : { changeId }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_change_close",
+    {
+      title: "Close a change contract",
+      description:
+        "Close a change as superseded, or derive lifecycle 'verified' only after a fresh composed verification returns VERIFIED. A PARTIAL, BLOCKED, or STALE result fails closed and does not mutate the contract.",
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        id: z.string().min(1).describe("the change contract id"),
+        superseded: z.boolean().optional().describe("close as superseded without claiming verification"),
+        gitDiff: z.string().optional().describe("a unified diff; if omitted, the current 'git diff HEAD' is used"),
+      },
+    },
+    async ({ repositoryRoot, id, superseded, gitDiff }) => {
+      try {
+        return ok(changeCloseTool(requestRoot(root, repositoryRoot), {
+          id,
+          ...(superseded !== undefined ? { superseded } : {}),
+          ...(gitDiff !== undefined ? { gitDiff } : {}),
+        }));
       } catch (err) {
         return errorResult(err);
       }
@@ -221,11 +263,14 @@ export function createSemctxServer(root: string): McpServer {
       title: "Inspect a semantic id",
       description:
         "Inspect a single authored semantic node or change contract: its declaration, who references it, and how its repository links resolve (including stale links). Read-only.",
-      inputSchema: { id: z.string().min(1).describe("a semantic id (goal.* / invariant.* / decision.* / change.* / …)") },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        id: z.string().min(1).describe("a semantic id (goal.* / invariant.* / decision.* / change.* / …)"),
+      },
     },
-    async ({ id }) => {
+    async ({ repositoryRoot, id }) => {
       try {
-        return ok(semanticInspectTool(root, { id }));
+        return ok(semanticInspectTool(requestRoot(root, repositoryRoot), { id }));
       } catch (err) {
         return errorResult(err);
       }
@@ -238,11 +283,14 @@ export function createSemctxServer(root: string): McpServer {
       title: "Capture a handoff capsule",
       description:
         "Capture the working delta (active change, touched invariants, obtained/pending proofs, open unknowns, explored links, next validations) into a compact capsule, before a context compaction or an agent handoff. Persisted locally in .semctx/working/.",
-      inputSchema: { note: z.string().optional().describe("an optional free-text note to carry across the handoff") },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        note: z.string().optional().describe("an optional free-text note to carry across the handoff"),
+      },
     },
-    async ({ note }) => {
+    async ({ repositoryRoot, note }) => {
       try {
-        return ok(handoffTool(root, note !== undefined ? { note } : {}));
+        return ok(handoffTool(requestRoot(root, repositoryRoot), note !== undefined ? { note } : {}));
       } catch (err) {
         return errorResult(err);
       }
@@ -261,11 +309,11 @@ export function createSemctxServer(root: string): McpServer {
         idempotentHint: true,
         openWorldHint: false,
       },
-      inputSchema: {},
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
     },
-    async () => {
+    async ({ repositoryRoot }) => {
       try {
-        return ok(resumeTool(root));
+        return ok(resumeTool(requestRoot(root, repositoryRoot)));
       } catch (err) {
         return errorResult(err);
       }
@@ -286,6 +334,7 @@ export function createSemctxServer(root: string): McpServer {
         openWorldHint: false,
       },
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         sourceId: QualifiedCoordinateIdSchema.describe("qualified coordinate id: repo:<id> or semantic:<id>"),
         targetLevel: SemanticLevelSchema.optional().describe("target semantic level; defaults to L6 for lift and L0 for lower"),
         direction: TraversalDirectionSchema.optional().describe("lift (default) or lower"),
@@ -293,9 +342,9 @@ export function createSemctxServer(root: string): McpServer {
         maxResults: z.number().int().min(1).max(10_000).optional(),
       },
     },
-    async ({ sourceId, targetLevel, direction, maxDepth, maxResults }) => {
+    async ({ repositoryRoot, sourceId, targetLevel, direction, maxDepth, maxResults }) => {
       try {
-        return ok(controlTraceTool(root, {
+        return ok(controlTraceTool(requestRoot(root, repositoryRoot), {
           sourceId: sourceId as QualifiedCoordinateId,
           ...(targetLevel !== undefined ? { targetLevel: targetLevel as SemanticLevel } : {}),
           ...(direction !== undefined ? { direction } : {}),
@@ -321,14 +370,15 @@ export function createSemctxServer(root: string): McpServer {
         openWorldHint: false,
       },
       inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
         changeId: z.string().min(1).describe("an authored change contract id"),
         target: ArchitectureSnapshotSchema.optional().describe("explicit target architecture snapshot"),
         delta: ArchitectureDeltaSchema.optional().describe("optional delta that must correspond to current and target snapshot ids"),
       },
     },
-    async ({ changeId, target, delta }) => {
+    async ({ repositoryRoot, changeId, target, delta }) => {
       try {
-        return ok(controlPlanTool(root, {
+        return ok(controlPlanTool(requestRoot(root, repositoryRoot), {
           changeId,
           ...(target !== undefined ? { target: target as ArchitectureSnapshot } : {}),
           ...(delta !== undefined ? { delta: delta as ArchitectureDelta } : {}),

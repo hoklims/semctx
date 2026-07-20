@@ -1,5 +1,4 @@
-import { loadConfig, openStore } from "@semantic-context/repository-store";
-import { analyzeAndBuildClaims } from "@semantic-context/context-engine";
+import { indexRepository } from "@semantic-context/app-services";
 import type { RepositoryNode, Claim } from "@semantic-context/core";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -16,14 +15,7 @@ function countBy<T>(items: T[], key: (item: T) => string): Record<string, number
 
 /** `semctx index` — analyse the repo, (re)build the graph + claims, persist them. */
 export function runIndex(root: string, args: ParsedArgs): number {
-  const config = loadConfig(root);
-  const { analysis, claims } = analyzeAndBuildClaims(config);
-
-  const store = openStore(root);
-  store.saveGraph(analysis.graph, analysis.evidence);
-  store.replaceClaims(claims);
-  store.setMeta("indexed_at", nowIso());
-  store.close();
+  const { analysis, claims } = indexRepository(root, nowIso());
 
   const nodeKinds = countBy<RepositoryNode>(analysis.graph.nodes, (n) => n.kind);
   const claimKinds = countBy<Claim>(claims, (c2) => c2.kind);

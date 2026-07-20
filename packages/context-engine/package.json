@@ -8,11 +8,11 @@
   "exports": { ".": "./src/index.ts" },
   "dependencies": {
     "@semantic-context/core": "workspace:*",
-    "@semantic-context/ts-analyzer": "workspace:*",
-    "@semantic-context/repository-store": "workspace:*",
     "@semantic-context/cocoindex-adapter": "workspace:*"
   },
   "devDependencies": {
-    "@semantic-context/test-fixtures": "workspace:*"
+    "@semantic-context/test-fixtures": "workspace:*",
+    "@semantic-context/ts-analyzer": "workspace:*",
+    "@semantic-context/app-services": "workspace:*"
   }
 }

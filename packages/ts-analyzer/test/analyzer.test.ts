@@ -12,13 +12,14 @@ const edges = (k: EdgeKind): RepositoryEdge[] => graph.edges.filter((e) => e.kin
 const named = (list: RepositoryNode[]): string[] => list.map((n) => n.name);
 
 describe("markers", () => {
-  it("parses capability, invariant (with statement) and boundedContext tags", () => {
-    const markers = parseMarkers("/**\n * @capability foo\n * @invariant bar: it must hold\n * @boundedContext booking\n */");
+  it("parses semantic declarations and explicit graph tags", () => {
+    const markers = parseMarkers("/**\n * @capability foo\n * @invariant bar: it must hold\n * @boundedContext booking\n * @tag critical\n */");
     expect(markers.find((m) => m.tag === "capability")?.slug).toBe("foo");
     const inv = must(markers.find((m) => m.tag === "invariant"));
     expect(inv.slug).toBe("bar");
     expect(inv.statement).toBe("it must hold");
     expect(markers.find((m) => m.tag === "boundedContext")?.slug).toBe("booking");
+    expect(markers.find((m) => m.tag === "tag")?.slug).toBe("critical");
   });
 });
 
@@ -70,6 +71,11 @@ describe("symbol resolution — cross-file call graph", () => {
 });
 
 describe("semantic markers become corroborated nodes", () => {
+  it("attaches explicit tags to the analyzed symbol", () => {
+    const contract = must(kind("interface").find((n) => n.name === "ReservationRepository"));
+    expect(contract.tags).toContain("critical");
+  });
+
   it("creates the capacity invariant corroborated by code, doc AND migration", () => {
     const inv = must(kind("invariant").find((n) => n.name === EXPECTED.invariant));
     expect(inv.tags).toContain("from-code");

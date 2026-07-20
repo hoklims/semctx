@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dir, "..");
@@ -10,6 +10,12 @@ function read(path: string): string {
 
 function json<T>(path: string): T {
   return JSON.parse(read(path)) as T;
+}
+
+function typescriptLibs(plugin: "claude-code" | "semctx-control"): string[] {
+  return readdirSync(resolve(repoRoot, `plugins/${plugin}/dist/typescript-lib`))
+    .filter((name) => name.startsWith("lib") && name.endsWith(".d.ts"))
+    .sort();
 }
 
 describe("Codex and Claude Code plugin parity", () => {
@@ -34,7 +40,7 @@ describe("Codex and Claude Code plugin parity", () => {
 
   test("registers the same MCP server identity and compatible plugin versions", () => {
     const codexMcp = json<{
-      mcpServers: Record<string, { command: string; args: string[] }>;
+      mcpServers: Record<string, { command: string; args: string[]; cwd?: string; default_tools_approval_mode?: string }>;
     }>(
       "plugins/semctx-control/.mcp.json",
     );
@@ -64,18 +70,30 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(Object.keys(codexMcp.mcpServers)).toEqual(["semctx"]);
     expect(Object.keys(claudeMcp.mcpServers)).toEqual(["semctx"]);
     expect(codexMcp.mcpServers.semctx).toEqual({
-      command: "semctx-mcp",
-      args: [],
+      command: "bun",
+      args: ["./dist/semctx-mcp.js"],
+      cwd: ".",
       default_tools_approval_mode: "writes",
     });
     expect(claudeMcp.mcpServers.semctx.command).toBe("bun");
     expect(claudeMcp.mcpServers.semctx.args).toEqual([
-      "${CLAUDE_PLUGIN_ROOT}/bin/semctx-mcp-launcher.ts",
+      "${CLAUDE_PLUGIN_ROOT}/dist/semctx-mcp.js",
     ]);
     expect(claudeMcp.mcpServers.semctx.env).toEqual({
       SEMCTX_ROOT: "${CLAUDE_PROJECT_DIR}",
     });
-    expect(read("plugins/claude-code/bin/semctx-mcp-launcher.ts")).toContain("semctx-mcp");
+    expect(existsSync(resolve(repoRoot, "plugins/claude-code/bin/semctx-mcp-launcher.ts"))).toBe(false);
+    expect(read("plugins/claude-code/dist/semctx-mcp.js")).toBe(read("plugins/semctx-control/dist/semctx-mcp.js"));
+    const codexLibs = typescriptLibs("semctx-control");
+    const claudeLibs = typescriptLibs("claude-code");
+    expect(codexLibs.length).toBeGreaterThan(90);
+    expect(codexLibs).toContain("lib.d.ts");
+    expect(claudeLibs).toEqual(codexLibs);
+    for (const lib of codexLibs) {
+      expect(read(`plugins/claude-code/dist/typescript-lib/${lib}`)).toBe(
+        read(`plugins/semctx-control/dist/typescript-lib/${lib}`),
+      );
+    }
     expect(codexManifest.version.split("+")[0]).toBe(claudeManifest.version.split("+")[0]);
     expect(claudeManifest.skills).toBeUndefined();
     expect(claudeManifest.hooks).toBeUndefined();
@@ -83,6 +101,8 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(marketplace.plugins.find((plugin) => plugin.name === "semctx")?.version).toBe(
       claudeManifest.version,
     );
+    expect(json<{ version: string }>("packages/mcp-server/package.json").version).toBe(claudeManifest.version);
+    expect(read("packages/mcp-server/src/server.ts")).toContain(`version: "${claudeManifest.version}"`);
   });
 
   test("documents the shared Plane A, B, and C workflow for both hosts", () => {

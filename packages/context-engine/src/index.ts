@@ -35,7 +35,6 @@ export {
 export type { TaskFrameExtractor, TaskExtractionContext } from "./task-frame-extractor";
 
 export {
-  analyzeAndBuildClaims,
   extractionContext,
   prepareContextPack,
   fetchProviderCandidates,

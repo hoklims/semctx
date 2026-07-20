@@ -1,18 +1,16 @@
 import { TaskModeSchema } from "@semantic-context/core";
 import type { TaskFrame, ContextPack, TaskFrameInput, TaskMode } from "@semantic-context/core";
-import { isInitialized, initWorkspace, loadConfig, openStore } from "@semantic-context/repository-store";
-import type { SqliteRepositoryStore } from "@semantic-context/repository-store";
+import { loadConfig, openStore } from "@semantic-context/repository-store";
+import type { ReadonlyRepositoryStore, SqliteRepositoryStore } from "@semantic-context/repository-store";
+import { openReadyRepository, runVerify } from "@semantic-context/app-services";
+import type { VerifyReport } from "@semantic-context/core";
 import {
-  GraphIndex,
-  analyzeAndBuildClaims,
   extractionContext,
   defaultTaskExtractor,
   prepareContextPack,
   fetchProviderCandidates,
   inspectGraph,
-  analyzeDiff,
   type InspectionResult,
-  type VerifyResult,
   type InspectKind,
 } from "@semantic-context/context-engine";
 
@@ -20,17 +18,15 @@ export function nowIso(): string {
   return new Date().toISOString();
 }
 
-/** Ensure the repo is initialised and indexed; return an open store. */
-export function ensureReady(root: string): SqliteRepositoryStore {
-  if (!isInitialized(root)) initWorkspace(root);
-  const config = loadConfig(root);
-  const store = openStore(root);
-  if (!store.isIndexed()) {
-    const { analysis, claims } = analyzeAndBuildClaims(config);
-    store.saveGraph(analysis.graph, analysis.evidence);
-    store.replaceClaims(claims);
-  }
-  return store;
+/** Open an explicitly prepared repository without mutating readiness state. */
+export function ensureReady(root: string): ReadonlyRepositoryStore {
+  return openReadyRepository(root);
+}
+
+function openReadyWriter(root: string): SqliteRepositoryStore {
+  const reader = openReadyRepository(root);
+  reader.close();
+  return openStore(root);
 }
 
 export interface PrepareTaskResult {
@@ -40,7 +36,7 @@ export interface PrepareTaskResult {
 
 /** semctx_prepare_task: raw task -> TaskFrame + ContextPack. */
 export async function prepareTaskTool(root: string, input: { task: string; mode?: string }): Promise<PrepareTaskResult> {
-  const store = ensureReady(root);
+  const store = openReadyWriter(root);
   try {
     const config = loadConfig(root);
     const graph = store.loadGraph();
@@ -85,28 +81,14 @@ export function inspectTool(root: string, input: { query: string; kind?: string 
 }
 
 /** semctx_verify_change: analyse a diff (given, or the current git diff). */
-export function verifyChangeTool(root: string, input: { gitDiff?: string }): VerifyResult {
-  const store = ensureReady(root);
-  try {
-    const config = loadConfig(root);
-    const diffText =
-      input.gitDiff !== undefined && input.gitDiff.trim().length > 0 ? input.gitDiff : currentGitDiff(root);
-    return analyzeDiff({ index: new GraphIndex(store.loadGraph()), claims: store.loadClaims(), config, diffText });
-  } finally {
-    store.close();
-  }
+export function verifyChangeTool(root: string, input: { gitDiff?: string }): VerifyReport {
+  const source = input.gitDiff !== undefined && input.gitDiff.trim().length > 0
+    ? { kind: "provided" as const, diffText: input.gitDiff }
+    : { kind: "working-tree" as const };
+  return runVerify(root, source).report;
 }
 
 function normalizeKind(kind: string | undefined): InspectKind | undefined {
   const valid: InspectKind[] = ["symbol", "capability", "invariant", "contract", "test", "document", "any"];
   return kind !== undefined && valid.includes(kind as InspectKind) ? (kind as InspectKind) : undefined;
-}
-
-function currentGitDiff(root: string): string {
-  const proc = Bun.spawnSync(["git", "diff", "HEAD", "--relative", "--unified=0", "--no-color"], {
-    cwd: root,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-  return proc.exitCode === 0 ? new TextDecoder().decode(proc.stdout) : "";
 }

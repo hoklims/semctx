@@ -1,5 +1,6 @@
 import { describe, it, expect } from "bun:test";
-import { analyzeAndBuildClaims, GraphIndex, analyzeDiff, parseUnifiedDiff, buildVerifyReport } from "@semantic-context/context-engine";
+import { GraphIndex, analyzeDiff, parseUnifiedDiff, buildVerifyReport } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import { createDefaultConfig } from "@semantic-context/core";
 import type { RepositoryGraph, Claim } from "@semantic-context/core";
 import { sampleConfig, must } from "@semantic-context/test-fixtures";
@@ -131,6 +132,21 @@ describe("severity tiers — critical contract (strict/BLOCK) vs plain contract 
     expect(result.verdict).toBe("WARN");
     expect(result.findings.some((f) => f.rule === "contract_changed_without_test")).toBe(true);
     expect(result.findings.some((f) => f.rule === "critical_contract_changed_without_test")).toBe(false);
+  });
+});
+
+describe("Plane A marker integration", () => {
+  it("arms the critical contract gate from analyzer output without injected tags", () => {
+    const config = sampleConfig();
+    const { analysis, claims } = analyzeAndBuildClaims(config);
+    const contract = must(analysis.graph.nodes.find((node) => node.name === "ReservationRepository"));
+    const line = must(contract.evidence[0]).startLine ?? 9;
+    const diff = `--- a/src/infra/reservation-repository.ts\n+++ b/src/infra/reservation-repository.ts\n@@ -${line} +${line},2 @@\n+  delete(id: string): Promise<void>;\n`;
+
+    const result = analyzeDiff({ index: new GraphIndex(analysis.graph), claims, config, diffText: diff });
+    expect(contract.tags).toContain("critical");
+    expect(result.verdict).toBe("BLOCK");
+    expect(result.findings.some((finding) => finding.rule === "critical_contract_changed_without_test")).toBe(true);
   });
 });
 

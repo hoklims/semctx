@@ -1,8 +1,9 @@
 /** Filesystem layout of the semantic layer under `.semctx/`. */
 
-import { join } from "node:path";
+import { isAbsolute, join, relative, resolve } from "node:path";
+import { SemctxError } from "@semantic-context/core";
 import { semctxDir } from "@semantic-context/repository-store";
-import type { SemanticNodeKind } from "@semantic-context/semantic-model";
+import { isValidSemanticId, type SemanticNodeKind } from "@semantic-context/semantic-model";
 
 /** Git-versioned source of truth: authored declarations. */
 export function semanticDir(root: string): string {
@@ -33,7 +34,17 @@ export function kindFilePath(root: string, kind: Exclude<SemanticNodeKind, "chan
 }
 
 export function changeFilePath(root: string, changeId: string): string {
-  return join(changesDir(root), `${changeId}.sem`);
+  if (!isValidSemanticId("change", changeId)) {
+    throw new SemctxError("INVALID_TASK_INPUT", `invalid change id: ${changeId}`);
+  }
+
+  const base = resolve(changesDir(root));
+  const target = resolve(base, `${changeId}.sem`);
+  const fromBase = relative(base, target);
+  if (fromBase.startsWith("..") || isAbsolute(fromBase)) {
+    throw new SemctxError("INVALID_TASK_INPUT", `change path escapes changes directory: ${changeId}`);
+  }
+  return target;
 }
 
 export function activeChangePath(root: string): string {

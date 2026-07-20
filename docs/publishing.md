@@ -50,10 +50,25 @@ Then tag the release: `git tag v0.1.0 && git push --tags` (and optionally announ
 `npm whoami` returned 401 in the prep session — that is the only remaining gate. Nothing about the
 package is unresolved.
 
+## Plugin runtime
+
+The Claude Code and Codex plugins now ship byte-identical committed Bun bundles built from
+`packages/mcp-server/src/index.ts`. Each `dist/` also carries the TypeScript standard-library
+declarations used by the analyzer, and the generated runtime resolves them relative to its own
+installed directory rather than the build checkout:
+
+```bash
+bun run plugin:build   # refresh both tracked dist/semctx-mcp.js files
+bun run plugin:check   # fail if either tracked artifact is missing or stale
+```
+
+Plugin, marketplace, MCP package and runtime versions move together. CI runs the freshness check,
+rejects build-machine paths, and performs a real stdio handshake from a copied plugin directory on
+Windows and Ubuntu before the plugin snapshot is publishable.
+
 ## Deliberately out of scope (this pass)
 
-- **Publishing the MCP server / libs separately.** Today the Claude Code plugin wires the MCP
-  server via a local path (`bun packages/mcp-server/src/index.ts`). Distributing it (e.g. a
-  `semctx mcp` subcommand, or a second `bin`) is a deliberate follow-up, not a blocker for the CLI.
+- **Publishing the MCP server as a separate npm package.** Plugin installs use their committed,
+  self-contained runtime and therefore need no global `bun link` or package publish order.
 - **node compatibility.** Deferred by decision #1; the `RepositoryStore` port keeps it a
   single-file change if real demand appears.

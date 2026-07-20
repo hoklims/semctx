@@ -240,7 +240,12 @@ export function analyzeRepository(config: SemctxConfig): AnalysisResult {
 function applyCodeMarkers(builder: GraphBuilder, sym: { relPath: string; startLine: number; markers: import("./markers").ParsedMarker[] }, symbolNodeId: string): void {
   for (const marker of sym.markers) {
     const ev = SYMBOL_EDGE_EVIDENCE(sym.relPath, sym.startLine, "code");
-    if (marker.tag === "capability") {
+    if (marker.tag === "tag") {
+      const symbolNode = builder.nodes.get(symbolNodeId);
+      if (symbolNode !== undefined && !symbolNode.tags.includes(marker.slug)) {
+        symbolNode.tags.push(marker.slug);
+      }
+    } else if (marker.tag === "capability") {
       const id = capabilityId(marker.slug);
       builder.node({ id, kind: "capability", name: marker.slug, evidence: ev, tags: ["from-code"] });
       builder.edge("implements_capability", symbolNodeId, id, ev);

@@ -1,19 +1,16 @@
-import { readFileSync, writeFileSync, renameSync, mkdirSync } from "node:fs";
+import { writeFileSync, renameSync, mkdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { SemctxError } from "@semantic-context/core";
 import type { VerifyReport } from "@semantic-context/core";
-import { loadConfig, openStore } from "@semantic-context/repository-store";
-import { GraphIndex, analyzeDiff, buildVerifyReport, computeCoChanges, parseNameStatusLog } from "@semantic-context/context-engine";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
+import { planVerify, runVerify, type VerifyComputation, type VerifySource } from "@semantic-context/app-services";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, json, c, success, warn, fail, nowIso } from "../output";
 
 type Format = "text" | "json" | "github";
 type FailOn = "block" | "warn" | "none";
-
-// --- git (argv arrays only; never a shell string — no injection surface) ---
 
 function git(root: string, gitArgs: string[]): { code: number; out: string; err: string } {
   const proc = Bun.spawnSync(["git", ...gitArgs], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -23,90 +20,17 @@ function git(root: string, gitArgs: string[]): { code: number; out: string; err:
     err: new TextDecoder().decode(proc.stderr),
   };
 }
-
-function refExists(root: string, ref: string): boolean {
-  return git(root, ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`]).code === 0;
-}
-
-/** How many recent commits to mine for the historical co-change signal. */
-const CO_CHANGE_DEPTH = 400;
-
-/**
- * Historical co-change signal from `git log` (advisory). Never fails verification: a git error
- * (shallow clone, no history) yields an empty signal rather than throwing.
- */
-function computeCoChangeSignal(root: string, changedFiles: readonly string[], head: string): CoChange[] {
-  if (changedFiles.length === 0) return [];
-  // Mine from the RESOLVED head ref (not the implicit worktree HEAD): under --base/--head the
-  // analysed ref can differ from the checkout. --name-status --find-renames keeps rename history.
-  const log = git(root, ["log", head, "--no-merges", "--name-status", "--find-renames", "--format=%x1e", "-n", String(CO_CHANGE_DEPTH)]);
-  if (log.code !== 0) return [];
-  return computeCoChanges(parseNameStatusLog(log.out), changedFiles);
-}
-
-interface Resolved {
-  diffText: string | null; // null in dry-run (range resolved, diff not computed)
-  git: VerifyReportGitMeta;
-}
-
-/** Resolve the git range (or legacy diff source) into a diff + machine-visible git meta. */
-function resolveRange(root: string, args: ParsedArgs, dryRun: boolean): Resolved {
+export function verifySourceFromArgs(args: ParsedArgs): VerifySource {
   const base = flagString(args, "base");
   const head = flagString(args, "head") ?? "HEAD";
-
   if (base !== undefined) {
-    if (!refExists(root, base)) {
-      throw new SemctxError(
-        "GIT_BASE_UNAVAILABLE",
-        `base ref "${base}" is not available locally. In CI, check out with full history ` +
-          `(actions/checkout with fetch-depth: 0). semctx never fetches implicitly.`,
-        { base },
-      );
-    }
-    if (!refExists(root, head)) {
-      throw new SemctxError("GIT_ERROR", `head ref "${head}" does not exist locally.`, { head });
-    }
-    const mb = git(root, ["merge-base", base, head]);
-    if (mb.code !== 0 || mb.out.trim() === "") {
-      throw new SemctxError(
-        "GIT_ERROR",
-        `could not compute a merge-base between "${base}" and "${head}" ` +
-          `(histories may be unrelated or the checkout is shallow — use fetch-depth: 0).`,
-        { stderr: mb.err.trim() },
-      );
-    }
-    const mergeBase = mb.out.trim();
-    const headSha = git(root, ["rev-parse", head]).out.trim();
-    const gitMeta: VerifyReportGitMeta = {
-      base,
-      head,
-      mergeBase,
-      range: `${mergeBase.slice(0, 12)}..${headSha.slice(0, 12)}`,
-    };
-    if (dryRun) return { diffText: null, git: gitMeta };
-    const d = git(root, ["diff", "--relative", "--unified=0", "--no-color", mergeBase, head]);
-    if (d.code !== 0) throw new SemctxError("GIT_ERROR", "git diff failed", { stderr: d.err.trim() });
-    return { diffText: d.out, git: gitMeta };
+    return { kind: "range", base, head };
   }
-
-  // --- legacy sources (no --base): --from-file, --staged, or working tree vs HEAD ---
   const fromFile = flagString(args, "from-file");
   if (fromFile !== undefined) {
-    const meta: VerifyReportGitMeta = { base: null, head: "(from-file)", mergeBase: null, range: null };
-    if (dryRun) return { diffText: null, git: meta };
-    return { diffText: readFileSync(resolve(process.cwd(), fromFile), "utf8"), git: meta };
+    return { kind: "file", path: resolve(process.cwd(), fromFile) };
   }
-  const meta: VerifyReportGitMeta = { base: null, head, mergeBase: null, range: null };
-  if (dryRun) return { diffText: null, git: meta };
-  const staged = flagBool(args, "staged");
-  const gitArgs = staged
-    ? ["diff", "--staged", "--relative", "--unified=0", "--no-color"]
-    : ["diff", "HEAD", "--relative", "--unified=0", "--no-color"];
-  const d = git(root, gitArgs);
-  if (d.code !== 0) {
-    throw new SemctxError("GIT_ERROR", "git diff failed (is this a git repository?)", { stderr: d.err.trim() });
-  }
-  return { diffText: d.out, git: meta };
+  return flagBool(args, "staged") ? { kind: "staged", head } : { kind: "working-tree", head };
 }
 
 // --- output formats ---
@@ -241,33 +165,12 @@ function recordVerification(root: string, verdict: VerifyReport["verdict"]): str
   return path;
 }
 
-export interface VerifyComputation {
-  result: VerifyResult;
-  report: VerifyReport;
-  git: VerifyReportGitMeta;
-  coChanges: CoChange[];
-}
-
 /**
  * Compute the impact analysis + versioned report for a range. The single reusable entry point so
  * that `change verify` (semantic layer) composes this verbatim instead of re-deriving it.
  */
 export function computeVerifyReport(root: string, args: ParsedArgs): VerifyComputation {
-  const config = loadConfig(root);
-  const store = openStore(root);
-  if (!store.isIndexed()) {
-    store.close();
-    throw new SemctxError("REPO_NOT_INDEXED", "repository is not indexed; run 'semctx index' first");
-  }
-  const graph = store.loadGraph();
-  const claims = store.loadClaims();
-  store.close();
-
-  const { diffText, git } = resolveRange(root, args, false);
-  const result = analyzeDiff({ index: new GraphIndex(graph), claims, config, diffText: diffText ?? "" });
-  const coChanges = computeCoChangeSignal(root, result.changedFiles, git.head);
-  const report = buildVerifyReport(result, git, config.blockingRules, coChanges);
-  return { result, report, git, coChanges };
+  return runVerify(root, verifySourceFromArgs(args));
 }
 
 /** `semctx verify diff` — analyse a git range (or the current diff) for impact and violations. */
@@ -277,7 +180,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
   const outputPath = flagString(args, "output");
 
   if (flagBool(args, "dry-run")) {
-    const { git: g } = resolveRange(root, args, true);
+    const g = planVerify(root, verifySourceFromArgs(args));
     heading("Dry run — no analysis, no artifact, no state change");
     info(`  base      : ${g.base ?? "(none)"}`);
     info(`  head      : ${g.head}`);

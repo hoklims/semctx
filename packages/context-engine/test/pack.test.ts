@@ -1,11 +1,11 @@
 import { describe, it, expect } from "bun:test";
 import {
-  analyzeAndBuildClaims,
   prepareContextPack,
   parseTaskDocument,
   defaultTaskExtractor,
   extractionContext,
 } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import type { ContextPack, RepositoryGraph } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED } from "@semantic-context/test-fixtures";
 

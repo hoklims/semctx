@@ -39,4 +39,8 @@ as quickly as the severity warrants.
   a project opts in, it gates only `git commit`/`git push`, keyed on a diff hash — it runs no
   analysis and parses the command structurally (argv tokens, never a shell eval). It is strictly
   disableable with `SEMCTX_GUARD=off`. The verification-state file is git-ignored and written
-  atomically.
+  atomically. This is a cooperative workflow gate, not anti-tamper enforcement: the same principal
+  can forge the state, disable the hook, bypass recognized Bash shapes, or run Git outside Claude.
+- **Authored semantic state** (`.semctx/semantic/*.sem`) is also cooperative trust. Normal CLI/MCP
+  APIs require proved evidence before resolving an unknown and a fresh composed `VERIFIED` verdict
+  before closing a change as verified, but a co-located principal can still edit the files directly.

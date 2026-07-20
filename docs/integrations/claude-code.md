@@ -17,29 +17,27 @@ user request
 
 ## Install from a clone
 
-Requirements: Claude Code with plugin support, Bun 1.3 or newer, Node for the optional guard hook,
-and this repository's dependencies.
+Requirements: Claude Code with plugin support, Bun 1.3 or newer, and Node for the optional guard
+hook. The marketplace plugin contains its own MCP runtime; no clone-time link is required.
 
 ```powershell
-bun install --frozen-lockfile
-Push-Location packages/mcp-server
-bun link
-Pop-Location
 claude plugin marketplace add ./
 claude plugin install semctx@semctx --scope user
 ```
 
-`bun link` registers the `semctx-mcp` package executable used by both plugins. Claude Code launches
-the bundled `bin/semctx-mcp-launcher.ts`, which asks Bun for its global-bin directory instead of
-assuming Claude's subprocess `PATH` contains it. Claude Code copies installed plugins into its
-cache, so the launcher itself never reaches back into the source checkout. `SEMCTX_ROOT` binds the
-server to `${CLAUDE_PROJECT_DIR}`.
+Claude Code launches the committed `dist/semctx-mcp.js` bundle from its plugin cache through Bun.
+It never reaches back into the source checkout and does not depend on a globally linked
+`semctx-mcp`. Every tool call carries the absolute `${CLAUDE_PROJECT_DIR}` as `repositoryRoot`;
+missing or relative roots are rejected.
 
 Restart Claude Code after installation. Then initialise each target repository once:
 
 ```text
 semctx setup
 ```
+
+Inspect and verify tools fail closed with `CONFIG_NOT_FOUND` or `REPO_NOT_INDEXED`; they never run
+setup or mutate readiness implicitly.
 
 If semctx was previously registered directly in the user MCP configuration, remove that legacy
 entry after installing the plugin to avoid two servers exposing the same tools:
@@ -113,14 +111,14 @@ verification. It never blocks edits, tests, exploration, trace or plan tools. Se
 
 ## MCP without the plugin
 
-If only the MCP server is needed, register the linked executable directly:
+For source development without the plugin, launch the entrypoint directly:
 
 ```json
 {
   "mcpServers": {
     "semctx": {
-      "command": "semctx-mcp",
-      "args": [],
+      "command": "bun",
+      "args": ["/absolute/path/to/semctx/packages/mcp-server/src/index.ts"],
       "env": { "SEMCTX_ROOT": "." }
     }
   }
@@ -132,5 +130,4 @@ If only the MCP server is needed, register the linked executable directly:
 ```powershell
 claude plugin uninstall semctx@semctx
 claude plugin marketplace remove semctx
-bun unlink @semantic-context/mcp-server
 ```

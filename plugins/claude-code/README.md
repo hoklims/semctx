@@ -61,7 +61,7 @@ non-terminal git commands. It compares a hash of the working diff to the last ve
 
 ## Requirements
 
-- **Bun** on PATH (the MCP server runs under Bun and is linked as `semctx-mcp`).
+- **Bun** on PATH (the bundled MCP server runs under Bun; no global `semctx-mcp` link is needed).
 - **Node** on PATH (the guard hook runs under Node, so it works even where Bun is absent).
 - The project should be initialised and indexed once with `semctx setup`. The legacy equivalent is
   `semctx init && semctx index`; `semctx setup --preset github-claude` also installs the preset
@@ -70,10 +70,6 @@ non-terminal git commands. It compares a hash of the working diff to the last ve
 Install from this clone:
 
 ```powershell
-bun install --frozen-lockfile
-Push-Location packages/mcp-server
-bun link
-Pop-Location
 claude plugin marketplace add ./
 claude plugin install semctx@semctx --scope user
 ```
@@ -85,12 +81,11 @@ If an older direct MCP registration is still present, remove it after the plugin
 
 ## Notes
 
-- The MCP server resolves its repository from `SEMCTX_ROOT` (set to `${CLAUDE_PROJECT_DIR}` here);
-  if your setup does not expose that variable, the server falls back to the process working
-  directory.
-- Both host plugins launch the same linked `semctx-mcp` package. Claude uses the bundled launcher
-  to resolve Bun's global-bin directory even when that directory is absent from the subprocess
-  `PATH`; Codex can launch the linked executable directly. The server implementation stays shared.
+- Every MCP call must pass the absolute project path as `repositoryRoot`; missing or relative roots
+  are rejected.
+- Both host plugins ship byte-identical `dist/semctx-mcp.js` artifacts built from the same server
+  entrypoint. Claude also binds `SEMCTX_ROOT`, while the shared skill passes the explicit
+  `repositoryRoot` required by the common Claude/Codex machine contract.
 - Invoke the shared workflow explicitly as `semctx-control` for migrations, architecture work,
   generic demonstrations or cross-plane verification. The narrower skills remain available for
   backward compatibility.

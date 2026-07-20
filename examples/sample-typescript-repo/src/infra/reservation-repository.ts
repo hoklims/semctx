@@ -5,6 +5,7 @@ import type { Reservation, Slot } from "../domain/reservation";
  *
  * @boundedContext booking
  * @contract reservation-repository-port: exposes getSlot, getReservation, listReservations, save
+ * @tag critical
  */
 export interface ReservationRepository {
   getSlot(slotId: string): Promise<Slot>;

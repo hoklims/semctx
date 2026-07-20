@@ -15,9 +15,9 @@ draft → active → verified
 ```
 
 `change open` creates it (default `active`; `--draft` to stage). `change verify` computes a composite
-verdict; `change close` marks it `verified` (or `--superseded`). The lifecycle is authored state — it
-is not silently mutated by `verify` (the verdict maps to a lifecycle via `lifecycleForVerdict`, which
-you can apply with `change update --status`).
+verdict without mutating the contract. `change close` derives `verified` only after running a fresh
+composed verification that returns `VERIFIED` (or records `--superseded` without making a proof
+claim). Generic `change update --status` cannot assert `verified`.
 
 ## Composed verification
 
@@ -38,7 +38,9 @@ then folds in the contract:
    relaxed its rule to warn** — the semantic layer asserts its own criticality.
 3. **Required evidence** — each `requires_evidence` id must have a *proven* status
    (`tested`/`statically_verified`/`runtime_verified`); otherwise it is a pending proof obligation.
-4. **Open unknowns** — listed; non-critical contribute PARTIAL, critical (tagged) escalate.
+4. **Open unknowns** — listed; non-critical contribute PARTIAL, critical (tagged) escalate. An
+   unknown can be resolved only after its authored node has a `proved_by` relation to evidence in a
+   proven status.
 5. **Stale / dangling** — a repository link on the change or a referenced node that no longer
    resolves, or a `preserves`/`requires` id that is not declared.
 6. **Superseded decisions** — a decision that `justifies` a preserved invariant and is superseded or
@@ -59,8 +61,12 @@ verdict = BLOCKED  if any block finding      (underlying BLOCK, critical unprove
 
 Crucially, `change verify` **never turns PARTIAL into VERIFIED on its own**. `semctx` is static; a
 required proof becomes obtained only when you run the test and record the evidence node's status as
-`tested`/`runtime_verified` (then resolve the unknown). The tool tracks declared/obtained state — it
-does not run your tests for you.
+`tested`/`runtime_verified`. To resolve an unknown, its node must also declare `proved_by` to that
+proven evidence. The tool tracks declared/obtained state — it does not run your tests for you.
+
+This remains a cooperative trust boundary: versioned `.semctx/semantic/*.sem` files can be edited
+directly. CLI and MCP mutations enforce the proof gates, but semctx does not provide cryptographic
+attestation or prevent a repository author from forging authored state.
 
 ## Example verdict (text)
 
@@ -103,11 +109,11 @@ Absent block → defaults above. The composed report (`ChangeVerifyReport`) is v
 
 ```
 semctx change open   change.<slug> --preserves <inv-ids> --requires <ev-ids> --unknown <unk-ids>
-semctx change update change.<slug> --resolve-unknown <unk-ids> --status <lifecycle>
+semctx change update change.<slug> --resolve-unknown <unk-ids> --status <non-verified-lifecycle>
 semctx change verify change.<slug> --base origin/main [--format json] [--fail-on block|partial|none]
 semctx change close  change.<slug> [--superseded]
 ```
 
-MCP: `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_semantic_inspect`
-(changes authored via MCP carry `provenance: agent`). Exit codes: BLOCKED/STALE → 3; PARTIAL/VERIFIED
-→ 0 (unless `--fail-on partial`).
+MCP: `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_change_close`,
+`semctx_semantic_inspect` (changes authored via MCP carry `provenance: agent`). Exit codes:
+BLOCKED/STALE → 3; PARTIAL/VERIFIED → 0 (unless `--fail-on partial`).
