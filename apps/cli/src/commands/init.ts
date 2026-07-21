@@ -1,12 +1,13 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { initWorkspace, openStore, isInitialized } from "@semantic-context/repository-store";
+import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, success, heading, json, c, warn } from "../output";
 import { runPreset } from "./preset";
 
-/** `semctx init` — create .semctx/, the SQLite db and config. Never touches app code. */
+/** `semctx init` — create .semctx/, the SQLite db, config, and non-destructive ignore policy. */
 export function runInit(root: string, args: ParsedArgs): number {
   const preset = flagString(args, "preset");
   if (preset !== undefined) return runPreset(root, preset, args);
@@ -22,6 +23,7 @@ export function runInit(root: string, args: ParsedArgs): number {
 
   const config = initWorkspace(root);
   openStore(root).close();
+  ensureSemanticGitignore(root);
 
   if (flagBool(args, "json")) {
     json({ initialized: true, alreadyInitialized: already, root, detected, config });

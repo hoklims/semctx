@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import packageJson from "../package.json";
 import { z } from "zod";
 import { isAbsolute, resolve } from "node:path";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
@@ -51,7 +52,7 @@ function errorResult(err: unknown): TextResult {
 
 /** Build the semctx MCP server bound to a repository root. */
 export function createSemctxServer(root: string): McpServer {
-  const server = new McpServer({ name: "semctx", version: "0.1.7" });
+  const server = new McpServer({ name: "semctx", version: packageJson.version });
 
   // --- Primary tool: change-impact analysis + verdict. Deterministic, marker-independent.
   server.registerTool(

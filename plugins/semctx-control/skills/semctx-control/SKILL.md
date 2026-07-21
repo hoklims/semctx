@@ -21,11 +21,12 @@ For every MCP call, pass `repositoryRoot` as the absolute root of the repository
 1. Establish the repository state with normal code search and Git inspection. Do not use `semctx_prepare_task` as code search.
 2. Rehydrate existing intent with `semctx_resume`, `semctx_semantic_inspect`, or `semctx_semantic_slice` when a change id or semantic id exists. Treat anything absent from the bounded slice as unknown, not false.
 3. Use `semctx_control_trace` to connect repository and semantic coordinates across L0-L6. Keep traversal bounded and label observed, authored, inferred, and ambiguous statements honestly.
-4. Use `semctx_control_plan` only for an explicit target architecture. Treat `BLOCKED` for a missing target, open unknowns, stale links, or insufficient proof as the correct fail-closed result.
-5. On a write-scoped task, use `semctx_change_open` or `semctx_change_update` to record the goal, preserved invariants, required evidence, and unresolved unknowns before substantial edits.
-6. Make the smallest coherent change. Run the runtime tests selected by the impact report; semctx never runs or replaces them.
-7. After edits, call `semctx_verify_change`, record only evidence actually obtained, then call `semctx_change_verify` when a change contract exists. Resolve an unknown only after its authored node has a `proved_by` relation to evidence in a proven status. A `verified` lifecycle is derived by composed verification and cannot be asserted through a generic update.
-8. Before compaction or handoff on a write-scoped task, call `semctx_handoff`. In a fresh context, call `semctx_resume` first. A read-only task must remain mutation-free.
+4. Record the returned `freshnessSeal.sealHash` and inspect its current/indexed input pairs. The seal is an attestation, not a verdict: null or unequal fields must stay explicit and must not be renamed `FRESH`, `DIRTY_KNOWN`, `STALE`, or `UNSEALED` until the dedicated preflight exists.
+5. Use `semctx_control_plan` only for an explicit target architecture. Treat `BLOCKED` for a missing target, open unknowns, stale links, or insufficient proof as the correct fail-closed result.
+6. On a write-scoped task, use `semctx_change_open` or `semctx_change_update` to record the goal, preserved invariants, required evidence, and unresolved unknowns before substantial edits.
+7. Make the smallest coherent change. Run the runtime tests selected by the impact report; semctx never runs or replaces them.
+8. After edits, call `semctx_verify_change`, record only evidence actually obtained, then call `semctx_change_verify` when a change contract exists. Resolve an unknown only after its authored node has a `proved_by` relation to evidence in a proven status. A `verified` lifecycle is derived by composed verification and cannot be asserted through a generic update.
+9. Before compaction or handoff on a write-scoped task, call `semctx_handoff`. In a fresh context, call `semctx_resume` first. A read-only task must remain mutation-free.
 
 ## Verdict namespaces
 
@@ -39,11 +40,12 @@ For every MCP call, pass `repositoryRoot` as the absolute root of the repository
 - Never authorize cutover or legacy deletion from LLM-only, hypothetical, historical-only, or stale evidence.
 - Never claim completion on `BLOCK`, `BLOCKED`, or `STALE`.
 - Never upgrade declared evidence to obtained evidence without running or observing the corresponding check.
+- Never treat a freshness seal as a freshness verdict or authenticity signature. Preserve nulls and current/indexed mismatches verbatim.
 - Preserve the separation of authority: repository facts are observed, semantic intent is authored, and control reports are projections over both.
 
 ## Completion report
 
-Report the framed objective, authority sources, L0-L6 impact trace, initial plan verdict, files changed, runtime checks actually run, final Plane A/B/C verdicts, residual unknowns, and what semctx prevented from being changed unsafely.
+Report the framed objective, authority sources, freshness seal hash and input mismatches, L0-L6 impact trace, initial plan verdict, files changed, runtime checks actually run, final Plane A/B/C verdicts, residual unknowns, and what semctx prevented from being changed unsafely.
 
 ## Local equivalents when MCP is unavailable
 

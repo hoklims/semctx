@@ -6,7 +6,9 @@ default cwd), `--json` (machine output where supported).
 
 ## `init`
 
-Create `.semctx/` (SQLite db + config). Never touches application code.
+Create `.semctx/` (SQLite db + config) and install the non-destructive `.gitignore` policy that keeps
+authored `.semctx/semantic/` files versioned while excluding local runtime state. Never touches
+application code.
 
 | option | description |
 | --- | --- |
@@ -17,7 +19,8 @@ Create `.semctx/` (SQLite db + config). Never touches application code.
 
 ## `index`
 
-Analyse the repository into the deterministic graph. `--json` prints counts.
+Analyse the repository into the deterministic graph and atomically capture its control index
+snapshot. `--json` prints counts plus the versioned `freshnessSeal`; text output prints its hash.
 
 ## `verify diff`
 
@@ -68,6 +71,8 @@ semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower
 
 `lift` only returns paths ending at a higher requested level; `lower` does the inverse. Results are
 bounded, deterministic and evidence-backed. Unsupported/unmapped inputs remain explicit.
+JSON results include the local `freshnessSeal` that binds the current Git, Plane A, Plane B, schema
+and producer inputs. It is an attestation, not a freshness verdict.
 
 ## `control plan`
 
@@ -80,6 +85,7 @@ semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>
 Without `--target`, the command succeeds as a diagnostic but reports
 `BLOCKED / target_architecture_missing`; it never invents a target. A supplied delta is checked
 against the computed current/target delta. Neither control command creates or updates `.semctx`.
+Plan JSON carries the same freshness-seal contract as trace JSON.
 
 ## Experimental
 

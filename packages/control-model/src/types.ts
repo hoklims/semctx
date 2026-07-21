@@ -93,6 +93,32 @@ export interface CoordinateGraphReport {
   unmapped: UnmappedCoordinateSource[];
 }
 
+export type Sha256Hash = `sha256:${string}`;
+
+export interface ControlFreshnessSeal {
+  sealSchemaVersion: 1;
+  kind: "control_freshness_seal";
+  algorithm: "sha256-v1";
+  repositoryRoot: string;
+  indexedRepositoryRoot: string | null;
+  headAtCapture: string | null;
+  indexedHeadCommit: string | null;
+  repositoryGraphHash: Sha256Hash;
+  indexedRepositoryGraphHash: Sha256Hash | null;
+  semanticModelHash: Sha256Hash;
+  indexedSemanticModelHash: Sha256Hash | null;
+  analysisInputHash: Sha256Hash;
+  indexedAnalysisInputHash: Sha256Hash | null;
+  workingDiffHash: Sha256Hash | null;
+  indexedWorkingDiffHash: Sha256Hash | null;
+  indexedAt: string | null;
+  storeSchemaVersion: number | null;
+  indexedStoreSchemaVersion: number | null;
+  toolVersion: string;
+  indexedToolVersion: string | null;
+  sealHash: Sha256Hash;
+}
+
 export type TraversalDirection = "lift" | "lower";
 
 export interface TraversalReport {
@@ -106,6 +132,7 @@ export interface TraversalReport {
   maxQueue: number;
   paths: CoordinatePath[];
   truncated: boolean;
+  freshnessSeal?: ControlFreshnessSeal;
 }
 
 export interface ImpactedCoordinate {
@@ -355,6 +382,7 @@ export interface MigrationPlan {
 export interface MigrationPlanReport {
   schemaVersion: 1;
   plan: MigrationPlan;
+  freshnessSeal?: ControlFreshnessSeal;
 }
 
 export type AuthorizationDecision = "ALLOW" | "DENY";

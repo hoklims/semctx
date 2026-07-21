@@ -224,6 +224,11 @@ plan, and explain why a step is blocked. It is deliberately fail-closed: no targ
 LLM-only evidence authorizes nothing, and legacy deletion stays denied without fresh static, runtime,
 test and human proof.
 
+Indexing also emits a versioned local freshness seal. Trace and plan reports carry that same
+contract, binding repository root, current/indexed Git state, direct analyzer inputs, Plane A, Plane B
+and schema/tool versions. The seal is an input attestation only; the next roadmap milestone owns the explicit
+`FRESH` / `DIRTY_KNOWN` / `STALE` / `UNSEALED` verdict.
+
 ```bash
 semctx control trace repo:<graph-id> --direction lift --to 5 --json
 semctx control plan change.<slug> --target target-architecture.json --json

@@ -2,8 +2,8 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { createDefaultConfig } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
-import { isInitialized, loadConfig, saveConfig, openStore, semctxDir } from "@semantic-context/repository-store";
-import { analyzeAndBuildClaims } from "@semantic-context/app-services";
+import { isInitialized, loadConfig, saveConfig, semctxDir } from "@semantic-context/repository-store";
+import { indexRepository, openReadyRepository } from "@semantic-context/app-services";
 import { countTypeScriptFiles } from "@semantic-context/ts-analyzer";
 import { initSemanticScaffold, loadSemanticModel, checkSemanticModel, type RepositoryFacts } from "@semantic-context/semantic-engine";
 import { runPreset } from "./preset";
@@ -53,7 +53,12 @@ export function runSetup(root: string, args: ParsedArgs): number {
   const config = loadConfig(root);
   line(`  ${c.green("ok")} config    ${already && preset === undefined ? c.dim("existing, kept") : c.dim("written to " + semctxDir(root))}`);
 
-  // 2. index — announce the scale BEFORE the (blocking, possibly slow) TypeScript analysis.
+  // 2. semantic scaffold — establish Plane B before the index captures its sealed snapshot.
+  const scaffold = initSemanticScaffold(root, {});
+  const created = scaffold.plan.filter((p) => p.action === "create").length;
+  line(`  ${c.green("ok")} semantic  ${created > 0 ? `${created} file(s) scaffolded ${c.dim("(.semctx/semantic/, versioned)")}` : c.dim("already present")}`);
+
+  // 3. index — announce the scale BEFORE the (blocking, possibly slow) TypeScript analysis.
   // Discovery walks the whole repo (honouring ignored dirs + config.exclude), not config.include.
   const fileCount = countTypeScriptFiles(config);
   if (fileCount === 0) {
@@ -62,19 +67,15 @@ export function runSetup(root: string, args: ParsedArgs): number {
     line(`  ${c.dim("··")} index     analyzing ${c.bold(String(fileCount))} TypeScript file(s)…${fileCount > 1500 ? c.dim("  (large repo — add big/generated dirs to config 'exclude' to speed this up)") : ""}`);
   }
   const t0 = Date.now();
-  const { analysis, claims } = analyzeAndBuildClaims(config);
-  const store = openStore(root);
-  store.saveGraph(analysis.graph, analysis.evidence);
-  store.replaceClaims(claims);
-  store.setMeta("indexed_at", nowIso());
-  const facts: RepositoryFacts = { graph: store.loadGraph(), claims: store.loadClaims(), evidence: store.loadEvidence() };
-  store.close();
+  const { analysis, claims, freshnessSeal } = indexRepository(root, nowIso());
+  const reader = openReadyRepository(root);
+  let facts: RepositoryFacts;
+  try {
+    facts = { graph: reader.loadGraph(), claims: reader.loadClaims(), evidence: reader.loadEvidence() };
+  } finally {
+    reader.close();
+  }
   line(`  ${c.green("ok")} index     ${c.bold(String(analysis.graph.nodes.length))} nodes, ${c.bold(String(analysis.graph.edges.length))} edges, ${c.bold(String(claims.length))} claims  ${c.dim(`(${elapsed(t0)})`)}`);
-
-  // 3. semantic scaffold — create `.semctx/semantic/**` if absent (skips existing files).
-  const scaffold = initSemanticScaffold(root, {});
-  const created = scaffold.plan.filter((p) => p.action === "create").length;
-  line(`  ${c.green("ok")} semantic  ${created > 0 ? `${created} file(s) scaffolded ${c.dim("(.semctx/semantic/, versioned)")}` : c.dim("already present")}`);
 
   // 4. check — validate the authored model + repository links.
   const loaded = loadSemanticModel(root);
@@ -89,6 +90,7 @@ export function runSetup(root: string, args: ParsedArgs): number {
       nodes: analysis.graph.nodes.length,
       edges: analysis.graph.edges.length,
       claims: claims.length,
+      freshnessSeal,
       semanticFilesCreated: created,
       gitignore: scaffold.gitignore.action,
       check: { ok: check.ok, nodes: check.counts.nodes, changes: check.counts.changes, errors: check.counts.errors },

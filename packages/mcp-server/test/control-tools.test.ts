@@ -57,6 +57,7 @@ describe("Plane C MCP handlers", () => {
     const blocked = controlPlanTool(root, { changeId: CHANGE });
     expect(blocked.plan.status).toBe("BLOCKED");
     expect(blocked.plan.blockedReason).toBe("target_architecture_missing");
+    expect(blocked.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
 
     const current = blocked.plan.current;
     const ready = controlPlanTool(root, {
@@ -75,6 +76,7 @@ describe("Plane C MCP handlers", () => {
     const report = controlTraceTool(root, { sourceId, direction: "lift", maxDepth: 4, maxResults: 10 });
     expect(report.schemaVersion).toBe(1);
     expect(report.sourceId).toBe(sourceId);
+    expect(report.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(snapshot(root)).toBe(before);
   });
 

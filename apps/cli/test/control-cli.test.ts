@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
 import { parseArgs } from "../src/args";
@@ -12,6 +12,21 @@ import { runInit } from "../src/commands/init";
 let root: string;
 const CHANGE = "change.control-plane-transport";
 const BLOCKED_CHANGE = "change.control-plane-open-unknown";
+
+function git(cwd: string, ...args: string[]): void {
+  const result = Bun.spawnSync(["git", ...args], { cwd, stdout: "pipe", stderr: "pipe" });
+  if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+}
+
+function withoutStdout<T>(action: () => T): T {
+  const originalWrite = process.stdout.write.bind(process.stdout);
+  (process.stdout.write as unknown) = (): boolean => true;
+  try {
+    return action();
+  } finally {
+    process.stdout.write = originalWrite;
+  }
+}
 
 function run(argv: string[]): { code: number; out: string } {
   const originalWrite = process.stdout.write.bind(process.stdout);
@@ -90,6 +105,8 @@ describe("semctx control CLI", () => {
     expect(report.schemaVersion).toBe(1);
     expect(report.plan.status).toBe("BLOCKED");
     expect(report.plan.blockedReason).toBe("target_architecture_missing");
+    expect(report.freshnessSeal.kind).toBe("control_freshness_seal");
+    expect(report.freshnessSeal.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
 
   it("returns READY with a valid target and leaves every repository byte unchanged", () => {
@@ -129,10 +146,50 @@ describe("semctx control CLI", () => {
     expect(report.sourceId).toBe(sourceId);
     expect(report.maxDepth).toBe(3);
     expect(report.maxResults).toBe(5);
+    expect(report.freshnessSeal.kind).toBe("control_freshness_seal");
   });
 
   it("rejects an empty qualified id at the CLI boundary", () => {
     expect(() => run(["control", "trace", "repo:", "--json"])).toThrow("trace id must be qualified");
     expect(() => run(["control", "trace", "semantic:", "--json"])).toThrow("trace id must be qualified");
+  });
+
+  it("keeps the init-to-index freshness seal stable in a Git repository", () => {
+    const repo = mkdtempSync(join(tmpdir(), "semctx-init-index-freshness-"));
+    try {
+      writeFileSync(join(repo, "input.ts"), "export const value = 1;\n", "utf8");
+      git(repo, "init");
+      git(repo, "add", ".");
+      git(repo, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
+
+      withoutStdout(() => runInit(repo, parseArgs(["init", "--root", repo])));
+      withoutStdout(() => runIndex(`${repo}${sep}.`, parseArgs(["index", "--root", `${repo}${sep}.`])));
+      const seal = loadCurrentControlState(repo).freshnessSeal;
+
+      expect(readFileSync(join(repo, ".gitignore"), "utf8")).toContain(".semctx/*");
+      const currentState = {
+        repositoryRoot: seal.repositoryRoot,
+        headCommit: seal.headAtCapture,
+        repositoryGraphHash: seal.repositoryGraphHash,
+        semanticModelHash: seal.semanticModelHash,
+        analysisInputHash: seal.analysisInputHash,
+        workingDiffHash: seal.workingDiffHash,
+        storeSchemaVersion: seal.storeSchemaVersion,
+        toolVersion: seal.toolVersion,
+      };
+      const indexedState = {
+        repositoryRoot: seal.indexedRepositoryRoot,
+        headCommit: seal.indexedHeadCommit,
+        repositoryGraphHash: seal.indexedRepositoryGraphHash,
+        semanticModelHash: seal.indexedSemanticModelHash,
+        analysisInputHash: seal.indexedAnalysisInputHash,
+        workingDiffHash: seal.indexedWorkingDiffHash,
+        storeSchemaVersion: seal.indexedStoreSchemaVersion,
+        toolVersion: seal.indexedToolVersion,
+      };
+      expect(JSON.stringify(currentState)).toBe(JSON.stringify(indexedState));
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
   });
 });

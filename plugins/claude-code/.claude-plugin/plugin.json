@@ -1,7 +1,7 @@
 {
   "name": "semctx",
   "description": "Trace repository impact, authored intent and fail-closed migration plans, then verify changes with proof-honest verdicts. Local-first and deterministic.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": {
     "name": "hoklims",
     "email": "hoklims@gmail.com",

@@ -4,6 +4,7 @@ import {
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
   CoordinateGraphReportSchema,
+  ControlFreshnessSealSchema,
   DELETION_PREREQUISITE_OBLIGATIONS,
   EPISTEMIC_STATUSES,
   MIGRATION_STATES,
@@ -15,6 +16,7 @@ import {
   REPOSITORY_LEVEL_MAPPING,
   SEMANTIC_LEVEL_MAPPING,
   SemanticLevelSchema,
+  MigrationPlanReportSchema,
   SourceKindLevelMappingSchema,
   serializeControlReport,
   compareCodeUnits,
@@ -39,6 +41,30 @@ const delta = {
   removedRelations: [],
   changedRelations: [],
   changedInvariantIds: [],
+};
+const hash = `sha256:${"a".repeat(64)}`;
+const freshnessSeal = {
+  sealSchemaVersion: 1 as const,
+  kind: "control_freshness_seal" as const,
+  algorithm: "sha256-v1" as const,
+  repositoryRoot: "C:\\work\\repository",
+  indexedRepositoryRoot: null,
+  headAtCapture: "abc123",
+  indexedHeadCommit: null,
+  repositoryGraphHash: hash,
+  indexedRepositoryGraphHash: null,
+  semanticModelHash: hash,
+  indexedSemanticModelHash: null,
+  analysisInputHash: hash,
+  indexedAnalysisInputHash: null,
+  workingDiffHash: hash,
+  indexedWorkingDiffHash: null,
+  indexedAt: null,
+  storeSchemaVersion: 1,
+  indexedStoreSchemaVersion: null,
+  toolVersion: "@semantic-context/app-services@0.1.8",
+  indexedToolVersion: null,
+  sealHash: hash,
 };
 
 describe("Plane C closed vocabularies", () => {
@@ -131,6 +157,58 @@ describe("external report schemas", () => {
     unmapped: [],
   };
 
+  const traversalReport = {
+    schemaVersion: 1 as const,
+    direction: "lift" as const,
+    sourceId: "repo:x",
+    targetLevel: 2,
+    maxDepth: 3,
+    maxResults: 10,
+    maxExpansions: 100,
+    maxQueue: 50,
+    paths: [],
+    truncated: false,
+  };
+
+  const migrationPlanReport = {
+    schemaVersion: 1 as const,
+    plan: {
+      id: "plan:change.x", changeId: "change.x", planningCommit: current.commit, status: "BLOCKED" as const,
+      blockedReason: "target_architecture_missing" as const,
+      blockedDetails: [{ schemaVersion: 1 as const, reason: "target_architecture_missing" as const, subjectIds: [], message: "target required" }],
+      planningContext: { id: "change.x", serves: [], preserves: [], requiredEvidence: [], openUnknowns: [] },
+      current, steps: [], outstandingObligations: ["target_reviewed" as const],
+    },
+  };
+
+  it("validates the strict control freshness seal contract", () => {
+    expect(ControlFreshnessSealSchema.parse(freshnessSeal)).toEqual(freshnessSeal);
+    for (const field of [
+      "repositoryGraphHash",
+      "indexedRepositoryGraphHash",
+      "semanticModelHash",
+      "workingDiffHash",
+      "sealHash",
+    ] as const) {
+      for (const malformed of [
+        "sha256:abc",
+        `sha256:${"A".repeat(64)}`,
+        `sha512:${"a".repeat(64)}`,
+      ]) {
+        expect(ControlFreshnessSealSchema.safeParse({ ...freshnessSeal, [field]: malformed }).success).toBe(false);
+      }
+    }
+    expect(ControlFreshnessSealSchema.safeParse({ ...freshnessSeal, algorithm: "sha512" }).success).toBe(false);
+    expect(ControlFreshnessSealSchema.safeParse({ ...freshnessSeal, sealSchemaVersion: 2 }).success).toBe(false);
+    expect(ControlFreshnessSealSchema.safeParse({ ...freshnessSeal, verdict: "FRESH" }).success).toBe(false);
+  });
+
+  it("accepts additive freshness seals on traversal and migration plan reports", () => {
+    expect(PublicControlReportSchema.safeParse({ ...traversalReport, freshnessSeal }).success).toBe(true);
+    expect(MigrationPlanReportSchema.safeParse({ ...migrationPlanReport, freshnessSeal }).success).toBe(true);
+    expect(PublicControlReportSchema.safeParse({ ...migrationPlanReport, freshnessSeal }).success).toBe(true);
+  });
+
   it("validates a coordinate report with explicit L0-L6 coverage", () => {
     expect(CoordinateGraphReportSchema.parse(coordinateReport).coverage).toHaveLength(7);
     expect(CoordinateGraphReportSchema.safeParse({ ...coordinateReport, schemaVersion: 2 }).success).toBe(false);
@@ -160,18 +238,11 @@ describe("external report schemas", () => {
   it("requires schemaVersion 1 on every public report kind", () => {
     const reports = [
       coordinateReport,
-      { schemaVersion: 1, direction: "lift", sourceId: "repo:x", targetLevel: 2, maxDepth: 3, maxResults: 10, maxExpansions: 100, maxQueue: 50, paths: [], truncated: false },
+      traversalReport,
       { schemaVersion: 1, sourceIds: ["repo:x"], maxDepth: 3, maxResults: 10, maxExpansions: 100, maxQueue: 50, affected: [], truncated: false },
       { schemaVersion: 1, sourceId: "repo:x", maxDepth: 3, maxResults: 10, maxExpansions: 100, maxQueue: 50, known: false, rationaleIds: [], paths: [], unknownReason: "rationale_not_authored" },
       { schemaVersion: 1, current, target, delta },
-      {
-        schemaVersion: 1,
-        plan: {
-          id: "plan:change.x", changeId: "change.x", planningCommit: current.commit, status: "BLOCKED",
-          blockedReason: "target_architecture_missing", blockedDetails: [{ schemaVersion: 1, reason: "target_architecture_missing", subjectIds: [], message: "target required" }],
-          planningContext: { id: "change.x", serves: [], preserves: [], requiredEvidence: [], openUnknowns: [] }, current, steps: [], outstandingObligations: ["target_reviewed"],
-        },
-      },
+      migrationPlanReport,
       {
         schemaVersion: 1, decision: "DENY", fromState: "OBSERVED", toState: "TARGET_PROPOSED", risk: "R0",
         reasons: ["transition_not_adjacent"], proofEvaluations: [], details: [],

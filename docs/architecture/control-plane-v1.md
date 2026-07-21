@@ -16,6 +16,50 @@ Plane C never writes back into A or B. Its CLI and MCP adapters open the existin
 a narrow read-only interface and load Plane B from its authored files. Missing inputs produce a
 versioned `BLOCKED` report, not an inferred target.
 
+## Control freshness seal
+
+Every successful index now captures one versioned `control_index_snapshot_v1` envelope and writes
+the graph, evidence, claims and envelope in the same SQLite transaction. The envelope records the
+canonical root, captured `HEAD`, Plane A repository-graph hash, direct analyzer-input manifest, full
+Plane B semantic-model hash, working-diff hash, store/tool versions and capture time. `semctx setup`
+creates or preserves Plane B before indexing, so the semantic model belongs to the state being
+sealed.
+
+`semctx index --json`, Plane C trace reports and migration-plan reports expose a strict
+`ControlFreshnessSeal`. It binds:
+
+- the canonical local repository `realpath`;
+- `headAtCapture` and the distinct `indexedHeadCommit`;
+- current and indexed Plane A graph hashes;
+- current and indexed analyzer-input hashes (parsed config plus every discovered source/test/doc/
+  migration path, role and content hash, including inputs ignored by Git);
+- current and indexed Plane B hashes, including source file/line provenance;
+- current and indexed working-diff hashes;
+- seal schema, store schema and producing application-service version.
+
+All hashes use domain-separated SHA-256 v1 inputs and deterministic code-unit ordering. One
+`--no-optional-locks` Git porcelain-v2 capture binds `HEAD`, staged object ids, tracked worktree bytes
+and non-ignored untracked paths/modes/bytes without refreshing the Git index. Semctx's own mutable
+SQLite files (`semctx.db` plus WAL, SHM and journal sidecars) are excluded from that working-diff
+hash; the persisted envelope, graph and store schema bind their authoritative content instead. The
+independent analyzer-input manifest covers ignored and `skip-worktree` inputs that Git status may
+omit. Git errors fail closed instead of becoming the hash of an empty diff. Submodules and untracked
+symlinks are explicitly unsupported in v1; semantic-model symlinks are rejected.
+
+The direct analyzer manifest is the parsed Semctx config plus bytes returned by `discoverFiles`.
+TypeScript can additionally consult dependency declarations or package metadata while resolving a
+program; v1 binds their effect in the persisted repository-graph hash but does not enumerate every
+external resolution read. This is a declared residual boundary, another reason the seal alone must
+not be promoted to a freshness verdict. A future analyzer snapshot/`CompilerHost` should record
+those reads if dependency-resolution drift becomes an authoritative status input.
+
+The seal is a local consistency attestation, not a signature or authenticity proof: the local SQLite
+store and repository remain editable by the same user. It deliberately contains no `FRESH`,
+`DIRTY_KNOWN`, `STALE` or `UNSEALED` verdict. Null or unequal current/indexed fields remain evidence
+for the next roadmap item to evaluate; callers must not invent that decision. An older index without
+the versioned envelope is represented honestly by null indexed fields and an `unsealed` planning
+commit, never by a graph fingerprint disguised as a Git commit.
+
 ## Semantic coordinates
 
 Ids are plane-qualified: `repo:<repository-node-id>` or `semantic:<semantic-node-id>`. The mapping is
@@ -115,7 +159,9 @@ surface must not create `.semctx`, initialize a schema, change metadata, or crea
 
 Plane C reports use `schemaVersion: 1`: coordinate graph, traversal, impact, explanation, architecture
 comparison, migration plan, transition authorization, step authorization and deletion authorization.
-Fields may be added compatibly; a semantic break requires a new schema version.
+Trace and plan envelopes may additionally carry a `ControlFreshnessSeal` with its independent
+`sealSchemaVersion: 1`. Fields may be added compatibly; a semantic break requires a new schema
+version.
 
 ## Non-goals
 

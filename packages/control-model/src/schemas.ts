@@ -108,6 +108,32 @@ export const CoordinateGraphReportSchema = z.object({
   unmapped: z.array(UnmappedCoordinateSourceSchema),
 }).strict();
 
+export const Sha256HashSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/, "expected sha256:<64 lowercase hex>");
+
+export const ControlFreshnessSealSchema = z.object({
+  sealSchemaVersion: z.literal(1),
+  kind: z.literal("control_freshness_seal"),
+  algorithm: z.literal("sha256-v1"),
+  repositoryRoot: z.string().min(1),
+  indexedRepositoryRoot: z.string().min(1).nullable(),
+  headAtCapture: z.string().min(1).nullable(),
+  indexedHeadCommit: z.string().min(1).nullable(),
+  repositoryGraphHash: Sha256HashSchema,
+  indexedRepositoryGraphHash: Sha256HashSchema.nullable(),
+  semanticModelHash: Sha256HashSchema,
+  indexedSemanticModelHash: Sha256HashSchema.nullable(),
+  analysisInputHash: Sha256HashSchema,
+  indexedAnalysisInputHash: Sha256HashSchema.nullable(),
+  workingDiffHash: Sha256HashSchema.nullable(),
+  indexedWorkingDiffHash: Sha256HashSchema.nullable(),
+  indexedAt: z.string().datetime().nullable(),
+  storeSchemaVersion: z.number().int().nonnegative().nullable(),
+  indexedStoreSchemaVersion: z.number().int().nonnegative().nullable(),
+  toolVersion: z.string().min(1),
+  indexedToolVersion: z.string().min(1).nullable(),
+  sealHash: Sha256HashSchema,
+}).strict();
+
 export const TraversalDirectionSchema = z.enum(["lift", "lower"]);
 const boundedDepth = z.number().int().min(0).max(100);
 const boundedResults = z.number().int().min(1).max(10_000);
@@ -125,6 +151,7 @@ export const TraversalReportSchema = z.object({
   maxQueue: boundedQueue,
   paths: z.array(CoordinatePathSchema),
   truncated: z.boolean(),
+  freshnessSeal: ControlFreshnessSealSchema.optional(),
 }).strict();
 
 export const ImpactedCoordinateSchema = z.object({
@@ -431,7 +458,11 @@ export const MigrationPlanSchema = z.object({
   validateMigrationDag(value.steps, context);
 });
 
-export const MigrationPlanReportSchema = z.object({ schemaVersion: z.literal(1), plan: MigrationPlanSchema }).strict();
+export const MigrationPlanReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  plan: MigrationPlanSchema,
+  freshnessSeal: ControlFreshnessSealSchema.optional(),
+}).strict();
 
 export const AuthorizationDecisionSchema = z.enum(["ALLOW", "DENY"]);
 export const AuthorizationReasonSchema = z.enum([

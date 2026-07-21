@@ -62,9 +62,18 @@ interface PayloadRow {
   payload: string;
 }
 
+export interface RepositoryIndexSnapshot {
+  graph: RepositoryGraph;
+  evidence: EvidenceRecord[];
+  claims: Claim[];
+  metadata: Readonly<Record<string, string>>;
+}
+
 /** Storage port. The engine and CLI depend on this, never on SQLite directly. */
 export interface RepositoryStore {
   saveGraph(graph: RepositoryGraph, evidence: EvidenceRecord[]): void;
+  /** Replace graph, evidence, claims and index metadata in one SQLite transaction. */
+  replaceIndex(snapshot: RepositoryIndexSnapshot): void;
   loadGraph(): RepositoryGraph;
   loadEvidence(): EvidenceRecord[];
   replaceClaims(claims: Claim[]): void;
@@ -164,47 +173,22 @@ export class SqliteRepositoryStore implements RepositoryStore {
 
   saveGraph(graph: RepositoryGraph, evidence: EvidenceRecord[]): void {
     const tx = this.db.transaction(() => {
-      this.db.exec("DELETE FROM nodes; DELETE FROM edges; DELETE FROM evidence;");
-      const insNode = this.db.query(
-        `INSERT OR REPLACE INTO nodes (id, kind, name, file_path, bounded_context, exported, tags, evidence, metadata)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      );
-      for (const node of graph.nodes) {
-        insNode.run(
-          node.id,
-          node.kind,
-          node.name,
-          node.filePath ?? null,
-          node.boundedContext ?? null,
-          node.exported === undefined ? null : node.exported ? 1 : 0,
-          JSON.stringify(node.tags),
-          JSON.stringify(node.evidence),
-          JSON.stringify(node.metadata),
-        );
-      }
-      const insEdge = this.db.query(
-        `INSERT OR REPLACE INTO edges (id, kind, from_id, to_id, evidence, metadata) VALUES (?, ?, ?, ?, ?, ?)`,
-      );
-      for (const edge of graph.edges) {
-        insEdge.run(
-          edge.id,
-          edge.kind,
-          edge.from,
-          edge.to,
-          JSON.stringify(edge.evidence),
-          JSON.stringify(edge.metadata),
-        );
-      }
-      const insEv = this.db.query(
-        `INSERT OR REPLACE INTO evidence (id, file_path, start_line, end_line, source_kind, excerpt) VALUES (?, ?, ?, ?, ?, ?)`,
-      );
-      for (const ev of evidence) {
-        insEv.run(ev.id, ev.filePath, ev.startLine ?? null, ev.endLine ?? null, ev.sourceKind, ev.excerpt ?? null);
-      }
+      replaceGraphRows(this.db, graph, evidence);
+      setMetaValue(this.db, "node_count", String(graph.nodes.length));
+      setMetaValue(this.db, "edge_count", String(graph.edges.length));
     });
     tx();
-    this.setMeta("node_count", String(graph.nodes.length));
-    this.setMeta("edge_count", String(graph.edges.length));
+  }
+
+  replaceIndex(snapshot: RepositoryIndexSnapshot): void {
+    const tx = this.db.transaction(() => {
+      replaceGraphRows(this.db, snapshot.graph, snapshot.evidence);
+      replaceClaimRows(this.db, snapshot.claims);
+      setMetaValue(this.db, "node_count", String(snapshot.graph.nodes.length));
+      setMetaValue(this.db, "edge_count", String(snapshot.graph.edges.length));
+      for (const [key, value] of Object.entries(snapshot.metadata)) setMetaValue(this.db, key, value);
+    });
+    tx();
   }
 
   loadGraph(): RepositoryGraph {
@@ -217,28 +201,7 @@ export class SqliteRepositoryStore implements RepositoryStore {
 
   replaceClaims(claims: Claim[]): void {
     const tx = this.db.transaction(() => {
-      this.db.exec("DELETE FROM claims;");
-      const ins = this.db.query(
-        `INSERT OR REPLACE INTO claims
-         (id, kind, statement, subject_node_ids, evidence_ids, authority, freshness, confidence, verification_status, valid_from, valid_until, tags)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      );
-      for (const claim of claims) {
-        ins.run(
-          claim.id,
-          claim.kind,
-          claim.statement,
-          JSON.stringify(claim.subjectNodeIds),
-          JSON.stringify(claim.evidenceIds),
-          claim.authority,
-          claim.freshness,
-          claim.confidence,
-          claim.verificationStatus,
-          claim.validFrom ?? null,
-          claim.validUntil ?? null,
-          JSON.stringify(claim.tags),
-        );
-      }
+      replaceClaimRows(this.db, claims);
     });
     tx();
   }
@@ -275,7 +238,7 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   setMeta(key: string, value: string): void {
-    this.db.query(`INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)`).run(key, value);
+    setMetaValue(this.db, key, value);
   }
 
   getMeta(key: string): string | undefined {
@@ -289,6 +252,68 @@ export class SqliteRepositoryStore implements RepositoryStore {
   close(): void {
     this.db.close();
   }
+}
+
+function replaceGraphRows(db: Database, graph: RepositoryGraph, evidence: EvidenceRecord[]): void {
+  db.exec("DELETE FROM nodes; DELETE FROM edges; DELETE FROM evidence;");
+  const insNode = db.query(
+    `INSERT OR REPLACE INTO nodes (id, kind, name, file_path, bounded_context, exported, tags, evidence, metadata)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  );
+  for (const node of graph.nodes) {
+    insNode.run(
+      node.id,
+      node.kind,
+      node.name,
+      node.filePath ?? null,
+      node.boundedContext ?? null,
+      node.exported === undefined ? null : node.exported ? 1 : 0,
+      JSON.stringify(node.tags),
+      JSON.stringify(node.evidence),
+      JSON.stringify(node.metadata),
+    );
+  }
+  const insEdge = db.query(
+    `INSERT OR REPLACE INTO edges (id, kind, from_id, to_id, evidence, metadata) VALUES (?, ?, ?, ?, ?, ?)`,
+  );
+  for (const edge of graph.edges) {
+    insEdge.run(edge.id, edge.kind, edge.from, edge.to, JSON.stringify(edge.evidence), JSON.stringify(edge.metadata));
+  }
+  const insEvidence = db.query(
+    `INSERT OR REPLACE INTO evidence (id, file_path, start_line, end_line, source_kind, excerpt) VALUES (?, ?, ?, ?, ?, ?)`,
+  );
+  for (const item of evidence) {
+    insEvidence.run(item.id, item.filePath, item.startLine ?? null, item.endLine ?? null, item.sourceKind, item.excerpt ?? null);
+  }
+}
+
+function replaceClaimRows(db: Database, claims: Claim[]): void {
+  db.exec("DELETE FROM claims;");
+  const insert = db.query(
+    `INSERT OR REPLACE INTO claims
+     (id, kind, statement, subject_node_ids, evidence_ids, authority, freshness, confidence, verification_status, valid_from, valid_until, tags)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  );
+  for (const claim of claims) {
+    insert.run(
+      claim.id,
+      claim.kind,
+      claim.statement,
+      JSON.stringify(claim.subjectNodeIds),
+      JSON.stringify(claim.evidenceIds),
+      claim.authority,
+      claim.freshness,
+      claim.confidence,
+      claim.verificationStatus,
+      claim.validFrom ?? null,
+      claim.validUntil ?? null,
+      JSON.stringify(claim.tags),
+    );
+  }
+}
+
+function setMetaValue(db: Database, key: string, value: string): void {
+  db.query(`INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)`).run(key, value);
 }
 
 function loadGraph(db: Database): RepositoryGraph {

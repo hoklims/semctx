@@ -102,7 +102,10 @@ describe("Codex and Claude Code plugin parity", () => {
       claudeManifest.version,
     );
     expect(json<{ version: string }>("packages/mcp-server/package.json").version).toBe(claudeManifest.version);
-    expect(read("packages/mcp-server/src/server.ts")).toContain(`version: "${claudeManifest.version}"`);
+    expect(json<{ version: string }>("packages/app-services/package.json").version).toBe(claudeManifest.version);
+    const serverSource = read("packages/mcp-server/src/server.ts");
+    expect(serverSource).toContain('import packageJson from "../package.json"');
+    expect(serverSource).toContain("version: packageJson.version");
   });
 
   test("documents the shared Plane A, B, and C workflow for both hosts", () => {

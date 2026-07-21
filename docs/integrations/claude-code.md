@@ -76,12 +76,14 @@ preservation, or a generic project demonstration.
 1. Use normal repository search and Git inspection first.
 2. Resume or slice existing authored intent when it exists.
 3. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
-4. Call `semctx_control_plan` only with an explicit target architecture.
-5. For a user-authorized write, open or update a change contract before substantial edits.
-6. Make the smallest coherent change.
-7. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
+4. Record the returned `freshnessSeal.sealHash` and preserve any current/indexed mismatch as an
+   explicit fact; the seal does not yet assign a freshness verdict.
+5. Call `semctx_control_plan` only with an explicit target architecture.
+6. For a user-authorized write, open or update a change contract before substantial edits.
+7. Make the smallest coherent change.
+8. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
    compose `semctx_change_verify` when a contract exists.
-8. Write a handoff only for write-scoped work; read-only work remains mutation-free.
+9. Write a handoff only for write-scoped work; read-only work remains mutation-free.
 
 ## Decision semantics
 
@@ -92,6 +94,9 @@ preservation, or a generic project demonstration.
 `PASS` does not replace runtime tests. `PARTIAL` must name the missing proof. `STALE` requires
 re-linking. `READY` is a planning state, never execution authority. Plane C has no executor and
 never performs a cutover, deployment or deletion.
+
+`ControlFreshnessSeal` is a local input attestation, not a `FRESH`/`STALE` verdict or an
+authenticity signature. Claude Code preserves null or unequal current/indexed fields verbatim.
 
 ## Generic demonstration objective
 

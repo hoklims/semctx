@@ -15,7 +15,7 @@ function countBy<T>(items: T[], key: (item: T) => string): Record<string, number
 
 /** `semctx index` — analyse the repo, (re)build the graph + claims, persist them. */
 export function runIndex(root: string, args: ParsedArgs): number {
-  const { analysis, claims } = indexRepository(root, nowIso());
+  const { analysis, claims, freshnessSeal } = indexRepository(root, nowIso());
 
   const nodeKinds = countBy<RepositoryNode>(analysis.graph.nodes, (n) => n.kind);
   const claimKinds = countBy<Claim>(claims, (c2) => c2.kind);
@@ -29,6 +29,7 @@ export function runIndex(root: string, args: ParsedArgs): number {
       claims: claims.length,
       nodeKinds,
       claimKinds,
+      freshnessSeal,
     });
     return 0;
   }
@@ -36,6 +37,7 @@ export function runIndex(root: string, args: ParsedArgs): number {
   success(
     `indexed ${c.bold(String(analysis.graph.nodes.length))} nodes, ${c.bold(String(analysis.graph.edges.length))} edges, ${c.bold(String(claims.length))} claims`,
   );
+  info(c.dim(`seal ${freshnessSeal.sealHash}`));
   heading("Nodes by kind");
   for (const [kind, count] of Object.entries(nodeKinds).sort()) info(`  ${kind.padEnd(18)} ${count}`);
   heading("Claims by kind");
