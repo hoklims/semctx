@@ -139,7 +139,7 @@ function readJson(path) {
 function workingTreeDiffHash(cwd) {
   let out = "";
   try {
-    out = execFileSync("git", ["diff", "HEAD", "--relative", "--unified=0", "--no-color"], { cwd, encoding: "utf8" });
+    out = execFileSync("git", ["diff", "HEAD", "--relative", "--unified=0", "--no-color"], { cwd, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
   } catch {
     out = "";
   }
