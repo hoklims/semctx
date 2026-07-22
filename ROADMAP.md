@@ -40,7 +40,7 @@ repository state.
 
 - [x] **Control freshness seal** — bind repository root, `HEAD`, index commit, repository-graph
       hash, semantic-model hash, working-diff hash, schema version and tool version.
-- [ ] **Explicit freshness verdict** — add a read-only `semctx status` / MCP preflight returning
+- [x] **Explicit freshness verdict** — add a read-only `semctx status` / MCP preflight returning
       `FRESH`, `DIRTY_KNOWN`, `STALE` or `UNSEALED`; high-risk control operations fail closed on
       stale or unsealed inputs.
 - [ ] **Cross-plane link consistency** — Plane B link checks and Plane C coordinate construction

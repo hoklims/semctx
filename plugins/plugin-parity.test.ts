@@ -25,6 +25,7 @@ describe("Codex and Claude Code plugin parity", () => {
 
     expect(claude).toBe(codex);
     for (const required of [
+      "semctx_control_status",
       "semctx_control_trace",
       "semctx_control_plan",
       "semctx_verify_change",
@@ -115,6 +116,7 @@ describe("Codex and Claude Code plugin parity", () => {
     const codexGuide = read("docs/integrations/codex-control-plane.md");
 
     for (const document of [rootReadme, claudeReadme, claudeGuide, codexGuide]) {
+      expect(document).toContain("semctx_control_status");
       expect(document).toContain("semctx_control_trace");
       expect(document).toContain("semctx_control_plan");
       expect(document).toContain("READY");

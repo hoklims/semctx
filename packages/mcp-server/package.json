@@ -1,6 +1,6 @@
 {
   "name": "@semantic-context/mcp-server",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",

@@ -60,6 +60,20 @@ contradictions, files to read. `--json` for machine output.
 
 Workspace health check.
 
+## `status`
+
+Evaluate the persisted control index snapshot against the current repository without writing state.
+
+```text
+semctx status [--json]
+```
+
+Returns `FRESH` when all inputs match and the sealed diff is empty, `DIRTY_KNOWN` when the current
+non-empty diff exactly matches the sealed diff, `STALE` on any current/indexed mismatch, and
+`UNSEALED` when required snapshot, Git, or store evidence is unavailable. Exit code 0 means
+`FRESH`/`DIRTY_KNOWN`; exit code 3 means `STALE`/`UNSEALED`; usage errors remain 2 and unexpected
+evaluation failures remain 1.
+
 ## `control trace`
 
 Traverse the read-only Plane C coordinate graph from a plane-qualified id.
@@ -71,8 +85,8 @@ semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower
 
 `lift` only returns paths ending at a higher requested level; `lower` does the inverse. Results are
 bounded, deterministic and evidence-backed. Unsupported/unmapped inputs remain explicit.
-JSON results include the local `freshnessSeal` that binds the current Git, Plane A, Plane B, schema
-and producer inputs. It is an attestation, not a freshness verdict.
+JSON results include the local `freshnessSeal` and evaluated `freshnessStatus`. Trace exits 3 before
+traversal when the status is `STALE` or `UNSEALED`.
 
 ## `control plan`
 
@@ -85,7 +99,8 @@ semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>
 Without `--target`, the command succeeds as a diagnostic but reports
 `BLOCKED / target_architecture_missing`; it never invents a target. A supplied delta is checked
 against the computed current/target delta. Neither control command creates or updates `.semctx`.
-Plan JSON carries the same freshness-seal contract as trace JSON.
+Plan JSON carries the same freshness seal and status as trace JSON. Unsafe input returns a normal
+`BLOCKED / control_inputs_stale|control_inputs_unsealed` report with no steps.
 
 ## Experimental
 

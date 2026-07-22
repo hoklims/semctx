@@ -124,7 +124,8 @@ A documented **pre-commit gate** (`docs/examples/pre-commit-hook.md`) runs `veri
 ### Claude Code
 
 The plugin ([`plugins/claude-code`](plugins/claude-code)) exposes the same shared
-`semctx-control` workflow as Codex: `semctx_control_trace`, `semctx_control_plan`, proof-carrying
+`semctx-control` workflow as Codex: `semctx_control_status`, `semctx_control_trace`,
+`semctx_control_plan`, proof-carrying
 change contracts, and `semctx_verify_change`. The narrower `semctx-semantic` and `semctx-verify`
 skills remain available for focused Plane B or Plane A work. `READY` is a planning verdict, never
 execution authority. An opt-in **guarded mode** blocks `git commit`/`git push` until the diff is
@@ -135,7 +136,7 @@ verified; advisory mode is the default. See
 
 The repo-local [`semctx-control`](plugins/semctx-control) plugin gives Codex the full semctx MCP
 surface plus the same proof-honest workflow shipped for Claude Code. It uses
-`semctx_control_trace` and `semctx_control_plan`, maintains proof-carrying change contracts on
+`semctx_control_status`, `semctx_control_trace`, and `semctx_control_plan`, maintains proof-carrying change contracts on
 write-scoped tasks, and verifies the resulting diff. It never treats `READY` as execution authority
 and Plane C remains read-only. Install and usage guide:
 [`docs/integrations/codex-control-plane.md`](docs/integrations/codex-control-plane.md).
@@ -224,12 +225,13 @@ plan, and explain why a step is blocked. It is deliberately fail-closed: no targ
 LLM-only evidence authorizes nothing, and legacy deletion stays denied without fresh static, runtime,
 test and human proof.
 
-Indexing also emits a versioned local freshness seal. Trace and plan reports carry that same
-contract, binding repository root, current/indexed Git state, direct analyzer inputs, Plane A, Plane B
-and schema/tool versions. The seal is an input attestation only; the next roadmap milestone owns the explicit
-`FRESH` / `DIRTY_KNOWN` / `STALE` / `UNSEALED` verdict.
+Indexing also emits a versioned local freshness seal. `semctx status` evaluates that attestation as
+`FRESH`, `DIRTY_KNOWN`, `STALE`, or `UNSEALED`; trace and plan carry the same status and fail closed
+before consuming stale or unsealed inputs. The seal binds repository root, current/indexed Git state,
+direct analyzer inputs, Plane A, Plane B, and schema/tool versions.
 
 ```bash
+semctx status --json
 semctx control trace repo:<graph-id> --direction lift --to 5 --json
 semctx control plan change.<slug> --target target-architecture.json --json
 ```
@@ -244,7 +246,8 @@ verdict; `semctx_inspect` queries the graph. The semantic layer adds advisory to
 (`semctx_semantic_slice`, `semctx_change_open` / `_update` / `_verify`, `semctx_semantic_inspect`,
 `semctx_handoff` / `semctx_resume`) — see
 [`docs/integrations/claude-code-semantic-layer.md`](docs/integrations/claude-code-semantic-layer.md).
-Plane C adds the read-only `semctx_control_trace` and `semctx_control_plan` tools.
+Plane C adds the read-only `semctx_control_status`, `semctx_control_trace`, and
+`semctx_control_plan` tools.
 The easiest path is the Codex or Claude Code plugin above; to register the server directly (stdio):
 
 ```json

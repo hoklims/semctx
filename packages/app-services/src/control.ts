@@ -1,9 +1,10 @@
-import { compareIds, SemctxError } from "@semantic-context/core";
+import { compareIds, isSemctxError, SemctxError } from "@semantic-context/core";
 import {
   type ArchitectureDelta,
   type ArchitectureSnapshot,
   type ChangePlanningContext,
   type ControlFreshnessSeal,
+  type ControlFreshnessStatusReport,
   type MigrationPlanReport,
   type QualifiedCoordinateId,
   type SemanticLevel,
@@ -27,9 +28,11 @@ import {
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,
   captureGitState,
+  evaluateControlFreshness,
   fingerprintAnalysisInputs,
   fingerprintSemanticModel,
   parseIndexedControlSnapshot,
+  unsealedControlStatus,
 } from "./freshness";
 import { openReadyRepository } from "./readiness";
 
@@ -37,6 +40,7 @@ export interface CurrentControlState {
   graph: ReturnType<typeof buildCoordinateGraph>;
   snapshot: ArchitectureSnapshot;
   freshnessSeal: ControlFreshnessSeal;
+  freshnessStatus: ControlFreshnessStatusReport;
   changeIds: string[];
   planningContexts: ChangePlanningContext[];
 }
@@ -124,6 +128,7 @@ export function loadControlState(root: string): CurrentControlState {
       indexedSnapshot,
       storeSchemaVersion: Number.isSafeInteger(schemaVersion) && schemaVersion >= 0 ? schemaVersion : null,
     });
+    const freshnessStatus = evaluateControlFreshness(freshnessSeal);
     const commit = indexedSnapshot?.headCommit === null || indexedSnapshot === null
       ? "unsealed"
       : `git:${indexedSnapshot.headCommit}`;
@@ -131,6 +136,7 @@ export function loadControlState(root: string): CurrentControlState {
       graph,
       snapshot: snapshotArchitecture(graph, { id: `current:${fingerprint}`, commit, capturedAt }),
       freshnessSeal,
+      freshnessStatus,
       changeIds: semanticAfter.model.changes.map((change) => change.id).sort(),
       planningContexts: semanticAfter.model.changes.map((change) => planningContext(semanticAfter.model, change)).sort((a, b) => compareIds(a.id, b.id)),
     };
@@ -139,10 +145,40 @@ export function loadControlState(root: string): CurrentControlState {
   }
 }
 
+export function controlStatus(root: string): ControlFreshnessStatusReport {
+  try {
+    return loadControlState(root).freshnessStatus;
+  } catch (error) {
+    const unavailable = unavailableStatus(error);
+    if (unavailable !== null) return unavailable;
+    throw error;
+  }
+}
+
+function unavailableStatus(error: unknown): ControlFreshnessStatusReport | null {
+  if (!isSemctxError(error)) return null;
+  if (error.code === "CONFIG_NOT_FOUND") return unsealedControlStatus("REPOSITORY_NOT_INITIALIZED");
+  if (error.code === "REPO_NOT_INDEXED") return unsealedControlStatus("REPOSITORY_NOT_INDEXED");
+  if (error.code === "STORE_ERROR" && error.message === "invalid persisted control index snapshot") {
+    return unsealedControlStatus("INDEX_SNAPSHOT_INVALID");
+  }
+  return null;
+}
+
+function assertFreshControlInputs(status: ControlFreshnessStatusReport): void {
+  if (status.canRunHighRiskControl) return;
+  throw new SemctxError(
+    "CONTROL_INPUTS_UNSAFE",
+    `control inputs are ${status.verdict}; run 'semctx index' before traversal`,
+    { verdict: status.verdict, reasons: status.reasons },
+  );
+}
+
 export function traceControl(root: string, command: ControlTraceCommand): TraversalReport {
   const direction = command.direction ?? "lift";
   const targetLevel = command.targetLevel ?? (direction === "lift" ? 6 : 0);
   const state = loadControlState(root);
+  assertFreshControlInputs(state.freshnessStatus);
   const bounds = {
     ...(command.maxDepth !== undefined ? { maxDepth: command.maxDepth } : {}),
     ...(command.maxResults !== undefined ? { maxResults: command.maxResults } : {}),
@@ -150,7 +186,7 @@ export function traceControl(root: string, command: ControlTraceCommand): Traver
   const report = direction === "lift"
     ? lift(state.graph, command.sourceId, targetLevel, bounds)
     : lower(state.graph, command.sourceId, targetLevel, bounds);
-  return { ...report, freshnessSeal: state.freshnessSeal };
+  return { ...report, freshnessSeal: state.freshnessSeal, freshnessStatus: state.freshnessStatus };
 }
 
 export function planControlMigration(root: string, command: ControlPlanCommand): MigrationPlanReport {
@@ -162,11 +198,38 @@ export function planControlMigration(root: string, command: ControlPlanCommand):
   if (change === undefined) {
     throw new SemctxError("INVALID_TASK_INPUT", `change contract not found: ${command.changeId}`, { changeId: command.changeId });
   }
+  if (!state.freshnessStatus.canRunHighRiskControl) {
+    const blockedReason = state.freshnessStatus.verdict === "STALE"
+      ? "control_inputs_stale" as const
+      : "control_inputs_unsealed" as const;
+    return {
+      schemaVersion: 1,
+      plan: {
+        id: `migration:${change.id}:${state.snapshot.id}->freshness-blocked`,
+        changeId: change.id,
+        planningCommit: state.snapshot.commit,
+        status: "BLOCKED",
+        blockedReason,
+        blockedDetails: [{
+          schemaVersion: 1,
+          reason: blockedReason,
+          subjectIds: [...state.freshnessStatus.reasons],
+          message: `Control inputs are ${state.freshnessStatus.verdict}; rebuild the index before migration planning.`,
+        }],
+        planningContext: change,
+        current: state.snapshot,
+        steps: [],
+        outstandingObligations: [],
+      },
+      freshnessSeal: state.freshnessSeal,
+      freshnessStatus: state.freshnessStatus,
+    };
+  }
   const report = compileMigrationPlan({
     change,
     current: state.snapshot,
     ...(command.target !== undefined ? { target: command.target } : {}),
     ...(command.delta !== undefined ? { delta: command.delta } : {}),
   });
-  return { ...report, freshnessSeal: state.freshnessSeal };
+  return { ...report, freshnessSeal: state.freshnessSeal, freshnessStatus: state.freshnessStatus };
 }

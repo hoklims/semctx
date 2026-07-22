@@ -9,8 +9,11 @@ import {
   type SemctxConfig,
 } from "@semantic-context/core";
 import {
+  classifyControlFreshnessSeal,
   serializeControlReport,
   type ControlFreshnessSeal,
+  type ControlFreshnessReason,
+  type ControlFreshnessStatusReport,
   type Sha256Hash,
 } from "@semantic-context/control-model";
 import type { ChangeContract, SemanticModel, SemanticNode } from "@semantic-context/semantic-model";
@@ -380,4 +383,32 @@ export function buildControlFreshnessSeal(input: ControlFreshnessSealInput): Con
     indexedToolVersion: indexed?.toolVersion ?? null,
   };
   return { ...payload, sealHash: hash("control-freshness-seal", serializeControlReport(payload)) };
+}
+
+/** Assign a deterministic verdict to a previously captured seal without mutating repository state. */
+export function evaluateControlFreshness(seal: ControlFreshnessSeal): ControlFreshnessStatusReport {
+  const classification = classifyControlFreshnessSeal(seal);
+  return status(seal, classification.verdict, classification.reasons);
+}
+
+export function unsealedControlStatus(
+  reason: Extract<ControlFreshnessReason, "REPOSITORY_NOT_INITIALIZED" | "REPOSITORY_NOT_INDEXED" | "INDEX_SNAPSHOT_INVALID">,
+): ControlFreshnessStatusReport {
+  return status(null, "UNSEALED", [reason]);
+}
+
+function status(
+  freshnessSeal: ControlFreshnessSeal | null,
+  verdict: ControlFreshnessStatusReport["verdict"],
+  reasons: ControlFreshnessReason[],
+): ControlFreshnessStatusReport {
+  return {
+    schemaVersion: 1,
+    kind: "control_freshness_status",
+    basis: "control_index_snapshot_v1",
+    verdict,
+    canRunHighRiskControl: verdict === "FRESH" || verdict === "DIRTY_KNOWN",
+    reasons,
+    freshnessSeal,
+  };
 }

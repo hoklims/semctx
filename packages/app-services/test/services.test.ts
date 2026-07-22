@@ -65,7 +65,7 @@ describe("application services", () => {
     expect(control.freshnessSeal.indexedWorkingDiffHash).toBe(control.freshnessSeal.workingDiffHash);
     expect(control.freshnessSeal.storeSchemaVersion).toBe(1);
     expect(control.freshnessSeal.indexedStoreSchemaVersion).toBe(1);
-    expect(control.freshnessSeal.toolVersion).toBe("@semantic-context/app-services@0.1.8");
+    expect(control.freshnessSeal.toolVersion).toBe("@semantic-context/app-services@0.1.9");
     expect(control.freshnessSeal.indexedToolVersion).toBe(control.freshnessSeal.toolVersion);
 
     const tracked = join(root, "src", "domain", "capacity.ts");

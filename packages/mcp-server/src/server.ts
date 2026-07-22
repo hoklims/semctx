@@ -13,7 +13,7 @@ import {
   handoffTool,
   resumeTool,
 } from "./semantic-tools";
-import { controlPlanTool, controlTraceTool } from "./control-tools";
+import { controlPlanTool, controlStatusTool, controlTraceTool } from "./control-tools";
 import {
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
@@ -322,6 +322,29 @@ export function createSemctxServer(root: string): McpServer {
   );
 
   // --- Control plane (Plane C): read-only coordinates and fail-closed migration planning.
+  server.registerTool(
+    "semctx_control_status",
+    {
+      title: "Check control-plane freshness",
+      description:
+        "Read-only preflight returning FRESH, DIRTY_KNOWN, STALE, or UNSEALED. High-risk control operations fail closed on STALE or UNSEALED inputs.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+    },
+    async ({ repositoryRoot }) => {
+      try {
+        return ok(controlStatusTool(requestRoot(root, repositoryRoot)));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
   server.registerTool(
     "semctx_control_trace",
     {

@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import { MIGRATION_STEP_PROFILES } from "./constants";
+import { classifyControlFreshnessSeal } from "./freshness";
+import type { ControlFreshnessSeal } from "./types";
 
 export const SemanticLevelSchema = z.number().int().min(0).max(6);
 export const CoordinatePlaneSchema = z.enum(["repo", "semantic"]);
@@ -134,6 +136,96 @@ export const ControlFreshnessSealSchema = z.object({
   sealHash: Sha256HashSchema,
 }).strict();
 
+export const ControlFreshnessVerdictSchema = z.enum(["FRESH", "DIRTY_KNOWN", "STALE", "UNSEALED"]);
+export const ControlFreshnessReasonSchema = z.enum([
+  "REPOSITORY_NOT_INITIALIZED",
+  "REPOSITORY_NOT_INDEXED",
+  "INDEX_SNAPSHOT_MISSING",
+  "INDEX_SNAPSHOT_INVALID",
+  "GIT_STATE_UNAVAILABLE",
+  "STORE_SCHEMA_UNAVAILABLE",
+  "REPOSITORY_ROOT_MISMATCH",
+  "HEAD_MISMATCH",
+  "REPOSITORY_GRAPH_MISMATCH",
+  "SEMANTIC_MODEL_MISMATCH",
+  "ANALYSIS_INPUT_MISMATCH",
+  "WORKING_DIFF_MISMATCH",
+  "STORE_SCHEMA_MISMATCH",
+  "TOOL_VERSION_MISMATCH",
+  "WORKING_TREE_DIRTY",
+]);
+export const ControlFreshnessStatusReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  kind: z.literal("control_freshness_status"),
+  basis: z.literal("control_index_snapshot_v1"),
+  verdict: ControlFreshnessVerdictSchema,
+  canRunHighRiskControl: z.boolean(),
+  reasons: z.array(ControlFreshnessReasonSchema),
+  freshnessSeal: ControlFreshnessSealSchema.nullable(),
+}).strict().superRefine((value, context) => {
+  const allowed = value.verdict === "FRESH" || value.verdict === "DIRTY_KNOWN";
+  if (value.canRunHighRiskControl !== allowed) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["canRunHighRiskControl"], message: "high-risk control is allowed only for fresh or sealed dirty inputs" });
+  }
+  if (value.verdict === "FRESH" && value.reasons.length > 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "fresh status cannot carry reasons" });
+  }
+  if (value.verdict !== "FRESH" && value.reasons.length === 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "non-fresh status requires at least one reason" });
+  }
+  const uniqueReasons = new Set(value.reasons);
+  if (uniqueReasons.size !== value.reasons.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "freshness reasons must be unique" });
+  }
+  const reasonOrder = ControlFreshnessReasonSchema.options;
+  const canonicalReasons = [...value.reasons].sort((left, right) => reasonOrder.indexOf(left) - reasonOrder.indexOf(right));
+  if (canonicalReasons.some((reason, index) => reason !== value.reasons[index])) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "freshness reasons must use canonical order" });
+  }
+  const unsealedReasons = new Set([
+    "REPOSITORY_NOT_INITIALIZED",
+    "REPOSITORY_NOT_INDEXED",
+    "INDEX_SNAPSHOT_MISSING",
+    "INDEX_SNAPSHOT_INVALID",
+    "GIT_STATE_UNAVAILABLE",
+    "STORE_SCHEMA_UNAVAILABLE",
+  ]);
+  const staleReasons = new Set([
+    "REPOSITORY_ROOT_MISMATCH",
+    "HEAD_MISMATCH",
+    "REPOSITORY_GRAPH_MISMATCH",
+    "SEMANTIC_MODEL_MISMATCH",
+    "ANALYSIS_INPUT_MISMATCH",
+    "WORKING_DIFF_MISMATCH",
+    "STORE_SCHEMA_MISMATCH",
+    "TOOL_VERSION_MISMATCH",
+  ]);
+  if (value.verdict === "DIRTY_KNOWN" && (value.reasons.length !== 1 || value.reasons[0] !== "WORKING_TREE_DIRTY")) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "sealed dirty status requires only WORKING_TREE_DIRTY" });
+  }
+  if (value.verdict === "STALE" && value.reasons.some((reason) => !staleReasons.has(reason))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "stale status requires only mismatch reasons" });
+  }
+  if (value.verdict === "UNSEALED" && value.reasons.some((reason) => !unsealedReasons.has(reason))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "unsealed status requires only unavailable-input reasons" });
+  }
+  if (value.freshnessSeal === null && value.verdict !== "UNSEALED") {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["freshnessSeal"], message: "only unsealed status may omit the freshness seal" });
+  }
+  if (value.freshnessSeal !== null) {
+    const expected = classifyControlFreshnessSeal(value.freshnessSeal as ControlFreshnessSeal);
+    if (value.verdict !== expected.verdict) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["verdict"], message: "freshness verdict contradicts the embedded seal" });
+    }
+    if (
+      value.reasons.length !== expected.reasons.length
+      || value.reasons.some((reason, index) => reason !== expected.reasons[index])
+    ) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "freshness reasons contradict the embedded seal" });
+    }
+  }
+});
+
 export const TraversalDirectionSchema = z.enum(["lift", "lower"]);
 const boundedDepth = z.number().int().min(0).max(100);
 const boundedResults = z.number().int().min(1).max(10_000);
@@ -152,6 +244,7 @@ export const TraversalReportSchema = z.object({
   paths: z.array(CoordinatePathSchema),
   truncated: z.boolean(),
   freshnessSeal: ControlFreshnessSealSchema.optional(),
+  freshnessStatus: ControlFreshnessStatusReportSchema.optional(),
 }).strict();
 
 export const ImpactedCoordinateSchema = z.object({
@@ -388,6 +481,8 @@ export const MigrationStepSchema = z.object({
 
 export const MigrationPlanStatusSchema = z.enum(["READY", "BLOCKED"]);
 export const MigrationPlanBlockedReasonSchema = z.enum([
+  "control_inputs_stale",
+  "control_inputs_unsealed",
   "target_architecture_missing",
   "architecture_delta_missing",
   "architecture_delta_inconsistent",
@@ -462,6 +557,7 @@ export const MigrationPlanReportSchema = z.object({
   schemaVersion: z.literal(1),
   plan: MigrationPlanSchema,
   freshnessSeal: ControlFreshnessSealSchema.optional(),
+  freshnessStatus: ControlFreshnessStatusReportSchema.optional(),
 }).strict();
 
 export const AuthorizationDecisionSchema = z.enum(["ALLOW", "DENY"]);
@@ -572,6 +668,7 @@ export const MigrationPlanningInputSchema = z.object({
 
 export const PublicControlReportSchema = z.union([
   CoordinateGraphReportSchema,
+  ControlFreshnessStatusReportSchema,
   TraversalReportSchema,
   ImpactReportSchema,
   ExplanationReportSchema,

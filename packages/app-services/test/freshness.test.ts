@@ -3,8 +3,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { RepositoryGraph } from "@semantic-context/core";
+import type { ControlFreshnessSeal, ControlFreshnessStatusReport, Sha256Hash } from "@semantic-context/control-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
-import { buildControlFreshnessSeal, captureGitState } from "../src";
+import * as appServices from "../src";
+import { buildControlFreshnessSeal, captureGitState, type IndexedControlSnapshot } from "../src";
 
 function git(root: string, ...args: string[]): void {
   const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -84,6 +86,36 @@ const base = {
   storeSchemaVersion: 1,
   toolVersion: "@semantic-context/app-services@0.1.8",
 };
+
+function evaluate(seal: ControlFreshnessSeal): ControlFreshnessStatusReport {
+  const candidate = (appServices as unknown as {
+    evaluateControlFreshness?: (value: ControlFreshnessSeal) => ControlFreshnessStatusReport;
+  }).evaluateControlFreshness;
+  expect(candidate).toBeFunction();
+  if (candidate === undefined) throw new Error("evaluateControlFreshness is not exported");
+  return candidate(seal);
+}
+
+function indexedSnapshot(seal: ControlFreshnessSeal): IndexedControlSnapshot {
+  return {
+    schemaVersion: 1,
+    capturedAt: "2026-07-21T10:00:00.000Z",
+    repositoryRoot: seal.repositoryRoot,
+    headCommit: seal.headAtCapture,
+    repositoryGraphHash: seal.repositoryGraphHash,
+    semanticModelHash: seal.semanticModelHash,
+    analysisInputHash: seal.analysisInputHash,
+    workingDiffHash: seal.workingDiffHash,
+    storeSchemaVersion: seal.storeSchemaVersion!,
+    toolVersion: seal.toolVersion,
+  };
+}
+
+function sealed(workingDiffHash: Sha256Hash): ControlFreshnessSeal {
+  const input = { ...base, workingDiffHash };
+  const initial = buildControlFreshnessSeal(input);
+  return buildControlFreshnessSeal({ ...input, indexedSnapshot: indexedSnapshot(initial) });
+}
 
 describe("control freshness seal", () => {
   it("is deterministic across semantically irrelevant ordering", () => {
@@ -194,6 +226,48 @@ describe("control freshness seal", () => {
       expect(captureGitState(root).workingDiffHash).not.toBe(clean.workingDiffHash);
     } finally {
       rmSync(parent, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("explicit control freshness verdict", () => {
+  it("distinguishes fresh, sealed dirty, stale, and unsealed inputs", () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-freshness-verdict-"));
+    try {
+      git(root, "init");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "--allow-empty", "-m", "fixture");
+      const cleanDiffHash = captureGitState(root).workingDiffHash;
+      if (cleanDiffHash === null) throw new Error("expected Git working diff hash");
+
+      const fresh = sealed(cleanDiffHash);
+      expect(evaluate(fresh)).toMatchObject({
+        verdict: "FRESH",
+        canRunHighRiskControl: true,
+        reasons: [],
+      });
+
+      const dirty = sealed(`sha256:${"b".repeat(64)}`);
+      expect(evaluate(dirty)).toMatchObject({
+        verdict: "DIRTY_KNOWN",
+        canRunHighRiskControl: true,
+        reasons: ["WORKING_TREE_DIRTY"],
+      });
+
+      const stale = { ...fresh, headAtCapture: "c".repeat(40) };
+      expect(evaluate(stale)).toMatchObject({
+        verdict: "STALE",
+        canRunHighRiskControl: false,
+        reasons: ["HEAD_MISMATCH"],
+      });
+
+      const unsealed = buildControlFreshnessSeal(base);
+      expect(evaluate(unsealed)).toMatchObject({
+        verdict: "UNSEALED",
+        canRunHighRiskControl: false,
+        reasons: ["INDEX_SNAPSHOT_MISSING"],
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
     }
   });
 });

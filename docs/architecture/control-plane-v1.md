@@ -49,16 +49,30 @@ symlinks are explicitly unsupported in v1; semantic-model symlinks are rejected.
 The direct analyzer manifest is the parsed Semctx config plus bytes returned by `discoverFiles`.
 TypeScript can additionally consult dependency declarations or package metadata while resolving a
 program; v1 binds their effect in the persisted repository-graph hash but does not enumerate every
-external resolution read. This is a declared residual boundary, another reason the seal alone must
-not be promoted to a freshness verdict. A future analyzer snapshot/`CompilerHost` should record
+external resolution read. This remains a declared residual boundary of the verdict. A future analyzer
+snapshot/`CompilerHost` should record
 those reads if dependency-resolution drift becomes an authoritative status input.
 
 The seal is a local consistency attestation, not a signature or authenticity proof: the local SQLite
-store and repository remain editable by the same user. It deliberately contains no `FRESH`,
-`DIRTY_KNOWN`, `STALE` or `UNSEALED` verdict. Null or unequal current/indexed fields remain evidence
-for the next roadmap item to evaluate; callers must not invent that decision. An older index without
-the versioned envelope is represented honestly by null indexed fields and an `unsealed` planning
-commit, never by a graph fingerprint disguised as a Git commit.
+store and repository remain editable by the same user. An older index without the versioned envelope
+is represented honestly by null indexed fields, never by a graph fingerprint disguised as a Git
+commit.
+
+## Explicit freshness verdict
+
+`semctx status` and `semctx_control_status` evaluate the seal against the current read-only state:
+
+- `FRESH`: every current/indexed pair matches and the sealed working diff is empty;
+- `DIRTY_KNOWN`: every pair matches and the non-empty working diff exactly matches the sealed diff;
+- `STALE`: at least one current/indexed repository, Git, graph, semantic, analyzer, schema or tool
+  input differs;
+- `UNSEALED`: initialization, index snapshot, Git state or store-schema evidence is absent or invalid.
+
+The versioned status report includes canonical machine reasons, the underlying seal when available,
+and `canRunHighRiskControl`. `FRESH` and `DIRTY_KNOWN` admit control operations; `STALE` and
+`UNSEALED` fail closed. Trace rejects unsafe input before traversal. Plan returns a normal `BLOCKED`
+report with `control_inputs_stale` or `control_inputs_unsealed` and no steps. Status itself never
+initializes, indexes or mutates the repository.
 
 ## Semantic coordinates
 
@@ -148,16 +162,18 @@ rollback are all proven.
 ## Read-only transports
 
 ```text
+semctx status [--json]
 semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower] [--json]
 semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
 ```
 
-MCP exposes the equivalent `semctx_control_trace` and `semctx_control_plan` tools. Opening either
+MCP exposes the equivalent `semctx_control_status`, `semctx_control_trace`, and
+`semctx_control_plan` tools. Opening any
 surface must not create `.semctx`, initialize a schema, change metadata, or create SQLite WAL/SHM files.
 
 ## Public output contract
 
-Plane C reports use `schemaVersion: 1`: coordinate graph, traversal, impact, explanation, architecture
+Plane C reports use `schemaVersion: 1`: freshness status, coordinate graph, traversal, impact, explanation, architecture
 comparison, migration plan, transition authorization, step authorization and deletion authorization.
 Trace and plan envelopes may additionally carry a `ControlFreshnessSeal` with its independent
 `sealSchemaVersion: 1`. Fields may be added compatibly; a semantic break requires a new schema

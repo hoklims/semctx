@@ -119,6 +119,35 @@ export interface ControlFreshnessSeal {
   sealHash: Sha256Hash;
 }
 
+export type ControlFreshnessVerdict = "FRESH" | "DIRTY_KNOWN" | "STALE" | "UNSEALED";
+
+export type ControlFreshnessReason =
+  | "REPOSITORY_NOT_INITIALIZED"
+  | "REPOSITORY_NOT_INDEXED"
+  | "INDEX_SNAPSHOT_MISSING"
+  | "INDEX_SNAPSHOT_INVALID"
+  | "GIT_STATE_UNAVAILABLE"
+  | "STORE_SCHEMA_UNAVAILABLE"
+  | "REPOSITORY_ROOT_MISMATCH"
+  | "HEAD_MISMATCH"
+  | "REPOSITORY_GRAPH_MISMATCH"
+  | "SEMANTIC_MODEL_MISMATCH"
+  | "ANALYSIS_INPUT_MISMATCH"
+  | "WORKING_DIFF_MISMATCH"
+  | "STORE_SCHEMA_MISMATCH"
+  | "TOOL_VERSION_MISMATCH"
+  | "WORKING_TREE_DIRTY";
+
+export interface ControlFreshnessStatusReport {
+  schemaVersion: 1;
+  kind: "control_freshness_status";
+  basis: "control_index_snapshot_v1";
+  verdict: ControlFreshnessVerdict;
+  canRunHighRiskControl: boolean;
+  reasons: ControlFreshnessReason[];
+  freshnessSeal: ControlFreshnessSeal | null;
+}
+
 export type TraversalDirection = "lift" | "lower";
 
 export interface TraversalReport {
@@ -133,6 +162,7 @@ export interface TraversalReport {
   paths: CoordinatePath[];
   truncated: boolean;
   freshnessSeal?: ControlFreshnessSeal;
+  freshnessStatus?: ControlFreshnessStatusReport;
 }
 
 export interface ImpactedCoordinate {
@@ -334,6 +364,8 @@ export interface MigrationStep {
 
 export type MigrationPlanStatus = "READY" | "BLOCKED";
 export type MigrationPlanBlockedReason =
+  | "control_inputs_stale"
+  | "control_inputs_unsealed"
   | "target_architecture_missing"
   | "architecture_delta_missing"
   | "architecture_delta_inconsistent"
@@ -383,6 +415,7 @@ export interface MigrationPlanReport {
   schemaVersion: 1;
   plan: MigrationPlan;
   freshnessSeal?: ControlFreshnessSeal;
+  freshnessStatus?: ControlFreshnessStatusReport;
 }
 
 export type AuthorizationDecision = "ALLOW" | "DENY";
@@ -509,6 +542,7 @@ export interface MigrationPlanningInput {
 
 export type PublicControlReport =
   | CoordinateGraphReport
+  | ControlFreshnessStatusReport
   | TraversalReport
   | ImpactReport
   | ExplanationReport

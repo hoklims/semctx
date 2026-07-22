@@ -12,6 +12,7 @@ import { runInit } from "../src/commands/init";
 let root: string;
 const CHANGE = "change.control-plane-transport";
 const BLOCKED_CHANGE = "change.control-plane-open-unknown";
+const CLI = join(import.meta.dir, "..", "src", "index.ts");
 
 function git(cwd: string, ...args: string[]): void {
   const result = Bun.spawnSync(["git", ...args], { cwd, stdout: "pipe", stderr: "pipe" });
@@ -39,6 +40,18 @@ function run(argv: string[]): { code: number; out: string } {
   }
 }
 
+function runCli(repositoryRoot: string, argv: string[]): { code: number; out: string; err: string } {
+  const process = Bun.spawnSync(["bun", "run", CLI, ...argv, "--root", repositoryRoot], {
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  return {
+    code: process.exitCode ?? 1,
+    out: new TextDecoder().decode(process.stdout),
+    err: new TextDecoder().decode(process.stderr),
+  };
+}
+
 function treeSnapshot(dir: string): string {
   const records: Array<{ path: string; bytes: string }> = [];
   const visit = (current: string): void => {
@@ -55,8 +68,8 @@ function treeSnapshot(dir: string): string {
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), "semctx-control-cli-"));
   cpSync(SAMPLE_REPO, root, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
+  git(root, "init");
   runInit(root, parseArgs(["init", "--root", root]));
-  runIndex(root, parseArgs(["index", "--root", root]));
   initSemanticScaffold(root);
   writeChangeFile(root, newChangeContract({
     id: CHANGE,
@@ -71,11 +84,67 @@ beforeAll(() => {
     provenance: "author",
     openUnknowns: ["unknown.runtime-consumer"],
   }));
+  git(root, "add", ".");
+  git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
+  runIndex(root, parseArgs(["index", "--root", root]));
 });
 
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 describe("semctx control CLI", () => {
+  it("reports a fresh indexed repository through the top-level status command", () => {
+    const result = runCli(root, ["status", "--json"]);
+    expect(result.code).toBe(0);
+    expect(JSON.parse(result.out)).toMatchObject({
+      kind: "control_freshness_status",
+      basis: "control_index_snapshot_v1",
+      verdict: "FRESH",
+      canRunHighRiskControl: true,
+      reasons: [],
+    });
+  });
+
+  it("reports a captured non-empty working diff as DIRTY_KNOWN", () => {
+    const dirty = mkdtempSync(join(tmpdir(), "semctx-status-dirty-known-"));
+    try {
+      cpSync(SAMPLE_REPO, dirty, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
+      git(dirty, "init");
+      withoutStdout(() => runInit(dirty, parseArgs(["init", "--root", dirty])));
+      git(dirty, "add", ".");
+      git(dirty, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
+      const source = join(dirty, "src", "domain", "capacity.ts");
+      writeFileSync(source, `${readFileSync(source, "utf8")}\n// indexed working change\n`);
+      withoutStdout(() => runIndex(dirty, parseArgs(["index", "--root", dirty])));
+
+      const result = runCli(dirty, ["status", "--json"]);
+      expect(result.code).toBe(0);
+      expect(JSON.parse(result.out)).toMatchObject({
+        verdict: "DIRTY_KNOWN",
+        canRunHighRiskControl: true,
+        reasons: ["WORKING_TREE_DIRTY"],
+      });
+    } finally {
+      rmSync(dirty, { recursive: true, force: true });
+    }
+  });
+
+  it("reports an uninitialised repository as UNSEALED without creating state", () => {
+    const empty = mkdtempSync(join(tmpdir(), "semctx-status-empty-"));
+    try {
+      const result = runCli(empty, ["status", "--json"]);
+      expect(result.code).toBe(3);
+      expect(JSON.parse(result.out)).toMatchObject({
+        verdict: "UNSEALED",
+        canRunHighRiskControl: false,
+        reasons: ["REPOSITORY_NOT_INITIALIZED"],
+        freshnessSeal: null,
+      });
+      expect(existsSync(join(empty, ".semctx"))).toBe(false);
+    } finally {
+      rmSync(empty, { recursive: true, force: true });
+    }
+  });
+
   it("fails explicitly on an uninitialised repository without creating .semctx", () => {
     const empty = mkdtempSync(join(tmpdir(), "semctx-control-empty-"));
     try {
@@ -112,28 +181,65 @@ describe("semctx control CLI", () => {
   it("returns READY with a valid target and leaves every repository byte unchanged", () => {
     const current = loadCurrentControlState(root).snapshot;
     const target = { ...current, id: "target:control-plane", capturedAt: "2026-07-19T00:00:00.000Z" };
-    const targetFile = join(root, "target-architecture.json");
-    writeFileSync(targetFile, `${JSON.stringify(target)}\n`, "utf8");
-    const before = treeSnapshot(root);
+    const targetDir = mkdtempSync(join(tmpdir(), "semctx-control-target-"));
+    const targetFile = join(targetDir, "target-architecture.json");
+    try {
+      writeFileSync(targetFile, `${JSON.stringify(target)}\n`, "utf8");
+      const before = treeSnapshot(root);
 
-    const result = run(["control", "plan", CHANGE, "--target", targetFile, "--json"]);
+      const result = run(["control", "plan", CHANGE, "--target", targetFile, "--json"]);
 
-    expect(result.code).toBe(0);
-    expect(JSON.parse(result.out).plan.status).toBe("READY");
-    expect(treeSnapshot(root)).toBe(before);
-    expect(statSync(targetFile).size).toBeGreaterThan(0);
+      expect(result.code).toBe(0);
+      expect(JSON.parse(result.out).plan.status).toBe("READY");
+      expect(treeSnapshot(root)).toBe(before);
+      expect(statSync(targetFile).size).toBeGreaterThan(0);
+    } finally {
+      rmSync(targetDir, { recursive: true, force: true });
+    }
   });
 
   it("keeps an explicit target BLOCKED while the Plane B contract has an open unknown", () => {
     const current = loadCurrentControlState(root).snapshot;
-    const targetFile = join(root, "blocked-target-architecture.json");
-    writeFileSync(targetFile, `${JSON.stringify({ ...current, id: "target:blocked", capturedAt: "2026-07-19T00:00:00.000Z" })}\n`, "utf8");
+    const targetDir = mkdtempSync(join(tmpdir(), "semctx-control-blocked-target-"));
+    const targetFile = join(targetDir, "blocked-target-architecture.json");
+    try {
+      writeFileSync(targetFile, `${JSON.stringify({ ...current, id: "target:blocked", capturedAt: "2026-07-19T00:00:00.000Z" })}\n`, "utf8");
 
-    const report = JSON.parse(run(["control", "plan", BLOCKED_CHANGE, "--target", targetFile, "--json"]).out);
+      const report = JSON.parse(run(["control", "plan", BLOCKED_CHANGE, "--target", targetFile, "--json"]).out);
 
-    expect(report.plan.status).toBe("BLOCKED");
-    expect(report.plan.blockedReason).toBe("open_unknowns");
-    expect(report.plan.blockedDetails[0].subjectIds).toEqual(["unknown.runtime-consumer"]);
+      expect(report.plan.status).toBe("BLOCKED");
+      expect(report.plan.blockedReason).toBe("open_unknowns");
+      expect(report.plan.blockedDetails[0].subjectIds).toEqual(["unknown.runtime-consumer"]);
+    } finally {
+      rmSync(targetDir, { recursive: true, force: true });
+    }
+  });
+
+  it("blocks planning and traversal before using stale indexed inputs", () => {
+    const sourceFile = join(root, "src", "domain", "capacity.ts");
+    const original = readFileSync(sourceFile, "utf8");
+    try {
+      writeFileSync(sourceFile, `${original}\nexport const freshnessProbe = 1;\n`, "utf8");
+
+      const status = runCli(root, ["status", "--json"]);
+      expect(status.code).toBe(3);
+      expect(JSON.parse(status.out)).toMatchObject({
+        verdict: "STALE",
+        canRunHighRiskControl: false,
+        reasons: ["ANALYSIS_INPUT_MISMATCH", "WORKING_DIFF_MISMATCH"],
+      });
+
+      const plan = JSON.parse(run(["control", "plan", CHANGE, "--json"]).out);
+      expect(plan.plan.status).toBe("BLOCKED");
+      expect(plan.plan.blockedReason).toBe("control_inputs_stale");
+      expect(plan.plan.steps).toEqual([]);
+
+      const sourceId = loadCurrentControlState(root).graph.nodes[0]?.id;
+      expect(sourceId).toBeDefined();
+      expect(() => run(["control", "trace", sourceId!, "--json"])).toThrow("control inputs are STALE");
+    } finally {
+      writeFileSync(sourceFile, original, "utf8");
+    }
   });
 
   it("traces a qualified coordinate with explicit bounds", () => {

@@ -3,6 +3,7 @@ import {
   ArchitectureComparisonReportSchema,
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
+  CLEAN_CONTROL_WORKING_DIFF_HASH,
   CoordinateGraphReportSchema,
   ControlFreshnessSealSchema,
   DELETION_PREREQUISITE_OBLIGATIONS,
@@ -207,6 +208,78 @@ describe("external report schemas", () => {
     expect(PublicControlReportSchema.safeParse({ ...traversalReport, freshnessSeal }).success).toBe(true);
     expect(MigrationPlanReportSchema.safeParse({ ...migrationPlanReport, freshnessSeal }).success).toBe(true);
     expect(PublicControlReportSchema.safeParse({ ...migrationPlanReport, freshnessSeal }).success).toBe(true);
+  });
+
+  it("accepts fail-closed freshness blockers on migration plans", () => {
+    const report = {
+      ...migrationPlanReport,
+      plan: {
+        ...migrationPlanReport.plan,
+        blockedReason: "control_inputs_stale",
+        blockedDetails: [{
+          schemaVersion: 1,
+          reason: "control_inputs_stale",
+          subjectIds: ["ANALYSIS_INPUT_MISMATCH"],
+          message: "Control inputs are stale.",
+        }],
+        outstandingObligations: [],
+      },
+    };
+    expect(MigrationPlanReportSchema.safeParse(report).success).toBe(true);
+  });
+
+  it("accepts a separate explicit freshness status report", () => {
+    const sealed = {
+      ...freshnessSeal,
+      indexedRepositoryRoot: freshnessSeal.repositoryRoot,
+      indexedHeadCommit: freshnessSeal.headAtCapture,
+      indexedRepositoryGraphHash: freshnessSeal.repositoryGraphHash,
+      indexedSemanticModelHash: freshnessSeal.semanticModelHash,
+      indexedAnalysisInputHash: freshnessSeal.analysisInputHash,
+      workingDiffHash: CLEAN_CONTROL_WORKING_DIFF_HASH,
+      indexedWorkingDiffHash: CLEAN_CONTROL_WORKING_DIFF_HASH,
+      indexedAt: timestamp,
+      indexedStoreSchemaVersion: freshnessSeal.storeSchemaVersion,
+      indexedToolVersion: freshnessSeal.toolVersion,
+    };
+    const report = {
+      schemaVersion: 1,
+      kind: "control_freshness_status",
+      basis: "control_index_snapshot_v1",
+      verdict: "FRESH",
+      canRunHighRiskControl: true,
+      reasons: [],
+      freshnessSeal: sealed,
+    };
+
+    expect(PublicControlReportSchema.safeParse(report).success).toBe(true);
+    expect(PublicControlReportSchema.safeParse({
+      ...report,
+      verdict: "UNSEALED",
+      canRunHighRiskControl: false,
+      reasons: ["REPOSITORY_NOT_INITIALIZED"],
+      freshnessSeal: null,
+    }).success).toBe(true);
+    expect(PublicControlReportSchema.safeParse({
+      ...report,
+      verdict: "DIRTY_KNOWN",
+      reasons: ["HEAD_MISMATCH"],
+    }).success).toBe(false);
+    expect(PublicControlReportSchema.safeParse({
+      ...report,
+      verdict: "STALE",
+      canRunHighRiskControl: false,
+      reasons: ["HEAD_MISMATCH", "HEAD_MISMATCH"],
+    }).success).toBe(false);
+    expect(PublicControlReportSchema.safeParse({
+      ...report,
+      freshnessSeal: { ...sealed, indexedHeadCommit: "def456" },
+    }).success).toBe(false);
+    expect(PublicControlReportSchema.safeParse({
+      ...report,
+      verdict: "DIRTY_KNOWN",
+      reasons: ["WORKING_TREE_DIRTY"],
+    }).success).toBe(false);
   });
 
   it("validates a coordinate report with explicit L0-L6 coverage", () => {
