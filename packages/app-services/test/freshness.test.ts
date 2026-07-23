@@ -59,6 +59,7 @@ const semanticModel: SemanticModel = {
     {
       id: "goal.demo",
       kind: "goal",
+      appliesAtLevel: 6,
       statement: "Keep the demo deterministic.",
       status: "declared",
       provenance: "author",
@@ -73,6 +74,7 @@ const semanticModel: SemanticModel = {
     },
   ],
   changes: [],
+  refinementRelations: [],
 };
 
 const base = {
@@ -118,6 +120,32 @@ function sealed(workingDiffHash: Sha256Hash): ControlFreshnessSeal {
 }
 
 describe("control freshness seal", () => {
+  it("changes when an authored level or typed refinement relation changes", () => {
+    const baseHash = appServices.fingerprintSemanticModel(semanticModel);
+    expect(appServices.fingerprintSemanticModel({
+      ...semanticModel,
+      nodes: semanticModel.nodes.map((node) => ({ ...node, appliesAtLevel: 5 })),
+    })).not.toBe(baseHash);
+    expect(appServices.fingerprintSemanticModel({
+      ...semanticModel,
+      refinementRelations: [{
+        schemaVersion: 1,
+        id: "relation.demo",
+        kind: "decomposes_to",
+        source: { plane: "B", kind: "semantic_node", nodeId: "goal.demo" },
+        target: { plane: "B", kind: "semantic_node", nodeId: "goal.child" },
+        epistemicStatus: "human_declared",
+        provenance: "author",
+        evidenceRefs: [{
+          schemaVersion: 1,
+          kind: "semantic_node",
+          locator: "goal.demo",
+          digest: { algorithm: "sha256", value: "a".repeat(64) },
+        }],
+      }],
+    })).not.toBe(baseHash);
+  });
+
   it("is deterministic across semantically irrelevant ordering", () => {
     const reorderedGraph: RepositoryGraph = {
       nodes: [...graph.nodes].reverse().map((node) => ({

@@ -1,6 +1,10 @@
 /** Zod schemas for the semantic model. Boundary use only: MCP/IPC payloads and defensive checks. */
 
 import { z } from "zod";
+import {
+  AuthoredSemanticLevelSchema,
+  RefinementRelationV1Schema,
+} from "@semantic-context/control-model";
 
 export const SemanticNodeKindSchema = z.enum([
   "goal",
@@ -86,6 +90,7 @@ export const SemanticNodeSchema = z.object({
   relations: z.array(SemanticRelationSchema),
   tags: z.array(z.string()),
   metadata: z.record(z.string()).optional(),
+  appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
 });
 
 export const ChangeContractSchema = z.object({
@@ -101,11 +106,13 @@ export const ChangeContractSchema = z.object({
   repositoryLinks: z.array(RepositoryLinkSchema),
   tags: z.array(z.string()),
   metadata: z.record(z.string()).optional(),
+  appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
 });
 
 export const SemanticModelSchema = z.object({
   nodes: z.array(SemanticNodeSchema),
   changes: z.array(ChangeContractSchema),
+  refinementRelations: z.array(RefinementRelationV1Schema).optional(),
 });
 
 export type SemanticNodeParsed = z.infer<typeof SemanticNodeSchema>;

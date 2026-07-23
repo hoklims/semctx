@@ -1,0 +1,7 @@
+diff --git a/packages/control-engine/src/traversal.ts b/packages/control-engine/src/traversal.ts
+index 1111111..2222222 100644
+--- a/packages/control-engine/src/traversal.ts
++++ b/packages/control-engine/src/traversal.ts
+@@ -1 +1 @@
+-export const refinementMode = "legacy";
++export const refinementMode = "typed";

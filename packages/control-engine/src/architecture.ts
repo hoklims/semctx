@@ -7,21 +7,33 @@ import type {
   ArchitectureRelation,
   ArchitectureSnapshot,
   CoordinateGraphReport,
+  CoordinateGraphReportV2,
+  QualifiedCoordinateId,
 } from "@semantic-context/control-model";
 
 export interface SnapshotIdentity { id: string; commit: string; capturedAt: string }
 
 /** Content identity for the exact federated A+B graph used by a read-only planning snapshot. */
-export function fingerprintCoordinateGraph(graph: CoordinateGraphReport): string {
-  const normalized = {
+export function fingerprintCoordinateGraph(graph: CoordinateGraphReport | CoordinateGraphReportV2): string {
+  const normalized = graph.schemaVersion === 2 ? {
+    schemaVersion: 2,
+    nodes: [...graph.nodes].sort((a, b) => compareIds(a.id, b.id)),
+    structuralEdges: [...graph.structuralEdges].sort((a, b) => compareIds(edgeKey(a), edgeKey(b))),
+    refinementRelations: [...graph.refinementRelations].sort((a, b) => compareIds(a.id, b.id)),
+    mapping: [...graph.mapping].sort((a, b) => compareIds(`${a.plane}:${a.sourceKind}`, `${b.plane}:${b.sourceKind}`)),
+    coverage: normalizeCoverage(graph.coverage),
+    unsupported: [...graph.unsupported].sort(compareSource),
+    unmapped: [...graph.unmapped].sort(compareSource),
+    staleLinks: [...graph.staleLinks].sort(compareStaleLink),
+    danglingReferences: [...graph.danglingReferences].sort(compareDanglingReference),
+    compatibilityNormalization: [...graph.compatibilityNormalization],
+    verifiedEvidenceDigests: [...graph.verifiedEvidenceDigests].sort(compareIds),
+  } : {
+    schemaVersion: 1,
     nodes: [...graph.nodes].sort((a, b) => compareIds(a.id, b.id)),
     edges: [...graph.edges].sort((a, b) => compareIds(edgeKey(a), edgeKey(b))),
     mapping: [...graph.mapping].sort((a, b) => compareIds(`${a.plane}:${a.sourceKind}`, `${b.plane}:${b.sourceKind}`)),
-    coverage: [...graph.coverage].map((entry) => ({
-      ...entry,
-      categories: [...entry.categories].sort(),
-      coordinateIds: [...entry.coordinateIds].sort(),
-    })).sort((a, b) => a.level - b.level),
+    coverage: normalizeCoverage(graph.coverage),
     unsupported: [...graph.unsupported].sort(compareSource),
     unmapped: [...graph.unmapped].sort(compareSource),
     staleLinks: [...(graph.staleLinks ?? [])].sort(compareStaleLink),
@@ -30,21 +42,62 @@ export function fingerprintCoordinateGraph(graph: CoordinateGraphReport): string
   return createHash("sha256").update(stableJson(normalized)).digest("hex");
 }
 
-export function snapshotArchitecture(graph: CoordinateGraphReport, identity: SnapshotIdentity): ArchitectureSnapshot {
+export function snapshotArchitecture(graph: CoordinateGraphReport | CoordinateGraphReportV2, identity: SnapshotIdentity): ArchitectureSnapshot {
+  const elements = graph.schemaVersion === 2
+    ? graph.nodes.flatMap((node) =>
+        node.appliesAtLevel === null || node.category === null || node.id.startsWith("sha256:")
+          ? []
+          : [{
+              id: node.id as QualifiedCoordinateId,
+              level: node.appliesAtLevel,
+              category: node.category,
+              fingerprint: stableJson({
+                category: node.category,
+                epistemicStatus: node.epistemicStatus,
+                label: node.label,
+                level: node.appliesAtLevel,
+                metadata: node.metadata ?? {},
+                sourceKind: node.sourceKind,
+              }),
+            }])
+    : graph.nodes.map((node) => ({
+        id: node.id,
+        level: node.level,
+        category: node.category,
+        fingerprint: stableJson({ category: node.category, epistemicStatus: node.epistemicStatus, label: node.label, level: node.level, metadata: node.metadata ?? {}, sourceKind: node.sourceKind }),
+      }));
+  const structuralRelations = (graph.schemaVersion === 2 ? graph.structuralEdges : graph.edges).map((edge) => ({
+    from: edge.from,
+    to: edge.to,
+    relation: edge.relation,
+    fingerprint: stableJson({ evidenceRefs: [...edge.evidenceRefs].sort(), sourceRelation: edge.sourceRelation ?? "" }),
+  }));
+  const refinementRelations = graph.schemaVersion === 2
+    ? graph.refinementRelations.flatMap((relation) => {
+        if (relation.source.plane !== "B" || relation.target.plane !== "B") return [];
+        return [{
+          from: `semantic:${relation.source.nodeId}` as QualifiedCoordinateId,
+          to: `semantic:${relation.target.nodeId}` as QualifiedCoordinateId,
+          relation: relation.kind,
+          fingerprint: stableJson({
+            epistemicStatus: relation.epistemicStatus,
+            evidenceRefs: relation.evidenceRefs,
+            provenance: relation.provenance,
+          }),
+        }];
+      })
+    : [];
+  const sortedElements = elements.sort((a, b) => compareIds(a.id, b.id));
+  const retainedElementIds = new Set(sortedElements.map((element) => element.id));
+  const relations = [...structuralRelations, ...refinementRelations]
+    .filter((relation) =>
+      retainedElementIds.has(relation.from)
+      && retainedElementIds.has(relation.to))
+    .sort(compareRelation);
   return {
     ...identity,
-    elements: graph.nodes.map((node) => ({
-      id: node.id,
-      level: node.level,
-      category: node.category,
-      fingerprint: stableJson({ category: node.category, epistemicStatus: node.epistemicStatus, label: node.label, level: node.level, metadata: node.metadata ?? {}, sourceKind: node.sourceKind }),
-    })).sort((a, b) => compareIds(a.id, b.id)),
-    relations: graph.edges.map((edge) => ({
-      from: edge.from,
-      to: edge.to,
-      relation: edge.relation,
-      fingerprint: stableJson({ evidenceRefs: [...edge.evidenceRefs].sort(), sourceRelation: edge.sourceRelation ?? "" }),
-    })).sort(compareRelation),
+    elements: sortedElements,
+    relations,
   };
 }
 
@@ -103,6 +156,13 @@ function intersections<K extends string, T, U>(left: Map<K, T>, right: Map<K, U>
 function relationKey(relation: ArchitectureRelation): string { return `${relation.from}\u0000${relation.to}\u0000${relation.relation}`; }
 function compareRelation(a: ArchitectureRelation, b: ArchitectureRelation): number { return compareIds(relationKey(a), relationKey(b)); }
 function edgeKey(edge: CoordinateGraphReport["edges"][number]): string { return `${edge.from}\u0000${edge.to}\u0000${edge.relation}\u0000${edge.sourceRelation ?? ""}`; }
+function normalizeCoverage(coverage: CoordinateGraphReport["coverage"] | CoordinateGraphReportV2["coverage"]) {
+  return [...coverage].map((entry) => ({
+    ...entry,
+    categories: [...entry.categories].sort(),
+    coordinateIds: [...entry.coordinateIds].sort(),
+  })).sort((a, b) => a.level - b.level);
+}
 function compareSource(a: CoordinateGraphReport["unsupported"][number], b: CoordinateGraphReport["unsupported"][number]): number { return compareIds(`${a.plane}:${a.sourceKind}:${a.sourceId}`, `${b.plane}:${b.sourceKind}:${b.sourceId}`); }
 function compareStaleLink(a: NonNullable<CoordinateGraphReport["staleLinks"]>[number], b: NonNullable<CoordinateGraphReport["staleLinks"]>[number]): number { return compareIds(`${a.ownerId}:${a.link.kind}:${a.link.ref}`, `${b.ownerId}:${b.link.kind}:${b.link.ref}`); }
 function compareDanglingReference(a: NonNullable<CoordinateGraphReport["danglingReferences"]>[number], b: NonNullable<CoordinateGraphReport["danglingReferences"]>[number]): number { return compareIds(`${a.ownerId}:${a.field}:${a.ref}`, `${b.ownerId}:${b.field}:${b.ref}`); }

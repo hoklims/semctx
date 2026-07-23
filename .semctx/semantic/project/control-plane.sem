@@ -3,12 +3,24 @@
 goal goal.semctx.reconstructive-control
   statement: Semctx must reconstruct intent across code and architecture while keeping every conclusion traceable to explicit evidence.
   status: declared
+  provenance: author
+  appliesAtLevel: 6
   tag: control-plane
   tag: critical
+
+goal goal.semctx.typed-refinement-intent
+  statement: Maintainers can trace a governing goal to exact observed code hunks and lift those observations back without inventing semantic authority.
+  status: declared
+  provenance: author
+  appliesAtLevel: 5
+  tag: control-plane
+  tag: refinement
 
 invariant invariant.semctx.plane-separation
   statement: Derived repository facts, authored semantic intent, and migration control state remain distinct typed planes.
   status: declared
+  provenance: author
+  appliesAtLevel: 4
   serves: goal.semctx.reconstructive-control
   file: docs/architecture/semantic-layer-v1.md
   tag: critical
@@ -16,35 +28,71 @@ invariant invariant.semctx.plane-separation
 invariant invariant.semctx.fail-closed-control
   statement: Missing targets, deltas, runtime observations, or sufficient proofs must block cutover and deletion.
   status: declared
+  provenance: author
+  appliesAtLevel: 4
   serves: goal.semctx.reconstructive-control
   tag: critical
 
 decision decision.semctx.read-only-plane-c
   statement: Plane C is an additive read-only control surface until replay and shadow evidence justify a separate executor.
   status: declared
+  provenance: author
+  appliesAtLevel: 4
   justifies: invariant.semctx.plane-separation
   justifies: invariant.semctx.fail-closed-control
   tag: architecture
 
+decision decision.semctx.typed-refinement-policy
+  statement: Refinement traversal admits only adjacent typed relations with explicit evidence and keeps constraints and proofs outside the load-bearing path.
+  status: declared
+  provenance: author
+  appliesAtLevel: 3
+  tag: control-plane
+  tag: refinement
+
+decision decision.semctx.control-engine-boundary
+  statement: The control engine projects and traverses the read-only Plane-C overlay without constructing changes or execution envelopes.
+  status: declared
+  provenance: author
+  appliesAtLevel: 2
+  tag: architecture
+  tag: read-only
+
 assumption assumption.semctx.index-is-current
   statement: A coordinate trace is useful only when the repository index represents the requested commit.
   status: assumed
+  provenance: author
+  appliesAtLevel: 4
   tag: freshness
 
 unknown unknown.semctx.runtime-dependencies
   statement: Static repository facts cannot prove that a legacy path has no runtime consumers.
   status: declared
+  provenance: author
+  appliesAtLevel: 4
   tag: deletion
 
 evidence proof.semctx.baseline-suite
   statement: Before Plane C implementation, typecheck and 195 repository tests passed on the working baseline.
   status: tested
+  provenance: author
+  appliesAtLevel: 1
   tag: regression-baseline
+
+evidence proof.semctx.typed-refinement-contract
+  statement: Versioned schemas and tests define the exact typed refinement contract shared by the semantic DSL and control engine.
+  status: tested
+  provenance: author
+  appliesAtLevel: 1
+  file: packages/control-engine/test/l6-l0-refinement-round-trip.test.ts
+  tag: refinement
+  tag: test
 
 change change.semctx.control-plane-mvp
   statement: Add deterministic semantic coordinates, architecture delta planning, and fail-closed proof authorization without execution authority.
   status: active
   provenance: author
+  appliesAtLevel: 1
   serves: goal.semctx.reconstructive-control
   preserves:
     - invariant.semctx.plane-separation
@@ -54,3 +102,80 @@ change change.semctx.control-plane-mvp
   file: docs/architecture/semantic-layer-v1.md
   tag: control-plane
   tag: shadow-first
+
+relation refinement.01.strategy-to-product decomposes_to source semantic goal.semctx.reconstructive-control
+target semantic goal.semctx.typed-refinement-intent
+epistemicStatus human_declared
+provenance author
+evidenceRef document_span docs/architecture/semantic-layer-v1.md sha256:3f31990518a8493243a425b924315ba7933eb679b890464897a697f4e4a0a991
+end
+
+relation refinement.02.product-to-invariant decomposes_to source semantic goal.semctx.typed-refinement-intent
+target semantic invariant.semctx.plane-separation
+epistemicStatus human_declared
+provenance author
+evidenceRef semantic_node invariant.semctx.plane-separation sha256:e2ecde8b57f3b33198522aa69b9cd78f7e26ef9c80b765f3049ecbd46ff07b9b
+end
+
+relation refinement.03.capability-realizes-invariant realizes source semantic decision.semctx.typed-refinement-policy
+target semantic invariant.semctx.plane-separation
+epistemicStatus human_declared
+provenance author
+evidenceRef semantic_node decision.semctx.typed-refinement-policy sha256:212f92327d1debf6079eba2fcfc0bf6a0ac202427a1516f73bb3413a45e2bbc2
+end
+
+relation refinement.04.component-implements-capability implements source semantic decision.semctx.control-engine-boundary
+target semantic decision.semctx.typed-refinement-policy
+epistemicStatus human_declared
+provenance author
+evidenceRef semantic_node decision.semctx.control-engine-boundary sha256:3b395f70d7f4fd8442befebfa2b55db4bf2c1a202d98bf55074c3e8e2b99dea2
+end
+
+relation refinement.05.contract-implements-component implements source semantic proof.semctx.typed-refinement-contract
+target semantic decision.semctx.control-engine-boundary
+epistemicStatus test_observed
+provenance author
+evidenceRef test_result packages/control-engine/test/l6-l0-refinement-round-trip.test.ts sha256:12138c433a48aa3123593b44b01a9de91d9b71c11dee9a107f648741b437049c
+end
+
+relation refinement.06.hunk-implements-contract implements source observed_hunk sha256:0cef0c7583115223271b46cbbe70a91b7f783884c5ef60c840649b51780815bd
+target semantic proof.semctx.typed-refinement-contract
+epistemicStatus statically_observed
+provenance derived
+evidenceRef observed_diff_hunk packages/control-engine/test/fixtures/l6-l0-refinement.patch sha256:0cef0c7583115223271b46cbbe70a91b7f783884c5ef60c840649b51780815bd
+end
+
+relation refinement.07.plane-separation-constraint constrained_by source semantic decision.semctx.typed-refinement-policy
+target semantic invariant.semctx.plane-separation
+epistemicStatus human_declared
+provenance author
+evidenceRef semantic_node invariant.semctx.plane-separation sha256:e2ecde8b57f3b33198522aa69b9cd78f7e26ef9c80b765f3049ecbd46ff07b9b
+end
+
+relation refinement.08.fail-closed-constraint constrained_by source semantic decision.semctx.typed-refinement-policy
+target semantic invariant.semctx.fail-closed-control
+epistemicStatus human_declared
+provenance author
+evidenceRef semantic_node invariant.semctx.fail-closed-control sha256:258e8e1e0efcd327af26a15d3804d975a44868baa030e3058a4314fd1509dcb8
+end
+
+relation refinement.09.contract-proof proved_by source semantic proof.semctx.typed-refinement-contract
+target semantic proof.semctx.baseline-suite
+epistemicStatus test_observed
+provenance author
+evidenceRef test_result packages/control-engine/test/l6-l0-refinement-round-trip.test.ts sha256:12138c433a48aa3123593b44b01a9de91d9b71c11dee9a107f648741b437049c
+end
+
+relation refinement.90.llm-advisory implements source semantic decision.semctx.control-engine-boundary
+target semantic decision.semctx.typed-refinement-policy
+epistemicStatus llm_inferred
+provenance agent
+evidenceRef semantic_node decision.semctx.control-engine-boundary sha256:3b395f70d7f4fd8442befebfa2b55db4bf2c1a202d98bf55074c3e8e2b99dea2
+end
+
+relation refinement.91.multilevel-advisory decomposes_to source semantic goal.semctx.typed-refinement-intent
+target semantic decision.semctx.control-engine-boundary
+epistemicStatus human_declared
+provenance author
+evidenceRef document_span docs/architecture/semantic-model.md sha256:e14f5cc4719b5c7a219e5c9bbc5117e7f96f91f829465e4fbc7f3c05c7434791
+end

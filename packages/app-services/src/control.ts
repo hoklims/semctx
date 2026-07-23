@@ -1,15 +1,19 @@
-import { compareIds, isSemctxError, SemctxError } from "@semantic-context/core";
+import { compareIds, isSemctxError, SemctxError, type EvidenceRecord } from "@semantic-context/core";
 import {
   type ArchitectureDelta,
   type ArchitectureSnapshot,
   type ChangePlanningContext,
   type ControlFreshnessSeal,
+  type ControlFreshnessSealV2,
   type ControlFreshnessStatusReport,
   type MigrationPlanReport,
+  type ObservedDiffHunkV1,
   type QualifiedCoordinateId,
   type SemanticLevel,
   type TraversalDirection,
-  type TraversalReport,
+  type TraversalReportV2,
+  type ControlQueryEnvelopeV1,
+  type SealedAttestationIndexV1,
 } from "@semantic-context/control-model";
 import {
   buildCoordinateGraph,
@@ -34,14 +38,46 @@ import {
   parseIndexedControlSnapshot,
   unsealedControlStatus,
 } from "./freshness";
+import {
+  CONTROL_OBSERVED_HUNK_INDEX_META_KEY,
+  materializeReferencedObservedHunks,
+  observedHunksFromIndex,
+  parseObservedHunkIndex,
+  resolveVerifiedRelationEvidence,
+} from "./control-evidence";
 import { openReadyRepository } from "./readiness";
 import { inspectSemanticLifecycle } from "./semantic-check";
+import {
+  CONTROL_ATTESTATION_INDEX_META_KEY,
+  architectureComparisonQuery,
+  bindControlFreshnessSealV2,
+  coordinateGraphQuery,
+  deletionAuthorizationQuery,
+  explanationQuery,
+  impactQuery,
+  parseSealedAttestationIndex,
+  refinementCoverageQuery,
+  stepAuthorizationQuery,
+  transitionAuthorizationQuery,
+  traversalQuery,
+  type ControlQueryRuntime,
+  type DeletionAuthorizationQueryV1,
+  type ExplanationQueryV1,
+  type ImpactQueryV1,
+  type RefinementCoverageQueryV1,
+  type StepAuthorizationQueryV1,
+  type TransitionAuthorizationQueryV1,
+  type TraversalQueryV1,
+} from "./control-queries";
 
 export interface CurrentControlState {
   graph: ReturnType<typeof buildCoordinateGraph>;
   snapshot: ArchitectureSnapshot;
   freshnessSeal: ControlFreshnessSeal;
+  queryFreshnessSeal: ControlFreshnessSealV2;
   freshnessStatus: ControlFreshnessStatusReport;
+  sealedAttestationIndex: SealedAttestationIndexV1 | null;
+  sealedEvidence: EvidenceRecord[];
   changeIds: string[];
   planningContexts: ChangePlanningContext[];
 }
@@ -93,14 +129,41 @@ export function loadControlState(root: string): CurrentControlState {
         lifecycleFindings: lifecycleErrors,
       });
     }
+    const indexedEvidence = reader.loadEvidence();
     const repositoryFacts = {
       graph: reader.loadGraph(),
       claims: reader.loadClaims(),
-      evidence: reader.loadEvidence(),
+      evidence: indexedEvidence,
     };
+    const indexedSnapshot = parseIndexedControlSnapshot(reader.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY));
+    let observedHunks: ObservedDiffHunkV1[] = [];
+    if (indexedSnapshot?.schemaVersion === 2) {
+      const observedIndex = parseObservedHunkIndex(reader.getMeta(CONTROL_OBSERVED_HUNK_INDEX_META_KEY));
+      if (
+        observedIndex === null
+        || observedIndex.indexHash !== indexedSnapshot.observedHunkIndexHash
+        || observedIndex.workingDiffHash !== indexedSnapshot.workingDiffHash
+      ) {
+        throw new SemctxError("STORE_ERROR", "invalid persisted control observed hunk index");
+      }
+      observedHunks = materializeReferencedObservedHunks(
+        root,
+        observedIndex.repositoryIdentity,
+        semanticBefore.model,
+        observedHunksFromIndex(observedIndex),
+      );
+    }
+    const verifiedEvidenceDigests = resolveVerifiedRelationEvidence(
+      root,
+      semanticBefore.model,
+      observedHunks,
+      gitBefore.headCommit,
+    );
     const graph = buildCoordinateGraph({
       repositoryFacts,
       semanticModel: semanticBefore.model,
+      observedHunks,
+      verifiedEvidenceDigests,
     });
     const configAfter = loadConfig(root);
     const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, discoverFiles(configAfter));
@@ -128,7 +191,6 @@ export function loadControlState(root: string): CurrentControlState {
       });
     }
     const fingerprint = fingerprintCoordinateGraph(graph);
-    const indexedSnapshot = parseIndexedControlSnapshot(reader.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY));
     const capturedAt = indexedSnapshot?.capturedAt
       ?? reader.getMeta("indexed_at")
       ?? "1970-01-01T00:00:00.000Z";
@@ -144,6 +206,11 @@ export function loadControlState(root: string): CurrentControlState {
       storeSchemaVersion: Number.isSafeInteger(schemaVersion) && schemaVersion >= 0 ? schemaVersion : null,
     });
     const freshnessStatus = evaluateControlFreshness(freshnessSeal);
+    const sealedAttestationIndex = parseSealedAttestationIndex(reader.getMeta(CONTROL_ATTESTATION_INDEX_META_KEY));
+    const queryFreshnessSeal = bindControlFreshnessSealV2(
+      freshnessSeal,
+      indexedSnapshot?.schemaVersion === 2 ? indexedSnapshot.attestationSetHash : null,
+    );
     const commit = indexedSnapshot?.headCommit === null || indexedSnapshot === null
       ? "unsealed"
       : `git:${indexedSnapshot.headCommit}`;
@@ -151,12 +218,59 @@ export function loadControlState(root: string): CurrentControlState {
       graph,
       snapshot: snapshotArchitecture(graph, { id: `current:${fingerprint}`, commit, capturedAt }),
       freshnessSeal,
+      queryFreshnessSeal,
       freshnessStatus,
+      sealedAttestationIndex,
+      sealedEvidence: [...indexedEvidence].sort((left, right) => compareIds(left.id, right.id)),
       changeIds: semanticAfter.model.changes.map((change) => change.id).sort(),
       planningContexts: semanticAfter.model.changes.map((change) => planningContext(semanticAfter.model, change)).sort((a, b) => compareIds(a.id, b.id)),
     };
   } finally {
     reader.close();
+  }
+}
+
+export function loadControlQueryRuntime(root: string): ControlQueryRuntime {
+  try {
+    const state = loadControlState(root);
+    return {
+      graph: state.graph,
+      freshnessStatus: state.freshnessStatus,
+      freshnessSeal: state.queryFreshnessSeal,
+      currentArchitecture: state.snapshot,
+      sealedAttestationIndex: state.sealedAttestationIndex,
+      sealedEvidence: state.sealedEvidence,
+    };
+  } catch (error) {
+    const status = unavailableStatus(error);
+    if (status === null) throw error;
+    return {
+      graph: {
+        schemaVersion: 2,
+        nodes: [],
+        structuralEdges: [],
+        refinementRelations: [],
+        mapping: [],
+        coverage: [],
+        unsupported: [],
+        unmapped: [],
+        staleLinks: [],
+        danglingReferences: [],
+        compatibilityNormalization: [],
+        verifiedEvidenceDigests: [],
+      },
+      freshnessStatus: status,
+      freshnessSeal: null,
+      currentArchitecture: {
+        id: "current:unsealed",
+        commit: "unsealed",
+        capturedAt: "1970-01-01T00:00:00.000Z",
+        elements: [],
+        relations: [],
+      },
+      sealedAttestationIndex: null,
+      sealedEvidence: [],
+    };
   }
 }
 
@@ -185,7 +299,13 @@ function unavailableStatus(error: unknown): ControlFreshnessStatusReport | null 
   if (!isSemctxError(error)) return null;
   if (error.code === "CONFIG_NOT_FOUND") return unsealedControlStatus("REPOSITORY_NOT_INITIALIZED");
   if (error.code === "REPO_NOT_INDEXED") return unsealedControlStatus("REPOSITORY_NOT_INDEXED");
-  if (error.code === "STORE_ERROR" && error.message === "invalid persisted control index snapshot") {
+  if (
+    error.code === "STORE_ERROR"
+    && (
+      error.message === "invalid persisted control index snapshot"
+      || error.message === "invalid persisted control observed hunk index"
+    )
+  ) {
     return unsealedControlStatus("INDEX_SNAPSHOT_INVALID");
   }
   return null;
@@ -200,7 +320,7 @@ function assertFreshControlInputs(status: ControlFreshnessStatusReport): void {
   );
 }
 
-export function traceControl(root: string, command: ControlTraceCommand): TraversalReport {
+export function traceControl(root: string, command: ControlTraceCommand): TraversalReportV2 {
   const direction = command.direction ?? "lift";
   const targetLevel = command.targetLevel ?? (direction === "lift" ? 6 : 0);
   const state = loadControlState(root);
@@ -212,7 +332,67 @@ export function traceControl(root: string, command: ControlTraceCommand): Traver
   const report = direction === "lift"
     ? lift(state.graph, command.sourceId, targetLevel, bounds)
     : lower(state.graph, command.sourceId, targetLevel, bounds);
-  return { ...report, freshnessSeal: state.freshnessSeal, freshnessStatus: state.freshnessStatus };
+  return { ...report, freshnessSeal: state.queryFreshnessSeal };
+}
+
+export function queryControlGraph(root: string): Extract<ControlQueryEnvelopeV1, { kind: "coordinate_graph" }> {
+  return coordinateGraphQuery(loadControlQueryRuntime(root));
+}
+
+export function queryControlTraversal(
+  root: string,
+  command: TraversalQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "traversal" }> {
+  return traversalQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlRefinementCoverage(
+  root: string,
+  command: RefinementCoverageQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "refinement_coverage" }> {
+  return refinementCoverageQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlImpact(
+  root: string,
+  command: ImpactQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "impact" }> {
+  return impactQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlExplanation(
+  root: string,
+  command: ExplanationQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "explanation" }> {
+  return explanationQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlArchitectureComparison(
+  root: string,
+  target: ArchitectureSnapshot,
+): Extract<ControlQueryEnvelopeV1, { kind: "architecture_comparison" }> {
+  return architectureComparisonQuery(loadControlQueryRuntime(root), target);
+}
+
+export function queryControlTransitionAuthorization(
+  root: string,
+  command: TransitionAuthorizationQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "authorize_transition" }> {
+  return transitionAuthorizationQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlStepAuthorization(
+  root: string,
+  command: StepAuthorizationQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "authorize_step" }> {
+  return stepAuthorizationQuery(loadControlQueryRuntime(root), command);
+}
+
+export function queryControlDeletionAuthorization(
+  root: string,
+  command: DeletionAuthorizationQueryV1,
+): Extract<ControlQueryEnvelopeV1, { kind: "authorize_deletion" }> {
+  return deletionAuthorizationQuery(loadControlQueryRuntime(root), command);
 }
 
 export function planControlMigration(root: string, command: ControlPlanCommand): MigrationPlanReport {

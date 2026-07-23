@@ -5,6 +5,7 @@ export { formatDiagnostic, hasErrors } from "./diagnostics";
 
 export { parseSemanticSource } from "./parse";
 export type { ParseResult } from "./parse";
+export { formatAsciiToken, formatRefinementRelation } from "./refinement";
 
 export { formatNode, formatChange, formatModel } from "./format";
 

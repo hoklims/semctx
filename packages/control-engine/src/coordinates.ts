@@ -1,14 +1,20 @@
 import type { RepositoryEdge, RepositoryNode } from "@semantic-context/core";
 import { compareIds } from "@semantic-context/core";
+import type {
+  CoordinateCategory,
+  CoordinateEdge,
+  CoordinateGraphReportV2,
+  CoordinateNodeV2,
+  EpistemicStatus,
+  ObservedDiffHunkV1,
+  QualifiedCoordinateId,
+  RefinementRelationV1,
+  SemanticLevel,
+  Sha256Hash,
+} from "@semantic-context/control-model";
 import {
-  NORMATIVE_LEVEL_MAPPING,
-  SEMANTIC_LEVELS,
-  type CoordinateEdge,
-  type CoordinateGraphReport,
-  type CoordinateNode,
-  type EpistemicStatus,
-  type QualifiedCoordinateId,
-  type SourceKindLevelMapping,
+  RefinementRelationV1Schema,
+  Sha256HashSchema,
 } from "@semantic-context/control-model";
 import {
   buildRepositoryLinkIndex,
@@ -22,42 +28,72 @@ import {
 export interface CoordinateGraphInput {
   repositoryFacts: RepositoryFacts;
   semanticModel: SemanticModel;
+  observedHunks?: readonly ObservedDiffHunkV1[];
+  verifiedEvidenceDigests?: readonly Sha256Hash[];
 }
 
-const mappingByKey = new Map(NORMATIVE_LEVEL_MAPPING.map((mapping) => [`${mapping.plane}:${mapping.sourceKind}`, mapping]));
-
-export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGraphReport {
-  const unsupported: CoordinateGraphReport["unsupported"] = [];
-  const unmapped: CoordinateGraphReport["unmapped"] = [];
-  const nodes: CoordinateNode[] = [];
-  const repositoryFacts = input.repositoryFacts;
-  const repositoryLinkIndex = buildRepositoryLinkIndex(repositoryFacts);
-  const linkReport = resolveRepositoryLinks(input.semanticModel, repositoryFacts);
-  const authoredSemanticIds = new Set([...input.semanticModel.nodes.map((node) => node.id), ...input.semanticModel.changes.map((change) => change.id)]);
-
-  for (const source of repositoryFacts.graph.nodes) {
-    const mapping = mappingByKey.get(`repo:${source.kind}`);
-    if (!mapping) {
-      unmapped.push({ plane: "repo", sourceId: source.id, sourceKind: source.kind, reason: "source_kind_not_mapped" });
-      continue;
-    }
-    if (!isSupported(mapping)) {
-      unsupported.push({ plane: "repo", sourceId: source.id, sourceKind: source.kind, reason: mapping.reason ?? "unsupported" });
-      continue;
-    }
-    nodes.push(repositoryCoordinate(source, mapping));
+export class InvalidRefinementRelationError extends Error {
+  readonly code = "INVALID_REFINEMENT_RELATION" as const;
+  constructor(
+    readonly relationId: string,
+    readonly issues: readonly { path: PropertyKey[]; message: string }[],
+  ) {
+    super(`invalid refinement relation ${relationId}: ${issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);
+    this.name = "InvalidRefinementRelationError";
   }
+}
 
-  for (const source of input.semanticModel.nodes) addSemanticSource(source, unsupported, unmapped, nodes);
+/**
+ * Projects the structural A+B graph and the typed refinement overlay without
+ * collapsing one into the other. Repository shape and semantic kind never
+ * supply a missing authored abstraction level.
+ */
+export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGraphReportV2 {
+  const unsupported: CoordinateGraphReportV2["unsupported"][number][] = [];
+  const unmapped: CoordinateGraphReportV2["unmapped"][number][] = [];
+  const nodes: CoordinateNodeV2[] = [];
+  const repositoryLinkIndex = buildRepositoryLinkIndex(input.repositoryFacts);
+  const linkReport = resolveRepositoryLinks(input.semanticModel, input.repositoryFacts);
+  const authoredSemanticIds = new Set([
+    ...input.semanticModel.nodes.map((node) => node.id),
+    ...input.semanticModel.changes.map((change) => change.id),
+  ]);
+
+  for (const source of input.repositoryFacts.graph.nodes) {
+    nodes.push(repositoryCoordinate(source));
+  }
+  for (const source of input.semanticModel.nodes) {
+    nodes.push(semanticCoordinate(source));
+    if (source.appliesAtLevel === undefined) {
+      unmapped.push({
+        plane: "semantic",
+        sourceId: source.id,
+        sourceKind: source.kind,
+        reason: "applies_at_level_missing",
+      });
+    }
+  }
+  for (const hunk of input.observedHunks ?? []) nodes.push(observedCoordinate(hunk));
   for (const change of input.semanticModel.changes) {
-    unsupported.push({ plane: "semantic", sourceId: change.id, sourceKind: "change", reason: "control_support_artifact" });
+    unsupported.push({
+      plane: "semantic",
+      sourceId: change.id,
+      sourceKind: "change",
+      reason: "control_support_artifact",
+    });
   }
 
   const byId = new Map(nodes.map((node) => [node.id, node]));
-  const edges: CoordinateEdge[] = [];
-  for (const edge of repositoryFacts.graph.edges) {
-    const normalized = normalizeEdge(repoId(edge.from), repoId(edge.to), edge.kind, evidenceRefs(edge), byId);
-    if (normalized) edges.push(normalized);
+  const structuralEdges: CoordinateEdge[] = [];
+  for (const edge of input.repositoryFacts.graph.edges) {
+    const projected = structuralEdge(
+      repoId(edge.from),
+      repoId(edge.to),
+      edge.kind,
+      evidenceRefs(edge),
+      byId,
+    );
+    if (projected) structuralEdges.push(projected);
   }
 
   for (const stale of linkReport.staleLinks) {
@@ -71,17 +107,29 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
 
   for (const source of input.semanticModel.nodes) {
     const sourceId = semanticId(source.id);
-    if (!byId.has(sourceId)) continue;
     for (const relation of source.relations) {
       const targetId = semanticId(relation.to);
       if (!byId.has(targetId)) {
-        if (authoredSemanticIds.has(relation.to)) continue;
-        unmapped.push({ plane: "semantic", sourceId: relation.to, sourceKind: "relation_target", reason: `missing_target_for:${source.id}` });
+        if (!authoredSemanticIds.has(relation.to)) {
+          unmapped.push({
+            plane: "semantic",
+            sourceId: relation.to,
+            sourceKind: "relation_target",
+            reason: `missing_target_for:${source.id}`,
+          });
+        }
         continue;
       }
-      const normalized = normalizeEdge(sourceId, targetId, relation.kind, sourceReferenceStrings(source), byId);
-      if (normalized) edges.push(normalized);
+      const projected = structuralEdge(
+        sourceId,
+        targetId,
+        relation.kind,
+        sourceReferenceStrings(source),
+        byId,
+      );
+      if (projected) structuralEdges.push(projected);
     }
+
     for (const link of source.repositoryLinks) {
       const resolution = resolveRepositoryLink(link, repositoryLinkIndex);
       if (!resolution.resolved) continue;
@@ -96,93 +144,135 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
         continue;
       }
       for (const target of repositoryTargets) {
-        const targetId = repoId(target.id);
-        if (!byId.has(targetId)) {
-          unsupported.push({
-            plane: "repo",
-            sourceId: target.id,
-            sourceKind: `repository_link:${link.kind}`,
-            reason: `resolved_target_not_mapped_for:${source.id}`,
-          });
-          continue;
-        }
-        const normalized = normalizeEdge(targetId, sourceId, `repository_link:${link.kind}`, sourceReferenceStrings(source), byId);
-        if (normalized) edges.push(normalized);
+        const projected = structuralEdge(
+          repoId(target.id),
+          sourceId,
+          `repository_link:${link.kind}`,
+          sourceReferenceStrings(source),
+          byId,
+        );
+        if (projected) structuralEdges.push(projected);
       }
     }
   }
 
   const sortedNodes = uniqueBy(nodes, (node) => node.id).sort(compareNode);
-  const sortedEdges = uniqueBy(edges, edgeKey).sort(compareEdge);
-  const coverage = SEMANTIC_LEVELS.map((level) => {
-    const levelNodes = sortedNodes.filter((node) => node.level === level);
+  const sortedStructuralEdges = uniqueBy(structuralEdges, edgeKey).sort(compareEdge);
+  const refinementRelations = validateRefinementRelations(input.semanticModel.refinementRelations ?? []);
+  const verifiedEvidenceDigests = [...new Set(input.verifiedEvidenceDigests ?? [])]
+    .map((digest) => Sha256HashSchema.parse(digest) as Sha256Hash)
+    .sort(compareIds);
+  const coverage = ([0, 1, 2, 3, 4, 5, 6] as const).map((level) => {
+    const levelNodes = sortedNodes.filter((node) => node.appliesAtLevel === level);
     return {
       level,
-      categories: [...new Set(levelNodes.map((node) => node.category))].sort(),
+      categories: [...new Set(levelNodes.flatMap((node) => node.category === null ? [] : [node.category]))].sort(),
       coordinateIds: levelNodes.map((node) => node.id),
     };
   });
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     nodes: sortedNodes,
-    edges: sortedEdges,
-    mapping: [...NORMATIVE_LEVEL_MAPPING].sort((a, b) => compareIds(`${a.plane}:${a.sourceKind}`, `${b.plane}:${b.sourceKind}`)),
+    structuralEdges: sortedStructuralEdges,
+    refinementRelations,
+    mapping: [],
     coverage,
     unsupported: uniqueBy(unsupported, sourceIssueKey).sort(compareSourceIssue),
     unmapped: uniqueBy(unmapped, sourceIssueKey).sort(compareSourceIssue),
     staleLinks: linkReport.staleLinks.map((stale) => ({
       ownerId: stale.ownerId,
       link: stale.link,
-      resolved: false,
+      resolved: false as const,
       reason: stale.reason ?? "unresolved",
-    })),
-    danglingReferences: [...linkReport.danglingReferences],
+    })).sort((a, b) => compareIds(
+      `${a.ownerId}\u0000${a.link.kind}\u0000${a.link.ref}`,
+      `${b.ownerId}\u0000${b.link.kind}\u0000${b.link.ref}`,
+    )),
+    danglingReferences: [...linkReport.danglingReferences].sort((a, b) => compareIds(
+      `${a.ownerId}\u0000${a.field}\u0000${a.ref}`,
+      `${b.ownerId}\u0000${b.field}\u0000${b.ref}`,
+    )),
+    compatibilityNormalization: [],
+    verifiedEvidenceDigests,
   };
 }
 
-function addSemanticSource(
-  source: SemanticNode,
-  unsupported: CoordinateGraphReport["unsupported"],
-  unmapped: CoordinateGraphReport["unmapped"],
-  nodes: CoordinateNode[],
-): void {
-  const mapping = mappingByKey.get(`semantic:${source.kind}`);
-  if (!mapping) {
-    unmapped.push({ plane: "semantic", sourceId: source.id, sourceKind: source.kind, reason: "source_kind_not_mapped" });
-    return;
-  }
-  if (!isSupported(mapping)) {
-    unsupported.push({ plane: "semantic", sourceId: source.id, sourceKind: source.kind, reason: mapping.reason ?? "unsupported" });
-    return;
-  }
-  nodes.push({
-    id: semanticId(source.id),
-    plane: "semantic",
-    sourceId: source.id,
-    sourceKind: source.kind,
-    level: mapping.level,
-    category: mapping.category,
-    label: source.statement,
-    epistemicStatus: semanticEpistemicStatus(source),
-    references: sourceReferenceStrings(source),
-    ...(source.metadata ? { metadata: sortedStringRecord(source.metadata) } : {}),
-  });
+function validateRefinementRelations(relations: readonly RefinementRelationV1[]): RefinementRelationV1[] {
+  return relations.map((relation) => {
+    const parsed = RefinementRelationV1Schema.safeParse(relation);
+    if (!parsed.success) {
+      throw new InvalidRefinementRelationError(
+        typeof relation.id === "string" && relation.id.length > 0 ? relation.id : "<unknown>",
+        parsed.error.issues.map((issue) => ({ path: issue.path, message: issue.message })),
+      );
+    }
+    return parsed.data as RefinementRelationV1;
+  }).sort(compareRelation);
 }
 
-function repositoryCoordinate(source: RepositoryNode, mapping: SupportedMapping): CoordinateNode {
+function repositoryCoordinate(source: RepositoryNode): CoordinateNodeV2 {
   return {
     id: repoId(source.id),
     plane: "repo",
     sourceId: source.id,
     sourceKind: source.kind,
-    level: mapping.level,
-    category: mapping.category,
+    appliesAtLevel: null,
+    category: null,
     label: source.name,
     epistemicStatus: "statically_observed",
     references: evidenceRefs(source),
-    metadata: sortedStringRecord(Object.fromEntries(Object.entries(source.metadata).map(([key, value]) => [key, String(value)]))),
+    metadata: sortedStringRecord(
+      Object.fromEntries(Object.entries(source.metadata).map(([key, value]) => [key, String(value)])),
+    ),
   };
+}
+
+function semanticCoordinate(source: SemanticNode): CoordinateNodeV2 {
+  const mapped = source.appliesAtLevel !== undefined;
+  return {
+    id: semanticId(source.id),
+    plane: "semantic",
+    sourceId: source.id,
+    sourceKind: source.kind,
+    appliesAtLevel: source.appliesAtLevel ?? null,
+    category: mapped ? semanticCategory(source.kind, source.appliesAtLevel!) : null,
+    label: source.statement,
+    epistemicStatus: semanticEpistemicStatus(source),
+    references: sourceReferenceStrings(source),
+    ...(source.metadata ? { metadata: sortedStringRecord(source.metadata) } : {}),
+  };
+}
+
+function observedCoordinate(source: ObservedDiffHunkV1): CoordinateNodeV2 {
+  return {
+    id: source.identity,
+    plane: "observed",
+    sourceId: source.identity,
+    sourceKind: "observed_diff_hunk",
+    appliesAtLevel: 0,
+    category: "syntax",
+    label: `${source.normalizedPath}:${source.newRange.start}`,
+    epistemicStatus: "statically_observed",
+    references: [source.identity],
+    metadata: sortedStringRecord({
+      normalizedPath: source.normalizedPath,
+      repositoryIdentity: source.repositoryIdentity,
+    }),
+  };
+}
+
+function semanticCategory(kind: SemanticNode["kind"], level: SemanticLevel): CoordinateCategory {
+  if (kind === "goal") return level === 6 ? "strategy" : "goal";
+  if (kind === "invariant") return "invariant";
+  if (kind === "decision") return "decision";
+  if (level === 5) return "goal";
+  if (level === 4) return "policy";
+  if (level === 3) return "capability";
+  if (level === 2) return "bounded_context";
+  if (level === 1) return "code_entity";
+  if (level === 0) return "syntax";
+  return "strategy";
 }
 
 function semanticEpistemicStatus(source: SemanticNode): EpistemicStatus {
@@ -194,50 +284,59 @@ function semanticEpistemicStatus(source: SemanticNode): EpistemicStatus {
   return "llm_inferred";
 }
 
-function normalizeEdge(
+function structuralEdge(
   from: QualifiedCoordinateId,
   to: QualifiedCoordinateId,
   sourceRelation: string,
   refs: string[],
-  byId: ReadonlyMap<QualifiedCoordinateId, CoordinateNode>,
+  byId: ReadonlyMap<CoordinateNodeV2["id"], CoordinateNodeV2>,
 ): CoordinateEdge | undefined {
-  const fromNode = byId.get(from);
-  const toNode = byId.get(to);
-  if (!fromNode || !toNode) return undefined;
-  const reverse = fromNode.level > toNode.level || (sourceRelation === "declares" && fromNode.level < toNode.level);
-  const normalizedFrom = reverse ? to : from;
-  const normalizedTo = reverse ? from : to;
+  if (!byId.has(from) || !byId.has(to)) return undefined;
   return {
-    from: normalizedFrom,
-    to: normalizedTo,
-    relation: fromNode.level === toNode.level ? sourceRelation : "supports",
+    from,
+    to,
+    relation: sourceRelation,
     sourceRelation,
-    evidenceRefs: [...new Set(refs)].sort(),
+    evidenceRefs: [...new Set(refs)].sort(compareIds),
   };
 }
 
 function evidenceRefs(source: RepositoryNode | RepositoryEdge): string[] {
-  return source.evidence.map((evidence) => `${evidence.filePath}${evidence.startLine ? `:${evidence.startLine}` : ""}`).sort();
+  return source.evidence
+    .map((evidence) => `${evidence.filePath}${evidence.startLine ? `:${evidence.startLine}` : ""}`)
+    .sort(compareIds);
 }
 
 function sourceReferenceStrings(source: SemanticNode): string[] {
-  return source.sourceRefs.map((ref) => `${ref.file}:${ref.line}`).sort();
+  return source.sourceRefs.map((ref) => `${ref.file}:${ref.line}`).sort(compareIds);
 }
 
 function repoId(id: string): `repo:${string}` { return `repo:${id}`; }
 function semanticId(id: string): `semantic:${string}` { return `semantic:${id}`; }
-
-type SupportedMapping = SourceKindLevelMapping & { level: Exclude<SourceKindLevelMapping["level"], null>; category: Exclude<SourceKindLevelMapping["category"], null>; supported: true };
-function isSupported(mapping: SourceKindLevelMapping): mapping is SupportedMapping {
-  return mapping.supported && mapping.level !== null && mapping.category !== null;
-}
-
 function edgeKey(edge: CoordinateEdge): string {
   return `${edge.from}\u0000${edge.to}\u0000${edge.relation}\u0000${edge.sourceRelation ?? ""}\u0000${edge.evidenceRefs.join("\u0001")}`;
 }
-function compareEdge(left: CoordinateEdge, right: CoordinateEdge): number { return compareIds(edgeKey(left), edgeKey(right)); }
-function compareNode(left: CoordinateNode, right: CoordinateNode): number { return compareIds(left.id, right.id); }
-function sourceIssueKey(issue: { plane: string; sourceId: string; sourceKind: string; reason: string }): string { return `${issue.plane}\u0000${issue.sourceId}\u0000${issue.sourceKind}\u0000${issue.reason}`; }
-function compareSourceIssue(left: { plane: string; sourceId: string; sourceKind: string; reason: string }, right: { plane: string; sourceId: string; sourceKind: string; reason: string }): number { return compareIds(sourceIssueKey(left), sourceIssueKey(right)); }
-function uniqueBy<T>(values: T[], key: (value: T) => string): T[] { return [...new Map(values.map((value) => [key(value), value])).values()]; }
-function sortedStringRecord(value: Record<string, string>): Record<string, string> { return Object.fromEntries(Object.entries(value).sort(([a], [b]) => compareIds(a, b))); }
+function compareEdge(left: CoordinateEdge, right: CoordinateEdge): number {
+  return compareIds(edgeKey(left), edgeKey(right));
+}
+function compareRelation(left: RefinementRelationV1, right: RefinementRelationV1): number {
+  return compareIds(left.id, right.id);
+}
+function compareNode(left: CoordinateNodeV2, right: CoordinateNodeV2): number {
+  return compareIds(left.id, right.id);
+}
+function sourceIssueKey(issue: { plane: string; sourceId: string; sourceKind: string; reason: string }): string {
+  return `${issue.plane}\u0000${issue.sourceId}\u0000${issue.sourceKind}\u0000${issue.reason}`;
+}
+function compareSourceIssue(
+  left: { plane: string; sourceId: string; sourceKind: string; reason: string },
+  right: { plane: string; sourceId: string; sourceKind: string; reason: string },
+): number {
+  return compareIds(sourceIssueKey(left), sourceIssueKey(right));
+}
+function uniqueBy<T>(values: readonly T[], key: (value: T) => string): T[] {
+  return [...new Map(values.map((value) => [key(value), value])).values()];
+}
+function sortedStringRecord(value: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(value).sort(([a], [b]) => compareIds(a, b)));
+}

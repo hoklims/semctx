@@ -42,41 +42,35 @@ export const COORDINATE_CATEGORIES = [
   "strategy",
 ] as const satisfies readonly CoordinateCategory[];
 
-const repositoryMapping = {
-  repository: [6, "system"],
-  decision: [5, "decision"],
-  invariant: [4, "invariant"],
-  capability: [3, "capability"],
-  package: [2, "module"],
-  module: [2, "module"],
-  bounded_context: [2, "bounded_context"],
-  symbol: [1, "code_entity"],
-  type: [1, "code_entity"],
-  function: [1, "code_entity"],
-  class: [1, "code_entity"],
-  interface: [1, "code_entity"],
-  enum: [1, "code_entity"],
-  test: [1, "code_entity"],
-  migration: [1, "code_entity"],
-  document: [1, "code_entity"],
-  contract: [1, "code_entity"],
-  risk: [1, "code_entity"],
-  external_integration: [1, "code_entity"],
-} as const satisfies Record<string, readonly [SemanticLevel, CoordinateCategory]>;
+const repositoryKinds = [
+  "repository", "decision", "invariant", "capability", "package", "module",
+  "bounded_context", "symbol", "type", "function", "class", "interface", "enum",
+  "test", "migration", "document", "contract", "risk", "external_integration",
+] as const;
 
-export const REPOSITORY_LEVEL_MAPPING: readonly SourceKindLevelMapping[] = Object.entries(repositoryMapping)
-  .map(([sourceKind, [level, category]]) => ({ plane: "repo" as const, sourceKind, level, category, supported: true }))
+export const REPOSITORY_LEVEL_MAPPING: readonly SourceKindLevelMapping[] = repositoryKinds
+  .map((sourceKind) => ({
+    plane: "repo" as const,
+    sourceKind,
+    level: null,
+    category: null,
+    supported: false,
+    reason: "explicit_applies_at_level_required",
+  }))
   .sort((a, b) => compareCodeUnits(a.sourceKind, b.sourceKind));
 
-const semanticLevelMapping: SourceKindLevelMapping[] = [
-  { plane: "semantic", sourceKind: "goal", level: 5, category: "goal", supported: true },
-  { plane: "semantic", sourceKind: "decision", level: 5, category: "decision", supported: true },
-  { plane: "semantic", sourceKind: "invariant", level: 4, category: "invariant", supported: true },
-  { plane: "semantic", sourceKind: "assumption", level: null, category: null, supported: false, reason: "control_support_artifact" },
-  { plane: "semantic", sourceKind: "unknown", level: null, category: null, supported: false, reason: "control_support_artifact" },
-  { plane: "semantic", sourceKind: "evidence", level: null, category: null, supported: false, reason: "control_support_artifact" },
-  { plane: "semantic", sourceKind: "change", level: null, category: null, supported: false, reason: "control_support_artifact" },
-];
+const semanticKinds = [
+  "goal", "decision", "invariant", "assumption", "unknown", "evidence", "change",
+] as const;
+
+const semanticLevelMapping: SourceKindLevelMapping[] = semanticKinds.map((sourceKind) => ({
+  plane: "semantic",
+  sourceKind,
+  level: null,
+  category: null,
+  supported: false,
+  reason: "explicit_applies_at_level_required",
+}));
 
 export const SEMANTIC_LEVEL_MAPPING: readonly SourceKindLevelMapping[] = semanticLevelMapping
   .sort((a, b) => compareCodeUnits(a.sourceKind, b.sourceKind));

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync } from "node:fs";
-import { dirname, relative, resolve } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
 import {
   compareIds,
   SemctxError,
@@ -13,6 +13,7 @@ import {
 import {
   classifyControlFreshnessSeal,
   serializeControlReport,
+  sha256HashCanonicalJson,
   type ControlFreshnessSeal,
   type ControlFreshnessReason,
   type ControlFreshnessStatusReport,
@@ -30,7 +31,7 @@ export interface GitStateCapture {
   workingDiffHash: Sha256Hash | null;
 }
 
-export interface IndexedControlSnapshot {
+export interface IndexedControlSnapshotV1 {
   schemaVersion: 1;
   capturedAt: string;
   repositoryRoot: string;
@@ -42,6 +43,14 @@ export interface IndexedControlSnapshot {
   storeSchemaVersion: number;
   toolVersion: string;
 }
+
+export interface IndexedControlSnapshotV2 extends Omit<IndexedControlSnapshotV1, "schemaVersion"> {
+  schemaVersion: 2;
+  observedHunkIndexHash: Sha256Hash;
+  attestationSetHash: Sha256Hash | null;
+}
+
+export type IndexedControlSnapshot = IndexedControlSnapshotV1 | IndexedControlSnapshotV2;
 
 export interface ControlFreshnessSealInput {
   repositoryRoot: string;
@@ -130,6 +139,11 @@ function normalizeSemanticNode(node: SemanticNode): SemanticNode {
   };
 }
 
+/** Canonical digest used by authored `semantic_node` evidence references. */
+export function fingerprintSemanticNodeEvidence(node: SemanticNode): Sha256Hash {
+  return sha256HashCanonicalJson(normalizeSemanticNode(node));
+}
+
 function normalizeChange(change: ChangeContract): ChangeContract {
   return {
     ...change,
@@ -152,6 +166,18 @@ export function fingerprintSemanticModel(model: SemanticModel): Sha256Hash {
   const normalized = {
     nodes: model.nodes.map(normalizeSemanticNode).sort((a, b) => compareIds(a.id, b.id)),
     changes: model.changes.map(normalizeChange).sort((a, b) => compareIds(a.id, b.id)),
+    refinementRelations: [...(model.refinementRelations ?? [])]
+      .map((relation) => ({
+        ...relation,
+        evidenceRefs: [...relation.evidenceRefs]
+          .map((evidence) => ({ ...evidence, digest: { ...evidence.digest } }))
+          .sort((left, right) =>
+            compareIds(left.kind, right.kind)
+            || compareIds(left.locator, right.locator)
+            || compareIds(left.digest.value, right.digest.value)
+          ),
+      }))
+      .sort((left, right) => compareIds(left.id, right.id)),
   };
   return hash("semantic-model", serializeControlReport(normalized));
 }
@@ -182,6 +208,45 @@ function git(root: string, args: string[]): { code: number; stdout: Uint8Array; 
     stdout: process.stdout,
     stderr: new TextDecoder().decode(process.stderr).trim(),
   };
+}
+
+/** Stable Plane-A identity across linked worktrees of the same Git repository. */
+export function controlRepositoryIdentity(root: string): string {
+  const repositoryRoot = canonicalRepositoryRoot(root);
+  const commonDir = git(repositoryRoot, ["rev-parse", "--path-format=absolute", "--git-common-dir"]);
+  if (commonDir.code !== 0) return `repo:${basename(repositoryRoot)}`;
+  const path = new TextDecoder().decode(commonDir.stdout).trim();
+  const repositoryName = basename(dirname(realpathSync.native(path)));
+  return `repo:${repositoryName || basename(repositoryRoot)}`;
+}
+
+/** Exact tracked index/worktree delta against HEAD. Untracked files are intentionally excluded. */
+export function captureTrackedWorkingDiff(root: string): Uint8Array {
+  const repositoryRoot = canonicalRepositoryRoot(root);
+  const head = git(repositoryRoot, ["rev-parse", "--verify", "HEAD"]);
+  if (head.code !== 0) {
+    if (findGitWorktreeRoot(repositoryRoot) !== null) return new Uint8Array();
+    if (/not a git repository/i.test(head.stderr)) return new Uint8Array();
+  }
+  const result = git(repositoryRoot, [
+    "--no-optional-locks",
+    "diff",
+    "--binary",
+    "--full-index",
+    "--no-ext-diff",
+    "--no-textconv",
+    "--no-renames",
+    "HEAD",
+    "--",
+    ".",
+  ]);
+  if (result.code === 0) return new Uint8Array(result.stdout);
+  if (findGitWorktreeRoot(repositoryRoot) === null && /not a git repository/i.test(result.stderr)) {
+    return new Uint8Array();
+  }
+  throw new SemctxError("GIT_ERROR", "cannot capture tracked working diff", {
+    stderr: result.stderr,
+  });
 }
 
 function findGitWorktreeRoot(root: string): string | null {
@@ -361,7 +426,7 @@ export function parseIndexedControlSnapshot(value: string | undefined): IndexedC
     const isHash = (candidate: unknown): candidate is Sha256Hash =>
       typeof candidate === "string" && /^sha256:[0-9a-f]{64}$/.test(candidate);
     if (
-      parsed.schemaVersion !== 1
+      (parsed.schemaVersion !== 1 && parsed.schemaVersion !== 2)
       || typeof parsed.capturedAt !== "string"
       || !Number.isFinite(Date.parse(parsed.capturedAt))
       || typeof parsed.repositoryRoot !== "string"
@@ -375,6 +440,16 @@ export function parseIndexedControlSnapshot(value: string | undefined): IndexedC
       || (parsed.storeSchemaVersion ?? -1) < 0
       || typeof parsed.toolVersion !== "string"
       || parsed.toolVersion.length === 0
+      || (
+        parsed.schemaVersion === 2
+        && (
+          !isHash((parsed as Partial<IndexedControlSnapshotV2>).observedHunkIndexHash)
+          || (
+            (parsed as Partial<IndexedControlSnapshotV2>).attestationSetHash !== null
+            && !isHash((parsed as Partial<IndexedControlSnapshotV2>).attestationSetHash)
+          )
+        )
+      )
     ) {
       throw new Error("invalid control index snapshot");
     }

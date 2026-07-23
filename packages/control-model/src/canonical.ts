@@ -3,6 +3,10 @@ export function serializeControlReport(value: unknown): string {
   return JSON.stringify(canonicalize(value));
 }
 
+export function canonicalizeControlValue(value: unknown): unknown {
+  return canonicalize(value);
+}
+
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value !== null && typeof value === "object") {

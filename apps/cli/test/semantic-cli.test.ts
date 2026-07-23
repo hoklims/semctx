@@ -81,7 +81,7 @@ describe("semctx semantic — CLI", () => {
     expect(report.reasonCodes).toEqual([]);
     expect(report.graphIndexed).toBe(true);
     expect(report.counts.nodes).toBe(0);
-    expect(loadSemanticModel(root).model).toEqual({ nodes: [], changes: [] });
+    expect(loadSemanticModel(root).model).toEqual({ nodes: [], changes: [], refinementRelations: [] });
     expect(readFileSync(join(root, ".semctx", "semantic", "goals.sem"), "utf8")).toContain("#   goal goal.<project>.<slug>");
   });
 

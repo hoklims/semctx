@@ -5,8 +5,8 @@ import { join, relative } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
 import { initWorkspace } from "@semantic-context/repository-store";
-import { indexRepository } from "@semantic-context/app-services";
-import { controlPlanTool, controlStatusTool, controlTraceTool } from "../src/control-tools";
+import { indexRepository, queryControlDeletionAuthorization, queryControlGraph } from "@semantic-context/app-services";
+import { controlAuthorizeDeletionTool, controlGraphTool, controlPlanTool, controlStatusTool, controlTraceTool } from "../src/control-tools";
 
 let root: string;
 const CHANGE = "change.control-plane-mcp";
@@ -84,13 +84,28 @@ describe("Plane C MCP handlers", () => {
     expect(ready.plan.steps.map((step) => step.kind)).toContain("deletion_check");
   });
 
+  it("returns the exact shared graph and authorization envelopes", () => {
+    expect(controlGraphTool(root)).toEqual(queryControlGraph(root));
+    const query = {
+      subject: "change.demo",
+      planningCommit: "git:not-current",
+      evaluatedAt: "2026-07-23T12:00:00.000Z",
+      attestationRequests: [],
+    };
+    expect(controlAuthorizeDeletionTool(root, query)).toEqual(queryControlDeletionAuthorization(root, query));
+    expect(controlAuthorizeDeletionTool(root, query)).toMatchObject({
+      terminalStatus: "refused",
+      reasonCodes: ["PLANNING_COMMIT_MISMATCH"],
+      payload: null,
+    });
+  });
+
   it("traces without mutating the repository", () => {
-    const current = controlPlanTool(root, { changeId: CHANGE }).plan.current;
-    const sourceId = current.elements[0]?.id;
+    const sourceId = controlGraphTool(root).payload?.nodes.find((node) => !node.id.startsWith("sha256:"))?.id;
     if (sourceId === undefined) throw new Error("expected at least one architecture element");
     const before = snapshot(root);
-    const report = controlTraceTool(root, { sourceId, direction: "lift", maxDepth: 4, maxResults: 10 });
-    expect(report.schemaVersion).toBe(1);
+    const report = controlTraceTool(root, { sourceId: sourceId as `repo:${string}` | `semantic:${string}`, direction: "lift", maxDepth: 4, maxResults: 10 });
+    expect(report.schemaVersion).toBe(2);
     expect(report.sourceId).toBe(sourceId);
     expect(report.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(snapshot(root)).toBe(before);

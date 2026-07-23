@@ -4,7 +4,7 @@ import { compareIds } from "@semantic-context/core";
 import type { SemanticModel, SemanticNode, ChangeContract, SemanticNodeKind } from "./types";
 
 export function emptyModel(): SemanticModel {
-  return { nodes: [], changes: [] };
+  return { nodes: [], changes: [], refinementRelations: [] };
 }
 
 /** In-memory lookups over a model, with deterministic ordering preserved by the caller. */
@@ -50,13 +50,16 @@ export class SemanticIndex {
 export function mergeModels(...models: SemanticModel[]): SemanticModel {
   const nodeById = new Map<string, SemanticNode>();
   const changeById = new Map<string, ChangeContract>();
+  const relationById = new Map<string, NonNullable<SemanticModel["refinementRelations"]>[number]>();
   for (const model of models) {
     for (const node of model.nodes) nodeById.set(node.id, node);
     for (const change of model.changes) changeById.set(change.id, change);
+    for (const relation of model.refinementRelations ?? []) relationById.set(relation.id, relation);
   }
   return {
     nodes: [...nodeById.values()].sort((a, b) => compareIds(a.id, b.id)),
     changes: [...changeById.values()].sort((a, b) => compareIds(a.id, b.id)),
+    refinementRelations: [...relationById.values()].sort((a, b) => compareIds(a.id, b.id)),
   };
 }
 

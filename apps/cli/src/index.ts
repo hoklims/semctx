@@ -45,6 +45,8 @@ Semantic layer (authored intent, invariants, decisions, evidence, change contrac
 
 Control plane (read-only semantic coordinates and migration planning):
   control trace <qualified-id> [--to 0..6] [--direction lift|lower] [--json]
+  control graph|traversal|coverage|impact|explain-why|compare-architecture [options] [--json]
+  control authorize-transition|authorize-step|authorize-deletion --input <query.json> [--json]
   control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
 
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
