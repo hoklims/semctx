@@ -1,6 +1,8 @@
 /** Plane C contracts: derived coordinates, architecture transitions, and proof authorization. */
 
 export type SemanticLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+/** Levels assignable to authored Plane-B semantics; L0 is observation-only. */
+export type AuthoredSemanticLevel = Exclude<SemanticLevel, 0>;
 export type CoordinatePlane = "repo" | "semantic";
 export type RepositoryCoordinateId = `repo:${string}`;
 export type SemanticCoordinateId = `semantic:${string}`;

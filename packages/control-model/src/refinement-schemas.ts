@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   ArchitectureComparisonReportSchema,
+  AuthoredSemanticLevelSchema,
   AuthorizationDetailSchema,
   AuthorizationReasonSchema,
   ControlFreshnessReasonSchema,
@@ -52,7 +53,7 @@ export const AuthoredSemanticNodeV1Schema = z.object({
   schemaVersion: z.literal(1),
   nodeId: z.string().min(1),
   kind: z.string().min(1),
-  appliesAtLevel: SemanticLevelSchema,
+  appliesAtLevel: AuthoredSemanticLevelSchema,
   category: CoordinateCategorySchema,
   label: z.string(),
   epistemicStatus: EpistemicStatusSchema,

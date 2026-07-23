@@ -8,9 +8,10 @@
  */
 
 import type {
+  AuthoredSemanticLevel,
   RefinementRelationV1,
-  SemanticLevel,
 } from "@semantic-context/control-model";
+export type { AuthoredSemanticLevel } from "@semantic-context/control-model";
 
 /** The kind of an authored semantic node. `change` is represented by `ChangeContract`. */
 export type SemanticNodeKind =
@@ -109,7 +110,7 @@ export interface SemanticNode {
    * Explicit abstraction level for typed refinement. Absent on legacy authored data; kind,
    * repository links, and source location never supply a fallback.
    */
-  appliesAtLevel?: SemanticLevel;
+  appliesAtLevel?: AuthoredSemanticLevel;
 }
 
 /**
@@ -135,7 +136,7 @@ export interface ChangeContract {
   tags: string[];
   metadata?: Record<string, string>;
   /** Explicit abstraction level when the change contract participates in refinement. */
-  appliesAtLevel?: SemanticLevel;
+  appliesAtLevel?: AuthoredSemanticLevel;
 }
 
 /** The aggregate authored model: truth nodes plus change contracts. */

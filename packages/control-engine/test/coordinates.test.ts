@@ -3,6 +3,7 @@ import type { RepositoryGraph } from "@semantic-context/core";
 import type {
   CoordinateGraphReportV2,
   EvidenceRefV1,
+  AuthoredSemanticLevel,
   RefinementRelationV1,
   SemanticLevel,
   Sha256Hash,
@@ -393,7 +394,7 @@ function semantic(
   id: string,
   kind: SemanticModel["nodes"][number]["kind"],
   statement: string,
-  appliesAtLevel?: SemanticLevel,
+  appliesAtLevel?: AuthoredSemanticLevel,
 ): SemanticModel["nodes"][number] {
   return {
     id,

@@ -76,6 +76,7 @@ describe("explicit levels and typed proof-carrying relations", () => {
     };
     expect(AuthoredSemanticNodeV1Schema.parse(base).appliesAtLevel).toBe(2);
     expect(AuthoredSemanticNodeV1Schema.parse({ ...base, appliesAtLevel: 6 }).kind).toBe("goal");
+    expect(AuthoredSemanticNodeV1Schema.safeParse({ ...base, appliesAtLevel: 0 }).success).toBe(false);
     const { appliesAtLevel: _level, ...missing } = base;
     expect(AuthoredSemanticNodeV1Schema.safeParse(missing).success).toBe(false);
   });

@@ -3,9 +3,13 @@
 import { z } from "zod";
 import { MIGRATION_STEP_PROFILES } from "./constants";
 import { classifyControlFreshnessSeal } from "./freshness";
-import type { ControlFreshnessSeal, Sha256Hash } from "./types";
+import type { AuthoredSemanticLevel, ControlFreshnessSeal, Sha256Hash } from "./types";
 
 export const SemanticLevelSchema = z.number().int().min(0).max(6);
+export const AuthoredSemanticLevelSchema = SemanticLevelSchema.refine(
+  (level): level is AuthoredSemanticLevel => level > 0,
+  "authored semantics cannot occupy observed L0",
+);
 export const CoordinatePlaneSchema = z.enum(["repo", "semantic"]);
 export const RepositoryCoordinateIdSchema = z.string().regex(/^repo:.+$/, "expected repo:<repository-node-id>");
 export const SemanticCoordinateIdSchema = z.string().regex(/^semantic:.+$/, "expected semantic:<semantic-node-id>");

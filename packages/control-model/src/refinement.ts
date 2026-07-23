@@ -1,5 +1,6 @@
 import type {
   ArchitectureComparisonReport,
+  AuthoredSemanticLevel,
   AuthorizationDetail,
   AuthorizationReason,
   ControlFreshnessReason,
@@ -38,7 +39,7 @@ export interface AuthoredSemanticNodeV1 {
   schemaVersion: 1;
   nodeId: string;
   kind: string;
-  appliesAtLevel: SemanticLevel;
+  appliesAtLevel: AuthoredSemanticLevel;
   category: CoordinateCategory;
   label: string;
   epistemicStatus: EpistemicStatus;

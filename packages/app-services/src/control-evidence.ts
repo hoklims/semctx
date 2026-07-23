@@ -81,7 +81,7 @@ export function materializeReferencedObservedHunks(
   semanticModel: SemanticModel,
   currentHunks: readonly ObservedDiffHunkV1[],
 ): ObservedDiffHunkV1[] {
-  const expected = new Map<string, Sha256Hash>();
+  const expected = new Map<string, Set<Sha256Hash>>();
   for (const relation of semanticModel.refinementRelations ?? []) {
     const endpointIds = [relation.source, relation.target]
       .filter((endpoint) => endpoint.kind === "observed_diff_hunk")
@@ -91,12 +91,15 @@ export function materializeReferencedObservedHunks(
       if (reference.kind !== "observed_diff_hunk") continue;
       const digest = `sha256:${reference.digest.value}` as Sha256Hash;
       if (!endpointIds.includes(digest)) continue;
-      expected.set(reference.locator, digest);
+      const identities = expected.get(reference.locator) ?? new Set<Sha256Hash>();
+      identities.add(digest);
+      expected.set(reference.locator, identities);
     }
   }
   const byIdentity = new Map(currentHunks.map((hunk) => [hunk.identity, hunk]));
-  for (const [locator, identity] of [...expected].sort(([left], [right]) => compareIds(left, right))) {
-    if (byIdentity.has(identity)) continue;
+  for (const [locator, identities] of [...expected].sort(([left], [right]) => compareIds(left, right))) {
+    const missing = new Set([...identities].filter((identity) => !byIdentity.has(identity)));
+    if (missing.size === 0) continue;
     const bytes = readSafeRepositoryFile(root, locator);
     if (bytes === null) continue;
     let hunks: ObservedDiffHunkV1[];
@@ -105,8 +108,9 @@ export function materializeReferencedObservedHunks(
     } catch {
       continue;
     }
-    const matching = hunks.find((hunk) => hunk.identity === identity);
-    if (matching !== undefined) byIdentity.set(identity, matching);
+    for (const hunk of hunks) {
+      if (missing.has(hunk.identity)) byIdentity.set(hunk.identity, hunk);
+    }
   }
   return canonicalHunks([...byIdentity.values()]);
 }

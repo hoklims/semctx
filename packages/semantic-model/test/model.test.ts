@@ -12,9 +12,16 @@ import {
   PROVEN_STATUSES,
   SemanticModelSchema,
   SemanticNodeSchema,
+  ChangeContractSchema,
   normalizeLegacySemanticModelV1,
 } from "@semantic-context/semantic-model";
-import type { SemanticModel } from "@semantic-context/semantic-model";
+import type {
+  AuthoredSemanticLevel,
+  ChangeContractParsed,
+  SemanticModel,
+  SemanticNode,
+  SemanticNodeParsed,
+} from "@semantic-context/semantic-model";
 
 describe("semantic ids", () => {
   it("is idempotent on an already-namespaced id", () => {
@@ -96,6 +103,26 @@ describe("model helpers", () => {
 });
 
 describe("versioned authored refinement model", () => {
+  it("keeps authored public and parsed levels within L1 through L6", () => {
+    const acceptAuthoredLevel = (_level: AuthoredSemanticLevel): void => {};
+    const acceptNodeLevel = (_level: NonNullable<SemanticNode["appliesAtLevel"]>): void => {};
+    const acceptParsedNodeLevel = (_level: NonNullable<SemanticNodeParsed["appliesAtLevel"]>): void => {};
+    const acceptParsedChangeLevel = (_level: NonNullable<ChangeContractParsed["appliesAtLevel"]>): void => {};
+
+    acceptAuthoredLevel(1);
+    acceptNodeLevel(6);
+    acceptParsedNodeLevel(2);
+    acceptParsedChangeLevel(5);
+    // @ts-expect-error L0 is reserved for observed hunks, not authored semantics.
+    acceptAuthoredLevel(0);
+    // @ts-expect-error SemanticNode must not expose L0 as an authored level.
+    acceptNodeLevel(0);
+    // @ts-expect-error Zod inference must preserve the authored-level restriction.
+    acceptParsedNodeLevel(0);
+    // @ts-expect-error ChangeContract Zod inference must preserve the authored-level restriction.
+    acceptParsedChangeLevel(0);
+  });
+
   it("keeps semantic kind independent from an explicit appliesAtLevel", () => {
     const base = {
       id: "goal.checkout",
@@ -112,6 +139,21 @@ describe("versioned authored refinement model", () => {
     expect(SemanticNodeSchema.parse({ ...base, appliesAtLevel: 2 }).kind).toBe("goal");
     expect(SemanticNodeSchema.parse({ ...base, appliesAtLevel: 6 }).kind).toBe("goal");
     expect(SemanticNodeSchema.parse({ ...base, kind: "invariant", appliesAtLevel: 6 }).appliesAtLevel).toBe(6);
+    expect(SemanticNodeSchema.safeParse({ ...base, appliesAtLevel: 0 }).success).toBe(false);
+    expect(ChangeContractSchema.safeParse({
+      id: "change.checkout",
+      statement: "Change checkout",
+      lifecycle: "draft",
+      provenance: "author",
+      sourceRefs: [],
+      serves: [],
+      preserves: [],
+      requiresEvidence: [],
+      openUnknowns: [],
+      repositoryLinks: [],
+      tags: [],
+      appliesAtLevel: 0,
+    }).success).toBe(false);
   });
 
   it("reads a legacy model without inventing a level or certifying bare relations", () => {
@@ -127,18 +169,39 @@ describe("versioned authored refinement model", () => {
         relations: [{ kind: "implements", to: "invariant.legacy" }],
         tags: [],
       }],
-      changes: [],
+      changes: [{
+        id: "change.legacy",
+        statement: "Legacy change",
+        lifecycle: "draft",
+        provenance: "author",
+        sourceRefs: [],
+        serves: [],
+        preserves: [],
+        requiresEvidence: [],
+        openUnknowns: [],
+        repositoryLinks: [],
+        tags: [],
+      }],
     };
 
     const normalized = normalizeLegacySemanticModelV1(legacy);
     expect(normalized.model.nodes[0]?.appliesAtLevel).toBeUndefined();
+    expect(normalized.model.changes[0]?.appliesAtLevel).toBeUndefined();
     expect(normalized.model.refinementRelations).toEqual([]);
-    expect(normalized.compatibility).toEqual([{
-      schemaVersion: 1,
-      source: "legacy_semantic_dsl_v1",
-      subjectId: "goal.legacy",
-      uncertainties: ["appliesAtLevel", "refinementEvidence"],
-    }]);
+    expect(normalized.compatibility).toEqual([
+      {
+        schemaVersion: 1,
+        source: "legacy_semantic_dsl_v1",
+        subjectId: "goal.legacy",
+        uncertainties: ["appliesAtLevel", "refinementEvidence"],
+      },
+      {
+        schemaVersion: 1,
+        source: "legacy_semantic_dsl_v1",
+        subjectId: "change.legacy",
+        uncertainties: ["appliesAtLevel"],
+      },
+    ]);
     expect(SemanticModelSchema.parse(normalized.model).nodes[0]?.kind).toBe("goal");
   });
 });

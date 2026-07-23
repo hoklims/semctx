@@ -2,8 +2,8 @@
 
 import { z } from "zod";
 import {
+  AuthoredSemanticLevelSchema,
   RefinementRelationV1Schema,
-  SemanticLevelSchema,
 } from "@semantic-context/control-model";
 
 export const SemanticNodeKindSchema = z.enum([
@@ -90,7 +90,7 @@ export const SemanticNodeSchema = z.object({
   relations: z.array(SemanticRelationSchema),
   tags: z.array(z.string()),
   metadata: z.record(z.string()).optional(),
-  appliesAtLevel: SemanticLevelSchema.refine((level) => level > 0, "authored semantic nodes cannot occupy observed L0").optional(),
+  appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
 });
 
 export const ChangeContractSchema = z.object({
@@ -106,7 +106,7 @@ export const ChangeContractSchema = z.object({
   repositoryLinks: z.array(RepositoryLinkSchema),
   tags: z.array(z.string()),
   metadata: z.record(z.string()).optional(),
-  appliesAtLevel: SemanticLevelSchema.refine((level) => level > 0, "authored change contracts cannot occupy observed L0").optional(),
+  appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
 });
 
 export const SemanticModelSchema = z.object({

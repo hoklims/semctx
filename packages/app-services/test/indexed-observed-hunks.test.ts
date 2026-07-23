@@ -6,6 +6,7 @@ import { openStore, initWorkspace } from "@semantic-context/repository-store";
 import { initSemanticScaffold } from "@semantic-context/semantic-engine";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { parseObservedDiffHunks } from "@semantic-context/context-engine";
+import { compareIds } from "@semantic-context/core";
 import type { SemanticModel } from "@semantic-context/semantic-model";
 import {
   CONTROL_OBSERVED_HUNK_INDEX_META_KEY,
@@ -121,5 +122,47 @@ describe("indexed observed hunks", () => {
     expect(materializeReferencedObservedHunks(root, identity, model, [])).toEqual([hunk]);
     writeFileSync(fixture, Buffer.from(bytes).subarray(0, bytes.byteLength - 2));
     expect(materializeReferencedObservedHunks(root, identity, model, [])).toEqual([]);
+  });
+
+  it("materializes every referenced hunk when several identities share one patch locator", () => {
+    const fixture = join(root, "multi-hunk.patch");
+    const bytes = new TextEncoder().encode(
+      "diff --git a/src/demo.ts b/src/demo.ts\n"
+      + "index 1111111..2222222 100644\n"
+      + "--- a/src/demo.ts\n"
+      + "+++ b/src/demo.ts\n"
+      + "@@ -1 +1 @@\n"
+      + "-old\n"
+      + "+new\n"
+      + "@@ -10 +10 @@\n"
+      + "-older\n"
+      + "+newer\n",
+    );
+    writeFileSync(fixture, bytes);
+    const identity = controlRepositoryIdentity(root);
+    const hunks = parseObservedDiffHunks({ repositoryIdentity: identity, diffBytes: bytes });
+    expect(hunks).toHaveLength(2);
+    const model: SemanticModel = {
+      nodes: [],
+      changes: [],
+      refinementRelations: hunks.map((hunk, index) => ({
+        schemaVersion: 1,
+        id: `refinement.multi.${index}`,
+        kind: "implements",
+        source: { plane: "A", kind: "observed_diff_hunk", coordinateDigest: hunk.identity },
+        target: { plane: "B", kind: "semantic_node", nodeId: `decision.multi.${index}` },
+        epistemicStatus: "statically_observed",
+        provenance: "author",
+        evidenceRefs: [{
+          schemaVersion: 1,
+          kind: "observed_diff_hunk",
+          locator: "multi-hunk.patch",
+          digest: { algorithm: "sha256", value: hunk.identity.slice("sha256:".length) },
+        }],
+      })),
+    };
+
+    expect(materializeReferencedObservedHunks(root, identity, model, []))
+      .toEqual([...hunks].sort((left, right) => compareIds(left.identity, right.identity)));
   });
 });
