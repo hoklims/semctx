@@ -1,4 +1,4 @@
-import type { RepositoryEdge, RepositoryGraph, RepositoryNode } from "@semantic-context/core";
+import type { RepositoryEdge, RepositoryNode } from "@semantic-context/core";
 import { compareIds } from "@semantic-context/core";
 import {
   NORMATIVE_LEVEL_MAPPING,
@@ -10,10 +10,17 @@ import {
   type QualifiedCoordinateId,
   type SourceKindLevelMapping,
 } from "@semantic-context/control-model";
-import type { SemanticModel, SemanticNode } from "@semantic-context/semantic-model";
+import {
+  buildRepositoryLinkIndex,
+  resolveRepositoryLink,
+  resolveRepositoryLinks,
+  type RepositoryFacts,
+  type SemanticModel,
+  type SemanticNode,
+} from "@semantic-context/semantic-model";
 
 export interface CoordinateGraphInput {
-  repositoryGraph: RepositoryGraph;
+  repositoryFacts: RepositoryFacts;
   semanticModel: SemanticModel;
 }
 
@@ -23,9 +30,12 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
   const unsupported: CoordinateGraphReport["unsupported"] = [];
   const unmapped: CoordinateGraphReport["unmapped"] = [];
   const nodes: CoordinateNode[] = [];
+  const repositoryFacts = input.repositoryFacts;
+  const repositoryLinkIndex = buildRepositoryLinkIndex(repositoryFacts);
+  const linkReport = resolveRepositoryLinks(input.semanticModel, repositoryFacts);
   const authoredSemanticIds = new Set([...input.semanticModel.nodes.map((node) => node.id), ...input.semanticModel.changes.map((change) => change.id)]);
 
-  for (const source of input.repositoryGraph.nodes) {
+  for (const source of repositoryFacts.graph.nodes) {
     const mapping = mappingByKey.get(`repo:${source.kind}`);
     if (!mapping) {
       unmapped.push({ plane: "repo", sourceId: source.id, sourceKind: source.kind, reason: "source_kind_not_mapped" });
@@ -45,9 +55,18 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
 
   const byId = new Map(nodes.map((node) => [node.id, node]));
   const edges: CoordinateEdge[] = [];
-  for (const edge of input.repositoryGraph.edges) {
+  for (const edge of repositoryFacts.graph.edges) {
     const normalized = normalizeEdge(repoId(edge.from), repoId(edge.to), edge.kind, evidenceRefs(edge), byId);
     if (normalized) edges.push(normalized);
+  }
+
+  for (const stale of linkReport.staleLinks) {
+    unmapped.push({
+      plane: "repo",
+      sourceId: stale.link.ref,
+      sourceKind: `repository_link:${stale.link.kind}`,
+      reason: stale.reason ?? "unresolved",
+    });
   }
 
   for (const source of input.semanticModel.nodes) {
@@ -64,13 +83,32 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
       if (normalized) edges.push(normalized);
     }
     for (const link of source.repositoryLinks) {
-      const targetId = repoId(link.ref);
-      if (!byId.has(targetId)) {
-        unmapped.push({ plane: "repo", sourceId: link.ref, sourceKind: `repository_link:${link.kind}`, reason: `missing_target_for:${source.id}` });
+      const resolution = resolveRepositoryLink(link, repositoryLinkIndex);
+      if (!resolution.resolved) continue;
+      const repositoryTargets = resolution.targets.filter((target) => target.kind === "repository_node");
+      if (repositoryTargets.length === 0) {
+        unsupported.push({
+          plane: "repo",
+          sourceId: link.ref,
+          sourceKind: `repository_link:${link.kind}`,
+          reason: `resolved_non_coordinate_fact_for:${source.id}`,
+        });
         continue;
       }
-      const normalized = normalizeEdge(targetId, sourceId, `repository_link:${link.kind}`, sourceReferenceStrings(source), byId);
-      if (normalized) edges.push(normalized);
+      for (const target of repositoryTargets) {
+        const targetId = repoId(target.id);
+        if (!byId.has(targetId)) {
+          unsupported.push({
+            plane: "repo",
+            sourceId: target.id,
+            sourceKind: `repository_link:${link.kind}`,
+            reason: `resolved_target_not_mapped_for:${source.id}`,
+          });
+          continue;
+        }
+        const normalized = normalizeEdge(targetId, sourceId, `repository_link:${link.kind}`, sourceReferenceStrings(source), byId);
+        if (normalized) edges.push(normalized);
+      }
     }
   }
 
@@ -93,6 +131,13 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
     coverage,
     unsupported: uniqueBy(unsupported, sourceIssueKey).sort(compareSourceIssue),
     unmapped: uniqueBy(unmapped, sourceIssueKey).sort(compareSourceIssue),
+    staleLinks: linkReport.staleLinks.map((stale) => ({
+      ownerId: stale.ownerId,
+      link: stale.link,
+      resolved: false,
+      reason: stale.reason ?? "unresolved",
+    })),
+    danglingReferences: [...linkReport.danglingReferences],
   };
 }
 

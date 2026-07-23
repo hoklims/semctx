@@ -85,6 +85,9 @@ semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower
 
 `lift` only returns paths ending at a higher requested level; `lower` does the inverse. Results are
 bounded, deterministic and evidence-backed. Unsupported/unmapped inputs remain explicit.
+Repository links use the same resolver as `semantic check`: file links bind through indexed file
+paths, missing links retain the same stale reason, and resolved claim/evidence links are reported as
+non-coordinate support artifacts rather than dangling coordinates.
 JSON results include the local `freshnessSeal` and evaluated `freshnessStatus`. Trace exits 3 before
 traversal when the status is `STALE` or `UNSEALED`.
 

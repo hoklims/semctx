@@ -24,6 +24,8 @@ export function fingerprintCoordinateGraph(graph: CoordinateGraphReport): string
     })).sort((a, b) => a.level - b.level),
     unsupported: [...graph.unsupported].sort(compareSource),
     unmapped: [...graph.unmapped].sort(compareSource),
+    staleLinks: [...(graph.staleLinks ?? [])].sort(compareStaleLink),
+    danglingReferences: [...(graph.danglingReferences ?? [])].sort(compareDanglingReference),
   };
   return createHash("sha256").update(stableJson(normalized)).digest("hex");
 }
@@ -102,6 +104,8 @@ function relationKey(relation: ArchitectureRelation): string { return `${relatio
 function compareRelation(a: ArchitectureRelation, b: ArchitectureRelation): number { return compareIds(relationKey(a), relationKey(b)); }
 function edgeKey(edge: CoordinateGraphReport["edges"][number]): string { return `${edge.from}\u0000${edge.to}\u0000${edge.relation}\u0000${edge.sourceRelation ?? ""}`; }
 function compareSource(a: CoordinateGraphReport["unsupported"][number], b: CoordinateGraphReport["unsupported"][number]): number { return compareIds(`${a.plane}:${a.sourceKind}:${a.sourceId}`, `${b.plane}:${b.sourceKind}:${b.sourceId}`); }
+function compareStaleLink(a: NonNullable<CoordinateGraphReport["staleLinks"]>[number], b: NonNullable<CoordinateGraphReport["staleLinks"]>[number]): number { return compareIds(`${a.ownerId}:${a.link.kind}:${a.link.ref}`, `${b.ownerId}:${b.link.kind}:${b.link.ref}`); }
+function compareDanglingReference(a: NonNullable<CoordinateGraphReport["danglingReferences"]>[number], b: NonNullable<CoordinateGraphReport["danglingReferences"]>[number]): number { return compareIds(`${a.ownerId}:${a.field}:${a.ref}`, `${b.ownerId}:${b.field}:${b.ref}`); }
 function isInvariant(element: ArchitectureElement): boolean { return element.level === 4 || element.category === "invariant" || element.category === "policy"; }
 function stableJson(value: unknown): string { return JSON.stringify(canonical(value)); }
 function canonical(value: unknown): unknown {

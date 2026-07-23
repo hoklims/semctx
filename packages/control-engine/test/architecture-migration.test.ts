@@ -38,6 +38,7 @@ describe("architecture comparison and migration", () => {
       edges: [], mapping: [],
       coverage: [{ level: 2, categories: ["module"], coordinateIds: ["repo:b", "repo:a"] }],
       unsupported: [], unmapped: [],
+      staleLinks: [], danglingReferences: [],
     };
     const reordered = { ...graph, nodes: [...graph.nodes].reverse(), coverage: [{ ...graph.coverage[0]!, coordinateIds: [...graph.coverage[0]!.coordinateIds].reverse() }] };
 

@@ -89,8 +89,15 @@ export function loadControlState(root: string): CurrentControlState {
         duplicateIds: semanticBefore.duplicateIds,
       });
     }
-    const repositoryGraph = reader.loadGraph();
-    const graph = buildCoordinateGraph({ repositoryGraph, semanticModel: semanticBefore.model });
+    const repositoryFacts = {
+      graph: reader.loadGraph(),
+      claims: reader.loadClaims(),
+      evidence: reader.loadEvidence(),
+    };
+    const graph = buildCoordinateGraph({
+      repositoryFacts,
+      semanticModel: semanticBefore.model,
+    });
     const configAfter = loadConfig(root);
     const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, discoverFiles(configAfter));
     const semanticAfter = loadSemanticModel(root);
@@ -121,7 +128,7 @@ export function loadControlState(root: string): CurrentControlState {
     const freshnessSeal = buildControlFreshnessSeal({
       repositoryRoot: canonicalRepositoryRoot(root),
       headAtCapture: gitAfter.headCommit,
-      repositoryGraph,
+      repositoryFacts,
       semanticModel: semanticAfter.model,
       analysisInputHash: analysisInputHashAfter,
       workingDiffHash: gitAfter.workingDiffHash,

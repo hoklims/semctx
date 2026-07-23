@@ -43,7 +43,7 @@ repository state.
 - [x] **Explicit freshness verdict** — add a read-only `semctx status` / MCP preflight returning
       `FRESH`, `DIRTY_KNOWN`, `STALE` or `UNSEALED`; high-risk control operations fail closed on
       stale or unsealed inputs.
-- [ ] **Cross-plane link consistency** — Plane B link checks and Plane C coordinate construction
+- [x] **Cross-plane link consistency** — Plane B link checks and Plane C coordinate construction
       must share the same file/node resolver and report the same dangling or stale references.
 - [ ] **Honest semantic scaffold** — generate comments/placeholders rather than active
       `goal.example.*` / `invariant.example.*` truths; examples must never enter a project model

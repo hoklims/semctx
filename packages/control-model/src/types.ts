@@ -83,6 +83,19 @@ export interface UnmappedCoordinateSource {
   reason: string;
 }
 
+export interface StaleRepositoryLink {
+  ownerId: string;
+  link: { kind: string; ref: string };
+  resolved: false;
+  reason: string;
+}
+
+export interface DanglingSemanticReference {
+  ownerId: string;
+  field: string;
+  ref: string;
+}
+
 export interface CoordinateGraphReport {
   schemaVersion: 1;
   nodes: CoordinateNode[];
@@ -91,6 +104,10 @@ export interface CoordinateGraphReport {
   coverage: LevelCoverage[];
   unsupported: UnsupportedCoordinateSource[];
   unmapped: UnmappedCoordinateSource[];
+  /** Additive since schemaVersion 1; new builders always emit it. */
+  staleLinks?: StaleRepositoryLink[];
+  /** Additive since schemaVersion 1; new builders always emit it. */
+  danglingReferences?: DanglingSemanticReference[];
 }
 
 export type Sha256Hash = `sha256:${string}`;
@@ -103,7 +120,9 @@ export interface ControlFreshnessSeal {
   indexedRepositoryRoot: string | null;
   headAtCapture: string | null;
   indexedHeadCommit: string | null;
+  /** Legacy field name; the hash covers the graph, claims and evidence consumed as Plane A facts. */
   repositoryGraphHash: Sha256Hash;
+  /** Indexed counterpart of repositoryGraphHash. */
   indexedRepositoryGraphHash: Sha256Hash | null;
   semanticModelHash: Sha256Hash;
   indexedSemanticModelHash: Sha256Hash | null;

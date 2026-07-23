@@ -20,7 +20,8 @@ versioned `BLOCKED` report, not an inferred target.
 
 Every successful index now captures one versioned `control_index_snapshot_v1` envelope and writes
 the graph, evidence, claims and envelope in the same SQLite transaction. The envelope records the
-canonical root, captured `HEAD`, Plane A repository-graph hash, direct analyzer-input manifest, full
+canonical root, captured `HEAD`, Plane A facts hash (graph, claims and evidence), direct
+analyzer-input manifest, full
 Plane B semantic-model hash, working-diff hash, store/tool versions and capture time. `semctx setup`
 creates or preserves Plane B before indexing, so the semantic model belongs to the state being
 sealed.
@@ -30,7 +31,8 @@ sealed.
 
 - the canonical local repository `realpath`;
 - `headAtCapture` and the distinct `indexedHeadCommit`;
-- current and indexed Plane A graph hashes;
+- current and indexed Plane A facts hashes (kept in the v1 `repositoryGraphHash` fields for wire
+  compatibility), covering the repository graph, claims and evidence consumed by link resolution;
 - current and indexed analyzer-input hashes (parsed config plus every discovered source/test/doc/
   migration path, role and content hash, including inputs ignored by Git);
 - current and indexed Plane B hashes, including source file/line provenance;
@@ -92,6 +94,12 @@ closed and explicit:
 Assumptions, unknowns, evidence and change contracts remain support/control artifacts. They appear under
 `unsupported` in the coordinate report and are not assigned a level from tags or prose. Every coordinate build reports mapped,
 unsupported and unmapped inputs; L0 may legitimately have zero coverage.
+
+Plane B checks and Plane C coordinate construction use one canonical repository-link resolver. Node
+links resolve by graph node id, file links resolve through indexed `filePath` values, and claim or
+evidence links resolve against their indexed stores without being promoted into coordinates. The
+coordinate report carries the same ordered `staleLinks` and `danglingReferences` as `semantic check`;
+resolved non-coordinate facts remain explicit under `unsupported` rather than being mislabeled stale.
 
 The bounded operations are:
 

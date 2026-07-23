@@ -4,6 +4,8 @@ import { dirname, relative, resolve } from "node:path";
 import {
   compareIds,
   SemctxError,
+  type Claim,
+  type EvidenceRecord,
   type EvidenceRef,
   type RepositoryGraph,
   type SemctxConfig,
@@ -16,7 +18,7 @@ import {
   type ControlFreshnessStatusReport,
   type Sha256Hash,
 } from "@semantic-context/control-model";
-import type { ChangeContract, SemanticModel, SemanticNode } from "@semantic-context/semantic-model";
+import type { ChangeContract, RepositoryFacts, SemanticModel, SemanticNode } from "@semantic-context/semantic-model";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
 import packageJson from "../package.json";
 
@@ -44,7 +46,7 @@ export interface IndexedControlSnapshot {
 export interface ControlFreshnessSealInput {
   repositoryRoot: string;
   headAtCapture: string | null;
-  repositoryGraph: RepositoryGraph;
+  repositoryFacts: RepositoryFacts;
   semanticModel: SemanticModel;
   analysisInputHash: Sha256Hash;
   workingDiffHash: Sha256Hash | null;
@@ -83,6 +85,33 @@ export function fingerprintRepositoryGraph(graph: RepositoryGraph): Sha256Hash {
       .sort((a, b) => compareIds(a.id, b.id)),
   };
   return hash("repository-graph", serializeControlReport(normalized));
+}
+
+function normalizeClaim(claim: Claim): Claim {
+  return {
+    ...claim,
+    subjectNodeIds: [...claim.subjectNodeIds].sort(compareIds),
+    evidenceIds: [...claim.evidenceIds].sort(compareIds),
+    tags: [...claim.tags].sort(compareIds),
+  };
+}
+
+function normalizeEvidenceRecord(evidence: EvidenceRecord): EvidenceRecord {
+  return { ...evidence, filePath: evidence.filePath.replace(/\\/g, "/") };
+}
+
+/** Fingerprint every persisted Plane A fact consumed by link resolution and Plane C. */
+export function fingerprintRepositoryFacts(facts: RepositoryFacts): Sha256Hash {
+  const normalized = {
+    graphHash: fingerprintRepositoryGraph(facts.graph),
+    claims: facts.claims.map(normalizeClaim).sort(
+      (a, b) => compareIds(a.id, b.id) || compareIds(serializeControlReport(a), serializeControlReport(b)),
+    ),
+    evidence: facts.evidence.map(normalizeEvidenceRecord).sort(
+      (a, b) => compareIds(a.id, b.id) || compareIds(serializeControlReport(a), serializeControlReport(b)),
+    ),
+  };
+  return hash("repository-facts", serializeControlReport(normalized));
 }
 
 function normalizeSemanticNode(node: SemanticNode): SemanticNode {
@@ -368,7 +397,7 @@ export function buildControlFreshnessSeal(input: ControlFreshnessSealInput): Con
     indexedRepositoryRoot: indexed?.repositoryRoot ?? null,
     headAtCapture: input.headAtCapture,
     indexedHeadCommit: indexed?.headCommit ?? null,
-    repositoryGraphHash: fingerprintRepositoryGraph(input.repositoryGraph),
+    repositoryGraphHash: fingerprintRepositoryFacts(input.repositoryFacts),
     indexedRepositoryGraphHash: indexed?.repositoryGraphHash ?? null,
     semanticModelHash: fingerprintSemanticModel(input.semanticModel),
     indexedSemanticModelHash: indexed?.semanticModelHash ?? null,

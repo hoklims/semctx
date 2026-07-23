@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { initWorkspace, openStore } from "@semantic-context/repository-store";
 import { initSemanticScaffold } from "@semantic-context/semantic-engine";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
-import { indexRepository, loadControlState, planControlMigration, planVerify, runVerify } from "../src";
+import { indexRepository, loadControlState, planControlMigration, planVerify, runVerify, traceControl } from "../src";
 
 let root: string;
 
@@ -65,7 +65,7 @@ describe("application services", () => {
     expect(control.freshnessSeal.indexedWorkingDiffHash).toBe(control.freshnessSeal.workingDiffHash);
     expect(control.freshnessSeal.storeSchemaVersion).toBe(1);
     expect(control.freshnessSeal.indexedStoreSchemaVersion).toBe(1);
-    expect(control.freshnessSeal.toolVersion).toBe("@semantic-context/app-services@0.1.9");
+    expect(control.freshnessSeal.toolVersion).toBe("@semantic-context/app-services@0.1.10");
     expect(control.freshnessSeal.indexedToolVersion).toBe(control.freshnessSeal.toolVersion);
 
     const tracked = join(root, "src", "domain", "capacity.ts");
@@ -119,6 +119,38 @@ describe("application services", () => {
     expect(() => planControlMigration(root, { changeId: "change.missing", delta })).toThrow(
       "delta requires an explicit target architecture",
     );
+  });
+
+  it("fails closed when persisted Plane A claims drift after indexing", () => {
+    indexRepository(root, "2026-07-20T00:00:01.000Z");
+    const store = openStore(root);
+    const originalClaims = store.loadClaims();
+    expect(originalClaims.length).toBeGreaterThan(0);
+
+    try {
+      store.replaceClaims(originalClaims.map((claim, index) => index === 0
+        ? { ...claim, statement: `${claim.statement} (mutated after index)` }
+        : claim));
+    } finally {
+      store.close();
+    }
+
+    try {
+      const state = loadControlState(root);
+      expect(state.freshnessStatus).toMatchObject({
+        verdict: "STALE",
+        canRunHighRiskControl: false,
+        reasons: ["REPOSITORY_GRAPH_MISMATCH"],
+      });
+      expect(() => traceControl(root, { sourceId: "repo:any" })).toThrow("control inputs are STALE");
+    } finally {
+      const restoringStore = openStore(root);
+      try {
+        restoringStore.replaceClaims(originalClaims);
+      } finally {
+        restoringStore.close();
+      }
+    }
   });
 
   it("rejects option-like git refs before invoking git", () => {
