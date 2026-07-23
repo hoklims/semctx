@@ -6,7 +6,7 @@ interface looks useful: each milestone establishes the trust boundary required b
 **Shipping** is a product promise. **Research** is a bet with an explicit exit condition. Nothing in
 Research is implied by the product until it clears its own gate.
 
-Baseline audited on `main` at `1bedd1b` (2026-07-23).
+Baseline audited on `main` at `399720c` (2026-07-23).
 
 ---
 
@@ -24,10 +24,10 @@ Baseline audited on `main` at `1bedd1b` (2026-07-23).
 - [x] **Codex / Claude Code parity** — shared `semctx-control` workflow semantics and bundled MCP
       runtime, with host-specific installation and guards.
 
-The Plane C milestone above is a kernel, not yet an end-to-end top-down compiler. L0 has no mapped
-coordinates, changes remain cross-cutting control artifacts, `lift` / `lower` do not yet use a
-dedicated refinement relation policy, and the public transports expose only trace and plan. The
-ordered programme below closes that gap before any executor is considered.
+The Plane C kernel and P1 typed vertical refinement are shipped. L0 observed hunks now have stable
+coordinates, `lift` / `lower` use dedicated evidence-bearing refinement policy, and public
+transports expose the bounded read-only reports. P2 must now bind a task to explicit scope and
+reconcile the resulting diff before any executor is considered.
 
 ---
 
@@ -102,8 +102,8 @@ and rebuilding the index produces a commit-bound seal.
 Levels must represent abstraction, while relations determine whether a traversal is a refinement,
 an impact path, a rationale or a proof path.
 
-**Implementation status:** delivered on `codex/l6-l0-refinement-round-trip`; final independent
-detached-worktree verification, full repository gates and the pull request are still pending.
+**Implementation status:** shipped through PR #33 at merge commit `399720c`; issue #26 is closed.
+Post-merge plugin parity, typecheck and the full 406-test suite are green.
 
 - [x] **Correct the level ontology** — L6 strategy/constraints, L5 product intent, L4
       invariants/policies, L3 capabilities, L2 components/boundaries, L1 symbols/tests/schemas and
