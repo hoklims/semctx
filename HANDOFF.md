@@ -1,4 +1,4 @@
-# Handoff — issue #26 pre-publication checkpoint
+# Handoff — issue #26 published checkpoint
 
 ## Mission
 
@@ -12,8 +12,12 @@ authority.
 - Baseline: PR #32 merged into `main` at
   `942be1c66cf66d6c6562c39fcd896ee23a69a9ef` after its justified review findings were fixed and
   the updated head was green.
-- The issue #26 implementation, tests, documentation and local final reviews are complete on the
-  working branch.
+- Initial issue #26 implementation commit:
+  `da8b96b933070cf055d4df8fe4935e2fa4f2121e`.
+- PR #33 is open at <https://github.com/hoklims/semctx/pull/33>, ready for review (not draft),
+  mergeable into `main`, and declares `Closes #26`.
+- The issue #26 implementation, tests, documentation, detached-worktree verification and final
+  reviews are complete on the published branch.
 - The ignored local `.semctx` state was audited separately and is not part of the tracked delivery.
 
 ## Implemented contracts
@@ -33,7 +37,7 @@ authority.
 - Plane C remains read-only: the delivery adds no executor, mutation, cutover, `TaskEnvelope` or
   `ChangeSet`.
 
-## Verified local evidence
+## Verified delivery evidence
 
 - Final AI-slop review: PASS with no changes required.
 - `bun run plugin:check`: PASS; both generated runtimes are byte-identical at `4,206,776` bytes
@@ -41,13 +45,16 @@ authority.
 - `bun run typecheck`: PASS.
 - `bun test --timeout 30000 packages apps plugins`: PASS; 404 tests passed, 0 failed, 1,975
   assertions across 47 files.
-- Public L6→L0→L6 E2E: 4/4 passed.
-- Pure golden round trip: 11/11 passed.
+- Clean detached worktree at `da8b96b933070cf055d4df8fe4935e2fa4f2121e`: frozen dependency
+  install, plugin check, typecheck and the full 404-test suite all passed; the targeted public
+  E2E plus pure golden suites passed 15/15 with 98 assertions, and the worktree stayed clean.
 - Former review-blocker suites: 45/45 passed.
 - Diff check: PASS.
 - Ignored `.semctx` audit: PASS.
 - Independent code review: APPROVE.
 - Independent architecture review: CLEAR, with no P0, P1 or P2 findings.
+- GitHub checks on PR #33: plugin runtime on Ubuntu and Windows PASS; GitGuardian PASS.
+- PR #33 had no comments, reviews or review threads at this checkpoint.
 
 The golden sources remain:
 
@@ -63,18 +70,10 @@ sole load-bearing edge.
 
 ## Publication verification protocol
 
-The next action is to commit the candidate, then validate that exact commit from a clean detached
-worktree:
+PR #33 is published from `codex/l6-l0-refinement-round-trip` and targets `main`. The initial
+implementation commit was validated in a clean detached worktree before publication, and its
+GitHub checks passed.
 
-1. Install dependencies with `bun install --frozen-lockfile`.
-2. Run:
-   - `bun run plugin:check`
-   - `bun run typecheck`
-   - `bun test --timeout 30000 packages apps plugins`
-3. Re-run the public E2E and pure golden round-trip suites.
-4. Confirm the detached worktree stays clean, push
-   `codex/l6-l0-refinement-round-trip`, and open the issue #26 pull request.
-
-GitHub PR checks and CI on the published head are the authoritative final publication evidence.
-The detached-worktree and GitHub publication checks are pending; this checkpoint does not claim
-that they have already run.
+This checkpoint changes documentation only and must preserve the already-green runtime tree.
+Every final PR head, including a documentation-only checkpoint, is accepted only after its own
+GitHub checks pass; checks on the final published head are the authoritative publication evidence.
