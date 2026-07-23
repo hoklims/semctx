@@ -6,7 +6,7 @@ interface looks useful: each milestone establishes the trust boundary required b
 **Shipping** is a product promise. **Research** is a bet with an explicit exit condition. Nothing in
 Research is implied by the product until it clears its own gate.
 
-Baseline audited on `main` at `e442f08` (2026-07-21).
+Baseline audited on `main` at `1bedd1b` (2026-07-23).
 
 ---
 
@@ -31,9 +31,47 @@ ordered programme below closes that gap before any executor is considered.
 
 ---
 
+## Market leadership thesis and evidence policy
+
+Tracking epic: [#24 — prove Semctx as the market-leading semantic change-control
+plane](https://github.com/hoklims/semctx/issues/24).
+
+Semctx is competing to become the strongest **proof-carrying semantic change-control plane for
+coding agents**. It is not competing to be a generic code-search replacement. Its defensible wedge
+is the combination of typed intent-to-patch refinement, explicit authority boundaries,
+source-state-bound evidence, fail-closed freshness and deterministic agent governance.
+
+The competitive bar is split by capability so that one strong subsystem cannot hide a weak one:
+
+| Capability | Bar to clear | Roadmap gate |
+| --- | --- | --- |
+| Repository orientation | Integrate or sit behind strong content retrieval; construct and freeze the fused BM25 + content embeddings baseline in #30, then never weaken it to make the semantic graph look better. | Research [#30](https://github.com/hoklims/semctx/issues/30) |
+| Vertical semantic control | Preserve goal, invariants and permitted scope from L6 to L0 and back with typed, evidence-bearing relations. | P1 [#26](https://github.com/hoklims/semctx/issues/26), P2 [#27](https://github.com/hoklims/semctx/issues/27) |
+| Proof and freshness integrity | Refuse stale, unsealed, contradictory or insufficient evidence without converting advisory inference into authority. | P0 [#25](https://github.com/hoklims/semctx/issues/25), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
+| Agent workflow | Produce the same bounded verdict and resumable semantic state across supported hosts, with measured false-block and operator-overhead budgets. | P3 [#28](https://github.com/hoklims/semctx/issues/28), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
+| Safe transformation | Execute only pre-authorized, reconciled steps in isolation with independently verifiable rollback and proof collection. | P5, only after P4 clears |
+
+Claims unlock in order:
+
+1. **Differentiated architecture** — documented authority boundaries and deterministic contracts.
+2. **Verified vertical product** — a reproducible L6 → L0 → L6 change on Semctx itself.
+3. **Competitive advantage** — replay beats the skill-only baseline on intent retention and scope
+   precision without weakening proof honesty.
+4. **State-of-the-art governed semantic change** — a pre-registered head-to-head suite wins on
+   the primary governance metrics and stays inside every safety/cost budget.
+5. **Market leadership** — technical evidence is joined by repeatable installation, reliability,
+   adoption and operator-value results on independent projects.
+
+No unqualified state-of-the-art or market leadership claim is allowed from architecture alone,
+private demos, stars, or a single dogfood repository. External products and models move too quickly
+for a static feature matrix to remain authoritative; P4 must record the exact versions, adapters,
+prompts, budgets and raw outputs used in each comparison.
+
+---
+
 ## Ordered shipping programme — semantic refinement control
 
-### P0 — Trustworthy inputs and freshness
+### P0 — Trustworthy inputs and freshness ([#25](https://github.com/hoklims/semctx/issues/25))
 
 No architecture-to-patch conclusion is authoritative until every input belongs to the same known
 repository state.
@@ -53,10 +91,13 @@ repository state.
 - [ ] **Derived-provider seal** — optional graphs or candidate providers may orient discovery, but
       Plane C accepts their facts only with an exact source-state seal and provenance.
 
-**Gate:** on Semctx itself, a stale index is rejected before traversal; `semantic check`, coordinate
-coverage and repository-link diagnostics agree; rebuilding the index produces a commit-bound seal.
+**Gate:** every acceptance criterion in [#25](https://github.com/hoklims/semctx/issues/25) is green.
+On Semctx itself, initialization creates no active example truths; stale lifecycle/evidence/pointer
+states are diagnosed; unsealed or mismatched provider facts remain non-authoritative; CLI and MCP
+return the same canonical negative-path reason codes; a stale index is rejected before traversal;
+and rebuilding the index produces a commit-bound seal.
 
-### P1 — Typed vertical refinement (L6 to L0)
+### P1 — Typed vertical refinement (L6 to L0) ([#26](https://github.com/hoklims/semctx/issues/26))
 
 Levels must represent abstraction, while relations determine whether a traversal is a refinement,
 an impact path, a rationale or a proof path.
@@ -82,11 +123,13 @@ an impact path, a rationale or a proof path.
 - [ ] **Actionable empty-trace diagnostics** — distinguish unknown coordinate, missing mapping,
       disconnected refinement, stale index and traversal-budget exhaustion.
 
-**Gate:** `goal.semctx.reconstructive-control` lowers through an authored capability and structural
-boundary to the relevant symbols, tests and L0 edits; lifting those edits returns to the same goal
-and invariants without following unrelated import paths.
+**Gate:** using a fixed, sealed observed-patch fixture (not yet a TaskEnvelope),
+`goal.semctx.reconstructive-control` lowers through an authored capability and structural boundary
+to the relevant symbols, tests and L0 coordinates; lifting those coordinates returns to the same
+goal and invariants without following unrelated import paths. The full planned-change/actual-diff
+round trip remains P2.
 
-### P2 — Task envelope, target authoring and diff reconciliation
+### P2 — Task envelope, target authoring and diff reconciliation ([#27](https://github.com/hoklims/semctx/issues/27))
 
 The agent must manipulate a semantic change object before producing a patch, while normal code
 search remains responsible for discovering the initial implementation anchors.
@@ -114,7 +157,7 @@ search remains responsible for discovering the initial implementation anchors.
 **Gate:** a non-trivial change cannot be called complete when its actual diff escapes the permitted
 scope, fails to realize the target or lifts to an undeclared goal/invariant impact.
 
-### P3 — Agent workflow and host governance
+### P3 — Agent workflow and host governance ([#28](https://github.com/hoklims/semctx/issues/28))
 
 Integrate only after the read-only machine contracts above are stable. Start advisory, measure false
 positives, then enforce by risk/altitude.
@@ -140,24 +183,60 @@ positives, then enforce by risk/altitude.
 **Gate:** Codex and Claude Code produce the same machine verdict and semantic handoff for the same
 sealed task/diff, while repositories without Semctx retain a clean no-op path.
 
-### P4 — Evidence, replay and evaluation
+### P4 — Competitive evidence, replay and evaluation ([#29](https://github.com/hoklims/semctx/issues/29))
 
-- [ ] **Golden vertical replay corpus** — real tasks with known goal ↔ invariant ↔ capability ↔
-      component ↔ symbol/test ↔ patch chains and accepted outcomes.
+- [ ] **Pre-registered benchmark contract** — freeze dataset selection, train/dev/holdout splits,
+      environments, models/tools, prompts, budgets, primary metrics, safety constraints and kill
+      thresholds before scoring.
+- [ ] **Comparator and statistical protocol** — set a dated comparator-selection cutoff; define
+      independent ground-truth adjudication, contamination checks, repeated runs for stochastic
+      systems, effect-size/non-inferiority margins, uncertainty intervals and a multiplicity rule.
+      Thirty tasks are the minimum harness/corpus gate, not automatically sufficient for SOTA;
+      claim power must be justified before evaluation.
+- [ ] **Reproducible baseline matrix** — compare skill-only, repository-graph-assisted and Semctx
+      ablations; add external systems only when their license, interface and captured version permit
+      an honest rerun. Content retrieval remains the orientation baseline, not a weak straw man.
+- [ ] **Golden vertical replay corpus** — at least 30 anonymized real tasks across Semctx and
+      independent projects, with known goal ↔ invariant ↔ capability ↔ component ↔ symbol/test ↔
+      patch chains and accepted outcomes.
 - [ ] **Top-down evaluation metrics** — pre-register abstraction recall, scope precision,
       refinement continuity, round-trip consistency, invariant/proof recall, stale-refusal rate,
-      false-block rate, latency and token cost.
+      false-block rate, functional outcome, latency and token cost; report per-task results,
+      aggregate scores and uncertainty rather than only means.
+- [ ] **Adversarial governance suite** — stale seals, forged or insufficient evidence,
+      contradictory intent, scope escape, unsupported relations, replay tampering and degraded
+      providers must fail with the correct bounded reason rather than a generic error.
 - [ ] **Planner replay** — compare versioned architecture/plan/reconciliation reports across real
-      migrations and ordinary changes.
+      migrations and ordinary changes; identical sealed inputs must produce byte-stable machine
+      reports.
 - [ ] **Runtime proof collectors** — observe dependency traffic, behaviour replay and shadow
       equivalence without silently upgrading authored claims.
 - [ ] **Proof promotion rules** — an inferred relation becomes load-bearing only through explicit
       static, test, runtime or human evidence accepted by policy.
+- [ ] **Transparent evidence release** — commit the runner, schemas, environment manifest,
+      per-task outputs, aggregate report, failed cases and null results. Private source may remain
+      private, but ground-truth derivation and anonymization must be auditable.
+- [ ] **Independent pilot proof** — measure installation success, time-to-first-value, retained
+      usage, accepted advice, overrides, false blocks and operator effort on at least three
+      non-Semctx repositories before using a market leadership claim; pre-register numeric budgets
+      and a minimum observation window before the first pilot starts.
 
-**Gate:** the vertical workflow beats the skill-only baseline on intent retention and scope
-precision without weakening proof honesty or exceeding the pre-registered false-block budget.
+**Competitive gate:** on a held-out set, the vertical workflow beats the skill-only baseline on
+intent retention and scope precision, does not regress functional outcome, preserves perfect
+stale/insufficient-proof refusal on the adversarial set, and stays inside the pre-registered
+false-block, latency and token budgets. A state-of-the-art claim additionally requires the strongest
+reproducible comparison available at evaluation time, not merely Semctx's internal ablations.
+
+**Market gate:** technical superiority is necessary but insufficient. Installation, reliability,
+upgrade safety and operator-value evidence from independent pilots must also clear their
+pre-registered budgets.
 
 ### P5 — Persisted control state and executor (last)
+
+No executor issue is opened yet. Create it only after the explicit P4 competitive gate is
+independently verified and [#29](https://github.com/hoklims/semctx/issues/29) records the complete
+supporting evidence; issue closure alone is insufficient. This prevents execution work from
+outrunning the authority model.
 
 - [ ] **Versioned migration runner** for SQLite/config state before any persisted Plane C state.
 - [ ] **Persisted execution ledger** keyed by TaskEnvelope, plan, step, commit and proof seal; the
@@ -203,7 +282,7 @@ with the fixture and committed benchmarks, and no more optimistic than its evide
 
 ---
 
-## Research — content-first context retrieval (spike, not a promise)
+## Research — content-first context retrieval (spike, not a promise) ([#30](https://github.com/hoklims/semctx/issues/30))
 
 Branch: **`research/content-first-context-retrieval`**. Protocol:
 [`docs/research/content-first-context-retrieval.md`](docs/research/content-first-context-retrieval.md).
@@ -212,8 +291,9 @@ ADR 0005 rejected the current `seed-by-name → graph → scoring` retriever bec
 file content. The open question is whether the graph and authority layers add **anything** on top of
 a real content retriever. This remains separate from the semantic-refinement programme.
 
-**Baseline to beat:** BM25 + content embeddings on `benchmarks/change-impact-eval`, extended to at
-least 30 commits.
+**Baseline to construct, freeze and beat:** fused BM25 + content embeddings on
+`benchmarks/change-impact-eval`, extended to at least 30 commits. The committed frozen result
+currently contains separate BM25 and embedding runs, not this fused baseline.
 
 **Minimum bar to continue (all):**
 
