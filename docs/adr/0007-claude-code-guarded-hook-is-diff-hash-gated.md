@@ -17,7 +17,9 @@ Two profiles, **advisory by default**:
 - **advisory** (default): MCP tools + skill only. Never blocks anything. The agent is *guided* to
   run `semctx_verify_change` before finishing, but nothing is enforced.
 - **guarded** (opt-in): a `PreToolUse` hook that blocks **only** terminal git verbs
-  (`git commit`, `git push`) — never edits, tests, exploration, or non-terminal git commands.
+  (`git commit`, `git push`) — never edits, tests, exploration, or non-terminal git commands. The
+  terminal operation must be isolated; compound commands, substitutions, and redirections are
+  rejected before the state comparison.
 
 Guarded enforcement is **source-state gated**, not re-analysis:
 
@@ -41,8 +43,9 @@ edit invalidates the baseline and requires re-verification.
   calls verify.
 - Safe: only terminal git verbs are gated; a false positive can never block editing or testing.
   Guarded is opt-in, and any user can disable enforcement (config flag / remove the hook).
-- The hook parses git argv structurally (argv array, not a shell string) — no shell injection, no
-  fragile command-string parsing.
+- The hook parses the command string structurally without evaluating it. It permits only an isolated
+  terminal Git operation plus explicit cwd/environment/Git-global prefixes, closing the pre-check
+  TOCTOU created by mutating shell segments.
 - BLOCK is honoured: a recorded BLOCK verdict never satisfies the gate, even if the diff is
   unchanged.
 - Cross-platform: the state/hash logic is a plain script; the guard reads stdin JSON from Claude

@@ -3,6 +3,7 @@ import { describe, it, expect } from "bun:test";
 // directly; main() is guarded by an argv check so importing does not execute it.
 import {
   captureVerificationGitState,
+  isIsolatedTerminalGitCommand,
   isTerminalGitCommand,
   guardEnabled,
   guardDecision,
@@ -30,6 +31,12 @@ describe("isTerminalGitCommand — structural detection (no shell eval)", () => 
     expect(isTerminalGitCommand('"git" push origin main')).toBe("push");
     expect(isTerminalGitCommand("command git commit -m x")).toBe("commit");
     expect(isTerminalGitCommand("bash -c 'git push origin main'")).toBe("push");
+    expect(isTerminalGitCommand('powershell -Command "git commit -am x"')).toBe("commit");
+    expect(isTerminalGitCommand('pwsh -Command "git push origin main"')).toBe("push");
+    expect(isTerminalGitCommand('cmd /c "git commit -am x"')).toBe("commit");
+    expect(isTerminalGitCommand('env bash -c "git push origin main"')).toBe("push");
+    expect(isTerminalGitCommand('env -i bash --noprofile -c "git commit -am x"')).toBe("commit");
+    expect(isTerminalGitCommand('pwsh -NoProfile -ExecutionPolicy Bypass -Command "git push origin main"')).toBe("push");
   });
 
   it("does not fire on non-terminal or look-alike commands", () => {
@@ -40,6 +47,27 @@ describe("isTerminalGitCommand — structural detection (no shell eval)", () => 
     expect(isTerminalGitCommand("gitfoo commit")).toBeNull();
     expect(isTerminalGitCommand("npm run commit")).toBeNull();
     expect(isTerminalGitCommand("")).toBeNull();
+  });
+});
+
+describe("isIsolatedTerminalGitCommand — no mutation before authorization", () => {
+  it("allows one terminal Git operation with safe cwd, env, command, and Git prefixes", () => {
+    expect(isIsolatedTerminalGitCommand("git commit -m x")).toBe(true);
+    expect(isIsolatedTerminalGitCommand("cd repo && git push origin main")).toBe(true);
+    expect(isIsolatedTerminalGitCommand("GIT_AUTHOR_NAME=x command git -C sub commit -m x")).toBe(true);
+  });
+
+  it("rejects compound mutation, forced ignored staging, and shell substitutions", () => {
+    expect(isIsolatedTerminalGitCommand("powershell -Command Set-Content tracked.ts bad && git commit -am x")).toBe(false);
+    expect(isIsolatedTerminalGitCommand("git add -f ignored.txt && git commit -m x")).toBe(false);
+    expect(isIsolatedTerminalGitCommand("git commit -m \"$(touch mutated.ts)\"")).toBe(false);
+    expect(isIsolatedTerminalGitCommand("git commit -m x > commit.log")).toBe(false);
+    expect(isIsolatedTerminalGitCommand('powershell -Command "git commit -am x"')).toBe(false);
+    expect(isIsolatedTerminalGitCommand('pwsh -Command "git push origin main"')).toBe(false);
+    expect(isIsolatedTerminalGitCommand('cmd /c "git commit -am x"')).toBe(false);
+    expect(isIsolatedTerminalGitCommand('env bash -c "git commit -am x"')).toBe(false);
+    expect(isIsolatedTerminalGitCommand('env -i bash --noprofile -c "git commit -am x"')).toBe(false);
+    expect(isIsolatedTerminalGitCommand('pwsh -NoProfile -ExecutionPolicy Bypass -Command "git push origin main"')).toBe(false);
   });
 });
 
@@ -74,6 +102,17 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
     expect(d.block).toBe(true);
     expect(d.reason).toContain("verify diff --record");
   });
+  it("blocks a compound terminal command before consulting a valid baseline", () => {
+    const d = guardDecision({
+      enabled: true,
+      terminalVerb: "commit",
+      commandIsolated: false,
+      state: STATE,
+      currentState: CURRENT,
+    });
+    expect(d.block).toBe(true);
+    expect(d.reason).toContain("must be an isolated command");
+  });
   it("allows when the verified diff is unchanged and not BLOCK", () => {
     const d = guardDecision({ enabled: true, terminalVerb: "commit", state: STATE, currentState: CURRENT });
     expect(d.block).toBe(false);
@@ -101,6 +140,47 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
 });
 
 describe("guard runtime — large working diffs", () => {
+  it("blocks a compound mutation command even with a matching baseline", () => {
+    const repo = mkdtempSync(join(tmpdir(), "semctx-guard-compound-"));
+    try {
+      execFileSync("git", ["init"], { cwd: repo, stdio: "ignore" });
+      writeFileSync(join(repo, "tracked.ts"), "export const value = 1;\n");
+      writeFileSync(join(repo, ".gitignore"), ".semctx/\nignored.txt\n");
+      execFileSync("git", ["add", "tracked.ts", ".gitignore"], { cwd: repo, stdio: "ignore" });
+      execFileSync(
+        "git",
+        ["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "baseline"],
+        { cwd: repo, stdio: "ignore" },
+      );
+      mkdirSync(join(repo, ".semctx"));
+      writeFileSync(join(repo, ".semctx", "guard.json"), JSON.stringify({ enabled: true }));
+      writeFileSync(
+        join(repo, ".semctx", "verification-state.json"),
+        JSON.stringify({ version: 2, ...captureVerificationGitState(repo), verdict: "PASS" }),
+      );
+
+      const guard = resolve(import.meta.dir, "../hooks/semctx-guard.mjs");
+      const unsafeCommands = [
+        "powershell -Command Set-Content tracked.ts bad && git commit -am x",
+        'powershell -Command "git commit -am x"',
+        'pwsh -Command "git push origin main"',
+        'cmd /c "git commit -am x"',
+        'env bash -c "git commit -am x"',
+      ];
+      for (const command of unsafeCommands) {
+        const result = spawnSync("node", [guard], {
+          cwd: repo,
+          input: JSON.stringify({ tool_name: "Bash", tool_input: { command }, cwd: repo }),
+          encoding: "utf8",
+        });
+        expect(result.status).toBe(2);
+        expect(result.stderr).toContain("must be an isolated command");
+      }
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
   it("preserves the verification hash for a multi-megabyte diff", () => {
     const repo = mkdtempSync(join(tmpdir(), "semctx-guard-large-diff-"));
     try {

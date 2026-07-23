@@ -17,7 +17,8 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
 - **Shared skill**: `skills/semctx-control`, byte-identical to the Codex workflow contract.
 - **Focused skills**: `skills/semctx-verify` for Plane A and `skills/semctx-semantic` for Plane B.
 - **Guard hook** (`hooks/`): a `PreToolUse` guard that is **inert by default** (advisory) and, when
-  the project opts into guarded mode, blocks only `git commit` / `git push` on an unverified diff.
+  the project opts into guarded mode, blocks non-isolated `git commit` / `git push` commands or an
+  unverified working state.
   The semantic and control tools do not change this host-specific behaviour.
 
 ## Shared Codex/Claude contract
@@ -41,7 +42,7 @@ Plane C never performs a cutover, deployment or deletion.
 | profile | default | behaviour |
 | --- | --- | --- |
 | **advisory** | ✅ yes | MCP + skill. The guard hook is present but never blocks. |
-| **guarded** | opt-in | The guard blocks `git commit`/`git push` until the current diff is verified. |
+| **guarded** | opt-in | The guard requires isolated `git commit`/`git push` commands and a verified current state. |
 
 Enable guarded mode for a project:
 
