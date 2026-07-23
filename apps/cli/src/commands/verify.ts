@@ -1,10 +1,16 @@
 import { writeFileSync, renameSync, mkdirSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { createHash } from "node:crypto";
 import { SemctxError } from "@semantic-context/core";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
-import { planVerify, runVerify, type VerifyComputation, type VerifySource } from "@semantic-context/app-services";
+import {
+  captureRecordableVerificationGitState,
+  planVerify,
+  runVerify,
+  type VerifyComputation,
+  type VerifySource,
+  type VerificationGitState,
+} from "@semantic-context/app-services";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, json, c, success, warn, fail, nowIso } from "../output";
@@ -12,14 +18,6 @@ import { info, heading, json, c, success, warn, fail, nowIso } from "../output";
 type Format = "text" | "json" | "github";
 type FailOn = "block" | "warn" | "none";
 
-function git(root: string, gitArgs: string[]): { code: number; out: string; err: string } {
-  const proc = Bun.spawnSync(["git", ...gitArgs], { cwd: root, stdout: "pipe", stderr: "pipe" });
-  return {
-    code: proc.exitCode ?? 1,
-    out: new TextDecoder().decode(proc.stdout),
-    err: new TextDecoder().decode(proc.stderr),
-  };
-}
 export function verifySourceFromArgs(args: ParsedArgs): VerifySource {
   const base = flagString(args, "base");
   const head = flagString(args, "head") ?? "HEAD";
@@ -143,26 +141,30 @@ function writeReportAtomic(path: string, report: VerifyReport): void {
   renameSync(tmp, path);
 }
 
-/**
- * Hash of the working-tree diff (`git diff HEAD`). The Claude Code guarded hook (ADR 0007)
- * hashes the same command, so an unchanged, verified diff stays verified and any edit invalidates
- * it. Kept identical to the guard: `git diff HEAD --relative --unified=0 --no-color`.
- */
-function workingTreeDiffHash(root: string): string {
-  const d = git(root, ["diff", "HEAD", "--relative", "--unified=0", "--no-color"]);
-  return `sha256:${createHash("sha256").update(d.code === 0 ? d.out : "").digest("hex")}`;
-}
-
-/** Record the verification state so a guarded hook can compare the current diff hash. */
-function recordVerification(root: string, verdict: VerifyReport["verdict"]): string {
+/** Record the exact commit and complete working state for guarded-mode comparison. */
+function recordVerification(
+  root: string,
+  verdict: VerifyReport["verdict"],
+  verifiedState: VerificationGitState,
+): string {
   const dir = join(root, ".semctx");
   mkdirSync(dir, { recursive: true });
   const path = join(dir, "verification-state.json");
-  const state = { version: 1, diffHash: workingTreeDiffHash(root), verdict, recordedAt: nowIso() };
+  const state = { version: 2, ...verifiedState, verdict, recordedAt: nowIso() };
   const tmp = `${path}.tmp`;
   writeFileSync(tmp, `${JSON.stringify(state, null, 2)}\n`, "utf8");
   renameSync(tmp, path);
   return path;
+}
+
+export function requireStableVerificationGitState(
+  before: VerificationGitState,
+  after: VerificationGitState,
+): VerificationGitState {
+  if (before.headCommit !== after.headCommit || before.workingStateHash !== after.workingStateHash) {
+    throw new SemctxError("GIT_ERROR", "repository state changed while verification was running", { before, after });
+  }
+  return before;
 }
 
 /**
@@ -178,9 +180,25 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
   const format = resolveFormat(args);
   const failOn = resolveFailOn(args);
   const outputPath = flagString(args, "output");
+  const source = verifySourceFromArgs(args);
+  const shouldRecord = flagBool(args, "record");
+  if (shouldRecord && source.kind !== "working-tree") {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "--record is only valid for the current working tree; range, staged, and file inputs cannot authorize it",
+      { sourceKind: source.kind },
+    );
+  }
+  if (shouldRecord && outputPath !== undefined) {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "--record cannot be combined with --output because writing the report would change the verified working state",
+      { outputPath },
+    );
+  }
 
   if (flagBool(args, "dry-run")) {
-    const g = planVerify(root, verifySourceFromArgs(args));
+    const g = planVerify(root, source);
     heading("Dry run — no analysis, no artifact, no state change");
     info(`  base      : ${g.base ?? "(none)"}`);
     info(`  head      : ${g.head}`);
@@ -192,10 +210,14 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
     return 0;
   }
 
-  const { result, report, git: g, coChanges } = computeVerifyReport(root, args);
+  const stateBefore = shouldRecord ? captureRecordableVerificationGitState(root) : undefined;
+  const { result, report, git: g, coChanges } = runVerify(root, source);
+  const verifiedState = stateBefore === undefined
+    ? undefined
+    : requireStableVerificationGitState(stateBefore, captureRecordableVerificationGitState(root));
 
   if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);
-  const recordedPath = flagBool(args, "record") ? recordVerification(root, report.verdict) : undefined;
+  const recordedPath = verifiedState === undefined ? undefined : recordVerification(root, report.verdict, verifiedState);
 
   if (format === "json") json(report);
   else if (format === "github") renderGithub(report);

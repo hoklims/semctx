@@ -35,6 +35,7 @@ import {
   unsealedControlStatus,
 } from "./freshness";
 import { openReadyRepository } from "./readiness";
+import { inspectSemanticLifecycle } from "./semantic-check";
 
 export interface CurrentControlState {
   graph: ReturnType<typeof buildCoordinateGraph>;
@@ -82,11 +83,14 @@ export function loadControlState(root: string): CurrentControlState {
     const configBefore = loadConfig(root);
     const analysisInputHash = fingerprintAnalysisInputs(configBefore, discoverFiles(configBefore));
     const semanticBefore = loadSemanticModel(root);
+    const lifecycleBefore = inspectSemanticLifecycle(root, semanticBefore.model.changes);
     const errors = semanticBefore.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
-    if (errors.length > 0 || semanticBefore.duplicateIds.length > 0) {
+    const lifecycleErrors = lifecycleBefore.filter((finding) => finding.severity === "error");
+    if (errors.length > 0 || semanticBefore.duplicateIds.length > 0 || lifecycleErrors.length > 0) {
       throw new SemctxError("CONFIG_INVALID", "semantic model cannot be projected into Plane C", {
         diagnostics: errors,
         duplicateIds: semanticBefore.duplicateIds,
+        lifecycleFindings: lifecycleErrors,
       });
     }
     const repositoryFacts = {
@@ -101,6 +105,7 @@ export function loadControlState(root: string): CurrentControlState {
     const configAfter = loadConfig(root);
     const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, discoverFiles(configAfter));
     const semanticAfter = loadSemanticModel(root);
+    const lifecycleAfter = inspectSemanticLifecycle(root, semanticAfter.model.changes);
     const semanticModelHash = fingerprintSemanticModel(semanticBefore.model);
     const semanticModelHashAfter = fingerprintSemanticModel(semanticAfter.model);
     const gitAfter = captureGitState(root);
@@ -109,6 +114,7 @@ export function loadControlState(root: string): CurrentControlState {
       || gitBefore.workingDiffHash !== gitAfter.workingDiffHash
       || analysisInputHash !== analysisInputHashAfter
       || semanticModelHash !== semanticModelHashAfter
+      || JSON.stringify(lifecycleBefore) !== JSON.stringify(lifecycleAfter)
     ) {
       throw new SemctxError("GIT_ERROR", "repository inputs changed while Plane C captured its state", {
         before: gitBefore,
@@ -117,6 +123,8 @@ export function loadControlState(root: string): CurrentControlState {
         analysisInputHashAfter,
         semanticModelHash,
         semanticModelHashAfter,
+        lifecycleBefore,
+        lifecycleAfter,
       });
     }
     const fingerprint = fingerprintCoordinateGraph(graph);
@@ -159,6 +167,17 @@ export function controlStatus(root: string): ControlFreshnessStatusReport {
     const unavailable = unavailableStatus(error);
     if (unavailable !== null) return unavailable;
     throw error;
+  }
+}
+
+/** Return an exact control seal only when the current repository state proves it safe.
+ * Optional derived providers degrade to unsealed diagnostics when control capture is unavailable. */
+export function trustedControlSealHash(root: string): string | undefined {
+  try {
+    const status = controlStatus(root);
+    return status.canRunHighRiskControl ? status.freshnessSeal?.sealHash : undefined;
+  } catch {
+    return undefined;
   }
 }
 

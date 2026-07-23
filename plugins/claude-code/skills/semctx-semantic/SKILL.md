@@ -22,23 +22,27 @@ relative roots so a plugin-cache working directory can never become the implicit
 
 ## The loop (non-trivial change)
 
-1. **Open or select a change contract.**
+1. **Check semantic integrity.** Call `semctx_semantic_check` and preserve every canonical reason
+   code. Do not continue into a write loop with an invalid/mismatched pointer, obsolete active
+   contract, or stale verification baseline.
+
+2. **Open or select a change contract.**
    - `semctx_change_open` with `{ id: "change.<slug>", statement, preserves: [...], serves: [...],
      requires: [...], unknowns: [...] }`. It becomes the active change (provenance `agent`).
    - `preserves` are the invariants this change must not break; `requires` are the proofs you will
      owe; `unknowns` are the open questions you must not silently drop.
 
-2. **Pull a bounded semantic slice.** `semctx_semantic_slice { changeId }` (or `symbolRef` /
+3. **Pull a bounded semantic slice.** `semctx_semantic_slice { changeId }` (or `symbolRef` /
    `claimRef`). Read the capsule: Intentions, Invariants, Decisions, Linked symbols/claims, Evidence
    obtained, Open unknowns, **Forbidden / safety constraints**, Next expected proofs. It is bounded
    and every line points to a source — treat anything absent as **unknown**, not as false.
 
-3. **Edit the code.**
+4. **Edit the code.**
 
-4. **Analyse impact.** Call `semctx_verify_change` (Plane A: impacted symbols/contracts/invariants,
+5. **Analyse impact.** Call `semctx_verify_change` (Plane A: impacted symbols/contracts/invariants,
    recommended tests, PASS/WARN/BLOCK). This is unchanged and still first-class.
 
-5. **Compose the change verdict.** Call `semctx_change_verify { changeId }`. It reuses the impact
+6. **Compose the change verdict.** Call `semctx_change_verify { changeId }`. It reuses the impact
    report verbatim and folds in the contract:
    - **VERIFIED** — all preserved invariants proved/untouched, all required evidence proved, no open
      blocking unknown, no stale link.
@@ -48,14 +52,14 @@ relative roots so a plugin-cache working directory can never become the implicit
    - **STALE** — a repository link no longer resolves (the model drifted from the code) — re-link
      before trusting the verdict.
 
-6. **Run the recommended tests** from the impact report. They must pass.
+7. **Run the recommended tests** from the impact report. They must pass.
 
-7. **Record progress.** When you actually obtain a proof (you ran the test and it passed), update the
+8. **Record progress.** When you actually obtain a proof (you ran the test and it passed), update the
    evidence node's status to `tested` / `runtime_verified`. Before resolving an unknown, ensure its
    authored node declares `proved_by` to that proven evidence; then use
    `semctx_change_update { id, resolveUnknowns: [...] }`.
 
-8. **Close through proof.** `semctx_change_close { id }` reruns composed verification and derives
+9. **Close through proof.** `semctx_change_close { id }` reruns composed verification and derives
    `verified` only from a VERIFIED result. Generic updates cannot assert that lifecycle.
 
 ## Rules
@@ -81,6 +85,7 @@ short, stable capsule. These are explicit tools — do not rely on any implicit 
 
 ```
 semctx semantic init                         # scaffold .semctx/semantic/ (versioned)
+semctx semantic check --json                 # integrity + lifecycle reason codes
 semctx change open change.<slug> --preserves <inv-ids> --unknown <unknown-ids>
 semctx semantic slice --change change.<slug> --format agent
 semctx verify diff --base origin/main         # Plane A impact

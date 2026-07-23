@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
+import { requireStableVerificationGitState } from "../src/commands/verify";
 import { tmpdir } from "node:os";
 
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
@@ -108,14 +109,49 @@ describe("verify diff --base (CLI, real git)", () => {
     expect(semctx(["verify", "diff", "--base", "main", "--fail-on", "maybe"], repo).code).not.toBe(0);
   });
 
-  it("--record writes a verification state with a diff hash and verdict (guarded-mode input)", () => {
+  it("--record writes a commit-bound complete working-state baseline for guarded mode", () => {
     const r = semctx(["verify", "diff", "--record", "--fail-on", "none"], repo);
     expect(r.code).toBe(0);
     const statePath = join(repo, ".semctx", "verification-state.json");
     expect(existsSync(statePath)).toBe(true);
     const state = JSON.parse(readFileSync(statePath, "utf8"));
-    expect(state.diffHash).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(state.version).toBe(2);
+    expect(state.headCommit).toMatch(/^[0-9a-f]{40,64}$/);
+    expect(state.workingStateHash).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(["PASS", "WARN", "BLOCK"]).toContain(state.verdict);
+  });
+
+  it("refuses to record untracked inputs or create an output after verification", () => {
+    const untracked = join(repo, "untracked-source.ts");
+    writeFileSync(untracked, "export const unverified = true;\n", "utf8");
+    const untrackedResult = semctx(["verify", "diff", "--record", "--fail-on", "none"], repo);
+    expect(untrackedResult.code).not.toBe(0);
+    expect(untrackedResult.err + untrackedResult.out).toContain("refuses non-ignored untracked files");
+    unlinkSync(untracked);
+
+    const output = join(repo, "record-output.json");
+    const outputResult = semctx([
+      "verify", "diff", "--record", "--output", output, "--fail-on", "none",
+    ], repo);
+    expect(outputResult.code).not.toBe(0);
+    expect(outputResult.err + outputResult.out).toContain("cannot be combined with --output");
+    expect(existsSync(output)).toBe(false);
+  });
+
+  it("rejects --record for ranges, staged diffs, and supplied files", () => {
+    const supplied = join(repo, "supplied.diff");
+    writeFileSync(supplied, "", "utf8");
+    expect(semctx(["verify", "diff", "--base", "main", "--record"], repo).code).not.toBe(0);
+    expect(semctx(["verify", "diff", "--staged", "--record"], repo).code).not.toBe(0);
+    expect(semctx(["verify", "diff", "--from-file", supplied, "--record"], repo).code).not.toBe(0);
+  });
+
+  it("refuses to record when repository state changes during verification", () => {
+    const before = { headCommit: "a".repeat(40), workingStateHash: `sha256:${"1".repeat(64)}` };
+    const after = { ...before, workingStateHash: `sha256:${"2".repeat(64)}` };
+    expect(() => requireStableVerificationGitState(before, after)).toThrow(
+      "repository state changed while verification was running",
+    );
   });
 });
 

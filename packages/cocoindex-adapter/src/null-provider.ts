@@ -4,6 +4,10 @@ import type { SemanticCandidate, SemanticCandidateProvider, SemanticSearchInput 
 export class NullSemanticCandidateProvider implements SemanticCandidateProvider {
   readonly name = "none";
 
+  async version(): Promise<string> {
+    return "builtin@1";
+  }
+
   async isAvailable(): Promise<boolean> {
     return true;
   }

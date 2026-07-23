@@ -71,10 +71,9 @@ lives only in `packages/github-action`, never in `core`/`context-engine`.
 - **GitHub Action = composite, sets up Bun and runs the CLI** (ADR 0006). A bundled Node action
   cannot execute the verify engine because it depends on `bun:sqlite`. The annotation/summary
   adapter is a small Node script that consumes the CLI's JSON — Node-compatible and testable.
-- **Guarded Claude hook = diff-hash verification-state** (ADR 0007). Advisory by default (never
-  blocks); guarded opt-in blocks only terminal `git commit`/`git push` when the working diff hash
-  differs from the last verified hash. State in `.semctx/verification-state.json` (git-ignored,
-  atomic).
+- **Guarded Claude hook = commit-bound verification-state** (ADR 0007). Advisory by default;
+  guarded opt-in blocks only terminal `git commit`/`git push` when HEAD or the complete tracked and
+  non-ignored untracked working state differs from the v2 baseline. State is git-ignored and atomic.
 - **Stable machine output = versioned `schemaVersion`** (ADR 0008). `--format json` is additive-
   only within a major schema; `--format github` is a derived view.
 
@@ -84,7 +83,7 @@ lives only in `packages/github-action`, never in `core`/`context-engine`.
 | --- | --- |
 | `bun:sqlite` makes a pure-Node action impossible | composite action + setup-bun (ADR 0006); documented |
 | Shallow checkout → base ref absent in CI | require `fetch-depth: 0`; fail clean with a concrete message; never implicit-fetch |
-| Guarded hook false positives | block only terminal git verbs, keyed on diff hash; advisory is default |
+| Guarded hook false positives | block only terminal git verbs, keyed on commit-bound working state; advisory is default |
 | CI noise from WARN | WARN exits 0 unless `--fail-on warn`; no auto PR comments |
 | Marketing overreach | README states what semctx does NOT do; retriever stays experimental |
 

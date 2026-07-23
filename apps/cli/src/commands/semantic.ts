@@ -1,12 +1,11 @@
 import { SemctxError } from "@semantic-context/core";
+import { checkSemanticState } from "@semantic-context/app-services";
 import { openStore } from "@semantic-context/repository-store";
 import {
   initSemanticScaffold,
-  loadSemanticModel,
   loadModelWithWorking,
   loadActiveChange,
   formatSemanticFiles,
-  checkSemanticModel,
   inspectSemantic,
   sliceSemanticModel,
   renderSlice,
@@ -96,9 +95,8 @@ function semanticInit(root: string, args: ParsedArgs): number {
 }
 
 function semanticCheck(root: string, args: ParsedArgs): number {
-  const { model, diagnostics, duplicateIds } = loadSemanticModel(root);
-  const { facts, indexed } = loadFacts(root);
-  const report = checkSemanticModel({ model, diagnostics, duplicateIds, facts, graphIndexed: indexed });
+  const report = checkSemanticState(root);
+  const indexed = report.graphIndexed;
 
   if (flagBool(args, "json")) {
     json(report);
@@ -115,6 +113,11 @@ function semanticCheck(root: string, args: ParsedArgs): number {
   for (const iv of report.invalidIds) info(`  ${c.red("error")} id "${iv.id}" does not match its kind "${iv.kind}"`);
   for (const dr of report.danglingReferences) info(`  ${c.red("error")} ${dr.ownerId} ${dr.field} -> ${dr.ref} (not declared)`);
   for (const s of report.staleLinks) info(`  ${c.red("stale")} ${s.ownerId} link ${s.link.ref} (${s.reason})`);
+  for (const finding of report.lifecycleFindings) {
+    const subjects = finding.subjectIds.length > 0 ? ` [${finding.subjectIds.join(", ")}]` : "";
+    const tag = finding.severity === "error" ? c.red("error") : c.yellow("warn ");
+    info(`  ${tag} ${finding.code}${subjects}: ${finding.message}`);
+  }
   info("");
   if (report.ok) {
     success("semantic model is consistent");

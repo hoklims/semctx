@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import { initWorkspace, openStore } from "@semantic-context/repository-store";
-import { initSemanticScaffold } from "@semantic-context/semantic-engine";
+import { activeChangePath, initSemanticScaffold } from "@semantic-context/semantic-engine";
 import {
   semanticSliceTool,
   changeOpenTool,
@@ -13,12 +13,16 @@ import {
   changeVerifyTool,
   changeCloseTool,
   semanticInspectTool,
+  semanticCheckTool,
   handoffTool,
   resumeTool,
 } from "../src/semantic-tools";
 
 let root: string;
 const CHANGE = "change.payment-webhook-retry";
+const INVARIANT = "invariant.semctx-test.idempotent-write";
+const UNKNOWN = "unknown.semctx-test.concurrency-race";
+const EVIDENCE = "evidence.semctx-test.race-test";
 
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), "semctx-sem-mcp-"));
@@ -32,8 +36,18 @@ beforeAll(() => {
   } finally {
     store.close();
   }
-  // Scaffold the authored example nodes (as a human's `semctx semantic init` would).
+  // Scaffold only inert guidance, then explicitly author the truths used by this fixture.
   initSemanticScaffold(root);
+  writeFileSync(
+    join(root, ".semctx", "semantic", "invariants.sem"),
+    `invariant ${INVARIANT}\n  statement: Retrying a write is equivalent to applying it once.\n  status: declared\n`,
+    "utf8",
+  );
+  writeFileSync(
+    join(root, ".semctx", "semantic", "unknowns.sem"),
+    `unknown ${UNKNOWN}\n  statement: Concurrent writers may race.\n  status: declared\n`,
+    "utf8",
+  );
 });
 
 afterAll(() => {
@@ -41,6 +55,23 @@ afterAll(() => {
 });
 
 describe("semantic-layer MCP tools", () => {
+  it("exposes the same versioned semantic-check contract as the CLI", () => {
+    const report = semanticCheckTool(root);
+    expect(report.schemaVersion).toBe(1);
+    expect(report.kind).toBe("semantic_check");
+    expect(report.reasonCodes).toEqual([]);
+  });
+
+  it("returns the same canonical lifecycle reason order as the CLI", () => {
+    const pointer = activeChangePath(root);
+    writeFileSync(pointer, "not a semantic block\n", "utf8");
+    try {
+      expect(semanticCheckTool(root).reasonCodes).toEqual(["ACTIVE_CHANGE_POINTER_INVALID"]);
+    } finally {
+      rmSync(pointer, { force: true });
+    }
+  });
+
   it("rejects a prefixed traversal id before writing outside changes", () => {
     const escaped = join(root, ".semctx", "evil-payload.sem");
     expect(() =>
@@ -56,8 +87,8 @@ describe("semantic-layer MCP tools", () => {
     const contract = changeOpenTool(root, {
       id: CHANGE,
       statement: "make the webhook retry-safe",
-      preserves: ["invariant.example.idempotent-write"],
-      unknowns: ["unknown.example.concurrency-race"],
+      preserves: [INVARIANT],
+      unknowns: [UNKNOWN],
     });
     expect(contract.id).toBe(CHANGE);
     expect(contract.provenance).toBe("agent");
@@ -67,7 +98,7 @@ describe("semantic-layer MCP tools", () => {
   it("slices deterministically from the change scope", () => {
     const { slice, capsule } = semanticSliceTool(root, { changeId: CHANGE });
     expect(slice.changes.map((c) => c.id)).toContain(CHANGE);
-    expect(slice.openUnknowns.map((u) => u.id)).toContain("unknown.example.concurrency-race");
+    expect(slice.openUnknowns.map((u) => u.id)).toContain(UNKNOWN);
     expect(capsule).toContain("# Semantic slice");
   });
 
@@ -75,7 +106,7 @@ describe("semantic-layer MCP tools", () => {
     const report = changeVerifyTool(root, { changeId: CHANGE, gitDiff: "" });
     expect(report.verdict).toBe("PARTIAL");
     expect(report.underlying.schemaVersion).toBe(1);
-    expect(report.openUnknowns.map((u) => u.id)).toContain("unknown.example.concurrency-race");
+    expect(report.openUnknowns.map((u) => u.id)).toContain(UNKNOWN);
   });
 
   it("cannot claim verified through update or close before composed verification passes", () => {
@@ -88,26 +119,26 @@ describe("semantic-layer MCP tools", () => {
   });
 
   it("resolves the unknown and reaches VERIFIED", () => {
-    expect(() => changeUpdateTool(root, { id: CHANGE, resolveUnknowns: ["unknown.example.concurrency-race"] })).toThrow(
+    expect(() => changeUpdateTool(root, { id: CHANGE, resolveUnknowns: [UNKNOWN] })).toThrow(
       "proved evidence",
     );
     writeFileSync(
       join(root, ".semctx", "semantic", "unknowns.sem"),
-      "unknown unknown.example.concurrency-race\n  statement: Concurrent writers may race.\n  status: declared\n  proved_by: evidence.example.race-test\n",
+      `unknown ${UNKNOWN}\n  statement: Concurrent writers may race.\n  status: declared\n  proved_by: ${EVIDENCE}\n`,
       "utf8",
     );
     writeFileSync(
       join(root, ".semctx", "semantic", "evidence.sem"),
-      "evidence evidence.example.race-test\n  statement: Concurrency regression passes.\n  status: tested\n",
+      `evidence ${EVIDENCE}\n  statement: Concurrency regression passes.\n  status: tested\n`,
       "utf8",
     );
-    changeUpdateTool(root, { id: CHANGE, resolveUnknowns: ["unknown.example.concurrency-race"] });
+    changeUpdateTool(root, { id: CHANGE, resolveUnknowns: [UNKNOWN] });
     const report = changeVerifyTool(root, { changeId: CHANGE, gitDiff: "" });
     expect(report.verdict).toBe("VERIFIED");
   });
 
   it("inspects a semantic id with incoming references", () => {
-    const inspection = semanticInspectTool(root, { id: "invariant.example.idempotent-write" });
+    const inspection = semanticInspectTool(root, { id: INVARIANT });
     expect(inspection.found).toBe(true);
     expect(inspection.incoming.some((r) => r.from === CHANGE && r.field === "preserves")).toBe(true);
   });

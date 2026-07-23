@@ -38,9 +38,23 @@ export {
   extractionContext,
   prepareContextPack,
   fetchProviderCandidates,
+  fetchCandidatesFromProvider,
   defaultTaskExtractor,
 } from "./engine";
 export type { PrepareArgs } from "./engine";
+
+export {
+  sealProviderCandidates,
+  stableProviderSourceSeal,
+  validateProviderCandidate,
+  PROVIDER_FACT_REASON_ORDER,
+} from "./provider-seal";
+export type {
+  ProviderCaptureContext,
+  ProviderFactReason,
+  ProviderFactValidation,
+  ProviderValidationContext,
+} from "./provider-seal";
 
 export {
   AUTHORITY_BY_STATUS,

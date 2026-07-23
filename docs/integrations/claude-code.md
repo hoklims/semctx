@@ -66,7 +66,7 @@ preservation, or a generic project demonstration.
 | plane | tools | role |
 | --- | --- | --- |
 | A | `semctx_inspect`, `semctx_verify_change` | observed graph, impact, recommended tests, `PASS/WARN/BLOCK` |
-| B | `semctx_semantic_slice`, `semctx_semantic_inspect`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_handoff`, `semctx_resume` | authored intent, proof-carrying contracts and rehydration |
+| B | `semctx_semantic_check`, `semctx_semantic_slice`, `semctx_semantic_inspect`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_handoff`, `semctx_resume` | authored intent, lifecycle integrity, proof-carrying contracts and rehydration |
 | C | `semctx_control_status`, `semctx_control_trace`, `semctx_control_plan` | read-only freshness preflight, L0-L6 trace and fail-closed migration planning |
 
 `semctx_prepare_task` remains experimental and is not a code-search replacement.
@@ -111,7 +111,7 @@ When the user asks for a repository-independent demonstration, the shared skill 
 ## Claude-specific guarded mode
 
 The `PreToolUse` hook is advisory by default. When `.semctx/guard.json` enables guarded mode, it
-blocks only `git commit` and `git push` until the current diff hash has a recorded non-`BLOCK`
+blocks only `git commit` and `git push` until the current commit-bound working-state hash has a recorded non-`BLOCK`
 verification. It never blocks edits, tests, exploration, trace or plan tools. See
 [`claude-code-guarded-mode.md`](./claude-code-guarded-mode.md).
 

@@ -106,5 +106,7 @@ form, relation targets sorted by code unit. Renderers (`symbols` / `ascii`) are 
 
 `.semctx/semantic/{goals,invariants,decisions,assumptions,unknowns,evidence}.sem` and
 `.semctx/semantic/changes/<id>.sem` are **Git-versioned truth**. `.semctx/working/**` (active change,
-handoff) is local scratch. `semctx semantic init` scaffolds a clean, link-free example so
-`semctx semantic check` is green out of the box.
+handoff) is local scratch. `semctx semantic init` scaffolds comments and inert placeholders only;
+no `goal.example.*`, invariant, decision, or unknown becomes active without an explicit authored
+declaration. The empty model is therefore honest and `semctx semantic check` is green out of the
+box.

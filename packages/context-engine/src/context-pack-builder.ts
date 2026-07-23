@@ -1,4 +1,4 @@
-import { evidenceId, capabilityId, invariantId, compareIds } from "@semantic-context/core";
+import { evidenceId, capabilityId, invariantId, compareIds, normalizePath } from "@semantic-context/core";
 import type {
   Claim,
   TaskFrame,
@@ -15,7 +15,8 @@ import type {
   NodeKind,
   EdgeKind,
 } from "@semantic-context/core";
-import type { SemanticCandidate } from "@semantic-context/cocoindex-adapter";
+import type { SemanticCandidate, SemanticSearchInput } from "@semantic-context/cocoindex-adapter";
+import { validateProviderCandidate } from "./provider-seal";
 import { GraphIndex } from "./graph-index";
 import { classifyQuestion, policyFor } from "./authority-policies";
 import { detectContradictions } from "./contradiction";
@@ -47,6 +48,10 @@ export interface BuildPackOptions {
   /** Optional semantic-provider candidates. Folded into secondary consideration only —
    * they never become authoritative (ADR 0004) and never resurrect a deprecated source. */
   providerCandidates?: SemanticCandidate[];
+  /** Exact query/root/limit used to obtain provider candidates. */
+  providerInput?: SemanticSearchInput;
+  /** Exact current control seal required before derived provider facts can influence selection. */
+  expectedProviderSourceSealHash?: string;
 }
 
 function evIdOf(ref: EvidenceRef): string {
@@ -66,8 +71,22 @@ export function buildContextPack(opts: BuildPackOptions): ContextPack {
   // Optional semantic-provider candidates: folded into secondary consideration only.
   const candidateProviderNames = new Set<string>(opts.candidateProviders ?? []);
   const candidateNodeIds = new Set<string>();
-  for (const candidate of opts.providerCandidates ?? []) {
+  const providerWarnings: string[] = [];
+  const orderedCandidates = [...(opts.providerCandidates ?? [])]
+    .map((candidate) => ({ ...candidate, filePath: normalizePath(candidate.filePath) }))
+    .sort(
+      (a, b) => compareIds(a.provider, b.provider) || compareIds(a.filePath, b.filePath),
+    );
+  for (const candidate of orderedCandidates) {
     candidateProviderNames.add(candidate.provider);
+    const validation = validateProviderCandidate(candidate, {
+      expectedSourceRepositorySealHash: opts.expectedProviderSourceSealHash,
+      expectedInput: opts.providerInput,
+    });
+    if (!validation.accepted) {
+      providerWarnings.push(`[${validation.reason}] Provider candidate ${candidate.provider}:${candidate.filePath} is diagnostic-only; ignored.`);
+      continue;
+    }
     const matched = index.nodesByFilePath(candidate.filePath);
     if (matched.length === 0) {
       warnings.push(`Provider candidate ${candidate.filePath} is not in the analysed graph; ignored.`);
@@ -78,6 +97,7 @@ export function buildContextPack(opts: BuildPackOptions): ContextPack {
       candidateNodeIds.add(node.id);
     }
   }
+  warnings.push(...providerWarnings);
 
   // --- Entrypoints: symbols implementing matched capabilities / constrained by matched invariants.
   const matchedCapNodeIds = taskFrame.capabilities.map(capabilityId).filter((id) => index.has(id));

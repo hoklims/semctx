@@ -8,8 +8,11 @@ import {
   parseTaskDocument,
   defaultTaskExtractor,
   extractionContext,
+  fetchCandidatesFromProvider,
+  validateProviderCandidate,
   type PriorityContext,
 } from "@semantic-context/context-engine";
+import type { SemanticCandidateProvider } from "@semantic-context/cocoindex-adapter";
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import type { Claim, RepositoryGraph, TaskFrame, VerificationStatus } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED, must } from "@semantic-context/test-fixtures";
@@ -184,5 +187,76 @@ describe("verification-sufficient gate (ADR 0003)", () => {
     const gate = must(e.gates.find((g) => g.name === "verification-sufficient"));
     expect(gate.passed).toBe(true);
     expect(e.eligible).toBe(true);
+  });
+});
+
+describe("atomic provider attestation", () => {
+  const sourceSeal = `sha256:${"a".repeat(64)}`;
+  const input = { query: "find payment code", repositoryRoot: "C:/repo", limit: 5 };
+  const raw = [{ filePath: "src/payment.ts", score: 0.9, provider: "attested" }];
+
+  it("seals only candidates returned in one matching attested envelope", async () => {
+    const provider: SemanticCandidateProvider = {
+      name: "attested",
+      version: async () => "attested@1",
+      isAvailable: async () => true,
+      search: async () => raw,
+      attestedSearch: async () => ({
+        candidates: raw,
+        providerVersion: "attested@1",
+        sourceRepositorySealHash: sourceSeal,
+      }),
+    };
+    const [candidate] = await fetchCandidatesFromProvider(
+      provider,
+      input,
+      { sourceRepositorySealHash: sourceSeal, capturedAt: NOW },
+    );
+
+    expect(candidate?.seal).toBeDefined();
+    expect(validateProviderCandidate(candidate!, {
+      expectedSourceRepositorySealHash: sourceSeal,
+      expectedInput: input,
+    })).toEqual({ accepted: true });
+  });
+
+  it("keeps legacy or source-mismatched provider results unsealed", async () => {
+    const legacy: SemanticCandidateProvider = {
+      name: "attested",
+      version: async () => "attested@1",
+      isAvailable: async () => true,
+      search: async () => raw,
+    };
+    expect((await fetchCandidatesFromProvider(legacy, input, {
+      sourceRepositorySealHash: sourceSeal,
+      capturedAt: NOW,
+    }))[0]?.seal).toBeUndefined();
+
+    const mismatched: SemanticCandidateProvider = {
+      ...legacy,
+      attestedSearch: async () => ({
+        candidates: raw,
+        providerVersion: "attested@1",
+        sourceRepositorySealHash: `sha256:${"b".repeat(64)}`,
+      }),
+    };
+    expect((await fetchCandidatesFromProvider(mismatched, input, {
+      sourceRepositorySealHash: sourceSeal,
+      capturedAt: NOW,
+    }))[0]?.seal).toBeUndefined();
+  });
+
+  it("keeps available provider results diagnostic-only when the version is unknown", async () => {
+    const provider: SemanticCandidateProvider = {
+      name: "attested",
+      version: async () => null,
+      isAvailable: async () => true,
+      search: async () => raw,
+    };
+
+    expect(await fetchCandidatesFromProvider(provider, input, {
+      sourceRepositorySealHash: sourceSeal,
+      capturedAt: NOW,
+    })).toEqual(raw);
   });
 });

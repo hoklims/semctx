@@ -203,8 +203,8 @@ Git-versioned `.semctx/semantic/**.sem` (a small, deterministic, ASCII DSL — t
 are a view, never required to parse). It works with no LLM and is better with Claude Code.
 
 ```bash
-semctx semantic init                                   # scaffold .semctx/semantic/ (versioned)
-semctx semantic check                                  # validate the model + repository links
+semctx semantic init                                   # scaffold inert, commented .semctx/semantic/ guidance
+semctx semantic check                                  # model + links + lifecycle/baseline reason codes
 semctx change open change.<slug> --preserves <inv-ids> --requires <ev-ids> --unknown <unk-ids>
 semctx semantic slice --change change.<slug> --format agent   # bounded rehydration capsule
 semctx change verify change.<slug> --base origin/main  # composes verify diff -> VERIFIED/PARTIAL/BLOCKED/STALE
@@ -243,7 +243,7 @@ The v1 surface is materially read-only and has no executor. See
 
 The first-class tool is **`semctx_verify_change`** — hand it a diff, get the impact analysis and
 verdict; `semctx_inspect` queries the graph. The semantic layer adds advisory tools
-(`semctx_semantic_slice`, `semctx_change_open` / `_update` / `_verify`, `semctx_semantic_inspect`,
+(`semctx_semantic_check`, `semctx_semantic_slice`, `semctx_change_open` / `_update` / `_verify`, `semctx_semantic_inspect`,
 `semctx_handoff` / `semctx_resume`) — see
 [`docs/integrations/claude-code-semantic-layer.md`](docs/integrations/claude-code-semantic-layer.md).
 Plane C adds the read-only `semctx_control_status`, `semctx_control_trace`, and
