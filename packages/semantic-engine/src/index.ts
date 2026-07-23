@@ -7,6 +7,8 @@ export type { GitignoreResult } from "./gitignore";
 export {
   loadSemanticModel,
   loadActiveChange,
+  readActiveChangePointer,
+  sameChangeContractContent,
   loadModelWithWorking,
   writeKindFile,
   writeChangeFile,
@@ -16,7 +18,7 @@ export {
   initSemanticScaffold,
   formatSemanticFiles,
 } from "./store";
-export type { LoadResult, ScaffoldPlan, FormatOutcome } from "./store";
+export type { LoadResult, ScaffoldPlan, FormatOutcome, ActiveChangePointerResult, ActiveChangePointerState } from "./store";
 
 export { DEFAULT_SEMANTIC_POLICY, resolveSemanticPolicy } from "./config";
 
@@ -46,8 +48,14 @@ export type {
   VerifyChangeArgs,
 } from "./verify";
 
-export { checkSemanticModel } from "./check";
-export type { CheckReport, CheckArgs, InvalidId } from "./check";
+export { checkSemanticModel, SEMANTIC_CHECK_REASON_ORDER } from "./check";
+export type {
+  CheckReport,
+  CheckArgs,
+  InvalidId,
+  SemanticCheckReasonCode,
+  SemanticLifecycleFinding,
+} from "./check";
 
 export { inspectSemantic } from "./inspect";
 export type { SemanticInspection, IncomingReference } from "./inspect";

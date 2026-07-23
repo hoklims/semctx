@@ -5,6 +5,7 @@ import { isAbsolute, resolve } from "node:path";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
 import {
   semanticSliceTool,
+  semanticCheckTool,
   changeOpenTool,
   changeUpdateTool,
   changeVerifyTool,
@@ -125,6 +126,29 @@ export function createSemctxServer(root: string): McpServer {
   );
 
   // --- Semantic layer (Plane B): authored intent, invariants, decisions, evidence, change contracts.
+  server.registerTool(
+    "semctx_semantic_check",
+    {
+      title: "Check semantic integrity and lifecycle",
+      description:
+        "Read-only versioned semantic check. Reports canonical reason codes for malformed or stale authored state, repository links, active-change pointers, obsolete contracts, and verification baselines. Returns the same report as `semctx semantic check --json`.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+    },
+    async ({ repositoryRoot }) => {
+      try {
+        return ok(semanticCheckTool(requestRoot(root, repositoryRoot)));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
   server.registerTool(
     "semctx_semantic_slice",
     {

@@ -8,7 +8,7 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
 
 - **Repository MCP tools** (`.mcp.json`): `semctx_verify_change`, `semctx_inspect`, and the
   experimental `semctx_prepare_task` (not a code-search retriever; ADR 0005).
-- **Semantic-layer tools**: `semctx_semantic_slice`, `semctx_change_open`,
+- **Semantic-layer tools**: `semctx_semantic_check`, `semctx_semantic_slice`, `semctx_change_open`,
   `semctx_change_update`, `semctx_change_verify`, `semctx_semantic_inspect`, `semctx_handoff`,
   `semctx_resume` — authored intent, invariants, decisions, evidence and unknowns (Plane B).
 - **Control-plane tools**: read-only `semctx_control_status`, `semctx_control_trace`, and

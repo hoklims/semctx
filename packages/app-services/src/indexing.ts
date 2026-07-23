@@ -15,6 +15,7 @@ import {
   fingerprintSemanticModel,
   type IndexedControlSnapshot,
 } from "./freshness";
+import { inspectSemanticLifecycle } from "./semantic-check";
 
 export interface RepositoryAnalysis {
   analysis: AnalysisResult;
@@ -42,12 +43,15 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
   const filesBefore = discoverFiles(configBefore);
   const analysisInputHash = fingerprintAnalysisInputs(configBefore, filesBefore);
   const semanticBefore = loadSemanticModel(root);
+  const lifecycleBefore = inspectSemanticLifecycle(root, semanticBefore.model.changes);
   const semanticModelHash = fingerprintSemanticModel(semanticBefore.model);
   const errors = semanticBefore.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
-  if (errors.length > 0 || semanticBefore.duplicateIds.length > 0) {
+  const lifecycleErrors = lifecycleBefore.filter((finding) => finding.severity === "error");
+  if (errors.length > 0 || semanticBefore.duplicateIds.length > 0 || lifecycleErrors.length > 0) {
     throw new SemctxError("CONFIG_INVALID", "semantic model cannot be sealed during indexing", {
       diagnostics: errors,
       duplicateIds: semanticBefore.duplicateIds,
+      lifecycleFindings: lifecycleErrors,
     });
   }
   const indexed = analyzeAndBuildClaims(configBefore, filesBefore);
@@ -55,6 +59,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
   const filesAfter = discoverFiles(configAfter);
   const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, filesAfter);
   const semanticAfter = loadSemanticModel(root);
+  const lifecycleAfter = inspectSemanticLifecycle(root, semanticAfter.model.changes);
   const semanticModelHashAfter = fingerprintSemanticModel(semanticAfter.model);
   const gitAfter = captureGitState(root);
   if (
@@ -62,6 +67,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     || gitBefore.workingDiffHash !== gitAfter.workingDiffHash
     || analysisInputHash !== analysisInputHashAfter
     || semanticModelHash !== semanticModelHashAfter
+    || JSON.stringify(lifecycleBefore) !== JSON.stringify(lifecycleAfter)
   ) {
     throw new SemctxError("GIT_ERROR", "repository inputs changed while the index was being built", {
       before: gitBefore,
@@ -70,6 +76,8 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       analysisInputHashAfter,
       semanticModelHash,
       semanticModelHashAfter,
+      lifecycleBefore,
+      lifecycleAfter,
     });
   }
   const snapshot: IndexedControlSnapshot = {

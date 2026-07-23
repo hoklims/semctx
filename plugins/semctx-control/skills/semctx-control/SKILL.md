@@ -19,7 +19,7 @@ For every MCP call, pass `repositoryRoot` as the absolute root of the repository
 ## Shared workflow
 
 1. Establish the repository state with normal code search and Git inspection. Do not use `semctx_prepare_task` as code search.
-2. Rehydrate existing intent with `semctx_resume`, `semctx_semantic_inspect`, or `semctx_semantic_slice` when a change id or semantic id exists. Treat anything absent from the bounded slice as unknown, not false.
+2. Run `semctx_semantic_check`, preserving its canonical reason codes; then rehydrate existing intent with `semctx_resume`, `semctx_semantic_inspect`, or `semctx_semantic_slice` when a change id or semantic id exists. Treat anything absent from the bounded slice as unknown, not false.
 3. Use `semctx_control_status` before high-risk control work. Continue only for `FRESH` or `DIRTY_KNOWN`; preserve every `STALE` or `UNSEALED` reason verbatim.
 4. Use `semctx_control_trace` to connect repository and semantic coordinates across L0-L6. Keep traversal bounded and label observed, authored, inferred, and ambiguous statements honestly.
 5. Record the returned freshness verdict, `freshnessSeal.sealHash`, and current/indexed input pairs. The seal is an attestation; `semctx_control_status` owns the verdict.
@@ -53,6 +53,7 @@ Report the framed objective, authority sources, freshness verdict, seal hash and
 
 ```text
 semctx status --json
+semctx semantic check --json
 semctx semantic slice --change change.<slug> --format agent
 semctx control trace repo:<graph-id> --direction lift --to 6 --json
 semctx control plan change.<slug> --target target-architecture.json --json

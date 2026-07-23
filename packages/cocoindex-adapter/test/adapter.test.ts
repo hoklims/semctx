@@ -50,4 +50,9 @@ describe("CocoIndexCandidateProvider graceful degradation", () => {
     expect(await provider.isAvailable()).toBe(false);
     expect(await provider.search({ query: "x", repositoryRoot: ".", limit: 3 })).toEqual([]);
   });
+
+  it("keeps candidates unattested while ccc exposes no source-state seal", async () => {
+    const provider = new CocoIndexCandidateProvider();
+    expect("attestedSearch" in provider).toBe(false);
+  });
 });

@@ -10,6 +10,7 @@ existing guarded hook (ADR 0007) still only gates `git commit` / `git push` on o
 | tool | purpose |
 | --- | --- |
 | `semctx_verify_change` | **primary, unchanged** — Plane-A impact + PASS/WARN/BLOCK for a diff |
+| `semctx_semantic_check` | versioned model/link/lifecycle report with canonical refusal reasons |
 | `semctx_semantic_slice` | bounded, deterministic capsule for an explicit scope (change/symbol/claim) — **not** code search |
 | `semctx_change_open` | open a proof-carrying change contract (provenance `agent`), set active |
 | `semctx_change_update` | additively patch a change; unknown resolution requires proven `proved_by` evidence |
@@ -50,6 +51,6 @@ an implicit compaction event — capture before you compact, resume after. The c
 ## Guarded mode
 
 Unchanged. The semantic tools are advisory and add no blocking. Guarded mode still only concerns
-`git commit` / `git push` via the diff-hash hook, enabled by `.semctx/guard.json` (`{ "enabled":
+`git commit` / `git push` via the commit-bound working-state hook, enabled by `.semctx/guard.json` (`{ "enabled":
 true }`) and strictly disabled by `SEMCTX_GUARD=off`. A BLOCKED `change verify` is a signal to the
 agent, not a commit gate — wire it into CI (`change verify --fail-on block`) if you want enforcement.

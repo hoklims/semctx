@@ -162,6 +162,13 @@ A node with any unresolved link is reported **stale**. Evidence whose linked tes
 **stale**; an invariant with a `contradicts` relation to a contradicted claim is **contradicted**.
 `semantic check` surfaces these; `change verify` folds them into the verdict.
 
+`semantic check` also emits a versioned `semantic_check` report with canonically ordered reason
+codes. It distinguishes malformed/missing/mismatched active pointers, obsolete non-selected or
+closed contracts, invalid/legacy verification baselines, and baselines whose recorded commit or
+complete tracked/untracked working-state hash is stale.
+A missing local pointer is advisory; malformed, contradictory, obsolete, or stale working state is
+an error and cannot be sealed into Plane C. CLI and MCP both call the same application service.
+
 ## Semantic slice (bounded, deterministic, no free-text retrieval)
 
 `sliceSemanticModel(model, { changeId?, symbolRef?, claimRef?, maxNodes })`:
@@ -221,7 +228,7 @@ schema is extended so existing configs still parse and omitting the block uses d
 ## Claude Code integration
 
 New MCP tools (advisory; the guarded hook is unchanged and still only gates `git commit`/`push`):
-`semctx_semantic_slice`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`,
+`semctx_semantic_check`, `semctx_semantic_slice`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`,
 `semctx_semantic_inspect`, `semctx_handoff`, `semctx_resume`. A `semctx-semantic` skill drives the
 loop: open/select a `ChangeContract` → request a targeted slice → edit → `semctx_verify_change` →
 `semctx_change_verify` → run recommended tests → update evidence/unknowns/status → never conclude on

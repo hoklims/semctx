@@ -2,13 +2,14 @@ import { TaskModeSchema } from "@semantic-context/core";
 import type { TaskFrame, ContextPack, TaskFrameInput, TaskMode } from "@semantic-context/core";
 import { loadConfig, openStore } from "@semantic-context/repository-store";
 import type { ReadonlyRepositoryStore, SqliteRepositoryStore } from "@semantic-context/repository-store";
-import { openReadyRepository, runVerify } from "@semantic-context/app-services";
+import { openReadyRepository, runVerify, trustedControlSealHash } from "@semantic-context/app-services";
 import type { VerifyReport } from "@semantic-context/core";
 import {
   extractionContext,
   defaultTaskExtractor,
   prepareContextPack,
   fetchProviderCandidates,
+  stableProviderSourceSeal,
   inspectGraph,
   type InspectionResult,
   type InspectKind,
@@ -36,6 +37,7 @@ export interface PrepareTaskResult {
 
 /** semctx_prepare_task: raw task -> TaskFrame + ContextPack. */
 export async function prepareTaskTool(root: string, input: { task: string; mode?: string }): Promise<PrepareTaskResult> {
+  const sourceSealBefore = trustedControlSealHash(root);
   const store = openReadyWriter(root);
   try {
     const config = loadConfig(root);
@@ -45,17 +47,39 @@ export async function prepareTaskTool(root: string, input: { task: string; mode?
       const parsed = TaskModeSchema.safeParse(input.mode);
       if (parsed.success) seed.mode = parsed.data as TaskMode;
     }
-    const taskFrame = defaultTaskExtractor.extract(seed, extractionContext(graph, nowIso()));
+    const capturedAt = nowIso();
+    const taskFrame = defaultTaskExtractor.extract(seed, extractionContext(graph, capturedAt));
     store.saveTaskFrame(taskFrame);
-    const providerCandidates = await fetchProviderCandidates(config, taskFrame.rawTask);
-    const contextPack = prepareContextPack({
+    const providerInput = { query: taskFrame.rawTask, repositoryRoot: config.repositoryRoot, limit: 20 };
+    const providerCandidates = await fetchProviderCandidates(
+      config,
+      providerInput.query,
+      providerInput.limit,
+      sourceSealBefore !== undefined ? { sourceRepositorySealHash: sourceSealBefore, capturedAt } : undefined,
+    );
+    const sourceSealAfter = trustedControlSealHash(root);
+    const stableSourceSeal = stableProviderSourceSeal(sourceSealBefore, sourceSealAfter);
+    let contextPack = prepareContextPack({
       graph,
       evidence: store.loadEvidence(),
       claims: store.loadClaims(),
       taskFrame,
-      now: nowIso(),
+      now: capturedAt,
       providerCandidates,
+      providerInput,
+      ...(stableSourceSeal !== undefined ? { expectedProviderSourceSealHash: stableSourceSeal } : {}),
     });
+    if (stableSourceSeal !== undefined && stableProviderSourceSeal(stableSourceSeal, trustedControlSealHash(root)) === undefined) {
+      contextPack = prepareContextPack({
+        graph,
+        evidence: store.loadEvidence(),
+        claims: store.loadClaims(),
+        taskFrame,
+        now: capturedAt,
+        providerCandidates,
+        providerInput,
+      });
+    }
     store.saveContextPack(contextPack);
     return { taskFrame, contextPack };
   } finally {

@@ -1,18 +1,18 @@
 # Claude Code — guarded mode
 
 Guarded mode makes the plugin's `PreToolUse` hook **block** `git commit` / `git push` until the
-current working diff has been verified. It is **opt-in**; advisory (never blocks) is the default.
+current commit-bound working state has been verified. It is **opt-in**; advisory is the default.
 
 ## How it works (ADR 0007)
 
 ```
 you run:   semctx verify diff --record
-             → analyses git diff HEAD, records { hash(diff), verdict } to
+             → analyses the diff, records { HEAD, hash(tracked + untracked state), verdict } to
                .semctx/verification-state.json  (git-ignored, written atomically)
 
 hook on `git commit` / `git push`:
-   recompute hash(git diff HEAD)
-   ALLOW  if hash == recorded hash AND recorded verdict != BLOCK
+   recapture HEAD + tracked diff + non-ignored untracked paths/modes/bytes
+   ALLOW  if the v2 baseline matches AND recorded verdict != BLOCK
    BLOCK  otherwise, printing the exact command to re-verify
 ```
 
@@ -37,7 +37,7 @@ semctx verify diff --record     # PASS/WARN → commit allowed; BLOCK → resolv
 git commit -m "..."             # allowed only if the diff is unchanged since --record
 ```
 
-If you edit again after recording, the hash no longer matches and the commit is blocked until you
+If HEAD moves or any tracked/untracked source input changes, the baseline no longer matches and the commit is blocked until you
 re-run `semctx verify diff --record`.
 
 ## Disable
@@ -52,6 +52,7 @@ re-run `semctx verify diff --record`.
   unchanged.
 - No false positive can block editing or testing — only `git commit` / `git push` are gated.
 - The state file `.semctx/verification-state.json` is git-ignored and written atomically.
+- Legacy diff-only baselines are rejected and must be recreated with `--record`.
 
 This is a cooperative soft gate, not a sandbox or hostile-agent boundary. The same local principal
 can edit `verification-state.json`, set `SEMCTX_GUARD=off`, invoke Git outside Claude Code, or use a

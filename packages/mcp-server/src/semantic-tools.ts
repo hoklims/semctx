@@ -3,7 +3,7 @@
  * first-class `semctx_verify_change`. Changes authored through these tools carry `provenance: agent`.
  */
 
-import { closeChange, openChange, updateChange, verifyAuthoredChange } from "@semantic-context/app-services";
+import { checkSemanticState, closeChange, openChange, updateChange, verifyAuthoredChange } from "@semantic-context/app-services";
 import {
   loadModelWithWorking,
   loadActiveChange,
@@ -18,6 +18,7 @@ import {
   type ChangeVerifyReport,
   type SemanticInspection,
   type HandoffCapsule,
+  type CheckReport,
 } from "@semantic-context/semantic-engine";
 import type { ChangeContract, ChangeLifecycle } from "@semantic-context/semantic-model";
 import { ensureReady, nowIso } from "./tools";
@@ -37,6 +38,11 @@ export interface SliceInput {
   symbolRef?: string;
   claimRef?: string;
   maxNodes?: number;
+}
+
+/** semctx_semantic_check: the same versioned integrity and lifecycle report as the CLI. */
+export function semanticCheckTool(root: string): CheckReport {
+  return checkSemanticState(root);
 }
 
 /** semctx_semantic_slice: bounded, deterministic capsule from explicit scopes (no free-text retrieval). */

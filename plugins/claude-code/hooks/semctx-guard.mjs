@@ -5,7 +5,7 @@
 //
 // It parses the Bash command STRUCTURALLY (segments + tokens, never a shell eval) and never
 // executes PR/agent content. It gates on a diff hash — no analysis runs here.
-import { readFileSync } from "node:fs";
+import { lstatSync, readFileSync, readlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve, isAbsolute } from "node:path";
@@ -112,18 +112,29 @@ export function guardEnabled(env, guardJson) {
   return guardJson?.enabled === true;
 }
 
-/** Pure decision. ctx: { enabled, terminalVerb, state|null, currentHash }. */
+/** Pure decision. ctx: { enabled, terminalVerb, state|null, currentState|null }. */
 export function guardDecision(ctx) {
   if (!ctx.enabled || !ctx.terminalVerb) return { block: false };
   const retry = `then retry the ${ctx.terminalVerb}. (strictly disable: SEMCTX_GUARD=off)`;
   if (!ctx.state) {
     return { block: true, reason: `semctx guarded mode: no verification on record. Run:\n  semctx verify diff --record\n${retry}` };
   }
+  if (
+    ctx.state.version !== 2
+    || !ctx.state.headCommit
+    || !ctx.state.workingStateHash
+    || !ctx.currentState
+  ) {
+    return { block: true, reason: `semctx guarded mode: the verification baseline is legacy, invalid, or unavailable. Re-run:\n  semctx verify diff --record\n${retry}` };
+  }
   if (ctx.state.verdict === "BLOCK") {
     return { block: true, reason: `semctx guarded mode: the last verification was BLOCK. Resolve the findings, then re-run:\n  semctx verify diff --record` };
   }
-  if (ctx.state.diffHash !== ctx.currentHash) {
-    return { block: true, reason: `semctx guarded mode: the working diff changed since the last verification. Re-run:\n  semctx verify diff --record\n${retry}` };
+  if (
+    ctx.state.headCommit !== ctx.currentState.headCommit
+    || ctx.state.workingStateHash !== ctx.currentState.workingStateHash
+  ) {
+    return { block: true, reason: `semctx guarded mode: the commit or working state changed since the last verification. Re-run:\n  semctx verify diff --record\n${retry}` };
   }
   return { block: false };
 }
@@ -136,14 +147,42 @@ function readJson(path) {
   }
 }
 
-function workingTreeDiffHash(cwd) {
-  let out = "";
-  try {
-    out = execFileSync("git", ["diff", "HEAD", "--relative", "--unified=0", "--no-color"], { cwd, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
-  } catch {
-    out = "";
+function frame(hash, label, payload) {
+  const bytes = typeof payload === "string" ? Buffer.from(payload, "utf8") : payload;
+  hash.update(`${label}\0${bytes.byteLength}\0`, "utf8").update(bytes);
+}
+
+/** Capture the same commit + tracked/untracked bytes recorded by `semctx verify diff --record`. */
+export function captureVerificationGitState(cwd) {
+  const headCommit = execFileSync("git", ["rev-parse", "--verify", "HEAD"], { cwd, encoding: "utf8" }).trim();
+  const diff = execFileSync("git", ["diff", "HEAD", "--relative", "--binary", "--no-color", "--", "."], {
+    cwd,
+    encoding: "buffer",
+    maxBuffer: 256 * 1024 * 1024,
+  });
+  const untracked = execFileSync("git", ["ls-files", "--others", "--exclude-standard", "-z", "--", "."], {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 256 * 1024 * 1024,
+  }).split("\0").filter(Boolean).sort();
+  const hash = createHash("sha256");
+  frame(hash, "domain", "semctx:verification-working-state:v1");
+  frame(hash, "tracked-diff", diff);
+  for (const path of untracked) {
+    const absolute = resolve(cwd, path);
+    const stat = lstatSync(absolute);
+    frame(hash, "untracked-path", path.replace(/\\/g, "/"));
+    if (stat.isSymbolicLink()) {
+      frame(hash, "untracked-kind", "symlink");
+      frame(hash, "untracked-target", readlinkSync(absolute));
+    } else if (stat.isFile()) {
+      frame(hash, "untracked-kind", (stat.mode & 0o111) === 0 ? "file:100644" : "file:100755");
+      frame(hash, "untracked-content", readFileSync(absolute));
+    } else {
+      throw new Error(`unsupported untracked verification input: ${path}`);
+    }
   }
-  return `sha256:${createHash("sha256").update(out).digest("hex")}`;
+  return { headCommit, workingStateHash: `sha256:${hash.digest("hex")}` };
 }
 
 function main() {
@@ -165,8 +204,13 @@ function main() {
   if (!enabled) process.exit(0); // advisory (default)
 
   const state = readJson(join(cwd, ".semctx", "verification-state.json"));
-  const currentHash = workingTreeDiffHash(cwd);
-  const decision = guardDecision({ enabled, terminalVerb, state, currentHash });
+  let currentState = null;
+  try {
+    currentState = captureVerificationGitState(cwd);
+  } catch {
+    currentState = null;
+  }
+  const decision = guardDecision({ enabled, terminalVerb, state, currentState });
   if (decision.block) {
     process.stderr.write(decision.reason + "\n");
     process.exit(2); // PreToolUse: non-zero (2) blocks the tool and surfaces stderr to the agent

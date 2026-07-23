@@ -1,5 +1,9 @@
 import { resolveProvider } from "@semantic-context/cocoindex-adapter";
-import type { SemanticCandidate } from "@semantic-context/cocoindex-adapter";
+import type {
+  SemanticCandidate,
+  SemanticCandidateProvider,
+  SemanticSearchInput,
+} from "@semantic-context/cocoindex-adapter";
 import type {
   SemctxConfig,
   RepositoryGraph,
@@ -12,6 +16,7 @@ import type {
 import { GraphIndex } from "./graph-index";
 import { buildContextPack } from "./context-pack-builder";
 import { HeuristicTaskFrameExtractor, type TaskExtractionContext } from "./task-frame-extractor";
+import { sealProviderCandidates, type ProviderCaptureContext } from "./provider-seal";
 
 /** Build the extractor context (known vocabulary + capability wiring) from a graph. */
 export function extractionContext(graph: RepositoryGraph, now: string): TaskExtractionContext {
@@ -57,6 +62,8 @@ export interface PrepareArgs {
   now: string;
   candidateProviders?: string[];
   providerCandidates?: SemanticCandidate[];
+  providerInput?: SemanticSearchInput;
+  expectedProviderSourceSealHash?: string;
 }
 
 /** Compile a task frame into a context pack from a loaded graph (used by `context prepare`). */
@@ -69,6 +76,10 @@ export function prepareContextPack(args: PrepareArgs): ContextPack {
     now: args.now,
     ...(args.candidateProviders !== undefined ? { candidateProviders: args.candidateProviders } : {}),
     ...(args.providerCandidates !== undefined ? { providerCandidates: args.providerCandidates } : {}),
+    ...(args.providerInput !== undefined ? { providerInput: args.providerInput } : {}),
+    ...(args.expectedProviderSourceSealHash !== undefined
+      ? { expectedProviderSourceSealHash: args.expectedProviderSourceSealHash }
+      : {}),
   });
 }
 
@@ -80,15 +91,41 @@ export async function fetchProviderCandidates(
   config: SemctxConfig,
   query: string,
   limit = 20,
+  capture?: ProviderCaptureContext,
 ): Promise<SemanticCandidate[]> {
   if (config.semanticProvider === "none") return [];
   const provider = resolveProvider(config.semanticProvider);
   try {
-    if (!(await provider.isAvailable())) return [];
-    return await provider.search({ query, repositoryRoot: config.repositoryRoot, limit });
+    const input = { query, repositoryRoot: config.repositoryRoot, limit };
+    return await fetchCandidatesFromProvider(provider, input, capture);
   } catch {
     return [];
   }
+}
+
+/** Execute one provider while preserving the atomic attested-result trust boundary. */
+export async function fetchCandidatesFromProvider(
+  provider: SemanticCandidateProvider,
+  input: SemanticSearchInput,
+  capture?: ProviderCaptureContext,
+): Promise<SemanticCandidate[]> {
+  const version = provider.version === undefined ? null : await provider.version();
+  if (provider.version === undefined ? !(await provider.isAvailable()) : version === null) return [];
+  if (capture !== undefined && provider.attestedSearch !== undefined) {
+    const result = await provider.attestedSearch(input);
+    if (
+      result.providerVersion.length > 0
+      && result.sourceRepositorySealHash === capture.sourceRepositorySealHash
+    ) {
+      return sealProviderCandidates(
+        result.candidates,
+        { ...input, providerIdentity: provider.name, providerVersion: result.providerVersion },
+        capture,
+      );
+    }
+    return result.candidates;
+  }
+  return await provider.search(input);
 }
 
 export const defaultTaskExtractor = new HeuristicTaskFrameExtractor();

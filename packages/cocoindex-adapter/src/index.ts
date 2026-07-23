@@ -3,6 +3,8 @@ export type {
   SemanticCandidate,
   SemanticSearchInput,
   SemanticCandidateProvider,
+  AttestedSemanticSearchResult,
+  DerivedProviderFactSeal,
 } from "./provider";
 export { NullSemanticCandidateProvider } from "./null-provider";
 export { CocoIndexCandidateProvider } from "./cocoindex-provider";

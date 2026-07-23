@@ -7,7 +7,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { compareIds, SemctxError } from "@semantic-context/core";
-import { parseSemanticSource, formatModel } from "@semantic-context/semantic-dsl";
+import { parseSemanticSource, formatChange, formatModel } from "@semantic-context/semantic-dsl";
 import type { Diagnostic } from "@semantic-context/semantic-dsl";
 import { mergeModels, emptyModel } from "@semantic-context/semantic-model";
 import type { SemanticModel, SemanticNode, ChangeContract, SemanticNodeKind } from "@semantic-context/semantic-model";
@@ -56,12 +56,34 @@ export function loadSemanticModel(root: string): LoadResult {
   return { model: models.length > 0 ? mergeModels(...models) : emptyModel(), diagnostics, duplicateIds };
 }
 
-/** The working active change contract, if one is open (`.semctx/working/active-change.sem`). */
-export function loadActiveChange(root: string): ChangeContract | undefined {
+export type ActiveChangePointerState = "missing" | "valid" | "invalid";
+
+export interface ActiveChangePointerResult {
+  state: ActiveChangePointerState;
+  change?: ChangeContract;
+  diagnostics: Diagnostic[];
+}
+
+/** Inspect the local active-change pointer without collapsing malformed content into "missing". */
+export function readActiveChangePointer(root: string): ActiveChangePointerResult {
   const path = activeChangePath(root);
-  if (!existsSync(path)) return undefined;
+  if (!existsSync(path)) return { state: "missing", diagnostics: [] };
   const parsed = parseSemanticSource(readFileSync(path, "utf8"), "working/active-change.sem");
-  return parsed.model.changes[0];
+  const invalid = parsed.diagnostics.some((diagnostic) => diagnostic.severity === "error")
+    || parsed.model.nodes.length > 0
+    || parsed.model.changes.length !== 1;
+  if (invalid) return { state: "invalid", diagnostics: parsed.diagnostics };
+  return { state: "valid", change: parsed.model.changes[0], diagnostics: parsed.diagnostics };
+}
+
+/** The working active change contract, if one valid pointer is open. */
+export function loadActiveChange(root: string): ChangeContract | undefined {
+  return readActiveChangePointer(root).change;
+}
+
+/** Compare pointer and versioned contract content while ignoring their different source locations. */
+export function sameChangeContractContent(left: ChangeContract, right: ChangeContract): boolean {
+  return formatChange(left) === formatChange(right);
 }
 
 /** The versioned model overlaid with the working active change (later wins). */
@@ -138,38 +160,40 @@ export interface ScaffoldPlan {
   action: "create" | "skip-exists" | "overwrite";
 }
 
-const EXAMPLE_FILES: Record<string, string> = {
+const SCAFFOLD_FILES: Record<string, string> = {
   [KIND_FILE.goal]: `# Goals — what the system must achieve. Versioned in Git; edit freely.
-
-goal goal.example.reliable-writes
-  statement: Every write is applied at most once.
-  status: declared
+#
+# Add an authored goal only when it is true for this repository:
+#   goal goal.<project>.<slug>
+#     statement: <observable outcome>
+#     status: declared
 `,
   [KIND_FILE.invariant]: `# Invariants — business rules a change must preserve. Link to code once indexed:
 #   link: inv:<invariant-slug>                    (a repo invariant id from @invariant markers)
 #   link: sym:function:src/path/to/file.ts:name:12
 # Run 'semctx semantic check' to validate links against the indexed graph.
-
-invariant invariant.example.idempotent-write
-  statement: retrying a write is equivalent to applying it once
-  status: declared
-  serves: goal.example.reliable-writes
-  tag: critical
+#
+# Add an authored invariant only after replacing every placeholder:
+#   invariant invariant.<project>.<slug>
+#     statement: <rule that must remain true>
+#     status: declared
+#     serves: goal.<project>.<slug>
 `,
   [KIND_FILE.decision]: `# Decisions — recorded choices (why the system is shaped as it is).
-
-decision decision.example.single-writer
-  statement: A single writer path guards the idempotency invariant.
-  status: declared
-  justifies: invariant.example.idempotent-write
+#
+# Example syntax (commented out; never part of the active model):
+#   decision decision.<project>.<slug>
+#     statement: <choice and rationale>
+#     status: declared
 `,
   [KIND_FILE.assumption]: `# Assumptions — believed-but-unproven premises. Kept distinct from established facts.
 `,
   [KIND_FILE.unknown]: `# Unknowns — open questions that must survive while the system is changed.
-
-unknown unknown.example.concurrency-race
-  statement: Concurrent writers may both pass a read-then-write guard.
-  status: declared
+#
+# Example syntax (commented out; never part of the active model):
+#   unknown unknown.<project>.<slug>
+#     statement: <question that remains unresolved>
+#     status: declared
 `,
   [KIND_FILE.evidence]: `# Evidence — proofs (tests, static checks, runtime observations) that back a claim.
 `,
@@ -191,7 +215,7 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
     mkdirSync(workingDir(root), { recursive: true });
   }
   const plan: ScaffoldPlan[] = [];
-  for (const [name, content] of Object.entries(EXAMPLE_FILES)) {
+  for (const [name, content] of Object.entries(SCAFFOLD_FILES)) {
     const abs = join(semanticDir(root), name);
     const exists = existsSync(abs);
     const action: ScaffoldPlan["action"] = !exists ? "create" : force ? "overwrite" : "skip-exists";

@@ -2,8 +2,9 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import type { TaskFrame } from "@semantic-context/core";
+import { trustedControlSealHash } from "@semantic-context/app-services";
 import { openStore, contextPacksDir, loadConfig } from "@semantic-context/repository-store";
-import { prepareContextPack, fetchProviderCandidates } from "@semantic-context/context-engine";
+import { prepareContextPack, fetchProviderCandidates, stableProviderSourceSeal } from "@semantic-context/context-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
 import { info, success, json, c, nowIso } from "../output";
@@ -13,6 +14,7 @@ import { renderPackMarkdown, renderPackConsole } from "../render-pack";
 export async function runContextPrepare(root: string, args: ParsedArgs): Promise<number> {
   const taskId = args.positionals[2];
   const config = loadConfig(root);
+  const sourceSealBefore = trustedControlSealHash(root);
   const store = openStore(root);
 
   if (!store.isIndexed()) {
@@ -39,8 +41,29 @@ export async function runContextPrepare(root: string, args: ParsedArgs): Promise
   const graph = store.loadGraph();
   const evidence = store.loadEvidence();
   const claims = store.loadClaims();
-  const providerCandidates = await fetchProviderCandidates(config, taskFrame.rawTask);
-  const pack = prepareContextPack({ graph, evidence, claims, taskFrame, now: nowIso(), providerCandidates });
+  const capturedAt = nowIso();
+  const providerInput = { query: taskFrame.rawTask, repositoryRoot: config.repositoryRoot, limit: 20 };
+  const providerCandidates = await fetchProviderCandidates(
+    config,
+    providerInput.query,
+    providerInput.limit,
+    sourceSealBefore !== undefined ? { sourceRepositorySealHash: sourceSealBefore, capturedAt } : undefined,
+  );
+  const sourceSealAfter = trustedControlSealHash(root);
+  const stableSourceSeal = stableProviderSourceSeal(sourceSealBefore, sourceSealAfter);
+  let pack = prepareContextPack({
+    graph,
+    evidence,
+    claims,
+    taskFrame,
+    now: capturedAt,
+    providerCandidates,
+    providerInput,
+    ...(stableSourceSeal !== undefined ? { expectedProviderSourceSealHash: stableSourceSeal } : {}),
+  });
+  if (stableSourceSeal !== undefined && stableProviderSourceSeal(stableSourceSeal, trustedControlSealHash(root)) === undefined) {
+    pack = prepareContextPack({ graph, evidence, claims, taskFrame, now: capturedAt, providerCandidates, providerInput });
+  }
   store.saveContextPack(pack);
   store.close();
 

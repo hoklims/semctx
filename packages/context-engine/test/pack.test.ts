@@ -4,6 +4,8 @@ import {
   parseTaskDocument,
   defaultTaskExtractor,
   extractionContext,
+  sealProviderCandidates,
+  stableProviderSourceSeal,
 } from "@semantic-context/context-engine";
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import type { ContextPack, RepositoryGraph } from "@semantic-context/core";
@@ -94,21 +96,106 @@ describe("NON-REGRESSION — deprecated lexical neighbour is never authoritative
 });
 
 describe("semantic-provider candidates (optional, ADR 0004)", () => {
-  it("folds a candidate into secondary + records the provider, never authoritative", () => {
+  const SOURCE_SEAL = `sha256:${"a".repeat(64)}`;
+  const rawCandidate = { filePath: EXPECTED.decoyModule, score: 0.9, provider: "cocoindex" };
+  const providerInput = { query: taskFrame.rawTask, repositoryRoot: "C:/repo", limit: 20 };
+
+  it("downgrades provider authority when any before/after/final source capture drifts", () => {
+    expect(stableProviderSourceSeal(SOURCE_SEAL, SOURCE_SEAL, SOURCE_SEAL)).toBe(SOURCE_SEAL);
+    expect(stableProviderSourceSeal(SOURCE_SEAL, `sha256:${"b".repeat(64)}`, SOURCE_SEAL)).toBeUndefined();
+    expect(stableProviderSourceSeal(SOURCE_SEAL, SOURCE_SEAL, `sha256:${"c".repeat(64)}`)).toBeUndefined();
+    expect(stableProviderSourceSeal(undefined, undefined, undefined)).toBeUndefined();
+  });
+
+  it("keeps unsealed candidates diagnostic-only", () => {
     const withCandidate = prepareContextPack({
       graph: analysis.graph,
       evidence: analysis.evidence,
       claims,
       taskFrame,
       now: NOW,
-      providerCandidates: [{ filePath: EXPECTED.decoyModule, score: 0.9, provider: "cocoindex" }],
+      providerCandidates: [rawCandidate],
     });
     expect(withCandidate.meta.candidateProviders).toContain("cocoindex");
-    // The provider surfaced the decoy -> it appears in secondary consideration...
+    expect(withCandidate.secondaryNodes.map((n) => n.filePath)).not.toContain(EXPECTED.decoyModule);
+    expect(withCandidate.meta.warnings).toContain(
+      `[PROVIDER_FACT_UNSEALED] Provider candidate cocoindex:${EXPECTED.decoyModule} is diagnostic-only; ignored.`,
+    );
+  });
+
+  it("folds only an exact source-sealed candidate into secondary, never authoritative", () => {
+    const [sealed] = sealProviderCandidates(
+      [rawCandidate],
+      { ...providerInput, providerIdentity: "cocoindex", providerVersion: "ccc@1.2.3" },
+      { sourceRepositorySealHash: SOURCE_SEAL, capturedAt: NOW },
+    );
+    const withCandidate = prepareContextPack({
+      graph: analysis.graph,
+      evidence: analysis.evidence,
+      claims,
+      taskFrame,
+      now: NOW,
+      providerCandidates: sealed === undefined ? [] : [sealed],
+      providerInput,
+      expectedProviderSourceSealHash: SOURCE_SEAL,
+    });
     expect(withCandidate.secondaryNodes.map((n) => n.filePath)).toContain(EXPECTED.decoyModule);
-    // ...but a candidate NEVER becomes an authoritative read or a hard constraint.
     expect(withCandidate.recommendedReads.map((r) => r.path)).not.toContain(EXPECTED.decoyModule);
     for (const claim of withCandidate.authoritativeClaims) expect(claim.verificationStatus).not.toBe("deprecated");
+  });
+
+  it("rejects source-state mismatches and tampered facts with explicit reasons", () => {
+    const [sealed] = sealProviderCandidates(
+      [rawCandidate],
+      { ...providerInput, providerIdentity: "cocoindex", providerVersion: "ccc@1.2.3" },
+      { sourceRepositorySealHash: SOURCE_SEAL, capturedAt: NOW },
+    );
+    expect(sealed).toBeDefined();
+    const mismatched = prepareContextPack({
+      graph: analysis.graph,
+      evidence: analysis.evidence,
+      claims,
+      taskFrame,
+      now: NOW,
+      providerCandidates: [sealed!],
+      providerInput,
+      expectedProviderSourceSealHash: `sha256:${"b".repeat(64)}`,
+    });
+    expect(mismatched.meta.warnings.some((warning) => warning.startsWith("[PROVIDER_SOURCE_SEAL_MISMATCH]"))).toBe(true);
+
+    const tampered = prepareContextPack({
+      graph: analysis.graph,
+      evidence: analysis.evidence,
+      claims,
+      taskFrame,
+      now: NOW,
+      providerCandidates: [{ ...sealed!, score: 1 }],
+      providerInput,
+      expectedProviderSourceSealHash: SOURCE_SEAL,
+    });
+    expect(tampered.meta.warnings.some((warning) => warning.startsWith("[PROVIDER_FACT_INVALID]"))).toBe(true);
+    expect(tampered.secondaryNodes.map((node) => node.filePath)).not.toContain(EXPECTED.decoyModule);
+  });
+
+  it("rejects a candidate sealed for a different provider query", () => {
+    const [sealed] = sealProviderCandidates(
+      [rawCandidate],
+      { ...providerInput, providerIdentity: "cocoindex", providerVersion: "ccc@1.2.3" },
+      { sourceRepositorySealHash: SOURCE_SEAL, capturedAt: NOW },
+    );
+    const mismatched = prepareContextPack({
+      graph: analysis.graph,
+      evidence: analysis.evidence,
+      claims,
+      taskFrame,
+      now: NOW,
+      providerCandidates: [sealed!],
+      providerInput: { ...providerInput, query: "different-query" },
+      expectedProviderSourceSealHash: SOURCE_SEAL,
+    });
+
+    expect(mismatched.meta.warnings.some((warning) => warning.startsWith("[PROVIDER_INPUT_DIGEST_MISMATCH]"))).toBe(true);
+    expect(mismatched.secondaryNodes.map((node) => node.filePath)).not.toContain(EXPECTED.decoyModule);
   });
 });
 

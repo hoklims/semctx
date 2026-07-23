@@ -83,12 +83,12 @@ repository state.
       stale or unsealed inputs.
 - [x] **Cross-plane link consistency** — Plane B link checks and Plane C coordinate construction
       must share the same file/node resolver and report the same dangling or stale references.
-- [ ] **Honest semantic scaffold** — generate comments/placeholders rather than active
+- [x] **Honest semantic scaffold** — generate comments/placeholders rather than active
       `goal.example.*` / `invariant.example.*` truths; examples must never enter a project model
       unless explicitly activated.
-- [ ] **Lifecycle hygiene** — detect obsolete active changes, stale evidence baselines and active
+- [x] **Lifecycle hygiene** — detect obsolete active changes, stale evidence baselines and active
       working pointers that no longer match the selected contract.
-- [ ] **Derived-provider seal** — optional graphs or candidate providers may orient discovery, but
+- [x] **Derived-provider seal** — optional graphs or candidate providers may orient discovery, but
       Plane C accepts their facts only with an exact source-state seal and provenance.
 
 **Gate:** every acceptance criterion in [#25](https://github.com/hoklims/semctx/issues/25) is green.

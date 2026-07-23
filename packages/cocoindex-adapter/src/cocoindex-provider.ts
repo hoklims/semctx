@@ -22,13 +22,21 @@ export class CocoIndexCandidateProvider implements SemanticCandidateProvider {
     this.command = options.command ?? "ccc";
   }
 
-  async isAvailable(): Promise<boolean> {
+  async version(): Promise<string | null> {
     try {
       const proc = Bun.spawnSync([this.command, "--version"], { stdout: "pipe", stderr: "pipe" });
-      return proc.exitCode === 0;
+      if (proc.exitCode !== 0) return null;
+      const stdout = new TextDecoder().decode(proc.stdout).trim();
+      const stderr = new TextDecoder().decode(proc.stderr).trim();
+      const version = stdout.length > 0 ? stdout : stderr;
+      return version.length > 0 ? version.split(/\r?\n/, 1)[0] ?? null : null;
     } catch {
-      return false;
+      return null;
     }
+  }
+
+  async isAvailable(): Promise<boolean> {
+    return (await this.version()) !== null;
   }
 
   async search(input: SemanticSearchInput): Promise<SemanticCandidate[]> {
