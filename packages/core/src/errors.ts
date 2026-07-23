@@ -8,6 +8,7 @@ export type SemctxErrorCode =
   | "STORE_ERROR"
   | "GIT_ERROR"
   | "GIT_BASE_UNAVAILABLE"
+  | "CONTROL_INPUTS_UNSAFE"
   | "IO_ERROR"
   | "UNSUPPORTED";
 

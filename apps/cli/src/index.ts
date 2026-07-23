@@ -14,6 +14,7 @@ import { runDoctor } from "./commands/doctor";
 import { runSemantic } from "./commands/semantic";
 import { runChange } from "./commands/change";
 import { runControl } from "./commands/control";
+import { runStatus } from "./commands/status";
 
 const HELP = `semctx — repository change-impact analyzer
 
@@ -36,6 +37,7 @@ Core:
       --dry-run                      show the resolved range + config; no analysis, no writes
   inspect symbol|capability <q>    inspect the graph around a symbol or capability
   doctor                           workspace health check
+  status [--json]                  control freshness preflight (FRESH/DIRTY_KNOWN/STALE/UNSEALED)
 
 Semantic layer (authored intent, invariants, decisions, evidence, change contracts):
   semantic <init|check|inspect|render|format|slice|handoff|resume>
@@ -109,6 +111,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
       return runChange(root, args);
     case "control":
       return runControl(root, args);
+    case "status":
+      return runStatus(root, args);
     case "doctor":
       return runDoctor(root, args);
     default:
@@ -127,7 +131,7 @@ async function main(): Promise<void> {
     if (isSemctxError(err)) {
       fail(`[${err.code}] ${err.message}`);
       if (Object.keys(err.details).length > 0) info(c.dim(JSON.stringify(err.details, null, 2)));
-      process.exit(1);
+      process.exit(err.code === "CONTROL_INPUTS_UNSAFE" ? 3 : 1);
     }
     fail(err instanceof Error ? (err.stack ?? err.message) : String(err));
     process.exit(1);

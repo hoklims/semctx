@@ -2,7 +2,11 @@ import { describe, it, expect } from "bun:test";
 // The guard ships as runnable Node ESM (it runs on machines without Bun). bun:test imports it
 // directly; main() is guarded by an argv check so importing does not execute it.
 import { isTerminalGitCommand, guardEnabled, guardDecision, resolveGitCwd } from "../hooks/semctx-guard.mjs";
-import { resolve } from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 describe("isTerminalGitCommand — structural detection (no shell eval)", () => {
   it("detects commit and push, including global options and env assignments", () => {
@@ -74,6 +78,52 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
     const d = guardDecision({ enabled: true, terminalVerb: "commit", state: { diffHash: HASH, verdict: "BLOCK" }, currentHash: HASH });
     expect(d.block).toBe(true);
     expect(d.reason).toContain("was BLOCK");
+  });
+});
+
+describe("guard runtime — large working diffs", () => {
+  it("preserves the verification hash for a multi-megabyte diff", () => {
+    const repo = mkdtempSync(join(tmpdir(), "semctx-guard-large-diff-"));
+    try {
+      execFileSync("git", ["init"], { cwd: repo, stdio: "ignore" });
+      writeFileSync(join(repo, "large.txt"), "a".repeat(2 * 1024 * 1024));
+      execFileSync("git", ["add", "large.txt"], { cwd: repo, stdio: "ignore" });
+      execFileSync(
+        "git",
+        ["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "baseline"],
+        { cwd: repo, stdio: "ignore" },
+      );
+
+      writeFileSync(join(repo, "large.txt"), "b".repeat(2 * 1024 * 1024));
+      const diff = execFileSync(
+        "git",
+        ["diff", "HEAD", "--relative", "--unified=0", "--no-color"],
+        { cwd: repo, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 },
+      );
+      const diffHash = `sha256:${createHash("sha256").update(diff).digest("hex")}`;
+
+      mkdirSync(join(repo, ".semctx"));
+      writeFileSync(join(repo, ".semctx", "guard.json"), JSON.stringify({ enabled: true }));
+      writeFileSync(
+        join(repo, ".semctx", "verification-state.json"),
+        JSON.stringify({ verdict: "PASS", diffHash }),
+      );
+
+      const guard = resolve(import.meta.dir, "../hooks/semctx-guard.mjs");
+      const result = spawnSync("node", [guard], {
+        cwd: repo,
+        input: JSON.stringify({
+          tool_name: "Bash",
+          tool_input: { command: "git commit -m x" },
+          cwd: repo,
+        }),
+        encoding: "utf8",
+      });
+
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
   });
 });
 

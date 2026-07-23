@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { SemctxError, SemctxConfigSchema, createDefaultConfig } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
 import { SqliteRepositoryStore } from "./store";
@@ -30,7 +30,8 @@ export function isInitialized(root: string): boolean {
 export function initWorkspace(root: string, overrides?: Partial<SemctxConfig>): SemctxConfig {
   mkdirSync(semctxDir(root), { recursive: true });
   mkdirSync(contextPacksDir(root), { recursive: true });
-  const config: SemctxConfig = { ...createDefaultConfig(root), ...overrides, repositoryRoot: root };
+  const repositoryRoot = realpathSync.native(resolve(root));
+  const config: SemctxConfig = { ...createDefaultConfig(repositoryRoot), ...overrides, repositoryRoot };
   saveConfig(root, config);
   return config;
 }
@@ -58,8 +59,8 @@ export function loadConfig(root: string): SemctxConfig {
       issues: parsed.error.issues,
     });
   }
-  // Always trust the on-disk root at runtime (repo may have moved).
-  return { ...parsed.data, repositoryRoot: root };
+  // Always trust one canonical spelling of the on-disk root at runtime (repo may have moved).
+  return { ...parsed.data, repositoryRoot: realpathSync.native(resolve(root)) };
 }
 
 export function openStore(root: string): SqliteRepositoryStore {

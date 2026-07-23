@@ -1,9 +1,10 @@
 /** Thin Plane C MCP transport over the shared application services. */
 
-import { planControlMigration, traceControl } from "@semantic-context/app-services";
+import { controlStatus, planControlMigration, traceControl } from "@semantic-context/app-services";
 import type {
   ArchitectureDelta,
   ArchitectureSnapshot,
+  ControlFreshnessStatusReport,
   MigrationPlanReport,
   QualifiedCoordinateId,
   SemanticLevel,
@@ -23,6 +24,10 @@ export interface ControlPlanInput {
   changeId: string;
   target?: ArchitectureSnapshot;
   delta?: ArchitectureDelta;
+}
+
+export function controlStatusTool(root: string): ControlFreshnessStatusReport {
+  return controlStatus(root);
 }
 
 export function controlTraceTool(root: string, input: ControlTraceInput): TraversalReport {

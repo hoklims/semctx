@@ -4,13 +4,18 @@ import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
-import { initWorkspace, openStore } from "@semantic-context/repository-store";
-import { analyzeRepository } from "@semantic-context/ts-analyzer";
-import { controlPlanTool, controlTraceTool } from "../src/control-tools";
+import { initWorkspace } from "@semantic-context/repository-store";
+import { indexRepository } from "@semantic-context/app-services";
+import { controlPlanTool, controlStatusTool, controlTraceTool } from "../src/control-tools";
 
 let root: string;
 const CHANGE = "change.control-plane-mcp";
 const BLOCKED_CHANGE = "change.control-plane-mcp-open-unknown";
+
+function git(cwd: string, ...args: string[]): void {
+  const result = Bun.spawnSync(["git", ...args], { cwd, stdout: "pipe", stderr: "pipe" });
+  if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+}
 
 function snapshot(dir: string): string {
   const records: Array<{ path: string; bytes: string }> = [];
@@ -28,12 +33,8 @@ function snapshot(dir: string): string {
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), "semctx-control-mcp-"));
   cpSync(SAMPLE_REPO, root, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
-  const config = initWorkspace(root);
-  const analyzed = analyzeRepository(config);
-  const store = openStore(root);
-  store.saveGraph(analyzed.graph, analyzed.evidence);
-  store.setMeta("indexed_at", "2026-07-19T00:00:00.000Z");
-  store.close();
+  git(root, "init");
+  initWorkspace(root);
   initSemanticScaffold(root);
   writeChangeFile(root, newChangeContract({
     id: CHANGE,
@@ -48,15 +49,31 @@ beforeAll(() => {
     provenance: "author",
     openUnknowns: ["unknown.runtime-consumer"],
   }));
+  git(root, "add", ".");
+  git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
+  indexRepository(root, "2026-07-19T00:00:00.000Z");
 });
 
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 describe("Plane C MCP handlers", () => {
+  it("reports the explicit freshness verdict without mutating the repository", () => {
+    const before = snapshot(root);
+    expect(controlStatusTool(root)).toMatchObject({
+      kind: "control_freshness_status",
+      basis: "control_index_snapshot_v1",
+      verdict: "FRESH",
+      canRunHighRiskControl: true,
+      reasons: [],
+    });
+    expect(snapshot(root)).toBe(before);
+  });
+
   it("returns BLOCKED without a target and READY with an explicit target", () => {
     const blocked = controlPlanTool(root, { changeId: CHANGE });
     expect(blocked.plan.status).toBe("BLOCKED");
     expect(blocked.plan.blockedReason).toBe("target_architecture_missing");
+    expect(blocked.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
 
     const current = blocked.plan.current;
     const ready = controlPlanTool(root, {
@@ -75,6 +92,7 @@ describe("Plane C MCP handlers", () => {
     const report = controlTraceTool(root, { sourceId, direction: "lift", maxDepth: 4, maxResults: 10 });
     expect(report.schemaVersion).toBe(1);
     expect(report.sourceId).toBe(sourceId);
+    expect(report.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(snapshot(root)).toBe(before);
   });
 

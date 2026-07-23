@@ -12,6 +12,11 @@ const repoRoot = resolve(import.meta.dir, "../../..");
 const pluginDist = resolve(repoRoot, "plugins/semctx-control/dist");
 const temporary: string[] = [];
 
+function git(cwd: string, ...args: string[]): void {
+  const result = Bun.spawnSync(["git", ...args], { cwd, stdout: "pipe", stderr: "pipe" });
+  if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+}
+
 afterEach(() => {
   for (const path of temporary.splice(0)) rmSync(path, { recursive: true, force: true });
 });
@@ -28,7 +33,10 @@ describe("packaged MCP runtime", () => {
     expect(runtime).not.toContain(JSON.stringify(repoRoot).slice(1, -1));
     expect(runtime).not.toMatch(/typescript@[^"']+node_modules[^"']+typescript[^"']+lib/);
     cpSync(SAMPLE_REPO, target, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
+    git(target, "init");
     initWorkspace(target);
+    git(target, "add", ".");
+    git(target, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
     indexRepository(target, "2026-07-20T00:00:00.000Z");
 
     const environment = Object.fromEntries(
@@ -40,8 +48,24 @@ describe("packaged MCP runtime", () => {
     try {
       await client.connect(transport);
       const { tools } = await client.listTools();
-      expect(tools).toHaveLength(13);
+      expect(tools).toHaveLength(14);
       expect(tools.some((tool) => tool.name === "semctx_change_close")).toBe(true);
+      const status = await client.callTool({
+        name: "semctx_control_status",
+        arguments: { repositoryRoot: target },
+      });
+      expect(status.isError).not.toBe(true);
+      if (!Array.isArray(status.content)) throw new Error("MCP status content must be an array");
+      const statusBlock = status.content[0];
+      if (typeof statusBlock !== "object" || statusBlock === null || !("type" in statusBlock)) {
+        throw new Error("MCP status must contain a typed content block");
+      }
+      const statusPayload = JSON.parse(
+        statusBlock.type === "text" && "text" in statusBlock && typeof statusBlock.text === "string"
+          ? statusBlock.text
+          : "{}",
+      );
+      expect(statusPayload.verdict).toBe("FRESH");
       const response = await client.callTool({
         name: "semctx_verify_change",
         arguments: { repositoryRoot: target, gitDiff: "diff --git a/noop.ts b/noop.ts" },

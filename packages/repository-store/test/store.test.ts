@@ -67,6 +67,26 @@ describe("SqliteRepositoryStore", () => {
     expect(must(store.loadClaims()[0]).verificationStatus).toBe("tested");
   });
 
+  it("replaces the complete index snapshot and metadata together", () => {
+    const claims: Claim[] = [{
+      id: "claim:behavior:snapshot",
+      kind: "behavior",
+      statement: "snapshot is atomic",
+      subjectNodeIds: ["mod:a.ts"],
+      evidenceIds: [],
+      authority: 1,
+      freshness: 1,
+      confidence: 1,
+      verificationStatus: "tested",
+      tags: [],
+    }];
+    store.replaceIndex({ graph, evidence, claims, metadata: { indexed_at: "2026-07-21T00:00:00.000Z", seal: "bound" } });
+    expect(store.loadGraph()).toEqual(graph);
+    expect(store.loadEvidence()).toEqual(evidence);
+    expect(store.loadClaims()).toEqual(claims);
+    expect(store.getMeta("seal")).toBe("bound");
+  });
+
   it("round-trips a task frame", () => {
     const tf: TaskFrame = {
       id: "task:deadbeef",

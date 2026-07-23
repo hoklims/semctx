@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import packageJson from "../package.json";
 import { z } from "zod";
 import { isAbsolute, resolve } from "node:path";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
@@ -12,7 +13,7 @@ import {
   handoffTool,
   resumeTool,
 } from "./semantic-tools";
-import { controlPlanTool, controlTraceTool } from "./control-tools";
+import { controlPlanTool, controlStatusTool, controlTraceTool } from "./control-tools";
 import {
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
@@ -51,7 +52,7 @@ function errorResult(err: unknown): TextResult {
 
 /** Build the semctx MCP server bound to a repository root. */
 export function createSemctxServer(root: string): McpServer {
-  const server = new McpServer({ name: "semctx", version: "0.1.7" });
+  const server = new McpServer({ name: "semctx", version: packageJson.version });
 
   // --- Primary tool: change-impact analysis + verdict. Deterministic, marker-independent.
   server.registerTool(
@@ -321,6 +322,29 @@ export function createSemctxServer(root: string): McpServer {
   );
 
   // --- Control plane (Plane C): read-only coordinates and fail-closed migration planning.
+  server.registerTool(
+    "semctx_control_status",
+    {
+      title: "Check control-plane freshness",
+      description:
+        "Read-only preflight returning FRESH, DIRTY_KNOWN, STALE, or UNSEALED. High-risk control operations fail closed on STALE or UNSEALED inputs.",
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+    },
+    async ({ repositoryRoot }) => {
+      try {
+        return ok(controlStatusTool(requestRoot(root, repositoryRoot)));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
   server.registerTool(
     "semctx_control_trace",
     {

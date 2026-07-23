@@ -6,7 +6,7 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { compareIds } from "@semantic-context/core";
+import { compareIds, SemctxError } from "@semantic-context/core";
 import { parseSemanticSource, formatModel } from "@semantic-context/semantic-dsl";
 import type { Diagnostic } from "@semantic-context/semantic-dsl";
 import { mergeModels, emptyModel } from "@semantic-context/semantic-model";
@@ -27,7 +27,9 @@ function listSemFiles(dir: string): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) out.push(...listSemFiles(full));
-    else if (entry.name.endsWith(".sem")) out.push(full);
+    else if (entry.isSymbolicLink() && entry.name.endsWith(".sem")) {
+      throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { file: full });
+    } else if (entry.isFile() && entry.name.endsWith(".sem")) out.push(full);
   }
   return out;
 }

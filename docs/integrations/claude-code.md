@@ -67,7 +67,7 @@ preservation, or a generic project demonstration.
 | --- | --- | --- |
 | A | `semctx_inspect`, `semctx_verify_change` | observed graph, impact, recommended tests, `PASS/WARN/BLOCK` |
 | B | `semctx_semantic_slice`, `semctx_semantic_inspect`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_handoff`, `semctx_resume` | authored intent, proof-carrying contracts and rehydration |
-| C | `semctx_control_trace`, `semctx_control_plan` | read-only L0-L6 trace and fail-closed migration planning |
+| C | `semctx_control_status`, `semctx_control_trace`, `semctx_control_plan` | read-only freshness preflight, L0-L6 trace and fail-closed migration planning |
 
 `semctx_prepare_task` remains experimental and is not a code-search replacement.
 
@@ -75,13 +75,15 @@ preservation, or a generic project demonstration.
 
 1. Use normal repository search and Git inspection first.
 2. Resume or slice existing authored intent when it exists.
-3. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
-4. Call `semctx_control_plan` only with an explicit target architecture.
-5. For a user-authorized write, open or update a change contract before substantial edits.
-6. Make the smallest coherent change.
-7. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
+3. Call `semctx_control_status`. Continue high-risk control work only for `FRESH` or `DIRTY_KNOWN`.
+4. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
+5. Record the returned status, seal hash, and any current/indexed mismatch as explicit facts.
+6. Call `semctx_control_plan` only with an explicit target architecture.
+7. For a user-authorized write, open or update a change contract before substantial edits.
+8. Make the smallest coherent change.
+9. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
    compose `semctx_change_verify` when a contract exists.
-8. Write a handoff only for write-scoped work; read-only work remains mutation-free.
+10. Write a handoff only for write-scoped work; read-only work remains mutation-free.
 
 ## Decision semantics
 
@@ -92,6 +94,10 @@ preservation, or a generic project demonstration.
 `PASS` does not replace runtime tests. `PARTIAL` must name the missing proof. `STALE` requires
 re-linking. `READY` is a planning state, never execution authority. Plane C has no executor and
 never performs a cutover, deployment or deletion.
+
+`ControlFreshnessSeal` remains a local input attestation rather than an authenticity signature.
+`semctx_control_status` owns the `FRESH` / `DIRTY_KNOWN` / `STALE` / `UNSEALED` decision; Claude
+Code preserves its reasons and current/indexed evidence verbatim.
 
 ## Generic demonstration objective
 

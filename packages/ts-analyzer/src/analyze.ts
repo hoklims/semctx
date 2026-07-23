@@ -118,8 +118,8 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
   { filePath: relPath, startLine: line, sourceKind: kind },
 ];
 
-export function analyzeRepository(config: SemctxConfig): AnalysisResult {
-  const files = discoverFiles(config);
+export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[]): AnalysisResult {
+  const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const builder = new GraphBuilder();
 
   const repoNodeId = repositoryId(config.repositoryRoot);

@@ -36,6 +36,7 @@ describe("semctx MCP tool metadata", () => {
     for (const name of [
       "semctx_semantic_slice",
       "semctx_resume",
+      "semctx_control_status",
       "semctx_control_trace",
       "semctx_control_plan",
     ]) {

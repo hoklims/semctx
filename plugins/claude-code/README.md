@@ -11,8 +11,9 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
 - **Semantic-layer tools**: `semctx_semantic_slice`, `semctx_change_open`,
   `semctx_change_update`, `semctx_change_verify`, `semctx_semantic_inspect`, `semctx_handoff`,
   `semctx_resume` — authored intent, invariants, decisions, evidence and unknowns (Plane B).
-- **Control-plane tools**: read-only `semctx_control_trace` and `semctx_control_plan` for bounded
-  L0-L6 reconstruction and fail-closed migration planning (Plane C).
+- **Control-plane tools**: read-only `semctx_control_status`, `semctx_control_trace`, and
+  `semctx_control_plan` for freshness preflight, bounded L0-L6 reconstruction, and fail-closed
+  migration planning (Plane C).
 - **Shared skill**: `skills/semctx-control`, byte-identical to the Codex workflow contract.
 - **Focused skills**: `skills/semctx-verify` for Plane A and `skills/semctx-semantic` for Plane B.
 - **Guard hook** (`hooks/`): a `PreToolUse` guard that is **inert by default** (advisory) and, when
@@ -22,7 +23,7 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
 ## Shared Codex/Claude contract
 
 Both plugins now use the same `semctx-control` skill and the same MCP server identity. They follow
-the same sequence: inspect normally → rehydrate intent → trace L0-L6 → compile a plan → open a
+the same sequence: inspect normally → rehydrate intent → check freshness → trace L0-L6 → compile a plan → open a
 change contract only for user-authorized writes → edit → verify impact → run runtime checks →
 compose the final verdict.
 

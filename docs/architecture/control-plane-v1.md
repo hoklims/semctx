@@ -16,6 +16,64 @@ Plane C never writes back into A or B. Its CLI and MCP adapters open the existin
 a narrow read-only interface and load Plane B from its authored files. Missing inputs produce a
 versioned `BLOCKED` report, not an inferred target.
 
+## Control freshness seal
+
+Every successful index now captures one versioned `control_index_snapshot_v1` envelope and writes
+the graph, evidence, claims and envelope in the same SQLite transaction. The envelope records the
+canonical root, captured `HEAD`, Plane A repository-graph hash, direct analyzer-input manifest, full
+Plane B semantic-model hash, working-diff hash, store/tool versions and capture time. `semctx setup`
+creates or preserves Plane B before indexing, so the semantic model belongs to the state being
+sealed.
+
+`semctx index --json`, Plane C trace reports and migration-plan reports expose a strict
+`ControlFreshnessSeal`. It binds:
+
+- the canonical local repository `realpath`;
+- `headAtCapture` and the distinct `indexedHeadCommit`;
+- current and indexed Plane A graph hashes;
+- current and indexed analyzer-input hashes (parsed config plus every discovered source/test/doc/
+  migration path, role and content hash, including inputs ignored by Git);
+- current and indexed Plane B hashes, including source file/line provenance;
+- current and indexed working-diff hashes;
+- seal schema, store schema and producing application-service version.
+
+All hashes use domain-separated SHA-256 v1 inputs and deterministic code-unit ordering. One
+`--no-optional-locks` Git porcelain-v2 capture binds `HEAD`, staged object ids, tracked worktree bytes
+and non-ignored untracked paths/modes/bytes without refreshing the Git index. Semctx's own mutable
+SQLite files (`semctx.db` plus WAL, SHM and journal sidecars) are excluded from that working-diff
+hash; the persisted envelope, graph and store schema bind their authoritative content instead. The
+independent analyzer-input manifest covers ignored and `skip-worktree` inputs that Git status may
+omit. Git errors fail closed instead of becoming the hash of an empty diff. Submodules and untracked
+symlinks are explicitly unsupported in v1; semantic-model symlinks are rejected.
+
+The direct analyzer manifest is the parsed Semctx config plus bytes returned by `discoverFiles`.
+TypeScript can additionally consult dependency declarations or package metadata while resolving a
+program; v1 binds their effect in the persisted repository-graph hash but does not enumerate every
+external resolution read. This remains a declared residual boundary of the verdict. A future analyzer
+snapshot/`CompilerHost` should record
+those reads if dependency-resolution drift becomes an authoritative status input.
+
+The seal is a local consistency attestation, not a signature or authenticity proof: the local SQLite
+store and repository remain editable by the same user. An older index without the versioned envelope
+is represented honestly by null indexed fields, never by a graph fingerprint disguised as a Git
+commit.
+
+## Explicit freshness verdict
+
+`semctx status` and `semctx_control_status` evaluate the seal against the current read-only state:
+
+- `FRESH`: every current/indexed pair matches and the sealed working diff is empty;
+- `DIRTY_KNOWN`: every pair matches and the non-empty working diff exactly matches the sealed diff;
+- `STALE`: at least one current/indexed repository, Git, graph, semantic, analyzer, schema or tool
+  input differs;
+- `UNSEALED`: initialization, index snapshot, Git state or store-schema evidence is absent or invalid.
+
+The versioned status report includes canonical machine reasons, the underlying seal when available,
+and `canRunHighRiskControl`. `FRESH` and `DIRTY_KNOWN` admit control operations; `STALE` and
+`UNSEALED` fail closed. Trace rejects unsafe input before traversal. Plan returns a normal `BLOCKED`
+report with `control_inputs_stale` or `control_inputs_unsealed` and no steps. Status itself never
+initializes, indexes or mutates the repository.
+
 ## Semantic coordinates
 
 Ids are plane-qualified: `repo:<repository-node-id>` or `semantic:<semantic-node-id>`. The mapping is
@@ -104,18 +162,22 @@ rollback are all proven.
 ## Read-only transports
 
 ```text
+semctx status [--json]
 semctx control trace <repo:...|semantic:...> [--to 0..6] [--direction lift|lower] [--json]
 semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
 ```
 
-MCP exposes the equivalent `semctx_control_trace` and `semctx_control_plan` tools. Opening either
+MCP exposes the equivalent `semctx_control_status`, `semctx_control_trace`, and
+`semctx_control_plan` tools. Opening any
 surface must not create `.semctx`, initialize a schema, change metadata, or create SQLite WAL/SHM files.
 
 ## Public output contract
 
-Plane C reports use `schemaVersion: 1`: coordinate graph, traversal, impact, explanation, architecture
+Plane C reports use `schemaVersion: 1`: freshness status, coordinate graph, traversal, impact, explanation, architecture
 comparison, migration plan, transition authorization, step authorization and deletion authorization.
-Fields may be added compatibly; a semantic break requires a new schema version.
+Trace and plan envelopes may additionally carry a `ControlFreshnessSeal` with its independent
+`sealSchemaVersion: 1`. Fields may be added compatibly; a semantic break requires a new schema
+version.
 
 ## Non-goals
 

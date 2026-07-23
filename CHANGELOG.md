@@ -9,6 +9,17 @@ nothing has been published to a package registry (npm) or the GitHub Marketplace
 
 ### Added
 
+- **Explicit control freshness verdict**: read-only CLI `semctx status` and MCP
+  `semctx_control_status` report `FRESH`, `DIRTY_KNOWN`, `STALE`, or `UNSEALED` from the persisted
+  index snapshot. Trace rejects stale/unsealed inputs and migration planning returns a structured
+  fail-closed blocker before consuming them.
+
+- **Control freshness seal**: indexing atomically binds Git `HEAD`, the complete tracked/untracked
+  working delta, the direct analyzer-input manifest (including Git-ignored inputs), Plane A graph,
+  Plane B model, repository root, store schema and producer version.
+  `semctx index --json`, CLI Plane C reports and equivalent MCP reports expose the same strict,
+  domain-separated SHA-256 attestation that the separate status preflight evaluates.
+
 - **Semantic Reconstruction Control Plane (Plane C, read-only)**:
   - `@semantic-context/control-model`: L0-L6 coordinates, explicit coverage, architecture
     snapshots/deltas, proof attestations, migration states/steps and versioned authorization reports.

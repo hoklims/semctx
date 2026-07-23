@@ -93,6 +93,61 @@ export interface CoordinateGraphReport {
   unmapped: UnmappedCoordinateSource[];
 }
 
+export type Sha256Hash = `sha256:${string}`;
+
+export interface ControlFreshnessSeal {
+  sealSchemaVersion: 1;
+  kind: "control_freshness_seal";
+  algorithm: "sha256-v1";
+  repositoryRoot: string;
+  indexedRepositoryRoot: string | null;
+  headAtCapture: string | null;
+  indexedHeadCommit: string | null;
+  repositoryGraphHash: Sha256Hash;
+  indexedRepositoryGraphHash: Sha256Hash | null;
+  semanticModelHash: Sha256Hash;
+  indexedSemanticModelHash: Sha256Hash | null;
+  analysisInputHash: Sha256Hash;
+  indexedAnalysisInputHash: Sha256Hash | null;
+  workingDiffHash: Sha256Hash | null;
+  indexedWorkingDiffHash: Sha256Hash | null;
+  indexedAt: string | null;
+  storeSchemaVersion: number | null;
+  indexedStoreSchemaVersion: number | null;
+  toolVersion: string;
+  indexedToolVersion: string | null;
+  sealHash: Sha256Hash;
+}
+
+export type ControlFreshnessVerdict = "FRESH" | "DIRTY_KNOWN" | "STALE" | "UNSEALED";
+
+export type ControlFreshnessReason =
+  | "REPOSITORY_NOT_INITIALIZED"
+  | "REPOSITORY_NOT_INDEXED"
+  | "INDEX_SNAPSHOT_MISSING"
+  | "INDEX_SNAPSHOT_INVALID"
+  | "GIT_STATE_UNAVAILABLE"
+  | "STORE_SCHEMA_UNAVAILABLE"
+  | "REPOSITORY_ROOT_MISMATCH"
+  | "HEAD_MISMATCH"
+  | "REPOSITORY_GRAPH_MISMATCH"
+  | "SEMANTIC_MODEL_MISMATCH"
+  | "ANALYSIS_INPUT_MISMATCH"
+  | "WORKING_DIFF_MISMATCH"
+  | "STORE_SCHEMA_MISMATCH"
+  | "TOOL_VERSION_MISMATCH"
+  | "WORKING_TREE_DIRTY";
+
+export interface ControlFreshnessStatusReport {
+  schemaVersion: 1;
+  kind: "control_freshness_status";
+  basis: "control_index_snapshot_v1";
+  verdict: ControlFreshnessVerdict;
+  canRunHighRiskControl: boolean;
+  reasons: ControlFreshnessReason[];
+  freshnessSeal: ControlFreshnessSeal | null;
+}
+
 export type TraversalDirection = "lift" | "lower";
 
 export interface TraversalReport {
@@ -106,6 +161,8 @@ export interface TraversalReport {
   maxQueue: number;
   paths: CoordinatePath[];
   truncated: boolean;
+  freshnessSeal?: ControlFreshnessSeal;
+  freshnessStatus?: ControlFreshnessStatusReport;
 }
 
 export interface ImpactedCoordinate {
@@ -307,6 +364,8 @@ export interface MigrationStep {
 
 export type MigrationPlanStatus = "READY" | "BLOCKED";
 export type MigrationPlanBlockedReason =
+  | "control_inputs_stale"
+  | "control_inputs_unsealed"
   | "target_architecture_missing"
   | "architecture_delta_missing"
   | "architecture_delta_inconsistent"
@@ -355,6 +414,8 @@ export interface MigrationPlan {
 export interface MigrationPlanReport {
   schemaVersion: 1;
   plan: MigrationPlan;
+  freshnessSeal?: ControlFreshnessSeal;
+  freshnessStatus?: ControlFreshnessStatusReport;
 }
 
 export type AuthorizationDecision = "ALLOW" | "DENY";
@@ -481,6 +542,7 @@ export interface MigrationPlanningInput {
 
 export type PublicControlReport =
   | CoordinateGraphReport
+  | ControlFreshnessStatusReport
   | TraversalReport
   | ImpactReport
   | ExplanationReport
