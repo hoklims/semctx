@@ -1,4 +1,4 @@
-import { evidenceId, capabilityId, invariantId, compareIds } from "@semantic-context/core";
+import { evidenceId, capabilityId, invariantId, compareIds, normalizePath } from "@semantic-context/core";
 import type {
   Claim,
   TaskFrame,
@@ -72,9 +72,11 @@ export function buildContextPack(opts: BuildPackOptions): ContextPack {
   const candidateProviderNames = new Set<string>(opts.candidateProviders ?? []);
   const candidateNodeIds = new Set<string>();
   const providerWarnings: string[] = [];
-  const orderedCandidates = [...(opts.providerCandidates ?? [])].sort(
-    (a, b) => compareIds(a.provider, b.provider) || compareIds(a.filePath, b.filePath),
-  );
+  const orderedCandidates = [...(opts.providerCandidates ?? [])]
+    .map((candidate) => ({ ...candidate, filePath: normalizePath(candidate.filePath) }))
+    .sort(
+      (a, b) => compareIds(a.provider, b.provider) || compareIds(a.filePath, b.filePath),
+    );
   for (const candidate of orderedCandidates) {
     candidateProviderNames.add(candidate.provider);
     const validation = validateProviderCandidate(candidate, {

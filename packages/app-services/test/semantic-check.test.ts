@@ -130,6 +130,8 @@ describe("semantic lifecycle hygiene", () => {
       "ACTIVE_CHANGE_POINTER_INVALID",
       "EVIDENCE_BASELINE_STALE",
     ]);
+    expect(report.lifecycleFindings.find((finding) => finding.code === "EVIDENCE_BASELINE_STALE")?.message)
+      .toBe("The recorded verification baseline does not match the current commit-bound working state.");
   });
 
   it("invalidates evidence baselines after HEAD movement or an untracked source change", () => {

@@ -245,4 +245,18 @@ describe("atomic provider attestation", () => {
       capturedAt: NOW,
     }))[0]?.seal).toBeUndefined();
   });
+
+  it("keeps available provider results diagnostic-only when the version is unknown", async () => {
+    const provider: SemanticCandidateProvider = {
+      name: "attested",
+      version: async () => null,
+      isAvailable: async () => true,
+      search: async () => raw,
+    };
+
+    expect(await fetchCandidatesFromProvider(provider, input, {
+      sourceRepositorySealHash: sourceSeal,
+      capturedAt: NOW,
+    })).toEqual(raw);
+  });
 });

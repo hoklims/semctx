@@ -120,7 +120,7 @@ export function inspectSemanticLifecycle(root: string, changes: readonly ChangeC
     findings.push({
       code: "EVIDENCE_BASELINE_STALE",
       severity: "error",
-      message: "The recorded verification baseline does not match the current working diff.",
+      message: "The recorded verification baseline does not match the current commit-bound working state.",
       subjectIds: [],
     });
   }

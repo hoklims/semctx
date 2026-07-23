@@ -144,6 +144,30 @@ describe("semantic-provider candidates (optional, ADR 0004)", () => {
     for (const claim of withCandidate.authoritativeClaims) expect(claim.verificationStatus).not.toBe("deprecated");
   });
 
+  it("normalizes Windows-shaped sealed candidate paths before graph lookup", () => {
+    const windowsCandidate = { ...rawCandidate, filePath: EXPECTED.decoyModule.replace(/\//g, "\\") };
+    const [sealed] = sealProviderCandidates(
+      [windowsCandidate],
+      { ...providerInput, providerIdentity: "cocoindex", providerVersion: "ccc@1.2.3" },
+      { sourceRepositorySealHash: SOURCE_SEAL, capturedAt: NOW },
+    );
+    const withCandidate = prepareContextPack({
+      graph: analysis.graph,
+      evidence: analysis.evidence,
+      claims,
+      taskFrame,
+      now: NOW,
+      providerCandidates: sealed === undefined ? [] : [sealed],
+      providerInput,
+      expectedProviderSourceSealHash: SOURCE_SEAL,
+    });
+
+    expect(withCandidate.secondaryNodes.map((node) => node.filePath)).toContain(EXPECTED.decoyModule);
+    expect(withCandidate.meta.warnings).not.toContain(
+      `Provider candidate ${windowsCandidate.filePath} is not in the analysed graph; ignored.`,
+    );
+  });
+
   it("rejects source-state mismatches and tampered facts with explicit reasons", () => {
     const [sealed] = sealProviderCandidates(
       [rawCandidate],

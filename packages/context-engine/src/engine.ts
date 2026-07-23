@@ -109,9 +109,9 @@ export async function fetchCandidatesFromProvider(
   input: SemanticSearchInput,
   capture?: ProviderCaptureContext,
 ): Promise<SemanticCandidate[]> {
+  if (!(await provider.isAvailable())) return [];
   const version = provider.version === undefined ? null : await provider.version();
-  if (provider.version === undefined ? !(await provider.isAvailable()) : version === null) return [];
-  if (capture !== undefined && provider.attestedSearch !== undefined) {
+  if (capture !== undefined && version !== null && provider.attestedSearch !== undefined) {
     const result = await provider.attestedSearch(input);
     if (
       result.providerVersion.length > 0
