@@ -21,6 +21,7 @@ import {
   SourceKindLevelMappingSchema,
   serializeControlReport,
   compareCodeUnits,
+  type Sha256Hash,
 } from "@semantic-context/control-model";
 
 const timestamp = "2026-07-19T12:00:00.000Z";
@@ -43,7 +44,7 @@ const delta = {
   changedRelations: [],
   changedInvariantIds: [],
 };
-const hash = `sha256:${"a".repeat(64)}`;
+const hash = `sha256:${"a".repeat(64)}` as Sha256Hash;
 const freshnessSeal = {
   sealSchemaVersion: 1 as const,
   kind: "control_freshness_seal" as const,
@@ -97,24 +98,22 @@ describe("Plane C closed vocabularies", () => {
 });
 
 describe("normative level mapping", () => {
-  it("covers every current repository kind and explicitly leaves L0 unavailable", () => {
+  it("keeps repository kinds unmapped instead of inferring semantic levels", () => {
     expect(REPOSITORY_LEVEL_MAPPING.map((entry) => entry.sourceKind)).toEqual([
       "bounded_context", "capability", "class", "contract", "decision", "document", "enum",
       "external_integration", "function", "interface", "invariant", "migration", "module", "package",
       "repository", "risk", "symbol", "test", "type",
     ]);
-    expect(REPOSITORY_LEVEL_MAPPING.every((entry) => entry.supported && entry.level !== null)).toBe(true);
-    expect(NORMATIVE_LEVEL_MAPPING.some((entry) => entry.level === 0)).toBe(false);
+    expect(REPOSITORY_LEVEL_MAPPING.every((entry) =>
+      !entry.supported && entry.level === null && entry.category === null
+    )).toBe(true);
   });
 
-  it("maps only semantic goals, decisions, and invariants", () => {
-    const supported = SEMANTIC_LEVEL_MAPPING.filter((entry) => entry.supported);
-    expect(supported.map((entry) => [entry.sourceKind, entry.level])).toEqual([
-      ["decision", 5], ["goal", 5], ["invariant", 4],
-    ]);
-    expect(SEMANTIC_LEVEL_MAPPING.filter((entry) => !entry.supported).map((entry) => entry.sourceKind)).toEqual([
-      "assumption", "change", "evidence", "unknown",
-    ]);
+  it("keeps semantic kinds independent from appliesAtLevel", () => {
+    expect(SEMANTIC_LEVEL_MAPPING.every((entry) =>
+      !entry.supported && entry.level === null && entry.category === null
+    )).toBe(true);
+    expect(NORMATIVE_LEVEL_MAPPING.every((entry) => entry.level === null)).toBe(true);
   });
 
   it("rejects implicit levels for unsupported mappings", () => {

@@ -1,0 +1,9 @@
+diff --git a/packages/demo.txt b/packages/demo.txt
+new file mode 100644
+index 0000000..abc123
+--- /dev/null
++++ b/packages/demo.txt
+@@ -1,2 +1,2 @@
+-old
++new
+ keep

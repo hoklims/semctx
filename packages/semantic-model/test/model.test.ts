@@ -10,6 +10,9 @@ import {
   emptyModel,
   DEFAULT_STATUS_BY_KIND,
   PROVEN_STATUSES,
+  SemanticModelSchema,
+  SemanticNodeSchema,
+  normalizeLegacySemanticModelV1,
 } from "@semantic-context/semantic-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
 
@@ -89,5 +92,53 @@ describe("model helpers", () => {
     expect(DEFAULT_STATUS_BY_KIND.goal).toBe("declared");
     expect(PROVEN_STATUSES.has("tested")).toBe(true);
     expect(PROVEN_STATUSES.has("declared")).toBe(false);
+  });
+});
+
+describe("versioned authored refinement model", () => {
+  it("keeps semantic kind independent from an explicit appliesAtLevel", () => {
+    const base = {
+      id: "goal.checkout",
+      kind: "goal" as const,
+      statement: "Checkout remains dependable",
+      status: "declared" as const,
+      provenance: "author" as const,
+      sourceRefs: [],
+      repositoryLinks: [],
+      relations: [],
+      tags: [],
+    };
+
+    expect(SemanticNodeSchema.parse({ ...base, appliesAtLevel: 2 }).kind).toBe("goal");
+    expect(SemanticNodeSchema.parse({ ...base, appliesAtLevel: 6 }).kind).toBe("goal");
+    expect(SemanticNodeSchema.parse({ ...base, kind: "invariant", appliesAtLevel: 6 }).appliesAtLevel).toBe(6);
+  });
+
+  it("reads a legacy model without inventing a level or certifying bare relations", () => {
+    const legacy: SemanticModel = {
+      nodes: [{
+        id: "goal.legacy",
+        kind: "goal",
+        statement: "Legacy",
+        status: "declared",
+        provenance: "author",
+        sourceRefs: [],
+        repositoryLinks: [],
+        relations: [{ kind: "implements", to: "invariant.legacy" }],
+        tags: [],
+      }],
+      changes: [],
+    };
+
+    const normalized = normalizeLegacySemanticModelV1(legacy);
+    expect(normalized.model.nodes[0]?.appliesAtLevel).toBeUndefined();
+    expect(normalized.model.refinementRelations).toEqual([]);
+    expect(normalized.compatibility).toEqual([{
+      schemaVersion: 1,
+      source: "legacy_semantic_dsl_v1",
+      subjectId: "goal.legacy",
+      uncertainties: ["appliesAtLevel", "refinementEvidence"],
+    }]);
+    expect(SemanticModelSchema.parse(normalized.model).nodes[0]?.kind).toBe("goal");
   });
 });

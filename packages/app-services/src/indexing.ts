@@ -1,7 +1,7 @@
 import { SemctxError, type Claim, type SemctxConfig } from "@semantic-context/core";
-import { buildClaims, GraphIndex } from "@semantic-context/context-engine";
+import { buildClaims, GraphIndex, parseObservedDiffHunks } from "@semantic-context/context-engine";
 import { loadConfig, openStore, SCHEMA_VERSION } from "@semantic-context/repository-store";
-import type { ControlFreshnessSeal } from "@semantic-context/control-model";
+import { SealedAttestationIndexV1Schema, type ControlFreshnessSeal } from "@semantic-context/control-model";
 import { loadSemanticModel } from "@semantic-context/semantic-engine";
 import { analyzeRepository, discoverFiles, type AnalysisResult, type DiscoveredFile } from "@semantic-context/ts-analyzer";
 import {
@@ -10,11 +10,18 @@ import {
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,
   captureGitState,
+  captureTrackedWorkingDiff,
+  controlRepositoryIdentity,
   fingerprintAnalysisInputs,
   fingerprintRepositoryFacts,
   fingerprintSemanticModel,
   type IndexedControlSnapshot,
 } from "./freshness";
+import {
+  CONTROL_OBSERVED_HUNK_INDEX_META_KEY,
+  createObservedHunkIndex,
+} from "./control-evidence";
+import { CONTROL_ATTESTATION_INDEX_META_KEY } from "./control-queries";
 import { inspectSemanticLifecycle } from "./semantic-check";
 
 export interface RepositoryAnalysis {
@@ -40,6 +47,12 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
   const repositoryRoot = canonicalRepositoryRoot(root);
   const configBefore = loadConfig(root);
   const gitBefore = captureGitState(root);
+  const repositoryIdentity = controlRepositoryIdentity(root);
+  const trackedDiffBefore = captureTrackedWorkingDiff(root);
+  const observedHunksBefore = parseObservedDiffHunks({
+    repositoryIdentity,
+    diffBytes: trackedDiffBefore,
+  });
   const filesBefore = discoverFiles(configBefore);
   const analysisInputHash = fingerprintAnalysisInputs(configBefore, filesBefore);
   const semanticBefore = loadSemanticModel(root);
@@ -62,11 +75,27 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
   const lifecycleAfter = inspectSemanticLifecycle(root, semanticAfter.model.changes);
   const semanticModelHashAfter = fingerprintSemanticModel(semanticAfter.model);
   const gitAfter = captureGitState(root);
+  const trackedDiffAfter = captureTrackedWorkingDiff(root);
+  const observedHunksAfter = parseObservedDiffHunks({
+    repositoryIdentity,
+    diffBytes: trackedDiffAfter,
+  });
+  const observedIndex = createObservedHunkIndex(
+    repositoryIdentity,
+    gitAfter.workingDiffHash,
+    observedHunksAfter,
+  );
+  const observedIndexBefore = createObservedHunkIndex(
+    repositoryIdentity,
+    gitBefore.workingDiffHash,
+    observedHunksBefore,
+  );
   if (
     gitBefore.headCommit !== gitAfter.headCommit
     || gitBefore.workingDiffHash !== gitAfter.workingDiffHash
     || analysisInputHash !== analysisInputHashAfter
     || semanticModelHash !== semanticModelHashAfter
+    || observedIndexBefore.indexHash !== observedIndex.indexHash
     || JSON.stringify(lifecycleBefore) !== JSON.stringify(lifecycleAfter)
   ) {
     throw new SemctxError("GIT_ERROR", "repository inputs changed while the index was being built", {
@@ -80,24 +109,33 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       lifecycleAfter,
     });
   }
-  const snapshot: IndexedControlSnapshot = {
-    schemaVersion: 1,
-    capturedAt: indexedAt,
-    repositoryRoot,
-    headCommit: gitAfter.headCommit,
-    repositoryGraphHash: fingerprintRepositoryFacts({
-      graph: indexed.analysis.graph,
-      claims: indexed.claims,
-      evidence: indexed.analysis.evidence,
-    }),
-    semanticModelHash: semanticModelHashAfter,
-    analysisInputHash: analysisInputHashAfter,
-    workingDiffHash: gitAfter.workingDiffHash,
-    storeSchemaVersion: SCHEMA_VERSION,
-    toolVersion: CONTROL_FRESHNESS_TOOL_VERSION,
-  };
   const store = openStore(root);
   try {
+    const attestationValue = store.getMeta(CONTROL_ATTESTATION_INDEX_META_KEY);
+    const parsedAttestations = attestationValue === undefined
+      ? null
+      : SealedAttestationIndexV1Schema.safeParse(JSON.parse(attestationValue));
+    const attestationSetHash = parsedAttestations?.success === true
+      ? parsedAttestations.data.attestationSetHash
+      : null;
+    const snapshot: IndexedControlSnapshot = {
+      schemaVersion: 2,
+      capturedAt: indexedAt,
+      repositoryRoot,
+      headCommit: gitAfter.headCommit,
+      repositoryGraphHash: fingerprintRepositoryFacts({
+        graph: indexed.analysis.graph,
+        claims: indexed.claims,
+        evidence: indexed.analysis.evidence,
+      }),
+      semanticModelHash: semanticModelHashAfter,
+      analysisInputHash: analysisInputHashAfter,
+      workingDiffHash: gitAfter.workingDiffHash,
+      storeSchemaVersion: SCHEMA_VERSION,
+      toolVersion: CONTROL_FRESHNESS_TOOL_VERSION,
+      observedHunkIndexHash: observedIndex.indexHash,
+      attestationSetHash,
+    };
     store.replaceIndex({
       graph: indexed.analysis.graph,
       evidence: indexed.analysis.evidence,
@@ -106,27 +144,35 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
         indexed_at: indexedAt,
         indexed_commit: snapshot.headCommit ?? "",
         indexed_repository_graph_hash: snapshot.repositoryGraphHash,
+        [CONTROL_OBSERVED_HUNK_INDEX_META_KEY]: JSON.stringify(observedIndex),
         [CONTROL_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(snapshot),
       },
     });
+    return {
+      ...indexed,
+      freshnessSeal: buildControlFreshnessSeal({
+        repositoryRoot,
+        headAtCapture: gitAfter.headCommit,
+        repositoryFacts: {
+          graph: indexed.analysis.graph,
+          claims: indexed.claims,
+          evidence: indexed.analysis.evidence,
+        },
+        semanticModel: semanticAfter.model,
+        analysisInputHash: analysisInputHashAfter,
+        workingDiffHash: gitAfter.workingDiffHash,
+        indexedSnapshot: snapshot,
+        storeSchemaVersion: SCHEMA_VERSION,
+      }),
+    };
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new SemctxError("STORE_ERROR", "invalid persisted control attestation index", {
+        cause: error.message,
+      });
+    }
+    throw error;
   } finally {
     store.close();
   }
-  return {
-    ...indexed,
-    freshnessSeal: buildControlFreshnessSeal({
-      repositoryRoot,
-      headAtCapture: gitAfter.headCommit,
-      repositoryFacts: {
-        graph: indexed.analysis.graph,
-        claims: indexed.claims,
-        evidence: indexed.analysis.evidence,
-      },
-      semanticModel: semanticAfter.model,
-      analysisInputHash: analysisInputHashAfter,
-      workingDiffHash: gitAfter.workingDiffHash,
-      indexedSnapshot: snapshot,
-      storeSchemaVersion: SCHEMA_VERSION,
-    }),
-  };
 }

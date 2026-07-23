@@ -6,3 +6,4 @@ export * from "./ids";
 export * from "./model";
 export * from "./schemas";
 export * from "./repository-links";
+export * from "./compatibility";

@@ -7,30 +7,34 @@
  */
 
 import {
-  isSemanticNodeKind,
-  isSemanticStatus,
-  isSemanticProvenance,
-  isChangeLifecycle,
-  kindOfSemanticId,
-  repositoryLinkFromRef,
   DEFAULT_STATUS_BY_KIND,
+  isChangeLifecycle,
+  isSemanticNodeKind,
+  isSemanticProvenance,
+  isSemanticStatus,
+  kindOfSemanticId,
+  normalizeLegacySemanticModelV1,
+  repositoryLinkFromRef,
 } from "@semantic-context/semantic-model";
 import type {
+  ChangeContract,
+  RepositoryLink,
+  SemanticCompatibilityNoteV1,
   SemanticModel,
   SemanticNode,
-  ChangeContract,
   SemanticNodeKind,
-  SemanticStatus,
   SemanticProvenance,
-  SemanticRelationKind,
   SemanticRelation,
-  RepositoryLink,
+  SemanticRelationKind,
+  SemanticStatus,
 } from "@semantic-context/semantic-model";
 import type { Diagnostic } from "./diagnostics";
+import { parseRefinementBlocks } from "./refinement";
 
 export interface ParseResult {
   model: SemanticModel;
   diagnostics: Diagnostic[];
+  compatibility: SemanticCompatibilityNoteV1[];
 }
 
 /** Field key → relation kind. `requires` is a synonym of `requires_evidence`. */
@@ -48,7 +52,7 @@ const RELATION_FIELD: Record<string, SemanticRelationKind> = {
   supersedes: "supersedes",
 };
 
-const SCALAR_KEYS = new Set(["statement", "rule", "status", "provenance"]);
+const SCALAR_KEYS = new Set(["statement", "rule", "status", "provenance", "appliesAtLevel"]);
 
 interface RawField {
   key: string;
@@ -84,7 +88,10 @@ export function parseSemanticSource(text: string, file: string): ParseResult {
   let listKey: RawField | undefined;
 
   const lines = text.split(/\r?\n/);
+  const refinement = parseRefinementBlocks(lines, file);
+  diagnostics.push(...refinement.diagnostics);
   for (let index = 0; index < lines.length; index += 1) {
+    if (refinement.consumedLineIndexes.has(index)) continue;
     const raw = lines[index] ?? "";
     const line = index + 1;
     const trimmed = raw.trim();
@@ -177,7 +184,13 @@ export function parseSemanticSource(text: string, file: string): ParseResult {
     else nodes.push(finalizeNode(block, file, diagnostics));
   }
 
-  return { model: { nodes, changes }, diagnostics };
+  const model = { nodes, changes, refinementRelations: refinement.relations };
+  const compatibility = normalizeLegacySemanticModelV1(model).compatibility;
+  return {
+    model,
+    diagnostics,
+    compatibility,
+  };
 }
 
 function pushUnique<T>(list: T[], value: T, key: (v: T) => string): void {
@@ -188,7 +201,7 @@ function collectCommon(
   block: RawBlock,
   file: string,
   diagnostics: Diagnostic[],
-): { statement: string; provenance: SemanticProvenance; statusRaw: string | undefined; statusLine: number; statusColumn: number; links: RepositoryLink[]; tags: string[]; metadata: Record<string, string> } {
+): { statement: string; provenance: SemanticProvenance; statusRaw: string | undefined; statusLine: number; statusColumn: number; appliesAtLevel: SemanticNode["appliesAtLevel"]; links: RepositoryLink[]; tags: string[]; metadata: Record<string, string> } {
   let statement = "";
   let provenance: SemanticProvenance = "author";
   let statusRaw: string | undefined;
@@ -197,6 +210,8 @@ function collectCommon(
   const links: RepositoryLink[] = [];
   const tags: string[] = [];
   const metadata: Record<string, string> = {};
+  let appliesAtLevel: SemanticNode["appliesAtLevel"];
+  let levelSeen = false;
 
   for (const field of block.fields) {
     switch (field.key) {
@@ -213,6 +228,13 @@ function collectCommon(
         if (isSemanticProvenance(field.value)) provenance = field.value;
         else diagnostics.push({ file, line: field.line, column: field.column, severity: "warning", message: `unknown provenance "${field.value}" (using "author")` });
         break;
+      case "appliesAtLevel": {
+        if (levelSeen) diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "SEMANTIC_LEVEL_DUPLICATE", message: "duplicate appliesAtLevel field" });
+        levelSeen = true;
+        if (/^[1-6]$/.test(field.value)) appliesAtLevel = Number(field.value) as SemanticNode["appliesAtLevel"];
+        else diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "SEMANTIC_LEVEL_INVALID", message: `invalid appliesAtLevel "${field.value}" (expected authored level 1..6; L0 is observed_hunk only)` });
+        break;
+      }
       case "link":
         pushUnique(links, repositoryLinkFromRef(field.value), (l) => `${l.kind}:${l.ref}`);
         break;
@@ -240,7 +262,7 @@ function collectCommon(
   if (statement === "") {
     diagnostics.push({ file, line: block.headerLine, column: 1, severity: "warning", message: `${block.kind} "${block.id}" has no statement` });
   }
-  return { statement, provenance, statusRaw, statusLine, statusColumn, links, tags, metadata };
+  return { statement, provenance, statusRaw, statusLine, statusColumn, appliesAtLevel, links, tags, metadata };
 }
 
 function finalizeNode(block: RawBlock, file: string, diagnostics: Diagnostic[]): SemanticNode {
@@ -273,6 +295,7 @@ function finalizeNode(block: RawBlock, file: string, diagnostics: Diagnostic[]):
     relations,
     tags: common.tags,
   };
+  if (common.appliesAtLevel !== undefined) node.appliesAtLevel = common.appliesAtLevel;
   if (Object.keys(common.metadata).length > 0) node.metadata = common.metadata;
   return node;
 }
@@ -315,6 +338,7 @@ function finalizeChange(block: RawBlock, file: string, diagnostics: Diagnostic[]
     repositoryLinks: common.links,
     tags: common.tags,
   };
+  if (common.appliesAtLevel !== undefined) change.appliesAtLevel = common.appliesAtLevel;
   if (Object.keys(common.metadata).length > 0) change.metadata = common.metadata;
   return change;
 }

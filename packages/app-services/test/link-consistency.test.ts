@@ -86,8 +86,8 @@ describe("cross-plane repository-link consistency", () => {
     expect(planeB.staleLinks).toEqual([]);
     expect(planeC.staleLinks ?? []).toEqual([]);
     expect(planeC.unmapped.filter((item) => item.sourceKind.startsWith("repository_link:"))).toEqual([]);
-    expect(planeC.edges.filter((edge) => edge.sourceRelation === "repository_link:file")).toHaveLength(1);
-    expect(planeC.edges.filter((edge) => edge.sourceRelation === "repository_link:symbol")).toHaveLength(1);
+    expect(planeC.structuralEdges.filter((edge) => edge.sourceRelation === "repository_link:file")).toHaveLength(1);
+    expect(planeC.structuralEdges.filter((edge) => edge.sourceRelation === "repository_link:symbol")).toHaveLength(1);
     expect(planeC.unsupported).toContainEqual({
       plane: "repo",
       sourceId: "claim.known",

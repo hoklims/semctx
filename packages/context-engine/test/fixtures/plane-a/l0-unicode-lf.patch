@@ -1,0 +1,7 @@
+diff --git a/packages/café.txt b/packages/café.txt
+index deadbee..feed123 100644
+--- a/packages/café.txt
++++ b/packages/café.txt
+@@ -4,1 +4,1 @@ contexte
+-café
++café

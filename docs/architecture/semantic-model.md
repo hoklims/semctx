@@ -29,7 +29,7 @@ interface SemanticNode {          // the six truth kinds (change uses ChangeCont
   id: string; kind: SemanticNodeKind; statement: string;
   status: SemanticStatus; provenance: SemanticProvenance;
   sourceRefs: SourceRef[]; repositoryLinks: RepositoryLink[]; relations: SemanticRelation[];
-  tags: string[]; metadata?: Record<string, string>;
+  tags: string[]; metadata?: Record<string, string>; appliesAtLevel?: 1|2|3|4|5|6;
 }
 
 interface ChangeContract {        // kind "change": proof-carrying
@@ -39,8 +39,25 @@ interface ChangeContract {        // kind "change": proof-carrying
   repositoryLinks: RepositoryLink[]; tags: string[]; metadata?: Record<string, string>;
 }
 
-interface SemanticModel { nodes: SemanticNode[]; changes: ChangeContract[]; }
+interface SemanticModel {
+  nodes: SemanticNode[];
+  changes: ChangeContract[];
+  refinementRelations?: RefinementRelationV1[];
+}
 ```
+
+`kind` and `appliesAtLevel` are independent. Missing legacy levels remain missing and
+non-certifying; neither kind nor repository placement supplies a fallback. Authored nodes use
+L6 strategy, L5 product intent, L4 invariants/policies, L3 capabilities, L2
+components/boundaries and L1 symbols/tests/schemas/contracts. L0 is not an authored semantic node:
+it is an immutable Plane-A `ObservedDiffHunkV1`.
+
+`RefinementRelationV1` is the read-only cross-plane overlay. Its kind is one of
+`decomposes_to`, `realizes`, `implements`, `constrained_by` or `proved_by`; both endpoints are
+tagged as a Plane-B semantic node or Plane-A observed-hunk digest. Every relation carries an exact
+epistemic status, `author|agent|derived` provenance and non-empty evidence references.
+`constrained_by` and `proved_by` decorate traversal reports, while only adjacent admissible
+refinement steps can certify level coverage. LLM-only and multi-level relations are advisory.
 
 ## Ids
 
@@ -89,7 +106,8 @@ change change.stripe-webhook-retry
   unknown: unknown.cancellation-race                      # open unknown (change only)
 ```
 
-- **Scalars**: `statement` (`rule` synonym on invariants), `status`, `provenance`.
+- **Scalars**: `statement` (`rule` synonym on invariants), `status`, `provenance`,
+  `appliesAtLevel` (authored L1 through L6).
 - **Relations** (each maps to a `SemanticRelationKind`): `serves`, `preserves`, `implements`,
   `depends_on`, `justifies`, `requires_evidence` (`requires` synonym), `proved_by`, `risks`,
   `contradicts`, `supersedes`. Change-only: `unknown`.
@@ -101,6 +119,11 @@ change change.stripe-webhook-retry
 The **parser is tolerant** (never throws; returns `{ model, diagnostics }` with file/line/column).
 The **formatter is deterministic and idempotent**: canonical field order, repeated-key multi-value
 form, relation targets sorted by code unit. Renderers (`symbols` / `ascii`) are views only.
+
+Typed refinement relation blocks use a separate ASCII-canonical grammar with fixed field order:
+relation header and tagged source, tagged target, epistemic status, provenance, one or more
+evidence references, then `end`. Duplicate/out-of-order fields, unknown values, malformed digests,
+untagged endpoints and Unicode tokens produce stable diagnostics rather than inferred meaning.
 
 ## Storage
 

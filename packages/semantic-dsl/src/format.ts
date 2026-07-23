@@ -7,6 +7,7 @@
 import { compareIds } from "@semantic-context/core";
 import { SEMANTIC_RELATION_KINDS, repositoryLinkToRef } from "@semantic-context/semantic-model";
 import type { SemanticModel, SemanticNode, ChangeContract, SemanticRelationKind } from "@semantic-context/semantic-model";
+import { formatRefinementRelation } from "./refinement";
 
 const INDENT = "  ";
 
@@ -32,6 +33,7 @@ export function formatNode(node: SemanticNode): string {
   lines.push(line("statement", node.statement));
   lines.push(line("status", node.status));
   lines.push(line("provenance", node.provenance));
+  if (node.appliesAtLevel !== undefined) lines.push(line("appliesAtLevel", String(node.appliesAtLevel)));
   const byKind = new Map<SemanticRelationKind, string[]>();
   for (const rel of node.relations) {
     const list = byKind.get(rel.kind);
@@ -52,6 +54,7 @@ export function formatChange(change: ChangeContract): string {
   lines.push(line("statement", change.statement));
   lines.push(line("status", change.lifecycle));
   lines.push(line("provenance", change.provenance));
+  if (change.appliesAtLevel !== undefined) lines.push(line("appliesAtLevel", String(change.appliesAtLevel)));
   for (const to of sorted(change.serves)) lines.push(line("serves", to));
   for (const to of sorted(change.preserves)) lines.push(line("preserves", to));
   for (const to of sorted(change.requiresEvidence)) lines.push(line("requires_evidence", to));
@@ -65,5 +68,8 @@ export function formatModel(model: SemanticModel): string {
   const blocks: string[] = [];
   for (const node of [...model.nodes].sort((a, b) => compareIds(a.id, b.id))) blocks.push(formatNode(node));
   for (const change of [...model.changes].sort((a, b) => compareIds(a.id, b.id))) blocks.push(formatChange(change));
+  for (const relation of [...(model.refinementRelations ?? [])].sort((a, b) => compareIds(a.id, b.id))) {
+    blocks.push(formatRefinementRelation(relation));
+  }
   return blocks.length === 0 ? "" : `${blocks.join("\n\n")}\n`;
 }

@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { MigrationPlanSchema, type ArchitectureSnapshot, type CoordinateGraphReport } from "@semantic-context/control-model";
-import { compareArchitectures, compileMigrationPlan, fingerprintCoordinateGraph } from "../src";
+import {
+  ArchitectureSnapshotSchema,
+  MigrationPlanSchema,
+  type ArchitectureSnapshot,
+  type CoordinateGraphReport,
+  type CoordinateGraphReportV2,
+} from "@semantic-context/control-model";
+import { compareArchitectures, compileMigrationPlan, fingerprintCoordinateGraph, snapshotArchitecture } from "../src";
 
 const change = { id: "change.a", serves: ["goal.a"], preserves: ["inv"], requiredEvidence: [], openUnknowns: [] };
 
@@ -44,6 +50,124 @@ describe("architecture comparison and migration", () => {
 
     expect(fingerprintCoordinateGraph(graph)).toBe(fingerprintCoordinateGraph(reordered));
     expect(fingerprintCoordinateGraph(graph)).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  test("v2 snapshots retain only relations whose endpoints have explicit-level elements", () => {
+    const graph: CoordinateGraphReportV2 = {
+      schemaVersion: 2,
+      nodes: [
+        {
+          id: "repo:unmapped",
+          plane: "repo",
+          sourceId: "unmapped",
+          sourceKind: "module",
+          appliesAtLevel: null,
+          category: null,
+          label: "unmapped",
+          epistemicStatus: "statically_observed",
+          references: [],
+        },
+        {
+          id: "semantic:a",
+          plane: "semantic",
+          sourceId: "a",
+          sourceKind: "decision",
+          appliesAtLevel: 2,
+          category: "bounded_context",
+          label: "A",
+          epistemicStatus: "human_declared",
+          references: [],
+        },
+        {
+          id: "semantic:b",
+          plane: "semantic",
+          sourceId: "b",
+          sourceKind: "goal",
+          appliesAtLevel: 3,
+          category: "capability",
+          label: "B",
+          epistemicStatus: "human_declared",
+          references: [],
+        },
+      ],
+      structuralEdges: [
+        { from: "repo:unmapped", to: "semantic:a", relation: "repository_link:file", evidenceRefs: [] },
+      ],
+      refinementRelations: [{
+        schemaVersion: 1,
+        id: "relation.a-b",
+        kind: "implements",
+        source: { plane: "B", kind: "semantic_node", nodeId: "a" },
+        target: { plane: "B", kind: "semantic_node", nodeId: "b" },
+        epistemicStatus: "human_declared",
+        provenance: "author",
+        evidenceRefs: [{
+          schemaVersion: 1,
+          kind: "semantic_node",
+          locator: "a",
+          digest: { algorithm: "sha256", value: "a".repeat(64) },
+        }],
+      }],
+      mapping: [],
+      coverage: [],
+      unsupported: [],
+      unmapped: [],
+      staleLinks: [],
+      danglingReferences: [],
+      compatibilityNormalization: [],
+      verifiedEvidenceDigests: [],
+    };
+
+    const snapshot = snapshotArchitecture(graph, {
+      id: "v2",
+      commit: "abc",
+      capturedAt: "2026-07-23T10:00:00.000Z",
+    });
+
+    expect(snapshot.elements.map((item) => item.id)).toEqual(["semantic:a", "semantic:b"]);
+    expect(snapshot.relations.map((item) => [item.from, item.to, item.relation])).toEqual([
+      ["semantic:a", "semantic:b", "implements"],
+    ]);
+    expect(ArchitectureSnapshotSchema.safeParse(snapshot).success).toBe(true);
+    expect(fingerprintCoordinateGraph({
+      ...graph,
+      verifiedEvidenceDigests: [`sha256:${"a".repeat(64)}`],
+    })).not.toBe(fingerprintCoordinateGraph(graph));
+  });
+
+  test("v2 snapshots are schema-valid and empty when no coordinate has an explicit level", () => {
+    const graph: CoordinateGraphReportV2 = {
+      schemaVersion: 2,
+      nodes: [{
+        id: "repo:unmapped",
+        plane: "repo",
+        sourceId: "unmapped",
+        sourceKind: "module",
+        appliesAtLevel: null,
+        category: null,
+        label: "unmapped",
+        epistemicStatus: "statically_observed",
+        references: [],
+      }],
+      structuralEdges: [],
+      refinementRelations: [],
+      mapping: [],
+      coverage: [],
+      unsupported: [],
+      unmapped: [],
+      staleLinks: [],
+      danglingReferences: [],
+      compatibilityNormalization: [],
+      verifiedEvidenceDigests: [],
+    };
+    const snapshot = snapshotArchitecture(graph, {
+      id: "empty-v2",
+      commit: "abc",
+      capturedAt: "2026-07-23T10:00:00.000Z",
+    });
+
+    expect(snapshot).toMatchObject({ elements: [], relations: [] });
+    expect(ArchitectureSnapshotSchema.safeParse(snapshot).success).toBe(true);
   });
 
   test("plans are blocked without target and reject an inconsistent supplied delta", () => {

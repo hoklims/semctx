@@ -24,17 +24,20 @@ task. The Semantic Layer therefore never selects files from a free-text task; it
 **explicit, authored declarations** and the **explicit links** they carry into the deterministic
 graph.
 
-## Two strictly separated planes
+## Separated planes and the read-only refinement overlay
 
 | Plane | Owner | Source of truth | Representation |
 | --- | --- | --- | --- |
 | **A — Repository facts** | derived from code | the repo + `semctx index` (SQLite is a regenerable cache) | `RepositoryGraph` nodes/edges, `Claim`s, `EvidenceRecord`s, `VerifyReport` |
 | **B — Authored semantic truth** | authored by human/agent | Git-versioned `.semctx/semantic/**.sem` files | `SemanticNode`s, `ChangeContract`s |
+| **C — Refinement control** | deterministic read-only projection | sealed Plane-A observations + typed Plane-B relations | versioned coordinate, traversal and coverage reports |
 
-Plane A already exists and is untouched. Plane B is new. The **only** coupling from B to A is an
-explicit `RepositoryLink` on a semantic node, whose `ref` is a Plane-A id (`sym:…`, `inv:…`,
-`contract:…`, `claim:…`, `test:…`, `mig:…`, `cap:…`, `ev:…`) or a repo-relative file path. A fact
-and an intention never share a type without explicit `provenance`.
+Plane C does not replace either source plane. It joins explicit Plane-B endpoints to immutable
+Plane-A observations and emits reports only; it has no executor, cutover, deletion, `TaskEnvelope`
+or `ChangeSet` authority. The ordinary B-to-A coupling remains an explicit `RepositoryLink` on a
+semantic node, whose `ref` is a Plane-A id (`sym:…`, `inv:…`, `contract:…`, `claim:…`, `test:…`,
+`mig:…`, `cap:…`, `ev:…`) or a repo-relative file path. A fact and an intention never share a type
+without explicit `provenance`.
 
 ```
 "handleStripeWebhook calls reserveInventory"   → Plane A structural fact (derived)
@@ -182,6 +185,30 @@ an error and cannot be sealed into Plane C. CLI and MCP both call the same appli
 
 Guarantees: deterministic, bounded, stable order, every line points to a source, nothing invented,
 absent items are shown as **unknown** — never asserted true or false.
+
+## Typed L6-to-L0 refinement
+
+`appliesAtLevel` is explicit and independent from semantic kind. The normative levels are L6
+strategy, L5 product intent, L4 invariants/policies, L3 capabilities, L2 components/boundaries, L1
+symbols/tests/schemas/contracts, and L0 sealed observed hunks. Repository location, kind, imports
+and graph proximity never fill a missing level.
+
+The ASCII-canonical relation DSL persists `decomposes_to`, `realizes`, `implements`,
+`constrained_by` and `proved_by` with tagged Plane-A/Plane-B endpoints, epistemic status,
+provenance and at least one evidence reference. `lower` and `lift` certify only adjacent typed
+steps; constraints and proofs decorate the path without replacing a refinement transition.
+`llm_inferred`, hypothetical and multi-level relations remain advisory.
+
+L0 uses `ObservedDiffHunkV1`: repository identity, normalized repository-relative path, exact old
+and new ranges, nullable blob ids and the original `rawHunkBytes` are deterministically framed and
+content-addressed as `sha256:<64-lowercase-hex>`. Parsing, projection and traversal preserve those
+bytes. The tracked Semctx dogfood keeps the raw patch fixture separate from authored
+`.semctx/semantic/project/control-plane.sem`.
+
+Empty traversals use stable reasons with deterministic precedence:
+`INDEX_STALE`, `COORDINATE_UNKNOWN`, `MAPPING_MISSING`, `REFINEMENT_DISCONNECTED` and
+`BUDGET_EXHAUSTED`. Impact remains structural, authored rationale remains distinct from proximity,
+and proof queries use only `proved_by`.
 
 ## Composed change verification (Plane A ∘ Plane B)
 

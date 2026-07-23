@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
+import { queryControlDeletionAuthorization, queryControlGraph } from "@semantic-context/app-services";
 import { parseArgs } from "../src/args";
 import { runControl, loadCurrentControlState } from "../src/commands/control";
 import { runIndex } from "../src/commands/index-cmd";
@@ -149,6 +150,21 @@ describe("semctx control CLI", () => {
     const empty = mkdtempSync(join(tmpdir(), "semctx-control-empty-"));
     try {
       expect(() => runControl(empty, parseArgs(["control", "trace", "repo:any", "--json"]))).toThrow("not initialized");
+      const graph = (() => {
+        const originalRoot = root;
+        root = empty;
+        try {
+          return JSON.parse(run(["control", "graph", "--json"]).out);
+        } finally {
+          root = originalRoot;
+        }
+      })();
+      expect(graph).toMatchObject({
+        freshness: { verdict: "UNSEALED", reasons: ["REPOSITORY_NOT_INITIALIZED"], seal: null },
+        terminalStatus: "refused",
+        reasonCodes: ["INDEX_STALE"],
+        payload: null,
+      });
       expect(existsSync(join(empty, ".semctx"))).toBe(false);
     } finally {
       rmSync(empty, { recursive: true, force: true });
@@ -176,6 +192,35 @@ describe("semctx control CLI", () => {
     expect(report.plan.blockedReason).toBe("target_architecture_missing");
     expect(report.freshnessSeal.kind).toBe("control_freshness_seal");
     expect(report.freshnessSeal.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
+  });
+
+  it("serializes the exact shared coordinate-graph envelope", () => {
+    const cli = JSON.parse(run(["control", "graph", "--json"]).out);
+    expect(cli).toEqual(queryControlGraph(root));
+    expect(cli).toMatchObject({ schemaVersion: 1, kind: "coordinate_graph", terminalStatus: "success" });
+  });
+
+  it("uses the shared planning-commit refusal for read-only deletion authorization", () => {
+    const dir = mkdtempSync(join(tmpdir(), "semctx-control-auth-query-"));
+    const file = join(dir, "deletion.json");
+    const query = {
+      subject: "change.demo",
+      planningCommit: "git:not-current",
+      evaluatedAt: "2026-07-23T12:00:00.000Z",
+      attestationRequests: [],
+    };
+    try {
+      writeFileSync(file, JSON.stringify(query), "utf8");
+      const cli = JSON.parse(run(["control", "authorize-deletion", "--input", file, "--json"]).out);
+      expect(cli).toEqual(queryControlDeletionAuthorization(root, query));
+      expect(cli).toMatchObject({
+        terminalStatus: "refused",
+        reasonCodes: ["PLANNING_COMMIT_MISMATCH"],
+        payload: null,
+      });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("returns READY with a valid target and leaves every repository byte unchanged", () => {
@@ -234,6 +279,16 @@ describe("semctx control CLI", () => {
       expect(plan.plan.blockedReason).toBe("control_inputs_stale");
       expect(plan.plan.steps).toEqual([]);
 
+      expect(JSON.parse(run(["control", "graph", "--json"]).out)).toMatchObject({
+        freshness: {
+          verdict: "STALE",
+          reasons: ["ANALYSIS_INPUT_MISMATCH", "WORKING_DIFF_MISMATCH"],
+        },
+        terminalStatus: "refused",
+        reasonCodes: ["INDEX_STALE"],
+        payload: null,
+      });
+
       const sourceId = loadCurrentControlState(root).graph.nodes[0]?.id;
       expect(sourceId).toBeDefined();
       expect(() => run(["control", "trace", sourceId!, "--json"])).toThrow("control inputs are STALE");
@@ -248,10 +303,9 @@ describe("semctx control CLI", () => {
     const result = run(["control", "trace", sourceId!, "--to", "6", "--max-depth", "3", "--max-results", "5", "--json"]);
     const report = JSON.parse(result.out);
     expect(result.code).toBe(0);
-    expect(report.schemaVersion).toBe(1);
+    expect(report.schemaVersion).toBe(2);
     expect(report.sourceId).toBe(sourceId);
-    expect(report.maxDepth).toBe(3);
-    expect(report.maxResults).toBe(5);
+    expect(report.budget.limit).toBeGreaterThan(0);
     expect(report.freshnessSeal.kind).toBe("control_freshness_seal");
   });
 

@@ -7,6 +7,11 @@
  * See docs/architecture/semantic-model.md for the full contract.
  */
 
+import type {
+  RefinementRelationV1,
+  SemanticLevel,
+} from "@semantic-context/control-model";
+
 /** The kind of an authored semantic node. `change` is represented by `ChangeContract`. */
 export type SemanticNodeKind =
   | "goal"
@@ -100,6 +105,11 @@ export interface SemanticNode {
   relations: SemanticRelation[];
   tags: string[];
   metadata?: Record<string, string>;
+  /**
+   * Explicit abstraction level for typed refinement. Absent on legacy authored data; kind,
+   * repository links, and source location never supply a fallback.
+   */
+  appliesAtLevel?: SemanticLevel;
 }
 
 /**
@@ -124,10 +134,26 @@ export interface ChangeContract {
   repositoryLinks: RepositoryLink[];
   tags: string[];
   metadata?: Record<string, string>;
+  /** Explicit abstraction level when the change contract participates in refinement. */
+  appliesAtLevel?: SemanticLevel;
 }
 
 /** The aggregate authored model: truth nodes plus change contracts. */
 export interface SemanticModel {
   nodes: SemanticNode[];
   changes: ChangeContract[];
+  /** Proof-carrying Plane-C overlay relations. Legacy bare node relations remain separate. */
+  refinementRelations?: RefinementRelationV1[];
+}
+
+export interface SemanticCompatibilityNoteV1 {
+  schemaVersion: 1;
+  source: "legacy_semantic_dsl_v1";
+  subjectId: string;
+  uncertainties: readonly ("appliesAtLevel" | "refinementEvidence")[];
+}
+
+export interface NormalizedLegacySemanticModelV1 {
+  model: SemanticModel & { refinementRelations: RefinementRelationV1[] };
+  compatibility: SemanticCompatibilityNoteV1[];
 }

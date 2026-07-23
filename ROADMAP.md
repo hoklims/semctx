@@ -102,25 +102,28 @@ and rebuilding the index produces a commit-bound seal.
 Levels must represent abstraction, while relations determine whether a traversal is a refinement,
 an impact path, a rationale or a proof path.
 
-- [ ] **Correct the level ontology** — L6 strategy/constraints, L5 product intent, L4
+**Implementation status:** delivered on `codex/l6-l0-refinement-round-trip`; final independent
+detached-worktree verification, full repository gates and the pull request are still pending.
+
+- [x] **Correct the level ontology** — L6 strategy/constraints, L5 product intent, L4
       invariants/policies, L3 capabilities, L2 components/boundaries, L1 symbols/tests/schemas and
       L0 syntax/hunks/AST transformations. Repository/system scope is not itself a strategy.
-- [ ] **Separate kind from level** — decisions and policies carry an explicit `appliesAtLevel`
+- [x] **Separate kind from level** — decisions and policies carry an explicit `appliesAtLevel`
       rather than being forced into one universal level by source kind.
-- [ ] **First-class refinement edges** — add typed, evidence-bearing relations such as `realizes`,
+- [x] **First-class refinement edges** — add typed, evidence-bearing relations such as `realizes`,
       `implements`, `decomposes_to`, `constrained_by` and `proved_by`, with epistemic status.
-- [ ] **Traversal policies by question** — `lift` / `lower` use only refinement edges; `impact`
+- [x] **Traversal policies by question** — `lift` / `lower` use only refinement edges; `impact`
       uses dependency/data/contract edges; `explainWhy` uses rationale edges; proof queries use
       test/trace/attestation edges. Imports must never become architectural justification merely
       because they cross levels.
-- [ ] **L0 patch projection** — represent hunks or AST edit operations as observed L0 coordinates.
+- [x] **L0 patch projection** — represent hunks or AST edit operations as observed L0 coordinates.
       A `ChangeSet` remains cross-level and references those coordinates; it is not collapsed into
       L0.
-- [ ] **Refinement coverage report** — expose missing levels, unjustified skips, ambiguous edges,
+- [x] **Refinement coverage report** — expose missing levels, unjustified skips, ambiguous edges,
       unsupported artifacts, stale references and load-bearing LLM-only relations.
-- [ ] **Public control transports** — expose bounded `impact`, `explainWhy`, architecture compare
+- [x] **Public control transports** — expose bounded `impact`, `explainWhy`, architecture compare
       and authorization reports through the same versioned CLI/MCP contracts as trace and plan.
-- [ ] **Actionable empty-trace diagnostics** — distinguish unknown coordinate, missing mapping,
+- [x] **Actionable empty-trace diagnostics** — distinguish unknown coordinate, missing mapping,
       disconnected refinement, stale index and traversal-budget exhaustion.
 
 **Gate:** using a fixed, sealed observed-patch fixture (not yet a TaskEnvelope),

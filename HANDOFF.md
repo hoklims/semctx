@@ -1,84 +1,80 @@
-# Handoff — merge PR #32, then deliver issue #26
+# Handoff — issue #26 pre-publication checkpoint
 
 ## Mission
 
-Merge the completed P0 trust-boundary PR, then implement the typed L6-to-L0 refinement round trip
-defined by issue #26 without adding execution authority.
+Deliver the typed L6-to-L0 refinement round trip from issue #26 without adding execution
+authority.
 
-## Repo and run
+## Current state
 
 - Repository: `C:\maintenence\semctx`
-- Checkpoint branch: `codex/p0-trust-boundary`
-- Target branch after merge: create `codex/l6-l0-refinement-round-trip` from updated `main`
-- Verification:
-  - `bun run plugin:check`
-  - `bun run typecheck`
-  - `bun test --timeout 30000 packages apps plugins`
+- Branch: `codex/l6-l0-refinement-round-trip`
+- Baseline: PR #32 merged into `main` at
+  `942be1c66cf66d6c6562c39fcd896ee23a69a9ef` after its justified review findings were fixed and
+  the updated head was green.
+- The issue #26 implementation, tests, documentation and local final reviews are complete on the
+  working branch.
+- The ignored local `.semctx` state was audited separately and is not part of the tracked delivery.
 
-## Read first
+## Implemented contracts
 
-1. `AGENTS.md`
-2. `ROADMAP.md`, especially the P0 gate and the next vertical-refinement section
-3. `.semctx/semantic/project/control-plane.sem`
-4. `docs/architecture/semantic-layer-v1.md`
-5. `docs/architecture/semantic-model.md`
-6. `docs/adr/0004-cocoindex-is-an-optional-provider.md`
-7. `docs/adr/0007-claude-code-guarded-hook-is-diff-hash-gated.md`
-8. GitHub PR #32: `https://github.com/hoklims/semctx/pull/32`
-9. GitHub issue #26: `https://github.com/hoklims/semctx/issues/26`
+- Normative L6 strategy → L5 product intent → L4 invariants/policies → L3 capabilities → L2
+  components/boundaries → L1 symbols/tests/schemas/contracts → immutable observed L0 hunks.
+- Semantic kind is separate from explicit `appliesAtLevel`; missing levels remain unmapped.
+- Typed, evidence-bearing `decomposes_to`, `realizes`, `implements`, `constrained_by` and
+  `proved_by` relations with epistemic status and tagged cross-plane endpoints.
+- Exact `ObservedDiffHunkV1` byte framing and content addressing; reading and traversal preserve
+  raw hunk bytes.
+- Question-specific read-only traversal, honest coverage, stable reason codes, named compatibility
+  normalizers, and shared versioned CLI/MCP report envelopes.
+- Descriptive authorization resolves attestations from sealed indexed evidence only.
+  `authorize-deletion` produces a read-only report; it exposes no delete operation or deletion
+  capability.
+- Plane C remains read-only: the delivery adds no executor, mutation, cutover, `TaskEnvelope` or
+  `ChangeSet`.
 
-## State
+## Verified local evidence
 
-- PR #31 is merged into `main` at `8d1fd70`.
-- PR #32 is open, ready, mergeable, and targets `main`.
-- PR #32 code commits:
-  - `f2d0f91 feat(control): close the P0 trust boundary`
-  - `48fa8bf fix(guard): reject terminal command wrappers`
-- PR #32 closes issue #25, the first dependency of epic #24.
-- The checkpoint worktree was clean before this handoff file.
-- Fresh checkpoint verification:
-  - `bun run plugin:check`: PASS, packaged runtimes byte-identical
-  - `bun run typecheck`: PASS
-  - GitHub `plugin-runtime` run `29976743979`: SUCCESS
-- Full verification already recorded on code head `48fa8bf`:
-  - 322 tests passed, 0 failed
-  - adversarial review: PASS, no remaining P0/P1
-  - clean-worktree dogfood indexed 1,137 nodes / 2,956 edges / 281 claims
-  - commit-bound freshness was `FRESH`
-  - a tracked mutation produced `STALE`; status and traversal both refused with exit 3 and
-    `CONTROL_INPUTS_UNSAFE`; restoring the bytes returned to `FRESH`
-- The only known remaining observation is non-blocking P2 observability: optional-provider
-  fallbacks may omit failure details, but cannot authorize unsealed facts.
+- Final AI-slop review: PASS with no changes required.
+- `bun run plugin:check`: PASS; both generated runtimes are byte-identical at `4,206,776` bytes
+  and expose 100 libraries.
+- `bun run typecheck`: PASS.
+- `bun test --timeout 30000 packages apps plugins`: PASS; 404 tests passed, 0 failed, 1,975
+  assertions across 47 files.
+- Public L6→L0→L6 E2E: 4/4 passed.
+- Pure golden round trip: 11/11 passed.
+- Former review-blocker suites: 45/45 passed.
+- Diff check: PASS.
+- Ignored `.semctx` audit: PASS.
+- Independent code review: APPROVE.
+- Independent architecture review: CLEAR, with no P0, P1 or P2 findings.
 
-## Next action
+The golden sources remain:
 
-Inspect PR #32 reviews/checks and merge it only if the current head is green. Then update local
-`main`, create `codex/l6-l0-refinement-round-trip`, and execute issue #26 to completion.
+- `.semctx/semantic/project/control-plane.sem`
+- `packages/control-engine/test/fixtures/l6-l0-refinement.patch`
+- `packages/control-engine/test/l6-l0-refinement-round-trip.test.ts`
+- `packages/app-services/test/l6-l0-public-round-trip.test.ts`
 
-## Active constraints and gotchas
+The golden proves complete L6→L0 coverage, L0→L6 lift to the same goal, both critical L4
+constraints, canonical shuffled-input output, exact byte preservation, exclusion of
+import/proximity/LLM-only/multi-level decoys, and `REFINEMENT_DISCONNECTED` after removing each
+sole load-bearing edge.
 
-- Preserve the user's ignored local `.semctx` working state; use a clean detached worktree for
-  commit-bound dogfood and do not overwrite local pointers or baselines.
-- Issue #26 remains read-only Plane C work. It does not authorize writes, an executor, cutover,
-  deletion, TaskEnvelope, ChangeSet, or arbitrary working-diff reconciliation.
-- Imports and graph proximity are discovery signals, never semantic justification.
-- Separate semantic kind from level through explicit `appliesAtLevel`.
-- Every `realizes`, `implements`, `decomposes_to`, `constrained_by`, and `proved_by` relation must
-  carry evidence and epistemic status; LLM-only relations must never become load-bearing.
-- Keep CLI/MCP schemas versioned and behaviorally identical, with canonical reason ordering and
-  explicit empty-trace causes.
-- Lock determinism with negative, property, migration-compatibility, stale/refusal, and clean
-  round-trip dogfood tests before claiming completion.
+## Publication verification protocol
 
-## Open decisions
+The next action is to commit the candidate, then validate that exact commit from a clean detached
+worktree:
 
-- Exact corrected L6-to-L0 ontology and normative level definitions.
-- Stable representation for observed L0 hunks or bounded AST edit operations.
-- Question-specific traversal policies and the refinement-coverage report schema.
+1. Install dependencies with `bun install --frozen-lockfile`.
+2. Run:
+   - `bun run plugin:check`
+   - `bun run typecheck`
+   - `bun test --timeout 30000 packages apps plugins`
+3. Re-run the public E2E and pure golden round-trip suites.
+4. Confirm the detached worktree stays clean, push
+   `codex/l6-l0-refinement-round-trip`, and open the issue #26 pull request.
 
-Resolve these from repository evidence and issue #26 acceptance criteria before broad implementation.
-
-## Start
-
-Read the ordered references, inspect and merge PR #32 if still green, then branch from updated
-`main` and implement issue #26 with a sealed golden lower-and-lift round trip.
+GitHub PR checks and CI on the published head are the authoritative final publication evidence.
+The detached-worktree and GitHub publication checks are pending; this checkpoint does not claim
+that they have already run.

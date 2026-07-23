@@ -14,12 +14,34 @@ import {
   handoffTool,
   resumeTool,
 } from "./semantic-tools";
-import { controlPlanTool, controlStatusTool, controlTraceTool } from "./control-tools";
 import {
+  controlArchitectureComparisonTool,
+  controlAuthorizeDeletionTool,
+  controlAuthorizeStepTool,
+  controlAuthorizeTransitionTool,
+  controlExplainWhyTool,
+  controlGraphTool,
+  controlImpactTool,
+  controlPlanTool,
+  controlRefinementCoverageTool,
+  controlStatusTool,
+  controlTraceTool,
+  controlTraversalTool,
+} from "./control-tools";
+import {
+  AttestationRequestV1Schema,
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
+  ExecutionStateSchema,
+  MigrationPlanSchema,
+  MigrationStateSchema,
+  MigrationStepSchema,
+  ProofObligationSchema,
   QualifiedCoordinateIdSchema,
+  RiskLevelSchema,
+  RollbackPlanSchema,
   SemanticLevelSchema,
+  Sha256HashSchema,
   TraversalDirectionSchema,
   type ArchitectureDelta,
   type ArchitectureSnapshot,
@@ -399,6 +421,241 @@ export function createSemctxServer(root: string): McpServer {
           ...(maxDepth !== undefined ? { maxDepth } : {}),
           ...(maxResults !== undefined ? { maxResults } : {}),
         }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_graph",
+    {
+      title: "Read the typed coordinate graph",
+      description: "Read-only Plane-C coordinate graph v2 with structural and typed refinement edges kept separate.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+    },
+    async ({ repositoryRoot }) => {
+      try {
+        return ok(controlGraphTool(requestRoot(root, repositoryRoot)));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_traversal",
+    {
+      title: "Traverse typed refinement",
+      description: "Read-only bounded lower/lift traversal using explicit levels and proof-carrying refinement relations.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        sourceId: z.union([QualifiedCoordinateIdSchema, Sha256HashSchema]),
+        targetLevel: SemanticLevelSchema,
+        direction: TraversalDirectionSchema,
+        maxDepth: z.number().int().min(0).max(100).optional(),
+        maxResults: z.number().int().min(1).max(10_000).optional(),
+      },
+    },
+    async ({ repositoryRoot, sourceId, targetLevel, direction, maxDepth, maxResults }) => {
+      try {
+        return ok(controlTraversalTool(requestRoot(root, repositoryRoot), {
+          sourceId: sourceId as QualifiedCoordinateId | `sha256:${string}`,
+          targetLevel: targetLevel as SemanticLevel,
+          direction,
+          ...(maxDepth !== undefined ? { maxDepth } : {}),
+          ...(maxResults !== undefined ? { maxResults } : {}),
+        }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_refinement_coverage",
+    {
+      title: "Report refinement coverage",
+      description: "Read-only typed refinement coverage with load-bearing evidence, missing levels, and explicit empty causes.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        sourceId: z.union([QualifiedCoordinateIdSchema, Sha256HashSchema]),
+        targetLevel: SemanticLevelSchema,
+        direction: TraversalDirectionSchema,
+        sourceSeal: Sha256HashSchema.optional(),
+        indexSeal: Sha256HashSchema.optional(),
+        maxDepth: z.number().int().min(0).max(100).optional(),
+        maxResults: z.number().int().min(1).max(10_000).optional(),
+      },
+    },
+    async ({ repositoryRoot, sourceId, targetLevel, direction, sourceSeal, indexSeal, maxDepth, maxResults }) => {
+      try {
+        return ok(controlRefinementCoverageTool(requestRoot(root, repositoryRoot), {
+          sourceId: sourceId as QualifiedCoordinateId | `sha256:${string}`,
+          targetLevel: targetLevel as SemanticLevel,
+          direction,
+          ...(sourceSeal === undefined ? {} : { sourceSeal: sourceSeal as `sha256:${string}` }),
+          ...(indexSeal === undefined ? {} : { indexSeal: indexSeal as `sha256:${string}` }),
+          ...(maxDepth !== undefined ? { maxDepth } : {}),
+          ...(maxResults !== undefined ? { maxResults } : {}),
+        }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_impact",
+    {
+      title: "Report structural impact",
+      description: "Read-only impact over dependency/data/contract/import edges; typed refinement edges never manufacture impact.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        sourceIds: z.array(QualifiedCoordinateIdSchema).min(1),
+        maxDepth: z.number().int().min(0).max(100).optional(),
+        maxResults: z.number().int().min(1).max(10_000).optional(),
+      },
+    },
+    async ({ repositoryRoot, sourceIds, maxDepth, maxResults }) => {
+      try {
+        return ok(controlImpactTool(requestRoot(root, repositoryRoot), {
+          sourceIds: sourceIds as QualifiedCoordinateId[],
+          ...(maxDepth !== undefined ? { maxDepth } : {}),
+          ...(maxResults !== undefined ? { maxResults } : {}),
+        }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_explain_why",
+    {
+      title: "Explain authored rationale",
+      description: "Read-only explanation using authored rationale only; proximity, imports, and generated text are excluded.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        sourceId: QualifiedCoordinateIdSchema,
+        maxDepth: z.number().int().min(0).max(100).optional(),
+        maxResults: z.number().int().min(1).max(10_000).optional(),
+      },
+    },
+    async ({ repositoryRoot, sourceId, maxDepth, maxResults }) => {
+      try {
+        return ok(controlExplainWhyTool(requestRoot(root, repositoryRoot), {
+          sourceId: sourceId as QualifiedCoordinateId,
+          ...(maxDepth !== undefined ? { maxDepth } : {}),
+          ...(maxResults !== undefined ? { maxResults } : {}),
+        }));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "semctx_control_compare_architecture",
+    {
+      title: "Compare architecture snapshots",
+      description: "Read-only deterministic comparison of the current sealed snapshot with an explicit target.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        target: ArchitectureSnapshotSchema,
+      },
+    },
+    async ({ repositoryRoot, target }) => {
+      try {
+        return ok(controlArchitectureComparisonTool(
+          requestRoot(root, repositoryRoot),
+          target as ArchitectureSnapshot,
+        ));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "control_authorize_transition",
+    {
+      title: "Report transition authorization",
+      description: "Read-only authorization report. Resolves attestation references from the sealed index and never executes a transition.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        fromState: MigrationStateSchema,
+        toState: MigrationStateSchema,
+        risk: RiskLevelSchema,
+        subject: z.string().min(1),
+        planningCommit: z.string().min(1),
+        evaluatedAt: z.string().datetime({ offset: true }),
+        proofObligations: z.array(ProofObligationSchema),
+        rollback: RollbackPlanSchema.optional(),
+        changesL4Invariant: z.boolean(),
+        attestationRequests: z.array(AttestationRequestV1Schema),
+      },
+    },
+    async ({ repositoryRoot, ...input }) => {
+      try {
+        return ok(controlAuthorizeTransitionTool(requestRoot(root, repositoryRoot), input));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "control_authorize_step",
+    {
+      title: "Report step authorization",
+      description: "Read-only authorization report for an exact planned step. It never executes or schedules the step.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        plan: MigrationPlanSchema,
+        step: MigrationStepSchema,
+        executionState: ExecutionStateSchema,
+        evaluatedAt: z.string().datetime({ offset: true }),
+        attestationRequests: z.array(AttestationRequestV1Schema),
+      },
+    },
+    async ({ repositoryRoot, ...input }) => {
+      try {
+        return ok(controlAuthorizeStepTool(
+          requestRoot(root, repositoryRoot),
+          input as unknown as Parameters<typeof controlAuthorizeStepTool>[1],
+        ));
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "control_authorize_deletion",
+    {
+      title: "Report deletion authorization",
+      description: "Read-only deletion authorization report. It exposes no deletion or mutation capability.",
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        subject: z.string().min(1),
+        planningCommit: z.string().min(1),
+        evaluatedAt: z.string().datetime({ offset: true }),
+        attestationRequests: z.array(AttestationRequestV1Schema),
+      },
+    },
+    async ({ repositoryRoot, ...input }) => {
+      try {
+        return ok(controlAuthorizeDeletionTool(requestRoot(root, repositoryRoot), input));
       } catch (err) {
         return errorResult(err);
       }

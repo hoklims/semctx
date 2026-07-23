@@ -3,6 +3,8 @@
 export type DiagnosticSeverity = "error" | "warning";
 
 export interface Diagnostic {
+  /** Stable machine-readable parser diagnostic. */
+  code?: string;
   file: string;
   /** 1-based line. */
   line: number;
