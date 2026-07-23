@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { RepositoryGraph } from "@semantic-context/core";
+import type { Claim, EvidenceRecord, RepositoryGraph } from "@semantic-context/core";
 import type { ControlFreshnessSeal, ControlFreshnessStatusReport, Sha256Hash } from "@semantic-context/control-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
 import * as appServices from "../src";
@@ -78,7 +78,7 @@ const semanticModel: SemanticModel = {
 const base = {
   repositoryRoot: "C:/repo",
   headAtCapture: "a".repeat(40),
-  repositoryGraph: graph,
+  repositoryFacts: { graph, claims: [], evidence: [] },
   semanticModel,
   analysisInputHash: `sha256:${"a".repeat(64)}` as const,
   workingDiffHash: `sha256:${"b".repeat(64)}` as const,
@@ -144,7 +144,7 @@ describe("control freshness seal", () => {
     };
 
     const left = buildControlFreshnessSeal(base);
-    const right = buildControlFreshnessSeal({ ...base, repositoryGraph: reorderedGraph, semanticModel: reorderedSemantic });
+    const right = buildControlFreshnessSeal({ ...base, repositoryFacts: { ...base.repositoryFacts, graph: reorderedGraph }, semanticModel: reorderedSemantic });
 
     expect(right).toEqual(left);
     expect(left.repositoryGraphHash).toMatch(/^sha256:[a-f0-9]{64}$/);
@@ -156,7 +156,7 @@ describe("control freshness seal", () => {
     const original = buildControlFreshnessSeal(base);
     const graphChanged = buildControlFreshnessSeal({
       ...base,
-      repositoryGraph: { ...graph, nodes: graph.nodes.map((node, index) => index === 0 ? { ...node, name: "changed" } : node) },
+      repositoryFacts: { ...base.repositoryFacts, graph: { ...graph, nodes: graph.nodes.map((node, index) => index === 0 ? { ...node, name: "changed" } : node) } },
     });
     const semanticChanged = buildControlFreshnessSeal({
       ...base,
@@ -171,6 +171,51 @@ describe("control freshness seal", () => {
     expect(graphChanged.repositoryGraphHash).not.toBe(original.repositoryGraphHash);
     expect(semanticChanged.semanticModelHash).not.toBe(original.semanticModelHash);
     expect(new Set([original.sealHash, graphChanged.sealHash, semanticChanged.sealHash, sourceRefChanged.sealHash, diffChanged.sealHash]).size).toBe(5);
+  });
+
+  it("changes when persisted claims or evidence consumed by Plane C drift", () => {
+    const claim: Claim = {
+      id: "claim.a",
+      kind: "behavior",
+      statement: "Claim A",
+      subjectNodeIds: [graph.nodes[0]!.id],
+      evidenceIds: ["evidence.a"],
+      authority: 1,
+      freshness: 1,
+      confidence: 1,
+      verificationStatus: "tested",
+      tags: ["z", "a"],
+    };
+    const evidence: EvidenceRecord = {
+      id: "evidence.a",
+      filePath: "src/a.ts",
+      startLine: 1,
+      sourceKind: "test",
+    };
+    const original = buildControlFreshnessSeal({
+      ...base,
+      repositoryFacts: { graph, claims: [claim], evidence: [evidence] },
+    });
+    const claimChanged = buildControlFreshnessSeal({
+      ...base,
+      repositoryFacts: { graph, claims: [{ ...claim, statement: "Claim A changed" }], evidence: [evidence] },
+    });
+    const evidenceChanged = buildControlFreshnessSeal({
+      ...base,
+      repositoryFacts: { graph, claims: [claim], evidence: [{ ...evidence, startLine: 2 }] },
+    });
+    const reordered = buildControlFreshnessSeal({
+      ...base,
+      repositoryFacts: {
+        graph,
+        claims: [{ ...claim, subjectNodeIds: [...claim.subjectNodeIds].reverse(), evidenceIds: [...claim.evidenceIds].reverse(), tags: [...claim.tags].reverse() }],
+        evidence: [{ ...evidence, filePath: "src\\a.ts" }],
+      },
+    });
+
+    expect(claimChanged.repositoryGraphHash).not.toBe(original.repositoryGraphHash);
+    expect(evidenceChanged.repositoryGraphHash).not.toBe(original.repositoryGraphHash);
+    expect(reordered.repositoryGraphHash).toBe(original.repositoryGraphHash);
   });
 
   it("records unavailable or mismatched Git state without inventing a verdict", () => {

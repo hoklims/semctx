@@ -11,7 +11,7 @@ import {
   canonicalRepositoryRoot,
   captureGitState,
   fingerprintAnalysisInputs,
-  fingerprintRepositoryGraph,
+  fingerprintRepositoryFacts,
   fingerprintSemanticModel,
   type IndexedControlSnapshot,
 } from "./freshness";
@@ -77,7 +77,11 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     capturedAt: indexedAt,
     repositoryRoot,
     headCommit: gitAfter.headCommit,
-    repositoryGraphHash: fingerprintRepositoryGraph(indexed.analysis.graph),
+    repositoryGraphHash: fingerprintRepositoryFacts({
+      graph: indexed.analysis.graph,
+      claims: indexed.claims,
+      evidence: indexed.analysis.evidence,
+    }),
     semanticModelHash: semanticModelHashAfter,
     analysisInputHash: analysisInputHashAfter,
     workingDiffHash: gitAfter.workingDiffHash,
@@ -105,7 +109,11 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     freshnessSeal: buildControlFreshnessSeal({
       repositoryRoot,
       headAtCapture: gitAfter.headCommit,
-      repositoryGraph: indexed.analysis.graph,
+      repositoryFacts: {
+        graph: indexed.analysis.graph,
+        claims: indexed.claims,
+        evidence: indexed.analysis.evidence,
+      },
       semanticModel: semanticAfter.model,
       analysisInputHash: analysisInputHashAfter,
       workingDiffHash: gitAfter.workingDiffHash,

@@ -13,6 +13,7 @@ export {
   captureGitState,
   evaluateControlFreshness,
   fingerprintAnalysisInputs,
+  fingerprintRepositoryFacts,
   fingerprintRepositoryGraph,
   fingerprintSemanticModel,
   unsealedControlStatus,

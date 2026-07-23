@@ -100,6 +100,19 @@ export const UnsupportedCoordinateSourceSchema = z.object({
 
 export const UnmappedCoordinateSourceSchema = UnsupportedCoordinateSourceSchema;
 
+export const StaleRepositoryLinkSchema = z.object({
+  ownerId: z.string().min(1),
+  link: z.object({ kind: z.string().min(1), ref: z.string().min(1) }).strict(),
+  resolved: z.literal(false),
+  reason: z.string().min(1),
+}).strict();
+
+export const DanglingSemanticReferenceSchema = z.object({
+  ownerId: z.string().min(1),
+  field: z.string().min(1),
+  ref: z.string().min(1),
+}).strict();
+
 export const CoordinateGraphReportSchema = z.object({
   schemaVersion: z.literal(1),
   nodes: z.array(CoordinateNodeSchema),
@@ -108,6 +121,8 @@ export const CoordinateGraphReportSchema = z.object({
   coverage: z.array(LevelCoverageSchema),
   unsupported: z.array(UnsupportedCoordinateSourceSchema),
   unmapped: z.array(UnmappedCoordinateSourceSchema),
+  staleLinks: z.array(StaleRepositoryLinkSchema).optional(),
+  danglingReferences: z.array(DanglingSemanticReferenceSchema).optional(),
 }).strict();
 
 export const Sha256HashSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/, "expected sha256:<64 lowercase hex>");

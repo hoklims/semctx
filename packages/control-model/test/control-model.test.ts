@@ -156,6 +156,8 @@ describe("external report schemas", () => {
     coverage: Array.from({ length: 7 }, (_, level) => ({ level, categories: [], coordinateIds: [] })),
     unsupported: [],
     unmapped: [],
+    staleLinks: [],
+    danglingReferences: [],
   };
 
   const traversalReport = {
@@ -284,6 +286,8 @@ describe("external report schemas", () => {
 
   it("validates a coordinate report with explicit L0-L6 coverage", () => {
     expect(CoordinateGraphReportSchema.parse(coordinateReport).coverage).toHaveLength(7);
+    const { staleLinks: _staleLinks, danglingReferences: _danglingReferences, ...legacyReport } = coordinateReport;
+    expect(CoordinateGraphReportSchema.safeParse(legacyReport).success).toBe(true);
     expect(CoordinateGraphReportSchema.safeParse({ ...coordinateReport, schemaVersion: 2 }).success).toBe(false);
   });
 
