@@ -31,7 +31,7 @@ ordered programme below closes that gap before any executor is considered.
 
 ---
 
-## Market-leadership thesis and evidence policy
+## Market leadership thesis and evidence policy
 
 Tracking epic: [#24 — prove Semctx as the market-leading semantic change-control
 plane](https://github.com/hoklims/semctx/issues/24).
@@ -45,7 +45,7 @@ The competitive bar is split by capability so that one strong subsystem cannot h
 
 | Capability | Bar to clear | Roadmap gate |
 | --- | --- | --- |
-| Repository orientation | Integrate or sit behind strong content retrieval; construct and freeze the fused BM25 + embeddings baseline in #30, then never weaken it to make the semantic graph look better. | Research [#30](https://github.com/hoklims/semctx/issues/30) |
+| Repository orientation | Integrate or sit behind strong content retrieval; construct and freeze the fused BM25 + content embeddings baseline in #30, then never weaken it to make the semantic graph look better. | Research [#30](https://github.com/hoklims/semctx/issues/30) |
 | Vertical semantic control | Preserve goal, invariants and permitted scope from L6 to L0 and back with typed, evidence-bearing relations. | P1 [#26](https://github.com/hoklims/semctx/issues/26), P2 [#27](https://github.com/hoklims/semctx/issues/27) |
 | Proof and freshness integrity | Refuse stale, unsealed, contradictory or insufficient evidence without converting advisory inference into authority. | P0 [#25](https://github.com/hoklims/semctx/issues/25), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
 | Agent workflow | Produce the same bounded verdict and resumable semantic state across supported hosts, with measured false-block and operator-overhead budgets. | P3 [#28](https://github.com/hoklims/semctx/issues/28), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
@@ -57,12 +57,12 @@ Claims unlock in order:
 2. **Verified vertical product** — a reproducible L6 → L0 → L6 change on Semctx itself.
 3. **Competitive advantage** — replay beats the skill-only baseline on intent retention and scope
    precision without weakening proof honesty.
-4. **State of the art for governed semantic change** — a pre-registered head-to-head suite wins on
+4. **State-of-the-art governed semantic change** — a pre-registered head-to-head suite wins on
    the primary governance metrics and stays inside every safety/cost budget.
 5. **Market leadership** — technical evidence is joined by repeatable installation, reliability,
    adoption and operator-value results on independent projects.
 
-No unqualified state-of-the-art or market-leadership claim is allowed from architecture alone,
+No unqualified state-of-the-art or market leadership claim is allowed from architecture alone,
 private demos, stars, or a single dogfood repository. External products and models move too quickly
 for a static feature matrix to remain authoritative; P4 must record the exact versions, adapters,
 prompts, budgets and raw outputs used in each comparison.
@@ -218,7 +218,7 @@ sealed task/diff, while repositories without Semctx retain a clean no-op path.
       private, but ground-truth derivation and anonymization must be auditable.
 - [ ] **Independent pilot proof** — measure installation success, time-to-first-value, retained
       usage, accepted advice, overrides, false blocks and operator effort on at least three
-      non-Semctx repositories before using a market-leadership claim; pre-register numeric budgets
+      non-Semctx repositories before using a market leadership claim; pre-register numeric budgets
       and a minimum observation window before the first pilot starts.
 
 **Competitive gate:** on a held-out set, the vertical workflow beats the skill-only baseline on
