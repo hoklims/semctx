@@ -39,3 +39,12 @@ export const EXPECTED = {
   decoyModule: "src/app/notification-templates.ts",
   tests: ["test/capacity.test.ts", "test/confirmation.test.ts"],
 } as const;
+
+export {
+  findForbiddenReconciliationAuthorityExposures,
+  inspectReconciliationAuthorityClosure,
+} from "./reconciliation-authority";
+export type {
+  ReconciliationAuthorityClosure,
+  ReconciliationAuthorityViolation,
+} from "./reconciliation-authority";

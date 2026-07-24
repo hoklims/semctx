@@ -1,9 +1,11 @@
-import { CLEAN_CONTROL_WORKING_DIFF_HASH } from "./constants";
 import type {
   ControlFreshnessReason,
   ControlFreshnessSeal,
   ControlFreshnessVerdict,
 } from "./types";
+
+export const CLEAN_CONTROL_WORKING_DIFF_HASH =
+  "sha256:21dba70935f8f14f59199087ee440e16bec5dc567d8449b2cedf0c59c592abb1";
 
 export interface ControlFreshnessClassification {
   verdict: ControlFreshnessVerdict;

@@ -105,6 +105,55 @@ against the computed current/target delta. Neither control command creates or up
 Plan JSON carries the same freshness seal and status as trace JSON. Unsafe input returns a normal
 `BLOCKED / control_inputs_stale|control_inputs_unsealed` report with no steps.
 
+## `control plan-change`
+
+Compile one versioned pre-edit planning bundle from a persisted TaskFrame, an authored
+ChangeContract and explicit Plane-A bindings.
+
+```text
+semctx control plan-change <change-id> --task-id <task-id> --input <planner.json> [--json]
+```
+
+The strict planner object supplies the advisory classification overrides, candidate anchors,
+authored-link resolutions or explicit discoveries, optional target selection, semantic/repository
+edit expectations, rollback, tests and proof evidence. The CLI owns `schemaVersion`, `taskFrameId`
+and `changeId`; the input file must not redefine them.
+
+Planning binds the current committed `HEAD`, control index, semantic model and working-diff
+baseline. Text-derived anchors never become repository scope by themselves: an authoritative
+file, symbol or coordinate requires explicit discovery or an authored link with binding evidence.
+The result is canonical `PlanningBundleV1` JSON containing `TaskEnvelopeV1` and
+`SemanticChangeSetV1`; every layer carries `executionAuthority: "none"`. The command does not edit,
+schedule or apply code.
+
+## `control reconcile-diff`
+
+Reconcile the actual current worktree against one previously compiled planning bundle.
+
+```text
+semctx control reconcile-diff <input.json> [--json]
+```
+
+The input is exactly `{ "schemaVersion": 1, "planningBundle": ... }`. The command chooses no Git
+range: it observes the planning commit, current `HEAD` and current worktree itself, and rejects
+caller-selected `--base`, `--head` or equivalent refs. It emits the canonical
+`ReconcileDiffReportV1` with one terminal status:
+
+| status | meaning |
+| --- | --- |
+| `REFUSED` | Schema/hash, commit, target revision, source seal, index, attestation or mid-capture stability is unsafe. |
+| `VIOLATED` | The diff escapes scope, drifts an invariant, introduces undeclared lifted impact, misses a required edit, contains an unplanned coordinate or fails an accepted target. |
+| `UNPROVEN` | No violation is established, but baseline, observation, refinement, round trip, concrete edit or required evidence is incomplete. |
+| `REALIZED` | Every required planned edit and load-bearing proof is satisfied. |
+
+Status precedence is `REFUSED → VIOLATED → UNPROVEN → REALIZED`; reason codes use the shared
+canonical order. Exit code 0 means `REALIZED`; every other valid reconciliation result exits 3.
+Advisory diagnostics never upgrade the result.
+
+The equivalent MCP tools are `semctx_control_plan_change` and
+`semctx_control_reconcile_diff`. They validate the same schemas, call the same application
+services and serialize successful results to the same canonical bytes.
+
 ## Experimental
 
 `task create` and `context prepare` (the `task → ContextPack` retriever) and `bench` remain in the

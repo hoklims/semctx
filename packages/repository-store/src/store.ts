@@ -94,6 +94,7 @@ export interface ReadonlyRepositoryStore {
   loadGraph(): RepositoryGraph;
   loadEvidence(): EvidenceRecord[];
   loadClaims(): Claim[];
+  getTaskFrame(id: string): TaskFrame | undefined;
   getMeta(key: string): string | undefined;
   isIndexed(): boolean;
   close(): void;
@@ -140,6 +141,10 @@ export class SqliteRepositoryReader implements ReadonlyRepositoryStore {
 
   loadClaims(): Claim[] {
     return loadClaims(this.#db);
+  }
+
+  getTaskFrame(id: string): TaskFrame | undefined {
+    return getTaskFrame(this.#db, id);
   }
 
   getMeta(key: string): string | undefined {
@@ -217,8 +222,7 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   getTaskFrame(id: string): TaskFrame | undefined {
-    const row = this.db.query(`SELECT payload FROM task_frames WHERE id = ?`).get(id) as PayloadRow | null;
-    return row === null ? undefined : (JSON.parse(row.payload) as TaskFrame);
+    return getTaskFrame(this.db, id);
   }
 
   listTaskFrames(): TaskFrame[] {
@@ -333,6 +337,11 @@ function loadEvidence(db: Database): EvidenceRecord[] {
 function loadClaims(db: Database): Claim[] {
   const rows = db.query(`SELECT * FROM claims ORDER BY id`).all() as ClaimRow[];
   return rows.map(rowToClaim);
+}
+
+function getTaskFrame(db: Database, id: string): TaskFrame | undefined {
+  const row = db.query(`SELECT payload FROM task_frames WHERE id = ?`).get(id) as PayloadRow | null;
+  return row === null ? undefined : (JSON.parse(row.payload) as TaskFrame);
 }
 
 function getMeta(db: Database, key: string): string | undefined {

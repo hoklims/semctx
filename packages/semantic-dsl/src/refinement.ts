@@ -1,13 +1,13 @@
 import {
-  EPISTEMIC_STATUSES,
-  EvidenceKindV1Schema,
-  RefinementRelationKindV1Schema,
-  RefinementRelationV1Schema,
-  RelationProvenanceV1Schema,
+  ReconciliationEpistemicStatuses as EPISTEMIC_STATUSES,
+  ReconciliationEvidenceKindV1Schema as EvidenceKindV1Schema,
+  ReconciliationRefinementRelationKindV1Schema as RefinementRelationKindV1Schema,
+  ReconciliationRefinementRelationV1Schema as RefinementRelationV1Schema,
+  ReconciliationRelationProvenanceV1Schema as RelationProvenanceV1Schema,
   type EvidenceRefV1,
   type RefinementRelationV1,
   type RelationEndpointV1,
-} from "@semantic-context/control-model";
+} from "@semantic-context/control-model/reconciliation";
 import type { Diagnostic } from "./diagnostics";
 
 const SHA256 = /^sha256:[0-9a-f]{64}$/;

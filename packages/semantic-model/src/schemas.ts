@@ -93,6 +93,13 @@ export const SemanticNodeSchema = z.object({
   appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
 });
 
+export const ChangeTargetBindingV1Schema = z.object({
+  schemaVersion: z.literal(1),
+  targetId: z.string().regex(/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/, "expected a safe target id"),
+  revision: z.number().int().positive().safe(),
+  artifactHash: z.string().regex(/^sha256:[0-9a-f]{64}$/, "expected sha256:<64 lowercase hex>"),
+}).strict();
+
 export const ChangeContractSchema = z.object({
   id: z.string().min(1),
   statement: z.string(),
@@ -107,7 +114,8 @@ export const ChangeContractSchema = z.object({
   tags: z.array(z.string()),
   metadata: z.record(z.string()).optional(),
   appliesAtLevel: AuthoredSemanticLevelSchema.optional(),
-});
+  targetBinding: ChangeTargetBindingV1Schema.optional(),
+}).strict();
 
 export const SemanticModelSchema = z.object({
   nodes: z.array(SemanticNodeSchema),
@@ -116,5 +124,6 @@ export const SemanticModelSchema = z.object({
 });
 
 export type SemanticNodeParsed = z.infer<typeof SemanticNodeSchema>;
+export type ChangeTargetBindingV1Parsed = z.infer<typeof ChangeTargetBindingV1Schema>;
 export type ChangeContractParsed = z.infer<typeof ChangeContractSchema>;
 export type SemanticModelParsed = z.infer<typeof SemanticModelSchema>;

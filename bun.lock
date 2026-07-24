@@ -42,6 +42,7 @@
         "@semantic-context/semantic-engine": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
+        "zod": "^3.23.8",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -59,6 +60,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@semantic-context/cocoindex-adapter": "workspace:*",
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
       },
       "devDependencies": {
@@ -144,6 +146,7 @@
       "name": "@semantic-context/semantic-dsl",
       "version": "0.1.0",
       "dependencies": {
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
       },
@@ -153,10 +156,12 @@
       "version": "0.1.0",
       "dependencies": {
         "@semantic-context/context-engine": "workspace:*",
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
         "@semantic-context/repository-store": "workspace:*",
         "@semantic-context/semantic-dsl": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
+        "zod": "^3.23.8",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -166,6 +171,7 @@
       "name": "@semantic-context/semantic-model",
       "version": "0.1.0",
       "dependencies": {
+        "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
         "zod": "^3.23.8",
       },

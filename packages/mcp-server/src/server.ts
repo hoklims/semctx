@@ -29,6 +29,9 @@ import {
   controlTraversalTool,
 } from "./control-tools";
 import {
+  registerReconciliationTools,
+} from "./reconciliation-tools";
+import {
   AttestationRequestV1Schema,
   ArchitectureDeltaSchema,
   ArchitectureSnapshotSchema,
@@ -693,6 +696,8 @@ export function createSemctxServer(root: string): McpServer {
       }
     },
   );
+
+  registerReconciliationTools(server, root);
 
   return server;
 }

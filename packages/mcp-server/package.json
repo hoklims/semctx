@@ -5,7 +5,10 @@
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts",
+    "./reconciliation": "./src/reconciliation-tools.ts"
+  },
   "bin": { "semctx-mcp": "./src/index.ts" },
   "dependencies": {
     "@semantic-context/core": "workspace:*",

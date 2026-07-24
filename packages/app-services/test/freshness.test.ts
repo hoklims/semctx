@@ -303,6 +303,45 @@ describe("control freshness seal", () => {
   });
 });
 
+describe("authored target binding freshness", () => {
+  it("participates in the Plane B semantic model hash while absence stays compatible", () => {
+    const legacyChange = {
+      id: "change.checkout",
+      statement: "Adopt target",
+      lifecycle: "active" as const,
+      provenance: "author" as const,
+      sourceRefs: [],
+      serves: [],
+      preserves: [],
+      requiresEvidence: [],
+      openUnknowns: [],
+      repositoryLinks: [],
+      tags: [],
+    };
+    const modelWithLegacyChange: SemanticModel = { ...semanticModel, changes: [legacyChange] };
+    const legacyHash = appServices.fingerprintSemanticModel(modelWithLegacyChange);
+    const sameLegacyHash = appServices.fingerprintSemanticModel({
+      ...modelWithLegacyChange,
+      changes: modelWithLegacyChange.changes.map((change) => ({ ...change })),
+    });
+    const targetBoundHash = appServices.fingerprintSemanticModel({
+      ...modelWithLegacyChange,
+      changes: modelWithLegacyChange.changes.map((change) => ({
+            ...change,
+            targetBinding: {
+              schemaVersion: 1 as const,
+              targetId: "checkout-v2",
+              revision: 1,
+              artifactHash: `sha256:${"e".repeat(64)}` as const,
+            },
+          })),
+    });
+
+    expect(sameLegacyHash).toBe(legacyHash);
+    expect(targetBoundHash).not.toBe(legacyHash);
+  });
+});
+
 describe("explicit control freshness verdict", () => {
   it("distinguishes fresh, sealed dirty, stale, and unsealed inputs", () => {
     const root = mkdtempSync(join(tmpdir(), "semctx-freshness-verdict-"));

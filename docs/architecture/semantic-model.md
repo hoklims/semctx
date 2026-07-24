@@ -24,6 +24,9 @@ type ChangeLifecycle    = "draft" | "active" | "verified" | "partial" | "blocked
 interface RepositoryLink { kind: "symbol"|"file"|"claim"|"invariant"|"contract"|"capability"|"test"|"migration"|"evidence"; ref: string; }
 interface SourceRef      { file: string; line: number; }            // where the block was authored
 interface SemanticRelation { kind: SemanticRelationKind; to: string; } // to = a semantic id
+interface ChangeTargetBindingV1 {
+  schemaVersion: 1; targetId: string; revision: number; artifactHash: `sha256:${string}`;
+}
 
 interface SemanticNode {          // the six truth kinds (change uses ChangeContract)
   id: string; kind: SemanticNodeKind; statement: string;
@@ -37,6 +40,7 @@ interface ChangeContract {        // kind "change": proof-carrying
   sourceRefs: SourceRef[];
   serves: string[]; preserves: string[]; requiresEvidence: string[]; openUnknowns: string[];
   repositoryLinks: RepositoryLink[]; tags: string[]; metadata?: Record<string, string>;
+  appliesAtLevel?: 1|2|3|4|5|6; targetBinding?: ChangeTargetBindingV1;
 }
 
 interface SemanticModel {
@@ -58,6 +62,34 @@ tagged as a Plane-B semantic node or Plane-A observed-hunk digest. Every relatio
 epistemic status, `author|agent|derived` provenance and non-empty evidence references.
 `constrained_by` and `proved_by` decorate traversal reports, while only adjacent admissible
 refinement steps can certify level coverage. LLM-only and multi-level relations are advisory.
+
+`ChangeTargetBindingV1` is the immutable identity of a Git-authored target revision. It does not
+embed mutable target JSON and does not grant execution authority. The referenced artifact must
+match `targetId`, positive `revision` and `artifactHash`; only a reviewed `accepted` revision can
+be load-bearing during planning and reconciliation.
+
+## Task, change and target boundaries
+
+The authored semantic model owns durable intent, not task classification or observed repository
+state:
+
+| Contract | Plane | Responsibility |
+| --- | --- | --- |
+| `TaskFrameSnapshotV1` | task/application input | Versioned classification snapshot. Text-derived mode, risk signals, profile and altitude remain advisory. |
+| `ChangeContract` | B | Authored goal/invariant/evidence obligations and optional accepted target identity. |
+| `TaskEnvelopeV1` | C | Pre-edit join of the TaskFrame snapshot, ChangeContract hash, sealed Plane-A graph and explicit resolved scope. |
+| `SemanticChangeSetV1` | C | Ordered planned semantic/repository delta, rollback and acceptance evidence. |
+
+A `RepositoryLink` or explicit discovery can establish a pre-edit repository binding. Raw task
+text, names, imports and proximity cannot. For a planned addition or rename destination,
+`newPath` is an exact repository-relative intent in the ChangeSet, not a fabricated pre-edit
+coordinate.
+
+Target architecture artifacts live at
+`.semctx/semantic/targets/<targetId>/r<revision>.target.json`. A `proposed` artifact is immutable,
+Git-versioned and hypothetical/non-normative. Review creates the next `accepted` revision, records
+the canonical attestation and superseded artifact identity, and preserves the proposal's
+canonical architecture payload under its domain-separated hash.
 
 ## Ids
 
@@ -128,8 +160,9 @@ untagged endpoints and Unicode tokens produce stable diagnostics rather than inf
 ## Storage
 
 `.semctx/semantic/{goals,invariants,decisions,assumptions,unknowns,evidence}.sem` and
-`.semctx/semantic/changes/<id>.sem` are **Git-versioned truth**. `.semctx/working/**` (active change,
+`.semctx/semantic/changes/<id>.sem`, plus immutable target revisions under
+`.semctx/semantic/targets/`, are **Git-versioned truth**. `.semctx/working/**` (active change,
 handoff) is local scratch. `semctx semantic init` scaffolds comments and inert placeholders only;
-no `goal.example.*`, invariant, decision, or unknown becomes active without an explicit authored
-declaration. The empty model is therefore honest and `semctx semantic check` is green out of the
-box.
+no `goal.example.*`, invariant, decision, unknown or target becomes active without an explicit
+authored declaration. The empty model is therefore honest and `semctx semantic check` is green out
+of the box.

@@ -7,6 +7,7 @@ import {
   sliceSemanticModel,
   newChangeContract,
   applyChangePatch,
+  sameChangeContractContent,
   verifyChangeContract,
   buildHandoffCapsule,
   computeGitignore,
@@ -195,5 +196,38 @@ describe("gitignore policy", () => {
 
     expect(result.changed).toBe(false);
     expect(result.content).toBe(projectOnly);
+  });
+});
+
+describe("change target binding lifecycle helpers", () => {
+  const first = {
+    schemaVersion: 1 as const,
+    targetId: "checkout-v2",
+    revision: 1,
+    artifactHash: `sha256:${"c".repeat(64)}` as const,
+  };
+  const second = {
+    ...first,
+    revision: 2,
+    artifactHash: `sha256:${"d".repeat(64)}` as const,
+  };
+
+  it("authors, preserves, replaces, and removes an explicit binding", () => {
+    const created = newChangeContract({
+      id: "change.checkout",
+      statement: "Adopt target",
+      targetBinding: first,
+    });
+    expect(created.targetBinding).toEqual(first);
+    expect(created.targetBinding).not.toBe(first);
+
+    const preserved = applyChangePatch(created, { lifecycle: "active" });
+    expect(preserved.targetBinding).toEqual(first);
+    expect(preserved.targetBinding).not.toBe(created.targetBinding);
+
+    expect(applyChangePatch(created, { targetBinding: second }).targetBinding).toEqual(second);
+    expect(applyChangePatch(created, { targetBinding: null }).targetBinding).toBeUndefined();
+    expect(sameChangeContractContent(created, { ...created, targetBinding: second })).toBe(false);
+    expect(sameChangeContractContent(created, { ...created })).toBe(true);
   });
 });

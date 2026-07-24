@@ -40,6 +40,8 @@ describe("semctx MCP tool metadata", () => {
       "semctx_control_status",
       "semctx_control_trace",
       "semctx_control_plan",
+      "semctx_control_plan_change",
+      "semctx_control_reconcile_diff",
     ]) {
       expect(byName.get(name)?.annotations).toEqual({
         readOnlyHint: true,
@@ -60,5 +62,18 @@ describe("semctx MCP tool metadata", () => {
     });
     expect(invalidRoot.isError).toBe(true);
     expect(JSON.stringify(invalidRoot.content)).toContain("repositoryRoot must be absolute");
+
+    const invalidReconciliation = await client.callTool({
+      name: "semctx_control_reconcile_diff",
+      arguments: {
+        repositoryRoot: process.cwd(),
+        input: {
+          schemaVersion: 1,
+          planningBundle: {},
+          base: "HEAD~1",
+        },
+      },
+    });
+    expect(invalidReconciliation.isError).toBe(true);
   });
 });

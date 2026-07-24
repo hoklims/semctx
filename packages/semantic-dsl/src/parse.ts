@@ -15,9 +15,10 @@ import {
   kindOfSemanticId,
   normalizeLegacySemanticModelV1,
   repositoryLinkFromRef,
-} from "@semantic-context/semantic-model";
+} from "@semantic-context/semantic-model/reconciliation-read";
 import type {
   ChangeContract,
+  ChangeTargetBindingV1,
   RepositoryLink,
   SemanticCompatibilityNoteV1,
   SemanticModel,
@@ -27,7 +28,7 @@ import type {
   SemanticRelation,
   SemanticRelationKind,
   SemanticStatus,
-} from "@semantic-context/semantic-model";
+} from "@semantic-context/semantic-model/reconciliation-read";
 import type { Diagnostic } from "./diagnostics";
 import { parseRefinementBlocks } from "./refinement";
 
@@ -53,6 +54,8 @@ const RELATION_FIELD: Record<string, SemanticRelationKind> = {
 };
 
 const SCALAR_KEYS = new Set(["statement", "rule", "status", "provenance", "appliesAtLevel"]);
+const SAFE_TARGET_ID = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/;
+const SHA256 = /^sha256:[0-9a-f]{64}$/;
 
 interface RawField {
   key: string;
@@ -140,6 +143,19 @@ export function parseSemanticSource(text: string, file: string): ParseResult {
         continue;
       }
       if (item !== "") current.fields.push({ key: listKey.key, value: item, line, column: indent + 1 });
+      continue;
+    }
+
+    if (
+      current.kind === "change"
+      && (content === "target" || content.startsWith("target ") || content.startsWith("target:"))
+    ) {
+      if (!content.startsWith("target ")) {
+        diagnostics.push({ file, line, column: indent + 1, severity: "error", code: "CHANGE_TARGET_INVALID", message: 'target binding must use "target <safe-id> <positive revision> <sha256:...>"' });
+      } else {
+        current.fields.push({ key: "target", value: content.slice("target ".length).trim(), line, column: indent + 1 });
+      }
+      listKey = undefined;
       continue;
     }
 
@@ -253,7 +269,7 @@ function collectCommon(
       default:
         // Relation / unknown keys are handled by the caller; a key that is neither a known scalar/
         // link/tag/meta nor a relation/unknown key is a typo — surface it instead of dropping it.
-        if (RELATION_FIELD[field.key] === undefined && field.key !== "unknown") {
+        if (RELATION_FIELD[field.key] === undefined && field.key !== "unknown" && field.key !== "target") {
           diagnostics.push({ file, line: field.line, column: field.column, severity: "warning", message: `unknown field "${field.key}" (ignored)` });
         }
         break;
@@ -312,7 +328,18 @@ function finalizeChange(block: RawBlock, file: string, diagnostics: Diagnostic[]
   const preserves: string[] = [];
   const requiresEvidence: string[] = [];
   const openUnknowns: string[] = [];
+  let targetBinding: ChangeTargetBindingV1 | undefined;
+  let targetSeen = false;
   for (const field of block.fields) {
+    if (field.key === "target") {
+      if (targetSeen) {
+        diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "CHANGE_TARGET_DUPLICATE", message: "duplicate target binding" });
+        continue;
+      }
+      targetSeen = true;
+      targetBinding = parseTargetBinding(field, file, diagnostics);
+      continue;
+    }
     if (field.key === "unknown") {
       if (!openUnknowns.includes(field.value)) openUnknowns.push(field.value);
       continue;
@@ -339,8 +366,40 @@ function finalizeChange(block: RawBlock, file: string, diagnostics: Diagnostic[]
     tags: common.tags,
   };
   if (common.appliesAtLevel !== undefined) change.appliesAtLevel = common.appliesAtLevel;
+  if (targetBinding !== undefined) change.targetBinding = targetBinding;
   if (Object.keys(common.metadata).length > 0) change.metadata = common.metadata;
   return change;
+}
+
+function parseTargetBinding(
+  field: RawField,
+  file: string,
+  diagnostics: Diagnostic[],
+): ChangeTargetBindingV1 | undefined {
+  const parts = field.value.split(/\s+/);
+  if (parts.length !== 3) {
+    diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "CHANGE_TARGET_INVALID", message: 'target binding must use "target <safe-id> <positive revision> <sha256:...>"' });
+    return undefined;
+  }
+  const [targetId, revisionText, artifactHash] = parts as [string, string, string];
+  if (!SAFE_TARGET_ID.test(targetId)) {
+    diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "CHANGE_TARGET_ID_INVALID", message: `invalid target id "${targetId}" (expected a safe lowercase id)` });
+    return undefined;
+  }
+  if (!/^[1-9][0-9]*$/.test(revisionText) || !Number.isSafeInteger(Number(revisionText))) {
+    diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "CHANGE_TARGET_REVISION_INVALID", message: `invalid target revision "${revisionText}" (expected a positive decimal integer)` });
+    return undefined;
+  }
+  if (!SHA256.test(artifactHash)) {
+    diagnostics.push({ file, line: field.line, column: field.column, severity: "error", code: "CHANGE_TARGET_HASH_INVALID", message: `invalid target artifact hash "${artifactHash}" (expected sha256:<64 lowercase hex>)` });
+    return undefined;
+  }
+  return {
+    schemaVersion: 1,
+    targetId,
+    revision: Number(revisionText),
+    artifactHash: artifactHash as ChangeTargetBindingV1["artifactHash"],
+  };
 }
 
 function pushString(list: string[], value: string): void {

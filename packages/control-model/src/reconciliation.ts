@@ -1,0 +1,130 @@
+/**
+ * Narrow read-only contracts for candidate observation and semantic reconciliation.
+ * This surface intentionally excludes authorization, execution state, migration,
+ * semantic writers, target writers, and mutation vocabulary.
+ */
+export {
+  CandidateAnchorV1Schema,
+  CanonicalRepoRelativePathSchema,
+  DeclaredReconciliationScopeV1Schema,
+  ObservationAnalysisV1Schema,
+  PlanningBundleV1Schema,
+  RefinementProfileV1Schema,
+  RepositoryEditExpectationV1Schema,
+  ReconciliationAnalysisV1Schema,
+  ReconciliationAdvisoryCodeV1Schema,
+  ReconcileDiffReportV1Schema,
+  ReconcileWorkingTreeInputV1Schema,
+  ResolvedBindingScopeV1Schema,
+  ResolvedBindingV1Schema,
+  SemanticChangeSetV1Schema,
+  SemanticExpectationV1Schema,
+  TargetReferenceV1Schema,
+  TaskEnvelopeV1Schema,
+  TaskFrameSnapshotV1Schema,
+  TaskModeV1Schema,
+  TaskRiskV1Schema,
+  WorkspaceBaselineSnapshotV1Schema,
+} from "./task-envelope-schemas";
+export { Sha256HashSchema } from "./primitive-schemas";
+export {
+  CLEAN_CONTROL_WORKING_DIFF_HASH,
+  classifyControlFreshnessSeal,
+} from "./freshness";
+export {
+  ReconciliationEpistemicStatuses,
+  ReconciliationEvidenceKindV1Schema,
+  ReconciliationRefinementRelationKindV1Schema,
+  ReconciliationRefinementRelationV1Schema,
+  ReconciliationRelationProvenanceV1Schema,
+} from "./reconciliation-refinement-schemas";
+export { compareCodeUnits } from "./ordering";
+export {
+  canonicalizeReconciliationReasons,
+  computeObservationAnalysisV1Hash,
+  computePlanningBundleV1Hash,
+  computeReconciliationObservedDiffV1Hash,
+  computeReconciliationAnalysisV1Hash,
+  computeReconciliationArchitectureDeltaV1Hash,
+  computeReconcileDiffReportV1Hash,
+  computeSemanticChangeSetV1Hash,
+  computeTaskEnvelopeV1Hash,
+  computeTaskFrameSnapshotV1Hash,
+  normalizeObservationAnalysisV1,
+  normalizePlanningBundleV1,
+  normalizeReconciliationAnalysisV1,
+  normalizeReconcileDiffReportV1,
+  normalizeSemanticChangeSetV1,
+  normalizeTaskEnvelopeV1,
+} from "./task-envelope-canonical";
+export {
+  createObservedDiffHunkV1,
+  computeRefinementRelationDigest,
+  normalizeObservedDiffPath,
+  sha256HashCanonicalJson,
+  sha256HashUtf8,
+} from "./hashing";
+export { serializeControlReport } from "./canonical";
+export { normalizeCanonicalRepoRelativePath } from "./task-envelope-canonical";
+export { RECONCILIATION_ADVISORY_CODES } from "./task-envelope-types";
+export type {
+  CandidateAnchorV1,
+  DeclaredReconciliationScopeV1,
+  EvidenceEvaluationV1,
+  ObservationChangeV1,
+  ObservationAnalysisV1,
+  PlanningBundleV1,
+  ReconciliationEvidenceInputV1,
+  ReconciliationHunkBindingV1,
+  ReconciliationAnalysisV1,
+  ReconciliationAdvisoryCodeV1,
+  ReconciliationRoundTripCoverageV1,
+  ReconciliationRoundTripStepV1,
+  ReconciliationTargetAnalysisV1,
+  ReconcileDiffReportV1,
+  ReconcileWorkingTreeInputV1,
+  ReconciliationInsufficiencyReasonV1,
+  ReconciliationReasonCodeV1,
+  ReconciliationRefusalReasonV1,
+  ReconciliationViolationReasonV1,
+  RepositoryEditExpectationV1,
+  ResolvedBindingScopeV1,
+  ResolvedBindingV1,
+  SemanticChangeSetV1,
+  SemanticExpectationV1,
+  SemanticRefinementStepV1,
+  RefinementProfileV1,
+  TaskFrameSnapshotV1,
+  TaskModeV1,
+  TaskRiskV1,
+  TaskEnvelopeV1,
+  TargetReferenceV1,
+  WorkspaceBaselineSnapshotV1,
+} from "./task-envelope-types";
+export type {
+  CoordinateGraphReportV2,
+  CoordinateNodeV2,
+  EvidenceRefV1,
+  ObservedDiffHunkV1,
+  RefinementCoverageReportV1,
+  RefinementRelationV1,
+  RelationEndpointV1,
+} from "./refinement";
+export type {
+  ArchitectureComparisonReport,
+  ArchitectureDelta,
+  ArchitectureElement,
+  ArchitectureRelation,
+  ArchitectureSnapshot,
+  ControlFreshnessReason,
+  ControlFreshnessSeal,
+  ControlFreshnessStatusReport,
+  ControlFreshnessVerdict,
+  CoordinateCategory,
+  CoordinateEdge,
+  CoordinateGraphReport,
+  EpistemicStatus,
+  QualifiedCoordinateId,
+  SemanticLevel,
+  Sha256Hash,
+} from "./types";

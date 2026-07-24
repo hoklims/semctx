@@ -10,3 +10,6 @@ export type * from "./refinement";
 export * from "./refinement-schemas";
 export * from "./hashing";
 export * from "./normalizers";
+export * from "./task-envelope-types";
+export * from "./task-envelope-canonical";
+export * from "./task-envelope-schemas";

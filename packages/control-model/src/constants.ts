@@ -8,7 +8,6 @@ import type {
   ProofObligationPolicy,
   RiskLevel,
   SemanticLevel,
-  Sha256Hash,
   SourceKindLevelMapping,
 } from "./types";
 import { compareCodeUnits } from "./ordering";
@@ -16,7 +15,7 @@ import { compareCodeUnits } from "./ordering";
 export const SEMANTIC_LEVELS = [0, 1, 2, 3, 4, 5, 6] as const satisfies readonly SemanticLevel[];
 
 /** Hash of the canonical empty Git working-diff capture (`{ "entries": [] }`). */
-export const CLEAN_CONTROL_WORKING_DIFF_HASH = "sha256:21dba70935f8f14f59199087ee440e16bec5dc567d8449b2cedf0c59c592abb1" as const satisfies Sha256Hash;
+export { CLEAN_CONTROL_WORKING_DIFF_HASH } from "./freshness";
 
 export const EPISTEMIC_STATUSES = [
   "human_declared",

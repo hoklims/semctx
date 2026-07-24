@@ -5,6 +5,10 @@ import { createSemctxServer } from "./server";
 export { createSemctxServer } from "./server";
 export { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
 export type { PrepareTaskResult } from "./tools";
+export {
+  controlPlanChangeTool,
+  controlReconcileDiffTool,
+} from "./reconciliation-tools";
 
 /** Entry point: serve semctx over stdio for the current (or SEMCTX_ROOT) repository. */
 async function main(): Promise<void> {

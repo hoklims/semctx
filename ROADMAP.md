@@ -24,10 +24,10 @@ Baseline audited on `main` at `399720c` (2026-07-23).
 - [x] **Codex / Claude Code parity** — shared `semctx-control` workflow semantics and bundled MCP
       runtime, with host-specific installation and guards.
 
-The Plane C kernel and P1 typed vertical refinement are shipped. L0 observed hunks now have stable
-coordinates, `lift` / `lower` use dedicated evidence-bearing refinement policy, and public
-transports expose the bounded read-only reports. P2 must now bind a task to explicit scope and
-reconcile the resulting diff before any executor is considered.
+The Plane C kernel, P1 typed vertical refinement and P2 task-to-diff reconciliation are shipped.
+L0 observed hunks have stable coordinates, `lift` / `lower` use dedicated evidence-bearing
+refinement policy, and the same versioned contracts serve CLI and MCP. P3 may now integrate those
+read-only contracts into agent lifecycles; no executor is part of P2.
 
 ---
 
@@ -137,28 +137,31 @@ round trip remains P2.
 The agent must manipulate a semantic change object before producing a patch, while normal code
 search remains responsible for discovering the initial implementation anchors.
 
-- [ ] **Semantic TaskEnvelope** — join the existing `TaskFrame`, `ChangeContract` and coordinate
+- [x] **Semantic TaskEnvelope** — join the existing `TaskFrame`, `ChangeContract` and coordinate
       graph with required abstraction altitude, explicit anchors, parent intent, preserved
       invariants, non-goals, allowed scope, expected behaviour delta, proof obligations and seals.
-- [ ] **Separate framing from scope binding** — raw text may classify mode/risk/required altitude,
+- [x] **Separate framing from scope binding** — raw text may classify mode/risk/required altitude,
       but repository files and symbols become authoritative only after explicit discovery and
       binding.
-- [ ] **Versioned target architecture artifacts** — author proposed targets in Git, retain
+- [x] **Versioned target architecture artifacts** — author proposed targets in Git, retain
       `hypothetical` provenance until reviewed, and let plans consume a stable `targetId` instead
       of requiring callers to construct raw snapshot JSON.
-- [ ] **General refinement planner** — support local patch, refactor, feature, redesign and
+- [x] **General refinement planner** — support local patch, refactor, feature, redesign and
       migration profiles. The current shadow/cutover/deletion DAG remains the migration
       specialization, not the default for every change.
-- [ ] **Semantic ChangeSet** — record the planned cross-level delta, ordered refinement steps,
+- [x] **Semantic ChangeSet** — record the planned cross-level delta, ordered refinement steps,
       permitted repository scope, rollback and acceptance evidence.
-- [ ] **`reconcile diff`** — lift the actual working diff, compare it with the envelope and target,
+- [x] **`reconcile diff`** — lift the actual working diff, compare it with the envelope and target,
       report unplanned coordinates, missing planned edits, invariant drift and unexpected
       abstraction-level changes.
-- [ ] **Round-trip properties** — verify relevant forms of `x ∈ lower(lift(x))` and ensure that
+- [x] **Round-trip properties** — verify relevant forms of `x ∈ lower(lift(x))` and ensure that
       invariants discovered while lifting are included in the patch proof obligations.
 
 **Gate:** a non-trivial change cannot be called complete when its actual diff escapes the permitted
-scope, fails to realize the target or lifts to an undeclared goal/invariant impact.
+scope, fails to realize the target or lifts to an undeclared goal/invariant impact. The canonical
+report also refuses stale, unsealed or mid-capture-changing inputs and distinguishes violations from
+insufficient proof. `TaskEnvelope`, `SemanticChangeSet`, planning and reconciliation all carry
+`executionAuthority: "none"`.
 
 ### P3 — Agent workflow and host governance ([#28](https://github.com/hoklims/semctx/issues/28))
 

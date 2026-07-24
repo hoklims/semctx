@@ -1,8 +1,8 @@
 import {
   createObservedDiffHunkV1,
   normalizeObservedDiffPath,
-} from "@semantic-context/control-model";
-import type { ObservedDiffHunkV1 } from "@semantic-context/control-model";
+} from "@semantic-context/control-model/reconciliation";
+import type { ObservedDiffHunkV1 } from "@semantic-context/control-model/reconciliation";
 import type { DiffFile, DiffHunk } from "./verify-diff";
 
 const HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
