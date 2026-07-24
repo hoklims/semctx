@@ -29,15 +29,16 @@ graph.
 | Plane | Owner | Source of truth | Representation |
 | --- | --- | --- | --- |
 | **A — Repository facts** | derived from code | the repo + `semctx index` (SQLite is a regenerable cache) | `RepositoryGraph` nodes/edges, `Claim`s, `EvidenceRecord`s, `VerifyReport` |
-| **B — Authored semantic truth** | authored by human/agent | Git-versioned `.semctx/semantic/**.sem` files | `SemanticNode`s, `ChangeContract`s |
-| **C — Refinement control** | deterministic read-only projection | sealed Plane-A observations + typed Plane-B relations | versioned coordinate, traversal and coverage reports |
+| **B — Authored semantic truth** | authored by human/agent | Git-versioned `.semctx/semantic/**` files | `SemanticNode`s, `ChangeContract`s, target architecture artifacts |
+| **C — Refinement control** | deterministic read-only projection | sealed Plane-A observations + typed Plane-B relations | versioned planning bundles, coordinate, traversal, coverage and reconciliation reports |
 
 Plane C does not replace either source plane. It joins explicit Plane-B endpoints to immutable
-Plane-A observations and emits reports only; it has no executor, cutover, deletion, `TaskEnvelope`
-or `ChangeSet` authority. The ordinary B-to-A coupling remains an explicit `RepositoryLink` on a
-semantic node, whose `ref` is a Plane-A id (`sym:…`, `inv:…`, `contract:…`, `claim:…`, `test:…`,
-`mig:…`, `cap:…`, `ev:…`) or a repo-relative file path. A fact and an intention never share a type
-without explicit `provenance`.
+Plane-A observations and emits reports only. Its `TaskEnvelope` and `SemanticChangeSet` describe
+pre-edit intent and reconcile the resulting diff; both carry `executionAuthority: "none"`. Plane C
+has no executor, patch application, cutover or deletion authority. The ordinary B-to-A coupling
+remains an explicit `RepositoryLink` on a semantic node, whose `ref` is a Plane-A id (`sym:…`,
+`inv:…`, `contract:…`, `claim:…`, `test:…`, `mig:…`, `cap:…`, `ev:…`) or a repo-relative file
+path. A fact and an intention never share a type without explicit `provenance`.
 
 ```
 "handleStripeWebhook calls reserveInventory"   → Plane A structural fact (derived)
@@ -78,6 +79,7 @@ Wiring reuses existing surfaces, never forks them:
     assumptions.sem
     unknowns.sem
     changes/<change-id>.sem
+    targets/<target-id>/r<revision>.target.json
   working/                  ← local, git-ignored (agent scratch)
     active-change.sem
     handoff.json
@@ -209,6 +211,36 @@ Empty traversals use stable reasons with deterministic precedence:
 `INDEX_STALE`, `COORDINATE_UNKNOWN`, `MAPPING_MISSING`, `REFINEMENT_DISCONNECTED` and
 `BUDGET_EXHAUSTED`. Impact remains structural, authored rationale remains distinct from proximity,
 and proof queries use only `proved_by`.
+
+## Pre-edit intent and actual-diff reconciliation
+
+The task-to-diff contract adds a versioned read-only chain without changing Plane A or Plane B
+authority:
+
+1. `TaskFrameSnapshotV1` records task classification and advisory profile/altitude candidates.
+2. `TaskEnvelopeV1` joins that snapshot to one `ChangeContract`, sealed coordinates, explicit
+   repository bindings, permitted scope, invariants, non-goals and proof obligations.
+3. `SemanticChangeSetV1` records ordered cross-level steps, expected repository edits, rollback,
+   tests and acceptance evidence.
+4. `PlanningBundleV1` binds the envelope and change set to one workspace baseline and planning
+   commit.
+5. `ReconcileDiffReportV1` compares the actual current worktree with that bundle.
+
+Task text and candidate anchors can classify and orient, but cannot bind a repository path,
+symbol or coordinate. A load-bearing binding requires explicit discovery or an authored link plus
+binding evidence, the planning commit and graph seal. For an addition or the new side of a rename,
+the canonical `newPath` is exact planned intent; it is not represented as a resolved pre-edit fact.
+
+Git-versioned target architecture proposals are immutable and non-normative. A fresh canonical
+review attestation produces a new accepted revision with the same target payload. Proposed targets,
+imports, proximity, multi-level shortcuts, `llm_inferred`/`hypothetical` relations and unsealed
+evidence may produce diagnostics, but cannot certify target realization or round trips.
+
+Reconciliation observes byte-exact L0 hunks and candidate analysis, then checks scope, planned
+edits, invariant drift, lifted impact, accepted target elements, evidence and exact adjacent
+round-trip coverage. Stale or changing inputs are refused. A violated intent is `VIOLATED`;
+missing proof is `UNPROVEN`; only complete, sealed satisfaction is `REALIZED`. The CLI and MCP
+surfaces share the same strict schemas, reason precedence and canonical serialization.
 
 ## Composed change verification (Plane A ∘ Plane B)
 

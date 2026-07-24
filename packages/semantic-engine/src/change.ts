@@ -1,7 +1,7 @@
 /** Change-contract lifecycle helpers (Section 4.4). Pure: transformations return new contracts. */
 
 import { PROVEN_STATUSES, repositoryLinkFromRef } from "@semantic-context/semantic-model";
-import type { ChangeContract, ChangeLifecycle, SemanticModel, SemanticProvenance, RepositoryLink } from "@semantic-context/semantic-model";
+import type { ChangeContract, ChangeLifecycle, ChangeTargetBindingV1, SemanticModel, SemanticProvenance, RepositoryLink } from "@semantic-context/semantic-model";
 import { SemctxError } from "@semantic-context/core";
 
 export interface NewChangeInput {
@@ -16,6 +16,7 @@ export interface NewChangeInput {
   links?: string[];
   tags?: string[];
   file?: string;
+  targetBinding?: ChangeTargetBindingV1;
 }
 
 function uniqueStrings(values: readonly string[]): string[] {
@@ -32,7 +33,7 @@ function toLinks(refs: readonly string[]): RepositoryLink[] {
 }
 
 export function newChangeContract(input: NewChangeInput): ChangeContract {
-  return {
+  const change: ChangeContract = {
     id: input.id,
     statement: input.statement,
     lifecycle: input.lifecycle ?? "draft",
@@ -45,6 +46,8 @@ export function newChangeContract(input: NewChangeInput): ChangeContract {
     repositoryLinks: toLinks(input.links ?? []),
     tags: uniqueStrings(input.tags ?? []),
   };
+  if (input.targetBinding !== undefined) change.targetBinding = { ...input.targetBinding };
+  return change;
 }
 
 export interface ChangePatch {
@@ -58,6 +61,8 @@ export interface ChangePatch {
   resolveUnknowns?: string[];
   addLinks?: string[];
   addTags?: string[];
+  /** Set an authored target binding, or pass null to remove it explicitly. */
+  targetBinding?: ChangeTargetBindingV1 | null;
 }
 
 function mergeList(current: readonly string[], add?: readonly string[], remove?: readonly string[]): string[] {
@@ -72,7 +77,7 @@ export function applyChangePatch(change: ChangeContract, patch: ChangePatch): Ch
   const linkMap = new Map<string, RepositoryLink>();
   for (const link of change.repositoryLinks) linkMap.set(`${link.kind}:${link.ref}`, link);
   for (const link of toLinks(patch.addLinks ?? [])) linkMap.set(`${link.kind}:${link.ref}`, link);
-  return {
+  const updated: ChangeContract = {
     ...change,
     statement: patch.statement ?? change.statement,
     lifecycle: patch.lifecycle ?? change.lifecycle,
@@ -84,6 +89,10 @@ export function applyChangePatch(change: ChangeContract, patch: ChangePatch): Ch
     repositoryLinks: [...linkMap.values()],
     tags: mergeList(change.tags, patch.addTags),
   };
+  const targetBinding = patch.targetBinding === undefined ? change.targetBinding : patch.targetBinding ?? undefined;
+  if (targetBinding === undefined) delete updated.targetBinding;
+  else updated.targetBinding = { ...targetBinding };
+  return updated;
 }
 
 /** Require an auditable proved_by edge before an authored unknown can be removed from a change. */

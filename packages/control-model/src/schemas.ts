@@ -3,7 +3,9 @@
 import { z } from "zod";
 import { MIGRATION_STEP_PROFILES } from "./constants";
 import { classifyControlFreshnessSeal } from "./freshness";
-import type { AuthoredSemanticLevel, ControlFreshnessSeal, Sha256Hash } from "./types";
+import { Sha256HashSchema } from "./primitive-schemas";
+import type { AuthoredSemanticLevel, ControlFreshnessSeal } from "./types";
+export { Sha256HashSchema } from "./primitive-schemas";
 
 export const SemanticLevelSchema = z.number().int().min(0).max(6);
 export const AuthoredSemanticLevelSchema = SemanticLevelSchema.refine(
@@ -128,9 +130,6 @@ export const CoordinateGraphReportSchema = z.object({
   staleLinks: z.array(StaleRepositoryLinkSchema).optional(),
   danglingReferences: z.array(DanglingSemanticReferenceSchema).optional(),
 }).strict();
-
-export const Sha256HashSchema: z.ZodType<Sha256Hash> = z.string()
-  .regex(/^sha256:[0-9a-f]{64}$/, "expected sha256:<64 lowercase hex>") as z.ZodType<Sha256Hash>;
 
 export const ControlFreshnessSealSchema = z.object({
   sealSchemaVersion: z.literal(1),

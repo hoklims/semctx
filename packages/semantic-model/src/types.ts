@@ -82,6 +82,14 @@ export interface RepositoryLink {
   ref: string;
 }
 
+/** Immutable identity of the Git-authored target revision this change must realize. */
+export interface ChangeTargetBindingV1 {
+  schemaVersion: 1;
+  targetId: string;
+  revision: number;
+  artifactHash: `sha256:${string}`;
+}
+
 /** Where a node was authored: the `.sem` file and 1-based line of its block header. */
 export interface SourceRef {
   file: string;
@@ -137,6 +145,8 @@ export interface ChangeContract {
   metadata?: Record<string, string>;
   /** Explicit abstraction level when the change contract participates in refinement. */
   appliesAtLevel?: AuthoredSemanticLevel;
+  /** Optional authored target identity. Legacy change contracts intentionally omit it. */
+  targetBinding?: ChangeTargetBindingV1;
 }
 
 /** The aggregate authored model: truth nodes plus change contracts. */

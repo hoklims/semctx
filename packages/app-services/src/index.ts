@@ -26,6 +26,8 @@ export {
   trustedControlSealHash,
 } from "./control";
 export type { ControlPlanCommand, ControlTraceCommand, CurrentControlState } from "./control";
+export { reviewTargetProposal } from "./target-review";
+export type { ReviewTargetArchitectureCommandV1 } from "./target-review";
 export {
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,

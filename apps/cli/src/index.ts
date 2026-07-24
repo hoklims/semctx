@@ -48,6 +48,9 @@ Control plane (read-only semantic coordinates and migration planning):
   control graph|traversal|coverage|impact|explain-why|compare-architecture [options] [--json]
   control authorize-transition|authorize-step|authorize-deletion --input <query.json> [--json]
   control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
+  control plan-change <change-id> --task-id <task-id> --input <planner.json> [--json]
+  control reconcile-diff <input.json> [--json]
+      reconciliation is read-only, accepts no Git refs, and grants no execution authority
 
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
   task create --from-file <file>   create a TaskFrame (also: --text "...", --mode <m>)

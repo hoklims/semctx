@@ -5,6 +5,24 @@ export { ensureSemanticGitignore, computeGitignore } from "./gitignore";
 export type { GitignoreResult } from "./gitignore";
 
 export {
+  TargetArchitectureArtifactV1Schema,
+  computeTargetArtifactHash,
+  computeTargetArchitecturePayloadHash,
+  discoverTargetArtifacts,
+  loadTargetArtifacts,
+  loadTargetArtifact,
+  createTargetProposal,
+} from "./targets";
+export type {
+  TargetAuthorshipOriginV1,
+  TargetNormativeStatusV1,
+  TargetArchitectureRevisionRefV1,
+  TargetArchitectureArtifactV1,
+  TargetArchitectureProposalInputV1,
+  TargetArtifactLocationV1,
+} from "./targets";
+
+export {
   loadSemanticModel,
   loadActiveChange,
   readActiveChangePointer,

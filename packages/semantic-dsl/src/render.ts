@@ -55,6 +55,9 @@ export function renderNode(node: SemanticNode, notation: Notation): string {
 export function renderChange(change: ChangeContract, notation: Notation): string {
   const lines: string[] = [head("change", change.id, change.lifecycle, notation)];
   lines.push(`  statement: ${change.statement}`);
+  if (change.targetBinding !== undefined) {
+    lines.push(`  target ${change.targetBinding.targetId} ${change.targetBinding.revision} ${change.targetBinding.artifactHash}`);
+  }
   for (const to of sorted(change.serves)) lines.push(`  ${ARROW(notation)} serves ${to}`);
   for (const to of sorted(change.preserves)) lines.push(`  ${ARROW(notation)} preserves ${to}`);
   for (const to of sorted(change.requiresEvidence)) lines.push(`  ${ARROW(notation)} requires_evidence ${to}`);

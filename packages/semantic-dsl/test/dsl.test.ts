@@ -113,3 +113,59 @@ describe("renderers — symbols and ascii projections", () => {
     expect(ascii).not.toContain("Δ");
   });
 });
+
+describe("change target binding DSL", () => {
+  const hash = `sha256:${"b".repeat(64)}` as const;
+  const canonical = [
+    "change change.checkout",
+    "  statement: Adopt the reviewed checkout architecture",
+    "  status: active",
+    "  provenance: author",
+    "  appliesAtLevel: 5",
+    `  target checkout-v2 3 ${hash}`,
+    "  serves: goal.checkout",
+    "",
+  ].join("\n");
+
+  it("parses, formats, and renders the canonical target line in contract order", () => {
+    const parsed = parseSemanticSource(canonical, "target.sem");
+    expect(hasErrors(parsed.diagnostics)).toBe(false);
+    expect(parsed.model.changes[0]?.targetBinding).toEqual({
+      schemaVersion: 1,
+      targetId: "checkout-v2",
+      revision: 3,
+      artifactHash: hash,
+    });
+    expect(formatModel(parsed.model)).toBe(canonical);
+    expect(renderModel(parsed.model, "ascii")).toContain(`  target checkout-v2 3 ${hash}`);
+  });
+
+  it("leaves canonical legacy documents without a target line unchanged", () => {
+    const legacy = canonical.replace(`  target checkout-v2 3 ${hash}\n`, "");
+    const parsed = parseSemanticSource(legacy, "legacy.sem");
+    expect(hasErrors(parsed.diagnostics)).toBe(false);
+    expect(parsed.model.changes[0]?.targetBinding).toBeUndefined();
+    expect(formatModel(parsed.model)).toBe(legacy);
+  });
+
+  it("refuses duplicate and malformed target lines", () => {
+    const duplicate = canonical.replace(
+      `  target checkout-v2 3 ${hash}`,
+      `  target checkout-v2 3 ${hash}\n  target checkout-v3 4 ${hash}`,
+    );
+    expect(parseSemanticSource(duplicate, "duplicate.sem").diagnostics).toContainEqual(
+      expect.objectContaining({ severity: "error", code: "CHANGE_TARGET_DUPLICATE" }),
+    );
+
+    for (const target of [
+      `../checkout 1 ${hash}`,
+      `checkout 0 ${hash}`,
+      `checkout 01 ${hash}`,
+      `checkout 1 sha256:${"A".repeat(64)}`,
+      "checkout 1",
+    ]) {
+      const source = canonical.replace(`checkout-v2 3 ${hash}`, target);
+      expect(hasErrors(parseSemanticSource(source, "malformed.sem").diagnostics)).toBe(true);
+    }
+  });
+});

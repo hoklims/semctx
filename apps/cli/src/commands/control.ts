@@ -37,6 +37,10 @@ import {
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info } from "../output";
+import {
+  CONTROL_RECONCILIATION_HELP,
+  runControlReconciliation,
+} from "./control-reconciliation";
 
 const CONTROL_HELP = `semctx control — read-only semantic reconstruction control plane
 
@@ -54,6 +58,7 @@ Usage:
   semctx control authorize-step --input <query.json> [--json]
   semctx control authorize-deletion --input <query.json> [--json]
   semctx control plan <change-id> [--target <snapshot.json>] [--delta <delta.json>] [--json]
+${CONTROL_RECONCILIATION_HELP}
 `;
 
 function integerFlag(args: ParsedArgs, name: string, fallback: number, min: number, max: number): number {
@@ -119,6 +124,8 @@ export function runControl(root: string, args: ParsedArgs): number {
     info(CONTROL_HELP);
     return 0;
   }
+  const reconciliationExitCode = runControlReconciliation(root, args);
+  if (reconciliationExitCode !== undefined) return reconciliationExitCode;
 
   if (subcommand === "trace") {
     const sourceInput = requiredPositional(args, 2, "semctx control trace <qualified-id>");

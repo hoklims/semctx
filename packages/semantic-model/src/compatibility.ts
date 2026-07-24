@@ -38,7 +38,10 @@ export function normalizeLegacySemanticModelV1(model: SemanticModel): Normalized
   return {
     model: {
       nodes: model.nodes.map((node) => ({ ...node })),
-      changes: model.changes.map((change) => ({ ...change })),
+      changes: model.changes.map((change) => ({
+        ...change,
+        ...(change.targetBinding === undefined ? {} : { targetBinding: { ...change.targetBinding } }),
+      })),
       refinementRelations: [...(model.refinementRelations ?? [])],
     },
     compatibility,

@@ -11,11 +11,8 @@ import type {
   RefinementRelationV1,
   SemanticLevel,
   Sha256Hash,
-} from "@semantic-context/control-model";
-import {
-  RefinementRelationV1Schema,
-  Sha256HashSchema,
-} from "@semantic-context/control-model";
+} from "@semantic-context/control-model/reconciliation";
+import { ReconciliationRefinementRelationV1Schema } from "@semantic-context/control-model/reconciliation";
 import {
   buildRepositoryLinkIndex,
   resolveRepositoryLink,
@@ -23,7 +20,8 @@ import {
   type RepositoryFacts,
   type SemanticModel,
   type SemanticNode,
-} from "@semantic-context/semantic-model";
+} from "@semantic-context/semantic-model/reconciliation-read";
+import { parseSha256Hash } from "./reconciliation-validation";
 
 export interface CoordinateGraphInput {
   repositoryFacts: RepositoryFacts;
@@ -160,7 +158,7 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
   const sortedStructuralEdges = uniqueBy(structuralEdges, edgeKey).sort(compareEdge);
   const refinementRelations = validateRefinementRelations(input.semanticModel.refinementRelations ?? []);
   const verifiedEvidenceDigests = [...new Set(input.verifiedEvidenceDigests ?? [])]
-    .map((digest) => Sha256HashSchema.parse(digest) as Sha256Hash)
+    .map((digest) => parseSha256Hash(digest, "verified evidence digest"))
     .sort(compareIds);
   const coverage = ([0, 1, 2, 3, 4, 5, 6] as const).map((level) => {
     const levelNodes = sortedNodes.filter((node) => node.appliesAtLevel === level);
@@ -200,7 +198,7 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
 
 function validateRefinementRelations(relations: readonly RefinementRelationV1[]): RefinementRelationV1[] {
   return relations.map((relation) => {
-    const parsed = RefinementRelationV1Schema.safeParse(relation);
+    const parsed = ReconciliationRefinementRelationV1Schema.safeParse(relation);
     if (!parsed.success) {
       throw new InvalidRefinementRelationError(
         typeof relation.id === "string" && relation.id.length > 0 ? relation.id : "<unknown>",

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { compareIds } from "@semantic-context/core";
+import { compareCodeUnits as compareIds } from "@semantic-context/control-model/reconciliation";
 import type {
   ArchitectureComparisonReport,
   ArchitectureDelta,
@@ -9,7 +9,7 @@ import type {
   CoordinateGraphReport,
   CoordinateGraphReportV2,
   QualifiedCoordinateId,
-} from "@semantic-context/control-model";
+} from "@semantic-context/control-model/reconciliation";
 
 export interface SnapshotIdentity { id: string; commit: string; capturedAt: string }
 

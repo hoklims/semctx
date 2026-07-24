@@ -12,6 +12,7 @@ import {
   PROVEN_STATUSES,
   SemanticModelSchema,
   SemanticNodeSchema,
+  ChangeTargetBindingV1Schema,
   ChangeContractSchema,
   normalizeLegacySemanticModelV1,
 } from "@semantic-context/semantic-model";
@@ -99,6 +100,59 @@ describe("model helpers", () => {
     expect(DEFAULT_STATUS_BY_KIND.goal).toBe("declared");
     expect(PROVEN_STATUSES.has("tested")).toBe(true);
     expect(PROVEN_STATUSES.has("declared")).toBe(false);
+  });
+});
+
+describe("authored change target binding", () => {
+  const hash = `sha256:${"a".repeat(64)}` as const;
+  const binding = {
+    schemaVersion: 1 as const,
+    targetId: "checkout-v2",
+    revision: 2,
+    artifactHash: hash,
+  };
+  const change = {
+    id: "change.checkout",
+    statement: "Adopt the reviewed checkout architecture",
+    lifecycle: "active" as const,
+    provenance: "author" as const,
+    sourceRefs: [],
+    serves: [],
+    preserves: [],
+    requiresEvidence: [],
+    openUnknowns: [],
+    repositoryLinks: [],
+    tags: [],
+  };
+
+  it("validates a strict, versioned target identity without changing legacy contracts", () => {
+    expect(ChangeTargetBindingV1Schema.parse(binding)).toEqual(binding);
+    expect(ChangeContractSchema.parse(change)).toEqual(change);
+    expect(normalizeLegacySemanticModelV1({ nodes: [], changes: [change] }).model.changes[0]).toEqual(change);
+  });
+
+  it("refuses future versions, unsafe ids, invalid revisions, hashes, and unknown fields", () => {
+    for (const invalid of [
+      { ...binding, schemaVersion: 2 },
+      { ...binding, targetId: "../checkout" },
+      { ...binding, targetId: "Checkout" },
+      { ...binding, revision: 0 },
+      { ...binding, revision: 1.5 },
+      { ...binding, artifactHash: `sha256:${"A".repeat(64)}` },
+      { ...binding, futureField: true },
+    ]) {
+      expect(ChangeTargetBindingV1Schema.safeParse(invalid).success).toBe(false);
+    }
+    expect(ChangeContractSchema.safeParse({ ...change, targetBinding: binding, futureField: true }).success).toBe(false);
+  });
+
+  it("preserves a valid binding through compatibility normalization without aliasing it", () => {
+    const normalized = normalizeLegacySemanticModelV1({
+      nodes: [],
+      changes: [{ ...change, targetBinding: binding }],
+    });
+    expect(normalized.model.changes[0]?.targetBinding).toEqual(binding);
+    expect(normalized.model.changes[0]?.targetBinding).not.toBe(binding);
   });
 });
 

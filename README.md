@@ -125,20 +125,22 @@ A documented **pre-commit gate** (`docs/examples/pre-commit-hook.md`) runs `veri
 
 The plugin ([`plugins/claude-code`](plugins/claude-code)) exposes the same shared
 `semctx-control` workflow as Codex: `semctx_control_status`, `semctx_control_trace`,
-`semctx_control_plan`, proof-carrying
-change contracts, and `semctx_verify_change`. The narrower `semctx-semantic` and `semctx-verify`
-skills remain available for focused Plane B or Plane A work. `READY` is a planning verdict, never
-execution authority. An opt-in **guarded mode** blocks `git commit`/`git push` until the diff is
-verified; advisory mode is the default. See
+`semctx_control_plan`, `semctx_control_plan_change`, `semctx_control_reconcile_diff`,
+proof-carrying change contracts, and `semctx_verify_change`. The narrower `semctx-semantic` and
+`semctx-verify` skills remain available for focused Plane B or Plane A work. Planning bundles carry
+`executionAuthority: "none"`; `READY` and `REALIZED` are verdicts, never execution authority. An
+opt-in **guarded mode** blocks `git commit`/`git push` until the diff is verified; advisory mode is
+the default. See
 [`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
 
 ### Codex
 
 The repo-local [`semctx-control`](plugins/semctx-control) plugin gives Codex the full semctx MCP
 surface plus the same proof-honest workflow shipped for Claude Code. It uses
-`semctx_control_status`, `semctx_control_trace`, and `semctx_control_plan`, maintains proof-carrying change contracts on
-write-scoped tasks, and verifies the resulting diff. It never treats `READY` as execution authority
-and Plane C remains read-only. Install and usage guide:
+`semctx_control_status`, `semctx_control_trace`, `semctx_control_plan`,
+`semctx_control_plan_change` and `semctx_control_reconcile_diff`, maintains proof-carrying change
+contracts on write-scoped tasks, and verifies the resulting diff. It never treats a planning or
+reconciliation verdict as execution authority and Plane C remains read-only. Install and usage guide:
 [`docs/integrations/codex-control-plane.md`](docs/integrations/codex-control-plane.md).
 
 ### GitHub Actions
@@ -220,10 +222,12 @@ design: [`docs/architecture/semantic-layer-v1.md`](docs/architecture/semantic-la
 ## Reconstruction control plane (Plane C, read-only)
 
 Plane C projects the observed graph and authored intent into explicit L0-L6 coordinates. It can trace
-up/down the model, compare an explicit target architecture, compile a typed shadow-first migration
-plan, and explain why a step is blocked. It is deliberately fail-closed: no target means `BLOCKED`,
-LLM-only evidence authorizes nothing, and legacy deletion stays denied without fresh static, runtime,
-test and human proof.
+up/down the model, compare an explicit target architecture, compile a versioned semantic planning
+bundle before edits, and reconcile the actual working diff afterward. The general planner supports
+`local_patch`, `refactor`, `feature`, `redesign` and `migration`; the typed shadow-first migration
+plan remains one specialization. Plane C is deliberately fail-closed: task text alone binds no
+file or symbol, LLM-only evidence authorizes nothing, and legacy deletion stays denied without
+fresh static, runtime, test and human proof.
 
 Indexing also emits a versioned local freshness seal. `semctx status` evaluates that attestation as
 `FRESH`, `DIRTY_KNOWN`, `STALE`, or `UNSEALED`; trace and plan carry the same status and fail closed
@@ -234,9 +238,18 @@ direct analyzer inputs, Plane A, Plane B, and schema/tool versions.
 semctx status --json
 semctx control trace repo:<graph-id> --direction lift --to 5 --json
 semctx control plan change.<slug> --target target-architecture.json --json
+semctx control plan-change change.<slug> --task-id <task-id> --input planner.json --json
+semctx control reconcile-diff reconciliation-input.json --json
 ```
 
-The v1 surface is materially read-only and has no executor. See
+`plan-change` produces a `PlanningBundleV1` containing a sealed `TaskEnvelopeV1` and
+`SemanticChangeSetV1`. Only explicit discovery or authored links can become load-bearing scope;
+an addition/rename `newPath` is exact planned intent, not a fabricated pre-edit fact.
+`reconcile-diff` observes the current worktree and returns `REFUSED`, `VIOLATED`, `UNPROVEN` or
+`REALIZED` after checking stale/TOCTOU state, scope, required edits, invariants, lifted impact,
+accepted targets, evidence and exact round trips. All planning objects carry
+`executionAuthority: "none"`. The v1 surface has no executor, cutover, deletion or patch
+application. See
 [`docs/architecture/control-plane-v1.md`](docs/architecture/control-plane-v1.md).
 
 ## MCP server (agents)
@@ -247,7 +260,8 @@ verdict; `semctx_inspect` queries the graph. The semantic layer adds advisory to
 `semctx_handoff` / `semctx_resume`) — see
 [`docs/integrations/claude-code-semantic-layer.md`](docs/integrations/claude-code-semantic-layer.md).
 Plane C adds the read-only `semctx_control_status`, `semctx_control_trace`, and
-`semctx_control_plan` tools.
+`semctx_control_plan`, `semctx_control_plan_change` and `semctx_control_reconcile_diff` tools.
+CLI and MCP use the same strict versioned schemas, reason precedence and canonical serialization.
 The easiest path is the Codex or Claude Code plugin above; to register the server directly (stdio):
 
 ```json
@@ -282,12 +296,12 @@ Monorepo (Bun workspaces, TypeScript strict):
 | `@semantic-context/ts-analyzer` | TS Compiler API → graph; docs, tests, migrations, `@markers` |
 | `@semantic-context/repository-store` | `bun:sqlite` persistence behind a `RepositoryStore` interface |
 | `@semantic-context/context-engine` | graph index, claims, **impact analysis + verify**, gates |
-| `@semantic-context/semantic-model` | authored semantic truth (Plane B): nodes, change contracts, ids |
+| `@semantic-context/semantic-model` | authored semantic truth (Plane B): nodes, change contracts, target bindings, ids |
 | `@semantic-context/semantic-dsl` | tolerant `.sem` parser + deterministic formatter + renderers |
-| `@semantic-context/semantic-engine` | links, stale, slice, change contracts, composed verify, handoff |
-| `@semantic-context/control-model` | Plane C coordinates, architecture snapshots/deltas, plans, proofs and authorization reports |
-| `@semantic-context/control-engine` | deterministic traversal, architecture comparison, migration planning and fail-closed policy |
-| `@semantic-context/mcp-server` | MCP server: `verify_change` (first-class), `inspect`, semantic tools |
+| `@semantic-context/semantic-engine` | links, stale, slice, change contracts, immutable target artifacts, composed verify, handoff |
+| `@semantic-context/control-model` | Plane C coordinates, planning/reconciliation schemas, architecture deltas, proofs and authorization reports |
+| `@semantic-context/control-engine` | deterministic traversal, general refinement planning, actual-diff reconciliation and fail-closed policy |
+| `@semantic-context/mcp-server` | MCP server: Plane A verification, Plane B semantic tools and Plane C read-only control |
 | `@semantic-context/github-action` | composite GitHub Action + Node annotation/summary adapter |
 | `apps/cli` | the `semctx` CLI (zero-framework arg router) |
 | `plugins/claude-code` | Claude Code plugin: shared control skill + focused skills + guarded hook |
@@ -340,6 +354,9 @@ Implemented and tested (full suite via `bun test`):
 - **semantic layer (Plane B)**: authored model + `.sem` DSL (parser/formatter/renderer), semantic
   slice, proof-carrying change contracts, composed `change verify` (VERIFIED/PARTIAL/BLOCKED/STALE),
   handoff/resume, CLI (`semantic`/`change`), MCP tools + skill (ADR 0009).
+- **control plane (Plane C)**: sealed TaskEnvelope/ChangeSet planning, immutable reviewed target
+  identities, five refinement profiles and actual-worktree reconciliation with canonical
+  CLI/MCP parity and no execution authority.
 
 ### Known limitations
 

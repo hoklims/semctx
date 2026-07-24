@@ -1,79 +1,81 @@
-# Handoff — issue #26 published checkpoint
+# Handoff — issue #27 ready
 
 ## Mission
 
-Deliver the typed L6-to-L0 refinement round trip from issue #26 without adding execution
-authority.
+Deliver issue #27: give an agent a versioned semantic `TaskEnvelope` before code edits, then prove
+whether the actual diff realizes the intended change, without adding execution authority.
 
-## Current state
+## Repo & run
 
 - Repository: `C:\maintenence\semctx`
-- Branch: `codex/l6-l0-refinement-round-trip`
-- Baseline: PR #32 merged into `main` at
-  `942be1c66cf66d6c6562c39fcd896ee23a69a9ef` after its justified review findings were fixed and
-  the updated head was green.
-- Initial issue #26 implementation commit:
-  `da8b96b933070cf055d4df8fe4935e2fa4f2121e`.
-- PR #33 is open at <https://github.com/hoklims/semctx/pull/33>, ready for review (not draft),
-  mergeable into `main`, and declares `Closes #26`.
-- The issue #26 implementation, tests, documentation, detached-worktree verification and final
-  reviews are complete on the published branch.
-- The ignored local `.semctx` state was audited separately and is not part of the tracked delivery.
+- Branch: `codex/task-envelope-diff-reconciliation`
+- Baseline: `main` at merge commit `399720c842cb7ec35082368003f320146730d0f9`
+- Verification:
+  - `bun run plugin:check`
+  - `bun run typecheck`
+  - `bun test --timeout 30000 packages apps plugins`
 
-## Implemented contracts
+## Read first
 
-- Normative L6 strategy → L5 product intent → L4 invariants/policies → L3 capabilities → L2
-  components/boundaries → L1 symbols/tests/schemas/contracts → immutable observed L0 hunks.
-- Semantic kind is separate from explicit `appliesAtLevel`; missing levels remain unmapped.
-- Typed, evidence-bearing `decomposes_to`, `realizes`, `implements`, `constrained_by` and
-  `proved_by` relations with epistemic status and tagged cross-plane endpoints.
-- Exact `ObservedDiffHunkV1` byte framing and content addressing; reading and traversal preserve
-  raw hunk bytes.
-- Question-specific read-only traversal, honest coverage, stable reason codes, named compatibility
-  normalizers, and shared versioned CLI/MCP report envelopes.
-- Descriptive authorization resolves attestations from sealed indexed evidence only.
-  `authorize-deletion` produces a read-only report; it exposes no delete operation or deletion
-  capability.
-- Plane C remains read-only: the delivery adds no executor, mutation, cutover, `TaskEnvelope` or
-  `ChangeSet`.
+1. `AGENTS.md`
+2. `HANDOFF.md`
+3. `ROADMAP.md`
+4. `.semctx/semantic/project/control-plane.sem`
+5. `docs/architecture/semantic-layer-v1.md`
+6. `docs/architecture/semantic-model.md`
+7. <https://github.com/hoklims/semctx/issues/27>
 
-## Verified delivery evidence
+## Durable state
 
-- Final AI-slop review: PASS with no changes required.
-- `bun run plugin:check`: PASS; both generated runtimes are byte-identical at `4,206,776` bytes
-  and expose 100 libraries.
-- `bun run typecheck`: PASS.
-- `bun test --timeout 30000 packages apps plugins`: PASS; 404 tests passed, 0 failed, 1,975
-  assertions across 47 files.
-- Clean detached worktree at `da8b96b933070cf055d4df8fe4935e2fa4f2121e`: frozen dependency
-  install, plugin check, typecheck and the full 404-test suite all passed; the targeted public
-  E2E plus pure golden suites passed 15/15 with 98 assertions, and the worktree stayed clean.
-- Former review-blocker suites: 45/45 passed.
-- Diff check: PASS.
-- Ignored `.semctx` audit: PASS.
-- Independent code review: APPROVE.
-- Independent architecture review: CLEAR, with no P0, P1 or P2 findings.
-- GitHub checks on PR #33: plugin runtime on Ubuntu and Windows PASS; GitGuardian PASS.
-- PR #33 had no comments, reviews or review threads at this checkpoint.
+- PR #32 merged the P0 trust boundary at
+  `942be1c66cf66d6c6562c39fcd896ee23a69a9ef`.
+- PR #33 merged issue #26 at
+  `399720c842cb7ec35082368003f320146730d0f9`; issue #26 is closed.
+- The final issue #26 head was
+  `12a0d6198be248f628553d7003af82a43a6e4948`.
+- Typed L6→L0→L6 refinement, exact observed-hunk identities, evidence-bearing relations,
+  question-specific traversal, migrations, stale refusal, empty-trace reason codes and shared
+  CLI/MCP reports are shipped.
+- Post-merge verification on `main`:
+  - plugin runtimes byte-identical at 4,206,802 bytes with 100 TypeScript libraries;
+  - typecheck passed;
+  - 406 tests passed, 0 failed, 1,981 assertions across 47 files.
+- The ignored local `.semctx` state remains outside tracked delivery.
 
-The golden sources remain:
+## Next action
 
-- `.semctx/semantic/project/control-plane.sem`
-- `packages/control-engine/test/fixtures/l6-l0-refinement.patch`
-- `packages/control-engine/test/l6-l0-refinement-round-trip.test.ts`
-- `packages/app-services/test/l6-l0-public-round-trip.test.ts`
+Use `$ralplan` to freeze the ontology, versioned public contracts and adversarial test matrix for
+issue #27, then implement the approved plan autonomously through a verified PR.
 
-The golden proves complete L6→L0 coverage, L0→L6 lift to the same goal, both critical L4
-constraints, canonical shuffled-input output, exact byte preservation, exclusion of
-import/proximity/LLM-only/multi-level decoys, and `REFINEMENT_DISCONNECTED` after removing each
-sole load-bearing edge.
+The plan must resolve:
 
-## Publication verification protocol
+- the exact boundary between `TaskFrame`, `TaskEnvelope`, `ChangeContract` and semantic
+  `ChangeSet`;
+- Git-versioned target-artifact identity, lifecycle and `hypothetical` provenance;
+- refinement-plan profiles for local patch, refactor, feature, redesign and migration;
+- the canonical `reconcile diff` report, reason codes and failure precedence;
+- the round-trip properties that are certifiable rather than merely advisory.
 
-PR #33 is published from `codex/l6-l0-refinement-round-trip` and targets `main`. The initial
-implementation commit was validated in a clean detached worktree before publication, and its
-GitHub checks passed.
+## Active constraints
 
-This checkpoint changes documentation only and must preserve the already-green runtime tree.
-Every final PR head, including a documentation-only checkpoint, is accepted only after its own
-GitHub checks pass; checks on the final published head are the authoritative publication evidence.
+- `TaskEnvelope` and `ChangeSet` describe and reconcile intent; they grant no execution authority.
+- Add no executor, cutover, delete operation or unrestricted patch application.
+- Task text may classify mode, risk and required altitude, but never authoritatively bind files or
+  symbols without explicit discovery and binding.
+- Preserve Plane A facts, Plane B authored truth and Plane C deterministic control as distinct
+  typed authorities.
+- Imports, proximity, LLM-only relations, hypothetical targets and unsealed evidence cannot be
+  load-bearing.
+- CLI and MCP must share versioned schemas, reason codes, refusal semantics and canonical order.
+- Lock determinism, compatibility/migrations, stale refusal, scope escape, missing planned edits,
+  invariant drift and undeclared lifted impacts.
+- Preserve the ignored `.semctx` state; use a clean detached worktree for final dogfood.
+
+## Open decisions
+
+The five contract questions listed under **Next action** remain open until the `$ralplan`
+consensus is approved. No product or execution authority decision is otherwise open.
+
+## Start
+
+Read `HANDOFF.md`, the architecture sources and issue #27, then run `$ralplan` before editing code.

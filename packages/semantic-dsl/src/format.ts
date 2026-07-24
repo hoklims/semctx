@@ -55,6 +55,9 @@ export function formatChange(change: ChangeContract): string {
   lines.push(line("status", change.lifecycle));
   lines.push(line("provenance", change.provenance));
   if (change.appliesAtLevel !== undefined) lines.push(line("appliesAtLevel", String(change.appliesAtLevel)));
+  if (change.targetBinding !== undefined) {
+    lines.push(`${INDENT}target ${change.targetBinding.targetId} ${change.targetBinding.revision} ${change.targetBinding.artifactHash}`);
+  }
   for (const to of sorted(change.serves)) lines.push(line("serves", to));
   for (const to of sorted(change.preserves)) lines.push(line("preserves", to));
   for (const to of sorted(change.requiresEvidence)) lines.push(line("requires_evidence", to));

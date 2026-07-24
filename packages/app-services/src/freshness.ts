@@ -18,8 +18,13 @@ import {
   type ControlFreshnessReason,
   type ControlFreshnessStatusReport,
   type Sha256Hash,
-} from "@semantic-context/control-model";
-import type { ChangeContract, RepositoryFacts, SemanticModel, SemanticNode } from "@semantic-context/semantic-model";
+} from "@semantic-context/control-model/reconciliation";
+import type {
+  ChangeContract,
+  RepositoryFacts,
+  SemanticModel,
+  SemanticNode,
+} from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
 import packageJson from "../package.json";
 
@@ -147,6 +152,7 @@ export function fingerprintSemanticNodeEvidence(node: SemanticNode): Sha256Hash 
 function normalizeChange(change: ChangeContract): ChangeContract {
   return {
     ...change,
+    ...(change.targetBinding === undefined ? {} : { targetBinding: { ...change.targetBinding } }),
     sourceRefs: [...change.sourceRefs]
       .map((ref) => ({ ...ref, file: ref.file.replace(/\\/g, "/") }))
       .sort((a, b) => compareIds(a.file, b.file) || a.line - b.line),
