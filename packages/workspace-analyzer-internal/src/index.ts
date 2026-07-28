@@ -1,11 +1,10 @@
-import { lstat, readFile, readdir, realpath } from "node:fs/promises";
+import { lstat, readFile, readdir } from "node:fs/promises";
 import {
   lstatSync,
   readFileSync,
   readdirSync,
-  realpathSync,
 } from "node:fs";
-import { basename, isAbsolute, resolve, sep } from "node:path";
+import { basename, isAbsolute, parse, resolve, sep } from "node:path";
 
 export type WorkspaceEvidenceValue = string | readonly string[];
 
@@ -453,7 +452,7 @@ async function inspectRepository(
         if (
           stat.isSymbolicLink()
           || !stat.isFile()
-          || !samePath(await realpath(manifestAbsolute), manifestAbsolute)
+          || !(await isSafeAbsolutePath(manifestAbsolute))
         ) {
           malformedRoots.add(directory.root);
           diagnostics.push({
@@ -538,7 +537,7 @@ function inspectRepositorySync(
         if (
           stat.isSymbolicLink()
           || !stat.isFile()
-          || !samePath(realpathSync(manifestAbsolute), manifestAbsolute)
+          || !isSafeAbsolutePathSync(manifestAbsolute)
         ) {
           malformedRoots.add(directory.root);
           diagnostics.push({
@@ -737,38 +736,42 @@ function globExpression(pattern: string): RegExp {
 
 async function isSafeWorkspaceRoot(repositoryRoot: string, root: string): Promise<boolean> {
   const parts = root === ROOT ? [] : root.split("/");
-  let current = repositoryRoot;
-  const repositoryStat = await lstat(repositoryRoot);
-  if (repositoryStat.isSymbolicLink()) return false;
-  const repositoryReal = await realpath(repositoryRoot);
-  if (!samePath(repositoryReal, repositoryRoot)) return false;
-
-  for (const part of parts) {
-    current = resolve(current, part);
-    const stat = await lstat(current);
-    if (stat.isSymbolicLink()) return false;
-    const actual = await realpath(current);
-    if (!samePath(actual, current)) return false;
-  }
-  return true;
+  const workspaceRoot = resolve(repositoryRoot, ...parts);
+  return isSafeAbsolutePath(workspaceRoot);
 }
 
 function isSafeWorkspaceRootSync(repositoryRoot: string, root: string): boolean {
   const parts = root === ROOT ? [] : root.split("/");
-  let current = repositoryRoot;
-  const repositoryStat = lstatSync(repositoryRoot);
-  if (repositoryStat.isSymbolicLink()) return false;
-  const repositoryReal = realpathSync(repositoryRoot);
-  if (!samePath(repositoryReal, repositoryRoot)) return false;
+  const workspaceRoot = resolve(repositoryRoot, ...parts);
+  return isSafeAbsolutePathSync(workspaceRoot);
+}
 
-  for (const part of parts) {
-    current = resolve(current, part);
-    const stat = lstatSync(current);
+async function isSafeAbsolutePath(path: string): Promise<boolean> {
+  for (const component of absolutePathComponents(path)) {
+    const stat = await lstat(component);
     if (stat.isSymbolicLink()) return false;
-    const actual = realpathSync(current);
-    if (!samePath(actual, current)) return false;
   }
   return true;
+}
+
+function isSafeAbsolutePathSync(path: string): boolean {
+  for (const component of absolutePathComponents(path)) {
+    const stat = lstatSync(component);
+    if (stat.isSymbolicLink()) return false;
+  }
+  return true;
+}
+
+function absolutePathComponents(path: string): readonly string[] {
+  const absolute = resolve(path);
+  const root = parse(absolute).root;
+  const components: string[] = [];
+  let current = root;
+  for (const part of absolute.slice(root.length).split(sep).filter(Boolean)) {
+    current = resolve(current, part);
+    components.push(current);
+  }
+  return components;
 }
 
 function normalizeRelativePath(path: string): string | undefined {
@@ -941,12 +944,6 @@ function pathDepth(path: string): number {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function samePath(left: string, right: string): boolean {
-  const normalize = (value: string): string =>
-    resolve(value).replaceAll("/", sep).replace(/[\\/]+$/, "").toLowerCase();
-  return normalize(left) === normalize(right);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

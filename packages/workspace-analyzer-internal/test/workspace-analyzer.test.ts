@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -242,8 +242,47 @@ describe("ADR-C08 workspace detection", () => {
     await expectRejectedProjectionParity(root, "packages/linked");
   });
 
-  itOnWindows("rejects a Windows directory junction workspace root without emitting a projection", async () => {
+  itOnWindows("accepts a safe repository reached through a Windows alternate path spelling", async () => {
     const root = await fixture();
+    await json(root, "package.json", { name: "repository" });
+
+    const input = { repositoryRoot: root, repositoryId: "repo:alternate-spelling" };
+    const asynchronous = await analyzeWorkspace(input);
+    const synchronous = analyzeWorkspaceSync(input);
+
+    expect(JSON.stringify(synchronous)).toBe(JSON.stringify(asynchronous));
+    expect(asynchronous.diagnostics).toEqual([]);
+    expect(asynchronous.nodes).toContainEqual(expect.objectContaining({
+      root: ".",
+      identity: "repository",
+    }));
+  });
+
+  itOnWindows("rejects a Windows directory junction repository root", async () => {
+    const base = await realpath(await fixture());
+    const repository = join(base, "real-repository");
+    const repositoryJunction = join(base, "repository-junction");
+    await mkdir(repository);
+    await json(repository, "package.json", { name: "repository" });
+    await symlink(repository, repositoryJunction, "junction");
+
+    await expectRejectedProjectionParity(repositoryJunction, ".");
+  });
+
+  itOnWindows("rejects a repository path with a Windows junction ancestor", async () => {
+    const base = await realpath(await fixture());
+    const realAncestor = join(base, "real-ancestor");
+    const repository = join(realAncestor, "repository");
+    const linkedAncestor = join(base, "linked-ancestor");
+    await mkdir(repository, { recursive: true });
+    await json(repository, "package.json", { name: "repository" });
+    await symlink(realAncestor, linkedAncestor, "junction");
+
+    await expectRejectedProjectionParity(join(linkedAncestor, "repository"), ".");
+  });
+
+  itOnWindows("rejects a Windows directory junction workspace root without emitting a projection", async () => {
+    const root = await realpath(await fixture());
     const external = await fixture();
     await json(root, "package.json", { workspaces: ["packages/*"] });
     await json(external, "package.json", { name: "junction-workspace" });
