@@ -38,10 +38,13 @@
         "@semantic-context/control-engine": "workspace:*",
         "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
+        "@semantic-context/plane-a-internal": "workspace:*",
+        "@semantic-context/python-analyzer": "workspace:*",
         "@semantic-context/repository-store": "workspace:*",
         "@semantic-context/semantic-engine": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
+        "@semantic-context/workspace-analyzer-internal": "workspace:*",
         "zod": "^3.23.8",
       },
       "devDependencies": {
@@ -202,11 +205,16 @@
       "version": "0.1.0",
       "dependencies": {
         "@semantic-context/core": "workspace:*",
+        "@semantic-context/plane-a-internal": "workspace:*",
         "typescript": "^5.6.3",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
       },
+    },
+    "packages/workspace-analyzer-internal": {
+      "name": "@semantic-context/workspace-analyzer-internal",
+      "version": "0.1.0",
     },
   },
   "packages": {
@@ -255,6 +263,8 @@
     "@semantic-context/test-fixtures": ["@semantic-context/test-fixtures@workspace:packages/test-fixtures"],
 
     "@semantic-context/ts-analyzer": ["@semantic-context/ts-analyzer@workspace:packages/ts-analyzer"],
+
+    "@semantic-context/workspace-analyzer-internal": ["@semantic-context/workspace-analyzer-internal@workspace:packages/workspace-analyzer-internal"],
 
     "@types/bun": ["@types/bun@1.3.14", "", { "dependencies": { "bun-types": "1.3.14" } }, "sha512-h1hFqFVcvAvD9j9K7ZW7vd82aSA+rTdznZa+5bwvCwqSB1jmmfLcbIWhOLx1/+boy/xmjgCs/OMUL8hRJSmnPw=="],
 
