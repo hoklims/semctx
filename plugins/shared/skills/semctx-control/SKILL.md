@@ -31,6 +31,7 @@ only in the final CLI ladder.
 - **Plane A — diff impact:** `PASS`, `WARN`, `BLOCK`. `PASS` is a static policy result, not runtime proof. `WARN` needs attention but is not a failure. `BLOCK` must be resolved or explicitly disabled by user-owned policy.
 - **Plane B — change contract:** `VERIFIED`, `PARTIAL`, `BLOCKED`, `STALE`. `PARTIAL` must name every missing proof or open unknown. `STALE` requires re-linking before the model can be trusted.
 - **Control freshness preflight:** `FRESH`, `DIRTY_KNOWN`, `STALE`, `UNSEALED`. Only the first two admit high-risk control work.
+- **Plane A index coverage:** `complete`, `partial`, `insufficient`. Use `semctx_index_health` before relying on negative evidence; its coverage verdict never replaces or upgrades the separately reported freshness verdict.
 - **Plane C — migration plan:** `READY`, `BLOCKED`. `READY` means the plan satisfies its admission rules; it is never execution authority.
 
 ## Safety contract
@@ -40,6 +41,7 @@ only in the final CLI ladder.
 - Never claim completion on `BLOCK`, `BLOCKED`, or `STALE`.
 - Never upgrade declared evidence to obtained evidence without running or observing the corresponding check.
 - Never treat a freshness seal as an authenticity signature or invent a verdict from it. Use `semctx_control_status` and preserve its reasons, nulls, and current/indexed mismatches verbatim.
+- Never collapse index freshness and analysis coverage into one health claim. Preserve the `semctx_index_health` binding, freshness, coverage, workspace diagnostics, outcome counts, and reasons as separate report fields.
 - Preserve the separation of authority: repository facts are observed, semantic intent is authored, and control reports are projections over both.
 
 ## Completion report
@@ -47,5 +49,7 @@ only in the final CLI ladder.
 Report the framed objective, authority sources, freshness verdict, seal hash and input mismatches, L0-L6 impact trace, initial plan verdict, files changed, runtime checks actually run, final Plane A/B/C verdicts, residual unknowns, and what semctx prevented from being changed unsafely.
 
 ## Local equivalents when MCP is unavailable
+
+Run `semctx index-health --json` for the same index-health report before using the host-specific fallback ladder below.
 
 {{HOST_CLI_LADDER}}

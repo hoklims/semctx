@@ -37,6 +37,7 @@ describe("semctx MCP tool metadata", () => {
       "semctx_semantic_check",
       "semctx_semantic_slice",
       "semctx_resume",
+      "semctx_index_health",
       "semctx_control_status",
       "semctx_control_trace",
       "semctx_control_plan",

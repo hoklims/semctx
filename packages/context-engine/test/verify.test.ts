@@ -1,5 +1,11 @@
 import { describe, it, expect } from "bun:test";
-import { GraphIndex, analyzeDiff, parseUnifiedDiff, buildVerifyReport } from "@semantic-context/context-engine";
+import {
+  GraphIndex,
+  analyzeDiff,
+  parseUnifiedDiff,
+  parseUnifiedDiffScopePaths,
+  buildVerifyReport,
+} from "@semantic-context/context-engine";
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import { createDefaultConfig } from "@semantic-context/core";
 import type { RepositoryGraph, Claim } from "@semantic-context/core";
@@ -25,6 +31,59 @@ describe("parseUnifiedDiff", () => {
   it("ignores deleted files (/dev/null)", () => {
     const diff = ["--- a/gone.ts", "+++ /dev/null", "@@ -1,3 +0,0 @@"].join("\n");
     expect(parseUnifiedDiff(diff).length).toBe(0);
+  });
+
+  it("retains the canonical old path for a timestamped deletion", () => {
+    const diff = [
+      "--- a/src/gone.py\t2026-07-28 12:00:00.000000000 +0200",
+      "+++ /dev/null\t1970-01-01 00:00:00.000000000 +0000",
+      "@@ -1,3 +0,0 @@",
+    ].join("\n");
+    expect(parseUnifiedDiffScopePaths(diff)).toEqual(["src/gone.py"]);
+    expect(parseUnifiedDiff(diff)).toEqual([]);
+  });
+
+  it("does not treat adjacent hunk content as file headers", () => {
+    const diff = [
+      "--- a/src/service.py",
+      "+++ b/src/service.py",
+      "@@ -1 +1 @@",
+      "--- a/phantom.py",
+      "+++ b/phantom.py",
+    ].join("\n");
+    expect(parseUnifiedDiffScopePaths(diff)).toEqual(["src/service.py"]);
+    expect(parseUnifiedDiff(diff).map((file) => file.filePath)).toEqual(["src/service.py"]);
+  });
+
+  it("rejects orphaned old and new file headers", () => {
+    expect(() => parseUnifiedDiffScopePaths("--- a/src/unpaired.py")).toThrow(
+      "invalid or unpaired unified diff file header",
+    );
+    expect(() => parseUnifiedDiffScopePaths("+++ b/src/unpaired.py")).toThrow(
+      "invalid or unpaired unified diff file header",
+    );
+  });
+
+  it("requires rename metadata to contain both old and new paths", () => {
+    const paired = [
+      "diff --git a/src/service.py b/archive/service.py",
+      "similarity index 100%",
+      "rename from src/service.py",
+      "rename to archive/service.py",
+    ].join("\n");
+    expect(parseUnifiedDiffScopePaths(paired)).toEqual([
+      "archive/service.py",
+      "src/service.py",
+    ]);
+
+    const orphaned = [
+      "diff --git a/src/service.py b/archive/service.py",
+      "similarity index 100%",
+      "rename to archive/service.py",
+    ].join("\n");
+    expect(() => parseUnifiedDiffScopePaths(orphaned)).toThrow(
+      "invalid or unpaired unified diff rename metadata",
+    );
   });
 });
 

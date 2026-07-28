@@ -1,4 +1,9 @@
-import type { SemctxConfig, BlockingRule, SeverityTier } from "./types/config";
+import type {
+  SemctxConfigV1,
+  SemctxConfigV2,
+  BlockingRule,
+  SeverityTier,
+} from "./types/config";
 
 /** The tier of a rule; derived from severity when not explicitly set (block → strict, warn → advisory). */
 export function tierOf(rule: BlockingRule): SeverityTier {
@@ -47,7 +52,7 @@ export const DEFAULT_BLOCKING_RULES: BlockingRule[] = [
 ];
 
 /** Pure default configuration for a repository. No filesystem access. */
-export function createDefaultConfig(repositoryRoot: string): SemctxConfig {
+export function createDefaultConfig(repositoryRoot: string): SemctxConfigV1 {
   return {
     version: 1,
     repositoryRoot,
@@ -58,5 +63,37 @@ export function createDefaultConfig(repositoryRoot: string): SemctxConfig {
     testGlobs: ["**/*.test.ts", "**/*.spec.ts", "test/**/*.ts"],
     semanticProvider: "none",
     blockingRules: DEFAULT_BLOCKING_RULES,
+  };
+}
+
+/** Explicit opt-in configuration for deterministic include/exclude selection and polyglot analysis. */
+export function createGlobSelectionConfig(repositoryRoot: string): SemctxConfigV2 {
+  const legacy = createDefaultConfig(repositoryRoot);
+  return {
+    ...legacy,
+    version: 2,
+    selectionMode: "globs-v1",
+    include: [
+      "src/**/*.{ts,tsx,mts,cts,py}",
+      "packages/*/src/**/*.{ts,tsx,mts,cts,py}",
+      "apps/*/src/**/*.{ts,tsx,mts,cts,py}",
+      "test/**/*.{ts,tsx,mts,cts,py}",
+      "tests/**/*.{ts,tsx,mts,cts,py}",
+      "docs/**/*.{md,mdx}",
+      "migrations/**/*.{sql,ts,py}",
+    ],
+    testGlobs: [
+      "**/*.{test,spec}.{ts,tsx,mts,cts}",
+      "test/**/*.{ts,tsx,mts,cts,py}",
+      "tests/**/*.{ts,tsx,mts,cts,py}",
+      "**/test_*.py",
+      "**/*_test.py",
+    ],
+    languages: {
+      typescript: "on",
+      python: "on",
+      markdown: "on",
+      sql: "on",
+    },
   };
 }

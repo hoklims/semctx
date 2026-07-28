@@ -39,6 +39,10 @@ ready and the workspace step did not fail.
 Idempotently create or preserve configuration and authored semantic files, index the repository,
 and validate the resulting model in one command.
 
+| option | description |
+| --- | --- |
+| `--polyglot` | for a new workspace, write config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes; refuses to overwrite an existing v1 config |
+
 ## `init`
 
 Create `.semctx/` (SQLite db + config) and install the non-destructive `.gitignore` policy that keeps
@@ -47,6 +51,7 @@ application code.
 
 | option | description |
 | --- | --- |
+| `--polyglot` | explicitly create config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes |
 | `--preset github-claude` | preview-first bootstrap (config, CI workflow, Claude note) |
 | `--dry-run` | with `--preset`: preview only, write nothing |
 | `--force` | with `--preset`: overwrite existing files |
@@ -56,6 +61,20 @@ application code.
 
 Analyse the repository into the deterministic graph and atomically capture its control index
 snapshot. `--json` prints counts plus the versioned `freshnessSeal`; text output prints its hash.
+
+## `index-health`
+
+Read the shared versioned Plane-A binding, freshness, coverage, candidate, capability, workspace,
+and reason report without writing repository state.
+
+```text
+semctx index-health [--json]
+```
+
+The report keeps `freshness` and `coverage` separate. Coverage is `complete`, `partial`, or
+`insufficient`; it never upgrades the nested control-freshness verdict. Exit 0 requires a valid
+binding, high-risk-capable freshness, and complete coverage. Partial coverage exits 2. Invalid or
+absent binding, freshness that cannot run high-risk control, or insufficient coverage exits 3.
 
 ## `verify diff`
 
@@ -76,6 +95,12 @@ Analyse a git range (or the current diff) for impact and violations.
 
 **Exit codes**: `PASS` → 0; `WARN` → 0 (unless `--fail-on warn`); `BLOCK` → non-zero (unless
 `--fail-on none`).
+
+With config v2, verification first checks index health for each selected changed path. Missing,
+disabled, unsupported, failed, stale, or invalidly bound analysis adds a blocking
+`analysis_scope_incomplete` finding. Analyzed Python with partial negative-evidence capability adds
+a warning and an explicit unknown instead of a green negative impact or test-coverage conclusion.
+Config v1 retains the legacy verification path.
 
 **Git ranges**: `--base` computes `git merge-base <base> <head>` and diffs `mergeBase..head`.
 The base must exist locally — semctx never fetches implicitly. In CI, check out with

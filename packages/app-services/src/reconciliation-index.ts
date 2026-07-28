@@ -80,22 +80,25 @@ import {
   SCHEMA_VERSION,
   loadConfig,
 } from "@semantic-context/repository-store";
-import { analyzeRepository, discoverFiles } from "@semantic-context/ts-analyzer";
+import { discoverFiles, discoverRepository } from "@semantic-context/ts-analyzer";
 import {
   CONTROL_FRESHNESS_TOOL_VERSION,
   CONTROL_INDEX_SNAPSHOT_META_KEY,
+  PLANE_A_INDEX_SNAPSHOT_META_KEY,
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,
   captureGitState,
   controlRepositoryIdentity,
   evaluateControlFreshness,
   fingerprintAnalysisInputs,
+  fingerprintPlaneAIndexSnapshot,
   fingerprintSemanticModel,
   parseIndexedControlSnapshot,
   type GitStateCapture,
   type IndexedControlSnapshot,
 } from "./freshness";
 import { openReadyRepository } from "./readiness";
+import { analyzePlaneARuntime } from "./plane-a-runtime";
 
 const CONTROL_ATTESTATION_INDEX_META_KEY = "control_attestation_index_v1";
 
@@ -496,6 +499,14 @@ function capturePlanningInputs(
       workingDiffHash: captured.git.workingDiffHash,
       indexedSnapshot: captured.indexedSnapshot,
       storeSchemaVersion: SCHEMA_VERSION,
+      ...(captured.indexedSnapshot.schemaVersion === 2
+        && captured.indexedSnapshot.planeAIndexSnapshotHash !== undefined
+        ? {
+            planeAIndexSnapshotHash: fingerprintPlaneAIndexSnapshot(
+              reader.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY),
+            ),
+          }
+        : {}),
     });
     const verdict = evaluateControlFreshness(freshnessSeal).verdict;
     if (verdict !== "FRESH" && verdict !== "DIRTY_KNOWN") {
@@ -624,8 +635,13 @@ function analyzeCandidate(
   try {
     runReconciliationTestHook("before_candidate_analysis", root);
     const config = loadConfig(root);
-    const discovered = discoverFiles(config);
-    const analysis = analyzeRepository(config, discovered);
+    const discovered = discoverRepository(config);
+    const runtime = analyzePlaneARuntime(config, discovered);
+    const analysis = runtime.analysis;
+    const ledgerByPath = new Map(runtime.discoveryLedger.map((entry) => [
+      entry.scope.selectedPaths[0],
+      entry,
+    ]));
     const candidateGraph = buildCoordinateGraph({
       repositoryFacts: {
         graph: analysis.graph,
@@ -636,11 +652,23 @@ function analyzeCandidate(
       observedHunks,
       verifiedEvidenceDigests: captured.graph.verifiedEvidenceDigests,
     });
-    candidateAnalyses = changedNewPaths.map((path) => ({
-      path,
-      status: "analyzed",
-      fragment: graphFragmentForPath(candidateGraph, path),
-    }));
+    candidateAnalyses = changedNewPaths.map((path): CandidatePathAnalysisV1 => {
+      const entry = ledgerByPath.get(path);
+      if (
+        entry?.selectionDecision === "selected"
+        && entry.analysisOutcome === "analyzed"
+      ) {
+        return {
+          path,
+          status: "analyzed",
+          fragment: graphFragmentForPath(candidateGraph, path),
+        };
+      }
+      return {
+        path,
+        status: entry?.analysisOutcome === "failed" ? "failed" : "unsupported",
+      };
+    });
   } catch (error) {
     if (!isControlledAnalyzerFailure(error)) throw error;
     candidateAnalyses = changedNewPaths.map((path) => ({

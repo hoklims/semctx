@@ -76,6 +76,15 @@ describe("packaged MCP runtime", () => {
     const doctorPayload = JSON.parse(new TextDecoder().decode(doctor.stdout));
     expect(doctorPayload.healthy).toBe(true);
     expect(doctorPayload.version).toBe(packageJson.version);
+    const health = Bun.spawnSync(
+      ["bun", packagedCli, "index-health", "--root", target, "--json"],
+      { cwd: cache, stdout: "pipe", stderr: "pipe" },
+    );
+    expect(health.exitCode).toBe(2);
+    const healthPayload = JSON.parse(new TextDecoder().decode(health.stdout));
+    expect(healthPayload.kind).toBe("index_health");
+    expect(healthPayload.binding.status).toBe("valid");
+    expect(healthPayload.coverage.status).toBe("partial");
     const dryRun = Bun.spawnSync(
       ["bun", packagedCli, "verify", "diff", "--root", target, "--dry-run"],
       { cwd: cache, stdout: "pipe", stderr: "pipe" },
@@ -113,9 +122,10 @@ describe("packaged MCP runtime", () => {
     try {
       await client.connect(transport);
       const { tools } = await client.listTools();
-      expect(tools).toHaveLength(30);
+      expect(tools).toHaveLength(31);
       expect(tools.some((tool) => tool.name === "semctx_semantic_check")).toBe(true);
       expect(tools.some((tool) => tool.name === "semctx_control_authority")).toBe(true);
+      expect(tools.some((tool) => tool.name === "semctx_index_health")).toBe(true);
       expect(tools.some((tool) => tool.name === "semctx_control_frame_task")).toBe(true);
       expect(tools.some((tool) => tool.name === "semctx_control_bind_scope")).toBe(true);
       expect(tools.some((tool) => tool.name === "semctx_control_target_propose")).toBe(true);
@@ -141,9 +151,30 @@ describe("packaged MCP runtime", () => {
           : "{}",
       );
       expect(statusPayload.verdict).toBe("FRESH");
+      const health = await client.callTool({
+        name: "semctx_index_health",
+        arguments: { repositoryRoot: target },
+      });
+      expect(health.isError).not.toBe(true);
+      if (!Array.isArray(health.content)) throw new Error("MCP health content must be an array");
+      const healthBlock = health.content[0];
+      if (healthBlock?.type !== "text") throw new Error("MCP health must contain text");
+      const healthPayload = JSON.parse(healthBlock.text);
+      expect(healthPayload.kind).toBe("index_health");
+      expect(healthPayload.binding.status).toBe("valid");
       const response = await client.callTool({
         name: "semctx_verify_change",
-        arguments: { repositoryRoot: target, gitDiff: "diff --git a/noop.ts b/noop.ts" },
+        arguments: {
+          repositoryRoot: target,
+          gitDiff: [
+            "diff --git a/noop.ts b/noop.ts",
+            "--- a/noop.ts",
+            "+++ b/noop.ts",
+            "@@ -1 +1 @@",
+            "-old",
+            "+new",
+          ].join("\n"),
+        },
       });
       expect(response.isError).not.toBe(true);
       if (!Array.isArray(response.content)) throw new Error("MCP response content must be an array");

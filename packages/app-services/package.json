@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@semantic-context/core": "workspace:*",
+    "@semantic-context/plane-a-internal": "workspace:*",
+    "@semantic-context/python-analyzer": "workspace:*",
     "@semantic-context/ts-analyzer": "workspace:*",
+    "@semantic-context/workspace-analyzer-internal": "workspace:*",
     "@semantic-context/repository-store": "workspace:*",
     "@semantic-context/context-engine": "workspace:*",
     "@semantic-context/semantic-model": "workspace:*",

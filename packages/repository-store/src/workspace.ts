@@ -31,7 +31,11 @@ export function initWorkspace(root: string, overrides?: Partial<SemctxConfig>): 
   mkdirSync(semctxDir(root), { recursive: true });
   mkdirSync(contextPacksDir(root), { recursive: true });
   const repositoryRoot = realpathSync.native(resolve(root));
-  const config: SemctxConfig = { ...createDefaultConfig(repositoryRoot), ...overrides, repositoryRoot };
+  const config: SemctxConfig = SemctxConfigSchema.parse({
+    ...createDefaultConfig(repositoryRoot),
+    ...overrides,
+    repositoryRoot,
+  });
   saveConfig(root, config);
   return config;
 }

@@ -31,6 +31,11 @@ This ADR establishes the semantic and migration boundary before implementation.
 > deliver multi-language support, enable configured `include`, create workspace edges, or freeze a
 > concrete adapter interface.
 
+> **Runtime follow-up:** issues #58–#61 implement these invariants through private provisional
+> packages and sidecars. See
+> [Multi-language Plane A runtime](../architecture/multilanguage-plane-a-runtime.md). This does not
+> retroactively turn the logical names in this ADR into a stable public API.
+
 ## Decision
 
 Plane A support is modeled through exact capability and scope coordinates, independent trust

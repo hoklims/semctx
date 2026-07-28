@@ -179,12 +179,12 @@ export const AGENT_WORKFLOW_CONTRACT_V1 = AgentWorkflowContractV1Schema.parse({
     },
     {
       id: "status",
-      mcpTools: ["semctx_control_status"],
+      mcpTools: ["semctx_index_health", "semctx_control_status"],
       effect: "read_only",
       requiresUserWriteScope: false,
       condition: "semantic_context_present",
       instruction:
-        "Run the control preflight before governed work. Continue only for FRESH or DIRTY_KNOWN, preserve every STALE or UNSEALED reason verbatim, and record the freshness seal plus current and indexed input pairs as an attestation rather than authority.",
+        "Run index health and the control preflight before governed work. Keep coverage separate from freshness, continue only for FRESH or DIRTY_KNOWN, preserve every incomplete-coverage, STALE or UNSEALED reason verbatim, and record seals and bindings as attestations rather than authority.",
     },
     {
       id: "frame_task",

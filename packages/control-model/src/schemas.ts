@@ -152,6 +152,8 @@ export const ControlFreshnessSealSchema = z.object({
   indexedStoreSchemaVersion: z.number().int().nonnegative().nullable(),
   toolVersion: z.string().min(1),
   indexedToolVersion: z.string().min(1).nullable(),
+  planeAIndexSnapshotHash: Sha256HashSchema.nullable().optional(),
+  indexedPlaneAIndexSnapshotHash: Sha256HashSchema.nullable().optional(),
   sealHash: Sha256HashSchema,
 }).strict();
 

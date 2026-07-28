@@ -1,10 +1,12 @@
 # Architecture Overview
 
-> Status: post-ADR-0010. `semctx` is a **repository change-impact analyzer** built around
+> Status: post-ADR-0010 with a provisional multi-language runtime. `semctx` is a
+> **repository change-impact analyzer** built around
 > `verify diff`. The `task → ContextPack` retriever is withdrawn as a primary retriever
 > (ADR 0005); graph traversal is retained for impact analysis and justification only. ADR 0010
-> defines a future multi-language Plane A trust model; it does **not** add runtime language
-> support. Where a mechanism is heuristic, it is labelled as such.
+> defines the multi-language Plane A trust model. Its runtime boundary remains private and
+> provisional; no stable language-adapter API is claimed. Where a mechanism is heuristic, it is
+> labelled as such.
 
 ## Problem
 
@@ -25,18 +27,21 @@ Given a change, an agent (or a reviewer) needs to know what it put at risk *befo
 
 ## Current implementation
 
-Plane A is currently TypeScript-centric:
+TypeScript remains Plane A's compatibility baseline:
 
-- discovery walks the repository deterministically, applies built-in ignored directories and
-  `exclude`, and retains TypeScript, Markdown and SQL files;
-- `include` is accepted by configuration but is **not applied** by discovery;
+- config v1 preserves the historical repository walk, approximate `exclude`, inactive `include`,
+  and TypeScript/Markdown/SQL selection;
+- config v2 explicitly opts into deterministic `globs-v1` include/exclude selection and
+  per-language `on`/`off` modes;
 - TypeScript receives Compiler-API semantic extraction for symbols, imports, calls, markers and
   test links;
 - Markdown documents and SQL migrations receive bounded structural extraction, not general
-  language support.
+  language support;
+- the first Python vertical emits bounded local syntax facts through a private Plane-A sidecar.
 
-Adding a file glob, detecting a workspace, or producing a file node therefore does not make another
-language supported. Unsupported or unanalysed code must not be treated as evidence of absence.
+Adding a file glob, detecting a workspace, or producing a file node still does not establish
+capability or authority. Unsupported, disabled, failed, or partially analysed code must not be
+treated as evidence of absence.
 
 ### Pipeline
 
@@ -56,12 +61,13 @@ timestamp stamped on outputs, injected through a `Clock` so tests pin it.
 
 Current freshness is reported independently as `FRESH`, `DIRTY_KNOWN`, `STALE` or `UNSEALED`.
 It binds the captured source/index inputs; it does not prove that every language, workspace or fact
-kind was analysed.
+kind was analysed. Additive index health reports coverage and producer/capability failures without
+replacing that freshness verdict.
 
-## Future multi-language Plane A
+## Provisional multi-language Plane A
 
-[ADR 0010](../adr/0010-multilanguage-plane-a-capability-and-authority.md) freezes a design contract
-for later implementation. It keeps five trust dimensions independent:
+[ADR 0010](../adr/0010-multilanguage-plane-a-capability-and-authority.md) freezes the trust
+contract. The runtime implementation keeps five dimensions independent:
 
 1. discovery state for the exact artifact scope;
 2. provider/result binding and integrity;
@@ -82,17 +88,22 @@ Absence becomes evidence only when completeness is established for the exact fac
 Without that negative-evidence eligibility, conclusions such as “no test”, “no reference” or “no
 impacted contract” remain `UNKNOWN` / `INSUFFICIENT_ANALYSIS`, never PASS.
 
-The future `IndexHealth` model will compose discovery, capability gaps, fact batches and freshness
-without replacing the existing freshness verdict. Workspace membership will require explicit
-manifest or workspace metadata; directory names such as `packages/` and `apps/` are candidate
-signals only and never establish membership, language support or authority.
+Index health composes discovery outcomes, capability gaps, fact batches, producer results, and
+workspace diagnostics without replacing the existing freshness verdict. Workspace membership
+requires explicit supported manifest or workspace metadata; directory names such as `packages/`
+and `apps/` are candidate signals only and never establish membership, language support or
+authority. Dedicated private sidecar relations preserve the meaning and bytes of legacy
+`belongs_to`.
 
-Implementation is deliberately split into follow-ups:
+The implementation is split across:
 
 - [#58 — Plane A language-neutral adapter and graph assembly boundary](https://github.com/hoklims/semctx/issues/58)
 - [#59 — Honor include/exclude with explicit selection compatibility](https://github.com/hoklims/semctx/issues/59)
 - [#60 — Manifest-evidenced workspaces and separate index health](https://github.com/hoklims/semctx/issues/60)
 - [#61 — First real second-language Plane A vertical and corpus gate](https://github.com/hoklims/semctx/issues/61)
+
+See [Multi-language Plane A runtime](./multilanguage-plane-a-runtime.md) for the exact compatibility,
+selection, health, workspace, Python, and public-status boundaries.
 
 ## Packages
 
@@ -100,15 +111,18 @@ Implementation is deliberately split into follow-ups:
 | ------------------------------- | ---------------------------------------------------------- |
 | `@semantic-context/core`        | Domain model, ids, errors, Zod boundary schemas.           |
 | `@semantic-context/ts-analyzer` | TypeScript Compiler API -> graph nodes/edges; docs, tests, migrations, semantic markers. |
+| `@semantic-context/plane-a-internal` | Private provisional fact assembly, binding, sidecar and admissibility gates; not a public adapter API. |
+| `@semantic-context/python-analyzer` | Private Python-through-3.12 syntax extractor for the first second-language vertical. |
+| `@semantic-context/workspace-analyzer-internal` | Private manifest-evidenced workspace projection and containment relations. |
 | `@semantic-context/repository-store` | SQLite (`bun:sqlite`) persistence of graph, claims, evidence, task frames, packs. |
 | `@semantic-context/context-engine` | TaskFrame extraction, claim building, authority policies, priority gates, contradiction detection, pack + verify assembly. |
 | `@semantic-context/semantic-model` | Authored semantic truth (Plane B): goals, invariants, decisions and change contracts. |
 | `@semantic-context/semantic-engine` | Plane B file model, link/stale checks, bounded slices, composed verification and handoff. |
 | `@semantic-context/control-model` | Plane C coordinates, snapshots/deltas, plans, proofs and versioned authorization reports. |
 | `@semantic-context/control-engine` | Read-only A+B projection, bounded traversal, architecture comparison and fail-closed migration policy. |
-| `@semantic-context/app-services` | Shared indexing, verification, change-lifecycle and control use cases; owns Git/store lifetimes for CLI and MCP. |
+| `@semantic-context/app-services` | Shared indexing, index-health, verification, change-lifecycle and control use cases; owns Git/store lifetimes for CLI and MCP. |
 | `@semantic-context/cocoindex-adapter` | Optional `SemanticCandidateProvider` interface + isolated CocoIndex adapter. |
-| `@semantic-context/mcp-server`  | MCP server exposing `prepare_task`, `inspect`, `verify_change`. |
+| `@semantic-context/mcp-server`  | MCP server exposing repository, semantic, control, and read-only index-health tools. |
 | `@semantic-context/test-fixtures` | Fixture repo paths + helpers for end-to-end tests.       |
 | `apps/cli`                      | `semctx` CLI (zero-framework arg router).                  |
 

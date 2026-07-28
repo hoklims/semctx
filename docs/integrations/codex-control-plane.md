@@ -97,17 +97,20 @@ can prove one. Otherwise it reports the leading risk and missing proof instead o
 Typical tool sequence:
 
 1. Use normal Git/code search to find the implementation surface.
-2. Call `semctx_resume`, `semctx_semantic_inspect`, or `semctx_semantic_slice` when authored intent
+2. Call `semctx_index_health`; preserve binding, freshness, coverage, candidate outcomes, workspace
+   diagnostics, and reasons as separate fields. Do not use a current freshness verdict as proof of
+   complete analysis.
+3. Call `semctx_resume`, `semctx_semantic_inspect`, or `semctx_semantic_slice` when authored intent
    already exists.
-3. Call `semctx_control_status`; continue high-risk control work only for `FRESH` or `DIRTY_KNOWN`.
-4. Call `semctx_control_trace` to connect a repository or semantic coordinate to L0-L6 intent.
-5. Record the returned status, seal hash, and any current/indexed mismatch as explicit facts.
-6. Call `semctx_control_plan` only with an explicit target architecture. A missing target produces
+4. Call `semctx_control_status`; continue high-risk control work only for `FRESH` or `DIRTY_KNOWN`.
+5. Call `semctx_control_trace` to connect a repository or semantic coordinate to L0-L6 intent.
+6. Record the returned status, seal hash, and any current/indexed mismatch as explicit facts.
+7. Call `semctx_control_plan` only with an explicit target architecture. A missing target produces
    `BLOCKED`; the agent must not invent one.
-7. For a user-authorized code change, open or update a proof-carrying change contract.
-8. After editing, call `semctx_verify_change`, run the selected runtime checks, and then call
+8. For a user-authorized code change, open or update a proof-carrying change contract.
+9. After editing, call `semctx_verify_change`, run the selected runtime checks, and then call
    `semctx_change_verify` when a change contract exists.
-9. Call `semctx_handoff` before context compaction and `semctx_resume` in the next task.
+10. Call `semctx_handoff` before context compaction and `semctx_resume` in the next task.
 
 Every call includes the absolute `repositoryRoot`. Each target repository must first be prepared
 once with `semctx setup`; inspect and verify fail closed and never initialize or index implicitly.
@@ -123,6 +126,8 @@ application code themselves.
 - `BLOCK`, `BLOCKED`, and `STALE` prevent a completion claim.
 - `PARTIAL` must remain partial until the missing evidence is actually obtained.
 - `READY` is a planning state, never execution authority for a cutover or legacy deletion.
+- Index coverage is `complete`, `partial`, or `insufficient`. It remains independent from control
+  freshness and task-relative authority.
 - A `ControlFreshnessSeal` is a local input attestation, not an authenticity signature.
   `semctx_control_status` owns the `FRESH` / `DIRTY_KNOWN` / `STALE` / `UNSEALED` verdict, and Codex
   preserves its reasons and current/indexed evidence verbatim.

@@ -25,3 +25,8 @@ captures the smaller judgement calls.
   `critical`/`security`-tagged contract changed without a proving test), advisory → WARN
   (plain exported contract without a direct test, or a touched contradiction). `tier` is
   optional on disk and derived from `severity` when absent (`tierOf`) for backward compat.
+- **Pinned `@lezer/python` for the first Python vertical (ADR 0011)**: version 1.1.19 keeps
+  parsing inside the Bun/JavaScript process with no Python subprocess, native addon or WebAssembly
+  runtime. The declared capability stops at Python 3.12 and excludes ambiguous/dynamic/imported-
+  symbol resolution, typing, calls and negative completeness. The real-repository corpus is pinned
+  to `pytest-dev/pluggy` 1.6.0 commit `fd08ab5f811a9b2fa9124ae8cbbd393221151e2c`.

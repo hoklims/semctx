@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace, openStore, isInitialized } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
@@ -15,13 +16,17 @@ export function runInit(root: string, args: ParsedArgs): number {
   const already = isInitialized(root);
   const detected = {
     typescript: existsSync(join(root, "tsconfig.json")),
+    python: existsSync(join(root, "pyproject.toml")),
     packageJson: existsSync(join(root, "package.json")),
     docs: existsSync(join(root, "docs")),
     migrations: existsSync(join(root, "migrations")),
     tests: existsSync(join(root, "test")) || existsSync(join(root, "tests")) || existsSync(join(root, "__tests__")),
   };
 
-  const config = initWorkspace(root);
+  const config = initWorkspace(
+    root,
+    flagBool(args, "polyglot") ? createGlobSelectionConfig(root) : undefined,
+  );
   openStore(root).close();
   ensureSemanticGitignore(root);
 
@@ -35,6 +40,7 @@ export function runInit(root: string, args: ParsedArgs): number {
 
   heading("Detected");
   info(`  TypeScript config : ${detected.typescript ? c.green("yes") : c.dim("no")}`);
+  info(`  Python manifest   : ${detected.python ? c.green("yes") : c.dim("no")}`);
   info(`  package.json      : ${detected.packageJson ? c.green("yes") : c.dim("no")}`);
   info(`  docs/             : ${detected.docs ? c.green("yes") : c.dim("no")}`);
   info(`  migrations/       : ${detected.migrations ? c.green("yes") : c.dim("no")}`);

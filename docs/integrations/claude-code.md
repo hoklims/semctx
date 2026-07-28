@@ -99,7 +99,7 @@ preservation, or a generic project demonstration.
 
 | plane | tools | role |
 | --- | --- | --- |
-| A | `semctx_inspect`, `semctx_verify_change` | observed graph, impact, recommended tests, `PASS/WARN/BLOCK` |
+| A | `semctx_index_health`, `semctx_inspect`, `semctx_verify_change` | index binding and coverage; observed graph, impact, recommended tests, `PASS/WARN/BLOCK` |
 | B | `semctx_semantic_check`, `semctx_semantic_slice`, `semctx_semantic_inspect`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_handoff`, `semctx_resume` | authored intent, lifecycle integrity, proof-carrying contracts and rehydration |
 | C | `semctx_control_status`, `semctx_control_trace`, `semctx_control_plan` | read-only freshness preflight, L0-L6 trace and fail-closed migration planning |
 
@@ -108,16 +108,18 @@ preservation, or a generic project demonstration.
 ## Agent workflow
 
 1. Use normal repository search and Git inspection first.
-2. Resume or slice existing authored intent when it exists.
-3. Call `semctx_control_status`. Continue high-risk control work only for `FRESH` or `DIRTY_KNOWN`.
-4. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
-5. Record the returned status, seal hash, and any current/indexed mismatch as explicit facts.
-6. Call `semctx_control_plan` only with an explicit target architecture.
-7. For a user-authorized write, open or update a change contract before substantial edits.
-8. Make the smallest coherent change.
-9. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
+2. Call `semctx_index_health`; keep binding, freshness, coverage, candidate outcomes, workspace
+   diagnostics, and reasons separate.
+3. Resume or slice existing authored intent when it exists.
+4. Call `semctx_control_status`. Continue high-risk control work only for `FRESH` or `DIRTY_KNOWN`.
+5. Call `semctx_control_trace` for bounded L0-L6 reconstruction.
+6. Record the returned status, seal hash, and any current/indexed mismatch as explicit facts.
+7. Call `semctx_control_plan` only with an explicit target architecture.
+8. For a user-authorized write, open or update a change contract before substantial edits.
+9. Make the smallest coherent change.
+10. Call `semctx_verify_change`, run the selected runtime tests, record only obtained evidence, and
    compose `semctx_change_verify` when a contract exists.
-10. Write a handoff only for write-scoped work; read-only work remains mutation-free.
+11. Write a handoff only for write-scoped work; read-only work remains mutation-free.
 
 ## Decision semantics
 
@@ -128,6 +130,9 @@ preservation, or a generic project demonstration.
 `PASS` does not replace runtime tests. `PARTIAL` must name the missing proof. `STALE` requires
 re-linking. `READY` is a planning state, never execution authority. Plane C has no executor and
 never performs a cutover, deployment or deletion.
+
+Index coverage is `complete`, `partial`, or `insufficient`. It never replaces or upgrades the
+independent control-freshness verdict.
 
 `ControlFreshnessSeal` remains a local input attestation rather than an authenticity signature.
 `semctx_control_status` owns the `FRESH` / `DIRTY_KNOWN` / `STALE` / `UNSEALED` decision; Claude

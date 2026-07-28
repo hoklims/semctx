@@ -4,7 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "@semantic-context/core": ["./packages/core/src/index.ts"],
+      "@semantic-context/plane-a-internal": ["./packages/plane-a-internal/src/index.ts"],
+      "@semantic-context/python-analyzer": ["./packages/python-analyzer/src/index.ts"],
       "@semantic-context/ts-analyzer": ["./packages/ts-analyzer/src/index.ts"],
+      "@semantic-context/workspace-analyzer-internal": ["./packages/workspace-analyzer-internal/src/index.ts"],
       "@semantic-context/repository-store": ["./packages/repository-store/src/index.ts"],
       "@semantic-context/context-engine": ["./packages/context-engine/src/index.ts"],
       "@semantic-context/cocoindex-adapter": ["./packages/cocoindex-adapter/src/index.ts"],

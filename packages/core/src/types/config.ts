@@ -5,7 +5,8 @@ export type BlockingCondition =
   | "critical_contract_changed_without_test"
   | "contract_changed_without_test"
   | "contradiction_unresolved"
-  | "security_surface_without_verification";
+  | "security_surface_without_verification"
+  | "analysis_scope_incomplete";
 
 /**
  * Severity tier of a rule (see docs/concepts/verify-diff.md):
@@ -43,8 +44,7 @@ export interface SemanticPolicyConfig {
   requireProofForActiveChange: boolean;
 }
 
-export interface SemctxConfig {
-  version: number;
+interface SemctxConfigBase {
   repositoryRoot: string;
   include: string[];
   exclude: string[];
@@ -57,3 +57,23 @@ export interface SemctxConfig {
   /** Optional Semantic Layer policy (Plane B). Absent = defaults. */
   semantic?: SemanticPolicyConfig;
 }
+
+/** Compatibility configuration: `include` remains informational and discovery keeps legacy behavior. */
+export interface SemctxConfigV1 extends SemctxConfigBase {
+  version: 1;
+}
+
+export type LanguageAnalysisMode = "on" | "off";
+
+/**
+ * Explicit source-selection migration. Version 2 is opt-in because applying `include` can
+ * intentionally shrink the selected source set and therefore changes Plane-A fingerprints.
+ */
+export interface SemctxConfigV2 extends SemctxConfigBase {
+  version: 2;
+  selectionMode: "globs-v1";
+  /** Language analysis is explicit. A selected language absent from this registry is unsupported. */
+  languages: Record<string, LanguageAnalysisMode>;
+}
+
+export type SemctxConfig = SemctxConfigV1 | SemctxConfigV2;

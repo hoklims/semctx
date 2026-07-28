@@ -1,4 +1,5 @@
-import { normalizePath, compareIds, tierOf } from "@semantic-context/core";
+import { normalizePath, compareIds, SemctxError, tierOf } from "@semantic-context/core";
+import { normalizeObservedDiffPath } from "@semantic-context/control-model/reconciliation";
 import type {
   SemctxConfig,
   Claim,
@@ -55,48 +56,311 @@ export interface ImpactedConsumers {
   consumers: RepositoryNode[];
 }
 
-const OLD_FILE_RE = /^--- (?:a\/(.+)|\/dev\/null)\s*$/;
-const NEW_FILE_RE = /^\+\+\+ (?:b\/(.+)|\/dev\/null)\s*$/;
 const HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
+const RENAME_PATH_RE = /^rename (from|to) (.+)$/u;
+const UNIFIED_DIFF_TIMESTAMP_RE =
+  /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z| [+-]\d{4})?$/u;
+const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
+const utf8Encoder = new TextEncoder();
 
-/**
- * Parse a unified git diff into changed files and BOTH old-side and new-side line ranges.
- * A `+++ b/...` line is only treated as a file header when it immediately follows a
- * `--- a/...` (or `--- /dev/null`) header, so added content that looks like `+++ b/x` is
- * not misparsed as a phantom file.
- */
-export function parseUnifiedDiff(diffText: string): DiffFile[] {
-  const files: DiffFile[] = [];
-  let current: DiffFile | undefined;
-  let sawOldHeader = false;
-  for (const line of diffText.split(/\r?\n/)) {
-    if (OLD_FILE_RE.test(line)) {
-      sawOldHeader = true;
+function decodeGitPath(raw: string): string {
+  if (!raw.startsWith("\"")) return raw;
+  if (!raw.endsWith("\"") || raw.length < 2) {
+    throw new SemctxError("INVALID_TASK_INPUT", "unterminated quoted Git path");
+  }
+  const bytes: number[] = [];
+  const body = raw.slice(1, -1);
+  for (let index = 0; index < body.length; index += 1) {
+    const character = body[index]!;
+    if (character !== "\\") {
+      const codePoint = body.codePointAt(index)!;
+      const literal = String.fromCodePoint(codePoint);
+      bytes.push(...utf8Encoder.encode(literal));
+      if (literal.length === 2) index += 1;
       continue;
     }
-    const newMatch = NEW_FILE_RE.exec(line);
-    if (newMatch !== null && sawOldHeader) {
-      sawOldHeader = false;
-      const path = newMatch[1];
-      if (path === undefined) {
-        current = undefined; // +++ /dev/null => file deleted
+    const escaped = body[++index];
+    if (escaped === undefined) {
+      throw new SemctxError("INVALID_TASK_INPUT", "invalid quoted Git path escape");
+    }
+    if (/[0-7]/u.test(escaped)) {
+      let octal = escaped;
+      while (octal.length < 3 && /[0-7]/u.test(body[index + 1] ?? "")) {
+        octal += body[++index];
+      }
+      bytes.push(Number.parseInt(octal, 8));
+      continue;
+    }
+    const simple: Record<string, number> = {
+      a: 0x07,
+      b: 0x08,
+      t: 0x09,
+      n: 0x0a,
+      v: 0x0b,
+      f: 0x0c,
+      r: 0x0d,
+      "\"": 0x22,
+      "\\": 0x5c,
+    };
+    const value = simple[escaped];
+    if (value === undefined) {
+      throw new SemctxError("INVALID_TASK_INPUT", "unsupported quoted Git path escape", {
+        escape: escaped,
+      });
+    }
+    bytes.push(value);
+  }
+  try {
+    return utf8Decoder.decode(Uint8Array.from(bytes));
+  } catch {
+    throw new SemctxError("INVALID_TASK_INPUT", "quoted Git path is not valid UTF-8");
+  }
+}
+
+function stripFileHeaderMetadata(raw: string): string {
+  let pathEnd = raw.indexOf("\t");
+  if (raw.startsWith("\"")) {
+    pathEnd = -1;
+    for (let index = 1; index < raw.length; index += 1) {
+      if (raw[index] === "\\") {
+        index += 1;
         continue;
       }
-      current = { filePath: normalizePath(path), hunks: [], wholeFile: false };
-      files.push(current);
+      if (raw[index] === "\"") {
+        pathEnd = index + 1;
+        break;
+      }
+    }
+    if (pathEnd === -1) return raw;
+  }
+  if (pathEnd === -1) return raw;
+  const metadata = raw.slice(pathEnd);
+  if (metadata.length === 0) return raw.slice(0, pathEnd);
+  if (!metadata.startsWith("\t") || !UNIFIED_DIFF_TIMESTAMP_RE.test(metadata.slice(1))) {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "invalid unified diff file header metadata",
+      { metadata },
+    );
+  }
+  return raw.slice(0, pathEnd);
+}
+
+function parseFileHeaderPath(
+  line: string,
+  marker: "--- " | "+++ ",
+  side: "a/" | "b/",
+): { matched: boolean; path?: string } {
+  if (!line.startsWith(marker)) return { matched: false };
+  const rawWithMetadata = line.slice(marker.length);
+  const expectedPrefix = rawWithMetadata.startsWith(side)
+    || rawWithMetadata.startsWith(`\"${side}`)
+    || rawWithMetadata === "/dev/null"
+    || rawWithMetadata.startsWith("/dev/null\t");
+  if (!expectedPrefix) return { matched: false };
+  const raw = stripFileHeaderMetadata(rawWithMetadata);
+  if (raw === "/dev/null") return { matched: true };
+  const decoded = decodeGitPath(raw);
+  if (!decoded.startsWith(side)) {
+    throw new SemctxError("INVALID_TASK_INPUT", "Git diff file header has the wrong side prefix");
+  }
+  return {
+    matched: true,
+    path: normalizeObservedDiffPath(decoded.slice(side.length)),
+  };
+}
+
+interface ActiveDiffHunk {
+  oldLines: number;
+  newLines: number;
+  oldConsumed: number;
+  newConsumed: number;
+}
+
+interface ParsedUnifiedDiff {
+  scopePaths: string[];
+  files: DiffFile[];
+}
+
+function hunkIsComplete(hunk: ActiveDiffHunk): boolean {
+  return hunk.oldConsumed >= hunk.oldLines && hunk.newConsumed >= hunk.newLines;
+}
+
+/**
+ * Parse scope paths and changed-file hunks in one stateful pass. File metadata is
+ * recognized only outside an active hunk, so source lines that resemble `---` /
+ * `+++` headers cannot invent scope. Explicit Git blocks that never expose a
+ * canonical header or rename are rejected instead of silently becoming no-op diffs.
+ */
+function parseUnifiedDiffStructure(diffText: string): ParsedUnifiedDiff {
+  const paths = new Set<string>();
+  const files: DiffFile[] = [];
+  let pendingOldHeader: { path?: string } | undefined;
+  let current: DiffFile | undefined;
+  let activeHunk: ActiveDiffHunk | undefined;
+  let pendingRenameFrom: string | undefined;
+  let sawFileOrHunkMarker = false;
+  let explicitBlockOpen = false;
+  let explicitBlockHasCanonicalPath = false;
+
+  const addScopePath = (path: string | undefined): void => {
+    if (path === undefined) return;
+    paths.add(path);
+    if (explicitBlockOpen) explicitBlockHasCanonicalPath = true;
+  };
+
+  const assertExplicitBlockScoped = (): void => {
+    if (explicitBlockOpen && !explicitBlockHasCanonicalPath) {
+      throw new SemctxError(
+        "INVALID_TASK_INPUT",
+        "unified diff block has no canonical paths",
+      );
+    }
+  };
+
+  const failInvalidFileHeader = (): never => {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "invalid or unpaired unified diff file header",
+    );
+  };
+
+  const failInvalidRename = (): never => {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "invalid or unpaired unified diff rename metadata",
+    );
+  };
+
+  for (const line of diffText.split(/\r?\n/u)) {
+    if (activeHunk !== undefined && hunkIsComplete(activeHunk)) {
+      activeHunk = undefined;
+    }
+    if (activeHunk !== undefined) {
+      if (line === "\\ No newline at end of file") continue;
+      const prefix = line[0];
+      if (prefix === " ") {
+        activeHunk.oldConsumed += 1;
+        activeHunk.newConsumed += 1;
+        continue;
+      }
+      if (prefix === "-") {
+        activeHunk.oldConsumed += 1;
+        continue;
+      }
+      if (prefix === "+") {
+        activeHunk.newConsumed += 1;
+        continue;
+      }
+      // A truncated synthetic hunk may be followed by a new structural marker.
+      // End the hunk and process that marker below; real Git hunks reach their
+      // declared counters before this branch.
+      activeHunk = undefined;
+    }
+
+    if (pendingOldHeader !== undefined) {
+      const newHeader = parseFileHeaderPath(line, "+++ ", "b/");
+      if (newHeader.matched) {
+        addScopePath(pendingOldHeader.path);
+        addScopePath(newHeader.path);
+        current = newHeader.path === undefined
+          ? undefined
+          : { filePath: normalizePath(newHeader.path), hunks: [], wholeFile: false };
+        if (current !== undefined) files.push(current);
+        pendingOldHeader = undefined;
+        sawFileOrHunkMarker = true;
+        continue;
+      }
+      failInvalidFileHeader();
+    }
+
+    if (line.startsWith("diff --git ")) {
+      if (pendingRenameFrom !== undefined) failInvalidRename();
+      assertExplicitBlockScoped();
+      explicitBlockOpen = true;
+      explicitBlockHasCanonicalPath = false;
+      current = undefined;
+      sawFileOrHunkMarker = true;
       continue;
     }
-    sawOldHeader = false;
+
+    const renameMatch = RENAME_PATH_RE.exec(line);
+    if (renameMatch?.[1] !== undefined && renameMatch[2] !== undefined) {
+      if (!explicitBlockOpen) failInvalidRename();
+      const renamePath = normalizeObservedDiffPath(decodeGitPath(renameMatch[2]));
+      if (renameMatch[1] === "from") {
+        if (pendingRenameFrom !== undefined) failInvalidRename();
+        pendingRenameFrom = renamePath;
+      } else {
+        if (pendingRenameFrom === undefined) failInvalidRename();
+        addScopePath(pendingRenameFrom);
+        addScopePath(renamePath);
+        pendingRenameFrom = undefined;
+      }
+      current = undefined;
+      sawFileOrHunkMarker = true;
+      continue;
+    }
+
+    const oldHeader = parseFileHeaderPath(line, "--- ", "a/");
+    if (oldHeader.matched) {
+      pendingOldHeader = { path: oldHeader.path };
+      current = undefined;
+      sawFileOrHunkMarker = true;
+      continue;
+    }
+
+    if (line.startsWith("--- ") || line.startsWith("+++ ")) {
+      failInvalidFileHeader();
+    }
+    if (line.startsWith("@@")) {
+      sawFileOrHunkMarker = true;
+    }
     const hunkMatch = HUNK_RE.exec(line);
-    if (hunkMatch !== null && current !== undefined) {
+    if (hunkMatch !== null) {
       const oldStart = Number(hunkMatch[1] ?? "0");
       const oldLines = hunkMatch[2] === undefined ? 1 : Number(hunkMatch[2]);
       const newStart = Number(hunkMatch[3] ?? "0");
       const newLines = hunkMatch[4] === undefined ? 1 : Number(hunkMatch[4]);
-      current.hunks.push({ oldStart, oldLines, newStart, newLines });
+      if (current !== undefined) {
+        current.hunks.push({ oldStart, oldLines, newStart, newLines });
+      }
+      activeHunk = {
+        oldLines,
+        newLines,
+        oldConsumed: 0,
+        newConsumed: 0,
+      };
     }
   }
-  return files;
+
+  if (pendingOldHeader !== undefined) failInvalidFileHeader();
+  if (pendingRenameFrom !== undefined) failInvalidRename();
+  assertExplicitBlockScoped();
+  if (paths.size === 0 && sawFileOrHunkMarker && diffText.trim().length > 0) {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      "unified diff contains file or hunk markers but no canonical paths",
+    );
+  }
+  return {
+    scopePaths: [...paths].sort(),
+    files,
+  };
+}
+
+/** Every old/new path named by a unified diff, including deletions and pure renames. */
+export function parseUnifiedDiffScopePaths(diffText: string): string[] {
+  return parseUnifiedDiffStructure(diffText).scopePaths;
+}
+
+/**
+ * Parse a unified git diff into changed files and BOTH old-side and new-side line ranges.
+ * Scope and hunk parsing share the same state machine so the analysis and its
+ * health preflight cannot disagree about which file headers are structural.
+ */
+export function parseUnifiedDiff(diffText: string): DiffFile[] {
+  return parseUnifiedDiffStructure(diffText).files;
 }
 
 function nodeLineRange(node: RepositoryNode): { start: number; end: number } | undefined {
@@ -228,6 +492,7 @@ export function analyzeDiff(args: {
     contract_changed_without_test: contractsUntested,
     contradiction_unresolved: contradictions.length > 0 ? impactedNodes.filter((n) => n.kind === "document") : [],
     security_surface_without_verification: securityUntested,
+    analysis_scope_incomplete: [],
   };
 
   const findings: VerifyFinding[] = [];
@@ -286,6 +551,8 @@ function describeCondition(condition: BlockingCondition, nodes: readonly Reposit
       return `change touches ${contradictionCount} unresolved contradiction(s)`;
     case "security_surface_without_verification":
       return `security surface changed without verification: ${names}`;
+    case "analysis_scope_incomplete":
+      return `changed scope lacks complete admissible analysis: ${names}`;
   }
 }
 

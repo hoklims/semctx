@@ -3,10 +3,23 @@ import { buildClaims, GraphIndex, parseObservedDiffHunks } from "@semantic-conte
 import { loadConfig, openStore, SCHEMA_VERSION } from "@semantic-context/repository-store";
 import { SealedAttestationIndexV1Schema, type ControlFreshnessSeal } from "@semantic-context/control-model";
 import { loadSemanticModel } from "@semantic-context/semantic-engine";
-import { analyzeRepository, discoverFiles, type AnalysisResult, type DiscoveredFile } from "@semantic-context/ts-analyzer";
+import {
+  discoverRepository,
+  sourceLanguage,
+  type AnalysisResult,
+  type DiscoveredFile,
+  type DiscoveryResult,
+} from "@semantic-context/ts-analyzer";
+import { digestCanonical, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
+import {
+  analyzeWorkspaceSync,
+  type WorkspaceArtifact,
+  type WorkspaceProjection,
+} from "@semantic-context/workspace-analyzer-internal";
 import {
   CONTROL_INDEX_SNAPSHOT_META_KEY,
   CONTROL_FRESHNESS_TOOL_VERSION,
+  PLANE_A_INDEX_SNAPSHOT_META_KEY,
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,
   captureGitState,
@@ -23,6 +36,10 @@ import {
 } from "./control-evidence";
 import { CONTROL_ATTESTATION_INDEX_META_KEY } from "./control-queries";
 import { inspectSemanticLifecycle } from "./semantic-check";
+import { analyzePlaneARuntime } from "./plane-a-runtime";
+import {
+  createPlaneAIndexSnapshot,
+} from "./index-health";
 
 export interface RepositoryAnalysis {
   analysis: AnalysisResult;
@@ -33,10 +50,84 @@ export interface RepositoryIndex extends RepositoryAnalysis {
   freshnessSeal: ControlFreshnessSeal;
 }
 
+interface InternalRepositoryAnalysis extends RepositoryAnalysis {
+  sidecar: PlaneASidecarV1;
+  workspaceProjection: WorkspaceProjection;
+  discovery: DiscoveryResult;
+}
+
+type IndexRepositoryCaptureBarrier = () => void;
+
+let indexRepositoryCaptureBarrierForTesting: IndexRepositoryCaptureBarrier | undefined;
+
+/**
+ * Internal deterministic TOCTOU injection point. Intentionally absent from the package root
+ * exports so production consumers cannot depend on test orchestration.
+ */
+export function __setIndexRepositoryCaptureBarrierForTesting(
+  barrier: IndexRepositoryCaptureBarrier | undefined,
+): void {
+  indexRepositoryCaptureBarrierForTesting = barrier;
+}
+
+function crossIndexRepositoryCaptureBarrier(): void {
+  const barrier = indexRepositoryCaptureBarrierForTesting;
+  indexRepositoryCaptureBarrierForTesting = undefined;
+  barrier?.();
+}
+
+function discoveryForFiles(files: readonly DiscoveredFile[]): DiscoveryResult {
+  return {
+    files: [...files],
+    candidates: [...files]
+      .map((file) => ({
+        relPath: file.relPath,
+        language: file.language ?? sourceLanguage(file.relPath),
+        selectionDecision: "selected" as const,
+        reason: "SELECTED" as const,
+      }))
+      .sort((left, right) =>
+        left.relPath < right.relPath ? -1 : left.relPath > right.relPath ? 1 : 0),
+  };
+}
+
+function analyzeAndBuildClaimsInternal(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+): InternalRepositoryAnalysis {
+  const runtime = analyzePlaneARuntime(config, discovery);
+  return {
+    analysis: runtime.analysis,
+    claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
+    sidecar: runtime.sidecar,
+    workspaceProjection: runtime.workspaceProjection,
+    discovery,
+  };
+}
+
 /** Application boundary for filesystem analysis followed by graph-derived claim construction. */
 export function analyzeAndBuildClaims(config: SemctxConfig, files?: readonly DiscoveredFile[]): RepositoryAnalysis {
-  const analysis = analyzeRepository(config, files);
-  return { analysis, claims: buildClaims(new GraphIndex(analysis.graph)) };
+  const discovery = files === undefined ? discoverRepository(config) : discoveryForFiles(files);
+  const { analysis, claims } = analyzeAndBuildClaimsInternal(config, discovery);
+  return { analysis, claims };
+}
+
+function workspaceArtifacts(analysis: AnalysisResult): WorkspaceArtifact[] {
+  return analysis.graph.nodes
+    .filter((node): node is typeof node & {
+      filePath: string;
+      kind: WorkspaceArtifact["kind"];
+    } =>
+      node.filePath !== undefined
+      && (
+        node.kind === "module"
+        || node.kind === "test"
+        || node.kind === "document"
+        || node.kind === "migration"
+      ))
+    .map((node) => ({ id: node.id, kind: node.kind, filePath: node.filePath }))
+    .sort((left, right) =>
+      left.id < right.id ? -1 : left.id > right.id ? 1 : 0);
 }
 
 /** Rebuild and persist Plane A. Store lifetime is owned by the application service. */
@@ -53,8 +144,9 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     repositoryIdentity,
     diffBytes: trackedDiffBefore,
   });
-  const filesBefore = discoverFiles(configBefore);
-  const analysisInputHash = fingerprintAnalysisInputs(configBefore, filesBefore);
+  const discoveryBefore = discoverRepository(configBefore);
+  const analysisInputHash = fingerprintAnalysisInputs(configBefore, discoveryBefore.files);
+  const discoveryLedgerDigest = digestCanonical(discoveryBefore.candidates);
   const semanticBefore = loadSemanticModel(root);
   const lifecycleBefore = inspectSemanticLifecycle(root, semanticBefore.model.changes);
   const semanticModelHash = fingerprintSemanticModel(semanticBefore.model);
@@ -67,10 +159,19 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       lifecycleFindings: lifecycleErrors,
     });
   }
-  const indexed = analyzeAndBuildClaims(configBefore, filesBefore);
+  const indexed = analyzeAndBuildClaimsInternal(configBefore, discoveryBefore);
+  crossIndexRepositoryCaptureBarrier();
   const configAfter = loadConfig(root);
-  const filesAfter = discoverFiles(configAfter);
-  const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, filesAfter);
+  const discoveryAfter = discoverRepository(configAfter);
+  const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, discoveryAfter.files);
+  const discoveryLedgerDigestAfter = digestCanonical(discoveryAfter.candidates);
+  const workspaceProjectionDigest = digestCanonical(indexed.workspaceProjection);
+  const workspaceProjectionAfter = analyzeWorkspaceSync({
+    repositoryRoot: configAfter.repositoryRoot,
+    repositoryId: indexed.workspaceProjection.repositoryId,
+    artifacts: workspaceArtifacts(indexed.analysis),
+  });
+  const workspaceProjectionDigestAfter = digestCanonical(workspaceProjectionAfter);
   const semanticAfter = loadSemanticModel(root);
   const lifecycleAfter = inspectSemanticLifecycle(root, semanticAfter.model.changes);
   const semanticModelHashAfter = fingerprintSemanticModel(semanticAfter.model);
@@ -94,6 +195,8 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     gitBefore.headCommit !== gitAfter.headCommit
     || gitBefore.workingDiffHash !== gitAfter.workingDiffHash
     || analysisInputHash !== analysisInputHashAfter
+    || discoveryLedgerDigest !== discoveryLedgerDigestAfter
+    || workspaceProjectionDigest !== workspaceProjectionDigestAfter
     || semanticModelHash !== semanticModelHashAfter
     || observedIndexBefore.indexHash !== observedIndex.indexHash
     || JSON.stringify(lifecycleBefore) !== JSON.stringify(lifecycleAfter)
@@ -103,6 +206,10 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       after: gitAfter,
       analysisInputHash,
       analysisInputHashAfter,
+      discoveryLedgerDigest,
+      discoveryLedgerDigestAfter,
+      workspaceProjectionDigest,
+      workspaceProjectionDigestAfter,
       semanticModelHash,
       semanticModelHashAfter,
       lifecycleBefore,
@@ -118,16 +225,24 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     const attestationSetHash = parsedAttestations?.success === true
       ? parsedAttestations.data.attestationSetHash
       : null;
+    const repositoryGraphHash = fingerprintRepositoryFacts({
+      graph: indexed.analysis.graph,
+      claims: indexed.claims,
+      evidence: indexed.analysis.evidence,
+    });
+    const planeAIndexSnapshot = createPlaneAIndexSnapshot({
+      capturedAt: indexedAt,
+      repositoryGraphHash,
+      sidecar: indexed.sidecar,
+      workspace: indexed.workspaceProjection,
+    });
+    const planeAIndexSnapshotHash = digestCanonical(planeAIndexSnapshot);
     const snapshot: IndexedControlSnapshot = {
       schemaVersion: 2,
       capturedAt: indexedAt,
       repositoryRoot,
       headCommit: gitAfter.headCommit,
-      repositoryGraphHash: fingerprintRepositoryFacts({
-        graph: indexed.analysis.graph,
-        claims: indexed.claims,
-        evidence: indexed.analysis.evidence,
-      }),
+      repositoryGraphHash,
       semanticModelHash: semanticModelHashAfter,
       analysisInputHash: analysisInputHashAfter,
       workingDiffHash: gitAfter.workingDiffHash,
@@ -135,6 +250,9 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       toolVersion: CONTROL_FRESHNESS_TOOL_VERSION,
       observedHunkIndexHash: observedIndex.indexHash,
       attestationSetHash,
+      ...(configBefore.version === 2
+        ? { planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}` }
+        : {}),
     };
     store.replaceIndex({
       graph: indexed.analysis.graph,
@@ -144,6 +262,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
         indexed_at: indexedAt,
         indexed_commit: snapshot.headCommit ?? "",
         indexed_repository_graph_hash: snapshot.repositoryGraphHash,
+        [PLANE_A_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(planeAIndexSnapshot),
         [CONTROL_OBSERVED_HUNK_INDEX_META_KEY]: JSON.stringify(observedIndex),
         [CONTROL_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(snapshot),
       },
@@ -163,6 +282,9 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
         workingDiffHash: gitAfter.workingDiffHash,
         indexedSnapshot: snapshot,
         storeSchemaVersion: SCHEMA_VERSION,
+        ...(configBefore.version === 2
+          ? { planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}` }
+          : {}),
       }),
     };
   } catch (error) {

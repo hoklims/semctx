@@ -1,0 +1,381 @@
+import { afterEach, describe, expect, it } from "bun:test";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
+import {
+  createDefaultConfig,
+  createGlobSelectionConfig,
+  type SemctxConfigV2,
+} from "@semantic-context/core";
+import {
+  analyzeRepository,
+  discoverRepository,
+  type DiscoveryResult,
+} from "@semantic-context/ts-analyzer";
+import { analyzePlaneARuntime } from "../src/plane-a-runtime";
+
+const roots: string[] = [];
+
+afterEach(() => {
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
+
+function repository(): string {
+  const root = mkdtempSync(join(tmpdir(), "semctx-plane-a-runtime-"));
+  roots.push(root);
+  return root;
+}
+
+function write(root: string, relPath: string, content: string): void {
+  const absPath = join(root, ...relPath.split("/"));
+  mkdirSync(dirname(absPath), { recursive: true });
+  writeFileSync(absPath, content, "utf8");
+}
+
+function v2(root: string): SemctxConfigV2 {
+  return {
+    ...createGlobSelectionConfig(root),
+    include: ["**/*"],
+    exclude: [],
+  };
+}
+
+describe("private integrated Plane-A runtime", () => {
+  it("preserves legacy v1 graph and evidence bytes", () => {
+    const root = repository();
+    write(root, "src/value.ts", "export function value(): number { return 1; }\n");
+    write(root, "docs/guide.md", "# Guide\n");
+    const config = createDefaultConfig(root);
+    const discovery = discoverRepository(config);
+
+    const legacy = analyzeRepository(config, discovery.files);
+    const integrated = analyzePlaneARuntime(config, discovery);
+
+    expect(JSON.stringify(integrated.analysis.graph)).toBe(JSON.stringify(legacy.graph));
+    expect(JSON.stringify(integrated.analysis.evidence)).toBe(JSON.stringify(legacy.evidence));
+  });
+
+  it("preserves TypeScript bytes in v2 while no second-language facts are present", () => {
+    const root = repository();
+    write(root, "src/a.ts", [
+      "// @boundedContext payments",
+      "export function a(): number { return 1; }",
+      "",
+    ].join("\n"));
+    write(root, "src/b.ts", [
+      "// @boundedContext payments",
+      "export function b(): number { return 2; }",
+      "",
+    ].join("\n"));
+    const config = v2(root);
+    const discovery = discoverRepository(config);
+
+    const legacy = analyzeRepository(config, discovery.files);
+    const integrated = analyzePlaneARuntime(config, discovery);
+
+    expect(JSON.stringify(integrated.analysis.graph)).toBe(JSON.stringify(legacy.graph));
+    expect(JSON.stringify(integrated.analysis.evidence)).toBe(JSON.stringify(legacy.evidence));
+  });
+
+  it("composes TypeScript and Python facts with explicit markers and local imports", () => {
+    const root = repository();
+    write(root, "src/value.ts", "export const value = 1;\n");
+    write(root, "src/python/helper.py", "def assist():\n    return 1\n");
+    write(
+      root,
+      "src/python/service.py",
+      [
+        "from .helper import assist",
+        "",
+        "# @invariant positive-balance: balance cannot be negative",
+        "def debit():",
+        "    return assist()",
+        "",
+      ].join("\n"),
+    );
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    expect(result.analysis.graph.nodes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "mod:src/value.ts", kind: "module" }),
+      expect.objectContaining({ id: "mod:src/python/service.py", kind: "module" }),
+      expect.objectContaining({
+        id: "sym:function:src/python/service.py:debit:4",
+        kind: "function",
+      }),
+      expect.objectContaining({ id: "inv:positive-balance", kind: "invariant" }),
+    ]));
+    expect(result.analysis.graph.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "imports",
+        from: "mod:src/python/service.py",
+        to: "mod:src/python/helper.py",
+      }),
+      expect.objectContaining({
+        kind: "constrained_by",
+        from: "sym:function:src/python/service.py:debit:4",
+        to: "inv:positive-balance",
+      }),
+    ]));
+    expect(result.discoveryLedger.find((entry) =>
+      entry.candidateIdentity === "python:src/python/service.py")?.scope.dialectVersion)
+      .toBe("<=3.12");
+    expect(result.analysis.graph.edges.some((edge) =>
+      edge.kind === "calls" && edge.from.includes("service.py"))).toBe(false);
+    const repositoryBatch = result.sidecar.factBatches.find((batch) =>
+      batch.facts.some((fact) =>
+        fact.factType === "node" && fact.kind === "repository"));
+    expect(repositoryBatch).toMatchObject({
+      producer: { identity: "@semantic-context/ts-analyzer", version: "0.1.0" },
+      scope: { language: "repository", selectedPaths: [] },
+    });
+    expect(result.sidecar.factBatches
+      .filter((batch) => batch.producer.identity === "@semantic-context/python-analyzer")
+      .every((batch) => batch.facts.every((fact) =>
+        fact.factType !== "node" || fact.kind !== "repository"))).toBe(true);
+  });
+
+  it("does not resolve an absolute import by arbitrary repository-path suffix", () => {
+    const root = repository();
+    write(root, "src/vendor/pkg/helper.py", "value = 1\n");
+    write(root, "src/service.py", "import pkg.helper\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    expect(result.analysis.graph.edges.some((edge) =>
+      edge.kind === "imports"
+      && edge.from === "mod:src/service.py"
+      && edge.to === "mod:src/vendor/pkg/helper.py")).toBe(false);
+    expect(result.discoveryLedger.find((entry) =>
+      entry.candidateIdentity === "python:src/service.py")?.analysisReasons)
+      .toEqual(expect.arrayContaining([
+        expect.stringContaining("unresolved-import:1:pkg.helper"),
+      ]));
+  });
+
+  it("retains the repository endpoint for a pure-Python v2 repository", () => {
+    const root = repository();
+    write(root, "src/service.py", "def service():\n    return 1\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    expect(result.analysis.graph.nodes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: expect.stringMatching(/^repo:/), kind: "repository" }),
+      expect.objectContaining({ id: "mod:src/service.py", kind: "module" }),
+    ]));
+    expect(result.analysis.graph.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "belongs_to",
+        from: "mod:src/service.py",
+        to: expect.stringMatching(/^repo:/),
+      }),
+    ]));
+    const repositoryBatch = result.sidecar.factBatches.find((batch) =>
+      batch.facts.some((fact) =>
+        fact.factType === "node" && fact.kind === "repository"));
+    expect(repositoryBatch).toMatchObject({
+      producer: { identity: "@semantic-context/ts-analyzer", version: "0.1.0" },
+      scope: { language: "repository", selectedPaths: [] },
+    });
+    expect(result.sidecar.factBatches
+      .filter((batch) => batch.producer.identity === "@semantic-context/python-analyzer")
+      .every((batch) => batch.facts.every((fact) =>
+        fact.factType !== "node" || fact.kind !== "repository"))).toBe(true);
+  });
+
+  it("finalizes every candidate with exact per-path terminal cardinality", () => {
+    const root = repository();
+    write(root, "src/a.ts", "export const a = 1;\n");
+    write(root, "src/b.py", "def b():\n    return 1\n");
+    write(root, "notes.txt", "unsupported\n");
+    const config = v2(root);
+    const discovery = discoverRepository(config);
+    const result = analyzePlaneARuntime(config, discovery);
+
+    expect(result.discoveryLedger).toHaveLength(discovery.candidates.length);
+    for (const entry of result.discoveryLedger) {
+      expect(entry.scope.selectedPaths).toEqual([
+        entry.candidateIdentity.slice(entry.candidateIdentity.indexOf(":") + 1),
+      ]);
+      const matchingResults = result.sidecar.producerResults.filter((item) =>
+        item.scope.selectedPaths[0] === entry.scope.selectedPaths[0]);
+      const matchingBatches = result.sidecar.factBatches.filter((item) =>
+        item.scope.selectedPaths[0] === entry.scope.selectedPaths[0]);
+      if (entry.selectionDecision === "selected" && entry.analysisOutcome === "analyzed") {
+        expect(matchingResults).toHaveLength(1);
+        expect(matchingBatches).toHaveLength(1);
+      } else {
+        expect(matchingResults).toHaveLength(0);
+        expect(matchingBatches).toHaveLength(0);
+      }
+    }
+  });
+
+  it("retains Python limitations as partial, negative-ineligible capability evidence", () => {
+    const root = repository();
+    write(
+      root,
+      "src/dynamic.py",
+      [
+        "from missing import *",
+        "importlib.import_module(name)",
+        "sys.path.append('/tmp')",
+        "def useful():",
+        "    return 1",
+        "",
+      ].join("\n"),
+    );
+    write(root, "selected.bin", "unsupported\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+    const pythonEntry = result.discoveryLedger.find((entry) =>
+      entry.candidateIdentity === "python:src/dynamic.py");
+    const unsupported = result.discoveryLedger.find((entry) =>
+      entry.candidateIdentity === "unknown:selected.bin");
+    const pythonProfiles = result.sidecar.capabilityProfiles.filter((profile) =>
+      profile.scope.selectedPaths[0] === "src/dynamic.py");
+
+    expect(pythonEntry).toMatchObject({
+      analysisOutcome: "analyzed",
+      analysisReasons: expect.arrayContaining([
+        expect.stringContaining("star-import:"),
+        expect.stringContaining("dynamic-import:"),
+        expect.stringContaining("sys-path-mutation:"),
+        expect.stringContaining("unresolved-import:"),
+      ]),
+    });
+    expect(unsupported).toMatchObject({
+      selectionDecision: "selected",
+      analysisOutcome: "unsupported",
+    });
+    expect(pythonProfiles.length).toBeGreaterThan(0);
+    expect(pythonProfiles.every((profile) =>
+      profile.completenessClaim === "partial"
+      && profile.negativeEvidenceEligible === false)).toBe(true);
+  });
+
+  it("isolates invalid Python scopes without failing unaffected candidates", () => {
+    const root = repository();
+    const config = v2(root);
+    const malformed: DiscoveryResult = {
+      candidates: [
+        {
+          relPath: "../escape.py",
+          language: "python",
+          selectionDecision: "selected",
+          reason: "SELECTED",
+        },
+        {
+          relPath: "src/ok.py",
+          language: "python",
+          selectionDecision: "selected",
+          reason: "SELECTED",
+        },
+      ],
+      files: [
+        {
+          absPath: join(root, "escape.py"),
+          relPath: "../escape.py",
+          role: "source",
+          content: "def escape():\n    return 1\n",
+          language: "python",
+        },
+        {
+          absPath: join(root, "src", "ok.py"),
+          relPath: "src/ok.py",
+          role: "source",
+          content: "def ok():\n    return 1\n",
+          language: "python",
+        },
+      ],
+    };
+
+    const result = analyzePlaneARuntime(config, malformed);
+    const entry = result.discoveryLedger.find((candidate) =>
+      candidate.candidateIdentity === "python:../escape.py");
+
+    expect(entry).toMatchObject({
+      selectionDecision: "selected",
+      analysisOutcome: "failed",
+      analysisReasons: [
+        "PRODUCER_FAILED",
+        "invalid-repository-relative-path",
+      ],
+    });
+    expect(result.sidecar.factBatches.some((batch) =>
+      batch.scope.selectedPaths[0] === "../escape.py")).toBe(false);
+    expect(result.sidecar.producerResults.some((producerResult) =>
+      producerResult.scope.selectedPaths[0] === "../escape.py")).toBe(false);
+    expect(result.discoveryLedger.find((candidate) =>
+      candidate.candidateIdentity === "python:src/ok.py")).toMatchObject({
+        selectionDecision: "selected",
+        analysisOutcome: "analyzed",
+      });
+    expect(result.sidecar.factBatches.some((batch) =>
+      batch.scope.selectedPaths[0] === "src/ok.py")).toBe(true);
+  });
+
+  it("projects manifest-backed workspaces without changing repository graph relations", () => {
+    const root = repository();
+    write(root, "package.json", JSON.stringify({
+      name: "root",
+      private: true,
+      workspaces: ["packages/*"],
+    }));
+    write(root, "packages/api/package.json", JSON.stringify({ name: "@fixture/api" }));
+    write(root, "packages/api/src/index.ts", "export const api = true;\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    expect(result.workspaceProjection.nodes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "workspace:packages/api",
+        identity: "@fixture/api",
+      }),
+    ]));
+    expect(result.workspaceProjection.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "contained_in_workspace",
+        from: "mod:packages/api/src/index.ts",
+        to: "workspace:packages/api",
+      }),
+    ]));
+    expect(result.analysis.graph.nodes.some((node) => node.kind === "package")).toBe(false);
+    expect(result.analysis.graph.edges.every((edge) =>
+      edge.kind !== ("contained_in_workspace" as typeof edge.kind)
+      && edge.kind !== ("workspace_member_of" as typeof edge.kind))).toBe(true);
+    const entry = result.discoveryLedger.find((candidate) =>
+      candidate.candidateIdentity === "typescript:packages/api/src/index.ts");
+    const batch = result.sidecar.factBatches.find((candidate) =>
+      candidate.scope.selectedPaths[0] === "packages/api/src/index.ts");
+    const producerResult = result.sidecar.producerResults.find((candidate) =>
+      candidate.scope.selectedPaths[0] === "packages/api/src/index.ts");
+    expect(entry?.scope.workspaceUnitId).toBe("workspace:packages/api");
+    expect(batch?.scope.workspaceUnitId).toBe("workspace:packages/api");
+    expect(producerResult?.scope.workspaceUnitId).toBe("workspace:packages/api");
+    expect(result.sidecar.capabilityProfiles
+      .filter((profile) => profile.scope.selectedPaths[0] === "packages/api/src/index.ts")
+      .every((profile) => profile.scope.workspaceUnitId === "workspace:packages/api")).toBe(true);
+  });
+
+  it("is deterministic under discovery permutation", () => {
+    const root = repository();
+    write(root, "src/a.ts", "export const a = 1;\n");
+    write(root, "src/b.py", "def b():\n    return 1\n");
+    const config = v2(root);
+    const discovery = discoverRepository(config);
+    const reversed: DiscoveryResult = {
+      files: [...discovery.files].reverse(),
+      candidates: [...discovery.candidates].reverse(),
+    };
+
+    const forward = analyzePlaneARuntime(config, discovery);
+    const backward = analyzePlaneARuntime(config, reversed);
+
+    expect(JSON.stringify(backward.analysis)).toBe(JSON.stringify(forward.analysis));
+    expect(JSON.stringify(backward.sidecar)).toBe(JSON.stringify(forward.sidecar));
+    expect(JSON.stringify(backward.workspaceProjection)).toBe(
+      JSON.stringify(forward.workspaceProjection),
+    );
+  });
+});

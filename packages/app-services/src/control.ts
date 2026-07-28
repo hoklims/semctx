@@ -31,11 +31,13 @@ import { loadConfig } from "@semantic-context/repository-store";
 import { discoverFiles } from "@semantic-context/ts-analyzer";
 import {
   CONTROL_INDEX_SNAPSHOT_META_KEY,
+  PLANE_A_INDEX_SNAPSHOT_META_KEY,
   buildControlFreshnessSeal,
   canonicalRepositoryRoot,
   captureGitState,
   evaluateControlFreshness,
   fingerprintAnalysisInputs,
+  fingerprintPlaneAIndexSnapshot,
   fingerprintSemanticModel,
   parseIndexedControlSnapshot,
   unsealedControlStatus,
@@ -241,6 +243,14 @@ export function loadControlState(root: string): CurrentControlState {
       workingDiffHash: gitAfter.workingDiffHash,
       indexedSnapshot,
       storeSchemaVersion: Number.isSafeInteger(schemaVersion) && schemaVersion >= 0 ? schemaVersion : null,
+      ...(indexedSnapshot?.schemaVersion === 2
+        && indexedSnapshot.planeAIndexSnapshotHash !== undefined
+        ? {
+            planeAIndexSnapshotHash: fingerprintPlaneAIndexSnapshot(
+              reader.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY),
+            ),
+          }
+        : {}),
     });
     const freshnessStatus = evaluateControlFreshness(freshnessSeal);
     const sealedAttestationIndex = parseSealedAttestationIndex(reader.getMeta(CONTROL_ATTESTATION_INDEX_META_KEY));

@@ -1,6 +1,11 @@
 export { analyzeAndBuildClaims, indexRepository } from "./indexing";
 export { openReadyRepository } from "./readiness";
 export type { RepositoryAnalysis, RepositoryIndex } from "./indexing";
+export { indexHealth } from "./index-health";
+export type {
+  IndexHealthCandidateV1,
+  IndexHealthReportV1,
+} from "./index-health";
 export { planVerify, runVerify } from "./verify";
 export type { VerifySource, VerifyComputation } from "./verify";
 export { checkSemanticState, inspectSemanticLifecycle } from "./semantic-check";

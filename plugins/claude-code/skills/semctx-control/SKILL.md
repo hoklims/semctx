@@ -33,8 +33,8 @@ without Semctx follow `no_op`, and execution authority is
    - Surface: host-local; effect: `read_only`; condition: `always`.
 2. **semantic_check** — Check the semantic model and preserve its canonical reason codes. Rehydrate existing intent with semctx_resume, semctx_semantic_inspect or semctx_semantic_slice when an identity exists; absent context stays unknown.
    - Surface: `semctx_semantic_check`, `semctx_resume`, `semctx_semantic_inspect`, `semctx_semantic_slice`; effect: `read_only`; condition: `semantic_context_present`.
-3. **status** — Run the control preflight before governed work. Continue only for FRESH or DIRTY_KNOWN, preserve every STALE or UNSEALED reason verbatim, and record the freshness seal plus current and indexed input pairs as an attestation rather than authority.
-   - Surface: `semctx_control_status`; effect: `read_only`; condition: `semantic_context_present`.
+3. **status** — Run index health and the control preflight before governed work. Keep coverage separate from freshness, continue only for FRESH or DIRTY_KNOWN, preserve every incomplete-coverage, STALE or UNSEALED reason verbatim, and record seals and bindings as attestations rather than authority.
+   - Surface: `semctx_index_health`, `semctx_control_status`; effect: `read_only`; condition: `semantic_context_present`.
 4. **frame_task** — Frame the task without promoting task prose, candidates or hypotheses into normative repository scope.
    - Surface: `semctx_control_frame_task`; effect: `read_only`; condition: `write_task`.
 5. **bind_scope** — Bind only explicit repository files or coordinates. Keep unresolved or advisory candidates outside the declared reconciliation scope.
@@ -69,6 +69,7 @@ The bounded transfer stage is `handoff`.
 - **Plane A — diff impact:** `PASS`, `WARN`, `BLOCK`. `PASS` is a static policy result, not runtime proof. `WARN` needs attention but is not a failure. `BLOCK` must be resolved or explicitly disabled by user-owned policy.
 - **Plane B — change contract:** `VERIFIED`, `PARTIAL`, `BLOCKED`, `STALE`. `PARTIAL` must name every missing proof or open unknown. `STALE` requires re-linking before the model can be trusted.
 - **Control freshness preflight:** `FRESH`, `DIRTY_KNOWN`, `STALE`, `UNSEALED`. Only the first two admit high-risk control work.
+- **Plane A index coverage:** `complete`, `partial`, `insufficient`. Use `semctx_index_health` before relying on negative evidence; its coverage verdict never replaces or upgrades the separately reported freshness verdict.
 - **Plane C — migration plan:** `READY`, `BLOCKED`. `READY` means the plan satisfies its admission rules; it is never execution authority.
 
 ## Safety contract
@@ -78,6 +79,7 @@ The bounded transfer stage is `handoff`.
 - Never claim completion on `BLOCK`, `BLOCKED`, or `STALE`.
 - Never upgrade declared evidence to obtained evidence without running or observing the corresponding check.
 - Never treat a freshness seal as an authenticity signature or invent a verdict from it. Use `semctx_control_status` and preserve its reasons, nulls, and current/indexed mismatches verbatim.
+- Never collapse index freshness and analysis coverage into one health claim. Preserve the `semctx_index_health` binding, freshness, coverage, workspace diagnostics, outcome counts, and reasons as separate report fields.
 - Preserve the separation of authority: repository facts are observed, semantic intent is authored, and control reports are projections over both.
 
 ## Completion report
@@ -85,6 +87,8 @@ The bounded transfer stage is `handoff`.
 Report the framed objective, authority sources, freshness verdict, seal hash and input mismatches, L0-L6 impact trace, initial plan verdict, files changed, runtime checks actually run, final Plane A/B/C verdicts, residual unknowns, and what semctx prevented from being changed unsafely.
 
 ## Local equivalents when MCP is unavailable
+
+Run `semctx index-health --json` for the same index-health report before using the host-specific fallback ladder below.
 
 <!-- BEGIN host-cli-ladder:claude-code -->
 Prefer MCP tools when they are connected. For shell fallbacks, resolve the CLI in this order

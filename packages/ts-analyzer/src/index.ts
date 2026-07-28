@@ -2,8 +2,20 @@
 export { analyzeRepository } from "./analyze";
 export type { AnalysisResult } from "./analyze";
 
-export { discoverFiles, countTypeScriptFiles } from "./discovery";
-export type { DiscoveredFile, FileRole } from "./discovery";
+export {
+  discoverFiles,
+  discoverRepository,
+  countTypeScriptFiles,
+  isPathSelected,
+  sourceLanguage,
+} from "./discovery";
+export type {
+  DiscoveredFile,
+  DiscoveryCandidate,
+  DiscoveryResult,
+  FileRole,
+  SourceLanguage,
+} from "./discovery";
 
 export { extractTypeScript } from "./ts-symbols";
 export type {

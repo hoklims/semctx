@@ -3,6 +3,7 @@
 import {
   controlAltitudeAuthority,
   controlStatus,
+  indexHealth,
   planControlMigration,
   queryControlArchitectureComparison,
   queryControlDeletionAuthorization,
@@ -21,6 +22,7 @@ import {
   type StepAuthorizationQueryV1,
   type TransitionAuthorizationQueryV1,
   type TraversalQueryV1,
+  type IndexHealthReportV1,
 } from "@semantic-context/app-services";
 import type {
   AltitudeAuthorityReportV1,
@@ -58,6 +60,10 @@ export function controlAuthorityTool(
 
 export function controlStatusTool(root: string): ControlFreshnessStatusReport {
   return controlStatus(root);
+}
+
+export function indexHealthTool(root: string): IndexHealthReportV1 {
+  return indexHealth(root);
 }
 
 export function controlTraceTool(root: string, input: ControlTraceInput): TraversalReportV2 {

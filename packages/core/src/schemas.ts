@@ -36,6 +36,7 @@ export const BlockingConditionSchema = z.enum([
   "contract_changed_without_test",
   "contradiction_unresolved",
   "security_surface_without_verification",
+  "analysis_scope_incomplete",
 ]);
 
 export const BlockingRuleSchema = z.object({
@@ -55,8 +56,7 @@ export const SemanticPolicyConfigSchema = z.object({
   requireProofForActiveChange: z.boolean(),
 });
 
-export const SemctxConfigSchema = z.object({
-  version: z.number().int(),
+const SemctxConfigBaseSchema = z.object({
   repositoryRoot: z.string(),
   include: z.array(z.string()),
   exclude: z.array(z.string()),
@@ -69,5 +69,20 @@ export const SemctxConfigSchema = z.object({
   // silently drops a `semantic` block now that it is part of the schema.
   semantic: SemanticPolicyConfigSchema.optional(),
 });
+
+export const SemctxConfigV1Schema = SemctxConfigBaseSchema.extend({
+  version: z.literal(1),
+});
+
+export const SemctxConfigV2Schema = SemctxConfigBaseSchema.extend({
+  version: z.literal(2),
+  selectionMode: z.literal("globs-v1"),
+  languages: z.record(z.enum(["on", "off"])),
+});
+
+export const SemctxConfigSchema = z.discriminatedUnion("version", [
+  SemctxConfigV1Schema,
+  SemctxConfigV2Schema,
+]);
 
 export type SemctxConfigParsed = z.infer<typeof SemctxConfigSchema>;

@@ -19,7 +19,13 @@ export type { ContradictionReport } from "./contradiction";
 export { buildContextPack } from "./context-pack-builder";
 export type { BuildPackOptions } from "./context-pack-builder";
 
-export { analyzeDiff, parseUnifiedDiff, buildVerifyReport, computeImpactedConsumers } from "./verify-diff";
+export {
+  analyzeDiff,
+  parseUnifiedDiff,
+  parseUnifiedDiffScopePaths,
+  buildVerifyReport,
+  computeImpactedConsumers,
+} from "./verify-diff";
 export type { VerifyResult, VerifyFinding, DiffFile, DiffHunk, VerifyReportGitMeta, ImpactedConsumers } from "./verify-diff";
 
 export { parseObservedDiffHunks, parseUnifiedDiffBytes } from "./observed-diff";

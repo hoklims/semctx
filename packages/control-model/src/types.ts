@@ -137,6 +137,9 @@ export interface ControlFreshnessSeal {
   indexedStoreSchemaVersion: number | null;
   toolVersion: string;
   indexedToolVersion: string | null;
+  /** Additive private Plane-A snapshot binding; absent on legacy v1 indexing flows. */
+  planeAIndexSnapshotHash?: Sha256Hash | null;
+  indexedPlaneAIndexSnapshotHash?: Sha256Hash | null;
   sealHash: Sha256Hash;
 }
 

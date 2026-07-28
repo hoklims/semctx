@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import {
   repositoryId,
@@ -11,23 +12,28 @@ import {
   decisionId,
   riskId,
   boundedContextId,
-  edgeId,
-  evidenceId,
-  slugify,
   compareIds,
+  slugify,
 } from "@semantic-context/core";
 import type {
   SemctxConfig,
   RepositoryGraph,
   RepositoryNode,
-  RepositoryEdge,
   EvidenceRef,
   EvidenceRecord,
-  EdgeKind,
-  NodeKind,
-  MetadataValue,
 } from "@semantic-context/core";
-import { discoverFiles, type DiscoveredFile } from "./discovery";
+import {
+  DeterministicGraphAssembler,
+  assertStableCapture,
+  attachPlaneASidecar,
+  digestCanonical,
+  type ArtifactScope,
+  type CapabilityProfile,
+  type FactBatchV1,
+  type PlaneASidecarV1,
+  type ProducerIdentity,
+} from "@semantic-context/plane-a-internal";
+import { discoverFiles, sourceLanguage, type DiscoveredFile } from "./discovery";
 import { extractTypeScript } from "./ts-symbols";
 import { extractDoc } from "./docs";
 import { extractMigration } from "./migrations";
@@ -37,82 +43,18 @@ export interface AnalysisResult {
   evidence: EvidenceRecord[];
 }
 
-class GraphBuilder {
-  readonly nodes = new Map<string, RepositoryNode>();
-  readonly edges = new Map<string, RepositoryEdge>();
-  readonly evidence = new Map<string, EvidenceRecord>();
+type GraphBuilder = DeterministicGraphAssembler;
 
-  ev(ref: EvidenceRef): string {
-    const id = evidenceId(ref.sourceKind, ref.filePath, ref.startLine, ref.endLine);
-    if (!this.evidence.has(id)) this.evidence.set(id, { id, ...ref });
-    return id;
-  }
+const TYPESCRIPT_PRODUCER: ProducerIdentity = {
+  identity: "@semantic-context/ts-analyzer",
+  version: "0.1.0",
+};
 
-  node(input: {
-    id: string;
-    kind: NodeKind;
-    name: string;
-    filePath?: string;
-    boundedContext?: string;
-    exported?: boolean;
-    evidence?: EvidenceRef[];
-    tags?: string[];
-    metadata?: Record<string, MetadataValue>;
-  }): RepositoryNode {
-    const evidence = input.evidence ?? [];
-    for (const ref of evidence) this.ev(ref);
-    const existing = this.nodes.get(input.id);
-    if (existing !== undefined) {
-      existing.evidence.push(...evidence);
-      for (const tag of input.tags ?? []) if (!existing.tags.includes(tag)) existing.tags.push(tag);
-      for (const [key, value] of Object.entries(input.metadata ?? {})) {
-        if (!(key in existing.metadata)) existing.metadata[key] = value;
-      }
-      if (input.boundedContext !== undefined && existing.boundedContext === undefined) {
-        existing.boundedContext = input.boundedContext;
-      }
-      if (input.exported === true) existing.exported = true;
-      return existing;
-    }
-    const node: RepositoryNode = {
-      id: input.id,
-      kind: input.kind,
-      name: input.name,
-      ...(input.filePath !== undefined ? { filePath: input.filePath } : {}),
-      ...(input.boundedContext !== undefined ? { boundedContext: input.boundedContext } : {}),
-      ...(input.exported !== undefined ? { exported: input.exported } : {}),
-      evidence: [...evidence],
-      tags: [...(input.tags ?? [])],
-      metadata: { ...(input.metadata ?? {}) },
-    };
-    this.nodes.set(node.id, node);
-    return node;
-  }
-
-  edge(
-    kind: EdgeKind,
-    from: string,
-    to: string,
-    evidence: EvidenceRef[],
-    metadata: Record<string, MetadataValue> = {},
-  ): void {
-    const id = edgeId(kind, from, to);
-    for (const ref of evidence) this.ev(ref);
-    const existing = this.edges.get(id);
-    if (existing !== undefined) {
-      existing.evidence.push(...evidence);
-      return;
-    }
-    this.edges.set(id, { id, kind, from, to, evidence: [...evidence], metadata: { ...metadata } });
-  }
-
-  build(): AnalysisResult {
-    const nodes = [...this.nodes.values()].sort((a, b) => compareIds(a.id, b.id));
-    const edges = [...this.edges.values()].sort((a, b) => compareIds(a.id, b.id));
-    const evidence = [...this.evidence.values()].sort((a, b) => compareIds(a.id, b.id));
-    return { graph: { nodes, edges }, evidence };
-  }
-}
+const PLANE_A_FACT_SCHEMA = {
+  schemaVersion: 1,
+  facts: ["node", "edge"],
+  evidence: "source-lines-v1",
+} as const;
 
 const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["sourceKind"]): EvidenceRef[] => [
   { filePath: relPath, startLine: line, sourceKind: kind },
@@ -120,7 +62,11 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
 
 export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[]): AnalysisResult {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
-  const builder = new GraphBuilder();
+  const tsFiles = files.filter(isTypeScriptSource);
+  const analyzedFiles = files.filter((file) =>
+    isTypeScriptSource(file) || file.role === "document" || file.role === "migration");
+  const selectedPaths = analyzedFiles.map((file) => file.relPath).sort();
+  const builder = new DeterministicGraphAssembler(selectedPaths);
 
   const repoNodeId = repositoryId(config.repositoryRoot);
   builder.node({
@@ -130,7 +76,6 @@ export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readon
     metadata: { root: config.repositoryRoot },
   });
 
-  const tsFiles = files.filter((f) => f.role === "source" || f.role === "test");
   const roleByRel = new Map<string, DiscoveredFile["role"]>();
   const nodeIdByRel = new Map<string, string>();
   for (const file of files) roleByRel.set(file.relPath, file.role);
@@ -225,16 +170,185 @@ export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readon
   }
 
   // Documents.
-  for (const file of files.filter((f) => f.role === "document")) {
+  for (const file of analyzedFiles.filter((f) => f.role === "document")) {
     ingestDocument(builder, file, repoNodeId);
   }
 
   // Migrations.
-  for (const file of files.filter((f) => f.role === "migration")) {
+  for (const file of analyzedFiles.filter((f) => f.role === "migration")) {
     ingestMigration(builder, file, repoNodeId);
   }
 
-  return builder.build();
+  const analysis = builder.build();
+  return attachPlaneASidecar(
+    analysis,
+    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId),
+  );
+}
+
+function isTypeScriptSource(file: DiscoveredFile): boolean {
+  return (file.role === "source" || file.role === "test")
+    && (file.language === undefined || file.language === "typescript");
+}
+
+function buildTypeScriptSidecar(
+  config: SemctxConfig,
+  files: readonly DiscoveredFile[],
+  builder: DeterministicGraphAssembler,
+  repositoryIdentity: string,
+): PlaneASidecarV1 {
+  const selectedPaths = files.map((file) => file.relPath).sort();
+  const sourceInputs = files
+    .map((file) => ({
+      relPath: file.relPath,
+      role: file.role,
+      language: file.language ?? null,
+      content: file.content,
+    }))
+    .sort((left, right) => compareIds(left.relPath, right.relPath));
+  const sourceDigest = digestCanonical(sourceInputs);
+  const producerConfigurationDigest = digestCanonical(config);
+  const factSchemaDigest = digestCanonical(PLANE_A_FACT_SCHEMA);
+  const currentSourceInputs = files
+    .map((file) => {
+      let content: string | null;
+      try {
+        content = readFileSync(file.absPath, "utf8");
+      } catch {
+        content = null;
+      }
+      return {
+        relPath: file.relPath,
+        role: file.role,
+        language: file.language ?? null,
+        content,
+      };
+    })
+    .sort((left, right) => compareIds(left.relPath, right.relPath));
+  assertStableCapture(
+    {
+      factSchemaDigest,
+      producerConfigurationDigest,
+      producerVersion: TYPESCRIPT_PRODUCER.version,
+      sourceDigest,
+    },
+    {
+      factSchemaDigest: digestCanonical(PLANE_A_FACT_SCHEMA),
+      producerConfigurationDigest: digestCanonical(config),
+      producerVersion: TYPESCRIPT_PRODUCER.version,
+      sourceDigest: digestCanonical(currentSourceInputs),
+    },
+  );
+  const scope: ArtifactScope = {
+    repositoryIdentity,
+    sourceStateDigest: sourceDigest,
+    selectedPathSetDigest: digestCanonical(selectedPaths),
+    selectedPaths,
+    language: "repository",
+  };
+  const facts = builder.facts();
+  const languageByPath = new Map(files.map((file) => [
+    file.relPath,
+    file.language ?? sourceLanguage(file.relPath),
+  ]));
+  const factsByLanguage = new Map<string, typeof facts extends readonly (infer T)[] ? T[] : never>();
+  for (const fact of facts) {
+    const path = fact.factType === "node"
+      ? fact.filePath ?? fact.evidence[0]?.filePath
+      : fact.evidence[0]?.filePath;
+    const language = path === undefined ? "repository" : languageByPath.get(path) ?? "unknown";
+    const group = factsByLanguage.get(language) ?? [];
+    group.push(fact);
+    factsByLanguage.set(language, group);
+  }
+  const capabilityProfiles: CapabilityProfile[] = [];
+  const factBatches: FactBatchV1[] = [];
+  const discoveryLedger: PlaneASidecarV1["discoveryLedger"][number][] = [];
+  for (const [language, languageFacts] of [...factsByLanguage.entries()].sort(([left], [right]) =>
+    compareIds(left, right))) {
+    const languageFiles = files.filter((file) =>
+      (file.language ?? sourceLanguage(file.relPath)) === language);
+    const languagePaths = languageFiles.map((file) => file.relPath).sort();
+    const languageSourceDigest = digestCanonical(sourceInputs.filter((input) =>
+      languagePaths.includes(input.relPath)));
+    const languageScope: ArtifactScope = {
+      repositoryIdentity,
+      sourceStateDigest: languageSourceDigest,
+      selectedPathSetDigest: digestCanonical(languagePaths),
+      selectedPaths: languagePaths,
+      language,
+      ...(language === "typescript" ? { dialectVersion: "5.6" } : {}),
+    };
+    const factKinds = [...new Set(languageFacts.map((fact) => fact.kind))].sort();
+    const profiles = factKinds.map((factKind): CapabilityProfile => ({
+      profileId: `${language}:${factKind}:${languageScope.selectedPathSetDigest}:${factSchemaDigest}`,
+      factKind,
+      scope: languageScope,
+      producer: TYPESCRIPT_PRODUCER,
+      producerConfigurationDigest,
+      factSchemaDigest,
+      evidenceContract: "source-lines-v1",
+      resolutionSemantics: language === "typescript"
+        ? "typescript-static-v1"
+        : "structural-source-v1",
+      soundnessClaim: "best-effort-static",
+      completenessClaim: "producer-declared",
+      negativeEvidenceEligible: false,
+      label: "structural",
+    }));
+    const batch: FactBatchV1 = {
+      schemaVersion: 1,
+      batchId: digestCanonical({
+        scope: languageScope,
+        producer: TYPESCRIPT_PRODUCER,
+        producerConfigurationDigest,
+        factSchemaDigest,
+        facts: languageFacts,
+      }),
+      scope: languageScope,
+      producer: TYPESCRIPT_PRODUCER,
+      producerConfigurationDigest,
+      factSchemaDigest,
+      sourceDigest: languageSourceDigest,
+      factKinds,
+      capabilityProfileIds: profiles.map((profile) => profile.profileId),
+      evidenceContract: "source-lines-v1",
+      facts: languageFacts,
+    };
+    capabilityProfiles.push(...profiles);
+    factBatches.push(batch);
+    discoveryLedger.push({
+      candidateIdentity: `${language}:${languageScope.selectedPathSetDigest}`,
+      scope: languageScope,
+      selectionDecision: "selected",
+      analysisOutcome: "analyzed",
+      selectionReasons: [],
+      analysisReasons: [],
+      selectedProducer: TYPESCRIPT_PRODUCER,
+    });
+  }
+  return {
+    schemaVersion: 1,
+    scope,
+    producerConfigurationDigest,
+    factSchemaDigest,
+    sourceDigest,
+    capabilityProfiles,
+    discoveryLedger,
+    producerResults: factBatches.map((batch) => ({
+      resultId: digestCanonical({
+        batchId: batch.batchId,
+        sourceDigest: batch.sourceDigest,
+        producerConfigurationDigest,
+        factSchemaDigest,
+      }),
+      status: "completed",
+      producer: TYPESCRIPT_PRODUCER,
+      scope: batch.scope,
+      factBatchId: batch.batchId,
+    })),
+    factBatches,
+  };
 }
 
 function applyCodeMarkers(builder: GraphBuilder, sym: { relPath: string; startLine: number; markers: import("./markers").ParsedMarker[] }, symbolNodeId: string): void {
