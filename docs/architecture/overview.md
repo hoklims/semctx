@@ -1,9 +1,10 @@
 # Architecture Overview
 
-> Status: post-ADR-0005. `semctx` is a **repository change-impact analyzer** built around
+> Status: post-ADR-0010. `semctx` is a **repository change-impact analyzer** built around
 > `verify diff`. The `task → ContextPack` retriever is withdrawn as a primary retriever
-> (ADR 0005); graph traversal is retained for impact analysis and justification only. Where a
-> mechanism is heuristic, it is labelled as such.
+> (ADR 0005); graph traversal is retained for impact analysis and justification only. ADR 0010
+> defines a future multi-language Plane A trust model; it does **not** add runtime language
+> support. Where a mechanism is heuristic, it is labelled as such.
 
 ## Problem
 
@@ -22,10 +23,25 @@ Given a change, an agent (or a reviewer) needs to know what it put at risk *befo
 > CocoIndex do that better. A comparative benchmark (`benchmarks/change-impact-eval`) showed the
 > former retriever losing to plain BM25; hence ADR 0005.
 
-## Pipeline
+## Current implementation
+
+Plane A is currently TypeScript-centric:
+
+- discovery walks the repository deterministically, applies built-in ignored directories and
+  `exclude`, and retains TypeScript, Markdown and SQL files;
+- `include` is accepted by configuration but is **not applied** by discovery;
+- TypeScript receives Compiler-API semantic extraction for symbols, imports, calls, markers and
+  test links;
+- Markdown documents and SQL migrations receive bounded structural extraction, not general
+  language support.
+
+Adding a file glob, detecting a workspace, or producing a file node therefore does not make another
+language supported. Unsupported or unanalysed code must not be treated as evidence of absence.
+
+### Pipeline
 
 ```
-repository  -> Repository graph   (deterministic TS + docs + migrations + tests + @markers)
+repository  -> Repository graph   (TS semantic extraction + Markdown/SQL structural discovery)
 git diff    -> impact analysis     (touched symbols, exported contracts, annotated invariants, tests)
             -> gates + verdict      (strict/advisory rules -> PASS / WARN / BLOCK, with provenance)
 ```
@@ -37,6 +53,46 @@ timestamp stamped on outputs, injected through a `Clock` so tests pin it.
 > The `task → ContextPack` pipeline (`TaskFrame → claims → authority → pack`) still exists in
 > `context-engine` and is reused for impact/justification, but it is **experimental** and is not
 > a task-to-code retriever (ADR 0005).
+
+Current freshness is reported independently as `FRESH`, `DIRTY_KNOWN`, `STALE` or `UNSEALED`.
+It binds the captured source/index inputs; it does not prove that every language, workspace or fact
+kind was analysed.
+
+## Future multi-language Plane A
+
+[ADR 0010](../adr/0010-multilanguage-plane-a-capability-and-authority.md) freezes a design contract
+for later implementation. It keeps five trust dimensions independent:
+
+1. discovery state for the exact artifact scope;
+2. provider/result binding and integrity;
+3. current freshness;
+4. fact capability for the requested fact kind and scope;
+5. task-relative authority under the requested operation.
+
+No dimension substitutes for another. In particular, a valid seal or `FRESH` state does not imply
+support, coverage, completeness or authority.
+
+The design binds facts to an exact `ArtifactScope` and a `CapabilityProfile`, including the selected
+path or manifest-evidenced workspace, language/dialect, fact kind, producer and version, relevant
+configuration/schema digests, evidence contract, resolution semantics, and soundness/completeness
+claims. Human-friendly labels such as `structural` or `precise` may summarize capability, but cannot
+authorize a gate.
+
+Absence becomes evidence only when completeness is established for the exact fact kind and scope.
+Without that negative-evidence eligibility, conclusions such as “no test”, “no reference” or “no
+impacted contract” remain `UNKNOWN` / `INSUFFICIENT_ANALYSIS`, never PASS.
+
+The future `IndexHealth` model will compose discovery, capability gaps, fact batches and freshness
+without replacing the existing freshness verdict. Workspace membership will require explicit
+manifest or workspace metadata; directory names such as `packages/` and `apps/` are candidate
+signals only and never establish membership, language support or authority.
+
+Implementation is deliberately split into follow-ups:
+
+- [#58 — Plane A language-neutral adapter and graph assembly boundary](https://github.com/hoklims/semctx/issues/58)
+- [#59 — Honor include/exclude with explicit selection compatibility](https://github.com/hoklims/semctx/issues/59)
+- [#60 — Manifest-evidenced workspaces and separate index health](https://github.com/hoklims/semctx/issues/60)
+- [#61 — First real second-language Plane A vertical and corpus gate](https://github.com/hoklims/semctx/issues/61)
 
 ## Packages
 
