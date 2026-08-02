@@ -62,7 +62,51 @@ const VALID_MODES: readonly TaskMode[] = [
   "migration",
 ];
 
-const LABEL_RE = /^[\s>*-]*([A-Za-z][A-Za-z -]*?)\s*:\s*(.+)$/;
+function isAsciiLetter(code: number): boolean {
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
+
+function isWhitespace(character: string): boolean {
+  return character.trim().length === 0;
+}
+
+function containsLineTerminator(text: string): boolean {
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    if (code === 10 || code === 13 || code === 0x2028 || code === 0x2029) return true;
+  }
+  return false;
+}
+
+function parseLabelLine(line: string): [label: string, value: string] | undefined {
+  let labelStart = 0;
+  while (labelStart < line.length) {
+    const character = line[labelStart];
+    if (character === undefined || (!isWhitespace(character) && character !== ">" && character !== "*" && character !== "-")) break;
+    labelStart += 1;
+  }
+
+  if (!isAsciiLetter(line.charCodeAt(labelStart))) return undefined;
+
+  const colon = line.indexOf(":", labelStart + 1);
+  if (colon === -1) return undefined;
+
+  let labelEnd = colon;
+  while (labelEnd > labelStart && isWhitespace(line[labelEnd - 1] ?? "")) labelEnd -= 1;
+  for (let index = labelStart + 1; index < labelEnd; index += 1) {
+    const code = line.charCodeAt(index);
+    if (!isAsciiLetter(code) && code !== 32 && code !== 45) return undefined;
+  }
+
+  let valueStart = colon + 1;
+  while (valueStart < line.length && isWhitespace(line[valueStart] ?? "")) valueStart += 1;
+  const rawValue = line.slice(valueStart);
+  if (containsLineTerminator(rawValue)) return undefined;
+  const value = rawValue.trim();
+  if (value.length === 0) return undefined;
+
+  return [line.slice(labelStart, labelEnd).toLowerCase(), value];
+}
 
 function tokenize(text: string): Set<string> {
   return new Set(text.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 0));
@@ -104,11 +148,9 @@ export function parseTaskDocument(text: string): TaskFrameInput {
   let mode: TaskMode | undefined;
 
   for (const line of text.split(/\r?\n/)) {
-    const match = LABEL_RE.exec(line);
-    if (match === null) continue;
-    const rawLabel = match[1]?.trim().toLowerCase();
-    const value = match[2]?.trim();
-    if (rawLabel === undefined || value === undefined) continue;
+    const parsed = parseLabelLine(line);
+    if (parsed === undefined) continue;
+    const [rawLabel, value] = parsed;
     const field = LABELS[rawLabel];
     if (field === undefined) continue;
     if (field === "mode") {

@@ -87,6 +87,25 @@ describe("github-action adapter", () => {
     expect(r.out).not.toMatch(/^::error /m);
   });
 
+  it("keeps hostile finding text inside its Markdown table cell", () => {
+    const hostile = report("WARN", [
+      {
+        rule: "unsafe|rule",
+        tier: "advisory|strict",
+        severity: "warn",
+        message: "before\\|after\rnext\nlast\r\nend",
+        locations: [],
+      },
+    ]);
+
+    const r = runAdapter(hostile, "none");
+    expect(r.summary).toContain(
+      "| advisory&#124;strict | `unsafe&#124;rule` | before\\&#124;after<br>next<br>last<br>end |",
+    );
+    expect(r.summary).not.toContain("before\\\\|after");
+    expect(r.summary).not.toContain("\r");
+  });
+
   it("action.yml declares the required inputs and outputs", () => {
     const yml = readFileSync(ACTION_YML, "utf8");
     for (const input of ["base:", "head:", "fail-on:", "working-directory:", "config-path:", "report-path:", "upload-report:"]) {

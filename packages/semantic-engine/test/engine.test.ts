@@ -197,6 +197,33 @@ describe("gitignore policy", () => {
     expect(result.changed).toBe(false);
     expect(result.content).toBe(projectOnly);
   });
+
+  it("preserves a long internal LF run", () => {
+    const internalLfRun = "\n".repeat(20_000);
+    const result = computeGitignore(`node_modules/${internalLfRun}.semctx/\n`);
+
+    expect(result.content).toBe(
+      `node_modules/${internalLfRun}.semctx/*\n!.semctx/semantic/\n`,
+    );
+  });
+
+  it("canonicalizes a long trailing LF run to one LF", () => {
+    const policy = [
+      "node_modules/",
+      ".semctx/*",
+      "!.semctx/semantic/",
+      ".semctx/semantic/*",
+      "!.semctx/semantic/project/",
+      "!.semctx/semantic/project/**",
+    ].join("\n");
+
+    const result = computeGitignore(`${policy}${"\n".repeat(20_000)}`);
+    const crlfResult = computeGitignore(`${policy}\r${"\n".repeat(20_000)}`);
+
+    expect(result.content).toBe(`${policy}\n`);
+    expect(result.changed).toBe(true);
+    expect(crlfResult.content).toBe(`${policy}\r\n`);
+  });
 });
 
 describe("change target binding lifecycle helpers", () => {

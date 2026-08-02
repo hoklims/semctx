@@ -31,7 +31,7 @@ export interface GitignoreResult {
 
 export function computeGitignore(existing: string | undefined): { content: string; changed: boolean } {
   const original = existing ?? "";
-  const lines = original.length === 0 ? [] : original.replace(/\n+$/, "").split(/\r?\n/);
+  const lines = original.length === 0 ? [] : removeTrailingLf(original).split(/\r?\n/);
   const trimmedLines = new Set(lines.map((line) => line.trim()));
   if (PROJECT_ONLY_POLICY.every((line) => trimmedLines.has(line))) {
     const content = normalizeTrailing(original);
@@ -76,7 +76,13 @@ export function computeGitignore(existing: string | undefined): { content: strin
 
 function normalizeTrailing(text: string): string {
   if (text.length === 0) return "";
-  return `${text.replace(/\n+$/, "")}\n`;
+  return `${removeTrailingLf(text)}\n`;
+}
+
+function removeTrailingLf(text: string): string {
+  let end = text.length;
+  while (end > 0 && text.charCodeAt(end - 1) === 10) end -= 1;
+  return end === text.length ? text : text.slice(0, end);
 }
 
 /** Ensure `.gitignore` tracks `.semctx/semantic/`. Non-destructive; returns the action taken. */

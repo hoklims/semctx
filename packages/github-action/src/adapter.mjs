@@ -14,6 +14,11 @@ export function escProp(text) {
   return escData(text).replace(/,/g, "%2C").replace(/:/g, "%3A");
 }
 
+/** Keep untrusted text within a single GitHub Markdown table cell. */
+function tableCell(text) {
+  return String(text).replace(/\r\n?|\n/g, "<br>").replace(/\|/g, "&#124;");
+}
+
 function annotationsFor(report) {
   const lines = [];
   for (const f of report.findings ?? []) {
@@ -41,7 +46,9 @@ function summaryFor(report) {
     `${report.summary?.blockCount ?? 0} block · ${report.summary?.warnCount ?? 0} warn`);
   if ((report.findings ?? []).length > 0) {
     rows.push("", "| tier | rule | detail |", "| --- | --- | --- |");
-    for (const f of report.findings) rows.push(`| ${f.tier} | \`${f.rule}\` | ${f.message.replace(/\|/g, "\\|")} |`);
+    for (const f of report.findings) {
+      rows.push(`| ${tableCell(f.tier)} | \`${tableCell(f.rule)}\` | ${tableCell(f.message)} |`);
+    }
   }
   if ((report.recommendedTests ?? []).length > 0) {
     rows.push("", "**Recommended tests:** " + report.recommendedTests.map((t) => `\`${t.file ?? t.name}\``).join(", "));

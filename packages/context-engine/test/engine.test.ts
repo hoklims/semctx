@@ -44,6 +44,33 @@ describe("task frame extractor (heuristic, no LLM)", () => {
   });
 });
 
+describe("task document parsing", () => {
+  it("parses whitespace and Markdown-prefixed labels while preserving later colons", () => {
+    const input = parseTaskDocument([
+      "  > * -  Mode : bugfix",
+      "\t- Expected behavior\t: preserve: later colons",
+      "* Non-goal: rewrite parser consumers",
+    ].join("\n"));
+
+    expect(input.mode).toBe("bugfix");
+    expect(input.expectedBehavior).toEqual(["preserve: later colons"]);
+    expect(input.nonGoals).toEqual(["rewrite parser consumers"]);
+  });
+
+  it("ignores a long colonless label candidate", () => {
+    const candidate = `  > - A${" ".repeat(100_000)}`;
+
+    expect(parseTaskDocument(candidate)).toEqual({ rawTask: candidate.trim() });
+  });
+
+  it("rejects line terminators inside a labelled value", () => {
+    for (const separator of ["\r", "\u2028", "\u2029"]) {
+      const candidate = `Expected: before${separator}after`;
+      expect(parseTaskDocument(candidate)).toEqual({ rawTask: candidate.trim() });
+    }
+  });
+});
+
 describe("claim building", () => {
   it("derives a tested invariant claim", () => {
     const inv = must(claims.find((c) => c.kind === "invariant"));
