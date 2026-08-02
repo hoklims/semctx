@@ -1,0 +1,38 @@
+# Repository governance, contributor policy, and verification entry points.
+/.github/ @hoklims
+/CONTRIBUTING.md @hoklims
+/docs/contributing/public-contracts.md @hoklims
+/docs/publishing.md @hoklims
+/package.json @hoklims
+/apps/cli/package.json @hoklims
+/packages/app-services/package.json @hoklims
+/requirements-quality.txt @hoklims
+/scripts/verify-pr.ts @hoklims
+/scripts/build-plugin-runtime.ts @hoklims
+
+# Plugin discovery, installation, launch, and marketplace contracts.
+/.claude-plugin/marketplace.json @hoklims
+/.agents/plugins/marketplace.json @hoklims
+/plugins/claude-code/.mcp.json @hoklims
+/plugins/claude-code/.claude-plugin/plugin.json @hoklims
+/plugins/semctx-control/.mcp.json @hoklims
+/plugins/semctx-control/.codex-plugin/plugin.json @hoklims
+
+# Architecture decisions and canonical architecture documentation.
+/docs/adr/ @hoklims
+/docs/architecture/ @hoklims
+
+# Public machine-readable contract choke points.
+/packages/control-model/package.json @hoklims
+/packages/control-model/src/ @hoklims
+/packages/control-model/test/fixtures/l0-conformance.ts @hoklims
+/packages/core/src/verify-report.ts @hoklims
+/packages/mcp-server/package.json @hoklims
+/packages/mcp-server/src/index.ts @hoklims
+/packages/mcp-server/src/server.ts @hoklims
+/packages/mcp-server/src/control-explorer.ts @hoklims
+/packages/mcp-server/src/public-tool-error.ts @hoklims
+/packages/mcp-server/src/repository-root.ts @hoklims
+/packages/mcp-server/src/tool-contract.ts @hoklims
+/packages/mcp-server/src/tool-output-schemas.ts @hoklims
+/plugins/shared/skills/semctx-control/SKILL.md @hoklims

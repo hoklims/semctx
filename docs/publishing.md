@@ -40,10 +40,18 @@ tag-driven npm + GitHub Release publication is automated by `.github/workflows/r
 One-time npm configuration: register `hoklims/semctx`, workflow filename `release.yml`, and
 environment name `npm` as the package's GitHub Actions trusted publisher. Protect the GitHub
 `npm` environment for `v*` tags and protect matching tags from update/deletion. The workflow uses
-short-lived OIDC credentials; no long-lived `NPM_TOKEN` is stored. It has `id-token: write`, uses
-current npm on Node 24, verifies the canonical quality gate (TypeScript, ESLint, and Ruff),
-Python 3.10 compilation and portability smoke, tests, and plugin artifacts, and accepts only an annotated
-version-matching tag whose commit is already on `origin/main`.
+short-lived OIDC credentials; no long-lived `NPM_TOKEN` is stored. Its permissions are split:
+
+1. `verify` has `contents: read`, accepts only an annotated version-matching tag already on
+   `origin/main`, runs the canonical gate, builds the portable CLI, embeds the immutable release
+   commit as `gitHead`, and uploads the tarball plus its SHA-256;
+2. `publish` has only `id-token: write`, performs no checkout or repository script, verifies the
+   downloaded checksum and manifest, and publishes that exact tarball with npm trusted publishing;
+3. `promote` has only `contents: write` and advances `stable` with a non-forced GitHub API update
+   before creating the GitHub Release.
+
+The jobs use Node 24 and pinned npm. The verification gate covers TypeScript, ESLint, Ruff,
+workflow analysis, Python 3.10 compilation and portability smoke, tests, and plugin artifacts.
 
 After that one-time registry setting, push the annotated release tag:
 

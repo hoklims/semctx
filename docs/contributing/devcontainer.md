@@ -1,71 +1,58 @@
 # Contributor dev container
 
-A ready-to-hack environment for working on `semctx` itself. It provides Bun, Node, Git and a
-minimal build toolchain, plus Python and pinned Ruff for the benchmark/smoke scripts. It does
-**not** install Claude Code, require an API key, publish anything, or run the private benchmark.
+The contributor container provides Bun, Node, Git, a minimal build toolchain, Python, and the
+quality tools pinned in `requirements-quality.txt` (currently Ruff and zizmor). It does not
+install Claude Code, require an API key, publish anything, or run the private benchmark.
 
-## Local (VS Code)
+## Local use
 
 1. Install Docker and the **Dev Containers** VS Code extension.
-2. Open the repository, then **Dev Containers: Reopen in Container**.
-3. The container builds from `.devcontainer/Dockerfile` and runs `postCreateCommand.sh`
-   (`bun install`). When it finishes:
+2. Open the repository, then run **Dev Containers: Reopen in Container**.
+3. The container builds from `.devcontainer/Dockerfile` and runs `postCreateCommand.sh`.
 
-   ```bash
-   bun run quality
-   bun run build
-   bun test
-   ```
+The post-create script verifies Bun and every required pinned quality tool, then installs project
+dependencies. It does not install or upgrade the pinned quality tools. When setup finishes, use
+targeted commands while iterating and run the sole pre-PR gate before opening or updating a PR:
 
-## Codespaces / other devcontainer-compatible environments
+```bash
+bun run quality
+bun test packages/app-services
+bun run verify:pr
+```
 
-The same `.devcontainer` works in GitHub Codespaces and any Dev Container CLI host — no local
-Docker needed. Create a Codespace on the branch; the post-create step installs dependencies.
+The same `.devcontainer` works in GitHub Codespaces and other Dev Container CLI hosts.
 
-## Validating the container without an IDE
+## Validate without an IDE
 
 With the [Dev Container CLI](https://github.com/devcontainers/cli):
 
 ```bash
 devcontainer build --workspace-folder .
 devcontainer up --workspace-folder .
-devcontainer exec --workspace-folder . bun test
+devcontainer exec --workspace-folder . bun run verify:pr
 ```
 
-## Running the test suite
+## Focused checks
+
+Use focused checks for iteration; they do not replace `bun run verify:pr`:
 
 ```bash
-bun test                 # packages, apps and plugins
-bun run quality          # strict tsc + ESLint + correctness-oriented Ruff
+bun run quality                    # TypeScript, ESLint, Ruff, and workflow analysis
+bun test packages/github-action    # GitHub Action adapter
+bun test plugins                   # plugin behavior and parity
+bun run plugin:build
+bun run plugin:check
 ```
 
-## Testing the GitHub Action locally
-
-The Action is a composite that sets up Bun and runs the CLI. Its Node adapter is unit-tested in
-the suite:
-
-```bash
-bun test packages/github-action
-```
-
-To exercise the full workflow, push a branch and open a PR against a repo that references
-`hoklims/semctx/packages/github-action@v0.1.0` (see `docs/integrations/github-actions.md`).
-
-## Testing the Claude Code plugin
-
-```bash
-bun test plugins                                # guard detection + decision logic
-```
-
-Then point Claude Code at `plugins/claude-code` and use `semctx_verify_change` on a change.
-Guarded mode is documented in `docs/integrations/claude-code-guarded-mode.md`.
+See the [public-contract contributor guide](public-contracts.md) before changing CLI/MCP
+contracts, agent workflow, plugin packaging, CI, or release behavior.
 
 ## Limitations
 
-- The container installs Bun via the official installer at build time (pinned to match the
-  Action). If you are offline during build, provide Bun another way.
-- The container uses the base image's supported Python. Python 3.10 CI compilation and the
-  portability smoke are the compatibility-floor authority for every maintained benchmark script.
-- The private change-impact benchmark corpus is **not** included and is never fetched; only the
-  portability smoke test (`benchmarks/change-impact-eval/scripts/smoke_test.py`) runs without it.
-- Python is present only for those scripts; the product itself needs only Bun.
+- The image supplies Bun and the pinned quality tools. A version mismatch with
+  `requirements-quality.txt` fails post-create rather than modifying the environment.
+- The base image's Python is used locally. CI remains the compatibility-floor authority for
+  maintained Python scripts.
+- The private change-impact benchmark corpus is not included or fetched. Only repository-owned
+  public fixtures and portability tests are available.
+- Python supports repository quality and benchmark scripts; the semctx product itself needs Bun.

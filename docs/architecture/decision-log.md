@@ -30,3 +30,10 @@ captures the smaller judgement calls.
   runtime. The declared capability stops at Python 3.12 and excludes ambiguous/dynamic/imported-
   symbol resolution, typing, calls and negative completeness. The real-repository corpus is pinned
   to `pytest-dev/pluggy` 1.6.0 commit `fd08ab5f811a9b2fa9124ae8cbbd393221151e2c`.
+- **Contributor autonomy uses a governed contract ring (ADR 0013)**: one local `verify:pr` gate
+  feeds one stable required CI result, while risk tiers and narrow ownership route public-contract
+  decisions to the maintainer without gating demonstrably contract-preserving routine work. The
+  thin-transport rule applies to new or materially modified flows; the direct context-preparation
+  coordination in `apps/cli/src/commands/context.ts` and `packages/mcp-server/src/tools.ts` is
+  tracked as maintainer-owned legacy debt in issue #77, not mandatory collateral migration for
+  contributors.

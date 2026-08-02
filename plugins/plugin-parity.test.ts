@@ -372,22 +372,40 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(serverSource).toContain("version: packageJson.version");
   });
 
-  test("publishes one commit atomically across npm, stable, and the GitHub Release", () => {
+  test("publishes one verified artifact monotonically across npm, stable, and GitHub Release", () => {
     const workflow = read(".github/workflows/release.yml");
     expect(workflow).toContain("environment: npm");
     expect(workflow).toContain("fetch-depth: 0");
+    expect(workflow).toContain("persist-credentials: false");
     expect(workflow).toContain("npm install --global npm@12.0.1");
     expect(workflow).toContain('git cat-file -t "$GITHUB_REF_NAME"');
     expect(workflow).toContain('git merge-base --is-ancestor "$GITHUB_SHA" origin/main');
+    expect(workflow).toContain("npm_view_field()");
+    expect(workflow).toContain("return 44");
     expect(workflow).toContain(
-      'if published_sha="$(npm view "semctx@$version" gitHead 2>/dev/null)"; then',
+      'published_version="$(npm_view_field version)" || lookup_status=$?',
+    );
+    expect(workflow).toContain(
+      'published_sha="$(npm_view_field gitHead)" || lookup_status=$?',
     );
     expect(workflow).not.toContain("gitHead --json");
-    expect(workflow).toContain('"$published_sha" != "$GITHUB_SHA"');
+    expect(workflow).not.toContain("|| true");
+    expect(workflow).toContain(
+      '"$published_version" != "$version" || "$published_sha" != "$GITHUB_SHA"',
+    );
+    expect(workflow).toContain("GH_TOKEN: ${{ github.token }}");
+    expect(workflow).toContain('git/ref/heads/stable"');
+    expect(workflow).toContain("-F force=false");
+    expect(workflow).toContain("grep -q 'HTTP 404'");
+    expect(workflow).not.toContain("credential.helper=!f()");
+    expect(workflow).toContain("actions/upload-artifact@");
+    expect(workflow).toContain("actions/download-artifact@");
+    expect(workflow).toContain("sha256sum --check");
+    expect(workflow).toContain("pkg.gitHead = process.env.GITHUB_SHA");
 
-    const publish = workflow.indexOf("npm publish --access public");
+    const publish = workflow.indexOf('npm publish "$tarball" --access public --ignore-scripts');
     const confirm = workflow.indexOf('"$confirmed_sha" == "$GITHUB_SHA"');
-    const stable = workflow.indexOf('git push origin "$GITHUB_SHA:refs/heads/stable"');
+    const stable = workflow.indexOf('git/ref/heads/stable"');
     const release = workflow.indexOf('gh release create "$GITHUB_REF_NAME"');
     expect(publish).toBeGreaterThanOrEqual(0);
     expect(confirm).toBeGreaterThan(publish);

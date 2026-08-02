@@ -1,7 +1,8 @@
 {
   "name": "semctx (contributor)",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
   "remoteUser": "node",
   "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",

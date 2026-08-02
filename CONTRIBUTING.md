@@ -1,57 +1,63 @@
 # Contributing to semctx
 
-Thanks for your interest. semctx is a local-first, deterministic tool; contributions must
-preserve those properties.
+Thanks for your interest. semctx is a local-first, deterministic change-impact analyzer. Changes
+must preserve its evidence, authority, compatibility, and transport-parity guarantees.
 
 ## Development setup
 
 ```bash
 bun install
 python -m pip install --requirement requirements-quality.txt # use an activated venv locally
-bun run quality # strict tsc, ESLint (typed TS, syntax-only JS), and Ruff
-bun test        # bun:test across packages + apps + plugins
 ```
 
-Run the demo end-to-end:
+For iteration, run the narrowest relevant checks:
 
 ```bash
-cd examples/sample-typescript-repo
-bun ../../apps/cli/src/index.ts init
-bun ../../apps/cli/src/index.ts index
-bun ../../apps/cli/src/index.ts task create --from-file tasks/overbooking-bug.md
-bun ../../apps/cli/src/index.ts context prepare <task-id>
-bun ../../apps/cli/src/index.ts bench
+bun run quality
+bun test packages/app-services
+bun test packages/mcp-server
+bun run plugin:build && bun run plugin:check
 ```
+
+Before opening or updating a PR, run the sole repository pre-PR gate:
+
+```bash
+bun run verify:pr
+```
+
+Stage every intended new file first. The gate rejects any remaining non-ignored untracked file so
+that a contributor cannot accidentally omit new source, tests, documentation, or generated output
+from the reviewed change.
+
+Do not substitute an informal combination of commands for `verify:pr`. See the
+[public-contract contributor guide](docs/contributing/public-contracts.md) for change tiers,
+authority, design, compatibility, test, and generated-artifact requirements.
 
 ## Ground rules
 
-- **Determinism is a hard invariant.** Any output must be a pure function of repository
-  state plus the injected clock. No `Math.random`, no ambient `Date` in the pipeline, and
-  sort every collection that flows into an output. The benchmark's `determinism` metric
-  and `pack.test.ts` will catch regressions.
-- **Every conclusion points to evidence.** New nodes/claims must carry `EvidenceRef`s.
-- **No marketing vocabulary.** Do not call something "verified" that is only inferred, or
-  "exact" that is heuristic. Label heuristics as heuristics.
-- **Respect the layering.** `ts-analyzer` parses, `repository-store` persists,
-  `context-engine` ranks, CLI/MCP are thin transports. `core` depends on nothing but Zod.
-- **Add a test with behaviour, not just a snapshot.** For a new detector or gate, add a
-  case (and ideally a `semctx-bench.json` golden expectation) that would fail before your
-  change and passes after.
-- **Keep static analysis semantic.** `tsc` remains the type authority and ESLint catches
-  compiler-permitted hazards in TypeScript. JavaScript and MJS files receive syntax linting,
-  not type-aware analysis. Ruff covers correctness hazards in the maintained Python benchmark
-  scripts; CI compiles those scripts on Python 3.10. Formatting and domain invariants stay outside
-  the linters; suppressions must be local and explain why the code is safe.
+- **Determinism is a hard invariant.** Outputs depend only on repository state and explicit
+  inputs such as the injected clock. Avoid ambient time and randomness, and sort collections
+  before they reach an output.
+- **Every conclusion points to evidence.** New nodes and claims carry their `EvidenceRef`s.
+- **Proof language stays exact.** Do not call an inference verified or a heuristic exact. Keep
+  freshness, completeness, precision, authority, and gate admissibility distinct.
+- **Respect the layering for new or materially changed flows.** Analyzers parse, stores persist,
+  and the appropriate engine owns pure, reusable domain evaluation. `app-services` coordinates
+  use cases and constructs complete transport-facing reports; CLI and MCP should remain thin
+  transports. Two historical flows do not yet meet that target:
+  `apps/cli/src/commands/context.ts` and `packages/mcp-server/src/tools.ts`. Their migration is
+  maintainer-owned debt, not a prerequisite for an unrelated contribution. If a change materially
+  modifies either flow, coordinate its boundary treatment with the maintainer.
+- **Tests prove behavior.** Add a case that fails before the change and passes after it; use
+  negative, adversarial, parity, and real-process coverage when the contract guide requires it.
+- **Keep static analysis semantic.** TypeScript uses `tsc` and ESLint; maintained Python quality
+  scripts use the pinned tools in `requirements-quality.txt`. Suppressions must be local and
+  explain why the code is safe.
 
-## Commit / PR conventions
+## Commit and PR conventions
 
-- Work on a branch. Small, cohesive commits with explicit messages.
-- Do not commit if `bun run quality` or `bun test` fails.
-- Update the relevant docs in the same PR.
-
-## Adding a semantic marker or authority policy
-
-- Markers: extend `packages/ts-analyzer/src/markers.ts` (+ the analyzer wiring) and add a
-  fixture that exercises it.
-- Authority: add a row to `AUTHORITY_POLICIES` and a question-classification rule; the
-  ranker does not need to change.
+- Work on a branch and keep commits cohesive.
+- Update affected documentation and generated artifacts in the same PR.
+- Record each applicable public-contract requirement in the PR evidence. Mark a requirement
+  `N/A` only with a reason.
+- Do not open or update a PR while `bun run verify:pr` is failing.
