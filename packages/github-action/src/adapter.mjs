@@ -16,7 +16,12 @@ export function escProp(text) {
 
 /** Keep untrusted text within a single GitHub Markdown table cell. */
 function tableCell(text) {
-  return String(text).replace(/\r\n?|\n/g, "<br>").replace(/\|/g, "&#124;");
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\r\n?|\n/g, "<br>")
+    .replace(/\|/g, "&#124;");
 }
 
 function annotationsFor(report) {

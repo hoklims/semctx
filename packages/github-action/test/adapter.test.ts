@@ -90,19 +90,19 @@ describe("github-action adapter", () => {
   it("keeps hostile finding text inside its Markdown table cell", () => {
     const hostile = report("WARN", [
       {
-        rule: "unsafe|rule",
-        tier: "advisory|strict",
+        rule: "unsafe|<rule>",
+        tier: "advisory|strict&raw",
         severity: "warn",
-        message: "before\\|after\rnext\nlast\r\nend",
+        message: "before\\|<details>&after\rnext\nlast\r\nend",
         locations: [],
       },
     ]);
 
     const r = runAdapter(hostile, "none");
     expect(r.summary).toContain(
-      "| advisory&#124;strict | `unsafe&#124;rule` | before\\&#124;after<br>next<br>last<br>end |",
+      "| advisory&#124;strict&amp;raw | `unsafe&#124;&lt;rule&gt;` | before\\&#124;&lt;details&gt;&amp;after<br>next<br>last<br>end |",
     );
-    expect(r.summary).not.toContain("before\\\\|after");
+    expect(r.summary).not.toContain("<details>");
     expect(r.summary).not.toContain("\r");
   });
 
