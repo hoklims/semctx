@@ -18,7 +18,7 @@ export {
 export { controlTargetProposeTool } from "./target-tools";
 
 /** Entry point: serve semctx over stdio, optionally pre-bound by SEMCTX_ROOT. */
-function main(): void {
+export function main(): void {
   const root = process.env["SEMCTX_ROOT"];
   serveStdio(() => createSemctxServer(root), { legacy: "serve" });
   // stderr, so it never corrupts the stdio JSON-RPC channel.

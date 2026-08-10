@@ -36,6 +36,11 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   values distinct from Plane C `READY`/`BLOCKED`. CLI `--json` emits the same envelope; live phase
   progress uses a shared `onPhase` port. The shared control skill documents the fail-closed agent
   policy. Global CLI remains optional for CI and non-plugin shells.
+- **Split plugin runtime** ([#39](https://github.com/hoklims/semctx/issues/39)): one Bun build now
+  emits `dist/semctx-mcp.js`, `dist/semctx.js`, and the fixed root `dist/semctx-shared.js` chunk for
+  both host plugins. The generator requires Bun 1.3.13, rewrites build-checkout paths in every
+  emitted JavaScript file, and rejects missing, stale, or extra artifacts; Claude Code can apply an
+  installed update with `/reload-plugins`, with restart retained as the fallback.
 - **Offline global CLI compatibility advisory** ([#35](https://github.com/hoklims/semctx/issues/35)):
   one shared bounded probe now powers `doctor --json` and the path-free
   `semctx_cli_compatibility` MCP preflight. Exact pre-1.0 version drift, absence, malformed output,

@@ -16,8 +16,9 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
   `semctx_control_plan` for freshness preflight, bounded L0-L6 reconstruction, and fail-closed
   migration planning (Plane C); manual content-addressed `semctx_control_handoff` /
   `semctx_control_resume`; plus the MCP-only advisory `semctx_control_agent_lifecycle` checkpoint.
-- **Bundled CLI** (`dist/semctx.js`): the full Bun CLI committed next to `dist/semctx-mcp.js` so a
-  plugin update keeps agent MCP and CLI in lockstep. Agent sessions get its absolute path for free:
+- **Bundled CLI** (`dist/semctx.js`): the full Bun CLI committed with the `dist/semctx-mcp.js`
+  entry and their fixed root `dist/semctx-shared.js` runtime chunk, so a plugin update keeps agent
+  MCP and CLI in lockstep. Agent sessions get its absolute path for free:
   Claude Code substitutes the `${CLAUDE_PLUGIN_ROOT}` placeholder into the skills at load time, and
   the guard hook prints a resolved path. The variable is exported to hooks and MCP servers, **not**
   to the agent's shell. A global `semctx` (`bun install -g semctx@latest`) remains optional for CI and
@@ -136,7 +137,8 @@ claude plugin marketplace add ./
 claude plugin install semctx@semctx-stable --scope user
 ```
 
-Restart Claude Code after installing or updating the plugin.
+After installing or updating during an active session, run `/reload-plugins` to load the new
+snapshot. Restart Claude Code only if the reload reports an error or the plugin remains unavailable.
 
 If an older direct MCP registration is still present, remove it after the plugin is enabled with
 `claude mcp remove semctx -s user`; otherwise Claude sees duplicate copies of the same tools.
@@ -145,9 +147,10 @@ If an older direct MCP registration is still present, remove it after the plugin
 
 - Every MCP call must pass the absolute project path as `repositoryRoot`; missing or relative roots
   are rejected.
-- Both host plugins ship byte-identical `dist/semctx-mcp.js` and `dist/semctx.js` artifacts built
-  from the MCP server and CLI entrypoints. Claude also binds `SEMCTX_ROOT`, while the shared skill
-  passes the explicit `repositoryRoot` required by the common Claude/Codex machine contract.
+- Both host plugins ship byte-identical `dist/semctx-mcp.js` and `dist/semctx.js` entries plus the
+  fixed root `dist/semctx-shared.js` runtime chunk. Claude also binds `SEMCTX_ROOT`, while the
+  shared skill passes the explicit `repositoryRoot` required by the common Claude/Codex machine
+  contract.
 - Invoke the shared workflow explicitly as `semctx-control` for migrations, architecture work,
   generic demonstrations or cross-plane verification. The narrower skills remain available for
   backward compatibility.

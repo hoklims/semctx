@@ -119,7 +119,8 @@ It is safe to run again. Existing installs are refreshed through the release-man
 channel, legacy marketplace names are migrated, existing Semctx configuration and authored `.sem`
 files are preserved, and a non-Git directory is never initialised accidentally. Use `--dry-run`
 to preview, `--host codex|claude|all` to target a host, or `--skip-setup` for a machine-only plugin
-refresh. Open a new Codex task and/or restart Claude Code when the command tells you to.
+refresh. Open a new Codex task when required; in an active Claude Code session, run
+`/reload-plugins` after installation or update and restart only if the reload fails.
 On Windows, if a running Codex task still holds the legacy plugin cache open, the replacement stays
 installed and verified while cleanup automatically retries in the background after the task exits.
 
@@ -240,9 +241,10 @@ The plugin ([`plugins/claude-code`](plugins/claude-code)) exposes the same share
 opt-in **guarded mode** blocks `git commit`/`git push` until the diff is verified; advisory mode is
 the default.
 
-The plugin ships a portable CLI (`dist/semctx.js`) next to the MCP runtime so agent shell fallbacks
-and guard messages stay on the same release as the tools; the skills and the guard hand the agent
-its resolved absolute path. A global `semctx` remains optional for CI and non-plugin shells. See
+The plugin ships portable MCP (`dist/semctx-mcp.js`) and CLI (`dist/semctx.js`) entries with a fixed
+root shared runtime chunk (`dist/semctx-shared.js`), so agent shell fallbacks and guard messages stay
+on the same release as the tools; the skills and the guard hand the agent the CLI's resolved
+absolute path. A global `semctx` remains optional for CI and non-plugin shells. See
 [`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
 
 ### Codex
@@ -254,9 +256,10 @@ surface plus the same proof-honest workflow shipped for Claude Code. It uses
 `semctx_control_handoff` / `semctx_control_resume` pair; it maintains proof-carrying change
 contracts on write-scoped tasks and verifies the resulting diff. It never treats a planning or
 reconciliation verdict as execution authority. Plane C planning and reconciliation remain
-read-only; Control Handoff v2 writes only ignored local working state. It ships the same
-portable `dist/semctx.js` CLI, though Codex has no placeholder substitution to hand the agent its
-path — shell fallbacks there use a global `semctx`. Install and usage guide:
+read-only; Control Handoff v2 writes only ignored local working state. It ships the same portable
+`dist/semctx.js` CLI and fixed root `dist/semctx-shared.js` runtime chunk, though Codex has no
+placeholder substitution to hand the agent the CLI path — shell fallbacks there use a global
+`semctx`. Install and usage guide:
 [`docs/integrations/codex-control-plane.md`](docs/integrations/codex-control-plane.md).
 
 ### GitHub Actions

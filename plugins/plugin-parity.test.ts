@@ -29,6 +29,23 @@ function typescriptLibs(plugin: "claude-code" | "semctx-control"): string[] {
     .sort();
 }
 
+function distFiles(
+  plugin: "claude-code" | "semctx-control",
+  relativeDir = "",
+): string[] {
+  const directory = resolve(repoRoot, `plugins/${plugin}/dist`, relativeDir);
+  return readdirSync(directory, { withFileTypes: true })
+    .flatMap((entry) => {
+      const relativePath = relativeDir
+        ? `${relativeDir}/${entry.name}`
+        : entry.name;
+      return entry.isDirectory()
+        ? distFiles(plugin, relativePath)
+        : [relativePath];
+    })
+    .sort();
+}
+
 function skillPath(host: SkillHost): string {
   return host === "claude-code"
     ? "plugins/claude-code/skills/semctx-control/SKILL.md"
@@ -331,20 +348,22 @@ describe("Codex and Claude Code plugin parity", () => {
       SEMCTX_ROOT: "${CLAUDE_PROJECT_DIR}",
     });
     expect(existsSync(resolve(repoRoot, "plugins/claude-code/bin/semctx-mcp-launcher.ts"))).toBe(false);
-    expect(read("plugins/claude-code/dist/semctx-mcp.js")).toBe(read("plugins/semctx-control/dist/semctx-mcp.js"));
-    expect(existsSync(resolve(repoRoot, "plugins/claude-code/dist/semctx.js"))).toBe(true);
-    expect(existsSync(resolve(repoRoot, "plugins/semctx-control/dist/semctx.js"))).toBe(true);
-    expect(read("plugins/claude-code/dist/semctx.js")).toBe(read("plugins/semctx-control/dist/semctx.js"));
-    const codexLibs = typescriptLibs("semctx-control");
-    const claudeLibs = typescriptLibs("claude-code");
-    expect(codexLibs.length).toBeGreaterThan(90);
-    expect(codexLibs).toContain("lib.d.ts");
-    expect(claudeLibs).toEqual(codexLibs);
-    for (const lib of codexLibs) {
-      expect(read(`plugins/claude-code/dist/typescript-lib/${lib}`)).toBe(
-        read(`plugins/semctx-control/dist/typescript-lib/${lib}`),
+    const codexDistFiles = distFiles("semctx-control");
+    const claudeDistFiles = distFiles("claude-code");
+    expect(claudeDistFiles).toEqual(codexDistFiles);
+    for (const required of ["semctx-mcp.js", "semctx.js", "semctx-shared.js"]) {
+      expect(codexDistFiles).toContain(required);
+    }
+    for (const path of codexDistFiles) {
+      expect(readFileSync(resolve(repoRoot, `plugins/claude-code/dist/${path}`))).toEqual(
+        readFileSync(resolve(repoRoot, `plugins/semctx-control/dist/${path}`)),
       );
     }
+    const codexLibs = typescriptLibs("semctx-control");
+    const claudeLibs = typescriptLibs("claude-code");
+    expect(codexLibs).toHaveLength(100);
+    expect(codexLibs).toContain("lib.d.ts");
+    expect(claudeLibs).toEqual(codexLibs);
     expect(codexManifest.version.split("+")[0]).toBe(claudeManifest.version.split("+")[0]);
     expect(claudeManifest.skills).toBeUndefined();
     expect(claudeManifest.hooks).toBeUndefined();

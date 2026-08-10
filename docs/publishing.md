@@ -81,12 +81,14 @@ version without advancing and publishing the npm CLI at the same version.
 
 ## Plugin runtime
 
-The Claude Code and Codex plugins ship byte-identical committed Bun bundles:
+The Claude Code and Codex plugins ship one byte-identical committed Bun build split across three
+root-level artifacts:
 
-| artifact | entrypoint | role |
+| artifact | source | role |
 | --- | --- | --- |
 | `dist/semctx-mcp.js` | `packages/mcp-server/src/index.ts` | MCP server (agent tools) |
 | `dist/semctx.js` | `apps/cli/src/index.ts` | CLI for setup / verify / shell fallbacks |
+| `dist/semctx-shared.js` | shared imports from both entrypoints | fixed-name shared runtime chunk |
 
 Each `dist/` also carries the TypeScript standard-library declarations used by the analyzer, and
 the generated runtimes resolve them relative to the installed plugin directory rather than the
@@ -96,6 +98,12 @@ build checkout:
 bun run plugin:build   # refresh tracked dist/* + host-generated control skills on both plugins
 bun run plugin:check   # fail if any tracked artifact is missing or stale
 ```
+
+Artifact generation requires the repository-pinned Bun `1.3.13`; the build fails with an explicit
+version diagnostic otherwise. `plugin:check` compares the complete expected plugin artifact set
+and bytes: runtime JavaScript as one exact set and TypeScript declarations as another. A missing,
+stale, or extra generated file therefore fails CI. The fixed root name keeps the shared chunk
+portable and deterministic across Windows and Ubuntu.
 
 `plugin:build` also renders `plugins/*/skills/semctx-control/SKILL.md` from
 `plugins/shared/skills/semctx-control/SKILL.md`: Claude gets the `${CLAUDE_PLUGIN_ROOT}` CLI rung;
@@ -122,9 +130,9 @@ These surfaces must share the same `x.y.z` on every plugin/CLI release:
 | npm CLI | `apps/cli/package.json` (`semctx --version` / `doctor`) |
 
 `plugins/plugin-parity.test.ts` fails CI when plugins, marketplace, MCP, app-services, or the npm
-CLI package diverge. Plugin MCP/CLI **bundles** are rebuilt together via `plugin:build` (same
-entrypoint sources). The npm CLI uses a separate `apps/cli` prepack bundle for CI/global
-installs — same version number, two packagers by design.
+CLI package diverge. The plugin MCP/CLI entries and shared runtime chunk are rebuilt together via
+`plugin:build` (same entrypoint sources). The npm CLI uses a separate `apps/cli` prepack bundle for
+CI/global installs — same version number, two packagers by design.
 
 Plugin, marketplace, MCP package and runtime versions move together. CI runs the freshness check,
 rejects build-machine paths, and performs a real stdio handshake (MCP) plus a packaged CLI smoke
