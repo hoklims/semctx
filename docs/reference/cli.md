@@ -25,6 +25,23 @@ must already be verified before cleanup is deferred. The report remains successf
 cleanup steps `deferred`, and a detached helper retries only those legacy removals in the background.
 Other cleanup errors remain blocking.
 
+`codex plugin add` can also converge and still exit non-zero: it writes the new payload first, then
+fails to archive the entry it replaces because a live task still maps it (`failed to back up plugin
+cache entry … os error 5`). The install re-reads the host and accepts that outcome **only** when the
+expected plugin is installed, enabled and at the expected version, **and** the versioned cache entry
+Codex executes (`<codexHome>/plugins/cache/<marketplace>/<plugin>/<version>`, distinct from the
+marketplace snapshot reported as `source.path`) declares that version and holds three regular,
+non-empty runtime bundles whose SHA-256 match that snapshot. It then reports success with
+`cleanupDeferred: true` and `restartRequired: true`, and schedules a detached helper that retires
+only the version observed before the update. The helper re-reads Codex before and after its atomic
+rename and aborts unless the expected version remains installed, enabled and selected.
+
+The override is bounded to Windows and to the exact codes `os error 5` and `os error 32` — `os error
+50`, `os error 320` and arbitrary permission failures are not eligible. Unproven convergence
+(missing, disabled, wrong-version, incomplete cache, or a digest that diverges from the snapshot),
+an unlocatable cache root, and a malformed plugin list all remain blocking, and nothing is ever
+scheduled against a cache that could not be proven.
+
 Unless `--skip-setup` is set, the command resolves `git rev-parse --show-toplevel` and runs the
 idempotent `setup` pipeline at that repository root, even when invoked from a nested directory.
 Outside a Git repository it installs the machine plugins but writes no workspace state and reports
@@ -33,6 +50,11 @@ the exact follow-up command. `--dry-run` performs only read-only host and Git pr
 The JSON report contains `ok`, CLI `version`, selected mode, per-host steps/status, workspace
 status, and restart/recovery actions. Exit 0 means at least one requested or auto-detected host is
 ready and the workspace step did not fail.
+
+A successful report describes the **installed** version, which is what the next task will resolve —
+not the version a session already running has loaded. `restartRequired` marks that gap. When work is
+left for later, `cleanupDeferred` is the boolean synthesis and `deferrals` lists each obligation
+(`kind`, `detail`, and whether a background retry was `scheduled`); several can coexist.
 
 ## `setup`
 

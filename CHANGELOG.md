@@ -9,7 +9,26 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Fixed
+
+- **Reconcile a converged Codex update behind an active-cache lock**
+  ([#91](https://github.com/hoklims/semctx/issues/91)): on Windows, `codex plugin add` writes the new
+  payload before archiving the one it replaces, so a live task holding the old cache entry makes it
+  exit non-zero (`failed to back up plugin cache entry … os error 5`) even though the update landed.
+  `semctx install` now re-reads the host on that signature and reports success with
+  `cleanupDeferred: true` and `restartRequired: true` — but only once the expected plugin is
+  installed, enabled and at the expected version, **and** the versioned cache entry Codex actually
+  executes declares that version and holds three regular, non-empty runtime bundles whose SHA-256
+  match the approved marketplace snapshot. The marketplace snapshot (`source.path`), the installed
+  cache and the version a running session has loaded are treated as three distinct states.
+  The override is bounded to Windows and to the exact codes `os error 5` / `os error 32`; unproven
+  convergence, an unlocatable cache root, a malformed plugin list and arbitrary permission errors
+  all stay blocking. The existing `os error 32` legacy-cleanup path is unchanged, outstanding work
+  is listed additively under `deferrals` (several can coexist), and the superseded cache entry is
+  retired by a detached, idempotent helper that renames before deleting — so a still-loaded cache is
+  never partially removed. Before and after that rename, the helper re-reads Codex and aborts unless
+  the expected version is still installed, enabled and selected; the expected version is never a
+  target.
 
 ## [0.1.17] - 2026-08-10
 

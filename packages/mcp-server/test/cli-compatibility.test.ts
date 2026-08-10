@@ -3,6 +3,7 @@ import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import type { McpServer } from "@modelcontextprotocol/server";
 import { cliCompatibilityTool } from "../src/cli-compatibility-tools";
 import { createSemctxServer } from "../src/server";
+import { TOOL_OUTPUT_SCHEMAS } from "../src/tool-output-schemas";
 
 describe("CLI compatibility MCP transport", () => {
   let server: McpServer | undefined;
@@ -59,7 +60,12 @@ describe("CLI compatibility MCP transport", () => {
       arguments: { repositoryRoot: process.cwd() },
     });
     expect(response.isError).not.toBe(true);
-    expect(response.structuredContent).toEqual(cliCompatibilityTool());
+    expect(
+      TOOL_OUTPUT_SCHEMAS.semctx_cli_compatibility.safeParse(response.structuredContent).success,
+    ).toBe(true);
+    const text = response.content.find((item) => item.type === "text")?.text;
+    expect(text).toBeDefined();
+    expect(JSON.parse(text ?? "null")).toEqual(response.structuredContent);
     expect(response.structuredContent).not.toHaveProperty("path");
   });
 });

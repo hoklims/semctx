@@ -42,9 +42,35 @@ or add `--skip-setup` for a machine-only refresh. The command is idempotent, mig
 installs and verifies the replacement before removing a legacy registration, so a failed
 replacement leaves the working plugin intact. Normal updates follow the release-managed `stable`
 branch.
-On Windows, an already-running task can hold the old cache open. After the stable replacement is
-verified, `semctx install` marks that cleanup as deferred and retries it automatically in a hidden
-background helper; unexpected removal errors still fail the install.
+On Windows, an already-running task can hold the old cache open, in two distinct ways. When a
+*legacy* registration cannot be removed, `semctx install` marks that cleanup as deferred — after the
+stable replacement is verified — and retries it automatically in a hidden background helper. When
+`codex plugin add` itself converges and then fails to archive the entry it replaces (`failed to back
+up plugin cache entry … os error 5`), the install re-reads the host and accepts the update only once
+**all** of the following hold: the expected plugin is installed, enabled and at the expected
+version; the versioned cache entry Codex executes exists and its manifest declares that version;
+and `semctx-mcp.js`, `semctx-shared.js` and `semctx.js` are regular, non-empty files whose SHA-256
+match the approved marketplace snapshot. Anything unproven, any error that is not exactly
+`os error 5` / `os error 32`, and any non-Windows host all keep the install failing closed.
+
+Three locations are distinct and must not be conflated:
+
+| state | where | what it means |
+| --- | --- | --- |
+| snapshot | `<codexHome>/.tmp/marketplaces/<marketplace>/plugins/<plugin>` | what `plugin list` reports as `source.path`; the approved source |
+| installed cache | `<codexHome>/plugins/cache/<marketplace>/<plugin>/<version>` | what Codex actually executes |
+| loaded | in-process | the version a running task started with |
+
+**Installed is not loaded.** A verified install describes what the *next* task will resolve. A task
+already running keeps the plugin version it started with, so its cache stays mapped — legitimately —
+until you open a new task. Codex does not remove the superseded entry on its own: `semctx install`
+schedules a detached helper that retires **only** the version observed before the update, and only
+once nothing maps it. The helper renames the directory first, so a still-loaded cache is left
+byte-for-byte intact rather than half-deleted, and it aborts outright if the expected version ever
+stops being present or selected by Codex. It re-reads `codex plugin list --json` before and after
+the rename so a version reselected during the retry window is preserved. The report lists every
+outstanding obligation under `deferrals`, each with
+whether a retry was actually scheduled.
 
 Manual install from a clone remains available:
 
