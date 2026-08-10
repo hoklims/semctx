@@ -74,6 +74,7 @@ describe("init --preset github-claude", () => {
     // the workflow uses least privilege and the safe trigger
     const wf = readFileSync(join(repo, ".github/workflows/semctx.yml"), "utf8");
     expect(wf).toContain("contents: read");
+    expect(wf).toContain("uses: hoklims/semctx/packages/github-action@v0.1.17");
     expect(wf).not.toContain("pull_request_target");
   });
 

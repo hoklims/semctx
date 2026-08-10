@@ -27,7 +27,7 @@ interface RunPresetOptions {
 }
 
 const WORKFLOW = `# semctx PR gate: BLOCK fails the check, WARN does not. Read-only, no secrets.
-# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.1.0.
+# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.1.17.
 name: Semctx
 
 on:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: hoklims/semctx/packages/github-action@v0.1.0
+      - uses: hoklims/semctx/packages/github-action@v0.1.17
         with:
           base: \${{ github.event.pull_request.base.sha }}
           head: \${{ github.sha }}

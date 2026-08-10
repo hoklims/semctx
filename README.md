@@ -16,11 +16,10 @@ Analysis and verification outputs are **deterministic** (a pure function of repo
 one injected timestamp) and **inspectable**. After installation, the analysis pipeline uses
 **no LLM, network call, or vector database**.
 
-> **Main vs release.** This README tracks `main`, whose release-bearing package and plugin
-> manifests are currently `0.1.17`. The latest npm package and Git tag are still `0.1.16`; the
-> polyglot Plane A runtime, agent-lifecycle foundation, and manual Control Handoff v2 described
-> below are therefore present on `main` but not yet in `bunx semctx@latest`. Pin a release when
-> reproducibility matters.
+> **Release 0.1.17.** This README and every release-bearing manifest describe the lockstep 0.1.17
+> CLI and plugins. The annotated `v0.1.17` tag drives npm publication, the `stable` plugin channel,
+> and the GitHub Release from one immutable commit. Pin an exact release when reproducibility
+> matters.
 
 **What semctx does**
 
@@ -273,16 +272,15 @@ comments, no secrets, `contents: read` only. Copy
 ```yaml
 - uses: actions/checkout@v4
   with: { fetch-depth: 0 }
-- uses: hoklims/semctx/packages/github-action@v0.1.16
+- uses: hoklims/semctx/packages/github-action@v0.1.17
   with:
     base: ${{ github.event.pull_request.base.sha }}
     head: ${{ github.sha }}
     fail-on: block
 ```
 
-This example pins the latest release tag. The generated `github-claude` preset and older copyable
-examples in this checkout still pin `v0.1.0`; that preset/documentation drift has not yet been
-synchronized.
+The generated `github-claude` preset and all copyable integration examples pin this same release
+tag. Historical ADR and changelog references retain the version that was current when authored.
 
 ---
 

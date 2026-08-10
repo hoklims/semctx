@@ -9,6 +9,10 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.1.17] - 2026-08-10
+
 ### Fixed
 
 - **Shareable `.semctx/config.json` across clones** ([#82](https://github.com/hoklims/semctx/issues/82)):
@@ -16,6 +20,9 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   CLI/MCP call root). `.gitignore` policy now tracks `!.semctx/config.json` alongside
   `.semctx/semantic/`, so selection policy (`include` / `exclude` / blocking rules) can be
   versioned while `semctx.db` and other machine state stay local.
+- **Release-pinned GitHub Action examples**: the generated preset and every copyable integration
+  example now pin `hoklims/semctx/packages/github-action@v0.1.17`. Historical ADR and v0.1.0
+  release notes retain their original references.
 
 ### Changed
 
@@ -61,6 +68,14 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   report partial or insufficient analysis explicitly. Exact capability requirements, source/result
   binding, freshness, negative completeness, generic admissibility, and the app-services authority
   policy remain independent fail-closed gates.
+
+## Historical cumulative notes (0.1.1–0.1.16)
+
+Before v0.1.17, these notes accumulated under `Unreleased` instead of being cut into one section
+per tag. They are retained verbatim as historical context and are not attributed to v0.1.17.
+
+### Added
+
 - **Cross-host top-down diagnosis**: the shared `semctx-control` skill now locates the highest
   broken contract from L6 strategy/constraints to L0 sealed observed hunks, records why higher and
   lower levels are excluded, and defines the smallest falsification check before substantial
@@ -276,3 +291,6 @@ declared stable).
 
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
+
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.1.17...HEAD
+[0.1.17]: https://github.com/hoklims/semctx/compare/v0.1.16...v0.1.17
