@@ -36,9 +36,11 @@ const portableTypeScriptPrelude =
 const escapedRoot = JSON.stringify(root).slice(1, -1);
 
 export const PLUGIN_BUILD_BUN_VERSION = "1.3.13";
+/** Bun's `naming.chunk` target — the only artifact allowed to carry the TypeScript path prelude. */
+const pluginRuntimeSharedChunk = "semctx-shared.js";
 const pluginRuntimeArtifactPaths = [
   "semctx-mcp.js",
-  "semctx-shared.js",
+  pluginRuntimeSharedChunk,
   "semctx.js",
 ] as const;
 
@@ -313,6 +315,85 @@ function formatBuildLog(log: BuildMessage | ResolveMessage): string {
   return `${log.level}: ${log.message}${where}${resolution}`;
 }
 
+export interface TypeScriptPreludePair {
+  /** Checkout-bound prelude Bun emits into whichever output owns the TypeScript payload. */
+  bundled: string;
+  /** `import.meta.dir`-relative replacement shipped in the plugin artifacts. */
+  portable: string;
+}
+
+const typeScriptPreludes: TypeScriptPreludePair = {
+  bundled: absoluteTypeScriptPrelude,
+  portable: portableTypeScriptPrelude,
+};
+
+/**
+ * Fail closed on *where* the TypeScript path prelude lives, not only on how many exist. A single
+ * prelude that Bun hoisted into an entry bundle keeps the total at one while breaking the split:
+ * each entry would carry its own TypeScript payload again, which is the duplication the shared
+ * chunk exists to remove. Counting alone accepts that regression silently.
+ */
+function assertSharedTypeScriptPrelude(
+  sources: ReadonlyMap<string, string>,
+  prelude: string,
+  stage: "bundled" | "portable",
+): void {
+  let total = 0;
+  let shared = 0;
+  const located: string[] = [];
+  for (const path of [...sources.keys()].sort()) {
+    const count = sources.get(path)!.split(prelude).length - 1;
+    total += count;
+    if (path === pluginRuntimeSharedChunk) shared = count;
+    located.push(`${path}=${count}`);
+  }
+  if (total === 1 && shared === 1) return;
+
+  throw new Error(
+    `expected exactly one ${stage} TypeScript path prelude, in ${pluginRuntimeSharedChunk}; `
+      + `found ${located.join(", ")}`,
+  );
+}
+
+/**
+ * Validate and portabilise the split runtime outputs. Extracted from the `Bun.build` call because
+ * `Bun.build` cannot run inside `bun test` (see `plugins/plugin-build.test.ts`): keeping the
+ * topology rules in a pure function is what makes the generator's refusal provable rather than
+ * merely observed on today's Bun output.
+ */
+export function portablePluginRuntimeArtifacts(
+  generated: ReadonlyMap<string, string>,
+  prelude: TypeScriptPreludePair = typeScriptPreludes,
+): Map<string, Uint8Array> {
+  const actualPaths = [...generated.keys()].sort();
+  const expectedPaths = [...pluginRuntimeArtifactPaths].sort();
+  if (actualPaths.join("\n") !== expectedPaths.join("\n")) {
+    throw new Error(
+      `unexpected split plugin artifact set; expected ${expectedPaths.join(", ")}, found ${actualPaths.join(", ")}`,
+    );
+  }
+
+  assertSharedTypeScriptPrelude(generated, prelude.bundled, "bundled");
+
+  const portableSources = new Map<string, string>();
+  const built = new Map<string, Uint8Array>();
+  for (const relativePath of actualPaths) {
+    const portable = generated
+      .get(relativePath)!
+      .replace(prelude.bundled, prelude.portable)
+      .replace(/[ \t]+(?=\r?\n)/g, "");
+    if (portable.includes(escapedRoot)) {
+      throw new Error(`generated plugin artifact still contains the build checkout path: ${relativePath}`);
+    }
+    portableSources.set(relativePath, portable);
+    built.set(relativePath, new TextEncoder().encode(portable));
+  }
+
+  assertSharedTypeScriptPrelude(portableSources, prelude.portable, "portable");
+
+  return built;
+}
+
 export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8Array>> {
   assertPluginBuildBunVersion();
 
@@ -346,8 +427,7 @@ export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8A
       throw new Error("failed to build the split plugin runtimes");
     }
 
-    let preludeCount = 0;
-    const built = new Map<string, Uint8Array>();
+    const generated = new Map<string, string>();
     for (const output of result.outputs) {
       const relativePath = relative(outdir, output.path).replaceAll("\\", "/");
       if (
@@ -358,36 +438,13 @@ export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8A
       ) {
         throw new Error(`generated plugin artifact escaped its output directory: ${output.path}`);
       }
-      if (built.has(relativePath)) {
+      if (generated.has(relativePath)) {
         throw new Error(`generated duplicate plugin artifact: ${relativePath}`);
       }
-
-      const generated = await output.text();
-      preludeCount += generated.split(absoluteTypeScriptPrelude).length - 1;
-      const portable = generated
-        .replace(absoluteTypeScriptPrelude, portableTypeScriptPrelude)
-        .replace(/[ \t]+(?=\r?\n)/g, "");
-      if (portable.includes(escapedRoot)) {
-        throw new Error(`generated plugin artifact still contains the build checkout path: ${relativePath}`);
-      }
-      built.set(relativePath, new TextEncoder().encode(portable));
+      generated.set(relativePath, await output.text());
     }
 
-    if (preludeCount !== 1) {
-      throw new Error(
-        `expected one bundled TypeScript path prelude across plugin artifacts, found ${preludeCount}`,
-      );
-    }
-
-    const actualPaths = [...built.keys()].sort();
-    const expectedPaths = [...pluginRuntimeArtifactPaths].sort();
-    if (actualPaths.join("\n") !== expectedPaths.join("\n")) {
-      throw new Error(
-        `unexpected split plugin artifact set; expected ${expectedPaths.join(", ")}, found ${actualPaths.join(", ")}`,
-      );
-    }
-
-    return new Map(actualPaths.map((path) => [path, built.get(path)!]));
+    return portablePluginRuntimeArtifacts(generated);
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true });
   }

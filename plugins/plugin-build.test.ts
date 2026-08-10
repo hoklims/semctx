@@ -12,6 +12,7 @@ import {
   PLUGIN_BUILD_BUN_VERSION,
   assertPluginBuildBunVersion,
   assertPluginRuntimeArtifactsExact,
+  portablePluginRuntimeArtifacts,
 } from "../scripts/build-plugin-runtime";
 
 const repoRoot = resolve(import.meta.dir, "..");
@@ -113,6 +114,102 @@ describe("split plugin runtime build", () => {
     expect(() => assertPluginBuildBunVersion("0.0.0-test")).toThrow(
       new RegExp(`requires Bun ${PLUGIN_BUILD_BUN_VERSION}`),
     );
+  });
+});
+
+/**
+ * `Bun.build` cannot run inside `bun test`, so the suite above can only observe that today's Bun
+ * happens to place the prelude in the shared chunk. These cases drive the generator's own topology
+ * gate with forged split output — the only way to prove it *refuses* a misplaced prelude instead of
+ * counting one and moving on. Preludes are injected rather than imported so the fixtures stay
+ * independent of the generator's checkout-bound strings.
+ */
+describe("shared TypeScript prelude topology", () => {
+  const prelude = {
+    bundled: 'var __dirname="/forged/checkout/node_modules/typescript/lib";',
+    portable: 'var __dirname=import.meta.dir+"/typescript-lib";',
+  };
+
+  function generatedSources(preludeByPath: Record<string, string> = {}): Map<string, string> {
+    return new Map(
+      pluginRuntimeArtifactPaths.map((path): [string, string] => [
+        path,
+        `// ${path}\n${preludeByPath[path] ?? ""}\n`,
+      ]),
+    );
+  }
+
+  test("accepts the prelude when only the shared chunk carries it", () => {
+    const built = portablePluginRuntimeArtifacts(
+      generatedSources({ "semctx-shared.js": prelude.bundled }),
+      prelude,
+    );
+
+    expect([...built.keys()].sort()).toEqual([...pluginRuntimeArtifactPaths].sort());
+    for (const [path, bytes] of built) {
+      const body = new TextDecoder().decode(bytes);
+      expect(body).not.toContain(prelude.bundled);
+      expect(body.includes(prelude.portable)).toBe(path === "semctx-shared.js");
+    }
+  });
+
+  test("rejects a single prelude hoisted into an entry bundle", () => {
+    expect(() =>
+      portablePluginRuntimeArtifacts(
+        generatedSources({ "semctx-mcp.js": prelude.bundled }),
+        prelude,
+      )
+    ).toThrow(
+      /exactly one bundled TypeScript path prelude, in semctx-shared\.js; found semctx-mcp\.js=1, semctx-shared\.js=0, semctx\.js=0/,
+    );
+  });
+
+  test("rejects a prelude duplicated across the shared chunk and an entry bundle", () => {
+    expect(() =>
+      portablePluginRuntimeArtifacts(
+        generatedSources({ "semctx-shared.js": prelude.bundled, "semctx.js": prelude.bundled }),
+        prelude,
+      )
+    ).toThrow(/bundled TypeScript path prelude.*found semctx-mcp\.js=0, semctx-shared\.js=1, semctx\.js=1/);
+  });
+
+  test("rejects a build that emits no prelude at all", () => {
+    expect(() => portablePluginRuntimeArtifacts(generatedSources(), prelude)).toThrow(
+      /bundled TypeScript path prelude.*found semctx-mcp\.js=0, semctx-shared\.js=0, semctx\.js=0/,
+    );
+  });
+
+  test("rejects an entry bundle that already ships the portable prelude", () => {
+    // Bundled stage passes (one absolute prelude, in the shared chunk); only the post-rewrite
+    // check can see that an entry still carries a portable TypeScript path of its own.
+    expect(() =>
+      portablePluginRuntimeArtifacts(
+        generatedSources({
+          "semctx-shared.js": prelude.bundled,
+          "semctx-mcp.js": prelude.portable,
+        }),
+        prelude,
+      )
+    ).toThrow(
+      /exactly one portable TypeScript path prelude, in semctx-shared\.js; found semctx-mcp\.js=1, semctx-shared\.js=1, semctx\.js=0/,
+    );
+  });
+
+  test("rejects an artifact set that is not exactly the three public runtimes", () => {
+    const sources = generatedSources({ "semctx-shared.js": prelude.bundled });
+    sources.set("semctx-extra.js", "// extra\n");
+
+    expect(() => portablePluginRuntimeArtifacts(sources, prelude)).toThrow(
+      /unexpected split plugin artifact set/,
+    );
+  });
+
+  // The gate is only load-bearing if the generator routes its Bun output through it, and no test
+  // can observe that at runtime while `Bun.build` is unusable here.
+  test("the generator routes its split build output through the topology gate", () => {
+    const source = readFileSync(generatorEntrypoint, "utf8");
+
+    expect(source).toContain("portablePluginRuntimeArtifacts(generated)");
   });
 });
 
