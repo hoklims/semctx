@@ -116,5 +116,6 @@ describe("published npm CLI package", () => {
     expect(setupReport.check.ok).toBe(true);
     expect(setupReport.verdict).toBe("SETUP_READY");
     expect(setupReport.indexHealth?.coverage?.status).toMatch(/^(complete|partial)$/);
-  }, 30_000);
+  // A cold npm pack/install plus setup can approach 30 s on loaded Windows runners.
+  }, 60_000);
 });
