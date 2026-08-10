@@ -33,7 +33,7 @@ jobs:
           fail-on: block
 ```
 
-`hoklims/semctx` is the repository that hosts this action, pinned here at `v0.1.0`.
+`hoklims/semctx` is the repository that hosts this action, pinned here at `v0.1.17`.
 
 ## Inputs
 
