@@ -16,6 +16,7 @@ import {
 import { openReadyRepository } from "./readiness";
 import { indexHealth, type IndexHealthReportV1 } from "./index-health";
 import { controlStatus } from "./control";
+import type { ControlFreshnessReason } from "@semantic-context/control-model";
 
 export type VerifySource =
   | { kind: "working-tree"; head?: string }
@@ -226,7 +227,7 @@ function applyAnalysisHealthPreflight(
  * range intact; blocking on them would refuse the very `verify diff --record` that repairs a stale
  * evidence baseline, while `semctx index` refuses to run against one — the two would deadlock.
  */
-const COORDINATE_BREAKING_REASONS: ReadonlySet<string> = new Set([
+const COORDINATE_BREAKING_REASONS: ReadonlySet<ControlFreshnessReason> = new Set<ControlFreshnessReason>([
   "HEAD_MISMATCH",
   "REPOSITORY_GRAPH_MISMATCH",
   "REPOSITORY_ROOT_MISMATCH",
@@ -245,7 +246,7 @@ function applyIndexBindingGate(root: string, result: VerifyResult): VerifyResult
   } catch {
     // A freshness probe must never fail the verification it only annotates — but silence would be
     // worse than the drift it looks for, so the gap is named instead.
-    return withUnknown(result, "Index binding could not be probed; impact is reported without a freshness proof.");
+    return withUnknown(result, "Could not probe index binding; impact is reported without a freshness proof.");
   }
 
   const breaking = freshness.reasons.filter((reason) => COORDINATE_BREAKING_REASONS.has(reason));
