@@ -37,6 +37,7 @@ export const BlockingConditionSchema = z.enum([
   "contradiction_unresolved",
   "security_surface_without_verification",
   "analysis_scope_incomplete",
+  "index_binding_stale",
 ]);
 
 export const BlockingRuleSchema = z.object({

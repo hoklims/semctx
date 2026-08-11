@@ -15,6 +15,7 @@ import {
 } from "@semantic-context/context-engine";
 import { openReadyRepository } from "./readiness";
 import { indexHealth, type IndexHealthReportV1 } from "./index-health";
+import { controlStatus } from "./control";
 
 export type VerifySource =
   | { kind: "working-tree"; head?: string }
@@ -213,6 +214,68 @@ function applyAnalysisHealthPreflight(
   };
 }
 
+/**
+ * Freshness reasons that invalidate the coordinate system the impact join depends on. Impacted
+ * nodes are a join between line ranges frozen at indexing time (`nodeLineRange` over stored
+ * evidence) and hunks measured against the current HEAD, so once these drift the join silently
+ * mixes two coordinate systems and reports phantom overlaps as readily as blind spots.
+ *
+ * Deliberately narrow, and the narrowness is load-bearing. `WORKING_DIFF_MISMATCH` is excluded
+ * because analysing an uncommitted diff is the normal case. `SEMANTIC_LIFECYCLE_INVALID`,
+ * `TOOL_VERSION_MISMATCH`, `CONFIG_DIGEST_MISMATCH` and `SEMANTIC_MODEL_MISMATCH` leave every line
+ * range intact; blocking on them would refuse the very `verify diff --record` that repairs a stale
+ * evidence baseline, while `semctx index` refuses to run against one — the two would deadlock.
+ */
+const COORDINATE_BREAKING_REASONS: ReadonlySet<string> = new Set([
+  "HEAD_MISMATCH",
+  "REPOSITORY_GRAPH_MISMATCH",
+  "REPOSITORY_ROOT_MISMATCH",
+  "STORE_SCHEMA_MISMATCH",
+]);
+
+function withUnknown(result: VerifyResult, unknown: string): VerifyResult {
+  return { ...result, unknowns: [...new Set([...result.unknowns, unknown])] };
+}
+
+/** Refuse an impact verdict computed against an index bound to a different source state. */
+function applyIndexBindingGate(root: string, result: VerifyResult): VerifyResult {
+  let freshness;
+  try {
+    freshness = controlStatus(root);
+  } catch {
+    // A freshness probe must never fail the verification it only annotates — but silence would be
+    // worse than the drift it looks for, so the gap is named instead.
+    return withUnknown(result, "Index binding could not be probed; impact is reported without a freshness proof.");
+  }
+
+  const breaking = freshness.reasons.filter((reason) => COORDINATE_BREAKING_REASONS.has(reason));
+  if (breaking.length > 0) {
+    const reasons = breaking.join(", ");
+    return {
+      ...result,
+      verdict: "BLOCK",
+      findings: [
+        ...result.findings,
+        {
+          rule: "index_binding_stale",
+          severity: "block",
+          message: `impact was computed against an index bound to a different source state: ${reasons}`,
+          nodeIds: [],
+        },
+      ],
+      unknowns: [...new Set([
+        ...result.unknowns,
+        `No impact conclusion holds while the index binding is broken (${reasons}). Re-run \`semctx index\`, then verify again.`,
+      ])],
+    };
+  }
+  if (!freshness.canRunHighRiskControl) {
+    const detail = freshness.reasons.length > 0 ? `${freshness.verdict}: ${freshness.reasons.join(", ")}` : freshness.verdict;
+    return withUnknown(result, `Could not confirm index binding (${detail}); impact is reported without a freshness proof.`);
+  }
+  return result;
+}
+
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
 export function runVerify(root: string, source: VerifySource): VerifyComputation {
   const store = openReadyRepository(root);
@@ -226,15 +289,18 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       diffText: resolved.diffText ?? "",
     });
     const changedScopePaths = parseUnifiedDiffScopePaths(resolved.diffText ?? "");
+    // Unconditional: the analysis-health preflight below only runs for `config.version === 2`, so a
+    // v1 repository would otherwise carry no index-binding proof at all.
+    const gated = applyIndexBindingGate(root, baseResult);
     const result = config.version === 2
       ? applyAnalysisHealthPreflight(
-          baseResult,
+          gated,
           changedScopePaths,
           indexHealth(root),
           discoverRepository(config).candidates,
           (path) => isPathSelected(config, path),
         )
-      : baseResult;
+      : gated;
     const coChanges = resolved.includeCoChanges ? historicalCoChanges(root, result.changedFiles, resolved.git.head) : [];
     return { result, report: buildVerifyReport(result, resolved.git, config.blockingRules, coChanges), git: resolved.git, coChanges };
   } finally {
