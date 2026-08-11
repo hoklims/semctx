@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".semctx",
+    ".git",
+    "coverage"
+  ],
+  "docsDirs": [
+    "docs"
+  ],
+  "migrationsDirs": [
+    "migrations"
+  ],
+  "testGlobs": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "test/**/*.ts"
+  ],
+  "semanticProvider": "none",
+  "blockingRules": [
+    {
+      "id": "invariant-needs-test",
+      "description": "A change touching an invariant-constrained symbol must be covered by a test.",
+      "when": "invariant_touched_without_test",
+      "severity": "block",
+      "tier": "strict"
+    },
+    {
+      "id": "critical-contract-needs-test",
+      "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
+      "when": "critical_contract_changed_without_test",
+      "severity": "block",
+      "tier": "strict"
+    },
+    {
+      "id": "security-needs-verification",
+      "description": "A security-surface change needs an explicit verification.",
+      "when": "security_surface_without_verification",
+      "severity": "block",
+      "tier": "strict"
+    },
+    {
+      "id": "contract-needs-test",
+      "description": "A change to an exported contract should be covered by a contract test.",
+      "when": "contract_changed_without_test",
+      "severity": "warn",
+      "tier": "advisory"
+    },
+    {
+      "id": "contradiction-unresolved",
+      "description": "An unresolved contradiction in touched sources should be surfaced.",
+      "when": "contradiction_unresolved",
+      "severity": "warn",
+      "tier": "advisory"
+    }
+  ]
+}
