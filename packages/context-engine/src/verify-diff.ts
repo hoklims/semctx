@@ -492,7 +492,10 @@ export function analyzeDiff(args: {
     contract_changed_without_test: contractsUntested,
     contradiction_unresolved: contradictions.length > 0 ? impactedNodes.filter((n) => n.kind === "document") : [],
     security_surface_without_verification: securityUntested,
+    // Both are raised by app-services preflights over the whole analysis, not by a config rule over
+    // impacted nodes, so neither can ever be selected here.
     analysis_scope_incomplete: [],
+    index_binding_stale: [],
   };
 
   const findings: VerifyFinding[] = [];
@@ -553,6 +556,8 @@ function describeCondition(condition: BlockingCondition, nodes: readonly Reposit
       return `security surface changed without verification: ${names}`;
     case "analysis_scope_incomplete":
       return `changed scope lacks complete admissible analysis: ${names}`;
+    case "index_binding_stale":
+      return "impact was computed against an index bound to a different source state";
   }
 }
 

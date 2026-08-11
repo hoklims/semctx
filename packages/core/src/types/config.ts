@@ -10,7 +10,8 @@ export type BlockingCondition =
   | "contract_changed_without_test"
   | "contradiction_unresolved"
   | "security_surface_without_verification"
-  | "analysis_scope_incomplete";
+  | "analysis_scope_incomplete"
+  | "index_binding_stale";
 
 /**
  * Severity tier of a rule (see docs/concepts/verify-diff.md):
