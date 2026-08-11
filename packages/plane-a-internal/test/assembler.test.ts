@@ -216,6 +216,40 @@ describe("provisional Plane A graph assembly", () => {
     ]);
   });
 
+  // The source of an authored edge is the declaring document, which the analyzer registers itself.
+  // Its absence is an assembly defect whatever the edge's provenance, so it must stay fatal rather
+  // than be reported as a reference to a missing target.
+  it("keeps a missing source fatal even on an authored edge", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const evidence = [{ filePath: "src/a.ts", startLine: 1, sourceKind: "document" as const }];
+    const facts: readonly PlaneAFact[] = [
+      {
+        factType: "node",
+        ordinal: 0,
+        id: "doc:src/a.ts",
+        kind: "document",
+        name: "a",
+        filePath: "src/a.ts",
+        evidence,
+        tags: [],
+        metadata: {},
+      },
+      {
+        factType: "edge",
+        ordinal: 1,
+        kind: "contradicts",
+        from: "doc:docs/absent.md",
+        to: "doc:src/a.ts",
+        evidence,
+        metadata: { declared: true },
+      },
+    ];
+
+    expect(() => api.assembleFactBatches([batch(facts)])).toThrow(
+      expect.objectContaining({ code: "MISSING_ENDPOINT" }),
+    );
+  });
+
   it("validates every fact against its own batch scope rather than the union of batch paths", () => {
     if (api === null) throw new Error("internal Plane A API is unavailable");
     const wrongScopeFact = {

@@ -38,6 +38,7 @@ export interface UnresolvedReference {
   readonly kind: RepositoryEdge["kind"];
   readonly from: string;
   readonly to: string;
+  /** The absent endpoint. Always the target: an absent source stays a fatal assembly error. */
   readonly missing: string;
 }
 
@@ -195,24 +196,26 @@ export class DeterministicGraphAssembler {
     const unresolvedReferences: UnresolvedReference[] = [];
     const unresolvedEdgeIds = new Set<string>();
     for (const edge of this.edges.values()) {
-      const missing = !this.nodes.has(edge.from)
-        ? edge.from
-        : !this.nodes.has(edge.to)
-          ? edge.to
-          : undefined;
-      if (missing === undefined) continue;
+      const sourceMissing = !this.nodes.has(edge.from);
+      const targetMissing = !this.nodes.has(edge.to);
+      if (!sourceMissing && !targetMissing) continue;
       // `declared` marks a reference authored in the repository's own content rather than derived
-      // by an analyzer. Authored input may name anything, so an absent endpoint is an unresolved
-      // link; only a derived edge proves the assembler contradicted itself and stays fatal.
-      if (edge.metadata["declared"] !== true) {
-        throw new PlaneAAssemblyError("MISSING_ENDPOINT", { edgeId: edge.id, missing });
+      // by an analyzer. Authored input may name any target, so an absent target is an unresolved
+      // link. An absent source is not: it is the declaring artifact, which the analyzer registers
+      // itself, so its absence proves the assembler contradicted itself and stays fatal whatever
+      // the edge's provenance.
+      if (sourceMissing || edge.metadata["declared"] !== true) {
+        throw new PlaneAAssemblyError("MISSING_ENDPOINT", {
+          edgeId: edge.id,
+          missing: sourceMissing ? edge.from : edge.to,
+        });
       }
       unresolvedReferences.push({
         edgeId: edge.id,
         kind: edge.kind,
         from: edge.from,
         to: edge.to,
-        missing,
+        missing: edge.to,
       });
       unresolvedEdgeIds.add(edge.id);
     }
