@@ -28,9 +28,23 @@ export class PlaneAAssemblyError extends Error {
   }
 }
 
+/**
+ * An authored cross-reference naming a target this repository does not contain. The edge is kept
+ * out of the graph — a dangling endpoint would break every downstream traversal — and reported
+ * here so the gap stays visible instead of being silently dropped.
+ */
+export interface UnresolvedReference {
+  readonly edgeId: string;
+  readonly kind: RepositoryEdge["kind"];
+  readonly from: string;
+  readonly to: string;
+  readonly missing: string;
+}
+
 export interface AssembledPlaneA {
   graph: RepositoryGraph;
   evidence: EvidenceRecord[];
+  unresolvedReferences: UnresolvedReference[];
 }
 
 export interface ImportEdgeOccurrence {
@@ -178,20 +192,40 @@ export class DeterministicGraphAssembler {
   }
 
   build(): AssembledPlaneA {
+    const unresolvedReferences: UnresolvedReference[] = [];
+    const unresolvedEdgeIds = new Set<string>();
     for (const edge of this.edges.values()) {
-      if (!this.nodes.has(edge.from) || !this.nodes.has(edge.to)) {
-        throw new PlaneAAssemblyError("MISSING_ENDPOINT", {
-          edgeId: edge.id,
-          missing: !this.nodes.has(edge.from) ? edge.from : edge.to,
-        });
+      const missing = !this.nodes.has(edge.from)
+        ? edge.from
+        : !this.nodes.has(edge.to)
+          ? edge.to
+          : undefined;
+      if (missing === undefined) continue;
+      // `declared` marks a reference authored in the repository's own content rather than derived
+      // by an analyzer. Authored input may name anything, so an absent endpoint is an unresolved
+      // link; only a derived edge proves the assembler contradicted itself and stays fatal.
+      if (edge.metadata["declared"] !== true) {
+        throw new PlaneAAssemblyError("MISSING_ENDPOINT", { edgeId: edge.id, missing });
       }
+      unresolvedReferences.push({
+        edgeId: edge.id,
+        kind: edge.kind,
+        from: edge.from,
+        to: edge.to,
+        missing,
+      });
+      unresolvedEdgeIds.add(edge.id);
     }
     return {
       graph: {
         nodes: [...this.nodes.values()].sort((left, right) => compareIds(left.id, right.id)),
-        edges: [...this.edges.values()].sort((left, right) => compareIds(left.id, right.id)),
+        edges: [...this.edges.values()]
+          .filter((edge) => !unresolvedEdgeIds.has(edge.id))
+          .sort((left, right) => compareIds(left.id, right.id)),
       },
       evidence: [...this.evidence.values()].sort((left, right) => compareIds(left.id, right.id)),
+      unresolvedReferences: unresolvedReferences.sort((left, right) =>
+        compareIds(left.edgeId, right.edgeId)),
     };
   }
 

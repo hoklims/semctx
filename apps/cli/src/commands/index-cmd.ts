@@ -2,7 +2,7 @@ import { indexRepository } from "@semantic-context/app-services";
 import type { RepositoryNode, Claim } from "@semantic-context/core";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
-import { info, success, heading, json, c, nowIso } from "../output";
+import { info, success, warn, heading, json, c, nowIso } from "../output";
 
 function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
   const out: Record<string, number> = {};
@@ -29,6 +29,7 @@ export function runIndex(root: string, args: ParsedArgs): number {
       claims: claims.length,
       nodeKinds,
       claimKinds,
+      unresolvedReferences: analysis.unresolvedReferences,
       freshnessSeal,
     });
     return 0;
@@ -42,6 +43,15 @@ export function runIndex(root: string, args: ParsedArgs): number {
   for (const [kind, count] of Object.entries(nodeKinds).sort()) info(`  ${kind.padEnd(18)} ${count}`);
   heading("Claims by kind");
   for (const [kind, count] of Object.entries(claimKinds).sort()) info(`  ${kind.padEnd(18)} ${count}`);
+  // An authored reference to an absent target is a real gap in the model: name it rather than
+  // letting the edge disappear from the graph without a trace.
+  if (analysis.unresolvedReferences.length > 0) {
+    heading("Unresolved authored references");
+    warn(`  ${analysis.unresolvedReferences.length} declared reference(s) name a target this repository does not contain`);
+    for (const reference of analysis.unresolvedReferences) {
+      info(c.dim(`  ${reference.from} —${reference.kind}→ ${reference.missing}`));
+    }
+  }
   info("");
   info(c.dim("Next: semctx task create --from-file <task.md>"));
   return 0;

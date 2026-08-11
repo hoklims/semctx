@@ -791,6 +791,7 @@ function extendLegacyAnalysis(
       }),
     },
     evidence: assembled.evidence,
+    unresolvedReferences: assembled.unresolvedReferences,
   };
 }
 
