@@ -212,8 +212,8 @@ write-free `NO_OP`. This manual surface is shadow-only, non-blocking, grants
 `executionAuthority: "none"`, does not make the lifecycle checkpoint stateful, and does not prove
 that Codex invoked it before compaction.
 
-There are no automatic lifecycle hooks for Codex. Persisted or measured telemetry and enforcement
-remain open.
+semctx ships no automatic lifecycle hooks for Codex — a property of what this plugin delivers, not
+a limitation of the host. Persisted or measured telemetry and enforcement remain open.
 
 ## Decision semantics
 
