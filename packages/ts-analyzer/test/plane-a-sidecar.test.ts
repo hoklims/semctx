@@ -32,7 +32,7 @@ describe("TypeScript Plane A internal sidecar", () => {
     const analysis = analyzeRepository(sampleConfig());
     const sidecar = internal.getPlaneASidecar(analysis);
 
-    expect(Object.keys(analysis).sort()).toEqual(["evidence", "graph"]);
+    expect(Object.keys(analysis).sort()).toEqual(["evidence", "graph", "unresolvedReferences"]);
     expect(sidecar?.schemaVersion).toBe(1);
     expect(sidecar?.producerResults).toHaveLength(sidecar?.factBatches.length ?? 0);
     expect(sidecar?.producerResults).toEqual(

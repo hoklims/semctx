@@ -13,6 +13,7 @@ export type {
   AssembledPlaneA,
   ImportEdgeOccurrence,
   PlaneAAssemblyErrorCode,
+  UnresolvedReference,
 } from "./assembler";
 export { canonicalJson, canonicalSourceText, digestCanonical } from "./canonical";
 export {

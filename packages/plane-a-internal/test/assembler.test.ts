@@ -173,6 +173,49 @@ describe("provisional Plane A graph assembly", () => {
     );
   });
 
+  // A missing endpoint on an internally derived edge stays fatal (covered above): it means the
+  // assembler contradicted itself. An authored cross-reference is different — it is user input, and
+  // naming a target this repository does not contain is an unresolved link, not an assembly defect.
+  it("records an authored cross-reference to an absent endpoint instead of aborting the assembly", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const evidence = [{ filePath: "src/a.ts", startLine: 1, sourceKind: "document" as const }];
+    const facts: readonly PlaneAFact[] = [
+      {
+        factType: "node",
+        ordinal: 0,
+        id: "doc:src/a.ts",
+        kind: "document",
+        name: "a",
+        filePath: "src/a.ts",
+        evidence,
+        tags: [],
+        metadata: {},
+      },
+      {
+        factType: "edge",
+        ordinal: 1,
+        kind: "contradicts",
+        from: "doc:src/a.ts",
+        to: "doc:docs/absent.md",
+        evidence,
+        metadata: { declared: true },
+      },
+    ];
+
+    const assembled = api.assembleFactBatches([batch(facts)]);
+
+    expect(assembled.graph.nodes.map((node) => node.id)).toEqual(["doc:src/a.ts"]);
+    expect(assembled.graph.edges).toEqual([]);
+    expect(assembled.unresolvedReferences).toEqual([
+      expect.objectContaining({
+        kind: "contradicts",
+        from: "doc:src/a.ts",
+        to: "doc:docs/absent.md",
+        missing: "doc:docs/absent.md",
+      }),
+    ]);
+  });
+
   it("validates every fact against its own batch scope rather than the union of batch paths", () => {
     if (api === null) throw new Error("internal Plane A API is unavailable");
     const wrongScopeFact = {
