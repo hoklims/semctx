@@ -1,4 +1,6 @@
 import { describe, it, expect } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { RepositoryGraph, VerifyReport, VerifyReportFinding, SemanticPolicyConfig } from "@semantic-context/core";
 import type { SemanticModel, ChangeContract } from "@semantic-context/semantic-model";
 import {
@@ -198,6 +200,16 @@ describe("gitignore policy", () => {
     expect(result.changed).toBe(true);
     expect(result.content).toContain("!.semctx/config.json");
     expect(result.content).toContain("!.semctx/semantic/project/**");
+  });
+
+  // Every other case here feeds a synthetic policy. This one feeds the repository's own
+  // `.gitignore`: semctx generates this policy for its users, so it must hold for semctx itself,
+  // and a later edit that drops a line must fail here rather than be discovered by hand.
+  it("holds for this repository's own .gitignore", () => {
+    const repoRoot = join(import.meta.dir, "..", "..", "..");
+    const existing = readFileSync(join(repoRoot, ".gitignore"), "utf8");
+
+    expect(computeGitignore(existing).changed).toBe(false);
   });
 
   it("preserves an explicit project-only policy that already tracks config", () => {

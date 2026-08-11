@@ -17,6 +17,7 @@ __pycache__/
 *.py[cod]
 .semctx/*
 !.semctx/semantic/
+!.semctx/config.json
 .semctx/semantic/*
 !.semctx/semantic/project/
 !.semctx/semantic/project/**
