@@ -29,6 +29,7 @@ import {
   type PlaneASidecarV1,
   type ProducerIdentity,
   type ProducerResult,
+  type UnresolvedReference,
 } from "@semantic-context/plane-a-internal";
 import {
   extractPython,
@@ -746,6 +747,8 @@ function extendLegacyAnalysis(
     });
   }
   for (const edge of legacy.graph.edges) {
+    // Every edge still in the legacy graph resolved on both endpoints, so re-feeding it as derived
+    // cannot turn a resolved reference into a fatal one: extension only ever adds nodes.
     assembler.addFact({
       factType: "edge",
       ordinal: ordinal++,
@@ -791,8 +794,28 @@ function extendLegacyAnalysis(
       }),
     },
     evidence: assembled.evidence,
-    unresolvedReferences: assembled.unresolvedReferences,
+    // The legacy pass already removed its unresolved edges from `legacy.graph`, so this assembler
+    // never sees them and cannot re-derive them. Carrying the legacy diagnostics forward is the
+    // only thing that keeps a second language from erasing the first one's gaps.
+    unresolvedReferences: mergeUnresolvedReferences(
+      legacy.unresolvedReferences,
+      assembled.unresolvedReferences,
+    ),
   };
+}
+
+/** Union by edge identity, deterministically ordered. Both passes describe the same repository, so
+ *  the same authored reference reported twice is one gap, not two. */
+export function mergeUnresolvedReferences(
+  ...groups: readonly (readonly UnresolvedReference[])[]
+): UnresolvedReference[] {
+  const byEdgeId = new Map<string, UnresolvedReference>();
+  for (const group of groups) {
+    for (const reference of group) {
+      if (!byEdgeId.has(reference.edgeId)) byEdgeId.set(reference.edgeId, reference);
+    }
+  }
+  return [...byEdgeId.values()].sort((left, right) => compareText(left.edgeId, right.edgeId));
 }
 
 function compareText(left: string, right: string): number {

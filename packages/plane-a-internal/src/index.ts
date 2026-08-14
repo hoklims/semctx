@@ -41,6 +41,7 @@ export type {
   CanonicalValue,
   DiscoveryLedgerEntry,
   EdgeFact,
+  EdgeProvenance,
   ExactSubjectDecision,
   FactBatchV1,
   GateState,

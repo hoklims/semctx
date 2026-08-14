@@ -43,6 +43,7 @@ import {
   unsealedControlStatus,
   type UnsealedInputReason,
 } from "./freshness";
+import { readUnresolvedReferenceBinding } from "./unresolved-references";
 import {
   CONTROL_OBSERVED_HUNK_INDEX_META_KEY,
   materializeReferencedObservedHunks,
@@ -191,6 +192,21 @@ export function loadControlState(root: string): CurrentControlState {
         semanticBefore.model,
         observedHunksFromIndex(observedIndex),
       );
+    }
+    // A record of what the index failed to resolve that is no longer tied to that index makes the
+    // persisted snapshot invalid, not merely incomplete. Raising it here is what keeps the freshness
+    // verdict from reading FRESH over a rewritten record.
+    //
+    // Unconditional by schema version. A snapshot that predates the binding cannot demonstrate it
+    // either, and `runVerify` and `indexHealth` already require the chain of every snapshot: scoping
+    // this to schema 2 left a legacy snapshot reading FRESH and authorizing here while those two
+    // surfaces refused the same store. Reading a legacy format is not the same permission as using
+    // it as fresh proof — the snapshot stays readable as a diagnostic and authorizes nothing.
+    const unresolvedBinding = readUnresolvedReferenceBinding(reader);
+    if (unresolvedBinding.status === "unbound") {
+      throw new SemctxError("STORE_ERROR", "invalid persisted plane-a unresolved reference index", {
+        reason: unresolvedBinding.reason,
+      });
     }
     const verifiedEvidenceDigests = resolveVerifiedRelationEvidence(
       root,
@@ -364,6 +380,7 @@ function unavailableStatus(error: unknown): ControlFreshnessStatusReport | null 
     && (
       error.message === "invalid persisted control index snapshot"
       || error.message === "invalid persisted control observed hunk index"
+      || error.message === "invalid persisted plane-a unresolved reference index"
     )
   ) {
     return unsealedControlStatus("INDEX_SNAPSHOT_INVALID");

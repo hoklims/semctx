@@ -81,7 +81,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    const computation = runVerify(root, { kind: "provided", diffText });
+    const computation = runVerify(root, { kind: "provided", diffText, head: "HEAD" });
 
     expect(computation.result.changedFiles).toEqual([]);
     expect(computation.result.verdict).toBe("BLOCK");
@@ -139,7 +139,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    const computation = runVerify(root, { kind: "provided", diffText });
+    const computation = runVerify(root, { kind: "provided", diffText, head: "HEAD" });
 
     expect(computation.result.changedFiles).toEqual(["équipe/service.py"]);
     expect(computation.result.verdict).toBe("BLOCK");
@@ -164,7 +164,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    const computation = runVerify(root, { kind: "provided", diffText });
+    const computation = runVerify(root, { kind: "provided", diffText, head: "HEAD" });
 
     expect(computation.result.changedFiles).toEqual(["src/service.py"]);
     expect(computation.result.verdict).toBe("BLOCK");
@@ -189,7 +189,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    const computation = runVerify(root, { kind: "provided", diffText });
+    const computation = runVerify(root, { kind: "provided", diffText, head: "HEAD" });
 
     expect(computation.result.changedFiles).toEqual(["équipe/service.py"]);
     expect(computation.result.verdict).toBe("BLOCK");
@@ -207,7 +207,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    expect(() => runVerify(root, { kind: "provided", diffText })).toThrow(
+    expect(() => runVerify(root, { kind: "provided", diffText, head: "HEAD" })).toThrow(
       "invalid or unpaired unified diff file header",
     );
   });
@@ -221,7 +221,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    expect(() => runVerify(root, { kind: "provided", diffText })).toThrow(
+    expect(() => runVerify(root, { kind: "provided", diffText, head: "HEAD" })).toThrow(
       "unified diff block has no canonical paths",
     );
   });
@@ -242,7 +242,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    expect(() => runVerify(root, { kind: "provided", diffText })).toThrow(
+    expect(() => runVerify(root, { kind: "provided", diffText, head: "HEAD" })).toThrow(
       "invalid or unpaired unified diff file header",
     );
   });
@@ -256,7 +256,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    expect(() => runVerify(root, { kind: "provided", diffText })).toThrow(
+    expect(() => runVerify(root, { kind: "provided", diffText, head: "HEAD" })).toThrow(
       "invalid or unpaired unified diff rename metadata",
     );
   });
@@ -273,7 +273,7 @@ describe("analysis-health changed-scope path coverage", () => {
       "",
     ].join("\n");
 
-    expect(() => runVerify(root, { kind: "provided", diffText })).toThrow(
+    expect(() => runVerify(root, { kind: "provided", diffText, head: "HEAD" })).toThrow(
       "invalid unified diff file header metadata",
     );
   });

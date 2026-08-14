@@ -238,7 +238,7 @@ describe("public indexed L6-to-L0 round trip", () => {
   );
 
   it(
-    "keeps legacy v1 snapshots without L0 and reports the missing mapping",
+    "reads a legacy v1 snapshot without ever presenting it as fresh or authorizing",
     () => {
     const store = openStore(root);
     const snapshot = JSON.parse(
@@ -256,27 +256,25 @@ describe("public indexed L6-to-L0 round trip", () => {
     store.setMeta(CONTROL_OBSERVED_HUNK_INDEX_META_KEY, "not-a-readable-observed-hunk-index");
     store.close();
 
+    // The legacy record stays readable — it parses, and the store still answers — but it cannot
+    // demonstrate the Plane-A and unresolved-reference chain that authorizes it. Every Plane C
+    // surface therefore refuses for the same cause instead of serving a downgraded graph as FRESH.
     const graph = queryControlGraph(root);
     expect(graph).toMatchObject({
-      terminalStatus: "success",
-      freshness: { verdict: "FRESH" },
+      terminalStatus: "refused",
+      reasonCodes: ["INDEX_STALE"],
+      payload: null,
+      freshness: { verdict: "UNSEALED", reasons: ["INDEX_SNAPSHOT_INVALID"] },
     });
-    expect(graph.payload?.nodes.some((node) => node.plane === "observed")).toBe(false);
-    expect(graph.payload?.refinementRelations.some((relation) =>
-      relation.source.kind === "observed_diff_hunk"
-      || relation.target.kind === "observed_diff_hunk"
-    )).toBe(true);
     expect(queryControlRefinementCoverage(root, {
       sourceId: GOAL,
       targetLevel: 0,
       direction: "lower",
     })).toMatchObject({
-      terminalStatus: "empty",
-      reasonCodes: ["MAPPING_MISSING"],
-      payload: {
-        terminalStatus: "empty",
-        reasonCode: "MAPPING_MISSING",
-      },
+      terminalStatus: "refused",
+      reasonCodes: ["INDEX_STALE"],
+      payload: null,
+      freshness: { verdict: "UNSEALED", reasons: ["INDEX_SNAPSHOT_INVALID"] },
     });
   },
     SETUP_TIMEOUT_MS,

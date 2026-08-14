@@ -69,7 +69,19 @@ describe("indexed observed hunks", () => {
     const { observedHunkIndexHash: _hunks, attestationSetHash: _attestations, ...legacy } = snapshot;
     store.setMeta(CONTROL_INDEX_SNAPSHOT_META_KEY, JSON.stringify({ ...legacy, schemaVersion: 1 }));
     store.close();
-    expect(loadControlState(root).graph.nodes.some((node) => node.plane === "observed")).toBe(false);
+    // A snapshot downgraded past the fields that authorize the Plane-A record cannot demonstrate its
+    // own binding. That is refused outright, not served as a reduced-capability graph: dropping the
+    // observed plane while still answering would leave this surface authorizing a state `runVerify`
+    // and `indexHealth` both reject.
+    expect(() => loadControlState(root)).toThrow(
+      "invalid persisted plane-a unresolved reference index",
+    );
+    expect(queryControlGraph(root)).toMatchObject({
+      terminalStatus: "refused",
+      reasonCodes: ["INDEX_STALE"],
+      payload: null,
+      freshness: { verdict: "UNSEALED", reasons: ["INDEX_SNAPSHOT_INVALID"] },
+    });
 
     const tamper = openStore(root);
     tamper.setMeta(CONTROL_INDEX_SNAPSHOT_META_KEY, snapshotValue);

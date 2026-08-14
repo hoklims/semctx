@@ -12,7 +12,7 @@ import {
   discoverRepository,
   type DiscoveryResult,
 } from "@semantic-context/ts-analyzer";
-import { analyzePlaneARuntime } from "../src/plane-a-runtime";
+import { analyzePlaneARuntime, mergeUnresolvedReferences } from "../src/plane-a-runtime";
 
 const roots: string[] = [];
 
@@ -110,6 +110,43 @@ describe("private integrated Plane-A runtime", () => {
     expect(importEdges[0]?.metadata).toEqual({
       specifiers: '["./target","./target.js"]',
     });
+  });
+
+  // The legacy pass removes an unresolved authored edge from the graph it hands over, so the
+  // polyglot assembler cannot re-derive that diagnostic. Adding a second language must not be the
+  // thing that erases the first language's gaps.
+  it("keeps an unresolved authored reference visible once Python facts extend the graph", () => {
+    const root = repository();
+    write(root, "docs/notes.md", "---\ntype: doc\ncontradicts: [docs/absent.md]\n---\n\n# Notes\n");
+    write(root, "src/value.py", "def value():\n    return 1\n");
+    const config = v2(root);
+    const discovery = discoverRepository(config);
+
+    const legacy = analyzeRepository(config, discovery.files);
+    const integrated = analyzePlaneARuntime(config, discovery);
+
+    expect(legacy.unresolvedReferences).toHaveLength(1);
+    expect(integrated.analysis.unresolvedReferences).toEqual(legacy.unresolvedReferences);
+    expect(integrated.analysis.graph.nodes.map((node) => node.id)).toContain("mod:src/value.py");
+  });
+
+  // Both passes describe the same repository, so the same authored reference reported by each is
+  // one gap. Composition must not multiply a diagnostic by the number of languages analysed.
+  it("reports a reference seen by both passes once, in edge order", () => {
+    const reference = (edgeId: string, to: string) => ({
+      edgeId,
+      kind: "contradicts" as const,
+      from: "doc:docs/notes.md",
+      to,
+      missing: to,
+    });
+
+    const merged = mergeUnresolvedReferences(
+      [reference("edge:contradicts:b", "doc:docs/b.md"), reference("edge:contradicts:a", "doc:docs/a.md")],
+      [reference("edge:contradicts:b", "doc:docs/b.md")],
+    );
+
+    expect(merged.map((item) => item.edgeId)).toEqual(["edge:contradicts:a", "edge:contradicts:b"]);
   });
 
   it("keeps mixed-language source bindings stable across LF and CRLF checkout materialization", () => {

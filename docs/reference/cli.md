@@ -105,7 +105,7 @@ Analyse a git range (or the current diff) for impact and violations.
 | option | default | description |
 | --- | --- | --- |
 | `--base <ref>` | — | compare against `<ref>` using the real merge-base (required for CI ranges) |
-| `--head <ref>` | `HEAD` | head ref to analyse |
+| `--head <ref>` | `HEAD` | head ref to analyse; with `--from-file`, the commit the supplied diff's post-image belongs to (no default) |
 | `--staged` | — | analyse the staged diff (no `--base`) |
 | `--from-file <f>` | — | analyse a unified diff file (no `--base`) |
 | `--format text\|json\|github` | `text` | output format; `json` is the versioned contract (ADR 0008) |
@@ -118,11 +118,43 @@ Analyse a git range (or the current diff) for impact and violations.
 **Exit codes**: `PASS` → 0; `WARN` → 0 (unless `--fail-on warn`); `BLOCK` → non-zero (unless
 `--fail-on none`).
 
-With config v2, verification first checks index health for each selected changed path. Missing,
+Every verification, at either config version, first proves the index is bound to the exact source it
+is analysing. Impacted nodes join line ranges frozen at indexing time with hunks measured against
+the analysed diff, so a binding that is absent, unreadable, or bound to another repository root,
+graph, store schema or commit adds a blocking `index_binding_stale` finding naming the reason;
+`verify diff --base A --head B` blocks the same way when `B` is not the indexed commit, even with
+`A` still checked out. A working tree that moved since indexing is not a break — that delta is what
+`verify diff` measures — and neither is authored Plane-B state, which leaves every line range
+intact. Re-run `semctx index` to repair a broken binding.
+
+Refs are resolved to object ids once, before any hunk is measured, and every subsequent `merge-base`
+and `diff` uses those ids: a branch moved while the analysis runs cannot re-attribute the hunks to
+another commit. A `--head` that Git cannot resolve is an error, never a silently dropped anchor.
+
+A diff semctx did not compute carries no provenance of its own, and no flag can supply one.
+`--from-file`, and diff text handed to the MCP `semctx_verify_change` / `semctx_change_verify`
+tools, block with `SOURCE_IDENTITY_ABSENT` and never compose into `VERIFIED`.
+
+`--head <ref>` alongside `--from-file` states *attribution*, not provenance: it says which commit the
+caller believes the post-image belongs to. Semctx resolves that ref — an unresolvable one is still an
+error, and one that is not the indexed commit is still named `ANALYZED_COMMIT_MISMATCH` — but
+resolving a ref shows nothing about where the supplied bytes came from, since any post-image can be
+handed over next to any commit. An attributed external diff therefore blocks with
+`SOURCE_IDENTITY_UNPROVEN` and stays diagnostic. Its JSON `head` records the exact resolved OID for
+audit; anonymous external diffs retain the `(from-file)` or `(provided)` placeholder. Only the Git-backed kinds (`working tree`,
+`--staged`, `--base`/`--head`) carry proven provenance, because semctx computes those hunks itself
+against the resolved object id. To gate on a change, verify it where it lives rather than describing
+it in a file.
+
+With config v2, verification then checks index health for each selected changed path. Missing,
 disabled, unsupported, failed, stale, or invalidly bound analysis adds a blocking
 `analysis_scope_incomplete` finding. Analyzed Python with partial negative-evidence capability adds
 a warning and an explicit unknown instead of a green negative impact or test-coverage conclusion.
 Config v1 retains the legacy verification path.
+
+An authored reference naming a target the repository does not contain is recorded with the index
+that observed it and reported as an explicit unknown by every later verification, so the gap
+survives indexing, persistence and a fresh read instead of scrolling past once.
 
 **Git ranges**: `--base` computes `git merge-base <base> <head>` and diffs `mergeBase..head`.
 The base must exist locally — semctx never fetches implicitly. In CI, check out with
@@ -361,6 +393,12 @@ Without `--target`, the command succeeds as a diagnostic but reports
 against the computed current/target delta. Neither control command creates or updates `.semctx`.
 Plan JSON carries the same freshness seal and status as trace JSON. Unsafe input returns a normal
 `BLOCKED / control_inputs_stale|control_inputs_unsealed` report with no steps.
+
+That normal blocked report applies when the persisted control snapshot is structurally valid and
+its freshness is `STALE` or `UNSEALED`. A structurally invalid or unbound persisted snapshot is a
+store-integrity failure instead: `control status` and query envelopes still expose
+`UNSEALED / INDEX_SNAPSHOT_INVALID`, while `control plan` and `control trace` fail before planning or
+traversal. Re-index to rebuild the bound snapshot.
 
 ## `control plan-change`
 

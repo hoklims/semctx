@@ -3,8 +3,8 @@ import { cpSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
-import { analyzeAndBuildClaims } from "@semantic-context/app-services";
-import { initWorkspace, openStore } from "@semantic-context/repository-store";
+import { indexRepository } from "@semantic-context/app-services";
+import { initWorkspace } from "@semantic-context/repository-store";
 import { activeChangePath, initSemanticScaffold } from "@semantic-context/semantic-engine";
 import {
   semanticSliceTool,
@@ -23,19 +23,27 @@ const CHANGE = "change.payment-webhook-retry";
 const INVARIANT = "invariant.semctx-test.idempotent-write";
 const UNKNOWN = "unknown.semctx-test.concurrency-race";
 const EVIDENCE = "evidence.semctx-test.race-test";
+const SUPPLIED_DIFF =
+  "--- a/src/domain/capacity.ts\n+++ b/src/domain/capacity.ts\n@@ -12 +12,2 @@\n-old\n+new\n";
+
+function git(cwd: string, ...args: string[]): void {
+  const result = Bun.spawnSync(
+    ["git", "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", ...args],
+    { cwd, stdout: "pipe", stderr: "pipe" },
+  );
+  if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+}
 
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), "semctx-sem-mcp-"));
   cpSync(SAMPLE_REPO, root, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
-  const config = initWorkspace(root);
-  const store = openStore(root);
-  try {
-    const { analysis, claims } = analyzeAndBuildClaims(config);
-    store.saveGraph(analysis.graph, analysis.evidence);
-    store.replaceClaims(claims);
-  } finally {
-    store.close();
-  }
+  // A real commit, not a bare directory: impact conclusions are bound to a commit, so a fixture
+  // with no Git history could only ever be refused.
+  writeFileSync(join(root, ".gitignore"), ".semctx/\n", "utf8");
+  git(root, "init", "-q");
+  git(root, "add", "-A");
+  git(root, "commit", "-q", "-m", "fixture");
+  initWorkspace(root);
   // Scaffold only inert guidance, then explicitly author the truths used by this fixture.
   initSemanticScaffold(root);
   writeFileSync(
@@ -48,6 +56,10 @@ beforeAll(() => {
     `unknown ${UNKNOWN}\n  statement: Concurrent writers may race.\n  status: declared\n`,
     "utf8",
   );
+  // Index through the product path rather than writing the graph into the store by hand: a store
+  // populated directly carries no index binding, and an unbound index authorizes no impact
+  // conclusion. Indexing last so the seal covers the authored truths above.
+  indexRepository(root, "2026-08-12T09:00:00.000Z");
 });
 
 afterAll(() => {
@@ -103,7 +115,7 @@ describe("semantic-layer MCP tools", () => {
   });
 
   it("composes verify diff into a PARTIAL verdict while an unknown is open", () => {
-    const report = changeVerifyTool(root, { changeId: CHANGE, gitDiff: "" });
+    const report = changeVerifyTool(root, { changeId: CHANGE });
     expect(report.verdict).toBe("PARTIAL");
     expect(report.underlying.schemaVersion).toBe(1);
     expect(report.openUnknowns.map((u) => u.id)).toContain(UNKNOWN);
@@ -113,7 +125,7 @@ describe("semantic-layer MCP tools", () => {
     expect(() => changeUpdateTool(root, { id: CHANGE, status: "verified" })).toThrow(
       "use semctx_change_close",
     );
-    expect(() => changeCloseTool(root, { id: CHANGE, gitDiff: "" })).toThrow(
+    expect(() => changeCloseTool(root, { id: CHANGE })).toThrow(
       "composed verification is PARTIAL",
     );
   });
@@ -133,7 +145,7 @@ describe("semantic-layer MCP tools", () => {
       "utf8",
     );
     changeUpdateTool(root, { id: CHANGE, resolveUnknowns: [UNKNOWN] });
-    const report = changeVerifyTool(root, { changeId: CHANGE, gitDiff: "" });
+    const report = changeVerifyTool(root, { changeId: CHANGE });
     expect(report.verdict).toBe("VERIFIED");
   });
 
@@ -151,13 +163,46 @@ describe("semantic-layer MCP tools", () => {
   });
 
   it("closes verified only after composed verification passes", () => {
-    const closed = changeCloseTool(root, { id: CHANGE, gitDiff: "" });
+    const closed = changeCloseTool(root, { id: CHANGE });
     expect(closed.lifecycle).toBe("verified");
   });
 
   it("does not disturb the first-class verify tool (import still works)", async () => {
     const { verifyChangeTool } = await import("../src/tools");
-    const result = verifyChangeTool(root, { gitDiff: "--- a/src/domain/capacity.ts\n+++ b/src/domain/capacity.ts\n@@ -12 +12,2 @@\n-old\n+new\n" });
+    const result = verifyChangeTool(root, { gitDiff: SUPPLIED_DIFF });
     expect(["PASS", "WARN", "BLOCK"]).toContain(result.verdict);
+  });
+});
+
+// The MCP surface accepts diff text but offers no way to say which commit it belongs to, so every
+// conclusion drawn from it is unanchored. It must stay diagnostic rather than certifying.
+describe("MCP-supplied diff text carries no provenance", () => {
+  it("refuses an impact verdict for a diff handed to semctx_verify_change", async () => {
+    const { verifyChangeTool } = await import("../src/tools");
+
+    const report = verifyChangeTool(root, { gitDiff: SUPPLIED_DIFF });
+
+    expect(report.verdict).toBe("BLOCK");
+    expect(report.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "index_binding_stale",
+          message: expect.stringContaining("SOURCE_IDENTITY_ABSENT"),
+        }),
+      ]),
+    );
+  });
+
+  it("never composes a supplied diff into VERIFIED", () => {
+    const composed = changeVerifyTool(root, { changeId: CHANGE, gitDiff: SUPPLIED_DIFF });
+
+    expect(composed.verdict).not.toBe("VERIFIED");
+    expect(composed.verdict).toBe("BLOCKED");
+  });
+
+  it("refuses to close a change on a supplied diff", () => {
+    expect(() => changeCloseTool(root, { id: CHANGE, gitDiff: SUPPLIED_DIFF })).toThrow(
+      "composed verification is BLOCKED",
+    );
   });
 });

@@ -40,6 +40,10 @@ import { analyzePlaneARuntime } from "./plane-a-runtime";
 import {
   createPlaneAIndexSnapshot,
 } from "./index-health";
+import {
+  UNRESOLVED_REFERENCE_INDEX_META_KEY,
+  createUnresolvedReferenceIndex,
+} from "./unresolved-references";
 
 export interface RepositoryAnalysis {
   analysis: AnalysisResult;
@@ -230,9 +234,15 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       claims: indexed.claims,
       evidence: indexed.analysis.evidence,
     });
+    // The gap belongs to the indexed state, so it is written with it and hashed into the same
+    // snapshot: a later reader sees the same diagnostic, and a tampered record fails its own hash.
+    const unresolvedReferenceIndex = createUnresolvedReferenceIndex(
+      indexed.analysis.unresolvedReferences,
+    );
     const planeAIndexSnapshot = createPlaneAIndexSnapshot({
       capturedAt: indexedAt,
       repositoryGraphHash,
+      unresolvedReferenceIndexHash: unresolvedReferenceIndex.indexHash,
       sidecar: indexed.sidecar,
       workspace: indexed.workspaceProjection,
     });
@@ -250,9 +260,10 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
       toolVersion: CONTROL_FRESHNESS_TOOL_VERSION,
       observedHunkIndexHash: observedIndex.indexHash,
       attestationSetHash,
-      ...(configBefore.version === 2
-        ? { planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}` }
-        : {}),
+      // Unconditional, at either config version: this is the only field that authorizes a given
+      // Plane-A snapshot, and through it the unresolved-reference record hashed inside it. Binding
+      // it for v2 alone left a v1 index unable to tell its own snapshot from a rewritten one.
+      planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}`,
     };
     store.replaceIndex({
       graph: indexed.analysis.graph,
@@ -263,6 +274,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
         indexed_commit: snapshot.headCommit ?? "",
         indexed_repository_graph_hash: snapshot.repositoryGraphHash,
         [PLANE_A_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(planeAIndexSnapshot),
+        [UNRESOLVED_REFERENCE_INDEX_META_KEY]: JSON.stringify(unresolvedReferenceIndex),
         [CONTROL_OBSERVED_HUNK_INDEX_META_KEY]: JSON.stringify(observedIndex),
         [CONTROL_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(snapshot),
       },
@@ -282,9 +294,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
         workingDiffHash: gitAfter.workingDiffHash,
         indexedSnapshot: snapshot,
         storeSchemaVersion: SCHEMA_VERSION,
-        ...(configBefore.version === 2
-          ? { planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}` }
-          : {}),
+        planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}`,
       }),
     };
   } catch (error) {

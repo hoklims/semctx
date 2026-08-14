@@ -514,7 +514,7 @@ describe("IndexHealth persistence and verification preflight", () => {
     const { root } = repository("off");
     indexRepository(root, "2026-07-28T10:02:00.000Z");
 
-    const computation = runVerify(root, { kind: "provided", diffText: pythonDiff() });
+    const computation = runVerify(root, { kind: "provided", diffText: pythonDiff(), head: "HEAD" });
 
     expect(computation.result.verdict).toBe("BLOCK");
     expect(computation.result.findings).toEqual(expect.arrayContaining([
@@ -543,6 +543,7 @@ describe("IndexHealth persistence and verification preflight", () => {
         "+    return 2",
         "",
       ].join("\n"),
+      head: "HEAD",
     });
 
     expect(computation.result.impactedInvariants).toEqual(expect.arrayContaining([

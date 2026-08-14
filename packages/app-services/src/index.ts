@@ -77,6 +77,12 @@ export type {
 } from "./index-health";
 export { planVerify, runVerify } from "./verify";
 export type { VerifySource, VerifyComputation } from "./verify";
+export {
+  UNRESOLVED_REFERENCE_INDEX_META_KEY,
+  createUnresolvedReferenceIndex,
+  parseUnresolvedReferenceIndex,
+} from "./unresolved-references";
+export type { PersistedUnresolvedReferenceIndexV1 } from "./unresolved-references";
 export { checkSemanticState, inspectSemanticLifecycle } from "./semantic-check";
 export { captureRecordableVerificationGitState, captureVerificationGitState } from "./verification-state";
 export type { VerificationGitState } from "./verification-state";

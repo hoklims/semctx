@@ -23,6 +23,12 @@ function git(cwd: string, args: string[]): number {
   return p.exitCode ?? 1;
 }
 
+function gitOutput(cwd: string, args: string[]): string {
+  const p = Bun.spawnSync(["git", ...args], { cwd, stdout: "pipe", stderr: "pipe", env: GIT_ENV });
+  if (p.exitCode !== 0) throw new Error(new TextDecoder().decode(p.stderr));
+  return new TextDecoder().decode(p.stdout).trim();
+}
+
 const A_MAIN = `/**\n * @invariant a-positive: x must stay positive\n */\nexport function compute(x: number): number {\n  return x + 1;\n}\nexport interface PublicPort {\n  run(): void;\n}\n`;
 const A_FEATURE = `/**\n * @invariant a-positive: x must stay positive\n */\nexport function compute(x: number): number {\n  return x + 2;\n}\nexport interface PublicPort {\n  run(): void;\n}\n`;
 
@@ -72,6 +78,72 @@ describe("verify diff --base (CLI, real git)", () => {
     expect(report.verdict).toBe("BLOCK");
     expect(report.findings.some((f: { rule: string }) => f.rule === "invariant_touched_without_test")).toBe(true);
     expect(r.code).toBe(3); // default --fail-on block
+  });
+
+  // The fixture indexed `main` and then committed on `feature`, so this repository is exactly the
+  // drifted-index case. Both operator surfaces must say so rather than report impact silently.
+  it("names the broken index binding in the JSON contract", () => {
+    const r = semctx(["verify", "diff", "--base", "main", "--format", "json", "--fail-on", "none"], repo);
+    const report = JSON.parse(r.out);
+    const finding = report.findings.find((f: { rule: string }) => f.rule === "index_binding_stale");
+    expect(finding).toBeDefined();
+    expect(finding.severity).toBe("block");
+    expect(finding.tier).toBe("strict");
+    expect(finding.message).toContain("HEAD_MISMATCH");
+    expect(report.unknowns.join("\n")).toContain("index binding is broken");
+    expect(report.verdict).toBe("BLOCK");
+  });
+
+  it("names the broken index binding in the human report", () => {
+    const r = semctx(["verify", "diff", "--base", "main", "--fail-on", "none"], repo);
+    expect(r.out).toContain("index_binding_stale");
+    expect(r.out).toContain("HEAD_MISMATCH");
+    expect(r.out).toContain("Unknowns");
+    expect(r.out).toContain("Re-run `semctx index`");
+  });
+
+  // A unified diff read from disk was computed by something else, against something semctx cannot
+  // observe. Without `--head` there is nothing to bind it to; with `--head` there is an attribution
+  // the caller wrote next to a post-image the caller also wrote. Neither certifies, and the CLI must
+  // say which of the two it refused — a report that merely dropped `SOURCE_IDENTITY_ABSENT` would
+  // read as acceptance.
+  it("refuses a --from-file diff whether or not it declares an identity, and names which", () => {
+    const supplied = join(repo, "identity.diff");
+    writeFileSync(supplied, "--- a/src/a.ts\n+++ b/src/a.ts\n@@ -5 +5 @@\n-  return x + 1;\n+  return x + 3;\n");
+
+    const anonymous = semctx(["verify", "diff", "--from-file", supplied, "--format", "json", "--fail-on", "none"], repo);
+    const anonymousReport = JSON.parse(anonymous.out);
+    expect(anonymousReport.verdict).toBe("BLOCK");
+    expect(anonymousReport.findings.some((f: { rule: string; message: string }) =>
+      f.rule === "index_binding_stale" && f.message.includes("SOURCE_IDENTITY_ABSENT"))).toBe(true);
+
+    const attributed = semctx([
+      "verify", "diff", "--from-file", supplied, "--head", "main", "--format", "json", "--fail-on", "none",
+    ], repo);
+    const attributedReport = JSON.parse(attributed.out);
+    expect(attributedReport.verdict).toBe("BLOCK");
+    expect(attributedReport.head).toBe(gitOutput(repo, ["rev-parse", "main"]));
+    expect(attributedReport.findings.some((f: { rule: string; message: string }) =>
+      f.rule === "index_binding_stale" && f.message.includes("SOURCE_IDENTITY_UNPROVEN"))).toBe(true);
+    // The declaration was accepted as a declaration: it is no longer "absent", it is unproven.
+    expect(attributedReport.findings.some((f: { message: string }) =>
+      f.message.includes("SOURCE_IDENTITY_ABSENT"))).toBe(false);
+
+    // Non-zero exit is the operative half: a CI gate reads the code, not the finding list.
+    const attributedText = semctx([
+      "verify", "diff", "--from-file", supplied, "--head", "main",
+    ], repo);
+    expect(attributedText.code).not.toBe(0);
+    expect(attributedText.out).toContain("range         : from-file");
+    expect(attributedText.out).not.toContain("range         : working tree");
+
+    unlinkSync(supplied);
+  });
+
+  it("fails explicitly when --head names a ref Git cannot resolve", () => {
+    const r = semctx(["verify", "diff", "--head", "refs/heads/does-not-exist"], repo);
+    expect(r.code).not.toBe(0);
+    expect(r.err + r.out).toContain("does not exist locally");
   });
 
   it("BLOCK exits 0 with --fail-on none, non-zero with the default", () => {

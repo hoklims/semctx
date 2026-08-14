@@ -9,7 +9,7 @@ import {
   type RepositoryGraph,
   type RepositoryNode,
 } from "@semantic-context/core";
-import type { EdgeFact, FactBatchV1, NodeFact, PlaneAFact } from "./model";
+import type { EdgeFact, EdgeProvenance, FactBatchV1, NodeFact, PlaneAFact } from "./model";
 import { canonicalJson } from "./canonical";
 
 export type PlaneAAssemblyErrorCode =
@@ -129,6 +129,9 @@ export class DeterministicGraphAssembler {
   private readonly evidence = new Map<string, EvidenceRecord>();
   private readonly selectedPaths: ReadonlySet<string>;
   private readonly recordedFacts: PlaneAFact[] = [];
+  /** Provenance is assembler-owned, never read back from the assembled edge: nothing downstream can
+   *  promote a derived edge to authored by writing a metadata key. */
+  private readonly edgeProvenance = new Map<string, EdgeProvenance>();
   private nextOrdinal = 0;
 
   constructor(selectedPaths: readonly string[]) {
@@ -174,6 +177,7 @@ export class DeterministicGraphAssembler {
     to: string,
     evidence: readonly EvidenceRef[],
     metadata: Readonly<Record<string, MetadataValue>> = {},
+    provenance: EdgeProvenance = "derived",
   ): void {
     const fact: EdgeFact = {
       factType: "edge",
@@ -183,6 +187,7 @@ export class DeterministicGraphAssembler {
       to,
       evidence,
       metadata,
+      ...(provenance === "derived" ? {} : { provenance }),
     };
     this.recordedFacts.push(fact);
     this.addEdgeFact(fact);
@@ -199,12 +204,11 @@ export class DeterministicGraphAssembler {
       const sourceMissing = !this.nodes.has(edge.from);
       const targetMissing = !this.nodes.has(edge.to);
       if (!sourceMissing && !targetMissing) continue;
-      // `declared` marks a reference authored in the repository's own content rather than derived
-      // by an analyzer. Authored input may name any target, so an absent target is an unresolved
-      // link. An absent source is not: it is the declaring artifact, which the analyzer registers
-      // itself, so its absence proves the assembler contradicted itself and stays fatal whatever
-      // the edge's provenance.
-      if (sourceMissing || edge.metadata["declared"] !== true) {
+      // Authored input may name any target, so an absent target is an unresolved link. An absent
+      // source is not: it is the declaring artifact, which the analyzer registers itself, so its
+      // absence proves the assembler contradicted itself and stays fatal whatever the edge's
+      // provenance.
+      if (sourceMissing || this.edgeProvenance.get(edge.id) !== "authored") {
         throw new PlaneAAssemblyError("MISSING_ENDPOINT", {
           edgeId: edge.id,
           missing: sourceMissing ? edge.from : edge.to,
@@ -279,6 +283,14 @@ export class DeterministicGraphAssembler {
   private addEdgeFact(fact: EdgeFact): void {
     for (const ref of fact.evidence) this.recordEvidence(ref);
     const id = edgeId(fact.kind, fact.from, fact.to);
+    const incoming: EdgeProvenance = fact.provenance ?? "derived";
+    const recorded = this.edgeProvenance.get(id);
+    // Two producers disagreeing on provenance means at least one of them derived the edge, so the
+    // stricter reading wins and a missing endpoint stays fatal.
+    this.edgeProvenance.set(
+      id,
+      recorded === undefined || recorded === incoming ? incoming : "derived",
+    );
     const existing = this.edges.get(id);
     if (existing !== undefined) {
       for (const [key, value] of Object.entries(fact.metadata)) {

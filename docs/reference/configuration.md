@@ -187,6 +187,10 @@ Each rule maps a **condition** to a **severity** and a **tier**:
 | `contract_changed_without_test` | warn / advisory |
 | `contradiction_unresolved` | warn / advisory |
 
+`analysis_scope_incomplete` and `index_binding_stale` are raised by verification preflights over the
+whole analysis rather than by a rule over impacted nodes; they are not configurable here and always
+report as `block` / `strict`.
+
 - **strict** tier → `BLOCK` (fails a `--fail-on block` gate). Meant to be rare and actionable.
 - **advisory** tier → `WARN` (never fails by default).
 - `tier` is optional; when absent it is derived from `severity` (`block → strict`,

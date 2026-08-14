@@ -54,6 +54,17 @@ export interface NodeFact {
   metadata: Readonly<Record<string, MetadataValue>>;
 }
 
+/**
+ * Who asserted an edge. `authored` means the repository's own content named the relation — a
+ * document naming a target it contradicts — so the target may legitimately be absent. `derived`
+ * means an analyzer computed it from source it also registered, so an absent endpoint is a
+ * self-contradiction.
+ *
+ * A dedicated field rather than a metadata key: metadata is an open bag any producer may write, and
+ * the distinction decides whether a missing endpoint is a diagnostic or a fatal assembly error.
+ */
+export type EdgeProvenance = "authored" | "derived";
+
 export interface EdgeFact {
   factType: "edge";
   ordinal: number;
@@ -62,6 +73,8 @@ export interface EdgeFact {
   to: string;
   evidence: readonly EvidenceRef[];
   metadata: Readonly<Record<string, MetadataValue>>;
+  /** Absent means `derived`: only an explicit claim of authorship relaxes the endpoint check. */
+  provenance?: EdgeProvenance;
 }
 
 export type PlaneAFact = NodeFact | EdgeFact;

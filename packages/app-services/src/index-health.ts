@@ -24,6 +24,7 @@ import type { WorkspaceProjection } from "@semantic-context/workspace-analyzer-i
 import { controlStatus } from "./control";
 import { resolvePlaneACapabilityRequirement } from "./plane-a-capability-requirements";
 import { isPlaneAOperationAdmitted } from "./plane-a-authority-policy";
+import { readUnresolvedReferenceBinding } from "./unresolved-references";
 import {
   CONTROL_INDEX_SNAPSHOT_META_KEY,
   PLANE_A_INDEX_SNAPSHOT_META_KEY,
@@ -39,6 +40,12 @@ export interface PersistedPlaneAIndexSnapshotV1 {
   repositoryGraphHash: string;
   sidecarDigest: string;
   workspaceDigest: string;
+  /**
+   * Binds the index's unresolved-reference record into the snapshot digest, and through it into the
+   * control freshness seal. Optional so a snapshot written before the record existed still parses;
+   * every snapshot this build writes carries it.
+   */
+  unresolvedReferenceIndexHash?: string;
   sidecar: PlaneASidecarV1;
   workspace: WorkspaceProjection;
 }
@@ -529,6 +536,10 @@ export function parsePlaneAIndexSnapshot(
       || !isSha256(value["repositoryGraphHash"])
       || !isSha256(value["sidecarDigest"])
       || !isSha256(value["workspaceDigest"])
+      || (
+        value["unresolvedReferenceIndexHash"] !== undefined
+        && !isSha256(value["unresolvedReferenceIndexHash"])
+      )
       || !isPlaneASidecar(value["sidecar"])
       || !isWorkspaceProjection(value["workspace"])
     ) {
@@ -543,6 +554,7 @@ export function parsePlaneAIndexSnapshot(
 export function createPlaneAIndexSnapshot(args: {
   capturedAt: string;
   repositoryGraphHash: string;
+  unresolvedReferenceIndexHash: string;
   sidecar: PlaneASidecarV1;
   workspace: WorkspaceProjection;
 }): PersistedPlaneAIndexSnapshotV1 {
@@ -552,6 +564,7 @@ export function createPlaneAIndexSnapshot(args: {
     repositoryGraphHash: args.repositoryGraphHash,
     sidecarDigest: digestCanonical(args.sidecar),
     workspaceDigest: digestCanonical(args.workspace),
+    unresolvedReferenceIndexHash: args.unresolvedReferenceIndexHash,
     sidecar: args.sidecar,
     workspace: args.workspace,
   };
@@ -814,17 +827,19 @@ export function indexHealth(root: string): IndexHealthReportV1 {
     const indexedControlSnapshot = parseIndexedControlSnapshot(
       reader.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY),
     );
+    // No config-version escape: indexing authorizes the Plane-A snapshot at both versions, so a
+    // snapshot the control snapshot does not name is a rewritten one whatever the config says.
     const controlPlaneABindingValid =
-      config.version !== 2
-      || (
-        indexedControlSnapshot?.schemaVersion === 2
-        && indexedControlSnapshot.planeAIndexSnapshotHash === digestCanonical(snapshot)
-      );
+      indexedControlSnapshot?.schemaVersion === 2
+      && indexedControlSnapshot.planeAIndexSnapshotHash === digestCanonical(snapshot);
     const validBinding =
       snapshot.sidecarDigest === digestCanonical(snapshot.sidecar)
       && snapshot.workspaceDigest === digestCanonical(snapshot.workspace)
       && snapshot.repositoryGraphHash === actualGraphHash
-      && controlPlaneABindingValid;
+      && controlPlaneABindingValid
+      // A binding cannot be reported valid while the record of what this index failed to resolve
+      // has drifted from the index that produced it.
+      && readUnresolvedReferenceBinding(reader).status === "bound";
 
     const sidecar = snapshot.sidecar;
     const candidates = [...sidecar.discoveryLedger]

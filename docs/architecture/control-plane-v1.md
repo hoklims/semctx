@@ -76,8 +76,11 @@ commit.
 The versioned status report includes canonical machine reasons, the underlying seal when available,
 and `canRunHighRiskControl`. `FRESH` and `DIRTY_KNOWN` admit control operations; `STALE` and
 `UNSEALED` fail closed. Trace rejects unsafe input before traversal. Plan returns a normal `BLOCKED`
-report with `control_inputs_stale` or `control_inputs_unsealed` and no steps. Status itself never
-initializes, indexes or mutates the repository.
+report with `control_inputs_stale` or `control_inputs_unsealed` and no steps when the persisted
+snapshot is structurally valid. A structurally invalid or unbound persisted snapshot is instead a
+store-integrity failure: status and query envelopes remain answerable as
+`UNSEALED / INDEX_SNAPSHOT_INVALID`, while trace and plan stop before traversal or planning. Status
+itself never initializes, indexes or mutates the repository.
 
 The preflight always answers with one of the four verdicts. An authored model that cannot be
 projected into Plane C is a bounded verdict, not a transport error: error-severity diagnostics or

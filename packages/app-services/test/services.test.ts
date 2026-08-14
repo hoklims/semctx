@@ -49,9 +49,10 @@ describe("application services", () => {
     const verified = runVerify(root, {
       kind: "provided",
       diffText: "--- a/src/domain/capacity.ts\n+++ b/src/domain/capacity.ts\n@@ -12 +12,2 @@\n-old\n+new\n",
+      head: "HEAD",
     });
     expect(verified.report.schemaVersion).toBe(1);
-    expect(verified.report.head).toBe("(provided)");
+    expect(verified.report.head).toBe(git(["rev-parse", "HEAD"]));
 
     const control = loadControlState(root);
     expect(control.freshnessSeal).toEqual(indexed.freshnessSeal);

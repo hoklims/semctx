@@ -11,7 +11,6 @@ import { runSemantic } from "../src/commands/semantic";
 import { runChange } from "../src/commands/change";
 
 let root: string;
-let emptyDiff: string;
 
 const GOAL = "goal.semctx-test.reliable-writes";
 const INVARIANT = "invariant.semctx-test.idempotent-write";
@@ -36,6 +35,14 @@ function writeAuthoredFixture(): void {
   );
 }
 
+function git(...args: string[]): void {
+  const result = Bun.spawnSync(
+    ["git", "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", ...args],
+    { cwd: root, stdout: "pipe", stderr: "pipe" },
+  );
+  if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+}
+
 /** Run a CLI command, capturing stdout so we can assert on JSON payloads and verdicts. */
 function run(fn: (root: string, args: ReturnType<typeof parseArgs>) => number, argv: string[]): { code: number; out: string } {
   const originalWrite = process.stdout.write.bind(process.stdout);
@@ -55,8 +62,12 @@ function run(fn: (root: string, args: ReturnType<typeof parseArgs>) => number, a
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), "semctx-semantic-cli-"));
   cpSync(SAMPLE_REPO, root, { recursive: true, filter: (src) => !src.includes(".semctx") && !src.includes("node_modules") });
-  emptyDiff = join(root, "empty.diff");
-  writeFileSync(emptyDiff, "", "utf8");
+  // Composed verification is anchored to a commit, so the fixture is a real repository and the
+  // change flow verifies its (clean) working tree instead of an unattributed diff file.
+  writeFileSync(join(root, ".gitignore"), ".semctx/\n", "utf8");
+  git("init", "-q");
+  git("add", "-A");
+  git("commit", "-q", "-m", "fixture");
   runInit(root, parseArgs(["init", "--root", root]));
   runIndex(root, parseArgs(["index", "--root", root]));
 });
@@ -140,7 +151,7 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
   });
 
   it("verify returns PARTIAL while an unknown is open (exit 0, not a failure)", () => {
-    const v = run(runChange, ["change", "verify", CHANGE, "--from-file", emptyDiff, "--format", "json"]);
+    const v = run(runChange, ["change", "verify", CHANGE, "--format", "json"]);
     expect(v.code).toBe(0);
     const report = JSON.parse(v.out);
     expect(report.verdict).toBe("PARTIAL");
@@ -151,7 +162,7 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
     expect(() => run(runChange, ["change", "update", CHANGE, "--status", "verified"])).toThrow(
       "use 'semctx change close'",
     );
-    expect(() => run(runChange, ["change", "close", CHANGE, "--from-file", emptyDiff])).toThrow(
+    expect(() => run(runChange, ["change", "close", CHANGE])).toThrow(
       "composed verification is PARTIAL",
     );
     expect(loadActiveChange(root)?.lifecycle).toBe("active");
@@ -173,7 +184,7 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
     );
     const upd = run(runChange, ["change", "update", CHANGE, "--resolve-unknown", UNKNOWN]);
     expect(upd.code).toBe(0);
-    const v = run(runChange, ["change", "verify", CHANGE, "--from-file", emptyDiff, "--format", "json"]);
+    const v = run(runChange, ["change", "verify", CHANGE, "--format", "json"]);
     expect(v.code).toBe(0);
     expect(JSON.parse(v.out).verdict).toBe("VERIFIED");
   });
@@ -187,7 +198,7 @@ describe("semctx change — CLI end-to-end (PARTIAL → VERIFIED)", () => {
   });
 
   it("close marks the change verified only after composed verification passes", () => {
-    const c = run(runChange, ["change", "close", CHANGE, "--from-file", emptyDiff]);
+    const c = run(runChange, ["change", "close", CHANGE]);
     expect(c.code).toBe(0);
     expect(loadActiveChange(root)).toBeUndefined();
     const model = loadSemanticModel(root);

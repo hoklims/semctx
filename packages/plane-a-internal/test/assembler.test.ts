@@ -166,6 +166,35 @@ describe("provisional Plane A graph assembly", () => {
         },
       ],
     },
+    {
+      // Isolates the target: the source resolves, so only provenance decides. A derived edge is
+      // computed from sources the analyzer registered itself, so an absent target is an analyzer
+      // contradiction and must never degrade into an unresolved-reference diagnostic.
+      name: "derived edges whose target alone is absent",
+      expectedCode: "MISSING_ENDPOINT",
+      facts: [
+        {
+          factType: "node",
+          ordinal: 0,
+          id: "mod:src/a.ts",
+          kind: "module",
+          name: "a.ts",
+          filePath: "src/a.ts",
+          evidence: [{ filePath: "src/a.ts", sourceKind: "code" }],
+          tags: [],
+          metadata: {},
+        },
+        {
+          factType: "edge",
+          ordinal: 1,
+          kind: "imports",
+          from: "mod:src/a.ts",
+          to: "mod:src/absent.ts",
+          evidence: [{ filePath: "src/a.ts", sourceKind: "code" }],
+          metadata: {},
+        },
+      ],
+    },
   ] satisfies readonly RejectionCase[])("rejects $name deterministically", ({ expectedCode, facts }) => {
     if (api === null) throw new Error("internal Plane A API is unavailable");
     expect(() => api.assembleFactBatches([batch(facts)])).toThrow(
@@ -198,7 +227,8 @@ describe("provisional Plane A graph assembly", () => {
         from: "doc:src/a.ts",
         to: "doc:docs/absent.md",
         evidence,
-        metadata: { declared: true },
+        metadata: {},
+        provenance: "authored",
       },
     ];
 
@@ -241,7 +271,83 @@ describe("provisional Plane A graph assembly", () => {
         from: "doc:docs/absent.md",
         to: "doc:src/a.ts",
         evidence,
-        metadata: { declared: true },
+        metadata: {},
+        provenance: "authored",
+      },
+    ];
+
+    expect(() => api.assembleFactBatches([batch(facts)])).toThrow(
+      expect.objectContaining({ code: "MISSING_ENDPOINT" }),
+    );
+  });
+
+  // Provenance is a typed field the assembler owns, not a key in the open metadata bag. A producer
+  // that writes the old switch into metadata gets no relaxation from it.
+  it("ignores a metadata key claiming authorship without the typed provenance", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const evidence = [{ filePath: "src/a.ts", startLine: 1, sourceKind: "document" as const }];
+    const facts: readonly PlaneAFact[] = [
+      {
+        factType: "node",
+        ordinal: 0,
+        id: "doc:src/a.ts",
+        kind: "document",
+        name: "a",
+        filePath: "src/a.ts",
+        evidence,
+        tags: [],
+        metadata: {},
+      },
+      {
+        factType: "edge",
+        ordinal: 1,
+        kind: "contradicts",
+        from: "doc:src/a.ts",
+        to: "doc:docs/absent.md",
+        evidence,
+        metadata: { declared: true, authored: true, provenance: "authored" },
+      },
+    ];
+
+    expect(() => api.assembleFactBatches([batch(facts)])).toThrow(
+      expect.objectContaining({ code: "MISSING_ENDPOINT" }),
+    );
+  });
+
+  // Two producers disagreeing means at least one derived the edge, so the stricter reading wins.
+  it("keeps a contested edge derived when one producer did not claim authorship", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const evidence = [{ filePath: "src/a.ts", startLine: 1, sourceKind: "document" as const }];
+    const facts: readonly PlaneAFact[] = [
+      {
+        factType: "node",
+        ordinal: 0,
+        id: "doc:src/a.ts",
+        kind: "document",
+        name: "a",
+        filePath: "src/a.ts",
+        evidence,
+        tags: [],
+        metadata: {},
+      },
+      {
+        factType: "edge",
+        ordinal: 1,
+        kind: "contradicts",
+        from: "doc:src/a.ts",
+        to: "doc:docs/absent.md",
+        evidence,
+        metadata: {},
+        provenance: "authored",
+      },
+      {
+        factType: "edge",
+        ordinal: 2,
+        kind: "contradicts",
+        from: "doc:src/a.ts",
+        to: "doc:docs/absent.md",
+        evidence,
+        metadata: {},
       },
     ];
 

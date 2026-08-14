@@ -20,15 +20,20 @@ type FailOn = "block" | "warn" | "none";
 
 export function verifySourceFromArgs(args: ParsedArgs): VerifySource {
   const base = flagString(args, "base");
-  const head = flagString(args, "head") ?? "HEAD";
+  // Kept optional rather than defaulted: `--from-file` has no head to fall back on, and defaulting
+  // one there would attribute a diff semctx never computed to whatever HEAD happens to be. Passing
+  // one explicitly states an attribution, which is labelled and checked but never proves provenance.
+  const head = flagString(args, "head");
   if (base !== undefined) {
-    return { kind: "range", base, head };
+    return head === undefined ? { kind: "range", base } : { kind: "range", base, head };
   }
   const fromFile = flagString(args, "from-file");
   if (fromFile !== undefined) {
-    return { kind: "file", path: resolve(process.cwd(), fromFile) };
+    const path = resolve(process.cwd(), fromFile);
+    return head === undefined ? { kind: "file", path } : { kind: "file", path, head };
   }
-  return flagBool(args, "staged") ? { kind: "staged", head } : { kind: "working-tree", head };
+  const kind = flagBool(args, "staged") ? "staged" as const : "working-tree" as const;
+  return head === undefined ? { kind } : { kind, head };
 }
 
 // --- output formats ---
@@ -68,7 +73,15 @@ function ghProp(text: string): string {
   return ghData(text).replace(/,/g, "%2C").replace(/:/g, "%3A");
 }
 
-function renderGithub(report: VerifyReport): void {
+function sourceLabel(source: VerifySource, meta: VerifyReportGitMeta): string {
+  if (meta.range !== null) return meta.range;
+  if (source.kind === "file") return "from-file";
+  if (source.kind === "provided") return "provided diff";
+  if (source.kind === "staged") return "staged changes";
+  return "working tree";
+}
+
+function renderGithub(report: VerifyReport, source: VerifySource, meta: VerifyReportGitMeta): void {
   for (const f of report.findings) {
     const cmd = f.severity === "block" ? "error" : "warning";
     const title = `semctx: ${f.rule}`;
@@ -83,15 +96,20 @@ function renderGithub(report: VerifyReport): void {
   }
   info(
     `::notice::semctx verdict ${report.verdict} — ${report.summary.blockCount} block, ` +
-      `${report.summary.warnCount} warn (range ${report.range ?? "working tree"})`,
+      `${report.summary.warnCount} warn (range ${sourceLabel(source, meta)})`,
   );
 }
 
-function renderText(result: VerifyResult, meta: VerifyReportGitMeta, coChanges: readonly CoChange[] = []): void {
+function renderText(
+  result: VerifyResult,
+  meta: VerifyReportGitMeta,
+  source: VerifySource,
+  coChanges: readonly CoChange[] = [],
+): void {
   const label =
     result.verdict === "PASS" ? c.green("PASS") : result.verdict === "WARN" ? c.yellow("WARN") : c.red("BLOCK");
   heading(`Verdict: ${label}`);
-  info(`  range         : ${meta.range ?? (meta.head === "(from-file)" ? "from-file" : "working tree")}`);
+  info(`  range         : ${sourceLabel(source, meta)}`);
   info(`  changed files : ${result.changedFiles.length}`);
   info(`  impacted nodes: ${result.impactedNodes.length}`);
   if (result.impactedInvariants.length > 0) {
@@ -203,7 +221,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
     info(`  base      : ${g.base ?? "(none)"}`);
     info(`  head      : ${g.head}`);
     info(`  mergeBase : ${g.mergeBase ?? "(n/a)"}`);
-    info(`  range     : ${g.range ?? "(working tree)"}`);
+    info(`  range     : ${sourceLabel(source, g)}`);
     info(`  format    : ${format}`);
     info(`  fail-on   : ${failOn}`);
     if (outputPath !== undefined) info(`  output    : ${resolve(process.cwd(), outputPath)} (would be written)`);
@@ -220,8 +238,8 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
   const recordedPath = verifiedState === undefined ? undefined : recordVerification(root, report.verdict, verifiedState);
 
   if (format === "json") json(report);
-  else if (format === "github") renderGithub(report);
-  else renderText(result, g, coChanges);
+  else if (format === "github") renderGithub(report, source, g);
+  else renderText(result, g, source, coChanges);
 
   if (recordedPath !== undefined && format === "text") info(c.dim(`recorded verification state -> ${recordedPath}`));
 

@@ -51,16 +51,16 @@ pre-commit:
 
 ## CI
 
-Analyse the PR's diff against its merge base:
+Analyse the PR directly from its Git-backed range:
 
 ```sh
-git diff --relative --unified=0 origin/main...HEAD > pr.diff
-semctx verify diff --from-file pr.diff --root .
+semctx verify diff --base origin/main --head HEAD --root .
 # exit 3 → BLOCK → fail the job
 ```
 
-`verify diff --from-file <file>` accepts any unified diff, so you can feed it a diff produced by
-whatever range your CI compares.
+Fetch full history first (`fetch-depth: 0`) so the merge base exists locally. Do not use
+`verify diff --from-file <file>` as a gate: an external diff carries no provable source identity and
+therefore remains a deliberately blocking diagnostic, even when accompanied by `--head`.
 
 ## What blocks vs warns
 

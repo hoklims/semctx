@@ -3,6 +3,7 @@ import { cpSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  createUnresolvedReferenceIndex,
   fingerprintRepositoryFacts,
   indexHealth,
   indexRepository,
@@ -17,6 +18,7 @@ import {
   createPlaneAIndexSnapshot,
 } from "../../../packages/app-services/src/index-health";
 import {
+  CONTROL_INDEX_SNAPSHOT_META_KEY,
   PLANE_A_INDEX_SNAPSHOT_META_KEY,
 } from "../../../packages/app-services/src/freshness";
 
@@ -140,15 +142,22 @@ function writeSnapshot(partial: boolean): void {
       evidence: store.loadEvidence(),
       claims: store.loadClaims(),
     });
-    store.setMeta(
-      PLANE_A_INDEX_SNAPSHOT_META_KEY,
-      JSON.stringify(createPlaneAIndexSnapshot({
-        capturedAt: CAPTURED_AT,
-        repositoryGraphHash,
-        sidecar: sidecar(partial),
-        workspace: workspace(),
-      })),
-    );
+    const snapshot = createPlaneAIndexSnapshot({
+      capturedAt: CAPTURED_AT,
+      repositoryGraphHash,
+      unresolvedReferenceIndexHash: createUnresolvedReferenceIndex([]).indexHash,
+      sidecar: sidecar(partial),
+      workspace: workspace(),
+    });
+    store.setMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY, JSON.stringify(snapshot));
+    // Authorize the substituted snapshot from the control snapshot as indexing would: this fixture
+    // simulates a partially analysed index, not a rewritten one, and an unauthorized Plane-A
+    // snapshot is refused at either config version.
+    const controlSnapshot = JSON.parse(
+      store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY)!,
+    ) as { planeAIndexSnapshotHash?: string };
+    controlSnapshot.planeAIndexSnapshotHash = digestCanonical(snapshot);
+    store.setMeta(CONTROL_INDEX_SNAPSHOT_META_KEY, JSON.stringify(controlSnapshot));
   } finally {
     store.close();
   }

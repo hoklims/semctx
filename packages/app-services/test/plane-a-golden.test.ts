@@ -41,9 +41,13 @@ function portableRepositoryFacts(): unknown {
 }
 
 describe("Plane A TypeScript compatibility golden", () => {
+  // Re-pinned once, deliberately: authored-edge provenance moved out of the open `metadata` bag
+  // into a typed `EdgeFact.provenance` field the assembler owns, so the single `contradicts` edge
+  // in the sample repository lost its `{ declared: true }` entry. Verified as the only delta —
+  // node, evidence, claim, result and report bytes are unchanged.
   it("keeps graph, evidence, claims, and verification bytes stable", () => {
     expect(sha256(portableRepositoryFacts())).toBe(
-      "9d5175da1f04185594b72f8bef99543bf964dcb48313992b16bc156a1c7ab9a9",
+      "cded7d9a2474f5210b485fad9dbd7c97557e38f486772e4de045a937df6fa461",
     );
   });
 

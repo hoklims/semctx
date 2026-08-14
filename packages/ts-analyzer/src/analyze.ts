@@ -475,7 +475,8 @@ function ingestDocument(builder: GraphBuilder, file: DiscoveredFile, repoNodeId:
   }
   for (const target of doc.contradicts) {
     const targetId = documentId(target);
-    builder.edge("contradicts", docId, targetId, ev, { declared: true });
+    // The document itself names the contradicted target; the repository need not contain it.
+    builder.edge("contradicts", docId, targetId, ev, {}, "authored");
   }
 }
 
