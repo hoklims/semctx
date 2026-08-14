@@ -310,14 +310,18 @@ describe("index binding gate", () => {
     const root = repository();
     forgeIndexSnapshot(root, () => "");
 
-    expect(blockingReasons(root)).toContain("UNRESOLVED_REFERENCE_CONTROL_SNAPSHOT_ABSENT");
+    const reasons = blockingReasons(root);
+    expect(reasons).toContain("UNRESOLVED_REFERENCE_CONTROL_SNAPSHOT_ABSENT");
+    expect(reasons).not.toContain("ANALYZED_COMMIT_MISMATCH");
   });
 
   it("blocks when the persisted binding snapshot does not parse", () => {
     const root = repository();
     forgeIndexSnapshot(root, () => "{ not json");
 
-    expect(blockingReasons(root)).toContain("INDEX_SNAPSHOT_INVALID");
+    const reasons = blockingReasons(root);
+    expect(reasons).toContain("INDEX_SNAPSHOT_INVALID");
+    expect(reasons).not.toContain("ANALYZED_COMMIT_MISMATCH");
   });
 
   it("blocks when the index was built against a different repository root", () => {

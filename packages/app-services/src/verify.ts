@@ -443,14 +443,14 @@ function applyIndexBindingGate(
     indexedCommit = undefined;
   }
   // Applied to a declared identity too: a caller who also names the wrong commit gets that named
-  // separately, so the two failures stay distinguishable and neither hides the other.
+  // separately, so the two failures stay distinguishable and neither hides the other. Absence or
+  // invalidity of the snapshot is already named by the freshness and registry bindings; a mismatch
+  // exists only when there are two actual commit identities to compare.
   if (
     identity.kind !== "absent"
-    && (
-      indexedCommit === undefined
-      || indexedCommit === null
-      || identity.commits.some((commit) => commit !== indexedCommit)
-    )
+    && indexedCommit !== undefined
+    && indexedCommit !== null
+    && identity.commits.some((commit) => commit !== indexedCommit)
   ) {
     breaks.push("ANALYZED_COMMIT_MISMATCH");
   }
