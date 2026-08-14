@@ -1,400 +1,210 @@
-# Roadmap
-
-This roadmap is ordered by dependency. A later milestone must not be pulled forward because its
-interface looks useful: each milestone establishes the trust boundary required by the next one.
-
-**Shipping** is a product promise. **Research** is a bet with an explicit exit condition. Nothing in
-Research is implied by the product until it clears its own gate.
-
-Baseline audited on `main` at `399720c` (2026-07-23).
-
----
-
-## Shipped baseline
-
-- [x] **Plane A — deterministic repository facts and `verify diff`** — impact, contracts,
-      invariants, tests, co-change advice and versioned `PASS` / `WARN` / `BLOCK` reports.
-- [x] **Diff range ergonomics** — working tree, staged, file-provided and merge-base
-      `--base <ref>` / `--head <ref>` comparisons.
-- [x] **CI integration** — committed GitHub Action, preset and copyable recipe.
-- [x] **Plane B — authored semantic intent** — Git-versioned `.sem` declarations, explicit links,
-      semantic slices, proof-carrying change contracts, composed verification and handoff/resume.
-- [x] **Plane C — read-only control kernel** — L0-L6 coordinate model, bounded traversal library,
-      architecture comparison, migration DAG and fail-closed proof/deletion policy.
-- [x] **Codex / Claude Code parity** — shared `semctx-control` workflow semantics and bundled MCP
-      runtime, with host-specific installation and guards.
-
-The Plane C kernel, P1 typed vertical refinement and P2 task-to-diff reconciliation are shipped.
-L0 observed hunks have stable coordinates, `lift` / `lower` use dedicated evidence-bearing
-refinement policy, and the same versioned contracts serve CLI and MCP. P3 may now integrate those
-read-only contracts into agent lifecycles; no executor is part of P2.
-
----
-
-## Market leadership thesis and evidence policy
-
-Tracking epic: [#24 — prove Semctx as the market-leading semantic change-control
-plane](https://github.com/hoklims/semctx/issues/24).
-
-Semctx is competing to become the strongest **proof-carrying semantic change-control plane for
-coding agents**. It is not competing to be a generic code-search replacement. Its defensible wedge
-is the combination of typed intent-to-patch refinement, explicit authority boundaries,
-source-state-bound evidence, fail-closed freshness and deterministic agent governance.
-
-The competitive bar is split by capability so that one strong subsystem cannot hide a weak one:
-
-| Capability | Bar to clear | Roadmap gate |
-| --- | --- | --- |
-| Repository orientation | Integrate or sit behind strong content retrieval; construct and freeze the fused BM25 + content embeddings baseline in #30, then never weaken it to make the semantic graph look better. | Research [#30](https://github.com/hoklims/semctx/issues/30) |
-| Vertical semantic control | Preserve goal, invariants and permitted scope from L6 to L0 and back with typed, evidence-bearing relations. | P1 [#26](https://github.com/hoklims/semctx/issues/26), P2 [#27](https://github.com/hoklims/semctx/issues/27) |
-| Proof and freshness integrity | Refuse stale, unsealed, contradictory or insufficient evidence without converting advisory inference into authority. | P0 [#25](https://github.com/hoklims/semctx/issues/25), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
-| Agent workflow | Produce the same bounded verdict and resumable semantic state across supported hosts, with measured false-block and operator-overhead budgets. | P3 [#28](https://github.com/hoklims/semctx/issues/28), P4 [#29](https://github.com/hoklims/semctx/issues/29) |
-| Safe transformation | Execute only pre-authorized, reconciled steps in isolation with independently verifiable rollback and proof collection. | P5, only after P4 clears |
-
-Claims unlock in order:
-
-1. **Differentiated architecture** — documented authority boundaries and deterministic contracts.
-2. **Verified vertical product** — a reproducible L6 → L0 → L6 change on Semctx itself.
-3. **Competitive advantage** — replay beats the skill-only baseline on intent retention and scope
-   precision without weakening proof honesty.
-4. **State-of-the-art governed semantic change** — a pre-registered head-to-head suite wins on
-   the primary governance metrics and stays inside every safety/cost budget.
-5. **Market leadership** — technical evidence is joined by repeatable installation, reliability,
-   adoption and operator-value results on independent projects.
-
-No unqualified state-of-the-art or market leadership claim is allowed from architecture alone,
-private demos, stars, or a single dogfood repository. External products and models move too quickly
-for a static feature matrix to remain authoritative; P4 must record the exact versions, adapters,
-prompts, budgets and raw outputs used in each comparison.
-
----
-
-## Ordered shipping programme — semantic refinement control
-
-### P0 — Trustworthy inputs and freshness ([#25](https://github.com/hoklims/semctx/issues/25))
-
-No architecture-to-patch conclusion is authoritative until every input belongs to the same known
-repository state.
-
-- [x] **Control freshness seal** — bind repository root, `HEAD`, index commit, repository-graph
-      hash, semantic-model hash, working-diff hash, schema version and tool version.
-- [x] **Explicit freshness verdict** — add a read-only `semctx status` / MCP preflight returning
-      `FRESH`, `DIRTY_KNOWN`, `STALE` or `UNSEALED`; high-risk control operations fail closed on
-      stale or unsealed inputs.
-- [x] **Cross-plane link consistency** — Plane B link checks and Plane C coordinate construction
-      must share the same file/node resolver and report the same dangling or stale references.
-- [x] **Honest semantic scaffold** — generate comments/placeholders rather than active
-      `goal.example.*` / `invariant.example.*` truths; examples must never enter a project model
-      unless explicitly activated.
-- [x] **Lifecycle hygiene** — detect obsolete active changes, stale evidence baselines and active
-      working pointers that no longer match the selected contract.
-- [x] **Derived-provider seal** — optional graphs or candidate providers may orient discovery, but
-      Plane C accepts their facts only with an exact source-state seal and provenance.
-
-**Gate:** every acceptance criterion in [#25](https://github.com/hoklims/semctx/issues/25) is green.
-On Semctx itself, initialization creates no active example truths; stale lifecycle/evidence/pointer
-states are diagnosed; unsealed or mismatched provider facts remain non-authoritative; CLI and MCP
-return the same canonical negative-path reason codes; a stale index is rejected before traversal;
-and rebuilding the index produces a commit-bound seal.
-
-### P1 — Typed vertical refinement (L6 to L0) ([#26](https://github.com/hoklims/semctx/issues/26))
-
-Levels must represent abstraction, while relations determine whether a traversal is a refinement,
-an impact path, a rationale or a proof path.
-
-**Implementation status:** shipped through PR #33 at merge commit `399720c`; issue #26 is closed.
-Post-merge plugin parity, typecheck and the full 406-test suite are green.
-
-- [x] **Correct the level ontology** — L6 strategy/constraints, L5 product intent, L4
-      invariants/policies, L3 capabilities, L2 components/boundaries, L1 symbols/tests/schemas and
-      L0 syntax/hunks/AST transformations. Repository/system scope is not itself a strategy.
-- [x] **Separate kind from level** — decisions and policies carry an explicit `appliesAtLevel`
-      rather than being forced into one universal level by source kind.
-- [x] **First-class refinement edges** — add typed, evidence-bearing relations such as `realizes`,
-      `implements`, `decomposes_to`, `constrained_by` and `proved_by`, with epistemic status.
-- [x] **Traversal policies by question** — `lift` / `lower` use only refinement edges; `impact`
-      uses dependency/data/contract edges; `explainWhy` uses rationale edges; proof queries use
-      test/trace/attestation edges. Imports must never become architectural justification merely
-      because they cross levels.
-- [x] **L0 patch projection** — represent hunks or AST edit operations as observed L0 coordinates.
-      A `ChangeSet` remains cross-level and references those coordinates; it is not collapsed into
-      L0.
-- [x] **Refinement coverage report** — expose missing levels, unjustified skips, ambiguous edges,
-      unsupported artifacts, stale references and load-bearing LLM-only relations.
-- [x] **Public control transports** — expose bounded `impact`, `explainWhy`, architecture compare
-      and authorization reports through the same versioned CLI/MCP contracts as trace and plan.
-- [x] **Actionable empty-trace diagnostics** — distinguish unknown coordinate, missing mapping,
-      disconnected refinement, stale index and traversal-budget exhaustion.
-
-**Gate:** using a fixed, sealed observed-patch fixture (not yet a TaskEnvelope),
-`goal.semctx.reconstructive-control` lowers through an authored capability and structural boundary
-to the relevant symbols, tests and L0 coordinates; lifting those coordinates returns to the same
-goal and invariants without following unrelated import paths. The full planned-change/actual-diff
-round trip remains P2.
-
-### P2 — Task envelope, target authoring and diff reconciliation ([#27](https://github.com/hoklims/semctx/issues/27))
-
-The agent must manipulate a semantic change object before producing a patch, while normal code
-search remains responsible for discovering the initial implementation anchors.
-
-- [x] **Semantic TaskEnvelope** — join the existing `TaskFrame`, `ChangeContract` and coordinate
-      graph with required abstraction altitude, explicit anchors, parent intent, preserved
-      invariants, non-goals, allowed scope, expected behaviour delta, proof obligations and seals.
-- [x] **Separate framing from scope binding** — raw text may classify mode/risk/required altitude,
-      but repository files and symbols become authoritative only after explicit discovery and
-      binding.
-- [x] **Versioned target architecture artifacts** — author proposed targets in Git, retain
-      `hypothetical` provenance until reviewed, and let plans consume a stable `targetId` instead
-      of requiring callers to construct raw snapshot JSON.
-- [x] **General refinement planner** — support local patch, refactor, feature, redesign and
-      migration profiles. The current shadow/cutover/deletion DAG remains the migration
-      specialization, not the default for every change.
-- [x] **Semantic ChangeSet** — record the planned cross-level delta, ordered refinement steps,
-      permitted repository scope, rollback and acceptance evidence.
-- [x] **`reconcile diff`** — lift the actual working diff, compare it with the envelope and target,
-      report unplanned coordinates, missing planned edits, invariant drift and unexpected
-      abstraction-level changes.
-- [x] **Round-trip properties** — verify relevant forms of `x ∈ lower(lift(x))` and ensure that
-      invariants discovered while lifting are included in the patch proof obligations.
-
-**Gate:** a non-trivial change cannot be called complete when its actual diff escapes the permitted
-scope, fails to realize the target or lifts to an undeclared goal/invariant impact. The canonical
-report also refuses stale, unsealed or mid-capture-changing inputs and distinguishes violations from
-insufficient proof. `TaskEnvelope`, `SemanticChangeSet`, planning and reconciliation all carry
-`executionAuthority: "none"`.
-
-### P3 — Agent workflow and host governance ([#28](https://github.com/hoklims/semctx/issues/28))
-
-Integrate only after the read-only machine contracts above are stable. Start advisory, measure false
-positives, then enforce by risk/altitude.
-
-- [x] **Shared vertical workflow contract** — one strict `AgentWorkflowContractV1` now owns the
-      ordered shadow lifecycle, MCP surfaces, write effects, conditions and completion gate for
-      Codex and Claude Code. `plugin:build` renders the shared workflow section in both host skills
-      from that contract; strict schema and parity tests reject missing/reordered stages, host drift
-      and stale generated leaves. The contract fixes blocking off, non-Semctx repositories to
-      `no_op` and `executionAuthority` to `none`. Host lifecycle hooks that consume the policy
-      before and after edits remain open below.
-- [x] **Agent primitives** — provide focused tools for `frame_task`, `bind_scope`, `refine`,
-      `target_propose`, `reconcile_diff` and `status` instead of making the model assemble raw
-      control-plane payloads. `status`, `reconcile_diff` and `refine` (as `control plan-change`) are
-      served; `bind_scope` is now a focused CLI/MCP primitive over the shared strict application
-      contract, while `frame_task` retains its wider compatibility contract for existing callers.
-      `target_propose` now accepts target content only, binds the current fresh commit and graph seal
-      inside the application service, records agent authorship and creates one immutable,
-      hypothetical Plane-B proposal. Acceptance and execution authority remain separate.
-- [x] **Required-altitude policy** — L0-L1 may remain autonomous, L2 is constrained, L3 requires a
-      reviewed plan/rollback, and L4-L6 require explicit human authority appropriate to the change.
-      Shipped as one canonical table with accumulating obligations, served identically by
-      `semctx control authority` and `semctx_control_authority`. Autonomy requires both the
-      `autonomous` regime and a preflight that admits high-risk control, so stale or unsealed inputs
-      withdraw it at every altitude. The report grants no execution authority. This satisfies the
-      policy itself; the host adapters that must consume it remain open above and below.
-
-**Partial foundation, not P3 completion:** the MCP-only `semctx_control_agent_lifecycle` tool now
-exposes one strict policy and presence report to both hosts at four explicit invocation points:
-before the first eligible L2+ implementation write, after repository edits, before completion, and
-before compaction or owner transfer. It distinguishes a non-Semctx `NO_OP` from
-`semctx_unready`, reports `RECORDED` / `INCOMPLETE` for stage-id presence only, and folds
-`caller_observed_advisory` coordinates with `stateless_caller_reinjected_unbound` semantics.
-Outcomes and admissibility remain unevaluated. The checkpoint is shadow-only, read-only,
-non-blocking, non-authorizing, source-non-collecting, and does not invoke Handoff v2 automatically.
-
-The separate manual Control Handoff v2 CLI/MCP surface is now machine-validated and
-content-addressed. Capture treats its progress pointer as a requested current-state proof boundary,
-never execution history, and re-runs actual-diff reconciliation. It counts only proved
-proof-bearing steps as complete, lists explicit zero-obligation planner labels separately as
-`descriptiveRefinementStepIds`, and lets the next transition skip only those descriptive labels.
-Empty legacy steps fail closed. Canonical migration step obligations remain load-bearing and stay
-`UNPROVEN` when their evidence cannot be derived or otherwise satisfied. Exact-hash resume re-runs
-the same reconciliation and returns no stale capsule. This closes the standalone manual shadow
-surface, not the automatic host integrations, persisted/measured telemetry, enforcement, or
-executor rollout below.
-
-- [ ] **Codex lifecycle integration** — route eligible prompts, preflight before the first L2+
-      write, accumulate touched coordinates after edits, capture a sealed pre-compaction handoff,
-      resume it, and reconcile/verify before Stop.
-- [ ] **Claude Code lifecycle integration** — preserve the same verdicts and envelope semantics
-      using the host surfaces actually available; keep the existing commit/push diff-hash guard as
-      a Plane A gate rather than presenting it as a Plane C executor.
-- [x] **Handoff v2 — manual shadow surface** — the additive `control handoff` /
-      `resume-handoff` and
-      `semctx_control_handoff` / `semctx_control_resume` surfaces carry TaskEnvelope identity,
-      a requested current-state proof boundary, machine-validated completed proof-bearing progress,
-      explicit descriptive step ids, reconciliation seals, touched coordinates, observed diff hash,
-      satisfied proofs, and the next valid transition. The transition skips only explicit
-      descriptive phases; empty legacy steps fail closed and unsupported migration obligations stay
-      `UNPROVEN`. Legacy Plane-B Handoff v1 remains separate and compatible. Capsules are local,
-      ignored, content-addressed, shadow-only, non-blocking, non-authorizing, and refuse stale
-      exact-hash resume. This checkbox does not close issue #28.
-- [ ] **Shadow enforcement rollout** — emit advisories and telemetry first; enable blocking only
-      after replay demonstrates an acceptable false-block rate.
-
-**Gate:** Codex and Claude Code produce the same machine verdict and semantic handoff for the same
-sealed task/diff, while repositories without Semctx retain a clean no-op path.
-
-### P4 — Competitive evidence, replay and evaluation ([#29](https://github.com/hoklims/semctx/issues/29))
-
-- [ ] **Pre-registered benchmark contract** — freeze dataset selection, train/dev/holdout splits,
-      environments, models/tools, prompts, budgets, primary metrics, safety constraints and kill
-      thresholds before scoring.
-- [ ] **Comparator and statistical protocol** — set a dated comparator-selection cutoff; define
-      independent ground-truth adjudication, contamination checks, repeated runs for stochastic
-      systems, effect-size/non-inferiority margins, uncertainty intervals and a multiplicity rule.
-      Thirty tasks are the minimum harness/corpus gate, not automatically sufficient for SOTA;
-      claim power must be justified before evaluation.
-- [ ] **Reproducible baseline matrix** — compare skill-only, repository-graph-assisted and Semctx
-      ablations; add external systems only when their license, interface and captured version permit
-      an honest rerun. Content retrieval remains the orientation baseline, not a weak straw man.
-- [ ] **Golden vertical replay corpus** — at least 30 anonymized real tasks across Semctx and
-      independent projects, with known goal ↔ invariant ↔ capability ↔ component ↔ symbol/test ↔
-      patch chains and accepted outcomes.
-- [ ] **Top-down evaluation metrics** — pre-register abstraction recall, scope precision,
-      refinement continuity, round-trip consistency, invariant/proof recall, stale-refusal rate,
-      false-block rate, functional outcome, latency and token cost; report per-task results,
-      aggregate scores and uncertainty rather than only means.
-- [ ] **Adversarial governance suite** — stale seals, forged or insufficient evidence,
-      contradictory intent, scope escape, unsupported relations, replay tampering and degraded
-      providers must fail with the correct bounded reason rather than a generic error.
-- [ ] **Planner replay** — compare versioned architecture/plan/reconciliation reports across real
-      migrations and ordinary changes; identical sealed inputs must produce byte-stable machine
-      reports.
-- [ ] **Runtime proof collectors** — observe dependency traffic, behaviour replay and shadow
-      equivalence without silently upgrading authored claims.
-- [ ] **Proof promotion rules** — an inferred relation becomes load-bearing only through explicit
-      static, test, runtime or human evidence accepted by policy.
-- [ ] **Transparent evidence release** — commit the runner, schemas, environment manifest,
-      per-task outputs, aggregate report, failed cases and null results. Private source may remain
-      private, but ground-truth derivation and anonymization must be auditable.
-- [ ] **Independent pilot proof** — measure installation success, time-to-first-value, retained
-      usage, accepted advice, overrides, false blocks and operator effort on at least three
-      non-Semctx repositories before using a market leadership claim; pre-register numeric budgets
-      and a minimum observation window before the first pilot starts.
-
-**Competitive gate:** on a held-out set, the vertical workflow beats the skill-only baseline on
-intent retention and scope precision, does not regress functional outcome, preserves perfect
-stale/insufficient-proof refusal on the adversarial set, and stays inside the pre-registered
-false-block, latency and token budgets. A state-of-the-art claim additionally requires the strongest
-reproducible comparison available at evaluation time, not merely Semctx's internal ablations.
-
-**Market gate:** technical superiority is necessary but insufficient. Installation, reliability,
-upgrade safety and operator-value evidence from independent pilots must also clear their
-pre-registered budgets.
-
-### P5 — Persisted control state and executor (last)
-
-No executor issue is opened yet. Create it only after the explicit P4 competitive gate is
-independently verified and [#29](https://github.com/hoklims/semctx/issues/29) records the complete
-supporting evidence; issue closure alone is insufficient. This prevents execution work from
-outrunning the authority model.
-
-- [ ] **Versioned migration runner** for SQLite/config state before any persisted Plane C state.
-- [ ] **Persisted execution ledger** keyed by TaskEnvelope, plan, step, commit and proof seal; the
-      authored Plane B model and regenerable Plane A index remain separate authorities.
-- [ ] **Isolated worktree executor** as a separate component consuming already-authorized steps.
-- [ ] **Structured transformations and rollback** — prefer bounded AST/data migrations and tested
-      rollback points over unrestricted writes.
-- [ ] **Cutover/deletion authorization** — retain the current fail-closed proof matrix; no executor
-      may bypass runtime-zero, invariant, behaviour-delta, migration and rollback obligations.
-
-**Gate:** a replayed migration can introduce, shadow, reconcile, cut over, observe and remove a
-legacy path in an isolated worktree, with every state transition and rollback independently
-verifiable. Until then, the executor remains out of the product.
-
----
-
-## Ordered Plane A multi-language follow-ups
-
-Design gate: [#57](https://github.com/hoklims/semctx/issues/57) and
-[ADR 0010](docs/adr/0010-multilanguage-plane-a-capability-and-authority.md). This ADR/docs PR freezes
-the capability, scope, authority, compatibility and conformance rules only. It does not change
-runtime behaviour, stabilize an adapter API or ship multi-language support.
-
-These follow-ups were delivered in dependency order by
-[#67](https://github.com/hoklims/semctx/pull/67). Their acceptance records remain linked below;
-delivery keeps the adapter seam private and provisional rather than declaring it stable.
-
-1. [x] **F1 — provisional language-neutral boundary and TypeScript golden equivalence**
-   ([#58](https://github.com/hoklims/semctx/issues/58)) — depends on #57. Extract the smallest
-   internal capability/fact-batch seam while keeping it provisional. **Gate:** the current
-   TypeScript fixture remains byte-identical for graph, evidence, claims, verification and
-   analysis-input fingerprint. **Stop:** any unapproved TypeScript golden drift or attempt to
-   stabilize the adapter API.
-2. [x] **F2 — real include/exclude selection with explicit compatibility**
-   ([#59](https://github.com/hoklims/semctx/issues/59)) — depends on F1. Apply deterministic
-   include/exclude precedence and ledger every candidate disposition. Preserve current selection
-   for legacy configurations; any changed scope/hash must be an explicit opt-in or versioned
-   migration. **Stop:** any silent graph shrink.
-3. [x] **F3 — manifest-evidenced workspaces, versioned containment and separate `IndexHealth`**
-   ([#60](https://github.com/hoklims/semctx/issues/60)) — depends on F2. Admit workspace units only
-   from explicit manifest/workspace evidence, add versioned `contained_in_workspace` and
-   `workspace_member_of` relations, and keep analysis coverage/health separate from freshness.
-   **Stop:** layout-only membership, invalid containment cardinality/parents/cycles, a synthetic
-   root package, ambiguity, legacy `belongs_to` drift or collapsed freshness/health.
-4. [x] **F4 — first real second-language vertical and corpus gate**
-   ([#61](https://github.com/hoklims/semctx/issues/61)) — depends on F1-F3. Exercise the model with
-   one real second-language analyzer using a deterministic unit fixture, a mixed-language
-   workspace fixture and a repository snapshot pinned to commit and producer version. **Gate:** it
-   produces actionable verification beyond path matching, reports unsupported/failed scope
-   honestly, and passes the ADR conformance suite; only then may adapter API stability be
-   considered. **Stop:** silent failures, an incomplete-negative `PASS` or no corpus value.
-
-File nodes, globs, workspace detection, UX labels and valid seals alone never constitute language
-support or fact authority.
-
----
-
-## Parallel hardening backlog
-
-These improve an existing plane but do not replace the ordered programme above. Pull an item forward
-only when a milestone depends on it.
-
-### Plane A — `verify diff`
-
-- [ ] **Freshness from Git history** — use `tested_by` recency and churn as an advisory verdict
-      signal. This is distinct from the P0 commit/index seal.
-- [ ] **Multi-line marker statements** — `@invariant` / `@contract` bodies spanning lines.
-- [ ] **Richer contract detection** — exported function signatures and breaking signature deltas,
-      not only marker/interface/type contracts.
-- [ ] **Incremental indexing** — re-index changed files with deterministic invalidation.
-- [ ] **Multi-language hardening** only through the dependency-ordered F1-F4 gates above.
-
-### Plane B — authored intent
-
-- [ ] **Multi-line `.sem` statements** while retaining deterministic formatting.
-- [ ] **Evidence corroboration advisory** — show that a linked test exists and covers the change
-      without auto-upgrading authored proof status.
-- [ ] **Merge-aware duplicate diagnostics** — report both files/lines and resolution guidance.
-- [ ] **Optional compiled semantic index** for large models; Git remains authoritative.
-- [ ] **Opt-in lifecycle write-back** derived from composed verification, never from a caller claim.
-
-Definition of done for every shipping item: deterministic, versioned, tested, documented, compatible
-with the fixture and committed benchmarks, and no more optimistic than its evidence.
-
----
-
-## Research — content-first context retrieval (spike, not a promise) ([#30](https://github.com/hoklims/semctx/issues/30))
-
-Branch: **`research/content-first-context-retrieval`**. Protocol:
-[`docs/research/content-first-context-retrieval.md`](docs/research/content-first-context-retrieval.md).
-
-ADR 0005 rejected the current `seed-by-name → graph → scoring` retriever because it never reads
-file content. The open question is whether the graph and authority layers add **anything** on top of
-a real content retriever. This remains separate from the semantic-refinement programme.
-
-**Baseline to construct, freeze and beat:** fused BM25 + content embeddings on
-`benchmarks/change-impact-eval`, extended to at least 30 commits. The committed frozen result
-currently contains separate BM25 and embedding runs, not this fused baseline.
-
-**Minimum bar to continue (all):**
-
-- do not degrade Recall@10 by more than 2 points versus baseline;
-- improve MRR or precision@5;
-- reduce the number of files a consumer must read;
-- deliver at least one measurable extra: causal justification, invariant coverage, contradiction
-  detection or a validation plan.
-
-**Kill criterion:** if graph + authority do not produce a net gain over BM25 + embeddings on 30
-commits, abandon the retriever as a product axis. Do not reopen it without a new thesis.
-
-No research implementation lands on a shipping branch before the spike clears its own gate.
+# SEM Context product roadmap
+
+> Narrative snapshot: 2026-08-14
+>
+> [Linear is the source of truth for priorities, ownership, dependencies and delivery evidence.](https://linear.app/hoklims/project/sem-context-controle-de-changement-semantique-h2-2026-3fbe5a5140b6)
+
+This document explains where SEM Context is going and why it matters. It deliberately stays at
+product level. Detailed acceptance criteria, technical choices, blockers and current status live in
+Linear. If this document and Linear disagree, Linear wins.
+
+## The promise
+
+Coding agents are increasingly good at producing code. The harder problem is deciding whether a
+change should be trusted.
+
+SEM Context turns a proposed code change into a reviewable decision:
+
+- what outcome the change is meant to deliver;
+- what parts of the product it is allowed to affect;
+- what is known, uncertain or outside the analysis;
+- which evidence supports the change;
+- whether the available evidence is sufficient to proceed.
+
+The goal is not to replace Codex, Claude Code, code search, CI or human review. The goal is to give
+all of them a shared, deterministic and independently verifiable basis for change authorization.
+
+## Who it is for
+
+- **Maintainers** who want fewer silent regressions and a clearer review trail.
+- **Teams using several coding agents** who need consistent rules across hosts and sessions.
+- **Reviewers and auditors** who need to understand why a change was accepted, refused or sent
+  back for more evidence.
+- **Tool builders** who need a local, versioned control layer without granting it execution
+  authority.
+
+## Product principles
+
+1. **Evidence before confidence.** A green test or a plausible explanation is not enough on its
+   own.
+2. **Unknown stays unknown.** Missing, stale or contradictory information must never become an
+   optimistic verdict.
+3. **Intent survives the implementation.** The expected outcome, constraints and accepted scope
+   must remain visible from planning through review.
+4. **Same inputs, same decision.** Supported hosts must reach the same bounded verdict from the
+   same sealed task and repository state.
+5. **Advisory before enforcement.** SEM Context must first demonstrate useful, low-noise guidance
+   before it is allowed to block work.
+6. **No executor before proof.** Execution and rollback are a later product decision, not an
+   assumed destination.
+
+## What users can rely on today
+
+SEM Context already provides a local-first foundation for governed change:
+
+- deterministic repository analysis and change-impact reports;
+- Git-versioned semantic intent, invariants and change contracts;
+- read-only planning, reconciliation and handoff contracts;
+- explicit freshness and source-state binding;
+- shared Codex and Claude Code plugin contracts;
+- multi-language repository facts with honest capability limits;
+- a publicly released and reproducible [v0.1.17](https://github.com/hoklims/semctx/releases/tag/v0.1.17).
+
+The product still has important limits: host lifecycle integration remains mainly shadow-mode,
+competitive evidence has not been produced, and SEM Context has no authority to execute changes.
+
+## Roadmap at a glance
+
+| Stage | User-visible outcome | Status on 2026-08-14 | Linear authority |
+| --- | --- | --- | --- |
+| **M1 — Reliable distribution** | Install and update the same product across supported hosts, with portable configuration and reproducible artifacts. | Core v0.1.17 outcome delivered; operational follow-ups remain. Milestone: 67%. | [HOK-72](https://linear.app/hoklims/issue/HOK-72/livrer-une-v0117-distribuable-portable-et-reproductible) |
+| **M2 — Trustworthy change decisions** | Keep intent, source state, scope and evidence aligned across agents before any enforcement. | Active. Milestone: 18%. | [HOK-73](https://linear.app/hoklims/issue/HOK-73/fermer-lintegrite-semantique-et-la-gouvernance-p3-mesuree) |
+| **M3 — Independent product proof** | Demonstrate, on reproducible and independent cases, whether SEM Context improves change quality without unacceptable cost or false blocks. | Blocked by M2. Milestone: 0%. | [HOK-71](https://linear.app/hoklims/issue/HOK-71/produire-la-preuve-concurrentielle-reproductible-p4) |
+| **M4 — Decide whether to enforce or execute** | Make an explicit `GO`, `DEFER` or `NO-GO` decision from the M3 evidence and a credible rollback contract. | Gated. Milestone: 0%. | [HOK-74](https://linear.app/hoklims/issue/HOK-74/decider-p5-sans-depasser-la-preuve-p4) |
+
+## Now — make the trust foundation dependable
+
+The current product focus is M2. Three visible workstreams carry it:
+
+### Stable semantic identity
+
+[HOK-79](https://linear.app/hoklims/issue/HOK-79/stabiliser-lidentite-des-symboles-et-la-doctrine-des-ancres)
+ensures that harmless code movement does not invalidate meaning, while real ambiguity or removal
+still fails safely.
+
+**Expected user outcome:** fewer false stale warnings, no silent rebinding, and migration guidance
+that never rewrites authored intent from uncertain evidence.
+
+### Portable host connection
+
+[HOK-179](https://linear.app/hoklims/issue/HOK-179/rendre-le-handshake-mcp-portable-quand-lhote-ne-developpe-pas-semctx)
+removes assumptions that prevent some hosts from starting the SEM Context connection reliably.
+
+### Native Grok integration
+
+[HOK-195](https://linear.app/hoklims/issue/HOK-195/ajouter-un-adaptateur-hote-grok-natif-sans-cli-global)
+builds on HOK-179 so Grok can use the same governed workflow without depending on a global CLI.
+
+**Expected user outcome for both host workstreams:** a supported host either connects through the
+same product contract or fails with a clear, bounded reason. It must never appear healthy while
+using the wrong repository or runtime.
+
+## Next — measure the workflow before blocking anyone
+
+Once the current trust work is closed, the next outcome is
+[HOK-80](https://linear.app/hoklims/issue/HOK-80/automatiser-les-checkpoints-codexclaude-et-mesurer-le-shadow-mode):
+automatic Codex and Claude Code lifecycle checkpoints in measured shadow mode.
+
+This stage observes what SEM Context would have advised without interrupting the user. It must
+measure:
+
+- useful warnings versus false blocks;
+- missed risks and unsupported cases;
+- consistency between hosts;
+- added latency, token cost and operator effort;
+- whether handoffs preserve intent and evidence across long-running work.
+
+Only measured, acceptable results may justify enforcement.
+
+## After that — create an independently verifiable decision record
+
+[HOK-88](https://linear.app/hoklims/issue/HOK-88/livrer-lautorite-de-changement-liee-a-levidence-v1)
+is the next major product capability after stable anchors and measured host workflows.
+
+Its outcome is a versioned change-authorization record that binds:
+
+- the requested outcome and accepted scope;
+- the exact repository and tool state;
+- known, approximated and unknown impacts;
+- tests, runtime observations and human approvals with provenance;
+- the policy used to reach `ALLOW`, `DENY` or `REQUIRE_EVIDENCE`.
+
+The first version remains read-only. An independent verifier must be able to replay the decision;
+the record itself grants no permission to modify a repository.
+
+## Then — prove whether the product is actually better
+
+M3 is an evidence programme, not a marketing milestone.
+
+[HOK-71](https://linear.app/hoklims/issue/HOK-71/produire-la-preuve-concurrentielle-reproductible-p4)
+will compare SEM Context with strong, reproducible alternatives on real change tasks. The protocol,
+datasets, budgets and success thresholds must be fixed before results are observed.
+
+The product must demonstrate that it can:
+
+- preserve intended outcomes and constraints;
+- keep changes inside the accepted scope;
+- refuse stale, forged or insufficient evidence;
+- avoid degrading the functional result;
+- stay within declared false-block, latency, token and operator-effort budgets;
+- provide value on independent repositories, not only on SEM Context itself.
+
+Null and negative results are part of the deliverable. No state-of-the-art or market-leadership
+claim is allowed before this gate clears.
+
+## Only after proof — decide on enforcement and execution
+
+M4 is represented by
+[HOK-74](https://linear.app/hoklims/issue/HOK-74/decider-p5-sans-depasser-la-preuve-p4).
+
+It is a decision gate, not a promised feature. Persisted control state, blocking enforcement or an
+isolated executor may be explored only if M3 is independently accepted and a rollback, cutover and
+kill-switch contract is explicit.
+
+Until then, `executionAuthority` remains `none`.
+
+## Separate research track
+
+[HOK-75](https://linear.app/hoklims/issue/HOK-75/trancher-le-spike-content-first-par-preuve-ou-resultat-nul)
+tests whether SEM Context adds measurable value on top of strong content retrieval. This work is
+deliberately separate from the shipping path.
+
+SEM Context is not positioned as a generic code-search replacement. If the graph and authority
+layers do not improve a strong content-first baseline, the retrieval direction will close with a
+documented null result.
+
+## Operational follow-ups
+
+The v0.1.17 product outcome is delivered, but Linear retains follow-up work that should not be
+mistaken for a new release promise:
+
+- independent stable-delivery proof across Codex and Claude Code;
+- Windows cache-lock reconciliation after successful updates;
+- additional configuration-sharing robustness;
+- dependency upgrades reviewed by compatibility risk rather than merged blindly.
+
+Their exact priority and blocking state are intentionally maintained only in Linear.
+
+## How progress is judged
+
+Roadmap progress is based on observed outcomes, not volume of code or number of closed tickets.
+
+A stage is complete only when its own evidence is available. In particular:
+
+- local code and targeted tests do not prove a shipped product;
+- a shipped package does not prove that every active host loaded it;
+- `FRESH` does not mean complete analysis or sufficient evidence;
+- a signed or sealed assertion proves integrity and provenance, not semantic truth;
+- a successful internal demonstration does not prove independent product value.
+
+GitHub remains the public technical history and contribution surface. The repository, tests,
+release artifacts and target environments carry delivery evidence. Linear carries the live product
+plan.
+
+## References
+
+- [Live product roadmap and cockpit in Linear](https://linear.app/hoklims/project/sem-context-controle-de-changement-semantique-h2-2026-3fbe5a5140b6)
+- [GitHub repository](https://github.com/hoklims/semctx)
+- [Current product status and limits](README.md#current-delivery-status)
+- [Architecture overview](docs/architecture/overview.md)
+- [Research decisions](docs/research/)
