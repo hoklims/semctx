@@ -1,12 +1,10 @@
 # SEM Context product roadmap
 
-> Narrative snapshot: 2026-08-14
->
-> [Linear is the source of truth for priorities, ownership, dependencies and delivery evidence.](https://linear.app/hoklims/project/sem-context-controle-de-changement-semantique-h2-2026-3fbe5a5140b6)
+> Public narrative snapshot: 2026-08-14
 
 This document explains where SEM Context is going and why it matters. It deliberately stays at
-product level. Detailed acceptance criteria, technical choices, blockers and current status live in
-Linear. If this document and Linear disagree, Linear wins.
+product level and remains self-contained for readers outside the project team. Public delivery
+status and technical evidence are available through the repository, its releases and its tests.
 
 ## The promise
 
@@ -65,12 +63,12 @@ competitive evidence has not been produced, and SEM Context has no authority to 
 
 ## Roadmap at a glance
 
-| Stage | User-visible outcome | Status on 2026-08-14 | Linear authority |
-| --- | --- | --- | --- |
-| **M1 — Reliable distribution** | Install and update the same product across supported hosts, with portable configuration and reproducible artifacts. | Core v0.1.17 outcome delivered; operational follow-ups remain. Milestone: 67%. | [HOK-72](https://linear.app/hoklims/issue/HOK-72/livrer-une-v0117-distribuable-portable-et-reproductible) |
-| **M2 — Trustworthy change decisions** | Keep intent, source state, scope and evidence aligned across agents before any enforcement. | Active. Milestone: 18%. | [HOK-73](https://linear.app/hoklims/issue/HOK-73/fermer-lintegrite-semantique-et-la-gouvernance-p3-mesuree) |
-| **M3 — Independent product proof** | Demonstrate, on reproducible and independent cases, whether SEM Context improves change quality without unacceptable cost or false blocks. | Blocked by M2. Milestone: 0%. | [HOK-71](https://linear.app/hoklims/issue/HOK-71/produire-la-preuve-concurrentielle-reproductible-p4) |
-| **M4 — Decide whether to enforce or execute** | Make an explicit `GO`, `DEFER` or `NO-GO` decision from the M3 evidence and a credible rollback contract. | Gated. Milestone: 0%. | [HOK-74](https://linear.app/hoklims/issue/HOK-74/decider-p5-sans-depasser-la-preuve-p4) |
+| Stage | User-visible outcome | Public status on 2026-08-14 |
+| --- | --- | --- |
+| **M1 — Reliable distribution** | Install and update the same product across supported hosts, with portable configuration and reproducible artifacts. | Core v0.1.17 outcome delivered; operational hardening continues. |
+| **M2 — Trustworthy change decisions** | Keep intent, source state, scope and evidence aligned across agents before any enforcement. | Active. |
+| **M3 — Independent product proof** | Demonstrate, on reproducible and independent cases, whether SEM Context improves change quality without unacceptable cost or false blocks. | Queued behind M2. |
+| **M4 — Decide whether to enforce or execute** | Make an explicit `GO`, `DEFER` or `NO-GO` decision from the M3 evidence and a credible rollback contract. | Gated by M3 evidence. |
 
 ## Now — make the trust foundation dependable
 
@@ -78,22 +76,21 @@ The current product focus is M2. Three visible workstreams carry it:
 
 ### Stable semantic identity
 
-[HOK-79](https://linear.app/hoklims/issue/HOK-79/stabiliser-lidentite-des-symboles-et-la-doctrine-des-ancres)
-ensures that harmless code movement does not invalidate meaning, while real ambiguity or removal
-still fails safely.
+This work ensures that harmless code movement does not invalidate meaning, while real ambiguity or
+removal still fails safely.
 
 **Expected user outcome:** fewer false stale warnings, no silent rebinding, and migration guidance
 that never rewrites authored intent from uncertain evidence.
 
 ### Portable host connection
 
-[HOK-179](https://linear.app/hoklims/issue/HOK-179/rendre-le-handshake-mcp-portable-quand-lhote-ne-developpe-pas-semctx)
-removes assumptions that prevent some hosts from starting the SEM Context connection reliably.
+This work removes assumptions that prevent some hosts from starting the SEM Context connection
+reliably.
 
 ### Native Grok integration
 
-[HOK-195](https://linear.app/hoklims/issue/HOK-195/ajouter-un-adaptateur-hote-grok-natif-sans-cli-global)
-builds on HOK-179 so Grok can use the same governed workflow without depending on a global CLI.
+The Grok integration builds on the portable connection work so Grok can use the same governed
+workflow without depending on a global CLI.
 
 **Expected user outcome for both host workstreams:** a supported host either connects through the
 same product contract or fails with a clear, bounded reason. It must never appear healthy while
@@ -101,9 +98,8 @@ using the wrong repository or runtime.
 
 ## Next — measure the workflow before blocking anyone
 
-Once the current trust work is closed, the next outcome is
-[HOK-80](https://linear.app/hoklims/issue/HOK-80/automatiser-les-checkpoints-codexclaude-et-mesurer-le-shadow-mode):
-automatic Codex and Claude Code lifecycle checkpoints in measured shadow mode.
+Once the current trust work is closed, the next outcome is automatic Codex and Claude Code
+lifecycle checkpoints in measured shadow mode.
 
 This stage observes what SEM Context would have advised without interrupting the user. It must
 measure:
@@ -118,8 +114,8 @@ Only measured, acceptable results may justify enforcement.
 
 ## After that — create an independently verifiable decision record
 
-[HOK-88](https://linear.app/hoklims/issue/HOK-88/livrer-lautorite-de-changement-liee-a-levidence-v1)
-is the next major product capability after stable anchors and measured host workflows.
+The next major product capability after stable anchors and measured host workflows is a versioned,
+evidence-bound change decision.
 
 Its outcome is a versioned change-authorization record that binds:
 
@@ -136,9 +132,8 @@ the record itself grants no permission to modify a repository.
 
 M3 is an evidence programme, not a marketing milestone.
 
-[HOK-71](https://linear.app/hoklims/issue/HOK-71/produire-la-preuve-concurrentielle-reproductible-p4)
-will compare SEM Context with strong, reproducible alternatives on real change tasks. The protocol,
-datasets, budgets and success thresholds must be fixed before results are observed.
+This stage will compare SEM Context with strong, reproducible alternatives on real change tasks.
+The protocol, datasets, budgets and success thresholds must be fixed before results are observed.
 
 The product must demonstrate that it can:
 
@@ -154,10 +149,7 @@ claim is allowed before this gate clears.
 
 ## Only after proof — decide on enforcement and execution
 
-M4 is represented by
-[HOK-74](https://linear.app/hoklims/issue/HOK-74/decider-p5-sans-depasser-la-preuve-p4).
-
-It is a decision gate, not a promised feature. Persisted control state, blocking enforcement or an
+M4 is a decision gate, not a promised feature. Persisted control state, blocking enforcement or an
 isolated executor may be explored only if M3 is independently accepted and a rollback, cutover and
 kill-switch contract is explicit.
 
@@ -165,8 +157,7 @@ Until then, `executionAuthority` remains `none`.
 
 ## Separate research track
 
-[HOK-75](https://linear.app/hoklims/issue/HOK-75/trancher-le-spike-content-first-par-preuve-ou-resultat-nul)
-tests whether SEM Context adds measurable value on top of strong content retrieval. This work is
+This track tests whether SEM Context adds measurable value on top of strong content retrieval. It is
 deliberately separate from the shipping path.
 
 SEM Context is not positioned as a generic code-search replacement. If the graph and authority
@@ -175,15 +166,15 @@ documented null result.
 
 ## Operational follow-ups
 
-The v0.1.17 product outcome is delivered, but Linear retains follow-up work that should not be
-mistaken for a new release promise:
+The v0.1.17 product outcome is delivered, but follow-up work remains and should not be mistaken for
+a new release promise:
 
 - independent stable-delivery proof across Codex and Claude Code;
 - Windows cache-lock reconciliation after successful updates;
 - additional configuration-sharing robustness;
 - dependency upgrades reviewed by compatibility risk rather than merged blindly.
 
-Their exact priority and blocking state are intentionally maintained only in Linear.
+These tasks are prioritized by user risk and the evidence needed to close them.
 
 ## How progress is judged
 
@@ -197,13 +188,12 @@ A stage is complete only when its own evidence is available. In particular:
 - a signed or sealed assertion proves integrity and provenance, not semantic truth;
 - a successful internal demonstration does not prove independent product value.
 
-GitHub remains the public technical history and contribution surface. The repository, tests,
-release artifacts and target environments carry delivery evidence. Linear carries the live product
-plan.
+GitHub is the public technical history and contribution surface. The repository, tests, release
+artifacts and target environments carry delivery evidence; this roadmap records the public product
+direction and its proof gates.
 
 ## References
 
-- [Live product roadmap and cockpit in Linear](https://linear.app/hoklims/project/sem-context-controle-de-changement-semantique-h2-2026-3fbe5a5140b6)
 - [GitHub repository](https://github.com/hoklims/semctx)
 - [Current product status and limits](README.md#current-delivery-status)
 - [Architecture overview](docs/architecture/overview.md)
