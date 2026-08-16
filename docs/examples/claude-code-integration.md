@@ -30,15 +30,19 @@ Create `.mcp.json` at your project root:
   "mcpServers": {
     "semctx": {
       "command": "bun",
-      "args": ["/absolute/path/to/semantic-context-compiler/packages/mcp-server/src/index.ts"],
-      "env": { "SEMCTX_ROOT": "." }
+      "args": ["/absolute/path/to/semantic-context-compiler/packages/mcp-server/src/index.ts"]
     }
   }
 }
 ```
 
-`SEMCTX_ROOT` binds the server process for compatibility. Every tool call must still pass the
-absolute target as `repositoryRoot`; missing or relative roots are rejected.
+No `SEMCTX_ROOT` is set: the server starts unbound and pins on the first absolute `repositoryRoot`
+it receives. Every tool call must pass the absolute target as `repositoryRoot`; missing or relative
+roots are rejected.
+
+Setting `SEMCTX_ROOT` is optional and only hard-binds the process to one checkout. It must then be
+an **absolute** path: a relative value such as `.` is rejected at construction with
+`REPOSITORY_ROOT_INVALID`, so the server never completes its handshake.
 
 ### Option B — `claude mcp add`
 

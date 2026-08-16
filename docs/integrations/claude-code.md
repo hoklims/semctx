@@ -256,12 +256,17 @@ For source development without the plugin, launch the entrypoint directly:
   "mcpServers": {
     "semctx": {
       "command": "bun",
-      "args": ["/absolute/path/to/semctx/packages/mcp-server/src/index.ts"],
-      "env": { "SEMCTX_ROOT": "." }
+      "args": ["/absolute/path/to/semctx/packages/mcp-server/src/index.ts"]
     }
   }
 }
 ```
+
+No `SEMCTX_ROOT` is set: the server starts unbound and pins on the first absolute `repositoryRoot`
+it receives, the same start path Codex uses. Set it only to hard-bind the process to one checkout,
+and only to an absolute path. A relative value such as `.` is rejected at construction with
+`REPOSITORY_ROOT_INVALID`, so the handshake fails with JSON-RPC `-32603` and no tools are
+advertised. See [ADR 0012](../adr/0012-mcp-2026-stable-surface.md) (repository root policy).
 
 ## Uninstall
 

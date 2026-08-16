@@ -262,6 +262,58 @@ describe("Codex and Claude Code plugin parity", () => {
     }
   });
 
+  // A documented `"SEMCTX_ROOT": "."` is fatal, not merely sloppy: `.` is neither empty nor an
+  // unexpanded ${NAME}, so optionalProcessBoundRoot keeps it, canonicalRepositoryRoot rejects it on
+  // !isAbsolute, and createSemctxServer throws REPOSITORY_ROOT_INVALID during construction. The
+  // host handshake then dies with JSON-RPC -32603 and no tools are advertised. Anyone copying the
+  // snippet verbatim gets a dead server. Shipped snippets must therefore either omit the variable
+  // (pin-on-first-request, the Codex start path) or bind an absolute path.
+  test("never ships a relative SEMCTX_ROOT in a documented .mcp.json snippet", () => {
+    const shipped = [
+      "README.md",
+      "docs/integrations/claude-code.md",
+      "docs/integrations/claude-code-guarded-mode.md",
+      "docs/integrations/codex-control-plane.md",
+      "docs/integrations/grok.md",
+      "docs/examples/claude-code-integration.md",
+      "plugins/claude-code/README.md",
+      "plugins/claude-code/.mcp.json",
+      "plugins/semctx-control/.mcp.json",
+    ];
+    expect(shipped.length).toBeGreaterThan(0);
+
+    // Captures the value of a JSON `"SEMCTX_ROOT": "…"` assignment.
+    const assignment = /"SEMCTX_ROOT"\s*:\s*"([^"]*)"/;
+    // Unexpanded host templates are a supported binding: the server treats them as unset.
+    const placeholder = /^\$\{[A-Za-z_][A-Za-z0-9_]*\}/;
+    const usable = (value: string): boolean => {
+      const trimmed = value.trim();
+      if (trimmed === "" || placeholder.test(trimmed)) return true;
+      // POSIX and Windows absolute forms; the doc corpus is cross-platform.
+      return /^(\/|[A-Za-z]:[\\/]|\\\\)/.test(trimmed);
+    };
+
+    // Canary: a neutered matcher would leave this suite permanently green.
+    expect(assignment.test('"env": { "SEMCTX_ROOT": "." }')).toBe(true);
+    expect(usable(".")).toBe(false);
+    expect(usable("./repo")).toBe(false);
+    expect(usable("..")).toBe(false);
+    expect(usable("${CLAUDE_PROJECT_DIR}")).toBe(true);
+    expect(usable("/absolute/path/to/semctx")).toBe(true);
+    expect(usable("C:\\repos\\semctx")).toBe(true);
+
+    for (const path of shipped) {
+      const offenders = read(path)
+        .split("\n")
+        .map((line, index) => ({ line: line.trim(), number: index + 1 }))
+        .filter(({ line }) => {
+          const match = assignment.exec(line);
+          return match !== null && !usable(match[1] ?? "");
+        });
+      expect({ path, offenders }).toEqual({ path, offenders: [] });
+    }
+  });
+
   test("Codex plugin never ships CLAUDE_PLUGIN_ROOT in any form", () => {
     const anyForm = /CLAUDE_PLUGIN_ROOT/;
     expect(anyForm.test("${CLAUDE_PLUGIN_ROOT}")).toBe(true);

@@ -442,12 +442,16 @@ register the server directly over stdio:
   "mcpServers": {
     "semctx": {
       "command": "bun",
-      "args": ["/abs/path/to/semctx/packages/mcp-server/src/index.ts"],
-      "env": { "SEMCTX_ROOT": "." }
+      "args": ["/abs/path/to/semctx/packages/mcp-server/src/index.ts"]
     }
   }
 }
 ```
+
+No `SEMCTX_ROOT` is set here: the server starts unbound and pins on the first absolute
+`repositoryRoot` it receives, the same start path Codex uses. Set it only to hard-bind the process
+to one checkout, and only to an absolute path — a relative value such as `.` is rejected at
+construction and the handshake fails.
 
 Full guide: [`docs/integrations/claude-code.md`](docs/integrations/claude-code.md).
 
