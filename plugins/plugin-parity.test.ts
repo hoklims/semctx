@@ -282,8 +282,15 @@ describe("Codex and Claude Code plugin parity", () => {
     ];
     expect(shipped.length).toBeGreaterThan(0);
 
-    // Captures the value of a JSON `"SEMCTX_ROOT": "…"` assignment.
-    const assignment = /"SEMCTX_ROOT"\s*:\s*"([^"]*)"/;
+    // Captures the value of a JSON `"SEMCTX_ROOT": "…"` assignment. Scanned over whole-file
+    // content, not line by line: `\s*` spans newlines, so a snippet that puts the key and its
+    // value on separate lines is still caught. The reported number is the line the match starts on.
+    const ASSIGNMENT = String.raw`"SEMCTX_ROOT"\s*:\s*"([^"]*)"`;
+    const assignments = (text: string): Array<{ value: string; number: number }> =>
+      [...text.matchAll(new RegExp(ASSIGNMENT, "g"))].map((match) => ({
+        value: match[1] ?? "",
+        number: text.slice(0, match.index ?? 0).split("\n").length,
+      }));
     // Unexpanded host templates are a supported binding: the server treats them as unset.
     const placeholder = /^\$\{[A-Za-z_][A-Za-z0-9_]*\}/;
     const usable = (value: string): boolean => {
@@ -294,7 +301,13 @@ describe("Codex and Claude Code plugin parity", () => {
     };
 
     // Canary: a neutered matcher would leave this suite permanently green.
-    expect(assignment.test('"env": { "SEMCTX_ROOT": "." }')).toBe(true);
+    expect(assignments('"env": { "SEMCTX_ROOT": "." }')).toEqual([{ value: ".", number: 1 }]);
+    // Multi-line formatting must not slip past the scan.
+    expect(assignments('{\n  "env": {\n    "SEMCTX_ROOT":\n      "."\n  }\n}')).toEqual([
+      { value: ".", number: 3 },
+    ]);
+    // Every offender is reported, not just the first.
+    expect(assignments('"SEMCTX_ROOT": "."\n"SEMCTX_ROOT": ".."')).toHaveLength(2);
     expect(usable(".")).toBe(false);
     expect(usable("./repo")).toBe(false);
     expect(usable("..")).toBe(false);
@@ -303,13 +316,7 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(usable("C:\\repos\\semctx")).toBe(true);
 
     for (const path of shipped) {
-      const offenders = read(path)
-        .split("\n")
-        .map((line, index) => ({ line: line.trim(), number: index + 1 }))
-        .filter(({ line }) => {
-          const match = assignment.exec(line);
-          return match !== null && !usable(match[1] ?? "");
-        });
+      const offenders = assignments(read(path)).filter(({ value }) => !usable(value));
       expect({ path, offenders }).toEqual({ path, offenders: [] });
     }
   });
