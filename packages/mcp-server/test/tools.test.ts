@@ -178,9 +178,13 @@ describe("semctx_prepare_task", () => {
       const database = dbPath(recoveryRoot);
       const walSetup = new Database(database);
       walSetup.exec("PRAGMA journal_mode=WAL;");
+      walSetup.query("INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)").run(
+        "wal_recovery_probe",
+        "before",
+      );
       const blocker = new Database(database, { readonly: true });
       blocker.exec("BEGIN;");
-      blocker.query("SELECT value FROM meta WHERE key = 'schema_version'").get();
+      blocker.query("SELECT value FROM meta WHERE key = 'wal_recovery_probe'").get();
       walSetup.query("INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)").run(
         "wal_recovery_probe",
         "pending",
