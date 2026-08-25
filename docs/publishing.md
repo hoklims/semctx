@@ -254,7 +254,7 @@ bun run plugin:build   # refresh tracked dist/* + host-generated control skills 
 bun run plugin:check   # fail if any tracked artifact is missing or stale
 ```
 
-Artifact generation requires the repository-pinned Bun `1.3.13`; the build fails with an explicit
+Artifact generation requires the repository-pinned Bun `1.4.0`; the build fails with an explicit
 version diagnostic otherwise. `plugin:check` compares the complete expected plugin artifact set
 and bytes: runtime JavaScript as one exact set and TypeScript declarations as another. A missing,
 stale, or extra generated file therefore fails CI. The fixed root name keeps the shared chunk

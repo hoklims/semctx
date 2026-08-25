@@ -21,4 +21,4 @@ ENV PATH=/opt/semctx-quality/bin:${PATH}
 USER node
 ENV BUN_INSTALL=/home/node/.bun
 ENV PATH=/home/node/.bun/bin:${PATH}
-RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.13"
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.4.0"

@@ -6,6 +6,8 @@ const root = join(import.meta.dir, "..", "..");
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
 const ci = read(".github/workflows/ci.yml");
 const release = read(".github/workflows/release.yml");
+const publishing = read("docs/publishing.md");
+const devcontainer = read(".devcontainer/Dockerfile");
 
 interface WorkflowStep {
   uses?: string;
@@ -163,6 +165,8 @@ describe("release governance", () => {
       "1.4.0",
       "1.4.0",
     ]);
+    expect(publishing).toContain("repository-pinned Bun `1.4.0`");
+    expect(devcontainer).toContain('bash -s "bun-v1.4.0"');
     expect(release).toContain("bun run verify:pr -- --skip-diff");
     expect(release).not.toContain("bun run quality");
     expect(release).not.toContain("bun run plugin:check");

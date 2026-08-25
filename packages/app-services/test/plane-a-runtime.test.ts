@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 function repository(): string {
-  const root = mkdtempSync(join(tmpdir(), "semctx-plane-a-runtime-"));
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-plane-a-runtime-")));
   roots.push(root);
   return root;
 }

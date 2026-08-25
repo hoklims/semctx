@@ -15,8 +15,9 @@ const itOnWindows = process.platform === "win32" ? it : it.skip;
 
 async function fixture(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "semctx-workspace-"));
-  fixtureRoots.push(root);
-  return root;
+  const canonicalRoot = await realpath(root);
+  fixtureRoots.push(canonicalRoot);
+  return canonicalRoot;
 }
 
 async function json(root: string, path: string, value: unknown): Promise<void> {

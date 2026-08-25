@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { Database } from "bun:sqlite";
-import { cpSync, existsSync, rmSync, mkdtempSync } from "node:fs";
+import { cpSync, existsSync, realpathSync, rmSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "../src/index";
@@ -159,7 +159,7 @@ describe("semctx_prepare_task", () => {
   });
 
   it("recovers through a mutable writer after a busy WAL cleanup", async () => {
-    const recoveryRoot = mkdtempSync(join(tmpdir(), "semctx-mcp-wal-recovery-"));
+    const recoveryRoot = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-mcp-wal-recovery-")));
     try {
       cpSync(SAMPLE_REPO, recoveryRoot, {
         recursive: true,
