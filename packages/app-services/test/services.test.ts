@@ -45,6 +45,7 @@ describe("application services", () => {
   it("owns indexing, ADR-0008 verification, and read-only control loading", () => {
     const indexed = indexRepository(root, "2026-07-20T00:00:00.000Z");
     expect(indexed.analysis.graph.nodes.length).toBeGreaterThan(0);
+    expect("discovery" in indexed).toBe(false);
 
     const verified = runVerify(root, {
       kind: "provided",

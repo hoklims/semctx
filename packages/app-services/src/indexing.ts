@@ -57,7 +57,6 @@ export interface RepositoryIndex extends RepositoryAnalysis {
 interface InternalRepositoryAnalysis extends RepositoryAnalysis {
   sidecar: PlaneASidecarV1;
   workspaceProjection: WorkspaceProjection;
-  discovery: DiscoveryResult;
 }
 
 type IndexRepositoryCaptureBarrier = () => void;
@@ -105,7 +104,6 @@ function analyzeAndBuildClaimsInternal(
     claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
     sidecar: runtime.sidecar,
     workspaceProjection: runtime.workspaceProjection,
-    discovery,
   };
 }
 
@@ -148,7 +146,7 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     repositoryIdentity,
     diffBytes: trackedDiffBefore,
   });
-  const discoveryBefore = discoverRepository(configBefore);
+  let discoveryBefore: DiscoveryResult | undefined = discoverRepository(configBefore);
   const analysisInputHash = fingerprintAnalysisInputs(configBefore, discoveryBefore.files);
   const discoveryLedgerDigest = digestCanonical(discoveryBefore.candidates);
   const semanticBefore = loadSemanticModel(root);
@@ -164,6 +162,9 @@ export function indexRepository(root: string, indexedAt: string): RepositoryInde
     });
   }
   const indexed = analyzeAndBuildClaimsInternal(configBefore, discoveryBefore);
+  // Drop the full-source corpus before the second TOCTOU discovery on large repositories.
+  // eslint-disable-next-line no-useless-assignment -- the assignment shortens the live heap interval
+  discoveryBefore = undefined;
   crossIndexRepositoryCaptureBarrier();
   const configAfter = loadConfig(root);
   const discoveryAfter = discoverRepository(configAfter);
