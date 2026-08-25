@@ -130,9 +130,35 @@ function nameOfCallee(expr: ts.Expression): string | undefined {
   return undefined;
 }
 
-function resolveModule(specifier: string, containingFile: string): string | undefined {
-  const resolved = ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, ts.sys);
+function resolveModule(
+  specifier: string,
+  containingFile: string,
+  resolutionMode?: ts.ResolutionMode,
+): string | undefined {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    containingFile,
+    COMPILER_OPTIONS,
+    ts.sys,
+    undefined,
+    undefined,
+    resolutionMode,
+  );
   return resolved.resolvedModule?.resolvedFileName;
+}
+
+function canonicalTypeScriptFileKey(filePath: string): string {
+  let canonical = filePath;
+  if (ts.sys.realpath !== undefined) {
+    try {
+      canonical = ts.sys.realpath(filePath);
+    } catch {
+      // Resolution may hand back a path that disappeared between discovery and preflight.
+      // The later drift gates still fail closed; identity comparison can use the lexical path.
+    }
+  }
+  const normalized = normalizePath(canonical);
+  return ts.sys.useCaseSensitiveFileNames ? normalized : normalized.toLowerCase();
 }
 
 /** Extract modules, symbols, imports and best-effort resolved calls from source/test files. */
@@ -262,7 +288,7 @@ export async function extractTypeScriptParallel(
     };
   }
 
-  const preflight = preflightParallelSafety(rootAbsPaths);
+  const preflight = preflightParallelSafety(rootAbsPaths, repoRoot);
   if (!preflight.safe) {
     return {
       extraction: extractTypeScript(rootAbsPaths, repoRoot),
@@ -276,12 +302,16 @@ export async function extractTypeScriptParallel(
   }
 
   const declarationPaths = rootAbsPaths.filter((path) => path.endsWith(".d.ts"));
-  const sourcePaths = rootAbsPaths.filter((path) => !path.endsWith(".d.ts"));
-  const chunks = weightedChunks(sourcePaths, Math.min(workerLimit, sourcePaths.length));
+  const chunks = weightedComponentChunks(preflight.components, workerLimit);
   if (chunks.length <= 1) {
     return {
       extraction: extractTypeScript(rootAbsPaths, repoRoot),
-      parallelism: { requested, used: 1, mode: "single" },
+      parallelism: {
+        requested,
+        used: 1,
+        mode: "single",
+        reason: "TypeScript root module graph has one connected component",
+      },
     };
   }
 
@@ -341,8 +371,8 @@ export function resolveWorkerCount(requested: IndexWorkerSelection, fileCount: n
   return Math.min(2, Math.max(1, available - 1), Math.max(1, fileCount));
 }
 
-function preflightParallelSafety(rootAbsPaths: readonly string[]):
-  | { safe: true; emitAbsOrder: string[] }
+function preflightParallelSafety(rootAbsPaths: readonly string[], repoRoot: string):
+  | { safe: true; emitAbsOrder: string[]; components: string[][] }
   | { safe: false; reason: string } {
   // Safety inspection needs source ordering and syntax only. Avoid loading the standard library
   // and type packages here: each Worker builds the real semantic Program for its own chunk.
@@ -351,9 +381,13 @@ function preflightParallelSafety(rootAbsPaths: readonly string[]):
     noLib: true,
     types: [],
   });
-  const rootSet = new Set(rootAbsPaths.map(normalizePath));
-  const roots = program.getSourceFiles().filter((source) => rootSet.has(normalizePath(source.fileName)));
+  const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
+  const roots = program.getSourceFiles().filter((source) => rootSet.has(canonicalTypeScriptFileKey(source.fileName)));
   if (roots.length !== rootSet.size) return { safe: false, reason: "program omitted an extraction root" };
+  const repositoryKey = canonicalTypeScriptFileKey(repoRoot);
+  if (roots.some((source) => !isRepositoryGraphFile(canonicalTypeScriptFileKey(source.fileName), repositoryKey))) {
+    return { safe: false, reason: "extraction root is outside the repository module graph boundary" };
+  }
   for (const sf of roots) {
     const path = sf.fileName;
     const diagnostics = (sf as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
@@ -379,19 +413,139 @@ function preflightParallelSafety(rootAbsPaths: readonly string[]):
   return {
     safe: true,
     emitAbsOrder: roots.filter((source) => !source.isDeclarationFile).map((source) => source.fileName),
+    components: rootModuleComponents(program, roots, repositoryKey),
   };
 }
 
-function weightedChunks(paths: readonly string[], count: number): string[][] {
+function isRepositoryGraphFile(fileKey: string, repositoryKey: string): boolean {
+  const prefix = repositoryKey.endsWith("/") ? repositoryKey : `${repositoryKey}/`;
+  if (!fileKey.startsWith(prefix)) return false;
+  return !fileKey.slice(prefix.length).split("/").includes("node_modules");
+}
+
+function rootModuleComponents(
+  program: ts.Program,
+  roots: readonly ts.SourceFile[],
+  repositoryKey: string,
+): string[][] {
+  const selectedRoots = new Map(
+    roots.filter((source) => !source.isDeclarationFile)
+      .map((source) => [canonicalTypeScriptFileKey(source.fileName), source.fileName]),
+  );
+  const loadedSources = new Map(
+    program.getSourceFiles()
+      .map((source) => [canonicalTypeScriptFileKey(source.fileName), source] as const)
+      .filter(([key]) => isRepositoryGraphFile(key, repositoryKey)),
+  );
+  const parent = new Map([...loadedSources.keys()].map((path) => [path, path]));
+  const find = (path: string): string => {
+    let root = path;
+    while (parent.get(root)! !== root) root = parent.get(root)!;
+    let current = path;
+    while (current !== root) {
+      const next = parent.get(current)!;
+      parent.set(current, root);
+      current = next;
+    }
+    return root;
+  };
+  const union = (left: string, right: string): void => {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot === rightRoot) return;
+    if (compareIds(leftRoot, rightRoot) <= 0) parent.set(rightRoot, leftRoot);
+    else parent.set(leftRoot, rightRoot);
+  };
+
+  for (const source of loadedSources.values()) {
+    const from = canonicalTypeScriptFileKey(source.fileName);
+    for (const usage of literalModuleSpecifiers(source)) {
+      const resolutionMode = usage.resolutionMode
+        ?? program.getModeForUsageLocation(source, usage.literal);
+      const resolved = resolveModule(usage.literal.text, source.fileName, resolutionMode);
+      if (resolved === undefined) continue;
+      const target = canonicalTypeScriptFileKey(resolved);
+      if (loadedSources.has(target)) union(from, target);
+    }
+  }
+
+  const byRoot = new Map<string, string[]>();
+  for (const [key, absolute] of selectedRoots) {
+    const root = find(key);
+    const component = byRoot.get(root) ?? [];
+    component.push(absolute);
+    byRoot.set(root, component);
+  }
+  return [...byRoot.values()]
+    .map((component) => component.sort(compareIds))
+    .sort(comparePathLists);
+}
+
+interface ModuleSpecifierUsage {
+  literal: ts.StringLiteralLike;
+  resolutionMode?: ts.ResolutionMode;
+}
+
+function literalModuleSpecifiers(source: ts.SourceFile): ModuleSpecifierUsage[] {
+  const specifiers: ModuleSpecifierUsage[] = [];
+  const visit = (node: ts.Node): void => {
+    let literal: ts.StringLiteralLike | undefined;
+    let resolutionMode: ts.ResolutionMode | undefined;
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
+      && node.moduleSpecifier !== undefined
+      && ts.isStringLiteralLike(node.moduleSpecifier)) {
+      literal = node.moduleSpecifier;
+    } else if (ts.isImportEqualsDeclaration(node)
+      && ts.isExternalModuleReference(node.moduleReference)
+      && node.moduleReference.expression !== undefined
+      && ts.isStringLiteralLike(node.moduleReference.expression)) {
+      literal = node.moduleReference.expression;
+    } else if (ts.isCallExpression(node)
+      && node.arguments.length > 0
+      && ts.isStringLiteralLike(node.arguments[0]!)
+      && (node.expression.kind === ts.SyntaxKind.ImportKeyword
+        || (ts.isIdentifier(node.expression) && node.expression.text === "require"))) {
+      literal = node.arguments[0]!;
+      // getModeForUsageLocation accepts import-like syntax but not a raw require() argument.
+      if (ts.isIdentifier(node.expression)) resolutionMode = ts.ModuleKind.CommonJS;
+    } else if (ts.isImportTypeNode(node)
+      && ts.isLiteralTypeNode(node.argument)
+      && ts.isStringLiteralLike(node.argument.literal)) {
+      literal = node.argument.literal;
+    }
+    if (literal !== undefined) {
+      specifiers.push({ literal, ...(resolutionMode === undefined ? {} : { resolutionMode }) });
+    }
+    ts.forEachChild(node, visit);
+  };
+  ts.forEachChild(source, visit);
+  return specifiers;
+}
+
+function weightedComponentChunks(components: readonly (readonly string[])[], requestedCount: number): string[][] {
+  const count = Math.min(requestedCount, components.length);
   const chunks = Array.from({ length: count }, () => ({ weight: 0, paths: [] as string[] }));
-  const weighted = paths.map((path) => ({ path, weight: statSync(path).size }))
-    .sort((left, right) => right.weight - left.weight || compareIds(left.path, right.path));
+  const weighted = components.map((paths) => ({
+    paths: [...paths].sort(compareIds),
+    weight: paths.reduce((total, path) => total + statSync(path).size, 0),
+  })).sort((left, right) => right.weight - left.weight || comparePathLists(left.paths, right.paths));
   for (const item of weighted) {
     chunks.sort((left, right) => left.weight - right.weight || comparePathLists(left.paths, right.paths));
-    chunks[0]!.paths.push(item.path);
+    chunks[0]!.paths.push(...item.paths);
     chunks[0]!.weight += item.weight;
   }
   return chunks.map((chunk) => chunk.paths.sort(compareIds)).filter((chunk) => chunk.length > 0);
+}
+
+/** Internal deterministic partition witness; intentionally not exported from the package root. */
+export function __partitionTypeScriptRootsForTesting(
+  rootAbsPaths: readonly string[],
+  repoRoot: string,
+  count: number,
+): string[][] {
+  const preflight = preflightParallelSafety(rootAbsPaths, repoRoot);
+  if (!preflight.safe) throw new Error(preflight.reason);
+  return weightedComponentChunks(preflight.components, count);
 }
 
 function comparePathLists(left: readonly string[], right: readonly string[]): number {

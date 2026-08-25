@@ -101,6 +101,11 @@ RSS by roughly 40% while increasing wall time, so `auto` is a memory-oriented la
 not a blanket speed claim. Counts from 3 through 8 remain explicit tuning options.
 Repositories containing global scripts, triple-slash directives, parse
 errors, or global/module augmentations conservatively use the original single-program analyzer.
+Selected roots linked by canonically resolved module edges stay in the same component, including
+links through repository-local source files loaded by TypeScript but excluded from emission.
+External files and every `node_modules` segment are excluded from this connectivity graph, so a
+shared dependency cannot join otherwise independent roots. When every selected source belongs to
+one component, Semctx stays single-core and reports that reason explicitly.
 Use `--workers 1` for a forced single-core comparison. Parallelism is operational telemetry in the
 command output; it is not part of the graph or freshness seal.
 

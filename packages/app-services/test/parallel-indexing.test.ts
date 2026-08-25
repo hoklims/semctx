@@ -22,7 +22,7 @@ function repository(): string {
   roots.push(root);
   mkdirSync(join(root, "src"), { recursive: true });
   writeFileSync(join(root, "src", "a.ts"), "export function a() { return 1 }\n");
-  writeFileSync(join(root, "src", "b.ts"), "import { a } from './a'; export function b() { return a() }\n");
+  writeFileSync(join(root, "src", "b.ts"), "export function b() { return 2 }\n");
   writeFileSync(join(root, "package.json"), '{"name":"parallel-fixture"}\n');
   writeFileSync(join(root, ".gitignore"), ".semctx/\n");
   git(root, "init", "-q");
