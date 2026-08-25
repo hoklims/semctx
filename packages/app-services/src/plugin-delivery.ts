@@ -79,7 +79,12 @@ const CODEX_CACHE_SEGMENTS = ["plugins", "cache", MARKETPLACE_NAME, CODEX_PLUGIN
  * The split runtime both plugins ship. Version equality proves nothing about these bytes, so they
  * are digested — the same standard `semctx install` already applies to the identical artifact.
  */
-export const PLUGIN_RUNTIME_BUNDLES = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
+export const PLUGIN_RUNTIME_BUNDLES = [
+  "semctx-index-worker.js",
+  "semctx-mcp.js",
+  "semctx-shared.js",
+  "semctx.js",
+] as const;
 
 /** A plugin version is a semver token; anything else must never reach a filesystem path. */
 const VERSION_SEGMENT = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;

@@ -69,6 +69,7 @@ const RELEASE: ReleaseIdentity = {
 const RUN: RunIdentity = { repository: "hoklims/semctx", runId: "40412", runAttempt: "1" };
 
 const WITNESS: Record<string, string> = {
+  "semctx-index-worker.js": "d".repeat(64),
   "semctx-mcp.js": "a".repeat(64),
   "semctx-shared.js": "b".repeat(64),
   "semctx.js": "c".repeat(64),
@@ -471,7 +472,12 @@ describe("hostile 3 — an installation must be whole, attested and only then ex
 
 describe("hostile 4 — the witness comes from the commit, per plugin, and must agree", () => {
   test("an incomplete witness cannot license any host", () => {
-    const thin = { "semctx-mcp.js": WITNESS["semctx-mcp.js"]!, "semctx-shared.js": null, "semctx.js": null };
+    const thin = {
+      "semctx-index-worker.js": WITNESS["semctx-index-worker.js"]!,
+      "semctx-mcp.js": WITNESS["semctx-mcp.js"]!,
+      "semctx-shared.js": null,
+      "semctx.js": null,
+    };
     const proof = proveWith({}, {}, RELEASE, { codex: thin });
     expect(proof.ok).toBe(false);
     expect(proof.reasons).toContain("WITNESS_INCOMPLETE");
@@ -2400,7 +2406,12 @@ describe("hostile 15 — the ledger states its own scope", () => {
 
 describe("proof contract", () => {
   test("declares the exact runtime bundle set the plugins ship", () => {
-    expect([...PLUGIN_RUNTIME_BUNDLES].sort()).toEqual(["semctx-mcp.js", "semctx-shared.js", "semctx.js"]);
+    expect([...PLUGIN_RUNTIME_BUNDLES].sort()).toEqual([
+      "semctx-index-worker.js",
+      "semctx-mcp.js",
+      "semctx-shared.js",
+      "semctx.js",
+    ]);
   });
 
   test("pins both host CLIs in the repository rather than in a mutable workflow variable", () => {

@@ -1,4 +1,5 @@
-import { indexRepository } from "@semantic-context/app-services";
+import { SemctxError } from "@semantic-context/core";
+import { indexRepository, indexRepositoryAsync, type RepositoryIndex } from "@semantic-context/app-services";
 import type { RepositoryNode, Claim } from "@semantic-context/core";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -15,7 +16,18 @@ function countBy<T>(items: T[], key: (item: T) => string): Record<string, number
 
 /** `semctx index` — analyse the repo, (re)build the graph + claims, persist them. */
 export function runIndex(root: string, args: ParsedArgs): number {
-  const { analysis, claims, freshnessSeal } = indexRepository(root, nowIso());
+  return renderIndex(indexRepository(root, nowIso()), args);
+}
+
+export async function runIndexAsync(root: string, args: ParsedArgs): Promise<number> {
+  const workers = parseIndexWorkers(args);
+  return renderIndex(await indexRepositoryAsync(root, nowIso(), workers), args);
+}
+
+function renderIndex(
+  { analysis, claims, freshnessSeal, parallelism }: RepositoryIndex,
+  args: ParsedArgs,
+): number {
 
   const nodeKinds = countBy<RepositoryNode>(analysis.graph.nodes, (n) => n.kind);
   const claimKinds = countBy<Claim>(claims, (c2) => c2.kind);
@@ -31,6 +43,7 @@ export function runIndex(root: string, args: ParsedArgs): number {
       claimKinds,
       unresolvedReferences: analysis.unresolvedReferences,
       freshnessSeal,
+      parallelism,
     });
     return 0;
   }
@@ -39,6 +52,9 @@ export function runIndex(root: string, args: ParsedArgs): number {
     `indexed ${c.bold(String(analysis.graph.nodes.length))} nodes, ${c.bold(String(analysis.graph.edges.length))} edges, ${c.bold(String(claims.length))} claims`,
   );
   info(c.dim(`seal ${freshnessSeal.sealHash}`));
+  if (parallelism !== undefined) {
+    info(c.dim(`TypeScript analysis: ${parallelism.used} worker(s), ${parallelism.mode}`));
+  }
   heading("Nodes by kind");
   for (const [kind, count] of Object.entries(nodeKinds).sort()) info(`  ${kind.padEnd(18)} ${count}`);
   heading("Claims by kind");
@@ -55,4 +71,19 @@ export function runIndex(root: string, args: ParsedArgs): number {
   info("");
   info(c.dim("Next: semctx task create --from-file <task.md>"));
   return 0;
+}
+
+export function parseIndexWorkers(args: ParsedArgs): "auto" | number {
+  const value = args.flags.get("workers");
+  if (value === undefined) return 1;
+  if (typeof value !== "string") {
+    throw new SemctxError("INVALID_TASK_INPUT", "--workers requires auto or an integer from 1 through 8");
+  }
+  if (value === "auto") return "auto";
+  if (!/^[1-8]$/.test(value)) {
+    throw new SemctxError("INVALID_TASK_INPUT", "--workers must be auto or an integer from 1 through 8", {
+      workers: value,
+    });
+  }
+  return Number(value);
 }

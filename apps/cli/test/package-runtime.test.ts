@@ -51,6 +51,7 @@ describe("published npm CLI package", () => {
     packedTarball = join(cliRoot, packed[0]!.filename);
     expect(existsSync(packedTarball)).toBe(true);
     expect(packed[0]!.files.some((file) => file.path === "dist/index.js")).toBe(true);
+    expect(packed[0]!.files.some((file) => file.path === "dist/semctx-index-worker.js")).toBe(true);
     expect(packed[0]!.files.some((file) => file.path === "package.json")).toBe(true);
 
     const installRoot = join(foreignRoot, "consumer");
@@ -71,6 +72,7 @@ describe("published npm CLI package", () => {
 
     const installed = join(installRoot, "node_modules", "semctx", "dist");
     const bundle = readFileSync(join(installed, "index.js"), "utf8");
+    expect(existsSync(join(installed, "semctx-index-worker.js"))).toBe(true);
     expect(bundle.includes('import.meta.dir+"/typescript-lib"')).toBe(true);
     expect(bundle.includes(repoRoot.replaceAll("\\", "\\\\"))).toBe(false);
     const libs = readdirSync(join(installed, "typescript-lib"))
@@ -116,6 +118,9 @@ describe("published npm CLI package", () => {
     expect(setupReport.check.ok).toBe(true);
     expect(setupReport.verdict).toBe("SETUP_READY");
     expect(setupReport.indexHealth?.coverage?.status).toMatch(/^(complete|partial)$/);
+    const parallelIndex = run([semctxBin, "index", "--root", target, "--workers", "2", "--json"], installRoot);
+    expect(parallelIndex.code, parallelIndex.err).toBe(0);
+    expect(JSON.parse(parallelIndex.out).parallelism).toMatchObject({ requested: 2, used: 2, mode: "parallel" });
   // A cold npm pack/install plus setup can approach 30 s on loaded Windows runners.
   }, 60_000);
 });

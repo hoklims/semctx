@@ -40,7 +40,11 @@ import {
 import { discoverFiles, sourceLanguage, type DiscoveredFile } from "./discovery";
 import {
   extractTypeScript,
+  extractTypeScriptParallel,
   TYPESCRIPT_DIALECT_VERSION,
+  type IndexWorkerSelection,
+  type TsExtraction,
+  type TypeScriptParallelism,
 } from "./ts-symbols";
 import { extractDoc } from "./docs";
 import { extractMigration } from "./migrations";
@@ -50,6 +54,11 @@ export interface AnalysisResult {
   evidence: EvidenceRecord[];
   /** Authored cross-references naming targets this repository does not contain. */
   unresolvedReferences: UnresolvedReference[];
+}
+
+export interface AsyncAnalysisResult {
+  analysis: AnalysisResult;
+  parallelism: TypeScriptParallelism;
 }
 
 type GraphBuilder = DeterministicGraphAssembler;
@@ -71,6 +80,38 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
 
 export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[]): AnalysisResult {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
+  const tsFiles = files.filter(isTypeScriptSource);
+  const extraction = extractTypeScript(
+    tsFiles.map((file) => file.absPath),
+    config.repositoryRoot,
+  );
+  return assembleRepository(config, files, extraction);
+}
+
+export async function analyzeRepositoryAsync(
+  config: SemctxConfig,
+  discoveredFiles?: readonly DiscoveredFile[],
+  workers: IndexWorkerSelection = "auto",
+): Promise<AsyncAnalysisResult> {
+  const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
+  const tsFiles = files.filter(isTypeScriptSource);
+  const result = await extractTypeScriptParallel(
+    tsFiles.map((file) => file.absPath),
+    config.repositoryRoot,
+    workers,
+  );
+  return {
+    analysis: assembleRepository(config, files, result.extraction),
+    parallelism: result.parallelism,
+  };
+}
+
+/** Pure deterministic assembly seam shared by the synchronous and worker-backed extractors. */
+export function assembleRepository(
+  config: SemctxConfig,
+  files: readonly DiscoveredFile[],
+  extraction: TsExtraction,
+): AnalysisResult {
   const tsFiles = files.filter(isTypeScriptSource);
   const analyzedFiles = files.filter((file) =>
     isTypeScriptSource(file) || file.role === "document" || file.role === "migration");
@@ -103,11 +144,6 @@ export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readon
     });
     builder.edge("belongs_to", id, repoNodeId, [{ filePath: file.relPath, sourceKind: "code" }]);
   }
-
-  const extraction = extractTypeScript(
-    tsFiles.map((f) => f.absPath),
-    config.repositoryRoot,
-  );
 
   // Symbol nodes + declares edges, indexed by (relPath -> name -> node).
   const symbolIndex = new Map<string, Map<string, RepositoryNode>>();

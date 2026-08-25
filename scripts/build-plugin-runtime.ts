@@ -38,8 +38,14 @@ const escapedRoot = JSON.stringify(root).slice(1, -1);
 export const PLUGIN_BUILD_BUN_VERSION = "1.4.0";
 /** Bun's `naming.chunk` target — the only artifact allowed to carry the TypeScript path prelude. */
 const pluginRuntimeSharedChunk = "semctx-shared.js";
+const pluginRuntimeCoreArtifactPaths = [
+  "semctx-mcp.js",
+  pluginRuntimeSharedChunk,
+  "semctx.js",
+] as const;
 const pluginRuntimeArtifactPaths = [
   "semctx-mcp.js",
+  "semctx-index-worker.js",
   pluginRuntimeSharedChunk,
   "semctx.js",
 ] as const;
@@ -55,6 +61,12 @@ export const CLI_BUNDLE_SPEC: BundleSpec = {
   name: "semctx.js",
   entrypoint: "apps/cli/src/index.ts",
   label: "plugin CLI",
+};
+
+export const INDEX_WORKER_BUNDLE_SPEC: BundleSpec = {
+  name: "semctx-index-worker.js",
+  entrypoint: "packages/ts-analyzer/src/index-worker.ts",
+  label: "index worker",
 };
 
 /** Host-specific shell ladder for the shared control skill (issue #40 option A). */
@@ -366,7 +378,7 @@ export function portablePluginRuntimeArtifacts(
   prelude: TypeScriptPreludePair = typeScriptPreludes,
 ): Map<string, Uint8Array> {
   const actualPaths = [...generated.keys()].sort();
-  const expectedPaths = [...pluginRuntimeArtifactPaths].sort();
+  const expectedPaths = [...pluginRuntimeCoreArtifactPaths].sort();
   if (actualPaths.join("\n") !== expectedPaths.join("\n")) {
     throw new Error(
       `unexpected split plugin artifact set; expected ${expectedPaths.join(", ")}, found ${actualPaths.join(", ")}`,
@@ -444,7 +456,15 @@ export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8A
       generated.set(relativePath, await output.text());
     }
 
-    return portablePluginRuntimeArtifacts(generated);
+    const built = portablePluginRuntimeArtifacts(generated);
+    built.set(
+      INDEX_WORKER_BUNDLE_SPEC.name,
+      await buildPortableBundle(INDEX_WORKER_BUNDLE_SPEC),
+    );
+    if ([...built.keys()].sort().join("\n") !== [...pluginRuntimeArtifactPaths].sort().join("\n")) {
+      throw new Error("unexpected complete plugin runtime artifact set");
+    }
+    return built;
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true });
   }

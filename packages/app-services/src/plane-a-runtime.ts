@@ -40,11 +40,14 @@ import {
 } from "@semantic-context/python-analyzer";
 import {
   analyzeRepository,
+  analyzeRepositoryAsync,
   type AnalysisResult,
   type DiscoveredFile,
   type DiscoveryCandidate,
   type DiscoveryResult,
   TYPESCRIPT_DIALECT_VERSION,
+  type IndexWorkerSelection,
+  type TypeScriptParallelism,
 } from "@semantic-context/ts-analyzer";
 import {
   analyzeWorkspaceSync,
@@ -76,6 +79,10 @@ export interface PlaneARuntimeResult {
   readonly workspaceProjection: WorkspaceProjection;
 }
 
+export interface AsyncPlaneARuntimeResult extends PlaneARuntimeResult {
+  readonly parallelism: TypeScriptParallelism;
+}
+
 interface PerPathAnalysis {
   readonly candidate: DiscoveryCandidate;
   readonly file: DiscoveredFile;
@@ -100,6 +107,26 @@ export function analyzePlaneARuntime(
   discovery: DiscoveryResult,
 ): PlaneARuntimeResult {
   const legacyAnalysis = analyzeRepository(config, discovery.files);
+  return composePlaneARuntime(config, discovery, legacyAnalysis);
+}
+
+export async function analyzePlaneARuntimeAsync(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+  workers: IndexWorkerSelection,
+): Promise<AsyncPlaneARuntimeResult> {
+  const result = await analyzeRepositoryAsync(config, discovery.files, workers);
+  return {
+    ...composePlaneARuntime(config, discovery, result.analysis),
+    parallelism: result.parallelism,
+  };
+}
+
+function composePlaneARuntime(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+  legacyAnalysis: AnalysisResult,
+): PlaneARuntimeResult {
   const legacySidecar = getPlaneASidecar(legacyAnalysis);
   if (legacySidecar === undefined) {
     throw new Error("TypeScript analysis did not provide its private Plane-A sidecar");

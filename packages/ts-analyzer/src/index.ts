@@ -1,6 +1,6 @@
 /** Public surface of @semantic-context/ts-analyzer. */
-export { analyzeRepository } from "./analyze";
-export type { AnalysisResult } from "./analyze";
+export { analyzeRepository, analyzeRepositoryAsync, assembleRepository } from "./analyze";
+export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
 
 export {
   discoverFiles,
@@ -19,6 +19,8 @@ export type {
 
 export {
   extractTypeScript,
+  extractTypeScriptParallel,
+  resolveWorkerCount,
   TYPESCRIPT_DIALECT_VERSION,
 } from "./ts-symbols";
 export type {
@@ -26,6 +28,9 @@ export type {
   ExtractedSymbol,
   ExtractedImport,
   ExtractedCall,
+  IndexWorkerSelection,
+  ParallelTsExtraction,
+  TypeScriptParallelism,
 } from "./ts-symbols";
 
 export { parseMarkers, stripJsDoc } from "./markers";

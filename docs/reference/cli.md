@@ -30,7 +30,7 @@ fails to archive the entry it replaces because a live task still maps it (`faile
 cache entry … os error 5`). The install re-reads the host and accepts that outcome **only** when the
 expected plugin is installed, enabled and at the expected version, **and** the versioned cache entry
 Codex executes (`<codexHome>/plugins/cache/<marketplace>/<plugin>/<version>`, distinct from the
-marketplace snapshot reported as `source.path`) declares that version and holds three regular,
+marketplace snapshot reported as `source.path`) declares that version and holds four regular,
 non-empty runtime bundles whose SHA-256 match that snapshot. It then reports success with
 `cleanupDeferred: true` and `restartRequired: true`, and schedules a detached helper that retires
 only the version observed before the update. The helper re-reads Codex before and after its atomic
@@ -64,6 +64,11 @@ and validate the resulting model in one command.
 | option | description |
 | --- | --- |
 | `--polyglot` | for a new workspace, write config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes; refuses to overwrite an existing v1 config |
+| `--workers auto\|1..8` | select the same asynchronous TypeScript worker path as `index`; default `1`, while `auto` remains an explicit opt-in using up to two workers on large repositories |
+
+The plugin MCP `semctx_setup` keeps the synchronous single-program analyzer because its public
+input contract has no worker-selection field. The CLI is the supported setup surface for explicit
+worker selection.
 
 ## `init`
 
@@ -83,6 +88,21 @@ application code.
 
 Analyse the repository into the deterministic graph and atomically capture its control index
 snapshot. `--json` prints counts plus the versioned `freshnessSeal`; text output prints its hash.
+
+```text
+semctx index [--json] [--workers auto|1..8]
+```
+
+The default is `--workers 1`: current portable benchmarks prove deterministic equivalence but do
+not justify imposing extra compiler heaps on every repository. `--workers auto` stays single-core
+below 1,000 selected TypeScript files; above that threshold it uses at most two Bun workers and
+leaves one logical processor free. On the current 2,401-file Windows fixture this reduced retained
+RSS by roughly 40% while increasing wall time, so `auto` is a memory-oriented large-repository mode,
+not a blanket speed claim. Counts from 3 through 8 remain explicit tuning options.
+Repositories containing global scripts, triple-slash directives, parse
+errors, or global/module augmentations conservatively use the original single-program analyzer.
+Use `--workers 1` for a forced single-core comparison. Parallelism is operational telemetry in the
+command output; it is not part of the graph or freshness seal.
 
 ## `index-health`
 

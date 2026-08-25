@@ -416,7 +416,12 @@ describe("Codex and Claude Code plugin parity", () => {
     const codexDistFiles = distFiles("semctx-control");
     const claudeDistFiles = distFiles("claude-code");
     expect(claudeDistFiles).toEqual(codexDistFiles);
-    for (const required of ["semctx-mcp.js", "semctx.js", "semctx-shared.js"]) {
+    for (const required of [
+      "semctx-index-worker.js",
+      "semctx-mcp.js",
+      "semctx.js",
+      "semctx-shared.js",
+    ]) {
       expect(codexDistFiles).toContain(required);
     }
     for (const path of codexDistFiles) {

@@ -236,7 +236,7 @@ version without advancing and publishing the npm CLI at the same version.
 
 ## Plugin runtime
 
-The Claude Code and Codex plugins ship one byte-identical committed Bun build split across three
+The Claude Code and Codex plugins ship one byte-identical committed Bun runtime across four
 root-level artifacts:
 
 | artifact | source | role |
@@ -244,6 +244,7 @@ root-level artifacts:
 | `dist/semctx-mcp.js` | `packages/mcp-server/src/index.ts` | MCP server (agent tools) |
 | `dist/semctx.js` | `apps/cli/src/index.ts` | CLI for setup / verify / shell fallbacks |
 | `dist/semctx-shared.js` | shared imports from both entrypoints | fixed-name shared runtime chunk |
+| `dist/semctx-index-worker.js` | `packages/ts-analyzer/src/index-worker.ts` | standalone TypeScript index worker |
 
 Each `dist/` also carries the TypeScript standard-library declarations used by the analyzer, and
 the generated runtimes resolve them relative to the installed plugin directory rather than the

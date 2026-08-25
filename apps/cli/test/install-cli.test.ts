@@ -39,6 +39,7 @@ function bundleDigests(
   overrides: Record<string, CodexBundleProbe> = {},
 ): Record<string, CodexBundleProbe> {
   return {
+    "semctx-index-worker.js": { status: "ok", sha256: "worker-digest" },
     "semctx-mcp.js": { status: "ok", sha256: "mcp-digest" },
     "semctx-shared.js": { status: "ok", sha256: "shared-digest" },
     "semctx.js": { status: "ok", sha256: "cli-digest" },

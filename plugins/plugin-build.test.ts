@@ -18,7 +18,13 @@ import {
 const repoRoot = resolve(import.meta.dir, "..");
 const generatorEntrypoint = resolve(repoRoot, "scripts/build-plugin-runtime.ts");
 const committedDist = resolve(repoRoot, "plugins/claude-code/dist");
-const pluginRuntimeArtifactPaths = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
+const pluginRuntimeArtifactPaths = [
+  "semctx-index-worker.js",
+  "semctx-mcp.js",
+  "semctx-shared.js",
+  "semctx.js",
+] as const;
+const pluginRuntimeCoreArtifactPaths = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
 const portableTypeScriptPrelude =
   'var __dirname=import.meta.dir+"/typescript-lib",__filename=__dirname+"/typescript.js";';
 const temporary: string[] = [];
@@ -92,11 +98,12 @@ describe("split plugin runtime build", () => {
 
     expect(paths).toContain("semctx-mcp.js");
     expect(paths).toContain("semctx.js");
-    expect(paths).toHaveLength(3);
+    expect(paths).toContain("semctx-index-worker.js");
+    expect(paths).toHaveLength(4);
     chunkPath(paths);
   }, 30_000);
 
-  test("places the portable TypeScript payload only in the shared chunk", async () => {
+  test("places portable TypeScript payloads only in the shared runtime and standalone worker", async () => {
     const built = await artifacts();
     const paths = [...built.keys()];
     const sharedChunk = chunkPath(paths);
@@ -105,7 +112,9 @@ describe("split plugin runtime build", () => {
       const body = new TextDecoder().decode(bytes);
       expect(body).not.toContain(JSON.stringify(repoRoot).slice(1, -1));
       expect(body).not.toMatch(/typescript@[^"']+node_modules[^"']+typescript[^"']+lib/);
-      expect(body.includes(portableTypeScriptPrelude)).toBe(relativePath === sharedChunk);
+      expect(body.includes(portableTypeScriptPrelude)).toBe(
+        relativePath === sharedChunk || relativePath === "semctx-index-worker.js",
+      );
     }
   }, 30_000);
 
@@ -132,7 +141,7 @@ describe("shared TypeScript prelude topology", () => {
 
   function generatedSources(preludeByPath: Record<string, string> = {}): Map<string, string> {
     return new Map(
-      pluginRuntimeArtifactPaths.map((path): [string, string] => [
+      pluginRuntimeCoreArtifactPaths.map((path): [string, string] => [
         path,
         `// ${path}\n${preludeByPath[path] ?? ""}\n`,
       ]),
@@ -145,7 +154,7 @@ describe("shared TypeScript prelude topology", () => {
       prelude,
     );
 
-    expect([...built.keys()].sort()).toEqual([...pluginRuntimeArtifactPaths].sort());
+    expect([...built.keys()].sort()).toEqual([...pluginRuntimeCoreArtifactPaths].sort());
     for (const [path, bytes] of built) {
       const body = new TextDecoder().decode(bytes);
       expect(body).not.toContain(prelude.bundled);
@@ -160,7 +169,7 @@ describe("shared TypeScript prelude topology", () => {
         prelude,
       )
     ).toThrow(
-      /exactly one bundled TypeScript path prelude, in semctx-shared\.js; found semctx-mcp\.js=1, semctx-shared\.js=0, semctx\.js=0/,
+      /exactly one bundled TypeScript path prelude, in semctx-shared\.js/,
     );
   });
 
@@ -170,12 +179,12 @@ describe("shared TypeScript prelude topology", () => {
         generatedSources({ "semctx-shared.js": prelude.bundled, "semctx.js": prelude.bundled }),
         prelude,
       )
-    ).toThrow(/bundled TypeScript path prelude.*found semctx-mcp\.js=0, semctx-shared\.js=1, semctx\.js=1/);
+    ).toThrow(/bundled TypeScript path prelude/);
   });
 
   test("rejects a build that emits no prelude at all", () => {
     expect(() => portablePluginRuntimeArtifacts(generatedSources(), prelude)).toThrow(
-      /bundled TypeScript path prelude.*found semctx-mcp\.js=0, semctx-shared\.js=0, semctx\.js=0/,
+      /bundled TypeScript path prelude/,
     );
   });
 
@@ -191,11 +200,11 @@ describe("shared TypeScript prelude topology", () => {
         prelude,
       )
     ).toThrow(
-      /exactly one portable TypeScript path prelude, in semctx-shared\.js; found semctx-mcp\.js=1, semctx-shared\.js=1, semctx\.js=0/,
+      /exactly one portable TypeScript path prelude, in semctx-shared\.js/,
     );
   });
 
-  test("rejects an artifact set that is not exactly the three public runtimes", () => {
+  test("rejects an artifact set that is not exactly the public runtimes and worker", () => {
     const sources = generatedSources({ "semctx-shared.js": prelude.bundled });
     sources.set("semctx-extra.js", "// extra\n");
 

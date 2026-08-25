@@ -18,8 +18,13 @@ const CODEX_PLUGIN = "semctx-control";
 const CLAUDE_MARKETPLACE = "semctx-stable";
 const LEGACY_CLAUDE_MARKETPLACE = "semctx";
 const CLAUDE_PLUGIN = "semctx";
-/** Split runtime shipped by the plugin; all three must be present for a payload to count as whole. */
-const CODEX_PLUGIN_RUNTIME_BUNDLES = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
+/** Runtime shipped by the plugin; all four artifacts must be present for a payload to count as whole. */
+const CODEX_PLUGIN_RUNTIME_BUNDLES = [
+  "semctx-index-worker.js",
+  "semctx-mcp.js",
+  "semctx-shared.js",
+  "semctx.js",
+] as const;
 /**
  * Exactly `os error 5` / `os error 32`, never `50` or `320`: the word boundary is the whole point,
  * a substring test would widen the override to unrelated Windows failures.

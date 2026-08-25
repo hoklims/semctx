@@ -41,6 +41,7 @@
     "plugin:build": "bun scripts/build-plugin-runtime.ts",
     "plugin:check": "bun scripts/build-plugin-runtime.ts --check",
     "cli:build": "bun scripts/build-cli-package.ts",
+    "bench:index-workers": "bun scripts/benchmark-multicore-index.ts",
     "semctx": "bun apps/cli/src/index.ts"
   },
   "devDependencies": {

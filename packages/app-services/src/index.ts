@@ -1,4 +1,4 @@
-export { analyzeAndBuildClaims, indexRepository } from "./indexing";
+export { analyzeAndBuildClaims, indexRepository, indexRepositoryAsync } from "./indexing";
 export { controlAgentLifecycleCheckpoint } from "./agent-lifecycle";
 export { captureControlHandoffV2, resumeControlHandoffV2 } from "./control-handoff";
 export { probeCliCompatibility } from "./cli-compatibility";
@@ -15,6 +15,7 @@ export {
   computeSetupReadiness,
   evaluatePolyglotSetupPolicy,
   setupRepository,
+  setupRepositoryAsync,
 } from "./setup";
 export type {
   ComputeSetupReadinessInput,

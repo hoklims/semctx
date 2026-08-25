@@ -21,9 +21,12 @@ import {
   countTypeScriptFiles,
   discoverRepository,
   sourceLanguage,
+  type DiscoveryResult,
+  type IndexWorkerSelection,
+  type TypeScriptParallelism,
 } from "@semantic-context/ts-analyzer";
 import { indexHealth } from "./index-health";
-import { indexRepository } from "./indexing";
+import { indexRepository, indexRepositoryAsync, type RepositoryIndex } from "./indexing";
 import { openReadyRepository } from "./readiness";
 
 /**
@@ -53,6 +56,8 @@ export interface SetupRepositoryOptions {
   now?: string;
   /** Optional phase callback (CLI live progress). Never required for correctness. */
   onPhase?: (event: SetupPhaseEvent) => void;
+  /** Async setup only: TypeScript worker selection. The synchronous API remains mono-core. */
+  workers?: IndexWorkerSelection;
 }
 
 export interface SetupRepositoryReport {
@@ -82,6 +87,8 @@ export interface SetupRepositoryReport {
   edges: number;
   claims: number;
   freshnessSeal: unknown;
+  /** Operational telemetry only; excluded from the graph and freshness seal. */
+  parallelism?: TypeScriptParallelism;
   indexHealth: {
     binding: unknown;
     freshness: unknown;
@@ -235,6 +242,22 @@ function resolveIndexedAt(now: string | undefined): string {
   return new Date().toISOString();
 }
 
+interface PreparedSetupRepository {
+  kind: "prepared";
+  root: string;
+  polyglot: boolean;
+  onPhase: SetupRepositoryOptions["onPhase"];
+  already: boolean;
+  configWritten: boolean;
+  config: SemctxConfig;
+  discovery: DiscoveryResult;
+  fileCount: number;
+  selectedCount: number;
+  selectedByLanguage: Record<string, number>;
+  semanticFilesCreated: number;
+  gitignore: "create" | "update" | "present";
+}
+
 /**
  * One-shot repository bootstrap: config + semantic scaffold + graph index + validation.
  *
@@ -249,6 +272,26 @@ export function setupRepository(
   root: string,
   options: SetupRepositoryOptions = {},
 ): SetupResult {
+  const prepared = prepareSetupRepository(root, options);
+  if (prepared.kind === "setup_refused") return prepared;
+  return completeSetupRepository(prepared, indexRepository(root, resolveIndexedAt(options.now)));
+}
+
+/** Async CLI setup path; additive so existing in-process setup callers remain synchronous. */
+export async function setupRepositoryAsync(
+  root: string,
+  options: SetupRepositoryOptions = {},
+): Promise<SetupResult> {
+  const prepared = prepareSetupRepository(root, options);
+  if (prepared.kind === "setup_refused") return prepared;
+  const indexed = await indexRepositoryAsync(root, resolveIndexedAt(options.now), options.workers ?? "auto");
+  return completeSetupRepository(prepared, indexed);
+}
+
+function prepareSetupRepository(
+  root: string,
+  options: SetupRepositoryOptions,
+): PreparedSetupRepository | SetupRefusedReport {
   const polyglot = options.polyglot === true;
   const onPhase = options.onPhase;
   const already = isInitialized(root);
@@ -294,7 +337,42 @@ export function setupRepository(
     selectedByLanguage,
   });
 
-  const { analysis, claims, freshnessSeal } = indexRepository(root, resolveIndexedAt(options.now));
+  return {
+    kind: "prepared",
+    root,
+    polyglot,
+    onPhase,
+    already,
+    configWritten,
+    config,
+    discovery,
+    fileCount,
+    selectedCount,
+    selectedByLanguage,
+    semanticFilesCreated: created,
+    gitignore: scaffold.gitignore.action,
+  };
+}
+
+function completeSetupRepository(
+  prepared: PreparedSetupRepository,
+  indexed: RepositoryIndex,
+): SetupRepositoryReport {
+  const {
+    root,
+    polyglot,
+    onPhase,
+    already,
+    configWritten,
+    config,
+    discovery,
+    fileCount,
+    selectedCount,
+    selectedByLanguage,
+    semanticFilesCreated,
+    gitignore,
+  } = prepared;
+  const { analysis, claims, freshnessSeal, parallelism } = indexed;
   const reader = openReadyRepository(root);
   let facts: RepositoryFacts;
   try {
@@ -368,6 +446,7 @@ export function setupRepository(
     edges: analysis.graph.edges.length,
     claims: claims.length,
     freshnessSeal,
+    ...(parallelism === undefined ? {} : { parallelism }),
     indexHealth: {
       binding: health.binding,
       freshness: health.freshness,
@@ -375,8 +454,8 @@ export function setupRepository(
       workspaceDiagnostics: health.workspace?.diagnostics ?? ([] as const),
       reasonSummary: health.reasonSummary,
     },
-    semanticFilesCreated: created,
-    gitignore: scaffold.gitignore.action,
+    semanticFilesCreated,
+    gitignore,
     check: {
       ok: check.ok,
       nodes: check.counts.nodes,

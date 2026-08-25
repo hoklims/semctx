@@ -35,7 +35,7 @@ const SEMCTX_URL = "https://github.com/hoklims/semctx.git";
 const FORGED_VERSION = "9.9.9-forged";
 /** What a replacement object would substitute in, if replacement were honoured. */
 const REPLACED_VERSION = "7.7.7-replaced";
-const BUNDLES = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
+const BUNDLES = ["semctx-index-worker.js", "semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
 const TIMEOUT_MS = 180_000;
 
 let work: string;

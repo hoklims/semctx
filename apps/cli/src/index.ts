@@ -3,9 +3,9 @@ import { isSemctxError } from "@semantic-context/core";
 import packageJson from "../package.json";
 import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args";
 import { fail, info, c } from "./output";
-import { runSetup } from "./commands/setup";
+import { runSetupAsync } from "./commands/setup";
 import { runInit } from "./commands/init";
-import { runIndex } from "./commands/index-cmd";
+import { runIndexAsync } from "./commands/index-cmd";
 import { runTaskCreate } from "./commands/task";
 import { runContextPrepare } from "./commands/context";
 import { runVerifyDiff } from "./commands/verify";
@@ -37,11 +37,13 @@ Core:
                                     deadline-bounded and acceptance-capped; UNKNOWN offline)
   setup [--preset github-claude]   one command: config + index + semantic scaffold + check (idempotent)
       --polyglot                    create a new workspace with config v2 glob selection
+      --workers auto|N              TypeScript workers (default: 1; auto uses up to 2 on large repos)
   init [--preset github-claude]    initialise .semctx/ (db + config)
       --polyglot                    opt into config v2 glob selection + TS/Python analyzers
       --dry-run --force            preview / overwrite existing files
       --with-github-action --with-claude-code --with-devcontainer   preset extras
-  index [--json]                   analyse the repo -> deterministic graph
+  index [--json] [--workers auto|N]
+                                   analyse the repo -> deterministic graph (default: 1; auto uses up to 2 on large repos)
   index-health [--json]            report index binding, freshness, and analysis coverage
   verify diff [options]            analyse a git range -> impact + PASS/WARN/BLOCK
       --base <ref>                   compare against <ref> (real merge-base; required in CI)
@@ -118,11 +120,11 @@ async function dispatch(args: ParsedArgs): Promise<number> {
     case "plugin-status":
       return runPluginStatus(root, args);
     case "setup":
-      return runSetup(root, args);
+      return runSetupAsync(root, args);
     case "init":
       return runInit(root, args);
     case "index":
-      return runIndex(root, args);
+      return runIndexAsync(root, args);
     case "index-health":
       return runIndexHealth(root, args);
     case "task": {

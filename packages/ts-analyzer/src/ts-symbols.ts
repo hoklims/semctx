@@ -1,6 +1,7 @@
 import ts from "typescript";
-import { relative } from "node:path";
-import { normalizePath } from "@semantic-context/core";
+import { existsSync, statSync } from "node:fs";
+import { posix, relative, resolve } from "node:path";
+import { compareIds, normalizePath } from "@semantic-context/core";
 import type { NodeKind } from "@semantic-context/core";
 import { parseMarkers, type ParsedMarker } from "./markers";
 
@@ -40,6 +41,57 @@ export interface TsExtraction {
   symbols: ExtractedSymbol[];
   imports: ExtractedImport[];
   calls: ExtractedCall[];
+}
+
+export type IndexWorkerSelection = "auto" | number;
+
+export interface TypeScriptParallelism {
+  requested: IndexWorkerSelection;
+  used: number;
+  mode: "parallel" | "single" | "preflight-fallback" | "worker-unavailable-fallback";
+  reason?: string;
+}
+
+export interface ParallelTsExtraction {
+  extraction: TsExtraction;
+  parallelism: TypeScriptParallelism;
+}
+
+interface ExtractionWorkerRequest {
+  schemaVersion: 1;
+  jobId: string;
+  repoRoot: string;
+  rootAbsPaths: string[];
+  emitAbsPaths: string[];
+}
+
+interface ExtractionWorkerSuccess {
+  schemaVersion: 1;
+  jobId: string;
+  ok: true;
+  extraction: TsExtraction;
+}
+
+interface ExtractionWorkerFailure {
+  schemaVersion: 1;
+  jobId: string;
+  ok: false;
+  error: string;
+}
+
+type ExtractionWorkerResponse = ExtractionWorkerSuccess | ExtractionWorkerFailure;
+
+interface ExtractionWorkerJob {
+  promise: Promise<TsExtraction>;
+  cancel: (error: unknown) => void;
+}
+
+type ExtractionWorkerFactory = () => Worker;
+let extractionWorkerFactoryForTesting: ExtractionWorkerFactory | undefined;
+
+/** Internal fault-injection seam; intentionally not exported from the package root. */
+export function __setExtractionWorkerFactoryForTesting(factory: ExtractionWorkerFactory | undefined): void {
+  extractionWorkerFactoryForTesting = factory;
 }
 
 const COMPILER_OPTIONS: ts.CompilerOptions = {
@@ -190,6 +242,296 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
   }
 
   return { modules, symbols, imports, calls };
+}
+
+/**
+ * Parallel extraction is deliberately additive: synchronous callers keep the original one-program
+ * semantics. The async CLI path partitions only repositories whose sources prove they are isolated
+ * external modules. Declaration files are repeated in every program as shared type context.
+ */
+export async function extractTypeScriptParallel(
+  rootAbsPaths: string[],
+  repoRoot: string,
+  requested: IndexWorkerSelection = "auto",
+): Promise<ParallelTsExtraction> {
+  const workerLimit = resolveWorkerCount(requested, rootAbsPaths.length);
+  if (workerLimit <= 1 || rootAbsPaths.length <= 1) {
+    return {
+      extraction: extractTypeScript(rootAbsPaths, repoRoot),
+      parallelism: { requested, used: 1, mode: "single" },
+    };
+  }
+
+  const preflight = preflightParallelSafety(rootAbsPaths);
+  if (!preflight.safe) {
+    return {
+      extraction: extractTypeScript(rootAbsPaths, repoRoot),
+      parallelism: {
+        requested,
+        used: 1,
+        mode: "preflight-fallback",
+        reason: preflight.reason,
+      },
+    };
+  }
+
+  const declarationPaths = rootAbsPaths.filter((path) => path.endsWith(".d.ts"));
+  const sourcePaths = rootAbsPaths.filter((path) => !path.endsWith(".d.ts"));
+  const chunks = weightedChunks(sourcePaths, Math.min(workerLimit, sourcePaths.length));
+  if (chunks.length <= 1) {
+    return {
+      extraction: extractTypeScript(rootAbsPaths, repoRoot),
+      parallelism: { requested, used: 1, mode: "single" },
+    };
+  }
+
+  let launched = false;
+  const workers: Worker[] = [];
+  const jobs: ExtractionWorkerJob[] = [];
+  try {
+    for (const [index, chunk] of chunks.entries()) {
+      const worker = createExtractionWorker();
+      workers.push(worker);
+      launched = true;
+      const jobId = `typescript-chunk-${index + 1}-of-${chunks.length}`;
+      jobs.push(runExtractionWorker(worker, {
+        schemaVersion: 1,
+        jobId,
+        repoRoot,
+        rootAbsPaths: [...chunk, ...declarationPaths],
+        emitAbsPaths: chunk,
+      }));
+    }
+    const responses = await Promise.all(jobs.map((job) => job.promise));
+    return {
+      extraction: mergeExtractions(responses, preflight.emitAbsOrder, repoRoot),
+      parallelism: { requested, used: chunks.length, mode: "parallel" },
+    };
+  } catch (error) {
+    for (const job of jobs) job.cancel(error);
+    for (const worker of workers.slice(jobs.length)) worker.terminate();
+    await Promise.allSettled(jobs.map((job) => job.promise));
+    if (!launched) {
+      return {
+        extraction: extractTypeScript(rootAbsPaths, repoRoot),
+        parallelism: {
+          requested,
+          used: 1,
+          mode: "worker-unavailable-fallback",
+          reason: error instanceof Error ? error.message : String(error),
+        },
+      };
+    }
+    throw error;
+  }
+}
+
+export function resolveWorkerCount(requested: IndexWorkerSelection, fileCount: number): number {
+  if (requested !== "auto") {
+    if (!Number.isInteger(requested) || requested < 1 || requested > 8) {
+      throw new Error("workers must be 'auto' or an integer from 1 through 8");
+    }
+    return Math.min(requested, Math.max(1, fileCount));
+  }
+  // Isolated-process measurements show the worker path trading wall time for substantially lower
+  // retained RSS on large corpora. Keep auto single-core until that memory trade-off is relevant,
+  // then use two cores; higher counts remain an explicit operator choice.
+  if (fileCount < 1_000) return 1;
+  const available = typeof navigator === "undefined" ? 1 : navigator.hardwareConcurrency;
+  return Math.min(2, Math.max(1, available - 1), Math.max(1, fileCount));
+}
+
+function preflightParallelSafety(rootAbsPaths: readonly string[]):
+  | { safe: true; emitAbsOrder: string[] }
+  | { safe: false; reason: string } {
+  // Safety inspection needs source ordering and syntax only. Avoid loading the standard library
+  // and type packages here: each Worker builds the real semantic Program for its own chunk.
+  const program = ts.createProgram([...rootAbsPaths], {
+    ...COMPILER_OPTIONS,
+    noLib: true,
+    types: [],
+  });
+  const rootSet = new Set(rootAbsPaths.map(normalizePath));
+  const roots = program.getSourceFiles().filter((source) => rootSet.has(normalizePath(source.fileName)));
+  if (roots.length !== rootSet.size) return { safe: false, reason: "program omitted an extraction root" };
+  for (const sf of roots) {
+    const path = sf.fileName;
+    const diagnostics = (sf as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
+    if (diagnostics.length > 0) return { safe: false, reason: `parse diagnostics: ${path}` };
+    if (sf.referencedFiles.length > 0 || sf.typeReferenceDirectives.length > 0 || sf.libReferenceDirectives.length > 0) {
+      return { safe: false, reason: `triple-slash directive: ${path}` };
+    }
+    if (!sf.isDeclarationFile && !ts.isExternalModule(sf)) {
+      return { safe: false, reason: `global script: ${path}` };
+    }
+    let augmentation = false;
+    const visit = (node: ts.Node): void => {
+      if (ts.isModuleDeclaration(node)) {
+        if ((node.flags & ts.NodeFlags.GlobalAugmentation) !== 0 || ts.isStringLiteral(node.name)) {
+          augmentation = true;
+        }
+      }
+      if (!augmentation) ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(sf, visit);
+    if (augmentation) return { safe: false, reason: `global or module augmentation: ${path}` };
+  }
+  return {
+    safe: true,
+    emitAbsOrder: roots.filter((source) => !source.isDeclarationFile).map((source) => source.fileName),
+  };
+}
+
+function weightedChunks(paths: readonly string[], count: number): string[][] {
+  const chunks = Array.from({ length: count }, () => ({ weight: 0, paths: [] as string[] }));
+  const weighted = paths.map((path) => ({ path, weight: statSync(path).size }))
+    .sort((left, right) => right.weight - left.weight || compareIds(left.path, right.path));
+  for (const item of weighted) {
+    chunks.sort((left, right) => left.weight - right.weight || comparePathLists(left.paths, right.paths));
+    chunks[0]!.paths.push(item.path);
+    chunks[0]!.weight += item.weight;
+  }
+  return chunks.map((chunk) => chunk.paths.sort(compareIds)).filter((chunk) => chunk.length > 0);
+}
+
+function comparePathLists(left: readonly string[], right: readonly string[]): number {
+  return compareIds(left[0] ?? "", right[0] ?? "");
+}
+
+function createExtractionWorker(): Worker {
+  if (extractionWorkerFactoryForTesting !== undefined) return extractionWorkerFactoryForTesting();
+  const packaged = resolve(import.meta.dir, "semctx-index-worker.js");
+  return new Worker(existsSync(packaged) ? packaged : resolve(import.meta.dir, "index-worker.ts"));
+}
+
+function runExtractionWorker(worker: Worker, request: ExtractionWorkerRequest): ExtractionWorkerJob {
+  let cancel: (error: unknown) => void = () => {};
+  const promise = new Promise<TsExtraction>((resolvePromise, reject) => {
+    let settled = false;
+    const timeout = setTimeout(() => fail(new Error(`index worker timed out: ${request.jobId}`)), 300_000);
+    const fail = (error: unknown): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      worker.terminate();
+      reject(error instanceof Error ? error : new Error(String(error)));
+    };
+    cancel = fail;
+    worker.onerror = (event) => fail(new Error(`index worker crashed: ${event.message}`));
+    worker.onmessage = (event: MessageEvent<unknown>) => {
+      if (settled) return;
+      const response = event.data;
+      if (!isExtractionWorkerResponse(response, request)) {
+        fail(new Error("index worker returned a malformed extraction DTO"));
+        return;
+      }
+      if (!response.ok) {
+        fail(new Error(`index worker failed: ${response.error}`));
+        return;
+      }
+      settled = true;
+      clearTimeout(timeout);
+      worker.terminate();
+      resolvePromise(response.extraction);
+    };
+    worker.postMessage(request);
+  });
+  return { promise, cancel };
+}
+
+function isExtractionWorkerResponse(
+  value: unknown,
+  request: ExtractionWorkerRequest,
+): value is ExtractionWorkerResponse {
+  if (typeof value !== "object" || value === null) return false;
+  const record = value as Record<string, unknown>;
+  if (
+    record["schemaVersion"] !== 1
+    || record["jobId"] !== request.jobId
+    || typeof record["ok"] !== "boolean"
+  ) return false;
+  if (record["ok"] === false) return typeof record["error"] === "string";
+  const extraction = record["extraction"];
+  if (typeof extraction !== "object" || extraction === null) return false;
+  const dto = extraction as Record<string, unknown>;
+  if (!(Array.isArray(dto["modules"])
+    && Array.isArray(dto["symbols"])
+    && Array.isArray(dto["imports"])
+    && Array.isArray(dto["calls"]))) return false;
+  const emitPaths = new Set(request.emitAbsPaths.map((path) => normalizePath(relative(request.repoRoot, path))));
+  const modules = dto["modules"];
+  if (!modules.every((path) => typeof path === "string" && emitPaths.has(path))) return false;
+  if (new Set(modules).size !== modules.length || modules.length !== emitPaths.size) return false;
+  const owned = (path: unknown): path is string => typeof path === "string" && emitPaths.has(path);
+  const inRepository = (path: unknown): path is string => {
+    if (typeof path !== "string" || path.length === 0 || path.includes("\\") || path.startsWith("/")) return false;
+    if (/^[A-Za-z]:/.test(path) || path === ".." || path.startsWith("../")) return false;
+    return posix.normalize(path) === path;
+  };
+  const line = (value: unknown): value is number => Number.isInteger(value) && Number(value) >= 1;
+  const optionalString = (value: unknown): value is string | undefined => value === undefined || typeof value === "string";
+  const stringArray = (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every((item) => typeof item === "string");
+  const symbolKinds = new Set(["function", "class", "interface", "type", "enum"]);
+  const markerTags = new Set(["capability", "invariant", "contract", "risk", "boundedContext", "tag"]);
+  const marker = (value: unknown): boolean => isRecord(value)
+    && typeof value["tag"] === "string"
+    && markerTags.has(value["tag"])
+    && typeof value["slug"] === "string"
+    && optionalString(value["statement"]);
+  return dto["symbols"].every((item) => isRecord(item)
+      && typeof item["name"] === "string"
+      && typeof item["kind"] === "string"
+      && symbolKinds.has(item["kind"])
+      && owned(item["relPath"])
+      && line(item["startLine"])
+      && line(item["endLine"])
+      && item["endLine"] >= item["startLine"]
+      && typeof item["exported"] === "boolean"
+      && optionalString(item["jsdoc"])
+      && Array.isArray(item["markers"])
+      && item["markers"].every(marker))
+    && dto["imports"].every((item) => isRecord(item)
+      && owned(item["fromRelPath"])
+      && typeof item["moduleSpecifier"] === "string"
+      && (item["resolvedRelPath"] === undefined || inRepository(item["resolvedRelPath"]))
+      && stringArray(item["names"])
+      && line(item["line"]))
+    && dto["calls"].every((item) => isRecord(item)
+      && owned(item["callerRelPath"])
+      && optionalString(item["callerSymbol"])
+      && typeof item["calleeName"] === "string"
+      && (item["calleeRelPath"] === undefined || inRepository(item["calleeRelPath"]))
+      && optionalString(item["calleeSymbol"])
+      && line(item["line"]));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function mergeExtractions(
+  extractions: readonly TsExtraction[],
+  expectedSourcePaths: readonly string[],
+  repoRoot: string,
+): TsExtraction {
+  const order = new Map(expectedSourcePaths.map((path, index) => [normalizePath(relative(repoRoot, path)), index]));
+  const rank = (path: string): number => order.get(path) ?? Number.MAX_SAFE_INTEGER;
+  const merged: TsExtraction = {
+    modules: extractions.flatMap((value) => value.modules).sort((left, right) => rank(left) - rank(right)),
+    symbols: extractions.flatMap((value) => value.symbols).sort((left, right) =>
+      rank(left.relPath) - rank(right.relPath) || left.startLine - right.startLine),
+    imports: extractions.flatMap((value) => value.imports).sort((left, right) =>
+      rank(left.fromRelPath) - rank(right.fromRelPath) || left.line - right.line),
+    calls: extractions.flatMap((value) => value.calls).sort((left, right) =>
+      rank(left.callerRelPath) - rank(right.callerRelPath) || left.line - right.line),
+  };
+  const actual = [...merged.modules].sort();
+  const expected = expectedSourcePaths.map((path) => normalizePath(relative(repoRoot, path)));
+  if (new Set(actual).size !== actual.length || actual.join("\n") !== expected.sort().join("\n")) {
+    throw new Error("parallel TypeScript extraction did not cover every source path exactly once");
+  }
+  return merged;
 }
 
 function isFunctionLike(node: ts.Node): boolean {

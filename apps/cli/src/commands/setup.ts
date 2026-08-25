@@ -1,13 +1,17 @@
 import {
   evaluatePolyglotSetupPolicy,
   setupRepository,
+  setupRepositoryAsync,
+  type SetupPhaseEvent,
   type SetupRefusedReport,
+  type SetupResult,
 } from "@semantic-context/app-services";
 import { isInitialized, loadConfig } from "@semantic-context/repository-store";
 import { runPreset, validatePreset } from "./preset";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, success, warn, fail, json, c, nowIso } from "../output";
+import { parseIndexWorkers } from "./index-cmd";
 
 /**
  * `semctx setup` — one command that makes a repository ready: config + graph index + semantic
@@ -17,7 +21,32 @@ import { info, heading, success, warn, fail, json, c, nowIso } from "../output";
  * The core mutation lives in `@semantic-context/app-services` (`setupRepository`) so the plugin MCP
  * tool can call the same path without a global package install.
  */
+interface PreparedCliSetup {
+  preset: string | undefined;
+  asJson: boolean;
+  polyglot: boolean;
+  policyRefusal: SetupRefusedReport | null;
+  onPhase: ((event: SetupPhaseEvent) => void) | undefined;
+  earlyExit?: number;
+}
+
 export function runSetup(root: string, args: ParsedArgs): number {
+  const prepared = prepareCliSetup(root, args);
+  if (prepared.earlyExit !== undefined) return prepared.earlyExit;
+  const report = prepared.policyRefusal ?? setupRepository(root, setupOptions(prepared));
+  return renderSetup(report, prepared);
+}
+
+export async function runSetupAsync(root: string, args: ParsedArgs): Promise<number> {
+  const workers = parseIndexWorkers(args);
+  const prepared = prepareCliSetup(root, args);
+  if (prepared.earlyExit !== undefined) return prepared.earlyExit;
+  const report = prepared.policyRefusal
+    ?? await setupRepositoryAsync(root, { ...setupOptions(prepared), workers });
+  return renderSetup(report, prepared);
+}
+
+function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {
   const preset = flagString(args, "preset");
   const asJson = flagBool(args, "json");
   const polyglot = flagBool(args, "polyglot");
@@ -46,18 +75,20 @@ export function runSetup(root: string, args: ParsedArgs): number {
         includeConfig: false,
         emitOutput: false,
       });
-      if (code !== 0) return code;
+      if (code !== 0) {
+        return { preset, asJson, polyglot, policyRefusal, onPhase: undefined, earlyExit: code };
+      }
     }
   }
 
-  const report = policyRefusal ?? setupRepository(
-    root,
-    {
-      polyglot,
-      now: nowIso(),
-      onPhase: asJson
-        ? undefined
-        : (event) => {
+  return {
+    preset,
+    asJson,
+    polyglot,
+    policyRefusal,
+    onPhase: asJson
+      ? undefined
+      : (event) => {
         switch (event.phase) {
           case "config":
             info(
@@ -121,8 +152,23 @@ export function runSetup(root: string, args: ParsedArgs): number {
             return;
         }
         },
-    },
-  );
+  };
+}
+
+function setupOptions(prepared: PreparedCliSetup): {
+  polyglot: boolean;
+  now: string;
+  onPhase: PreparedCliSetup["onPhase"];
+} {
+  return {
+    polyglot: prepared.polyglot,
+    now: nowIso(),
+    onPhase: prepared.onPhase,
+  };
+}
+
+function renderSetup(report: SetupResult, prepared: PreparedCliSetup): number {
+  const { asJson, preset } = prepared;
 
   if (report.kind === "setup_refused") {
     if (asJson) {
@@ -145,6 +191,9 @@ export function runSetup(root: string, args: ParsedArgs): number {
   }
 
   info("");
+  if (report.parallelism !== undefined) {
+    info(c.dim(`TypeScript analysis: ${report.parallelism.used} worker(s), ${report.parallelism.mode}`));
+  }
   if (report.nodes === 0) {
     warn(
       report.selection.configVersion === 1
