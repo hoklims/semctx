@@ -95,10 +95,11 @@ semctx index [--json] [--workers auto|1..8]
 
 The default is `--workers 1`: current portable benchmarks prove deterministic equivalence but do
 not justify imposing extra compiler heaps on every repository. `--workers auto` stays single-core
-below 1,000 selected TypeScript files; above that threshold it uses at most two Bun workers and
-leaves one logical processor free. On the current 2,401-file Windows fixture this reduced retained
-RSS by roughly 40% while increasing wall time, so `auto` is a memory-oriented large-repository mode,
-not a blanket speed claim. Counts from 3 through 8 remain explicit tuning options.
+below 1,000 selected TypeScript files. Above that threshold it uses at most two Bun workers on
+platforms where the current evidence supports the memory trade-off. It remains single-core on
+macOS because the exact Apple Silicon CI fixture currently shows both higher wall time and retained
+RSS with multiple Workers. Explicit counts from 2 through 8 remain available for repository-specific
+experiments; `auto` is not a blanket speed claim.
 Repositories containing global scripts, triple-slash directives, parse
 errors, or global/module augmentations conservatively use the original single-program analyzer.
 Selected roots linked by canonically resolved module edges stay in the same component, including

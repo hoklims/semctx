@@ -290,13 +290,13 @@ Core:
                                     deadline-bounded and acceptance-capped; UNKNOWN offline)
   setup [--preset github-claude]   one command: config + index + semantic scaffold + check (idempotent)
       --polyglot                    create a new workspace with config v2 glob selection
-      --workers auto|N              TypeScript workers (default: 1; auto uses up to 2 on large repos)
+      --workers auto|N              TypeScript workers (default: 1; auto is evidence-gated by platform)
   init [--preset github-claude]    initialise .semctx/ (db + config)
       --polyglot                    opt into config v2 glob selection + TS/Python analyzers
       --dry-run --force            preview / overwrite existing files
       --with-github-action --with-claude-code --with-devcontainer   preset extras
   index [--json] [--workers auto|N]
-                                   analyse the repo -> deterministic graph (default: 1; auto uses up to 2 on large repos)
+                                   analyse the repo -> deterministic graph (default: 1; auto is evidence-gated by platform)
   index-health [--json]            report index binding, freshness, and analysis coverage
   verify diff [options]            analyse a git range -> impact + PASS/WARN/BLOCK
       --base <ref>                   compare against <ref> (real merge-base; required in CI)

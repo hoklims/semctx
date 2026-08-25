@@ -367,6 +367,10 @@ export function resolveWorkerCount(requested: IndexWorkerSelection, fileCount: n
   // retained RSS on large corpora. Keep auto single-core until that memory trade-off is relevant,
   // then use two cores; higher counts remain an explicit operator choice.
   if (fileCount < 1_000) return 1;
+  // The exact macos-15 Apple Silicon benchmark currently shows both higher wall time and retained
+  // RSS with multiple Workers. Keep automatic selection safe there until real-repository evidence
+  // establishes a crossover; explicit worker counts remain available for operator experiments.
+  if (process.platform === "darwin") return 1;
   const available = typeof navigator === "undefined" ? 1 : navigator.hardwareConcurrency;
   return Math.min(2, Math.max(1, available - 1), Math.max(1, fileCount));
 }

@@ -164,6 +164,10 @@ describe("parallel TypeScript extraction", () => {
   test("auto is capped and explicit values are bounded", () => {
     expect(resolveWorkerCount("auto", 100)).toBeGreaterThanOrEqual(1);
     expect(resolveWorkerCount("auto", 100)).toBeLessThanOrEqual(4);
+    const available = typeof navigator === "undefined" ? 1 : navigator.hardwareConcurrency;
+    const expectedAuto = process.platform === "darwin" ? 1 : Math.min(2, Math.max(1, available - 1));
+    expect(resolveWorkerCount("auto", 2_000)).toBe(expectedAuto);
+    expect(resolveWorkerCount(2, 2_000)).toBe(2);
     expect(resolveWorkerCount(8, 3)).toBe(3);
     expect(() => resolveWorkerCount(0, 3)).toThrow(/1 through 8/);
     expect(() => resolveWorkerCount(9, 3)).toThrow(/1 through 8/);
