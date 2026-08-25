@@ -178,10 +178,14 @@ describe("semctx_prepare_task", () => {
       const database = dbPath(recoveryRoot);
       const walSetup = new Database(database);
       walSetup.exec("PRAGMA journal_mode=WAL;");
-      walSetup.close();
       const blocker = new Database(database, { readonly: true });
       blocker.exec("BEGIN;");
       blocker.query("SELECT value FROM meta WHERE key = 'schema_version'").get();
+      walSetup.query("INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)").run(
+        "wal_recovery_probe",
+        "pending",
+      );
+      walSetup.close();
       try {
         await expectFailure(
           () => prepareTaskTool(recoveryRoot, { task: "first WAL recovery attempt" }),
