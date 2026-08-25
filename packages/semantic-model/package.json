@@ -12,6 +12,6 @@
   "dependencies": {
     "@semantic-context/control-model": "workspace:*",
     "@semantic-context/core": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.4.3"
   }
 }

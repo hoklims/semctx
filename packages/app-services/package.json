@@ -22,7 +22,7 @@
     "@semantic-context/semantic-engine": "workspace:*",
     "@semantic-context/control-model": "workspace:*",
     "@semantic-context/control-engine": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@semantic-context/test-fixtures": "workspace:*"

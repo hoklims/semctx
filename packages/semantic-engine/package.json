@@ -16,7 +16,7 @@
     "@semantic-context/repository-store": "workspace:*",
     "@semantic-context/semantic-model": "workspace:*",
     "@semantic-context/semantic-dsl": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@semantic-context/test-fixtures": "workspace:*"

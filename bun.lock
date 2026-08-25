@@ -49,7 +49,7 @@
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
         "@semantic-context/workspace-analyzer-internal": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -89,14 +89,14 @@
       "name": "@semantic-context/control-model",
       "version": "0.1.0",
       "dependencies": {
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
       },
     },
     "packages/core": {
       "name": "@semantic-context/core",
       "version": "0.1.0",
       "dependencies": {
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
       },
     },
     "packages/eval": {
@@ -133,7 +133,7 @@
         "@semantic-context/semantic-engine": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
         "zod-to-json-schema": "3.25.2",
         "zod-v4": "npm:zod@4.2.0",
       },
@@ -185,7 +185,7 @@
         "@semantic-context/repository-store": "workspace:*",
         "@semantic-context/semantic-dsl": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -197,7 +197,7 @@
       "dependencies": {
         "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "^4.4.3",
       },
     },
     "packages/test-fixtures": {
@@ -467,7 +467,7 @@
 
     "yocto-queue": ["yocto-queue@0.1.0", "", {}, "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="],
 
-    "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
+    "zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "zod-to-json-schema": ["zod-to-json-schema@3.25.2", "", { "peerDependencies": { "zod": "^3.25.28 || ^4" } }, "sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA=="],
 

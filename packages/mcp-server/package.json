@@ -22,7 +22,7 @@
     "@semantic-context/control-engine": "workspace:*",
     "@semantic-context/app-services": "workspace:*",
     "@modelcontextprotocol/server": "2.0.0",
-    "zod": "^3.23.8",
+    "zod": "^4.4.3",
     "zod-to-json-schema": "3.25.2",
     "zod-v4": "npm:zod@4.2.0"
   },
