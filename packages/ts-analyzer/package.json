@@ -9,7 +9,7 @@
   "dependencies": {
     "@semantic-context/core": "workspace:*",
     "@semantic-context/plane-a-internal": "workspace:*",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "devDependencies": {
     "@semantic-context/test-fixtures": "workspace:*"
