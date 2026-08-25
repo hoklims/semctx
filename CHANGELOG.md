@@ -11,6 +11,11 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ### Added
 
+- **Bun 1.4 and native macOS verification**: the runtime, plugin generator, release workflow and
+  composite GitHub Action now share the Bun 1.4.0 baseline. The required CI matrix also runs on
+  Apple Silicon (`macos-15`) and checks out the pull-request head SHA explicitly, so macOS proof is
+  bound to the reviewed candidate rather than GitHub's temporary merge commit.
+
 - **Cross-host plugin delivery observability**
   ([#89](https://github.com/hoklims/semctx/issues/89)): `semctx plugin-status [--json]` reports the
   five states that were previously conflated — the repository checkout, the public `stable`

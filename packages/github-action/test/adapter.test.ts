@@ -108,6 +108,7 @@ describe("github-action adapter", () => {
 
   it("action.yml declares the required inputs and outputs", () => {
     const yml = readFileSync(ACTION_YML, "utf8");
+    expect(yml).toContain('bun-version: "1.4.0"');
     for (const input of ["base:", "head:", "fail-on:", "working-directory:", "config-path:", "report-path:", "upload-report:"]) {
       expect(yml).toContain(input);
     }

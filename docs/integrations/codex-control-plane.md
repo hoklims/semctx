@@ -28,7 +28,7 @@ user request
 
 ## Install or update
 
-Requirements: Codex CLI with plugin support and Bun 1.3 or newer. The plugin contains its own MCP
+Requirements: Codex CLI with plugin support and Bun 1.4 or newer. The plugin contains its own MCP
 runtime and a bundled CLI (`dist/semctx.js`); no global package link is required for agent use.
 
 ```powershell

@@ -17,7 +17,7 @@ user request
 
 ## Install or update
 
-Requirements: Claude Code with plugin support, Bun 1.3 or newer, and Node for the optional guard
+Requirements: Claude Code with plugin support, Bun 1.4 or newer, and Node for the optional guard
 hook. The marketplace plugin contains its own MCP runtime; no clone-time link is required.
 
 ```powershell

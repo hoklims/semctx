@@ -86,15 +86,16 @@ describe("CI governance", () => {
 
     expect(verify.strategy).toEqual({
       "fail-fast": false,
-      matrix: { os: ["ubuntu-latest", "windows-latest"] },
+      matrix: { os: ["ubuntu-latest", "windows-latest", "macos-15"] },
     });
     expect(verify["runs-on"]).toBe("${{ matrix.os }}");
     expect(checkout?.with).toEqual({
+      ref: "${{ github.event.pull_request.head.sha || github.sha }}",
       "fetch-depth": 0,
       "persist-credentials": false,
     });
     expect(python?.with?.["python-version"]).toBe("3.10");
-    expect(bun?.with?.["bun-version"]).toBe("1.3.13");
+    expect(bun?.with?.["bun-version"]).toBe("1.4.0");
     expect(ci).toContain("bun install --frozen-lockfile");
     expect(ci).toContain("bun run verify:pr");
     expect(verify["timeout-minutes"]).toBe(30);
@@ -144,6 +145,10 @@ describe("release governance", () => {
   });
 
   test("pins actions and delegates validation to the canonical verifier", () => {
+    const bunSteps = Object.values(releaseWorkflow.jobs).flatMap((releaseJob) =>
+      releaseJob.steps.filter((step) => step.uses?.startsWith("oven-sh/setup-bun@")),
+    );
+
     expect(release).toContain(CHECKOUT);
     expect(release).toContain(SETUP_NODE);
     expect(release).toContain(SETUP_PYTHON);
@@ -153,6 +158,11 @@ describe("release governance", () => {
     expect(release).toContain("persist-credentials: false");
     expect(release).toContain("package-manager-cache: false");
     expect(release).toContain("no-cache: true");
+    expect(bunSteps).toHaveLength(2);
+    expect(bunSteps.map((step) => step.with?.["bun-version"])).toEqual([
+      "1.4.0",
+      "1.4.0",
+    ]);
     expect(release).toContain("bun run verify:pr -- --skip-diff");
     expect(release).not.toContain("bun run quality");
     expect(release).not.toContain("bun run plugin:check");
