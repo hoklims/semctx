@@ -13,6 +13,7 @@ import {
   chmodSync,
   closeSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -152,7 +153,12 @@ function rewritePreparedPath(root: string, relPath: string): void {
 afterEach(() => {
   for (const root of roots.splice(0)) {
     try {
-      for (const name of entries(root)) chmodSync(semanticPath(root, name), 0o600);
+      for (const name of entries(root)) {
+        const path = semanticPath(root, name);
+        const metadata = lstatSync(path);
+        if (metadata.isFile()) chmodSync(path, 0o600);
+        if (metadata.isDirectory()) chmodSync(path, 0o700);
+      }
     } catch {
       // The root may already be gone, or never have had a semantic directory.
     }
