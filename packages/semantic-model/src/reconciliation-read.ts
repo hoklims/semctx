@@ -3,6 +3,7 @@
  * It intentionally excludes the aggregate semantic schema and every writer.
  */
 import { z } from "zod";
+import { CanonicalRepositoryLinkSchema } from "@semantic-context/control-model/link-resolution";
 
 const AuthoredSemanticLevelSchema = z.union([
   z.literal(1),
@@ -13,20 +14,7 @@ const AuthoredSemanticLevelSchema = z.union([
   z.literal(6),
 ]);
 
-export const ReconciliationRepositoryLinkSchema = z.object({
-  kind: z.enum([
-    "symbol",
-    "file",
-    "claim",
-    "invariant",
-    "contract",
-    "capability",
-    "test",
-    "migration",
-    "evidence",
-  ]),
-  ref: z.string().min(1),
-});
+export const ReconciliationRepositoryLinkSchema = CanonicalRepositoryLinkSchema;
 
 const SourceRefSchema = z.object({
   file: z.string(),

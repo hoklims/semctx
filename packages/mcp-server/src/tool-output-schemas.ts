@@ -21,6 +21,7 @@ import {
   TransitionAuthorizationReportV2Schema,
   TraversalReportV2Schema,
   WorkspaceBaselineSnapshotV1Schema,
+  CanonicalLinkResolutionSchema,
 } from "@semantic-context/control-model";
 import {
   ControlHandoffCaptureResultV2Schema,
@@ -275,12 +276,7 @@ const DiagnosticSchema = z.object({
   code: described(z.string().optional(), "Optional diagnostic code."),
 }).passthrough();
 
-const LinkResolutionSchema = z.object({
-  ownerId: described(z.string(), "Semantic owner identifier."),
-  link: described(mcpSchema(RepositoryLinkSchema), "Repository link."),
-  resolved: described(z.boolean(), "Whether the link resolves."),
-  reason: described(z.string().optional(), "Unresolved-link reason."),
-}).passthrough();
+const LinkResolutionSchema = mcpSchema(CanonicalLinkResolutionSchema);
 
 const SemanticCheckSchema = z.object({
   schemaVersion: described(z.literal(1), "Semantic-check schema version."),
@@ -305,6 +301,14 @@ const SemanticCheckSchema = z.object({
     message: described(z.string(), "Lifecycle finding message."),
     subjectIds: stringArray("Affected semantic identifiers."),
   }).strict()), "Lifecycle findings."),
+  anchorFindings: described(z.array(z.object({
+    code: described(z.enum(["DURABLE_ANCHOR_IS_TRANSIENT", "DEPRECATED_SYMBOL_ANCHOR"]), "Anchor doctrine finding code."),
+    severity: described(z.literal("warning"), "Anchor doctrine findings are always advisory."),
+    ownerId: described(z.string(), "Semantic owner identifier."),
+    ownerKind: described(z.string(), "Owner semantic kind, or 'link' for a deprecated-anchor finding."),
+    ref: described(z.string(), "Repository link reference the finding is about."),
+    message: described(z.string(), "Human-readable finding message."),
+  }).strict()), "Anchor doctrine findings: durable intent anchored transiently, or a deprecated line-bearing anchor."),
   graphIndexed: described(z.boolean(), "Whether a repository graph was available."),
   counts: described(z.object({
     nodes: described(z.number().int().nonnegative(), "Semantic node count."),

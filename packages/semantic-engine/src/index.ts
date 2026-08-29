@@ -40,8 +40,40 @@ export type { LoadResult, ScaffoldPlan, FormatOutcome, ActiveChangePointerResult
 
 export { DEFAULT_SEMANTIC_POLICY, resolveSemanticPolicy } from "./config";
 
-export { resolveRepositoryLinks, findDanglingReferences } from "./links";
-export type { RepositoryFacts, LinkResolution, DanglingReference, LinkReport } from "./links";
+export {
+  resolveRepositoryLinks,
+  findDanglingReferences,
+  LEGACY_SYMBOL_ANCHOR_SHIPPED_IN,
+  LEGACY_SYMBOL_ANCHOR_SUPPORT,
+} from "./links";
+export type {
+  RepositoryFacts,
+  LinkResolution,
+  LinkResolutionOptions,
+  LinkResolutionReasonCode,
+  LegacySymbolAnchorSupport,
+  DanglingReference,
+  LinkReport,
+} from "./links";
+
+export {
+  ANCHOR_MIGRATION_AUTHORITY_REASONS,
+  NODE_ANCHOR_MIGRATION_FILE_SYSTEM,
+  authorized,
+  migrateAnchors,
+  recoverAnchorMigration,
+  refusedAuthority,
+} from "./anchor-migration";
+export type {
+  AnchorMigrationAuthority,
+  AnchorMigrationAuthorityReason,
+  AnchorMigrationFileResult,
+  AnchorMigrationFileSystem,
+  AnchorMigrationGeneration,
+  AnchorMigrationOptions,
+  AnchorMigrationOutcome,
+  AnchorMigrationReport,
+} from "./anchor-migration";
 
 export { sliceSemanticModel } from "./slice";
 export type { SemanticSlice, SliceScope } from "./slice";
@@ -73,6 +105,7 @@ export type {
   InvalidId,
   SemanticCheckReasonCode,
   SemanticLifecycleFinding,
+  AnchorDoctrineFinding,
 } from "./check";
 
 export { inspectSemantic } from "./inspect";

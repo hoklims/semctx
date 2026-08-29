@@ -15,7 +15,25 @@ export function mcpSchema<Output, Input = Output>(
     target: "jsonSchema7",
   });
 
-  return z.fromJSONSchema(
+  const converted = z.fromJSONSchema(
     jsonSchema as Parameters<typeof z.fromJSONSchema>[0],
-  ) as z.ZodType<Output, Input>;
+  );
+
+  // JSON Schema carries the portable structural contract, but cannot express
+  // every Zod refinement (for example canonical ordering or cross-field
+  // coherence). Re-run the source schema after conversion so the MCP boundary
+  // accepts exactly the business contract rather than a structural superset.
+  return converted.superRefine((value, context) => {
+    const sourceResult = schema.safeParse(value);
+    if (sourceResult.success) return;
+
+    for (const issue of sourceResult.error.issues) {
+      context.addIssue({
+        code: "custom",
+        path: issue.path,
+        message: issue.message,
+        input: value,
+      });
+    }
+  }) as z.ZodType<Output, Input>;
 }

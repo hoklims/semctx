@@ -145,7 +145,10 @@ describe("semctx_prepare_task", () => {
     });
     expect(taskFrame.mode).toBe("bugfix");
     expect(taskFrame.hardInvariants).toContain("confirmed-never-exceeds-capacity");
-    expect(contextPack.hardConstraints.length).toBeGreaterThan(0);
+    // The fixture's sole invariant is declared with two different statements in `capacity.ts`
+    // and `confirmation.ts` (HOK-79 marker divergence fixture): it is a contested, non-authorizing
+    // claim, so it correctly carries no hard constraint at all.
+    expect(contextPack.hardConstraints.length).toBe(0);
     expect(contextPack.meta.deterministic).toBe(true);
     expect(contextPack.recommendedReads.some((r) => r.path.includes("confirmation"))).toBe(true);
   });

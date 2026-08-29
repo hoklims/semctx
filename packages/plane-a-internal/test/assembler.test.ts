@@ -450,4 +450,58 @@ describe("provisional Plane A graph assembly", () => {
       expect.objectContaining({ code: "FACT_ID_CONFLICT" }),
     );
   });
+
+  it("removes a statement immediately when either side of a merge is already divergent", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const normal = {
+      factType: "node" as const,
+      ordinal: 0,
+      id: "inv:must-hold",
+      kind: "invariant" as const,
+      name: "must-hold",
+      evidence: [],
+      tags: [],
+      metadata: { statement: "must hold" },
+    };
+    const divergent = {
+      ...normal,
+      ordinal: 1,
+      tags: ["statement-divergent"],
+      metadata: {},
+    };
+
+    for (const facts of [[normal, divergent], [divergent, normal]]) {
+      const assembler = new api.DeterministicGraphAssembler(scope.selectedPaths);
+      for (const fact of facts) assembler.addFact(fact);
+      const node = assembler.build().graph.nodes[0];
+      expect(node?.tags).toContain("statement-divergent");
+      expect(node?.metadata["statement"]).toBeUndefined();
+    }
+  });
+
+  it("degrades canonical-slug statement conflicts across TypeScript and Python batches", () => {
+    if (api === null) throw new Error("internal Plane A API is unavailable");
+    const invariant = (statement: string): PlaneAFact => ({
+      factType: "node",
+      ordinal: 0,
+      id: "inv:canonical-slug",
+      kind: "invariant",
+      name: "canonical-slug",
+      evidence: [],
+      tags: [],
+      metadata: { statement },
+    });
+    const typescript = batch([invariant("TypeScript producer statement")]);
+    const python = {
+      ...batch([invariant("Python producer statement")]),
+      batchId: "batch:python",
+      producer: { identity: "@semantic-context/python-analyzer", version: "0.1.0" },
+      scope: { ...scope, language: "python", dialectVersion: "3.12" },
+    };
+
+    const assembled = api.assembleFactBatches([typescript, python]);
+    const node = assembled.graph.nodes.find((candidate) => candidate.id === "inv:canonical-slug");
+    expect(node?.tags).toContain("statement-divergent");
+    expect(node?.metadata["statement"]).toBeUndefined();
+  });
 });

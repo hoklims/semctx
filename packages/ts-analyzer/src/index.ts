@@ -33,8 +33,21 @@ export type {
   TypeScriptParallelism,
 } from "./ts-symbols";
 
-export { parseMarkers, stripJsDoc } from "./markers";
-export type { ParsedMarker, MarkerTag } from "./markers";
+export {
+  parseMarkers,
+  stripJsDoc,
+  detectMarkerDivergence,
+  degradeDivergentMarkerNodes,
+  degradeDivergentPlaneAFacts,
+  summarizeMarkerCoverage,
+} from "./markers";
+export type {
+  ParsedMarker,
+  MarkerTag,
+  MarkerDeclaration,
+  MarkerDivergence,
+  MarkerCoverage,
+} from "./markers";
 
 export { parseFrontmatter, asStringArray } from "./frontmatter";
 export type { Frontmatter, FrontmatterValue } from "./frontmatter";

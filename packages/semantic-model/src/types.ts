@@ -11,6 +11,7 @@ import type {
   AuthoredSemanticLevel,
   RefinementRelationV1,
 } from "@semantic-context/control-model";
+import type { CanonicalRepositoryLinkKind } from "@semantic-context/control-model/link-resolution";
 export type { AuthoredSemanticLevel } from "@semantic-context/control-model";
 
 /** The kind of an authored semantic node. `change` is represented by `ChangeContract`. */
@@ -65,16 +66,7 @@ export type ChangeLifecycle =
   | "superseded";
 
 /** What a repository link points at in Plane A. */
-export type RepositoryLinkKind =
-  | "symbol"
-  | "file"
-  | "claim"
-  | "invariant"
-  | "contract"
-  | "capability"
-  | "test"
-  | "migration"
-  | "evidence";
+export type RepositoryLinkKind = CanonicalRepositoryLinkKind;
 
 /** An explicit pointer from Plane B into Plane A. `ref` is a graph id, or a repo-relative path for a file link. */
 export interface RepositoryLink {

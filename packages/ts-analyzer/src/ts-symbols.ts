@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { existsSync, statSync } from "node:fs";
 import { posix, relative, resolve } from "node:path";
-import { compareIds, normalizePath } from "@semantic-context/core";
+import { compareIds, normalizePath, symbolScopePath } from "@semantic-context/core";
 import type { NodeKind } from "@semantic-context/core";
 import { parseMarkers, type ParsedMarker } from "./markers";
 
@@ -12,9 +12,17 @@ export interface ExtractedSymbol {
   name: string;
   kind: Extract<NodeKind, "function" | "class" | "interface" | "type" | "enum">;
   relPath: string;
+  /** Enclosing named declarations, outermost first. Empty at file scope. */
+  scope: string[];
   startLine: number;
   endLine: number;
   exported: boolean;
+  /**
+   * A TypeScript overload signature: a function declaration with no body. Exactly one member of an
+   * overload set carries an implementation, which is what lets grouping tell an overload set apart
+   * from two genuinely distinct declarations that happen to share a scope and a name.
+   */
+  signatureOnly?: boolean;
   jsdoc?: string;
   markers: ParsedMarker[];
 }
@@ -29,10 +37,17 @@ export interface ExtractedImport {
 
 export interface ExtractedCall {
   callerRelPath: string;
-  callerSymbol?: string;
+  /**
+   * Scope-qualified path of the enclosing symbol (`outer.helper`), not its bare name.
+   *
+   * A bare name cannot tell two nested homonyms apart, so the call graph used to attach an inner
+   * helper's calls to whichever same-named symbol the index happened to hold.
+   */
+  callerSymbolPath?: string;
   calleeName: string;
   calleeRelPath?: string;
-  calleeSymbol?: string;
+  /** Scope-qualified path of the resolved declaration, for the same reason as `callerSymbolPath`. */
+  calleeSymbolPath?: string;
   line: number;
 }
 
@@ -180,21 +195,30 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
 
-    const symbolStack: string[] = [];
+    // Scope-qualified paths of the enclosing extracted symbols, innermost last. Distinct from
+    // `scopeStack`, which only tracks what can *contain*: a method is a scope but is not itself an
+    // extracted symbol, so it can never be the caller of a call.
+    const symbolPathStack: string[] = [];
+    // A scope is anything that can contain another declaration — methods and namespaces included —
+    // because two locals named the same inside two methods of one class are two symbols, not one.
+    const scopeStack: string[] = [];
 
     const recordSymbol = (
       node: ts.Node,
       name: string,
       kind: ExtractedSymbol["kind"],
+      signatureOnly = false,
     ): void => {
       const jsdoc = leadingJsDoc(sf, node);
       symbols.push({
         name,
         kind,
         relPath,
+        scope: [...scopeStack],
         startLine: lineOf(sf, node.getStart()),
         endLine: lineOf(sf, node.getEnd()),
         exported: isExported(node),
+        ...(signatureOnly ? { signatureOnly: true } : {}),
         ...(jsdoc !== undefined ? { jsdoc } : {}),
         markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
       });
@@ -202,37 +226,57 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
 
     const visit = (node: ts.Node): void => {
       let pushedSymbol: string | undefined;
+      let pushedScope: string | undefined;
 
       if (ts.isFunctionDeclaration(node) && node.name) {
-        recordSymbol(node, node.name.text, "function");
-        pushedSymbol = node.name.text;
+        recordSymbol(node, node.name.text, "function", node.body === undefined);
+        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
+        pushedScope = node.name.text;
       } else if (ts.isClassDeclaration(node) && node.name) {
         recordSymbol(node, node.name.text, "class");
-        pushedSymbol = node.name.text;
+        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
+        pushedScope = node.name.text;
       } else if (ts.isInterfaceDeclaration(node)) {
         recordSymbol(node, node.name.text, "interface");
       } else if (ts.isTypeAliasDeclaration(node)) {
         recordSymbol(node, node.name.text, "type");
       } else if (ts.isEnumDeclaration(node)) {
         recordSymbol(node, node.name.text, "enum");
+      } else if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) {
+        // Not itself an extracted symbol today, but it *is* a scope: without it, a local in
+        // `Service.read` and a local in `Service.write` would share one id.
+        pushedScope = node.name.text;
+      } else if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) {
+        pushedScope = node.name.text;
       } else if (ts.isVariableStatement(node)) {
+        // Each declarator owns its own scope. `const first = () => …, second = () => …` used to
+        // push one name for the whole statement, so `first`'s body was walked under `second`'s
+        // scope and every nested declaration inside it was given the wrong identity.
         const exported = isExported(node);
+        const jsdoc = leadingJsDoc(sf, node);
         for (const decl of node.declarationList.declarations) {
           if (ts.isIdentifier(decl.name) && decl.initializer && isFunctionLike(decl.initializer)) {
-            const jsdoc = leadingJsDoc(sf, node);
             symbols.push({
               name: decl.name.text,
               kind: "function",
               relPath,
+              scope: [...scopeStack],
               startLine: lineOf(sf, node.getStart()),
               endLine: lineOf(sf, decl.getEnd()),
               exported,
               ...(jsdoc !== undefined ? { jsdoc } : {}),
               markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
             });
-            pushedSymbol = decl.name.text;
+            symbolPathStack.push(symbolScopePath(scopeStack, decl.name.text));
+            scopeStack.push(decl.name.text);
+            ts.forEachChild(decl, visit);
+            scopeStack.pop();
+            symbolPathStack.pop();
+          } else {
+            ts.forEachChild(decl, visit);
           }
         }
+        return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
         const resolvedAbs = resolveModule(specifier, sf.fileName);
@@ -250,18 +294,22 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
           const resolved = resolveCallTarget(checker, node.expression, relOf);
           calls.push({
             callerRelPath: relPath,
-            ...(symbolStack.length > 0 ? { callerSymbol: symbolStack[symbolStack.length - 1] } : {}),
+            ...(symbolPathStack.length > 0
+              ? { callerSymbolPath: symbolPathStack[symbolPathStack.length - 1] }
+              : {}),
             calleeName,
             ...(resolved?.relPath !== undefined ? { calleeRelPath: resolved.relPath } : {}),
-            ...(resolved?.name !== undefined ? { calleeSymbol: resolved.name } : {}),
+            ...(resolved?.symbolPath !== undefined ? { calleeSymbolPath: resolved.symbolPath } : {}),
             line: lineOf(sf, node.getStart()),
           });
         }
       }
 
-      if (pushedSymbol !== undefined) symbolStack.push(pushedSymbol);
+      if (pushedSymbol !== undefined) symbolPathStack.push(pushedSymbol);
+      if (pushedScope !== undefined) scopeStack.push(pushedScope);
       ts.forEachChild(node, visit);
-      if (pushedSymbol !== undefined) symbolStack.pop();
+      if (pushedScope !== undefined) scopeStack.pop();
+      if (pushedSymbol !== undefined) symbolPathStack.pop();
     };
 
     ts.forEachChild(sf, visit);
@@ -642,10 +690,12 @@ function isExtractionWorkerResponse(
       && typeof item["kind"] === "string"
       && symbolKinds.has(item["kind"])
       && owned(item["relPath"])
+      && stringArray(item["scope"])
       && line(item["startLine"])
       && line(item["endLine"])
       && item["endLine"] >= item["startLine"]
       && typeof item["exported"] === "boolean"
+      && (item["signatureOnly"] === undefined || typeof item["signatureOnly"] === "boolean")
       && optionalString(item["jsdoc"])
       && Array.isArray(item["markers"])
       && item["markers"].every(marker))
@@ -657,10 +707,10 @@ function isExtractionWorkerResponse(
       && line(item["line"]))
     && dto["calls"].every((item) => isRecord(item)
       && owned(item["callerRelPath"])
-      && optionalString(item["callerSymbol"])
+      && optionalString(item["callerSymbolPath"])
       && typeof item["calleeName"] === "string"
       && (item["calleeRelPath"] === undefined || inRepository(item["calleeRelPath"]))
-      && optionalString(item["calleeSymbol"])
+      && optionalString(item["calleeSymbolPath"])
       && line(item["line"]));
 }
 
@@ -721,11 +771,44 @@ function importedNames(node: ts.ImportDeclaration): string[] {
   return names;
 }
 
+/**
+ * The name a declaration contributes to the scope path of everything inside it.
+ *
+ * Mirrors exactly the pushes the extraction walk makes, so a scope path derived from a declaration
+ * node here and one accumulated during the walk describe the same coordinate. A divergence between
+ * the two would put callers and callees in different address spaces.
+ */
+function scopeNameOf(node: ts.Node): string | undefined {
+  if (ts.isFunctionDeclaration(node) && node.name !== undefined) return node.name.text;
+  if (ts.isClassDeclaration(node) && node.name !== undefined) return node.name.text;
+  if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
+  if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
+  if (
+    ts.isVariableDeclaration(node)
+    && ts.isIdentifier(node.name)
+    && node.initializer !== undefined
+    && isFunctionLike(node.initializer)
+  ) {
+    return node.name.text;
+  }
+  return undefined;
+}
+
+/** Enclosing scope names of a declaration, outermost first, excluding the declaration itself. */
+function enclosingScopeOf(node: ts.Node): string[] {
+  const scope: string[] = [];
+  for (let current: ts.Node | undefined = node.parent; current !== undefined; current = current.parent) {
+    const name = scopeNameOf(current);
+    if (name !== undefined) scope.unshift(name);
+  }
+  return scope;
+}
+
 function resolveCallTarget(
   checker: ts.TypeChecker,
   expr: ts.Expression,
   relOf: (abs: string) => string,
-): { relPath?: string; name?: string } | undefined {
+): { relPath?: string; symbolPath?: string } | undefined {
   let symbol = checker.getSymbolAtLocation(expr);
   if (symbol === undefined) return undefined;
   // Follow import aliases to the real declaration (imported functions call across files).
@@ -737,6 +820,9 @@ function resolveCallTarget(
   const decl = declarations[0];
   if (decl === undefined) return undefined;
   const sf = decl.getSourceFile();
-  if (sf.isDeclarationFile) return { name: symbol.getName() };
-  return { relPath: relOf(sf.fileName), name: symbol.getName() };
+  if (sf.isDeclarationFile) return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()) };
+  return {
+    relPath: relOf(sf.fileName),
+    symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()),
+  };
 }

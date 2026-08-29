@@ -183,6 +183,8 @@ export function buildCoordinateGraph(input: CoordinateGraphInput): CoordinateGra
       link: stale.link,
       resolved: false as const,
       reason: stale.reason ?? "unresolved",
+      reasonCode: stale.reasonCode,
+      ...(stale.candidates !== undefined && stale.candidates.length > 0 ? { candidates: stale.candidates } : {}),
     })).sort((a, b) => compareIds(
       `${a.ownerId}\u0000${a.link.kind}\u0000${a.link.ref}`,
       `${b.ownerId}\u0000${b.link.kind}\u0000${b.link.ref}`,

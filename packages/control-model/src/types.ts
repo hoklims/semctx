@@ -1,5 +1,7 @@
 /** Plane C contracts: derived coordinates, architecture transitions, and proof authorization. */
 
+import type { LinkResolutionReasonCode } from "./link-resolution";
+
 export type SemanticLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 /** Levels assignable to authored Plane-B semantics; L0 is observation-only. */
 export type AuthoredSemanticLevel = Exclude<SemanticLevel, 0>;
@@ -90,6 +92,10 @@ export interface StaleRepositoryLink {
   link: { kind: string; ref: string };
   resolved: false;
   reason: string;
+  /** Machine reason code, restated from `link-resolution` so this report is self-describing. */
+  reasonCode: LinkResolutionReasonCode;
+  /** Bounded, sorted, deduplicated candidate ids offered for a human to choose. */
+  candidates?: string[];
 }
 
 export interface DanglingSemanticReference {

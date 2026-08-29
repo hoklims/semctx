@@ -53,8 +53,108 @@ export function moduleId(relPath: string): string {
   return `mod:${normalizePath(relPath)}`;
 }
 
-export function symbolId(kind: string, relPath: string, name: string, startLine: number): string {
-  return `sym:${kind}:${normalizePath(relPath)}:${name}:${startLine}`;
+/**
+ * Identify a symbol by what it *is*, never by where it currently sits.
+ *
+ * `scope` names the enclosing declarations, outermost first, so two homonyms in different scopes
+ * stay distinct without a line number arbitrating between them. A start line used to occupy that
+ * role, which meant inserting a comment above a function renamed it and every anchor pointing at it
+ * reported the symbol as gone. Line ranges survive as evidence on the node; they no longer decide
+ * identity.
+ *
+ * The result has exactly four `:`-separated fields, which is how a legacy five-field id (whose last
+ * field is a start line) stays mechanically distinguishable — see `parseLegacySymbolId`.
+ */
+export function symbolId(
+  kind: string,
+  relPath: string,
+  name: string,
+  scope?: readonly string[],
+): string;
+/**
+ * Pre-HOK-79 compatibility overload: a caller still passing the old positional `startLine`
+ * is accepted and the line is explicitly ignored, so it produces the same canonical
+ * (scope-empty) id as calling with no fourth argument at all — never a line-bearing id.
+ */
+export function symbolId(kind: string, relPath: string, name: string, startLine: number): string;
+export function symbolId(
+  kind: string,
+  relPath: string,
+  name: string,
+  scopeOrStartLine: readonly string[] | number = [],
+): string {
+  const scope = typeof scopeOrStartLine === "number" ? [] : scopeOrStartLine;
+  return `sym:${kind}:${normalizePath(relPath)}:${[...scope, name].join(".")}`;
+}
+
+export interface ParsedSymbolId {
+  kind: string;
+  relPath: string;
+  /** Enclosing declarations, outermost first. Empty for a file-scoped symbol. */
+  scope: string[];
+  /** Declared name, with any `#N` collision disambiguator stripped. */
+  name: string;
+  /**
+   * Present only for the second and later members of a genuine collision — two same-named function
+   * declarations that each carry a body, which nested blocks permit. Kept out of `name` so that a
+   * lookup by name finds *every* member: an anchor that could mean either of them must read as
+   * ambiguous, not silently resolve to the one that happens to hold the bare id.
+   */
+  ordinal?: number;
+}
+
+/** The scope-qualified tail of a canonical symbol id (`outer.helper`), without re-deriving it. */
+export function symbolScopePath(scope: readonly string[], name: string): string {
+  return [...scope, name].join(".");
+}
+
+/** Parse a canonical (line-free) symbol id. Undefined for anything else, legacy ids included. */
+export function parseSymbolId(id: string): ParsedSymbolId | undefined {
+  const parts = id.split(":");
+  if (parts.length !== 4 || parts[0] !== "sym") return undefined;
+  const [, kind, relPath, qualified] = parts as [string, string, string, string];
+  if (kind.length === 0 || relPath.length === 0 || qualified.length === 0) return undefined;
+  const segments = qualified.split(".");
+  const last = segments[segments.length - 1];
+  if (last === undefined || last.length === 0) return undefined;
+  const collision = /^(.+)#(\d+)$/.exec(last);
+  const name = collision?.[1] ?? last;
+  if (name.length === 0) return undefined;
+  const ordinal = collision === null ? undefined : Number.parseInt(collision[2]!, 10);
+  return {
+    kind,
+    relPath,
+    scope: segments.slice(0, -1),
+    name,
+    ...(ordinal === undefined ? {} : { ordinal }),
+  };
+}
+
+export interface ParsedLegacySymbolId {
+  kind: string;
+  relPath: string;
+  name: string;
+  startLine: number;
+}
+
+/**
+ * Parse the pre-HOK-79 line-bearing form (`sym:function:src/a.ts:run:12`).
+ *
+ * Recognising it is not the same as honouring it: the caller decides whether a legacy id may still
+ * resolve, and under which deprecation. Undefined for a canonical id, so the two never overlap.
+ */
+export function parseLegacySymbolId(id: string): ParsedLegacySymbolId | undefined {
+  const parts = id.split(":");
+  if (parts.length !== 5 || parts[0] !== "sym") return undefined;
+  const [, kind, relPath, name, line] = parts as [string, string, string, string, string];
+  if (kind.length === 0 || relPath.length === 0 || name.length === 0) return undefined;
+  if (!/^\d+$/.test(line)) return undefined;
+  return { kind, relPath, name, startLine: Number.parseInt(line, 10) };
+}
+
+/** True for the deprecated line-bearing form only. */
+export function isLegacySymbolId(id: string): boolean {
+  return parseLegacySymbolId(id) !== undefined;
 }
 
 export function testId(relPath: string): string {
@@ -113,3 +213,17 @@ export function taskFrameId(rawTask: string): string {
 export function hypothesisId(taskFrameIdValue: string, statement: string): string {
   return `hyp:${fnv1a(`${taskFrameIdValue}::${statement}`)}`;
 }
+
+/**
+ * Tag carried by a marker node whose slug was given contradictory statements.
+ *
+ * The graph keys capability, invariant, contract and risk nodes by slug, so two authors writing
+ * different statements under one name produce a single node that can hold only one of them — and
+ * which one depends on traversal order. The analyzer therefore strips the statement and adds this
+ * tag, and every surface that could grant authority reads the tag rather than the survivor.
+ *
+ * It lives here because it is a property of the graph vocabulary, not of any one analyzer: the
+ * producer that sets it and the consumer that must refuse to authorize on it are in packages that
+ * share only this one.
+ */
+export const DIVERGENT_STATEMENT_TAG = "statement-divergent";

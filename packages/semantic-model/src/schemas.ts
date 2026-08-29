@@ -3,6 +3,8 @@
 import { z } from "zod";
 import {
   AuthoredSemanticLevelSchema,
+  CanonicalRepositoryLinkSchema,
+  REPOSITORY_LINK_KINDS,
   RefinementRelationV1Schema,
 } from "@semantic-context/control-model";
 
@@ -52,22 +54,9 @@ export const ChangeLifecycleSchema = z.enum([
   "superseded",
 ]);
 
-export const RepositoryLinkKindSchema = z.enum([
-  "symbol",
-  "file",
-  "claim",
-  "invariant",
-  "contract",
-  "capability",
-  "test",
-  "migration",
-  "evidence",
-]);
+export const RepositoryLinkKindSchema = z.enum(REPOSITORY_LINK_KINDS);
 
-export const RepositoryLinkSchema = z.object({
-  kind: RepositoryLinkKindSchema,
-  ref: z.string().min(1),
-});
+export const RepositoryLinkSchema = CanonicalRepositoryLinkSchema;
 
 export const SourceRefSchema = z.object({
   file: z.string(),

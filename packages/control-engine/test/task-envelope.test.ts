@@ -139,6 +139,8 @@ describe("TaskEnvelope compilation", () => {
       authoredLinkResolutions: [{
         link: change.repositoryLinks[0]!,
         resolved: false,
+        reason: "missing",
+        reasonCode: "path_absent",
       }],
     })).toThrow(TaskEnvelopeCompilationError);
     expect(() => bindExplicitAnchors({
@@ -341,6 +343,7 @@ describe("TaskEnvelope compilation", () => {
           link: change.repositoryLinks[0]!,
           resolved: false,
           reason: "missing",
+          reasonCode: "symbol_gone",
         }],
       },
       authoredLinkResolutions: [{

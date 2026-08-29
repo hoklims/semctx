@@ -81,7 +81,15 @@ describe("semantic markers become corroborated nodes", () => {
     expect(inv.tags).toContain("from-code");
     expect(inv.tags).toContain("from-doc");
     expect(inv.tags).toContain("from-migration");
-    expect(String(inv.metadata["statement"])).toContain("CONFIRMED");
+  });
+
+  it("degrades a marker slug declared with disagreeing statements at two code sites, never picking a winner", () => {
+    // capacity.ts and confirmation.ts each carry `@invariant confirmed-never-exceeds-capacity`
+    // with a different statement. Authority must not silently prefer whichever declaration the
+    // graph builder happened to see first.
+    const inv = must(kind("invariant").find((n) => n.name === EXPECTED.invariant));
+    expect(inv.tags).toContain("statement-divergent");
+    expect(inv.metadata["statement"]).toBeUndefined();
   });
 
   it("wires implements_capability from confirmation code", () => {

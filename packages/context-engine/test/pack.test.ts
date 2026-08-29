@@ -1,6 +1,8 @@
 import { describe, it, expect } from "bun:test";
 import {
   prepareContextPack,
+  buildClaims,
+  GraphIndex,
   parseTaskDocument,
   defaultTaskExtractor,
   extractionContext,
@@ -8,7 +10,7 @@ import {
   stableProviderSourceSeal,
 } from "@semantic-context/context-engine";
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
-import type { ContextPack, RepositoryGraph } from "@semantic-context/core";
+import type { ContextPack, RepositoryGraph, TaskFrame } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED } from "@semantic-context/test-fixtures";
 
 const { analysis, claims } = analyzeAndBuildClaims(sampleConfig());
@@ -48,11 +50,83 @@ describe("ContextPack — meets the objective", () => {
     expect(testPaths).toContain("test/capacity.test.ts");
   });
 
-  it("5. carries the invariant as a hard constraint (tested)", () => {
-    expect(pack.hardConstraints.length).toBeGreaterThan(0);
-    const inv = pack.hardConstraints[0];
-    expect(inv?.kind).toBe("invariant");
-    expect(inv?.verificationStatus).toBe("tested");
+  it("5. never carries a contested invariant as a hard constraint", () => {
+    // The fixture's sole invariant is declared with two different statements (HOK-79 marker
+    // divergence fixture): it is contradicted, not tested, so it must not appear as a hard
+    // constraint at all — see the NON-REGRESSION block below for the general rule.
+    expect(pack.hardConstraints.length).toBe(0);
+  });
+
+  it("5b. carries a separate uncontested, test-backed invariant as a hard constraint", () => {
+    const graph: RepositoryGraph = {
+      nodes: [
+        {
+          id: "sym:function:balance.ts:debit",
+          kind: "function",
+          name: "debit",
+          filePath: "balance.ts",
+          boundedContext: "ledger",
+          evidence: [],
+          tags: [],
+          metadata: {},
+        },
+        {
+          id: "test:balance.test.ts",
+          kind: "test",
+          name: "balance.test.ts",
+          filePath: "balance.test.ts",
+          evidence: [],
+          tags: [],
+          metadata: {},
+        },
+        {
+          id: "inv:balance-never-negative",
+          kind: "invariant",
+          name: "balance-never-negative",
+          boundedContext: "ledger",
+          evidence: [],
+          tags: ["from-code"],
+          metadata: { statement: "Balance never becomes negative" },
+        },
+      ],
+      edges: [
+        { id: "edge:constrained", kind: "constrained_by", from: "sym:function:balance.ts:debit", to: "inv:balance-never-negative", evidence: [], metadata: {} },
+        { id: "edge:tested", kind: "tested_by", from: "sym:function:balance.ts:debit", to: "test:balance.test.ts", evidence: [], metadata: {} },
+      ],
+    };
+    const taskFrame: TaskFrame = {
+      id: "task:balance",
+      rawTask: "Fix debit while preserving the balance invariant",
+      mode: "bugfix",
+      capabilities: [],
+      observedBehavior: [],
+      expectedBehavior: [],
+      boundedContexts: ["ledger"],
+      hardInvariants: ["balance-never-negative"],
+      softConstraints: [],
+      acceptanceEvidence: [],
+      nonGoals: [],
+      riskSurfaces: [],
+      hypotheses: [],
+      createdAt: NOW,
+    };
+    const positiveClaims = buildClaims(new GraphIndex(graph));
+    const positivePack = prepareContextPack({
+      graph,
+      evidence: [],
+      claims: positiveClaims,
+      taskFrame,
+      now: NOW,
+      candidateProviders: [],
+    });
+
+    expect(positivePack.hardConstraints).toEqual([
+      expect.objectContaining({
+        kind: "invariant",
+        statement: "Balance never becomes negative",
+        verificationStatus: "tested",
+      }),
+    ]);
   });
 
   it("6. every recommendation has a reason AND provenance", () => {

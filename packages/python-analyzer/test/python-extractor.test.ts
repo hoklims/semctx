@@ -38,6 +38,7 @@ describe("extractPython", () => {
         name: "Account",
         kind: "class",
         relPath: "src/example.py",
+        scope: [],
         range: {
           startOffset: 0,
           endOffset: 23,
@@ -52,6 +53,7 @@ describe("extractPython", () => {
         name: "settle",
         kind: "function",
         relPath: "src/example.py",
+        scope: [],
         range: {
           startOffset: 25,
           endOffset: 72,

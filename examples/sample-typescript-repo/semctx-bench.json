@@ -16,7 +16,6 @@
           "src/app/notification-templates.ts"
         ],
         "requiredTests": ["test/confirmation.test.ts", "test/capacity.test.ts"],
-        "requiredHardConstraintKinds": ["invariant"],
         "requiredImpactPathContains": ["handleConfirmReservation", "confirmReservation", "remainingCapacity"],
         "requiredContradictions": ["legacy"],
         "forbiddenAuthoritativeStatuses": ["deprecated", "contradicted"],

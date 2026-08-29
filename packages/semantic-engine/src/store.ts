@@ -21,7 +21,7 @@ export interface LoadResult {
   duplicateIds: string[];
 }
 
-function listSemFiles(dir: string): string[] {
+export function listSemFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
@@ -34,7 +34,7 @@ function listSemFiles(dir: string): string[] {
   return out;
 }
 
-function relFile(root: string, full: string): string {
+export function relFile(root: string, full: string): string {
   return full.slice(root.length + 1).replace(/\\/g, "/");
 }
 

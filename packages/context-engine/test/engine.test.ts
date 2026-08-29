@@ -72,10 +72,14 @@ describe("task document parsing", () => {
 });
 
 describe("claim building", () => {
-  it("derives a tested invariant claim", () => {
+  // The fixture's sole invariant is declared with two different statements (HOK-79 marker
+  // divergence fixture, see `plane-a-golden.test.ts`): its constrained symbol is tested, but the
+  // claim must never read "tested" — a passing test proves *a* behaviour, not which of the two
+  // disagreeing statements it is a behaviour of.
+  it("never authorizes a claim whose statement is contested, even when its symbol is tested", () => {
     const inv = must(claims.find((c) => c.kind === "invariant"));
-    expect(inv.verificationStatus).toBe("tested");
-    expect(inv.authority).toBeGreaterThan(0.8);
+    expect(inv.verificationStatus).toBe("contradicted");
+    expect(inv.authority).toBeLessThan(0.2);
   });
   it("marks exported interfaces/types as statically-verified contracts", () => {
     const contracts = claims.filter((c) => c.kind === "contract" && c.verificationStatus === "statically_verified");
@@ -117,11 +121,11 @@ describe("priority gates", () => {
   const tf = frame();
   const ctx = contextFor(tf);
 
-  it("keeps a tested invariant claim eligible", () => {
+  it("gates out a contested invariant claim by status, not by low score", () => {
     const inv = must(claims.find((c) => c.kind === "invariant"));
     const explanation = evaluateClaim(inv, ctx);
-    expect(explanation.eligible).toBe(true);
-    expect(explanation.score).toBeGreaterThan(0);
+    expect(explanation.eligible).toBe(false);
+    expect(explanation.gates.find((g) => g.name === "status-allowed")?.passed).toBe(false);
   });
 
   it("eliminates deprecated/contradicted claims by gate (not by low score)", () => {

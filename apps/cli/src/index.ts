@@ -19,6 +19,7 @@ import { runStatus } from "./commands/status";
 import { runIndexHealth } from "./commands/index-health";
 import { runInstall } from "./commands/install";
 import { runPluginStatus } from "./commands/plugin-status";
+import { runMigrate } from "./commands/migrate";
 
 const HELP = `semctx — repository change-impact analyzer (v${packageJson.version})
 
@@ -75,6 +76,10 @@ Control plane (bounded semantic coordination and migration planning):
   control handoff <input.json> [--json]
   control resume-handoff <capsule-hash> [--json]
       deterministic Control Handoff v2 capture/resume; no execution authority
+
+Migration (one-shot, temporary; see 'semctx migrate' for details):
+  migrate anchors [--apply] [--format text|json]
+      rewrite deprecated line-bearing symbol anchors to their canonical form
 
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
   task create --from-file <file>   create a TaskFrame (also: --text "...", --mode <m>)
@@ -159,6 +164,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
       return runStatus(root, args);
     case "doctor":
       return runDoctor(root, args);
+    case "migrate":
+      return runMigrate(root, args);
     default:
       fail(`unknown command: ${command}`);
       info(HELP);

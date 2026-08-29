@@ -21,6 +21,7 @@ import {
   type TaskEnvelopeV1,
   type TaskFrameSnapshotV1,
 } from "@semantic-context/control-model/reconciliation";
+import type { LinkResolutionReasonCode } from "@semantic-context/control-model/link-resolution";
 import {
   ReconciliationChangeContractSchema,
   type ChangeContract,
@@ -55,15 +56,30 @@ export interface TaskFrameAdvisoryV1 {
   altitudeCandidate?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-export interface AuthoredLinkResolutionInputV1 {
+interface AuthoredLinkResolutionIdentityV1 {
   link: RepositoryLink;
-  resolved: boolean;
+}
+
+export interface ResolvedAuthoredLinkResolutionInputV1 extends AuthoredLinkResolutionIdentityV1 {
+  resolved: true;
   coordinateId?: `repo:${string}`;
   repositoryPath?: string;
   evidenceId?: string;
   evidenceProvenance?: BindingEvidenceProvenanceV1;
   scope?: ResolvedBindingScopeV1;
+  legacy?: true;
 }
+
+export interface UnresolvedAuthoredLinkResolutionInputV1 extends AuthoredLinkResolutionIdentityV1 {
+  resolved: false;
+  reason: string;
+  reasonCode: LinkResolutionReasonCode;
+  candidates?: string[];
+}
+
+export type AuthoredLinkResolutionInputV1 =
+  | ResolvedAuthoredLinkResolutionInputV1
+  | UnresolvedAuthoredLinkResolutionInputV1;
 
 export type BindingEvidenceProvenanceV1 =
   | "plane_b_source"

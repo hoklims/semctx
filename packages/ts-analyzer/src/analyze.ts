@@ -14,6 +14,7 @@ import {
   boundedContextId,
   compareIds,
   slugify,
+  symbolScopePath,
 } from "@semantic-context/core";
 import type {
   SemctxConfig,
@@ -46,6 +47,12 @@ import {
   type TsExtraction,
   type TypeScriptParallelism,
 } from "./ts-symbols";
+import { groupSymbols } from "./symbol-grouping";
+import {
+  degradeDivergentMarkerNodes,
+  detectMarkerDivergence,
+  type MarkerDeclaration,
+} from "./markers";
 import { extractDoc } from "./docs";
 import { extractMigration } from "./migrations";
 
@@ -145,31 +152,61 @@ export function assembleRepository(
     builder.edge("belongs_to", id, repoNodeId, [{ filePath: file.relPath, sourceKind: "code" }]);
   }
 
-  // Symbol nodes + declares edges, indexed by (relPath -> name -> node).
-  const symbolIndex = new Map<string, Map<string, RepositoryNode>>();
-  for (const sym of extraction.symbols) {
+  // Symbol nodes + declares edges. Grouping decides identity once (overload sets fold into one
+  // node; genuine homonym collisions get an ordinal-suffixed, non-addressable id) so the graph
+  // builder never has to guess.
+  //
+  // Two indexes, because two questions are being asked and conflating them is how an edge lands
+  // on the wrong body. `byQualified` answers "which node *is* `outer.helper` in this file" — the
+  // exact coordinate a call resolves to; a coordinate held by several declarations maps to several
+  // nodes and yields no edge at all. `byImportableName` answers "which node does `import { helper }`
+  // bring in", which only a file-scoped declaration can ever be.
+  const byQualified = new Map<string, Map<string, RepositoryNode[]>>();
+  const byImportableName = new Map<string, Map<string, RepositoryNode[]>>();
+  // Collected across every symbol so divergence is judged repository-wide.
+  const markerDeclarations: MarkerDeclaration[] = [];
+  for (const sym of groupSymbols(extraction.symbols)) {
     const moduleNodeId = nodeIdByRel.get(sym.relPath);
-    const id = `sym:${sym.kind}:${sym.relPath}:${sym.name}:${sym.startLine}`;
     const node = builder.node({
-      id,
+      id: sym.id,
       kind: sym.kind,
       name: sym.name,
       filePath: sym.relPath,
       exported: sym.exported,
-      evidence: [{ filePath: sym.relPath, startLine: sym.startLine, endLine: sym.endLine, sourceKind: "code" }],
-      metadata: { exported: sym.exported },
+      // One evidence range per contributing declaration: an overload set is one node with three
+      // ranges, not three nodes.
+      evidence: sym.declarations.map((range) => ({
+        filePath: sym.relPath,
+        startLine: range.startLine,
+        endLine: range.endLine,
+        sourceKind: "code" as const,
+      })),
+      metadata: { exported: sym.exported, ...(sym.scope.length > 0 ? { scope: sym.scope.join(".") } : {}) },
     });
     if (moduleNodeId !== undefined) {
-      builder.edge("declares", moduleNodeId, id, SYMBOL_EDGE_EVIDENCE(sym.relPath, sym.startLine, "code"));
+      builder.edge(
+        "declares",
+        moduleNodeId,
+        sym.id,
+        SYMBOL_EDGE_EVIDENCE(sym.relPath, sym.declarations[0]!.startLine, "code"),
+      );
     }
-    let perModule = symbolIndex.get(sym.relPath);
-    if (perModule === undefined) {
-      perModule = new Map<string, RepositoryNode>();
-      symbolIndex.set(sym.relPath, perModule);
-    }
-    perModule.set(sym.name, node);
+    pushInto(byQualified, sym.relPath, symbolScopePath(sym.scope, sym.name), node);
+    if (sym.scope.length === 0) pushInto(byImportableName, sym.relPath, sym.name, node);
 
-    applyCodeMarkers(builder, sym, node.id);
+    // Each marker keeps the coordinate of the declaration that carried it, not the group's first
+    // declaration: an author sent to the group id finds nothing when the marker is on the second
+    // overload signature.
+    for (const marker of sym.markers) {
+      markerDeclarations.push({
+        tag: marker.tag,
+        slug: marker.slug,
+        ...(marker.statement !== undefined ? { statement: marker.statement } : {}),
+        relPath: sym.relPath,
+        startLine: marker.startLine,
+      });
+    }
+    applyCodeMarkers(builder, sym.relPath, sym.markers, sym.id);
   }
 
   // Import edges.
@@ -189,16 +226,23 @@ export function assembleRepository(
   }
   addAggregatedImportEdges(builder, importEdges);
 
-  // Call edges between resolved symbols (best-effort static).
+  // Call edges between resolved symbols (best-effort static). Both endpoints are matched on the
+  // exact scope-qualified coordinate; anything that resolves to more than one node is dropped —
+  // an approximate call edge is worse than a missing one.
   for (const call of extraction.calls) {
-    if (call.calleeRelPath === undefined || call.calleeSymbol === undefined) continue;
-    const callee = symbolIndex.get(call.calleeRelPath)?.get(call.calleeSymbol);
+    if (call.calleeRelPath === undefined || call.calleeSymbolPath === undefined) continue;
+    const callee = unique(byQualified.get(call.calleeRelPath)?.get(call.calleeSymbolPath));
     if (callee === undefined) continue;
-    const caller =
-      call.callerSymbol !== undefined
-        ? symbolIndex.get(call.callerRelPath)?.get(call.callerSymbol)
-        : undefined;
-    const fromId = caller?.id ?? nodeIdByRel.get(call.callerRelPath);
+    let fromId: string | undefined;
+    if (call.callerSymbolPath !== undefined) {
+      const caller = unique(byQualified.get(call.callerRelPath)?.get(call.callerSymbolPath));
+      // A caller that cannot be identified exactly must not fall back to its module: that would
+      // silently relabel a call made inside one of two homonyms as a call made by the file.
+      if (caller === undefined) continue;
+      fromId = caller.id;
+    } else {
+      fromId = nodeIdByRel.get(call.callerRelPath);
+    }
     if (fromId === undefined) continue;
     builder.edge("calls", fromId, callee.id, SYMBOL_EDGE_EVIDENCE(call.callerRelPath, call.line, "code"));
   }
@@ -208,10 +252,10 @@ export function assembleRepository(
     if (roleByRel.get(imp.fromRelPath) !== "test") continue;
     if (imp.resolvedRelPath === undefined) continue;
     const testNodeId = nodeIdByRel.get(imp.fromRelPath);
-    const perModule = symbolIndex.get(imp.resolvedRelPath);
+    const perModule = byImportableName.get(imp.resolvedRelPath);
     if (testNodeId === undefined || perModule === undefined) continue;
     for (const name of imp.names) {
-      const target = perModule.get(name);
+      const target = unique(perModule.get(name));
       if (target === undefined) continue;
       const ev = SYMBOL_EDGE_EVIDENCE(imp.fromRelPath, imp.line, "test");
       builder.edge("tested_by", target.id, testNodeId, ev);
@@ -229,11 +273,37 @@ export function assembleRepository(
     ingestMigration(builder, file, repoNodeId);
   }
 
+  // Applied before the graph is built, so no consumer ever sees a contested slug carrying one of
+  // its two statements — including the sidecar facts, which are derived from the same builder.
+  const markerDivergences = detectMarkerDivergence(markerDeclarations);
+  degradeDivergentMarkerNodes(builder.nodes.values(), markerDivergences);
+
   const analysis = builder.build();
   return attachPlaneASidecar(
     analysis,
     buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId),
   );
+}
+
+function pushInto(
+  index: Map<string, Map<string, RepositoryNode[]>>,
+  relPath: string,
+  key: string,
+  node: RepositoryNode,
+): void {
+  let perModule = index.get(relPath);
+  if (perModule === undefined) {
+    perModule = new Map<string, RepositoryNode[]>();
+    index.set(relPath, perModule);
+  }
+  const bucket = perModule.get(key);
+  if (bucket === undefined) perModule.set(key, [node]);
+  else bucket.push(node);
+}
+
+/** The single node at a coordinate, or `undefined` when the coordinate does not identify one. */
+function unique(nodes: readonly RepositoryNode[] | undefined): RepositoryNode | undefined {
+  return nodes !== undefined && nodes.length === 1 ? nodes[0] : undefined;
 }
 
 function isTypeScriptSource(file: DiscoveredFile): boolean {
@@ -403,9 +473,14 @@ function buildTypeScriptSidecar(
   };
 }
 
-function applyCodeMarkers(builder: GraphBuilder, sym: { relPath: string; startLine: number; markers: import("./markers").ParsedMarker[] }, symbolNodeId: string): void {
-  for (const marker of sym.markers) {
-    const ev = SYMBOL_EDGE_EVIDENCE(sym.relPath, sym.startLine, "code");
+function applyCodeMarkers(
+  builder: GraphBuilder,
+  relPath: string,
+  markers: readonly import("./symbol-grouping").SymbolMarkerDeclaration[],
+  symbolNodeId: string,
+): void {
+  for (const marker of markers) {
+    const ev = SYMBOL_EDGE_EVIDENCE(relPath, marker.startLine, "code");
     if (marker.tag === "tag") {
       const symbolNode = builder.nodes.get(symbolNodeId);
       if (symbolNode !== undefined && !symbolNode.tags.includes(marker.slug)) {
@@ -413,7 +488,14 @@ function applyCodeMarkers(builder: GraphBuilder, sym: { relPath: string; startLi
       }
     } else if (marker.tag === "capability") {
       const id = capabilityId(marker.slug);
-      builder.node({ id, kind: "capability", name: marker.slug, evidence: ev, tags: ["from-code"] });
+      builder.node({
+        id,
+        kind: "capability",
+        name: marker.slug,
+        evidence: ev,
+        tags: ["from-code"],
+        ...(marker.statement !== undefined ? { metadata: { statement: marker.statement } } : {}),
+      });
       builder.edge("implements_capability", symbolNodeId, id, ev);
     } else if (marker.tag === "invariant") {
       const id = invariantId(marker.slug);

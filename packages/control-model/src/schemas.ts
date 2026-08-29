@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { MIGRATION_STEP_PROFILES } from "./constants";
 import { classifyControlFreshnessSeal, CONTROL_FRESHNESS_REASON_ORDER } from "./freshness";
+import { UnresolvedRepositoryLinkSchema } from "./link-resolution";
 import { Sha256HashSchema } from "./primitive-schemas";
 import type { AuthoredSemanticLevel, ControlFreshnessSeal } from "./types";
 export { Sha256HashSchema } from "./primitive-schemas";
@@ -106,12 +107,7 @@ export const UnsupportedCoordinateSourceSchema = z.object({
 
 export const UnmappedCoordinateSourceSchema = UnsupportedCoordinateSourceSchema;
 
-export const StaleRepositoryLinkSchema = z.object({
-  ownerId: z.string().min(1),
-  link: z.object({ kind: z.string().min(1), ref: z.string().min(1) }).strict(),
-  resolved: z.literal(false),
-  reason: z.string().min(1),
-}).strict();
+export const StaleRepositoryLinkSchema = UnresolvedRepositoryLinkSchema;
 
 export const DanglingSemanticReferenceSchema = z.object({
   ownerId: z.string().min(1),

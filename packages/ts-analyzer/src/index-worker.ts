@@ -75,10 +75,10 @@ function restrictToEmitRoots(
       const calleeRelPath = local(item.calleeRelPath);
       return {
         callerRelPath: item.callerRelPath,
-        ...(item.callerSymbol === undefined ? {} : { callerSymbol: item.callerSymbol }),
+        ...(item.callerSymbolPath === undefined ? {} : { callerSymbolPath: item.callerSymbolPath }),
         calleeName: item.calleeName,
         ...(calleeRelPath === undefined ? {} : { calleeRelPath }),
-        ...(item.calleeSymbol === undefined ? {} : { calleeSymbol: item.calleeSymbol }),
+        ...(item.calleeSymbolPath === undefined ? {} : { calleeSymbolPath: item.calleeSymbolPath }),
         line: item.line,
       };
     }),

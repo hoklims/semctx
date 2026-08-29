@@ -338,4 +338,60 @@ describe("parallel TypeScript extraction", () => {
     expect(thrown).toBeInstanceOf(Error);
     expect((thrown as Error).message).toMatch(/malformed extraction DTO/);
   });
+
+  test.each([
+    ["the pre-HOK-79 symbol shape without scope", { signatureOnly: false }],
+    ["a scope containing a non-string element", { scope: ["Service", 7], signatureOnly: false }],
+    ["a non-boolean signatureOnly flag", { scope: [], signatureOnly: "false" }],
+  ])("fails closed when a worker returns %s", async (_label, symbolFields) => {
+    const { root, paths } = fixture({
+      "a.ts": "export function a() {}\n",
+      "b.ts": "export function b() {}\n",
+    });
+    __setExtractionWorkerFactoryForTesting(() => {
+      let onmessage: ((event: { data: unknown }) => void) | null = null;
+      const worker = {
+        onerror: null as ((event: { message: string }) => void) | null,
+        get onmessage() { return onmessage; },
+        set onmessage(value: ((event: { data: unknown }) => void) | null) { onmessage = value; },
+        postMessage(value: unknown) {
+          const request = value as { jobId: string; repoRoot: string; emitAbsPaths: string[] };
+          const modulePath = relative(request.repoRoot, request.emitAbsPaths[0]!).replaceAll("\\", "/");
+          queueMicrotask(() => onmessage?.({
+            data: {
+              schemaVersion: 1,
+              jobId: request.jobId,
+              ok: true,
+              extraction: {
+                modules: [modulePath],
+                symbols: [{
+                  name: "workerSymbol",
+                  kind: "function",
+                  relPath: modulePath,
+                  startLine: 1,
+                  endLine: 1,
+                  exported: true,
+                  markers: [],
+                  ...symbolFields,
+                }],
+                imports: [],
+                calls: [],
+              },
+            },
+          }));
+        },
+        terminate() {},
+      };
+      return worker as unknown as Worker;
+    });
+
+    let thrown: unknown;
+    try {
+      await extractTypeScriptParallel(paths, root, 2);
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(Error);
+    expect((thrown as Error).message).toMatch(/malformed extraction DTO/);
+  });
 });

@@ -112,11 +112,19 @@ function semanticCheck(root: string, args: ParsedArgs): number {
   for (const id of report.duplicateIds) info(`  ${c.red("error")} duplicate id declared in more than one file: ${id}`);
   for (const iv of report.invalidIds) info(`  ${c.red("error")} id "${iv.id}" does not match its kind "${iv.kind}"`);
   for (const dr of report.danglingReferences) info(`  ${c.red("error")} ${dr.ownerId} ${dr.field} -> ${dr.ref} (not declared)`);
-  for (const s of report.staleLinks) info(`  ${c.red("stale")} ${s.ownerId} link ${s.link.ref} (${s.reason})`);
+  for (const s of report.staleLinks) {
+    const candidates = s.candidates !== undefined && s.candidates.length > 0
+      ? ` candidates=[${s.candidates.join(", ")}]`
+      : "";
+    info(`  ${c.red("stale")} ${s.ownerId} link ${s.link.ref} [${s.reasonCode}] (${s.reason})${candidates}`);
+  }
   for (const finding of report.lifecycleFindings) {
     const subjects = finding.subjectIds.length > 0 ? ` [${finding.subjectIds.join(", ")}]` : "";
     const tag = finding.severity === "error" ? c.red("error") : c.yellow("warn ");
     info(`  ${tag} ${finding.code}${subjects}: ${finding.message}`);
+  }
+  for (const finding of report.anchorFindings) {
+    info(`  ${c.yellow("warn ")} ${finding.code}: ${finding.message}`);
   }
   info("");
   if (report.ok) {

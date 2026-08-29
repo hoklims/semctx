@@ -51,7 +51,7 @@ describe(`pluggy ${UPSTREAM_TAG} real-repository corpus`, () => {
 
     expect(extractPython([...files].reverse())).toEqual(extraction);
     expect(sha256(JSON.stringify(extraction))).toBe(
-      "25fbc3108100e489d84cbfa15bf8ad5ae83c890eb99549a32baaec762097d5f8",
+      "77e01ca40972feba38470d449a8b5fc3ad492628ef999991cfeab1e37a697a07",
     );
   });
 

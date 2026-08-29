@@ -76,6 +76,7 @@ export type {
   IndexHealthCandidateV1,
   IndexHealthReportV1,
 } from "./index-health";
+export { anchorMigrationAuthority } from "./anchor-migration-authority";
 export { planVerify, runVerify } from "./verify";
 export type { VerifySource, VerifyComputation } from "./verify";
 export {

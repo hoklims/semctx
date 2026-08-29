@@ -1,5 +1,6 @@
 import {
   compareIds,
+  DIVERGENT_STATEMENT_TAG,
   edgeId,
   evidenceId,
   type EvidenceRecord,
@@ -129,6 +130,13 @@ export class DeterministicGraphAssembler {
   private readonly evidence = new Map<string, EvidenceRecord>();
   private readonly selectedPaths: ReadonlySet<string>;
   private readonly recordedFacts: PlaneAFact[] = [];
+  /**
+   * Every distinct non-empty `metadata.statement` value ever offered for a node id, across every
+   * fact added — independent of which one, if any, survives the first-wins merge below. Two
+   * producers agreeing on a node's structure but disagreeing on its statement is invisible once
+   * merged into one `RepositoryNode`; this is where that disagreement is still observable.
+   */
+  private readonly statementSightings = new Map<string, Set<string>>();
   /** Provenance is assembler-owned, never read back from the assembled edge: nothing downstream can
    *  promote a derived edge to authored by writing a metadata key. */
   private readonly edgeProvenance = new Map<string, EdgeProvenance>();
@@ -197,6 +205,11 @@ export class DeterministicGraphAssembler {
     return [...this.recordedFacts];
   }
 
+  /** Every distinct statement offered per node id, regardless of which one the merge kept. */
+  statementSightingsByNodeId(): ReadonlyMap<string, ReadonlySet<string>> {
+    return this.statementSightings;
+  }
+
   build(): AssembledPlaneA {
     const unresolvedReferences: UnresolvedReference[] = [];
     const unresolvedEdgeIds = new Set<string>();
@@ -249,13 +262,25 @@ export class DeterministicGraphAssembler {
         filePath: fact.filePath,
       });
     }
+    const incomingStatement = fact.metadata["statement"];
+    if (typeof incomingStatement === "string" && incomingStatement.length > 0) {
+      const seen = this.statementSightings.get(fact.id) ?? new Set<string>();
+      seen.add(incomingStatement);
+      this.statementSightings.set(fact.id, seen);
+    }
     for (const ref of fact.evidence) this.recordEvidence(ref);
     const existing = this.nodes.get(fact.id);
     if (existing !== undefined) {
       validateNodeIdentity(existing, fact);
       existing.evidence.push(...fact.evidence);
       for (const tag of fact.tags) if (!existing.tags.includes(tag)) existing.tags.push(tag);
+      // A node already known divergent must never regain a "statement": a later producer offering
+      // one — even a single, internally-consistent one — cannot un-contest an id another producer
+      // already disagreed about.
+      const alreadyDivergent = existing.tags.includes(DIVERGENT_STATEMENT_TAG);
+      if (alreadyDivergent) delete existing.metadata["statement"];
       for (const [key, value] of Object.entries(fact.metadata)) {
+        if (key === "statement" && alreadyDivergent) continue;
         if (!(key in existing.metadata)) existing.metadata[key] = value;
       }
       if (fact.filePath !== undefined && existing.filePath === undefined) {
@@ -267,6 +292,8 @@ export class DeterministicGraphAssembler {
       if (fact.exported === true) existing.exported = true;
       return;
     }
+    const metadata = { ...fact.metadata };
+    if (fact.tags.includes(DIVERGENT_STATEMENT_TAG)) delete metadata["statement"];
     this.nodes.set(fact.id, {
       id: fact.id,
       kind: fact.kind,
@@ -276,7 +303,7 @@ export class DeterministicGraphAssembler {
       ...(fact.exported !== undefined ? { exported: fact.exported } : {}),
       evidence: [...fact.evidence],
       tags: [...fact.tags],
-      metadata: { ...fact.metadata },
+      metadata,
     });
   }
 
@@ -392,7 +419,35 @@ export function assembleFactBatches(batches: readonly FactBatchV1[]): AssembledP
     for (const fact of facts) scopeValidator.addFact(fact);
     for (const fact of facts) assembler.addFact(fact);
   }
-  return assembler.build();
+  const assembled = assembler.build();
+  degradeComposedStatementConflicts(
+    assembled.graph.nodes,
+    assembler.statementSightingsByNodeId(),
+  );
+  return assembled;
+}
+
+/**
+ * Degrade every node whose composed sightings disagree — the cross-producer counterpart of
+ * `degradeDivergentMarkerNodes` (`@semantic-context/ts-analyzer`), which only ever sees one
+ * producer's declarations. Two producers offering the same node id a different statement is
+ * invisible once merged (`DeterministicGraphAssembler` keeps the first, silently), so this reads
+ * `statementSightingsByNodeId()` instead of re-deriving the composed set from declarations neither
+ * producer exposes to the other.
+ */
+export function degradeComposedStatementConflicts(
+  nodes: Iterable<{ id: string; tags: string[]; metadata: Record<string, MetadataValue> }>,
+  sightings: ReadonlyMap<string, ReadonlySet<string>>,
+): void {
+  for (const node of nodes) {
+    const seen = sightings.get(node.id);
+    if (seen === undefined || seen.size < 2) continue;
+    delete node.metadata["statement"];
+    if (!node.tags.includes(DIVERGENT_STATEMENT_TAG)) {
+      node.tags.push(DIVERGENT_STATEMENT_TAG);
+      node.tags.sort(compareIds);
+    }
+  }
 }
 
 export type { MetadataValue };

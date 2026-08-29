@@ -1,4 +1,4 @@
-import { claimId, evidenceId, compareIds } from "@semantic-context/core";
+import { claimId, evidenceId, compareIds, DIVERGENT_STATEMENT_TAG } from "@semantic-context/core";
 import type {
   Claim,
   ClaimKind,
@@ -68,11 +68,16 @@ export function buildClaims(index: GraphIndex): Claim[] {
   for (const inv of index.nodesOfKind("invariant")) {
     const constrained = index.inEdges(inv.id, ["constrained_by"]).map((e) => e.from);
     const subject = [inv.id, ...constrained];
-    const status: VerificationStatus = constrained.some((s) => isTested(index, s))
-      ? "tested"
-      : inv.tags.includes("from-doc")
-        ? "documented"
-        : "inferred";
+    // A contested statement must never read as more authoritative than "we don't know which
+    // author is right" — not even when the symbol it constrains happens to be tested: the test
+    // proves *a* behaviour, not which of the two disagreeing statements it is a behaviour of.
+    const status: VerificationStatus = inv.tags.includes(DIVERGENT_STATEMENT_TAG)
+      ? "contradicted"
+      : constrained.some((s) => isTested(index, s))
+        ? "tested"
+        : inv.tags.includes("from-doc")
+          ? "documented"
+          : "inferred";
     const statement =
       typeof inv.metadata["statement"] === "string" ? (inv.metadata["statement"] as string) : `Invariant: ${inv.name}`;
     const evidence = collectEvidence(index, subject);
@@ -84,11 +89,13 @@ export function buildClaims(index: GraphIndex): Claim[] {
     const implementers = index.inEdges(cap.id, ["implements_capability"]).map((e) => e.from);
     if (implementers.length === 0 && !cap.tags.includes("from-doc")) continue;
     const subject = [cap.id, ...implementers];
-    const status: VerificationStatus = implementers.some((s) => isTested(index, s))
-      ? "tested"
-      : cap.tags.includes("from-code")
-        ? "documented"
-        : "inferred";
+    const status: VerificationStatus = cap.tags.includes(DIVERGENT_STATEMENT_TAG)
+      ? "contradicted"
+      : implementers.some((s) => isTested(index, s))
+        ? "tested"
+        : cap.tags.includes("from-code")
+          ? "documented"
+          : "inferred";
     const evidence = collectEvidence(index, subject);
     claims.push(
       makeClaim("capability", `Capability "${cap.name}" is implemented by ${implementers.length} symbol(s).`, subject, evidence, status, [
@@ -106,7 +113,10 @@ export function buildClaims(index: GraphIndex): Claim[] {
         ? (contract.metadata["statement"] as string)
         : `Contract: ${contract.name}`;
     const evidence = collectEvidence(index, subject);
-    claims.push(makeClaim("contract", statement, subject, evidence, "statically_verified", ["contract"]));
+    const status: VerificationStatus = contract.tags.includes(DIVERGENT_STATEMENT_TAG)
+      ? "contradicted"
+      : "statically_verified";
+    claims.push(makeClaim("contract", statement, subject, evidence, status, ["contract"]));
   }
   for (const node of [...index.nodesOfKind("interface"), ...index.nodesOfKind("type")]) {
     if (node.exported !== true) continue;

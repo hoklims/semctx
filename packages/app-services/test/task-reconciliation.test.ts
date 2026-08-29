@@ -119,6 +119,33 @@ describe("read-only task reconciliation application boundary", () => {
         },
       },
     }).success).toBe(false);
+
+    const unresolved = {
+      link: { kind: "symbol", ref: "sym:function:src/a.ts:run" },
+      resolved: false,
+      reason: "several declarations match",
+      reasonCode: "ambiguous",
+      candidates: ["sym:function:src/a.ts:outer.run", "sym:function:src/a.ts:run"],
+    };
+    const boundary = (authoredLinkResolution: Record<string, unknown>) => ({
+      schemaVersion: 1,
+      taskFrameId: "task.strict-links",
+      changeId: "change.strict-links",
+      authoredLinkResolutions: [authoredLinkResolution],
+    });
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary(unresolved)).success).toBe(true);
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary({
+      link: unresolved.link,
+      resolved: true,
+      legacy: true,
+    })).success).toBe(true);
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary({ ...unresolved, unknown: true })).success).toBe(false);
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary({ ...unresolved, resolved: true })).success).toBe(false);
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary({ ...unresolved, reasonCode: "moved_maybe" })).success).toBe(false);
+    expect(BindTaskScopeCommandV1Schema.safeParse(boundary({
+      ...unresolved,
+      candidates: [...unresolved.candidates].reverse(),
+    })).success).toBe(false);
   });
 
   it("observes the actual worktree without writing the index or target store", () => {

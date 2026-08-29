@@ -69,8 +69,10 @@ import {
   type WorkspaceBaselineSnapshotV1,
 } from "@semantic-context/control-model/reconciliation";
 import {
-  ReconciliationRepositoryLinkSchema,
-} from "@semantic-context/semantic-model/reconciliation-read";
+  CanonicalRepositoryLinkSchema,
+  LinkCandidatesSchema,
+  LinkResolutionReasonCodeSchema,
+} from "@semantic-context/control-model/link-resolution";
 import {
   loadSemanticModel,
   loadTargetArtifact,
@@ -148,15 +150,38 @@ const TaskFrameAdvisoryV1Schema = z.object({
   profileCandidate: RefinementProfileV1Schema.optional(),
   altitudeCandidate: z.number().int().min(0).max(6).optional(),
 }).strict();
-const AuthoredLinkResolutionInputV1Schema = z.object({
-  link: ReconciliationRepositoryLinkSchema,
-  resolved: z.boolean(),
+const ResolvedAuthoredLinkResolutionInputV1Schema = z.object({
+  link: CanonicalRepositoryLinkSchema,
+  resolved: z.literal(true),
   coordinateId: RepositoryCoordinateIdSchema.optional(),
   repositoryPath: CanonicalRepoRelativePathSchema.optional(),
   evidenceId: NonEmptyCommandIdSchema.optional(),
   evidenceProvenance: BindingEvidenceProvenanceSchema.optional(),
   scope: ResolvedBindingScopeV1Schema.optional(),
+  legacy: z.literal(true).optional(),
 }).strict();
+const UnresolvedAuthoredLinkResolutionInputV1Schema = z.object({
+  link: CanonicalRepositoryLinkSchema,
+  resolved: z.literal(false),
+  reason: z.string().min(1),
+  reasonCode: LinkResolutionReasonCodeSchema,
+  candidates: LinkCandidatesSchema.optional(),
+}).strict().superRefine((value, context) => {
+  if (
+    value.candidates !== undefined
+    && ["path_absent", "claim_absent", "evidence_absent", "node_absent"].includes(value.reasonCode)
+  ) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["candidates"],
+      message: `${value.reasonCode} cannot carry symbol candidates`,
+    });
+  }
+});
+const AuthoredLinkResolutionInputV1Schema = z.union([
+  ResolvedAuthoredLinkResolutionInputV1Schema,
+  UnresolvedAuthoredLinkResolutionInputV1Schema,
+]);
 const ExplicitDiscoveryInputV1Schema = z.object({
   coordinateId: RepositoryCoordinateIdSchema,
   repositoryPath: CanonicalRepoRelativePathSchema,

@@ -99,8 +99,10 @@ describe("analyzeDiff on the fixture", () => {
     const result = analyzeDiff({ index, claims, config, diffText: diff });
     expect(result.impactedInvariants.length).toBeGreaterThan(0);
     expect(result.recommendedTests.map((t) => t.filePath)).toContain("test/confirmation.test.ts");
-    // The invariant is tested, so no blocking violation.
-    expect(result.verdict).toBe("PASS");
+    // The constrained symbol is tested (no BLOCK), but the invariant's own statement is contested
+    // (HOK-79 marker divergence fixture) — that surfaces as an unresolved-contradiction WARN, not
+    // a silent PASS.
+    expect(result.verdict).toBe("WARN");
   });
 
   it("reports PASS on an empty diff", () => {

@@ -235,7 +235,7 @@ describe("refinement planner", () => {
 
   test("uses sealed repositoryPath for opaque repository node ids", () => {
     const cases = [
-      symbolId("function", "src/feature.ts", "run", 1),
+      symbolId("function", "src/feature.ts", "run"),
       moduleId("src/feature.ts"),
       testId("src/feature.test.ts"),
       documentId("docs/feature.md"),

@@ -6,6 +6,7 @@ import {
   type RefinementRelationV1,
   type Sha256Hash,
 } from "@semantic-context/control-model/reconciliation";
+import { UnresolvedRepositoryLinkSchema } from "@semantic-context/control-model/link-resolution";
 
 const HASH = /^sha256:[0-9a-f]{64}$/;
 const HEX = /^[0-9a-f]{64}$/;
@@ -114,13 +115,9 @@ export function parseCoordinateGraphV2(value: unknown): CoordinateGraphReportV2 
   unsupported.forEach((item, index) => parseSourceIssue(item, index, "unsupported"));
   unmapped.forEach((item, index) => parseSourceIssue(item, index, "unmapped"));
   staleLinks.forEach((item, index) => {
-    const record = requireRecord(item, `staleLinks[${index}]`);
-    requireExactKeys(record, ["ownerId", "link", "resolved", "reason"], `staleLinks[${index}]`);
-    const link = requireRecord(record.link, `staleLinks[${index}].link`);
-    requireExactKeys(link, ["kind", "ref"], `staleLinks[${index}].link`);
-    if (!isNonEmpty(record.ownerId) || !isNonEmpty(link.kind) || !isNonEmpty(link.ref)
-      || record.resolved !== false || !isNonEmpty(record.reason)) {
-      throw new Error(`staleLinks[${index}] is invalid`);
+    const parsed = UnresolvedRepositoryLinkSchema.safeParse(item);
+    if (!parsed.success) {
+      throw new Error(`staleLinks[${index}] is invalid: ${parsed.error.issues.map((issue) => issue.message).join("; ")}`);
     }
   });
   danglingReferences.forEach((item, index) => {

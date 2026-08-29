@@ -41,13 +41,27 @@ function portableRepositoryFacts(): unknown {
 }
 
 describe("Plane A TypeScript compatibility golden", () => {
-  // Re-pinned once, deliberately: authored-edge provenance moved out of the open `metadata` bag
-  // into a typed `EdgeFact.provenance` field the assembler owns, so the single `contradicts` edge
-  // in the sample repository lost its `{ declared: true }` entry. Verified as the only delta —
-  // node, evidence, claim, result and report bytes are unchanged.
+  // Re-pinned twice, both times deliberately.
+  //
+  // First: authored-edge provenance moved out of the open `metadata` bag into a typed
+  // `EdgeFact.provenance` field the assembler owns, so the single `contradicts` edge in the
+  // sample repository lost its `{ declared: true }` entry.
+  //
+  // Second (HOK-79): symbol identity dropped the start-line field (`sym:function:path:name:12`
+  // -> `sym:function:path:name`) so a harmless insertion above a declaration no longer changes
+  // its id, and the sample repository's `confirmed-never-exceeds-capacity` invariant — declared
+  // with two different statements in `capacity.ts` and `confirmation.ts` — is now correctly
+  // reported as contested: it gains the `statement-divergent` tag and loses `metadata.statement`
+  // instead of silently keeping whichever declaration the graph builder saw first.
+  //
+  // Third (HOK-79 marker authority): that contested invariant's *claim* stopped reading `tested`
+  // (0.85 authority) and reads `contradicted` (0.15) instead — `constrained_by` + a passing test
+  // proved the symbol was exercised, never which of the two disagreeing statements it proved.
+  // Verified as the only delta: node/evidence/result/report shape and every other claim are
+  // otherwise unchanged (checked directly against the live claim list before re-pinning).
   it("keeps graph, evidence, claims, and verification bytes stable", () => {
     expect(sha256(portableRepositoryFacts())).toBe(
-      "cded7d9a2474f5210b485fad9dbd7c97557e38f486772e4de045a937df6fa461",
+      "28c4c0ae8f6561c7c73673a0e173245d7bcfe922ac4524ebedba72978708837e",
     );
   });
 

@@ -39,6 +39,8 @@ export interface PythonSymbol {
   name: string;
   kind: "function" | "class";
   relPath: string;
+  /** Enclosing named function/class declarations, outermost first. Empty at module scope. */
+  scope: string[];
   range: PythonRange;
   markers: PythonMarker[];
 }
@@ -158,6 +160,28 @@ function forEachNode(cursor: PythonCursor, visit: (cursor: PythonCursor) => void
       if (!cursor.parent()) return;
     }
   }
+}
+
+/**
+ * Enclosing named function/class declarations of a node, outermost first.
+ *
+ * Two methods with the same name in two different classes (or two nested `def` with the same name)
+ * are two symbols, not one: without a scope path they collide on a bare (kind, relPath, name) key
+ * once identity no longer includes a source line.
+ */
+function enclosingPythonScope(node: PythonCursor["node"], source: string): string[] {
+  const scope: string[] = [];
+  for (let current = node.parent; current !== null; current = current.parent) {
+    if (current.name !== "FunctionDefinition" && current.name !== "ClassDefinition") continue;
+    const statement = source.slice(current.from, current.to);
+    const nameMatch =
+      current.name === "FunctionDefinition"
+        ? /^(?:async\s+)?def\s+([^\s(:[]+)/u.exec(statement)
+        : /^class\s+([^\s(:[]+)/u.exec(statement);
+    const name = nameMatch?.[1];
+    if (name !== undefined) scope.unshift(name);
+  }
+  return scope;
 }
 
 function parseMarkers(lines: readonly string[], symbolLine: number): PythonMarker[] {
@@ -429,6 +453,7 @@ function extractOne(file: PythonSource): PythonExtraction {
           name,
           kind: cursor.name === "FunctionDefinition" ? "function" : "class",
           relPath,
+          scope: enclosingPythonScope(cursor.node, file.source),
           range: symbolRange,
           markers: parseMarkers(lines, markerAnchor.startLine),
         });

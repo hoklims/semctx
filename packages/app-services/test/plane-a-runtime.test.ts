@@ -6,12 +6,18 @@ import {
   createDefaultConfig,
   createGlobSelectionConfig,
   type SemctxConfigV2,
+  type TaskFrame,
 } from "@semantic-context/core";
 import {
   analyzeRepository,
   discoverRepository,
   type DiscoveryResult,
 } from "@semantic-context/ts-analyzer";
+import {
+  buildClaims,
+  GraphIndex,
+  prepareContextPack,
+} from "@semantic-context/context-engine";
 import { analyzePlaneARuntime, mergeUnresolvedReferences } from "../src/plane-a-runtime";
 
 const roots: string[] = [];
@@ -190,7 +196,7 @@ describe("private integrated Plane-A runtime", () => {
       expect.objectContaining({ id: "mod:src/value.ts", kind: "module" }),
       expect.objectContaining({ id: "mod:src/python/service.py", kind: "module" }),
       expect.objectContaining({
-        id: "sym:function:src/python/service.py:debit:4",
+        id: "sym:function:src/python/service.py:debit",
         kind: "function",
       }),
       expect.objectContaining({ id: "inv:positive-balance", kind: "invariant" }),
@@ -203,7 +209,7 @@ describe("private integrated Plane-A runtime", () => {
       }),
       expect.objectContaining({
         kind: "constrained_by",
-        from: "sym:function:src/python/service.py:debit:4",
+        from: "sym:function:src/python/service.py:debit",
         to: "inv:positive-balance",
       }),
     ]));
@@ -483,6 +489,155 @@ describe("private integrated Plane-A runtime", () => {
     expect(result.sidecar.capabilityProfiles
       .filter((profile) => profile.scope.selectedPaths[0] === "packages/api/src/index.ts")
       .every((profile) => profile.scope.workspaceUnitId === "workspace:packages/api")).toBe(true);
+  });
+
+  // HOK-79: divergence must be judged after every producer's facts are composed, not just within
+  // one producer's own pass — Python's own markers, and TypeScript's markers against Python's.
+  it("degrades a slug declared with different statements across two Python files", () => {
+    const root = repository();
+    write(root, "src/a.py", "# @invariant must-hold: A must never exceed B\ndef a():\n    return 1\n");
+    write(root, "src/b.py", "# @invariant must-hold: A must equal B\ndef b():\n    return 2\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    const inv = result.analysis.graph.nodes.find((node) => node.id === "inv:must-hold");
+    expect(inv).toBeDefined();
+    expect(inv!.tags).toContain("statement-divergent");
+    expect(inv!.metadata["statement"]).toBeUndefined();
+  });
+
+  it("degrades a slug TypeScript and Python each declared consistently but differently from each other", () => {
+    const root = repository();
+    write(
+      root,
+      "src/a.ts",
+      [
+        "/**",
+        " * @invariant must-hold: A must never exceed B",
+        " */",
+        "export function a(): number { return 1; }",
+        "",
+      ].join("\n"),
+    );
+    write(root, "src/b.py", "# @invariant must-hold: A must equal B\ndef b():\n    return 2\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    const inv = result.analysis.graph.nodes.find((node) => node.id === "inv:must-hold");
+    expect(inv).toBeDefined();
+    expect(inv!.tags).toContain("statement-divergent");
+    expect(inv!.metadata["statement"]).toBeUndefined();
+  });
+
+  it("keeps cross-language @capability statement divergence non-authorizing end to end", () => {
+    const root = repository();
+    write(
+      root,
+      "src/checkout.ts",
+      [
+        "/**",
+        " * @capability checkout: Charges a saved payment method",
+        " */",
+        "export function checkout(): number { return 1; }",
+        "",
+      ].join("\n"),
+    );
+    write(
+      root,
+      "src/checkout.py",
+      "# @capability checkout: Reserves inventory without charging\ndef checkout():\n    return 2\n",
+    );
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    const capability = result.analysis.graph.nodes.find((node) => node.id === "cap:checkout");
+    expect(capability).toBeDefined();
+    expect(capability!.tags).toContain("statement-divergent");
+    expect(capability!.metadata["statement"]).toBeUndefined();
+
+    const claims = buildClaims(new GraphIndex(result.analysis.graph));
+    const capabilityClaim = claims.find((claim) => claim.kind === "capability");
+    expect(capabilityClaim).toBeDefined();
+    expect(capabilityClaim!.verificationStatus).toBe("contradicted");
+
+    const now = "2026-01-01T00:00:00.000Z";
+    const taskFrame: TaskFrame = {
+      id: "task:checkout",
+      rawTask: "Change checkout behavior",
+      mode: "feature",
+      capabilities: ["checkout"],
+      observedBehavior: [],
+      expectedBehavior: [],
+      boundedContexts: [],
+      hardInvariants: [],
+      softConstraints: [],
+      acceptanceEvidence: [],
+      nonGoals: [],
+      riskSurfaces: [],
+      hypotheses: [],
+      createdAt: now,
+    };
+    const pack = prepareContextPack({
+      graph: result.analysis.graph,
+      evidence: result.analysis.evidence,
+      claims,
+      taskFrame,
+      now,
+      candidateProviders: [],
+    });
+
+    expect(pack.authoritativeClaims).not.toContainEqual(expect.objectContaining({ id: capabilityClaim!.id }));
+    expect(pack.hardConstraints).not.toContainEqual(expect.objectContaining({ id: capabilityClaim!.id }));
+    expect(pack.contradictions).toContainEqual(expect.objectContaining({ id: capabilityClaim!.id }));
+  });
+
+  it("does not flag a slug TypeScript and Python declare with the identical statement", () => {
+    const root = repository();
+    write(
+      root,
+      "src/a.ts",
+      [
+        "/**",
+        " * @invariant must-hold: A must never exceed B",
+        " */",
+        "export function a(): number { return 1; }",
+        "",
+      ].join("\n"),
+    );
+    write(root, "src/b.py", "# @invariant must-hold: A must never exceed B\ndef b():\n    return 2\n");
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    const inv = result.analysis.graph.nodes.find((node) => node.id === "inv:must-hold");
+    expect(inv).toBeDefined();
+    expect(inv!.tags).not.toContain("statement-divergent");
+    expect(inv!.metadata["statement"]).toBe("A must never exceed B");
+  });
+
+  // Same doctrine as `ts-analyzer/symbol-grouping.ts` (overload sets fold, homonym collisions
+  // split): Python has no signature-only overload form in this analyzer, so any redefinition
+  // under one (kind, relPath, scope, name) key is a genuine, non-mergeable structural collision.
+  it("splits a Python redefinition into ordinal-suffixed ids, neither owning the bare coordinate", () => {
+    const root = repository();
+    write(
+      root,
+      "src/twins.py",
+      [
+        "def twin():",
+        "    return 1",
+        "",
+        "def twin():",
+        "    return 2",
+        "",
+      ].join("\n"),
+    );
+    const config = v2(root);
+    const result = analyzePlaneARuntime(config, discoverRepository(config));
+
+    const bare = "sym:function:src/twins.py:twin";
+    const twins = result.analysis.graph.nodes.filter((node) => node.id.startsWith(`${bare}#`));
+    expect(twins).toHaveLength(2);
+    expect(result.analysis.graph.nodes.some((node) => node.id === bare)).toBe(false);
   });
 
   it("is deterministic under discovery permutation", () => {

@@ -3,13 +3,18 @@
 export {
   buildRepositoryLinkIndex,
   findDanglingReferences,
+  LEGACY_SYMBOL_ANCHOR_SHIPPED_IN,
+  LEGACY_SYMBOL_ANCHOR_SUPPORT,
   resolveRepositoryLink,
   resolveRepositoryLinks,
 } from "@semantic-context/semantic-model";
 export type {
   DanglingReference,
+  LegacySymbolAnchorSupport,
   LinkReport,
   LinkResolution,
+  LinkResolutionOptions,
+  LinkResolutionReasonCode,
   RepositoryFacts,
   RepositoryLinkIndex,
   RepositoryLinkResolution,

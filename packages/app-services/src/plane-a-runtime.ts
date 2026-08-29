@@ -16,6 +16,7 @@ import {
   addAggregatedImportEdges,
   attachPlaneASidecar,
   canonicalSourceText,
+  degradeComposedStatementConflicts,
   DeterministicGraphAssembler,
   digestCanonical,
   getPlaneASidecar,
@@ -37,16 +38,20 @@ import {
   type PythonImport,
   type PythonLimitation,
   type PythonMarker,
+  type PythonSymbol,
 } from "@semantic-context/python-analyzer";
 import {
   analyzeRepository,
   analyzeRepositoryAsync,
+  degradeDivergentPlaneAFacts,
+  detectMarkerDivergence,
   type AnalysisResult,
   type DiscoveredFile,
   type DiscoveryCandidate,
   type DiscoveryResult,
   TYPESCRIPT_DIALECT_VERSION,
   type IndexWorkerSelection,
+  type MarkerDeclaration,
   type TypeScriptParallelism,
 } from "@semantic-context/ts-analyzer";
 import {
@@ -405,6 +410,39 @@ function composePlaneARuntime(
   return { analysis, sidecar, discoveryLedger, workspaceProjection };
 }
 
+/**
+ * Assign the canonical symbol id each Python declaration is addressable by.
+ *
+ * Python has no overload-signature concept in this analyzer — every `def`/`class` carries a full
+ * body — so, unlike `ts-analyzer/symbol-grouping.ts`'s overload sets, there is no case where two
+ * declarations under one (kind, relPath, scope, name) key legitimately fold into one logical
+ * symbol. A redefinition (conditional `def`, re-decoration, shadowing) is therefore always a
+ * genuine structural collision: every member gets an ordinal-suffixed id and none keeps the bare,
+ * addressable coordinate — the same doctrine `groupSymbols` applies to TypeScript homonyms.
+ */
+function groupPythonSymbolIds(symbols: readonly PythonSymbol[]): Map<PythonSymbol, string> {
+  const groups = new Map<string, PythonSymbol[]>();
+  for (const symbol of symbols) {
+    const key = [symbol.kind, symbol.relPath, symbol.scope.join("."), symbol.name].join("\0");
+    const bucket = groups.get(key);
+    if (bucket === undefined) groups.set(key, [symbol]);
+    else bucket.push(symbol);
+  }
+  const idBySymbol = new Map<PythonSymbol, string>();
+  for (const members of groups.values()) {
+    const first = members[0]!;
+    const baseId = symbolId(first.kind, first.relPath, first.name, first.scope);
+    if (members.length === 1) {
+      idBySymbol.set(first, baseId);
+      continue;
+    }
+    [...members]
+      .sort((left, right) => left.range.startOffset - right.range.startOffset)
+      .forEach((member, index) => idBySymbol.set(member, `${baseId}#${index + 1}`));
+  }
+  return idBySymbol;
+}
+
 function buildPythonFacts(
   files: readonly DiscoveredFile[],
   repositoryIdentity: string,
@@ -434,6 +472,8 @@ function buildPythonFacts(
     builder.edge("belongs_to", id, repositoryIdentity, evidence);
   }
 
+  const symbolIds = groupPythonSymbolIds(extraction.symbols);
+  const markerDeclarations: MarkerDeclaration[] = [];
   for (const symbol of extraction.symbols) {
     const ownerId = moduleIds.get(symbol.relPath);
     if (ownerId === undefined) continue;
@@ -451,7 +491,7 @@ function buildPythonFacts(
       .sort(compareText);
     const boundedContext = symbol.markers.find((marker) =>
       marker.tag === "boundedContext")?.slug;
-    const id = symbolId(symbol.kind, symbol.relPath, symbol.name, symbol.range.startLine);
+    const id = symbolIds.get(symbol)!;
     builder.node({
       id,
       kind: symbol.kind,
@@ -460,12 +500,24 @@ function buildPythonFacts(
       ...(boundedContext === undefined ? {} : { boundedContext }),
       evidence,
       tags,
+      metadata: symbol.scope.length > 0 ? { scope: symbol.scope.join(".") } : {},
     });
     builder.edge("declares", ownerId, id, evidence);
     for (const marker of symbol.markers) {
+      markerDeclarations.push({
+        tag: marker.tag,
+        slug: marker.slug,
+        ...(marker.statement !== undefined ? { statement: marker.statement } : {}),
+        relPath: symbol.relPath,
+        startLine: symbol.range.startLine,
+      });
       addPythonMarker(builder, marker, id, evidence);
     }
   }
+  // Composed across every Python declaration before any fact leaves this producer's scope, so a
+  // slug redeclared with a different statement in two Python files degrades here — the same
+  // doctrine `assembleRepository` applies for TypeScript, applied to the second-language vertical.
+  const pythonMarkerDivergences = detectMarkerDivergence(markerDeclarations);
 
   const unresolvedByPath = new Map<string, string[]>();
   const resolvedImportEdges: ImportEdgeOccurrence[] = [];
@@ -499,7 +551,7 @@ function buildPythonFacts(
   addAggregatedImportEdges(builder, resolvedImportEdges);
 
   const factsByPath = new Map<string, PlaneAFact[]>();
-  for (const fact of builder.facts()) {
+  for (const fact of degradeDivergentPlaneAFacts(builder.facts(), pythonMarkerDivergences)) {
     const path = fact.factType === "node"
       ? fact.filePath ?? fact.evidence[0]?.filePath
       : fact.evidence[0]?.filePath;
@@ -524,7 +576,7 @@ function addPythonMarker(
     marker.statement === undefined ? {} : { statement: marker.statement };
   if (marker.tag === "capability") {
     const id = capabilityId(marker.slug);
-    builder.node({ id, kind: "capability", name: marker.slug, evidence, tags: ["from-code"] });
+    builder.node({ id, kind: "capability", name: marker.slug, evidence, tags: ["from-code"], metadata });
     builder.edge("implements_capability", symbolNodeId, id, evidence);
   } else if (marker.tag === "invariant") {
     const id = invariantId(marker.slug);
@@ -790,6 +842,9 @@ function extendLegacyAnalysis(
     assembler.addFact({ ...fact, ordinal: ordinal++ });
   }
   const assembled = assembler.build();
+  // Both producers' facts just passed through one assembler: a node id that received more than one
+  // distinct statement disagrees across producers even though each side, alone, looked consistent.
+  degradeComposedStatementConflicts(assembled.graph.nodes, assembler.statementSightingsByNodeId());
   const legacyNodes = new Map(legacy.graph.nodes.map((node) => [node.id, node]));
   const legacyEdges = new Map(legacy.graph.edges.map((edge) => [edge.id, edge]));
   return {

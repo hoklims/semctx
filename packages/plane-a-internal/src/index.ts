@@ -8,6 +8,7 @@ export {
   DeterministicGraphAssembler,
   PlaneAAssemblyError,
   assembleFactBatches,
+  degradeComposedStatementConflicts,
 } from "./assembler";
 export type {
   AssembledPlaneA,
