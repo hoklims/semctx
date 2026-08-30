@@ -13,7 +13,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "^mcp__semctx__",
+        "matcher": "^mcp__(semctx|plugin_semctx_semctx)__",
         "hooks": [
           {
             "type": "command",

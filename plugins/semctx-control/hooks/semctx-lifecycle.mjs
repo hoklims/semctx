@@ -130,14 +130,18 @@ export function normalizeHookEnvelope(input) {
 
 /**
  * Reduce a host tool name to the canonical Semctx MCP tool it invoked, or null.
- * Both shipped plugin manifests register the bundled server as `semctx`, so only that exact MCP
- * namespace is eligible. Accepting a matching trailing token from an arbitrary server would let a
- * different MCP server manufacture Semctx lifecycle evidence.
+ * Exactly two runtime namespaces are eligible: `mcp__semctx__` (the Codex `.mcp.json` server name)
+ * and `mcp__plugin_semctx_semctx__` (Claude Code's `mcp__plugin_<pluginName>_<serverName>__` form
+ * for the bundled `semctx` MCP server inside the `semctx` plugin, loaded via `--plugin-dir`). Both
+ * name the same bundled server; accepting a matching trailing token from any other prefix — an
+ * arbitrary server, a near-miss plugin or server name — would let that server manufacture Semctx
+ * lifecycle evidence.
  */
 export function canonicalSemctxTool(contract, toolName) {
   if (typeof toolName !== "string" || toolName.length === 0) return null;
-  const prefix = "mcp__semctx__";
-  if (!toolName.startsWith(prefix)) return null;
+  const prefixes = ["mcp__semctx__", "mcp__plugin_semctx_semctx__"];
+  const prefix = prefixes.find((candidate) => toolName.startsWith(candidate));
+  if (prefix === undefined) return null;
   const canonical = toolName.slice(prefix.length);
   return Object.hasOwn(contract.toolStages, canonical) ? canonical : null;
 }

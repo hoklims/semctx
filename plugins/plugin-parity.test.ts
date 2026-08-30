@@ -689,6 +689,14 @@ describe("Codex and Claude Code plugin parity", () => {
     type HookEntry = { matcher?: string; hooks: Array<{ type: string; command: string }> };
     const claudeHooks = json<{ hooks: Record<string, HookEntry[]> }>("plugins/claude-code/hooks/hooks.json");
     const codexHooks = json<{ hooks: Record<string, HookEntry[]> }>("plugins/semctx-control/hooks/hooks.json");
+    // Claude Code additionally observes its own plugin-loaded MCP namespace
+    // (`mcp__plugin_semctx_semctx__…`, the `mcp__plugin_<pluginName>_<serverName>__` form a
+    // `--plugin-dir`-loaded server actually reports), alongside the Codex `.mcp.json` server name
+    // both hosts share. Codex never sees that form, so its matcher is unchanged.
+    const expectedPostToolUseMatcher: Record<"claude-code" | "semctx-control", string> = {
+      "claude-code": "^mcp__(semctx|plugin_semctx_semctx)__",
+      "semctx-control": "^mcp__semctx__",
+    };
 
     // The existing guard must survive, unchanged, on the event it was written for.
     expect(claudeHooks.hooks["PreToolUse"]).toEqual([
@@ -713,8 +721,22 @@ describe("Codex and Claude Code plugin parity", () => {
         expect(entries[0]!.hooks[0]!.command.startsWith("node ")).toBe(true);
       }
       // The tool matcher scopes observation to MCP calls; a `Stop` entry matches no tool at all.
-      expect(hooks.hooks["PostToolUse"]![0]!.matcher).toBe("^mcp__semctx__");
+      const matcher = hooks.hooks["PostToolUse"]![0]!.matcher;
+      expect(matcher).toBe(expectedPostToolUseMatcher[host]);
       expect(hooks.hooks["Stop"]![0]!.matcher).toBeUndefined();
+
+      // The matcher is interpreted as a regular expression by the host: prove its actual match
+      // behaviour, not just its literal string, against both admissible namespaces and near-miss
+      // hostile ones.
+      const regex = new RegExp(matcher!);
+      expect(regex.test("mcp__semctx__semctx_control_status")).toBe(true);
+      expect(regex.test("mcp__other__semctx_verify_change")).toBe(false);
+      const claudePluginNamespace = "mcp__plugin_semctx_semctx__semctx_index_health";
+      expect(regex.test(claudePluginNamespace)).toBe(host === "claude-code");
+      if (host === "claude-code") {
+        expect(regex.test("mcp__plugin_other_semctx__semctx_index_health")).toBe(false);
+        expect(regex.test("mcp__plugin_semctx_other__semctx_index_health")).toBe(false);
+      }
     }
 
     // Host path resolution: Claude substitutes its placeholder, Codex resolves plugin-relative.

@@ -374,6 +374,23 @@ describe("pure surfaces", () => {
     expect(stageForToolName(contract, "")).toBeNull();
     expect(stageForToolName(contract, "__proto__")).toBeNull();
     expect(stageForToolName(contract, "mcp__x__constructor")).toBeNull();
+
+    // Claude Code loading the bundled server via `--plugin-dir` reports the plugin-qualified
+    // namespace (`mcp__plugin_<pluginName>_<serverName>__…`), not the bare `mcp__semctx__` form —
+    // this is the exact runtime tool name a real Claude dispatch observed. It must canonicalize to
+    // the same stage as the Codex namespace.
+    expect(canonicalSemctxTool(contract, "mcp__plugin_semctx_semctx__semctx_index_health"))
+      .toBe("semctx_index_health");
+    expect(stageForToolName(contract, "mcp__plugin_semctx_semctx__semctx_index_health")).toBe("status");
+    expect(stageForToolName(contract, "mcp__plugin_semctx_semctx__semctx_control_reconcile_diff"))
+      .toBe("reconcile_diff");
+    // A prefix that merely resembles the Claude namespace — wrong plugin name, wrong server name,
+    // missing separator, or an unrelated plugin exposing a same-named tool — must not be admitted.
+    expect(stageForToolName(contract, "mcp__plugin_other_semctx__semctx_index_health")).toBeNull();
+    expect(stageForToolName(contract, "mcp__plugin_semctx_other__semctx_index_health")).toBeNull();
+    expect(stageForToolName(contract, "mcp__plugin_semctx_semctx_extra__semctx_index_health")).toBeNull();
+    expect(stageForToolName(contract, "mcp__pluginsemctx_semctx__semctx_index_health")).toBeNull();
+    expect(stageForToolName(contract, "mcp__plugin_semctx__semctx_index_health")).toBeNull();
   });
 
   test("envelopes from either host normalize to the same four fields and nothing else", () => {
@@ -805,6 +822,31 @@ describe("end to end on both hosts", () => {
       ]);
       expect(stopHook("claude-code", root, "session-implementation").stderr)
         .toContain("profile: implementation (observed)");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("Claude Code's plugin-qualified namespace produces a ledger; a hostile server does not", () => {
+    // Regression for the real dispatch that exposed `mcp__plugin_semctx_semctx__semctx_index_health`:
+    // the shipped Claude hooks.json matcher plus the hook body together must observe it, while a
+    // server merely resembling that namespace must still produce nothing at all.
+    const root = makeRepository("plugin-namespace");
+    try {
+      observeSequence("claude-code", root, "session-plugin-ns", [
+        "mcp__plugin_semctx_semctx__semctx_index_health",
+      ]);
+      const stop = stopHook("claude-code", root, "session-plugin-ns");
+      expect(stop.stderr).toContain("recorded stages: status");
+
+      const hostileRoot = makeRepository("plugin-namespace-hostile");
+      observeSequence("claude-code", hostileRoot, "session-hostile-ns", [
+        "mcp__plugin_other_semctx__semctx_index_health",
+      ]);
+      const hostileStop = stopHook("claude-code", hostileRoot, "session-hostile-ns");
+      expect({ status: hostileStop.status, stderr: hostileStop.stderr }).toEqual({ status: 0, stderr: "" });
+      expect(readdirSync(join(hostileRoot, ".semctx"))).toEqual(["config.json"]);
+      rmSync(hostileRoot, { recursive: true, force: true });
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
