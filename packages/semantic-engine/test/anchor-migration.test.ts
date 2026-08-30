@@ -18,6 +18,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   statSync,
   symlinkSync,
@@ -179,6 +180,15 @@ describe("nominal rewrite", () => {
     expect(read(root, "invariant.sem")).toContain("  link: sym:function:src/a.ts:run\n");
     // The comment the author wrote survives untouched — the migration is textual, not a re-parse.
     expect(read(root, "invariant.sem")).toContain("# A comment the author wrote and expects to keep.");
+  });
+
+  it("accepts a safe transaction root reached through a canonicalized ancestor spelling", () => {
+    const root = repository({
+      "invariant.sem": invariantFile("invariant.one", ["sym:function:src/a.ts:run:42"]),
+    });
+    if (realpathSync(root) === root) return;
+
+    expect(migrateAnchors(root, facts(RUN), OK).applied).toBe(true);
   });
 });
 

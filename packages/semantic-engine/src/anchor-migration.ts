@@ -560,17 +560,19 @@ function assertSafeTransactionDirectory(
     if (created !== undefined) syncDirectory(files, working);
   }
   assertDirectory(directory, join(rootReal, ".semctx", "working", TRANSACTION_DIRECTORY));
-  for (const child of [
-    transactionActiveDir(root),
-    transactionTombstoneDir(root),
-    join(transactionDir(root), RECOVERY_ACTIVE),
-  ]) {
+  const canonicalTransactionDirectory = join(rootReal, ".semctx", "working", TRANSACTION_DIRECTORY);
+  const transactionChildren: ReadonlyArray<readonly [string, string]> = [
+    [transactionActiveDir(root), join(canonicalTransactionDirectory, TRANSACTION_ACTIVE)],
+    [transactionTombstoneDir(root), join(canonicalTransactionDirectory, TRANSACTION_TOMBSTONE)],
+    [join(transactionDir(root), RECOVERY_ACTIVE), join(canonicalTransactionDirectory, RECOVERY_ACTIVE)],
+  ];
+  for (const [child, expected] of transactionChildren) {
     for (let attempt = 0; attempt < 8; attempt += 1) {
       if (!existsSync(child)) break;
       try {
         const childInfo = lstatSync(child);
         const childReal = realpathSync(child);
-        if (childInfo.isSymbolicLink() || !childInfo.isDirectory() || childReal !== child) {
+        if (childInfo.isSymbolicLink() || !childInfo.isDirectory() || childReal !== expected) {
           throw new SemctxError("STORE_ERROR", "anchor migration transaction state is unsafe", {
             reason: "TRANSACTION_WORKSPACE_UNSAFE",
             directory: child,
