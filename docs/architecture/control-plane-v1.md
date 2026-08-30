@@ -357,7 +357,9 @@ machine contract and is generated separately.
 
 `AgentLifecyclePolicyV1` adds one strict, host-neutral stage-presence contract without changing
 `AgentWorkflowContractV1`. Codex and Claude Code expose it through the same read-only,
-MCP-only `semctx_control_agent_lifecycle` tool. Agents must invoke the tool explicitly:
+MCP-only `semctx_control_agent_lifecycle` tool, which has no CLI equivalent. Agents must invoke
+the tool explicitly for every checkpoint; only `before_completion` is additionally reported by the
+shipped shadow lifecycle hook:
 
 1. `before_implementation_write` before the first eligible L2+ implementation write;
 2. `after_repository_edits` after edits;
@@ -389,10 +391,22 @@ is source-non-collecting: it does not collect source content or read source file
 coordinate ids.
 
 Every report fixes `enforcementMode` to `shadow`, `blockingEnabled` to `false`, and
-`executionAuthority` to `none`. The lifecycle checkpoint adds no automatic host lifecycle hooks,
-persisted or measured telemetry, enforcement, executor, or CLI equivalent. Manual Control Handoff
-v2 is a separate CLI/MCP surface; the checkpoint does not invoke it. The generated host instructions
-establish shared exposure and invocation guidance, not proof that a host event ran.
+`executionAuthority` to `none`. Exactly one checkpoint is automated: both plugins ship a shadow
+lifecycle hook that observes which Semctx MCP tools the host invoked and reports
+`before_completion` at end of turn, only when the observed set has changed since its last
+advisory. That rule is load-bearing: the ledger spans the session while the host ends a turn
+many times, so a completed cycle would otherwise keep re-reporting `RECORDED` over later turns
+that carried no evidence at all. The hook still says nothing about a turn it did not observe;
+silence after a green is absence of evidence, not a renewed claim. That hook is non-blocking, source-non-collecting, and grants
+nothing; its session-local ledger holds canonical stage ids only, never coordinate ids, and it
+never asserts `semctx_ready` because it does not start the runtime. That ledger is operational
+state, not product telemetry: nothing is measured, aggregated, retained across repositories, or
+sent anywhere. The advisory it produces is written to the local host's own stderr for the turn
+that is ending, and nowhere else. The checkpoint adds no other automatic host lifecycle hook, no persisted or
+measured telemetry, no enforcement, no executor, and no CLI equivalent. Manual Control Handoff
+v2 is a separate CLI/MCP surface; the checkpoint does not invoke it. For every checkpoint other
+than `before_completion`, the generated host instructions establish shared exposure and
+invocation guidance, not proof that a host event ran.
 
 ## Agent transports
 

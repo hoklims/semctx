@@ -207,3 +207,19 @@ in CI, run `verify diff --fail-on warn` instead of editing the rules.
   `{ "enabled": false }` = advisory (default).
 - `.semctx/verification-state.json` — written by `verify diff --record`; git-ignored, atomic.
 - `SEMCTX_GUARD=off` (env) strictly disables enforcement regardless of `guard.json`.
+
+## Shadow lifecycle hook files (Codex and Claude Code)
+
+- `.semctx/working/agent-lifecycle/<sha256>.ndjson` — one append-only ledger per session and
+  repository, written by the hook. It holds canonical `AgentWorkflowStageIdV1` values — the observed
+  stages, plus the set named by the last advisory so the next end of turn stays silent unless
+  something changed — and nothing else; the file name is a digest, so the host session id is never
+  stored. Git-ignored
+  by the existing `.semctx/*` rule and capped at 64 retained ledgers. Deleting one is safe for the
+  repository but not free for the advisory: the session's earlier observations are gone, so the
+  next end of turn reports the stages it can still see and names the rest missing. That is the
+  same reason the cap evicts by age and never the ledger being written.
+- `SEMCTX_LIFECYCLE=off` (env) strictly disables the observer. The hook is advisory and cannot
+  block, so it is on by default; the switch exists because local enforcement, advisory
+  included, must stay disableable without deleting `hooks/hooks.json` and losing the unrelated
+  commit/push guard.

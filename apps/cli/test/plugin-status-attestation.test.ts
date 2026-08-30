@@ -277,10 +277,17 @@ function writeHostShims(
     }
     writeFileSync(script, body);
     if (process.platform === "win32") {
-      writeFileSync(
-        join(directory, `${host}.cmd`),
-        `@echo off\r\n"%SEMCTX_TEST_BUN%" "${script.replace(/\\/g, "\\\\")}" %*\r\n`,
-      );
+      // Bun can skip a `.cmd` shim and resolve a later real `.exe` from PATH, just as it does for
+      // the Git probe above. Compile under the exact host executable name so the fixture always
+      // observes its hermetic inventory instead of the developer's installed Codex or Claude.
+      const executable = join(directory, `${host}.exe`);
+      const compiled = Bun.spawnSync([process.execPath, "build", "--compile", script, "--outfile", executable], {
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      if (compiled.exitCode !== 0) {
+        throw new Error(`could not compile ${host} shim: ${new TextDecoder().decode(compiled.stderr)}`);
+      }
     } else {
       const executable = join(directory, host);
       writeFileSync(executable, `#!/bin/sh\n"$SEMCTX_TEST_BUN" "${script}" "$@"\n`);
@@ -300,17 +307,23 @@ function runStatus(
   extra: readonly string[] = [],
   options: RunOptions = {},
 ): { code: number; report: Record<string, unknown>; raw: string } {
+  const environment: Record<string, string | undefined> = {};
+  for (const [name, value] of Object.entries({ ...process.env, ...(options.env ?? {}) })) {
+    // Windows environment names are case-insensitive. Keeping inherited `Path` beside an added
+    // `PATH` lets process creation choose the original value and bypass the hermetic shim prefix.
+    if (name.toUpperCase() !== "PATH") environment[name] = value;
+  }
+  environment["PATH"] = `${options.bin ?? shimDir}${delimiter}${process.env["PATH"] ?? ""}`;
+
   const result = Bun.spawnSync([
     process.execPath, "run", CLI, "plugin-status", "--root", options.root ?? consumer, "--json", ...extra,
   ], {
     env: {
-      ...process.env,
-      PATH: `${options.bin ?? shimDir}${delimiter}${process.env["PATH"] ?? ""}`,
+      ...environment,
       SEMCTX_TEST_BUN: process.execPath,
       CODEX_HOME: codexHome,
       HOME: userHome,
       USERPROFILE: userHome,
-      ...(options.env ?? {}),
     },
     stdout: "pipe",
     stderr: "pipe",

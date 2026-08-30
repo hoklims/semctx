@@ -223,7 +223,22 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(lifecycle).toContain("blocking is disabled");
     expect(lifecycle).toContain("execution authority is `none`");
     expect(lifecycle).toContain("hosts are instructed to invoke");
-    expect(lifecycle).toContain("not automatic hooks");
+    // Exactly one checkpoint is automated, and the block says which, says it never blocks, and keeps
+    // the other three explicitly hook-free. A generated block that claimed automation for all four —
+    // or that kept the pre-hook denial — must fail here.
+    // Generated prose wraps, so the sentences are matched on a whitespace-normalized copy.
+    const lifecycleProse = lifecycle.replace(/\s+/g, " ");
+    expect(lifecycleProse).toContain("automates only the `before_completion` checkpoint");
+    expect(lifecycleProse).toContain("It never blocks, and it grants nothing.");
+    expect(lifecycleProse).toContain("Every other checkpoint has no automatic host hook");
+    expect(lifecycleProse).toContain("only when the observed set has changed");
+    expect(lifecycleProse).toContain("not proof that a host event ran");
+    expect(lifecycleProse).toContain("never asserts");
+    expect(lifecycleProse).not.toContain("these instructions are not automatic hooks");
+    const automated = lifecycle.match(/Also reported automatically by the shipped shadow lifecycle hook\./g);
+    const manual = lifecycle.match(/Manual: no automatic host hook\./g);
+    expect(automated).toHaveLength(1);
+    expect(manual).toHaveLength(AGENT_LIFECYCLE_POLICY_V1.checkpoints.length - 1);
   });
 
   // Claude Code substitutes ${CLAUDE_PLUGIN_ROOT} into skill/agent content, hook and monitor
@@ -238,6 +253,9 @@ describe("Codex and Claude Code plugin parity", () => {
       "plugins/semctx-control/skills/semctx-control/SKILL.md",
       "plugins/shared/skills/semctx-control/SKILL.md",
       "plugins/claude-code/hooks/hooks.json",
+      "plugins/claude-code/hooks/semctx-lifecycle.mjs",
+      "plugins/shared/hooks/semctx-lifecycle.mjs",
+      "plugins/semctx-control/hooks/hooks.json",
       "plugins/claude-code/.mcp.json",
       "plugins/claude-code/mcp-omp.json",
       "plugins/claude-code/README.md",
@@ -335,6 +353,9 @@ describe("Codex and Claude Code plugin parity", () => {
       "plugins/semctx-control/skills/semctx-control/SKILL.md",
       "plugins/semctx-control/.mcp.json",
       "plugins/semctx-control/.codex-plugin/plugin.json",
+      "plugins/semctx-control/hooks/hooks.json",
+      "plugins/semctx-control/hooks/semctx-lifecycle.mjs",
+      "plugins/semctx-control/hooks/semctx-lifecycle-contract.json",
     ];
     expect(codexTree.length).toBeGreaterThan(0);
     for (const path of codexTree) {
@@ -621,9 +642,87 @@ describe("Codex and Claude Code plugin parity", () => {
       expect(document).toContain("INCOMPLETE");
       expect(document).toContain("caller_observed_advisory");
       expect(document).toContain("stateless_caller_reinjected_unbound");
-      expect(document).toContain("no automatic lifecycle hooks");
+      // The shipped automation is exactly one checkpoint. Each document must name the automated
+      // checkpoint, say the hook never blocks, and keep the other three explicitly hook-free — the
+      // blanket denial these four documents used to carry is now false and must be gone. Prose
+      // wraps, so these phrases are matched on a whitespace-normalized copy; the tokens above are
+      // identifiers and stay matched verbatim.
+      const prose = document.replace(/\s+/g, " ");
+      expect(prose).toContain("automates only the before_completion checkpoint");
+      // "It never blocks", not a bare "never blocks": the guard prose already says the latter, so
+      // the loose form would stay green in a document that dropped the hook paragraph entirely.
+      expect(prose).toContain("It never blocks");
+      expect(prose).toContain("no automatic host hook");
+      expect(prose).toContain("SEMCTX_LIFECYCLE");
+      expect(prose).not.toContain("no automatic lifecycle hooks");
       expect(document).toContain("READY");
       expect(document).toContain("execution authority");
+    }
+  });
+
+  test("both plugin trees ship the same shadow lifecycle hook, and Claude keeps its guard", () => {
+    // The hook body and its generated contract are byte-identical across hosts; only the wiring
+    // differs. dist/ parity does not cover hooks/, so the comparison is made explicitly here.
+    for (const name of ["semctx-lifecycle.mjs", "semctx-lifecycle-contract.json"]) {
+      expect(readFileSync(resolve(repoRoot, `plugins/claude-code/hooks/${name}`)))
+        .toEqual(readFileSync(resolve(repoRoot, `plugins/semctx-control/hooks/${name}`)));
+    }
+    // The shared source is the SSOT for the body; the contract is generated and has no shared file.
+    expect(read("plugins/shared/hooks/semctx-lifecycle.mjs"))
+      .toBe(read("plugins/claude-code/hooks/semctx-lifecycle.mjs"));
+
+    const hookFiles = (plugin: "claude-code" | "semctx-control"): string[] =>
+      readdirSync(resolve(repoRoot, `plugins/${plugin}/hooks`)).sort();
+    // Claude additionally carries the unrelated commit/push guard (ADR 0007); Codex never has.
+    expect(hookFiles("claude-code")).toEqual([
+      "hooks.json",
+      "semctx-guard.mjs",
+      "semctx-lifecycle-contract.json",
+      "semctx-lifecycle.mjs",
+    ]);
+    expect(hookFiles("semctx-control")).toEqual([
+      "hooks.json",
+      "semctx-lifecycle-contract.json",
+      "semctx-lifecycle.mjs",
+    ]);
+
+    type HookEntry = { matcher?: string; hooks: Array<{ type: string; command: string }> };
+    const claudeHooks = json<{ hooks: Record<string, HookEntry[]> }>("plugins/claude-code/hooks/hooks.json");
+    const codexHooks = json<{ hooks: Record<string, HookEntry[]> }>("plugins/semctx-control/hooks/hooks.json");
+
+    // The existing guard must survive, unchanged, on the event it was written for.
+    expect(claudeHooks.hooks["PreToolUse"]).toEqual([
+      {
+        matcher: "Bash",
+        hooks: [{ type: "command", command: 'node "${CLAUDE_PLUGIN_ROOT}/hooks/semctx-guard.mjs"' }],
+      },
+    ]);
+    expect(codexHooks.hooks["PreToolUse"]).toBeUndefined();
+
+    // Both hosts observe tool calls and report at end of turn, and nothing else was wired.
+    expect(Object.keys(claudeHooks.hooks).sort()).toEqual(["PostToolUse", "PreToolUse", "Stop"]);
+    expect(Object.keys(codexHooks.hooks).sort()).toEqual(["PostToolUse", "Stop"]);
+    for (const [host, hooks] of [["claude-code", claudeHooks], ["semctx-control", codexHooks]] as const) {
+      for (const event of ["PostToolUse", "Stop"] as const) {
+        const entries = hooks.hooks[event]!;
+        expect({ host, event, count: entries.length }).toEqual({ host, event, count: 1 });
+        expect({ host, event, commands: entries[0]!.hooks.map((entry) => entry.type) })
+          .toEqual({ host, event, commands: ["command"] });
+        expect(entries[0]!.hooks[0]!.command).toContain("hooks/semctx-lifecycle.mjs");
+        // Node, not Bun: the hook must run on a machine that has no Bun, exactly like the guard.
+        expect(entries[0]!.hooks[0]!.command.startsWith("node ")).toBe(true);
+      }
+      // The tool matcher scopes observation to MCP calls; a `Stop` entry matches no tool at all.
+      expect(hooks.hooks["PostToolUse"]![0]!.matcher).toBe("^mcp__semctx__");
+      expect(hooks.hooks["Stop"]![0]!.matcher).toBeUndefined();
+    }
+
+    // Host path resolution: Claude substitutes its placeholder, Codex resolves plugin-relative.
+    for (const event of ["PostToolUse", "Stop"] as const) {
+      expect(claudeHooks.hooks[event]![0]!.hooks[0]!.command)
+        .toBe('node "${CLAUDE_PLUGIN_ROOT}/hooks/semctx-lifecycle.mjs"');
+      expect(codexHooks.hooks[event]![0]!.hooks[0]!.command)
+        .toBe('node "${PLUGIN_ROOT}/hooks/semctx-lifecycle.mjs"');
     }
   });
 });

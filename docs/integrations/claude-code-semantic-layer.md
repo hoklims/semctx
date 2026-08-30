@@ -43,8 +43,9 @@ For a non-trivial change:
 
 ## Handoff across compaction
 
-Claude Code's hook surface is used conservatively: the plugin ships **only** the existing
-`PreToolUse` guard. Anti-compaction rehydration is exposed as **explicit** tools/commands
+Claude Code's hook surface is used conservatively: the plugin ships the `PreToolUse` commit/push
+guard plus a non-blocking shadow lifecycle observer (`PostToolUse` + `Stop`) that automates the
+`before_completion` checkpoint only. Anti-compaction rehydration is exposed as **explicit** tools/commands
 (`semctx_handoff` / `semctx_resume`, or `semctx semantic handoff` / `resume`) rather than relying on
 an implicit compaction event — capture before you compact, resume after. The capsule lives in
 `.semctx/working/` (local, git-ignored).

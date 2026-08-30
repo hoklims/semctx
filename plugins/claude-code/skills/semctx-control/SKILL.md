@@ -130,8 +130,13 @@ public MCP report intentionally omits the local executable path.
 
 <!-- BEGIN shared-lifecycle-contract:v1 -->
 Codex and Claude Code expose `semctx_control_agent_lifecycle` through the same Semctx MCP runtime.
-Both hosts are instructed to invoke these checkpoints; these instructions are not automatic hooks
-and do not prove that a host event ran.
+Both hosts are instructed to invoke these checkpoints. Each plugin also ships a shadow lifecycle
+hook that automates only the `before_completion` checkpoint: it observes which
+Semctx MCP tools the host actually invoked and reports that one checkpoint when the agent turn ends,
+and only when the observed set has changed since its last advisory — a completed cycle never
+re-reports over later turns that produced no evidence, and its silence is absence of evidence rather
+than a renewed claim. It never blocks, and it grants nothing. Every other checkpoint has no automatic
+host hook, so an instruction to invoke it is not proof that a host event ran.
 
 This is a presence-only advisory contract. `NO_OP` means no stage-presence obligation applies,
 `RECORDED` means every required stage id was caller-recorded, and `INCOMPLETE` means required
@@ -139,16 +144,16 @@ stage ids are missing. Recorded stage outcomes remain unevaluated and admissibil
 Enforcement is `shadow`, blocking is disabled, and execution authority is `none`.
 
 Invoke the checkpoints in policy order:
-- **before_implementation_write** — minimum altitude L2. Eligible from L2 through L6; L0-L1 is `NO_OP`.
+- **before_implementation_write** — minimum altitude L2. Eligible from L2 through L6; L0-L1 is `NO_OP`. Manual: no automatic host hook.
   Implementation stages: `inspect_repository` → `semantic_check` → `status` → `frame_task` → `bind_scope` → `trace_impact` → `authority` → `refine` → `change_contract`.
   Migration stages: `inspect_repository` → `semantic_check` → `status` → `frame_task` → `bind_scope` → `trace_impact` → `authority` → `target_propose` → `refine` → `change_contract`.
-- **after_repository_edits** — minimum altitude L0.
+- **after_repository_edits** — minimum altitude L0. Manual: no automatic host hook.
   Implementation stages: no stage-presence requirement.
   Migration stages: no stage-presence requirement.
-- **before_completion** — minimum altitude L0.
+- **before_completion** — minimum altitude L0. Also reported automatically by the shipped shadow lifecycle hook.
   Implementation stages: `reconcile_diff` → `verify_change` → `change_verify`.
   Migration stages: `reconcile_diff` → `verify_change` → `change_verify`.
-- **before_compaction** — minimum altitude L0.
+- **before_compaction** — minimum altitude L0. Manual: no automatic host hook.
   Implementation stages: `handoff`.
   Migration stages: `handoff`.
 
@@ -157,6 +162,12 @@ After repository edits, fold prior and newly observed touched coordinate ids as
 `stateless_caller_reinjected_unbound`: the caller must reinject prior ids, and Semctx binds them to
 no task, session, diff, commit, or handoff. Before completion, record the required completion
 stages; before compaction or owner transfer, record `handoff`.
+
+The shadow lifecycle hook keeps that separation: it accumulates canonical stage ids only, in a
+session-local git-ignored ledger, never coordinate ids, never source content, and never a prompt,
+transcript or tool payload. It does not start the Semctx runtime, so it never asserts
+`semctx_ready`, and its report carries the same `shadow` enforcement, disabled blocking and
+`none` execution authority as the tool.
 <!-- END shared-lifecycle-contract -->
 
 ## Verdict namespaces

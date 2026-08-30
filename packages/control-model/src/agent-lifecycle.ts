@@ -515,7 +515,14 @@ export const AgentLifecycleReportV1Schema = reportBaseSchema.superRefine((report
   }
 });
 
-const lifecycleReportDomain = new TextEncoder().encode("semctx.agent-lifecycle-report.v1\0");
+/**
+ * Domain separator for the lifecycle report hash. Exported so an out-of-process evaluator — the
+ * shadow completion hook shipped by both plugins — derives the same `reportHash` from the generated
+ * contract instead of re-declaring the constant and drifting from it.
+ */
+export const AGENT_LIFECYCLE_REPORT_DOMAIN_V1 = "semctx.agent-lifecycle-report.v1\0";
+
+const lifecycleReportDomain = new TextEncoder().encode(AGENT_LIFECYCLE_REPORT_DOMAIN_V1);
 
 export function computeAgentLifecycleReportV1Hash(
   report: AgentLifecycleReportPreimageV1,

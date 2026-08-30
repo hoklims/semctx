@@ -43,7 +43,7 @@ one injected timestamp) and **inspectable**. After installation, the analysis pi
 | Plane B authored intent | implemented; Git-versioned declarations and proof-carrying change contracts |
 | Plane C reconstruction/control | implemented as read-only planning, authority reporting, and diff reconciliation, plus content-addressed local Control Handoff v2 capture/resume; no executor |
 | Codex/Claude MCP and workflow parity | implemented for shared tools, contracts, and generated workflow instructions |
-| Agent lifecycle | explicit MCP checkpoint and machine-validated Control Handoff v2 are manual and shadow-only; automatic host hooks, persisted/measured telemetry, and enforcement remain open in [#28](https://github.com/hoklims/semctx/issues/28) |
+| Agent lifecycle | explicit MCP checkpoint and machine-validated Control Handoff v2 are manual and shadow-only; a shipped shadow hook automates `before_completion` on both hosts without blocking, while the other three checkpoints, persisted/measured telemetry, and enforcement remain open in [#28](https://github.com/hoklims/semctx/issues/28) |
 | P4 competitive evidence/replay gate / P5 persisted executor | not shipped; the committed 16-change retrieval benchmark is historical negative evidence, not the P4 competitive gate |
 
 > **Static, not dynamic — a scope selector for runtime checks.** semctx is a *static* impact
@@ -250,8 +250,14 @@ no source content in the canonical capsule. A non-Semctx repository returns a wr
 Normal post-edit changes can make global control freshness `STALE`; Handoff v2 therefore uses fresh
 task/diff reconciliation as its validation basis instead of treating global freshness as post-edit
 proof or execution authority.
-There are no automatic lifecycle hooks. Codex/Claude hook integration, persisted or measured
-telemetry, enforcement, and an executor remain open.
+Each plugin also ships one shadow lifecycle hook that automates only the before_completion
+checkpoint. It observes which Semctx MCP tools the host actually invoked, keeps canonical stage ids
+in a session-local git-ignored ledger, and reports that checkpoint when the agent turn ends -
+only when the observed set has changed, so a completed cycle never keeps reporting a stale green
+over later turns that produced no evidence. It never blocks, never collects prompts, transcripts,
+tool payloads or source, and grants no authority;
+`SEMCTX_LIFECYCLE=off` disables it. The other three checkpoints have no automatic host hook.
+Persisted or measured telemetry, enforcement, and an executor remain open.
 
 ### Claude Code
 
@@ -420,7 +426,7 @@ surfaces:
 | Plane A | `semctx_index_health`, `semctx_inspect`, `semctx_verify_change` | separate index binding/freshness/coverage, query observed facts, and verify a diff |
 | Plane B | `semctx_semantic_check`, `semctx_semantic_slice`, `semctx_change_open`, `semctx_change_update`, `semctx_change_verify`, `semctx_change_close`, `semctx_handoff`, `semctx_resume` | preserve authored intent, proof-carrying change contracts, and resumable state |
 | Plane C | status, authority, trace, graph, traversal, coverage, impact, explanation, architecture comparison, target proposal, scope binding, planning, reconciliation, and manual Control Handoff v2 tools | produce bounded, fail-closed reports and resumable local capsules with `executionAuthority: "none"` |
-| Lifecycle | `semctx_control_agent_lifecycle` | record explicit shadow checkpoint presence without hooks, telemetry, enforcement, or authority |
+| Lifecycle | `semctx_control_agent_lifecycle` | record explicit shadow checkpoint presence without telemetry, enforcement, or authority; the shipped hook automates `before_completion` only |
 | Compatibility | `semctx_cli_compatibility` | compare the MCP/plugin runtime with the global CLI offline; advisory only, with no executable path exposed |
 | Explorer | `semctx_control_explorer` | return a bounded read-only snapshot for model clients and the Control Explorer MCP App |
 
@@ -541,8 +547,10 @@ Implemented and tested (full suite via `bun run test`):
   identities, five refinement profiles and actual-worktree reconciliation with canonical
   CLI/MCP parity, plus manual content-addressed Control Handoff v2 capture/resume; no execution
   authority.
-- **agent lifecycle foundation**: one shared MCP-only stage-presence policy/report for four explicit
-  checkpoints; shadow-only, stateless, non-blocking, non-authorizing and source-non-collecting.
+- **agent lifecycle foundation**: one shared stage-presence policy/report for four explicit
+  checkpoints; shadow-only, non-blocking, non-authorizing and source-non-collecting. The tool
+  itself stays stateless; the shipped shadow hook automates `before_completion` only, and its
+  session-local ledger holds canonical stage ids and nothing else.
 
 ### Known limitations
 
@@ -564,9 +572,11 @@ Implemented and tested (full suite via `bun run test`):
 - Authored symbol links currently use exact node ids that include source lines. Harmless line shifts
   can produce `STALE_REPOSITORY_LINK`; stable anchors and an explicit relink workflow remain open
   in [#37](https://github.com/hoklims/semctx/issues/37).
-- Lifecycle checkpoints and Control Handoff v2 require explicit agent calls. They provide no
-  automatic host hooks, persisted or measured telemetry, enforcement, or proof that a host
-  lifecycle event invoked them.
+- `before_implementation_write`, `after_repository_edits`, `before_compaction` and Control
+  Handoff v2 require explicit agent calls: they have no automatic host hook and no proof that a
+  host lifecycle event invoked them. Only `before_completion` is automated, by a hook that
+  observes tool calls and never blocks. Persisted or measured telemetry and enforcement remain
+  unshipped for every checkpoint, so a shadow advisory is not a measurement.
 
 See [`ROADMAP.md`](ROADMAP.md) for the shipping vs research split.
 

@@ -28,7 +28,10 @@ user request
 
 ## Install or update
 
-Requirements: Codex CLI with plugin support and Bun 1.4 or newer. The plugin contains its own MCP
+Requirements: Codex CLI with plugin support and Bun 1.4 or newer. Node is additionally required
+on `PATH` for the shadow lifecycle hook, which runs under Node rather than Bun so the observer
+works on a machine that has no Bun — the same reason the Claude commit/push guard does. Without
+Node the hook simply never runs; nothing else is affected. The plugin contains its own MCP
 runtime and a bundled CLI (`dist/semctx.js`); no global package link is required for agent use.
 
 ```powershell
@@ -179,7 +182,7 @@ request, Plane-B tools may version authored intent under `.semctx/semantic/`; Co
 writes only a content-addressed record under ignored `.semctx/working/handoffs/v2/`. None of these
 tools modifies application code.
 
-## MCP-only lifecycle foundation
+## Lifecycle foundation
 
 Codex and Claude Code expose the same strict lifecycle policy and report through
 `semctx_control_agent_lifecycle`. Agents must invoke it explicitly at four points:
@@ -212,8 +215,42 @@ write-free `NO_OP`. This manual surface is shadow-only, non-blocking, grants
 `executionAuthority: "none"`, does not make the lifecycle checkpoint stateful, and does not prove
 that Codex invoked it before compaction.
 
-semctx ships no automatic lifecycle hooks for Codex — a property of what this plugin delivers, not
-a limitation of the host. Persisted or measured telemetry and enforcement remain open.
+The plugin ships one shadow lifecycle hook that automates only the before_completion checkpoint,
+byte-identically to the Claude Code plugin. `plugins/semctx-control/hooks/hooks.json` registers
+a `PostToolUse` entry matched on the bundled `semctx` MCP namespace that records which Semctx MCP tool ran, as a canonical
+stage id in a session-local git-ignored ledger under `.semctx/working/agent-lifecycle/`, and a
+`Stop` entry that reports the checkpoint at end of turn on stderr, only when the observed set has
+changed since the last advisory - the host ends a turn many times per session, so a completed
+cycle must not keep reporting a stale green over turns that produced no evidence. It never blocks: every path
+exits 0 and nothing is written to stdout, so no output can be read as a decision. It parses the envelope the
+host sends and uses exactly `hook_event_name`, `session_id`, `cwd` and `tool_name`; every other
+field — prompt, `transcript_path`, `tool_input`, `tool_response` — is not retained, used, or
+reproduced, and the hook never opens the transcript file or reads repository source. It never
+starts the Semctx runtime, so it never asserts `semctx_ready`. It
+stays silent when it observed nothing, so a session it could not observe is never reported as a
+skipped one. `SEMCTX_LIFECYCLE=off` disables it.
+
+Codex discovers a plugin-bundled `hooks/hooks.json`, runs command hooks from the session cwd, and
+provides `${PLUGIN_ROOT}` for resolving installed plugin assets. The hook command therefore uses an
+absolute plugin-root expansion rather than a cwd-relative path. Codex also reviews and trusts a
+non-managed hook before running it (`/hooks`); until you trust it, the hook is skipped rather than
+failed. Actual installed-host dispatch remains a delivery proof, not a repository-unit-test claim.
+
+Two limits are inherent to observing a host event rather than being called by an agent. First,
+the advisory goes to the hook's stderr and nowhere else: it appears wherever the host surfaces
+hook output, and it is deliberately **not** injected into the agent's context, because doing so
+would mean emitting a host-interpreted control field on stdout — the exact channel a blocking
+decision travels on. Second, the host ends a turn whenever the assistant finishes responding, not
+only when work is done, so every turn end is treated as a possible completion claim. The
+change-only rule keeps that from becoming noise, but it cannot tell a finished task from a pause.
+
+The observer sees MCP tool calls only. An agent that runs the documented global-CLI fallback
+instead — `semctx verify diff`, `semctx change verify` — performs the stage without being
+observed, and the advisory will name it missing. Read `INCOMPLETE` as *not observed over MCP*,
+never as *not done*: this surface reports stage presence, and presence was never proof.
+
+The other three checkpoints have no automatic host hook. Persisted or measured telemetry and
+enforcement remain open.
 
 ## Decision semantics
 

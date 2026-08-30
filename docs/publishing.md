@@ -269,6 +269,14 @@ Codex gets only global `semctx` instructions (#40). The template's
 policy for workflow semantics, the shared template for surrounding prose, and never edit the
 generated host leaves.
 
+`plugin:build` also renders the shadow lifecycle hook into `plugins/*/hooks/`:
+`semctx-lifecycle.mjs` is copied from `plugins/shared/hooks/semctx-lifecycle.mjs`, and
+`semctx-lifecycle-contract.json` is projected from `AGENT_WORKFLOW_CONTRACT_V1` and
+`AGENT_LIFECYCLE_POLICY_V1`. Both land byte-identically in each host tree and `plugin:check`
+fails on drift, which is what keeps the out-of-process evaluator from restating a policy that
+has moved. Edit the shared hook for behaviour and the two contracts for policy; never edit the
+generated host copies. `hooks/hooks.json` is host-specific wiring and stays hand-written.
+
 Agent sessions should prefer the plugin-bundled CLI so a marketplace update keeps MCP and CLI in
 lockstep. The npm `semctx` package remains the channel for CI, GitHub Actions, and non-plugin shells.
 

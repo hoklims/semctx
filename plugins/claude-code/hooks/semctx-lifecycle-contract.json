@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "kind": "agent_lifecycle_hook_contract",
+  "checkpoint": "before_completion",
+  "profileStageId": "target_propose",
+  "requiredAltitude": 0,
+  "reportDomain": "semctx.agent-lifecycle-report.v1\u0000",
+  "policy": {
+    "mcpTool": "semctx_control_agent_lifecycle",
+    "enforcementMode": "shadow",
+    "blockingEnabled": false,
+    "executionAuthority": "none",
+    "accumulationSemantics": "stateless_caller_reinjected_unbound",
+    "maxRecordedStageIds": 15
+  },
+  "stageOrder": [
+    "inspect_repository",
+    "semantic_check",
+    "status",
+    "frame_task",
+    "bind_scope",
+    "trace_impact",
+    "authority",
+    "target_propose",
+    "refine",
+    "change_contract",
+    "implement",
+    "reconcile_diff",
+    "verify_change",
+    "change_verify",
+    "handoff"
+  ],
+  "requiredStageIds": {
+    "implementation": [
+      "reconcile_diff",
+      "verify_change",
+      "change_verify"
+    ],
+    "migration": [
+      "reconcile_diff",
+      "verify_change",
+      "change_verify"
+    ]
+  },
+  "toolStages": {
+    "semctx_semantic_check": "semantic_check",
+    "semctx_control_resume": "semantic_check",
+    "semctx_resume": "semantic_check",
+    "semctx_semantic_inspect": "semantic_check",
+    "semctx_semantic_slice": "semantic_check",
+    "semctx_index_health": "status",
+    "semctx_control_status": "status",
+    "semctx_control_frame_task": "frame_task",
+    "semctx_control_bind_scope": "bind_scope",
+    "semctx_control_trace": "trace_impact",
+    "semctx_control_authority": "authority",
+    "semctx_control_target_propose": "target_propose",
+    "semctx_control_plan_change": "refine",
+    "semctx_control_plan": "refine",
+    "semctx_change_open": "change_contract",
+    "semctx_change_update": "change_contract",
+    "semctx_control_reconcile_diff": "reconcile_diff",
+    "semctx_verify_change": "verify_change",
+    "semctx_change_verify": "change_verify",
+    "semctx_control_handoff": "handoff",
+    "semctx_handoff": "handoff"
+  }
+}

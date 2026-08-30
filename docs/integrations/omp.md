@@ -17,4 +17,6 @@ Then `/reload-plugins` or restart the session. Every MCP tool call must pass an 
 
 OMP substitutes `${CLAUDE_PLUGIN_ROOT}` and its own `${OMP_PLUGIN_ROOT}` inside MCP server config fields, but never inside skill/agent markdown body text — the Claude skill still contains a literal, unsubstituted `${CLAUDE_PLUGIN_ROOT}` when read on OMP, so agents must prefer connected MCP tools over that text.
 
-The Claude commit/push guard hook is not loaded on OMP.
+Neither hook in `plugins/claude-code/hooks/` is loaded on OMP: not the commit/push guard, and
+not the shadow lifecycle observer. OMP consumes the Claude plugin directory, but `hooks/hooks.json`
+stays a Claude surface (ADR 0015), so the lifecycle checkpoint remains fully manual on this host.

@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import {
   AGENT_LIFECYCLE_POLICY_V1,
+  AGENT_LIFECYCLE_REPORT_DOMAIN_V1,
   AGENT_WORKFLOW_CONTRACT_V1,
   AgentLifecyclePolicyV1Schema,
   AgentWorkflowContractV1Schema,
@@ -86,6 +87,91 @@ const skillOutputs: Record<SkillHost, string> = {
   "claude-code": resolve(root, "plugins/claude-code/skills/semctx-control/SKILL.md"),
   "semctx-control": resolve(root, "plugins/semctx-control/skills/semctx-control/SKILL.md"),
 };
+
+/**
+ * The one lifecycle checkpoint a host event can carry on its own. The other three need the task
+ * altitude, the observed touched coordinates, or the Handoff v2 payload — none of which a hook
+ * envelope holds — so they stay manual and are deliberately absent from the shipped hook contract.
+ */
+export const AUTOMATED_LIFECYCLE_CHECKPOINT = "before_completion" as const;
+/** Shared, host-neutral hook source. Both plugin trees receive it byte-identically. */
+export const LIFECYCLE_HOOK_SOURCE_NAME = "semctx-lifecycle.mjs";
+/** Generated policy projection the hook reads instead of restating the contract. */
+export const LIFECYCLE_HOOK_CONTRACT_NAME = "semctx-lifecycle-contract.json";
+
+const lifecycleHookSourcePath = resolve(root, "plugins/shared/hooks", LIFECYCLE_HOOK_SOURCE_NAME);
+const lifecycleHookDirs: Record<SkillHost, string> = {
+  "claude-code": resolve(root, "plugins/claude-code/hooks"),
+  "semctx-control": resolve(root, "plugins/semctx-control/hooks"),
+};
+
+/**
+ * Project the canonical workflow and lifecycle contracts into the flat table the out-of-process hook
+ * evaluates. Nothing here is authored: the tool-to-stage table, the stage order, the required stages,
+ * the accumulation semantics and the report domain all come from the two parsed contracts, so
+ * `plugin:check` turns any divergence into a red gate instead of a silently stale hook.
+ */
+export function renderLifecycleHookContract(
+  workflow: AgentWorkflowContractV1 = AGENT_WORKFLOW_CONTRACT_V1,
+  policy: AgentLifecyclePolicyV1 = AGENT_LIFECYCLE_POLICY_V1,
+): string {
+  const parsedWorkflow = AgentWorkflowContractV1Schema.parse(workflow) as AgentWorkflowContractV1;
+  const parsedPolicy = AgentLifecyclePolicyV1Schema.parse(policy) as AgentLifecyclePolicyV1;
+  const checkpoint = parsedPolicy.checkpoints.find(
+    (candidate) => candidate.id === AUTOMATED_LIFECYCLE_CHECKPOINT,
+  );
+  if (checkpoint === undefined) {
+    throw new Error(`lifecycle policy has no ${AUTOMATED_LIFECYCLE_CHECKPOINT} checkpoint`);
+  }
+  // The observable migration signal, derived rather than named: exactly one canonical stage carries
+  // the `migration_task` condition, and observing it is the only migration evidence a tool observer
+  // can hold.
+  const migrationStages = parsedWorkflow.stages.filter((stage) => stage.condition === "migration_task");
+  if (migrationStages.length !== 1) {
+    throw new Error(
+      `expected exactly one migration_task workflow stage, found ${migrationStages.length}`,
+    );
+  }
+  const toolStages: Record<string, string> = {};
+  for (const stage of parsedWorkflow.stages) {
+    for (const tool of stage.mcpTools) toolStages[tool] = stage.id;
+  }
+  // Every stage this checkpoint requires must be reachable through some MCP tool, or a tool observer
+  // would report `INCOMPLETE` forever. That property is structural rather than guarded here: the
+  // workflow schema pins `inspect_repository` and `implement` as the only tool-less stages, and the
+  // policy schema pins this checkpoint's required stages to an exact literal tuple. A test asserts
+  // the property directly instead of adding a branch no schema-valid input can reach.
+  return `${JSON.stringify({
+    schemaVersion: 1,
+    kind: "agent_lifecycle_hook_contract",
+    checkpoint: checkpoint.id,
+    profileStageId: migrationStages[0]!.id,
+    requiredAltitude: checkpoint.minimumAltitude,
+    reportDomain: AGENT_LIFECYCLE_REPORT_DOMAIN_V1,
+    policy: {
+      mcpTool: parsedPolicy.mcpTool,
+      enforcementMode: parsedPolicy.enforcementMode,
+      blockingEnabled: parsedPolicy.blockingEnabled,
+      executionAuthority: parsedPolicy.executionAuthority,
+      accumulationSemantics: parsedPolicy.coordinateAccumulation,
+      maxRecordedStageIds: parsedPolicy.limits.maxRecordedStageIds,
+    },
+    stageOrder: parsedWorkflow.stages.map((stage) => stage.id),
+    requiredStageIds: {
+      implementation: checkpoint.requiredStageIds.implementation,
+      migration: checkpoint.requiredStageIds.migration,
+    },
+    toolStages,
+  }, null, 2)}\n`;
+}
+
+/** Shared hook body, LF-normalized so the two committed copies stay byte-identical across platforms. */
+export function readLifecycleHookSource(): string {
+  if (!existsSync(lifecycleHookSourcePath)) {
+    throw new Error(`missing shared lifecycle hook source: ${lifecycleHookSourcePath}`);
+  }
+  return readFileSync(lifecycleHookSourcePath, "utf8").replaceAll("\r\n", "\n");
+}
 
 /**
  * Claude: load-time `${CLAUDE_PLUGIN_ROOT}` placeholder + global fallback.
@@ -202,15 +288,23 @@ export function renderSharedLifecycleContract(
     const threshold = checkpoint.minimumAltitude === 2
       ? " Eligible from L2 through L6; L0-L1 is `NO_OP`."
       : "";
-    return `- **${checkpoint.id}** — minimum altitude L${checkpoint.minimumAltitude}.${threshold}\n`
+    const automation = checkpoint.id === AUTOMATED_LIFECYCLE_CHECKPOINT
+      ? " Also reported automatically by the shipped shadow lifecycle hook."
+      : " Manual: no automatic host hook.";
+    return `- **${checkpoint.id}** — minimum altitude L${checkpoint.minimumAltitude}.${threshold}${automation}\n`
       + `  Implementation stages: ${implementation}.\n`
       + `  Migration stages: ${migration}.`;
   }).join("\n");
 
   return `<!-- BEGIN shared-lifecycle-contract:v1 -->
 Codex and Claude Code expose \`${parsed.mcpTool}\` through the same Semctx MCP runtime.
-Both hosts are instructed to invoke these checkpoints; these instructions are not automatic hooks
-and do not prove that a host event ran.
+Both hosts are instructed to invoke these checkpoints. Each plugin also ships a shadow lifecycle
+hook that automates only the \`${AUTOMATED_LIFECYCLE_CHECKPOINT}\` checkpoint: it observes which
+Semctx MCP tools the host actually invoked and reports that one checkpoint when the agent turn ends,
+and only when the observed set has changed since its last advisory — a completed cycle never
+re-reports over later turns that produced no evidence, and its silence is absence of evidence rather
+than a renewed claim. It never blocks, and it grants nothing. Every other checkpoint has no automatic
+host hook, so an instruction to invoke it is not proof that a host event ran.
 
 This is a presence-only advisory contract. \`NO_OP\` means no stage-presence obligation applies,
 \`RECORDED\` means every required stage id was caller-recorded, and \`INCOMPLETE\` means required
@@ -225,6 +319,12 @@ After repository edits, fold prior and newly observed touched coordinate ids as
 \`${parsed.coordinateAccumulation}\`: the caller must reinject prior ids, and Semctx binds them to
 no task, session, diff, commit, or handoff. Before completion, record the required completion
 stages; before compaction or owner transfer, record \`handoff\`.
+
+The shadow lifecycle hook keeps that separation: it accumulates canonical stage ids only, in a
+session-local git-ignored ledger, never coordinate ids, never source content, and never a prompt,
+transcript or tool payload. It does not start the Semctx runtime, so it never asserts
+\`semctx_ready\`, and its report carries the same \`shadow\` enforcement, disabled blocking and
+\`${parsed.executionAuthority}\` execution authority as the tool.
 <!-- END shared-lifecycle-contract -->`;
 }
 
@@ -592,9 +692,31 @@ async function main(): Promise<void> {
     await Bun.write(output, expected);
   }
 
+  // Shadow lifecycle hook: one shared body plus one generated contract, byte-identical per host.
+  const lifecycleHookFiles: Record<string, string> = {
+    [LIFECYCLE_HOOK_SOURCE_NAME]: readLifecycleHookSource(),
+    [LIFECYCLE_HOOK_CONTRACT_NAME]: renderLifecycleHookContract(),
+  };
+  for (const directory of Object.values(lifecycleHookDirs)) {
+    for (const [name, expected] of Object.entries(lifecycleHookFiles)) {
+      const output = resolve(directory, name);
+      if (check) {
+        if (!existsSync(output)) {
+          throw new Error(`missing generated lifecycle hook file: ${output}; run 'bun run plugin:build'`);
+        }
+        if (!textEqual(readFileSync(output, "utf8"), expected)) {
+          throw new Error(`stale generated lifecycle hook file: ${output}; run 'bun run plugin:build'`);
+        }
+        continue;
+      }
+      mkdirSync(directory, { recursive: true });
+      await Bun.write(output, expected);
+    }
+  }
+
   const sizes = [...built].map(([path, bytes]) => `${path}=${bytes.length}`).join(", ");
   process.stdout.write(
-    `${check ? "verified" : "built"} byte-identical plugin runtimes (${sizes}; ${typescriptLibs.length} TypeScript libraries) + host control skills\n`,
+    `${check ? "verified" : "built"} byte-identical plugin runtimes (${sizes}; ${typescriptLibs.length} TypeScript libraries) + host control skills + shadow lifecycle hooks\n`,
   );
 }
 

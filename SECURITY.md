@@ -41,6 +41,16 @@ as quickly as the severity warrants.
   disableable with `SEMCTX_GUARD=off`. The verification-state file is git-ignored and written
   atomically. This is a cooperative workflow gate, not anti-tamper enforcement: the same principal
   can forge the state, disable the hook, bypass recognized Bash shapes, or run Git outside Claude.
+- **Shadow lifecycle hook** (both plugins): never blocks. Every path exits with success and it
+  writes nothing to stdout, so no output can be read as a decision. It parses the host envelope
+  that arrives on stdin and uses exactly four fields (`hook_event_name`, `session_id`, `cwd`,
+  `tool_name`); every other field the host sends — prompt, `transcript_path`, `tool_input`,
+  `tool_response`, model, permission mode — is not retained, used, or reproduced. It never
+  opens the transcript file and never reads repository source. Its ledger is git-ignored, holds canonical stage ids only, and is
+  keyed by a SHA-256 digest so the host session id never reaches the disk. It is strictly
+  disableable with `SEMCTX_LIFECYCLE=off`. Like the guard, this is a cooperative advisory
+  surface: the same principal can edit or delete the ledger, and its report is presence
+  evidence, not proof that a stage did its job.
 - **Authored semantic state** (`.semctx/semantic/*.sem`) is also cooperative trust. Normal CLI/MCP
   APIs require proved evidence before resolving an unknown and a fresh composed `VERIFIED` verdict
   before closing a change as verified, but a co-located principal can still edit the files directly.
