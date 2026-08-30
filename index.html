@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="semctx is a deterministic, local-first change-impact analyzer. Write one sentence saying what must never break, and any change that puts it at risk stops the commit.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="semctx">
+<meta property="og:description" content="semctx is a deterministic, local-first change-impact analyzer. Write one sentence saying what must never break, and any change that puts it at risk stops the commit.">
+<meta property="og:url" content="https://hoklims.github.io/semctx/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://hoklims.github.io/semctx/">
+<title>semctx</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<style>
+  /* ══════════ tokens — a single committed night palette ══════════ */
+  :root {
+    color-scheme: dark;
+    --ground:   oklch(0.155 0.018 155);
+    --deeper:   oklch(0.118 0.016 155);
+    --surface:  oklch(0.205 0.020 155);
+    --raised:   oklch(0.245 0.022 155);
+    --ink:      oklch(0.965 0.008 128);
+    --body:     oklch(0.815 0.012 128);
+    --muted:    oklch(0.645 0.014 155);
+    --faint:    oklch(0.500 0.016 155);
+    --rule:     oklch(0.295 0.018 155);
+    --hair:     oklch(0.235 0.018 155);
+
+    --pass:     oklch(0.80 0.16 148);
+    --warn:     oklch(0.82 0.15 80);
+    --block:    oklch(0.70 0.18 25);
+    --pass-dim: oklch(0.42 0.09 148);
+    --warn-dim: oklch(0.44 0.09 80);
+    --block-dim:oklch(0.40 0.10 25);
+
+    --add-bg:   oklch(0.28 0.06 148);
+    --add-fg:   oklch(0.88 0.11 148);
+    --del-bg:   oklch(0.27 0.06 25);
+    --del-fg:   oklch(0.86 0.10 25);
+
+    --sans: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    --display: "Familjen Grotesk", "Helvetica Neue", system-ui, sans-serif;
+    --mono: "Spline Sans Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  @property --halo { syntax: "<percentage>"; initial-value: 42%; inherits: false; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.038em; text-wrap: balance; }
+  p { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  a { color: var(--pass); text-decoration: none; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--pass); outline-offset: 4px; }
+  code, .mono { font-family: var(--mono); }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  .grain { position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.045; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .meta { font-family: var(--mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lede { font-size: 18px; line-height: 1.6; color: var(--body); }
+
+  /* ══════════ masthead ══════════ */
+  .masthead { position: relative; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 26px 0; }
+  .wordmark { font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.05em; }
+  .brand { display: flex; align-items: baseline; gap: 14px; }
+  .nav { display: flex; align-items: center; gap: 26px; font-size: 15px; color: var(--muted); }
+  .chip { font-family: var(--mono); font-size: 13px; color: var(--ground); background: var(--pass); padding: 10px 18px; }
+  .nav a:not(.chip) { color: var(--muted); }
+  .nav a:not(.chip):hover { color: var(--ink); }
+  a.plain { color: inherit; }
+  a.plain:hover { color: var(--pass); }
+  .meta a, .receipt-ref a, footer a, .foot.cmd a { color: inherit; }
+  .meta a:hover, .receipt-ref a:hover, footer a:hover, .foot.cmd a:hover { color: var(--pass); text-decoration: underline; text-underline-offset: 3px; }
+  .chip:hover { filter: brightness(1.08); }
+
+  /* ══════════ hero ══════════ */
+  .hero { position: relative; min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 80px; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: -30% -10% auto -10%; height: 130%; pointer-events: none; z-index: 0;
+    background: radial-gradient(58% 46% at 22% var(--halo), oklch(0.42 0.10 148 / 0.34), transparent 68%);
+    animation: breathe 14s ease-in-out infinite alternate;
+  }
+  @keyframes breathe { from { --halo: 38%; } to { --halo: 56%; } }
+  .hero-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 32px; }
+  .kicker { display: inline-flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .kicker .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+  .hero h1 { font-weight: 700; font-size: clamp(46px, 8.6vw, 124px); line-height: 0.94; letter-spacing: -0.055em; max-width: 15ch; }
+  .hero h1 em { font-style: normal; color: var(--pass); }
+  .hero-sub { font-size: clamp(18px, 1.9vw, 23px); line-height: 1.5; color: var(--body); max-width: 52ch; }
+  .hero-cta { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; padding-top: 6px; }
+  .cta { display: inline-flex; align-items: center; gap: 11px; background: var(--pass); color: var(--deeper); font-family: var(--mono); font-size: 15px; font-weight: 500; padding: 18px 28px; }
+  .cta:hover { filter: brightness(1.08); }
+  .cta .caret { display: inline-block; width: 8px; height: 16px; background: var(--deeper); animation: blink 1.15s steps(1) infinite; }
+  .cta-aside { font-size: 14.5px; color: var(--muted); max-width: 22ch; line-height: 1.45; }
+  .claims { display: flex; gap: 10px 22px; flex-wrap: wrap; font-size: 14px; color: var(--muted); padding-top: 4px; }
+  .claims i { font-style: normal; color: var(--rule); }
+  .scroll-hint { display: flex; align-items: center; gap: 12px; margin-top: 56px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); }
+  .scroll-hint .bar { width: 46px; height: 1px; background: var(--rule); position: relative; overflow: hidden; }
+  .scroll-hint .bar::after { content: ""; position: absolute; inset: 0; background: var(--pass); transform-origin: left; animation: crawl 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+  @keyframes crawl { 0% { transform: scaleX(0); } 55% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
+  @keyframes blink { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
+
+  /* ══════════ THE SCENE — scroll-driven ══════════ */
+  .stage { position: relative; height: 460vh; view-timeline-name: --scene; view-timeline-axis: block; }
+  .pin { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; overflow: hidden; }
+  .pin-grid { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 60px; align-items: center; }
+
+  .act-copy { position: relative; min-height: 400px; }
+  .act { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; align-content: center; justify-content: center; }
+  .act h2 { font-size: clamp(28px, 3.6vw, 50px); line-height: 1.04; letter-spacing: -0.042em; max-width: 15ch; }
+  .act p { font-size: 17.5px; line-height: 1.6; color: var(--body); max-width: 46ch; }
+  .act .tagline { font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+  .console { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; box-shadow: 0 40px 90px -50px oklch(0 0 0 / 0.9); }
+  .console-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--hair); font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .console-head .where { letter-spacing: 0.14em; text-transform: uppercase; }
+  .diff { padding: 18px 20px 6px; font-family: var(--mono); font-size: 12.5px; line-height: 2.0; white-space: pre; overflow-x: auto; color: var(--body); }
+  .diff .sym { color: var(--ink); }
+  .diff .del { background: var(--del-bg); color: var(--del-fg); display: inline-block; min-width: 100%; }
+  .diff .add { background: var(--add-bg); color: var(--add-fg); display: inline-block; min-width: 100%; }
+  .diff .marker-line { display: block; overflow: hidden; white-space: nowrap; color: var(--warn); }
+
+  .graph { display: block; width: 100%; height: auto; padding: 4px 0 0; }
+  .verdict-slot { position: relative; height: 92px; border-top: 1px solid var(--hair); background: var(--deeper); }
+  .verdict { position: absolute; inset: 0; display: flex; align-items: center; gap: 15px; padding: 0 20px; }
+  .v-lines { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  
+  .tag { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.11em; color: var(--deeper); padding: 6px 12px; }
+  .tag.pass { background: var(--pass); }
+  .tag.block { background: var(--block); }
+  .verdict .rule-id { font-family: var(--mono); font-size: 12.5px; color: var(--body); }
+  .verdict .exit { font-family: var(--mono); font-size: 12.5px; }
+
+  .stage-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--hair); z-index: 5; }
+  .stage-progress::after { content: ""; display: block; height: 100%; background: linear-gradient(90deg, var(--pass), var(--warn) 62%, var(--block)); transform-origin: left; transform: scaleX(0); }
+
+  /* scene keyframes */
+  @keyframes fade-in   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fade-out  { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes lift-in   { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  @keyframes lift-out  { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-18px); } }
+  @keyframes stroke-in { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+  @keyframes node-in   { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: none; } }
+  @keyframes type-in   { from { width: 0; } to { width: var(--cols); } }
+  @keyframes bar       { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  /* single-animation windows: two animations on one property let the later one's
+     backwards fill overwrite the earlier one's state, which showed every act at once */
+  @keyframes act-window-1 { 0%, 2% { opacity: 0; transform: translateY(20px); } 8%, 26% { opacity: 1; transform: none; } 32%, 100% { opacity: 0; transform: translateY(-16px); } }
+  @keyframes act-window-2 { 0%, 30% { opacity: 0; transform: translateY(20px); } 37%, 56% { opacity: 1; transform: none; } 62%, 100% { opacity: 0; transform: translateY(-16px); } }
+  @keyframes pass-window  { 0%, 52% { opacity: 0; } 57%, 74% { opacity: 1; } 79%, 100% { opacity: 0; } }
+
+  @supports (animation-timeline: view()) {
+    .scene { animation-timeline: --scene; animation-fill-mode: both; animation-timing-function: linear; }
+
+    .act-1        { animation-name: act-window-1; animation-range: contain 0% contain 100%; }
+    .act-2        { animation-name: act-window-2; animation-range: contain 0% contain 100%; }
+    .act-3        { animation-name: lift-in;      animation-range: contain 62% contain 70%; }
+
+    .diff-line-1  { animation-name: fade-in;   animation-range: contain 2% contain 7%; }
+    .diff-line-2  { animation-name: fade-in;   animation-range: contain 6% contain 11%; }
+    .diff-line-3  { animation-name: fade-in;   animation-range: contain 9% contain 14%; }
+
+    .ring-1       { animation-name: fade-in;   animation-range: contain 15% contain 20%; }
+    .ring-2       { animation-name: fade-in;   animation-range: contain 18% contain 24%; }
+    .edge-1       { animation-name: stroke-in; animation-range: contain 22% contain 32%; }
+    .edge-2       { animation-name: stroke-in; animation-range: contain 25% contain 35%; }
+    .edge-3       { animation-name: fade-in;   animation-range: contain 40% contain 47%; }
+    .node-1       { animation-name: node-in;   animation-range: contain 30% contain 36%; }
+    .node-2       { animation-name: node-in;   animation-range: contain 33% contain 39%; }
+    .node-3       { animation-name: node-in;   animation-range: contain 45% contain 51%; }
+    .src-label    { animation-name: fade-in;   animation-range: contain 16% contain 22%; }
+
+    .verdict-pass { animation-name: pass-window; animation-range: contain 0% contain 100%; }
+    .marker-typed { animation-name: type-in;   animation-range: contain 63% contain 74%; }
+    .verdict-block{ animation-name: fade-in;   animation-range: contain 78% contain 83%; }
+
+    .stage-progress::after { animation: bar linear both; animation-timeline: --scene; animation-range: contain 0% contain 100%; }
+
+    .reveal { animation: lift-in linear both; animation-timeline: view(); animation-range: entry 8% cover 26%; }
+  }
+
+  @supports not (animation-timeline: view()) {
+    .stage { height: auto; }
+    .pin { position: static; height: auto; padding: 90px 0; }
+    .act-copy { min-height: 0; }
+    .act { position: static; }
+    .act-1, .act-2 { display: none; }
+    .verdict-pass { display: none; }
+    .stage-progress { display: none; }
+    .marker-typed { width: var(--cols); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage { height: auto; }
+    .pin { position: static; height: auto; padding: 90px 0; }
+    .act-copy { min-height: 0; }
+    .act { position: static; }
+    .act-1, .act-2, .verdict-pass, .stage-progress { display: none; }
+    .marker-typed { width: var(--cols); }
+    .scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .hero::before, .cta .caret, .scroll-hint .bar::after { animation: none !important; }
+    [stroke-dashoffset] { stroke-dashoffset: 0 !important; }
+  }
+
+  /* ══════════ constraints — the thesis ══════════ */
+  .band { padding: 132px 0; }
+  .band-tight { padding: 96px 0; }
+  .band-dark { background: var(--deeper); }
+  .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 56px; flex-wrap: wrap; border-bottom: 1px solid var(--hair); padding-bottom: 26px; margin-bottom: 48px; }
+  .section-head h2 { font-size: clamp(30px, 4.2vw, 50px); line-height: 1.05; max-width: 17ch; }
+  .section-head .lede { max-width: 42ch; flex: 1 1 320px; }
+
+  .thesis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+  .thesis-line { font-family: var(--display); font-weight: 500; font-size: clamp(26px, 3.1vw, 40px); line-height: 1.16; letter-spacing: -0.03em; max-width: 20ch; }
+  .thesis-line b { font-weight: 700; color: var(--pass); }
+  .thesis-body { display: flex; flex-direction: column; gap: 22px; }
+  .thesis-body p { font-size: 17px; line-height: 1.62; color: var(--body); max-width: 54ch; }
+
+  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--hair); border: 1px solid var(--hair); margin-top: 52px; }
+  .rule-cell { background: var(--ground); padding: 30px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .rule-cell .tier { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .rule-cell .id { font-family: var(--mono); font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
+  .rule-cell p { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+  .rule-cell .arms { font-family: var(--mono); font-size: 12px; color: var(--body); border-top: 1px solid var(--hair); padding-top: 13px; margin-top: auto; }
+
+  /* ══════════ ledger / limits ══════════ */
+  .ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 52px; }
+  .ledger-col { display: flex; flex-direction: column; gap: 16px; }
+  .ledger-col li { font-size: 17px; line-height: 1.5; border-top: 1px solid var(--hair); padding-top: 13px; }
+  .ledger-col.no li { color: var(--body); }
+  .ledger ul { display: flex; flex-direction: column; gap: 13px; }
+
+  .receipt { margin-top: 56px; border: 1px solid var(--rule); background: var(--surface); padding: 44px 46px; display: flex; gap: 52px; align-items: flex-start; flex-wrap: wrap; }
+  .receipt-body { flex: 1 1 460px; display: flex; flex-direction: column; gap: 18px; }
+  .receipt h3 { font-size: clamp(21px, 2.3vw, 29px); line-height: 1.3; letter-spacing: -0.026em; font-weight: 500; max-width: 40ch; }
+  .receipt h3 em { font-style: italic; color: var(--warn); }
+  .receipt p { font-size: 17px; line-height: 1.6; color: var(--body); max-width: 62ch; }
+  .receipt-ref { flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--muted); border-left: 1px solid var(--rule); padding-left: 24px; }
+  .receipt-ref .quote { color: var(--ink); }
+
+  .caveats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; margin-top: 52px; }
+  .caveat { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--hair); padding-top: 16px; }
+  .caveat h3 { font-size: 17px; letter-spacing: -0.02em; }
+  .caveat p { font-size: 15px; line-height: 1.55; color: var(--muted); }
+
+  /* ══════════ surfaces ══════════ */
+  .surfaces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .surface-card { border: 1px solid var(--hair); background: var(--surface); padding: 30px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .surface-card h3 { font-size: 21px; letter-spacing: -0.024em; }
+  .surface-card p { font-size: 15px; line-height: 1.55; color: var(--body); }
+  .surface-card svg { color: var(--pass); }
+  .surface-card .foot { margin-top: auto; border-top: 1px solid var(--hair); padding-top: 15px; font-size: 14px; line-height: 1.55; color: var(--muted); }
+  .surface-card .foot.cmd { font-family: var(--mono); font-size: 12.5px; color: var(--body); overflow-wrap: anywhere; }
+  .aside-note { font-size: 16.5px; line-height: 1.6; color: var(--body); max-width: 72ch; border-left: 1px solid var(--pass-dim); padding-left: 24px; margin-top: 44px; }
+
+  /* ══════════ start ══════════ */
+  .start { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+  .start h2 { font-weight: 700; font-size: clamp(34px, 5vw, 62px); line-height: 1.02; letter-spacing: -0.05em; }
+  .start h2 em { font-style: normal; color: var(--pass); }
+  .shell { background: var(--deeper); border: 1px solid var(--hair); padding: 26px 28px; font-family: var(--mono); font-size: 13.5px; line-height: 2.0; white-space: pre; overflow-x: auto; color: var(--body); }
+  .shell .c { color: var(--faint); }
+  .shell .p { color: var(--pass); }
+  .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 22px; }
+  .fact { display: flex; flex-direction: column; gap: 5px; }
+  .fact p { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .fact strong { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 44px; flex-wrap: wrap; padding: 34px 0 60px; border-top: 1px solid var(--hair); font-family: var(--mono); font-size: 12.5px; color: var(--muted); line-height: 1.75; }
+
+  /* ══════════ responsive ══════════ */
+  @media (max-width: 1080px) {
+    .rules, .caveats, .surfaces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pin-grid { gap: 40px; }
+  }
+  @media (max-width: 900px) {
+    .wrap, .pin-grid { padding: 0 22px; }
+    .stage { height: auto; }
+    .pin { position: static; height: auto; padding: 88px 0; }
+    .pin-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .act-copy { min-height: 0; }
+    .act { position: static; }
+    .act-1, .act-2 { display: none; }
+    .verdict-pass { display: none; }
+    .stage-progress { display: none; }
+    .marker-typed { width: var(--cols); }
+    .scene { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .graph line, .graph path { stroke-dashoffset: 0 !important; }
+    .thesis, .start, .ledger { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .band { padding: 96px 0; }
+    .receipt { padding: 30px 26px; gap: 26px; }
+    .receipt-ref { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 18px; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    .rules, .caveats, .surfaces, .facts { grid-template-columns: minmax(0, 1fr); }
+    .nav span { display: none; }
+    .cta, .chip { width: 100%; justify-content: center; }
+    .hero { min-height: 0; padding: 30px 0 60px; }
+    .band { padding: 76px 0; }
+    .section-head { gap: 18px; margin-bottom: 34px; }
+    .diff, .shell { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="brand">
+      <a class="wordmark plain" href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">semctx</a>
+      <span class="meta">0.1.17 · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a></span>
+    </div>
+    <nav class="nav">
+      <a href="https://github.com/hoklims/semctx/tree/main/docs" target="_blank" rel="noopener noreferrer">Docs</a>
+      <a href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="chip" href="#start">bunx semctx@latest install</a>
+    </nav>
+  </header>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <span class="kicker"><span class="pip"></span>Your agent said done. The tests went green.</span>
+    <h1>Write the rule once.<br>It becomes <em>a wall</em>.</h1>
+    <p class="hero-sub">One sentence in a comment tells semctx what must never break. From then on, any change that puts it at risk stops the commit — deterministically, locally, with no model in the loop.</p>
+    <div class="hero-cta">
+      <a class="cta" href="#start"><span>$</span><span>bunx semctx@latest install</span><span class="caret"></span></a>
+      <span class="cta-aside">Detects Claude Code and Codex. Safe to run twice.</span>
+    </div>
+    <div class="claims">
+      <span>No LLM</span><i>·</i>
+      <span>No network call</span><i>·</i>
+      <span>No vector database</span><i>·</i>
+      <span>Never uploads your code</span>
+    </div>
+    <div class="scroll-hint"><span class="bar"></span>Watch one change get judged</div>
+  </div>
+</section>
+
+<!-- ══════════ THE SCENE ══════════ -->
+<section class="stage">
+  <div class="pin">
+    <div class="stage-progress"></div>
+    <div class="pin-grid">
+
+      <div class="act-copy">
+        <div class="act act-1 scene">
+          <span class="tagline" style="color: var(--muted);">Act one · the change</span>
+          <h2>An interface loses a null.</h2>
+          <p>Two characters. Every caller that handled the empty case is now wrong, and the type checker will not tell you which ones mattered.</p>
+        </div>
+        <div class="act act-2 scene">
+          <span class="tagline" style="color: var(--warn);">Act two · the blast radius</span>
+          <h2>It maps who was counting on it.</h2>
+          <p>Static analysis against the repository graph — the files that import the contract, and the tests statically linked to it. Here, there are none.</p>
+        </div>
+        <div class="act act-3 scene">
+          <span class="tagline" style="color: var(--block);">Act three · the constraint</span>
+          <h2>You wrote one sentence. The verdict inverts.</h2>
+          <p>Same diff, same tests, opposite outcome. The commit stops at <span class="mono" style="color: var(--block);">exit 3</span> — because you, not a model, said this rule matters.</p>
+        </div>
+      </div>
+
+      <div class="console">
+        <div class="console-head">
+          <span>src/ports/reservation-repository.ts</span>
+          <span class="where">one changed hunk</span>
+        </div>
+
+        <div class="diff"><span class="scene diff-line-1" style="opacity: 0;">  export interface <span class="sym">ReservationRepositoryPort</span> {</span>
+<span class="scene diff-line-2 del" style="opacity: 0;">-   getSlot(id: string): Slot | null</span>
+<span class="scene diff-line-3 add" style="opacity: 0;">+   getSlot(id: string): Slot</span>
+<span class="scene diff-line-3" style="opacity: 0;">  }</span>
+<span class="marker-line scene marker-typed" style="--cols: 60ch; width: 0;">  /** @invariant never-overbook: never double-book a slot */</span></div>
+
+        <svg class="graph" viewBox="0 0 616 226" role="img" aria-label="The changed interface, the two files that import it, and a missing test.">
+          <circle class="scene ring-1" cx="70" cy="112" r="17" fill="none" stroke="var(--pass)" stroke-width="1" opacity="0"/>
+          <circle class="scene ring-2" cx="70" cy="112" r="33" fill="none" stroke="var(--pass-dim)" stroke-width="1" stroke-dasharray="2 5" opacity="0"/>
+          <circle cx="70" cy="112" r="4.5" fill="var(--warn)"/>
+          <text class="scene src-label mono" x="6" y="170" font-size="10.5" fill="var(--ink)" opacity="0">ReservationRepositoryPort</text>
+          <text class="scene src-label mono" x="6" y="185" font-size="10.5" fill="var(--muted)" opacity="0">the changed hunk</text>
+
+          <path class="scene edge-1" style="--len: 300;" d="M108 112 C 190 112, 210 46, 306 46" fill="none" stroke="var(--rule)" stroke-width="1.15" stroke-dasharray="300" stroke-dashoffset="300"/>
+          <path class="scene edge-2" style="--len: 300;" d="M108 112 L 306 112" fill="none" stroke="var(--rule)" stroke-width="1.15" stroke-dasharray="300" stroke-dashoffset="300"/>
+          <path class="scene edge-3" d="M108 112 C 190 112, 210 178, 306 178" fill="none" stroke="var(--warn-dim)" stroke-width="1.15" stroke-dasharray="4 5" opacity="0"/>
+
+          <g class="scene node-1" style="transform-box: fill-box; transform-origin: center;" opacity="0">
+            <circle cx="306" cy="46" r="3.6" fill="var(--muted)"/>
+            <text class="mono" x="322" y="43" font-size="12" fill="var(--ink)">checkout.ts</text>
+            <text class="mono" x="322" y="59" font-size="10.5" fill="var(--muted)">imports it</text>
+          </g>
+          <g class="scene node-2" style="transform-box: fill-box; transform-origin: center;" opacity="0">
+            <circle cx="306" cy="112" r="3.6" fill="var(--muted)"/>
+            <text class="mono" x="322" y="109" font-size="12" fill="var(--ink)">confirm-reservation.ts</text>
+            <text class="mono" x="322" y="125" font-size="10.5" fill="var(--muted)">imports it</text>
+          </g>
+          <g class="scene node-3" style="transform-box: fill-box; transform-origin: center;" opacity="0">
+            <circle cx="306" cy="178" r="4" fill="none" stroke="var(--warn)" stroke-width="1.2" stroke-dasharray="2 3"/>
+            <text class="mono" x="322" y="175" font-size="12" fill="var(--warn)">no test links this contract</text>
+            <text class="mono" x="322" y="191" font-size="10.5" fill="var(--muted)">Recommended tests: none</text>
+          </g>
+        </svg>
+
+        <div class="verdict-slot">
+          <div class="verdict verdict-pass scene" style="opacity: 0;">
+            <span class="tag pass">PASS</span>
+            <span class="v-lines">
+              <span class="rule-id">no blocking violations</span>
+              <span class="exit meta">0.66s · exit 0 · nothing stopped</span>
+            </span>
+          </div>
+          <div class="verdict verdict-block scene" style="opacity: 0;">
+            <span class="tag block">BLOCK</span>
+            <span class="v-lines">
+              <span class="rule-id">invariant_touched_without_test</span>
+              <span class="exit meta" style="color: var(--block);">0.66s · exit 3 · commit refused</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ THE THESIS ══════════ -->
+<section class="band band-dark">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Constraints you write. Enforcement you don't.</h2>
+      <p class="lede">semctx never guesses what matters in your codebase. You say it, in one line of English, and it becomes a machine-checkable rule for everyone who touches that code afterwards.</p>
+    </div>
+
+    <div class="thesis">
+      <p class="thesis-line reveal">A sentence in a comment is the <b>entire configuration</b>. No schema. No dashboard. Nothing inferred by a model.</p>
+      <div class="thesis-body reveal">
+        <p>Contracts, invariants and capabilities come from explicit, machine-readable markers — never LLM inference. That is what makes the verdict deterministic and traceable: the same repository state produces the same answer, byte for byte, on any machine.</p>
+        <p>Markers are optional. Without them semctx still reports impacted symbols, exported contracts and statically linked tests. What a marker buys you is the right to stop a commit — and it is deliberately you who grants it, symbol by symbol.</p>
+        <p>That asymmetry is the design: an analyzer that cannot invent importance, and an author who can declare it in seconds.</p>
+      </div>
+    </div>
+
+    <div class="rules reveal">
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
+        <span class="id">invariant_touched_without_test</span>
+        <p>Invariant-constrained code changed with no eligible statically linked test.</p>
+        <span class="arms">armed by <span style="color: var(--block);">@invariant</span></span>
+      </div>
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
+        <span class="id">critical_contract_changed_without_test</span>
+        <p>A critical exported contract changed with no eligible statically linked test.</p>
+        <span class="arms">armed by <span style="color: var(--block);">@tag critical</span></span>
+      </div>
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
+        <span class="id">security_surface_without_verification</span>
+        <p>A security surface changed without an explicit verification.</p>
+        <span class="arms">armed by <span style="color: var(--block);">@tag security</span></span>
+      </div>
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--warn);">Advisory → WARN</span>
+        <span class="id">contract_changed_without_test</span>
+        <p>Any exported interface or type changed with no linked test. This one needs no marker at all.</p>
+        <span class="arms">on by default</span>
+      </div>
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--warn);">Advisory → WARN</span>
+        <span class="id">contradiction_unresolved</span>
+        <p>The change leans on a source that a later decision contradicts.</p>
+        <span class="arms">on by default</span>
+      </div>
+      <div class="rule-cell">
+        <span class="tier" style="color: var(--muted);">That is the whole set</span>
+        <span class="id">five rules · two tiers</span>
+        <p>There is no score, no threshold, no confidence percentage. A verdict is the union of rules that fired, and each one names itself.</p>
+        <span class="arms tnum"><span style="color: var(--pass);">PASS</span> → 0 &nbsp; <span style="color: var(--warn);">WARN</span> → 0 &nbsp; <span style="color: var(--block);">BLOCK</span> → 3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SURFACES ══════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Three places, one engine.</h2>
+      <p class="lede">The CLI and the agent tools are thin transports over the same analysis. Same rules, same reason codes, same verdict.</p>
+    </div>
+
+    <div class="surfaces reveal">
+      <div class="surface-card">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4 6l5 6-5 6"/><path d="M12 18h8"/></svg>
+        <h3>In your terminal</h3>
+        <p>Working tree, staged commit, or a range against a real merge-base. Text, JSON or GitHub output. An optional pre-commit hook stops the commit only on BLOCK.</p>
+        <p class="foot cmd">semctx verify diff --base origin/main</p>
+      </div>
+      <div class="surface-card">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><rect x="3" y="4" width="18" height="14"/><path d="M8 21h8"/><path d="M12 18v3"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+        <h3>Inside your agent</h3>
+        <p>Plugins for Claude Code and Codex expose the same tools over MCP, so the agent verifies its own diff. Guarded mode holds <code style="font-size: 0.9em;">git commit</code> until the change is verified.</p>
+        <p class="foot">A cooperative soft gate — not a sandbox, not a boundary against a hostile agent. The repo says so first.</p>
+      </div>
+      <div class="surface-card">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M6 3v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v3a6 6 0 01-6 6H9"/></svg>
+        <h3>On every pull request</h3>
+        <p>A composite Action posts annotations and a job summary. WARN never fails the check; BLOCK does. No PR comments, no secrets, <code style="font-size: 0.9em;">contents: read</code> only.</p>
+        <p class="foot cmd"><a href="https://github.com/hoklims/semctx/tree/main/packages/github-action" target="_blank" rel="noopener noreferrer">hoklims/semctx/packages/github-action@v0.1.17</a></p>
+      </div>
+    </div>
+
+    <p class="aside-note reveal">Planning and reconciliation tools report <code style="font-size: 0.9em;">executionAuthority: "none"</code>. semctx never edits, commits, deletes or deploys anything. A verdict is a verdict, never a permission.</p>
+  </div>
+</section>
+
+<!-- ══════════ LIMITS ══════════ -->
+<section class="band band-dark">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>We ship the list of things it cannot do.</h2>
+    </div>
+
+    <div class="ledger reveal">
+      <div class="ledger-col yes">
+        <span class="eyebrow" style="color: var(--pass);">What it does</span>
+        <ul>
+          <li>Maps a diff to the symbols, contracts, invariants and tests it touches.</li>
+          <li>Gives a PASS / WARN / BLOCK verdict you can read the reasoning of.</li>
+          <li>Runs locally, from coding agents, and in CI.</li>
+          <li>States what it cannot prove, as <code style="font-size: 0.9em;">Unknowns</code>, instead of staying quiet.</li>
+        </ul>
+      </div>
+      <div class="ledger-col no">
+        <span class="eyebrow" style="color: var(--block);">What it does not</span>
+        <ul>
+          <li>Replace search engines or semantic retrieval. Use grep or embeddings for that.</li>
+          <li>Claim full repository understanding.</li>
+          <li>Require an LLM.</li>
+          <li>Upload your code, comment on PRs, or need a secret by default.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="receipt reveal">
+      <div class="receipt-body">
+        <span class="eyebrow" style="color: var(--warn);">We published a benchmark we lost</span>
+        <h3>semctx used to also answer <em>"which files matter for this task?"</em>. We tested it on 16 real commits against a plain text search. It lost on every measure.</h3>
+        <p>The reason was structural: it read names, never file contents. So we removed the feature instead of tuning it, and left the losing numbers in the repository. That is the standard the rest of this page is written to.</p>
+      </div>
+      <div class="receipt-ref">
+        <a href="https://github.com/hoklims/semctx/tree/main/benchmarks/change-impact-eval" target="_blank" rel="noopener noreferrer">benchmarks/<br>&nbsp;&nbsp;change-impact-eval</a>
+        <a href="https://github.com/hoklims/semctx/blob/main/docs/adr/0005-context-retrieval-pipeline-rejected.md" target="_blank" rel="noopener noreferrer" style="padding-top: 6px;">ADR 0005</a>
+        <span class="quote">"withdrawn, not tuned"</span>
+      </div>
+    </div>
+
+    <div class="caveats reveal">
+      <div class="caveat">
+        <h3>Static, not dynamic</h3>
+        <p>It reasons about the diff without building or running the code. It selects what to re-test; it does not tell you the code still works.</p>
+      </div>
+      <div class="caveat">
+        <h3>Selection, not coverage</h3>
+        <p>Recommended tests come from imports inside test files. They are candidates — never executed, never measured coverage.</p>
+      </div>
+      <div class="caveat">
+        <h3>TypeScript first</h3>
+        <p>TypeScript gets full semantic analysis. Python is an opt-in syntax vertical through 3.12 — it does not infer calls or coverage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ START ══════════ -->
+<section class="band band-tight" id="start">
+  <div class="wrap start reveal">
+    <div>
+      <h2>Point it at a repo.<br>It will tell you what it <em>can't</em> see.</h2>
+      <p class="lede" style="margin-top: 24px; max-width: 40ch;">Two commands. Existing config and authored files are preserved, and a non-Git directory is never initialised by accident.</p>
+    </div>
+
+    <div>
+      <div class="shell"><span class="c"># no Bun yet? this installs it</span>
+<span class="p">$</span> curl -fsSL https://bun.sh/install | bash
+
+<span class="c"># detects Claude Code and Codex, sets up the repo</span>
+<span class="p">$</span> bunx semctx@latest install
+
+<span class="c"># preview everything first, change nothing</span>
+<span class="p">$</span> bunx semctx@latest install --dry-run</div>
+
+      <div class="facts">
+        <div class="fact">
+          <span class="eyebrow">bunx, not npx</span>
+          <p>Not a typo. semctx runs on Bun 1.3 or newer.</p>
+        </div>
+        <div class="fact">
+          <span class="eyebrow">What it costs you</span>
+          <p>First index <strong>8.9s</strong>, then <strong>0.66s</strong> per check. Measured on semctx itself: 674 files, 215k lines of TypeScript, 2,854 graph nodes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>semctx <a href="https://github.com/hoklims/semctx/releases/tag/v0.1.17" target="_blank" rel="noopener noreferrer">0.1.17</a> · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a> · <a href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">github.com/hoklims/semctx</a><br>Every claim on this page is checked against the repository that makes it.</span>
+    <span>Analysis outputs are a pure function of repository state<br>plus one injected timestamp.</span>
+  </footer>
+</div>
+</body>
+</html>
