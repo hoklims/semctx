@@ -921,6 +921,7 @@ function cleanupTombstone(root: string, files: AnchorMigrationFileSystem): void 
 
 function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSystem): void {
   const directory = transactionDir(root);
+  const canonicalDirectory = realpathSync(directory);
   for (const name of readdirSync(directory)) {
     const candidate = join(directory, name);
     const terminal = /^(?:acquire-failed|recovery-(?:release|stale))-[1-9][0-9]*-[0-9a-f]{18}$/.test(name);
@@ -936,7 +937,7 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
       if (errorCode(error) === "ENOENT") continue;
       throw error;
     }
-    if (info.isSymbolicLink() || !info.isDirectory() || candidateReal !== candidate) {
+    if (info.isSymbolicLink() || !info.isDirectory() || candidateReal !== join(canonicalDirectory, name)) {
       throw new SemctxError("STORE_ERROR", "anchor migration acquisition state is unsafe", {
         reason: "TRANSACTION_WORKSPACE_UNSAFE",
         directory: candidate,
@@ -969,7 +970,7 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
     if (errorCode(error) === "ENOENT") return;
     throw error;
   }
-  if (info.isSymbolicLink() || !info.isDirectory() || recoveryReal !== recovery) {
+  if (info.isSymbolicLink() || !info.isDirectory() || recoveryReal !== join(canonicalDirectory, RECOVERY_ACTIVE)) {
     throw new SemctxError("STORE_ERROR", "anchor migration recovery state is unsafe", {
       reason: "TRANSACTION_WORKSPACE_UNSAFE",
       directory: recovery,
