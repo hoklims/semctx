@@ -19,3 +19,6 @@ export * from "./agent-workflow";
 export * from "./agent-lifecycle";
 export * from "./control-handoff";
 export * from "./link-resolution";
+export * from "./change-authorization-types";
+export * from "./change-authorization-canonical";
+export * from "./change-authorization-schemas";
