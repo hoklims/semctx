@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "change_authorization_verification_report",
+  "verifierId": "semctx-change-authorization-verifier",
+  "verifierVersion": "1.0.0",
+  "executionAuthority": "none",
+  "enforcementMode": "shadow",
+  "blockingEnabled": false,
+  "authorizationEffect": "advisory_verification",
+  "result": "PASSED",
+  "reasonCodes": [
+    "VERIFICATION_PASSED"
+  ],
+  "integrity": {
+    "schemaVersion": 1,
+    "result": "VALID",
+    "reasons": []
+  },
+  "authority": {
+    "schemaVersion": 1,
+    "expectedAuthorityDescriptorDigest": "sha256:c731d20c3c553fa2b1075210414f5fc0a68652fdf9d7ce60550a777003547d81",
+    "recordedAuthorityDescriptorDigest": "sha256:c731d20c3c553fa2b1075210414f5fc0a68652fdf9d7ce60550a777003547d81",
+    "result": "MATCHED",
+    "reasons": []
+  },
+  "semantic": {
+    "schemaVersion": 1,
+    "recordedVerdict": "ALLOW",
+    "recordedEvaluatedAt": "2026-08-01T10:00:00.000Z",
+    "recordedReasonCodes": [
+      "POLICY_SATISFIED"
+    ],
+    "currentVerdict": "ALLOW",
+    "currentEvaluatedAt": "2026-08-01T10:00:00.000Z",
+    "currentReasonCodes": [
+      "POLICY_SATISFIED"
+    ],
+    "reasons": []
+  },
+  "subjectChangeId": "change.verifier",
+  "subjectHash": "sha256:94132a1d2be5753657464ebe607a2b4c3896e2dc05366948eaccd375583741c2",
+  "capsuleHash": "sha256:85668b121a636f2007370d7753560a7410e50017a87ea09e2b092a7e1b476a4f",
+  "verifiedAt": "2026-08-01T10:00:00.000Z",
+  "reportHash": "sha256:52a5749ac8aa266d6e6e797201f7ac38bdc8f361cfa0e32fc130b2e80b510352"
+}

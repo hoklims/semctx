@@ -37,6 +37,7 @@ import {
 } from "./reconciliation-tools";
 import { registerControlHandoffTools } from "./control-handoff-tools";
 import { registerTargetTools } from "./target-tools";
+import { registerChangeAuthorizationVerifierTools } from "./change-authorization-verifier-tools";
 import {
   AgentLifecycleCheckpointRequestV1Schema,
   AttestationRequestV1Schema,
@@ -721,6 +722,7 @@ export function createSemctxServer(
   registerControlHandoffTools(tools, rootResolver);
   registerTargetTools(tools, rootResolver);
   registerControlExplorerApp(server, tools, rootResolver);
+  registerChangeAuthorizationVerifierTools(tools);
 
   return server;
 }

@@ -76,6 +76,8 @@ Control plane (bounded semantic coordination and migration planning):
   control handoff <input.json> [--json]
   control resume-handoff <capsule-hash> [--json]
       deterministic Control Handoff v2 capture/resume; no execution authority
+  control verify-authorization <request.json> [--json]
+      offline, host-independent verification of a ChangeAuthorizationCapsuleV1; read-only
 
 Migration (one-shot, temporary; see 'semctx migrate' for details):
   migrate anchors [--apply] [--format text|json]
@@ -114,7 +116,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
     // command and no help flag is a usage error (exit 1).
     return flagBool(args, "help") ? 0 : 1;
   }
-  if (command === "help" || flagBool(args, "help")) {
+  const isAuthorizationVerification = command === "control" && args.positionals[1] === "verify-authorization";
+  if (command === "help" || (flagBool(args, "help") && !isAuthorizationVerification)) {
     info(HELP);
     return 0;
   }

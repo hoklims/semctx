@@ -43,6 +43,10 @@ import {
   runControlHandoff,
 } from "./control-handoff";
 import {
+  CONTROL_VERIFY_AUTHORIZATION_HELP,
+  runControlVerifyAuthorization,
+} from "./control-verify-authorization";
+import {
   CONTROL_RECONCILIATION_HELP,
   runControlReconciliation,
 } from "./control-reconciliation";
@@ -71,6 +75,7 @@ Usage:
 ${CONTROL_TARGET_HELP}
 ${CONTROL_HANDOFF_HELP}
 ${CONTROL_RECONCILIATION_HELP}
+${CONTROL_VERIFY_AUTHORIZATION_HELP}
 `;
 
 function integerFlag(args: ParsedArgs, name: string, fallback: number, min: number, max: number): number {
@@ -132,6 +137,8 @@ function emit(value: unknown, asJson: boolean, text: string): void {
 
 export function runControl(root: string, args: ParsedArgs): number {
   const subcommand = args.positionals[1];
+  const verifyAuthorizationExitCode = runControlVerifyAuthorization(root, args);
+  if (verifyAuthorizationExitCode !== undefined) return verifyAuthorizationExitCode;
   if (subcommand === undefined || flagBool(args, "help")) {
     info(CONTROL_HELP);
     return 0;
@@ -142,7 +149,6 @@ export function runControl(root: string, args: ParsedArgs): number {
   if (handoffExitCode !== undefined) return handoffExitCode;
   const reconciliationExitCode = runControlReconciliation(root, args);
   if (reconciliationExitCode !== undefined) return reconciliationExitCode;
-
   if (subcommand === "trace") {
     const sourceInput = requiredPositional(args, 2, "semctx control trace <qualified-id>");
     const parsedSource = QualifiedCoordinateIdSchema.safeParse(sourceInput);

@@ -60,6 +60,7 @@ const TOOL_NAMES = [
   "semctx_control_resume",
   "semctx_control_target_propose",
   "semctx_control_explorer",
+  "semctx_control_verify_authorization",
 ] as const;
 
 export type SemctxToolName = (typeof TOOL_NAMES)[number];

@@ -22,14 +22,22 @@ describe("semctx MCP tool metadata", () => {
 
     const { tools } = await client.listTools();
     const byName = new Map(tools.map((tool) => [tool.name, tool]));
+    const repositoryIndependentTools = new Set([
+      "semctx_control_verify_authorization",
+    ]);
 
     expect(byName.has("semctx_change_close")).toBe(true);
 
     for (const tool of tools) {
       const schema = tool.inputSchema as { properties?: Record<string, unknown>; required?: string[] };
       const properties = schema.properties ?? {};
-      expect(properties["repositoryRoot"]).toBeDefined();
-      expect(schema.required ?? []).toContain("repositoryRoot");
+      if (repositoryIndependentTools.has(tool.name)) {
+        expect(properties["repositoryRoot"]).toBeUndefined();
+        expect(schema.required ?? []).not.toContain("repositoryRoot");
+      } else {
+        expect(properties["repositoryRoot"]).toBeDefined();
+        expect(schema.required ?? []).toContain("repositoryRoot");
+      }
     }
 
     for (const name of [
@@ -46,6 +54,7 @@ describe("semctx MCP tool metadata", () => {
       "semctx_control_plan_change",
       "semctx_control_reconcile_diff",
       "semctx_control_resume",
+      "semctx_control_verify_authorization",
     ]) {
       expect(byName.get(name)?.annotations).toEqual({
         readOnlyHint: true,

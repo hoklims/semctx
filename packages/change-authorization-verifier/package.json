@@ -1,0 +1,19 @@
+{
+  "name": "@semantic-context/change-authorization-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@semantic-context/control-model": "workspace:*"
+  },
+  "devDependencies": {
+    "@semantic-context/control-engine": "workspace:*"
+  }
+}

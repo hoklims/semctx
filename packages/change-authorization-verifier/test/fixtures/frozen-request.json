@@ -1,0 +1,435 @@
+{
+  "schemaVersion": 1,
+  "capsule": {
+    "schemaVersion": 1,
+    "kind": "change_authorization_capsule",
+    "executionAuthority": "none",
+    "enforcementMode": "shadow",
+    "blockingEnabled": false,
+    "authorizationEffect": "advisory_record",
+    "capsuleId": "capsule.verifier-test",
+    "basis": {
+      "record": {
+        "schemaVersion": 2,
+        "kind": "control_handoff_record",
+        "request": {
+          "schemaVersion": 2,
+          "planningBundle": {
+            "schemaVersion": 1,
+            "kind": "planning_bundle",
+            "executionAuthority": "none",
+            "bundleId": "bundle.verifier",
+            "bundleHash": "sha256:0fba57f456a39b173c175bedc6df94db36ca34980e790c07be884195ae34c6af",
+            "planningCommit": "abc123",
+            "taskEnvelope": {
+              "schemaVersion": 1,
+              "kind": "task_envelope",
+              "executionAuthority": "none",
+              "envelopeId": "envelope.verifier",
+              "envelopeHash": "sha256:310977fc1bf57cb24b80f4400f1d1d97d7e43c299580bb1bb482413e75e9ebe1",
+              "planningCommit": "abc123",
+              "taskFrameSnapshot": {
+                "schemaVersion": 1,
+                "taskFrameId": "task.verifier",
+                "rawTaskDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "mode": "feature",
+                "createdAt": "2026-08-01T10:00:00.000Z",
+                "capabilitySignals": [
+                  "authorization"
+                ],
+                "riskSignals": [
+                  "control_plane"
+                ],
+                "profileCandidate": "feature",
+                "altitudeCandidate": 3
+              },
+              "taskFrameHash": "sha256:459dd1a7097d955b7a0bc021a0ce2bc397c6de1d932dbe81fb185460d158870e",
+              "changeId": "change.verifier",
+              "changeContractHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "coordinateGraphSeal": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "indexSeal": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "baselineFreshnessSeal": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "profile": "feature",
+              "risk": "R1",
+              "requiredAltitude": 3,
+              "candidateAnchors": [],
+              "resolvedBindings": [
+                {
+                  "schemaVersion": 1,
+                  "bindingId": "binding.file",
+                  "coordinateId": "repo:file.src-x",
+                  "repositoryPath": "src/x.ts",
+                  "provenance": "explicit_discovery",
+                  "evidenceId": "evidence.discovery",
+                  "planningCommit": "abc123",
+                  "graphSeal": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "scope": {
+                    "kind": "file",
+                    "path": "src/x.ts"
+                  }
+                }
+              ],
+              "parentIntentIds": [
+                "goal.verifier"
+              ],
+              "preservedInvariantIds": [
+                "invariant.no-authority"
+              ],
+              "nonGoals": [
+                "execute.patch"
+              ],
+              "expectedBehaviorDelta": [
+                "authorization.is.reproducible"
+              ],
+              "declaredReconciliationScope": {
+                "kind": "file",
+                "bindingId": "binding.file",
+                "path": "src/x.ts"
+              },
+              "proofObligationIds": [
+                "proof.verifier"
+              ],
+              "compatibilityNotes": []
+            },
+            "semanticChangeSet": {
+              "schemaVersion": 1,
+              "kind": "semantic_change_set",
+              "executionAuthority": "none",
+              "changeSetId": "changeset.verifier",
+              "changeSetHash": "sha256:e645951c2047139e8aaa6858db751057b5c7569d78a2fd5723e097446d256160",
+              "envelopeId": "envelope.verifier",
+              "envelopeHash": "sha256:310977fc1bf57cb24b80f4400f1d1d97d7e43c299580bb1bb482413e75e9ebe1",
+              "planningCommit": "abc123",
+              "profile": "feature",
+              "declaredReconciliationScope": {
+                "kind": "file",
+                "bindingId": "binding.file",
+                "path": "src/x.ts"
+              },
+              "refinementSteps": [
+                {
+                  "schemaVersion": 1,
+                  "stepId": "step.0",
+                  "order": 0,
+                  "fromExpectationIds": [
+                    "semantic.behavior"
+                  ],
+                  "toExpectationIds": [
+                    "semantic.behavior"
+                  ],
+                  "repositoryEditIds": [
+                    "edit.modify"
+                  ]
+                }
+              ],
+              "semanticExpectations": [
+                {
+                  "schemaVersion": 1,
+                  "expectationId": "semantic.behavior",
+                  "kind": "behavior",
+                  "level": 3,
+                  "required": true,
+                  "subjectId": "semantic:capability.verifier",
+                  "statement": "The verification is bound to the observed repository state.",
+                  "acceptanceEvidenceIds": [
+                    "evidence.behavior"
+                  ]
+                }
+              ],
+              "repositoryEditExpectations": [
+                {
+                  "schemaVersion": 1,
+                  "editId": "edit.modify",
+                  "required": true,
+                  "expectedLiftedExpectationIds": [
+                    "semantic.behavior"
+                  ],
+                  "acceptanceEvidenceIds": [
+                    "evidence.behavior"
+                  ],
+                  "kind": "modify",
+                  "path": "src/x.ts",
+                  "coordinateIds": [
+                    "repo:file.src-x"
+                  ]
+                }
+              ],
+              "rollbackDescription": "Revert the candidate commit.",
+              "testReferences": [
+                "test.verifier"
+              ],
+              "acceptanceEvidenceIds": [
+                "evidence.behavior"
+              ],
+              "proofObligationIds": [
+                "proof.verifier"
+              ]
+            },
+            "baseline": {
+              "schemaVersion": 1,
+              "kind": "workspace_baseline",
+              "planningCommit": "abc123",
+              "cleanliness": "FRESH",
+              "freshnessSealHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "workingDiffHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "semanticModelHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "analyzerConfigHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "toolVersion": "semctx@0.1.18",
+              "storeSchemaVersion": 2,
+              "attestationSetHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          },
+          "progress": {
+            "state": "step_completed",
+            "completedRefinementStepId": "step.0",
+            "currentCoordinateId": "repo:file.src-x"
+          }
+        },
+        "capsule": {
+          "schemaVersion": 2,
+          "kind": "control_handoff_capsule",
+          "executionAuthority": "none",
+          "enforcementMode": "shadow",
+          "blockingEnabled": false,
+          "sourceContentCollected": false,
+          "planningBundleId": "bundle.verifier",
+          "planningBundleHash": "sha256:0fba57f456a39b173c175bedc6df94db36ca34980e790c07be884195ae34c6af",
+          "envelopeId": "envelope.verifier",
+          "envelopeHash": "sha256:310977fc1bf57cb24b80f4400f1d1d97d7e43c299580bb1bb482413e75e9ebe1",
+          "changeSetId": "changeset.verifier",
+          "changeSetHash": "sha256:e645951c2047139e8aaa6858db751057b5c7569d78a2fd5723e097446d256160",
+          "planningCommit": "abc123",
+          "progress": {
+            "state": "step_completed",
+            "currentCoordinateId": "repo:file.src-x",
+            "currentAbstractionLevel": 0,
+            "completedRefinementStep": {
+              "stepId": "step.0",
+              "order": 0
+            },
+            "matchedRepositoryEditIds": [
+              "edit.modify"
+            ],
+            "certifiedExpectationIds": [
+              "semantic.behavior"
+            ],
+            "satisfiedEvidenceRequirementIds": [
+              "evidence.behavior"
+            ],
+            "progressHash": "sha256:ff25394d5d9317881d8698a93a07f0079a437548ebb0722a4ac9cf7407947101"
+          },
+          "seals": {
+            "coordinateGraphSeal": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "indexSeal": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "baselineFreshnessSeal": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "reconciliationReportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "reconciliationAnalysisHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "observationAnalysisHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          },
+          "repositoryIdentity": "repo:semctx",
+          "observedCommit": "def456",
+          "observedWorkingDiffHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "reconciliationTerminalStatus": "REALIZED",
+          "reconciliationReasonCodes": [],
+          "touchedCoordinateIds": [
+            "repo:file.src-x"
+          ],
+          "unmappedObservedHunkIds": [],
+          "proofsObtained": [
+            {
+              "schemaVersion": 1,
+              "requirementId": "evidence.behavior",
+              "origin": "semantic_expectation",
+              "required": true,
+              "evidenceId": "evidence.behavior",
+              "semanticEvidenceDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "acceptedAttestationDigests": [
+                "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              ],
+              "planningCommit": "abc123",
+              "observedDiffHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "semanticModelHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "attestationSetHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "observationAnalysisHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "provenance": [
+                "canonical_attestation",
+                "plane_a_observed",
+                "plane_b_authored"
+              ],
+              "result": "satisfied"
+            }
+          ],
+          "descriptiveRefinementStepIds": [],
+          "nextValidTransition": {
+            "kind": "verify_change"
+          },
+          "capsuleHash": "sha256:9c3fb62128a674a1c6e9df845fe99c8da14397dc6402b751f2b71fdc029cedb5"
+        }
+      }
+    },
+    "subject": {
+      "schemaVersion": 1,
+      "changeId": "change.verifier",
+      "changeContractHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "parentIntentIds": [
+        "goal.verifier"
+      ],
+      "nonGoals": [
+        "execute.patch"
+      ],
+      "expectedBehaviorDelta": [
+        "authorization.is.reproducible"
+      ],
+      "declaredReconciliationScope": {
+        "kind": "file",
+        "bindingId": "binding.file",
+        "path": "src/x.ts"
+      },
+      "planningCommit": "abc123",
+      "observedCommit": "def456",
+      "observedWorkingDiffHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "touchedCoordinateIds": [
+        "repo:file.src-x"
+      ],
+      "reconciliationTerminalStatus": "REALIZED",
+      "reconciliationReasonCodes": [],
+      "subjectHash": "sha256:94132a1d2be5753657464ebe607a2b4c3896e2dc05366948eaccd375583741c2"
+    },
+    "providers": [
+      {
+        "schemaVersion": 1,
+        "providerId": "provider.tests",
+        "kind": "test_runner",
+        "version": "1.0.0",
+        "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "AVAILABLE",
+        "capabilities": [
+          "run_tests"
+        ],
+        "observedAt": "2026-08-01T09:00:00.000Z",
+        "expiresAt": "2026-09-01T09:00:00.000Z",
+        "trustRootId": "root.tests"
+      }
+    ],
+    "claims": [
+      {
+        "schemaVersion": 1,
+        "claimId": "claim.tests-pass",
+        "statement": "The candidate diff is covered by a passing test observation.",
+        "subject": {
+          "kind": "CHANGE_REQUIREMENT",
+          "changeId": "change.verifier",
+          "requirementId": "requirement.tests-pass"
+        },
+        "claimHash": "sha256:a78696120c3aadde291106300d2888600c60df100bcdf48674e744622d9cd17a"
+      }
+    ],
+    "assertions": [
+      {
+        "schemaVersion": 1,
+        "assertionId": "assertion.test-pass",
+        "claimHash": "sha256:a78696120c3aadde291106300d2888600c60df100bcdf48674e744622d9cd17a",
+        "conclusion": "SUPPORTS",
+        "modality": "TEST_OBSERVED",
+        "producerId": "producer.bun-test",
+        "producerVersion": "1.2.3",
+        "sourceCommit": "def456",
+        "sourceDiffHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "methodName": "bun test",
+        "methodParameters": {
+          "pattern": "packages/**/*.test.ts"
+        },
+        "scope": {
+          "schemaVersion": 1,
+          "coordinateIds": [
+            "repo:file.src-x"
+          ]
+        },
+        "observedAt": "2026-08-01T09:30:00.000Z",
+        "expiresAt": "2026-09-01T09:30:00.000Z",
+        "providerId": "provider.tests",
+        "artifacts": [],
+        "dependsOnAssertionHashes": [],
+        "contradicts": [],
+        "assertionHash": "sha256:10116973d9fdc117ed935c8e42c3a8ffe972ea65002c48d3466c9419a0bd2116"
+      }
+    ],
+    "evidenceBundles": [
+      {
+        "schemaVersion": 1,
+        "bundleId": "bundle.rule-tests-pass",
+        "ruleId": "rule.tests-pass",
+        "assertionHashes": [
+          "sha256:10116973d9fdc117ed935c8e42c3a8ffe972ea65002c48d3466c9419a0bd2116"
+        ],
+        "bundleHash": "sha256:e54368ba446a0b85d65010a1e17225396b4922aabcef553545189a23cea8dd50"
+      }
+    ],
+    "evidenceUniverse": {
+      "schemaVersion": 1,
+      "assertionHashes": [
+        "sha256:10116973d9fdc117ed935c8e42c3a8ffe972ea65002c48d3466c9419a0bd2116"
+      ],
+      "bundleHashes": [
+        "sha256:e54368ba446a0b85d65010a1e17225396b4922aabcef553545189a23cea8dd50"
+      ],
+      "universeHash": "sha256:74176427a696f721edc7fc0400c4cd0e171a04bfe586922e74b4a7e07bd9f6ba"
+    },
+    "policyRules": [
+      {
+        "schemaVersion": 1,
+        "ruleId": "rule.tests-pass",
+        "description": "The candidate diff must be covered by a passing test observation.",
+        "requiredClaimHash": "sha256:a78696120c3aadde291106300d2888600c60df100bcdf48674e744622d9cd17a",
+        "allowedModalities": [
+          "FORMALLY_PROVED",
+          "RUNTIME_OBSERVED",
+          "STATICALLY_VERIFIED",
+          "TEST_OBSERVED"
+        ]
+      }
+    ],
+    "policyEvaluations": [
+      {
+        "schemaVersion": 1,
+        "ruleId": "rule.tests-pass",
+        "outcome": "satisfied",
+        "reasonCodes": [
+          "POLICY_SATISFIED"
+        ],
+        "contributingAssertionHashes": [
+          "sha256:10116973d9fdc117ed935c8e42c3a8ffe972ea65002c48d3466c9419a0bd2116"
+        ],
+        "evaluationHash": "sha256:66be274af4b8ffe3d5f682292d487ad17e4a9eec7a2a0165c88213bdab7ad328"
+      }
+    ],
+    "authorityDescriptor": {
+      "schemaVersion": 1,
+      "policy": {
+        "schemaVersion": 1,
+        "policyId": "policy.verifier-tests",
+        "policyVersion": "1.0.0",
+        "policyUri": "https://semctx.test/policy/verifier"
+      },
+      "policyRulesHash": "sha256:5484509a986eb3717d361b1848e0f9a983fff93dc3f8b406542e95502b7d00a4",
+      "trustPolicy": {
+        "schemaVersion": 1,
+        "trustPolicyId": "trust-policy.verifier-tests",
+        "trustPolicyVersion": "1.0.0"
+      },
+      "trustRootIds": [
+        "root.tests"
+      ],
+      "trustedRootSetHash": "sha256:f4eb82eed82ad383e27866c6e404f16ccc49026b71a0617fc787b0b8520e6cfd",
+      "descriptorDigest": "sha256:c731d20c3c553fa2b1075210414f5fc0a68652fdf9d7ce60550a777003547d81"
+    },
+    "verdict": "ALLOW",
+    "reasonCodes": [
+      "POLICY_SATISFIED"
+    ],
+    "evaluatedAt": "2026-08-01T10:00:00.000Z",
+    "capsuleHash": "sha256:85668b121a636f2007370d7753560a7410e50017a87ea09e2b092a7e1b476a4f"
+  },
+  "expectedAuthorityDescriptorDigest": "sha256:c731d20c3c553fa2b1075210414f5fc0a68652fdf9d7ce60550a777003547d81",
+  "verifiedAt": "2026-08-01T10:00:00.000Z"
+}

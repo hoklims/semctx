@@ -3,6 +3,8 @@ import {
   AgentLifecycleReportV1Schema,
   AltitudeAuthorityReportV1Schema,
   ArchitectureComparisonReportSchema,
+  ChangeAuthorizationReasonCodeV1Schema,
+  ChangeAuthorizationVerdictV1Schema,
   ControlFreshnessReasonSchema,
   ControlFreshnessSealV2Schema,
   ControlFreshnessStatusReportSchema,
@@ -16,6 +18,7 @@ import {
   PlanningBundleV1Schema,
   ReconcileDiffReportV1Schema,
   RefinementCoverageReportV1Schema,
+  Sha256HashSchema,
   StepAuthorizationReportV2Schema,
   TaskEnvelopeV1Schema,
   TransitionAuthorizationReportV2Schema,
@@ -23,6 +26,16 @@ import {
   WorkspaceBaselineSnapshotV1Schema,
   CanonicalLinkResolutionSchema,
 } from "@semantic-context/control-model";
+import {
+  CHANGE_AUTHORIZATION_VERIFICATION_AUTHORITY_REASONS,
+  CHANGE_AUTHORIZATION_VERIFICATION_AUTHORITY_RESULTS,
+  CHANGE_AUTHORIZATION_VERIFICATION_INTEGRITY_REASONS,
+  CHANGE_AUTHORIZATION_VERIFICATION_INTEGRITY_RESULTS,
+  CHANGE_AUTHORIZATION_VERIFICATION_REASON_CODES,
+  CHANGE_AUTHORIZATION_VERIFICATION_RESULTS,
+  CHANGE_AUTHORIZATION_VERIFICATION_SEMANTIC_REASONS,
+  ChangeAuthorizationVerificationReportV1Schema,
+} from "@semantic-context/change-authorization-verifier";
 import {
   ControlHandoffCaptureResultV2Schema,
   ControlHandoffResumeResultV2Schema,
@@ -654,6 +667,72 @@ const IndexHealthReportSchema = z.object({
  * Precise machine-readable result contracts for every public semctx MCP tool.
  * Business-layer Zod 3 contracts cross the MCP v2 boundary only through mcpSchema.
  */
+const ChangeAuthorizationVerificationIntegrityReportSchema = z.object({
+  schemaVersion: described(z.literal(1), "Integrity section schema version."),
+  result: described(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_INTEGRITY_RESULTS), "Structural and historical-rederivation verdict."),
+  reasons: described(z.array(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_INTEGRITY_REASONS)), "Closed integrity reason codes."),
+}).strict();
+
+const ChangeAuthorizationVerificationAuthorityReportSchema = z.object({
+  schemaVersion: described(z.literal(1), "Authority section schema version."),
+  expectedAuthorityDescriptorDigest: described(
+    mcpSchema(Sha256HashSchema).nullable(),
+    "Authority digest sourced outside the capsule, or null when the caller holds no pin.",
+  ),
+  recordedAuthorityDescriptorDigest: described(
+    mcpSchema(Sha256HashSchema).nullable(),
+    "The capsule's own authority digest, or null when the capsule is structurally invalid.",
+  ),
+  result: described(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_AUTHORITY_RESULTS), "External authority pin comparison verdict."),
+  reasons: described(z.array(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_AUTHORITY_REASONS)), "Closed authority reason codes."),
+}).strict();
+
+const ChangeAuthorizationVerificationSemanticReportSchema = z.object({
+  schemaVersion: described(z.literal(1), "Semantic section schema version."),
+  recordedVerdict: described(mcpSchema(ChangeAuthorizationVerdictV1Schema).nullable(), "Verdict the capsule itself recorded."),
+  recordedEvaluatedAt: described(z.string().nullable(), "Timestamp the capsule itself recorded."),
+  recordedReasonCodes: described(z.array(mcpSchema(ChangeAuthorizationReasonCodeV1Schema)), "Reason codes the capsule itself recorded."),
+  currentVerdict: described(
+    mcpSchema(ChangeAuthorizationVerdictV1Schema).nullable(),
+    "Verdict re-derived from the capsule's own evidence at the caller's verifiedAt.",
+  ),
+  currentEvaluatedAt: described(z.string(), "The caller's verifiedAt."),
+  currentReasonCodes: described(z.array(mcpSchema(ChangeAuthorizationReasonCodeV1Schema)), "Reason codes re-derived at verifiedAt."),
+  reasons: described(z.array(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_SEMANTIC_REASONS)), "Closed semantic reason codes."),
+}).strict();
+
+const ChangeAuthorizationVerificationReportSchema = z.object({
+  schemaVersion: described(z.literal(1), "Verification report schema version."),
+  kind: described(z.literal("change_authorization_verification_report"), "Report kind."),
+  verifierId: described(z.literal("semctx-change-authorization-verifier"), "Verifier identity."),
+  verifierVersion: described(z.literal("1.0.0"), "Verifier version."),
+  executionAuthority: described(z.literal("none"), "This report grants no execution authority."),
+  enforcementMode: described(z.literal("shadow"), "Always shadow."),
+  blockingEnabled: described(z.literal(false), "Never blocking."),
+  authorizationEffect: described(z.literal("advisory_verification"), "Advisory only."),
+  result: described(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_RESULTS), "Overall verification verdict."),
+  reasonCodes: described(z.array(z.enum(CHANGE_AUTHORIZATION_VERIFICATION_REASON_CODES)).min(1), "Union of contributing reason codes."),
+  integrity: described(ChangeAuthorizationVerificationIntegrityReportSchema, "Content integrity and historical rederivation."),
+  authority: described(ChangeAuthorizationVerificationAuthorityReportSchema, "External authority pin comparison."),
+  semantic: described(ChangeAuthorizationVerificationSemanticReportSchema, "Current semantic decision, re-derived at verifiedAt."),
+  subjectChangeId: described(z.string().nullable(), "Change id under authorization, or null if structurally invalid."),
+  subjectHash: described(mcpSchema(Sha256HashSchema).nullable(), "Subject hash, or null if structurally invalid."),
+  capsuleHash: described(mcpSchema(Sha256HashSchema).nullable(), "Capsule hash, or null if structurally invalid."),
+  verifiedAt: described(z.string(), "The caller's verifiedAt."),
+  reportHash: described(mcpSchema(Sha256HashSchema), "Canonical JCS hash of this report."),
+}).strict().superRefine((report, context) => {
+  const parsed = ChangeAuthorizationVerificationReportV1Schema.safeParse(report);
+  if (parsed.success) return;
+  for (const issue of parsed.error.issues) {
+    context.addIssue({
+      code: "custom",
+      path: [],
+      message: issue.message,
+      input: report,
+    });
+  }
+});
+
 export const TOOL_OUTPUT_SCHEMAS = {
   semctx_verify_change: VerifyReportSchema,
   semctx_inspect: InspectionResultSchema,
@@ -881,4 +960,5 @@ export const TOOL_OUTPUT_SCHEMAS = {
   semctx_control_resume: mcpSchema(ControlHandoffResumeResultV2Schema),
   semctx_control_target_propose: TargetProposalSchema,
   semctx_control_explorer: ControlExplorerOutputSchema,
+  semctx_control_verify_authorization: ChangeAuthorizationVerificationReportSchema,
 } satisfies Record<SemctxToolName, z.ZodType>;

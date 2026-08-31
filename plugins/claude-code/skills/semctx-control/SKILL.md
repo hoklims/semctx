@@ -11,6 +11,8 @@ Use the `semctx` MCP server as a proof surface, not as a replacement for reposit
 
 For every MCP call, pass `repositoryRoot` as the absolute root of the repository being analyzed. The server rejects missing or relative roots, so hosts use the same explicit target contract even when Claude also binds `SEMCTX_ROOT`. An unexpanded `${CLAUDE_PROJECT_DIR}` process env is treated as unset (pin-on-first-request), not as a bound root.
 
+**One exception:** `semctx_control_verify_authorization` takes **no** `repositoryRoot` and rejects the field if supplied. Its entire input is `{ request }` — a `ChangeAuthorizationCapsuleV1` to verify, an externally sourced `expectedAuthorityDescriptorDigest`, and `verifiedAt` (the same instant as, or later than, the capsule's `evaluatedAt`) — because it never reads a target repository; it verifies a sealed capsule offline.
+
 ## Choose the lane
 
 - **Read-only audit, diagnosis, or explanation:** use only read-only surfaces. After repository evidence establishes that Semctx context exists, semantic check and status are allowed alongside inspect, trace, slice, plan, verify, and resume. Do not create or update semantic files and do not write a handoff.

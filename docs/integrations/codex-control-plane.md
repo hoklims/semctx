@@ -97,9 +97,11 @@ codex plugin add semctx-control@semctx-stable
 
 Codex launches the committed `dist/semctx-mcp.js` bundle from the plugin cache through Bun. Because
 Codex does not currently expose the active workspace root to a plugin-launched MCP process, the
-shared skill passes the absolute `repositoryRoot` on every tool call. The server then targets that
-repository instead of the plugin cache. Read-only Plane C tools are auto-approved from their MCP
-annotations; authored-state writes retain Codex's approval prompt.
+shared skill passes the absolute `repositoryRoot` on every tool call, except
+`semctx_control_verify_authorization`, which takes no `repositoryRoot` (its input is `{ request }`
+alone). The server then targets that repository instead of the plugin cache. Read-only Plane C
+tools are auto-approved from their MCP annotations; authored-state writes retain Codex's approval
+prompt.
 
 The plugin ships `dist/semctx.js` (the full CLI) next to the MCP bundle for release lockstep with
 the MCP runtime. Codex does not substitute a plugin-root placeholder into skill content and the
@@ -174,8 +176,10 @@ install or upgrade automatically.
     `semctx_handoff` / `semctx_resume` pair remains the separate Plane-B Handoff v1 compatibility
     surface.
 
-Every call includes the absolute `repositoryRoot`. Each target repository must first be prepared
-once with `semctx setup`; inspect and verify fail closed and never initialize or index implicitly.
+Every call includes the absolute `repositoryRoot`, except `semctx_control_verify_authorization`
+(no target repository — it verifies a sealed capsule offline). Each target repository must first be
+prepared once with `semctx setup`; inspect and verify fail closed and never initialize or index
+implicitly.
 
 For a read-only request, the skill forbids mutating change-contract and handoff tools. For a write
 request, Plane-B tools may version authored intent under `.semctx/semantic/`; Control Handoff v2

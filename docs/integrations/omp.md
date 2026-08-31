@@ -13,7 +13,7 @@ omp plugin marketplace add hoklims/semctx
 omp plugin install semctx@semctx-stable --scope project
 ```
 
-Then `/reload-plugins` or restart the session. Every MCP tool call must pass an absolute `repositoryRoot`. Prefer MCP tools. For shell fallbacks use a global CLI on the same version as the plugin (`semctx --version` / `bunx semctx@latest`). Do not run `bun ./dist/semctx.js` from the user repository cwd.
+Then `/reload-plugins` or restart the session. Every MCP tool call must pass an absolute `repositoryRoot`, except `semctx_control_verify_authorization`, whose entire input is `{ request }` and which rejects `repositoryRoot`. Prefer MCP tools. For shell fallbacks use a global CLI on the same version as the plugin (`semctx --version` / `bunx semctx@latest`). Do not run `bun ./dist/semctx.js` from the user repository cwd.
 
 OMP substitutes `${CLAUDE_PLUGIN_ROOT}` and its own `${OMP_PLUGIN_ROOT}` inside MCP server config fields, but never inside skill/agent markdown body text — the Claude skill still contains a literal, unsubstituted `${CLAUDE_PLUGIN_ROOT}` when read on OMP, so agents must prefer connected MCP tools over that text.
 

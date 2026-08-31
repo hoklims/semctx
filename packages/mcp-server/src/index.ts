@@ -17,6 +17,7 @@ export {
   controlResumeHandoffTool,
 } from "./control-handoff-tools";
 export { controlTargetProposeTool } from "./target-tools";
+export { registerChangeAuthorizationVerifierTools } from "./change-authorization-verifier-tools";
 
 /** Entry point: serve semctx over stdio, optionally pre-bound by SEMCTX_ROOT. */
 export function main(): void {

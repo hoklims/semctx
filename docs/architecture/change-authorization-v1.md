@@ -2,8 +2,10 @@
 
 > Status: implemented, read-only, shadow-only. See
 > [ADR 0016](../adr/0016-change-authorization-capsule-v1.md) for the accepted decision and
-> rationale. This document is the machine-source-adjacent specification: schemas and pure
-> functions in `@semantic-context/control-model` / `@semantic-context/control-engine` remain the
+> rationale, and [ADR 0017](../adr/0017-change-authorization-offline-verifier-v1.md) for the
+> independent offline verifier, CLI, and MCP surfaces. This document is the machine-source-adjacent
+> specification: schemas and pure functions in `@semantic-context/control-model` /
+> `@semantic-context/control-engine` / `@semantic-context/change-authorization-verifier` remain the
 > executable source of truth; this specification explains their invariants.
 
 ## Purpose
@@ -315,13 +317,40 @@ statement.
 
 `ChangeAuthorizationDsseEnvelopeShapeV1` documents the bound DSSE envelope shape
 (`application/vnd.in-toto+json`) as a type only. v1 implements no signing, no verification, and no
-transport of this envelope — that is HOK-91.
+transport of this envelope — that is Linear HOK-564.
+
+## Offline verifier, CLI, and MCP (HOK-91)
+
+`@semantic-context/change-authorization-verifier` (see
+[ADR 0017](../adr/0017-change-authorization-offline-verifier-v1.md)) independently re-derives this
+specification's algorithm against a sealed capsule, outside the process and host that produced it,
+without depending on `@semantic-context/control-engine`. It runs the historical replay described
+above at the capsule's own `evaluatedAt`, compares the authority descriptor against a digest the
+caller pins independently of the capsule, and re-runs the same policy evaluation a second time over
+the capsule's own sealed providers/assertions at an explicit, caller-supplied `verifiedAt` that is
+the same instant as, or later than, the capsule's `evaluatedAt` — only the clock moves forward,
+nothing is re-fetched — to catch an assertion or provider snapshot that has since expired against
+its own recorded `expiresAt`. It cannot detect a provider status changed after
+sealing (e.g. degraded to `DEGRADED`); that requires a fresh provider snapshot, which is live
+provider integration (HOK-90). It is offline and stateless: no network call, no cryptographic
+signature check (DSSE/PKI remain HOK-564), and no claim that a capsule was consumed exactly once
+(stateful anti-replay remains HOK-565). The CLI (`semctx control verify-authorization`) and the MCP
+tool (`semctx_control_verify_authorization`, which takes no `repositoryRoot`) both return the exact
+library-canonical JCS payload.
+
+The verifier's aggregate result is monotone and fail-closed: it may preserve or lower the recorded
+decision, never raise it. The current replay may observe that sealed material has entered its
+declared validity window, but it cannot lift that aggregate ceiling. A historical `DENY` remains
+`FAILED`; a historical `REQUIRE_EVIDENCE` remains at most `REQUIRE_EVIDENCE`.
+The exported report schema also binds `recordedEvaluatedAt <= currentEvaluatedAt == verifiedAt`.
 
 ## Deferred (explicitly out of scope for v1)
 
 - Live provider integrations and trust-root registries (`authorityDescriptor.trustRootIds` is a
   caller-supplied snapshot, not a queried registry) — HOK-90.
-- DSSE signing/verification, cross-host replay transport, CLI, and MCP surfaces — HOK-91.
+- DSSE signing/verification and cross-host attestation transport — Linear HOK-564.
+- Stateful anti-replay (single-use consumption tracking) — Linear HOK-565.
+- Multi-stack VSA export — Linear HOK-566.
 - Any enforcement, blocking, or execution effect. `authorizationEffect` is permanently
   `"advisory_record"` in v1; changing it is a v2 decision gated by the same M3/M4 evidence process
   the roadmap requires before any enforcement.

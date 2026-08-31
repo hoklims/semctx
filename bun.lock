@@ -21,6 +21,7 @@
       },
       "devDependencies": {
         "@semantic-context/app-services": "workspace:*",
+        "@semantic-context/change-authorization-verifier": "workspace:*",
         "@semantic-context/cocoindex-adapter": "workspace:*",
         "@semantic-context/context-engine": "workspace:*",
         "@semantic-context/control-engine": "workspace:*",
@@ -53,6 +54,16 @@
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
+      },
+    },
+    "packages/change-authorization-verifier": {
+      "name": "@semantic-context/change-authorization-verifier",
+      "version": "0.1.0",
+      "dependencies": {
+        "@semantic-context/control-model": "workspace:*",
+      },
+      "devDependencies": {
+        "@semantic-context/control-engine": "workspace:*",
       },
     },
     "packages/cocoindex-adapter": {
@@ -124,6 +135,7 @@
       "dependencies": {
         "@modelcontextprotocol/server": "2.0.0",
         "@semantic-context/app-services": "workspace:*",
+        "@semantic-context/change-authorization-verifier": "workspace:*",
         "@semantic-context/context-engine": "workspace:*",
         "@semantic-context/control-engine": "workspace:*",
         "@semantic-context/control-model": "workspace:*",
@@ -266,6 +278,8 @@
     "@modelcontextprotocol/server": ["@modelcontextprotocol/server@2.0.0", "", { "dependencies": { "@modelcontextprotocol/core": "2.0.0", "zod": "^4.2.0" } }, "sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw=="],
 
     "@semantic-context/app-services": ["@semantic-context/app-services@workspace:packages/app-services"],
+
+    "@semantic-context/change-authorization-verifier": ["@semantic-context/change-authorization-verifier@workspace:packages/change-authorization-verifier"],
 
     "@semantic-context/cocoindex-adapter": ["@semantic-context/cocoindex-adapter@workspace:packages/cocoindex-adapter"],
 

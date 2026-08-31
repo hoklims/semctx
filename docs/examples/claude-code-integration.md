@@ -37,8 +37,10 @@ Create `.mcp.json` at your project root:
 ```
 
 No `SEMCTX_ROOT` is set: the server starts unbound and pins on the first absolute `repositoryRoot`
-it receives. Every tool call must pass the absolute target as `repositoryRoot`; missing or relative
-roots are rejected.
+it receives. Every tool call must pass the absolute target as `repositoryRoot` (missing or relative
+roots are rejected), except `semctx_control_verify_authorization`, whose entire input is
+`{ request }` and which rejects `repositoryRoot` outright — it verifies a sealed capsule offline and
+has no target repository.
 
 Setting `SEMCTX_ROOT` is optional and only hard-binds the process to one checkout. It must then be
 an **absolute** path: a relative value such as `.` is rejected at construction with
@@ -50,7 +52,8 @@ an **absolute** path: a relative value such as `.` is rejected at construction w
 claude mcp add semctx -- bun /absolute/path/to/semantic-context-compiler/packages/mcp-server/src/index.ts
 ```
 
-Pass the analysed repository's absolute `repositoryRoot` on every call.
+Pass the analysed repository's absolute `repositoryRoot` on every call, except
+`semctx_control_verify_authorization` (see above).
 
 ## 3. Use it
 
