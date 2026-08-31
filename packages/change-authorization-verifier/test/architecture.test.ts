@@ -23,6 +23,8 @@ const RESTRICTED_GLOBAL_LABELS = new Map<string, string>([
   ["module", "CommonJS module"],
   ["global", "global host access"],
   ["globalThis", "globalThis host access"],
+  ["self", "self host access"],
+  ["window", "window host access"],
   ["process", "process"],
   ["Bun", "Bun host API"],
   ["Deno", "Deno host API"],
@@ -30,8 +32,20 @@ const RESTRICTED_GLOBAL_LABELS = new Map<string, string>([
   ["WebSocket", "WebSocket"],
   ["Worker", "Worker"],
   ["SharedWorker", "SharedWorker"],
+  ["performance", "ambient clock"],
+  ["Temporal", "ambient clock"],
+  ["Intl", "ambient locale or clock"],
+  ["crypto", "ambient entropy"],
   ["eval", "dynamic code evaluation"],
   ["Function", "dynamic code evaluation"],
+]);
+const ALLOWED_DETERMINISTIC_STATIC_MEMBERS = new Map<string, ReadonlySet<string>>([
+  ["Date", new Set(["parse"])],
+  ["Math", new Set(["min"])],
+]);
+const RESTRICTED_STATIC_ROOT_LABELS = new Map<string, string>([
+  ["Date", "ambient clock"],
+  ["Math", "ambient entropy"],
 ]);
 
 /**
@@ -228,6 +242,19 @@ function findRestrictedRuntimeReferences(runtimeContent: string, sourcePath: str
   const isUnboundGlobalThis = (node: ts.Expression): boolean => (
     ts.isIdentifier(node) && node.text === "globalThis" && !isLocallyBound(node)
   );
+  const allowedStaticMember = (identifier: ts.Identifier): boolean => {
+    const allowed = ALLOWED_DETERMINISTIC_STATIC_MEMBERS.get(identifier.text);
+    if (allowed === undefined) return false;
+    const parent = identifier.parent;
+    if (ts.isPropertyAccessExpression(parent) && parent.expression === identifier) {
+      return allowed.has(parent.name.text);
+    }
+    return ts.isElementAccessExpression(parent)
+      && parent.expression === identifier
+      && parent.argumentExpression !== undefined
+      && ts.isStringLiteralLike(parent.argumentExpression)
+      && allowed.has(parent.argumentExpression.text);
+  };
   const labels = new Set<string>();
 
   const visit = (node: ts.Node): void => {
@@ -239,6 +266,17 @@ function findRestrictedRuntimeReferences(runtimeContent: string, sourcePath: str
     }
     if (ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword) {
       labels.add("import.meta host access");
+    }
+    if (
+      (ts.isPropertyAccessExpression(node) && node.name.text === "constructor")
+      || (
+        ts.isElementAccessExpression(node)
+        && node.argumentExpression !== undefined
+        && ts.isStringLiteralLike(node.argumentExpression)
+        && node.argumentExpression.text === "constructor"
+      )
+    ) {
+      labels.add("dynamic code evaluation");
     }
     if (ts.isPropertyAccessExpression(node) && isUnboundGlobalThis(node.expression)) {
       const label = RESTRICTED_GLOBAL_LABELS.get(node.name.text);
@@ -260,6 +298,15 @@ function findRestrictedRuntimeReferences(runtimeContent: string, sourcePath: str
       && !isLocallyBound(node)
     ) {
       labels.add(RESTRICTED_GLOBAL_LABELS.get(node.text) ?? node.text);
+    }
+    if (
+      ts.isIdentifier(node)
+      && RESTRICTED_STATIC_ROOT_LABELS.has(node.text)
+      && !isPropertyNameOnly(node)
+      && !isLocallyBound(node)
+      && !allowedStaticMember(node)
+    ) {
+      labels.add(RESTRICTED_STATIC_ROOT_LABELS.get(node.text) ?? node.text);
     }
     ts.forEachChild(node, visit);
   };
@@ -294,7 +341,7 @@ describe("change-authorization-verifier architecture boundary", () => {
     expect(listRuntimeSourceFilesRecursive(SRC_DIR).length).toBeGreaterThan(0);
   });
 
-  it("allows only internal/control-model imports and no process/filesystem/network globals", () => {
+  it("allows only internal/control-model imports and no host I/O, ambient clock, or entropy", () => {
     expect(findArchitectureViolations(SRC_DIR)).toEqual([]);
   });
 
@@ -305,7 +352,7 @@ describe("change-authorization-verifier architecture boundary", () => {
     expect(Object.keys(packageJson.dependencies ?? {})).toEqual([CONTROL_MODEL_PACKAGE]);
   });
 
-  it("mutation witness: the same oracle detects import, host-global, worker, and relative-path escapes", () => {
+  it("mutation witness: the same oracle detects imports, host globals, ambient inputs, and path escapes", () => {
     const witnessRoot = mkdtempSync(join(tmpdir(), "semctx-verifier-architecture-witness-"));
     const outsideRoot = mkdtempSync(join(tmpdir(), "semctx-verifier-architecture-outside-"));
     try {
@@ -320,8 +367,11 @@ describe("change-authorization-verifier architecture boundary", () => {
         join(witnessRoot, "clean-globals.js"),
         `// fetch(), new Worker(), and new SharedWorker() are inert in comments and strings.\n`
           + `export const labels = ["fetch()", "new Worker(", "new SharedWorker(", "import.meta"];\n`
-          + `export function useLocal(fetch, Worker, SharedWorker, WebSocket, process, require, module, globalThis, global, Bun, Deno, Function) {\n`
+          + `export const deterministic = [Date.parse("2026-08-30T00:00:00Z"), Math.min(1, 2)];\n`
+          + `export function useLocal(fetch, Worker, SharedWorker, WebSocket, process, require, module, globalThis, global, self, window, Bun, Deno, Function, Date, Math, performance, Temporal, Intl, crypto) {\n`
           + `  fetch(); new Worker(); new SharedWorker(); new WebSocket(); require(); module.require();\n`
+          + `  Date.now(); Math.random(); performance.now(); Temporal.Now.instant(); Intl.DateTimeFormat(); crypto.randomUUID();\n`
+          + `  self.Date.now(); window.Date.now();\n`
           + `  global.fetch(); Bun.file(); Deno.readTextFile(); return new Function(globalThis.fetch(process.cwd()));\n}\n`
           + `export function useDeclaredBindings(host) {\n`
           + `  const globalThis = { fetch() {} }; globalThis.fetch();\n`
@@ -378,6 +428,21 @@ describe("change-authorization-verifier architecture boundary", () => {
         'export const url = import.meta.url;\n',
         "utf8",
       );
+      const ambientInputMutants = [
+        ["date-now-violation.js", "export const now = Date.now();\n", "ambient clock"],
+        ["date-alias-violation.js", "const Clock = Date;\nexport const now = Clock.now();\n", "ambient clock"],
+        ["performance-violation.js", "export const now = performance.now();\n", "ambient clock"],
+        ["temporal-violation.js", "export const now = Temporal.Now.instant();\n", "ambient clock"],
+        ["intl-violation.js", "export const now = new Intl.DateTimeFormat().format();\n", "ambient locale or clock"],
+        ["self-violation.js", "export const now = self.Date.now();\n", "self host access"],
+        ["window-violation.js", "export const now = window.Date.now();\n", "window host access"],
+        ["math-random-violation.js", "export const random = Math.random();\n", "ambient entropy"],
+        ["crypto-violation.js", "export const random = crypto.randomUUID();\n", "ambient entropy"],
+        ["constructor-violation.js", "export const run = Date.parse.constructor(\"return Date.now()\");\n", "dynamic code evaluation"],
+      ] as const;
+      for (const [file, content] of ambientInputMutants) {
+        writeFileSync(join(nestedDir, file), content, "utf8");
+      }
 
       const linkedDir = join(witnessRoot, "linked-runtime");
       writeFileSync(join(outsideRoot, "outside.js"), "export const outside = true;\n", "utf8");
@@ -462,6 +527,13 @@ describe("change-authorization-verifier architecture boundary", () => {
         kind: "restricted-global",
         detail: "import.meta host access",
       });
+      for (const [file, _content, detail] of ambientInputMutants) {
+        expect(violations).toContainEqual({
+          file: join(nestedDir, file),
+          kind: "restricted-global",
+          detail,
+        });
+      }
       expect(violations).toContainEqual({
         file: linkedDir,
         kind: "unsafe-path",
