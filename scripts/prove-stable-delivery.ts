@@ -1406,12 +1406,12 @@ export function readMarketplaceSnapshotIdentity(
   let commit: string | null = null;
   let ref: string | null = null;
   let source: string | null = null;
-  const declared = host === "codex"
-    ? access.read(
-        "marketplace.metadata",
-        runtime.joinPath(snapshotRoot, ".codex-marketplace-install.json"),
-        snapshotRoot,
-      )
+  const codexMetadata = runtime.joinPath(snapshotRoot, ".codex-marketplace-install.json");
+  // Current Codex releases may omit this legacy declaration. Absence is not an unreadable path:
+  // the admitted Git snapshot remains the authority for commit/ref, while a present-but-unsafe
+  // declaration is still passed through the strict admission and read path below.
+  const declared = host === "codex" && runtime.pathKind(codexMetadata) !== "absent"
+    ? access.read("marketplace.metadata", codexMetadata, snapshotRoot)
     : null;
   if (declared !== null) {
     const record: unknown = parseJson(declared);

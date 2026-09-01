@@ -907,6 +907,8 @@ interface FakeOptions {
   /** Bundles the published commit does not carry, so the witness is incomplete. */
   missingBlobs?: string[];
   throwOnCommand?: string;
+  /** Current Codex releases may leave snapshot identity solely to Git. */
+  missingCodexMetadata?: boolean;
 }
 
 function fakeRuntime(options: FakeOptions = {}) {
@@ -1054,7 +1056,7 @@ function fakeRuntime(options: FakeOptions = {}) {
     readTextFile(target) {
       note("read", target);
       if (files.has(target)) return files.get(target) ?? null;
-      if (target.endsWith(".codex-marketplace-install.json")) {
+      if (target.endsWith(".codex-marketplace-install.json") && options.missingCodexMetadata !== true) {
         return JSON.stringify({
           revision,
           ...(options.codexRef === "" ? {} : { ref_name: options.codexRef ?? "stable" }),
@@ -1099,6 +1101,9 @@ function fakeRuntime(options: FakeOptions = {}) {
     },
     pathKind(target) {
       note("stat", target);
+      if (target.endsWith(".codex-marketplace-install.json") && options.missingCodexMetadata === true) {
+        return "absent";
+      }
       if ((options.linkPaths ?? []).includes(target)) return "link";
       if ((options.swappedPaths ?? []).includes(target)) {
         // A directory when it is checked, a junction when it is used: the exact race a single
@@ -2302,6 +2307,17 @@ describe("hostile 13 — an invalid authority authorises no effect", () => {
     const { runtime } = fakeRuntime();
     const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
     expect(proof.hosts.codex.marketplaceRef).toBe("stable");
+    expect(proof.hosts.codex.ok).toBe(true);
+  });
+
+  test("Codex falls back to the admitted Git snapshot when legacy metadata is absent", async () => {
+    const { runtime } = fakeRuntime({ missingCodexMetadata: true });
+    const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
+    expect(proof.hosts.codex.marketplaceCommit).toBe(RELEASE.sha);
+    expect(proof.hosts.codex.marketplaceRef).toBe("stable");
+    expect(proof.hosts.codex.pathAdmissions).not.toContainEqual(
+      expect.objectContaining({ label: "marketplace.metadata#use", reason: "HOST_PATH_UNREADABLE" }),
+    );
     expect(proof.hosts.codex.ok).toBe(true);
   });
 
