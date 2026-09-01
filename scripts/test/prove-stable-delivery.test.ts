@@ -909,6 +909,8 @@ interface FakeOptions {
   throwOnCommand?: string;
   /** Current Codex releases may leave snapshot identity solely to Git. */
   missingCodexMetadata?: boolean;
+  /** Files that remain present and admitted but cannot be read as text. */
+  unreadableTextPaths?: string[];
 }
 
 function fakeRuntime(options: FakeOptions = {}) {
@@ -1055,6 +1057,7 @@ function fakeRuntime(options: FakeOptions = {}) {
     makeDirectory(target) { note("make", target); madeDirectories.add(target); },
     readTextFile(target) {
       note("read", target);
+      if ((options.unreadableTextPaths ?? []).includes(target)) return null;
       if (files.has(target)) return files.get(target) ?? null;
       if (target.endsWith(".codex-marketplace-install.json") && options.missingCodexMetadata !== true) {
         return JSON.stringify({
@@ -2330,6 +2333,21 @@ describe("hostile 13 — an invalid authority authorises no effect", () => {
     const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
     expect(proof.hosts.codex.reasons).toContain("HOST_PATH_IS_LINK");
     expect(ledger).not.toContainEqual({ operation: "stat", path: metadata });
+    expect(ledger).not.toContainEqual({ operation: "read", path: metadata });
+    expect(launchedPayloads(calls).some((entry) => entry.includes("codex"))).toBe(false);
+  });
+
+  test("present but unreadable Codex metadata fails closed before payload execution", async () => {
+    const metadata = join(CODEX_MARKETPLACE_ROOT, ".codex-marketplace-install.json");
+    const { runtime, calls } = fakeRuntime({ unreadableTextPaths: [metadata] });
+    const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
+    expect(proof.hosts.codex.pathAdmissions).toContainEqual(expect.objectContaining({
+      label: "marketplace.metadata#read",
+      candidate: metadata,
+      admitted: null,
+      reason: "HOST_PATH_UNREADABLE",
+    }));
+    expect(proof.hosts.codex.reasons).toContain("HOST_PATH_UNREADABLE");
     expect(launchedPayloads(calls).some((entry) => entry.includes("codex"))).toBe(false);
   });
 

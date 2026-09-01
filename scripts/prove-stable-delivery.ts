@@ -557,7 +557,12 @@ export class ConfinedAccess {
       return null;
     }
     const path = this.admit(`${label}#use`, candidate);
-    return path === null ? null : this.runtime.readTextFile(path);
+    if (path === null) return null;
+    const contents = this.runtime.readTextFile(path);
+    if (contents === null) {
+      this.admissions.push({ label: `${label}#read`, candidate: path, admitted: null, reason: "HOST_PATH_UNREADABLE" });
+    }
+    return contents;
   }
 
   digest(label: string, candidate: string | null, anchor: string | null = null): string | null {
