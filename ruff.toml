@@ -1,4 +1,4 @@
-required-version = "==0.16.1"
+required-version = "==0.16.5"
 target-version = "py310"
 preview = false
 force-exclude = true

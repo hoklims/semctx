@@ -452,4 +452,16 @@ describe("contributor governance", () => {
     expect(dependabot.match(/interval: weekly/g)).toHaveLength(3);
     expect(dependabot.toLowerCase()).not.toContain("automerge");
   });
+
+  test("pins ruff to the same version in requirements-quality.txt and ruff.toml", () => {
+    const installed = read("requirements-quality.txt").match(/^ruff==(\S+)/m)?.[1];
+    const required = read("ruff.toml").match(/^required-version\s*=\s*"==([^"]+)"/m)?.[1];
+
+    expect(installed).toBeDefined();
+    expect(required).toBeDefined();
+    // ruff refuses to load a configuration whose required-version disagrees with the
+    // running binary, so a bump that reaches only one of these files fails every lint
+    // job with a configuration error rather than a lint finding.
+    expect(required).toBe(installed);
+  });
 });
