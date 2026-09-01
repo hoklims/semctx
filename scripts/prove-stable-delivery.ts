@@ -197,7 +197,7 @@ export interface SmokeOutcome {
  * One official install command as it actually ran. Archived whether it succeeded or not: a failed
  * install that names only `HOST_INSTALL_FAILED` cannot be diagnosed from the artifact alone, which
  * is exactly the gap the HOK-582 incident exposed. `stdout`/`stderr` are bounded so a chatty CLI
- * cannot bloat the artifact or leak more than a fixed character window of its own output.
+ * cannot bloat the artifact: it retains a fixed-length prefix plus a truncation note.
  */
 export interface InstallAttempt {
   argv: readonly string[];
