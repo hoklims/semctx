@@ -54,6 +54,26 @@ const job = (workflow: Workflow, name: string): WorkflowJob => {
   return selected;
 };
 
+const verifierBindingProblems = (source: string): string[] => {
+  const workflow = Bun.YAML.parse(source) as Workflow;
+  const prove = job(workflow, "deliver").steps.find(
+    (step) => step.name === "Prove both hosts can install the already-published release",
+  );
+  const run = prove?.run ?? "";
+  const fragments = [
+    'verifier_sha="$(git rev-parse HEAD)"',
+    "git diff --quiet --exit-code",
+    "git diff --cached --quiet --exit-code",
+    'SEMCTX_PROOF_TOOL_SHA="$verifier_sha"',
+  ];
+  const problems = fragments.filter((fragment) => !run.includes(fragment));
+  const positions = fragments.map((fragment) => run.indexOf(fragment));
+  if (positions.some((position, index) => index > 0 && position <= positions[index - 1]!)) {
+    problems.push("verifier binding order");
+  }
+  return problems;
+};
+
 const CHECKOUT =
   "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1";
 const SETUP_PYTHON =
@@ -161,8 +181,11 @@ describe("release governance", () => {
       'git cat-file -t "refs/tags/$tag"',
       'git show "$sha:apps/cli/package.json"',
       'npm view "semctx@$version" gitHead',
+      'test "$npm_sha" = "$sha"',
       'git/ref/heads/stable',
+      'test "$stable_sha" = "$sha"',
       'releases/tags/$tag',
+      'test "$release_tag" = "$tag"',
     ]) {
       expect(identityScripts).toContain(required);
     }
@@ -182,7 +205,9 @@ describe("release governance", () => {
         (step) => step.name === "Prove both hosts can install the already-published release",
       )?.env?.SEMCTX_DELIVERY_PROOF_OUTPUT,
     );
-    expect(String(upload?.with?.path)).toContain("/delivery-proof/");
+    expect(upload?.with?.path).toBe(
+      "${{ runner.temp }}/delivery-proof/stable-delivery-proof.json",
+    );
 
     const provision = deliver.steps.find((step) => step.name?.startsWith("Provision both host CLIs"));
     expect(provision?.run).toContain(HOST_CLI_SPECIFICATION.codex.specifier);
@@ -193,12 +218,30 @@ describe("release governance", () => {
     );
     expect(prove?.env?.SEMCTX_RELEASE_CHECKOUT).toContain("release-checkout");
     expect(prove?.run).toContain('GITHUB_SHA="$RELEASE_SHA"');
-    expect(prove?.run).toContain('SEMCTX_PROOF_TOOL_SHA="$(git rev-parse HEAD)"');
+    expect(verifierBindingProblems(stableDeliveryProof)).toEqual([]);
 
     expect(stableDeliveryProof).toContain('"schemaVersion": 2');
+    expect(stableDeliveryProof).toContain(CHECKOUT);
+    expect(stableDeliveryProof).toContain(SETUP_BUN);
+    expect(stableDeliveryProof).toContain(SETUP_NODE);
+    expect(stableDeliveryProof).toContain(UPLOAD_ARTIFACT);
+    expect(stableDeliveryProof).not.toMatch(/uses:\s+\S+@v\d/);
     expect(stableDeliveryProof).not.toMatch(/npm publish|git push|gh release create/);
     expect(stableDeliveryProof).not.toContain("contents: write");
     expect(stableDeliveryProof).not.toContain("id-token: write");
+  });
+
+  test("detects every removal from the verifier SHA and clean-tree binding", () => {
+    for (const fragment of [
+      'verifier_sha="$(git rev-parse HEAD)"',
+      "git diff --quiet --exit-code",
+      "git diff --cached --quiet --exit-code",
+      'SEMCTX_PROOF_TOOL_SHA="$verifier_sha"',
+    ]) {
+      const mutant = stableDeliveryProof.replace(fragment, "removed-by-mutation-test");
+      expect(mutant).not.toBe(stableDeliveryProof);
+      expect(verifierBindingProblems(mutant)).not.toEqual([]);
+    }
   });
 
   test("separates read-only verification, OIDC publication, and repository promotion", () => {

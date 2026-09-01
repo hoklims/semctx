@@ -242,7 +242,8 @@ matches the tag, and npm's `gitHead`, `stable` and the GitHub Release all still 
 SHA. `deliver` then checks out the reparative `main` for the (possibly since-fixed) proof script and
 its dependencies, and checks out the tag *separately* as the sole source `SEMCTX_RELEASE_CHECKOUT`
 witnesses from — so a repaired `main` can never license itself with its own bundles. The workflow
-archives the exact `main` commit that supplied the verifier separately from the released SHA. It
+archives the exact `main` commit that supplied the verifier separately from the released SHA, and
+refuses a dirty tracked verifier checkout immediately before execution. It
 holds no publish, tag, `stable` or Release permission; it only reads and uploads an artifact.
 
 Local/manual fallback remains:
