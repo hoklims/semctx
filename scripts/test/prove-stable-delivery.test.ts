@@ -914,6 +914,7 @@ function fakeRuntime(options: FakeOptions = {}) {
   const files = new Map<string, string>();
   const blobs = new Map<string, Uint8Array>();
   const rewritten = new Set<string>();
+  const madeDirectories = new Set<string>();
   const ledger: LedgerEntry[] = [];
   const observations = new Map<string, number>();
   let token = 0;
@@ -959,6 +960,12 @@ function fakeRuntime(options: FakeOptions = {}) {
           return { code: 0, out: `${name}-cli ${reported}\n`, err: "" };
         }
         if (rest[0] === "plugin" && rest[1] === "marketplace" && rest[2] === "add") {
+          if (name === "codex") {
+            const codexHome = env["CODEX_HOME"];
+            if (codexHome === undefined || !madeDirectories.has(codexHome)) {
+              return { code: 1, out: "", err: "CODEX_HOME path does not exist" };
+            }
+          }
           return { code: 0, out: "{}", err: "" };
         }
         if (rest[0] === "plugin" && (rest[1] === "add" || rest[1] === "install")) {
@@ -1043,7 +1050,7 @@ function fakeRuntime(options: FakeOptions = {}) {
       }
       return null;
     },
-    makeDirectory(target) { note("make", target); },
+    makeDirectory(target) { note("make", target); madeDirectories.add(target); },
     readTextFile(target) {
       note("read", target);
       if (files.has(target)) return files.get(target) ?? null;
@@ -1179,6 +1186,17 @@ describe("live orchestration — real host contracts", () => {
       expect(call.env["SEMCTX_ROOT"]).toBeUndefined();
       expect(call.env["PATH"]).toBe("/usr/local/bin:/usr/bin");
     }
+  });
+
+  test("creates the configured CODEX_HOME before Codex mutates its profile", async () => {
+    const { runtime, calls, ledger } = fakeRuntime();
+    const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
+    const codexCall = calls.find((call) => call.command[0] === "codex");
+    const codexHome = codexCall?.env["CODEX_HOME"];
+    expect(codexHome).toBe(hostEnvironment("codex", join(SANDBOX, "codex"))["CODEX_HOME"]);
+    if (codexHome === undefined) throw new Error("the Codex call carried no CODEX_HOME");
+    expect(ledger).toContainEqual({ operation: "make", path: codexHome });
+    expect(proof.hosts.codex.ok).toBe(true);
   });
 
   test("a runner environment with no PATH fails the hosts instead of blaming them", async () => {

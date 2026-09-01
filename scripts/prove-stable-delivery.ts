@@ -1527,6 +1527,8 @@ export async function exerciseHost(
 
   runtime.makeDirectory(hostRoot);
   runtime.makeDirectory(runtime.joinPath(hostRoot, "tmp"));
+  const codexHome = env["CODEX_HOME"];
+  if (isNonEmpty(codexHome)) runtime.makeDirectory(codexHome);
   // The `--version` probe is read-only and is what *establishes* identity, so it is allowed
   // before the gates below. Nothing that mutates a host runs until they pass.
   const probe = runtime.run([host, "--version"], options.foreignRepository, env);
