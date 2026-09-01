@@ -222,6 +222,28 @@ The hostile scenarios each carry a deterministic regression in
 `scripts/test/prove-stable-delivery.test.ts`; the decision layer is pure, so they run without a
 release. The first real post-release execution remains a live witness that no offline test replaces.
 
+**The CLI smoke's exit code is not the verdict; `doctor --json`'s named checks are (schema v2,
+HOK-582).** `semctx doctor --json` exits 1 whenever *any* of its checks is red, including
+`workspace` on the throwaway foreign repository this smoke deliberately never runs `semctx init`
+against — that is the expected, legitimate state, not a broken runtime. Exit 0 or 1 is accepted only
+when the report is parseable, its `version` is the released one, and the two checks that actually
+prove the runtime rather than the workspace — `cli` and `runtime` — are both present and `ok: true`;
+any other exit code, an unparseable report, a wrong version, or a
+missing/red required check stays red. The archived proof also carries `installAttempts` per host —
+every official install command's argv, exit code and bounded stdout/stderr, whether it succeeded or
+not — so a `HOST_INSTALL_FAILED` verdict is diagnosable from the artifact alone.
+
+**Re-proving an already-published release without republishing anything.** A red `deliver` job on a
+release npm, `stable` and the GitHub Release already agree on does not warrant another tag: the
+`stable delivery proof (manual rerun)` workflow (`workflow_dispatch`, input `tag`) re-runs the same
+proof against that exact commit. Its `identity` job fails closed — before either host CLI is
+provisioned — unless the tag is annotated, the tagged commit's own `apps/cli/package.json` version
+matches the tag, and npm's `gitHead`, `stable` and the GitHub Release all still resolve to that same
+SHA. `deliver` then checks out the reparative `main` for the (possibly since-fixed) proof script and
+its dependencies, and checks out the tag *separately* as the sole source `SEMCTX_RELEASE_CHECKOUT`
+witnesses from — so a repaired `main` can never license itself with its own bundles. The workflow
+holds no publish, tag, `stable` or Release permission; it only reads and uploads an artifact.
+
 Local/manual fallback remains:
 
 ```bash

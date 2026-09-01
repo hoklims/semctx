@@ -250,7 +250,7 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           cat > "$SEMCTX_DELIVERY_PROOF_OUTPUT" <<JSON
           {
-            "schemaVersion": 1,
+            "schemaVersion": 2,
             "kind": "stable_delivery_proof",
             "stage": "placeholder",
             "ok": false,

@@ -6,10 +6,12 @@ const root = join(import.meta.dir, "..", "..");
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
 const ci = read(".github/workflows/ci.yml");
 const release = read(".github/workflows/release.yml");
+const stableDeliveryProof = read(".github/workflows/stable-delivery-proof.yml");
 const publishing = read("docs/publishing.md");
 const devcontainer = read(".devcontainer/Dockerfile");
 
 interface WorkflowStep {
+  name?: string;
   uses?: string;
   run?: string;
   with?: Record<string, unknown>;
@@ -19,7 +21,7 @@ interface WorkflowStep {
 interface WorkflowJob {
   name?: string;
   if?: string;
-  needs?: string;
+  needs?: string | string[];
   environment?: string;
   permissions?: Record<string, string>;
   "runs-on": string;
@@ -41,6 +43,7 @@ interface Workflow {
 
 const ciWorkflow = Bun.YAML.parse(ci) as Workflow;
 const releaseWorkflow = Bun.YAML.parse(release) as Workflow;
+const stableDeliveryProofWorkflow = Bun.YAML.parse(stableDeliveryProof) as Workflow;
 const job = (workflow: Workflow, name: string): WorkflowJob => {
   const selected = workflow.jobs[name];
   if (selected === undefined) {
@@ -129,6 +132,35 @@ describe("CI governance", () => {
 });
 
 describe("release governance", () => {
+  test("replays published delivery proof without publication authority", () => {
+    expect(Object.keys(stableDeliveryProofWorkflow.on)).toEqual(["workflow_dispatch"]);
+    expect(stableDeliveryProofWorkflow.permissions).toEqual({});
+
+    const identity = job(stableDeliveryProofWorkflow, "identity");
+    const deliver = job(stableDeliveryProofWorkflow, "deliver");
+    expect(deliver.needs).toBe("identity");
+    expect(identity.permissions).toEqual({ contents: "read" });
+    expect(deliver.permissions).toEqual({ contents: "read" });
+
+    const mainCheckout = identity.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
+    expect(mainCheckout?.with?.ref).toBe("main");
+    const releaseCheckout = deliver.steps.find(
+      (step) => step.uses?.startsWith("actions/checkout@") && step.with?.path === "release-checkout",
+    );
+    expect(releaseCheckout?.with?.ref).toBe("${{ inputs.tag }}");
+
+    const prove = deliver.steps.find(
+      (step) => step.name === "Prove both hosts can install the already-published release",
+    );
+    expect(prove?.env?.SEMCTX_RELEASE_CHECKOUT).toContain("release-checkout");
+    expect(prove?.run).toContain('GITHUB_SHA="$RELEASE_SHA"');
+
+    expect(stableDeliveryProof).toContain('"schemaVersion": 2');
+    expect(stableDeliveryProof).not.toMatch(/npm publish|git push|gh release create/);
+    expect(stableDeliveryProof).not.toContain("contents: write");
+    expect(stableDeliveryProof).not.toContain("id-token: write");
+  });
+
   test("separates read-only verification, OIDC publication, and repository promotion", () => {
     const verify = job(releaseWorkflow, "verify");
     const publish = job(releaseWorkflow, "publish");

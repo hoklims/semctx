@@ -41,7 +41,7 @@ import {
   PLUGIN_RUNTIME_BUNDLES,
 } from "@semantic-context/app-services";
 
-export const STABLE_DELIVERY_PROOF_SCHEMA_VERSION = 1;
+export const STABLE_DELIVERY_PROOF_SCHEMA_VERSION = 2;
 export const STABLE_DELIVERY_PROOF_KIND = "stable_delivery_proof";
 
 export const MARKETPLACE_NAME = "semctx-stable";
@@ -191,6 +191,19 @@ export interface SmokeOutcome {
   detail: string;
 }
 
+/**
+ * One official install command as it actually ran. Archived whether it succeeded or not: a failed
+ * install that names only `HOST_INSTALL_FAILED` cannot be diagnosed from the artifact alone, which
+ * is exactly the gap the HOK-582 incident exposed. `stdout`/`stderr` are bounded so a chatty CLI
+ * cannot bloat the artifact or leak more than a fixed window of its own output.
+ */
+export interface InstallAttempt {
+  argv: readonly string[];
+  code: number;
+  stdout: string;
+  stderr: string;
+}
+
 /** Where a path the proof consumed came from, and whether it was admitted. */
 export interface PathAdmission {
   label: string;
@@ -228,6 +241,8 @@ export interface HostObservation {
   environmentUsable: boolean;
   /** Whether every official install command succeeded. */
   installSucceeded: boolean;
+  /** Every official install command actually run, in order, with its argv, exit code and output. */
+  installAttempts: InstallAttempt[];
   cli: HostCliObservation;
   /** The temporary root this host was confined to. `null` when it could not be established. */
   root: string | null;
@@ -301,6 +316,7 @@ export interface HostProof {
   pluginId: string;
   root: string | null;
   cli: HostCliObservation;
+  installAttempts: InstallAttempt[];
   marketplaceRoot: string | null;
   marketplaceCommit: string | null;
   marketplaceRef: string | null;
@@ -675,6 +691,7 @@ function evaluateHost(
     pluginId: EXPECTED_PLUGIN_ID[observation.host],
     root: observation.root,
     cli: observation.cli,
+    installAttempts: observation.installAttempts,
     marketplaceRoot: observation.marketplaceRoot,
     marketplaceCommit: observation.marketplaceCommit,
     marketplaceRef: observation.marketplaceRef,
@@ -861,6 +878,7 @@ export function evaluateDeliveryProof(input: DeliveryProofInput): StableDelivery
         pluginId: EXPECTED_PLUGIN_ID[host],
         root: null,
         cli: emptyCliObservation(host),
+        installAttempts: [],
         marketplaceRoot: null,
         marketplaceCommit: null,
         marketplaceRef: null,
@@ -1259,6 +1277,52 @@ function text(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
+/** Bound so a chatty install command cannot bloat the archived artifact. */
+const MAX_CAPTURED_COMMAND_OUTPUT = 4000;
+
+/** Keep the first bytes and name what was cut, rather than silently discarding the rest. */
+export function boundedCommandOutput(value: string): string {
+  if (value.length <= MAX_CAPTURED_COMMAND_OUTPUT) return value;
+  const cut = value.length - MAX_CAPTURED_COMMAND_OUTPUT;
+  return `${value.slice(0, MAX_CAPTURED_COMMAND_OUTPUT)}\n… [truncated ${cut} more bytes]`;
+}
+
+/** The two `doctor --json` checks that prove the *runtime* rather than the workspace. */
+const CLI_SMOKE_REQUIRED_CHECKS: readonly string[] = ["cli", "runtime"];
+
+/**
+ * `doctor --json` exits 1 whenever any of its checks is red — including `workspace`, which is
+ * legitimately red against the foreign, never-`semctx init`-ed repository this smoke runs against.
+ * Exit 0 or 1 is green only when the report is parseable, its version is the released one, and the
+ * two checks that prove the *runtime* rather than the workspace — `cli` and `runtime` — are both
+ * present and `ok: true`; any other exit code, an unparseable
+ * report, a wrong version, or a missing or red required check stays red. This is the exact boundary
+ * the HOK-582 incident crossed by reading a bare non-zero exit as "the runtime is broken".
+ */
+export function evaluateCliSmokeReport(raw: string, expectedVersion: string, detail: string): SmokeOutcome {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    return { ran: true, ok: false, detail: `${detail}: unparseable report` };
+  }
+  if (!isRecord(payload)) return { ran: true, ok: false, detail: `${detail}: report is not an object` };
+  const version = payload["version"];
+  if (version !== expectedVersion) {
+    return { ran: true, ok: false, detail: `${detail}: reported v${String(version)}` };
+  }
+  const checks = payload["checks"];
+  if (!Array.isArray(checks)) return { ran: true, ok: false, detail: `${detail}: report carries no checks` };
+  for (const name of CLI_SMOKE_REQUIRED_CHECKS) {
+    const check = (checks as unknown[]).find((entry) => isRecord(entry) && entry["name"] === name);
+    if (check === undefined) return { ran: true, ok: false, detail: `${detail}: missing the ${name} check` };
+    if ((check as Record<string, unknown>)["ok"] !== true) {
+      return { ran: true, ok: false, detail: `${detail}: the ${name} check is red` };
+    }
+  }
+  return { ran: true, ok: true, detail };
+}
+
 /**
  * Exercise the delivered cache itself, from a directory that is neither the cache nor the release
  * checkout. Reading a manifest proves nothing about whether the payload runs, so both entrypoints
@@ -1277,17 +1341,10 @@ export function cliSmoke(
     options.foreignRepository,
     env,
   );
-  if (result.code !== 0) return { ran: true, ok: false, detail: `${detail}: exit ${result.code}` };
-  try {
-    const payload: unknown = JSON.parse(result.out);
-    const version = (payload as { version?: unknown } | null)?.version;
-    if (version !== options.release.version) {
-      return { ran: true, ok: false, detail: `${detail}: reported v${String(version)}` };
-    }
-  } catch {
-    return { ran: true, ok: false, detail: `${detail}: unparseable report` };
+  if (result.code !== 0 && result.code !== 1) {
+    return { ran: true, ok: false, detail: `${detail}: exit ${result.code}` };
   }
-  return { ran: true, ok: true, detail };
+  return evaluateCliSmokeReport(result.out, options.release.version, detail);
 }
 
 /**
@@ -1426,6 +1483,7 @@ export async function exerciseHost(
     cliAvailable: false,
     environmentUsable: environmentIsUsable(env),
     installSucceeded: false,
+    installAttempts: [],
     cli,
     root: hostRoot,
     marketplaceConfigured: false,
@@ -1477,6 +1535,12 @@ export async function exerciseHost(
 
   for (const command of installCommands(host)) {
     const result = runtime.run(command, options.foreignRepository, env);
+    observation.installAttempts.push({
+      argv: command,
+      code: result.code,
+      stdout: boundedCommandOutput(result.out),
+      stderr: boundedCommandOutput(result.err),
+    });
     if (result.code !== 0) return observation;
   }
   observation.installSucceeded = true;

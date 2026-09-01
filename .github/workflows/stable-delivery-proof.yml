@@ -1,0 +1,189 @@
+name: stable delivery proof (manual rerun)
+
+# Re-runs the `deliver` job of a release that already published, without touching npm, the GitHub
+# Release or `stable`. It exists for HOK-582: a red `deliver` job on an already-public release must
+# be re-provable without republishing anything. `identity` proves the four public authorities — the
+# annotated tag, the tagged commit's own package version, npm's `gitHead`, `stable`, and the GitHub
+# Release — all agree on one commit *before* any host is touched; `deliver` then reruns the same
+# proof the tag-triggered `deliver` job runs, from a checkout of the *tag* kept separate from the
+# checkout that supplies the (possibly since-repaired) proof script and its dependencies.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Published release tag to re-prove, e.g. v0.1.18"
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  identity:
+    name: verify the published release identity
+    if: github.repository == 'hoklims/semctx'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # An annotated tag is its own Git object; only full history keeps it reachable as one.
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - id: resolve
+        name: Resolve the tag and refuse anything that is not an annotated tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          tag="$RELEASE_TAG"
+          test -n "$tag"
+          git check-ref-format "refs/tags/$tag"
+          test "$(git cat-file -t "refs/tags/$tag")" = "tag"
+          sha="$(git rev-list -n 1 "refs/tags/$tag")"
+          test -n "$sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - name: Verify the tagged commit's own package version matches the tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_SHA: ${{ steps.resolve.outputs.sha }}
+        shell: bash
+        run: |
+          tag="$RELEASE_TAG"
+          sha="$RELEASE_SHA"
+          version="${tag#v}"
+          manifest="$(git show "$sha:apps/cli/package.json")"
+          MANIFEST="$manifest" EXPECTED_VERSION="$version" node -e '
+          const manifest = JSON.parse(process.env.MANIFEST);
+          if (manifest.name !== "semctx") throw new Error("unexpected package name");
+          if (manifest.version !== process.env.EXPECTED_VERSION) {
+            throw new Error("tag version does not match apps/cli/package.json at that commit");
+          }'
+      - name: Verify npm, stable and the GitHub Release all still agree on this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_SHA: ${{ steps.resolve.outputs.sha }}
+        shell: bash
+        run: |
+          tag="$RELEASE_TAG"
+          sha="$RELEASE_SHA"
+          version="${tag#v}"
+
+          npm_sha="$(npm view "semctx@$version" gitHead)"
+          test -n "$npm_sha"
+          test "$npm_sha" = "$sha"
+
+          stable_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/stable" --jq .object.sha)"
+          test "$stable_sha" = "$sha"
+
+          release_tag="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" --jq .tag_name)"
+          test "$release_tag" = "$tag"
+
+  deliver:
+    name: reprove stable marketplace delivery
+    needs: identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Reserve the delivery proof artifact
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_SHA: ${{ needs.identity.outputs.sha }}
+          SEMCTX_DELIVERY_PROOF_OUTPUT: ${{ runner.temp }}/delivery-proof/stable-delivery-proof.json
+        shell: bash
+        run: |
+          # Written before anything else in this job can fail, so a provisioning, import, syntax or
+          # crash failure still leaves something parseable archived. `stage: placeholder` is exactly
+          # what the proof script's own read-back refuses, so this file is never mistaken for
+          # evidence.
+          mkdir -p "$(dirname "$SEMCTX_DELIVERY_PROOF_OUTPUT")"
+          tag="$RELEASE_TAG"
+          sha="$RELEASE_SHA"
+          version="${tag#v}"
+          cat > "$SEMCTX_DELIVERY_PROOF_OUTPUT" <<JSON
+          {
+            "schemaVersion": 2,
+            "kind": "stable_delivery_proof",
+            "stage": "placeholder",
+            "ok": false,
+            "release": { "sha": "$sha", "tag": "$tag", "version": "$version" },
+            "run": {
+              "repository": "$GITHUB_REPOSITORY",
+              "runId": "$GITHUB_RUN_ID",
+              "runAttempt": "$GITHUB_RUN_ATTEMPT"
+            },
+            "detail": "the proof script never produced a verdict",
+            "reasons": ["PROOF_NOT_COMPLETED"]
+          }
+          JSON
+      - name: Checkout the reparative main, for the proof script and its dependencies
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Checkout the released tag, separately, as the sole witness source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 1
+          persist-credentials: false
+          path: release-checkout
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.0
+          no-cache: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Provision both host CLIs # zizmor: ignore[adhoc-packages] host CLIs under proof, pinned in scripts/prove-stable-delivery.ts
+        shell: bash
+        run: |
+          # Kept byte-identical to the tag-triggered `deliver` job: both specifiers are the ones
+          # HOST_CLI_SPECIFICATION pins in scripts/prove-stable-delivery.ts, and
+          # plugins/plugin-parity.test.ts fails when they drift apart.
+          npm install --global "@openai/codex@0.147.0" "@anthropic-ai/claude-code@2.1.229"
+          command -v codex
+          command -v claude
+      - run: bun install --frozen-lockfile
+      - name: Prove both hosts can install the already-published release
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_SHA: ${{ needs.identity.outputs.sha }}
+          SEMCTX_DELIVERY_SANDBOX: ${{ runner.temp }}/delivery-sandbox
+          SEMCTX_RELEASE_CHECKOUT: ${{ github.workspace }}/release-checkout
+          SEMCTX_FOREIGN_REPOSITORY: ${{ runner.temp }}/foreign-repository
+          SEMCTX_DELIVERY_PROOF_OUTPUT: ${{ runner.temp }}/delivery-proof/stable-delivery-proof.json
+        shell: bash
+        run: |
+          # The smokes run from a repository that is neither a plugin cache nor either checkout, so
+          # a bundle that only works next to its build tree cannot pass.
+          mkdir -p "$SEMCTX_FOREIGN_REPOSITORY" "$(dirname "$SEMCTX_DELIVERY_PROOF_OUTPUT")"
+          git init --quiet "$SEMCTX_FOREIGN_REPOSITORY"
+          printf 'export const value = 1;\n' > "$SEMCTX_FOREIGN_REPOSITORY/value.ts"
+          git -C "$SEMCTX_FOREIGN_REPOSITORY" add .
+          git -C "$SEMCTX_FOREIGN_REPOSITORY" \
+            -c user.name="Semctx Release" -c user.email="semctx@example.test" \
+            commit --quiet -m "delivery smoke fixture"
+
+          # The release identity is the tag re-proved here, never the dispatch context: this job
+          # runs on main, whose commit is neither the release SHA nor a channel this proof licenses.
+          GITHUB_SHA="$RELEASE_SHA" GITHUB_REF_NAME="$RELEASE_TAG" \
+            bun scripts/prove-stable-delivery.ts
+      - name: Upload the delivery proof
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: stable-delivery-proof-rerun
+          path: ${{ runner.temp }}/delivery-proof/
+          if-no-files-found: error
+          retention-days: 90
