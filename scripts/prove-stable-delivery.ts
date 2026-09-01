@@ -181,6 +181,8 @@ export interface RunIdentity {
   repository: string;
   runId: string;
   runAttempt: string;
+  /** Exact commit whose proof implementation and dependencies produced the artifact. */
+  verifierSha: string;
 }
 
 export interface SmokeOutcome {
@@ -195,7 +197,7 @@ export interface SmokeOutcome {
  * One official install command as it actually ran. Archived whether it succeeded or not: a failed
  * install that names only `HOST_INSTALL_FAILED` cannot be diagnosed from the artifact alone, which
  * is exactly the gap the HOK-582 incident exposed. `stdout`/`stderr` are bounded so a chatty CLI
- * cannot bloat the artifact or leak more than a fixed window of its own output.
+ * cannot bloat the artifact or leak more than a fixed character window of its own output.
  */
 export interface InstallAttempt {
   argv: readonly string[];
@@ -381,6 +383,10 @@ export interface StableDeliveryProof {
 
 function isNonEmpty(value: string | null | undefined): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isSha(value: string | null | undefined): value is string {
+  return typeof value === "string" && /^[0-9a-f]{40}$/.test(value);
 }
 
 // --- Host-supplied path admission ---------------------------------------------------------------
@@ -792,12 +798,15 @@ function evaluateRelease(release: ReleaseIdentity): ProofReason[] {
     reasons.push("RELEASE_IDENTITY_INCOMPLETE");
     return reasons;
   }
-  if (versionFromTag(release.tag) !== release.version) reasons.push("RELEASE_TAG_VERSION_MISMATCH");
+  if (release.tag !== `v${release.version}`) reasons.push("RELEASE_TAG_VERSION_MISMATCH");
   return reasons;
 }
 
 function evaluateRun(run: RunIdentity): ProofReason[] {
-  return isNonEmpty(run.repository) && isNonEmpty(run.runId) && isNonEmpty(run.runAttempt)
+  return isNonEmpty(run.repository)
+    && isNonEmpty(run.runId)
+    && isNonEmpty(run.runAttempt)
+    && isSha(run.verifierSha)
     ? []
     : ["RUN_IDENTITY_INCOMPLETE"];
 }
@@ -953,7 +962,8 @@ export function proofBelongsToRun(
     && proof.release.version === release.version
     && proof.run.repository === run.repository
     && proof.run.runId === run.runId
-    && proof.run.runAttempt === run.runAttempt;
+    && proof.run.runAttempt === run.runAttempt
+    && proof.run.verifierSha === run.verifierSha;
 }
 
 export function digest(bytes: Uint8Array): string {
@@ -978,6 +988,7 @@ export function runFromEnvironment(env: Record<string, string | undefined>): Run
     repository: env["GITHUB_REPOSITORY"] ?? "",
     runId: env["GITHUB_RUN_ID"] ?? "",
     runAttempt: env["GITHUB_RUN_ATTEMPT"] ?? "",
+    verifierSha: env["SEMCTX_PROOF_TOOL_SHA"] ?? env["GITHUB_SHA"] ?? "",
   };
 }
 
@@ -1280,11 +1291,11 @@ function text(value: unknown): string | null {
 /** Bound so a chatty install command cannot bloat the archived artifact. */
 const MAX_CAPTURED_COMMAND_OUTPUT = 4000;
 
-/** Keep the first bytes and name what was cut, rather than silently discarding the rest. */
+/** Keep the first characters and name what was cut, rather than silently discarding the rest. */
 export function boundedCommandOutput(value: string): string {
   if (value.length <= MAX_CAPTURED_COMMAND_OUTPUT) return value;
   const cut = value.length - MAX_CAPTURED_COMMAND_OUTPUT;
-  return `${value.slice(0, MAX_CAPTURED_COMMAND_OUTPUT)}\n… [truncated ${cut} more bytes]`;
+  return `${value.slice(0, MAX_CAPTURED_COMMAND_OUTPUT)}\n… [truncated ${cut} more characters]`;
 }
 
 /** The two `doctor --json` checks that prove the *runtime* rather than the workspace. */
@@ -1314,9 +1325,10 @@ export function evaluateCliSmokeReport(raw: string, expectedVersion: string, det
   const checks = payload["checks"];
   if (!Array.isArray(checks)) return { ran: true, ok: false, detail: `${detail}: report carries no checks` };
   for (const name of CLI_SMOKE_REQUIRED_CHECKS) {
-    const check = (checks as unknown[]).find((entry) => isRecord(entry) && entry["name"] === name);
-    if (check === undefined) return { ran: true, ok: false, detail: `${detail}: missing the ${name} check` };
-    if ((check as Record<string, unknown>)["ok"] !== true) {
+    const namedChecks = (checks as unknown[]).filter((entry) => isRecord(entry) && entry["name"] === name);
+    if (namedChecks.length === 0) return { ran: true, ok: false, detail: `${detail}: missing the ${name} check` };
+    if (namedChecks.length !== 1) return { ran: true, ok: false, detail: `${detail}: duplicate ${name} checks` };
+    if ((namedChecks[0] as Record<string, unknown>)["ok"] !== true) {
       return { ran: true, ok: false, detail: `${detail}: the ${name} check is red` };
     }
   }

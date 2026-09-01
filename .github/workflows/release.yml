@@ -258,7 +258,8 @@ jobs:
             "run": {
               "repository": "$GITHUB_REPOSITORY",
               "runId": "$GITHUB_RUN_ID",
-              "runAttempt": "$GITHUB_RUN_ATTEMPT"
+              "runAttempt": "$GITHUB_RUN_ATTEMPT",
+              "verifierSha": "$GITHUB_SHA"
             },
             "detail": "the proof script never produced a verdict",
             "reasons": ["PROOF_NOT_COMPLETED"]

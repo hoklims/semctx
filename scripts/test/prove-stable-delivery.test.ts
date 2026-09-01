@@ -69,7 +69,12 @@ const RELEASE: ReleaseIdentity = {
   version: "1.2.3",
 };
 
-const RUN: RunIdentity = { repository: "hoklims/semctx", runId: "40412", runAttempt: "1" };
+const RUN: RunIdentity = {
+  repository: "hoklims/semctx",
+  runId: "40412",
+  runAttempt: "1",
+  verifierSha: "2".repeat(40),
+};
 
 const WITNESS: Record<string, string> = {
   "semctx-index-worker.js": "d".repeat(64),
@@ -366,6 +371,12 @@ describe("hostile 2 — every layer carries the same commit, not merely the same
     expect(versionFromTag("v9.9.9")).toBe("9.9.9");
   });
 
+  test("a bare SemVer tag is not the canonical release tag", () => {
+    const proof = proveWith({}, {}, { sha: RELEASE.sha, tag: "1.2.3", version: "1.2.3" });
+    expect(proof.ok).toBe(false);
+    expect(proof.reasons).toContain("RELEASE_TAG_VERSION_MISMATCH");
+  });
+
   test("a partial release identity never yields a proof", () => {
     const proof = proveWith({}, {}, { sha: "", tag: "v1.2.3", version: "1.2.3" });
     expect(proof.ok).toBe(false);
@@ -564,6 +575,7 @@ describe("hostile 6 — the archived proof belongs to the run consuming it", () 
     expect(proofBelongsToRun(proof, RELEASE, { ...RUN, runAttempt: "2" })).toBe(false);
     expect(proofBelongsToRun(proof, RELEASE, { ...RUN, runId: "40413" })).toBe(false);
     expect(proofBelongsToRun(proof, RELEASE, { ...RUN, repository: "someone/fork" })).toBe(false);
+    expect(proofBelongsToRun(proof, RELEASE, { ...RUN, verifierSha: "3".repeat(40) })).toBe(false);
   });
 
   test("identity is checked on commit, tag and version — not on any single field", () => {
@@ -577,7 +589,7 @@ describe("hostile 6 — the archived proof belongs to the run consuming it", () 
   test("a run identity the workflow did not supply is incomplete, not empty-but-fine", () => {
     const proof = evaluateDeliveryProof({
       release: RELEASE,
-      run: { repository: "hoklims/semctx", runId: "", runAttempt: "1" },
+      run: { repository: "hoklims/semctx", runId: "", runAttempt: "1", verifierSha: RUN.verifierSha },
       checkout: checkout(),
       witnesses: witnesses(),
       isolation: isolation(),
@@ -586,7 +598,21 @@ describe("hostile 6 — the archived proof belongs to the run consuming it", () 
     });
     expect(proof.ok).toBe(false);
     expect(proof.reasons).toContain("RUN_IDENTITY_INCOMPLETE");
-    expect(runFromEnvironment({})).toEqual({ repository: "", runId: "", runAttempt: "" });
+    expect(runFromEnvironment({})).toEqual({ repository: "", runId: "", runAttempt: "", verifierSha: "" });
+  });
+
+  test("a verifier identity must be an exact commit SHA", () => {
+    const proof = evaluateDeliveryProof({
+      release: RELEASE,
+      run: { ...RUN, verifierSha: "main" },
+      checkout: checkout(),
+      witnesses: witnesses(),
+      isolation: isolation(),
+      hosts: [host("codex"), host("claude")],
+      platform: "linux",
+    });
+    expect(proof.ok).toBe(false);
+    expect(proof.reasons).toContain("RUN_IDENTITY_INCOMPLETE");
   });
 });
 
@@ -1413,6 +1439,7 @@ function liveEnvironment(overrides: Record<string, string | undefined> = {}): Re
     GITHUB_REPOSITORY: RUN.repository,
     GITHUB_RUN_ID: RUN.runId,
     GITHUB_RUN_ATTEMPT: RUN.runAttempt,
+    SEMCTX_PROOF_TOOL_SHA: RUN.verifierSha,
     SEMCTX_DELIVERY_SANDBOX: SANDBOX,
     SEMCTX_RELEASE_CHECKOUT: CHECKOUT,
     SEMCTX_FOREIGN_REPOSITORY: FOREIGN,
@@ -2511,6 +2538,20 @@ describe("hostile 16 — a CLI smoke's exit 1 is a runtime verdict, not a worksp
     expect(report.detail).toContain("runtime");
   });
 
+  test("duplicate required checks are refused even when the first duplicate is green", () => {
+    const report = evaluateCliSmokeReport(
+      JSON.stringify(doctorReport({ checks: [
+        { name: "cli", ok: true, detail: "ok" },
+        { name: "runtime", ok: true, detail: "first" },
+        { name: "runtime", ok: false, detail: "contradiction" },
+      ] })),
+      RELEASE.version,
+      "detail",
+    );
+    expect(report.ok).toBe(false);
+    expect(report.detail).toContain("duplicate runtime");
+  });
+
   test("exit 1 with the wrong version is refused even when every check is green", () => {
     const report = evaluateCliSmokeReport(JSON.stringify(doctorReport({ version: "9.9.9" })), RELEASE.version, "detail");
     expect(report.ok).toBe(false);
@@ -2574,7 +2615,7 @@ describe("hostile 16 — a CLI smoke's exit 1 is a runtime verdict, not a worksp
     expect(runtimeRed.ok).toBe(false);
   });
 
-  test("bounded output keeps short text verbatim and truncates long text with a marker", () => {
+  test("bounded output keeps short text verbatim and truncates long text with a character marker", () => {
     expect(boundedCommandOutput("short")).toBe("short");
     const long = "x".repeat(5000);
     const bounded = boundedCommandOutput(long);

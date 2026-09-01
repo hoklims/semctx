@@ -43,6 +43,8 @@ jobs:
         run: |
           tag="$RELEASE_TAG"
           test -n "$tag"
+          version="${tag#v}"
+          test "$tag" = "v$version"
           git check-ref-format "refs/tags/$tag"
           test "$(git cat-file -t "refs/tags/$tag")" = "tag"
           sha="$(git rev-list -n 1 "refs/tags/$tag")"
@@ -118,7 +120,8 @@ jobs:
             "run": {
               "repository": "$GITHUB_REPOSITORY",
               "runId": "$GITHUB_RUN_ID",
-              "runAttempt": "$GITHUB_RUN_ATTEMPT"
+              "runAttempt": "$GITHUB_RUN_ATTEMPT",
+              "verifierSha": ""
             },
             "detail": "the proof script never produced a verdict",
             "reasons": ["PROOF_NOT_COMPLETED"]
@@ -177,7 +180,8 @@ jobs:
 
           # The release identity is the tag re-proved here, never the dispatch context: this job
           # runs on main, whose commit is neither the release SHA nor a channel this proof licenses.
-          GITHUB_SHA="$RELEASE_SHA" GITHUB_REF_NAME="$RELEASE_TAG" \
+          SEMCTX_PROOF_TOOL_SHA="$(git rev-parse HEAD)" \
+            GITHUB_SHA="$RELEASE_SHA" GITHUB_REF_NAME="$RELEASE_TAG" \
             bun scripts/prove-stable-delivery.ts
       - name: Upload the delivery proof
         if: always()

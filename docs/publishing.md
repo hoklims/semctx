@@ -230,7 +230,7 @@ when the report is parseable, its `version` is the released one, and the two che
 prove the runtime rather than the workspace — `cli` and `runtime` — are both present and `ok: true`;
 any other exit code, an unparseable report, a wrong version, or a
 missing/red required check stays red. The archived proof also carries `installAttempts` per host —
-every official install command's argv, exit code and bounded stdout/stderr, whether it succeeded or
+every official install command's argv, exit code and character-bounded stdout/stderr, whether it succeeded or
 not — so a `HOST_INSTALL_FAILED` verdict is diagnosable from the artifact alone.
 
 **Re-proving an already-published release without republishing anything.** A red `deliver` job on a
@@ -242,6 +242,7 @@ matches the tag, and npm's `gitHead`, `stable` and the GitHub Release all still 
 SHA. `deliver` then checks out the reparative `main` for the (possibly since-fixed) proof script and
 its dependencies, and checks out the tag *separately* as the sole source `SEMCTX_RELEASE_CHECKOUT`
 witnesses from — so a repaired `main` can never license itself with its own bundles. The workflow
+archives the exact `main` commit that supplied the verifier separately from the released SHA. It
 holds no publish, tag, `stable` or Release permission; it only reads and uploads an artifact.
 
 Local/manual fallback remains:

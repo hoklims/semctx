@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { HOST_CLI_SPECIFICATION } from "../prove-stable-delivery";
 
 const root = join(import.meta.dir, "..", "..");
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
@@ -12,6 +13,7 @@ const devcontainer = read(".devcontainer/Dockerfile");
 
 interface WorkflowStep {
   name?: string;
+  if?: string;
   uses?: string;
   run?: string;
   with?: Record<string, unknown>;
@@ -144,16 +146,54 @@ describe("release governance", () => {
 
     const mainCheckout = identity.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
     expect(mainCheckout?.with?.ref).toBe("main");
+    const deliverMainCheckout = deliver.steps.find(
+      (step) => step.uses?.startsWith("actions/checkout@") && step.with?.path === undefined,
+    );
+    expect(deliverMainCheckout?.with?.ref).toBe("main");
     const releaseCheckout = deliver.steps.find(
       (step) => step.uses?.startsWith("actions/checkout@") && step.with?.path === "release-checkout",
     );
     expect(releaseCheckout?.with?.ref).toBe("${{ inputs.tag }}");
+
+    const identityScripts = identity.steps.map((step) => step.run ?? "").join("\n");
+    for (const required of [
+      'test "$tag" = "v$version"',
+      'git cat-file -t "refs/tags/$tag"',
+      'git show "$sha:apps/cli/package.json"',
+      'npm view "semctx@$version" gitHead',
+      'git/ref/heads/stable',
+      'releases/tags/$tag',
+    ]) {
+      expect(identityScripts).toContain(required);
+    }
+
+    const stepNames = deliver.steps.map((step) => step.name ?? "");
+    expect(stepNames[0]).toBe("Reserve the delivery proof artifact");
+    const reserve = deliver.steps[0];
+    const upload = deliver.steps.find((step) => step.name === "Upload the delivery proof");
+    expect(reserve?.run).toContain('"stage": "placeholder"');
+    expect(reserve?.run).toContain('"schemaVersion": 2');
+    expect(reserve?.run).toContain('"verifierSha": ""');
+    expect(upload?.if).toBe("always()");
+    expect(upload?.with?.["if-no-files-found"]).toBe("error");
+    expect(upload?.with?.name).toBe("stable-delivery-proof-rerun");
+    expect(reserve?.env?.SEMCTX_DELIVERY_PROOF_OUTPUT).toBe(
+      deliver.steps.find(
+        (step) => step.name === "Prove both hosts can install the already-published release",
+      )?.env?.SEMCTX_DELIVERY_PROOF_OUTPUT,
+    );
+    expect(String(upload?.with?.path)).toContain("/delivery-proof/");
+
+    const provision = deliver.steps.find((step) => step.name?.startsWith("Provision both host CLIs"));
+    expect(provision?.run).toContain(HOST_CLI_SPECIFICATION.codex.specifier);
+    expect(provision?.run).toContain(HOST_CLI_SPECIFICATION.claude.specifier);
 
     const prove = deliver.steps.find(
       (step) => step.name === "Prove both hosts can install the already-published release",
     );
     expect(prove?.env?.SEMCTX_RELEASE_CHECKOUT).toContain("release-checkout");
     expect(prove?.run).toContain('GITHUB_SHA="$RELEASE_SHA"');
+    expect(prove?.run).toContain('SEMCTX_PROOF_TOOL_SHA="$(git rev-parse HEAD)"');
 
     expect(stableDeliveryProof).toContain('"schemaVersion": 2');
     expect(stableDeliveryProof).not.toMatch(/npm publish|git push|gh release create/);
@@ -192,6 +232,7 @@ describe("release governance", () => {
     expect(release).toContain("persist-credentials: false");
     expect(release).toContain("package-manager-cache: false");
     expect(release).toContain("no-cache: true");
+    expect(release).toContain('"verifierSha": "$GITHUB_SHA"');
     expect(bunSteps).toHaveLength(2);
     expect(bunSteps.map((step) => step.with?.["bun-version"])).toEqual([
       "1.4.0",
