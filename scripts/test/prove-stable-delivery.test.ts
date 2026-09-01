@@ -2315,10 +2315,22 @@ describe("hostile 13 — an invalid authority authorises no effect", () => {
     const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
     expect(proof.hosts.codex.marketplaceCommit).toBe(RELEASE.sha);
     expect(proof.hosts.codex.marketplaceRef).toBe("stable");
-    expect(proof.hosts.codex.pathAdmissions).not.toContainEqual(
-      expect.objectContaining({ label: "marketplace.metadata#use", reason: "HOST_PATH_UNREADABLE" }),
+    expect(proof.hosts.codex.pathAdmissions).toContainEqual(
+      expect.objectContaining({ label: "marketplace.metadata#absent", reason: null }),
     );
     expect(proof.hosts.codex.ok).toBe(true);
+  });
+
+  test("a swapped Codex snapshot is refused before optional metadata is consulted", async () => {
+    const metadata = join(CODEX_MARKETPLACE_ROOT, ".codex-marketplace-install.json");
+    const { runtime, ledger, calls } = fakeRuntime({
+      missingCodexMetadata: true,
+      swappedPaths: [CODEX_MARKETPLACE_ROOT],
+    });
+    const proof = await runStableDeliveryProof(LIVE_OPTIONS, runtime);
+    expect(proof.hosts.codex.reasons).toContain("HOST_PATH_IS_LINK");
+    expect(ledger).not.toContainEqual({ operation: "stat", path: metadata });
+    expect(launchedPayloads(calls).some((entry) => entry.includes("codex"))).toBe(false);
   });
 
   test("an incidental Codex list ref cannot override snapshot ref_name", async () => {

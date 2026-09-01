@@ -538,6 +538,28 @@ export class ConfinedAccess {
     return path === null ? null : this.runtime.readTextFile(path);
   }
 
+  /**
+   * Read a declaration that newer host releases may legitimately omit. The containing snapshot is
+   * re-admitted before even asking whether the leaf exists: otherwise a swapped cache root could
+   * redirect that apparently harmless existence check outside the sandbox. A missing leaf is an
+   * archived observation, not a failed admission; every present leaf still follows the strict
+   * admission path immediately before it is read.
+   */
+  readOptional(label: string, candidate: string | null, anchor: string): string | null {
+    if (this.admit(`${label}#anchor`, anchor) === null) return null;
+    if (candidate === null || !isLocalCanonicalPath(candidate, this.runtime.platform)
+      || !isWithinRoot(candidate, this.sandboxRoot, this.runtime.platform)) {
+      this.admit(`${label}#use`, candidate);
+      return null;
+    }
+    if (this.runtime.pathKind(candidate) === "absent") {
+      this.admissions.push({ label: `${label}#absent`, candidate, admitted: null, reason: null });
+      return null;
+    }
+    const path = this.admit(`${label}#use`, candidate);
+    return path === null ? null : this.runtime.readTextFile(path);
+  }
+
   digest(label: string, candidate: string | null, anchor: string | null = null): string | null {
     const path = this.reAdmit(label, candidate, anchor, "#use");
     return path === null ? null : this.runtime.digestFile(path);
@@ -1410,8 +1432,8 @@ export function readMarketplaceSnapshotIdentity(
   // Current Codex releases may omit this legacy declaration. Absence is not an unreadable path:
   // the admitted Git snapshot remains the authority for commit/ref, while a present-but-unsafe
   // declaration is still passed through the strict admission and read path below.
-  const declared = host === "codex" && runtime.pathKind(codexMetadata) !== "absent"
-    ? access.read("marketplace.metadata", codexMetadata, snapshotRoot)
+  const declared = host === "codex"
+    ? access.readOptional("marketplace.metadata", codexMetadata, snapshotRoot)
     : null;
   if (declared !== null) {
     const record: unknown = parseJson(declared);
