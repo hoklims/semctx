@@ -54,12 +54,17 @@ const job = (workflow: Workflow, name: string): WorkflowJob => {
   return selected;
 };
 
-const verifierBindingProblems = (source: string): string[] => {
+const executableShell = (run: string): string => run
+  .split("\n")
+  .filter((line) => !line.trimStart().startsWith("#"))
+  .join("\n");
+
+const verifierBindingProblems = (source: string, stepName: string): string[] => {
   const workflow = Bun.YAML.parse(source) as Workflow;
   const prove = job(workflow, "deliver").steps.find(
-    (step) => step.name === "Prove both hosts can install the already-published release",
+    (step) => step.name === stepName,
   );
-  const run = prove?.run ?? "";
+  const run = executableShell(prove?.run ?? "");
   const fragments = [
     'verifier_sha="$(git rev-parse HEAD)"',
     "git diff --quiet --exit-code",
@@ -72,6 +77,23 @@ const verifierBindingProblems = (source: string): string[] => {
     problems.push("verifier binding order");
   }
   return problems;
+};
+
+const unpinnedActions = (workflow: Workflow): string[] => Object.values(workflow.jobs)
+  .flatMap((workflowJob) => workflowJob.steps)
+  .flatMap((step) => step.uses === undefined ? [] : [step.uses])
+  .filter((uses) => !/@[0-9a-f]{40}$/.test(uses));
+
+const publicIdentityProblems = (source: string): string[] => {
+  const workflow = Bun.YAML.parse(source) as Workflow;
+  const run = executableShell(job(workflow, "identity").steps
+    .map((step) => step.run ?? "")
+    .join("\n"));
+  return [
+    'test "$npm_sha" = "$sha"',
+    'test "$stable_sha" = "$sha"',
+    'test "$release_tag" = "$tag"',
+  ].filter((fragment) => !run.includes(fragment));
 };
 
 const CHECKOUT =
@@ -218,14 +240,18 @@ describe("release governance", () => {
     );
     expect(prove?.env?.SEMCTX_RELEASE_CHECKOUT).toContain("release-checkout");
     expect(prove?.run).toContain('GITHUB_SHA="$RELEASE_SHA"');
-    expect(verifierBindingProblems(stableDeliveryProof)).toEqual([]);
+    expect(verifierBindingProblems(
+      stableDeliveryProof,
+      "Prove both hosts can install the already-published release",
+    )).toEqual([]);
 
     expect(stableDeliveryProof).toContain('"schemaVersion": 2');
     expect(stableDeliveryProof).toContain(CHECKOUT);
     expect(stableDeliveryProof).toContain(SETUP_BUN);
     expect(stableDeliveryProof).toContain(SETUP_NODE);
     expect(stableDeliveryProof).toContain(UPLOAD_ARTIFACT);
-    expect(stableDeliveryProof).not.toMatch(/uses:\s+\S+@v\d/);
+    expect(unpinnedActions(stableDeliveryProofWorkflow)).toEqual([]);
+    expect(publicIdentityProblems(stableDeliveryProof)).toEqual([]);
     expect(stableDeliveryProof).not.toMatch(/npm publish|git push|gh release create/);
     expect(stableDeliveryProof).not.toContain("contents: write");
     expect(stableDeliveryProof).not.toContain("id-token: write");
@@ -240,7 +266,22 @@ describe("release governance", () => {
     ]) {
       const mutant = stableDeliveryProof.replace(fragment, "removed-by-mutation-test");
       expect(mutant).not.toBe(stableDeliveryProof);
-      expect(verifierBindingProblems(mutant)).not.toEqual([]);
+      expect(verifierBindingProblems(
+        mutant,
+        "Prove both hosts can install the already-published release",
+      )).not.toEqual([]);
+    }
+  });
+
+  test("detects every weakened public identity comparison", () => {
+    for (const fragment of [
+      'test "$npm_sha" = "$sha"',
+      'test "$stable_sha" = "$sha"',
+      'test "$release_tag" = "$tag"',
+    ]) {
+      const mutant = stableDeliveryProof.replace(fragment, `# ${fragment}`);
+      expect(mutant).not.toBe(stableDeliveryProof);
+      expect(publicIdentityProblems(mutant)).not.toEqual([]);
     }
   });
 
@@ -276,11 +317,26 @@ describe("release governance", () => {
     expect(release).toContain("package-manager-cache: false");
     expect(release).toContain("no-cache: true");
     expect(release).toContain('"verifierSha": "$GITHUB_SHA"');
+    expect(unpinnedActions(releaseWorkflow)).toEqual([]);
     expect(bunSteps).toHaveLength(2);
     expect(bunSteps.map((step) => step.with?.["bun-version"])).toEqual([
       "1.4.0",
       "1.4.0",
     ]);
+
+    const deliver = job(releaseWorkflow, "deliver");
+    const upload = deliver.steps.find((step) => step.name === "Upload the delivery proof");
+    expect(upload?.with?.path).toBe(
+      "${{ runner.temp }}/delivery-proof/stable-delivery-proof.json",
+    );
+    expect(verifierBindingProblems(
+      release,
+      "Prove both hosts can install the promoted release",
+    )).toEqual([]);
+    const prove = deliver.steps.find(
+      (step) => step.name === "Prove both hosts can install the promoted release",
+    );
+    expect(executableShell(prove?.run ?? "")).toContain('test "$verifier_sha" = "$GITHUB_SHA"');
     expect(publishing).toContain("repository-pinned Bun `1.4.0`");
     expect(devcontainer).toContain('bash -s "bun-v1.4.0"');
     expect(release).toContain("bun run verify:pr -- --skip-diff");

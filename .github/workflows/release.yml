@@ -311,12 +311,16 @@ jobs:
           git -C "$SEMCTX_FOREIGN_REPOSITORY" \
             -c user.name="Semctx Release" -c user.email="semctx@example.test" \
             commit --quiet -m "delivery smoke fixture"
-          bun scripts/prove-stable-delivery.ts
+          verifier_sha="$(git rev-parse HEAD)"
+          test "$verifier_sha" = "$GITHUB_SHA"
+          git diff --quiet --exit-code
+          git diff --cached --quiet --exit-code
+          SEMCTX_PROOF_TOOL_SHA="$verifier_sha" bun scripts/prove-stable-delivery.ts
       - name: Upload the delivery proof
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: stable-delivery-proof
-          path: ${{ runner.temp }}/delivery-proof/
+          path: ${{ runner.temp }}/delivery-proof/stable-delivery-proof.json
           if-no-files-found: error
           retention-days: 90
