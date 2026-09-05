@@ -36,7 +36,9 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
   rejected. Push requires an explicit non-delegating remote and exact `HEAD`; configured push/server options, remote helpers,
   executable transport configuration, and URL rewrites fail closed. Block messages point at the plugin-bundled CLI by absolute path when
   the bundle is in reach, and at a global `semctx` otherwise. The semantic and control tools do not
-  change this host-specific behaviour.
+  change this host-specific behaviour. Claude registers it from `hooks/hooks.json`; Oh My Pi loads
+  the sibling adapter `hooks/pre/semctx-guard.ts` instead (experimental — see
+  `docs/integrations/omp.md`).
 
 ## Shared Codex/Claude contract
 
@@ -184,7 +186,8 @@ If an older direct MCP registration is still present, remove it after the plugin
 - To remove the guard entirely (zero footprint), delete `hooks/hooks.json` from your plugin
   install, or keep advisory mode (the default) where it never blocks. Deleting that file also
   removes the shadow lifecycle hook; to disable only the lifecycle observer, set
-  `SEMCTX_LIFECYCLE=off`.
+  `SEMCTX_LIFECYCLE=off`. On Oh My Pi, delete `hooks/pre/semctx-guard.ts` from your plugin install
+  instead — a declared extension that is missing is skipped — or set `SEMCTX_GUARD=off`.
 
-See `docs/integrations/claude-code.md`, `docs/integrations/claude-code-guarded-mode.md`, and
-`docs/integrations/grok.md`.
+See `docs/integrations/claude-code.md`, `docs/integrations/claude-code-guarded-mode.md`,
+`docs/integrations/omp.md`, and `docs/integrations/grok.md`.

@@ -17,6 +17,34 @@ Then `/reload-plugins` or restart the session. Every MCP tool call must pass an 
 
 OMP substitutes `${CLAUDE_PLUGIN_ROOT}` and its own `${OMP_PLUGIN_ROOT}` inside MCP server config fields, but never inside skill/agent markdown body text — the Claude skill still contains a literal, unsubstituted `${CLAUDE_PLUGIN_ROOT}` when read on OMP, so agents must prefer connected MCP tools over that text.
 
-Neither hook in `plugins/claude-code/hooks/` is loaded on OMP: not the commit/push guard, and
-not the shadow lifecycle observer. OMP consumes the Claude plugin directory, but `hooks/hooks.json`
-stays a Claude surface (ADR 0015), so the lifecycle checkpoint remains fully manual on this host.
+## Commit/push guard (experimental)
+
+Registered from `plugins/claude-code/package.json` `omp.extensions`, which points at
+`hooks/pre/semctx-guard.ts` — a default-export factory that subscribes to `tool_call`. It reaches
+the same ADR 0007 decision function as Claude's `hooks/semctx-guard.mjs`, `evaluateBashGuard`,
+matching the tool name case-insensitively (`bash` here, `Bash` on Claude). Advisory is the default:
+the adapter is present but never blocks until the project opts in via `.semctx/guard.json`
+`{ "enabled": true }` or `SEMCTX_GUARD=on`, which then blocks non-isolated `git commit` /
+`git push` until the working state matches a recorded verification baseline.
+
+`tool_call` fires before the tool executes, so `input` is still the raw model argument object. The
+adapter normalizes it before evaluating, and both steps are load-bearing:
+
+- `input.cwd` is resolved against the session directory. The host applies that resolution later, so
+  a relative value such as `"."` would otherwise be anchored to the process working directory and
+  the guard would read a different repository than the command runs in.
+- `input.env` is folded into the command text as `NAME=value` assignments. The host passes that map
+  as real child-process environment, so a `GIT_DIR` retargeting sent that way would otherwise skip
+  the checks its inline shell equivalent fails.
+
+Unlike Claude's out-of-process hook, this adapter runs inside the agent process and evaluates
+synchronously, so a guarded `git commit` in a large repository blocks the event loop while the
+worktree is hashed.
+
+Claude's `hooks/hooks.json` `PreToolUse` registration remains Claude-only; OMP does not read it.
+Block messages resolve the bundled CLI through `pluginCliPath`'s existing file-relative fallback:
+OMP substitutes `${OMP_PLUGIN_ROOT}` only inside manifest strings and never exports it to a
+process, so no host variable is involved and that function is unchanged.
+
+The shadow lifecycle observer in `hooks/` is not loaded on OMP: `hooks/hooks.json` stays a Claude
+surface (ADR 0015), so the lifecycle checkpoint remains fully manual on this host.

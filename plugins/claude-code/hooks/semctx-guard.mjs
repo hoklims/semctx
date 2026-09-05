@@ -1603,31 +1603,29 @@ export function captureVerificationGitState(cwd) {
   };
 }
 
-function main() {
-  let input = {};
-  try {
-    input = JSON.parse(readFileSync(0, "utf8"));
-  } catch {
-    process.exit(0); // no/invalid input → do not block
-  }
-  const toolName = input.tool_name ?? input.toolName;
-  if (toolName !== "Bash") process.exit(0);
-  const command = input.tool_input?.command ?? input.toolInput?.command ?? "";
+/**
+ * Host-neutral evaluation of one shell tool call. Claude's `main()` and the Oh My Pi `tool_call`
+ * adapter both call this, so the two hosts cannot drift apart. `toolName` is compared
+ * case-insensitively to `bash` (Claude sends `Bash`, Oh My Pi sends `bash`).
+ * @returns {{ block: true, reason: string } | { block: false }}
+ */
+export function evaluateBashGuard({ toolName, command, cwd: inputCwd, env = process.env }) {
+  if (String(toolName ?? "").toLowerCase() !== "bash") return { block: false };
   const terminalVerb = isTerminalGitCommand(command);
-  if (!terminalVerb) process.exit(0);
+  if (!terminalVerb) return { block: false };
 
-  const inputCwd = input.cwd ?? process.cwd();
+  const rawCwd = inputCwd ?? process.cwd();
   const commandIsolated = isIsolatedTerminalGitCommand(command);
   const scopeRequiresSessionGuard = gitScopeRequiresSessionGuard(command);
-  const sessionCwd = resolveGitRoot(inputCwd);
-  const cwd = resolveGitRoot(resolveGitCwd(command, inputCwd)); // the repo the git command targets, not the session cwd
+  const sessionCwd = resolveGitRoot(rawCwd);
+  const cwd = resolveGitRoot(resolveGitCwd(command, rawCwd)); // the repo the git command targets, not the session cwd
   const targetGuard = readJson(join(cwd, ".semctx", "guard.json"));
   const sessionGuard = scopeRequiresSessionGuard
     ? readJson(join(sessionCwd, ".semctx", "guard.json"))
     : null;
-  const enabled = guardEnabled(process.env, targetGuard)
-    || (scopeRequiresSessionGuard && guardEnabled(process.env, sessionGuard));
-  if (!enabled) process.exit(0); // advisory (default)
+  const enabled = guardEnabled(env, targetGuard)
+    || (scopeRequiresSessionGuard && guardEnabled(env, sessionGuard));
+  if (!enabled) return { block: false }; // advisory (default)
 
   const state = commandIsolated
     ? readJson(join(cwd, ".semctx", "verification-state.json"))
@@ -1645,7 +1643,7 @@ function main() {
   const commitContentAuthorized = terminalVerb !== "commit" || commitUsesWholeIndex(command);
   const commitHooksAbsent = terminalVerb !== "commit" || (commandIsolated && commitHookSurfaceClear(cwd));
   const pushHooksAbsent = terminalVerb !== "push" || (commandIsolated && pushHookSurfaceClear(cwd));
-  const decision = guardDecision({
+  return guardDecision({
     enabled,
     terminalVerb,
     commandIsolated,
@@ -1655,7 +1653,22 @@ function main() {
     pushHooksAbsent,
     state,
     currentState,
-    verifyCommand: verifyRecordCommand(process.env),
+    verifyCommand: verifyRecordCommand(env),
+  });
+}
+
+function main() {
+  let input = {};
+  try {
+    input = JSON.parse(readFileSync(0, "utf8"));
+  } catch {
+    process.exit(0); // no/invalid input → do not block
+  }
+  const decision = evaluateBashGuard({
+    toolName: input.tool_name ?? input.toolName,
+    command: input.tool_input?.command ?? input.toolInput?.command ?? "",
+    cwd: input.cwd ?? process.cwd(),
+    env: process.env,
   });
   if (decision.block) {
     process.stderr.write(decision.reason + "\n");

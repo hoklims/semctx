@@ -9,6 +9,15 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Added
+
+- **Oh My Pi commit/push guard (experimental)**: `plugins/claude-code/hooks/pre/semctx-guard.ts`
+  registers `pi.on("tool_call")` and reuses the same `evaluateBashGuard` as Claude's `PreToolUse`
+  hook. Advisory by default. The adapter resolves the host's raw `input.cwd` against the session
+  directory and folds the host's structured `input.env` into the command text, so relative working
+  directories and environment-based Git retargeting are evaluated exactly as their inline shell
+  equivalents. `hooks/hooks.json` and the lifecycle observer stay Claude-only (ADR 0015).
+
 ## [0.1.20] - 2026-09-05
 
 ### Fixed

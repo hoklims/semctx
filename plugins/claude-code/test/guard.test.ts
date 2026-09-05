@@ -3,6 +3,7 @@ import { describe, it, expect } from "bun:test";
 // directly; main() is guarded by an argv check so importing does not execute it.
 import {
   captureVerificationGitState,
+  evaluateBashGuard,
   isIsolatedTerminalGitCommand,
   isTerminalGitCommand,
   guardEnabled,
@@ -17,6 +18,7 @@ import {
   shellQuote,
   GLOBAL_VERIFY_COMMAND,
 } from "../hooks/semctx-guard.mjs";
+import semctxGuard from "../hooks/pre/semctx-guard.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -1384,4 +1386,180 @@ describe("resolveGitCwd — evaluate the repo the command targets, not the sessi
     const other = resolve("/other/repo");
     expect(resolveGitCwd(`git -C ${other} commit -m x`, SESSION)).not.toBe(SESSION);
   });
+});
+
+function makeGuardedTestRepo(options: { enabled?: boolean } = {}) {
+  const repo = mkdtempSync(join(tmpdir(), "semctx-guard-eval-"));
+  execFileSync("git", ["init"], { cwd: repo, stdio: "ignore" });
+  writeFileSync(join(repo, "tracked.ts"), "export const value = 1;\n");
+  writeFileSync(join(repo, ".gitignore"), ".semctx/\n");
+  execFileSync("git", ["add", "tracked.ts", ".gitignore"], { cwd: repo, stdio: "ignore" });
+  execFileSync(
+    "git",
+    ["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "baseline"],
+    { cwd: repo, stdio: "ignore" },
+  );
+  if (options.enabled !== undefined) {
+    mkdirSync(join(repo, ".semctx"));
+    writeFileSync(join(repo, ".semctx", "guard.json"), JSON.stringify({ enabled: options.enabled }));
+  }
+  return repo;
+}
+
+describe("evaluateBashGuard — host-neutral shell tool gate", () => {
+  it("non-bash tool names are never blocked", () => {
+    const repo = makeGuardedTestRepo({ enabled: true });
+    try {
+      expect(evaluateBashGuard({ toolName: "read", command: "git commit -m x", cwd: repo }).block).toBe(false);
+      expect(evaluateBashGuard({ toolName: "Write", command: "git commit -m x", cwd: repo }).block).toBe(false);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
+  it("bash and Bash block terminal git commit when guarded mode is enabled", () => {
+    for (const toolName of ["bash", "Bash"]) {
+      const repo = makeGuardedTestRepo({ enabled: true });
+      try {
+        const decision = evaluateBashGuard({ toolName, command: "git commit -m x", cwd: repo });
+        if (!decision.block) throw new Error(`expected ${toolName} to be blocked`);
+        expect(decision.reason).toContain("verify diff --record");
+      } finally {
+        rmSync(repo, { recursive: true, force: true });
+      }
+    }
+  });
+
+  it("advisory default never blocks terminal git commit", () => {
+    const repo = makeGuardedTestRepo();
+    try {
+      expect(evaluateBashGuard({ toolName: "bash", command: "git commit -m x", cwd: repo }).block).toBe(false);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+
+    const advisoryRepo = makeGuardedTestRepo({ enabled: false });
+    try {
+      expect(evaluateBashGuard({ toolName: "bash", command: "git commit -m x", cwd: advisoryRepo }).block).toBe(
+        false,
+      );
+    } finally {
+      rmSync(advisoryRepo, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("semctxGuard — OMP tool_call adapter", () => {
+  function installHandler() {
+    let handler: (
+      event: { toolName: string; input?: { command?: string; cwd?: string; env?: Record<string, unknown> } },
+      ctx: { cwd?: string },
+    ) => Promise<unknown>;
+    const pi = {
+      on: (event: string, fn: typeof handler) => {
+        if (event === "tool_call") handler = fn;
+      },
+    };
+    semctxGuard(pi);
+    return (event: Parameters<typeof handler>[0], ctx: Parameters<typeof handler>[1]) => handler(event, ctx);
+  }
+
+  it("blocks bash git commit when guarded and unverified", async () => {
+    const repo = makeGuardedTestRepo({ enabled: true });
+    try {
+      const invoke = installHandler();
+      const result = await invoke({ toolName: "bash", input: { command: "git commit -m x" } }, { cwd: repo });
+      expect(result).toEqual(expect.objectContaining({ block: true }));
+      expect((result as { reason: string }).reason).toContain("verify diff --record");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
+  it("does not block non-bash tools or non-terminal git commands", async () => {
+    const repo = makeGuardedTestRepo({ enabled: true });
+    try {
+      const invoke = installHandler();
+      expect(await invoke({ toolName: "read", input: { command: "git commit -m x" } }, { cwd: repo })).toBeUndefined();
+      expect(await invoke({ toolName: "bash", input: { command: "git status" } }, { cwd: repo })).toBeUndefined();
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
+  // The host resolves `input.cwd` against the session directory only after this event, so the
+  // adapter must anchor a relative value itself; resolving against `process.cwd()` would read
+  // whichever repository the host happened to be launched from.
+  it("anchors a relative input.cwd to the session directory, not the process directory", async () => {
+    const guarded = makeGuardedTestRepo({ enabled: true });
+    const elsewhere = makeGuardedTestRepo({ enabled: false });
+    const previous = process.cwd();
+    try {
+      process.chdir(elsewhere);
+      const invoke = installHandler();
+      const result = await invoke(
+        { toolName: "bash", input: { command: "git commit -m x", cwd: "." } },
+        { cwd: guarded },
+      );
+      expect(result).toEqual(expect.objectContaining({ block: true }));
+    } finally {
+      process.chdir(previous);
+      rmSync(guarded, { recursive: true, force: true });
+      rmSync(elsewhere, { recursive: true, force: true });
+    }
+  });
+
+  // The host passes `input.env` as real child-process environment, so a Git retargeting sent that
+  // way must fail the same checks as its inline `NAME=value` equivalent.
+  it("evaluates structured input.env exactly like an inline assignment", async () => {
+    const repo = makeGuardedTestRepo({ enabled: true });
+    const other = makeGuardedTestRepo({ enabled: false });
+    try {
+      const invoke = installHandler();
+      const inline = await invoke(
+        { toolName: "bash", input: { command: `GIT_DIR=${join(other, ".git")} git commit -m x`, cwd: repo } },
+        { cwd: repo },
+      );
+      const structured = await invoke(
+        { toolName: "bash", input: { command: "git commit -m x", cwd: repo, env: { GIT_DIR: join(other, ".git") } } },
+        { cwd: repo },
+      );
+      expect(inline).toEqual(expect.objectContaining({ block: true }));
+      expect(structured).toEqual(expect.objectContaining({ block: true }));
+      expect((structured as { reason: string }).reason).toBe((inline as { reason: string }).reason);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(other, { recursive: true, force: true });
+    }
+  });
+
+  // An unquoted value containing a space, quote or `$` would reshape the parse and could flip the
+  // isolated/compound decision, so the folded assignments have to be shell-quoted.
+  it("quotes folded env values so a space cannot reshape the parse", async () => {
+    const repo = makeGuardedTestRepo({ enabled: true });
+    const spaced = mkdtempSync(join(tmpdir(), "semctx guard space-"));
+    try {
+      const invoke = installHandler();
+      const result = await invoke(
+        {
+          toolName: "bash",
+          input: { command: "git commit -m x", cwd: repo, env: { GIT_DIR: join(spaced, ".git") } },
+        },
+        { cwd: repo },
+      );
+      // Blocked as a retargeting attempt, not misparsed into some other verdict.
+      expect(result).toEqual(expect.objectContaining({ block: true }));
+      expect((result as { reason: string }).reason).toContain("isolated command");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(spaced, { recursive: true, force: true });
+    }
+  });
+
+  it("never propagates a throw, so a guard failure cannot block every bash call", async () => {
+    const invoke = installHandler();
+    const event = new Proxy({}, { get() { throw new Error("boom"); } });
+    expect(await invoke(event as never, {})).toBeUndefined();
+  });
+
 });

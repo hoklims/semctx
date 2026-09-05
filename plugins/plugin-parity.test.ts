@@ -488,6 +488,11 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(json<{ version: string }>("plugins/claude-code/.omp-plugin/plugin.json").version).toBe(
       claudeManifest.version,
     );
+    // Oh My Pi reads a plugin's installed version from its `package.json`, so that generated
+    // manifest is a release surface and joins the same lockstep.
+    expect(json<{ version: string }>("plugins/claude-code/package.json").version).toBe(
+      claudeManifest.version,
+    );
     const serverSource = read("packages/mcp-server/src/server.ts");
     expect(serverSource).toContain('import packageJson from "../package.json"');
     expect(serverSource).toContain("version: packageJson.version");
@@ -675,8 +680,11 @@ describe("Codex and Claude Code plugin parity", () => {
     const hookFiles = (plugin: "claude-code" | "semctx-control"): string[] =>
       readdirSync(resolve(repoRoot, `plugins/${plugin}/hooks`)).sort();
     // Claude additionally carries the unrelated commit/push guard (ADR 0007); Codex never has.
+    // `pre/` is the Oh My Pi sibling adapter for that same guard — Claude ignores the directory,
+    // and the Codex assertion below pins that this host does not gain either surface.
     expect(hookFiles("claude-code")).toEqual([
       "hooks.json",
+      "pre",
       "semctx-guard.mjs",
       "semctx-lifecycle-contract.json",
       "semctx-lifecycle.mjs",

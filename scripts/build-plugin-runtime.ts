@@ -18,6 +18,7 @@ import {
   type AgentLifecyclePolicyV1,
   type AgentWorkflowContractV1,
 } from "@semantic-context/control-model";
+import cliPackage from "../apps/cli/package.json" with { type: "json" };
 
 const root = resolve(import.meta.dir, "..");
 const pluginDists = [
@@ -104,6 +105,33 @@ const lifecycleHookDirs: Record<SkillHost, string> = {
   "claude-code": resolve(root, "plugins/claude-code/hooks"),
   "semctx-control": resolve(root, "plugins/semctx-control/hooks"),
 };
+
+/** Entry point the Oh My Pi extension loader reads from the generated manifest. */
+export const OMP_EXTENSION_ENTRY = "./hooks/pre/semctx-guard.ts";
+const ompExtensionManifestPath = resolve(root, "plugins/claude-code/package.json");
+
+/**
+ * Oh My Pi records a plugin's version from its `package.json`, so that file is a release surface.
+ * Generating it from the CLI package keeps it inside the version SSOT by construction instead of
+ * relying on a maintainer remembering a ninth file at bump time.
+ */
+export function renderOmpExtensionManifest(version: string): string {
+  return `${JSON.stringify(
+    {
+      name: "semctx",
+      version,
+      // Shares the published CLI's package name and ships inside the git-subdir payload, so the
+      // flag is what keeps `npm publish` from ever succeeding out of this directory.
+      private: true,
+      description: "Oh My Pi extension host for the semctx commit/push guard.",
+      license: "Apache-2.0",
+      type: "module",
+      omp: { extensions: [OMP_EXTENSION_ENTRY] },
+    },
+    null,
+    2,
+  )}\n`;
+}
 
 /**
  * Project the canonical workflow and lifecycle contracts into the flat table the out-of-process hook
@@ -711,6 +739,21 @@ async function main(): Promise<void> {
       }
       mkdirSync(directory, { recursive: true });
       await Bun.write(output, expected);
+    }
+  }
+
+  // Oh My Pi extension manifest: version tracked from the CLI package, never hand-edited.
+  {
+    const expected = renderOmpExtensionManifest(cliPackage.version);
+    if (check) {
+      if (!existsSync(ompExtensionManifestPath)) {
+        throw new Error(`missing generated OMP extension manifest: ${ompExtensionManifestPath}; run 'bun run plugin:build'`);
+      }
+      if (!textEqual(readFileSync(ompExtensionManifestPath, "utf8"), expected)) {
+        throw new Error(`stale generated OMP extension manifest: ${ompExtensionManifestPath}; run 'bun run plugin:build'`);
+      }
+    } else {
+      await Bun.write(ompExtensionManifestPath, expected);
     }
   }
 
