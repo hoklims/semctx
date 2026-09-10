@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Inspect Semctx first-use and pilot evidence before installing the CLI.">
+    <title>Semctx evidence workbench</title>
+    <link rel="canonical" href="https://hoklims.github.io/semctx/demo/">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to evidence</a>
+    <header class="masthead">
+      <a class="brand" href="https://github.com/hoklims/semctx" aria-label="Semctx repository">
+        <span aria-hidden="true">S/</span> semctx
+      </a>
+      <p class="phase-line"><span class="status-mark" aria-hidden="true"></span><span id="phase-label">Evidence projection</span></p>
+    </header>
+
+    <div class="page-grid">
+      <nav class="section-rail" aria-label="On this page">
+        <p class="rail-title">Evidence index</p>
+        <a href="#overview">01 / Overview</a>
+        <a href="#cases">02 / Three cases</a>
+        <a href="#report">03 / Captured report</a>
+        <a href="#install">04 / Run it</a>
+        <a href="#limits">05 / Limits</a>
+      </nav>
+
+      <main id="main">
+        <section class="intro" id="overview" aria-labelledby="page-title">
+          <p class="overline">Local change-impact evidence</p>
+          <h1 id="page-title">Inspect the evidence before you install.</h1>
+          <p class="lede">Three fixed TypeScript changes show what Semctx reports, what it warns about, and what it cannot prove. The evidence below stays separate from product claims.</p>
+          <div class="state-strip" aria-label="Current evidence state">
+            <div><span>Phase</span><strong id="phase-value">not loaded</strong></div>
+            <div><span>Demo</span><strong id="demo-state">not loaded</strong></div>
+            <div><span>Pilot</span><strong id="pilot-state">not loaded</strong></div>
+            <div><span>Human metrics</span><strong>not measured</strong></div>
+          </div>
+        </section>
+
+        <section class="workbench" id="cases" aria-labelledby="cases-title">
+          <div class="section-heading">
+            <p class="section-number">02</p>
+            <div><h2 id="cases-title">Three fixed cases</h2><p>Use the radios or arrow keys. The fixture remains readable without JavaScript.</p></div>
+          </div>
+
+          <fieldset class="case-selector" id="case-selector">
+            <legend class="visually-hidden">Select a demo case</legend>
+            <input type="radio" name="case" id="case-benign" value="benign" checked>
+            <label for="case-benign"><span>01</span> Benign edit</label>
+            <input type="radio" name="case" id="case-contract" value="exported-contract-risk">
+            <label for="case-contract"><span>02</span> Contract risk</label>
+            <input type="radio" name="case" id="case-limit" value="unsupported-limit">
+            <label for="case-limit"><span>03</span> Runtime limit</label>
+          </fieldset>
+
+          <div class="case-panels">
+            <article class="case-panel" data-case="benign">
+              <div class="case-copy">
+                <p class="case-kind">Expected: no finding</p>
+                <h3>Comment wording changes; behavior does not.</h3>
+                <p>This touches no exported interface or declared invariant. Keep the repository’s normal checks: a quiet Semctx result is not a blanket correctness claim.</p>
+                <p class="observed-result" data-case-result="benign">Observed result: not available.</p>
+                <p class="next-check"><strong>Next check</strong> Confirm the diff only changes the comment.</p>
+              </div>
+              <div class="diff-grid" aria-label="Benign change before and after">
+                <figure><figcaption>Before · <a href="./fixtures/base/src/greeting.ts">src/greeting.ts</a></figcaption><pre><code>export function greetingFor(name: string): string {
+  // Trim so a trailing newline pasted from a form field does not leak into the greeting.
+  return `Hello, ${name.trim()}!`;
+}</code></pre></figure>
+                <figure><figcaption>After · <a href="./fixtures/changed/src/greeting.ts">src/greeting.ts</a></figcaption><pre><code>export function greetingFor(name: string): string {
+  // Trim first: a trailing newline pasted from a form field should not leak into the greeting.
+  return `Hello, ${name.trim()}!`;
+}</code></pre></figure>
+              </div>
+            </article>
+
+            <article class="case-panel" data-case="exported-contract-risk">
+              <div class="case-copy">
+                <p class="case-kind">Expected: advisory warning</p>
+                <h3>An exported interface gains a required field.</h3>
+                <p>The fixed fixture expects <code>contract_changed_without_test</code>. That warning asks for a covering test; it does not say the new behavior is correct.</p>
+                <p class="observed-result" data-case-result="exported-contract-risk">Observed result: not available.</p>
+                <p class="next-check"><strong>Next check</strong> Exercise <code>computeCartTotal</code> with the new field.</p>
+              </div>
+              <div class="diff-grid" aria-label="Contract risk before and after">
+                <figure><figcaption>Before · <a href="./fixtures/base/src/cart.ts">src/cart.ts</a></figcaption><pre><code>export interface CartTotal {
+  subtotalCents: number;
+  taxCents: number;
+}</code></pre></figure>
+                <figure><figcaption>After · <a href="./fixtures/changed/src/cart.ts">src/cart.ts</a></figcaption><pre><code>export interface CartTotal {
+  subtotalCents: number;
+  taxCents: number;
+  discountCents: number;
+}</code></pre></figure>
+              </div>
+            </article>
+
+            <article class="case-panel" data-case="unsupported-limit">
+              <div class="case-copy">
+                <p class="case-kind">Expected: no finding · explicit limit</p>
+                <h3>A real pricing bug stays outside this proof.</h3>
+                <p>The internal helper applies one extra percentage point. This version does not treat the exported function as an authored contract and no invariant covers the calculation.</p>
+                <p class="observed-result" data-case-result="unsupported-limit">Observed result: not available.</p>
+                <p class="next-check"><strong>Next check</strong> Test that 10% off 10,000 cents returns 9,000 cents.</p>
+              </div>
+              <div class="diff-grid" aria-label="Runtime limit before and after">
+                <figure><figcaption>Before · <a href="./fixtures/base/src/pricing.ts">src/pricing.ts</a></figcaption><pre><code>return Math.round(
+  (amountCents * (100 - ratePercent)) / 100
+);</code></pre></figure>
+                <figure><figcaption>After · <a href="./fixtures/changed/src/pricing.ts">src/pricing.ts</a></figcaption><pre><code>return Math.round(
+  (amountCents * (100 - ratePercent - 1)) / 100
+);</code></pre></figure>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="report" id="report" aria-labelledby="report-title">
+          <div class="section-heading">
+            <p class="section-number">03</p>
+            <div><h2 id="report-title">Captured report</h2><p>The browser reads the strict public projection, never local runner logs.</p></div>
+          </div>
+          <div class="report-grid" id="evidence-report" aria-live="polite" aria-busy="false">
+            <div class="report-primary">
+              <p class="report-status" id="report-status">Dynamic evidence is not loaded in this view.</p>
+              <p id="report-detail">Open evidence.json directly; this fallback does not infer whether evidence exists.</p>
+            </div>
+            <dl>
+              <div><dt>Global verdict</dt><dd id="global-verdict">—</dd></div>
+              <div><dt>Cases matched</dt><dd id="cases-matched">—</dd></div>
+              <div><dt>Pilot observations</dt><dd id="pilot-observations">—</dd></div>
+              <div><dt>Pilot execution limits</dt><dd id="pilot-untrusted">—</dd></div>
+              <div><dt>Unknown labels</dt><dd id="unknown-labels">—</dd></div>
+              <div><dt>Artifact version</dt><dd id="artifact-version">—</dd></div>
+              <div><dt>Release commit</dt><dd id="release-commit-identity">Not loaded</dd></div>
+              <div><dt>Fixture base commit</dt><dd id="fixture-commit-identity">—</dd></div>
+            </dl>
+          </div>
+          <p class="raw-link"><a href="./evidence.json">Open the public evidence JSON</a></p>
+        </section>
+
+        <section class="install" id="install" aria-labelledby="install-title">
+          <div class="section-heading">
+            <p class="section-number">04</p>
+            <div><h2 id="install-title">Run the released package</h2><p>Requires Bun 1.4.0 or newer and Git.</p></div>
+          </div>
+          <div class="command-line"><code>bun install -g semctx</code></div>
+          <ol class="run-steps">
+            <li><strong>Set up</strong><code>semctx setup</code></li>
+            <li><strong>Inspect a diff</strong><code>semctx verify diff --base &lt;ref&gt;</code></li>
+            <li><strong>Act on the result</strong><span><b>PASS</b> no configured finding · <b>WARN</b> review requested · <b>BLOCK</b> configured gate failed</span></li>
+          </ol>
+          <p class="release-note" id="release-note">Open the public evidence JSON to confirm whether this is candidate or released evidence.</p>
+        </section>
+
+        <section class="limits" id="limits" aria-labelledby="limits-title">
+          <div class="section-heading">
+            <p class="section-number">05</p>
+            <div><h2 id="limits-title">What this evidence does not establish</h2></div>
+          </div>
+          <ul>
+            <li>It does not prove runtime or business correctness.</li>
+            <li>It does not measure maintainer adoption or 14-day retention.</li>
+            <li>It does not measure contributor completion time.</li>
+            <li>UNKNOWN pilot cases are excluded from scores and produce no precision or gain claim.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <footer><p>Semctx is local-first. <a href="https://github.com/hoklims/semctx">Read the repository and README</a>.</p></footer>
+  </body>
+</html>
