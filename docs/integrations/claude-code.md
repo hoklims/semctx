@@ -39,8 +39,10 @@ claude plugin marketplace add ./
 claude plugin install semctx@semctx-stable --scope user
 ```
 
-Claude Code launches the committed `dist/semctx-mcp.js` entry from its plugin cache through Bun;
-the MCP and CLI entries share the fixed root `dist/semctx-shared.js` runtime chunk. The plugin never
+Claude Code launches the committed `dist/semctx-mcp.js` entry from its plugin cache through Bun,
+with Bun's working directory pinned to the plugin (`--cwd ${CLAUDE_PLUGIN_ROOT}`) so the project's
+`bunfig.toml` and `.env` never reach the server process; the MCP and CLI entries share the fixed
+root `dist/semctx-shared.js` runtime chunk. The plugin never
 reaches back into the source checkout and does not depend on a globally linked
 `semctx-mcp`. Every tool call carries the absolute `${CLAUDE_PROJECT_DIR}` as `repositoryRoot`;
 missing or relative roots are rejected.

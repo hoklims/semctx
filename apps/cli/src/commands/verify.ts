@@ -1,6 +1,7 @@
-import { writeFileSync, renameSync, mkdirSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
+import { verificationStatePath, writeFileNoFollow } from "@semantic-context/repository-store";
+import { replaceLocalReportFile } from "../report-output";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
@@ -153,10 +154,8 @@ function renderText(
   else fail("blocking violations present");
 }
 
-function writeReportAtomic(path: string, report: VerifyReport): void {
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  renameSync(tmp, path);
+function writeReportAtomic(root: string, path: string, report: VerifyReport): void {
+  replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`, root);
 }
 
 /** Record the exact analyzed content and its canonical Git representation for guarded-mode replay. */
@@ -165,13 +164,9 @@ function recordVerification(
   verdict: VerifyReport["verdict"],
   verifiedState: VerificationGitState,
 ): string {
-  const dir = join(root, ".semctx");
-  mkdirSync(dir, { recursive: true });
-  const path = join(dir, "verification-state.json");
+  const path = verificationStatePath(root);
   const state = { version: 3, ...verifiedState, verdict, recordedAt: nowIso() };
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-  renameSync(tmp, path);
+  writeFileNoFollow(root, path, `${JSON.stringify(state, null, 2)}\n`);
   return path;
 }
 
@@ -248,7 +243,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
         analyzedSourceHash ?? "",
       );
 
-  if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);
+  if (outputPath !== undefined) writeReportAtomic(root, resolve(process.cwd(), outputPath), report);
   const recordedPath = verifiedState === undefined ? undefined : recordVerification(root, report.verdict, verifiedState);
 
   if (format === "json") json(report);

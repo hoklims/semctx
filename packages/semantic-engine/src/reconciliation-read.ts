@@ -40,6 +40,7 @@ export interface LoadResult {
 
 export function loadSemanticModel(root: string): LoadResult {
   const semanticRoot = resolve(root, ".semctx", "semantic");
+  assertUnlinkedEntry(resolve(root, ".semctx"), "semantic model symlinks are unsupported");
   const files = listSemanticFiles(semanticRoot);
   const diagnostics: Diagnostic[] = [];
   const seen = new Map<string, number>();
@@ -73,6 +74,11 @@ export function loadTargetArtifact(
 ): TargetArchitectureArtifactV1 {
   assertTargetIdentity(targetId, revision);
   const targetRoot = resolve(root, ".semctx", "semantic", "targets");
+  // Every directory from `.semctx` to the target directory must be real: this loader never
+  // follows a link, planted or dangling, towards an artifact authored outside the repository.
+  for (const directory of [resolve(root, ".semctx"), resolve(root, ".semctx", "semantic"), targetRoot, resolve(targetRoot, targetId)]) {
+    assertUnlinkedEntry(directory, "target artifact directory symlinks are unsupported");
+  }
   const path = resolve(targetRoot, targetId, `r${revision}.target.json`);
   const fromRoot = relative(targetRoot, path);
   if (fromRoot.startsWith("..") || fromRoot.startsWith("/") || /^[A-Za-z]:/.test(fromRoot)) {
@@ -98,8 +104,8 @@ export function loadTargetArtifact(
 }
 
 function listSemanticFiles(directory: string): string[] {
+  assertUnlinkedEntry(directory, "semantic model symlinks are unsupported");
   if (!existsSync(directory)) return [];
-  if (lstatSync(directory).isSymbolicLink()) refuse("semantic model symlinks are unsupported");
   const files: string[] = [];
   for (const entry of readdirSync(directory, { withFileTypes: true }).sort((left, right) =>
     compareIds(left.name, right.name)
@@ -136,6 +142,18 @@ function assertTargetIdentity(targetId: unknown, revision: unknown): void {
     || !Number.isSafeInteger(revision)
     || revision < 1
   ) refuse("invalid target artifact identity");
+}
+
+/** `lstat` reports the entry itself, so a dangling link is refused too; only an absent entry passes. */
+function assertUnlinkedEntry(path: string, message: string): void {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw error;
+  }
+  if (stat.isSymbolicLink()) refuse(message);
 }
 
 function assertRegularFile(path: string): void {

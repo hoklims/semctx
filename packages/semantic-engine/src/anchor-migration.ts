@@ -59,7 +59,8 @@ import {
   type LinkResolutionReasonCode,
   type RepositoryFacts,
 } from "@semantic-context/semantic-model";
-import { listSemFiles, relFile } from "./store";
+import { isLinkedEntry } from "@semantic-context/repository-store";
+import { assertUnlinkedSemanticTree, listSemFiles, relFile } from "./store";
 import { semanticDir } from "./paths";
 import { locateLinkRefs, type LocatedLinkRef } from "./anchor-link-locator";
 
@@ -568,6 +569,13 @@ function assertSafeTransactionDirectory(
   ];
   for (const [child, expected] of transactionChildren) {
     for (let attempt = 0; attempt < 8; attempt += 1) {
+      // Link first: a dangling link reads as absent to `existsSync` and would be skipped.
+      if (isLinkedEntry(child)) {
+        throw new SemctxError("STORE_ERROR", "anchor migration transaction state is unsafe", {
+          reason: "TRANSACTION_WORKSPACE_UNSAFE",
+          directory: child,
+        });
+      }
       if (!existsSync(child)) break;
       try {
         const childInfo = lstatSync(child);
@@ -607,8 +615,24 @@ interface TransactionOwner {
   token?: string;
 }
 
+/**
+ * No entry the transaction opens by name may be a link: the journal, the owner file, the blob
+ * directory or a blob. A checkout can ship any of them, and every open below follows links, so a
+ * planted one would have recovery read, append to or truncate a file outside the repository.
+ * `lstat`-based: a dangling link is refused too.
+ */
+function assertUnlinkedTransactionEntry(path: string): void {
+  if (isLinkedEntry(path)) {
+    throw new SemctxError("STORE_ERROR", "anchor migration transaction state is unsafe", {
+      reason: "TRANSACTION_WORKSPACE_UNSAFE",
+      path,
+    });
+  }
+}
+
 function activeOwner(activeDir: string): TransactionOwner {
   const path = join(activeDir, TRANSACTION_OWNER);
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) {
     throw new SemctxError("STORE_ERROR", "anchor migration transaction owner is missing", {
       reason: "TRANSACTION_JOURNAL_CORRUPT",
@@ -636,6 +660,8 @@ function refuseLiveOwner(activeDir: string, allowedToken?: string): void {
     throw new SemctxError("STORE_ERROR", "an anchor migration transaction is already active", {
       reason: "TRANSACTION_ALREADY_ACTIVE",
       ownerPid: owner.pid,
+      directory: activeDir,
+      recovery: "if no such process runs, inspect the directory and remove its owner file before retrying",
     });
   }
 }
@@ -673,6 +699,7 @@ function syncDirectory(files: AnchorMigrationFileSystem, path: string): void {
 
 function appendRecord(activeDir: string, record: TransactionRecord): void {
   const path = join(activeDir, "journal.ndjson");
+  assertUnlinkedTransactionEntry(path);
   const handle = openSync(path, "a", 0o600);
   try {
     const bytes = Buffer.from(`${JSON.stringify(record)}\n`, "utf8");
@@ -689,6 +716,7 @@ function readRecords(
   files: AnchorMigrationFileSystem = NODE_ANCHOR_MIGRATION_FILE_SYSTEM,
 ): TransactionRecord[] {
   const path = join(activeDir, "journal.ndjson");
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) return [];
   let bytes = readFileSync(path);
   const lastCompleteBoundary = bytes.lastIndexOf(0x0a) + 1;
@@ -777,7 +805,9 @@ function validateRecordSequence(records: readonly TransactionRecord[]): void {
 
 function writeBlob(activeDir: string, bytes: Buffer, files: AnchorMigrationFileSystem): string {
   const digest = hash(bytes);
+  assertUnlinkedTransactionEntry(join(activeDir, "blobs"));
   const path = join(activeDir, "blobs", digest);
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) {
     const handle = openSync(path, "wx", 0o600);
     try {
@@ -800,7 +830,9 @@ function writeBlob(activeDir: string, bytes: Buffer, files: AnchorMigrationFileS
 }
 
 function readBlob(activeDir: string, digest: string): Buffer {
+  assertUnlinkedTransactionEntry(join(activeDir, "blobs"));
   const path = join(activeDir, "blobs", digest);
+  assertUnlinkedTransactionEntry(path);
   let bytes: Buffer;
   try { bytes = readFileSync(path); } catch (error) {
     throw new SemctxError("STORE_ERROR", "anchor migration transaction blob is missing", {
@@ -981,6 +1013,8 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
     throw new SemctxError("STORE_ERROR", "an anchor migration recovery is already active", {
       reason: "TRANSACTION_ALREADY_ACTIVE",
       ownerPid: owner.pid,
+      directory: recovery,
+      recovery: "if no such process runs, inspect the directory and remove its owner file before retrying",
     });
   }
   const stale = join(directory, `recovery-stale-${process.pid}-${randomBytes(9).toString("hex")}`);
@@ -1232,6 +1266,7 @@ function recoverAnchorMigrationOwned(
 }
 
 export function recoverAnchorMigration(root: string, files = NODE_ANCHOR_MIGRATION_FILE_SYSTEM): string[] {
+  assertUnlinkedSemanticTree(root);
   return recoverAnchorMigrationOwned(root, files);
 }
 
@@ -1444,6 +1479,9 @@ export function migrateAnchors(
   options: AnchorMigrationOptions,
 ): AnchorMigrationReport {
   const files = options.fileSystem ?? NODE_ANCHOR_MIGRATION_FILE_SYSTEM;
+  // Nothing below `.semctx` may be a link: recovery, planning and the transaction all resolve
+  // paths from it, and `assertWithinSemanticDir` trusts wherever the tree really is.
+  assertUnlinkedSemanticTree(root);
   // Recovery is a mandatory gate for every invocation, including dry runs and authority refusals:
   // a new plan must never be reported over a tree left between transaction states by an older one.
   recoverAnchorMigration(root, files);

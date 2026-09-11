@@ -86,6 +86,25 @@ describe("immutable target architecture artifacts", () => {
     expect(() => createTargetProposal(root, proposalInput())).toThrow("symlink");
   });
 
+  it("refuses a dangling target-tree link with a classified error instead of a raw ENOENT", () => {
+    const root = newRoot();
+    const targets = join(root, ".semctx", "semantic", "targets");
+    mkdirSync(dirname(targets), { recursive: true });
+    const gone = join(root, "gone");
+    mkdirSync(gone);
+    symlinkSync(gone, targets, "junction");
+    rmSync(gone, { recursive: true, force: true });
+
+    let caught: unknown;
+    try {
+      createTargetProposal(root, proposalInput());
+    } catch (error) {
+      caught = error;
+    }
+    expect((caught as { code?: string } | undefined)?.code).toBe("CONTROL_INPUTS_UNSAFE");
+    expect(existsSync(gone)).toBe(false);
+  });
+
   it("refuses a target-directory junction and leaves the outside directory untouched", () => {
     const root = newRoot();
     const targetRoot = join(root, ".semctx", "semantic", "targets");

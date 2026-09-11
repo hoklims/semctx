@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, unlinkSync } from "node:fs";
+import { lstatSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { requireStableVerificationGitState } from "../src/commands/verify";
 import { tmpdir } from "node:os";
@@ -159,6 +159,40 @@ describe("verify diff --base (CLI, real git)", () => {
     const report = JSON.parse(readFileSync(out, "utf8"));
     expect(report.schemaVersion).toBe(1);
     expect(report.verdict).toBe("BLOCK");
+  });
+
+  const fileLinksSupported = ((): boolean => {
+    const probe = mkdtempSync(join(tmpdir(), "semctx-verify-link-probe-"));
+    try {
+      writeFileSync(join(probe, "target"), "");
+      symlinkSync(join(probe, "target"), join(probe, "alias"), "file");
+      return true;
+    } catch {
+      return false;
+    } finally {
+      rmSync(probe, { recursive: true, force: true });
+    }
+  })();
+
+  it.skipIf(!fileLinksSupported)("a planted report temporary link never receives the report", () => {
+    // The GitHub Action writes `semctx-report.json` inside the analysed checkout, so a pull request
+    // can ship `<report>.tmp` as a link to any file the runner can write.
+    const outside = mkdtempSync(join(tmpdir(), "semctx-verify-outside-"));
+    const out = join(repo, "report.json");
+    try {
+      const target = join(outside, "target.txt");
+      writeFileSync(target, "ORIGINAL\n");
+      symlinkSync(target, `${out}.tmp`, "file");
+
+      semctx(["verify", "diff", "--base", "main", "--format", "text", "--output", out, "--fail-on", "none"], repo);
+
+      expect(readFileSync(target, "utf8")).toBe("ORIGINAL\n");
+      expect(lstatSync(out).isSymbolicLink()).toBe(false);
+      expect(JSON.parse(readFileSync(out, "utf8")).schemaVersion).toBe(1);
+    } finally {
+      rmSync(`${out}.tmp`, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("--dry-run shows the resolved range and writes nothing", () => {

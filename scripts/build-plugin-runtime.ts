@@ -156,8 +156,10 @@ export function ompStandardContractErrors(input: {
   if (!objectKeysEqual(servers, ["semctx"]) || !objectKeysEqual(server, ["type", "command", "args"])) {
     errors.push("mcp.json server fields are not closed");
   }
+  // `--cwd ${PLUGIN_ROOT}` pins Bun's working directory to the installed plugin, so the analysed
+  // checkout's `bunfig.toml` preload scripts and `.env` never run inside the server process.
   if (server?.type !== "stdio" || server.command !== "bun"
-    || JSON.stringify(server.args) !== JSON.stringify(["${PLUGIN_ROOT}/dist/semctx-mcp.js"])) {
+    || JSON.stringify(server.args) !== JSON.stringify(["--cwd", "${PLUGIN_ROOT}", "${PLUGIN_ROOT}/dist/semctx-mcp.js"])) {
     errors.push("mcp.json launch contract mismatch");
   }
 

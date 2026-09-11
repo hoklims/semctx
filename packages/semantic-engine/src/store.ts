@@ -4,14 +4,26 @@
  * Plane B in v1.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { compareIds, SemctxError } from "@semantic-context/core";
+import { isLinkedEntry, semctxDir, writeFileNoFollow } from "@semantic-context/repository-store";
 import { parseSemanticSource, formatChange, formatModel } from "@semantic-context/semantic-dsl";
 import type { Diagnostic } from "@semantic-context/semantic-dsl";
 import { mergeModels, emptyModel } from "@semantic-context/semantic-model";
 import type { SemanticModel, SemanticNode, ChangeContract, SemanticNodeKind } from "@semantic-context/semantic-model";
-import { semanticDir, workingDir, changesDir, kindFilePath, changeFilePath, activeChangePath, KIND_FILE } from "./paths";
+import {
+  semanticDir,
+  workingDir,
+  changesDir,
+  targetsDir,
+  kindFilePath,
+  changeFilePath,
+  activeChangePath,
+  handoffJsonPath,
+  handoffMarkdownPath,
+  KIND_FILE,
+} from "./paths";
 import { ensureSemanticGitignore } from "./gitignore";
 
 export interface LoadResult {
@@ -21,7 +33,38 @@ export interface LoadResult {
   duplicateIds: string[];
 }
 
+function assertNotLinked(path: string): void {
+  // `lstat`-based: a dangling link is refused too, not read as an absent entry.
+  if (isLinkedEntry(path)) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model directory symlinks are unsupported", { path });
+  }
+}
+
+/**
+ * No node of the semantic tree that this module opens may be a symlink or junction: the
+ * directories from `.semctx` down, and the working pointer and handoff files. `existsSync`,
+ * `readdirSync` and every read follow links, so a checkout that plants one of them as a link to
+ * another location would otherwise have its authored intent read from, and rewritten, outside
+ * the repository. Writes go through `writeFileNoFollow`, which refuses a linked destination and
+ * never stages through a guessable temporary name.
+ */
+export function assertUnlinkedSemanticTree(root: string): void {
+  for (const entry of [
+    semctxDir(root),
+    semanticDir(root),
+    changesDir(root),
+    targetsDir(root),
+    workingDir(root),
+    activeChangePath(root),
+    handoffJsonPath(root),
+    handoffMarkdownPath(root),
+  ]) {
+    assertNotLinked(entry);
+  }
+}
+
 export function listSemFiles(dir: string): string[] {
+  assertNotLinked(dir);
   if (!existsSync(dir)) return [];
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
@@ -40,6 +83,7 @@ export function relFile(root: string, full: string): string {
 
 /** Load and merge every versioned `.sem` file under `.semctx/semantic/`. */
 export function loadSemanticModel(root: string): LoadResult {
+  assertUnlinkedSemanticTree(root);
   const files = listSemFiles(semanticDir(root));
   const diagnostics: Diagnostic[] = [];
   const seen = new Map<string, number>();
@@ -66,6 +110,7 @@ export interface ActiveChangePointerResult {
 
 /** Inspect the local active-change pointer without collapsing malformed content into "missing". */
 export function readActiveChangePointer(root: string): ActiveChangePointerResult {
+  assertUnlinkedSemanticTree(root);
   const path = activeChangePath(root);
   if (!existsSync(path)) return { state: "missing", diagnostics: [] };
   const parsed = parseSemanticSource(readFileSync(path, "utf8"), "working/active-change.sem");
@@ -94,34 +139,32 @@ export function loadModelWithWorking(root: string): LoadResult {
   return { ...base, model: mergeModels(base.model, { nodes: [], changes: [active] }) };
 }
 
-function writeAtomic(path: string, content: string): void {
-  mkdirSync(join(path, ".."), { recursive: true });
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, content, "utf8");
-  renameSync(tmp, path);
-}
-
 /** Rewrite the per-kind file for `kind` with exactly `nodes` (canonical formatting). */
 export function writeKindFile(root: string, kind: Exclude<SemanticNodeKind, "change">, nodes: SemanticNode[]): void {
-  writeAtomic(kindFilePath(root, kind), formatModel({ nodes, changes: [] }));
+  assertUnlinkedSemanticTree(root);
+  writeFileNoFollow(root, kindFilePath(root, kind), formatModel({ nodes, changes: [] }));
 }
 
 /** Write a change contract to its versioned file `.semctx/semantic/changes/<id>.sem`. */
 export function writeChangeFile(root: string, change: ChangeContract): void {
-  writeAtomic(changeFilePath(root, change.id), formatModel({ nodes: [], changes: [change] }));
+  assertUnlinkedSemanticTree(root);
+  writeFileNoFollow(root, changeFilePath(root, change.id), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function removeChangeFile(root: string, changeId: string): void {
+  assertUnlinkedSemanticTree(root);
   const path = changeFilePath(root, changeId);
   if (existsSync(path)) rmSync(path);
 }
 
 /** Persist the working active change (local, git-ignored). */
 export function writeActiveChange(root: string, change: ChangeContract): void {
-  writeAtomic(activeChangePath(root), formatModel({ nodes: [], changes: [change] }));
+  assertUnlinkedSemanticTree(root);
+  writeFileNoFollow(root, activeChangePath(root), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function clearActiveChange(root: string): void {
+  assertUnlinkedSemanticTree(root);
   const path = activeChangePath(root);
   if (existsSync(path)) rmSync(path);
 }
@@ -139,6 +182,7 @@ export interface FormatOutcome {
  * blanking scaffold guidance; comments inside content files are dropped on write (canonical form).
  */
 export function formatSemanticFiles(root: string, write: boolean): FormatOutcome[] {
+  assertUnlinkedSemanticTree(root);
   const out: FormatOutcome[] = [];
   for (const file of listSemFiles(semanticDir(root))) {
     const before = readFileSync(file, "utf8");
@@ -149,7 +193,7 @@ export function formatSemanticFiles(root: string, write: boolean): FormatOutcome
     }
     const after = formatModel(parsed.model);
     const changed = after !== before;
-    if (changed && write) writeAtomic(file, after);
+    if (changed && write) writeFileNoFollow(root, file, after);
     out.push({ file: relFile(root, file), changed, skipped: false });
   }
   return out;
@@ -209,6 +253,7 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
 } {
   const force = opts.force === true;
   const dryRun = opts.dryRun === true;
+  assertUnlinkedSemanticTree(root);
   if (!dryRun) {
     mkdirSync(semanticDir(root), { recursive: true });
     mkdirSync(changesDir(root), { recursive: true });
@@ -217,9 +262,13 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
   const plan: ScaffoldPlan[] = [];
   for (const [name, content] of Object.entries(SCAFFOLD_FILES)) {
     const abs = join(semanticDir(root), name);
+    // A linked scaffold target is refused outright rather than reported as "skip-exists".
+    if (isLinkedEntry(abs)) {
+      throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { file: abs });
+    }
     const exists = existsSync(abs);
     const action: ScaffoldPlan["action"] = !exists ? "create" : force ? "overwrite" : "skip-exists";
-    if (!dryRun && action !== "skip-exists") writeAtomic(abs, content);
+    if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, content);
     plan.push({ file: `.semctx/semantic/${name}`, action });
   }
   const gitignore = ensureSemanticGitignore(root, dryRun);

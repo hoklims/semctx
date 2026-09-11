@@ -38,3 +38,23 @@ specifics live only in `packages/github-action`; `core`/`context-engine` never i
 - The Action requires `contents: read` only; no `pull_request_target`, no secrets, no write token.
 - If a future Node-native store lands, a bundled JS action becomes possible; this ADR is revisited
   then. Until then, composite is the only honest packaging.
+
+## Amendment — Bun runs from the action checkout, never from the analysed repository (2026-09-11)
+
+Bun executes `$cwd/bunfig.toml` `preload` scripts and loads `$cwd/.env` before any entrypoint.
+The original verify step ran `bun` with `working-directory: ${{ inputs.working-directory }}`, so
+a pull request could plant a `bunfig.toml` and run code on the runner before semctx started
+(quality audit 2026-09-09, SEC-PPLUG-02) — contradicting the "does not execute arbitrary PR
+scripts" statement in `SECURITY.md`.
+
+Decision: every `bun` step keeps `working-directory: ${{ github.action_path }}/../..` (the
+action's own checkout, already used for `bun install`). A preceding `node` step resolves the
+consumer directory to an absolute forward-slash path, and the CLI receives it as `--root`.
+`config-path` and `report-path` remain relative to the analysed directory. Node reads no
+configuration from its working directory, and the adapter step is unchanged.
+The resolved directory must stay inside `GITHUB_WORKSPACE` (a `working-directory` that is, or
+contains, a link to elsewhere on the runner is refused), and the step output uses the
+multi-line delimiter form so a path cannot inject a second output.
+`packages/github-action/test/launch-isolation.test.ts` pins the step shapes, runs the resolution
+step against a workspace subdirectory and an outside directory, and proves with a hostile
+checkout that the CLI started from the action checkout ignores that checkout's `bunfig.toml`.

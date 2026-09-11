@@ -84,3 +84,21 @@ cwd and structured Git env; effective one-factory/one-handler count including le
 isolated OMP install with claude-plugins disabled, three usable skills, MCP initialization and
 tools/list, CLI execution, update and uninstall/rollback. Read discovery provenance and shadowed
 entries, not only active counts. Run canonical verify:pr and cross-platform CI before delivery.
+
+## Amendment — pinned Bun working directory (2026-09-11)
+
+The closed `mcp.json` launch is now `command: bun`, `args: ["--cwd", "${PLUGIN_ROOT}",
+"${PLUGIN_ROOT}/dist/semctx-mcp.js"]`. It still omits a `cwd` field and `SEMCTX_ROOT`, and the
+server still binds `repositoryRoot` on the first request. The Claude Code `.mcp.json` carries the
+same `--cwd ${CLAUDE_PLUGIN_ROOT}` prefix.
+
+Reason: Bun executes `$cwd/bunfig.toml` `preload` scripts and loads `$cwd/.env` before the
+entrypoint. A host that starts the server inside the analysed checkout therefore hands that
+checkout code execution the moment the plugin auto-starts (quality audit 2026-09-09,
+SEC-PPLUG-01). Bun's own `--cwd` pins the working directory to the installed plugin on every host,
+whether or not the host exposes a working-directory setting. The Codex manifest keeps `cwd: "."`:
+Codex joins a plugin MCP `cwd` to the installed plugin root and rejects one that leaves it
+(openai/codex `codex-rs/codex-mcp/src/plugin_config.rs`, `environment_cwd`, main @ 654b0a77d on
+2026-09-11), so that host never starts Bun inside the analysed checkout. `plugin:check` pins the new argv;
+`plugins/launch-isolation.test.ts` proves the vector with an unpinned launch and proves that the
+shipped launches ignore a hostile checkout's `bunfig.toml` and `.env` while the bundle still starts.

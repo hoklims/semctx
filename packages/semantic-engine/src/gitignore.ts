@@ -12,7 +12,9 @@
  * `!.semctx/config.json`. This helper migrates a bare `.semctx/` line and is idempotent.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { SemctxError } from "@semantic-context/core";
+import { isLinkedEntry, writeFileNoFollow } from "@semantic-context/repository-store";
 import { join } from "node:path";
 
 const IGNORE_CHILDREN = ".semctx/*";
@@ -125,10 +127,14 @@ function removeTrailingLf(text: string): string {
 /** Ensure `.gitignore` tracks `.semctx/semantic/` and `.semctx/config.json`. Non-destructive. */
 export function ensureSemanticGitignore(root: string, dryRun = false): GitignoreResult {
   const path = join(root, ".gitignore");
+  // A checkout can plant `.gitignore` as a link. Reading through it would make even a dry run an
+  // oracle on an outside file (or block on a FIFO), and rewriting through it would land wherever
+  // the link points, so it is refused before anything is read.
+  if (isLinkedEntry(path)) throw new SemctxError("CONFIG_INVALID", "a linked .gitignore is unsupported", { path });
   const existed = existsSync(path);
   const existing = existed ? readFileSync(path, "utf8") : undefined;
   const { content, changed } = computeGitignore(existing);
   const action: GitignoreResult["action"] = !existed ? "create" : changed ? "update" : "present";
-  if (!dryRun && action !== "present") writeFileSync(path, content, "utf8");
+  if (!dryRun && action !== "present") writeFileNoFollow(root, path, content);
   return { path: ".gitignore", action };
 }

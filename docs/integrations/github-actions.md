@@ -57,10 +57,14 @@ history. If the base is missing, the action fails with a clear message pointing 
 - Requires only `contents: read`. No secret is needed for the standard integration.
 - The action runs a fixed set of `semctx` commands (argv arrays, no shell interpolation of PR
   content) plus a small Node adapter. It does not execute arbitrary PR scripts.
+- Every `bun` step runs from the action's own checkout and receives the analysed repository as an
+  absolute `--root`, so the pull request's `bunfig.toml` `preload` scripts and `.env` are never
+  loaded by the runtime.
 
 ## Monorepos and custom config
 
-- `working-directory`: point the action at a sub-package to analyse only that directory.
+- `working-directory`: point the action at a sub-package to analyse only that directory. It must
+  stay inside the job workspace; a directory that resolves elsewhere on the runner is refused.
 - `config-path`: supply a `config.json` (e.g. a monorepo `include` of `packages/*/src/**/*.ts`)
   to use instead of the generated default.
 

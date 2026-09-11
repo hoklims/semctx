@@ -6,7 +6,6 @@ import {
   existsSync,
   fstatSync,
   linkSync,
-  lstatSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -18,6 +17,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { relative, resolve, sep } from "node:path";
 import { compareIds, SemctxError } from "@semantic-context/core";
+import { isLinkedEntry } from "@semantic-context/repository-store";
 import {
   type ArchitectureElement,
   type ArchitectureRelation,
@@ -279,11 +279,12 @@ function assertSafeTargetTreeRoot(root: string, allowMissing = false): void {
   let current = canonicalRoot;
   for (const segment of [".semctx", "semantic", "targets"]) {
     current = resolve(current, segment);
+    // Link first: `existsSync` follows a dangling link and would report it absent.
+    assertNotSymlink(current);
     if (!existsSync(current)) {
       if (allowMissing) return;
       throw new SemctxError("CONFIG_INVALID", "target artifact directory is missing", { path: current });
     }
-    assertNotSymlink(current);
   }
   assertContainedByRoot(canonicalRoot, current);
 }
@@ -298,7 +299,7 @@ function assertContainedByRoot(root: string, path: string): void {
 }
 
 function assertNotSymlink(path: string): void {
-  if (lstatSync(path).isSymbolicLink()) refuse("target artifact symlinks are unsupported", { path });
+  if (isLinkedEntry(path)) refuse("target artifact symlinks are unsupported", { path });
 }
 
 function assertSameFile(leftPath: string, rightPath: string): void {

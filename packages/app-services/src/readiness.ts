@@ -3,12 +3,17 @@ import { SemctxError, attachSuppressedError } from "@semantic-context/core";
 import {
   SqliteRepositoryReader,
   SqliteRepositoryStore,
+  assertUnlinkedWorkspace,
   dbPath,
   isInitialized,
+  openReader,
   openStore,
 } from "@semantic-context/repository-store";
 
 function requireReadyDatabase(root: string): void {
+  // Before any existence test: `isInitialized` and `existsSync` follow links, and a linked
+  // `.semctx` must be refused rather than reported ready with another repository's index.
+  assertUnlinkedWorkspace(root);
   if (!isInitialized(root)) {
     throw new SemctxError("CONFIG_NOT_FOUND", `repository is not initialized/prepared at ${root}; run MCP semctx_setup (confirm:true) or 'semctx setup' first`, {
       root,
@@ -24,8 +29,7 @@ function requireReadyDatabase(root: string): void {
 /** Open an indexed repository through an immutable reader, without creating readiness state. */
 export function openReadyRepository(root: string): SqliteRepositoryReader {
   requireReadyDatabase(root);
-  const database = dbPath(root);
-  const reader = SqliteRepositoryReader.openExisting(database);
+  const reader = openReader(root);
   if (!reader.isIndexed()) {
     reader.close();
     throw new SemctxError("REPO_NOT_INDEXED", `repository index is absent at ${root}; run MCP semctx_setup (confirm:true) or 'semctx setup' first`, {

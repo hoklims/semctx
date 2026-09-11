@@ -42,7 +42,7 @@ jobs:
 | `base` | — (required) | base ref to compare against (usually the PR base SHA) |
 | `head` | `HEAD` | head ref to analyse |
 | `fail-on` | `block` | fail the job on `block`, `warn`, or `none` |
-| `working-directory` | `.` | repository directory to analyse |
+| `working-directory` | `.` | repository directory to analyse; must stay inside the job workspace |
 | `config-path` | `""` | optional `config.json` to use instead of the generated default |
 | `report-path` | `semctx-report.json` | where the JSON report is written (in `working-directory`) |
 | `upload-report` | `false` | upload the JSON report as a workflow artifact |
@@ -75,13 +75,17 @@ outputs — the action stays read-only by default.
   checkout with a read-only token.
 - No secret is required. No PR content is executed as an ad-hoc shell command; the action runs a
   fixed set of `semctx` commands via argv arrays.
+- Every `bun` step runs from the action's own checkout and receives your repository as an absolute
+  `--root`, so a pull request's `bunfig.toml` `preload` scripts and `.env` are never loaded.
 - The Bun toolchain is pinned in `action.yml`.
 
 ## How it works
 
 1. `oven-sh/setup-bun` installs a pinned Bun.
 2. `bun install` in the action's own checkout.
-3. `semctx init` + `semctx index` on your repository, then `verify diff --base … --head … --format
-   json --output <report> --fail-on none` (always exit 0, always writes the report).
+3. A `node` step resolves `working-directory` to an absolute path; then, from the action checkout,
+   `semctx init` + `semctx index --root <that path>` and `verify diff --root <that path> --base …
+   --head … --format json --output <report> --fail-on none` (always exit 0, always writes the
+   report).
 4. `src/adapter.mjs` reads the report, emits annotations + summary, sets outputs, and exits
    non-zero according to `fail-on`. The adapter is the single job-exit-code authority.

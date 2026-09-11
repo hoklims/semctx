@@ -9,6 +9,38 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Security
+
+- Plugin MCP servers pin Bun's working directory to the installed plugin: Claude Code launches
+  `bun --cwd ${CLAUDE_PLUGIN_ROOT}` and Oh My Pi `bun --cwd ${PLUGIN_ROOT}` before the bundle
+  path. A host that started the server inside the analysed checkout previously let that checkout's
+  `bunfig.toml` `preload` scripts run, and its `.env` load, before the server existed. Codex already
+  resolves its launch against the installed plugin. (Quality audit 2026-09-09, SEC-PPLUG-01.)
+- The GitHub Action runs every `bun` step from the action's own checkout and passes the analysed
+  repository as an absolute `--root`. The verify step previously ran Bun inside the pull-request
+  checkout, so a pull request's `bunfig.toml` could execute code on the runner before semctx
+  started. `working-directory`, `config-path` and `report-path` keep their documented meaning.
+  (SEC-PPLUG-02.)
+- Nothing semctx opens under `.semctx` may be a symlink or junction, dangling ones included: the
+  directory itself, `config.json`, `semctx.db` with its SQLite `-wal`/`-shm`/`-journal` sidecars,
+  `context-packs`, `verification-state.json`, the `semantic`, `changes` and `targets` directories
+  (down to each target directory), the `working` directory with its pointer and handoff files,
+  the anchor-migration transaction directory and the feedback store with its writer lock are
+  checked before every read, write, scaffold, `init` and `init --preset` — including
+  the read-only index reader behind readiness and `semantic check`, the reconciliation loader
+  and the anchor migration. The refusal code depends on the surface: `CONFIG_INVALID` for the
+  workspace, the semantic store and the migration entry, `CONTROL_INPUTS_UNSAFE` for the
+  reconciliation loader and target artifacts, `STORE_ERROR` for the feedback store and a
+  migration transaction. Every file written under `.semctx` (and `.gitignore`, which `init`
+  maintains) goes through a writer that refuses a link at the destination or at any ancestor
+  below the root and stages through an unguessable temporary name checked with `lstat` and
+  created exclusively, so a planted `<file>.tmp` link is never followed; the writers with their
+  own protocol (feedback store, anchor migration, target artifacts, control handoff) check every
+  name a checkout can ship the same way. The `verify --output` report, which the GitHub Action
+  writes inside the analysed checkout, is staged through an unguessable temporary name as well
+  instead of a fixed `<report>.tmp` a pull request could ship as a link. Reads and rewrites could
+  previously land outside the repository through a planted link. (SEC-PB-01.)
+
 ## [0.2.0] - 2026-09-10
 
 ### Added

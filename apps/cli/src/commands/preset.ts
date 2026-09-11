@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, writeFileSync, renameSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
-import { toDiskConfig } from "@semantic-context/repository-store";
+import { assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -106,13 +106,6 @@ function presetFiles(
   return files;
 }
 
-function writeAtomic(abs: string, content: string): void {
-  mkdirSync(dirname(abs), { recursive: true });
-  const tmp = `${abs}.tmp`;
-  writeFileSync(tmp, content, "utf8");
-  renameSync(tmp, abs);
-}
-
 type Action = "create" | "skip-exists" | "overwrite";
 
 const AVAILABLE_PRESETS = ["github-claude"] as const;
@@ -132,6 +125,8 @@ export function runPreset(
   options: RunPresetOptions = {},
 ): number {
   validatePreset(preset);
+  // `init --preset` returns before `initWorkspace`, so the workspace link check lives here too.
+  assertUnlinkedWorkspace(root);
   const dryRun = flagBool(args, "dry-run");
   const force = flagBool(args, "force");
   // github-claude enables the action + claude config by default; devcontainer is opt-in.
@@ -144,9 +139,14 @@ export function runPreset(
   const files = presetFiles(root, opts, options.includeConfig !== false);
   const planned: Array<{ path: string; action: Action }> = files.map((f) => {
     const abs = join(root, f.path);
+    // A linked `.semctx` target is refused outright rather than reported as "skip-exists"; host
+    // files outside `.semctx` may legitimately be links and are only refused when written.
+    if (f.path.startsWith(".semctx/") && isLinkedEntry(abs)) {
+      throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
+    }
     const exists = existsSync(abs);
     const action: Action = !exists ? "create" : force ? "overwrite" : "skip-exists";
-    if (!dryRun && action !== "skip-exists") writeAtomic(abs, f.content);
+    if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, f.content);
     return { path: f.path, action };
   });
   // Same shareable policy as init/setup: track config.json + semantic/, ignore machine state (#82).

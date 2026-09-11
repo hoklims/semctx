@@ -1,5 +1,5 @@
 import { constants, Database } from "bun:sqlite";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { SemctxError } from "@semantic-context/core";
 import type {
@@ -12,6 +12,32 @@ import type {
   ContextPack,
 } from "@semantic-context/core";
 import { SCHEMA_SQL, SCHEMA_VERSION } from "./schema";
+
+/** The database and every sidecar SQLite may create next to it, in WAL or rollback-journal mode. */
+function databaseFiles(dbPath: string): string[] {
+  return [dbPath, `${dbPath}-wal`, `${dbPath}-shm`, `${dbPath}-journal`];
+}
+
+/**
+ * Nothing SQLite opens for this store may be a symlink or junction: the database itself or a
+ * sidecar it creates on demand. SQLite follows links on open, so a planted one would send the
+ * index or its journal outside the repository. `lstat` reports the entry itself, so a dangling
+ * link is refused too; only an absent entry passes.
+ */
+export function assertUnlinkedDatabase(dbPath: string): void {
+  for (const path of databaseFiles(dbPath)) {
+    let stat;
+    try {
+      stat = lstatSync(path);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+      throw error;
+    }
+    if (stat.isSymbolicLink()) {
+      throw new SemctxError("CONFIG_INVALID", "linked repository store files are unsupported", { path });
+    }
+  }
+}
 
 interface NodeRow {
   id: string;
@@ -120,6 +146,7 @@ export class SqliteRepositoryReader implements ReadonlyRepositoryStore {
   }
 
   static openExisting(dbPath: string): SqliteRepositoryReader {
+    assertUnlinkedDatabase(dbPath);
     if (!existsSync(dbPath)) {
       throw new SemctxError("STORE_ERROR", `repository store does not exist at ${dbPath}`, { dbPath });
     }
@@ -179,6 +206,7 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   static open(dbPath: string): SqliteRepositoryStore {
+    assertUnlinkedDatabase(dbPath);
     const db = new Database(dbPath, { create: true });
     try {
       db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = OFF;");

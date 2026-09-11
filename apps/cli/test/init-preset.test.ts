@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { describe, it, expect, beforeAll, afterAll, test } from "bun:test";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, readdirSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -166,5 +166,114 @@ describe("CLI invoked from a foreign directory", () => {
     // Machine state stayed in the target repo.
     expect(existsSync(join(target, ".semctx", "semctx.db"))).toBe(true);
     expect(existsSync(join(foreign, ".semctx"))).toBe(false);
+  });
+});
+
+// `init --preset` returns before `initWorkspace`, so it carries its own link checks: a checkout that
+// ships `.semctx` as a link, or a planted `config.json.tmp` link, must not have the preset config
+// written outside the repository (SEC-PB-01).
+
+function probe(create: (probeDir: string) => void): boolean {
+  const probeDir = mkdtempSync(join(tmpdir(), "semctx-preset-link-probe-"));
+  try {
+    create(probeDir);
+    return true;
+  } catch {
+    return false;
+  } finally {
+    rmSync(probeDir, { recursive: true, force: true });
+  }
+}
+
+function link(target: string, path: string): void {
+  symlinkSync(target, path, process.platform === "win32" ? "junction" : "dir");
+}
+
+const linksSupported = probe((probeDir) => link(probeDir, join(probeDir, "self")));
+const fileLinksSupported = probe((probeDir) => {
+  writeFileSync(join(probeDir, "target"), "");
+  symlinkSync(join(probeDir, "target"), join(probeDir, "alias"), "file");
+});
+
+const linked = test.skipIf(!linksSupported);
+const fileLinked = test.skipIf(!fileLinksSupported);
+
+function presetRepository(): { repo: string; outside: string } {
+  const repo = mkdtempSync(join(tmpdir(), "semctx-preset-link-"));
+  const outside = mkdtempSync(join(tmpdir(), "semctx-preset-outside-"));
+  writeFileSync(join(repo, "package.json"), JSON.stringify({ name: "consumer", version: "0.0.0" }));
+  git(repo, ["init", "-q"]);
+  return { repo, outside };
+}
+
+describe("init --preset refuses a linked .semctx", () => {
+  linked("a linked .semctx is refused and nothing is written through it", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      link(outside, join(repo, ".semctx"));
+
+      const r = semctx(["init", "--preset", "github-claude"], repo);
+
+      expect(r.code).not.toBe(0);
+      expect(readdirSync(outside)).toEqual([]);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  fileLinked("a linked .semctx target is refused outright, not skipped as existing", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      mkdirSync(join(repo, ".semctx"));
+      writeFileSync(join(outside, "config.json"), "{}\n");
+      symlinkSync(join(outside, "config.json"), join(repo, ".semctx", "config.json"), "file");
+
+      // Without --force the old code reported "skip-exists" and exited 0 without looking at the link.
+      const r = semctx(["init", "--preset", "github-claude"], repo);
+
+      expect(r.code).not.toBe(0);
+      expect(readFileSync(join(outside, "config.json"), "utf8")).toBe("{}\n");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  fileLinked("a linked host file outside .semctx is skipped when present and refused only when written", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      mkdirSync(join(repo, ".claude"));
+      writeFileSync(join(outside, "semctx.md"), "outside\n");
+      symlinkSync(join(outside, "semctx.md"), join(repo, ".claude", "semctx.md"), "file");
+
+      const skipped = semctx(["init", "--preset", "github-claude", "--json"], repo);
+      expect(skipped.code).toBe(0);
+      expect(JSON.parse(skipped.out).files).toContainEqual({ path: ".claude/semctx.md", action: "skip-exists" });
+
+      const forced = semctx(["init", "--preset", "github-claude", "--force"], repo);
+      expect(forced.code).not.toBe(0);
+      expect(readFileSync(join(outside, "semctx.md"), "utf8")).toBe("outside\n");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  fileLinked("a planted config.json.tmp link never receives the preset config", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      mkdirSync(join(repo, ".semctx"));
+      symlinkSync(join(outside, "config.json"), join(repo, ".semctx", "config.json.tmp"), "file");
+
+      const r = semctx(["init", "--preset", "github-claude"], repo);
+
+      expect(r.code).toBe(0);
+      expect(existsSync(join(outside, "config.json"))).toBe(false);
+      expect(readFileSync(join(repo, ".semctx", "config.json"), "utf8")).toContain("\"include\"");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });
