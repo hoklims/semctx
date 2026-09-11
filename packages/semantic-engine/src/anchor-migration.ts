@@ -59,6 +59,7 @@ import {
   type LinkResolutionReasonCode,
   type RepositoryFacts,
 } from "@semantic-context/semantic-model";
+import { isLinkedEntry } from "@semantic-context/repository-store";
 import { assertUnlinkedSemanticTree, listSemFiles, relFile } from "./store";
 import { semanticDir } from "./paths";
 import { locateLinkRefs, type LocatedLinkRef } from "./anchor-link-locator";
@@ -607,8 +608,24 @@ interface TransactionOwner {
   token?: string;
 }
 
+/**
+ * No entry the transaction opens by name may be a link: the journal, the owner file, the blob
+ * directory or a blob. A checkout can ship any of them, and every open below follows links, so a
+ * planted one would have recovery read, append to or truncate a file outside the repository.
+ * `lstat`-based: a dangling link is refused too.
+ */
+function assertUnlinkedTransactionEntry(path: string): void {
+  if (isLinkedEntry(path)) {
+    throw new SemctxError("STORE_ERROR", "anchor migration transaction state is unsafe", {
+      reason: "TRANSACTION_WORKSPACE_UNSAFE",
+      path,
+    });
+  }
+}
+
 function activeOwner(activeDir: string): TransactionOwner {
   const path = join(activeDir, TRANSACTION_OWNER);
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) {
     throw new SemctxError("STORE_ERROR", "anchor migration transaction owner is missing", {
       reason: "TRANSACTION_JOURNAL_CORRUPT",
@@ -673,6 +690,7 @@ function syncDirectory(files: AnchorMigrationFileSystem, path: string): void {
 
 function appendRecord(activeDir: string, record: TransactionRecord): void {
   const path = join(activeDir, "journal.ndjson");
+  assertUnlinkedTransactionEntry(path);
   const handle = openSync(path, "a", 0o600);
   try {
     const bytes = Buffer.from(`${JSON.stringify(record)}\n`, "utf8");
@@ -689,6 +707,7 @@ function readRecords(
   files: AnchorMigrationFileSystem = NODE_ANCHOR_MIGRATION_FILE_SYSTEM,
 ): TransactionRecord[] {
   const path = join(activeDir, "journal.ndjson");
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) return [];
   let bytes = readFileSync(path);
   const lastCompleteBoundary = bytes.lastIndexOf(0x0a) + 1;
@@ -777,7 +796,9 @@ function validateRecordSequence(records: readonly TransactionRecord[]): void {
 
 function writeBlob(activeDir: string, bytes: Buffer, files: AnchorMigrationFileSystem): string {
   const digest = hash(bytes);
+  assertUnlinkedTransactionEntry(join(activeDir, "blobs"));
   const path = join(activeDir, "blobs", digest);
+  assertUnlinkedTransactionEntry(path);
   if (!existsSync(path)) {
     const handle = openSync(path, "wx", 0o600);
     try {
@@ -800,7 +821,9 @@ function writeBlob(activeDir: string, bytes: Buffer, files: AnchorMigrationFileS
 }
 
 function readBlob(activeDir: string, digest: string): Buffer {
+  assertUnlinkedTransactionEntry(join(activeDir, "blobs"));
   const path = join(activeDir, "blobs", digest);
+  assertUnlinkedTransactionEntry(path);
   let bytes: Buffer;
   try { bytes = readFileSync(path); } catch (error) {
     throw new SemctxError("STORE_ERROR", "anchor migration transaction blob is missing", {

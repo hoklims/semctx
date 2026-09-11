@@ -39,17 +39,20 @@ as quickly as the severity warrants.
 - Nothing opened under `.semctx` may be a symlink or junction, dangling ones included: the
   directory itself, `config.json`, `semctx.db` with its SQLite `-wal`/`-shm`/`-journal` sidecars,
   `context-packs`, `verification-state.json`, the `semantic`, `changes` and `targets` directories
-  down to each target directory, and the `working` directory with its pointer and handoff files.
-  They are checked with `lstat` before every read, write, scaffold, `init` and `init --preset` —
-  the read-only index reader behind readiness and `semantic check`, the reconciliation loader and
-  the anchor migration included — and refused rather than followed outside the repository. The
-  refusal code depends on the surface: `CONFIG_INVALID` (workspace, semantic store, migration
-  entry), `CONTROL_INPUTS_UNSAFE` (reconciliation loader, target artifacts) or `STORE_ERROR`
-  (feedback store, migration transaction). Files under `.semctx` — and `.gitignore`, which `init`
-  maintains — are written through one writer that refuses a link at the destination or at any
-  ancestor below the repository root, then stages through an unguessable temporary name created
-  with `O_CREAT | O_EXCL` and renamed into place, so a planted `<file>.tmp` link is never followed.
-  `.semctx/guard.json`, read by the cooperative guard hook, is outside this guarantee.
+  down to each target directory, the `working` directory with its pointer and handoff files, the
+  anchor-migration transaction directory (journal, owner file, blobs) and the feedback store with
+  its writer lock. They are checked with `lstat` before every read, write, scaffold, `init` and
+  `init --preset` — the read-only index reader behind readiness and `semantic check`, the
+  reconciliation loader and the anchor migration included — and refused rather than followed
+  outside the repository. The refusal code depends on the surface: `CONFIG_INVALID` (workspace,
+  semantic store, presets, migration entry), `CONTROL_INPUTS_UNSAFE` (reconciliation loader,
+  target artifacts) or `STORE_ERROR` (feedback store, migration transaction). Files under
+  `.semctx` — and `.gitignore`, which `init` maintains — are written through `writeFileNoFollow`,
+  which refuses a link at the destination or at any ancestor below the repository root, then
+  stages through an unguessable temporary name checked with `lstat` and created with
+  `O_CREAT | O_EXCL`; the two writers with their own transaction protocol (feedback store, anchor
+  migration) check every name they open the same way. `.semctx/guard.json`, read by the
+  cooperative guard hook, is outside this guarantee.
 
 ## Integrations
 

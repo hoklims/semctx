@@ -222,6 +222,23 @@ describe("init --preset refuses a linked .semctx", () => {
     }
   });
 
+  fileLinked("a preset target that is a link is refused, not skipped as existing", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      mkdirSync(join(repo, ".claude"));
+      writeFileSync(join(outside, "semctx.md"), "outside\n");
+      symlinkSync(join(outside, "semctx.md"), join(repo, ".claude", "semctx.md"), "file");
+
+      const r = semctx(["init", "--preset", "github-claude", "--force"], repo);
+
+      expect(r.code).not.toBe(0);
+      expect(readFileSync(join(outside, "semctx.md"), "utf8")).toBe("outside\n");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
   fileLinked("a planted config.json.tmp link never receives the preset config", () => {
     const { repo, outside } = presetRepository();
     try {

@@ -217,3 +217,20 @@ describe("writeFileNoFollow", () => {
     expectConfigInvalid(() => openReader(root));
   });
 });
+
+describe("every production open of the index goes through the workspace guard", () => {
+  it("no source outside workspace.ts opens the SQLite store or reader by path", () => {
+    const repository = join(import.meta.dir, "..", "..", "..");
+    const offenders: string[] = [];
+    for (const base of ["packages", "apps"]) {
+      for (const file of new Bun.Glob("*/src/**/*.ts").scanSync({ cwd: join(repository, base) })) {
+        const path = join(repository, base, file);
+        if (path.endsWith(join("repository-store", "src", "workspace.ts"))) continue;
+        if (path.endsWith(join("repository-store", "src", "store.ts"))) continue;
+        const source = readFileSync(path, "utf8");
+        if (/\bopenExisting\(|SqliteRepositoryStore\.open\(/.test(source)) offenders.push(join(base, file));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+});

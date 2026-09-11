@@ -167,6 +167,66 @@ afterEach(() => {
   }
 });
 
+describe("transaction state planted by a checkout", () => {
+  const linkable = ((): boolean => {
+    const probe = mkdtempSync(join(tmpdir(), "semctx-anchor-link-probe-"));
+    try {
+      writeFileSync(join(probe, "target"), "");
+      symlinkSync(join(probe, "target"), join(probe, "alias"), "file");
+      return true;
+    } catch {
+      return false;
+    } finally {
+      rmSync(probe, { recursive: true, force: true });
+    }
+  })();
+
+  it.skipIf(!linkable)("a planted journal link is refused before recovery reads or truncates through it", () => {
+    const root = repository({
+      "invariant.sem": invariantFile("invariant.one", ["sym:function:src/a.ts:run:42"]),
+    });
+    const outside = mkdtempSync(join(tmpdir(), "semctx-anchor-outside-"));
+    roots.push(outside);
+    // Two records, the last one without a trailing newline: recovery would truncate it away.
+    const keys = "ssh-ed25519 AAAA owner@host\nssh-ed25519 BBBB second@host";
+    writeFileSync(join(outside, "authorized_keys"), keys);
+    mkdirSync(join(activeDir(root), "blobs"), { recursive: true });
+    writeFileSync(join(activeDir(root), "owner.json"), JSON.stringify({ pid: 999999 }));
+    symlinkSync(join(outside, "authorized_keys"), join(activeDir(root), "journal.ndjson"), "file");
+
+    let caught: unknown;
+    try {
+      migrateAnchors(root, facts(RUN), { ...OK, apply: false });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect((caught as { details?: { reason?: string } } | undefined)?.details?.reason).toBe("TRANSACTION_WORKSPACE_UNSAFE");
+    expect(readFileSync(join(outside, "authorized_keys"), "utf8")).toBe(keys);
+  });
+
+  it.skipIf(!linkable)("a planted owner link is never read as the transaction owner", () => {
+    const root = repository({
+      "invariant.sem": invariantFile("invariant.one", ["sym:function:src/a.ts:run:42"]),
+    });
+    const outside = mkdtempSync(join(tmpdir(), "semctx-anchor-outside-"));
+    roots.push(outside);
+    writeFileSync(join(outside, "owner.json"), JSON.stringify({ pid: process.pid }));
+    mkdirSync(join(activeDir(root), "blobs"), { recursive: true });
+    writeFileSync(join(activeDir(root), "journal.ndjson"), "");
+    symlinkSync(join(outside, "owner.json"), join(activeDir(root), "owner.json"), "file");
+
+    let caught: unknown;
+    try {
+      migrateAnchors(root, facts(RUN), { ...OK, apply: false });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect((caught as { details?: { reason?: string } } | undefined)?.details?.reason).toBe("TRANSACTION_WORKSPACE_UNSAFE");
+  });
+});
+
 describe("nominal rewrite", () => {
   it("rewrites a legacy anchor to its canonical form and reports it", () => {
     const root = repository({

@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
-import { assertUnlinkedWorkspace, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
+import { assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -139,6 +139,10 @@ export function runPreset(
   const files = presetFiles(root, opts, options.includeConfig !== false);
   const planned: Array<{ path: string; action: Action }> = files.map((f) => {
     const abs = join(root, f.path);
+    // A linked preset target is refused outright rather than reported as "skip-exists".
+    if (isLinkedEntry(abs)) {
+      throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
+    }
     const exists = existsSync(abs);
     const action: Action = !exists ? "create" : force ? "overwrite" : "skip-exists";
     if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, f.content);

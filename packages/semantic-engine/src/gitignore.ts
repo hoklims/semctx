@@ -127,13 +127,15 @@ function removeTrailingLf(text: string): string {
 /** Ensure `.gitignore` tracks `.semctx/semantic/` and `.semctx/config.json`. Non-destructive. */
 export function ensureSemanticGitignore(root: string, dryRun = false): GitignoreResult {
   const path = join(root, ".gitignore");
-  // A checkout can plant `.gitignore` as a link; reading or rewriting through it would land
-  // wherever the link points, so it is refused like every `.semctx` entry.
-  if (isLinkedEntry(path)) throw new SemctxError("CONFIG_INVALID", "a linked .gitignore is unsupported", { path });
   const existed = existsSync(path);
   const existing = existed ? readFileSync(path, "utf8") : undefined;
   const { content, changed } = computeGitignore(existing);
   const action: GitignoreResult["action"] = !existed ? "create" : changed ? "update" : "present";
-  if (!dryRun && action !== "present") writeFileNoFollow(root, path, content);
+  if (!dryRun && action !== "present") {
+    // A checkout can plant `.gitignore` as a link; rewriting through it would land wherever the
+    // link points. Reading through one is harmless, so a dry run still reports what would change.
+    if (isLinkedEntry(path)) throw new SemctxError("CONFIG_INVALID", "a linked .gitignore is unsupported", { path });
+    writeFileNoFollow(root, path, content);
+  }
   return { path: ".gitignore", action };
 }

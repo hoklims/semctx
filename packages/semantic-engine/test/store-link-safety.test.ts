@@ -238,6 +238,18 @@ describe("semantic store refuses dangling links, planted temporaries and linked 
     expect(readFileSync(join(outside, "active-change.sem"), "utf8")).toBe("");
   });
 
+  fileLinked("a scaffold target that is a link is refused, not reported as skip-exists", () => {
+    const root = temporary("semctx-link-scaffold-target-");
+    const outside = temporary("semctx-link-outside-");
+    mkdirSync(join(root, ".semctx", "semantic"), { recursive: true });
+    writeFileSync(join(outside, "goals.sem"), GOAL);
+    symlinkSync(join(outside, "goals.sem"), join(root, ".semctx", "semantic", "goals.sem"), "file");
+
+    expectConfigInvalid(() => initSemanticScaffold(root));
+    expectConfigInvalid(() => initSemanticScaffold(root, { force: true }));
+    expect(readFileSync(join(outside, "goals.sem"), "utf8")).toBe(GOAL);
+  });
+
   fileLinked("a .gitignore that is a link is refused by the scaffold, never rewritten through", () => {
     const root = temporary("semctx-link-gitignore-");
     const outside = temporary("semctx-link-outside-");

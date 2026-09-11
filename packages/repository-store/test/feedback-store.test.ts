@@ -49,6 +49,24 @@ describe("feedback store", () => {
     expect(readFileSync(feedbackFilePath(repository), "utf8")).toBe("{broken");
   });
 
+  test("a planted writer-lock link is refused before the lock is created through it", () => {
+    const repository = root();
+    const outside = root();
+    mkdirSync(feedbackDir(repository), { recursive: true });
+    let planted = true;
+    try {
+      // Dangling on purpose: Windows `CREATE_NEW` would follow it and create the lock outside.
+      symlinkSync(join(outside, "planted-lock"), `${feedbackFilePath(repository)}.lock`, "file");
+    } catch {
+      planted = false;
+    }
+    if (!planted) return;
+
+    expect(() => writeFeedbackStore(repository, undefined, emptyFeedbackStoreFile())).toThrow("must not be a symlink");
+    expect(existsSync(join(outside, "planted-lock"))).toBe(false);
+    expect(existsSync(feedbackFilePath(repository))).toBe(false);
+  });
+
   test("a feedback-directory junction outside the repository is rejected", () => {
     const repository = root();
     const outside = root();

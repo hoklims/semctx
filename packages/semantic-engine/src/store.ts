@@ -262,6 +262,10 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
   const plan: ScaffoldPlan[] = [];
   for (const [name, content] of Object.entries(SCAFFOLD_FILES)) {
     const abs = join(semanticDir(root), name);
+    // A linked scaffold target is refused outright rather than reported as "skip-exists".
+    if (isLinkedEntry(abs)) {
+      throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { file: abs });
+    }
     const exists = existsSync(abs);
     const action: ScaffoldPlan["action"] = !exists ? "create" : force ? "overwrite" : "skip-exists";
     if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, content);

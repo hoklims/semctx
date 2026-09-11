@@ -10,7 +10,6 @@ import { createHash } from "node:crypto";
 import {
   closeSync,
   existsSync,
-  lstatSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -23,7 +22,7 @@ import { join, resolve, sep } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { FeedbackStoreFileSchema } from "@semantic-context/core";
 import type { FeedbackStoreFileV1 } from "@semantic-context/core";
-import { semctxDir } from "./workspace";
+import { isLinkedEntry, semctxDir } from "./workspace";
 
 export const FEEDBACK_DIR_NAME = "feedback";
 export const FEEDBACK_FILE_NAME = "records.json";
@@ -41,13 +40,8 @@ function contentDigestOf(raw: string): string {
 }
 
 function assertNotSymlink(path: string, describe: string): void {
-  let stat;
-  try {
-    stat = lstatSync(path);
-  } catch {
-    return;
-  }
-  if (stat.isSymbolicLink()) {
+  // Only an absent entry passes; any other `lstat` failure is a real error, not a pass.
+  if (isLinkedEntry(path)) {
     throw new SemctxError("STORE_ERROR", `${describe} must not be a symlink`, { path });
   }
 }
@@ -130,6 +124,9 @@ export function writeFeedbackStore(root: string, expectedDigest: string | undefi
   mkdirSync(dir, { recursive: true });
   confineFeedbackAncestors(root);
   const lock = `${path}.lock`;
+  // The lock has a fixed name, so a checkout can plant it: Windows `CREATE_NEW` follows a
+  // dangling link and would create the lock outside the repository.
+  assertNotSymlink(lock, "feedback writer lock");
   let lockFd: number;
   try {
     lockFd = openSync(lock, "wx");
