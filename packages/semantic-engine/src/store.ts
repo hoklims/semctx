@@ -4,14 +4,15 @@
  * Plane B in v1.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { compareIds, SemctxError } from "@semantic-context/core";
+import { semctxDir } from "@semantic-context/repository-store";
 import { parseSemanticSource, formatChange, formatModel } from "@semantic-context/semantic-dsl";
 import type { Diagnostic } from "@semantic-context/semantic-dsl";
 import { mergeModels, emptyModel } from "@semantic-context/semantic-model";
 import type { SemanticModel, SemanticNode, ChangeContract, SemanticNodeKind } from "@semantic-context/semantic-model";
-import { semanticDir, workingDir, changesDir, kindFilePath, changeFilePath, activeChangePath, KIND_FILE } from "./paths";
+import { semanticDir, workingDir, changesDir, targetsDir, kindFilePath, changeFilePath, activeChangePath, KIND_FILE } from "./paths";
 import { ensureSemanticGitignore } from "./gitignore";
 
 export interface LoadResult {
@@ -21,8 +22,28 @@ export interface LoadResult {
   duplicateIds: string[];
 }
 
+function assertNotLinked(path: string): void {
+  // `existsSync` follows links, so a dangling link reads as absent and is never walked.
+  if (existsSync(path) && lstatSync(path).isSymbolicLink()) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model directory symlinks are unsupported", { path });
+  }
+}
+
+/**
+ * No directory node of the semantic tree may be a symlink or junction. `existsSync`, `readdirSync`
+ * and every write follow links, so a checkout that plants `.semctx` (or a directory below it) as a
+ * link to another location would otherwise have its authored intent read from, and rewritten,
+ * outside the repository.
+ */
+function assertUnlinkedSemanticTree(root: string): void {
+  for (const dir of [semctxDir(root), semanticDir(root), changesDir(root), targetsDir(root), workingDir(root)]) {
+    assertNotLinked(dir);
+  }
+}
+
 export function listSemFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
+  assertNotLinked(dir);
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
     const full = join(dir, entry.name);
@@ -40,6 +61,7 @@ export function relFile(root: string, full: string): string {
 
 /** Load and merge every versioned `.sem` file under `.semctx/semantic/`. */
 export function loadSemanticModel(root: string): LoadResult {
+  assertUnlinkedSemanticTree(root);
   const files = listSemFiles(semanticDir(root));
   const diagnostics: Diagnostic[] = [];
   const seen = new Map<string, number>();
@@ -139,6 +161,7 @@ export interface FormatOutcome {
  * blanking scaffold guidance; comments inside content files are dropped on write (canonical form).
  */
 export function formatSemanticFiles(root: string, write: boolean): FormatOutcome[] {
+  assertUnlinkedSemanticTree(root);
   const out: FormatOutcome[] = [];
   for (const file of listSemFiles(semanticDir(root))) {
     const before = readFileSync(file, "utf8");
@@ -209,6 +232,7 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
 } {
   const force = opts.force === true;
   const dryRun = opts.dryRun === true;
+  assertUnlinkedSemanticTree(root);
   if (!dryRun) {
     mkdirSync(semanticDir(root), { recursive: true });
     mkdirSync(changesDir(root), { recursive: true });
