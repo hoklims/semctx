@@ -59,7 +59,7 @@ import {
   type LinkResolutionReasonCode,
   type RepositoryFacts,
 } from "@semantic-context/semantic-model";
-import { listSemFiles, relFile } from "./store";
+import { assertUnlinkedSemanticTree, listSemFiles, relFile } from "./store";
 import { semanticDir } from "./paths";
 import { locateLinkRefs, type LocatedLinkRef } from "./anchor-link-locator";
 
@@ -1232,6 +1232,7 @@ function recoverAnchorMigrationOwned(
 }
 
 export function recoverAnchorMigration(root: string, files = NODE_ANCHOR_MIGRATION_FILE_SYSTEM): string[] {
+  assertUnlinkedSemanticTree(root);
   return recoverAnchorMigrationOwned(root, files);
 }
 
@@ -1444,6 +1445,9 @@ export function migrateAnchors(
   options: AnchorMigrationOptions,
 ): AnchorMigrationReport {
   const files = options.fileSystem ?? NODE_ANCHOR_MIGRATION_FILE_SYSTEM;
+  // Nothing below `.semctx` may be a link: recovery, planning and the transaction all resolve
+  // paths from it, and `assertWithinSemanticDir` trusts wherever the tree really is.
+  assertUnlinkedSemanticTree(root);
   // Recovery is a mandatory gate for every invocation, including dry runs and authority refusals:
   // a new plan must never be reported over a tree left between transaction states by an older one.
   recoverAnchorMigration(root, files);

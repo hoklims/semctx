@@ -1,5 +1,6 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { randomBytes } from "node:crypto";
+import { closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { SemctxError, SemctxConfigSchema, createDefaultConfig } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
 import { SqliteRepositoryStore } from "./store";
@@ -26,10 +27,49 @@ export function isInitialized(root: string): boolean {
   return existsSync(configPath(root));
 }
 
+/**
+ * Whether the entry at `path` is a symlink or junction. `lstat` reports the entry itself, so a
+ * dangling link counts too (`existsSync` would follow it and report it absent); only a missing
+ * entry is false.
+ */
+export function isLinkedEntry(path: string): boolean {
+  try {
+    return lstatSync(path).isSymbolicLink();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
+  }
+}
+
 function assertNotLinked(path: string): void {
-  // `existsSync` follows links, so a dangling link reads as absent and is never opened.
-  if (existsSync(path) && lstatSync(path).isSymbolicLink()) {
+  if (isLinkedEntry(path)) {
     throw new SemctxError("CONFIG_INVALID", "linked .semctx entries are unsupported", { path });
+  }
+}
+
+/**
+ * Replace `path` atomically without following a link at the destination or at the temporary
+ * name. The temporary name is unguessable and claimed with `O_CREAT | O_EXCL`, which fails on any
+ * existing entry, links included; `rename` then replaces the destination entry itself.
+ */
+export function writeFileNoFollow(path: string, content: string): void {
+  assertNotLinked(path);
+  mkdirSync(dirname(path), { recursive: true });
+  const temporary = `${path}.${randomBytes(9).toString("hex")}.tmp`;
+  const descriptor = openSync(temporary, "wx", 0o644);
+  try {
+    writeFileSync(descriptor, content, "utf8");
+  } catch (error) {
+    closeSync(descriptor);
+    rmSync(temporary, { force: true });
+    throw error;
+  }
+  closeSync(descriptor);
+  try {
+    renameSync(temporary, path);
+  } catch (error) {
+    rmSync(temporary, { force: true });
+    throw error;
   }
 }
 
@@ -70,8 +110,7 @@ export function initWorkspace(root: string, overrides?: Partial<SemctxConfig>): 
 
 export function saveConfig(root: string, config: SemctxConfig): void {
   assertUnlinkedWorkspace(root);
-  mkdirSync(semctxDir(root), { recursive: true });
-  writeFileSync(configPath(root), `${JSON.stringify(toDiskConfig(config), null, 2)}\n`, "utf8");
+  writeFileNoFollow(configPath(root), `${JSON.stringify(toDiskConfig(config), null, 2)}\n`);
 }
 
 export function loadConfig(root: string): SemctxConfig {

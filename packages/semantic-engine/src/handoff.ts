@@ -6,9 +6,9 @@
  * unverified compaction hook.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { compareIds } from "@semantic-context/core";
+import { writeFileNoFollow } from "@semantic-context/repository-store";
 import { SemanticIndex, PROVEN_STATUSES, repositoryLinkToRef } from "@semantic-context/semantic-model";
 import type { SemanticModel, ChangeContract } from "@semantic-context/semantic-model";
 import { workingDir, handoffJsonPath, handoffMarkdownPath } from "./paths";
@@ -83,13 +83,6 @@ export function buildHandoffCapsule(args: CaptureArgs): HandoffCapsule {
   return capsule;
 }
 
-function writeAtomic(path: string, content: string): void {
-  mkdirSync(join(path, ".."), { recursive: true });
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, content, "utf8");
-  renameSync(tmp, path);
-}
-
 export function renderHandoffMarkdown(capsule: HandoffCapsule): string {
   const lines: string[] = [];
   lines.push(`# semctx handoff capsule`);
@@ -122,8 +115,8 @@ export function captureHandoff(args: CaptureArgs): HandoffCapsule {
   const capsule = buildHandoffCapsule(args);
   assertUnlinkedSemanticTree(args.root);
   mkdirSync(workingDir(args.root), { recursive: true });
-  writeAtomic(handoffJsonPath(args.root), `${JSON.stringify(capsule, null, 2)}\n`);
-  writeAtomic(handoffMarkdownPath(args.root), renderHandoffMarkdown(capsule));
+  writeFileNoFollow(handoffJsonPath(args.root), `${JSON.stringify(capsule, null, 2)}\n`);
+  writeFileNoFollow(handoffMarkdownPath(args.root), renderHandoffMarkdown(capsule));
   return capsule;
 }
 

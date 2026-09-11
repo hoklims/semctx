@@ -1,9 +1,8 @@
-import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import type { TaskFrame } from "@semantic-context/core";
 import { trustedControlSealHash } from "@semantic-context/app-services";
-import { openStore, contextPacksDir, loadConfig } from "@semantic-context/repository-store";
+import { openStore, contextPacksDir, loadConfig, writeFileNoFollow } from "@semantic-context/repository-store";
 import { prepareContextPack, fetchProviderCandidates, stableProviderSourceSeal } from "@semantic-context/context-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -68,12 +67,12 @@ export async function runContextPrepare(root: string, args: ParsedArgs): Promise
   store.close();
 
   const dir = contextPacksDir(root);
-  mkdirSync(dir, { recursive: true });
   const safeId = taskFrame.id.replace(/[^A-Za-z0-9._-]/g, "_");
   const jsonPath = join(dir, `${safeId}.json`);
   const mdPath = join(dir, `${safeId}.md`);
-  writeFileSync(jsonPath, `${JSON.stringify(pack, null, 2)}\n`, "utf8");
-  writeFileSync(mdPath, renderPackMarkdown(pack), "utf8");
+  // The pack files are committed-checkout destinations too: never write through a planted link.
+  writeFileNoFollow(jsonPath, `${JSON.stringify(pack, null, 2)}\n`);
+  writeFileNoFollow(mdPath, renderPackMarkdown(pack));
 
   if (flagBool(args, "json")) {
     json(pack);

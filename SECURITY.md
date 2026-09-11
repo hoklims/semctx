@@ -36,10 +36,16 @@ as quickly as the severity warrants.
   or file contents cannot inject shell commands.
 - All SQL uses parameter binding; no value is concatenated into a query string.
 - Config and task files are parsed with `JSON.parse` and validated with Zod at the boundary.
-- Nothing opened under `.semctx` may be a symlink or junction: the directory itself, its
-  `config.json`, `semctx.db` and `context-packs`, the `semantic`, `changes` and `targets`
-  directories and the `working` pointer/handoff directory are checked before every read, write,
-  scaffold and `init`, and refused (`CONFIG_INVALID`) rather than followed outside the repository.
+- Nothing opened under `.semctx` may be a symlink or junction, dangling ones included: the
+  directory itself, `config.json`, `semctx.db` with its SQLite `-wal`/`-shm`/`-journal` sidecars,
+  `context-packs`, the `semantic`, `changes` and `targets` directories down to each target
+  directory, and the `working` directory with its pointer and handoff files. They are checked with
+  `lstat` before every read, write, scaffold and `init` — the read-only index reader, the
+  reconciliation loader and the anchor migration included — and refused (`CONFIG_INVALID`, or
+  `CONTROL_INPUTS_UNSAFE` on the reconciliation surface) rather than followed outside the
+  repository. Files under `.semctx` are written through an unguessable temporary name created with
+  `O_CREAT | O_EXCL` and renamed into place, so a planted `<file>.tmp` link is never followed and a
+  linked destination is refused.
 
 ## Integrations
 
