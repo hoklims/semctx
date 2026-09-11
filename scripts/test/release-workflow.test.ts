@@ -263,6 +263,16 @@ gh() {
     printf '%s\\n' CREATE >> "$TEST_LOG"
     return 0
   fi
+  if [[ "$*" == *"--jq .tag_name"* ]]; then
+    printf '%s\\n' READBACK_TAG >> "$TEST_LOG"
+    printf '%s\\n' "\${RELEASE_READBACK_TAG:-$GITHUB_REF_NAME}"
+    return 0
+  fi
+  if [[ "$*" == *"--jq .body"* ]]; then
+    printf '%s\\n' READBACK_BODY >> "$TEST_LOG"
+    printf '%s\\n' "\${RELEASE_READBACK_BODY-# Semctx 1.2.3}"
+    return 0
+  fi
   case "$RELEASE_SCENARIO" in
     absent) printf '%s\\n' 'HTTP 404: Not Found' >&2; return 22 ;;
     present) return 0 ;;
@@ -344,13 +354,43 @@ describe("stable branch fallback", () => {
 });
 
 describe("GitHub Release fallback", () => {
-  test("creates the release when lookup returns 404", () => {
+  test("requires the reviewed release notes before anything is published", () => {
+    const verifySteps = workflow.jobs.verify?.steps.map((step) => step.name ?? step.uses ?? "") ?? [];
+    const notesIndex = verifySteps.indexOf("Require reviewed release notes before anything is published");
+    const packageIndex = verifySteps.indexOf("Build and checksum the immutable npm package");
+    expect(notesIndex).toBeGreaterThan(0);
+    expect(packageIndex).toBeGreaterThan(notesIndex);
+    expect(releaseScript("verify", "Require reviewed release notes before anything is published"))
+      .toContain('test -s "$notes_file"');
+    expect(workflow.jobs.publish?.needs).toBe("verify");
+    expect(stableScript).not.toContain("notes_file");
+  });
+
+  test("creates the release when lookup returns 404 and reads the exact tag and body back", () => {
     const result = runShell(githubReleaseScript, releasePrelude, {
       RELEASE_SCENARIO: "absent",
     });
     expect(result.exitCode).toBe(0);
-    expect(result.log).toBe("CREATE\n");
+    expect(result.log).toBe("CREATE\nREADBACK_TAG\nREADBACK_BODY\n");
     expect(githubReleaseScript).toContain('--notes-file "$notes_file"');
+  });
+
+  test("fails after creation when the release reads back with another tag", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, {
+      RELEASE_SCENARIO: "absent",
+      RELEASE_READBACK_TAG: "v9.9.9",
+    });
+    expect(result.exitCode).not.toBe(0);
+    expect(result.log).toBe("CREATE\nREADBACK_TAG\n");
+  });
+
+  test("fails after creation when the release reads back without a body", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, {
+      RELEASE_SCENARIO: "absent",
+      RELEASE_READBACK_BODY: "",
+    });
+    expect(result.exitCode).not.toBe(0);
+    expect(result.log).toBe("CREATE\nREADBACK_TAG\nREADBACK_BODY\n");
   });
 
   test("does not create the release when it already exists", () => {

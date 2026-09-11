@@ -28,6 +28,8 @@ function fixture(): string {
     "packages/github-action/README.md",
     "apps/cli/src/commands/preset.ts",
     "apps/cli/test/init-preset.test.ts",
+    "plugins/claude-code/dist/semctx.js",
+    "plugins/semctx-control/dist/semctx.js",
   ]) {
     write(root, path, `${action}\n`);
   }
@@ -174,6 +176,26 @@ describe("documentation integrity", () => {
     const root = fixture();
     write(root, "examples/github-actions/semctx.yml", "hoklims/semctx/packages/github-action@v0.1.18\n");
     const problems = checkDocumentation(root).filter((problem) => problem.file === "examples/github-actions/semctx.yml");
+    expect(problems.map((problem) => problem.message)).toEqual([
+      `current Action pin must be ${action}`,
+      "stale or mutable current Action pin: hoklims/semctx/packages/github-action@v0.1.18",
+    ]);
+  });
+
+  test("reports a missing current Action surface as a diagnostic instead of throwing", () => {
+    const root = fixture();
+    unlinkSync(join(root, "examples/github-actions/semctx-strict.yml"));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "examples/github-actions/semctx-strict.yml",
+      line: 1,
+      message: "current Action surface is missing; update CURRENT_ACTION_FILES if it moved",
+    });
+  });
+
+  test("rejects a stale pin embedded in a generated plugin bundle", () => {
+    const root = fixture();
+    write(root, "plugins/claude-code/dist/semctx.js", "uses: hoklims/semctx/packages/github-action@v0.1.18\n");
+    const problems = checkDocumentation(root).filter((problem) => problem.file === "plugins/claude-code/dist/semctx.js");
     expect(problems.map((problem) => problem.message)).toEqual([
       `current Action pin must be ${action}`,
       "stale or mutable current Action pin: hoklims/semctx/packages/github-action@v0.1.18",

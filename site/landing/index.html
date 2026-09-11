@@ -191,6 +191,10 @@
     .verdict-pass { display: none; }
     .stage-progress { display: none; }
     .marker-typed { width: var(--cols); }
+    /* Without scroll-driven animation the scenes would keep their inline start state (hidden diff
+       lines, undrawn edges, invisible verdict); show the final state, as reduced motion does. */
+    .scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .graph line, .graph path { stroke-dashoffset: 0 !important; }
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -15,6 +15,9 @@ export interface DocumentationCheckOptions {
   requireReleaseEvidence?: boolean;
 }
 
+// Every surface a user copies the Action pin from, including the generated plugin bundles that
+// embed the `init --preset github-claude` workflow; `plugin:check` keeps those bundles in sync with
+// `preset.ts`, and this gate keeps the pin they carry current.
 const CURRENT_ACTION_FILES = [
   "README.md",
   "docs/integrations/github-actions.md",
@@ -23,6 +26,8 @@ const CURRENT_ACTION_FILES = [
   "packages/github-action/README.md",
   "apps/cli/src/commands/preset.ts",
   "apps/cli/test/init-preset.test.ts",
+  "plugins/claude-code/dist/semctx.js",
+  "plugins/semctx-control/dist/semctx.js",
 ] as const;
 
 const RELEASE_DATE = "2026-09-10";
@@ -242,6 +247,10 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
   const toolCount = registeredToolCount(root);
   const action = `hoklims/semctx/packages/github-action@v${version}`;
   for (const file of CURRENT_ACTION_FILES) {
+    if (!existsSync(resolve(root, file))) {
+      add(problems, file, "", 0, "current Action surface is missing; update CURRENT_ACTION_FILES if it moved");
+      continue;
+    }
     const text = readFileSync(resolve(root, file), "utf8");
     if (!text.includes(action)) add(problems, file, text, 0, `current Action pin must be ${action}`);
     for (const match of text.matchAll(/hoklims\/semctx\/packages\/github-action@([^\s"'`)]+)/g)) {

@@ -5,7 +5,7 @@ Describe the problem, the chosen change, and any intentionally excluded scope.
 ## Change tier
 
 Select exactly one: the highest tier reached by this change. See the
-[public-contract contribution guide](../docs/contributing/public-contracts.md).
+[public-contract contribution guide](https://github.com/hoklims/semctx/blob/main/docs/contributing/public-contracts.md).
 
 - [ ] **ROUTINE** — behavior-preserving internal maintenance with no domain-policy or public-contract effect.
 - [ ] **DOMAIN** — changes application behavior behind an unchanged governed public contract.

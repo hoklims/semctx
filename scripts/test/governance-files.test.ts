@@ -475,7 +475,13 @@ describe("contributor governance", () => {
     expect(template).toContain("Machine source(s) of truth");
     expect(template).toContain("Compatibility and migration impact");
     expect(template).toContain("N/A with a reason");
-    expect(template).toContain("/docs/contributing/public-contracts.md");
+    // GitHub renders the template into the PR body, where neither a root-absolute nor a
+    // `../` relative path resolves; only the canonical repository URL reaches the guide.
+    expect(template).toContain(
+      "(https://github.com/hoklims/semctx/blob/main/docs/contributing/public-contracts.md)",
+    );
+    expect(template).not.toContain("](../docs/");
+    expect(template).not.toContain("](/docs/");
   });
 
   test("configures weekly dependency updates without automerge", () => {

@@ -33,6 +33,14 @@ jobs:
           test "$(git cat-file -t "$GITHUB_REF_NAME")" = "tag"
           test "$(git rev-list -n 1 "$GITHUB_REF_NAME")" = "$GITHUB_SHA"
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Require reviewed release notes before anything is published
+        shell: bash
+        # Checked here, before npm publication and the `stable` promotion, so a missing brief can
+        # never leave a half-promoted release behind.
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          notes_file="docs/releases/v$version.md"
+          test -s "$notes_file"
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
@@ -266,6 +274,12 @@ jobs:
           test -s "$notes_file"
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
             --verify-tag --notes-file "$notes_file"
+          # Read the release back: the exact tag must be the one that was requested, and the body
+          # must carry the reviewed brief rather than generated-only notes.
+          read_tag="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --jq .tag_name)"
+          test "$read_tag" = "$GITHUB_REF_NAME"
+          read_body="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --jq .body)"
+          test -n "$read_body"
 
   deliver:
     name: prove stable marketplace delivery
