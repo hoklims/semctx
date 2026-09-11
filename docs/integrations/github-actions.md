@@ -16,7 +16,7 @@ steps:
   - uses: actions/checkout@v4
     with:
       fetch-depth: 0        # required: the merge-base with the base must be local
-  - uses: hoklims/semctx/packages/github-action@v0.1.18
+  - uses: hoklims/semctx/packages/github-action@v0.2.0
     with:
       base: ${{ github.event.pull_request.base.sha }}
       head: ${{ github.sha }}

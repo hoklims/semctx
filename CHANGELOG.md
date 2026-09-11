@@ -27,7 +27,7 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   scaffold and `init` (`CONFIG_INVALID`). Reads and rewrites could previously land outside the
   repository through a planted link. (SEC-PB-01.)
 
-## [0.2.0] - 2026-09-08
+## [0.2.0] - 2026-09-10
 
 ### Added
 

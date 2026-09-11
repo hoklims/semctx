@@ -1,6 +1,9 @@
 # Repository governance, contributor policy, and verification entry points.
 /.github/ @hoklims
 /CONTRIBUTING.md @hoklims
+/SUPPORT.md @hoklims
+/docs/README.md @hoklims
+/docs/troubleshooting.md @hoklims
 /docs/contributing/public-contracts.md @hoklims
 /docs/publishing.md @hoklims
 /package.json @hoklims
@@ -8,6 +11,7 @@
 /packages/app-services/package.json @hoklims
 /requirements-quality.txt @hoklims
 /scripts/verify-pr.ts @hoklims
+/scripts/documentation-integrity.ts @hoklims
 /scripts/build-plugin-runtime.ts @hoklims
 
 # Plugin discovery, installation, launch, and marketplace contracts.
