@@ -8,8 +8,10 @@ Oh My Pi installs the Claude plugin directory (`plugins/claude-code`) through
 `.omp-plugin/marketplace.json`. The catalog entry uses the existing `git-subdir` source and pins
 `source.ref` to the exact release tag (`v<version>`). The marketplace name (`semctx-stable`) is a
 label, not the Git authority. OMP reads the Agent-Plugins 1.0.0 `plugin.json` and `mcp.json` at that
-subdirectory root. MCP launches `bun` with `${PLUGIN_ROOT}/dist/semctx-mcp.js`, without `cwd` or
-`SEMCTX_ROOT`; the first absolute `repositoryRoot` request binds the server as on Codex.
+subdirectory root. MCP launches `bun --cwd ${PLUGIN_ROOT} ${PLUGIN_ROOT}/dist/semctx-mcp.js`,
+without a `cwd` field or `SEMCTX_ROOT`; the first absolute `repositoryRoot` request binds the
+server as on Codex. Bun's `--cwd` keeps the project's `bunfig.toml` and `.env` out of the server
+process.
 
 Requirements: Oh My Pi `18.1.11` (the currently observed Agent-Plugins baseline) and Bun `>=1.4.0`
 on PATH. Other OMP versions remain unverified.

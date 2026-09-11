@@ -26,6 +26,9 @@ as quickly as the severity warrants.
   or file contents cannot inject shell commands.
 - All SQL uses parameter binding; no value is concatenated into a query string.
 - Config and task files are parsed with `JSON.parse` and validated with Zod at the boundary.
+- Authored semantic state is read and written only through real directories: a symlink or
+  junction at `.semctx`, `.semctx/semantic`, its `changes`/`targets` subdirectories or
+  `.semctx/working` is refused (`CONFIG_INVALID`) rather than followed outside the repository.
 
 ## Integrations
 
@@ -34,7 +37,15 @@ as quickly as the severity warrants.
   no secret. It never comments on PRs. All user-controlled inputs are routed through the step
   `env:` and referenced as shell variables, so the `${{ }}` template engine never interpolates a
   value into a run script (no Actions injection). It runs a fixed set of `semctx` commands plus a
-  Node adapter — it does not execute arbitrary PR scripts.
+  Node adapter — it does not execute arbitrary PR scripts. Every `bun` step runs from the action's
+  own checkout with the analysed repository passed as an absolute `--root`, so the pull request's
+  `bunfig.toml` `preload` scripts and `.env` are never loaded by the runtime.
+- **Plugin MCP servers** (`plugins/claude-code`, `plugins/semctx-control`): Bun starts with its
+  working directory pinned to the installed plugin (`--cwd ${CLAUDE_PLUGIN_ROOT}` on Claude Code,
+  `--cwd ${PLUGIN_ROOT}` on Oh My Pi; Codex resolves the launch against the plugin directory), so
+  the analysed checkout's `bunfig.toml` `preload` scripts and `.env` never run inside the server
+  process. The server reaches repository content only through explicit absolute `repositoryRoot`
+  arguments.
 - **Claude Code guarded hook** (`plugins/claude-code`): advisory (never blocks) by default. When
   a project opts in, it gates only `git commit`/`git push`, keyed on a diff hash — it runs no
   analysis and parses the command structurally (argv tokens, never a shell eval). It is strictly

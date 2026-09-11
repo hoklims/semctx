@@ -9,6 +9,23 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Security
+
+- Plugin MCP servers pin Bun's working directory to the installed plugin: Claude Code launches
+  `bun --cwd ${CLAUDE_PLUGIN_ROOT}` and Oh My Pi `bun --cwd ${PLUGIN_ROOT}` before the bundle
+  path. A host that started the server inside the analysed checkout previously let that checkout's
+  `bunfig.toml` `preload` scripts run, and its `.env` load, before the server existed. Codex already
+  resolves its launch against the installed plugin. (Quality audit 2026-09-09, SEC-PPLUG-01.)
+- The GitHub Action runs every `bun` step from the action's own checkout and passes the analysed
+  repository as an absolute `--root`. The verify step previously ran Bun inside the pull-request
+  checkout, so a pull request's `bunfig.toml` could execute code on the runner before semctx
+  started. `working-directory`, `config-path` and `report-path` keep their documented meaning.
+  (SEC-PPLUG-02.)
+- The semantic store refuses a `.semctx`, `.semctx/semantic`, `changes`, `targets` or `working`
+  directory that is a symlink or junction (`CONFIG_INVALID`) instead of following it. Reads and
+  rewrites of `*.sem` could previously land outside the repository through a planted directory
+  link. (SEC-PB-01.)
+
 ## [0.2.0] - 2026-09-08
 
 ### Added
