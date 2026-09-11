@@ -138,10 +138,12 @@ describe("plugin MCP launches never run the analysed checkout's Bun configuratio
     }
   });
 
-  test("Codex manifest resolves the bundle relative to a cwd that must be the plugin root", () => {
-    // Codex substitutes no plugin-root placeholder into `.mcp.json`. Its launch names the bundle
-    // relative to `cwd: "."`, so the server can only start when that cwd is the installed plugin
-    // directory; a launch from the analysed checkout would fail before Bun read anything there.
+  test("Codex manifest keeps a plugin-relative cwd, which Codex joins to the installed plugin", () => {
+    // Codex resolves a plugin MCP `cwd` against the plugin root and rejects one that leaves it
+    // (openai/codex `codex-rs/codex-mcp/src/plugin_config.rs`, `environment_cwd` and the host
+    // `root.join(cwd)` branch, main @ 654b0a77d on 2026-09-11), so Bun never starts inside the
+    // analysed checkout on Codex. This pins the manifest shape that relies on it; it is not a
+    // host-level witness.
     const launch = json<{ mcpServers: { semctx: StdioLaunch & { cwd: string } } }>(
       "plugins/semctx-control/.mcp.json",
     ).mcpServers.semctx;

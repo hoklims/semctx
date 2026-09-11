@@ -52,6 +52,9 @@ action's own checkout, already used for `bun install`). A preceding `node` step 
 consumer directory to an absolute forward-slash path, and the CLI receives it as `--root`.
 `config-path` and `report-path` remain relative to the analysed directory. Node reads no
 configuration from its working directory, and the adapter step is unchanged.
-`packages/github-action/test/launch-isolation.test.ts` pins the step shapes and proves, with a
-hostile checkout, that the CLI started from the action checkout ignores that checkout's
-`bunfig.toml`.
+The resolved directory must stay inside `GITHUB_WORKSPACE` (a `working-directory` that is, or
+contains, a link to elsewhere on the runner is refused), and the step output uses the
+multi-line delimiter form so a path cannot inject a second output.
+`packages/github-action/test/launch-isolation.test.ts` pins the step shapes, runs the resolution
+step against a workspace subdirectory and an outside directory, and proves with a hostile
+checkout that the CLI started from the action checkout ignores that checkout's `bunfig.toml`.

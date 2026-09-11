@@ -420,8 +420,9 @@ describe("Codex and Claude Code plugin parity", () => {
 
     expect(Object.keys(codexMcp.mcpServers)).toEqual(["semctx"]);
     expect(Object.keys(claudeMcp.mcpServers)).toEqual(["semctx"]);
-    // Codex resolves `cwd: "."` and the relative bundle path against the installed plugin, so Bun
-    // never starts inside the analysed checkout. Claude Code has no cwd field and substitutes
+    // Codex joins a plugin MCP `cwd` to the installed plugin root and rejects one outside it
+    // (openai/codex `codex-rs/codex-mcp/src/plugin_config.rs`), so Bun never starts inside the
+    // analysed checkout on that host. Claude Code has no cwd field and substitutes
     // `${CLAUDE_PLUGIN_ROOT}` into args, so the launch pins Bun's cwd itself: otherwise the
     // checkout's `bunfig.toml` preload scripts and `.env` would run in the server process
     // (plugins/launch-isolation.test.ts).

@@ -63,7 +63,8 @@ history. If the base is missing, the action fails with a clear message pointing 
 
 ## Monorepos and custom config
 
-- `working-directory`: point the action at a sub-package to analyse only that directory.
+- `working-directory`: point the action at a sub-package to analyse only that directory. It must
+  stay inside the job workspace; a directory that resolves elsewhere on the runner is refused.
 - `config-path`: supply a `config.json` (e.g. a monorepo `include` of `packages/*/src/**/*.ts`)
   to use instead of the generated default.
 

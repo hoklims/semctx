@@ -21,10 +21,11 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   checkout, so a pull request's `bunfig.toml` could execute code on the runner before semctx
   started. `working-directory`, `config-path` and `report-path` keep their documented meaning.
   (SEC-PPLUG-02.)
-- The semantic store refuses a `.semctx`, `.semctx/semantic`, `changes`, `targets` or `working`
-  directory that is a symlink or junction (`CONFIG_INVALID`) instead of following it. Reads and
-  rewrites of `*.sem` could previously land outside the repository through a planted directory
-  link. (SEC-PB-01.)
+- Nothing semctx opens under `.semctx` may be a symlink or junction: the directory itself, its
+  `config.json`, `semctx.db` and `context-packs`, the `semantic`, `changes` and `targets`
+  directories and the `working` pointer/handoff directory are checked before every read, write,
+  scaffold and `init` (`CONFIG_INVALID`). Reads and rewrites could previously land outside the
+  repository through a planted link. (SEC-PB-01.)
 
 ## [0.2.0] - 2026-09-08
 

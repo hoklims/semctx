@@ -96,6 +96,9 @@ Reason: Bun executes `$cwd/bunfig.toml` `preload` scripts and loads `$cwd/.env` 
 entrypoint. A host that starts the server inside the analysed checkout therefore hands that
 checkout code execution the moment the plugin auto-starts (quality audit 2026-09-09,
 SEC-PPLUG-01). Bun's own `--cwd` pins the working directory to the installed plugin on every host,
-whether or not the host exposes a working-directory setting. `plugin:check` pins the new argv;
+whether or not the host exposes a working-directory setting. The Codex manifest keeps `cwd: "."`:
+Codex joins a plugin MCP `cwd` to the installed plugin root and rejects one that leaves it
+(openai/codex `codex-rs/codex-mcp/src/plugin_config.rs`, `environment_cwd`, main @ 654b0a77d on
+2026-09-11), so that host never starts Bun inside the analysed checkout. `plugin:check` pins the new argv;
 `plugins/launch-isolation.test.ts` proves the vector with an unpinned launch and proves that the
 shipped launches ignore a hostile checkout's `bunfig.toml` and `.env` while the bundle still starts.

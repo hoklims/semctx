@@ -42,7 +42,7 @@ jobs:
 | `base` | — (required) | base ref to compare against (usually the PR base SHA) |
 | `head` | `HEAD` | head ref to analyse |
 | `fail-on` | `block` | fail the job on `block`, `warn`, or `none` |
-| `working-directory` | `.` | repository directory to analyse |
+| `working-directory` | `.` | repository directory to analyse; must stay inside the job workspace |
 | `config-path` | `""` | optional `config.json` to use instead of the generated default |
 | `report-path` | `semctx-report.json` | where the JSON report is written (in `working-directory`) |
 | `upload-report` | `false` | upload the JSON report as a workflow artifact |
