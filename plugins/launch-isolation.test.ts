@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -17,7 +17,9 @@ const fixtures: string[] = [];
 
 /** A checkout that would run code on every Bun start from its directory. */
 function hostileCheckout(): { root: string; marker: string } {
-  const root = mkdtempSync(join(tmpdir(), "semctx-hostile-checkout-"));
+  // Resolve links up front: on macOS `tmpdir()` is `/var/...` while a process started there
+  // reports `/private/var/...` as its cwd.
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-hostile-checkout-")));
   fixtures.push(root);
   const marker = join(root, "PRELOAD-RAN");
   writeFileSync(join(root, "bunfig.toml"), 'preload = ["./preload.ts"]\n');
