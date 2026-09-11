@@ -538,7 +538,11 @@ describe("static page contract", () => {
   test("browser reader accepts the committed strict evidence projection", () => {
     const evidence = JSON.parse(readFileSync(join(import.meta.dir, "..", "..", "site", "evidence.json"), "utf8"));
     const rendered = renderEvidenceInBrowserShell(evidence);
-    expect(rendered["phase-value"]?.textContent).toBe("candidate");
+    expect(evidence.releaseCommit).toEqual({
+      value: "23b49dc70d666b5b76d4333dadb4bbdf6070f077",
+      authority: "caller-asserted",
+    });
+    expect(rendered["phase-value"]?.textContent).toBe("release");
     expect(rendered["global-verdict"]?.textContent).toBe("WARN");
     expect(rendered["artifact-version"]?.textContent).toBe("0.2.0");
     expect(rendered["report-status"]?.textContent).toBe("Packaged demo evidence is present.");

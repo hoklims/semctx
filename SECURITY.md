@@ -1,5 +1,15 @@
 # Security Policy
 
+## Supported versions
+
+| Version | Security updates |
+| --- | --- |
+| 0.2.x | Supported |
+| < 0.2.0 | Not supported; upgrade to the current release before requesting a patch |
+
+This table describes maintenance eligibility, not a claim that a version has no vulnerabilities.
+The exact current release is listed on the [GitHub Releases page](https://github.com/hoklims/semctx/releases).
+
 ## Scope
 
 semctx runs locally against repositories that may be untrusted. It:

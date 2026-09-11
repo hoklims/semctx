@@ -2,7 +2,8 @@
 
 This directory is a static, dependency-free view of the strict public evidence projection. It
 contains no analytics, remote font, runtime service, or copied local runner output.
-It is intended for the existing Pages site at `/semctx/demo/`; it does not replace the root landing.
+The evidence workbench is published at `/semctx/demo/`. The reviewed root landing source lives in
+`site/landing/index.html` and is published at `/semctx/` alongside this demo.
 
 Build candidate evidence from explicit local inputs:
 

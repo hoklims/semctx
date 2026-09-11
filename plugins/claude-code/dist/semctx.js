@@ -7,7 +7,7 @@ ${a.bold(e)}
 `)}function b(e){process.stderr.write(`${a.red("ERROR")} ${e}
 `)}function w(e){process.stdout.write(`${JSON.stringify(e,null,2)}
 `)}function R(){return new Date().toISOString()}import{existsSync as nt,mkdirSync as eo,writeFileSync as to,renameSync as no}from"fs";import{dirname as ro,join as rt}from"path";var oo=`# semctx PR gate: BLOCK fails the check, WARN does not. Read-only, no secrets.
-# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.1.18.
+# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.2.0.
 name: Semctx
 
 on:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: hoklims/semctx/packages/github-action@v0.1.18
+      - uses: hoklims/semctx/packages/github-action@v0.2.0
         with:
           base: \${{ github.event.pull_request.base.sha }}
           head: \${{ github.sha }}

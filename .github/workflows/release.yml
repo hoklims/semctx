@@ -217,6 +217,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
       - name: Advance the stable plugin channel after npm is public
         env:
           GH_TOKEN: ${{ github.token }}
@@ -256,8 +261,11 @@ jobs:
               exit "$status"
             fi
           fi
+          version="${GITHUB_REF_NAME#v}"
+          notes_file="docs/releases/v$version.md"
+          test -s "$notes_file"
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --verify-tag --generate-notes
+            --verify-tag --notes-file "$notes_file"
 
   deliver:
     name: prove stable marketplace delivery

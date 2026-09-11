@@ -5,7 +5,7 @@ Semctx **0.2.0** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.
-[Baseline delivery evidence](https://github.com/hoklims/semctx/actions/runs/33921551614).
+[Baseline delivery evidence](https://github.com/hoklims/semctx/actions/runs/34433110104).
 Installation does not reload an active session: open a new Codex task, or run
 `/reload-plugins` in Claude Code (restart if reload fails).
 <!-- semctx:compatibility:end -->
@@ -36,6 +36,10 @@ It shows a benign edit, a structural contract warning and a runtime bug that sta
 prove correct. Contributors can [check their setup and run a focused test](docs/contributing/first-check.md).
 Optional [feedback and support reports](docs/reference/cli.md#local-feedback-and-support-reports)
 stay local until you explicitly share an exported file.
+
+Use the [documentation index](docs/README.md) to choose a CLI, Codex, Claude Code, OMP, GitHub
+Actions, contributor, or maintainer path. For questions and safe reporting routes, see
+[SUPPORT.md](SUPPORT.md) and the [troubleshooting guide](docs/troubleshooting.md).
 
 See the [roadmap](ROADMAP.md) for the next outcomes: measurable impact advice,
 affordable indexes, and connected context. Planned capabilities are separate from the delivered
@@ -334,7 +338,7 @@ comments, no secrets, `contents: read` only. Copy
 ```yaml
 - uses: actions/checkout@v4
   with: { fetch-depth: 0 }
-- uses: hoklims/semctx/packages/github-action@v0.1.18
+- uses: hoklims/semctx/packages/github-action@v0.2.0
   with:
     base: ${{ github.event.pull_request.base.sha }}
     head: ${{ github.sha }}
@@ -439,7 +443,7 @@ application. See
 
 ## MCP server (agents)
 
-Current `main` registers **37 schema-declared tools with validated structured outputs**. Individual
+Current `main` registers **38 schema-declared tools with validated structured outputs**. Individual
 machine reports remain versioned where their public contract defines a schema version. The
 [authoritative catalogue](packages/mcp-server/src/tool-contract.ts) groups them into these
 surfaces:
@@ -558,7 +562,7 @@ Implemented and tested (full suite via `bun run test`):
 - `verify diff` — impact analysis + strict/advisory PASS/WARN/BLOCK, with provenance;
   `--base/--head` merge-base ranges, `text/json/github` formats (versioned JSON contract),
   `--fail-on`, `--output`, `--record`, and fail-closed config-v2 analysis-health preflight;
-- MCP 2026-07-28 stdio server (37 schema-declared tools with validated structured results and a
+- MCP 2026-07-28 stdio server (38 schema-declared tools with validated structured results and a
   bounded Control Explorer App)
   + aligned Codex/Claude Code plugins (shared control workflow; Claude advisory + guarded profiles);
 - composite GitHub Action (annotations, summary, PASS/WARN/BLOCK gate);

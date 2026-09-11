@@ -246,6 +246,8 @@ gh() {
 `;
 
 const releasePrelude = `
+mkdir -p docs/releases
+printf '%s\n' '# Semctx 1.2.3' > docs/releases/v1.2.3.md
 gh() {
   if [[ "$1" == "release" && "$2" == "create" ]]; then
     printf '%s\\n' CREATE >> "$TEST_LOG"
@@ -338,6 +340,7 @@ describe("GitHub Release fallback", () => {
     });
     expect(result.exitCode).toBe(0);
     expect(result.log).toBe("CREATE\n");
+    expect(githubReleaseScript).toContain('--notes-file "$notes_file"');
   });
 
   test("does not create the release when it already exists", () => {

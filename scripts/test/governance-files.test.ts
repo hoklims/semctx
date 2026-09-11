@@ -2,10 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { HOST_CLI_SPECIFICATION } from "../prove-stable-delivery";
+import { verificationSteps } from "../verify-pr";
 
 const root = join(import.meta.dir, "..", "..");
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
 const ci = read(".github/workflows/ci.yml");
+const documentationLinks = read(".github/workflows/documentation-links.yml");
 const release = read(".github/workflows/release.yml");
 const stableDeliveryProof = read(".github/workflows/stable-delivery-proof.yml");
 const publishing = read("docs/publishing.md");
@@ -44,6 +46,7 @@ interface Workflow {
 }
 
 const ciWorkflow = Bun.YAML.parse(ci) as Workflow;
+const documentationLinksWorkflow = Bun.YAML.parse(documentationLinks) as Workflow;
 const releaseWorkflow = Bun.YAML.parse(release) as Workflow;
 const stableDeliveryProofWorkflow = Bun.YAML.parse(stableDeliveryProof) as Workflow;
 const job = (workflow: Workflow, name: string): WorkflowJob => {
@@ -172,6 +175,24 @@ describe("CI governance", () => {
     for (const path of ["quality.yml", "test.yml", "plugin-runtime.yml"]) {
       expect(existsSync(join(root, ".github", "workflows", path))).toBe(false);
     }
+  });
+
+  test("keeps deterministic documentation checks required and network checks scheduled", () => {
+    expect(verificationSteps({ base: "origin/main", skipDiff: true }).map((step) => step.argv)).toContainEqual([
+      "bun",
+      "scripts/documentation-integrity.ts",
+    ]);
+    expect(Object.keys(documentationLinksWorkflow.on).sort()).toEqual(["schedule", "workflow_dispatch"]);
+    expect(documentationLinksWorkflow.permissions).toEqual({ contents: "read" });
+    const externalLinks = job(documentationLinksWorkflow, "external-links");
+    expect(externalLinks["timeout-minutes"]).toBe(15);
+    expect(externalLinks.steps.map((step) => step.uses).filter(Boolean)).toEqual([
+      CHECKOUT.replace(/ # .*/, ""),
+      SETUP_BUN.replace(/ # .*/, ""),
+    ]);
+    expect(externalLinks.steps.some((step) => step.run === "bun run docs:check:external")).toBe(true);
+    expect(unpinnedActions(documentationLinksWorkflow)).toEqual([]);
+    expect(ci).not.toContain("docs:check:external");
   });
 });
 
@@ -381,7 +402,18 @@ describe("release governance", () => {
     const promoteUses = promote.steps.flatMap((step) =>
       step.uses === undefined ? [] : [step.uses],
     );
-    expect(promoteUses.some((use) => use.startsWith("actions/checkout@"))).toBe(false);
+    expect(promoteUses).toContain(CHECKOUT.replace(/ # .*/, ""));
+    const promoteCheckout = promote.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
+    expect(promoteCheckout?.with).toEqual({
+      ref: "${{ github.sha }}",
+      "fetch-depth": 1,
+      "persist-credentials": false,
+    });
+    const releaseStep = promote.steps.find((step) => step.name === "Create the GitHub Release after npm is public");
+    expect(releaseStep?.run).toContain('notes_file="docs/releases/v$version.md"');
+    expect(releaseStep?.run).toContain('test -s "$notes_file"');
+    expect(releaseStep?.run).toContain('--verify-tag --notes-file "$notes_file"');
+    expect(releaseStep?.run).not.toContain("--generate-notes");
   });
 });
 
