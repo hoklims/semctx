@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
 import { SqliteRepositoryReader, SqliteRepositoryStore } from "../src/store";
-import { dbPath, initWorkspace, loadConfig, openStore, saveConfig } from "../src/workspace";
+import { dbPath, initWorkspace, loadConfig, openReader, openStore, saveConfig, writeFileNoFollow } from "../src/workspace";
 
 // `semctx init` is the first command that touches a checkout, before any semantic guard runs.
 // A checkout that ships `.semctx` as a link to another location would have its configuration,
@@ -160,5 +160,60 @@ describe("workspace refuses a linked .semctx", () => {
 
     expectConfigInvalid(() => SqliteRepositoryReader.openExisting(dbPath(root)));
     expectConfigInvalid(() => openStore(root));
+  });
+});
+
+describe("writeFileNoFollow", () => {
+  it("control: replaces a real file under the root and leaves no temporary behind", () => {
+    const root = temporary("semctx-nofollow-control-");
+    mkdirSync(join(root, ".semctx"));
+    writeFileSync(join(root, ".semctx", "config.json"), "old\n");
+
+    writeFileNoFollow(root, join(root, ".semctx", "config.json"), "new\n");
+
+    expect(readFileSync(join(root, ".semctx", "config.json"), "utf8")).toBe("new\n");
+    expect(readdirSync(join(root, ".semctx"))).toEqual(["config.json"]);
+  });
+
+  it("refuses a destination outside the root", () => {
+    const root = temporary("semctx-nofollow-root-");
+    const outside = temporary("semctx-nofollow-outside-");
+
+    expectConfigInvalid(() => writeFileNoFollow(root, join(outside, "escape.json"), "{}\n"));
+    expectConfigInvalid(() => writeFileNoFollow(root, join(root, "..", "escape.json"), "{}\n"));
+    expect(readdirSync(outside)).toEqual([]);
+  });
+
+  linked("refuses a linked ancestor between the root and the file, whatever the caller checked", () => {
+    const root = temporary("semctx-nofollow-ancestor-");
+    const outside = temporary("semctx-nofollow-outside-");
+    link(outside, join(root, ".semctx"));
+
+    expectConfigInvalid(() => writeFileNoFollow(root, join(root, ".semctx", "verification-state.json"), "{}\n"));
+    expect(readdirSync(outside)).toEqual([]);
+  });
+
+  fileLinked("refuses a link planted at the exact temporary name instead of creating its target", () => {
+    const root = temporary("semctx-nofollow-exclusive-");
+    const outside = temporary("semctx-nofollow-outside-");
+    mkdirSync(join(root, ".semctx"));
+    const planted = join(root, ".semctx", "config.json.planted.tmp");
+    symlinkSync(join(outside, "leak.json"), planted, "file");
+
+    // Windows `CREATE_NEW` follows a dangling link and would create `leak.json` outside the
+    // repository, so the exclusive open alone is not the defence here: the name is checked first.
+    expectConfigInvalid(() => writeFileNoFollow(root, join(root, ".semctx", "config.json"), "{}\n", () => planted));
+    expect(existsSync(join(outside, "leak.json"))).toBe(false);
+    expect(existsSync(join(root, ".semctx", "config.json"))).toBe(false);
+  });
+
+  linked("openReader refuses a linked .semctx before another repository's index is opened", () => {
+    const root = temporary("semctx-nofollow-reader-");
+    const neighbour = temporary("semctx-nofollow-neighbour-");
+    initWorkspace(neighbour);
+    openStore(neighbour).close();
+    link(join(neighbour, ".semctx"), join(root, ".semctx"));
+
+    expectConfigInvalid(() => openReader(root));
   });
 });

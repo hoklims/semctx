@@ -1,7 +1,7 @@
 import { writeFileSync, renameSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
-import { writeFileNoFollow } from "@semantic-context/repository-store";
+import { verificationStatePath, writeFileNoFollow } from "@semantic-context/repository-store";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
@@ -166,9 +166,9 @@ function recordVerification(
   verdict: VerifyReport["verdict"],
   verifiedState: VerificationGitState,
 ): string {
-  const path = join(root, ".semctx", "verification-state.json");
+  const path = verificationStatePath(root);
   const state = { version: 3, ...verifiedState, verdict, recordedAt: nowIso() };
-  writeFileNoFollow(path, `${JSON.stringify(state, null, 2)}\n`);
+  writeFileNoFollow(root, path, `${JSON.stringify(state, null, 2)}\n`);
   return path;
 }
 

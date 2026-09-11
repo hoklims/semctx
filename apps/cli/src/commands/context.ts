@@ -71,8 +71,8 @@ export async function runContextPrepare(root: string, args: ParsedArgs): Promise
   const jsonPath = join(dir, `${safeId}.json`);
   const mdPath = join(dir, `${safeId}.md`);
   // The pack files are committed-checkout destinations too: never write through a planted link.
-  writeFileNoFollow(jsonPath, `${JSON.stringify(pack, null, 2)}\n`);
-  writeFileNoFollow(mdPath, renderPackMarkdown(pack));
+  writeFileNoFollow(root, jsonPath, `${JSON.stringify(pack, null, 2)}\n`);
+  writeFileNoFollow(root, mdPath, renderPackMarkdown(pack));
 
   if (flagBool(args, "json")) {
     json(pack);

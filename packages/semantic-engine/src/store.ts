@@ -142,13 +142,13 @@ export function loadModelWithWorking(root: string): LoadResult {
 /** Rewrite the per-kind file for `kind` with exactly `nodes` (canonical formatting). */
 export function writeKindFile(root: string, kind: Exclude<SemanticNodeKind, "change">, nodes: SemanticNode[]): void {
   assertUnlinkedSemanticTree(root);
-  writeFileNoFollow(kindFilePath(root, kind), formatModel({ nodes, changes: [] }));
+  writeFileNoFollow(root, kindFilePath(root, kind), formatModel({ nodes, changes: [] }));
 }
 
 /** Write a change contract to its versioned file `.semctx/semantic/changes/<id>.sem`. */
 export function writeChangeFile(root: string, change: ChangeContract): void {
   assertUnlinkedSemanticTree(root);
-  writeFileNoFollow(changeFilePath(root, change.id), formatModel({ nodes: [], changes: [change] }));
+  writeFileNoFollow(root, changeFilePath(root, change.id), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function removeChangeFile(root: string, changeId: string): void {
@@ -160,7 +160,7 @@ export function removeChangeFile(root: string, changeId: string): void {
 /** Persist the working active change (local, git-ignored). */
 export function writeActiveChange(root: string, change: ChangeContract): void {
   assertUnlinkedSemanticTree(root);
-  writeFileNoFollow(activeChangePath(root), formatModel({ nodes: [], changes: [change] }));
+  writeFileNoFollow(root, activeChangePath(root), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function clearActiveChange(root: string): void {
@@ -193,7 +193,7 @@ export function formatSemanticFiles(root: string, write: boolean): FormatOutcome
     }
     const after = formatModel(parsed.model);
     const changed = after !== before;
-    if (changed && write) writeFileNoFollow(file, after);
+    if (changed && write) writeFileNoFollow(root, file, after);
     out.push({ file: relFile(root, file), changed, skipped: false });
   }
   return out;
@@ -264,7 +264,7 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
     const abs = join(semanticDir(root), name);
     const exists = existsSync(abs);
     const action: ScaffoldPlan["action"] = !exists ? "create" : force ? "overwrite" : "skip-exists";
-    if (!dryRun && action !== "skip-exists") writeFileNoFollow(abs, content);
+    if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, content);
     plan.push({ file: `.semctx/semantic/${name}`, action });
   }
   const gitignore = ensureSemanticGitignore(root, dryRun);

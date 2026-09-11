@@ -115,8 +115,8 @@ export function captureHandoff(args: CaptureArgs): HandoffCapsule {
   const capsule = buildHandoffCapsule(args);
   assertUnlinkedSemanticTree(args.root);
   mkdirSync(workingDir(args.root), { recursive: true });
-  writeFileNoFollow(handoffJsonPath(args.root), `${JSON.stringify(capsule, null, 2)}\n`);
-  writeFileNoFollow(handoffMarkdownPath(args.root), renderHandoffMarkdown(capsule));
+  writeFileNoFollow(args.root, handoffJsonPath(args.root), `${JSON.stringify(capsule, null, 2)}\n`);
+  writeFileNoFollow(args.root, handoffMarkdownPath(args.root), renderHandoffMarkdown(capsule));
   return capsule;
 }
 

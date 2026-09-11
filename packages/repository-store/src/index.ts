@@ -14,6 +14,10 @@ export {
   toDiskConfig,
   loadConfig,
   openStore,
+  openReader,
+  verificationStatePath,
+  assertUnlinkedWorkspace,
+  assertUnlinkedBelow,
   isLinkedEntry,
   writeFileNoFollow,
 } from "./workspace";

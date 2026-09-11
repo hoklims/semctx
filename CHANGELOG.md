@@ -23,13 +23,18 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   (SEC-PPLUG-02.)
 - Nothing semctx opens under `.semctx` may be a symlink or junction, dangling ones included: the
   directory itself, `config.json`, `semctx.db` with its SQLite `-wal`/`-shm`/`-journal` sidecars,
-  `context-packs`, the `semantic`, `changes` and `targets` directories (down to each target
-  directory), and the `working` directory with its pointer and handoff files are checked before
-  every read, write, scaffold and `init` — including the read-only index reader, the reconciliation
-  loader and the anchor migration (`CONFIG_INVALID`, or `CONTROL_INPUTS_UNSAFE` on the
-  reconciliation surface). Every file written under `.semctx` is staged through an unguessable
-  temporary name created exclusively, so a planted `<file>.tmp` link is never followed. Reads and
-  rewrites could previously land outside the repository through a planted link. (SEC-PB-01.)
+  `context-packs`, `verification-state.json`, the `semantic`, `changes` and `targets` directories
+  (down to each target directory), and the `working` directory with its pointer and handoff
+  files are checked before every read, write, scaffold, `init` and `init --preset` — including
+  the read-only index reader behind readiness and `semantic check`, the reconciliation loader
+  and the anchor migration. The refusal code depends on the surface: `CONFIG_INVALID` for the
+  workspace, the semantic store and the migration entry, `CONTROL_INPUTS_UNSAFE` for the
+  reconciliation loader and target artifacts, `STORE_ERROR` for the feedback store and a
+  migration transaction. Every file written under `.semctx` (and `.gitignore`, which `init`
+  maintains) goes through one writer that refuses a link at the destination or at any ancestor
+  below the root and stages through an unguessable temporary name created exclusively, so a
+  planted `<file>.tmp` link is never followed. Reads and rewrites could previously land outside
+  the repository through a planted link. (SEC-PB-01.)
 
 ## [0.2.0] - 2026-09-10
 

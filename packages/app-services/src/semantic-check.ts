@@ -10,7 +10,7 @@ import {
   type RepositoryFacts,
   type SemanticLifecycleFinding,
 } from "@semantic-context/semantic-engine";
-import { SqliteRepositoryReader, dbPath } from "@semantic-context/repository-store";
+import { assertUnlinkedWorkspace, dbPath, openReader } from "@semantic-context/repository-store";
 import { captureVerificationGitState } from "./verification-state";
 
 const ACTIVE_LIFECYCLES = new Set<ChangeContract["lifecycle"]>(["active", "partial", "blocked", "stale"]);
@@ -31,12 +31,14 @@ interface VerificationStateV3 {
 
 /** Shared CLI/MCP semantic integrity use case, including local lifecycle hygiene. */
 export function checkSemanticState(root: string): CheckReport {
+  // Covers the read-only index open and the verification-state read below.
+  assertUnlinkedWorkspace(root);
   const loaded = loadSemanticModel(root);
   let facts: RepositoryFacts | undefined;
   let indexed = false;
   const database = dbPath(root);
   if (existsSync(database)) {
-    const store = SqliteRepositoryReader.openExisting(database);
+    const store = openReader(root);
     try {
       indexed = store.isIndexed();
       if (indexed) {

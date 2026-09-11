@@ -1,9 +1,9 @@
 import { randomBytes } from "node:crypto";
 import { closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { SemctxError, SemctxConfigSchema, createDefaultConfig } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
-import { SqliteRepositoryStore } from "./store";
+import { SqliteRepositoryReader, SqliteRepositoryStore } from "./store";
 
 export const SEMCTX_DIR = ".semctx";
 
@@ -21,6 +21,11 @@ export function dbPath(root: string): string {
 
 export function contextPacksDir(root: string): string {
   return join(semctxDir(root), "context-packs");
+}
+
+/** Guarded-mode replay state written by `semctx verify` and read by the semantic check. */
+export function verificationStatePath(root: string): string {
+  return join(semctxDir(root), "verification-state.json");
 }
 
 export function isInitialized(root: string): boolean {
@@ -48,14 +53,44 @@ function assertNotLinked(path: string): void {
 }
 
 /**
- * Replace `path` atomically without following a link at the destination or at the temporary
- * name. The temporary name is unguessable and claimed with `O_CREAT | O_EXCL`, which fails on any
- * existing entry, links included; `rename` then replaces the destination entry itself.
+ * Refuse a link at `path` or at any entry between `root` (exclusive) and `path`. `lstat` only
+ * reports the last component, so a linked ancestor would otherwise carry every open below it
+ * outside the repository. `path` must lie under `root`.
  */
-export function writeFileNoFollow(path: string, content: string): void {
-  assertNotLinked(path);
+export function assertUnlinkedBelow(root: string, path: string): void {
+  const base = resolve(root);
+  const inside = relative(base, resolve(path));
+  if (inside === "" || inside === ".." || inside.startsWith(`..${sep}`) || isAbsolute(inside)) {
+    throw new SemctxError("CONFIG_INVALID", "path escapes the repository root", { root: base, path });
+  }
+  let current = base;
+  for (const segment of inside.split(sep)) {
+    current = join(current, segment);
+    assertNotLinked(current);
+  }
+}
+
+function defaultTemporaryName(path: string): string {
+  return `${path}.${randomBytes(9).toString("hex")}.tmp`;
+}
+
+/**
+ * Replace `path` (under `root`) atomically without following a link at the destination, at any
+ * ancestor below `root`, or at the temporary name. The temporary name is unguessable, checked
+ * with `lstat` and then claimed with `O_CREAT | O_EXCL`; the check matters because Windows
+ * `CREATE_NEW` follows a dangling link instead of failing on it as POSIX does. `rename` then
+ * replaces the destination entry itself. `temporaryName` is a test seam for that check.
+ */
+export function writeFileNoFollow(
+  root: string,
+  path: string,
+  content: string,
+  temporaryName: (path: string) => string = defaultTemporaryName,
+): void {
+  assertUnlinkedBelow(root, path);
   mkdirSync(dirname(path), { recursive: true });
-  const temporary = `${path}.${randomBytes(9).toString("hex")}.tmp`;
+  const temporary = temporaryName(path);
+  assertNotLinked(temporary);
   const descriptor = openSync(temporary, "wx", 0o644);
   try {
     writeFileSync(descriptor, content, "utf8");
@@ -75,12 +110,15 @@ export function writeFileNoFollow(path: string, content: string): void {
 
 /**
  * Nothing the workspace opens under `.semctx` may be a symlink or junction: the directory
- * itself, the context-pack directory, the config file and the database. Every open below
- * follows links, so a checkout that planted one would have its configuration, index or packs
- * written outside the repository.
+ * itself, the context-pack directory, the config file, the database and the verification state.
+ * Every open below follows links, so a checkout that planted one would have its configuration,
+ * index, packs or replay state read from or written outside the repository. SQLite sidecars are
+ * checked where the database is opened (`assertUnlinkedDatabase`).
  */
 export function assertUnlinkedWorkspace(root: string): void {
-  for (const path of [semctxDir(root), contextPacksDir(root), configPath(root), dbPath(root)]) assertNotLinked(path);
+  for (const path of [semctxDir(root), contextPacksDir(root), configPath(root), dbPath(root), verificationStatePath(root)]) {
+    assertNotLinked(path);
+  }
 }
 
 /**
@@ -110,7 +148,7 @@ export function initWorkspace(root: string, overrides?: Partial<SemctxConfig>): 
 
 export function saveConfig(root: string, config: SemctxConfig): void {
   assertUnlinkedWorkspace(root);
-  writeFileNoFollow(configPath(root), `${JSON.stringify(toDiskConfig(config), null, 2)}\n`);
+  writeFileNoFollow(root, configPath(root), `${JSON.stringify(toDiskConfig(config), null, 2)}\n`);
 }
 
 export function loadConfig(root: string): SemctxConfig {
@@ -140,4 +178,14 @@ export function openStore(root: string): SqliteRepositoryStore {
   assertUnlinkedWorkspace(root);
   mkdirSync(semctxDir(root), { recursive: true });
   return SqliteRepositoryStore.open(dbPath(root));
+}
+
+/**
+ * Open the index read-only through the workspace guard. Readers that never call `loadConfig`
+ * (readiness, the semantic check) go through here, so a linked `.semctx` is refused before
+ * another repository's index could be served as this one's.
+ */
+export function openReader(root: string): SqliteRepositoryReader {
+  assertUnlinkedWorkspace(root);
+  return SqliteRepositoryReader.openExisting(dbPath(root));
 }

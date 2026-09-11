@@ -238,6 +238,16 @@ describe("semantic store refuses dangling links, planted temporaries and linked 
     expect(readFileSync(join(outside, "active-change.sem"), "utf8")).toBe("");
   });
 
+  fileLinked("a .gitignore that is a link is refused by the scaffold, never rewritten through", () => {
+    const root = temporary("semctx-link-gitignore-");
+    const outside = temporary("semctx-link-outside-");
+    writeFileSync(join(outside, "profile"), "export SECRET=1\n");
+    symlinkSync(join(outside, "profile"), join(root, ".gitignore"), "file");
+
+    expectConfigInvalid(() => initSemanticScaffold(root));
+    expect(readFileSync(join(outside, "profile"), "utf8")).toBe("export SECRET=1\n");
+  });
+
   linked("the anchor migration refuses a linked .semctx before recovery, planning or writing", () => {
     const root = temporary("semctx-link-migration-");
     const outside = temporary("semctx-link-outside-");
