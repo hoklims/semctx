@@ -303,6 +303,22 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     "blob/main/docs/README.md",
     'href="./demo/"',
   ], "landing contract");
+  const fallbackStart = landing.indexOf("@supports not (animation-timeline: view())");
+  if (fallbackStart < 0) {
+    add(problems, "site/landing/index.html", landing, 0, "landing contract is missing: @supports not (animation-timeline: view())");
+  } else {
+    // Without scroll-driven animation, the scenes keep their inline start state unless the
+    // fallback block forces the final state; pin the rules that make the story readable.
+    const fallbackEnd = landing.indexOf("\n  }", fallbackStart);
+    if (fallbackEnd < 0) {
+      add(problems, "site/landing/index.html", landing, fallbackStart, "landing scroll-animation fallback block is not closed");
+    } else {
+      requireText(problems, "site/landing/index.html", landing.slice(fallbackStart, fallbackEnd), [
+        ".scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }",
+        ".graph line, .graph path { stroke-dashoffset: 0 !important; }",
+      ], "landing scroll-animation fallback");
+    }
+  }
 
   const evidenceText = readFileSync(resolve(root, "site/evidence.json"), "utf8");
   try {

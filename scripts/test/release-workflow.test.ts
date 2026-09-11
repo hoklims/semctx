@@ -258,27 +258,39 @@ gh() {
 const releasePrelude = `
 mkdir -p docs/releases
 printf '%s\n' '# Semctx 1.2.3' > docs/releases/v1.2.3.md
+release_api="repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME"
 gh() {
-  if [[ "$1" == "release" && "$2" == "create" ]]; then
-    printf '%s\\n' CREATE >> "$TEST_LOG"
+  if [[ "$1" == "release" && "$2" == "create" && "$3" == "$GITHUB_REF_NAME" && "$*" == *"--verify-tag --notes-file docs/releases/v1.2.3.md"* ]]; then
+    printf '%s\n' CREATE >> "$TEST_LOG"
+    : > "$RUNNER_TEMP/created"
     return 0
   fi
-  if [[ "$*" == *"--jq .tag_name"* ]]; then
-    printf '%s\\n' READBACK_TAG >> "$TEST_LOG"
-    printf '%s\\n' "\${RELEASE_READBACK_TAG:-$GITHUB_REF_NAME}"
+  if [[ "$1" == "release" && "$2" == "edit" && "$3" == "$GITHUB_REF_NAME" && "$*" == *"--notes-file docs/releases/v1.2.3.md"* ]]; then
+    printf '%s\n' EDIT >> "$TEST_LOG"
+    : > "$RUNNER_TEMP/edited"
     return 0
   fi
-  if [[ "$*" == *"--jq .body"* ]]; then
-    printf '%s\\n' READBACK_BODY >> "$TEST_LOG"
-    printf '%s\\n' "\${RELEASE_READBACK_BODY-# Semctx 1.2.3}"
-    return 0
-  fi
+  if [[ "$1" != "api" || "$2" != "$release_api" ]]; then return 99; fi
+  exists=0
   case "$RELEASE_SCENARIO" in
-    absent) printf '%s\\n' 'HTTP 404: Not Found' >&2; return 22 ;;
-    present) return 0 ;;
-    lookup-error) printf '%s\\n' 'HTTP 502: unavailable' >&2; return 19 ;;
+    absent) if [[ -f "$RUNNER_TEMP/created" ]]; then exists=1; fi ;;
+    present|draft|generated) exists=1 ;;
+    lookup-error) printf '%s\n' 'HTTP 502: unavailable' >&2; return 19 ;;
     *) return 98 ;;
   esac
+  if [[ "$exists" == 0 ]]; then printf '%s\n' 'HTTP 404: Not Found' >&2; return 22; fi
+  case "$*" in
+    *"--silent"*) return 0 ;;
+    *"--jq .tag_name"*) printf '%s\n' "\${RELEASE_READBACK_TAG:-$GITHUB_REF_NAME}" ;;
+    *"--jq .draft"*) if [[ "$RELEASE_SCENARIO" == draft ]]; then printf 'true\n'; else printf 'false\n'; fi ;;
+    *"--jq .body"*)
+      printf '%s\n' READBACK_BODY >> "$TEST_LOG"
+      if [[ "$RELEASE_SCENARIO" == generated && ! -f "$RUNNER_TEMP/edited" ]]; then printf '%s\n' '## What is Changed'
+      elif [[ "$RELEASE_READBACK_BODY_MODE" == empty ]]; then printf '\n'
+      else printf '%s\n' '# Semctx 1.2.3'; fi ;;
+    *) return 97 ;;
+  esac
+  return 0
 }
 `;
 
@@ -366,13 +378,29 @@ describe("GitHub Release fallback", () => {
     expect(stableScript).not.toContain("notes_file");
   });
 
-  test("creates the release when lookup returns 404 and reads the exact tag and body back", () => {
-    const result = runShell(githubReleaseScript, releasePrelude, {
-      RELEASE_SCENARIO: "absent",
-    });
+  test("creates the release when lookup returns 404, then reads back the tag, the published state and the brief", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, { RELEASE_SCENARIO: "absent" });
     expect(result.exitCode).toBe(0);
-    expect(result.log).toBe("CREATE\nREADBACK_TAG\nREADBACK_BODY\n");
-    expect(githubReleaseScript).toContain('--notes-file "$notes_file"');
+    expect(result.log).toBe("CREATE\nREADBACK_BODY\n");
+    expect(githubReleaseScript).toContain('--verify-tag --notes-file "$notes_file"');
+  });
+
+  test("keeps an existing release that already carries the brief, without recreating or editing it", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, { RELEASE_SCENARIO: "present" });
+    expect(result.exitCode).toBe(0);
+    expect(result.log).toBe("READBACK_BODY\n");
+  });
+
+  test("repairs an existing generated-only body with the reviewed brief and reads it back", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, { RELEASE_SCENARIO: "generated" });
+    expect(result.exitCode).toBe(0);
+    expect(result.log).toBe("READBACK_BODY\nEDIT\nREADBACK_BODY\n");
+  });
+
+  test("fails on an existing draft release instead of publishing it silently", () => {
+    const result = runShell(githubReleaseScript, releasePrelude, { RELEASE_SCENARIO: "draft" });
+    expect(result.exitCode).not.toBe(0);
+    expect(result.log).toBe("");
   });
 
   test("fails after creation when the release reads back with another tag", () => {
@@ -381,31 +409,33 @@ describe("GitHub Release fallback", () => {
       RELEASE_READBACK_TAG: "v9.9.9",
     });
     expect(result.exitCode).not.toBe(0);
-    expect(result.log).toBe("CREATE\nREADBACK_TAG\n");
+    expect(result.log).toBe("CREATE\n");
   });
 
-  test("fails after creation when the release reads back without a body", () => {
+  test("fails when the body read back does not carry the brief", () => {
     const result = runShell(githubReleaseScript, releasePrelude, {
       RELEASE_SCENARIO: "absent",
-      RELEASE_READBACK_BODY: "",
+      RELEASE_READBACK_BODY_MODE: "empty",
     });
     expect(result.exitCode).not.toBe(0);
-    expect(result.log).toBe("CREATE\nREADBACK_TAG\nREADBACK_BODY\n");
-  });
-
-  test("does not create the release when it already exists", () => {
-    const result = runShell(githubReleaseScript, releasePrelude, {
-      RELEASE_SCENARIO: "present",
-    });
-    expect(result.exitCode).toBe(0);
-    expect(result.log).toBe("");
+    expect(result.log).toBe("CREATE\nREADBACK_BODY\n");
   });
 
   test("preserves a non-404 lookup failure and does not create a release", () => {
-    const result = runShell(githubReleaseScript, releasePrelude, {
-      RELEASE_SCENARIO: "lookup-error",
-    });
+    const result = runShell(githubReleaseScript, releasePrelude, { RELEASE_SCENARIO: "lookup-error" });
     expect(result.exitCode).toBe(19);
     expect(result.log).toBe("");
+  });
+
+  test("canary: the mock rejects any release call that does not name this repository and tag", () => {
+    const foreign = runShell('gh api "repos/other/repo/releases/tags/$GITHUB_REF_NAME" --jq .tag_name', releasePrelude, {
+      RELEASE_SCENARIO: "present",
+    });
+    expect(foreign.exitCode).toBe(99);
+    const unpinned = runShell('gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY"', releasePrelude, {
+      RELEASE_SCENARIO: "absent",
+    });
+    expect(unpinned.exitCode).toBe(99);
+    expect(unpinned.log).toBe("");
   });
 });

@@ -61,7 +61,12 @@ function fixture(): string {
     "site/landing/index.html",
     `<span>${version} ·</span><code>semctx@${version} install</code><code>github-action@v${version}</code>`
       + `<a href="https://github.com/hoklims/semctx/releases/tag/v${version}">release</a>`
-      + `<p>Bun 1.4.0 or newer</p><style>@media (prefers-reduced-motion: reduce) {} @media (max-width: 640px) {}</style>`
+      + `<p>Bun 1.4.0 or newer</p><style>@media (prefers-reduced-motion: reduce) {} @media (max-width: 640px) {}
+  @supports not (animation-timeline: view()) {
+    .scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .graph line, .graph path { stroke-dashoffset: 0 !important; }
+  }
+</style>`
       + '<a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a><a href="./demo/">Demo</a>',
   );
   write(root, "site/index.html", "<!doctype html><title>Demo</title>\n");
@@ -264,6 +269,33 @@ describe("documentation integrity", () => {
       file: "site/landing/index.html",
       line: 1,
       message: "landing must not load remote fonts, scripts, or images",
+    });
+  });
+
+  test("rejects a landing whose scroll-animation fallback no longer forces the final state", () => {
+    const root = fixture();
+    const landing = readFileSync(join(root, "site/landing/index.html"), "utf8");
+    const fallbackStart = landing.indexOf("  @supports not");
+    const fallbackEnd = landing.indexOf("  }", fallbackStart) + "  }".length;
+    const fallback = landing.slice(fallbackStart, fallbackEnd);
+    const sceneRule = ".scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }";
+    expect(fallback).toContain(sceneRule);
+
+    // The rule still appears in the stylesheet, but outside the fallback block it never applies
+    // to a browser without scroll-driven animation.
+    const moved = landing.replace(fallback, `${fallback.replace(sceneRule, "")}\n${sceneRule}`);
+    write(root, "site/landing/index.html", moved);
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "site/landing/index.html",
+      line: 1,
+      message: `landing scroll-animation fallback is missing: ${sceneRule}`,
+    });
+
+    write(root, "site/landing/index.html", landing.replace(fallback, ""));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "site/landing/index.html",
+      line: 1,
+      message: "landing contract is missing: @supports not (animation-timeline: view())",
     });
   });
 

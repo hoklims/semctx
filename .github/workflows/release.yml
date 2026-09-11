@@ -259,27 +259,39 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          version="${GITHUB_REF_NAME#v}"
+          notes_file="docs/releases/v$version.md"
+          test -s "$notes_file"
+          # The brief's title line is the marker that separates a reviewed body from generated-only
+          # notes; it must survive the read-back below.
+          brief_title="$(head -n 1 "$notes_file")"
+          test -n "$brief_title"
+          release_api="repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME"
           release_error="$RUNNER_TEMP/github-release.err"
-          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --silent 2>"$release_error"; then
-            exit 0
+          if gh api "$release_api" --silent 2>"$release_error"; then
+            # A rerun, or a release created ahead of the workflow: never recreate it, but verify it
+            # below and repair a generated-only body with the reviewed brief.
+            existing=1
           else
             status=$?
             if ! grep -q 'HTTP 404' "$release_error"; then
               cat "$release_error" >&2
               exit "$status"
             fi
+            existing=0
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag --notes-file "$notes_file"
           fi
-          version="${GITHUB_REF_NAME#v}"
-          notes_file="docs/releases/v$version.md"
-          test -s "$notes_file"
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --verify-tag --notes-file "$notes_file"
-          # Read the release back: the exact tag must be the one that was requested, and the body
-          # must carry the reviewed brief rather than generated-only notes.
-          read_tag="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --jq .tag_name)"
-          test "$read_tag" = "$GITHUB_REF_NAME"
-          read_body="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" --jq .body)"
-          test -n "$read_body"
+          # Read the release back: the exact tag, published rather than draft, and a body carrying
+          # the reviewed brief. A draft cannot be repaired here: it would publish silently.
+          test "$(gh api "$release_api" --jq .tag_name)" = "$GITHUB_REF_NAME"
+          test "$(gh api "$release_api" --jq .draft)" = "false"
+          body="$(gh api "$release_api" --jq '.body // ""')"
+          if [[ "$existing" == 1 && "$body" != *"$brief_title"* ]]; then
+            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --notes-file "$notes_file"
+            body="$(gh api "$release_api" --jq '.body // ""')"
+          fi
+          [[ "$body" == *"$brief_title"* ]]
 
   deliver:
     name: prove stable marketplace delivery
