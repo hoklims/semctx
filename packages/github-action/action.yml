@@ -72,8 +72,23 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       # Node reads no configuration from its working directory; it only reports the absolute,
-      # forward-slash path that the Bun steps below receive as `--root`.
-      run: echo "root=$(node -p "process.cwd().split(require('node:path').sep).join('/')")" >> "$GITHUB_OUTPUT"
+      # forward-slash path that the Bun steps below receive as `--root`. The resolved directory
+      # must stay inside the job workspace: a `working-directory` that is (or contains) a link to
+      # somewhere else on the runner is refused rather than analysed.
+      run: |
+        set -euo pipefail
+        root="$(node -e '
+          const fs = require("node:fs"), path = require("node:path");
+          const workspace = fs.realpathSync.native(process.env.GITHUB_WORKSPACE);
+          const target = fs.realpathSync.native(process.cwd());
+          if (target !== workspace && !target.startsWith(workspace + path.sep)) {
+            console.error(`working-directory resolves outside the workspace: ${target}`);
+            process.exit(1);
+          }
+          process.stdout.write(target.split(path.sep).join("/"));
+        ')"
+        delimiter="semctx-target-$RANDOM$RANDOM"
+        printf 'root<<%s\n%s\n%s\n' "$delimiter" "$root" "$delimiter" >> "$GITHUB_OUTPUT"
 
     - name: Index and verify
       id: verify

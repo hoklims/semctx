@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+
+/** Git Bash on Windows, never the WSL `bash.exe` that System32 may put first on PATH. */
+function bashExecutable(): string {
+  const gitBash = "C:\\Program Files\\Git\\bin\\bash.exe";
+  return process.platform === "win32" && existsSync(gitBash) ? gitBash : "bash";
+}
 
 // The composite action analyses a checkout it must not trust. Bun executes `$cwd/bunfig.toml`
 // preload scripts and loads `$cwd/.env` before any entrypoint runs, so a `bun` step whose
@@ -52,19 +58,54 @@ describe("action.yml never runs Bun inside the analysed checkout", () => {
     }
   });
 
-  it("resolves the consumer directory with node, then passes it to the CLI as an absolute --root", () => {
+  it("resolves the consumer directory with node inside the workspace, then passes it to every CLI call as an absolute --root", () => {
     const target = steps().find((step) => step.id === "target");
     expect(target?.["working-directory"]).toBe(CONSUMER_CWD);
-    expect(target?.run).toContain("node -p");
+    expect(target?.run).toContain("node -e");
+    expect(target?.run).toContain("fs.realpathSync.native(process.env.GITHUB_WORKSPACE)");
+    expect(target?.run).toContain("working-directory resolves outside the workspace");
+    // Multi-line output form: a path containing a newline cannot inject a second step output.
+    expect(target?.run).toContain("printf 'root<<%s\\n%s\\n%s\\n'");
     expect(target?.run).not.toMatch(/(^|\s)bun\s/);
 
     const verify = steps().find((step) => step.id === "verify");
     expect(verify?.["working-directory"]).toBe(TRUSTED_CWD);
     expect(verify?.env?.SEMCTX_TARGET).toBe("${{ steps.target.outputs.root }}");
-    expect(verify?.run?.match(/--root "\$SEMCTX_TARGET"/g)).toHaveLength(3);
+    const bunLines = (verify?.run ?? "").split("\n").filter((line) => /^\s*bun\s/.test(line));
+    expect(bunLines).toHaveLength(3);
+    for (const line of bunLines) expect(line).toContain('--root "$SEMCTX_TARGET"');
     expect(verify?.run).not.toContain("--root .");
     // The report path stays relative to the consumer directory, as documented for `report-path`.
     expect(verify?.run).toContain('report="$SEMCTX_TARGET/$SEMCTX_REPORT"');
+  });
+
+  it("witness: the target step accepts a workspace subdirectory and refuses a directory outside the workspace", () => {
+    const target = steps().find((step) => step.id === "target");
+    const workspace = mkdtempSync(join(tmpdir(), "semctx-action-workspace-"));
+    const outside = mkdtempSync(join(tmpdir(), "semctx-action-outside-"));
+    fixtures.push(workspace, outside);
+    mkdirSync(join(workspace, "packages", "app"), { recursive: true });
+    const run = (cwd: string) => {
+      const output = join(cwd, "github-output.txt");
+      writeFileSync(output, "");
+      const result = Bun.spawnSync([bashExecutable(), "--noprofile", "--norc", "-c", target?.run ?? "exit 99"], {
+        cwd,
+        env: { ...process.env, GITHUB_WORKSPACE: workspace, GITHUB_OUTPUT: output },
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      return { exitCode: result.exitCode, output: readFileSync(output, "utf8"), stderr: result.stderr.toString() };
+    };
+
+    const inside = run(join(workspace, "packages", "app"));
+    expect(inside.exitCode).toBe(0);
+    expect(inside.output).toMatch(/^root<<semctx-target-\d+\n.+\/packages\/app\nsemctx-target-\d+\n$/);
+    expect(inside.output).not.toContain("\\");
+
+    const escaped = run(outside);
+    expect(escaped.exitCode).toBe(1);
+    expect(escaped.stderr).toContain("working-directory resolves outside the workspace");
+    expect(escaped.output).toBe("");
   });
 
   it("witness: the CLI started from the action checkout ignores the checkout's bunfig.toml", () => {
