@@ -9,6 +9,10 @@ export interface DocumentationProblem {
   message: string;
 }
 
+export interface DocumentationCheckOptions {
+  requireReleaseEvidence?: boolean;
+}
+
 const CURRENT_ACTION_FILES = [
   "README.md",
   "docs/integrations/github-actions.md",
@@ -164,7 +168,7 @@ function checkInternalLinks(root: string, files: string[]): DocumentationProblem
   return problems;
 }
 
-function checkCurrentReleaseTruth(root: string): DocumentationProblem[] {
+function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptions): DocumentationProblem[] {
   const problems: DocumentationProblem[] = [];
   const version = cliPackage.version;
   const toolCount = registeredToolCount(root);
@@ -227,13 +231,15 @@ function checkCurrentReleaseTruth(root: string): DocumentationProblem[] {
     phase?: unknown;
     demo?: { packageVersion?: unknown };
   };
-  if (evidence.phase !== "release" || evidence.demo?.packageVersion !== version) {
+  const supportedPhase = evidence.phase === "candidate" || evidence.phase === "release";
+  const requiredPhase = options.requireReleaseEvidence ? "release" : "candidate or release";
+  if (!supportedPhase || (options.requireReleaseEvidence && evidence.phase !== "release") || evidence.demo?.packageVersion !== version) {
     add(
       problems,
       "site/evidence.json",
       readFileSync(resolve(root, "site/evidence.json"), "utf8"),
       0,
-      `demo evidence must be release phase for package ${version}`,
+      `demo evidence must be ${requiredPhase} phase for package ${version}`,
     );
   }
 
@@ -314,9 +320,12 @@ function checkCurrentReleaseTruth(root: string): DocumentationProblem[] {
   return problems;
 }
 
-export function checkDocumentation(root = resolve(import.meta.dir, "..")): DocumentationProblem[] {
+export function checkDocumentation(
+  root = resolve(import.meta.dir, ".."),
+  options: DocumentationCheckOptions = {},
+): DocumentationProblem[] {
   const files = filesBelow(root);
-  return [...checkInternalLinks(root, files), ...checkCurrentReleaseTruth(root)]
+  return [...checkInternalLinks(root, files), ...checkCurrentReleaseTruth(root, options)]
     .sort((left, right) => left.file.localeCompare(right.file) || left.line - right.line || left.message.localeCompare(right.message));
 }
 
@@ -370,11 +379,12 @@ async function checkExternalLinks(root: string): Promise<number> {
 export async function main(args = process.argv.slice(2)): Promise<number> {
   const root = resolve(import.meta.dir, "..");
   if (args.length === 1 && args[0] === "--external") return checkExternalLinks(root);
-  if (args.length > 0) {
-    console.error("usage: bun scripts/documentation-integrity.ts [--external]");
+  const publication = args.length === 1 && args[0] === "--publication";
+  if (args.length > 0 && !publication) {
+    console.error("usage: bun scripts/documentation-integrity.ts [--external|--publication]");
     return 2;
   }
-  const problems = checkDocumentation(root);
+  const problems = checkDocumentation(root, { requireReleaseEvidence: publication });
   for (const problem of problems) {
     console.error(`[docs:integrity] ${problem.file}:${problem.line}: ${problem.message}`);
   }

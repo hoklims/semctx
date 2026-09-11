@@ -77,6 +77,17 @@ describe("documentation integrity", () => {
     expect(checkDocumentation(fixture())).toEqual([]);
   });
 
+  test("accepts candidate evidence before publication but requires release evidence for publication", () => {
+    const root = fixture();
+    write(root, "site/evidence.json", JSON.stringify({ phase: "candidate", demo: { packageVersion: version } }));
+    expect(checkDocumentation(root)).toEqual([]);
+    expect(checkDocumentation(root, { requireReleaseEvidence: true })).toContainEqual({
+      file: "site/evidence.json",
+      line: 1,
+      message: `demo evidence must be release phase for package ${version}`,
+    });
+  });
+
   test("reports a broken repository link with file and line", () => {
     const root = fixture();
     write(root, "docs/README.md", "# Docs\n\n[missing](not-here.md)\n");

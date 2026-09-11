@@ -15,6 +15,13 @@ Omit `--demo` and `--pilot` to emit the honest `NOT_OBSERVED` state. Release evi
 requires a completed packaged demo. `--commit` and `--fixture-commit` accept only full lowercase Git
 commits and label them `caller-asserted`; this builder does not authenticate them.
 
+The required PR gate accepts either lifecycle phase when it matches the package version. Before
+publishing Pages, require the post-release projection explicitly:
+
+```text
+bun run docs:check:publication
+```
+
 The builder validates demo case IDs, fixed fixture paths, known rule IDs, pilot count consistency,
 score eligibility and bounded identities before writing. Its output omits raw unknown text, local
 paths, filenames outside the fixed fixtures, command logs, source aliases and experiment IDs.
