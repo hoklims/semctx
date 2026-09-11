@@ -257,6 +257,8 @@ describe("semantic store refuses dangling links, planted temporaries and linked 
     symlinkSync(join(outside, "profile"), join(root, ".gitignore"), "file");
 
     expectConfigInvalid(() => initSemanticScaffold(root));
+    // A dry run must not read through the link either: it is an oracle on an outside file.
+    expectConfigInvalid(() => initSemanticScaffold(root, { dryRun: true }));
     expect(readFileSync(join(outside, "profile"), "utf8")).toBe("export SECRET=1\n");
   });
 

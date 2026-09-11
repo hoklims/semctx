@@ -11,6 +11,19 @@ import {
 } from "../src";
 
 const roots: string[] = [];
+
+const fileLinksSupported = ((): boolean => {
+  const probe = mkdtempSync(join(tmpdir(), "semctx-feedback-link-probe-"));
+  try {
+    writeFileSync(join(probe, "target"), "");
+    symlinkSync(join(probe, "target"), join(probe, "alias"), "file");
+    return true;
+  } catch {
+    return false;
+  } finally {
+    rmSync(probe, { recursive: true, force: true });
+  }
+})();
 function root(): string {
   const value = mkdtempSync(join(tmpdir(), "semctx-feedback-store-"));
   roots.push(value);
@@ -49,22 +62,27 @@ describe("feedback store", () => {
     expect(readFileSync(feedbackFilePath(repository), "utf8")).toBe("{broken");
   });
 
-  test("a planted writer-lock link is refused before the lock is created through it", () => {
+  test.skipIf(!fileLinksSupported)("a planted writer-lock link is refused before the lock is created through it", () => {
     const repository = root();
     const outside = root();
     mkdirSync(feedbackDir(repository), { recursive: true });
-    let planted = true;
-    try {
-      // Dangling on purpose: Windows `CREATE_NEW` would follow it and create the lock outside.
-      symlinkSync(join(outside, "planted-lock"), `${feedbackFilePath(repository)}.lock`, "file");
-    } catch {
-      planted = false;
-    }
-    if (!planted) return;
+    // Dangling on purpose: Windows `CREATE_NEW` would follow it and create the lock outside.
+    symlinkSync(join(outside, "planted-lock"), `${feedbackFilePath(repository)}.lock`, "file");
 
     expect(() => writeFeedbackStore(repository, undefined, emptyFeedbackStoreFile())).toThrow("must not be a symlink");
     expect(existsSync(join(outside, "planted-lock"))).toBe(false);
     expect(existsSync(feedbackFilePath(repository))).toBe(false);
+  });
+
+  test("a repository root reached through a link is accepted and written in place", () => {
+    const real = root();
+    const holder = root();
+    const linkRoot = join(holder, "project");
+    symlinkSync(real, linkRoot, process.platform === "win32" ? "junction" : "dir");
+
+    expect(readFeedbackStore(linkRoot).status).toBe("absent");
+    writeFeedbackStore(linkRoot, undefined, emptyFeedbackStoreFile());
+    expect(existsSync(feedbackFilePath(real))).toBe(true);
   });
 
   test("a feedback-directory junction outside the repository is rejected", () => {

@@ -205,6 +205,26 @@ describe("transaction state planted by a checkout", () => {
     expect(readFileSync(join(outside, "authorized_keys"), "utf8")).toBe(keys);
   });
 
+  it("a dangling transaction-directory link is refused with a classified error", () => {
+    const root = repository({
+      "invariant.sem": invariantFile("invariant.one", ["sym:function:src/a.ts:run:42"]),
+    });
+    const gone = join(root, "gone");
+    mkdirSync(gone);
+    mkdirSync(join(root, ".semctx", "working", "anchor-migration-v1"), { recursive: true });
+    symlinkSync(gone, activeDir(root), process.platform === "win32" ? "junction" : "dir");
+    rmSync(gone, { recursive: true, force: true });
+
+    let caught: unknown;
+    try {
+      migrateAnchors(root, facts(RUN), { ...OK, apply: false });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect((caught as { details?: { reason?: string } } | undefined)?.details?.reason).toBe("TRANSACTION_WORKSPACE_UNSAFE");
+  });
+
   it.skipIf(!linkable)("a planted owner link is never read as the transaction owner", () => {
     const root = repository({
       "invariant.sem": invariantFile("invariant.one", ["sym:function:src/a.ts:run:42"]),

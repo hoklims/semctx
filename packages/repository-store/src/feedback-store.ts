@@ -66,7 +66,9 @@ function confineFeedbackAncestors(root: string): void {
   if (!existsSync(resolvedRoot)) {
     throw new SemctxError("STORE_ERROR", "repository root does not exist");
   }
-  confine(resolvedRoot, resolvedRoot, "repository root");
+  // The root itself may be reached through a link (a checkout behind a symlinked projects
+  // directory); only what lies below it must be link-free.
+  assertWithinRoot(resolvedRoot, resolvedRoot, "repository root");
   confine(resolvedRoot, semctxDir(resolvedRoot), "Semctx directory");
   confine(resolvedRoot, feedbackDir(resolvedRoot), "feedback directory");
 }

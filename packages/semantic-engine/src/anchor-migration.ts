@@ -569,6 +569,13 @@ function assertSafeTransactionDirectory(
   ];
   for (const [child, expected] of transactionChildren) {
     for (let attempt = 0; attempt < 8; attempt += 1) {
+      // Link first: a dangling link reads as absent to `existsSync` and would be skipped.
+      if (isLinkedEntry(child)) {
+        throw new SemctxError("STORE_ERROR", "anchor migration transaction state is unsafe", {
+          reason: "TRANSACTION_WORKSPACE_UNSAFE",
+          directory: child,
+        });
+      }
       if (!existsSync(child)) break;
       try {
         const childInfo = lstatSync(child);
@@ -653,6 +660,8 @@ function refuseLiveOwner(activeDir: string, allowedToken?: string): void {
     throw new SemctxError("STORE_ERROR", "an anchor migration transaction is already active", {
       reason: "TRANSACTION_ALREADY_ACTIVE",
       ownerPid: owner.pid,
+      directory: activeDir,
+      recovery: "if no such process runs, inspect the directory and remove its owner file before retrying",
     });
   }
 }
@@ -1004,6 +1013,8 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
     throw new SemctxError("STORE_ERROR", "an anchor migration recovery is already active", {
       reason: "TRANSACTION_ALREADY_ACTIVE",
       ownerPid: owner.pid,
+      directory: recovery,
+      recovery: "if no such process runs, inspect the directory and remove its owner file before retrying",
     });
   }
   const stale = join(directory, `recovery-stale-${process.pid}-${randomBytes(9).toString("hex")}`);

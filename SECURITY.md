@@ -50,9 +50,10 @@ as quickly as the severity warrants.
   `.semctx` — and `.gitignore`, which `init` maintains — are written through `writeFileNoFollow`,
   which refuses a link at the destination or at any ancestor below the repository root, then
   stages through an unguessable temporary name checked with `lstat` and created with
-  `O_CREAT | O_EXCL`; the two writers with their own transaction protocol (feedback store, anchor
-  migration) check every name they open the same way. `.semctx/guard.json`, read by the
-  cooperative guard hook, is outside this guarantee.
+  `O_CREAT | O_EXCL`. The writers with their own protocol (feedback store, anchor migration,
+  target artifacts, control handoff) check every name a checkout can ship with `lstat`; their own
+  temporaries are unguessable and created with `O_CREAT | O_EXCL`. `.semctx/guard.json`, read by
+  the cooperative guard hook, is outside this guarantee.
 
 ## Integrations
 
@@ -63,7 +64,9 @@ as quickly as the severity warrants.
   value into a run script (no Actions injection). It runs a fixed set of `semctx` commands plus a
   Node adapter — it does not execute arbitrary PR scripts. Every `bun` step runs from the action's
   own checkout with the analysed repository passed as an absolute `--root`, so the pull request's
-  `bunfig.toml` `preload` scripts and `.env` are never loaded by the runtime.
+  `bunfig.toml` `preload` scripts and `.env` are never loaded by the runtime. The JSON report is
+  written inside the analysed checkout through an unguessable temporary name that is never a
+  link, so a committed `<report>.tmp` link cannot redirect it.
 - **Plugin MCP servers** (`plugins/claude-code`, `plugins/semctx-control`): Bun starts with its
   working directory pinned to the installed plugin (`--cwd ${CLAUDE_PLUGIN_ROOT}` on Claude Code,
   `--cwd ${PLUGIN_ROOT}` on Oh My Pi; Codex joins a plugin MCP `cwd` to the plugin root and

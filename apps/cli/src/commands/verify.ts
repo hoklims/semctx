@@ -1,7 +1,7 @@
-import { writeFileSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { verificationStatePath, writeFileNoFollow } from "@semantic-context/repository-store";
+import { replaceLocalReportFile } from "../report-output";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
@@ -155,9 +155,7 @@ function renderText(
 }
 
 function writeReportAtomic(path: string, report: VerifyReport): void {
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  renameSync(tmp, path);
+  replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`);
 }
 
 /** Record the exact analyzed content and its canonical Git representation for guarded-mode replay. */

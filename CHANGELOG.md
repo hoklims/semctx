@@ -34,9 +34,12 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   migration transaction. Every file written under `.semctx` (and `.gitignore`, which `init`
   maintains) goes through a writer that refuses a link at the destination or at any ancestor
   below the root and stages through an unguessable temporary name checked with `lstat` and
-  created exclusively, so a planted `<file>.tmp` link is never followed; the feedback store and
-  the anchor-migration transaction check every name they open the same way. Reads and rewrites
-  could previously land outside the repository through a planted link. (SEC-PB-01.)
+  created exclusively, so a planted `<file>.tmp` link is never followed; the writers with their
+  own protocol (feedback store, anchor migration, target artifacts, control handoff) check every
+  name a checkout can ship the same way. The `verify --output` report, which the GitHub Action
+  writes inside the analysed checkout, is staged through an unguessable temporary name as well
+  instead of a fixed `<report>.tmp` a pull request could ship as a link. Reads and rewrites could
+  previously land outside the repository through a planted link. (SEC-PB-01.)
 
 ## [0.2.0] - 2026-09-10
 

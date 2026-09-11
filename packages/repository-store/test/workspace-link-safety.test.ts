@@ -228,7 +228,10 @@ describe("every production open of the index goes through the workspace guard", 
         if (path.endsWith(join("repository-store", "src", "workspace.ts"))) continue;
         if (path.endsWith(join("repository-store", "src", "store.ts"))) continue;
         const source = readFileSync(path, "utf8");
-        if (/\bopenExisting\(|SqliteRepositoryStore\.open\(/.test(source)) offenders.push(join(base, file));
+        // Any spelling of a direct open: the reader or store methods (renamed imports included, so the
+        // bare method names count), a raw SQLite handle, or an import of the SQLite bindings.
+        const direct = /\bopenExisting\s*\(|\.open\s*\(\s*dbPath\(|\bnew\s+Database(?:Sync)?\s*\(|\bfrom\s+"(?:bun|node):sqlite"/;
+        if (direct.test(source)) offenders.push(join(base, file));
       }
     }
     expect(offenders).toEqual([]);

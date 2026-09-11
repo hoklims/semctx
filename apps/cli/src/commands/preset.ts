@@ -139,8 +139,9 @@ export function runPreset(
   const files = presetFiles(root, opts, options.includeConfig !== false);
   const planned: Array<{ path: string; action: Action }> = files.map((f) => {
     const abs = join(root, f.path);
-    // A linked preset target is refused outright rather than reported as "skip-exists".
-    if (isLinkedEntry(abs)) {
+    // A linked `.semctx` target is refused outright rather than reported as "skip-exists"; host
+    // files outside `.semctx` may legitimately be links and are only refused when written.
+    if (f.path.startsWith(".semctx/") && isLinkedEntry(abs)) {
       throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
     }
     const exists = existsSync(abs);

@@ -222,16 +222,37 @@ describe("init --preset refuses a linked .semctx", () => {
     }
   });
 
-  fileLinked("a preset target that is a link is refused, not skipped as existing", () => {
+  fileLinked("a linked .semctx target is refused outright, not skipped as existing", () => {
+    const { repo, outside } = presetRepository();
+    try {
+      mkdirSync(join(repo, ".semctx"));
+      writeFileSync(join(outside, "config.json"), "{}\n");
+      symlinkSync(join(outside, "config.json"), join(repo, ".semctx", "config.json"), "file");
+
+      // Without --force the old code reported "skip-exists" and exited 0 without looking at the link.
+      const r = semctx(["init", "--preset", "github-claude"], repo);
+
+      expect(r.code).not.toBe(0);
+      expect(readFileSync(join(outside, "config.json"), "utf8")).toBe("{}\n");
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  fileLinked("a linked host file outside .semctx is skipped when present and refused only when written", () => {
     const { repo, outside } = presetRepository();
     try {
       mkdirSync(join(repo, ".claude"));
       writeFileSync(join(outside, "semctx.md"), "outside\n");
       symlinkSync(join(outside, "semctx.md"), join(repo, ".claude", "semctx.md"), "file");
 
-      const r = semctx(["init", "--preset", "github-claude", "--force"], repo);
+      const skipped = semctx(["init", "--preset", "github-claude", "--json"], repo);
+      expect(skipped.code).toBe(0);
+      expect(JSON.parse(skipped.out).files).toContainEqual({ path: ".claude/semctx.md", action: "skip-exists" });
 
-      expect(r.code).not.toBe(0);
+      const forced = semctx(["init", "--preset", "github-claude", "--force"], repo);
+      expect(forced.code).not.toBe(0);
       expect(readFileSync(join(outside, "semctx.md"), "utf8")).toBe("outside\n");
     } finally {
       rmSync(repo, { recursive: true, force: true });
