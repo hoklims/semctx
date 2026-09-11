@@ -4,7 +4,7 @@
     "semctx": {
       "type": "stdio",
       "command": "bun",
-      "args": ["${PLUGIN_ROOT}/dist/semctx-mcp.js"]
+      "args": ["--cwd", "${PLUGIN_ROOT}", "${PLUGIN_ROOT}/dist/semctx-mcp.js"]
     }
   }
 }

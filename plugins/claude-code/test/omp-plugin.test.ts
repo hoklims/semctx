@@ -41,7 +41,7 @@ describe("OMP standard plugin manifests (ADR 0020)", () => {
     expect(manifest.extensions).toBeUndefined();
   });
 
-  test("mcp.json is a closed Agent Plugins 1.0.0 stdio config: PLUGIN_ROOT bundle arg, no cwd, no SEMCTX_ROOT", () => {
+  test("mcp.json is a closed Agent Plugins 1.0.0 stdio config: PLUGIN_ROOT-pinned Bun cwd and bundle arg, no cwd field, no SEMCTX_ROOT", () => {
     const mcp = json<{ $schema: string; mcpServers: Record<string, Record<string, unknown>> }>(
       "plugins/claude-code/mcp.json",
     );
@@ -52,7 +52,9 @@ describe("OMP standard plugin manifests (ADR 0020)", () => {
     expect(Object.keys(server).sort()).toEqual(["args", "command", "type"]);
     expect(server.type).toBe("stdio");
     expect(server.command).toBe("bun");
-    expect(server.args).toEqual(["${PLUGIN_ROOT}/dist/semctx-mcp.js"]);
+    // Bun's own `--cwd` (not a manifest `cwd` field) keeps the analysed checkout's `bunfig.toml`
+    // preload scripts and `.env` out of the server process (plugins/launch-isolation.test.ts).
+    expect(server.args).toEqual(["--cwd", "${PLUGIN_ROOT}", "${PLUGIN_ROOT}/dist/semctx-mcp.js"]);
     expect(server.cwd).toBeUndefined();
     expect(server.env).toBeUndefined();
   });

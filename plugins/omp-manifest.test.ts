@@ -60,7 +60,7 @@ describe("Oh My Pi Agent-Plugins package", () => {
     expect(mcp.mcpServers.semctx).toEqual({
       type: "stdio",
       command: "bun",
-      args: ["${PLUGIN_ROOT}/dist/semctx-mcp.js"],
+      args: ["--cwd", "${PLUGIN_ROOT}", "${PLUGIN_ROOT}/dist/semctx-mcp.js"],
     });
     expect(read("plugins/claude-code/mcp.json")).not.toMatch(/CLAUDE_|SEMCTX_ROOT|"cwd"/);
     expect(existsSync(resolve(repoRoot, "plugins/claude-code/.omp-plugin/plugin.json"))).toBe(false);
