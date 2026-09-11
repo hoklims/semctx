@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { VerifyReport } from "@semantic-context/core";
-import { writeNewLocalReportFile } from "../src/report-output";
+import { replaceLocalReportFile, writeNewLocalReportFile } from "../src/report-output";
 
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
 const roots: string[] = [];
@@ -94,5 +94,55 @@ describe("local report CLI", () => {
     expect(aggregate.out).not.toContain("private");
     expect(run(["feedback", "remove", recordId, "--root", repository, "--json"]).code).toBe(0);
     expect(JSON.parse(run(["feedback", "list", "--root", repository, "--json"]).out).records).toEqual([]);
+  });
+});
+
+describe("replaceLocalReportFile", () => {
+  const junction = process.platform === "win32" ? "junction" : "dir";
+
+  test("replaces an existing report under the root and leaves no temporary behind", () => {
+    const repository = root();
+    const report = join(repository, "semctx-report.json");
+    writeFileSync(report, "old\n");
+    replaceLocalReportFile(report, "new\n", repository);
+    expect(readFileSync(report, "utf8")).toBe("new\n");
+    expect(existsSync(`${report}.tmp`)).toBe(false);
+  });
+
+  test("accepts a report path reached through a link above the repository root", () => {
+    // macOS keeps temporary checkouts under `/var`, itself a link: links above the root are the user's.
+    const real = root();
+    const holder = root();
+    const linkRoot = join(holder, "project");
+    symlinkSync(real, linkRoot, junction);
+    replaceLocalReportFile(join(linkRoot, "semctx-report.json"), "{}\n", linkRoot);
+    expect(readFileSync(join(real, "semctx-report.json"), "utf8")).toBe("{}\n");
+  });
+
+  test("refuses a linked directory between the root and the report", () => {
+    const repository = root();
+    const outside = root();
+    symlinkSync(outside, join(repository, "reports"), junction);
+    expect(() => replaceLocalReportFile(join(repository, "reports", "semctx-report.json"), "{}\n", repository)).toThrow("symlink");
+    expect(existsSync(join(outside, "semctx-report.json"))).toBe(false);
+  });
+
+  test("refuses a linked destination inside or outside the root", () => {
+    const repository = root();
+    const outside = root();
+    const elsewhere = root();
+    writeFileSync(join(outside, "target.json"), "ORIGINAL\n");
+    symlinkSync(outside, join(repository, "reports"), junction);
+    let fileLinks = true;
+    try {
+      symlinkSync(join(outside, "target.json"), join(elsewhere, "report.json"), "file");
+    } catch {
+      fileLinks = false;
+    }
+    expect(() => replaceLocalReportFile(join(repository, "reports"), "{}\n", repository)).toThrow("symlink");
+    if (fileLinks) {
+      expect(() => replaceLocalReportFile(join(elsewhere, "report.json"), "{}\n", repository)).toThrow("symlink");
+      expect(readFileSync(join(outside, "target.json"), "utf8")).toBe("ORIGINAL\n");
+    }
   });
 });

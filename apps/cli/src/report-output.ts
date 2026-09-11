@@ -8,9 +8,9 @@
  */
 import { randomBytes } from "node:crypto";
 import { closeSync, openSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { SemctxError } from "@semantic-context/core";
-import { isLinkedEntry } from "@semantic-context/repository-store";
+import { assertUnlinkedBelow, isLinkedEntry } from "@semantic-context/repository-store";
 
 function assertNoLinkedAncestor(path: string): void {
   for (let current = resolve(path);; current = dirname(current)) {
@@ -32,15 +32,33 @@ export function writeNewLocalReportFile(path: string, content: string): void {
   }
 }
 
+function isUnder(root: string, path: string): boolean {
+  const inside = relative(resolve(root), resolve(path));
+  return inside !== "" && inside !== ".." && !inside.startsWith(`..${sep}`) && !isAbsolute(inside);
+}
+
 /**
  * Replace a report file atomically (a re-run overwrites the previous report). The temporary name
  * is unguessable, checked with `lstat` and created exclusively, then renamed into place, so a
  * `<report>.tmp` link shipped by the analysed checkout is never followed. The GitHub Action writes
  * its report inside that checkout, which is why the fixed `.tmp` name of the previous writer was
- * a way for a pull request to overwrite any file the runner could reach.
+ * a way for a pull request to overwrite any file the runner could reach. A report under the
+ * analysed `root` may not sit below a linked entry of that checkout; links above the root (a
+ * checkout behind `/var` on macOS, a symlinked projects directory) are the user's and are
+ * followed. A report outside the root is a user-chosen location: only the entry itself is checked.
  */
-export function replaceLocalReportFile(path: string, content: string): void {
-  assertNoLinkedAncestor(path);
+export function replaceLocalReportFile(path: string, content: string, root?: string): void {
+  if (root !== undefined && isUnder(root, path)) {
+    try {
+      assertUnlinkedBelow(root, path);
+    } catch (error) {
+      const detail = error instanceof SemctxError ? error.details?.["path"] : undefined;
+      const linked = typeof detail === "string" ? detail : path;
+      throw new SemctxError("IO_ERROR", `refusing to write through an existing symlink: ${linked}`, { path });
+    }
+  } else if (isLinkedEntry(resolve(path))) {
+    throw new SemctxError("IO_ERROR", `refusing to write through an existing symlink: ${resolve(path)}`, { path });
+  }
   const temporary = `${resolve(path)}.${randomBytes(9).toString("hex")}.tmp`;
   if (isLinkedEntry(temporary)) throw new SemctxError("IO_ERROR", `refusing to write through an existing symlink: ${temporary}`, { path });
   const descriptor = openSync(temporary, "wx", 0o644);

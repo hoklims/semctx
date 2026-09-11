@@ -154,8 +154,8 @@ function renderText(
   else fail("blocking violations present");
 }
 
-function writeReportAtomic(path: string, report: VerifyReport): void {
-  replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`);
+function writeReportAtomic(root: string, path: string, report: VerifyReport): void {
+  replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`, root);
 }
 
 /** Record the exact analyzed content and its canonical Git representation for guarded-mode replay. */
@@ -243,7 +243,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
         analyzedSourceHash ?? "",
       );
 
-  if (outputPath !== undefined) writeReportAtomic(resolve(process.cwd(), outputPath), report);
+  if (outputPath !== undefined) writeReportAtomic(root, resolve(process.cwd(), outputPath), report);
   const recordedPath = verifiedState === undefined ? undefined : recordVerification(root, report.verdict, verifiedState);
 
   if (format === "json") json(report);
