@@ -1,7 +1,9 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, extname, relative, resolve, sep } from "node:path";
 import cliPackage from "../apps/cli/package.json";
 import compatibility from "../compatibility.json";
+import { renderPagesWorkflow } from "./pages-workflow";
 
 export interface DocumentationProblem {
   file: string;
@@ -23,8 +25,22 @@ const CURRENT_ACTION_FILES = [
   "apps/cli/test/init-preset.test.ts",
 ] as const;
 
-const SKIPPED_DIRECTORIES = new Set([".git", ".omx", "node_modules"]);
 const RELEASE_DATE = "2026-09-10";
+
+const CANONICAL_PAGES_PUBLISH_RUN = [
+  "gh auth setup-git",
+  'git -C published config user.name "github-actions[bot]"',
+  'git -C published config user.email "41898282+github-actions[bot]@users.noreply.github.com"',
+  "git -C published rm -r --ignore-unmatch .",
+  "cp -R _site/. published/",
+  "git -C published add -A",
+  "if git -C published diff --cached --quiet; then",
+  '  echo "PAGES_UP_TO_DATE"',
+  "  exit 0",
+  "fi",
+  'git -C published commit -m "docs: publish $GITHUB_SHA"',
+  "git -C published push origin HEAD:gh-pages",
+].join("\n");
 
 function registeredToolCount(root: string): number {
   const path = resolve(root, "packages/mcp-server/src/tool-contract.ts");
@@ -46,15 +62,21 @@ function lineAt(text: string, index: number): number {
   return text.slice(0, index).split("\n").length;
 }
 
-function filesBelow(root: string, directory = root): string[] {
-  const files: string[] = [];
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory() && SKIPPED_DIRECTORIES.has(entry.name)) continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...filesBelow(root, path));
-    else files.push(posix(relative(root, path)));
-  }
-  return files.sort();
+function documentationFiles(root: string): string[] {
+  const output = execFileSync(
+    "git",
+    ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "*.md", "*.html"],
+    { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  );
+  return output.split("\0").filter(Boolean).map(posix).sort();
+}
+
+function releaseTagCommit(root: string, version: string): string {
+  return execFileSync(
+    "git",
+    ["rev-parse", "--verify", `refs/tags/v${version}^{commit}`],
+    { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  ).trim();
 }
 
 function normalizedLinkTarget(raw: string): string {
@@ -72,15 +94,59 @@ function withoutQueryOrFragment(target: string): string {
   return target.split(/[?#]/, 1)[0] ?? "";
 }
 
+function visibleMarkdown(text: string): string {
+  return text.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, " "));
+}
+
 function markdownLinks(text: string): Array<{ target: string; index: number }> {
   const links: Array<{ target: string; index: number }> = [];
-  for (const match of text.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g)) {
+  const visible = visibleMarkdown(text);
+  for (const match of visible.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g)) {
     links.push({ target: normalizedLinkTarget(match[1] ?? ""), index: match.index });
   }
-  for (const match of text.matchAll(/^\s*\[[^\]]+\]:\s*(\S+)/gm)) {
+  for (const match of visible.matchAll(/^\s*\[[^\]]+\]:\s*(\S+)/gm)) {
     links.push({ target: normalizedLinkTarget(match[1] ?? ""), index: match.index });
   }
   return links;
+}
+
+function githubHeadingAnchor(heading: string): string {
+  return heading
+    .trim()
+    .toLocaleLowerCase("en-US")
+    .replace(/[`*_~]/g, "")
+    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/\s+/g, "-");
+}
+
+function localFragmentExists(root: string, source: string, target: string): boolean {
+  const rawFragment = target.includes("#") ? target.slice(target.indexOf("#") + 1) : "";
+  if (rawFragment.length === 0) return true;
+  let fragment: string;
+  try {
+    fragment = decodeURIComponent(rawFragment).toLocaleLowerCase("en-US");
+  } catch {
+    return false;
+  }
+  const clean = withoutQueryOrFragment(target);
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(clean);
+  } catch {
+    return false;
+  }
+  const destination = clean.length === 0 ? resolve(root, source) : resolve(root, dirname(source), decoded);
+  if (!existsSync(destination) || ![".md", ".html"].includes(extname(destination))) return false;
+  const text = readFileSync(destination, "utf8").replaceAll("\r\n", "\n");
+  if (extname(destination) === ".html") {
+    return Array.from(text.matchAll(/\b(?:id|name)=["']([^"']+)["']/gi), (match) => match[1]?.toLocaleLowerCase("en-US"))
+      .includes(fragment);
+  }
+  const visible = visibleMarkdown(text);
+  const anchors = Array.from(visible.matchAll(/^#{1,6}\s+(.+?)\s*#*\s*$/gm), (match) => githubHeadingAnchor(match[1] ?? ""));
+  return anchors.includes(fragment)
+    || Array.from(visible.matchAll(/<a\s+[^>]*(?:id|name)=["']([^"']+)["'][^>]*>/gi), (match) => match[1]?.toLocaleLowerCase("en-US"))
+      .includes(fragment);
 }
 
 function htmlLinks(text: string): Array<{ target: string; index: number }> {
@@ -157,11 +223,13 @@ function checkInternalLinks(root: string, files: string[]): DocumentationProblem
     const text = readFileSync(resolve(root, file), "utf8").replaceAll("\r\n", "\n");
     const links = extname(file) === ".md" ? markdownLinks(text) : htmlLinks(text);
     for (const { target, index } of links) {
-      if (target.length === 0 || target.startsWith("#") || isExternal(target)) continue;
+      if (target.length === 0 || isExternal(target)) continue;
       if (target.startsWith("/")) {
         add(problems, file, text, index, `root-absolute link is not repository portable: ${target}`);
       } else if (!localTargetExists(root, file, target)) {
         add(problems, file, text, index, `local link target does not exist: ${target}`);
+      } else if (!localFragmentExists(root, file, target)) {
+        add(problems, file, text, index, `local link fragment does not exist: ${target}`);
       }
     }
   }
@@ -227,20 +295,39 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     'href="./demo/"',
   ], "landing contract");
 
-  const evidence = JSON.parse(readFileSync(resolve(root, "site/evidence.json"), "utf8")) as {
-    phase?: unknown;
-    demo?: { packageVersion?: unknown };
-  };
-  const supportedPhase = evidence.phase === "candidate" || evidence.phase === "release";
-  const requiredPhase = options.requireReleaseEvidence ? "release" : "candidate or release";
-  if (!supportedPhase || (options.requireReleaseEvidence && evidence.phase !== "release") || evidence.demo?.packageVersion !== version) {
-    add(
-      problems,
-      "site/evidence.json",
-      readFileSync(resolve(root, "site/evidence.json"), "utf8"),
-      0,
-      `demo evidence must be ${requiredPhase} phase for package ${version}`,
+  const evidenceText = readFileSync(resolve(root, "site/evidence.json"), "utf8");
+  try {
+    const evidence = JSON.parse(evidenceText) as {
+      phase?: unknown;
+      releaseCommit?: { value?: unknown; authority?: unknown } | null;
+      demo?: { packageVersion?: unknown };
+    };
+    const supportedPhase = evidence.phase === "candidate" || evidence.phase === "release";
+    const requiredPhase = options.requireReleaseEvidence ? "release" : "candidate or release";
+    if (!supportedPhase || (options.requireReleaseEvidence && evidence.phase !== "release") || evidence.demo?.packageVersion !== version) {
+      add(problems, "site/evidence.json", evidenceText, 0, `demo evidence must be ${requiredPhase} phase for package ${version}`);
+    }
+    const assertedCommit = evidence.releaseCommit;
+    const validCommitShape = assertedCommit === null || assertedCommit === undefined || (
+      typeof assertedCommit.value === "string"
+      && /^[0-9a-f]{40}$/.test(assertedCommit.value)
+      && assertedCommit.authority === "caller-asserted"
     );
+    if (!validCommitShape || (evidence.phase === "release" && (assertedCommit === null || assertedCommit === undefined))) {
+      add(problems, "site/evidence.json", evidenceText, 0, "release commit must be a full lowercase Git commit labelled caller-asserted");
+    } else if (options.requireReleaseEvidence && evidence.phase === "release") {
+      try {
+        const taggedCommit = releaseTagCommit(root, version);
+        if (assertedCommit?.value !== taggedCommit) {
+          add(problems, "site/evidence.json", evidenceText, 0, `release commit must match local tag v${version} at ${taggedCommit}`);
+        }
+      } catch (error) {
+        const detail = error instanceof Error ? error.message.split("\n", 1)[0] : String(error);
+        add(problems, "site/evidence.json", evidenceText, 0, `cannot resolve local release tag v${version}: ${detail}`);
+      }
+    }
+  } catch (error) {
+    add(problems, "site/evidence.json", evidenceText, 0, `invalid evidence JSON: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const releaseBriefPath = resolve(root, `docs/releases/v${version}.md`);
@@ -248,6 +335,7 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     problems.push({ file: `docs/releases/v${version}.md`, line: 1, message: "dedicated release brief is missing" });
   } else {
     const brief = readFileSync(releaseBriefPath, "utf8");
+    const visibleBrief = visibleMarkdown(brief);
     for (const expected of [
       `bunx semctx@${version} install`,
       "https://hoklims.github.io/semctx/demo/",
@@ -259,7 +347,7 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
       "experimental",
       "rollback",
     ]) {
-      if (!brief.toLowerCase().includes(expected.toLowerCase())) {
+      if (!visibleBrief.toLowerCase().includes(expected.toLowerCase())) {
         add(problems, posix(relative(root, releaseBriefPath)), brief, 0, `release narrative is missing: ${expected}`);
       }
     }
@@ -270,6 +358,7 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     "docs/troubleshooting.md",
     "SUPPORT.md",
     ".github/ISSUE_TEMPLATE/bug.yml",
+    ".github/ISSUE_TEMPLATE/support.yml",
     ".github/ISSUE_TEMPLATE/feature.yml",
     ".github/ISSUE_TEMPLATE/config.yml",
   ]) {
@@ -292,10 +381,17 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     ["problem", "current", "constraints", "evidence"],
     "feature",
   );
+  checkFormFields(
+    problems,
+    root,
+    ".github/ISSUE_TEMPLATE/support.yml",
+    ["question", "attempted", "semctx-version", "environment", "privacy"],
+    "support",
+  );
 
   const supportPath = resolve(root, "SUPPORT.md");
   if (existsSync(supportPath)) {
-    const support = readFileSync(supportPath, "utf8");
+    const support = visibleMarkdown(readFileSync(supportPath, "utf8"));
     requireText(
       problems,
       "SUPPORT.md",
@@ -303,6 +399,43 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
       ["Usage or setup question", "Reproducible bug", "Feature request", "Security vulnerability", "Do not post secrets"],
       "support route",
     );
+  }
+
+  const remoteAsset = /<link\b(?=[^>]*\brel=["'](?:stylesheet|preload|modulepreload|icon)["'])[^>]*\bhref=["']https?:\/\//i.test(landing)
+    || /<(?:script|img)\b[^>]*\bsrc=["']https?:\/\//i.test(landing);
+  if (remoteAsset) {
+    add(problems, "site/landing/index.html", landing, 0, "landing must not load remote fonts, scripts, or images");
+  }
+
+  const pagesWorkflowPath = resolve(root, ".github/workflows/publish-pages.yml");
+  if (!existsSync(pagesWorkflowPath)) {
+    problems.push({ file: ".github/workflows/publish-pages.yml", line: 1, message: "Pages publication workflow is missing" });
+  } else {
+    const source = readFileSync(pagesWorkflowPath, "utf8");
+    if (source.replaceAll("\r\n", "\n") !== renderPagesWorkflow()) {
+      add(problems, ".github/workflows/publish-pages.yml", source, 0, "Pages workflow must match the complete canonical generated contract");
+    }
+    try {
+      const parsed = Bun.YAML.parse(source) as { jobs?: Record<string, { steps?: Array<{ run?: string; uses?: string; with?: Record<string, unknown> }> }> };
+      const steps = parsed.jobs?.build?.steps ?? [];
+      const checkIndex = steps.findIndex((step) => step.run?.trim() === "bun run docs:check:publication");
+      const assemblyIndex = steps.findIndex((step) => step.run?.trim() === "bun scripts/build-pages-artifact.ts");
+      const branchCheckoutIndex = steps.findIndex((step) => step.uses?.startsWith("actions/checkout@") && step.with?.ref === "gh-pages");
+      const publishIndex = steps.findIndex((step) => step.run?.trim() === CANONICAL_PAGES_PUBLISH_RUN);
+      if (checkIndex < 0 || branchCheckoutIndex < 0 || publishIndex < 0 || checkIndex >= branchCheckoutIndex || branchCheckoutIndex >= publishIndex) {
+        add(problems, ".github/workflows/publish-pages.yml", source, 0, "Pages publication must validate release evidence before updating the gh-pages branch");
+      }
+      if (
+        assemblyIndex !== checkIndex + 1
+        || branchCheckoutIndex !== assemblyIndex + 1
+        || publishIndex !== branchCheckoutIndex + 1
+        || publishIndex !== steps.length - 1
+      ) {
+        add(problems, ".github/workflows/publish-pages.yml", source, 0, "Pages publication tail must be the uninterrupted canonical check, build, checkout, and publish sequence");
+      }
+    } catch (error) {
+      add(problems, ".github/workflows/publish-pages.yml", source, 0, `invalid Pages workflow YAML: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   const securityPath = resolve(root, "SECURITY.md");
@@ -324,14 +457,20 @@ export function checkDocumentation(
   root = resolve(import.meta.dir, ".."),
   options: DocumentationCheckOptions = {},
 ): DocumentationProblem[] {
-  const files = filesBelow(root);
+  let files: string[];
+  try {
+    files = documentationFiles(root);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.split("\n", 1)[0] : String(error);
+    return [{ file: ".", line: 1, message: `Git documentation enumeration failed: ${detail}` }];
+  }
   return [...checkInternalLinks(root, files), ...checkCurrentReleaseTruth(root, options)]
     .sort((left, right) => left.file.localeCompare(right.file) || left.line - right.line || left.message.localeCompare(right.message));
 }
 
 function externalUrls(root: string): Array<{ url: string; source: string }> {
   const seen = new Map<string, string>();
-  for (const file of filesBelow(root).filter((path) => [".md", ".html"].includes(extname(path)))) {
+  for (const file of documentationFiles(root)) {
     const text = readFileSync(resolve(root, file), "utf8");
     const links = extname(file) === ".md" ? markdownLinks(text) : htmlLinks(text);
     for (const { target } of links) {
@@ -343,7 +482,13 @@ function externalUrls(root: string): Array<{ url: string; source: string }> {
 
 async function checkExternalLinks(root: string): Promise<number> {
   const hardFailures: string[] = [];
-  const urls = externalUrls(root);
+  let urls: Array<{ url: string; source: string }>;
+  try {
+    urls = externalUrls(root);
+  } catch (error) {
+    console.error(`[docs:external] FAIL .:1: Git documentation enumeration failed: ${error instanceof Error ? error.message.split("\n", 1)[0] : String(error)}`);
+    return 1;
+  }
   let cursor = 0;
   const workers = Array.from({ length: Math.min(8, urls.length) }, async () => {
     while (cursor < urls.length) {

@@ -20,7 +20,9 @@ can resolve; it does not prove that an already-open session activated the update
 
 Run `semctx doctor --json` from the repository you intend to inspect. Read each named check rather
 than treating the process exit code as the whole diagnosis. A missing workspace configuration is
-different from a broken CLI runtime. Use `semctx setup --dry-run --json` to preview initialization.
+different from a broken CLI runtime. Use `semctx init --dry-run --json` to preview the files that
+initialization would create. The full `semctx setup --json` command writes configuration and index
+state; run it only when you intend to initialize the repository.
 
 ## `index-health` is stale, partial, or blocked
 

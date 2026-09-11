@@ -21,7 +21,7 @@ file before sharing it and remove paths or details you do not want to disclose.
 ## Where to report
 
 - **Usage or setup question:** check [troubleshooting](docs/troubleshooting.md), then use the
-  support link in the GitHub issue chooser if the answer is still missing.
+  support-question form in the GitHub issue chooser if the answer is still missing.
 - **Reproducible bug:** open the bug form. Include the Semctx and Bun versions, operating system,
   command, expected result, actual result, and the smallest safe reproduction you can provide.
 - **Feature request:** open the feature form and describe the user outcome and limits, not only a

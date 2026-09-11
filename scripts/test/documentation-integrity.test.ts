@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { checkDocumentation } from "../documentation-integrity";
+import { renderPagesWorkflow } from "../pages-workflow";
 
 const temporaryDirectories: string[] = [];
 const version = "0.2.0";
@@ -44,7 +46,13 @@ function fixture(): string {
   write(root, "SECURITY.md", "## Supported versions\n0.2.x\nGitHub Security Advisory\nDo not open a public issue\n");
   write(root, ".github/ISSUE_TEMPLATE/bug.yml", "body:\n  - id: semctx-version\n  - id: environment\n  - id: command\n  - id: expected\n  - id: actual\n  - id: reproduction\n  - id: privacy\n");
   write(root, ".github/ISSUE_TEMPLATE/feature.yml", "body:\n  - id: problem\n  - id: current\n  - id: constraints\n  - id: evidence\n");
+  write(root, ".github/ISSUE_TEMPLATE/support.yml", "body:\n  - id: question\n  - id: attempted\n  - id: semctx-version\n  - id: environment\n  - id: privacy\n");
   write(root, ".github/ISSUE_TEMPLATE/config.yml", "blank_issues_enabled: false\n");
+  write(
+    root,
+    ".github/workflows/publish-pages.yml",
+    renderPagesWorkflow(),
+  );
   write(root, ".github/pull_request_template.md", "[contracts](../docs/contributing/public-contracts.md)\n");
   write(
     root,
@@ -65,6 +73,15 @@ function fixture(): string {
       + `https://github.com/hoklims/semctx/releases/tag/v${version}\n`
       + "UNKNOWN NOT_MEASURED experimental rollback\n",
   );
+  execFileSync("git", ["init", "--quiet"], { cwd: root });
+  execFileSync("git", ["-c", "user.name=Semctx fixture", "-c", "user.email=fixture@semctx.invalid", "commit", "--allow-empty", "--quiet", "-m", "fixture"], { cwd: root });
+  const releaseCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  execFileSync("git", ["tag", `v${version}`], { cwd: root });
+  write(root, "site/evidence.json", JSON.stringify({
+    phase: "release",
+    releaseCommit: { value: releaseCommit, authority: "caller-asserted" },
+    demo: { packageVersion: version },
+  }));
   return root;
 }
 
@@ -88,6 +105,33 @@ describe("documentation integrity", () => {
     });
   });
 
+  test("publication rejects a well-formed release commit that does not match the local tag", () => {
+    const root = fixture();
+    write(root, "site/evidence.json", JSON.stringify({
+      phase: "release",
+      releaseCommit: { value: "f".repeat(40), authority: "caller-asserted" },
+      demo: { packageVersion: version },
+    }));
+    expect(checkDocumentation(root)).toEqual([]);
+    expect(checkDocumentation(root, { requireReleaseEvidence: true }).some((problem) =>
+      problem.message.startsWith(`release commit must match local tag v${version} at `)
+    )).toBe(true);
+  });
+
+  test("release evidence rejects an unauthorised commit identity", () => {
+    const root = fixture();
+    write(root, "site/evidence.json", JSON.stringify({
+      phase: "release",
+      releaseCommit: { value: "f".repeat(40), authority: "observed" },
+      demo: { packageVersion: version },
+    }));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "site/evidence.json",
+      line: 1,
+      message: "release commit must be a full lowercase Git commit labelled caller-asserted",
+    });
+  });
+
   test("reports a broken repository link with file and line", () => {
     const root = fixture();
     write(root, "docs/README.md", "# Docs\n\n[missing](not-here.md)\n");
@@ -95,6 +139,34 @@ describe("documentation integrity", () => {
       file: "docs/README.md",
       line: 3,
       message: "local link target does not exist: not-here.md",
+    });
+  });
+
+  test("reports a broken local fragment with file and line", () => {
+    const root = fixture();
+    write(root, "docs/target.md", "# Real heading\n");
+    write(root, "docs/README.md", "# Docs\n\n[missing fragment](target.md#not-real)\n");
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "docs/README.md",
+      line: 3,
+      message: "local link fragment does not exist: target.md#not-real",
+    });
+  });
+
+  test("ignores documentation files excluded by the repository", () => {
+    const root = fixture();
+    write(root, ".gitignore", "ignored/\n");
+    write(root, "ignored/generated.md", "[broken](missing.md)\n");
+    expect(checkDocumentation(root)).toEqual([]);
+  });
+
+  test("fails closed with an actionable diagnostic when Git enumeration is unavailable", () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-docs-no-git-"));
+    temporaryDirectories.push(root);
+    expect(checkDocumentation(root)[0]).toEqual({
+      file: ".",
+      line: 1,
+      message: expect.stringContaining("Git documentation enumeration failed:"),
     });
   });
 
@@ -144,6 +216,151 @@ describe("documentation integrity", () => {
     )).toBe(true);
   });
 
+  test("rejects required support guidance hidden in an HTML comment", () => {
+    const root = fixture();
+    write(root, "SUPPORT.md", "# Support\n\n<!-- Usage or setup question Reproducible bug Feature request Security vulnerability Do not post secrets -->\n");
+    const problems = checkDocumentation(root).filter((problem) => problem.file === "SUPPORT.md");
+    expect(problems).toHaveLength(5);
+    expect(problems.every((problem) => problem.message.startsWith("support route is missing:"))).toBe(true);
+  });
+
+  test("turns malformed evidence JSON into an actionable diagnostic", () => {
+    const root = fixture();
+    write(root, "site/evidence.json", "{\n");
+    expect(checkDocumentation(root).some((problem) =>
+      problem.file === "site/evidence.json"
+      && problem.line === 1
+      && problem.message.startsWith("invalid evidence JSON:")
+    )).toBe(true);
+  });
+
+  test("rejects remote landing assets", () => {
+    const root = fixture();
+    const landing = readFileSync(join(root, "site/landing/index.html"), "utf8");
+    write(root, "site/landing/index.html", `${landing}<link rel="stylesheet" href="https://fonts.example.test/font.css">`);
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "site/landing/index.html",
+      line: 1,
+      message: "landing must not load remote fonts, scripts, or images",
+    });
+  });
+
+  test("requires the publication gate before updating the legacy Pages branch", () => {
+    const root = fixture();
+    write(root, ".github/workflows/publish-pages.yml", "jobs:\n  build:\n    steps:\n      - uses: actions/checkout@pinned\n        with:\n          ref: gh-pages\n      - run: git -C published push origin HEAD:gh-pages\n");
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages publication must validate release evidence before updating the gh-pages branch",
+    });
+  });
+
+  test("requires the complete root and demo Pages artifact mapping", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace("bun scripts/build-pages-artifact.ts", "bun scripts/build-wrong-tree.ts"));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages publication tail must be the uninterrupted canonical check, build, checkout, and publish sequence",
+    });
+  });
+
+  test("rejects a commented-out Pages artifact builder invocation", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "        run: bun scripts/build-pages-artifact.ts",
+      "        run: |\n          # bun scripts/build-pages-artifact.ts\n          echo skipped",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages workflow must match the complete canonical generated contract",
+    });
+  });
+
+  test("rejects a post-build Pages artifact overwrite step", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "      - name: Check out the legacy Pages source branch",
+      "      - run: |\n          rm -rf _site\n          mkdir _site\n          printf bad > _site/index.html\n      - name: Check out the legacy Pages source branch",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages workflow must match the complete canonical generated contract",
+    });
+  });
+
+  test("rejects a commented-out Pages push", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "          git -C published push origin HEAD:gh-pages",
+      "          # git -C published push origin HEAD:gh-pages",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages publication must validate release evidence before updating the gh-pages branch",
+    });
+  });
+
+  test("rejects an inline overwrite inside the final Pages publish step", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "          git -C published add -A",
+      "          printf bad > published/index.html\n          git -C published add -A",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages publication must validate release evidence before updating the gh-pages branch",
+    });
+  });
+
+  test("rejects a publication check whose failure is ignored", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "        run: bun run docs:check:publication",
+      "        run: bun run docs:check:publication\n        continue-on-error: true",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages workflow must match the complete canonical generated contract",
+    });
+  });
+
+  test("rejects a skipped publication check", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", workflow.replace(
+      "        run: bun run docs:check:publication",
+      "        run: bun run docs:check:publication\n        if: ${{ false }}",
+    ));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages workflow must match the complete canonical generated contract",
+    });
+  });
+
+  test("rejects any additional Pages writer job", () => {
+    const root = fixture();
+    const workflow = readFileSync(join(root, ".github/workflows/publish-pages.yml"), "utf8");
+    write(root, ".github/workflows/publish-pages.yml", `${workflow}  overwrite:\n    needs: build\n    runs-on: ubuntu-latest\n    steps:\n      - run: git push origin HEAD:gh-pages\n`);
+    expect(checkDocumentation(root)).toContainEqual({
+      file: ".github/workflows/publish-pages.yml",
+      line: 1,
+      message: "Pages workflow must match the complete canonical generated contract",
+    });
+  });
+
   test("rejects a generated-only release narrative", () => {
     const root = fixture();
     write(root, `docs/releases/v${version}.md`, "What's Changed\n* one pull request\n");
@@ -151,5 +368,17 @@ describe("documentation integrity", () => {
     expect(problems.some((problem) => problem.message.includes("bunx semctx"))).toBe(true);
     expect(problems.some((problem) => problem.message.includes("rollback"))).toBe(true);
     expect(problems.some((problem) => problem.message.includes("NOT_MEASURED"))).toBe(true);
+  });
+
+  test("rejects required release narration hidden in an HTML comment", () => {
+    const root = fixture();
+    const path = `docs/releases/v${version}.md`;
+    const brief = readFileSync(join(root, path), "utf8");
+    write(root, path, brief.replace("UNKNOWN NOT_MEASURED experimental rollback", "UNKNOWN NOT_MEASURED experimental\n<!-- rollback -->"));
+    expect(checkDocumentation(root)).toContainEqual({
+      file: path,
+      line: 1,
+      message: "release narrative is missing: rollback",
+    });
   });
 });

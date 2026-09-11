@@ -16,7 +16,7 @@ const workflow = Bun.YAML.parse(readFileSync(workflowPath, "utf8")) as {
     needs?: string;
     permissions?: Record<string, string>;
     "timeout-minutes"?: number;
-    steps: Array<{ name?: string; run?: string }>;
+    steps: Array<{ name?: string; run?: string; uses?: string; with?: Record<string, unknown> }>;
   }>;
 };
 const temporaryDirectories: string[] = [];
@@ -69,6 +69,16 @@ npm() {
 }
 
 describe("registry availability gate", () => {
+  test("promotion checks out the exact release commit before reading curated notes", () => {
+    const checkout = workflow.jobs.promote?.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
+    expect(checkout?.uses).toBe("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1");
+    expect(checkout?.with).toEqual({
+      ref: "${{ github.sha }}",
+      "fetch-depth": 1,
+      "persist-credentials": false,
+    });
+  });
+
   test("promotion depends on a separate read-only, bounded availability job", () => {
     expect(workflow.jobs["registry-ready"]?.needs).toBe("publish");
     expect(workflow.jobs["registry-ready"]?.permissions).toEqual({});

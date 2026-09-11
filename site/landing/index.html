@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="semctx is a deterministic, local-first change-impact analyzer. Write one sentence saying what must never break, and any change that puts it at risk stops the commit.">
+<meta name="description" content="semctx is a deterministic, local-first change-impact analyzer. It makes statically detected risks visible and can guard commits when explicitly enabled.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="semctx">
-<meta property="og:description" content="semctx is a deterministic, local-first change-impact analyzer. Write one sentence saying what must never break, and any change that puts it at risk stops the commit.">
+<meta property="og:description" content="semctx is a deterministic, local-first change-impact analyzer. It makes statically detected risks visible and can guard commits when explicitly enabled.">
 <meta property="og:url" content="https://hoklims.github.io/semctx/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://hoklims.github.io/semctx/">
 <title>semctx</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
 <style>
   /* ══════════ tokens — a single committed night palette ══════════ */
   :root {
@@ -328,8 +327,8 @@
 <section class="hero">
   <div class="wrap hero-inner">
     <span class="kicker"><span class="pip"></span>Your agent said done. The tests went green.</span>
-    <h1>Write the rule once.<br>It becomes <em>a wall</em>.</h1>
-    <p class="hero-sub">One sentence in a comment tells semctx what must never break. From then on, any change that puts it at risk stops the commit — deterministically, locally, with no model in the loop.</p>
+    <h1>Write the rule once.<br>Make the risk <em>visible</em>.</h1>
+    <p class="hero-sub">One sentence in a comment tells semctx what must never break. Semctx reports statically detected risk deterministically and locally; guarded mode can stop a commit when you explicitly enable it.</p>
     <div class="hero-cta">
       <a class="cta" href="#start"><span>$</span><span>bunx semctx@0.2.0 install</span><span class="caret"></span></a>
       <span class="cta-aside">Detects Claude Code and Codex. Safe to run twice.</span>
@@ -517,7 +516,7 @@
       </div>
     </div>
 
-    <p class="aside-note reveal">Planning and reconciliation tools report <code style="font-size: 0.9em;">executionAuthority: "none"</code>. semctx never edits, commits, deletes or deploys anything. A verdict is a verdict, never a permission.</p>
+    <p class="aside-note reveal">Planning and reconciliation tools report <code style="font-size: 0.9em;">executionAuthority: "none"</code> and never edit, commit, delete or deploy. Installation and setup commands do write the host and repository state they describe. A verdict is a verdict, never a permission.</p>
   </div>
 </section>
 
@@ -591,11 +590,11 @@
       <div class="shell"><span class="c"># no Bun yet? this installs it</span>
 <span class="p">$</span> curl -fsSL https://bun.sh/install | bash
 
-<span class="c"># detects Claude Code and Codex, sets up the repo</span>
-<span class="p">$</span> bunx semctx@0.2.0 install
-
 <span class="c"># preview everything first, change nothing</span>
-<span class="p">$</span> bunx semctx@0.2.0 install --dry-run</div>
+<span class="p">$</span> bunx semctx@0.2.0 install --dry-run
+
+<span class="c"># then install the detected hosts and set up the repo</span>
+<span class="p">$</span> bunx semctx@0.2.0 install</div>
 
       <div class="facts">
         <div class="fact">
