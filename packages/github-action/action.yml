@@ -67,29 +67,44 @@ runs:
       run: bun install --frozen-lockfile
       working-directory: ${{ github.action_path }}/../..
 
+    - name: Resolve the repository to analyse
+      id: target
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      # Node reads no configuration from its working directory; it only reports the absolute,
+      # forward-slash path that the Bun steps below receive as `--root`.
+      run: echo "root=$(node -p "process.cwd().split(require('node:path').sep).join('/')")" >> "$GITHUB_OUTPUT"
+
     - name: Index and verify
       id: verify
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
+      # Bun runs from the action's own checkout, never from the analysed repository: Bun executes
+      # `$cwd/bunfig.toml` preload scripts and loads `$cwd/.env` before any entrypoint, so a pull
+      # request could otherwise run code on the runner before semctx started.
+      working-directory: ${{ github.action_path }}/../..
       # All user-controlled inputs are passed through env and referenced as shell variables, so
       # the shell — not the ${{ }} template engine — handles the values (no Actions injection).
       env:
         SEMCTX_CLI: ${{ github.action_path }}/../../apps/cli/src/index.ts
+        SEMCTX_TARGET: ${{ steps.target.outputs.root }}
         SEMCTX_CONFIG: ${{ inputs.config-path }}
         SEMCTX_REPORT: ${{ inputs.report-path }}
         SEMCTX_BASE: ${{ inputs.base }}
         SEMCTX_HEAD: ${{ inputs.head }}
       run: |
         set -euo pipefail
-        bun "$SEMCTX_CLI" init --root .
-        if [ -n "$SEMCTX_CONFIG" ]; then
-          cp "$SEMCTX_CONFIG" .semctx/config.json
+        # `config-path` and `report-path` stay relative to the analysed directory, as documented.
+        case "$SEMCTX_CONFIG" in "" | /* | [A-Za-z]:*) config="$SEMCTX_CONFIG" ;; *) config="$SEMCTX_TARGET/$SEMCTX_CONFIG" ;; esac
+        case "$SEMCTX_REPORT" in /* | [A-Za-z]:*) report="$SEMCTX_REPORT" ;; *) report="$SEMCTX_TARGET/$SEMCTX_REPORT" ;; esac
+        bun "$SEMCTX_CLI" init --root "$SEMCTX_TARGET"
+        if [ -n "$config" ]; then
+          cp "$config" "$SEMCTX_TARGET/.semctx/config.json"
         fi
-        bun "$SEMCTX_CLI" index --root .
+        bun "$SEMCTX_CLI" index --root "$SEMCTX_TARGET"
         # Always produce the report (fail-on none); the adapter owns the job exit code.
-        bun "$SEMCTX_CLI" verify diff --root . \
+        bun "$SEMCTX_CLI" verify diff --root "$SEMCTX_TARGET" \
           --base "$SEMCTX_BASE" --head "$SEMCTX_HEAD" \
-          --format json --output "$SEMCTX_REPORT" --fail-on none
+          --format json --output "$report" --fail-on none
 
     - name: Annotate, summarise, enforce
       id: adapter
