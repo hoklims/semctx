@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose a user outcome or improvement for Semctx.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or user outcome
+      description: What should a user be able to understand or accomplish?
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: What happens today, including any safe workaround?
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and boundaries
+      description: Note compatibility, privacy, determinism, proof, or integration limits that matter.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Example or evidence
+      description: Use public or synthetic material only; do not include secrets or private repository source.

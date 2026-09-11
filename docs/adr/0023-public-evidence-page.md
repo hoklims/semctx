@@ -18,7 +18,9 @@ LATENT_COMPASS_ROUTING_NOTE_V1
 - handoff: Codex lead.
 
 Decision: A, a lightweight static GitHub Pages workbench with the README as its primary source link.
-The existing legacy `gh-pages` root landing remains unchanged; this page is additive at
+The original decision kept the legacy `gh-pages` root unchanged. Documentation-coherence work in
+[#147](https://github.com/hoklims/semctx/issues/147) later added a reviewed root source at
+`site/landing/index.html`; the evidence page remains additive at
 `https://hoklims.github.io/semctx/demo/` and uses relative assets beneath that path. No framework,
 dependency, analytics, remote font, account, server or model calls. Publication is a separate
 lead-owned action after candidate review; authoring must not deploy anything.
@@ -69,7 +71,7 @@ Test that injected private paths/free text cannot reach serialized output, malfo
 rejected, unsupported cases remain limits, missing data is explicit and all links/assets are local
 or fixed repository URLs. Root verifies desktop/mobile/keyboard behavior, then independently reviews
 the integrated candidate. No relaxed full gates. Root owns publication into `demo/` on the existing
-legacy `gh-pages` branch. It does not replace the root landing, add a workflow, or migrate Pages
+`gh-pages` branch. The later root-coherence correction reuses that branch and does not migrate Pages
 settings; the feature author does not change CI or deploy.
 After npm release, regenerate the demo from the exact downloaded release artifact, rebuild the
 projection and republish with both candidate/release identities kept distinct.

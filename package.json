@@ -30,6 +30,10 @@
   "scripts": {
     "compatibility:check": "bun scripts/compatibility.ts",
     "compatibility:write": "bun scripts/compatibility.ts --write",
+    "docs:check": "bun scripts/documentation-integrity.ts",
+    "docs:check:publication": "bun scripts/documentation-integrity.ts --publication",
+    "docs:check:external": "bun scripts/documentation-integrity.ts --external",
+    "pages:build": "bun scripts/build-pages-artifact.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "bun run typecheck:product && bun run typecheck:tooling",
     "typecheck:product": "tsc -p tsconfig.json",
