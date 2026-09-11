@@ -35,7 +35,7 @@ function assertNotLinked(path: string): void {
  * link to another location would otherwise have its authored intent read from, and rewritten,
  * outside the repository.
  */
-function assertUnlinkedSemanticTree(root: string): void {
+export function assertUnlinkedSemanticTree(root: string): void {
   for (const dir of [semctxDir(root), semanticDir(root), changesDir(root), targetsDir(root), workingDir(root)]) {
     assertNotLinked(dir);
   }
@@ -88,6 +88,7 @@ export interface ActiveChangePointerResult {
 
 /** Inspect the local active-change pointer without collapsing malformed content into "missing". */
 export function readActiveChangePointer(root: string): ActiveChangePointerResult {
+  assertUnlinkedSemanticTree(root);
   const path = activeChangePath(root);
   if (!existsSync(path)) return { state: "missing", diagnostics: [] };
   const parsed = parseSemanticSource(readFileSync(path, "utf8"), "working/active-change.sem");
@@ -125,25 +126,30 @@ function writeAtomic(path: string, content: string): void {
 
 /** Rewrite the per-kind file for `kind` with exactly `nodes` (canonical formatting). */
 export function writeKindFile(root: string, kind: Exclude<SemanticNodeKind, "change">, nodes: SemanticNode[]): void {
+  assertUnlinkedSemanticTree(root);
   writeAtomic(kindFilePath(root, kind), formatModel({ nodes, changes: [] }));
 }
 
 /** Write a change contract to its versioned file `.semctx/semantic/changes/<id>.sem`. */
 export function writeChangeFile(root: string, change: ChangeContract): void {
+  assertUnlinkedSemanticTree(root);
   writeAtomic(changeFilePath(root, change.id), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function removeChangeFile(root: string, changeId: string): void {
+  assertUnlinkedSemanticTree(root);
   const path = changeFilePath(root, changeId);
   if (existsSync(path)) rmSync(path);
 }
 
 /** Persist the working active change (local, git-ignored). */
 export function writeActiveChange(root: string, change: ChangeContract): void {
+  assertUnlinkedSemanticTree(root);
   writeAtomic(activeChangePath(root), formatModel({ nodes: [], changes: [change] }));
 }
 
 export function clearActiveChange(root: string): void {
+  assertUnlinkedSemanticTree(root);
   const path = activeChangePath(root);
   if (existsSync(path)) rmSync(path);
 }

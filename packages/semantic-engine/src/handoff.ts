@@ -12,6 +12,7 @@ import { compareIds } from "@semantic-context/core";
 import { SemanticIndex, PROVEN_STATUSES, repositoryLinkToRef } from "@semantic-context/semantic-model";
 import type { SemanticModel, ChangeContract } from "@semantic-context/semantic-model";
 import { workingDir, handoffJsonPath, handoffMarkdownPath } from "./paths";
+import { assertUnlinkedSemanticTree } from "./store";
 
 export const HANDOFF_SCHEMA_VERSION = 1 as const;
 
@@ -119,6 +120,7 @@ export function renderHandoffMarkdown(capsule: HandoffCapsule): string {
 /** Capture and persist a handoff capsule to `.semctx/working/`. Returns the capsule. */
 export function captureHandoff(args: CaptureArgs): HandoffCapsule {
   const capsule = buildHandoffCapsule(args);
+  assertUnlinkedSemanticTree(args.root);
   mkdirSync(workingDir(args.root), { recursive: true });
   writeAtomic(handoffJsonPath(args.root), `${JSON.stringify(capsule, null, 2)}\n`);
   writeAtomic(handoffMarkdownPath(args.root), renderHandoffMarkdown(capsule));
@@ -137,6 +139,7 @@ function isHandoffCapsule(value: unknown): value is HandoffCapsule {
 
 /** Read a previously captured handoff capsule, if any. Rejects malformed/partial files (→ undefined). */
 export function readHandoff(root: string): HandoffCapsule | undefined {
+  assertUnlinkedSemanticTree(root);
   const path = handoffJsonPath(root);
   if (!existsSync(path)) return undefined;
   try {
