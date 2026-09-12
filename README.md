@@ -1,7 +1,7 @@
 # semctx — repository change-impact analyzer
 
 <!-- semctx:compatibility:start -->
-Semctx **0.2.0** requires **Bun >=1.4.0**.
+Semctx **0.2.1** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.
@@ -338,7 +338,7 @@ comments, no secrets, `contents: read` only. Copy
 ```yaml
 - uses: actions/checkout@v4
   with: { fetch-depth: 0 }
-- uses: hoklims/semctx/packages/github-action@v0.2.0
+- uses: hoklims/semctx/packages/github-action@v0.2.1
   with:
     base: ${{ github.event.pull_request.base.sha }}
     head: ${{ github.sha }}

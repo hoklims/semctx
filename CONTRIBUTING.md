@@ -6,7 +6,7 @@ remains mandatory. The [packaged first-use demo](docs/contributing/first-use-dem
 public journey without writing authored declarations or installing a global plugin.
 
 <!-- semctx:compatibility:start -->
-Semctx **0.2.0** requires **Bun >=1.4.0**.
+Semctx **0.2.1** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.

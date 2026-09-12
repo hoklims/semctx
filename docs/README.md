@@ -47,6 +47,7 @@ navigation hub for the complete documentation.
 - [Public-contract change tiers](contributing/public-contracts.md)
 - [Release and npm publishing](publishing.md)
 - [Security policy](../SECURITY.md)
+- [v0.2.1 release brief](releases/v0.2.1.md)
 - [v0.2.0 release brief](releases/v0.2.0.md)
 
 Release-specific documents, ADRs, implementation records, and pilot results remain in place as

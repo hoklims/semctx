@@ -7,7 +7,7 @@ import { checkDocumentation } from "../documentation-integrity";
 import { renderPagesWorkflow } from "../pages-workflow";
 
 const temporaryDirectories: string[] = [];
-const version = "0.2.0";
+const version = "0.2.1";
 const action = `hoklims/semctx/packages/github-action@v${version}`;
 const toolCount = 38;
 
@@ -39,7 +39,7 @@ function fixture(): string {
     "packages/mcp-server/src/tool-contract.ts",
     `const TOOL_NAMES = [\n${Array.from({ length: toolCount }, (_, index) => `  "tool-${index}",`).join("\n")}\n] as const;\n`,
   );
-  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-10\n`);
+  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-12\n`);
   write(root, "ROADMAP.md", `Released baseline: **v${version}**\n`);
   write(root, "docs/README.md", "# Docs\n");
   write(root, "docs/troubleshooting.md", "# Troubleshooting\n");

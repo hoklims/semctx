@@ -12,7 +12,7 @@ Thirty public changes have UNKNOWN ground truth; no accuracy or benefit claim fo
 
 ## Governing sources
 
-- [Release scope and limits](docs/releases/v0.2.0.md)
+- [Release scope and limits](docs/releases/v0.2.1.md)
 - ADRs [0018](docs/adr/0018-packaged-first-use-demo.md),
   [0019](docs/adr/0019-local-pilot-evidence.md), [0020](docs/adr/0020-omp-standard-plugin.md),
   [0021](docs/adr/0021-voluntary-local-reports.md), [0022](docs/adr/0022-contributor-first-check.md),
@@ -22,7 +22,7 @@ Thirty public changes have UNKNOWN ground truth; no accuracy or benefit claim fo
 
 ## Resume from evidence
 
-Read current main, stable, v0.2.0, npm gitHead, GitHub Release and release-workflow jobs before
+Read current main, stable, v0.2.1, npm gitHead, GitHub Release and release-workflow jobs before
 reporting delivery. They must identify the same immutable released commit. Host delivery is a
 separate proof; existing sessions do not reload merely because installation succeeded. OMP remains
 experimental and is not part of --host all attestation. Its selected installation route is the

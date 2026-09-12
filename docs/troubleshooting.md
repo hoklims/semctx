@@ -5,7 +5,7 @@ source or telemetry.
 
 ## The command is missing or reports the wrong version
 
-Run `bunx semctx@0.2.0 --version`. Semctx 0.2.0 requires Bun >=1.4.0. If a global `semctx` command
+Run `bunx semctx@0.2.1 --version`. Semctx 0.2.1 requires Bun >=1.4.0. If a global `semctx` command
 shows another version, use the explicit `bunx` command or update the global installation before
 comparing behavior.
 
@@ -39,7 +39,7 @@ statically. Run the relevant build or tests separately to prove runtime behavior
 
 ## GitHub Actions uses a different result from my machine
 
-Confirm the workflow pins `hoklims/semctx/packages/github-action@v0.2.0`, fetches full Git history,
+Confirm the workflow pins `hoklims/semctx/packages/github-action@v0.2.1`, fetches full Git history,
 and compares the intended base and head SHAs. Do not replace the version tag with `main` or `stable`.
 See the [GitHub Actions guide](integrations/github-actions.md).
 
