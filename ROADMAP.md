@@ -1,6 +1,6 @@
 # Semctx roadmap
 
-> Revised 2026-09-11. Released baseline: **v0.2.0**.
+> Revised 2026-09-12. Released baseline: **v0.2.1**.
 > Future versions are outcome targets, not available features or promised dates.
 
 ## Understand the risk of a change before running the checks
@@ -19,7 +19,7 @@ repeated use cheaper than rediscovering the same context. We will measure that t
 
 ## Available today
 
-[v0.2.0](https://github.com/hoklims/semctx/releases/tag/v0.2.0) provides local change-impact
+[v0.2.1](https://github.com/hoklims/semctx/releases/tag/v0.2.1) provides local change-impact
 analysis, explainable PASS/WARN/BLOCK reports, source-bound index health, authored intent and
 contracts, read-only control/replay surfaces, and Codex/Claude integrations.
 

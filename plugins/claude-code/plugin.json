@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "semctx",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Trace repository impact, authored intent and fail-closed migration plans, then verify changes with proof-honest verdicts. Local-first and deterministic.",
   "author": {
     "name": "hoklims",

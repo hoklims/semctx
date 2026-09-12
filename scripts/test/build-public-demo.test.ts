@@ -545,7 +545,7 @@ describe("static page contract", () => {
     expect(["candidate", "release"]).toContain(evidence.phase);
     expect(rendered["phase-value"]?.textContent).toBe(evidence.phase);
     expect(rendered["global-verdict"]?.textContent).toBe("WARN");
-    expect(rendered["artifact-version"]?.textContent).toBe("0.2.0");
+    expect(rendered["artifact-version"]?.textContent).toBe("0.2.1");
     expect(rendered["report-status"]?.textContent).toBe("Packaged demo evidence is present.");
   });
 

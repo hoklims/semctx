@@ -9,6 +9,8 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-12
+
 ### Security
 
 - Plugin MCP servers pin Bun's working directory to the installed plugin: Claude Code launches
@@ -608,7 +610,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/hoklims/semctx/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/hoklims/semctx/compare/v0.1.20...v0.2.0
 [0.1.20]: https://github.com/hoklims/semctx/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/hoklims/semctx/compare/v0.1.18...v0.1.19
