@@ -41,6 +41,13 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   instead of a fixed `<report>.tmp` a pull request could ship as a link. Reads and rewrites could
   previously land outside the repository through a planted link. (SEC-PB-01.)
 
+### Compatibility
+
+- Quality tooling moves to ruff 0.16.6 and zizmor 1.30.0; `requirements-quality.txt` and the
+  `ruff.toml` `required-version` stay aligned, as the governance test requires. The ESLint
+  development dependencies move to typescript-eslint 8.70.0 and globals 17.12.0. No runtime
+  dependency changes.
+
 ## [0.2.0] - 2026-09-10
 
 ### Added
