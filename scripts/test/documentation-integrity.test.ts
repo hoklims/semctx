@@ -76,7 +76,7 @@ function fixture(): string {
     `docs/releases/v${version}.md`,
     `bunx semctx@${version} install\nhttps://hoklims.github.io/semctx/demo/\n`
       + `https://www.npmjs.com/package/semctx/v/${version}\n`
-      + "https://github.com/hoklims/semctx/actions/runs/34433110104\n"
+      + "https://github.com/hoklims/semctx/actions/runs/34664142432\n"
       + `https://github.com/hoklims/semctx/releases/tag/v${version}\n`
       + "UNKNOWN NOT_MEASURED experimental rollback\n",
   );

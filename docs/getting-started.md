@@ -5,7 +5,7 @@ Semctx **0.2.1** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.
-[Baseline delivery evidence](https://github.com/hoklims/semctx/actions/runs/34433110104).
+[Baseline delivery evidence](https://github.com/hoklims/semctx/actions/runs/34664142432).
 Installation does not reload an active session: open a new Codex task, or run
 `/reload-plugins` in Claude Code (restart if reload fails).
 <!-- semctx:compatibility:end -->
