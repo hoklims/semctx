@@ -34,6 +34,7 @@ export type VerificationHookRefusal =
   | "PARTIAL_INDEX"
   | "NO_PROOF"
   | "PROOF_UNREADABLE"
+  | "STDIN_UNREADABLE"
   | "REF_DELETION"
   | "UNPROVEN_REF";
 
@@ -153,10 +154,18 @@ export function evaluatePreCommitHook(root: string, recordedAt: string): Verific
 /**
  * Last `pre-push` job. A pre-push hook cannot change the commits being pushed and a post-commit
  * working-tree verification would analyze an empty diff, so this never records: it checks that
- * the tree of every pushed commit is exactly the recorded verified state. Without ref lines (a
- * manual invocation) it checks HEAD.
+ * the tree of every pushed commit is exactly the recorded verified state. Only a genuinely empty
+ * ref stream (a manual invocation) falls back to HEAD; `null` means the hook's stdin could not be
+ * read, and unknown refs are refused rather than guessed.
  */
-export function evaluatePrePushHook(root: string, pushedRefs: readonly PushedRef[]): VerificationHookOutcome {
+export function evaluatePrePushHook(root: string, pushedRefs: readonly PushedRef[] | null): VerificationHookOutcome {
+  if (pushedRefs === null) {
+    return refused(
+      "pre-push",
+      "STDIN_UNREADABLE",
+      "the hook's stdin could not be read, so the pushed refs are unknown; only an empty ref stream may fall back to HEAD",
+    );
+  }
   const recorded = readRecordedState(root);
   if (recorded.status === "missing") {
     return refused(
@@ -185,7 +194,18 @@ export function evaluatePrePushHook(root: string, pushedRefs: readonly PushedRef
         { ref },
       );
     }
-    const treeHash = captureCommitTreeHash(root, ref.localObjectId);
+    let treeHash: string;
+    try {
+      treeHash = captureCommitTreeHash(root, ref.localObjectId);
+    } catch (error) {
+      const cause = error instanceof SemctxError ? error.message : String(error);
+      return refused(
+        "pre-push",
+        "UNPROVEN_REF",
+        `${ref.localRef} (${ref.localObjectId}) cannot be verified as a pushed commit: ${cause}`,
+        { ref, ...(error instanceof SemctxError ? error.details : {}) },
+      );
+    }
     if (treeHash !== state.repositoryStateHash) {
       return refused(
         "pre-push",

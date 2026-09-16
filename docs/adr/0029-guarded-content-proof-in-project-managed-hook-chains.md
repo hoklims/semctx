@@ -28,9 +28,10 @@ inside the hook chain, after the last writer, sees the tree Git is about to reco
 
 1. **Opt-in declaration.** `.semctx/guard.json` accepts `{ "enabled": true, "hooks": "project-managed" }`.
    Under it the guard no longer requires a sample-only hooks directory for commit or push. Without
-   the key, ADR 0007's rule is unchanged. Any other `hooks` value is a malformed configuration
-   (unknown enablement), never a relaxation. Only the target repository's own `guard.json` can
-   declare its hooks project-managed; a session-root declaration never relaxes another repository.
+   the key, ADR 0007's rule is unchanged. Any other `hooks` value is ignored: enforcement stays on
+   with the default sample-only rule, so a typo never relaxes anything and never turns the guard
+   advisory. Only the target repository's own `guard.json` can declare its hooks project-managed;
+   a session-root declaration never relaxes another repository.
 2. **`semctx verify hook pre-commit`** is the content proof of the tree Git will record. Run as the
    last pre-commit job, it captures the recordable state after the last writer, refuses a partial
    index (unstaged edits, non-ignored untracked files) before any analysis, returns without analysis
@@ -40,12 +41,17 @@ inside the hook chain, after the last writer, sees the tree Git is about to reco
    the hook cannot vouch for the commit.
 3. **`semctx verify hook pre-push`** never records. It reads Git's `<local ref> <local oid> <remote
    ref> <remote oid>` lines and requires the tree of every pushed commit to equal the recorded
-   `repositoryStateHash`. Deletions and unproven commits are refused (`1`); a matching `BLOCK`
-   record exits `3`. Without ref lines (a manual run) it checks `HEAD`.
+   `repositoryStateHash`. Each pushed object must be a commit (a bare tree id that happens to hash
+   to the record is refused). Deletions and unproven commits are refused (`1`); a matching `BLOCK`
+   record exits `3`. Only a genuinely empty ref stream (a manual run) falls back to `HEAD`; a
+   stdin that cannot be read is refused rather than treated as empty.
 4. **`PreToolUse` keeps both tree checks.** The commit-time check forces a fresh proof before the
    commit starts, which is what keeps the in-hook job a hash compare in the no-drift case. The
    push-time check is the *ordering verifier*: a writer that runs after the semctx job leaves
-   `HEAD` ≠ recorded state, and the push fails closed with a reason naming the misordering.
+   `HEAD` ≠ recorded state, and the push fails closed with a reason naming the misordering and
+   pointing at the hook order — never at a post-commit record, which would only re-stamp the tree.
+   Ordinary working-tree drift after an exact commit keeps `HEAD` equal to the record and gets the
+   generic reason instead.
 5. **Hook bypass is non-authorizing** on both verbs, in every guarded profile: `git commit
    --no-verify` / `-n` (including short clusters carrying `n` and Git long-option abbreviations)
    and `git push --no-verify`. `--no-verify` leaves the safe push-option list; `git push -n` stays

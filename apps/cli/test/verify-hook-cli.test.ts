@@ -165,6 +165,14 @@ describe("verify hook pre-push (CLI, real git) — checks pushed trees, never re
     const malformed = semctx(["verify", "hook", "pre-push"], repo, "not a ref line\n");
     expect(malformed.code).toBe(1);
     expect(malformed.err).toContain("INVALID_TASK_INPUT");
+
+    // The root tree of the verified commit hashes to the recorded state, but it is not a commit:
+    // a hand-written ref line must not pass as one.
+    const treeId = gitOutput(repo, ["rev-parse", "HEAD^{tree}"]);
+    const tree = semctx(["verify", "hook", "pre-push"], repo, `refs/heads/main ${treeId} refs/heads/main ${zero}\n`);
+    expect(tree.code).toBe(1);
+    expect(tree.err).toContain("UNPROVEN_REF");
+    expect(tree.err).toContain("not a commit");
   });
 
   it("exits 3 when the pushed tree is covered by a BLOCK record", () => {

@@ -343,10 +343,18 @@ function captureHeadTreeHash(root: string): string {
   return captureTreeHash(root, "HEAD");
 }
 
-/** Canonical repository-state hash of one commit's tree, comparable with a recorded `repositoryStateHash`. */
+/**
+ * Canonical repository-state hash of one commit's tree, comparable with a recorded
+ * `repositoryStateHash`. The object must be a commit: `ls-tree` would accept a bare tree id, and a
+ * hand-written ref line naming the root tree of a verified commit must not pass as that commit.
+ */
 export function captureCommitTreeHash(root: string, objectId: string): string {
   if (!/^[0-9a-f]{40,64}$/.test(objectId)) {
     throw new SemctxError("GIT_ERROR", "cannot capture a commit tree: invalid object id", { objectId });
+  }
+  const objectType = new TextDecoder().decode(git(root, ["cat-file", "-t", objectId])).trim();
+  if (objectType !== "commit") {
+    throw new SemctxError("GIT_ERROR", "cannot capture a commit tree: object is not a commit", { objectId, objectType });
   }
   return captureTreeHash(root, objectId);
 }

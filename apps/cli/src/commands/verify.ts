@@ -233,13 +233,16 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
   return exitCode(report.verdict, failOn);
 }
 
-/** Git pipes pre-push ref lines on stdin; a terminal (manual run) or an unreadable stdin means "no refs". */
-function readHookStdin(): string {
+/**
+ * Git pipes pre-push ref lines on stdin. A terminal (manual run) is an empty ref stream and falls
+ * back to HEAD; a read failure is not — the refs are unknown, so the evaluation refuses.
+ */
+function readHookStdin(): string | null {
   if (process.stdin.isTTY) return "";
   try {
     return readFileSync(0, "utf8");
   } catch {
-    return "";
+    return null;
   }
 }
 
@@ -290,8 +293,9 @@ export function runVerifyHook(root: string, args: ParsedArgs): number {
       { hook: hook ?? null },
     );
   }
+  const stdin = hook === "pre-push" ? readHookStdin() : "";
   const outcome = hook === "pre-commit"
     ? evaluatePreCommitHook(root, nowIso())
-    : evaluatePrePushHook(root, parsePrePushRefs(readHookStdin()));
+    : evaluatePrePushHook(root, stdin === null ? null : parsePrePushRefs(stdin));
   return renderHookOutcome(outcome);
 }

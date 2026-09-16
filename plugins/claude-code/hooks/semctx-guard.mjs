@@ -990,12 +990,31 @@ export function pushHookSurfaceClear(cwd) {
 /** `guard.json` value declaring that the project-owned Git hook chain carries the content proof (ADR 0029). */
 export const GUARD_HOOKS_PROJECT_MANAGED = "project-managed";
 
-/** Hook policy declared by a parsed guard.json; anything else keeps the sample-only hook-surface rule. */
+/**
+ * Hook policy declared by a parsed guard.json. Only the exact `"project-managed"` value relaxes the
+ * sample-only hook-surface rule; any other value is ignored, so a typo keeps enforcement on with
+ * the default rule instead of turning the guard advisory.
+ */
 export function guardHooksProjectManaged(guardJson) {
   return guardJson?.hooks === GUARD_HOOKS_PROJECT_MANAGED;
 }
 
 const HOOK_BYPASS_LONG_OPTION = "--no-verify";
+
+/** Short commit options whose value is attached to the same token (`-Cfeature/n`) or is the next token. */
+const COMMIT_SHORT_OPTIONS_WITH_VALUE = new Set(["c", "C", "F", "m", "t", "u", "S"]);
+
+/**
+ * Scan a short-option cluster such as `-qn` for `n` without reading option values as flags:
+ * `-Cfeature/n`, `-mn` and `-qmn` carry a value after the value-taking letter, not a hook bypass.
+ */
+function shortClusterCarriesHookBypass(token) {
+  for (const letter of token.slice(1)) {
+    if (letter === "n") return true;
+    if (COMMIT_SHORT_OPTIONS_WITH_VALUE.has(letter)) return false;
+  }
+  return false;
+}
 
 /** Git accepts any unambiguous prefix of a long option; every proper prefix fails closed, like the commit selection options. */
 function isHookBypassLongOption(option) {
@@ -1032,9 +1051,7 @@ export function commandRequestsHookBypass(command) {
     if (isHookBypassLongOption(option)) return true;
     if (verb === "commit") {
       if (token === "-n") return true;
-      if (/^-[^-]+/.test(token) && !token.startsWith("-m") && !token.startsWith("-F") && token.slice(1).includes("n")) {
-        return true;
-      }
+      if (/^-[^-]/.test(token) && shortClusterCarriesHookBypass(token)) return true;
       if (COMMIT_OPTIONS_WITH_VALUE.has(option) && token === option) { i += 2; continue; }
     }
     i += 1;
@@ -1444,15 +1461,23 @@ export function guardDecision(ctx) {
     && ctx.state.repositoryStateHash === ctx.currentState.repositoryStateHash;
   const exactCommittedContent = ctx.currentState.headTreeHash === ctx.state.repositoryStateHash;
   const exactStagedContent = ctx.currentState.indexStateHash === ctx.state.repositoryStateHash;
+  if (ctx.terminalVerb === "push" && ctx.hooksProjectManaged === true && !exactCommittedContent) {
+    // HEAD does not materialize the record: a hook rewrote the tree after `semctx verify hook
+    // pre-commit`, or that job is not the last pre-commit command. Recording now would only
+    // re-stamp the committed tree (ADR 0029), so the remedy is the hook order, not a new record.
+    // Ordinary working-tree drift after an exact commit keeps HEAD equal to the record and falls
+    // through to the generic reason below instead.
+    return {
+      block: true,
+      reason: `semctx guarded mode: HEAD does not materialize the recorded proof. With project-managed hooks a hook rewrote the tree after \`semctx verify hook pre-commit\`, or that job is not the last pre-commit command. Fix the hook order, then recreate the commit through the chain (for example \`git commit --amend --no-edit\`); do not record after the commit, that would only re-stamp the tree.\n${retry}`,
+    };
+  }
   if (
     !sameAnalyzedContent
     || (ctx.terminalVerb === "commit" && (ctx.commitContentAuthorized === false || !exactStagedContent))
     || (ctx.terminalVerb === "push" && !exactCommittedContent)
   ) {
-    const projectManagedHint = ctx.hooksProjectManaged === true && ctx.terminalVerb === "push"
-      ? " With project-managed hooks this means a hook rewrote the tree after the recorded proof, or `semctx verify hook pre-commit` is not the last pre-commit job."
-      : "";
-    return { block: true, reason: `semctx guarded mode: the analyzed content changed or the commit does not exactly materialize it.${projectManagedHint} Re-run:\n  ${verifyCmd}\n${retry}` };
+    return { block: true, reason: `semctx guarded mode: the analyzed content changed or the commit does not exactly materialize it. Re-run:\n  ${verifyCmd}\n${retry}` };
   }
   return { block: false };
 }
@@ -1498,7 +1523,6 @@ function readGuardJson(path) {
       || typeof value !== "object"
       || Array.isArray(value)
       || typeof value.enabled !== "boolean"
-      || (value.hooks !== undefined && value.hooks !== GUARD_HOOKS_PROJECT_MANAGED)
     ) return { status: "unknown", value: null };
     return { status: "read", value };
   } catch (error) {

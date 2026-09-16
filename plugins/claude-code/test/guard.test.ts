@@ -1450,6 +1450,10 @@ describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface 
     expect(commandRequestsHookBypass("git commit --no-veri -m x")).toBe(true);
     expect(commandRequestsHookBypass("git commit -m n")).toBe(false);
     expect(commandRequestsHookBypass("git commit -C n")).toBe(false);
+    expect(commandRequestsHookBypass("git commit -Cfeature/n -m x")).toBe(false);
+    expect(commandRequestsHookBypass("git commit -qn -m x")).toBe(true);
+    expect(commandRequestsHookBypass("git commit -qmn")).toBe(false);
+    expect(commandRequestsHookBypass("git commit -un -m x")).toBe(false);
     expect(commandRequestsHookBypass("git -C repo commit --no-verify")).toBe(true);
     expect(commandRequestsHookBypass("cd repo && git commit --no-verify -m x")).toBe(true);
     expect(commandRequestsHookBypass("git push --no-verify origin HEAD")).toBe(true);
@@ -1544,10 +1548,26 @@ describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface 
       currentState: { ...synthetic, headTreeHash: other },
     });
     expect(drifted.block).toBe(true);
-    expect(drifted.reason).toContain("not the last pre-commit job");
+    expect(drifted.reason).toContain("not the last pre-commit command");
+    expect(drifted.reason).not.toContain("Re-run");
+
+    // Working-tree drift after an exact commit keeps HEAD equal to the record: the generic reason,
+    // never the hook-order attribution.
+    const edited = guardDecision({
+      enabled: true,
+      terminalVerb: "push",
+      commandIsolated: true,
+      pushHooksAbsent: false,
+      hooksProjectManaged: true,
+      state,
+      currentState: { ...synthetic, contentStateHash: other, repositoryStateHash: other, headTreeHash: sha },
+    });
+    expect(edited.block).toBe(true);
+    expect(edited.reason).toContain("Re-run");
+    expect(edited.reason).not.toContain("hook order");
   });
 
-  it("reads the declaration from guard.json and treats any other hooks value as unknown", () => {
+  it("reads the declaration from guard.json; any other hooks value keeps enforcement on with the default rule", () => {
     const dir = mkdtempSync(join(tmpdir(), "semctx-guard-hooks-policy-"));
     try {
       mkdirSync(join(dir, ".semctx"));
@@ -1555,7 +1575,10 @@ describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface 
       writeFileSync(guardPath, JSON.stringify({ enabled: true, hooks: "project-managed" }));
       expect(guardEnabledForInvocation({ command: "git commit -m x", cwd: dir, env: {} })).toBe(true);
       writeFileSync(guardPath, JSON.stringify({ enabled: true, hooks: "lefthook" }));
-      expect(guardEnabledForInvocation({ command: "git commit -m x", cwd: dir, env: {} })).toBeUndefined();
+      // A typo must never turn the guard advisory: the file stays readable and enabled, and only the
+      // exact declaration relaxes the sample-only rule.
+      expect(guardEnabledForInvocation({ command: "git commit -m x", cwd: dir, env: {} })).toBe(true);
+      expect(guardHooksProjectManaged({ enabled: true, hooks: "lefthook" })).toBe(false);
       expect(guardHooksProjectManaged({ enabled: true, hooks: "project-managed" })).toBe(true);
       expect(guardHooksProjectManaged({ enabled: true })).toBe(false);
       expect(guardHooksProjectManaged(null)).toBe(false);
@@ -1608,7 +1631,8 @@ describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface 
       // The push-side HEAD check is the ordering verifier: the writer ran after the recorded proof.
       const push = run("git push . HEAD");
       expect(push.status).toBe(2);
-      expect(push.stderr).toContain("not the last pre-commit job");
+      expect(push.stderr).toContain("not the last pre-commit command");
+      expect(push.stderr).not.toContain("Re-run");
       expect(run("git push --no-verify . HEAD").status).toBe(2);
 
       // `semctx verify hook pre-commit` as the last job records the post-writer tree before the
@@ -1621,6 +1645,15 @@ describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface 
       writeFileSync(prePush, "#!/bin/sh\nexit 0\n");
       chmodSync(prePush, 0o755);
       expect(pushHookSurfaceClear(repo)).toBe(false);
+      expect(run("git push . HEAD").status).toBe(0);
+
+      // Ordinary working-tree drift after that exact commit is not misattributed to hook ordering.
+      writeFileSync(join(repo, "a.ts"), "export const a = 3;\n");
+      const drift = run("git push . HEAD");
+      expect(drift.status).toBe(2);
+      expect(drift.stderr).toContain("Re-run");
+      expect(drift.stderr).not.toContain("hook order");
+      writeFileSync(join(repo, "a.ts"), "export const a = 2;\nexport const formatted = true;\n");
       expect(run("git push . HEAD").status).toBe(0);
 
       // Without the declaration the sample-only rule is exactly what it was.
