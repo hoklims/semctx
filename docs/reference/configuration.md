@@ -235,8 +235,13 @@ in CI, run `verify diff --fail-on warn` instead of editing the rules.
 ## Guarded-mode files (Claude Code)
 
 - `.semctx/guard.json` — `{ "enabled": true }` opts a project into the guarded hook. Absent or
-  `{ "enabled": false }` = advisory (default).
-- `.semctx/verification-state.json` — written by `verify diff --record`; git-ignored, atomic.
+  `{ "enabled": false }` = advisory (default). Optional `"hooks": "project-managed"` declares that
+  the repository's own Git hook chain (Lefthook, husky) carries the content proof by running
+  `semctx verify hook pre-commit` / `pre-push` as its last job (ADR 0029); the guard then stops
+  requiring a sample-only hooks directory. Any other `hooks` value is ignored: enforcement stays on
+  with the default sample-only rule, so a typo never relaxes anything.
+- `.semctx/verification-state.json` — written by `verify diff --record`, `index --record` and
+  `verify hook pre-commit`; git-ignored, atomic.
 - `SEMCTX_GUARD=off` (env) strictly disables enforcement regardless of `guard.json`.
 
 ## Shadow lifecycle hook files (Codex and Claude Code)

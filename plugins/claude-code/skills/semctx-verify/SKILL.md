@@ -54,8 +54,12 @@ bun "${CLAUDE_PLUGIN_ROOT}/dist/semctx.js" verify diff --record   # or: semctx v
 ```
 
 after which an unchanged, non-BLOCK diff is allowed to commit. Any further edit invalidates it —
-re-run the command. Guarded mode is opt-in; advisory (no blocking) is the default. It can be
-strictly disabled with `SEMCTX_GUARD=off`.
+re-run the command. Run the project's writers (formatter, codegen, `git add`) **before** this
+command: a pre-commit hook that rewrites files afterwards commits a tree the proof did not cover.
+If `.semctx/guard.json` declares `"hooks": "project-managed"`, the project's own hook chain runs
+`semctx verify hook pre-commit` last and re-records only when such drift happened. Never pass
+`--no-verify` / `-n`: the guard rejects it. Guarded mode is opt-in; advisory (no blocking) is the
+default. It can be strictly disabled with `SEMCTX_GUARD=off`.
 
 ## Local commands (equivalent to the MCP tool)
 

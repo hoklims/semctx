@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { replaceLocalReportFile } from "../report-output";
@@ -5,10 +6,14 @@ import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
   captureRecordableVerificationGitState,
+  evaluatePreCommitHook,
+  evaluatePrePushHook,
+  parsePrePushRefs,
   planVerify,
   recordVerificationState,
   requireStableVerificationGitState,
   runVerify,
+  type VerificationHookOutcome,
   type VerifyComputation,
   type VerifySource,
 } from "@semantic-context/app-services";
@@ -226,4 +231,71 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
   if (recordedPath !== undefined && format === "text") info(c.dim(`recorded verification state -> ${recordedPath}`));
 
   return exitCode(report.verdict, failOn);
+}
+
+/**
+ * Git pipes pre-push ref lines on stdin. A terminal (manual run) is an empty ref stream and falls
+ * back to HEAD; a read failure is not — the refs are unknown, so the evaluation refuses.
+ */
+function readHookStdin(): string | null {
+  if (process.stdin.isTTY) return "";
+  try {
+    return readFileSync(0, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function verdictLabel(verdict: VerifyReport["verdict"]): string {
+  return verdict === "PASS" ? c.green("PASS") : verdict === "WARN" ? c.yellow("WARN") : c.red("BLOCK");
+}
+
+function renderHookOutcome(outcome: VerificationHookOutcome): number {
+  switch (outcome.kind) {
+    case "current": {
+      success(
+        `${outcome.hook}: recorded verification is current (${verdictLabel(outcome.state.verdict)}, recorded ${outcome.state.recordedAt}); no analysis run`,
+      );
+      for (const ref of outcome.checkedRefs) info(c.dim(`  ${ref.localRef} ${ref.localObjectId} materializes the verified state`));
+      return 0;
+    }
+    case "recorded": {
+      const { result, report, git, coChanges } = outcome.verification;
+      heading(`pre-commit: ${outcome.reason} — recorded a new verification of the tree about to be committed`);
+      renderText(result, git, { kind: "working-tree" }, coChanges);
+      info(c.dim(`recorded verification state -> ${outcome.recordedPath}`));
+      return exitCode(report.verdict, "block");
+    }
+    case "blocked": {
+      for (const ref of outcome.checkedRefs) info(c.dim(`  ${ref.localRef} ${ref.localObjectId} materializes the verified state`));
+      fail(`pre-push: the recorded verification of these commits is ${c.red("BLOCK")} (recorded ${outcome.state.recordedAt}); resolve the findings, re-verify, and commit again`);
+      return 3;
+    }
+    case "refused": {
+      fail(`${outcome.hook}: [${outcome.reason}] ${outcome.message}`);
+      if (Object.keys(outcome.details).length > 0) info(c.dim(JSON.stringify(outcome.details, null, 2)));
+      return 1;
+    }
+  }
+}
+
+/**
+ * `semctx verify hook pre-commit|pre-push` — content proof as the last job of a project-managed
+ * Git hook chain (ADR 0029). Exit 0 when the tree is covered by a non-BLOCK record (pre-commit
+ * records one when it must), 3 on a BLOCK verdict, 1 when the hook cannot vouch for the operation.
+ */
+export function runVerifyHook(root: string, args: ParsedArgs): number {
+  const hook = args.positionals[2];
+  if (hook !== "pre-commit" && hook !== "pre-push") {
+    throw new SemctxError(
+      "INVALID_TASK_INPUT",
+      `verify hook expects pre-commit or pre-push, got "${hook ?? "(none)"}"`,
+      { hook: hook ?? null },
+    );
+  }
+  const stdin = hook === "pre-push" ? readHookStdin() : "";
+  const outcome = hook === "pre-commit"
+    ? evaluatePreCommitHook(root, nowIso())
+    : evaluatePrePushHook(root, stdin === null ? null : parsePrePushRefs(stdin));
+  return renderHookOutcome(outcome);
 }
