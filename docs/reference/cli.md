@@ -264,6 +264,35 @@ The base must exist locally — semctx never fetches implicitly. In CI, check ou
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,
 `locations`), `summary { blockCount, warnCount }`. Additive-only within a major `schemaVersion`.
 
+## `verify hook`
+
+```text
+semctx verify hook pre-commit|pre-push [--root <path>]
+```
+
+Content proof as the **last** job of a project-managed Git hook chain (ADR 0029). It is the
+counterpart of the Claude Code guard for repositories that keep a Lefthook/husky chain and declare
+`"hooks": "project-managed"` in `.semctx/guard.json`; see
+[`claude-code-guarded-mode.md`](../integrations/claude-code-guarded-mode.md). Text output only; the
+contract is the exit code.
+
+`pre-commit` runs after the last writer (formatter, restager) and observes the index Git is about to
+record. It refuses a partial index — unstaged edits, or non-ignored untracked files, exactly as
+`--record` does — before any analysis. When the recorded baseline already covers that exact tree
+with a non-`BLOCK` verdict it exits 0 without analysis. Otherwise (no record, unreadable or legacy
+record, drifted tree, or a `BLOCK` record) it records a new working-tree verification under the same
+stability and refusal rules as `verify diff --record` and exits by verdict.
+
+`pre-push` never records. It reads the `<local ref> <local oid> <remote ref> <remote oid>` lines Git
+writes to the hook's stdin and requires the tree of every pushed commit to equal the recorded
+`repositoryStateHash`; without ref lines (a manual run) it checks `HEAD`. A post-commit
+working-tree verification would analyze an empty diff, which is why this hook only compares.
+
+**Exit codes**: 0 — covered by a non-`BLOCK` record (pre-commit: or one was just recorded);
+3 — `BLOCK` (pre-commit aborts the commit; pre-push: the matching record is `BLOCK`);
+1 — refused: `PARTIAL_INDEX`, `NO_PROOF`, `PROOF_UNREADABLE`, `REF_DELETION`, `UNPROVEN_REF`, or the
+`--record` refusals for untracked or hidden tracked bytes.
+
 ## `inspect symbol|capability <query>`
 
 Inspect the graph around a symbol or capability: matched nodes, related claims, relations,

@@ -2,6 +2,8 @@
 
 - Status: accepted
 - Date: 2026-07-04
+- Amended by: ADR 0029 — the hook-surface rule is relaxed only under an explicit
+  `"hooks": "project-managed"` declaration, and hook bypass (`--no-verify`) is non-authorizing.
 
 ## Context
 
@@ -92,7 +94,10 @@ authorize a terminal Git operation.
   is non-authorizing while the effective hooks directory contains any entry except ordinary
   `*.sample` files. This covers current and future hook names, including `reference-transaction`,
   `post-index-change`, `pre-auto-gc`, and `pre-push`: earlier hooks can restage a different tree,
-  while later hooks can initiate unguarded follow-up effects after the pre-tool check.
+  while later hooks can initiate unguarded follow-up effects after the pre-tool check. ADR 0029
+  relaxes this rule only for a repository whose `guard.json` declares `"hooks": "project-managed"`;
+  there `semctx verify hook` runs as the last hook job and the index/HEAD tree checks above remain
+  in force. `--no-verify` (commit `-n` included) is non-authorizing in every guarded profile.
   All command-scoped config (`-c key=value`, attached `-ckey=value`, and `--config-env`) is outside
   the authorizing contract so direct or included config cannot evade that hook-surface probe.
 - Push refspecs are resolved before authorization. Deletions, multi-ref, mirror, tag-wide, wildcard,

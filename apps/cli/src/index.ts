@@ -8,7 +8,7 @@ import { runInit } from "./commands/init";
 import { runIndexAsync } from "./commands/index-cmd";
 import { runTaskCreate } from "./commands/task";
 import { runContextPrepare } from "./commands/context";
-import { runVerifyDiff } from "./commands/verify";
+import { runVerifyDiff, runVerifyHook } from "./commands/verify";
 import { runInspect } from "./commands/inspect";
 import { runBenchCmd } from "./commands/bench";
 import { runDoctor } from "./commands/doctor";
@@ -59,6 +59,9 @@ Core:
       --output <path>                write the JSON report atomically
       --record                       record the verification state (for the Claude Code guarded hook)
       --dry-run                      show the resolved range + config; no analysis, no writes
+  verify hook pre-commit|pre-push  content proof as the LAST job of a project-managed Git hook chain
+                                   (pre-commit: hash compare, re-record only on drift; pre-push:
+                                    check every pushed commit tree against the record; ADR 0029)
   inspect symbol|capability <q>    inspect the graph around a symbol or capability
   doctor                           workspace health check
   support [--output <new-file>]    preview a privacy-safe diagnostic report as JSON
@@ -162,7 +165,8 @@ async function dispatch(args: ParsedArgs): Promise<number> {
     case "verify": {
       const sub = args.positionals[1];
       if (sub === "diff") return runVerifyDiff(root, args);
-      fail(`unknown 'verify' subcommand: ${sub ?? "(none)"} (expected: diff)`);
+      if (sub === "hook") return runVerifyHook(root, args);
+      fail(`unknown 'verify' subcommand: ${sub ?? "(none)"} (expected: diff, hook)`);
       return 2;
     }
     case "semantic":

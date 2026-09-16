@@ -11,24 +11,12 @@ import {
   type SemanticLifecycleFinding,
 } from "@semantic-context/semantic-engine";
 import { assertUnlinkedWorkspace, dbPath, openReader } from "@semantic-context/repository-store";
-import { captureVerificationGitState } from "./verification-state";
+import { captureVerificationGitState, parseVerificationStateV3 } from "./verification-state";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 
 const ACTIVE_LIFECYCLES = new Set<ChangeContract["lifecycle"]>(["active", "partial", "blocked", "stale"]);
 const TERMINAL_LIFECYCLES = new Set<ChangeContract["lifecycle"]>(["verified", "superseded"]);
 
-interface VerificationStateV3 {
-  version: 3;
-  headCommit: string;
-  analyzedSourceHash: string;
-  workingStateHash: string;
-  contentStateHash: string;
-  repositoryStateHash: string;
-  indexStateHash: string;
-  headTreeHash: string;
-  verdict: "PASS" | "WARN" | "BLOCK";
-  recordedAt: string;
-}
 
 /** Shared CLI/MCP semantic integrity use case, including local lifecycle hygiene. */
 export function checkSemanticState(root: string): CheckReport {
@@ -190,39 +178,17 @@ function inspectVerificationBaseline(
   } catch {
     return observation("invalid");
   }
-  if (!isVerificationState(parsed)) {
+  const recorded = parseVerificationStateV3(parsed);
+  if (recorded === null) {
     return observation(isSupersededVerificationState(parsed) ? "superseded" : "invalid");
   }
   try {
     const current = captureVerificationGitState(root);
-    return observation(current.contentStateHash === parsed.contentStateHash
-        && current.repositoryStateHash === parsed.repositoryStateHash
+    return observation(current.contentStateHash === recorded.contentStateHash
+        && current.repositoryStateHash === recorded.repositoryStateHash
       ? "valid"
       : "stale");
   } catch {
     return observation("invalid");
   }
-}
-
-function isVerificationState(value: unknown): value is VerificationStateV3 {
-  if (typeof value !== "object" || value === null) return false;
-  const state = value as Partial<VerificationStateV3>;
-  return state.version === 3
-    && typeof state.headCommit === "string"
-    && /^[0-9a-f]{40,64}$/.test(state.headCommit)
-    && typeof state.analyzedSourceHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.analyzedSourceHash)
-    && typeof state.workingStateHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.workingStateHash)
-    && typeof state.contentStateHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.contentStateHash)
-    && typeof state.repositoryStateHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.repositoryStateHash)
-    && typeof state.indexStateHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.indexStateHash)
-    && typeof state.headTreeHash === "string"
-    && /^sha256:[0-9a-f]{64}$/.test(state.headTreeHash)
-    && (state.verdict === "PASS" || state.verdict === "WARN" || state.verdict === "BLOCK")
-    && typeof state.recordedAt === "string"
-    && Number.isFinite(Date.parse(state.recordedAt));
 }

@@ -49,6 +49,17 @@ pre-commit:
       run: bun /abs/path/apps/cli/src/index.ts verify diff --staged --root .
 ```
 
+## Guarded mode (Claude Code plugin)
+
+`verify diff --staged` above is an advisory gate: it exits on `BLOCK` but records nothing. When the
+repository also runs the Claude Code plugin in guarded mode, declare `"hooks": "project-managed"` in
+`.semctx/guard.json` and make `semctx verify hook pre-commit` the **last** pre-commit job, after any
+formatter or restager; put `semctx verify hook pre-push` last in pre-push. The pre-commit job
+compares the post-writer tree with the recorded proof and re-records only on drift; the pre-push job
+checks every pushed commit tree and never records. Configuration, Lefthook layout and accepted
+residue: [`docs/integrations/claude-code-guarded-mode.md`](../integrations/claude-code-guarded-mode.md)
+(ADR 0029).
+
 ## CI
 
 Analyse the PR directly from its Git-backed range:

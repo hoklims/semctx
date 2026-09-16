@@ -13,6 +13,40 @@ export interface VerificationGitState {
   headTreeHash: string;
 }
 
+/** The persisted version 3 baseline written by `verify diff --record`, `index --record` and `verify hook pre-commit`. */
+export interface VerificationStateV3 extends VerificationGitState {
+  version: 3;
+  verdict: "PASS" | "WARN" | "BLOCK";
+  recordedAt: string;
+}
+
+const SHA256_DIGEST = /^sha256:[0-9a-f]{64}$/;
+
+/** Shape-validate a persisted baseline. Legacy versions, malformed and authored shapes are `null`, never partially trusted. */
+export function parseVerificationStateV3(value: unknown): VerificationStateV3 | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const state = value as Partial<VerificationStateV3>;
+  const valid = state.version === 3
+    && typeof state.headCommit === "string"
+    && /^[0-9a-f]{40,64}$/.test(state.headCommit)
+    && typeof state.analyzedSourceHash === "string"
+    && SHA256_DIGEST.test(state.analyzedSourceHash)
+    && typeof state.workingStateHash === "string"
+    && SHA256_DIGEST.test(state.workingStateHash)
+    && typeof state.contentStateHash === "string"
+    && SHA256_DIGEST.test(state.contentStateHash)
+    && typeof state.repositoryStateHash === "string"
+    && SHA256_DIGEST.test(state.repositoryStateHash)
+    && typeof state.indexStateHash === "string"
+    && SHA256_DIGEST.test(state.indexStateHash)
+    && typeof state.headTreeHash === "string"
+    && SHA256_DIGEST.test(state.headTreeHash)
+    && (state.verdict === "PASS" || state.verdict === "WARN" || state.verdict === "BLOCK")
+    && typeof state.recordedAt === "string"
+    && Number.isFinite(Date.parse(state.recordedAt));
+  return valid ? (state as VerificationStateV3) : null;
+}
+
 interface VerificationGitSnapshot {
   state: VerificationGitState;
   untrackedPaths: string[];
@@ -291,18 +325,39 @@ function initializedGitlinkHead(root: string, path: string): string | undefined 
   return head;
 }
 
-function captureHeadTreeHash(root: string): string {
-  const records = new TextDecoder().decode(git(root, ["ls-tree", "-r", "-z", "--full-tree", "HEAD"]));
+function captureTreeHash(root: string, revision: string): string {
+  const records = new TextDecoder().decode(git(root, ["ls-tree", "-r", "-z", "--full-tree", revision]));
   const entries: Array<{ path: string; mode: string; objectId: string }> = [];
   for (const record of records.split("\0")) {
     if (record.length === 0) continue;
     const match = /^([0-9]{6}) (?:blob|commit) ([0-9a-f]{40,64})\t([\s\S]+)$/.exec(record);
     if (match === null || match[1] === undefined || match[2] === undefined || match[3] === undefined) {
-      throw new SemctxError("GIT_ERROR", "cannot capture verification source state: invalid HEAD tree entry");
+      throw new SemctxError("GIT_ERROR", "cannot capture verification source state: invalid tree entry", { revision });
     }
     entries.push({ path: normalizedPath(match[3]), mode: match[1], objectId: match[2] });
   }
   return captureRepositoryStateHash(entries);
+}
+
+function captureHeadTreeHash(root: string): string {
+  return captureTreeHash(root, "HEAD");
+}
+
+/** Canonical repository-state hash of one commit's tree, comparable with a recorded `repositoryStateHash`. */
+export function captureCommitTreeHash(root: string, objectId: string): string {
+  if (!/^[0-9a-f]{40,64}$/.test(objectId)) {
+    throw new SemctxError("GIT_ERROR", "cannot capture a commit tree: invalid object id", { objectId });
+  }
+  return captureTreeHash(root, objectId);
+}
+
+/** Resolve a revision to the full object id Git would record for it. */
+export function resolveRevisionObjectId(root: string, revision: string): string {
+  const objectId = new TextDecoder().decode(git(root, ["rev-parse", "--verify", revision])).trim();
+  if (!/^[0-9a-f]{40,64}$/.test(objectId)) {
+    throw new SemctxError("GIT_ERROR", "cannot resolve revision to an object id", { revision, objectId });
+  }
+  return objectId;
 }
 
 function captureContentState(

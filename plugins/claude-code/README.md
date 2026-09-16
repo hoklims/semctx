@@ -33,7 +33,9 @@ runtime behaviour. The analysis is local and deterministic; semctx itself needs 
   the project opts into guarded mode, blocks non-isolated `git commit` / `git push` commands or an
   unverified working state. Verification disables external diff/textconv helpers; commit-time
   selection abbreviations and repository commit hooks that could restage after the pre-check are
-  rejected. Push requires an explicit non-delegating remote and exact `HEAD`; configured push/server options, remote helpers,
+  rejected — unless the project declares `"hooks": "project-managed"` in `.semctx/guard.json` and
+  runs `semctx verify hook` as the last job of its own Lefthook/husky chain (ADR 0029); `--no-verify`
+  is never authorized. Push requires an explicit non-delegating remote and exact `HEAD`; configured push/server options, remote helpers,
   executable transport configuration, and URL rewrites fail closed. Block messages point at the plugin-bundled CLI by absolute path when
   the bundle is in reach, and at a global `semctx` otherwise. The semantic and control tools do not
   change this host-specific behaviour.

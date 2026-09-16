@@ -76,6 +76,14 @@ export type { RepositoryAnalysis, RepositoryIndex } from "./indexing";
 export { recoverIndexEvidence, recoverIndexEvidenceAsync } from "./index-recovery";
 export type { IndexRecoveryOutcome } from "./index-recovery";
 export { recordVerificationState, requireStableVerificationGitState } from "./verification-recording";
+export { evaluatePreCommitHook, evaluatePrePushHook, parsePrePushRefs } from "./verification-hook";
+export type {
+  PushedRef,
+  VerificationHookName,
+  VerificationHookOutcome,
+  VerificationHookRecordReason,
+  VerificationHookRefusal,
+} from "./verification-hook";
 export { indexHealth, indexHealthStatus } from "./index-health";
 export type {
   IndexHealthCandidateV1,
@@ -93,11 +101,14 @@ export {
 export type { PersistedUnresolvedReferenceIndexV1 } from "./unresolved-references";
 export { checkSemanticState, inspectSemanticLifecycle } from "./semantic-check";
 export {
+  captureCommitTreeHash,
   captureRecordableVerificationGitState,
   captureVerificationGitState,
   fingerprintVerificationSource,
+  parseVerificationStateV3,
+  resolveRevisionObjectId,
 } from "./verification-state";
-export type { VerificationGitState } from "./verification-state";
+export type { VerificationGitState, VerificationStateV3 } from "./verification-state";
 export { closeChange, normalizeChangeId, openChange, updateChange, verifyAuthoredChange } from "./changes";
 export type { OpenChangeCommand, UpdateChangeCommand } from "./changes";
 export {

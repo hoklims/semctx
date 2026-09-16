@@ -987,15 +987,71 @@ export function pushHookSurfaceClear(cwd) {
   return gitHookSurfaceClear(cwd);
 }
 
+/** `guard.json` value declaring that the project-owned Git hook chain carries the content proof (ADR 0029). */
+export const GUARD_HOOKS_PROJECT_MANAGED = "project-managed";
+
+/** Hook policy declared by a parsed guard.json; anything else keeps the sample-only hook-surface rule. */
+export function guardHooksProjectManaged(guardJson) {
+  return guardJson?.hooks === GUARD_HOOKS_PROJECT_MANAGED;
+}
+
+const HOOK_BYPASS_LONG_OPTION = "--no-verify";
+
+/** Git accepts any unambiguous prefix of a long option; every proper prefix fails closed, like the commit selection options. */
+function isHookBypassLongOption(option) {
+  return option.length > 2 && HOOK_BYPASS_LONG_OPTION.startsWith(option);
+}
+
+/**
+ * Detect `--no-verify` on the terminal verb (for commit also `-n` and any short-option cluster
+ * carrying `n`). Skipping the repository hook chain is never authorized in guarded mode: with
+ * project-managed hooks that chain carries the content proof (ADR 0029), and with the sample-only
+ * rule there is nothing for the flag to skip. Unparsable tokens return false here because the
+ * isolation, whole-index and push-source checks already fail closed on them.
+ */
+export function commandRequestsHookBypass(command) {
+  const terminal = String(command ?? "").split("&&").at(-1)?.trim() ?? "";
+  const tokens = shellWords(terminal);
+  const gitIndex = gitTokenIndex(tokens);
+  if (gitIndex < 0) return false;
+  let i = gitIndex + 1;
+  while (i < tokens.length) {
+    const token = literalShellWord(tokens[i]);
+    if (token === null) return false;
+    if (gitOptionConsumesNext(token)) { i += 2; continue; }
+    if (token.startsWith("-")) { i += 1; continue; }
+    break;
+  }
+  const verb = literalShellWord(tokens[i]);
+  if (verb !== "commit" && verb !== "push") return false;
+  i += 1;
+  while (i < tokens.length) {
+    const token = literalShellWord(tokens[i]);
+    if (token === null || token === "--") return false;
+    const option = gitOptionName(token);
+    if (isHookBypassLongOption(option)) return true;
+    if (verb === "commit") {
+      if (token === "-n") return true;
+      if (/^-[^-]+/.test(token) && !token.startsWith("-m") && !token.startsWith("-F") && token.slice(1).includes("n")) {
+        return true;
+      }
+      if (COMMIT_OPTIONS_WITH_VALUE.has(option) && token === option) { i += 2; continue; }
+    }
+    i += 1;
+  }
+  return false;
+}
+
 const UNSAFE_PUSH_OPTIONS = new Set([
-  "--all", "--branches", "--delete", "-d", "--follow-tags", "--mirror", "--prune",
+  "--all", "--branches", "--delete", "-d", "--follow-tags", "--mirror", "--no-verify", "--prune",
   "--recurse-submodules", "--tags", "--exec", "--push-option", "--receive-pack", "-o",
 ]);
 
+// `-n` stays authorizable: for a push it is `--dry-run`, not `--no-verify`.
 const SAFE_PUSH_OPTIONS = new Set([
   "--atomic", "--dry-run", "--force", "--force-if-includes", "--force-with-lease",
   "--ipv4", "--ipv6", "--no-atomic", "--no-force-if-includes", "--no-force-with-lease",
-  "--no-signed", "--no-thin", "--no-verify", "--porcelain", "--quiet", "--set-upstream",
+  "--no-signed", "--no-thin", "--porcelain", "--quiet", "--set-upstream",
   "--signed", "--thin", "--verbose", "-4", "-6", "-f", "-n", "-q", "-u", "-v",
 ]);
 
@@ -1230,6 +1286,16 @@ export function guardEnabledForInvocation({ command, cwd, sessionCwd, env }) {
   return guardEnablementForContext(context, env);
 }
 
+/**
+ * The hooks the guard probes live in the target repository, so only its own guard.json can declare
+ * them project-managed (ADR 0029). A session-root declaration never relaxes another repository.
+ * @param {{sessionRoot: string, targetRoot: string, scopeRequiresSessionGuard: boolean}} context
+ */
+function guardHooksProjectManagedForContext(context) {
+  const targetGuard = readGuardJson(join(context.targetRoot, ".semctx", "guard.json"));
+  return targetGuard.status === "read" && guardHooksProjectManaged(targetGuard.value);
+}
+
 /** @param {{sessionRoot: string, targetRoot: string, scopeRequiresSessionGuard: boolean}} context */
 function guardEnablementForContext(context, env) {
   const targetGuard = readGuardJson(join(context.targetRoot, ".semctx", "guard.json"));
@@ -1327,7 +1393,8 @@ export function verifyRecordCommand(env = process.env, exists = existsSync) {
 
 /**
  * Pure decision — reads no environment and touches no filesystem.
- * ctx: { enabled, terminalVerb, commandIsolated?, state|null, currentState|null, verifyCommand? }.
+ * ctx: { enabled, terminalVerb, commandIsolated?, hookBypassRequested?, hooksProjectManaged?,
+ *        state|null, currentState|null, verifyCommand? }.
  */
 export function guardDecision(ctx) {
   if (!ctx.enabled || !ctx.terminalVerb) return { block: false };
@@ -1339,6 +1406,13 @@ export function guardDecision(ctx) {
       reason: `semctx guarded mode: git ${ctx.terminalVerb} must be an isolated command; compound commands, shell substitutions, redirections, unexpanded cwd paths, and Git repository retargeting are not authorized.\n${retry}`,
     };
   }
+  if (ctx.hookBypassRequested === true) {
+    const flags = ctx.terminalVerb === "commit" ? "--no-verify / -n" : "--no-verify";
+    return {
+      block: true,
+      reason: `semctx guarded mode: git ${ctx.terminalVerb} ${flags} skips the repository hook chain, which carries the content proof when hooks are project-managed; hook bypass is not authorized. Remove the flag, ${retry}`,
+    };
+  }
   if (ctx.terminalVerb === "push" && ctx.pushSourceAuthorized === false) {
     return {
       block: true,
@@ -1348,16 +1422,16 @@ export function guardDecision(ctx) {
   if (!ctx.state) {
     return { block: true, reason: `semctx guarded mode: no verification on record. Run:\n  ${verifyCmd}\n${retry}` };
   }
-  if (ctx.terminalVerb === "commit" && ctx.commitHooksAbsent === false) {
+  if (ctx.terminalVerb === "commit" && ctx.commitHooksAbsent === false && ctx.hooksProjectManaged !== true) {
     return {
       block: true,
-      reason: "semctx guarded mode: repository commit hooks can change the index after verification; disable pre-commit, prepare-commit-msg, and commit-msg hooks, then retry the commit.",
+      reason: "semctx guarded mode: repository commit hooks can change the index after verification; disable pre-commit, prepare-commit-msg, and commit-msg hooks, or declare \"hooks\": \"project-managed\" in .semctx/guard.json and run `semctx verify hook pre-commit` as the last pre-commit job, then retry the commit.",
     };
   }
-  if (ctx.terminalVerb === "push" && ctx.pushHooksAbsent === false) {
+  if (ctx.terminalVerb === "push" && ctx.pushHooksAbsent === false && ctx.hooksProjectManaged !== true) {
     return {
       block: true,
-      reason: "semctx guarded mode: a repository pre-push hook can execute unverified side effects; disable the pre-push hook, then retry the push.",
+      reason: "semctx guarded mode: a repository pre-push hook can execute unverified side effects; disable the pre-push hook, or declare \"hooks\": \"project-managed\" in .semctx/guard.json and run `semctx verify hook pre-push` as the last pre-push job, then retry the push.",
     };
   }
   if (!isGuardVerificationState(ctx.state) || !ctx.currentState) {
@@ -1375,7 +1449,10 @@ export function guardDecision(ctx) {
     || (ctx.terminalVerb === "commit" && (ctx.commitContentAuthorized === false || !exactStagedContent))
     || (ctx.terminalVerb === "push" && !exactCommittedContent)
   ) {
-    return { block: true, reason: `semctx guarded mode: the analyzed content changed or the commit does not exactly materialize it. Re-run:\n  ${verifyCmd}\n${retry}` };
+    const projectManagedHint = ctx.hooksProjectManaged === true && ctx.terminalVerb === "push"
+      ? " With project-managed hooks this means a hook rewrote the tree after the recorded proof, or `semctx verify hook pre-commit` is not the last pre-commit job."
+      : "";
+    return { block: true, reason: `semctx guarded mode: the analyzed content changed or the commit does not exactly materialize it.${projectManagedHint} Re-run:\n  ${verifyCmd}\n${retry}` };
   }
   return { block: false };
 }
@@ -1421,6 +1498,7 @@ function readGuardJson(path) {
       || typeof value !== "object"
       || Array.isArray(value)
       || typeof value.enabled !== "boolean"
+      || (value.hooks !== undefined && value.hooks !== GUARD_HOOKS_PROJECT_MANAGED)
     ) return { status: "unknown", value: null };
     return { status: "read", value };
   } catch (error) {
@@ -1744,12 +1822,18 @@ export function evaluateGuard({ command, cwd, sessionCwd, env, overriddenEnvKeys
   const pushSourceAuthorized = terminalVerb !== "push"
     || (currentState !== null && pushSourceMatchesHead(command, targetCwd, currentState.headCommit));
   const commitContentAuthorized = terminalVerb !== "commit" || commitUsesWholeIndex(command);
-  const commitHooksAbsent = terminalVerb !== "commit" || (commandIsolated && commitHookSurfaceClear(targetCwd));
-  const pushHooksAbsent = terminalVerb !== "push" || (commandIsolated && pushHookSurfaceClear(targetCwd));
+  const hooksProjectManaged = guardHooksProjectManagedForContext(context);
+  const hookBypassRequested = commandRequestsHookBypass(command);
+  const commitHooksAbsent = terminalVerb !== "commit" || hooksProjectManaged
+    || (commandIsolated && commitHookSurfaceClear(targetCwd));
+  const pushHooksAbsent = terminalVerb !== "push" || hooksProjectManaged
+    || (commandIsolated && pushHookSurfaceClear(targetCwd));
   return guardDecision({
     enabled,
     terminalVerb,
     commandIsolated,
+    hookBypassRequested,
+    hooksProjectManaged,
     pushSourceAuthorized,
     commitContentAuthorized,
     commitHooksAbsent,

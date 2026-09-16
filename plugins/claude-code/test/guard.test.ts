@@ -10,8 +10,10 @@ import {
   evaluateGuard,
   guardDecision,
   isGuardVerificationState,
+  commandRequestsHookBypass,
   commitUsesWholeIndex,
   commitHookSurfaceClear,
+  guardHooksProjectManaged,
   pushHookSurfaceClear,
   pushSourceMatchesHead,
   resolveGitCwd,
@@ -1437,4 +1439,196 @@ describe("resolveGitCwd — evaluate the repo the command targets, not the sessi
     const other = resolve("/other/repo");
     expect(resolveGitCwd(`git -C ${other} commit -m x`, SESSION)).not.toBe(SESSION);
   });
+});
+
+describe("project-managed hooks (ADR 0029) — hook bypass and the hook-surface policy", () => {
+  it("detects --no-verify (and -n) on commit; on push only --no-verify, because -n is --dry-run there", () => {
+    expect(commandRequestsHookBypass("git commit -m x")).toBe(false);
+    expect(commandRequestsHookBypass("git commit --no-verify -m x")).toBe(true);
+    expect(commandRequestsHookBypass("git commit -n -m x")).toBe(true);
+    expect(commandRequestsHookBypass("git commit -nm x")).toBe(true);
+    expect(commandRequestsHookBypass("git commit --no-veri -m x")).toBe(true);
+    expect(commandRequestsHookBypass("git commit -m n")).toBe(false);
+    expect(commandRequestsHookBypass("git commit -C n")).toBe(false);
+    expect(commandRequestsHookBypass("git -C repo commit --no-verify")).toBe(true);
+    expect(commandRequestsHookBypass("cd repo && git commit --no-verify -m x")).toBe(true);
+    expect(commandRequestsHookBypass("git push --no-verify origin HEAD")).toBe(true);
+    expect(commandRequestsHookBypass("git push --no-ver origin HEAD")).toBe(true);
+    expect(commandRequestsHookBypass("git push -n origin HEAD")).toBe(false);
+    expect(commandRequestsHookBypass("git push origin HEAD")).toBe(false);
+    expect(commandRequestsHookBypass("git status")).toBe(false);
+  });
+
+  it("blocks a hook bypass before consulting any recorded state, on both verbs", () => {
+    for (const terminalVerb of ["commit", "push"] as const) {
+      const decision = guardDecision({
+        enabled: true,
+        terminalVerb,
+        commandIsolated: true,
+        hookBypassRequested: true,
+        state: null,
+        currentState: null,
+      });
+      expect(decision.block).toBe(true);
+      expect(decision.reason).toContain("--no-verify");
+      expect(decision.reason).toContain("hook bypass is not authorized");
+    }
+  });
+
+  it("skips the hook-surface rule only under the declaration, and keeps every tree check", () => {
+    const sha = `sha256:${"a".repeat(64)}`;
+    const other = `sha256:${"b".repeat(64)}`;
+    const synthetic = {
+      headCommit: "c".repeat(40),
+      analyzedSourceHash: sha,
+      workingStateHash: sha,
+      contentStateHash: sha,
+      repositoryStateHash: sha,
+      indexStateHash: sha,
+      headTreeHash: sha,
+    };
+    const state = { version: 3, ...synthetic, verdict: "PASS", recordedAt: "2026-09-16T00:00:00.000Z" };
+
+    // Default rule unchanged: an active hook is non-authorizing, and the message names the way out.
+    const sampleOnly = guardDecision({
+      enabled: true,
+      terminalVerb: "commit",
+      commandIsolated: true,
+      commitHooksAbsent: false,
+      state,
+      currentState: synthetic,
+    });
+    expect(sampleOnly.block).toBe(true);
+    expect(sampleOnly.reason).toContain("project-managed");
+
+    expect(guardDecision({
+      enabled: true,
+      terminalVerb: "commit",
+      commandIsolated: true,
+      commitHooksAbsent: false,
+      hooksProjectManaged: true,
+      state,
+      currentState: synthetic,
+    })).toEqual({ block: false });
+
+    // The declaration relaxes the hook surface, never the index/tree binding.
+    const partial = guardDecision({
+      enabled: true,
+      terminalVerb: "commit",
+      commandIsolated: true,
+      commitHooksAbsent: false,
+      hooksProjectManaged: true,
+      state,
+      currentState: { ...synthetic, indexStateHash: other },
+    });
+    expect(partial.block).toBe(true);
+    expect(partial.reason).toContain("does not exactly materialize");
+
+    expect(guardDecision({
+      enabled: true,
+      terminalVerb: "push",
+      commandIsolated: true,
+      pushHooksAbsent: false,
+      hooksProjectManaged: true,
+      state,
+      currentState: synthetic,
+    })).toEqual({ block: false });
+
+    const drifted = guardDecision({
+      enabled: true,
+      terminalVerb: "push",
+      commandIsolated: true,
+      pushHooksAbsent: false,
+      hooksProjectManaged: true,
+      state,
+      currentState: { ...synthetic, headTreeHash: other },
+    });
+    expect(drifted.block).toBe(true);
+    expect(drifted.reason).toContain("not the last pre-commit job");
+  });
+
+  it("reads the declaration from guard.json and treats any other hooks value as unknown", () => {
+    const dir = mkdtempSync(join(tmpdir(), "semctx-guard-hooks-policy-"));
+    try {
+      mkdirSync(join(dir, ".semctx"));
+      const guardPath = join(dir, ".semctx", "guard.json");
+      writeFileSync(guardPath, JSON.stringify({ enabled: true, hooks: "project-managed" }));
+      expect(guardEnabledForInvocation({ command: "git commit -m x", cwd: dir, env: {} })).toBe(true);
+      writeFileSync(guardPath, JSON.stringify({ enabled: true, hooks: "lefthook" }));
+      expect(guardEnabledForInvocation({ command: "git commit -m x", cwd: dir, env: {} })).toBeUndefined();
+      expect(guardHooksProjectManaged({ enabled: true, hooks: "project-managed" })).toBe(true);
+      expect(guardHooksProjectManaged({ enabled: true })).toBe(false);
+      expect(guardHooksProjectManaged(null)).toBe(false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("replays: a restaging pre-commit hook is allowed at commit time and its drift is caught at push time", () => {
+    const repo = mkdtempSync(join(tmpdir(), "semctx-guard-project-managed-"));
+    const git = (args: string[]) => execFileSync("git", args, { cwd: repo, stdio: "ignore" });
+    try {
+      git(["init"]);
+      writeFileSync(join(repo, ".gitignore"), ".semctx/\n");
+      writeFileSync(join(repo, "a.ts"), "export const a = 1;\n");
+      git(["add", "-A"]);
+      git(["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "base"]);
+      writeFileSync(join(repo, "a.ts"), "export const a = 2;\n");
+      git(["add", "-A"]);
+      const verified = captureVerificationGitState(repo);
+      mkdirSync(join(repo, ".semctx"));
+      writeFileSync(
+        join(repo, ".semctx", "guard.json"),
+        JSON.stringify({ enabled: true, hooks: "project-managed" }),
+      );
+      writeFileSync(
+        join(repo, ".semctx", "verification-state.json"),
+        JSON.stringify({ version: 3, ...verified, verdict: "PASS", recordedAt: "2026-09-16T00:00:00.000Z" }),
+      );
+      const guard = resolve(import.meta.dir, "../hooks/semctx-guard.mjs");
+      const run = (command: string) => spawnSync("node", [guard], {
+        cwd: repo,
+        input: JSON.stringify({ tool_name: "Bash", tool_input: { command }, cwd: repo }),
+        encoding: "utf8",
+      });
+
+      // A writer hook: the formatter rewrites and restages a.ts after the pre-tool check.
+      const preCommit = join(repo, ".git", "hooks", "pre-commit");
+      writeFileSync(preCommit, "#!/bin/sh\nprintf 'export const formatted = true;\\n' >> a.ts\ngit add a.ts\n");
+      chmodSync(preCommit, 0o755);
+      expect(commitHookSurfaceClear(repo)).toBe(false);
+      expect(run("git commit -m x").status).toBe(0);
+      expect(run("git commit --no-verify -m x").status).toBe(2);
+      expect(run("git commit -nm x").status).toBe(2);
+
+      git(["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "formatted"]);
+      const committed = captureVerificationGitState(repo);
+      expect(committed.headTreeHash).not.toBe(verified.repositoryStateHash);
+
+      // The push-side HEAD check is the ordering verifier: the writer ran after the recorded proof.
+      const push = run("git push . HEAD");
+      expect(push.status).toBe(2);
+      expect(push.stderr).toContain("not the last pre-commit job");
+      expect(run("git push --no-verify . HEAD").status).toBe(2);
+
+      // `semctx verify hook pre-commit` as the last job records the post-writer tree before the
+      // commit object exists; the emulated record below is what that job writes.
+      writeFileSync(
+        join(repo, ".semctx", "verification-state.json"),
+        JSON.stringify({ version: 3, ...committed, verdict: "PASS", recordedAt: "2026-09-16T00:00:01.000Z" }),
+      );
+      const prePush = join(repo, ".git", "hooks", "pre-push");
+      writeFileSync(prePush, "#!/bin/sh\nexit 0\n");
+      chmodSync(prePush, 0o755);
+      expect(pushHookSurfaceClear(repo)).toBe(false);
+      expect(run("git push . HEAD").status).toBe(0);
+
+      // Without the declaration the sample-only rule is exactly what it was.
+      writeFileSync(join(repo, ".semctx", "guard.json"), JSON.stringify({ enabled: true }));
+      expect(run("git push . HEAD").status).toBe(2);
+      expect(run("git commit -m x").status).toBe(2);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  }, 30_000);
 });

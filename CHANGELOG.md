@@ -9,6 +9,21 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Added
+
+- `semctx verify hook pre-commit|pre-push` carries the guarded content proof as the last job of a
+  project-managed Git hook chain (Lefthook, husky). Pre-commit compares the post-writer tree with the
+  recorded baseline and re-records only on drift; pre-push checks the tree of every pushed commit and
+  never records. Opt in with `"hooks": "project-managed"` in `.semctx/guard.json` (ADR 0029,
+  issue #169).
+
+### Changed
+
+- Guarded mode rejects hook bypass on both terminal verbs: `git commit --no-verify` / `-n` and
+  `git push --no-verify` are non-authorizing (push previously listed `--no-verify` as safe; commit
+  did not inspect it). Under the project-managed declaration the sample-only hooks-directory rule no
+  longer applies; without it, ADR 0007 is unchanged.
+
 ## [0.3.0] - 2026-09-13
 
 ### Added

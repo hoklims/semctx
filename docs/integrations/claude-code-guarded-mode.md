@@ -70,7 +70,11 @@ Guarded commit and push require the effective hooks directory to contain no entr
 `*.sample` files. This future-proof rule covers every current hook name, including
 `reference-transaction`, `post-index-change`, `pre-auto-gc`, and `pre-push`; any active, custom, or
 unknown hook entry is non-authorizing because it could restage or execute follow-up effects after
-the pre-tool proof.
+the pre-tool proof. A repository that keeps a Lefthook/husky chain declares
+`"hooks": "project-managed"` instead and runs `semctx verify hook` as its last job — see
+[Project-managed Git hooks](#project-managed-git-hooks-lefthook-husky). Hook bypass is never
+authorized: `git commit --no-verify` / `-n` and `git push --no-verify` are rejected in every guarded
+profile (`git push -n` is `--dry-run` and stays allowed).
 Run `git commit` and `git push` as isolated commands in guarded mode. Compound commands,
 redirections, and shell substitutions are rejected because they could mutate repository bytes
 after the hook's pre-check. Cwd prefixes must use literal paths: unexpanded `$VAR`, `${VAR}`, `~`,
@@ -119,6 +123,63 @@ configured `submodule.recurse`,
 and unknown or combined option forms fail closed. A configured remote name is accepted only when
 every effective push URL uses a recognized non-delegating transport. If Git's top-level probe fails, the
 hook still discovers the nearest literal repository/guard marker rather than disabling enforcement.
+
+## Project-managed Git hooks (Lefthook, husky)
+
+Managed hook wrappers *are* the repository's `pre-commit` / `pre-push` files, and they commonly run
+writers — formatters, restagers, codegen — before the commit object exists. The default rule above
+refuses them, and relaxing it alone would leave a hole: the pre-tool proof covers the index the
+formatter has not rewritten yet, so the commit records a tree the proof never saw and the push gate
+blocks. A second `verify diff --record` after the commit does not close it: on a clean tree it
+analyzes an empty diff and merely re-stamps the committed tree. ADR 0029 moves the content proof to
+the **end of the chain** instead.
+
+```json
+{ "enabled": true, "hooks": "project-managed" }
+```
+
+With this declaration the guard stops requiring a sample-only hooks directory, keeps both tree
+checks, and still rejects `--no-verify`. The project must run the CLI **last**, after its last
+writer, from a pinned dependency on the hook's own PATH (`bunx semctx` / `npx semctx`; the plugin
+bundle is not on that PATH):
+
+```yaml
+# lefthook.yml — pre-commit is one sequential script, so nothing runs after the proof
+pre-commit:
+  commands:
+    kit:
+      run: sh scripts/pre-commit.sh
+
+pre-push:
+  parallel: false
+  commands:
+    checks: { run: bun run validate }
+    semctx: { run: bunx semctx verify hook pre-push }   # last, never parallel
+```
+
+```sh
+# scripts/pre-commit.sh
+set -e
+bunx biome check --write . && git add -u    # last writer
+bunx semctx verify hook pre-commit          # last job: proof of the tree Git will record
+```
+
+- `verify hook pre-commit` compares the post-writer tree with the record. Unchanged and non-`BLOCK`:
+  exit 0, no analysis. Drifted (or no usable record): records a new working-tree verification under
+  the same refusals as `--record` — no unstaged edits, no non-ignored untracked files. `BLOCK`:
+  exit 3 and Git aborts the commit.
+- `verify hook pre-push` never records. It reads Git's ref lines and requires every pushed commit's
+  tree to be exactly the recorded state; deletions, unproven commits and `BLOCK` records fail.
+- Run the project's writers **before** `semctx verify diff --record`. The hook job then finds no
+  drift and the loop costs one analysis, exactly as ADR 0007 intends.
+- The push-time `HEAD` check is the ordering verifier. If a writer runs after the semctx job (a
+  parallel Lefthook sibling, a misplaced line), `HEAD` no longer materializes the record and the
+  push is blocked with a reason that says so.
+
+Accepted residue, by design: the declaration also gates human commits and pushes in that
+repository, while a human `--no-verify` still bypasses the chain outside the plugin; `post-commit`
+and `post-rewrite` hooks can publish an unverified tree; a pre-push hook cannot change the pushed
+commits but can move local refs or push other refs.
 
 ## Disable
 
