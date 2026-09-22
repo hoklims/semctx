@@ -39,6 +39,13 @@ identity/count fields; physical SQLite file bytes are excluded. All samples in a
 fingerprint component; a missing or divergent component fails the benchmark and names the corpus,
 sample index and exact differing component.
 
+Before equivalence is checked, every sample must also report the parallelism path its corpus
+requires: one requested worker runs `single`; `disconnected-modules` at two or four workers runs
+`parallel` with exactly the requested workers; the two hostile corpora at two or four workers run
+`preflight-fallback` on one worker with their named fallback reason. Any other path fails the
+benchmark and names the corpus, sample and requested worker count, so a disabled parallel path
+cannot pass by comparing single-worker results with themselves.
+
 Duration and native peak RSS are summarized per worker count (median, min, max, range), computed
 only over the samples where that metric was actually measured. Native peak RSS (`maxRSS`, bytes)
 and CPU time (`user`/`system`/`total`, microseconds) come from the subprocess's own lifetime
@@ -53,7 +60,8 @@ The default invocation emits a single `schemaVersion: 2` JSON document on stdout
 and full dirty-source state, so an uncommitted or untracked change is visible), each corpus's
 fixture identity, samples, equivalence verdict and per-worker-count summary. Version 1 consumers
 must select the new version 2 fields explicitly; current CI only checks the exit status, so no
-threshold is applied to duration or memory.
+threshold is applied to duration or memory. CI archives each operating system's report as a
+workflow artifact, including when the benchmark fails.
 
 ## Known limits
 

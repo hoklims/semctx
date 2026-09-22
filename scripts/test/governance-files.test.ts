@@ -18,6 +18,7 @@ interface WorkflowStep {
   if?: string;
   uses?: string;
   run?: string;
+  shell?: string;
   with?: Record<string, unknown>;
   env?: Record<string, unknown>;
 }
@@ -169,6 +170,27 @@ describe("CI governance", () => {
     });
     expect(ci).toContain('test "$VERIFY_RESULT" = "success"');
     expect(ci).not.toMatch(/uses:\s+\S+@v\d/);
+  });
+
+  test("keeps the multicore baseline blocking and archives its report even when it fails", () => {
+    const verify = job(ciWorkflow, "verify");
+    const bench = verify.steps.find((step) => step.name === "Observe isolated-process multicore indexing");
+    const archive = verify.steps.find((step) => step.name === "Archive the multicore indexing report");
+    expect(bench).toBeDefined();
+    expect(archive).toBeDefined();
+    expect(bench!.if).toBeUndefined();
+    expect(bench!.shell).toBe("bash");
+    expect(bench!.env).toEqual({ MULTICORE_INDEX_REPORT: "multicore-index-${{ matrix.os }}.json" });
+    expect(bench!.run).toBe('bun run bench:index-workers 24 100 > "$MULTICORE_INDEX_REPORT"');
+    expect(ci).toContain(UPLOAD_ARTIFACT);
+    expect(archive!.uses).toBe(UPLOAD_ARTIFACT.split(" #")[0]);
+    expect(archive!.if).toBe("always()");
+    expect(archive!.with).toEqual({
+      name: "multicore-index-${{ matrix.os }}",
+      path: "multicore-index-${{ matrix.os }}.json",
+      "if-no-files-found": "warn",
+    });
+    expect(verify.steps.indexOf(archive!)).toBe(verify.steps.indexOf(bench!) + 1);
   });
 
   test("removes superseded workflow entry points", () => {

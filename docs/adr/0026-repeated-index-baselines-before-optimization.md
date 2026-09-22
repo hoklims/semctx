@@ -85,3 +85,19 @@ LATENT_COMPASS_ROUTING_NOTE_V1
 
 Codex selects B with explicit missingness and same-host comparisons. A remains a separate
 diagnostic sample; C is deferred unless runtime evidence demonstrates a measurement gap.
+
+## Amendment 2026-09-22: the recorded path is asserted (HOK-823)
+
+Recording requested/used workers, mode and fallback reason left one false success: had the parallel
+path been disabled, every disconnected-modules sample would have run on one worker and compared
+single-worker results with themselves, so equivalence would have held trivially. Each sample must
+now report the path its corpus requires, or the benchmark fails before equivalence and names the
+corpus, the sample and the expected and observed path: one requested worker runs `single`;
+disconnected modules at two or four workers run `parallel` with exactly the requested workers; the
+hostile corpora at two or four workers run `preflight-fallback` on one worker with their named
+fallback reason. The observed CI runs of 2026-09-22 on Ubuntu and macOS already matched this
+policy. A deliberate change to the parallelism policy (HOK-464) updates this assertion with it.
+
+CI also archives each operating system's complete JSON report as a workflow artifact, so a run's
+samples no longer live only in its log. Thresholds are unchanged: success still means equivalent
+outputs on the expected paths, never faster output.
