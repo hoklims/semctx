@@ -16,6 +16,7 @@ import {
 } from "../benchmark-multicore-index/fingerprint";
 import { captureImplementationIdentity } from "../benchmark-multicore-index/host-identity";
 import { materializeCorpus } from "../benchmark-multicore-index/fixtures";
+import { expectedParallelism, parallelismMismatch } from "../benchmark-multicore-index/parallelism";
 import { buildSamplePlan, WORKER_COUNTS, type SamplePlanEntry } from "../benchmark-multicore-index/plan";
 import { observeCpuTime, observePeakRssBytes } from "../benchmark-multicore-index/resource-usage";
 import { summarizeDurations, summarizePeakRss } from "../benchmark-multicore-index/summary";
@@ -53,6 +54,68 @@ describe("buildSamplePlan", () => {
     ];
     expect(buildSamplePlan()).toEqual(expected);
     expect(buildSamplePlan()).toEqual(expected);
+  });
+});
+
+describe("expectedParallelism / parallelismMismatch", () => {
+  const GLOBAL_REASON = "global script: /tmp/fixture/packages/package-000/src/hostile-global-script.ts";
+  const AUGMENTATION_REASON = "global or module augmentation: /tmp/fixture/packages/package-000/src/hostile-augmentation.ts";
+
+  test("accepts every path the Ubuntu and macOS CI runs of 2026-09-22 reported", () => {
+    const observed = [
+      ["disconnected-modules", 1, 1, "single", null],
+      ["disconnected-modules", 2, 2, "parallel", null],
+      ["disconnected-modules", 4, 4, "parallel", null],
+      ["global-script-fallback", 1, 1, "single", null],
+      ["global-script-fallback", 2, 1, "preflight-fallback", GLOBAL_REASON],
+      ["global-script-fallback", 4, 1, "preflight-fallback", GLOBAL_REASON],
+      ["module-augmentation-fallback", 1, 1, "single", null],
+      ["module-augmentation-fallback", 2, 1, "preflight-fallback", AUGMENTATION_REASON],
+      ["module-augmentation-fallback", 4, 1, "preflight-fallback", AUGMENTATION_REASON],
+    ] as const;
+    for (const [corpus, requestedWorkers, usedWorkers, mode, reason] of observed) {
+      expect(parallelismMismatch(corpus, { requestedWorkers, usedWorkers, mode, reason })).toBeNull();
+    }
+  });
+
+  test("a disconnected-modules sample that silently ran on one worker is refused", () => {
+    const mismatch = parallelismMismatch("disconnected-modules", {
+      requestedWorkers: 4, usedWorkers: 1, mode: "single", reason: null,
+    });
+    expect(mismatch).toContain('expected mode "parallel" with 4 worker(s)');
+    expect(mismatch).toContain('observed mode "single" with 1 worker(s)');
+  });
+
+  test("a parallel run on fewer workers than requested is refused", () => {
+    expect(parallelismMismatch("disconnected-modules", {
+      requestedWorkers: 4, usedWorkers: 2, mode: "parallel", reason: null,
+    })).not.toBeNull();
+  });
+
+  test("a hostile corpus that ran in parallel instead of falling back is refused", () => {
+    expect(parallelismMismatch("global-script-fallback", {
+      requestedWorkers: 2, usedWorkers: 2, mode: "parallel", reason: null,
+    })).toContain('expected mode "preflight-fallback" with 1 worker(s)');
+  });
+
+  test("a fallback without its named reason, or with another corpus's reason, is refused", () => {
+    expect(parallelismMismatch("module-augmentation-fallback", {
+      requestedWorkers: 4, usedWorkers: 1, mode: "preflight-fallback", reason: null,
+    })).not.toBeNull();
+    expect(parallelismMismatch("module-augmentation-fallback", {
+      requestedWorkers: 4, usedWorkers: 1, mode: "preflight-fallback", reason: GLOBAL_REASON,
+    })).not.toBeNull();
+  });
+
+  test("a single-worker sample carrying a fallback reason is refused", () => {
+    expect(parallelismMismatch("disconnected-modules", {
+      requestedWorkers: 1, usedWorkers: 1, mode: "single", reason: "unexpected",
+    })).not.toBeNull();
+  });
+
+  test("the expected path follows the plan's worker counts", () => {
+    expect(WORKER_COUNTS.map((workers) => expectedParallelism("disconnected-modules", workers).mode))
+      .toEqual(["single", "parallel", "parallel"]);
   });
 });
 
