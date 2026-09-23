@@ -26,6 +26,13 @@ function replace(root: string, file: string, before: string, after: string): voi
   writeFileSync(path, text.replace(before, after));
 }
 
+function replaceEvery(root: string, file: string, before: string, after: string): void {
+  const path = join(root, file);
+  const text = readFileSync(path, "utf8");
+  expect(text).toContain(before);
+  writeFileSync(path, text.replaceAll(before, after));
+}
+
 describe("compatibility declaration gate", () => {
   test("current declarations and workflow pins agree", () => {
     expect(checkCompatibility(repo)).toEqual([]);
@@ -61,7 +68,7 @@ describe("compatibility declaration gate", () => {
   });
   test("rejects missing provisioning and duplicated documentation sections", () => {
     const root = fixture();
-    replace(root, ".github/workflows/ci.yml", "oven-sh/setup-bun@", "other/setup-bun@");
+    replaceEvery(root, ".github/workflows/ci.yml", "oven-sh/setup-bun@", "other/setup-bun@");
     replace(root, "README.md", compatibilityBlock(), `${compatibilityBlock()}\n${compatibilityBlock()}`);
     expect(checkCompatibility(root)).toContain(".github/workflows/ci.yml: Bun provisioning missing");
     expect(checkCompatibility(root).some((error) => error.startsWith("README.md:"))).toBe(true);
