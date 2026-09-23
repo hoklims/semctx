@@ -9,6 +9,16 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Changed
+
+- **The canonical test suite runs in parallel and proves it ran every file**: `bun run test`
+  runs the same test files under `packages`, `apps`, `plugins` and `scripts` with the same 60 s
+  timeout, most of them in at most four parallel Bun workers and five time-sensitive files alone
+  afterwards.
+  It fails unless the two JUnit reports together name every test file found on disk exactly
+  once, so a file dropped by a worker, a pass or an ignore pattern cannot pass as a smaller green
+  run. No test or assertion changes.
+
 ### Fixed
 
 - Index health no longer grows quadratically with the number of indexed candidates. It digests
