@@ -33,11 +33,13 @@ export function parallelWorkers(cores: number = availableParallelism()): number 
 }
 
 /**
- * Run alone, after the parallel pass. Their explicit per-test budgets were exceeded under parallel
- * load on 2026-09-23 (guard, plugin build), or HOK-822 names them as time-sensitive (attestation
+ * Run alone, after the parallel pass. Their per-test budgets were exceeded under parallel load on
+ * 2026-09-23 (guard, plugin build, and npm pack/install on a Windows runner, which takes 11-20 s
+ * alone and 23-30 s beside three workers), or HOK-822 names them as time-sensitive (attestation
  * flood and delay, impact pilot, index lifecycle concurrency).
  */
 export const SEQUENTIAL_TEST_FILES = [
+  "apps/cli/test/package-runtime.test.ts",
   "apps/cli/test/plugin-status-attestation.test.ts",
   "packages/app-services/test/index-lifecycle-concurrency.test.ts",
   "plugins/claude-code/test/guard.test.ts",

@@ -13,7 +13,7 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 - **The canonical test suite runs in parallel on Windows and proves it ran every file**:
   `bun run test` runs the same test files under `packages`, `apps`, `plugins` and `scripts` with
-  the same 60 s timeout. On Windows, most of them run in at most four parallel Bun workers and five
+  the same 60 s timeout. On Windows, most of them run in at most four parallel Bun workers and six
   time-sensitive files run alone afterwards. Linux and macOS keep one sequential pass until a Bun
   release fixes lost `spawnSync` child exits (oven-sh/bun#34069), which parallel workers made
   frequent there. Every run fails unless its JUnit reports name every test file found on disk
