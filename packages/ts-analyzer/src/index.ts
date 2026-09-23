@@ -49,6 +49,9 @@ export type {
   MarkerCoverage,
 } from "./markers";
 
+export { outlineModuleLinks, outlineTopLevel } from "./top-level-outline";
+export type { ModuleLinkOutline, TopLevelOutline, TopLevelStatementKind, TopLevelStatementOutline } from "./top-level-outline";
+
 export { parseFrontmatter, asStringArray } from "./frontmatter";
 export type { Frontmatter, FrontmatterValue } from "./frontmatter";
 

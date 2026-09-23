@@ -4,6 +4,7 @@ export * from "./errors";
 export * from "./schemas";
 export * from "./config-defaults";
 export * from "./verify-report";
+export * from "./change-impact";
 export * from "./canonical";
 export * from "./feedback-report";
 export * from "./support-report";
