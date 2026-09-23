@@ -164,33 +164,60 @@ describe("CI governance", () => {
     expect(ciWorkflow.jobs["semctx-required"]).toMatchObject({
       name: "semctx-required",
       if: "always()",
-      needs: "verify",
+      needs: ["verify", "multicore-index"],
       "runs-on": "ubuntu-latest",
       "timeout-minutes": 5,
     });
-    expect(ci).toContain('test "$VERIFY_RESULT" = "success"');
+    expect(job(ciWorkflow, "semctx-required").steps).toEqual([{
+      name: "Require every verification and benchmark matrix entry to pass",
+      env: {
+        VERIFY_RESULT: "${{ needs.verify.result }}",
+        MULTICORE_INDEX_RESULT: "${{ needs.multicore-index.result }}",
+      },
+      run: 'test "$VERIFY_RESULT" = "success" && test "$MULTICORE_INDEX_RESULT" = "success"',
+    }]);
     expect(ci).not.toMatch(/uses:\s+\S+@v\d/);
   });
 
-  test("keeps the multicore baseline blocking and archives its report even when it fails", () => {
-    const verify = job(ciWorkflow, "verify");
-    const bench = verify.steps.find((step) => step.name === "Observe isolated-process multicore indexing");
-    const archive = verify.steps.find((step) => step.name === "Archive the multicore indexing report");
-    expect(bench).toBeDefined();
-    expect(archive).toBeDefined();
-    expect(bench!.if).toBeUndefined();
-    expect(bench!.shell).toBe("bash");
-    expect(bench!.env).toEqual({ MULTICORE_INDEX_REPORT: "multicore-index-${{ matrix.os }}.json" });
-    expect(bench!.run).toBe('bun run bench:index-workers 24 100 > "$MULTICORE_INDEX_REPORT"');
-    expect(ci).toContain(UPLOAD_ARTIFACT);
-    expect(archive!.uses).toBe(UPLOAD_ARTIFACT.split(" #")[0]);
-    expect(archive!.if).toBe("always()");
-    expect(archive!.with).toEqual({
-      name: "multicore-index-${{ matrix.os }}",
-      path: "multicore-index-${{ matrix.os }}.json",
-      "if-no-files-found": "warn",
+  test("runs the multicore baseline beside the verifier, blocking, and archives its report even when it fails", () => {
+    expect(job(ciWorkflow, "multicore-index")).toEqual({
+      "timeout-minutes": 180,
+      strategy: {
+        "fail-fast": false,
+        matrix: { os: ["ubuntu-latest", "windows-latest", "macos-15"] },
+      },
+      "runs-on": "${{ matrix.os }}",
+      steps: [
+        {
+          uses: CHECKOUT.split(" #")[0],
+          with: {
+            ref: "${{ github.event.pull_request.head.sha || github.sha }}",
+            "fetch-depth": 0,
+            "persist-credentials": false,
+          },
+        },
+        { uses: SETUP_BUN.split(" #")[0], with: { "bun-version": "1.4.0" } },
+        { run: "bun install --frozen-lockfile" },
+        {
+          name: "Observe isolated-process multicore indexing",
+          shell: "bash",
+          env: { MULTICORE_INDEX_REPORT: "multicore-index-${{ matrix.os }}.json" },
+          run: 'bun run bench:index-workers 24 100 > "$MULTICORE_INDEX_REPORT"',
+        },
+        {
+          name: "Archive the multicore indexing report",
+          if: "always()",
+          uses: UPLOAD_ARTIFACT.split(" #")[0],
+          with: {
+            name: "multicore-index-${{ matrix.os }}",
+            path: "multicore-index-${{ matrix.os }}.json",
+            "if-no-files-found": "warn",
+          },
+        },
+      ],
     });
-    expect(verify.steps.indexOf(archive!)).toBe(verify.steps.indexOf(bench!) + 1);
+    expect(ci).toContain(UPLOAD_ARTIFACT);
+    expect(job(ciWorkflow, "verify").steps.some((step) => step.run?.includes("bench:index-workers"))).toBe(false);
   });
 
   test("removes superseded workflow entry points", () => {
