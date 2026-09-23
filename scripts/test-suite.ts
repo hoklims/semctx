@@ -1,14 +1,25 @@
 /**
- * Canonical test suite (HOK-822). Runs every test file under the suite roots: most of them in
- * parallel Bun workers, then the time-sensitive files alone and in sequence. Fails unless the two
- * JUnit reports together account for exactly the test files found on disk, each file once: a file
- * skipped by a worker, a pass or an ignore pattern cannot pass as a smaller green run.
+ * Canonical test suite (HOK-822). Runs every test file under the suite roots. On Windows, most of
+ * them run in parallel Bun workers, then the time-sensitive files alone and in sequence; elsewhere
+ * one sequential pass runs them all. Fails unless the JUnit reports together account for exactly
+ * the test files found on disk, each file once: a file skipped by a worker, a pass or an ignore
+ * pattern cannot pass as a smaller green run.
  */
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { availableParallelism, tmpdir } from "node:os";
 import { join } from "node:path";
 
 export const SUITE_ROOTS = ["packages", "apps", "plugins", "scripts"] as const;
+
+/**
+ * Bun's spawnSync can lose a child's exit on Linux and macOS and spin until the test budget
+ * expires (oven-sh/bun#34069, open in 1.4.2; fix proposed in oven-sh/bun#40078). Parallel workers
+ * multiply that exposure: CI hit it on both, reproduced under WSL, and never on Windows. Until a
+ * fixed Bun is pinned, only Windows runs the parallel pass.
+ */
+export function runsInParallel(platform: NodeJS.Platform = process.platform): boolean {
+  return platform === "win32";
+}
 
 /**
  * Bun defaults to one worker per core. At 24 workers, tests that spawn git or Bun ran three to five
@@ -72,75 +83,83 @@ export function summarizeJunitReport(xml: string): JunitSummary {
   };
 }
 
-/**
- * The parallel and sequential reports must partition the inventory: every discovered file reported
- * by exactly one pass, the sequential pass reporting exactly its files, and nothing else reported.
- */
-export function completenessProblems(
-  inventory: readonly string[],
-  parallel: ReadonlyMap<string, number>,
-  sequential: ReadonlyMap<string, number>,
-  sequentialFiles: readonly string[] = SEQUENTIAL_TEST_FILES,
-): string[] {
-  const problems: string[] = [];
-  const inventorySet = new Set(inventory);
-  const sequentialSet = new Set(sequentialFiles);
-  for (const file of sequentialFiles) {
-    if (!inventorySet.has(file)) problems.push(`sequential file is not in the test-file inventory: ${file}`);
-  }
-  for (const file of inventory) {
-    const inParallel = parallel.has(file);
-    const inSequential = sequential.has(file);
-    if (!inParallel && !inSequential) problems.push(`not executed: ${file}`);
-    if (inParallel && inSequential) problems.push(`executed twice: ${file}`);
-    if (sequentialSet.has(file) && inParallel) problems.push(`ran in the parallel pass: ${file}`);
-    if (!sequentialSet.has(file) && inSequential) problems.push(`ran in the sequential pass: ${file}`);
-  }
-  for (const file of [...new Set([...parallel.keys(), ...sequential.keys()])].sort()) {
-    if (!inventorySet.has(file)) problems.push(`not in the test-file inventory: ${file}`);
-  }
-  return problems;
-}
-
 export interface TestPass {
   label: "parallel" | "sequential";
   argv: string[];
   report: string;
+  /** The inventory files this pass must report, and no others. */
+  expects(inventory: readonly string[]): string[];
 }
 
-export function testPasses(reportDirectory: string): TestPass[] {
-  const parallelReport = join(reportDirectory, "parallel.xml");
+export function testPasses(reportDirectory: string, platform: NodeJS.Platform = process.platform): TestPass[] {
+  const command = (report: string): string[] =>
+    [process.execPath, "test", "--timeout", "60000", "--reporter=junit", `--reporter-outfile=${report}`];
   const sequentialReport = join(reportDirectory, "sequential.xml");
+  if (!runsInParallel(platform)) {
+    return [{
+      label: "sequential",
+      report: sequentialReport,
+      argv: [...command(sequentialReport), ...SUITE_ROOTS],
+      expects: (inventory) => [...inventory],
+    }];
+  }
+  const parallelReport = join(reportDirectory, "parallel.xml");
+  const sequentialFiles = new Set<string>(SEQUENTIAL_TEST_FILES);
   return [
     {
       label: "parallel",
       report: parallelReport,
       argv: [
-        process.execPath,
-        "test",
-        "--timeout",
-        "60000",
+        ...command(parallelReport),
         `--parallel=${parallelWorkers()}`,
         ...SEQUENTIAL_TEST_FILES.map((file) => `--path-ignore-patterns=${file}`),
-        "--reporter=junit",
-        `--reporter-outfile=${parallelReport}`,
         ...SUITE_ROOTS,
       ],
+      expects: (inventory) => inventory.filter((file) => !sequentialFiles.has(file)),
     },
     {
       label: "sequential",
       report: sequentialReport,
-      argv: [
-        process.execPath,
-        "test",
-        "--timeout",
-        "60000",
-        "--reporter=junit",
-        `--reporter-outfile=${sequentialReport}`,
-        ...SEQUENTIAL_TEST_FILES.map((file) => `./${file}`),
-      ],
+      argv: [...command(sequentialReport), ...SEQUENTIAL_TEST_FILES.map((file) => `./${file}`)],
+      expects: (inventory) => inventory.filter((file) => sequentialFiles.has(file)),
     },
   ];
+}
+
+export interface PassResult {
+  label: string;
+  expected: readonly string[];
+  reported: ReadonlyMap<string, number>;
+}
+
+/**
+ * The passes must partition the inventory: every discovered file reported by exactly one pass,
+ * each pass reporting exactly its expected files, and nothing outside the inventory reported.
+ */
+export function completenessProblems(inventory: readonly string[], results: readonly PassResult[]): string[] {
+  const problems: string[] = [];
+  const inventorySet = new Set(inventory);
+  for (const file of inventory) {
+    const reportedBy = results.filter((result) => result.reported.has(file)).length;
+    if (reportedBy === 0) problems.push(`not executed: ${file}`);
+    if (reportedBy > 1) problems.push(`executed twice: ${file}`);
+  }
+  for (const result of results) {
+    const expected = new Set(result.expected);
+    for (const file of [...result.reported.keys()].sort()) {
+      if (!inventorySet.has(file)) problems.push(`not in the test-file inventory: ${file}`);
+      else if (!expected.has(file)) problems.push(`ran in the ${result.label} pass: ${file}`);
+    }
+  }
+  return problems;
+}
+
+/** A declared time-sensitive file that no longer exists would silently leave the partition. */
+export function declaredFileProblems(inventory: readonly string[], declared: readonly string[] = SEQUENTIAL_TEST_FILES): string[] {
+  const inventorySet = new Set(inventory);
+  return declared
+    .filter((file) => !inventorySet.has(file))
+    .map((file) => `sequential file is not in the test-file inventory: ${file}`);
 }
 
 function numericAttribute(element: string, name: string): number {
@@ -179,19 +198,27 @@ async function main(): Promise<number> {
       const child = Bun.spawn(pass.argv, { cwd: repositoryRoot, stdout: "inherit", stderr: "inherit" });
       exitCodes.push(await child.exited);
     }
-    const [parallel, sequential] = passes.map(readReport);
-    if (parallel === undefined || sequential === undefined) return 1;
-    const problems = completenessProblems(inventory, parallel.files, sequential.files);
+    const summaries = passes.map(readReport);
+    if (summaries.some((summary) => summary === undefined)) return 1;
+    const reports = summaries as JunitSummary[];
+    const problems = [
+      ...declaredFileProblems(inventory),
+      ...completenessProblems(inventory, passes.map((pass, index) => ({
+        label: pass.label,
+        expected: pass.expects(inventory),
+        reported: reports[index]!.files,
+      }))),
+    ];
     for (const problem of problems) console.error(`[test-suite] FAIL  ${problem}`);
-    const failures = parallel.failures + sequential.failures;
+    const total = (key: "tests" | "skipped" | "failures"): number => reports.reduce((sum, report) => sum + report[key], 0);
+    const perPass = passes.map((pass, index) => `${reports[index]!.files.size} ${pass.label}`).join(", ");
     console.log(
-      `[test-suite] ${parallel.files.size + sequential.files.size}/${inventory.length} test files reported `
-        + `(${parallel.files.size} parallel, ${sequential.files.size} sequential); `
-        + `${parallel.tests + sequential.tests} tests, ${parallel.skipped + sequential.skipped} skipped, ${failures} failed`,
+      `[test-suite] ${reports.reduce((sum, report) => sum + report.files.size, 0)}/${inventory.length} test files reported `
+        + `(${perPass}); ${total("tests")} tests, ${total("skipped")} skipped, ${total("failures")} failed`,
     );
     const failedPass = exitCodes.find((code) => code !== 0);
     if (failedPass !== undefined) return failedPass;
-    return problems.length === 0 && failures === 0 ? 0 : 1;
+    return problems.length === 0 && total("failures") === 0 ? 0 : 1;
   } finally {
     rmSync(reportDirectory, { recursive: true, force: true });
   }
