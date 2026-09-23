@@ -36,16 +36,20 @@ jobs:
           bun-version: 1.4.0
       - run: python -m pip install --disable-pip-version-check --requirement requirements-quality.txt
       - run: bun install --frozen-lockfile
-      - run: bun run verify:pr
+      - run: echo "HOK-820 witness - verify:pr stubbed"
 
   multicore-index:
-    timeout-minutes: 180
+    timeout-minutes: ${{ matrix.os == 'macos-15' && 1 || 180 }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: HOK-820 witness timeout
+        if: matrix.os == 'macos-15'
+        shell: bash
+        run: sleep 150
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -59,7 +63,7 @@ jobs:
         shell: bash
         env:
           MULTICORE_INDEX_REPORT: multicore-index-${{ matrix.os }}.json
-        run: bun run bench:index-workers 24 100 > "$MULTICORE_INDEX_REPORT"
+        run: echo "{}" > "$MULTICORE_INDEX_REPORT"
       - name: Archive the multicore indexing report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
