@@ -123,8 +123,8 @@ bound), and non-TypeScript call reach (Python reports `language_has_no_call_edge
   path only possible; private constant; comment-only; barrel consumer; staged, range, dirty-index
   (new side), per-file mixed binding; staged and range breaks over an index that read uncommitted
   files or missed a committed one; a new-side file taking over a module; a range removing a local
-  declaration whose readers fall back to a global; untracked files, proven unchanged or not;
-  broken binding nulls; no proof vocabulary.
+  declaration or an import binding whose readers fall back to a global; untracked files, proven
+  unchanged or not; broken binding nulls; no proof vocabulary.
 - `packages/app-services/test/change-impact-classification.test.ts` — one witness per way an edit
   could be misread as inert (uncommented call, blank line replaced by code, `export default`
   local, continuation line, decorator, load-time initializer, explicit re-export next to

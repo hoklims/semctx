@@ -373,6 +373,13 @@ describe("edits that must not read as inert", () => {
     expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
   });
 
+  it("a whole import added for an already-loaded module can shadow a global existing code reads", () => {
+    const report = analyse(() => edit("src/lib/net.ts", 'import { other } from "./fetch-source";\n', 'import { other } from "./fetch-source";\nimport { fetch } from "./fetch-source";\n'));
+    // The module was already loaded: the rebinding alone makes the new import behavioural.
+    expect(report.changes.units!.map((unit) => [unit.kind, unit.names, unit.behavioral, unit.runsOnLoad])).toEqual([["added_declaration", ["fetch"], true, undefined]]);
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+  });
+
   it("deleting an empty imported module reaches its importers", () => {
     const report = analyse(() => unlinkSync(join(root, "src/lib/polyfill.ts")));
     expect(report.changes.files).toContainEqual({ path: "src/lib/polyfill.ts", status: "deleted", hunks: 0 });
