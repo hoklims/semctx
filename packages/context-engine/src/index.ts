@@ -47,6 +47,7 @@ export type {
   ImpactOutlineStatement,
   ImpactPackage,
   UnindexedModuleLink,
+  WholeModuleRead,
 } from "./change-impact";
 
 export { parseObservedDiffHunks, parseUnifiedDiffBytes } from "./observed-diff";

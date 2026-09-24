@@ -183,6 +183,23 @@ describe("runChangeImpact — a local replay change", () => {
     expect(reasons["mod:packages/protocol/src/index.ts"]).toBe("REEXPORTS_CHANGED_FILE");
     expect(reasons["mod:packages/runtime/src/replay-consumer.ts"]).toBe("IMPORTS_REEXPORTER_OF_CHANGED_FILE");
   });
+
+  it("takes an export added to a workspace package read whole by its name to change what its reader sees", () => {
+    const root = repository({
+      "packages/runtime/src/protocol-names.ts": [
+        'import * as protocol from "@demo/protocol";',
+        "",
+        "export function protocolNames(): string[] {",
+        "  return Object.keys(protocol);",
+        "}",
+        "",
+      ].join("\n"),
+    });
+    replace(root, PINS, "  if (!isReplaySafe(name)) return undefined;\n  return name;\n}\n", "  if (!isReplaySafe(name)) return undefined;\n  return name;\n}\n\nexport const PROTOCOL_REVISION = 2;\n");
+    const report = analyse(root);
+    expect(report.changes.units!.find((unit) => unit.kind === "added_declaration")).toMatchObject({ names: ["PROTOCOL_REVISION"], behavioral: true });
+    expect(allReached(report)).toContain("mod:packages/runtime/src/protocol-names.ts");
+  });
 });
 
 describe("runChangeImpact — sources and index coordinates", () => {
