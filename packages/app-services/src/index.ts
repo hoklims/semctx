@@ -92,6 +92,8 @@ export type {
 } from "./index-health";
 export { anchorMigrationAuthority } from "./anchor-migration-authority";
 export { planVerify, runVerify } from "./verify";
+export { runChangeImpact } from "./change-impact";
+export type { ChangeImpactOptions, ChangeImpactRequest } from "./change-impact";
 export type { VerifySource, VerifyComputation } from "./verify";
 export {
   UNRESOLVED_REFERENCE_INDEX_META_KEY,

@@ -268,6 +268,29 @@ The base must exist locally — semctx never fetches implicitly. In CI, check ou
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,
 `locations`), `summary { blockCount, warnCount }`. Additive-only within a major `schemaVersion`.
 
+## `impact diff`
+
+Report what a change can affect, through which link, and where the modeled reach stops — without
+deciding anything about proof. The JSON output is the versioned `ChangeImpact` contract
+([reference](change-impact.md), [ADR 0030](../adr/0030-change-impact-contract.md)).
+
+| option | default | description |
+| --- | --- | --- |
+| `--base <ref>` | — | analyse `merge-base(<ref>, head)..head` (the index must be at `head`) |
+| `--head <ref>` | `HEAD` | head ref to analyse |
+| `--staged` | — | analyse the staged diff (exclusive with `--base`) |
+| `--surfaces <file>` | — | explicit surface map (JSON); surfaces are never inferred |
+| `--format text\|json` | `text` | output format; `json` is the versioned contract |
+| `--output <path>` | — | write the JSON report atomically |
+
+**Exit codes**: 0 whenever a report is produced — a broken index binding or an incomplete reach is
+reported in the document (`analysis.binding`, `unresolved`), not as a failure; 1 on invalid input
+(`--from-file`, `--base` with `--staged`, an unreadable or invalid surface map); 2 on an unknown
+subcommand.
+
+The index is joined on the diff side whose line coordinates it provably carries, file by file when
+it was built on a dirty tree. When no side can be proven, every index-derived field is `null`.
+
 ## `verify hook`
 
 ```text

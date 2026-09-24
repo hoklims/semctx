@@ -22,11 +22,32 @@ export type { BuildPackOptions } from "./context-pack-builder";
 export {
   analyzeDiff,
   parseUnifiedDiff,
+  parseUnifiedDiffChanges,
   parseUnifiedDiffScopePaths,
   buildVerifyReport,
   computeImpactedConsumers,
 } from "./verify-diff";
-export type { VerifyResult, VerifyFinding, DiffFile, DiffHunk, VerifyReportGitMeta, ImpactedConsumers } from "./verify-diff";
+export type {
+  VerifyResult,
+  VerifyFinding,
+  DiffFile,
+  DiffHunk,
+  ParsedDiffChanges,
+  UnscopedDiffBlock,
+  VerifyReportGitMeta,
+  ImpactedConsumers,
+} from "./verify-diff";
+
+export { changedFilesFromDiff, computeChangeImpact, DEFAULT_CHANGE_IMPACT_BOUNDS, sortUnresolved } from "./change-impact";
+export type {
+  ChangeImpactBounds,
+  ChangeImpactCore,
+  ComputeChangeImpactArgs,
+  ImpactFileOutline,
+  ImpactOutlineStatement,
+  ImpactPackage,
+  UnindexedModuleLink,
+} from "./change-impact";
 
 export { parseObservedDiffHunks, parseUnifiedDiffBytes } from "./observed-diff";
 export type { ParseObservedDiffHunksArgs } from "./observed-diff";

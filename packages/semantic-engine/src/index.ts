@@ -113,3 +113,6 @@ export type { SemanticInspection, IncomingReference } from "./inspect";
 
 export { captureHandoff, buildHandoffCapsule, readHandoff, renderHandoffMarkdown, HANDOFF_SCHEMA_VERSION } from "./handoff";
 export type { HandoffCapsule, CaptureArgs } from "./handoff";
+
+export { semanticExposure } from "./impact";
+export type { SemanticExposureResult } from "./impact";

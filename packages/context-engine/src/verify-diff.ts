@@ -27,6 +27,28 @@ export interface DiffFile {
   hunks: DiffHunk[];
   /** true when the whole file was added/removed (map the entire file). */
   wholeFile: boolean;
+  /** Old-side path of a renamed file (its hunks' old lines belong to it); set only by `parseUnifiedDiffChanges`. */
+  oldPath?: string;
+  /** Header-derived status; set only by `parseUnifiedDiffChanges`. */
+  status?: "added" | "deleted" | "modified" | "renamed";
+}
+
+/**
+ * A `diff --git` block that carries no `---`/`+++` content pair: a binary change, a mode-only
+ * change, an empty added or deleted file, or a pure rename. The strict parser rejects blocks
+ * without canonical paths; the collecting parser records every such block so a caller can name
+ * the path as unanalysed instead of dropping it.
+ */
+export interface UnscopedDiffBlock {
+  /** Paths named by rename metadata or an unambiguous block header; empty when unknown. */
+  paths: string[];
+  reason: "binary" | "mode_only" | "empty_added" | "empty_deleted" | "rename_only" | "unrecognized";
+}
+
+export interface ParsedDiffChanges {
+  scopePaths: string[];
+  files: DiffFile[];
+  unscoped: UnscopedDiffBlock[];
 }
 
 export interface VerifyFinding {
@@ -177,9 +199,54 @@ interface ActiveDiffHunk {
   newConsumed: number;
 }
 
-interface ParsedUnifiedDiff {
-  scopePaths: string[];
-  files: DiffFile[];
+type ParsedUnifiedDiff = ParsedDiffChanges;
+
+/** Split `diff --git a/X b/Y` into its paths when that is unambiguous (quoted, or X === Y). */
+function explicitHeaderPaths(line: string): string[] {
+  const rest = line.slice("diff --git ".length);
+  if (rest.startsWith("\"")) {
+    const quoted = /^("(?:[^"\\]|\\.)*") ("(?:[^"\\]|\\.)*")$/u.exec(rest);
+    if (quoted === null) return [];
+    const left = decodeGitPath(quoted[1]!);
+    const right = decodeGitPath(quoted[2]!);
+    if (!left.startsWith("a/") || !right.startsWith("b/")) return [];
+    return [...new Set([left.slice(2), right.slice(2)].map(normalizeObservedDiffPath))];
+  }
+  const length = (rest.length - 5) / 2;
+  if (!Number.isInteger(length) || length <= 0) return [];
+  const left = rest.slice(0, 2 + length);
+  const right = rest.slice(3 + length);
+  if (!left.startsWith("a/") || !right.startsWith("b/") || left.slice(2) !== right.slice(2)) return [];
+  return [normalizeObservedDiffPath(left.slice(2))];
+}
+
+/** Header paths for a collected block; an unreadable header names no path (the block stays unrecognized). */
+function collectedHeaderPaths(line: string): string[] {
+  try {
+    return explicitHeaderPaths(line);
+  } catch {
+    return [];
+  }
+}
+
+interface ExplicitBlockState {
+  headerPaths: string[];
+  hasCanonicalPath: boolean;
+  hasFileHeader: boolean;
+  rename?: { from: string; to: string };
+  binary: boolean;
+  modeChange: boolean;
+  newFile: boolean;
+  deletedFile: boolean;
+}
+
+function unscopedReason(block: ExplicitBlockState): UnscopedDiffBlock["reason"] {
+  if (block.binary) return "binary";
+  if (block.rename !== undefined) return "rename_only";
+  if (block.newFile) return "empty_added";
+  if (block.deletedFile) return "empty_deleted";
+  if (block.modeChange) return "mode_only";
+  return "unrecognized";
 }
 
 function hunkIsComplete(hunk: ActiveDiffHunk): boolean {
@@ -189,33 +256,42 @@ function hunkIsComplete(hunk: ActiveDiffHunk): boolean {
 /**
  * Parse scope paths and changed-file hunks in one stateful pass. File metadata is
  * recognized only outside an active hunk, so source lines that resemble `---` /
- * `+++` headers cannot invent scope. Explicit Git blocks that never expose a
- * canonical header or rename are rejected instead of silently becoming no-op diffs.
+ * `+++` headers cannot invent scope. In `strict` mode (verify), explicit Git blocks
+ * that never expose a canonical header or rename are rejected instead of silently
+ * becoming no-op diffs; `collect` mode records every header-less block instead.
  */
-function parseUnifiedDiffStructure(diffText: string): ParsedUnifiedDiff {
+function parseUnifiedDiffStructure(diffText: string, mode: "strict" | "collect" = "strict"): ParsedUnifiedDiff {
   const paths = new Set<string>();
   const files: DiffFile[] = [];
+  const unscoped: UnscopedDiffBlock[] = [];
   let pendingOldHeader: { path?: string } | undefined;
   let current: DiffFile | undefined;
   let activeHunk: ActiveDiffHunk | undefined;
   let pendingRenameFrom: string | undefined;
   let sawFileOrHunkMarker = false;
-  let explicitBlockOpen = false;
-  let explicitBlockHasCanonicalPath = false;
+  let block: ExplicitBlockState | undefined;
 
   const addScopePath = (path: string | undefined): void => {
     if (path === undefined) return;
     paths.add(path);
-    if (explicitBlockOpen) explicitBlockHasCanonicalPath = true;
+    if (block !== undefined) block.hasCanonicalPath = true;
   };
 
-  const assertExplicitBlockScoped = (): void => {
-    if (explicitBlockOpen && !explicitBlockHasCanonicalPath) {
-      throw new SemctxError(
-        "INVALID_TASK_INPUT",
-        "unified diff block has no canonical paths",
-      );
+  const closeExplicitBlock = (): void => {
+    if (block === undefined) return;
+    if (!block.hasCanonicalPath) {
+      if (mode === "strict") {
+        throw new SemctxError(
+          "INVALID_TASK_INPUT",
+          "unified diff block has no canonical paths",
+        );
+      }
+      unscoped.push({ paths: block.headerPaths, reason: unscopedReason(block) });
+    } else if (mode === "collect" && !block.hasFileHeader) {
+      const named = block.rename === undefined ? block.headerPaths : [block.rename.from, block.rename.to];
+      unscoped.push({ paths: named, reason: unscopedReason(block) });
     }
+    block = undefined;
   };
 
   const failInvalidFileHeader = (): never => {
@@ -263,13 +339,29 @@ function parseUnifiedDiffStructure(diffText: string): ParsedUnifiedDiff {
       if (newHeader.matched) {
         addScopePath(pendingOldHeader.path);
         addScopePath(newHeader.path);
+        if (block !== undefined) block.hasFileHeader = true;
         const filePath = newHeader.path ?? pendingOldHeader.path;
+        const oldPath = pendingOldHeader.path;
+        const status: DiffFile["status"] = oldPath === undefined
+          ? "added"
+          : newHeader.path === undefined
+            ? "deleted"
+            : oldPath !== newHeader.path
+              ? "renamed"
+              : "modified";
         current = filePath === undefined
           ? undefined
           : {
               filePath: normalizePath(filePath),
               hunks: [],
               wholeFile: pendingOldHeader.path === undefined || newHeader.path === undefined,
+              // Strict mode keeps the historical `DiffFile` shape byte-for-byte for verify.
+              ...(mode === "collect"
+                ? {
+                    ...(status === "renamed" && oldPath !== undefined ? { oldPath: normalizePath(oldPath) } : {}),
+                    status,
+                  }
+                : {}),
             };
         if (current !== undefined) files.push(current);
         pendingOldHeader = undefined;
@@ -281,25 +373,41 @@ function parseUnifiedDiffStructure(diffText: string): ParsedUnifiedDiff {
 
     if (line.startsWith("diff --git ")) {
       if (pendingRenameFrom !== undefined) failInvalidRename();
-      assertExplicitBlockScoped();
-      explicitBlockOpen = true;
-      explicitBlockHasCanonicalPath = false;
+      closeExplicitBlock();
+      block = {
+        // Strict mode never reads header paths: verify keeps its historical input contract.
+        headerPaths: mode === "collect" ? collectedHeaderPaths(line) : [],
+        hasCanonicalPath: false,
+        hasFileHeader: false,
+        binary: false,
+        modeChange: false,
+        newFile: false,
+        deletedFile: false,
+      };
       current = undefined;
       sawFileOrHunkMarker = true;
       continue;
     }
 
+    if (block !== undefined && current === undefined) {
+      if (line.startsWith("Binary files ") || line === "GIT binary patch") block.binary = true;
+      else if (line.startsWith("old mode ") || line.startsWith("new mode ")) block.modeChange = true;
+      else if (line.startsWith("new file mode ")) block.newFile = true;
+      else if (line.startsWith("deleted file mode ")) block.deletedFile = true;
+    }
+
     const renameMatch = RENAME_PATH_RE.exec(line);
     if (renameMatch?.[1] !== undefined && renameMatch[2] !== undefined) {
-      if (!explicitBlockOpen) failInvalidRename();
+      if (block === undefined) failInvalidRename();
       const renamePath = normalizeObservedDiffPath(decodeGitPath(renameMatch[2]));
       if (renameMatch[1] === "from") {
         if (pendingRenameFrom !== undefined) failInvalidRename();
         pendingRenameFrom = renamePath;
       } else {
-        if (pendingRenameFrom === undefined) failInvalidRename();
-        addScopePath(pendingRenameFrom);
+        const renameFrom = pendingRenameFrom ?? failInvalidRename();
+        addScopePath(renameFrom);
         addScopePath(renamePath);
+        if (block !== undefined) block.rename = { from: renameFrom, to: renamePath };
         pendingRenameFrom = undefined;
       }
       current = undefined;
@@ -341,16 +449,18 @@ function parseUnifiedDiffStructure(diffText: string): ParsedUnifiedDiff {
 
   if (pendingOldHeader !== undefined) failInvalidFileHeader();
   if (pendingRenameFrom !== undefined) failInvalidRename();
-  assertExplicitBlockScoped();
-  if (paths.size === 0 && sawFileOrHunkMarker && diffText.trim().length > 0) {
+  closeExplicitBlock();
+  if (paths.size === 0 && unscoped.length === 0 && sawFileOrHunkMarker && diffText.trim().length > 0) {
     throw new SemctxError(
       "INVALID_TASK_INPUT",
       "unified diff contains file or hunk markers but no canonical paths",
     );
   }
+  if (mode === "collect") for (const entry of unscoped) for (const path of entry.paths) paths.add(path);
   return {
     scopePaths: [...paths].sort(),
     files,
+    unscoped,
   };
 }
 
@@ -368,6 +478,15 @@ export function parseUnifiedDiff(diffText: string): DiffFile[] {
   return parseUnifiedDiffStructure(diffText).files;
 }
 
+/**
+ * Same state machine as `parseUnifiedDiff`, except that a block without a `---`/`+++` content
+ * pair (binary, mode-only, empty file, pure rename) is recorded instead of rejected, so an
+ * impact report can name the path as unanalysed rather than abort or silently drop it.
+ */
+export function parseUnifiedDiffChanges(diffText: string): ParsedDiffChanges {
+  return parseUnifiedDiffStructure(diffText, "collect");
+}
+
 function nodeLineRange(node: RepositoryNode): { start: number; end: number } | undefined {
   let start: number | undefined;
   let end: number | undefined;
@@ -380,7 +499,7 @@ function nodeLineRange(node: RepositoryNode): { start: number; end: number } | u
   return { start, end: end ?? start };
 }
 
-function hunkTouchesRange(
+export function hunkTouchesRange(
   hunk: DiffHunk,
   range: { start: number; end: number },
   side: "old" | "new",

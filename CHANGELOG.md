@@ -9,6 +9,13 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Added
+
+- `semctx impact diff` emits `ChangeImpact` v1: what a change can affect (`directlyAffected`,
+  `transitivelyAffected`, `possiblyAffected`, each with its reason and link chain), the claims and
+  declared surfaces it exposes, the known blast radius, and every boundary where the modeled reach
+  stops. It decides no proof, test or gate, and never states non-impact (ADR 0030, proposed).
+
 ### Fixed
 
 - An unhandled CLI error without a `[CODE]` always reports its message, as

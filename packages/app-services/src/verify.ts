@@ -22,7 +22,7 @@ import {
   type UnresolvedReferenceBindingReason,
 } from "./unresolved-references";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
-import type { ControlFreshnessReason } from "@semantic-context/control-model";
+import type { ControlFreshnessReason, ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource } from "./verification-state";
 
 /**
@@ -71,14 +71,14 @@ export interface VerifyComputation {
  * text with no `--head`). Nothing ties those hunks to any repository state, so no conclusion drawn
  * from them can authorize either.
  */
-type SourceIdentity =
+export type SourceIdentity =
   | { kind: "absent" }
   | { kind: "declared"; commits: readonly string[] }
   | { kind: "commits"; commits: readonly string[] };
 
 const ABSENT_IDENTITY: SourceIdentity = { kind: "absent" };
 
-interface ResolvedVerifySource {
+export interface ResolvedVerifySource {
   diffText: string | null;
   git: VerifyReportGitMeta;
   includeCoChanges: boolean;
@@ -156,7 +156,7 @@ function declaredIdentity(root: string, head: string | undefined): SourceIdentit
   return { kind: "declared", commits: [requireRef(root, head, "head")] };
 }
 
-function resolveSource(root: string, source: VerifySource, dryRun: boolean): ResolvedVerifySource {
+export function resolveSource(root: string, source: VerifySource, dryRun: boolean): ResolvedVerifySource {
   if (source.kind === "provided") {
     const identity = declaredIdentity(root, source.head);
     return {
@@ -365,7 +365,7 @@ function applyAnalysisHealthPreflight(
 /** A reason the index binding could not be proven. Local to this gate: it extends the public
  *  freshness vocabulary with the source-identity break only `verify` can observe, without widening
  *  `ControlFreshnessReason`, which is a published enum with its own ordering contract. */
-type IndexBindingBreak =
+export type IndexBindingBreak =
   | ControlFreshnessReason
   | "SOURCE_IDENTITY_ABSENT"
   | "SOURCE_IDENTITY_UNPROVEN"
@@ -439,18 +439,24 @@ function refuseImpact(result: VerifyResult, breaks: readonly IndexBindingBreak[]
   };
 }
 
+/** What the binding probe observed: the breaks found, and the freshness it read (null if it failed). */
+export interface IndexBindingObservation {
+  breaks: IndexBindingBreak[];
+  freshness: ControlFreshnessStatusReport | null;
+}
+
 /**
- * Refuse an impact verdict computed against an index that is not provably bound to the exact source
- * the diff was taken from. Fail-closed in both directions: an unproven binding blocks, and the
- * commit carrying the coordinates must be the commit the diff was analysed against.
+ * Observe whether the index is provably bound to the exact source the diff was taken from. Pure
+ * observation: `applyIndexBindingGate` turns it into a verdict, `runChangeImpact` into facts.
+ * Breaks are ordered as they are discovered, and `FRESHNESS_PROBE_FAILED` ends the list when the
+ * probe throws.
  */
-function applyIndexBindingGate(
+export function observeIndexBinding(
   root: string,
   store: ReturnType<typeof openReadyRepository>,
-  result: VerifyResult,
   identity: SourceIdentity,
   observeSemanticInput: (hash: string) => void,
-): VerifyResult {
+): IndexBindingObservation {
   const breaks: IndexBindingBreak[] = [];
   // A diff nobody attributed to a commit cannot be joined with line ranges frozen at one. This is
   // checked before the freshness probe so it stands on its own: a perfectly FRESH index still
@@ -489,7 +495,7 @@ function applyIndexBindingGate(
     breaks.push("ANALYZED_COMMIT_MISMATCH");
   }
 
-  let freshness;
+  let freshness: ControlFreshnessStatusReport;
   try {
     const observed = controlStatusWithSemanticInputs(root);
     freshness = observed.status;
@@ -501,13 +507,29 @@ function applyIndexBindingGate(
     // The probe annotates the verification rather than driving it, so it must not throw through —
     // but a binding that cannot be probed is a binding that is not proven, and an unproven binding
     // never authorizes an impact conclusion.
-    return refuseImpact(result, [...breaks, "FRESHNESS_PROBE_FAILED"]);
+    return { breaks: [...breaks, "FRESHNESS_PROBE_FAILED"], freshness: null };
   }
 
   breaks.push(
     ...freshness.reasons.filter((reason) => INDEX_BINDING_ADMISSIBILITY[reason] === "breaking"),
   );
-  if (breaks.length > 0) return refuseImpact(result, breaks);
+  return { breaks, freshness };
+}
+
+/**
+ * Refuse an impact verdict computed against an index that is not provably bound to the exact source
+ * the diff was taken from. Fail-closed in both directions: an unproven binding blocks, and the
+ * commit carrying the coordinates must be the commit the diff was analysed against.
+ */
+function applyIndexBindingGate(
+  root: string,
+  store: ReturnType<typeof openReadyRepository>,
+  result: VerifyResult,
+  identity: SourceIdentity,
+  observeSemanticInput: (hash: string) => void,
+): VerifyResult {
+  const { breaks, freshness } = observeIndexBinding(root, store, identity, observeSemanticInput);
+  if (freshness === null || breaks.length > 0) return refuseImpact(result, breaks);
 
   if (!freshness.canRunHighRiskControl) {
     const detail = freshness.reasons.length > 0 ? `${freshness.verdict}: ${freshness.reasons.join(", ")}` : freshness.verdict;

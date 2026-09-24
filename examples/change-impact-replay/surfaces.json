@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "surfaces": [
+    { "name": "runtime-live", "description": "Code on the live client path", "include": ["packages/runtime/src/**"] },
+    { "name": "protocol", "include": ["packages/protocol/src/pins.ts"], "symbols": ["LIVE_PINS", "matchesProtocolPin"] },
+    { "name": "replay", "include": ["packages/protocol/src/pins.ts", "packages/protocol/scripts/replay-*.ts"], "symbols": ["REPLAY_SAFE_KEYS", "isReplaySafe", "canonicalReplayName", "replayFight"] },
+    { "name": "analysis-only", "include": ["packages/protocol/scripts/diagnose-*.ts"] },
+    { "name": "decision-engine", "include": ["packages/decision/src/**"], "exclude": ["packages/decision/src/scoring.ts"] },
+    { "name": "scoring-weights", "include": ["packages/decision/src/scoring.ts"] },
+    { "name": "tests-tooling", "include": ["**/test/**"] },
+    { "name": "documentation", "include": ["docs/**", "**/*.md"] }
+  ]
+}

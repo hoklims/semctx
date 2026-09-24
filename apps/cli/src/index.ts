@@ -9,6 +9,7 @@ import { runIndexAsync } from "./commands/index-cmd";
 import { runTaskCreate } from "./commands/task";
 import { runContextPrepare } from "./commands/context";
 import { runVerifyDiff, runVerifyHook } from "./commands/verify";
+import { runImpactDiff } from "./commands/impact";
 import { runInspect } from "./commands/inspect";
 import { runBenchCmd } from "./commands/bench";
 import { runDoctor } from "./commands/doctor";
@@ -59,6 +60,13 @@ Core:
       --output <path>                write the JSON report atomically
       --record                       record the verification state (for the Claude Code guarded hook)
       --dry-run                      show the resolved range + config; no analysis, no writes
+  impact diff [options]            what a change can affect, through which link, where reach stops
+                                   (ChangeImpact v1, ADR 0030; exits 0 whenever a report is produced)
+      --base <ref> [--head <ref>]    analyse a git range (merge-base..head)
+      --staged                       analyse the staged diff (default: working tree)
+      --surfaces <file.json>         explicit surface map; surfaces are never inferred
+      --format text|json             output format (default: text; json = versioned contract)
+      --output <path>                write the JSON report atomically
   verify hook pre-commit|pre-push  content proof as the LAST job of a project-managed Git hook chain
                                    (pre-commit: hash compare, re-record only on drift; pre-push:
                                     check every pushed commit tree against the record; ADR 0029)
@@ -167,6 +175,12 @@ async function dispatch(args: ParsedArgs): Promise<number> {
       if (sub === "diff") return runVerifyDiff(root, args);
       if (sub === "hook") return runVerifyHook(root, args);
       fail(`unknown 'verify' subcommand: ${sub ?? "(none)"} (expected: diff, hook)`);
+      return 2;
+    }
+    case "impact": {
+      const sub = args.positionals[1];
+      if (sub === "diff") return runImpactDiff(root, args);
+      fail(`unknown 'impact' subcommand: ${sub ?? "(none)"} (expected: diff)`);
       return 2;
     }
     case "semantic":
