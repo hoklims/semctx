@@ -9,6 +9,15 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Fixed
+
+- An unhandled CLI error without a `[CODE]` always reports its message, as
+  `ERROR <Name>: <message>` built from the error rather than from its stack: through Bun 1.4.2 a
+  garbage collection can strip that header from an unread stack, and the CLI intermittently printed
+  a bare `ERROR Error` followed by frames
+  ([oven-sh/bun#34398](https://github.com/oven-sh/bun/issues/34398)). Stack frames are now printed
+  only with `SEMCTX_DEBUG=1`; exit codes are unchanged.
+
 ## [0.3.1] - 2026-09-16
 
 ### Added
