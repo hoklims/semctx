@@ -2,7 +2,7 @@
 import { isSemctxError } from "@semantic-context/core";
 import packageJson from "../package.json";
 import { parseArgs, flagString, flagBool, type ParsedArgs } from "./args";
-import { fail, info, c } from "./output";
+import { describeError, fail, info, c } from "./output";
 import { runSetupAsync } from "./commands/setup";
 import { runInit } from "./commands/init";
 import { runIndexAsync } from "./commands/index-cmd";
@@ -217,7 +217,7 @@ async function main(): Promise<void> {
       if (Object.keys(err.details).length > 0) info(c.dim(JSON.stringify(err.details, null, 2)));
       process.exit(err.code === "CONTROL_INPUTS_UNSAFE" ? 3 : 1);
     }
-    fail(err instanceof Error ? (err.stack ?? err.message) : String(err));
+    fail(describeError(err));
     process.exit(1);
   }
 }

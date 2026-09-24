@@ -4,6 +4,10 @@
 published it is `bunx semctx`. Global options: `--root <path>` (repository root,
 default cwd), `--json` (machine output where supported).
 
+An unhandled error is printed to stderr as `ERROR <Name>: <message>` (a typed one as
+`ERROR [CODE] <message>`), without a stack trace. `SEMCTX_DEBUG=1` appends the `at` lines of an
+untyped error's stack, which name local file paths.
+
 ## `install`
 
 Install or update Semctx for detected coding-agent hosts and prepare the current Git repository:
