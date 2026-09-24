@@ -31,6 +31,7 @@ import {
   type ImpactPackage,
   type ParsedDiffChanges,
   type UnindexedModuleLink,
+  type WholeModuleRead,
 } from "@semantic-context/context-engine";
 import { loadSemanticModel, semanticExposure } from "@semantic-context/semantic-engine";
 import { CLEAN_CONTROL_WORKING_DIFF_HASH } from "@semantic-context/control-model";
@@ -93,7 +94,7 @@ const ANALYSIS_LIMITS: ChangeImpactAnalysis["limits"] = [
   },
   {
     code: "MODULE_LINKS_BY_LITERAL_PATH",
-    detail: "Re-exports, import() and require() are followed when their specifier is a relative path to an indexed file or a workspace package name; path aliases and external packages are followed only where the indexer resolved an import.",
+    detail: "Re-exports, namespace imports, import() and require() are followed when their specifier is a relative path to an indexed file or a workspace package name; through path aliases and external packages only the imports the indexer resolved are followed, and a namespace import is not seen to read its module whole.",
   },
 ];
 
@@ -204,17 +205,18 @@ function resolveRelativeSpecifier(from: string, specifier: string, indexed: Read
 }
 
 /**
- * Read, on the bound side of the diff, every module link the index holds no `imports` edge for.
- * One `git grep` narrows the candidates and one `git cat-file --batch` reads them, so the cost is
- * two processes however large the repository is. Returns undefined when Git cannot be read: the
- * engine then reports the reach through such links as unknown instead of treating it as empty.
+ * Read, on the bound side of the diff, every module link the index holds no `imports` edge for,
+ * and every module read whole by another. One `git grep` narrows the candidates and one
+ * `git cat-file --batch` reads them, so the cost is two processes however large the repository
+ * is. Returns undefined when Git cannot be read: the engine then reports the reach through such
+ * links as unknown instead of treating it as empty.
  */
 function scanModuleLinks(
   root: string,
   revision: string | null,
   graph: RepositoryGraph,
   packages: readonly ImpactPackage[],
-): { links: UnindexedModuleLink[]; unread: string[] } | undefined {
+): { links: UnindexedModuleLink[]; unread: string[]; whole: WholeModuleRead[] } | undefined {
   const indexed = new Set(
     graph.nodes
       .filter((node) => (node.kind === "module" || node.kind === "test") && node.filePath !== undefined)
@@ -223,6 +225,7 @@ function scanModuleLinks(
   const patterns = [
     "export[[:space:]]*(type[[:space:]]*)?(\\*|\\{)",
     "import[[:space:]]*\\(",
+    "\\*[[:space:]]*as[[:space:]]",
     "require[[:space:]]*\\(",
     ...packages.map((pkg) => `['"]${escapeRegex(pkg.identity)}(/[^'"]*)?['"]`),
   ];
@@ -271,6 +274,7 @@ function scanModuleLinks(
     return undefined;
   };
   const links: UnindexedModuleLink[] = [];
+  const whole: WholeModuleRead[] = [];
   for (const path of [...candidates, ...gitBlind]) {
     const text = texts.get(path);
     if (text === undefined) continue;
@@ -280,17 +284,20 @@ function scanModuleLinks(
         continue;
       }
       if (link.specifier.startsWith(".")) {
+        const target = resolveRelativeSpecifier(path, link.specifier, indexed);
+        if (target !== undefined && link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
         // A relative import already has its edge; only the edgeless kinds are needed here.
         if (link.kind === "import") continue;
-        const target = resolveRelativeSpecifier(path, link.specifier, indexed);
         if (target !== undefined) links.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
         continue;
       }
       const identity = packageOf(link.specifier);
-      if (identity !== undefined) links.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
+      if (identity === undefined) continue;
+      links.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
+      if (link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
     }
   }
-  return { links, unread };
+  return { links, unread, whole };
 }
 
 function readTexts(root: string, revision: string | null, paths: readonly string[]): Map<string, string> | undefined {
@@ -559,7 +566,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           surfaces: surfaceInput?.map ?? null,
           isPathSelected: (path) => isPathSelected(config, path),
           hasCallEdges: (path) => sourceLanguage(path) === "typescript",
-          ...(scan !== undefined ? { moduleLinks: scan.links, moduleLinksUnread: scan.unread } : {}),
+          ...(scan !== undefined ? { moduleLinks: scan.links, moduleLinksUnread: scan.unread, wholeModuleReads: scan.whole } : {}),
           ...(unchangedSinceIndexing !== undefined ? { unchangedSinceIndexing } : {}),
           bounds,
         });

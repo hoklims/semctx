@@ -1,6 +1,6 @@
 # Semctx roadmap
 
-> Revised 2026-09-16. Released baseline: **v0.3.1**.
+> Revised 2026-09-24. Released baseline: **v0.3.3**.
 > Future versions are outcome targets, not available features or promised dates.
 
 ## Understand the risk of a change before running the checks
@@ -19,14 +19,16 @@ repeated use cheaper than rediscovering the same context. We will measure that t
 
 ## Available today
 
-[v0.3.1](https://github.com/hoklims/semctx/releases/tag/v0.3.1) provides local change-impact
+[v0.3.3](https://github.com/hoklims/semctx/releases/tag/v0.3.3) provides local change-impact
 analysis, explainable PASS/WARN/BLOCK reports, source-bound index health, authored intent and
 contracts, read-only control/replay surfaces, and Codex/Claude integrations. Version 0.3.0 added
 explicit index recovery, source-backed continuation reports, process lifecycle tests and
 opt-in configuration migration with exact restoration; version 0.3.1 carries the guarded content
 proof into project-managed Git hook chains (Lefthook, husky) and makes hook bypass
-non-authorizing in guarded mode. The release briefs for [0.3.0](docs/releases/v0.3.0.md) and
-[0.3.1](docs/releases/v0.3.1.md) state the delivered scope. Incremental indexing, full resource
+non-authorizing in guarded mode; version 0.3.3 adds `semctx impact diff`, a versioned
+`ChangeImpact` report that states what a change can affect and where the modeled reach stops,
+without deciding any proof. The release briefs for [0.3.0](docs/releases/v0.3.0.md),
+[0.3.1](docs/releases/v0.3.1.md) and [0.3.3](docs/releases/v0.3.3.md) state the delivered scope. Incremental indexing, full resource
 budgets, Mac/lobby performance and independent human outcomes remain open; publication does not
 complete the whole 0.3 roadmap.
 

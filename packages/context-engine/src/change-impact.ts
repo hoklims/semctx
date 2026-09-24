@@ -80,6 +80,21 @@ export interface UnindexedModuleLink {
   target: { path: string } | { package: string } | { nonLiteral: true };
 }
 
+/**
+ * A module reading another one whole, read from the bound side of the diff: a namespace import
+ * (`import * as`, which also has an `imports` edge), a star re-export (`export *`, `export * as`),
+ * `import()` or `require()`. An export added to the module read changes what the reader sees
+ * (`Object.keys(ns)`, `ns[name]`), although nothing names it.
+ */
+export interface WholeModuleRead {
+  /** Repository-relative path of the module that reads the other one whole. */
+  from: string;
+  kind: UnindexedModuleLink["kind"];
+  line: number;
+  /** A repository file, or a workspace package (resolved to no file). */
+  target: { path: string } | { package: string };
+}
+
 export interface ChangeImpactBounds {
   maxDistance: number;
   maxTargets: number;
@@ -114,6 +129,11 @@ export interface ComputeChangeImpactArgs {
   moduleLinks?: readonly UnindexedModuleLink[];
   /** Indexed files whose module links could not be read: reach through them is unknown. */
   moduleLinksUnread?: readonly string[];
+  /**
+   * Every module read whole by another (see `WholeModuleRead`). `undefined` means they were not
+   * scanned, so any module may be read whole and an export added to it is not inert.
+   */
+  wholeModuleReads?: readonly WholeModuleRead[];
   /**
    * Untracked files the index read from disk and the binding proved unchanged since: they are new
    * files on the bound side, not unknowns.
@@ -378,6 +398,8 @@ export function computeChangeImpact(args: ComputeChangeImpactArgs): ChangeImpact
     }
     return byName;
   };
+  const wholeReads = args.wholeModuleReads === undefined ? undefined : indexModuleLinks(args.wholeModuleReads, args.packages);
+  const readWhole = (path: string): boolean => wholeReads === undefined || wholeReads.reaching(path).length > 0;
   const movedOrDeletedContainers: RepositoryNode[] = [];
 
   for (const block of diff.unscoped) {
@@ -466,6 +488,7 @@ export function computeChangeImpact(args: ComputeChangeImpactArgs): ChangeImpact
         otherOutline: args.outlines.other.get(otherPath),
         byName,
         exportedFor,
+        readWhole: readWhole(boundPath),
         addUnit,
         gap,
       });
@@ -991,12 +1014,16 @@ interface AttributeHunkArgs {
   otherOutline: ImpactFileOutline | undefined;
   byName: ReadonlyMap<string, RepositoryNode[]>;
   exportedFor: (node: RepositoryNode) => boolean | null;
+  /** Another module reads this file whole, or whether one does is unknown. */
+  readWhole: boolean;
   addUnit: (draft: Omit<UnitDraft, "names" | "lines"> & { names?: readonly string[]; lines: readonly Span[] }) => void;
   gap: (entry: UnresolvedImpact) => void;
 }
 
 /** Declarations whose evaluation never runs code, when the outline cannot say (hand-built outlines). */
 const NEVER_RUN_ON_LOAD: ReadonlySet<string> = new Set(["function", "interface", "type"]);
+/** Declarations that bind no runtime value: a module read whole does not see them. */
+const TYPE_ONLY_KINDS: ReadonlySet<string> = new Set(["interface", "type"]);
 /** Kinds whose top-level evaluation is the load-time behaviour of the module. */
 const LOAD_TIME_KINDS: ReadonlySet<string> = new Set(["variable", "class", "enum", "namespace", "export"]);
 
@@ -1518,8 +1545,9 @@ function classifyOtherStatement(
 
 /**
  * A statement present on one side only. Added code is inert only when evaluating it runs nothing
- * at load, it merges with nothing that already existed, and it cannot shadow a re-exported name;
- * removed code matters when it was exported or ran at load.
+ * at load, it merges with nothing that already existed, it cannot shadow a re-exported name, and it
+ * exports no value from a module another one reads whole; removed code matters when it was
+ * exported or ran at load.
  */
 function classifyAppearedStatement(
   args: AttributeHunkArgs,
@@ -1551,7 +1579,9 @@ function classifyAppearedStatement(
     onLoad = LOAD_TIME_KINDS.has(statement.kind) && runsOnLoad(statement);
     const merges = boundStatements.some((candidate) => candidate.declaredNames.some((name) => statement.declaredNames.includes(name)));
     const shadowsReexport = exported && boundStatements.some((candidate) => candidate.kind === "export" && candidate.moduleSpecifier !== undefined);
-    behavioral = statement.kind === "export" || onLoad || merges || rebinds || (removed ? exported : shadowsReexport);
+    // A module reading this one whole (`Object.keys(ns)`, `ns[name]`) sees a new value export.
+    const seenWhole = exported && !TYPE_ONLY_KINDS.has(statement.kind) && args.readWhole;
+    behavioral = statement.kind === "export" || onLoad || merges || rebinds || (removed ? exported : shadowsReexport || seenWhole);
   }
   args.addUnit({
     id: declarationId(boundPath, statement),

@@ -442,6 +442,12 @@ export interface ModuleLinkOutline {
   kind: "import" | "reexport" | "dynamic_import" | "require";
   specifier: string | null;
   line: number;
+  /**
+   * The link reads the module whole — a value namespace import (`import * as`), a star re-export
+   * (`export *`, `export * as`), `import()` or `require()` — so an export added to that module
+   * changes what the linking module sees, though nothing there names it.
+   */
+  whole?: true;
 }
 
 /** Every module link of a TypeScript/JavaScript source text, in source order. */
@@ -452,11 +458,14 @@ export function outlineModuleLinks(sourceText: string, relPath: string): ModuleL
     node !== undefined && ts.isStringLiteralLike(node) ? node.text : null;
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)) {
-      links.push({ kind: "import", specifier: literal(node.moduleSpecifier), line: lineOf(sf, node.getStart(sf)) });
+      const clause = node.importClause;
+      const whole = clause !== undefined && !clause.isTypeOnly && clause.namedBindings !== undefined && ts.isNamespaceImport(clause.namedBindings);
+      links.push({ kind: "import", specifier: literal(node.moduleSpecifier), line: lineOf(sf, node.getStart(sf)), ...(whole ? { whole: true as const } : {}) });
     } else if (ts.isExportDeclaration(node) && node.moduleSpecifier !== undefined) {
-      links.push({ kind: "reexport", specifier: literal(node.moduleSpecifier), line: lineOf(sf, node.getStart(sf)) });
+      const whole = !node.isTypeOnly && (node.exportClause === undefined || ts.isNamespaceExport(node.exportClause));
+      links.push({ kind: "reexport", specifier: literal(node.moduleSpecifier), line: lineOf(sf, node.getStart(sf)), ...(whole ? { whole: true as const } : {}) });
     } else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
-      links.push({ kind: "require", specifier: literal(node.moduleReference.expression), line: lineOf(sf, node.getStart(sf)) });
+      links.push({ kind: "require", specifier: literal(node.moduleReference.expression), line: lineOf(sf, node.getStart(sf)), ...(node.isTypeOnly ? {} : { whole: true as const }) });
     } else if (ts.isCallExpression(node)) {
       const isImport = node.expression.kind === ts.SyntaxKind.ImportKeyword;
       const isRequire = ts.isIdentifier(node.expression) && node.expression.text === "require";
@@ -465,6 +474,7 @@ export function outlineModuleLinks(sourceText: string, relPath: string): ModuleL
           kind: isImport ? "dynamic_import" : "require",
           specifier: literal(node.arguments[0]),
           line: lineOf(sf, node.getStart(sf)),
+          whole: true,
         });
       }
     }

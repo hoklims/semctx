@@ -1,6 +1,6 @@
 # ADR 0030 — ChangeImpact: a machine-readable impact contract that decides no proof
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-09-23
 - Related: ADR 0008 (versioned machine output), ADR 0009 (Plane A/Plane B separation), ADR 0010
   (negative evidence), ADR 0029 (guarded content proof)
@@ -116,28 +116,31 @@ bound), and non-TypeScript call reach (Python reports `language_has_no_call_edge
 ## Evidence
 
 - `packages/context-engine/test/change-impact.test.ts` — tiers, reach direction, private constants,
-  comment-only changes, truncation, re-export barrels, unscanned and non-literal module links,
-  determinism.
+  comment-only changes, truncation, re-export barrels, unscanned and non-literal module links, an
+  export added to a module read whole (by file, by package, or not scanned), determinism.
 - `packages/app-services/test/change-impact.test.ts` — end to end on
   `examples/change-impact-replay`: local replay change with package-scope blast radius and the live
   path only possible; private constant; comment-only; barrel consumer; staged, range, dirty-index
   (new side), per-file mixed binding; staged and range breaks over an index that read uncommitted
   files or missed a committed one; a new-side file taking over a module; a range removing a local
-  declaration or an import binding whose readers fall back to a global; untracked files, proven
-  unchanged or not; broken binding nulls; no proof vocabulary.
+  declaration or an import binding whose readers fall back to a global; an export added to a
+  workspace package read whole by its name; untracked files, proven unchanged or not; broken
+  binding nulls; no proof vocabulary.
 - `packages/app-services/test/change-impact-classification.test.ts` — one witness per way an edit
   could be misread as inert (uncommented call, blank line replaced by code, `export default`
   local, continuation line, decorator, load-time initializer, explicit re-export next to
   `export *`, deleted empty module, shadowing file, flipped operator, `export type`, a comment
   paired with code, `import type` becoming a value import, reordered imports, parameter
   decorator, directive comments, marker lines inserted or nested, a declaration or import binding
-  shadowing a global the file reads) or as broader than it is (comment and formatting edits, prose
-  next to a marker, added import binding, an added declaration nothing reads, private nested
-  symbol); each asserts that every `via` chain starts at the change and is as long as its
-  distance.
+  shadowing a global the file reads, an export added to a module read through `import * as` or
+  `export *`) or as broader than it is (comment and formatting edits, prose next to a marker, added
+  import binding, an added declaration nothing reads, an export added to a module imported only by
+  name, a type exported from a module read whole, private nested symbol); each asserts that every
+  `via` chain starts at the change and is as long as its distance.
 - `packages/ts-analyzer/test/top-level-outline.test.ts` — the token digest (operators, keywords,
   flags, raw templates, type-only forms change it; comments, whitespace, list commas and a final
-  `;` do not), load-time evaluation and module-load levels.
+  `;` do not), load-time evaluation, module-load levels, and the module links that read a module
+  whole.
 - `packages/app-services/test/change-impact.test.ts` also covers a reach gap that caps confidence
   at `low` and turns unreached surfaces `unknown`, and a worktree or index changed during the
   analysis.
