@@ -1,6 +1,6 @@
 # ADR 0030 — ChangeImpact: a machine-readable impact contract that decides no proof
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-09-23
 - Related: ADR 0008 (versioned machine output), ADR 0009 (Plane A/Plane B separation), ADR 0010
   (negative evidence), ADR 0029 (guarded content proof)

@@ -9,12 +9,14 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-09-24
+
 ### Added
 
 - `semctx impact diff` emits `ChangeImpact` v1: what a change can affect (`directlyAffected`,
   `transitivelyAffected`, `possiblyAffected`, each with its reason and link chain), the claims and
   declared surfaces it exposes, the known blast radius, and every boundary where the modeled reach
-  stops. It decides no proof, test or gate, and never states non-impact (ADR 0030, proposed).
+  stops. It decides no proof, test or gate, and never states non-impact (ADR 0030).
 
 ## [0.3.1] - 2026-09-16
 
@@ -662,7 +664,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/hoklims/semctx/compare/v0.3.1...v0.3.3
 [0.3.1]: https://github.com/hoklims/semctx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/hoklims/semctx/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/hoklims/semctx/compare/v0.2.0...v0.2.1
