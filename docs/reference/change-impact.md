@@ -81,11 +81,15 @@ only and never summarized into a scope.
   reach beyond them is a `REVERSE_REACH_NOT_MODELED` gap (`cause=module_initialization`). Parameter
   decorators and top-level `using` count as running on load.
 - **Added code** is inert (`behavioral: false`) only when it runs nothing on load, merges with no
-  existing declaration, and cannot shadow a name re-exported by `export *`. A new import of a
+  existing declaration, binds no name that existing code in the file reads as a global, and
+  cannot shadow a name re-exported by `export *`. A declaration or import binding that appears or
+  disappears under a name existing code reads as a global changes what that code reads: the
+  reading statements are affected (`REFERENCES_CHANGED_DECLARATION`). A new import of a
   module the file did not load before runs that module's top-level code. An edit that extends an
   existing statement (a decorator, a continuation line) is an edit of that statement.
 - **Imports.** Editing an import changes only the bindings it no longer holds or now takes from
-  elsewhere; bindings it adds are `added_declaration` and change nothing indexed. Whether a file
+  elsewhere; bindings it adds are `added_declaration` and change nothing indexed, unless existing
+  code reads their name as a global. Whether a file
   loads a module is read per module: `never` (`import type`, `export type`), `maybe` (only inline
   `type` bindings, or none: erased or kept depending on the compiler configuration, which semctx
   does not read), `yes` (a side-effect import, `export *`, or a value binding — a value binding

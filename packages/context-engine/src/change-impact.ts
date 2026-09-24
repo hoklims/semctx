@@ -1443,8 +1443,22 @@ function classifyImport(
   }
   if (appeared.length > 0) {
     const otherSide = side === "old" ? "new" : "old";
-    args.addUnit({ id, kind: otherSide === "new" ? "added_declaration" : "removed_declaration", file: args.boundPath, side, lines, names: appeared, declarationKind: "import", exported: false, behavioral: false });
+    // Inert unless code on this side reads one of these names as a global the binding now shadows
+    // (or, for a binding the other side no longer holds, falls back to).
+    const rebinds = readsAsFree(args.outline, appeared).length > 0;
+    args.addUnit({ id, kind: otherSide === "new" ? "added_declaration" : "removed_declaration", file: args.boundPath, side, lines, names: appeared, declarationKind: "import", exported: false, behavioral: rebinds });
   }
+}
+
+/**
+ * Names that code in `outline` reads without the file declaring them: a declaration appearing or
+ * disappearing under one of them changes what that code reads (the global it now shadows, or the
+ * global it falls back to). References are by identifier text, so this over-approximates.
+ */
+function readsAsFree(outline: ImpactFileOutline | undefined, names: readonly string[]): string[] {
+  if (outline === undefined || names.length === 0) return [];
+  const declared = new Set(outline.statements.flatMap((statement) => statement.declaredNames));
+  return names.filter((name) => !declared.has(name) && outline.statements.some((statement) => statement.referencedNames.includes(name)));
 }
 
 function classifyOtherSide(
@@ -1522,6 +1536,9 @@ function classifyAppearedStatement(
   const removed = otherSide === "old";
   const exported = statement.kind === "export" || statement.declaredNames.some((name) => otherOutline.exportedNames.includes(name));
   const boundStatements = args.outline?.statements ?? [];
+  // Existing code reading one of its names as a global now reads this declaration (or, once it is
+  // removed, the global again).
+  const rebinds = readsAsFree(args.outline, statement.declaredNames).length > 0;
   let onLoad: boolean;
   let behavioral: boolean;
   if (statement.kind === "import") {
@@ -1529,12 +1546,12 @@ function classifyAppearedStatement(
     onLoad = statement.moduleSpecifier === undefined
       ? loadsOf(statement) > 0
       : moduleLoadStatus(otherOutline, statement.moduleSpecifier) !== moduleLoadStatus(args.outline, statement.moduleSpecifier);
-    behavioral = onLoad;
+    behavioral = onLoad || rebinds;
   } else {
     onLoad = LOAD_TIME_KINDS.has(statement.kind) && runsOnLoad(statement);
     const merges = boundStatements.some((candidate) => candidate.declaredNames.some((name) => statement.declaredNames.includes(name)));
     const shadowsReexport = exported && boundStatements.some((candidate) => candidate.kind === "export" && candidate.moduleSpecifier !== undefined);
-    behavioral = statement.kind === "export" || onLoad || merges || (removed ? exported : shadowsReexport);
+    behavioral = statement.kind === "export" || onLoad || merges || rebinds || (removed ? exported : shadowsReexport);
   }
   args.addUnit({
     id: declarationId(boundPath, statement),
@@ -1582,6 +1599,9 @@ function propagateSameFile(args: SameFileArgs): void {
       if (parsed !== undefined && parsed.scope.length === 0) changed.set(parsed.name, { id: unit.id, via: [] });
     } else if (unit.kind === "declaration") {
       for (const name of unit.names) changed.set(name, { id: unit.id, via: [] });
+    } else if (unit.kind === "added_declaration" || unit.kind === "removed_declaration") {
+      // Only the names this side reads as globals: those reads now resolve elsewhere.
+      for (const name of readsAsFree(outline, [...unit.names])) if (!changed.has(name)) changed.set(name, { id: unit.id, via: [] });
     }
   }
   if (changed.size === 0) return;
