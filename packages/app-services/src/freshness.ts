@@ -293,7 +293,7 @@ function resolveStatusPath(root: string, gitRoot: string, path: string): Resolve
   throw new SemctxError("GIT_ERROR", "working path escapes the repository root", { path });
 }
 
-function isSemctxRuntimeArtifact(path: string): boolean {
+export function isSemctxRuntimeArtifact(path: string): boolean {
   return path === ".semctx/semctx.db"
     || path === ".semctx/semctx.db-shm"
     || path === ".semctx/semctx.db-wal"
@@ -368,13 +368,39 @@ function parseStatusEntry(parts: string[], index: number): { entry: ParsedStatus
  * failures inside a Git repository fail closed instead of hashing an empty diff.
  */
 export function captureGitState(root: string): GitStateCapture {
+  const captured = captureGitStateEntries(root);
+  if (captured.entries === null) return { headCommit: null, workingDiffHash: null };
+  return { headCommit: captured.headCommit, workingDiffHash: hashGitStateEntries(captured.entries) };
+}
+
+/** One local delta entry of the freshness seal, with the root-relative paths it describes. */
+export interface GitStateEntry {
+  record: string;
+  workingFile: Record<string, string> | null;
+  /** Root-relative current path, then the original path of a rename. Not part of the hash. */
+  paths: string[];
+}
+
+/** The seal's working-diff hash over a set of entries, independent of their order. */
+export function hashGitStateEntries(entries: readonly GitStateEntry[]): Sha256Hash {
+  const sealed = entries
+    .map(({ record, workingFile }) => ({ record, workingFile }))
+    .sort((a, b) => compareIds(a.record, b.record));
+  return hash("working-diff", serializeControlReport({ entries: sealed }));
+}
+
+/**
+ * The entries `captureGitState` hashes. `entries` is null outside a Git repository. Exposed so a
+ * reader holding only an indexed hash can test which local changes already existed at indexing.
+ */
+export function captureGitStateEntries(root: string): { headCommit: string | null; entries: GitStateEntry[] | null } {
   const repositoryRoot = canonicalRepositoryRoot(root);
   const gitRoot = findGitWorktreeRoot(repositoryRoot);
   const args = ["--no-optional-locks", "status", "--porcelain=v2", "--branch", "-z", "--untracked-files=all", "--ignore-submodules=none", "--", "."];
   const status = git(root, args);
   if (status.code !== 0) {
     if (gitRoot === null && /not a git repository/i.test(status.stderr)) {
-      return { headCommit: null, workingDiffHash: null };
+      return { headCommit: null, entries: null };
     }
     throw new SemctxError("GIT_ERROR", "cannot capture control freshness: read Git status", {
       command: ["git", ...args],
@@ -399,7 +425,7 @@ export function captureGitState(root: string): GitStateCapture {
     throw new SemctxError("GIT_ERROR", "Git status reported an invalid HEAD object id", { oid });
   }
 
-  const entries: Array<{ record: string; workingFile: Record<string, string> | null }> = [];
+  const entries: GitStateEntry[] = [];
   for (let index = 0; index < parts.length;) {
     const part = parts[index]!;
     if (part.startsWith("# ")) {
@@ -424,14 +450,12 @@ export function captureGitState(root: string): GitStateCapture {
       workingFile: parsed.entry.worktreeChanged
         ? workingFileState(currentPath, parsed.entry.untracked)
         : null,
+      paths: [currentPath.repositoryRelative, ...(originalPath === undefined ? [] : [originalPath.repositoryRelative])],
     });
     index += parsed.consumed;
   }
   entries.sort((a, b) => compareIds(a.record, b.record));
-  return {
-    headCommit,
-    workingDiffHash: hash("working-diff", serializeControlReport({ entries })),
-  };
+  return { headCommit, entries };
 }
 
 export function parseIndexedControlSnapshot(value: string | undefined): IndexedControlSnapshot | null {

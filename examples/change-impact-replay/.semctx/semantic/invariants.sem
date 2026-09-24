@@ -1,0 +1,18 @@
+# Authored invariants for the replay fixture (Plane B).
+
+invariant invariant.replay.analysis-only
+  rule: Replay canonicalization is consumed by analysis tools only, never by the live client.
+  link: inv:replay-never-feeds-live
+  tag: critical
+
+invariant invariant.live.pins-authoritative
+  rule: The live client never acts on a message name absent from the pinned build.
+  link: inv:live-pins-are-authoritative
+  tag: critical
+
+invariant invariant.protocol.module-reviewed
+  rule: Any edit of the protocol pin module is reviewed by the protocol owner.
+  file: packages/protocol/src/pins.ts
+
+invariant invariant.decision.deterministic
+  rule: Decision scoring is deterministic for identical inputs.
