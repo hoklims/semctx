@@ -129,11 +129,34 @@ describe("outlineModuleLinks", () => {
     expect(outlineModuleLinks(text, "src/index.ts")).toEqual([
       { kind: "import", specifier: "./a", line: 1 },
       { kind: "reexport", specifier: "./b", line: 2 },
-      { kind: "reexport", specifier: "@demo/pkg", line: 3 },
-      { kind: "dynamic_import", specifier: "./lazy", line: 5 },
-      { kind: "dynamic_import", specifier: null, line: 6 },
-      { kind: "require", specifier: "./legacy", line: 7 },
-      { kind: "require", specifier: "./cjs", line: 8 },
+      { kind: "reexport", specifier: "@demo/pkg", line: 3, whole: true },
+      { kind: "dynamic_import", specifier: "./lazy", line: 5, whole: true },
+      { kind: "dynamic_import", specifier: null, line: 6, whole: true },
+      { kind: "require", specifier: "./legacy", line: 7, whole: true },
+      { kind: "require", specifier: "./cjs", line: 8, whole: true },
+    ]);
+  });
+
+  it("marks the links that read a module whole, and only those", () => {
+    const text = [
+      'import * as ns from "./ns";',
+      'import def, * as both from "./both";',
+      'import type * as types from "./types";',
+      'import def2, { named } from "./named";',
+      'export * as all from "./all";',
+      'export type * from "./typed";',
+      'export type { T } from "./t";',
+      'import type legacy = require("./legacy-types");',
+    ].join("\n");
+    expect(outlineModuleLinks(text, "src/index.ts").map((link) => [link.specifier, link.whole === true])).toEqual([
+      ["./ns", true],
+      ["./both", true],
+      ["./types", false],
+      ["./named", false],
+      ["./all", true],
+      ["./typed", false],
+      ["./t", false],
+      ["./legacy-types", false],
     ]);
   });
 });

@@ -119,6 +119,7 @@ function run(diffText: string, overrides: Partial<ComputeChangeImpactArgs> = {})
     isPathSelected: () => true,
     hasCallEdges: () => true,
     moduleLinks: [],
+    wholeModuleReads: [],
     ...overrides,
   });
 }
@@ -289,5 +290,46 @@ describe("computeChangeImpact — module links the index holds no edge for", () 
       moduleLinks: [link],
     });
     expect(resolved.possiblyAffected.find((target) => target.id === LIB)).toMatchObject({ reason: "IMPORTS_FILE_OF_CHANGED_DECLARATION" });
+  });
+});
+
+describe("computeChangeImpact — an export added to a module read whole", () => {
+  // `export function Z` appended to src/a.ts (new side, line 13) after a blank line.
+  const APPEND_Z = "diff --git a/src/a.ts b/src/a.ts\n--- a/src/a.ts\n+++ b/src/a.ts\n@@ -11,0 +12,2 @@\n+\n+export function Z(): number { return 0; }\n";
+  const OUTLINE_A_WITH_Z: ImpactFileOutline = {
+    ...OUTLINE_A,
+    statements: [
+      ...OUTLINE_A.statements,
+      { kind: "function", startLine: 13, endLine: 13, leadingStartLine: 13, declaredNames: ["Z"], referencedNames: ["number"], executesOnLoad: false },
+    ],
+    exportedNames: ["F", "H", "Z"],
+  };
+  const appendZ = (overrides: Partial<ComputeChangeImpactArgs> = {}): ChangeImpactCore =>
+    run(APPEND_Z, { outlines: { bound: new Map([["src/a.ts", OUTLINE_A]]), other: new Map([["src/a.ts", OUTLINE_A_WITH_Z]]) }, ...overrides });
+  // The blank line before the export is a `trivia` unit.
+  const added = (core: ChangeImpactCore) => core.units.filter((unit) => unit.kind !== "trivia").map((unit) => [unit.kind, unit.names, unit.behavioral]);
+
+  it("stays inert when no module reads the file whole", () => {
+    const core = appendZ();
+    expect(added(core)).toEqual([["added_declaration", ["Z"], false]]);
+    expect(ids(core.possiblyAffected)).toEqual([]);
+  });
+
+  it("lists the file's importers when a module reads it whole", () => {
+    const core = appendZ({ wholeModuleReads: [{ from: "src/c.ts", kind: "import", line: 1, target: { path: "src/a.ts" } }] });
+    expect(added(core)).toEqual([["added_declaration", ["Z"], true]]);
+    expect(ids(core.possiblyAffected)).toEqual([MOD_B, MOD_C]);
+    expect(core.possiblyAffected.every((target) => target.reason === "IMPORTS_FILE_OF_CHANGED_DECLARATION")).toBe(true);
+    expect(codes(core)).toContain("REVERSE_REACH_NOT_MODELED");
+  });
+
+  it("takes a workspace package read whole to read every file of the package", () => {
+    const core = appendZ({ wholeModuleReads: [{ from: "lib/x.ts", kind: "dynamic_import", line: 2, target: { package: "@demo/src" } }] });
+    expect(added(core)).toEqual([["added_declaration", ["Z"], true]]);
+  });
+
+  it("takes any module to be read whole when module links were not scanned", () => {
+    const core = appendZ({ wholeModuleReads: undefined });
+    expect(added(core)).toEqual([["added_declaration", ["Z"], true]]);
   });
 });

@@ -218,6 +218,20 @@ const FILES: Record<string, string> = {
     "}",
     "",
   ].join("\n"),
+  "src/lib/handlers.ts": [
+    "export function greet(): string {",
+    '  return "hi";',
+    "}",
+    "",
+  ].join("\n"),
+  "src/lib/commands.ts": [
+    'import * as handlers from "./handlers";',
+    "",
+    "export function commandNames(): string[] {",
+    "  return Object.keys(handlers);",
+    "}",
+    "",
+  ].join("\n"),
   "src/lib/pa.ts": ["export const PA = 1;", ""].join("\n"),
   "src/lib/pb.ts": ["export const PB = 2;", ""].join("\n"),
   "src/lib/pbarrel.ts": ['export * from "./pa";', ""].join("\n"),
@@ -380,6 +394,19 @@ describe("edits that must not read as inert", () => {
     expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
   });
 
+  it("an export added to a module read through `import * as` changes what its reader sees", () => {
+    const report = analyse(() => edit("src/lib/handlers.ts", '  return "hi";\n}\n', '  return "hi";\n}\n\nexport function wipe(): string {\n  return "rm";\n}\n'));
+    expect(report.changes.units!.find((unit) => unit.kind === "added_declaration")).toMatchObject({ names: ["wipe"], behavioral: true });
+    expect(report.possiblyAffected!.find((target) => target.id === "mod:src/lib/commands.ts")?.reason).toBe("IMPORTS_FILE_OF_CHANGED_DECLARATION");
+  });
+
+  it("an export added to a module re-exported by `export *` reaches the barrel and its importers", () => {
+    const report = analyse(() => edit("src/lib/pa.ts", "export const PA = 1;\n", "export const PA = 1;\nexport const PC = 3;\n"));
+    expect(report.changes.units!.find((unit) => unit.kind === "added_declaration")).toMatchObject({ names: ["PC"], behavioral: true });
+    expect(report.possiblyAffected!.find((target) => target.id === "mod:src/lib/pbarrel.ts")?.reason).toBe("REEXPORTS_CHANGED_FILE");
+    expect(report.possiblyAffected!.find((target) => target.id === "mod:src/app/pmain.ts")?.reason).toBe("IMPORTS_REEXPORTER_OF_CHANGED_FILE");
+  });
+
   it("deleting an empty imported module reaches its importers", () => {
     const report = analyse(() => unlinkSync(join(root, "src/lib/polyfill.ts")));
     expect(report.changes.files).toContainEqual({ path: "src/lib/polyfill.ts", status: "deleted", hunks: 0 });
@@ -514,6 +541,18 @@ describe("edits that must not read as broader than they are", () => {
 
   it("an added declaration no existing code reads stays inert", () => {
     const report = analyse(() => edit("src/lib/net.ts", "  return fetch(url + other());\n}\n", "  return fetch(url + other());\n}\n\nfunction retry(url: string): Promise<unknown> {\n  return load(url);\n}\n"));
+    expect(report.changes.units!.every((unit) => !unit.behavioral)).toBe(true);
+    expect(reached(report)).toEqual([]);
+  });
+
+  it("an export added to a module imported only by name stays inert", () => {
+    const report = analyse(() => edit("src/lib/registry.ts", "export function register(): void {}\n", "export function register(): void {}\n\nexport function unregister(): void {}\n"));
+    expect(report.changes.units!.every((unit) => !unit.behavioral)).toBe(true);
+    expect(reached(report)).toEqual([]);
+  });
+
+  it("a type exported from a module read whole stays inert", () => {
+    const report = analyse(() => edit("src/lib/handlers.ts", '  return "hi";\n}\n', '  return "hi";\n}\n\nexport interface Handler {\n  name: string;\n}\n'));
     expect(report.changes.units!.every((unit) => !unit.behavioral)).toBe(true);
     expect(reached(report)).toEqual([]);
   });

@@ -81,12 +81,20 @@ only and never summarized into a scope.
   reach beyond them is a `REVERSE_REACH_NOT_MODELED` gap (`cause=module_initialization`). Parameter
   decorators and top-level `using` count as running on load.
 - **Added code** is inert (`behavioral: false`) only when it runs nothing on load, merges with no
-  existing declaration, binds no name that existing code in the file reads as a global, and
-  cannot shadow a name re-exported by `export *`. A declaration or import binding that appears or
-  disappears under a name existing code reads as a global changes what that code reads: the
-  reading statements are affected (`REFERENCES_CHANGED_DECLARATION`). A new import of a
-  module the file did not load before runs that module's top-level code. An edit that extends an
-  existing statement (a decorator, a continuation line) is an edit of that statement.
+  existing declaration, binds no name that existing code in the file reads as a global, cannot
+  shadow a name re-exported by `export *`, and exports no value from a module another module reads
+  whole. A declaration or import binding that appears or disappears under a name existing code
+  reads as a global changes what that code reads: the reading statements are affected
+  (`REFERENCES_CHANGED_DECLARATION`). A module read whole — through a namespace import
+  (`import * as`), a star re-export (`export *`, `export * as`), `import()` or `require()` — shows
+  its readers a new value export (`Object.keys(ns)`, `ns[name]`) although none names it: the
+  export's file importers are listed (`IMPORTS_FILE_OF_CHANGED_DECLARATION`) with a
+  `REVERSE_REACH_NOT_MODELED` gap. An `interface` or `type` export is seen by no reader at run
+  time. A workspace package read whole counts for every file of the package, since semctx does not
+  resolve what its entry exposes; when module links could not be read, any module may be read
+  whole. A new import of a module the file did not load before runs that module's top-level code.
+  An edit that extends an existing statement (a decorator, a continuation line) is an edit of that
+  statement.
 - **Imports.** Editing an import changes only the bindings it no longer holds or now takes from
   elsewhere; bindings it adds are `added_declaration` and change nothing indexed, unless existing
   code reads their name as a global. Whether a file
@@ -184,7 +192,7 @@ joined on their new side, the others on their committed side (`rangeSide: "mixed
 | `FUNCTION_VALUES_NOT_FOLLOWED` | a function used as a value is covered only through the changed file's importers |
 | `TEST_LINK_IS_IMPORT_BY_NAME` | a test is linked because it names a symbol, not because it exercises the change |
 | `CROSS_FILE_READS_ARE_FILE_LEVEL` | reads of exported values across files are visible only as file imports |
-| `MODULE_LINKS_BY_LITERAL_PATH` | re-exports and dynamic loads are followed for relative paths and workspace package names |
+| `MODULE_LINKS_BY_LITERAL_PATH` | re-exports, namespace imports and dynamic loads are followed for relative paths and workspace package names |
 
 `confidence.reasons`: `STATIC_REACH_CEILING` (level `moderate`: the ceiling for static reach),
 `INDEX_BINDING_BROKEN` (level `none`), or the codes of the gaps that affect the reach (level `low`).
