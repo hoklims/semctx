@@ -122,15 +122,17 @@ bound), and non-TypeScript call reach (Python reports `language_has_no_call_edge
   `examples/change-impact-replay`: local replay change with package-scope blast radius and the live
   path only possible; private constant; comment-only; barrel consumer; staged, range, dirty-index
   (new side), per-file mixed binding; staged and range breaks over an index that read uncommitted
-  files or missed a committed one; a new-side file taking over a module; untracked files, proven
+  files or missed a committed one; a new-side file taking over a module; a range removing a local
+  declaration or an import binding whose readers fall back to a global; untracked files, proven
   unchanged or not; broken binding nulls; no proof vocabulary.
 - `packages/app-services/test/change-impact-classification.test.ts` — one witness per way an edit
   could be misread as inert (uncommented call, blank line replaced by code, `export default`
   local, continuation line, decorator, load-time initializer, explicit re-export next to
   `export *`, deleted empty module, shadowing file, flipped operator, `export type`, a comment
   paired with code, `import type` becoming a value import, reordered imports, parameter
-  decorator, directive comments, marker lines inserted or nested) or as broader than it is
-  (comment and formatting edits, prose next to a marker, added import binding, private nested
+  decorator, directive comments, marker lines inserted or nested, a declaration or import binding
+  shadowing a global the file reads) or as broader than it is (comment and formatting edits, prose
+  next to a marker, added import binding, an added declaration nothing reads, private nested
   symbol); each asserts that every `via` chain starts at the change and is as long as its
   distance.
 - `packages/ts-analyzer/test/top-level-outline.test.ts` — the token digest (operators, keywords,

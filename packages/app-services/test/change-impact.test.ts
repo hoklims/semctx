@@ -209,6 +209,36 @@ describe("runChangeImpact — sources and index coordinates", () => {
     expect(tierIds(report.directlyAffected)).toContain("sym:function:packages/protocol/scripts/replay-fight.ts:replayFight");
   });
 
+  it("follows the readers of a local declaration a range removes when they fall back to a global", () => {
+    const net = "packages/protocol/src/net.ts";
+    const local = "function fetch(url: string): Promise<unknown> {\n  return Promise.resolve(url);\n}\n";
+    const root = repository({ [net]: `export function load(url: string): Promise<unknown> {\n  return fetch(url);\n}\n${local}` });
+    git(root, "checkout", "-q", "-b", "change");
+    replace(root, net, local, "");
+    git(root, "commit", "-q", "-am", "drop the local fetch");
+    indexRepository(root, "2026-09-01T10:05:00.000Z");
+    const report = analyse(root, { kind: "range", base: "main" });
+    expect(report.analysis.binding).toMatchObject({ status: "bound", rangeSide: "new" });
+    expect(report.changes.units!.find((unit) => unit.kind === "removed_declaration")).toMatchObject({ names: ["fetch"], behavioral: true });
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:packages/protocol/src/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+  });
+
+  it("follows the readers of an import binding a range removes when they fall back to a global", () => {
+    const net = "packages/protocol/src/net.ts";
+    const root = repository({
+      "packages/protocol/src/fetch-source.ts": 'export function other(): string {\n  return "";\n}\n\nexport function fetch(url: string): Promise<unknown> {\n  return Promise.reject(new Error(url));\n}\n',
+      [net]: 'import { other, fetch } from "./fetch-source";\n\nexport function load(url: string): Promise<unknown> {\n  return fetch(url + other());\n}\n',
+    });
+    git(root, "checkout", "-q", "-b", "change");
+    replace(root, net, "import { other, fetch }", "import { other }");
+    git(root, "commit", "-q", "-am", "drop the imported fetch");
+    indexRepository(root, "2026-09-01T10:05:00.000Z");
+    const report = analyse(root, { kind: "range", base: "main" });
+    expect(report.analysis.binding).toMatchObject({ status: "bound", rangeSide: "new" });
+    expect(report.changes.units!.find((unit) => unit.kind === "removed_declaration")).toMatchObject({ names: ["fetch"], behavioral: true });
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:packages/protocol/src/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+  });
+
   it("binds a working-tree diff on the new side of an index built on that dirty tree, and only while it is unchanged", () => {
     const root = repository();
     replace(root, PINS, ...EDIT_CANONICAL);

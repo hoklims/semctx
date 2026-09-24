@@ -192,6 +192,32 @@ const FILES: Record<string, string> = {
   "src/lib/b-effect.ts": ['console.log("b");', "export const b = 2;", ""].join("\n"),
   "src/lib/order.ts": ['import { a } from "./a-effect";', 'import { b } from "./b-effect";', "", "export const sum = a + b;", ""].join("\n"),
   "src/app/use-order.ts": ['import { sum } from "../lib/order";', "", "export const total2 = sum;", ""].join("\n"),
+  "src/lib/fetch-source.ts": [
+    "export function other(): string {",
+    '  return "";',
+    "}",
+    "",
+    "export function fetch(url: string): Promise<unknown> {",
+    "  return Promise.reject(new Error(url));",
+    "}",
+    "",
+  ].join("\n"),
+  "src/lib/net.ts": [
+    'import { other } from "./fetch-source";',
+    "",
+    "export function load(url: string): Promise<unknown> {",
+    "  return fetch(url + other());",
+    "}",
+    "",
+  ].join("\n"),
+  "src/app/start.ts": [
+    'import { load } from "../lib/net";',
+    "",
+    "export function start(): Promise<unknown> {",
+    '  return load("https://example.test");',
+    "}",
+    "",
+  ].join("\n"),
   "src/lib/pa.ts": ["export const PA = 1;", ""].join("\n"),
   "src/lib/pb.ts": ["export const PB = 2;", ""].join("\n"),
   "src/lib/pbarrel.ts": ['export * from "./pa";', ""].join("\n"),
@@ -334,6 +360,26 @@ describe("edits that must not read as inert", () => {
     expect(ids(report.possiblyAffected)).toContain("mod:src/app/pricing.ts");
   });
 
+  it("an added declaration that shadows a global existing code reads changes that code", () => {
+    const report = analyse(() => edit("src/lib/net.ts", "  return fetch(url + other());\n}\n", "  return fetch(url + other());\n}\n\nfunction fetch(url: string): Promise<unknown> {\n  return Promise.resolve(url);\n}\n"));
+    expect(report.changes.units!.find((unit) => unit.kind === "added_declaration")).toMatchObject({ names: ["fetch"], behavioral: true });
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+    expect(ids(report.transitivelyAffected)).toContain("sym:function:src/app/start.ts:start");
+  });
+
+  it("a binding added to an already-loaded import can shadow a global existing code reads", () => {
+    const report = analyse(() => edit("src/lib/net.ts", 'import { other } from "./fetch-source";', 'import { other, fetch } from "./fetch-source";'));
+    expect(report.changes.units!.find((unit) => unit.kind === "added_declaration")).toMatchObject({ names: ["fetch"], behavioral: true });
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+  });
+
+  it("a whole import added for an already-loaded module can shadow a global existing code reads", () => {
+    const report = analyse(() => edit("src/lib/net.ts", 'import { other } from "./fetch-source";\n', 'import { other } from "./fetch-source";\nimport { fetch } from "./fetch-source";\n'));
+    // The module was already loaded: the rebinding alone makes the new import behavioural.
+    expect(report.changes.units!.map((unit) => [unit.kind, unit.names, unit.behavioral, unit.runsOnLoad])).toEqual([["added_declaration", ["fetch"], true, undefined]]);
+    expect(report.directlyAffected!.find((target) => target.id === "sym:function:src/lib/net.ts:load")?.reason).toBe("REFERENCES_CHANGED_DECLARATION");
+  });
+
   it("deleting an empty imported module reaches its importers", () => {
     const report = analyse(() => unlinkSync(join(root, "src/lib/polyfill.ts")));
     expect(report.changes.files).toContainEqual({ path: "src/lib/polyfill.ts", status: "deleted", hunks: 0 });
@@ -463,6 +509,12 @@ describe("edits that must not read as broader than they are", () => {
   it("adding a binding to an import does not change the existing ones", () => {
     const report = analyse(() => edit("src/app/main.ts", 'import { ping } from "../lib/boot";', 'import { ping, PING_ID } from "../lib/boot";'));
     expect(report.changes.units!.map((unit) => [unit.kind, unit.names, unit.behavioral])).toEqual([["added_declaration", ["PING_ID"], false]]);
+    expect(reached(report)).toEqual([]);
+  });
+
+  it("an added declaration no existing code reads stays inert", () => {
+    const report = analyse(() => edit("src/lib/net.ts", "  return fetch(url + other());\n}\n", "  return fetch(url + other());\n}\n\nfunction retry(url: string): Promise<unknown> {\n  return load(url);\n}\n"));
+    expect(report.changes.units!.every((unit) => !unit.behavioral)).toBe(true);
     expect(reached(report)).toEqual([]);
   });
 
