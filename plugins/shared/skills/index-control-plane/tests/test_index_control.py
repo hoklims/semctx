@@ -10,7 +10,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import tomllib
 import unittest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -1532,6 +1531,8 @@ class AdapterTests(unittest.TestCase):
         self.assertIn("$routing = Get-IndexControlRouting $cwd", user_prompt_submit)
 
     def test_codex_lifecycle_adapter_hooks_preserve_shared_console_and_are_trusted(self) -> None:
+        import tomllib
+
         hooks_path = Path(r"C:\Users\Hokli\.codex\hooks.json")
         config_path = Path(r"C:\Users\Hokli\.codex\config.toml")
         hooks_config = json.loads(hooks_path.read_text(encoding="utf-8"))
@@ -1586,6 +1587,8 @@ class AdapterTests(unittest.TestCase):
             self.assertIn("C:/Python314/pythonw.exe", hook.read_text(encoding="utf-8"), hook)
 
     def test_codex_stop_hook_is_registered_and_trusted(self) -> None:
+        import tomllib
+
         hooks_path = Path(r"C:\Users\Hokli\.codex\hooks.json")
         config_path = Path(r"C:\Users\Hokli\.codex\config.toml")
         hooks_config = json.loads(hooks_path.read_text(encoding="utf-8"))

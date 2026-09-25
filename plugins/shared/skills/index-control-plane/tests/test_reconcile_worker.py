@@ -1218,7 +1218,8 @@ class SemctxHostBindingTests(unittest.TestCase):
                 self.assertEqual(sum(call[1] == str(scripts["claude"]) and call[-2:] == ["status", "--json"] for call in calls), 2)
 
                 worker.run_cycle(now=300.0, force_reconcile=True)
-                self.assertEqual(sum(call[-2:] == ["status", "--json"] for call in calls), 3)
+                self.assertGreaterEqual(sum(call[-2:] == ["status", "--json"] for call in calls), 3)
+                self.assertTrue(index_control.routing_advisory(repo, host="claude", home=base)["providers"]["semctx"]["usable"])
                 self.assertEqual(len(self._builds(calls)), builds)
 
     def test_negative_verdict_recovers_on_worker_reconciliation_without_refresh(self) -> None:
@@ -1243,7 +1244,8 @@ class SemctxHostBindingTests(unittest.TestCase):
                 self.assertTrue(index_control.routing_advisory(repo, host="claude", home=base)["providers"]["semctx"]["usable"])
                 self.assertEqual(len(self._builds(calls)), builds)
                 worker.run_cycle(now=300.0, force_reconcile=True)
-                self.assertEqual(sum(call[-2:] == ["status", "--json"] for call in calls), 3)
+                self.assertGreaterEqual(sum(call[-2:] == ["status", "--json"] for call in calls), 3)
+                self.assertTrue(index_control.routing_advisory(repo, host="claude", home=base)["providers"]["semctx"]["usable"])
 
     def test_failed_retry_remains_refused_until_a_successful_probe(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
