@@ -310,6 +310,7 @@ describe("release governance", () => {
     const verify = job(releaseWorkflow, "verify");
     const publish = job(releaseWorkflow, "publish");
     const registryReady = job(releaseWorkflow, "registry-ready");
+    const deliver = job(releaseWorkflow, "deliver");
     const promote = job(releaseWorkflow, "promote");
 
     expect(releaseWorkflow.permissions).toEqual({});
@@ -317,10 +318,12 @@ describe("release governance", () => {
     expect(publish.permissions).toEqual({ "id-token": "write" });
     expect(registryReady.permissions).toEqual({});
     expect(registryReady.needs).toBe("publish");
+    expect(deliver.permissions).toEqual({ contents: "read" });
+    expect(deliver.needs).toBe("registry-ready");
     expect(promote.permissions).toEqual({ contents: "write" });
     expect(publish.environment).toBe("npm");
     expect(publish.needs).toBe("verify");
-    expect(promote.needs).toBe("registry-ready");
+    expect(promote.needs).toBe("deliver");
     expect(verify["timeout-minutes"]).toBe(30);
     expect(publish["timeout-minutes"]).toBe(10);
     expect(promote["timeout-minutes"]).toBe(10);
@@ -355,10 +358,10 @@ describe("release governance", () => {
     );
     expect(verifierBindingProblems(
       release,
-      "Prove both hosts can install the promoted release",
+      "Prove both hosts can install the immutable release candidate",
     )).toEqual([]);
     const prove = deliver.steps.find(
-      (step) => step.name === "Prove both hosts can install the promoted release",
+      (step) => step.name === "Prove both hosts can install the immutable release candidate",
     );
     expect(executableShell(prove?.run ?? "")).toContain('test "$verifier_sha" = "$GITHUB_SHA"');
     expect(publishing).toContain("repository-pinned Bun `1.4.0`");
@@ -409,7 +412,7 @@ describe("release governance", () => {
       "fetch-depth": 1,
       "persist-credentials": false,
     });
-    const releaseStep = promote.steps.find((step) => step.name === "Create the GitHub Release after npm is public");
+    const releaseStep = promote.steps.find((step) => step.name === "Create the GitHub Release after candidate delivery is proven");
     expect(releaseStep?.run).toContain('notes_file="docs/releases/v$version.md"');
     expect(releaseStep?.run).toContain('test -s "$notes_file"');
     expect(releaseStep?.run).toContain('--verify-tag --notes-file "$notes_file"');
