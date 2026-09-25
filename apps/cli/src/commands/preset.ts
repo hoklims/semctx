@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
 import { assertUnlinkedBelow, assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
@@ -116,6 +116,21 @@ export interface PresetPlan {
 
 const AVAILABLE_PRESETS = ["github-claude"] as const;
 
+function assertPresetTargetType(path: string): void {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new SemctxError("CONFIG_INVALID", "preset target could not be inspected", { path, cause: String(error) });
+  }
+  // Existing links remain skippable without --force. Forced writes are rejected by
+  // assertUnlinkedBelow, which is the writer's destination + ancestor policy.
+  if (!stat.isSymbolicLink() && !stat.isFile()) {
+    throw new SemctxError("CONFIG_INVALID", "preset targets must be regular files", { path });
+  }
+}
+
 /** Validate a preset name without planning or writing repository files. */
 export function validatePreset(preset: string): void {
   if (!AVAILABLE_PRESETS.includes(preset as (typeof AVAILABLE_PRESETS)[number])) {
@@ -143,6 +158,7 @@ export function planPreset(
     if (file.path.startsWith(".semctx/") && isLinkedEntry(abs)) {
       throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
     }
+    assertPresetTargetType(abs);
     const exists = existsSync(abs);
     const action = !exists ? "create" as const : force ? "overwrite" as const : "skip-exists" as const;
     // Exercise the writer's complete destination + ancestor link guard before any preset write.

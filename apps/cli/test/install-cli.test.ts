@@ -1493,8 +1493,8 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
       repositoryRoot: "C:\\work\\project",
       conflict: {
         code: "CONFIG_INVALID",
-        message: "config.json is not valid JSON",
-        details: { path: "C:\\work\\project\\.semctx\\config.json" },
+        message: "repository store files must be regular files",
+        details: { path: "C:\\work\\project\\.semctx\\semctx.db" },
       },
       plannedChanges: [],
       index: { status: "not-run", reason: "workspace-conflict" },
@@ -1512,7 +1512,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
 
     expect(report.ok).toBe(false);
     expect(report.workspace.status).toBe("failed");
-    expect(report.workspace.error).toBe("config.json is not valid JSON");
+    expect(report.workspace.error).toBe("repository store files must be regular files");
     expect(report.workspace.report).toEqual(conflictReport);
     expect(runtime.commands).toEqual([["git", "rev-parse", "--show-toplevel"]]);
     expect(runtime.setupRoots).toEqual([]);

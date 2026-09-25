@@ -12,7 +12,7 @@
  * `!.semctx/config.json`. This helper migrates a bare `.semctx/` line and is idempotent.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { SemctxError } from "@semantic-context/core";
 import { isLinkedEntry, writeFileNoFollow } from "@semantic-context/repository-store";
 import { join } from "node:path";
@@ -132,7 +132,23 @@ export function ensureSemanticGitignore(root: string, dryRun = false): Gitignore
   // the link points, so it is refused before anything is read.
   if (isLinkedEntry(path)) throw new SemctxError("CONFIG_INVALID", "a linked .gitignore is unsupported", { path });
   const existed = existsSync(path);
-  const existing = existed ? readFileSync(path, "utf8") : undefined;
+  let existing: string | undefined;
+  if (existed) {
+    let stat;
+    try {
+      stat = lstatSync(path);
+    } catch (cause) {
+      throw new SemctxError("CONFIG_INVALID", ".gitignore could not be inspected", { path, cause: String(cause) });
+    }
+    if (!stat.isFile()) {
+      throw new SemctxError("CONFIG_INVALID", ".gitignore must be a regular file", { path });
+    }
+    try {
+      existing = readFileSync(path, "utf8");
+    } catch (cause) {
+      throw new SemctxError("CONFIG_INVALID", ".gitignore could not be read", { path, cause: String(cause) });
+    }
+  }
   const { content, changed } = computeGitignore(existing);
   const action: GitignoreResult["action"] = !existed ? "create" : changed ? "update" : "present";
   if (!dryRun && action !== "present") writeFileNoFollow(root, path, content);

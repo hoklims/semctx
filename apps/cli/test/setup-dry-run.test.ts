@@ -116,6 +116,39 @@ describe("semctx setup --dry-run --json", () => {
     expect(existsSync(join(outside, "semctx.yml"))).toBe(false);
   });
 
+  test("real forced preset validates every target type before writing the earlier target", () => {
+    const root = freshRoot();
+    mkdirSync(join(root, ".claude", "semctx.md"), { recursive: true });
+    const result = run(root, ["--preset", "github-claude", "--force"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      preset: "github-claude",
+      conflict: { code: "CONFIG_INVALID", details: { path: join(root, ".claude", "semctx.md") } },
+    });
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+  });
+
+  test("directory .gitignore is normalized into a structured setup conflict", () => {
+    const root = freshRoot();
+    mkdirSync(join(root, ".gitignore"));
+    const result = run(root);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      conflict: {
+        code: "CONFIG_INVALID",
+        message: ".gitignore must be a regular file",
+        details: { path: join(root, ".gitignore") },
+      },
+    });
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+  });
+
   test("rejects a linked preset ancestor before any workspace or outside write", () => {
     const root = freshRoot();
     const outside = freshRoot();
