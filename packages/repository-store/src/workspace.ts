@@ -52,6 +52,23 @@ function assertNotLinked(path: string): void {
   }
 }
 
+function assertWorkspaceEntryType(path: string, expected: "file" | "directory"): void {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new SemctxError("CONFIG_INVALID", "workspace entry could not be inspected", { path, cause: String(error) });
+  }
+  if (stat.isSymbolicLink()) {
+    throw new SemctxError("CONFIG_INVALID", "linked .semctx entries are unsupported", { path });
+  }
+  const valid = expected === "file" ? stat.isFile() : stat.isDirectory();
+  if (!valid) {
+    throw new SemctxError("CONFIG_INVALID", `workspace entry must be a ${expected}`, { path, expected });
+  }
+}
+
 /**
  * Refuse a link at `path` or at any entry between `root` (exclusive) and `path`. `lstat` only
  * reports the last component, so a linked ancestor would otherwise carry every open below it
@@ -116,8 +133,10 @@ export function writeFileNoFollow(
  * checked where the database is opened (`assertUnlinkedDatabase`).
  */
 export function assertUnlinkedWorkspace(root: string): void {
-  for (const path of [semctxDir(root), contextPacksDir(root), configPath(root), dbPath(root), verificationStatePath(root)]) {
-    assertNotLinked(path);
+  assertWorkspaceEntryType(semctxDir(root), "directory");
+  assertWorkspaceEntryType(contextPacksDir(root), "directory");
+  for (const path of [configPath(root), dbPath(root), verificationStatePath(root)]) {
+    assertWorkspaceEntryType(path, "file");
   }
 }
 

@@ -7,6 +7,7 @@ import {
   readFileSync,
   rmSync,
   writeFileSync,
+  symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,6 +21,7 @@ import {
   buildPolyglotRequiresConfigV2Report,
   computeSetupReadiness,
   evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   type SetupPhaseEvent,
   type SetupRepositoryReport,
@@ -129,6 +131,61 @@ describe("setupRepository (shared SSoT)", () => {
       "check",
       "analysis",
     ]);
+  });
+
+  it("plans a fresh setup without writing or indexing", () => {
+    root = freshSample();
+    const before = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: root, stdout: "pipe" });
+    const report = planSetupRepository(root);
+    expect(report.kind).toBe("setup_plan");
+    if (report.kind !== "setup_plan") throw new Error("expected setup plan");
+    expect(report.config.action).toBe("create");
+    expect(report.plannedChanges).toContain(".semctx/config.json");
+    expect(report.index).toEqual({ status: "not-run", reason: "dry-run" });
+    expect(report.analysisReady).toBe("unknown");
+    expect(report.setupReady).toBe("unknown");
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+    const after = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: root, stdout: "pipe" });
+    expect(new TextDecoder().decode(after.stdout)).toBe(new TextDecoder().decode(before.stdout));
+  });
+
+  it("dry plan rejects malformed existing config without changing it", () => {
+    root = freshSample();
+    const currentRoot = root;
+    mkdirSync(join(currentRoot, ".semctx"), { recursive: true });
+    const path = join(currentRoot, ".semctx", "config.json");
+    writeFileSync(path, "{broken", "utf8");
+    expect(() => planSetupRepository(currentRoot)).toThrow("config.json is not valid JSON");
+    expect(readFileSync(path, "utf8")).toBe("{broken");
+    expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
+  });
+
+  it("dry plan rejects authored semantic syntax errors before config, scaffold, or index writes", () => {
+    root = freshSample();
+    const currentRoot = root;
+    mkdirSync(join(currentRoot, ".semctx", "semantic", "changes"), { recursive: true });
+    const authored = join(currentRoot, ".semctx", "semantic", "changes", "custom.sem");
+    writeFileSync(authored, "not-a-semantic-block value\n", "utf8");
+
+    expect(() => planSetupRepository(currentRoot)).toThrow("semantic model contains syntax errors");
+    expect(readFileSync(authored, "utf8")).toBe("not-a-semantic-block value\n");
+    expect(existsSync(join(currentRoot, ".semctx", "config.json"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".semctx", "semantic", "goals.sem"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".gitignore"))).toBe(false);
+  });
+
+  it.each(["-wal", "-shm", "-journal"])("dry plan exercises the SQLite writer sidecar link guard: %s", (suffix) => {
+    root = freshSample();
+    const outside = mkdtempSync(join(tmpdir(), "semctx-setup-sidecar-outside-"));
+    mkdirSync(join(root, ".semctx"), { recursive: true });
+    symlinkSync(outside, join(root, ".semctx", `semctx.db${suffix}`), process.platform === "win32" ? "junction" : "dir");
+    try {
+      expect(() => planSetupRepository(root!)).toThrow("linked repository store files are unsupported");
+      expect(existsSync(join(root, ".gitignore"))).toBe(false);
+    } finally {
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("fail-closes SETUP_READY on unsealed v1 (no version short-circuit)", () => {

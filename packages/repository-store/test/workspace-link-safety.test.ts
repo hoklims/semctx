@@ -139,6 +139,15 @@ describe("workspace refuses a linked .semctx", () => {
     expect(readdirSync(outside)).toEqual([]);
   });
 
+  it.each(["", "-wal", "-shm", "-journal"])("a repository store directory is refused where a regular file is required: %s", (suffix) => {
+    const root = temporary("semctx-workspace-store-directory-");
+    initWorkspace(root);
+    mkdirSync(`${dbPath(root)}${suffix}`);
+
+    expectConfigInvalid(() => openStore(root));
+    expectConfigInvalid(() => SqliteRepositoryReader.openExisting(dbPath(root)));
+  });
+
   fileLinked("a sidecar linked to an outside file is refused by the writer and the reader", () => {
     const root = temporary("semctx-workspace-sidecar-file-");
     const outside = temporary("semctx-workspace-outside-");

@@ -36,6 +36,7 @@ import {
   placeholderProof,
   PLUGIN_RUNTIME_BUNDLES,
   RELEASE_REF,
+  resolveDeliveryReleaseRef,
   PROOF_ENVIRONMENT_ALLOW_LIST,
   proofBelongsToRun,
   proofExitCode,
@@ -275,6 +276,10 @@ describe("stable delivery proof — whole evidence", () => {
 
   test("the channel is its own authority: absent or wrong refs fail closed", () => {
     expect(RELEASE_REF).toBe("stable");
+    expect(resolveDeliveryReleaseRef(undefined)).toBe("stable");
+    expect(resolveDeliveryReleaseRef("v0.3.4")).toBe("v0.3.4");
+    expect(() => resolveDeliveryReleaseRef("main")).toThrow("stable or an immutable");
+    expect(() => resolveDeliveryReleaseRef("v01.2.3")).toThrow("stable or an immutable");
     const missing = proveWith({ codex: { marketplaceRef: null } });
     expect(missing.ok).toBe(false);
     expect(missing.hosts.codex.reasons).toContain("MARKETPLACE_REF_UNKNOWN");

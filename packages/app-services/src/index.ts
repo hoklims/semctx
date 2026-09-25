@@ -15,6 +15,7 @@ export {
   buildPolyglotRequiresConfigV2Report,
   computeSetupReadiness,
   evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   setupRepositoryAsync,
 } from "./setup";
@@ -22,6 +23,8 @@ export type {
   ComputeSetupReadinessInput,
   EvaluatePolyglotSetupPolicyInput,
   SetupPhaseEvent,
+  SetupPlanReport,
+  SetupPlanResult,
   SetupRefuseReasonCode,
   SetupRefusedReport,
   SetupRepositoryOptions,

@@ -74,7 +74,7 @@ describe("init --preset github-claude", () => {
     // the workflow uses least privilege and the safe trigger
     const wf = readFileSync(join(repo, ".github/workflows/semctx.yml"), "utf8");
     expect(wf).toContain("contents: read");
-    expect(wf).toContain("uses: hoklims/semctx/packages/github-action@v0.3.3");
+    expect(wf).toContain("uses: hoklims/semctx/packages/github-action@v0.3.4");
     expect(wf).not.toContain("pull_request_target");
   });
 
@@ -240,7 +240,7 @@ describe("init --preset refuses a linked .semctx", () => {
     }
   });
 
-  fileLinked("a linked host file outside .semctx is skipped when present and refused only when written", () => {
+  fileLinked("a linked host target is refused before any mixed preset write", () => {
     const { repo, outside } = presetRepository();
     try {
       mkdirSync(join(repo, ".claude"));
@@ -248,8 +248,10 @@ describe("init --preset refuses a linked .semctx", () => {
       symlinkSync(join(outside, "semctx.md"), join(repo, ".claude", "semctx.md"), "file");
 
       const skipped = semctx(["init", "--preset", "github-claude", "--json"], repo);
-      expect(skipped.code).toBe(0);
-      expect(JSON.parse(skipped.out).files).toContainEqual({ path: ".claude/semctx.md", action: "skip-exists" });
+      expect(skipped.code).not.toBe(0);
+      expect(existsSync(join(repo, ".semctx", "config.json"))).toBe(false);
+      expect(existsSync(join(repo, ".github"))).toBe(false);
+      expect(existsSync(join(repo, ".gitignore"))).toBe(false);
 
       const forced = semctx(["init", "--preset", "github-claude", "--force"], repo);
       expect(forced.code).not.toBe(0);

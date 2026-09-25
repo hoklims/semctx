@@ -1,7 +1,7 @@
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
-import { assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
+import { assertUnlinkedBelow, assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -27,7 +27,7 @@ interface RunPresetOptions {
 }
 
 const WORKFLOW = `# semctx PR gate: BLOCK fails the check, WARN does not. Read-only, no secrets.
-# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.3.3.
+# Uses the semctx GitHub Action from hoklims/semctx, pinned at v0.3.4.
 name: Semctx
 
 on:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: hoklims/semctx/packages/github-action@v0.3.3
+      - uses: hoklims/semctx/packages/github-action@v0.3.4
         with:
           base: \${{ github.event.pull_request.base.sha }}
           head: \${{ github.sha }}
@@ -108,13 +108,65 @@ function presetFiles(
 
 type Action = "create" | "skip-exists" | "overwrite";
 
+export interface PresetPlan {
+  preset: string;
+  files: Array<{ path: string; action: Action }>;
+  gitignore: ReturnType<typeof ensureSemanticGitignore>;
+}
+
 const AVAILABLE_PRESETS = ["github-claude"] as const;
+
+function assertPresetTargetType(path: string): void {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new SemctxError("CONFIG_INVALID", "preset target could not be inspected", { path, cause: String(error) });
+  }
+  // Existing links remain skippable without --force. Forced writes are rejected by
+  // assertUnlinkedBelow, which is the writer's destination + ancestor policy.
+  if (!stat.isSymbolicLink() && !stat.isFile()) {
+    throw new SemctxError("CONFIG_INVALID", "preset targets must be regular files", { path });
+  }
+}
 
 /** Validate a preset name without planning or writing repository files. */
 export function validatePreset(preset: string): void {
   if (!AVAILABLE_PRESETS.includes(preset as (typeof AVAILABLE_PRESETS)[number])) {
     throw new SemctxError("UNSUPPORTED", `unknown preset "${preset}" (available: ${AVAILABLE_PRESETS.join(", ")})`, { preset });
   }
+}
+
+/** Read-only preset planner shared by init and setup dry-runs. */
+export function planPreset(
+  root: string,
+  preset: string,
+  args: ParsedArgs,
+  options: RunPresetOptions = {},
+): PresetPlan {
+  validatePreset(preset);
+  assertUnlinkedWorkspace(root);
+  const force = flagBool(args, "force");
+  const opts: PresetOptions = {
+    githubAction: true,
+    claudeCode: true,
+    devcontainer: flagBool(args, "with-devcontainer"),
+  };
+  const files = presetFiles(root, opts, options.includeConfig !== false).map((file) => {
+    const abs = join(root, file.path);
+    if (file.path.startsWith(".semctx/") && isLinkedEntry(abs)) {
+      throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
+    }
+    assertPresetTargetType(abs);
+    const exists = existsSync(abs);
+    const action = !exists ? "create" as const : force ? "overwrite" as const : "skip-exists" as const;
+    // Validate every target before the later write loop. A skipped target under a linked ancestor
+    // is still unsafe in a mixed plan because earlier targets would otherwise be written first.
+    assertUnlinkedBelow(root, abs);
+    return { path: file.path, action };
+  });
+  return { preset, files, gitignore: ensureSemanticGitignore(root, true) };
 }
 
 /** `semctx init --preset <name>` — preview-first bootstrap. Never overwrites without --force. */
@@ -124,9 +176,6 @@ export function runPreset(
   args: ParsedArgs,
   options: RunPresetOptions = {},
 ): number {
-  validatePreset(preset);
-  // `init --preset` returns before `initWorkspace`, so the workspace link check lives here too.
-  assertUnlinkedWorkspace(root);
   const dryRun = flagBool(args, "dry-run");
   const force = flagBool(args, "force");
   // github-claude enables the action + claude config by default; devcontainer is opt-in.
@@ -136,31 +185,26 @@ export function runPreset(
     devcontainer: flagBool(args, "with-devcontainer"),
   };
 
-  const files = presetFiles(root, opts, options.includeConfig !== false);
-  const planned: Array<{ path: string; action: Action }> = files.map((f) => {
-    const abs = join(root, f.path);
-    // A linked `.semctx` target is refused outright rather than reported as "skip-exists"; host
-    // files outside `.semctx` may legitimately be links and are only refused when written.
-    if (f.path.startsWith(".semctx/") && isLinkedEntry(abs)) {
-      throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
+  const plan = planPreset(root, preset, args, options);
+  const contentByPath = new Map(presetFiles(root, opts, options.includeConfig !== false).map((file) => [file.path, file.content]));
+  if (!dryRun) {
+    for (const file of plan.files) {
+      if (file.action === "skip-exists") continue;
+      writeFileNoFollow(root, join(root, file.path), contentByPath.get(file.path)!);
     }
-    const exists = existsSync(abs);
-    const action: Action = !exists ? "create" : force ? "overwrite" : "skip-exists";
-    if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, f.content);
-    return { path: f.path, action };
-  });
+  }
   // Same shareable policy as init/setup: track config.json + semantic/, ignore machine state (#82).
   const gi = ensureSemanticGitignore(root, dryRun);
 
   if (options.emitOutput === false) return 0;
 
   if (flagBool(args, "json")) {
-    json({ preset, dryRun, force, files: planned, gitignore: gi });
+    json({ preset, dryRun, force, files: plan.files, gitignore: gi });
     return 0;
   }
 
   heading(dryRun ? `Preset "${preset}" — preview (dry run, no writes)` : `Preset "${preset}"`);
-  for (const p of planned) {
+  for (const p of plan.files) {
     const mark =
       p.action === "create" ? c.green("create ") : p.action === "overwrite" ? c.yellow("overwrite") : c.dim("skip    ");
     const note = p.action === "skip-exists" ? c.dim("  (exists; pass --force to overwrite)") : "";

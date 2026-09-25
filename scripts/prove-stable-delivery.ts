@@ -154,8 +154,20 @@ export const MARKETPLACE_SOURCE_AUTHORITY: readonly string[] = [
   "https://github.com/hoklims/semctx",
 ];
 
-/** The channel the marketplace must track, from the shared delivery authority. `main` is not one. */
-export const RELEASE_REF = PLUGIN_DELIVERY_RELEASE_REF;
+/**
+ * The marketplace ref under proof. Interactive diagnostics default to the public `stable` channel;
+ * the release workflow injects its immutable annotated tag so both hosts are proven before stable
+ * is exposed. Only those two forms are admitted.
+ */
+export function resolveDeliveryReleaseRef(configured: string | undefined): string {
+  if (configured === undefined) return PLUGIN_DELIVERY_RELEASE_REF;
+  if (configured === PLUGIN_DELIVERY_RELEASE_REF
+    || /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(configured)) {
+    return configured;
+  }
+  throw new Error("SEMCTX_DELIVERY_RELEASE_REF must be stable or an immutable v<semver> tag");
+}
+export const RELEASE_REF = resolveDeliveryReleaseRef(process.env["SEMCTX_DELIVERY_RELEASE_REF"]);
 
 export interface ReleaseIdentity {
   /** The release commit. Every other identity in the proof is compared against it. */
