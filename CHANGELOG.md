@@ -19,6 +19,10 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   frequent there. Every run fails unless its JUnit reports name every test file found on disk
   exactly once, so a file dropped by a worker, a pass or an ignore pattern cannot pass as a smaller
   green run. No test or assertion changes.
+- **Required CI waits for the longer check, not their sum**: the multicore indexing baseline now
+  runs as its own job on the same three-OS matrix and checkout, beside the canonical gate instead
+  of after it. `semctx-required` needs both jobs and fails when either one fails, is cancelled or
+  is skipped on any operating system. Commands, protocol and thresholds are unchanged.
 
 ### Fixed
 

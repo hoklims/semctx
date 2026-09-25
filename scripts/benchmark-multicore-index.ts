@@ -4,7 +4,8 @@
  * fixed bounded dimensions). Emits schemaVersion 2 JSON on stdout: per corpus, nine fresh-subprocess
  * samples (three repetitions of worker counts 1/2/4, in a deterministic alternating order), their
  * equivalence verdict across independently-fingerprinted claim/diagnostic/persisted-index/seal/graph
- * components, and per-worker-count duration/peak-RSS medians. Native peak RSS and CPU time are
+ * components, and per-worker-count duration/peak-RSS medians. A sample that did not take the path
+ * its corpus requires (parallel, preflight fallback or single) fails the run before equivalence. Native peak RSS and CPU time are
  * NOT_MEASURED, honestly, whenever the runtime does not report them; CI applies no threshold, only
  * the exit status. Real-repository and Apple Silicon baselines remain NOT_MEASURED by this harness.
  */
@@ -28,6 +29,7 @@ import {
   type FixtureIdentity,
 } from "./benchmark-multicore-index/fixtures";
 import { captureHostIdentity, captureImplementationIdentity } from "./benchmark-multicore-index/host-identity";
+import { parallelismMismatch } from "./benchmark-multicore-index/parallelism";
 import { WORKER_COUNTS, buildSamplePlan, type SamplePlanEntry, type WorkerCount } from "./benchmark-multicore-index/plan";
 import { observeCpuTime, observePeakRssBytes, type CpuTimeObservation, type PeakMemoryObservation } from "./benchmark-multicore-index/resource-usage";
 import { summarizeDurations, summarizePeakRss, type MetricSummary } from "./benchmark-multicore-index/summary";
@@ -134,6 +136,12 @@ function runCorpus(id: CorpusId, dimensions: CorpusDimensions, plan: readonly Sa
     materializeCorpus(id, root, dimensions);
     const fixture = captureFixtureIdentity(root);
     const samples: CorpusSample[] = plan.map((entry) => runSample(id, root, entry));
+    for (const sample of samples) {
+      const mismatch = parallelismMismatch(id, sample);
+      if (mismatch !== null) {
+        throw new Error(`corpus ${id} sample ${sample.position} (workers=${sample.requestedWorkers}) did not take its expected path: ${mismatch}`);
+      }
+    }
     const equivalence = compareFingerprints(samples.map((sample) => sample.fingerprint));
     if (!equivalence.equivalent) {
       throw new Error(
