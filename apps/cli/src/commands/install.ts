@@ -598,15 +598,12 @@ function defaultReadCodexPluginPayload(path: string): CodexPayloadProbe | null {
 }
 
 function defaultSetup(root: string, dryRun: boolean): SetupExecution {
-  if (dryRun) {
-    return { code: 0, report: null, err: "" };
-  }
   const entrypoint = process.argv[1];
   if (entrypoint === undefined) {
     return { code: 1, report: null, err: "cannot resolve the running semctx entrypoint" };
   }
   const result = defaultRun(
-    [process.execPath, entrypoint, "setup", "--root", root, "--json"],
+    [process.execPath, entrypoint, "setup", "--root", root, "--json", ...(dryRun ? ["--dry-run"] : [])],
     root,
   );
   return {
@@ -1341,11 +1338,8 @@ function workspaceReport(
       next: "open a Git repository and run MCP semctx_setup (confirm:true) or 'semctx setup' once",
     };
   }
-  if (flagBool(args, "dry-run")) {
-    return { status: "planned", root: repositoryRoot };
-  }
-
-  const result = runtime.setup(repositoryRoot, false);
+  const dryRun = flagBool(args, "dry-run");
+  const result = runtime.setup(repositoryRoot, dryRun);
   if (result.code !== 0 || result.report === null) {
     return {
       status: "failed",
@@ -1354,7 +1348,7 @@ function workspaceReport(
       next: `fix the reported issue, then run MCP semctx_setup (confirm:true) or 'semctx setup --root "${repositoryRoot}"'`,
     };
   }
-  return { status: "ready", root: repositoryRoot, report: result.report };
+  return { status: dryRun ? "planned" : "ready", root: repositoryRoot, report: result.report };
 }
 
 function hostOk(report: HostInstallReport): boolean {
@@ -1432,6 +1426,25 @@ export function executeInstall(
     claude: hostReport(selected(selection, "claude")),
   };
 
+  // Workspace conflicts are deterministic and repository-local. Refuse them before any host
+  // marketplace mutation, even for a real install.
+  const preflightArgs: ParsedArgs = {
+    ...args,
+    flags: new Map(args.flags).set("dry-run", true),
+  };
+  const workspacePreflight = workspaceReport(root, preflightArgs, runtime);
+  if (workspacePreflight.status === "failed") {
+    return {
+      ok: false,
+      version: packageJson.version,
+      dryRun,
+      selection,
+      hosts,
+      workspace: workspacePreflight,
+      next: nextSteps(hosts, workspacePreflight, dryRun),
+    };
+  }
+
   for (const host of ["codex", "claude"] as const) {
     const report = hosts[host];
     if (!report.requested) continue;
@@ -1440,7 +1453,7 @@ export function executeInstall(
     else installClaude(root, dryRun, runtime, report);
   }
 
-  const workspace = workspaceReport(root, args, runtime);
+  const workspace = dryRun ? workspacePreflight : workspaceReport(root, args, runtime);
   const requestedReports = (Object.keys(hosts) as Host[])
     .map((host) => hosts[host])
     .filter((report) => report.requested);

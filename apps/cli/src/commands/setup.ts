@@ -1,11 +1,13 @@
 import {
   evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   setupRepositoryAsync,
   type SetupPhaseEvent,
   type SetupRefusedReport,
   type SetupResult,
 } from "@semantic-context/app-services";
+import { isSemctxError } from "@semantic-context/core";
 import { isInitialized, loadConfig } from "@semantic-context/repository-store";
 import { runPreset, validatePreset } from "./preset";
 import type { ParsedArgs } from "../args";
@@ -33,6 +35,7 @@ interface PreparedCliSetup {
 export function runSetup(root: string, args: ParsedArgs): number {
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
+  if (flagBool(args, "dry-run")) return runSetupPlan(root, prepared);
   const report = prepared.policyRefusal ?? setupRepository(root, setupOptions(prepared));
   return renderSetup(report, prepared);
 }
@@ -41,9 +44,46 @@ export async function runSetupAsync(root: string, args: ParsedArgs): Promise<num
   const workers = parseIndexWorkers(args);
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
+  if (flagBool(args, "dry-run")) return runSetupPlan(root, prepared);
   const report = prepared.policyRefusal
     ?? await setupRepositoryAsync(root, { ...setupOptions(prepared), workers });
   return renderSetup(report, prepared);
+}
+
+function runSetupPlan(root: string, prepared: PreparedCliSetup): number {
+  try {
+    return renderSetupPlan(planSetupRepository(root, { polyglot: prepared.polyglot }), prepared);
+  } catch (error) {
+    if (!prepared.asJson || !isSemctxError(error)) throw error;
+    json({
+      schemaVersion: 1,
+      kind: "setup_conflict",
+      repositoryRoot: root,
+      conflict: { code: error.code, message: error.message, details: error.details },
+      plannedChanges: [],
+      index: { status: "not-run", reason: "workspace-conflict" },
+      analysisReady: "unknown",
+      setupReady: false,
+      verdict: "SETUP_REFUSED",
+      preset: prepared.preset ?? null,
+    });
+    return 1;
+  }
+}
+
+function renderSetupPlan(report: ReturnType<typeof planSetupRepository>, prepared: PreparedCliSetup): number {
+  if (prepared.asJson) {
+    json({ ...report, preset: prepared.preset ?? null });
+  } else if (report.kind === "setup_refused") {
+    fail(report.reason);
+    for (const step of report.nextSteps) info(c.dim(`  → ${step}`));
+  } else {
+    info(c.dim(`  config    ${report.config.action}`));
+    info(c.dim(`  semantic  ${report.plannedChanges.length} tracked change(s)`));
+    info(c.dim("  index     not run (dry-run)"));
+    success("setup plan is ready; nothing written");
+  }
+  return report.kind === "setup_refused" ? 1 : 0;
 }
 
 function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {

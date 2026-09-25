@@ -20,6 +20,7 @@ import {
   buildPolyglotRequiresConfigV2Report,
   computeSetupReadiness,
   evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   type SetupPhaseEvent,
   type SetupRepositoryReport,
@@ -129,6 +130,33 @@ describe("setupRepository (shared SSoT)", () => {
       "check",
       "analysis",
     ]);
+  });
+
+  it("plans a fresh setup without writing or indexing", () => {
+    root = freshSample();
+    const before = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: root, stdout: "pipe" });
+    const report = planSetupRepository(root);
+    expect(report.kind).toBe("setup_plan");
+    if (report.kind !== "setup_plan") throw new Error("expected setup plan");
+    expect(report.config.action).toBe("create");
+    expect(report.plannedChanges).toContain(".semctx/config.json");
+    expect(report.index).toEqual({ status: "not-run", reason: "dry-run" });
+    expect(report.analysisReady).toBe("unknown");
+    expect(report.setupReady).toBe("unknown");
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+    const after = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: root, stdout: "pipe" });
+    expect(new TextDecoder().decode(after.stdout)).toBe(new TextDecoder().decode(before.stdout));
+  });
+
+  it("dry plan rejects malformed existing config without changing it", () => {
+    root = freshSample();
+    const currentRoot = root;
+    mkdirSync(join(currentRoot, ".semctx"), { recursive: true });
+    const path = join(currentRoot, ".semctx", "config.json");
+    writeFileSync(path, "{broken", "utf8");
+    expect(() => planSetupRepository(currentRoot)).toThrow("config.json is not valid JSON");
+    expect(readFileSync(path, "utf8")).toBe("{broken");
+    expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
   });
 
   it("fail-closes SETUP_READY on unsealed v1 (no version short-circuit)", () => {

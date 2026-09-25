@@ -45,7 +45,10 @@ scheduled against a cache that could not be proven.
 Unless `--skip-setup` is set, the command resolves `git rev-parse --show-toplevel` and runs the
 idempotent `setup` pipeline at that repository root, even when invoked from a nested directory.
 Outside a Git repository it installs the machine plugins but writes no workspace state and reports
-the exact follow-up command. `--dry-run` performs only read-only host and Git probes.
+the exact follow-up command. Before any host mutation, install runs the same read-only workspace
+planner as `setup --dry-run`; a deterministic config, symlink, scaffold, or `.gitignore` conflict
+therefore blocks the whole install first. `--dry-run` returns that workspace plan alongside the
+read-only host and Git probes.
 
 The JSON report contains `ok`, CLI `version`, selected mode, per-host steps/status, workspace
 status, and restart/recovery actions. Exit 0 means at least one requested or auto-detected host is
@@ -73,6 +76,12 @@ and validate the resulting model in one command.
 | --- | --- |
 | `--polyglot` | for a new workspace, write config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes; refuses to overwrite an existing v1 config |
 | `--workers auto\|1..8` | select the same asynchronous TypeScript worker path as `index`; default `1`, while `auto` remains an explicit opt-in using up to two workers on large repositories |
+| `--dry-run` | validate deterministic workspace conflicts and report config, semantic, `.gitignore`, and selection changes without writing files or building an index |
+
+With `--dry-run --json`, a valid plan has `kind: "setup_plan"`, lists `plannedChanges`, and keeps
+`index.status: "not-run"`, `analysisReady: "unknown"`, and `setupReady: "unknown"`. A deterministic
+workspace conflict exits non-zero with `kind: "setup_conflict"`; a policy refusal such as
+`--polyglot` against config v1 keeps the existing `setup_refused` contract.
 
 The plugin MCP `semctx_setup` keeps the synchronous single-program analyzer because its public
 input contract has no worker-selection field. The CLI is the supported setup surface for explicit

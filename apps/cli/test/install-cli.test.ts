@@ -82,6 +82,7 @@ interface FakeOptions {
   codexHome?: string | null;
   platform?: NodeJS.Platform;
   setup?: SetupExecution;
+  preflight?: SetupExecution;
   /** Per-command outcome overrides, keyed by the joined argv, applied before any hardcoded branch. */
   queryOutcomes?: Record<string, Partial<CommandResult>>;
 }
@@ -170,7 +171,19 @@ function fakeRuntime(
       return ok("{}\n");
     },
     setup(root, dryRun) {
-      if (dryRun) throw new Error("dry-run must not invoke setup");
+      if (dryRun) {
+        return options.preflight ?? {
+          code: 0,
+          report: {
+            kind: "setup_plan",
+            verdict: "SETUP_PLANNED",
+            plannedChanges: [".semctx/config.json"],
+            analysisReady: "unknown",
+            setupReady: "unknown",
+          },
+          err: "",
+        };
+      }
       setupRoots.push(root);
       return options.setup ?? {
         code: 0,
@@ -659,6 +672,8 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
 
     expect(report.dryRun).toBe(true);
     expect(report.hosts.codex.status).toBe("planned");
+    expect(report.workspace.status).toBe("skipped");
+    expect(runtime.setupRoots).toEqual([]);
     expect(report.next).toContain("re-run without --dry-run to apply this plan");
   });
 
@@ -1433,7 +1448,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     expect(report.hosts.claude.error).toContain("not enabled");
   });
 
-  test("dry-run probes state but performs no mutation or repository setup", () => {
+  test("dry-run probes workspace conflicts but performs no mutation or repository setup", () => {
     const runtime = fakeRuntime({ codex: true, claude: true });
     const report = executeInstall(
       "C:\\work\\project",
@@ -1444,11 +1459,27 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     expect(report.ok).toBe(true);
     expect(report.dryRun).toBe(true);
     expect(report.workspace.status).toBe("planned");
+    expect(report.workspace.report?.kind).toBe("setup_plan");
     expect(runtime.commands.some((command) => command.includes("add"))).toBe(false);
     expect(runtime.commands.some((command) => command.includes("install"))).toBe(false);
     expect(runtime.commands.some((command) => command.includes("update"))).toBe(false);
     expect(runtime.commands.some((command) => command.includes("upgrade"))).toBe(false);
     expect(runtime.commands.some((command) => command.includes("remove"))).toBe(false);
+  });
+
+  test("workspace preflight conflict blocks host mutation before real installation", () => {
+    const runtime = fakeRuntime({
+      codex: true,
+      claude: true,
+      preflight: { code: 1, report: null, err: "[CONFIG_INVALID] config.json is not valid JSON" },
+    });
+    const report = executeInstall("C:\\work\\project", parseArgs(["install", "--host", "all"]), runtime);
+
+    expect(report.ok).toBe(false);
+    expect(report.workspace.status).toBe("failed");
+    expect(report.workspace.error).toContain("CONFIG_INVALID");
+    expect(runtime.commands).toEqual([["git", "rev-parse", "--show-toplevel"]]);
+    expect(runtime.setupRoots).toEqual([]);
   });
 
   test("does not write workspace state when invoked outside a Git repository", () => {
