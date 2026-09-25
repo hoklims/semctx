@@ -47,8 +47,10 @@ idempotent `setup` pipeline at that repository root, even when invoked from a ne
 Outside a Git repository it installs the machine plugins but writes no workspace state and reports
 the exact follow-up command. Before any host mutation, install runs the same read-only workspace
 planner as `setup --dry-run`; a deterministic config, symlink, scaffold, or `.gitignore` conflict
-therefore blocks the whole install first. `--dry-run` returns that workspace plan alongside the
-read-only host and Git probes.
+therefore blocks the whole install first. It then inventories and plans every requested host before
+applying any host command; one missing, failed or conflicting requested host blocks all host and
+workspace writes. If a host fails to converge during application, repository setup remains skipped.
+`--dry-run` returns that workspace plan alongside the read-only host and Git probes.
 
 The JSON report contains `ok`, CLI `version`, selected mode, per-host steps/status, workspace
 status, and restart/recovery actions. Exit 0 means at least one requested or auto-detected host is

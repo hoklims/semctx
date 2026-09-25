@@ -1435,10 +1435,11 @@ export function executeInstall(
 ): InstallReport {
   const selection = parseSelection(args);
   const dryRun = flagBool(args, "dry-run");
-  const hosts: Record<Host, HostInstallReport> = {
+  const newHostReports = (): Record<Host, HostInstallReport> => ({
     codex: hostReport(selected(selection, "codex")),
     claude: hostReport(selected(selection, "claude")),
-  };
+  });
+  let hosts = newHostReports();
 
   // Workspace conflicts are deterministic and repository-local. Refuse them before any host
   // marketplace mutation, even for a real install.
@@ -1459,15 +1460,44 @@ export function executeInstall(
     };
   }
 
+  // Aggregate every requested host's read-only inventory and plan before the first host mutation.
+  // A known conflict on host B must not leave host A installed.
   for (const host of ["codex", "claude"] as const) {
     const report = hosts[host];
     if (!report.requested) continue;
     if (!detectHost(host, root, selection, runtime, report)) continue;
-    if (host === "codex") installCodex(root, dryRun, runtime, report);
-    else installClaude(root, dryRun, runtime, report);
+    if (host === "codex") installCodex(root, true, runtime, report);
+    else installClaude(root, true, runtime, report);
   }
 
-  const workspace = dryRun ? workspacePreflight : workspaceReport(root, args, runtime);
+  const plannedReports = (Object.keys(hosts) as Host[])
+    .map((host) => hosts[host])
+    .filter((report) => report.requested);
+  const planAdmissible = plannedReports.every(
+    (report) => hostOk(report) || (selection === "auto" && report.status === "not-detected"),
+  ) && plannedReports.some(hostOk);
+  if (!planAdmissible || dryRun) {
+    const ok = planAdmissible;
+    return {
+      ok,
+      version: packageJson.version,
+      dryRun,
+      selection,
+      hosts,
+      workspace: workspacePreflight,
+      next: nextSteps(hosts, workspacePreflight, dryRun),
+    };
+  }
+
+  hosts = newHostReports();
+  for (const host of ["codex", "claude"] as const) {
+    const report = hosts[host];
+    if (!report.requested) continue;
+    if (!detectHost(host, root, selection, runtime, report)) continue;
+    if (host === "codex") installCodex(root, false, runtime, report);
+    else installClaude(root, false, runtime, report);
+  }
+
   const requestedReports = (Object.keys(hosts) as Host[])
     .map((host) => hosts[host])
     .filter((report) => report.requested);
@@ -1476,6 +1506,15 @@ export function executeInstall(
     (report) => hostOk(report) || (selection === "auto" && report.status === "not-detected"),
   );
   const someHostReady = successfulHosts.length > 0;
+  const hostsConverged = explicitHostsOk && someHostReady;
+  const workspace = hostsConverged
+    ? workspaceReport(root, args, runtime)
+    : {
+      status: "skipped" as const,
+      root: workspacePreflight.root,
+      ...(workspacePreflight.report === undefined ? {} : { report: workspacePreflight.report }),
+      next: "repository setup was not applied because requested host installation did not converge",
+    };
   const workspaceOk = workspace.status !== "failed";
   const ok = explicitHostsOk && someHostReady && workspaceOk;
 

@@ -102,8 +102,8 @@ function fakeRuntime(
   const deferredCacheCleanups: CodexCacheCleanupRequest[] = [];
   const payloadProbes: string[] = [];
   const setupRoots: string[] = [];
-  let codexPluginReads = 0;
-  let claudePluginReads = 0;
+  let codexMutated = false;
+  let claudeMutated = false;
   const ok = (out = ""): CommandResult => ({ code: 0, out, err: "" });
   const missing = (name: string): CommandResult => ({
     code: 1,
@@ -137,10 +137,8 @@ function fakeRuntime(
         return ok(JSON.stringify(options.codexMarketplaces ?? { marketplaces: [] }));
       }
       if (argv.join(" ") === "codex plugin list --json") {
-        codexPluginReads += 1;
-        const state = codexPluginReads === 1
-          ? options.codexPlugins ?? { installed: [], available: [] }
-          : options.codexPluginsAfter ?? {
+        const state = codexMutated
+          ? options.codexPluginsAfter ?? {
             installed: [{
               pluginId: "semctx-control@semctx-stable",
               installed: true,
@@ -148,27 +146,29 @@ function fakeRuntime(
               version: packageJson.version,
             }],
             available: [],
-          };
+          }
+          : options.codexPlugins ?? { installed: [], available: [] };
         return ok(JSON.stringify(state));
       }
       if (argv.join(" ") === "claude plugin marketplace list --json") {
         return ok(JSON.stringify(options.claudeMarketplaces ?? []));
       }
       if (argv.join(" ") === "claude plugin list --json") {
-        claudePluginReads += 1;
-        const state = claudePluginReads === 1
-          ? options.claudePlugins ?? []
-          : options.claudePluginsAfter ?? [{
+        const state = claudeMutated
+          ? options.claudePluginsAfter ?? [{
             id: "semctx@semctx-stable",
             scope: "user",
             enabled: true,
             version: packageJson.version,
-          }];
+          }]
+          : options.claudePlugins ?? [];
         return ok(JSON.stringify(state));
       }
       if (argv.join(" ") === options.failCommand) {
         return { code: 1, out: "", err: options.failError ?? "injected command failure" };
       }
+      if (program === "codex" && args[0] === "plugin") codexMutated = true;
+      if (program === "claude" && args[0] === "plugin") claudeMutated = true;
       return ok("{}\n");
     },
     setup(root, dryRun) {
@@ -581,7 +581,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     ]);
   });
 
-  test("an unsupported Codex inventory does not prevent the requested Claude installation", () => {
+  test("an unsupported Codex inventory prevents every requested host mutation", () => {
     const runtime = fakeRuntime({
       codex: true,
       claude: true,
@@ -600,10 +600,8 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     expect(report.ok).toBe(false);
     expect(report.hosts.codex.status).toBe("failed");
     expect(report.hosts.codex.interfaceUnsupported).toBe(true);
-    expect(report.hosts.claude.status).toBe("installed");
-    expect(runtime.commands).toContainEqual([
-      "claude", "plugin", "install", "semctx@semctx-stable", "--scope", "user",
-    ]);
+    expect(report.hosts.claude.status).toBe("planned");
+    expect(runtime.commands.some((command) => command.includes("install"))).toBe(false);
     expect(runtime.commands.filter((command) => command[0] === "codex")).toEqual([
       ["codex", "--version"],
       ["codex", "plugin", "marketplace", "list", "--json"],
@@ -611,7 +609,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     ]);
   });
 
-  test("an unsupported Claude inventory preserves the successful Codex installation without Claude mutations", () => {
+  test("an unsupported Claude inventory prevents Codex and Claude mutations", () => {
     const runtime = fakeRuntime({
       codex: true,
       claude: true,
@@ -628,15 +626,40 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
       runtime,
     );
     expect(report.ok).toBe(false);
-    expect(report.hosts.codex.status).toBe("installed");
+    expect(report.hosts.codex.status).toBe("planned");
     expect(report.hosts.claude.status).toBe("failed");
     expect(report.hosts.claude.interfaceUnsupported).toBe(true);
+    expect(runtime.commands.some((command) => command.includes("add") || command.includes("install")
+      || command.includes("update") || command.includes("upgrade") || command.includes("remove")
+      || command.includes("enable"))).toBe(false);
     expect(report.next.some((step) => step.includes("does not support the plugin commands"))).toBe(true);
     expect(runtime.commands.filter((command) => command[0] === "claude")).toEqual([
       ["claude", "--version"],
       ["claude", "plugin", "marketplace", "list", "--json"],
       ["claude", "plugin", "list", "--json"],
     ]);
+  });
+
+  test("two-host aggregate preflight blocks Codex and workspace writes on Claude source conflict", () => {
+    const runtime = fakeRuntime({
+      codex: true,
+      claude: true,
+      claudeMarketplaces: [{ name: "semctx-stable", repo: "attacker/semctx" }],
+    });
+    const report = executeInstall(
+      "C:\\work\\project",
+      parseArgs(["install", "--host", "all"]),
+      runtime,
+    );
+
+    expect(report.ok).toBe(false);
+    expect(report.hosts.codex.status).toBe("planned");
+    expect(report.hosts.claude.status).toBe("conflict");
+    expect(report.workspace.status).toBe("planned");
+    expect(runtime.setupRoots).toEqual([]);
+    expect(runtime.commands.some((command) => command.includes("add") || command.includes("install")
+      || command.includes("update") || command.includes("upgrade") || command.includes("remove")
+      || command.includes("enable"))).toBe(false);
   });
 
   test("an ordinary inventory query failure keeps the generic remedy, not the host-CLI upgrade message", () => {
@@ -1429,13 +1452,15 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     });
     const report = executeInstall(
       "C:\\work\\project",
-      parseArgs(["install", "--skip-setup"]),
+      parseArgs(["install"]),
       runtime,
     );
 
     expect(report.ok).toBe(false);
     expect(report.hosts.codex.status).toBe("failed");
     expect(report.hosts.codex.error).toContain(`expected plugin v${packageJson.version}`);
+    expect(report.workspace.status).toBe("skipped");
+    expect(runtime.setupRoots).toEqual([]);
   });
 
   test("fails closed when Claude remains disabled after the enable command succeeds", () => {
