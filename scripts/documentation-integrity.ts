@@ -30,7 +30,7 @@ const CURRENT_ACTION_FILES = [
   "plugins/semctx-control/dist/semctx.js",
 ] as const;
 
-const RELEASE_DATE = "2026-09-25";
+const RELEASE_DATE = "2026-09-26";
 
 const CANONICAL_PAGES_PUBLISH_RUN = [
   "gh auth setup-git",
@@ -287,8 +287,8 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
   }
 
   const roadmap = readFileSync(resolve(root, "ROADMAP.md"), "utf8");
-  if (!roadmap.includes(`Released baseline: **v${version}**`)) {
-    add(problems, "ROADMAP.md", roadmap, 0, `released baseline must be v${version}`);
+  if (!roadmap.includes(`Source baseline: **v${version}**`)) {
+    add(problems, "ROADMAP.md", roadmap, 0, `source baseline must be v${version}`);
   }
 
   const landing = readFileSync(resolve(root, "site/landing/index.html"), "utf8");

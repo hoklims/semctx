@@ -9,6 +9,22 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-09-26
+
+### Fixed
+
+- The `index-control-plane` skill rereads the Semctx verdict after a recovered index is recorded,
+  so a negative cached route does not hide recovery (HOK-834). Host version skew stays visible.
+- The HOK-834 regression gate rejects skipped and expected-failure tests. Plugin inventory checks
+  reject hidden symbolic links, and the CLI retains error messages when Bun omits them from stacks.
+- Immutable-tag delivery proof recognizes a Codex marketplace checkout only when its expected tag
+  resolves to the observed commit, including detached checkouts without legacy metadata.
+
+### Added
+
+- Both marketplace plugins ship the corrected index-control runtime skill and scripts. The shared
+  source contains its regression suite; native host routing hooks remain separately configured.
+
 ## [0.3.4] - 2026-09-25
 
 ### Fixed
@@ -19,13 +35,6 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 - `semctx install` runs that workspace preflight before any Codex or Claude marketplace mutation,
   so a malformed config, unsafe link or scaffold conflict cannot leave host installation partially
   applied first.
-- The `index-control-plane` skill rereads the Semctx verdict after a recovered index is recorded,
-  so a negative cached route does not hide recovery (HOK-834). Host version skew stays visible.
-
-### Added
-
-- Both marketplace plugins ship the corrected index-control runtime skill and scripts. The shared
-  source contains its regression suite; native host routing hooks remain separately configured.
 
 ## [0.3.3] - 2026-09-24
 
@@ -682,7 +691,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/hoklims/semctx/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/hoklims/semctx/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/hoklims/semctx/compare/v0.3.1...v0.3.3
 [0.3.1]: https://github.com/hoklims/semctx/compare/v0.3.0...v0.3.1
