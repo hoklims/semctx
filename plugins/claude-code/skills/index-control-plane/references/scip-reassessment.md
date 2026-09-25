@@ -55,8 +55,8 @@ Historical raw results are held in the private source skill repository and are
 not bundled with the Semctx host plugins. They are available to authorized
 readers at the immutable HOK-834 skill commit:
 
-- [TypeScript pilot](https://github.com/hoklims/index-control-plane/blob/f75c6866f3f4d1b598a60f65651b04f83bec4662/evals/scip-json-typescript-2026-08-16.json)
-- [Python pilot](https://github.com/hoklims/index-control-plane/blob/f75c6866f3f4d1b598a60f65651b04f83bec4662/evals/scip-json-python-2026-08-16.json)
+- [TypeScript pilot](https://github.com/hoklims/index-control-plane/blob/9c2bc0b1ae086e7885dcf8153c47d1e4c183570b/evals/scip-json-typescript-2026-08-16.json)
+- [Python pilot](https://github.com/hoklims/index-control-plane/blob/9c2bc0b1ae086e7885dcf8153c47d1e4c183570b/evals/scip-json-python-2026-08-16.json)
 
 The local clone path above records the historical patch workspace, not an
 installation requirement or a currently published upstream fix.

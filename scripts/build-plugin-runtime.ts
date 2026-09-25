@@ -93,12 +93,15 @@ const indexControlSkillOutputs = [
   resolve(root, "plugins/semctx-control/skills/index-control-plane"),
 ];
 
-function skillFiles(directory: string, prefix = ""): string[] {
+export function skillFiles(directory: string, prefix = ""): string[] {
   return readdirSync(resolve(directory, prefix), { withFileTypes: true })
-    .filter((entry) => entry.name !== "__pycache__" && !entry.name.endsWith(".pyc"))
     .flatMap((entry) => {
       const path = prefix ? `${prefix}/${entry.name}` : entry.name;
-      return entry.isDirectory() ? skillFiles(directory, path) : entry.isFile() ? [path] : [];
+      if (!entry.isDirectory() && !entry.isFile()) {
+        throw new Error(`unsupported index-control-plane skill entry: ${path}`);
+      }
+      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) return [];
+      return entry.isDirectory() ? skillFiles(directory, path) : [path];
     })
     .sort();
 }

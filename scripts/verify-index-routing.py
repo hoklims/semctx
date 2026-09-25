@@ -30,6 +30,10 @@ def main() -> int:
         for case, reason in result.skipped:
             print(f"skipped HOK-834 regression: {case.id()}: {reason}", file=sys.stderr)
         return 1
+    if result.expectedFailures:
+        for case, _ in result.expectedFailures:
+            print(f"expected-failure HOK-834 regression: {case.id()}", file=sys.stderr)
+        return 1
     return 0 if result.wasSuccessful() and result.testsRun == len(TESTS) else 1
 
 
