@@ -7,7 +7,9 @@ import {
 } from "@semantic-context/core";
 import {
   isInitialized,
+  assertUnlinkedDatabase,
   assertUnlinkedWorkspace,
+  dbPath,
   loadConfig,
   saveConfig,
   semctxDir as resolveSemctxDir,
@@ -287,6 +289,7 @@ export function planSetupRepository(
 ): SetupPlanResult {
   const polyglot = options.polyglot === true;
   assertUnlinkedWorkspace(root);
+  assertUnlinkedDatabase(dbPath(root));
   const alreadyInitialized = isInitialized(root);
   const config = alreadyInitialized ? loadConfig(root) : smartConfig(root, polyglot);
   const refused = evaluatePolyglotSetupPolicy({

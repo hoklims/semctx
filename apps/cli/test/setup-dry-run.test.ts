@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -60,6 +60,56 @@ describe("semctx setup --dry-run --json", () => {
     expect(result.body.index).toEqual({ status: "not-run", reason: "workspace-conflict" });
     expect(readFileSync(config, "utf8")).toBe("{broken");
     expect(existsSync(join(root, ".semctx", "semctx.db"))).toBe(false);
+  });
+
+  test("preset preflight keeps malformed config inside the structured conflict envelope", () => {
+    const root = freshRoot();
+    mkdirSync(join(root, ".semctx"), { recursive: true });
+    const config = join(root, ".semctx", "config.json");
+    writeFileSync(config, "{broken", "utf8");
+    const result = run(root, ["--dry-run", "--preset", "github-claude"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      preset: "github-claude",
+      conflict: { code: "CONFIG_INVALID" },
+    });
+    expect(readFileSync(config, "utf8")).toBe("{broken");
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
+  });
+
+  test("rejects a linked SQLite sidecar before reporting a valid setup plan", () => {
+    const root = freshRoot();
+    const outside = freshRoot();
+    mkdirSync(join(root, ".semctx"), { recursive: true });
+    symlinkSync(outside, join(root, ".semctx", "semctx.db-wal"), process.platform === "win32" ? "junction" : "dir");
+    const result = run(root);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      conflict: { code: "CONFIG_INVALID" },
+    });
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+  });
+
+  test("rejects a linked preset ancestor before any workspace or outside write", () => {
+    const root = freshRoot();
+    const outside = freshRoot();
+    symlinkSync(outside, join(root, ".github"), process.platform === "win32" ? "junction" : "dir");
+    const result = run(root, ["--dry-run", "--preset", "github-claude"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      preset: "github-claude",
+      conflict: { code: "CONFIG_INVALID" },
+    });
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+    expect(existsSync(join(outside, "workflows", "semctx.yml"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
   });
 
   test("preset dry-run includes every host file real setup writes and remains read-only", () => {

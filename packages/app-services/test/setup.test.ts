@@ -7,6 +7,7 @@ import {
   readFileSync,
   rmSync,
   writeFileSync,
+  symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -157,6 +158,19 @@ describe("setupRepository (shared SSoT)", () => {
     expect(() => planSetupRepository(currentRoot)).toThrow("config.json is not valid JSON");
     expect(readFileSync(path, "utf8")).toBe("{broken");
     expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
+  });
+
+  it.each(["-wal", "-shm", "-journal"])("dry plan exercises the SQLite writer sidecar link guard: %s", (suffix) => {
+    root = freshSample();
+    const outside = mkdtempSync(join(tmpdir(), "semctx-setup-sidecar-outside-"));
+    mkdirSync(join(root, ".semctx"), { recursive: true });
+    symlinkSync(outside, join(root, ".semctx", `semctx.db${suffix}`), process.platform === "win32" ? "junction" : "dir");
+    try {
+      expect(() => planSetupRepository(root!)).toThrow("linked repository store files are unsupported");
+      expect(existsSync(join(root, ".gitignore"))).toBe(false);
+    } finally {
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("fail-closes SETUP_READY on unsealed v1 (no version short-circuit)", () => {

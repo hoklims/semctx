@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { SemctxError, createDefaultConfig } from "@semantic-context/core";
-import { assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
+import { assertUnlinkedBelow, assertUnlinkedWorkspace, isLinkedEntry, toDiskConfig, writeFileNoFollow } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
@@ -144,7 +144,10 @@ export function planPreset(
       throw new SemctxError("CONFIG_INVALID", "a linked preset target is unsupported", { path: abs });
     }
     const exists = existsSync(abs);
-    return { path: file.path, action: !exists ? "create" as const : force ? "overwrite" as const : "skip-exists" as const };
+    const action = !exists ? "create" as const : force ? "overwrite" as const : "skip-exists" as const;
+    // Exercise the writer's complete destination + ancestor link guard before any preset write.
+    if (action !== "skip-exists") assertUnlinkedBelow(root, abs);
+    return { path: file.path, action };
   });
   return { preset, files, gitignore: ensureSemanticGitignore(root, true) };
 }

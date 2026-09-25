@@ -37,25 +37,28 @@ type RenderableSetupPlan = ReturnType<typeof planSetupRepository>
   | (Extract<ReturnType<typeof planSetupRepository>, { kind: "setup_plan" }> & { presetPlan: PresetPlan });
 
 export function runSetup(root: string, args: ParsedArgs): number {
+  if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
-  if (flagBool(args, "dry-run")) return runSetupPlan(root, prepared);
   const report = prepared.policyRefusal ?? setupRepository(root, setupOptions(prepared));
   return renderSetup(report, prepared);
 }
 
 export async function runSetupAsync(root: string, args: ParsedArgs): Promise<number> {
+  if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
   const workers = parseIndexWorkers(args);
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
-  if (flagBool(args, "dry-run")) return runSetupPlan(root, prepared);
   const report = prepared.policyRefusal
     ?? await setupRepositoryAsync(root, { ...setupOptions(prepared), workers });
   return renderSetup(report, prepared);
 }
 
-function runSetupPlan(root: string, prepared: PreparedCliSetup): number {
+function runSetupPreflight(root: string, args: ParsedArgs): number {
   try {
+    parseIndexWorkers(args); // validate CLI input without starting workers or indexing
+    const prepared = prepareCliSetup(root, args);
+    if (prepared.earlyExit !== undefined) return prepared.earlyExit;
     const workspace = planSetupRepository(root, { polyglot: prepared.polyglot });
     if (workspace.kind !== "setup_plan" || prepared.presetPlan === null) {
       return renderSetupPlan(workspace, prepared);
@@ -69,7 +72,7 @@ function runSetupPlan(root: string, prepared: PreparedCliSetup): number {
       plannedChanges: [...new Set([...workspace.plannedChanges, ...presetChanges])],
     }, prepared);
   } catch (error) {
-    if (!prepared.asJson || !isSemctxError(error)) throw error;
+    if (!flagBool(args, "json") || !isSemctxError(error)) throw error;
     json({
       schemaVersion: 1,
       kind: "setup_conflict",
@@ -80,7 +83,7 @@ function runSetupPlan(root: string, prepared: PreparedCliSetup): number {
       analysisReady: "unknown",
       setupReady: false,
       verdict: "SETUP_REFUSED",
-      preset: prepared.preset ?? null,
+      preset: flagString(args, "preset") ?? null,
     });
     return 1;
   }
