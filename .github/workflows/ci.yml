@@ -37,17 +37,46 @@ jobs:
       - run: python -m pip install --disable-pip-version-check --requirement requirements-quality.txt
       - run: bun install --frozen-lockfile
       - run: bun run verify:pr
+
+  multicore-index:
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
       - name: Observe isolated-process multicore indexing
-        run: bun run bench:index-workers 24 100
+        shell: bash
+        env:
+          MULTICORE_INDEX_REPORT: multicore-index-${{ matrix.os }}.json
+        run: bun run bench:index-workers 24 100 > "$MULTICORE_INDEX_REPORT"
+      - name: Archive the multicore indexing report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: multicore-index-${{ matrix.os }}
+          path: multicore-index-${{ matrix.os }}.json
+          if-no-files-found: warn
 
   semctx-required:
     name: semctx-required
     if: always()
-    needs: verify
+    needs: [verify, multicore-index]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require every verification matrix entry to pass
+      - name: Require every verification and benchmark matrix entry to pass
         env:
           VERIFY_RESULT: ${{ needs.verify.result }}
-        run: test "$VERIFY_RESULT" = "success"
+          MULTICORE_INDEX_RESULT: ${{ needs.multicore-index.result }}
+        run: test "$VERIFY_RESULT" = "success" && test "$MULTICORE_INDEX_RESULT" = "success"

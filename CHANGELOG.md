@@ -9,6 +9,30 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Changed
+
+- **The canonical test suite runs in parallel on Windows and proves it ran every file**:
+  `bun run test` runs the same test files under `packages`, `apps`, `plugins` and `scripts` with
+  the same 60 s timeout. On Windows, most of them run in at most four parallel Bun workers and six
+  time-sensitive files run alone afterwards. Linux and macOS keep one sequential pass until a Bun
+  release fixes lost `spawnSync` child exits (oven-sh/bun#34069), which parallel workers made
+  frequent there. Every run fails unless its JUnit reports name every test file found on disk
+  exactly once, so a file dropped by a worker, a pass or an ignore pattern cannot pass as a smaller
+  green run. No test or assertion changes.
+- **Required CI waits for the longer check, not their sum**: the multicore indexing baseline now
+  runs as its own job on the same three-OS matrix and checkout, beside the canonical gate instead
+  of after it. `semctx-required` needs both jobs and fails when either one fails, is cancelled or
+  is skipped on any operating system. Commands, protocol and thresholds are unchanged.
+
+### Fixed
+
+- Index health no longer grows quadratically with the number of indexed candidates. It digests
+  each Plane-A scope once and groups results, fact batches and capability profiles by that key,
+  instead of re-digesting both scopes for every pair. `semctx index-health`, `verify`, `setup`,
+  `doctor` and the MCP control status share this path: on a synthetic 2,401-file corpus one report
+  took 296 s and now takes 1.9 s, and the report is byte-identical. The multicore indexing
+  baseline, which fingerprints this report in every sample, shrinks accordingly.
+
 ## [0.3.3] - 2026-09-24
 
 ### Added

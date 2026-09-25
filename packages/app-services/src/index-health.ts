@@ -362,24 +362,66 @@ function sameProducer(
   return left.identity === right.identity && left.version === right.version;
 }
 
-function sameScope(
-  left: PlaneASidecarV1["scope"],
-  right: PlaneASidecarV1["scope"],
-): boolean {
-  return digestCanonical(left) === digestCanonical(right);
+function scopeKey(scope: PlaneASidecarV1["scope"]): string {
+  return digestCanonical(scope);
+}
+
+/**
+ * Scope equality is canonical-digest equality. Digesting every scope once and grouping by that key
+ * keeps each lookup linear: comparing each ledger entry against every result, batch and profile
+ * re-digested both scopes per pair, which made index health quadratic in the candidate count
+ * (HOK-818). Groups keep input order, so filtering a group yields what filtering the whole array did.
+ */
+function groupByScope<T extends { scope: PlaneASidecarV1["scope"] }>(items: readonly T[]): Map<string, T[]> {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const key = scopeKey(item.scope);
+    const group = groups.get(key);
+    if (group === undefined) groups.set(key, [item]);
+    else group.push(item);
+  }
+  return groups;
+}
+
+type CapabilityProfile = PlaneASidecarV1["capabilityProfiles"][number];
+
+function positionsByProfileId(profiles: readonly CapabilityProfile[]): Map<string, number[]> {
+  const positions = new Map<string, number[]>();
+  profiles.forEach((profile, position) => {
+    const list = positions.get(profile.profileId);
+    if (list === undefined) positions.set(profile.profileId, [position]);
+    else list.push(position);
+  });
+  return positions;
+}
+
+/** Profiles whose id is listed, each once and in sidecar order: what `profiles.filter(id listed)` returns. */
+function profilesByIds(
+  profiles: readonly CapabilityProfile[],
+  positionsById: ReadonlyMap<string, readonly number[]>,
+  profileIds: readonly string[],
+): CapabilityProfile[] {
+  const positions = new Set<number>();
+  for (const profileId of profileIds) {
+    for (const position of positionsById.get(profileId) ?? []) positions.add(position);
+  }
+  return [...positions].sort((left, right) => left - right).map((position) => profiles[position]!);
 }
 
 function hasExactAnalyzedCardinality(sidecar: PlaneASidecarV1): boolean {
+  let resultsByScope: Map<string, PlaneASidecarV1["producerResults"][number][]> | undefined;
+  let batchesByScope: Map<string, PlaneASidecarV1["factBatches"][number][]> | undefined;
   return sidecar.discoveryLedger.every((entry) => {
     if (entry.analysisOutcome !== "analyzed") return true;
     if (entry.selectedProducer === undefined) return false;
-    const results = sidecar.producerResults.filter((result) =>
-      sameScope(result.scope, entry.scope)
-      && sameProducer(result.producer, entry.selectedProducer!));
+    const key = scopeKey(entry.scope);
+    resultsByScope ??= groupByScope(sidecar.producerResults);
+    const results = (resultsByScope.get(key) ?? []).filter((result) =>
+      sameProducer(result.producer, entry.selectedProducer!));
     if (results.length !== 1 || results[0]!.status !== "completed") return false;
-    const batches = sidecar.factBatches.filter((batch) =>
-      sameScope(batch.scope, entry.scope)
-      && sameProducer(batch.producer, entry.selectedProducer!));
+    batchesByScope ??= groupByScope(sidecar.factBatches);
+    const batches = (batchesByScope.get(key) ?? []).filter((batch) =>
+      sameProducer(batch.producer, entry.selectedProducer!));
     return batches.length === 1 && batches[0]!.batchId === results[0]!.factBatchId;
   });
 }
@@ -606,6 +648,10 @@ function evaluateSnapshot(
   producerConfigurationDigest: string,
 ): PlaneAEvaluationReport {
   const decisions: PlaneAEvaluationDecision[] = [];
+  const resultsByScope = groupByScope(snapshot.sidecar.producerResults);
+  const batchesByScope = groupByScope(snapshot.sidecar.factBatches);
+  const profiles = snapshot.sidecar.capabilityProfiles;
+  const profilePositions = positionsByProfileId(profiles);
   for (const entry of snapshot.sidecar.discoveryLedger) {
     if (entry.selectionDecision !== "selected") continue;
     const path = candidatePath(entry);
@@ -614,11 +660,20 @@ function evaluateSnapshot(
         .flatMap((diagnostic) => diagnostic.roots)
         .filter((root) => pathWithinRoot(path, root)),
     )].sort();
+    const key = scopeKey(entry.scope);
+    // evaluatePlaneA reads results, batches and profiles only through its scope and profile-id
+    // filters, so handing it the same-scope subsets (in sidecar order) leaves its decision unchanged.
+    const scopedResults = resultsByScope.get(key) ?? [];
+    const scopedBatches = batchesByScope.get(key) ?? [];
+    const scopedProfiles = profilesByIds(
+      profiles,
+      profilePositions,
+      scopedBatches.flatMap((batch) => batch.capabilityProfileIds),
+    );
     const batches = entry.selectedProducer === undefined
       ? []
-      : snapshot.sidecar.factBatches.filter((batch) =>
-          sameScope(batch.scope, entry.scope)
-          && sameProducer(batch.producer, entry.selectedProducer!));
+      : scopedBatches.filter((batch) =>
+          sameProducer(batch.producer, entry.selectedProducer!));
     const factKinds = [...new Set(
       batches.flatMap((batch) => batch.factKinds),
     )].sort();
@@ -626,10 +681,10 @@ function evaluateSnapshot(
 
     for (const factKind of factKinds) {
       const batch = batches.find((candidate) => candidate.factKinds.includes(factKind));
-      const referencedProfiles = snapshot.sidecar.capabilityProfiles
-        .filter((profile) =>
-          profile.factKind === factKind
-          && batch?.capabilityProfileIds.includes(profile.profileId));
+      const referencedProfiles = batch === undefined
+        ? []
+        : profilesByIds(profiles, profilePositions, batch.capabilityProfileIds)
+            .filter((profile) => profile.factKind === factKind);
       const referencedProfile =
         referencedProfiles.length === 1 ? referencedProfiles[0] : undefined;
       const requiredCapability = resolvePlaneACapabilityRequirement({
@@ -677,11 +732,11 @@ function evaluateSnapshot(
               }],
             },
         ledgerEntry: entry,
-        completedResults: snapshot.sidecar.producerResults,
-        factBatches: snapshot.sidecar.factBatches,
+        completedResults: scopedResults,
+        factBatches: scopedBatches,
         bindingAttestation,
         currentFreshness: freshness.verdict,
-        capabilityProfiles: snapshot.sidecar.capabilityProfiles,
+        capabilityProfiles: scopedProfiles,
         requiredCapability,
         taskRelativeAuthority: {
           admissible: policy.admissible && operationAdmitted,
@@ -858,6 +913,7 @@ export function indexHealth(root: string): IndexHealthReportV1 {
       && readUnresolvedReferenceBinding(reader).status === "bound";
 
     const sidecar = snapshot.sidecar;
+    const profilesByScope = groupByScope(sidecar.capabilityProfiles);
     const candidates = [...sidecar.discoveryLedger]
       .sort((left, right) =>
         left.candidateIdentity < right.candidateIdentity
@@ -868,9 +924,8 @@ export function indexHealth(root: string): IndexHealthReportV1 {
       .map((entry): IndexHealthCandidateV1 => {
         const profiles = entry.selectedProducer === undefined
           ? []
-          : sidecar.capabilityProfiles.filter((profile) =>
-              sameScope(profile.scope, entry.scope)
-              && sameProducer(profile.producer, entry.selectedProducer!));
+          : (profilesByScope.get(scopeKey(entry.scope)) ?? []).filter((profile) =>
+              sameProducer(profile.producer, entry.selectedProducer!));
         return {
           candidateIdentity: entry.candidateIdentity,
           path: candidatePath(entry),

@@ -42,7 +42,7 @@
     "lint:python": "ruff check .",
     "lint:actions": "zizmor --collect=workflows .",
     "quality": "bun run typecheck && bun run lint && bun run lint:python && bun run lint:actions",
-    "test": "bun test --timeout 60000 packages apps plugins scripts",
+    "test": "bun scripts/test-suite.ts",
     "verify:pr": "bun scripts/verify-pr.ts",
     "plugin:build": "bun scripts/build-plugin-runtime.ts",
     "plugin:check": "bun scripts/build-plugin-runtime.ts --check",
@@ -52,8 +52,8 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@types/bun": "^1.4.0",
-    "eslint": "10.9.1",
+    "@types/bun": "^1.4.2",
+    "eslint": "10.11.0",
     "globals": "17.12.0",
     "typescript": "^5.6.3",
     "typescript-eslint": "8.70.0"
