@@ -14,9 +14,9 @@ function freshRoot(): string {
   return root;
 }
 
-function run(root: string): { code: number; body: Record<string, unknown>; err: string } {
+function run(root: string, extraArgs: string[] = ["--dry-run"]): { code: number; body: Record<string, unknown>; err: string } {
   const process = Bun.spawnSync(
-    ["bun", entrypoint, "setup", "--root", root, "--dry-run", "--json"],
+    ["bun", entrypoint, "setup", "--root", root, ...extraArgs, "--json"],
     { stdout: "pipe", stderr: "pipe" },
   );
   const out = new TextDecoder().decode(process.stdout);
@@ -60,5 +60,36 @@ describe("semctx setup --dry-run --json", () => {
     expect(result.body.index).toEqual({ status: "not-run", reason: "workspace-conflict" });
     expect(readFileSync(config, "utf8")).toBe("{broken");
     expect(existsSync(join(root, ".semctx", "semctx.db"))).toBe(false);
+  });
+
+  test("preset dry-run includes every host file real setup writes and remains read-only", () => {
+    const root = freshRoot();
+    const result = run(root, ["--dry-run", "--preset", "github-claude"]);
+
+    expect(result.code, result.err).toBe(0);
+    expect(result.body.kind).toBe("setup_plan");
+    expect(result.body.plannedChanges).toEqual(expect.arrayContaining([
+      ".semctx/config.json",
+      ".github/workflows/semctx.yml",
+      ".claude/semctx.md",
+      ".gitignore",
+    ]));
+    expect(result.body.presetPlan).toMatchObject({
+      preset: "github-claude",
+      files: [
+        { path: ".github/workflows/semctx.yml", action: "create" },
+        { path: ".claude/semctx.md", action: "create" },
+      ],
+    });
+    expect(existsSync(join(root, ".semctx"))).toBe(false);
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+
+    const applied = run(root, ["--preset", "github-claude"]);
+    expect(applied.code).toBe(1); // no Git seal: files are written, analysis remains not ready
+    expect(existsSync(join(root, ".github", "workflows", "semctx.yml"))).toBe(true);
+    expect(existsSync(join(root, ".claude", "semctx.md"))).toBe(true);
+    expect(readFileSync(join(root, ".github", "workflows", "semctx.yml"), "utf8")).toContain("github-action@v0.3.4");
   });
 });

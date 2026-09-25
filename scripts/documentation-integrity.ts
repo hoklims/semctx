@@ -329,8 +329,22 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     };
     const supportedPhase = evidence.phase === "candidate" || evidence.phase === "release";
     const requiredPhase = options.requireReleaseEvidence ? "release" : "candidate or release";
-    if (!supportedPhase || (options.requireReleaseEvidence && evidence.phase !== "release") || evidence.demo?.packageVersion !== version) {
-      add(problems, "site/evidence.json", evidenceText, 0, `demo evidence must be ${requiredPhase} phase for package ${version}`);
+    const releasedVersions = Array.from(
+      changelog.matchAll(/^## \[(\d+\.\d+\.\d+)\] -/gm),
+      (match) => match[1]!,
+    );
+    const currentReleaseIndex = releasedVersions.indexOf(version);
+    const previousPublishedVersion = currentReleaseIndex >= 0 ? releasedVersions[currentReleaseIndex + 1] : undefined;
+    const candidateVersionMatches = evidence.phase === "candidate"
+      && (evidence.demo?.packageVersion === version || evidence.demo?.packageVersion === previousPublishedVersion);
+    const releaseVersionMatches = evidence.phase === "release" && evidence.demo?.packageVersion === version;
+    if (!supportedPhase
+      || (options.requireReleaseEvidence && evidence.phase !== "release")
+      || (options.requireReleaseEvidence ? !releaseVersionMatches : !candidateVersionMatches && !releaseVersionMatches)) {
+      const allowed = options.requireReleaseEvidence || previousPublishedVersion === undefined
+        ? version
+        : `${version} or previous published package ${previousPublishedVersion}`;
+      add(problems, "site/evidence.json", evidenceText, 0, `demo evidence must be ${requiredPhase} phase for package ${allowed}`);
     }
     const assertedCommit = evidence.releaseCommit;
     const validCommitShape = assertedCommit === null || assertedCommit === undefined || (

@@ -81,7 +81,8 @@ and validate the resulting model in one command.
 With `--dry-run --json`, a valid plan has `kind: "setup_plan"`, lists `plannedChanges`, and keeps
 `index.status: "not-run"`, `analysisReady: "unknown"`, and `setupReady: "unknown"`. A deterministic
 workspace conflict exits non-zero with `kind: "setup_conflict"`; a policy refusal such as
-`--polyglot` against config v1 keeps the existing `setup_refused` contract.
+`--polyglot` against config v1 keeps the existing `setup_refused` contract. With `--preset`, the
+plan also includes `presetPlan.files` and folds every non-skipped host file into `plannedChanges`.
 
 The plugin MCP `semctx_setup` keeps the synchronous single-program analyzer because its public
 input contract has no worker-selection field. The CLI is the supported setup surface for explicit
