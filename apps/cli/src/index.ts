@@ -218,7 +218,12 @@ async function main(): Promise<void> {
       if (Object.keys(err.details).length > 0) info(c.dim(JSON.stringify(err.details, null, 2)));
       process.exit(err.code === "CONTROL_INPUTS_UNSAFE" ? 3 : 1);
     }
-    fail(err instanceof Error ? (err.stack ?? err.message) : String(err));
+    if (err instanceof Error) {
+      const stack = err.stack ?? "";
+      fail(stack.includes(err.message) ? stack : [err.message, stack].filter(Boolean).join("\n"));
+    } else {
+      fail(String(err));
+    }
     process.exit(1);
   }
 }
