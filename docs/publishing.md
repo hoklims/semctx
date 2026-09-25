@@ -156,9 +156,10 @@ compared for **equality** against `hoklims/semctx` or `https://github.com/hoklim
 that merely looked for the slug would accept `https://evil.example/hoklims/semctx.git` and
 `attacker/hoklims/semctx`; both are refused here, and the accepted/refused contract is pinned by test.
 The helper is currently duplicated because the shared implementation is private, so future changes
-must update both until that maintenance seam is exported. The ref is its own authority: it must exist
-and be exactly `stable`. Claude reports it in the marketplace list; Codex records it as `ref_name` in
-`.codex-marketplace-install.json`. `main`, an empty ref and an unknown ref each fail closed.
+must update both until that maintenance seam is exported. The ref is its own authority: the release
+workflow requires its immutable `v<version>` tag before promotion; diagnostic/manual stable replay
+requires exactly `stable`. Claude reports it in the marketplace list; Codex records it as `ref_name`
+in `.codex-marketplace-install.json`. `main`, an empty ref and an unknown ref each fail closed.
 
 **Nothing a host says is a location, and nothing stays admitted.** Every path a host CLI hands back
 — Claude's `installLocation` and `installPath`, Codex's `root`, and the cache path derived from a
@@ -208,7 +209,7 @@ next session resolves this release, never that the current one did.
 **How it fails.** Fail-closed everywhere: a checkout that is not `GITHUB_SHA`, an incomplete or
 divergent witness, a failed `npm ls`, an absent pinned package, a CLI whose npm version or binary
 banner is not the pin, an unusable environment, a refused install, a marketplace that is not exactly
-this repository on exactly `stable`, an unknown or mismatched marketplace commit, a refused or
+this repository on the expected immutable tag (or `stable` during an explicit stable replay), an unknown or mismatched marketplace commit, a refused or
 re-refused host path, a ledger entry outside the allowed roots, a missing bundle, an undigestible
 bundle, a digest that differs from the committed witness, an execution copy that does not
 reproduce the attested bytes, two plugins or two hosts disagreeing on the same bundle, or a smoke

@@ -217,6 +217,31 @@ describe("semctx setup --dry-run --json", () => {
     expect(existsSync(join(root, ".gitignore"))).toBe(false);
   });
 
+  test("real preset setup rejects authored semantic syntax errors before all writes", () => {
+    const root = freshRoot();
+    mkdirSync(join(root, ".semctx", "semantic", "changes"), { recursive: true });
+    const authored = join(root, ".semctx", "semantic", "changes", "custom.sem");
+    writeFileSync(authored, "not-a-semantic-block value\n", "utf8");
+    const result = run(root, ["--preset", "github-claude"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      conflict: {
+        code: "CONFIG_INVALID",
+        message: "semantic model contains syntax errors",
+        details: { diagnostics: [expect.objectContaining({ file: ".semctx/semantic/changes/custom.sem" })] },
+      },
+    });
+    expect(readFileSync(authored, "utf8")).toBe("not-a-semantic-block value\n");
+    expect(existsSync(join(root, ".semctx", "config.json"))).toBe(false);
+    expect(existsSync(join(root, ".semctx", "semantic", "goals.sem"))).toBe(false);
+    expect(existsSync(join(root, ".semctx", "semctx.db"))).toBe(false);
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+  });
+
   test("skipped preset target under a linked ancestor blocks the whole mixed plan", () => {
     const root = freshRoot();
     const outside = freshRoot();

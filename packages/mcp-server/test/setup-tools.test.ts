@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
@@ -158,6 +158,21 @@ describe("semctx_setup MCP tool", () => {
     expectConfigInvalid(() => setupTool(currentRoot, {}));
     expectConfigInvalid(() => setupTool(currentRoot, { confirm: true, now: "2026-08-01T12:00:00.000Z" }));
     expect(existsSync(semctxDir(currentRoot))).toBe(false);
+  });
+
+  test("preflight and confirm reject authored semantic syntax errors before any workspace write", () => {
+    root = freshRepo();
+    const currentRoot = root;
+    mkdirSync(join(semctxDir(currentRoot), "semantic", "changes"), { recursive: true });
+    const authored = join(semctxDir(currentRoot), "semantic", "changes", "custom.sem");
+    writeFileSync(authored, "not-a-semantic-block value\n", "utf8");
+
+    expectConfigInvalid(() => setupTool(currentRoot, {}));
+    expectConfigInvalid(() => setupTool(currentRoot, { confirm: true, now: "2026-08-01T12:00:00.000Z" }));
+    expect(readFileSync(authored, "utf8")).toBe("not-a-semantic-block value\n");
+    expect(existsSync(configPath(currentRoot))).toBe(false);
+    expect(existsSync(join(semctxDir(currentRoot), "semantic", "goals.sem"))).toBe(false);
+    expect(existsSync(join(semctxDir(currentRoot), "semctx.db"))).toBe(false);
   });
 
   test("preflight with schema-invalid config fails closed even without polyglot (CONFIG_INVALID)", () => {

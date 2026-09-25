@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   createDefaultConfig,
   createGlobSelectionConfig,
+  SemctxError,
   type SemctxConfig,
 } from "@semantic-context/core";
 import {
@@ -301,6 +302,19 @@ export function planSetupRepository(
   if (refused !== null) return refused;
 
   const scaffold = initSemanticScaffold(root, { dryRun: true });
+  const authored = loadSemanticModel(root);
+  const syntaxErrors = authored.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
+  if (syntaxErrors.length > 0) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model contains syntax errors", {
+      diagnostics: syntaxErrors.map((diagnostic) => ({
+        file: diagnostic.file,
+        line: diagnostic.line,
+        column: diagnostic.column,
+        ...(diagnostic.code === undefined ? {} : { code: diagnostic.code }),
+        message: diagnostic.message,
+      })),
+    });
+  }
   const discovery = discoverRepository(config);
   const selectedByLanguage = Object.fromEntries(
     ["typescript", "python", "markdown", "sql"].map((language) => [

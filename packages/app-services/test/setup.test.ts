@@ -160,6 +160,21 @@ describe("setupRepository (shared SSoT)", () => {
     expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
   });
 
+  it("dry plan rejects authored semantic syntax errors before config, scaffold, or index writes", () => {
+    root = freshSample();
+    const currentRoot = root;
+    mkdirSync(join(currentRoot, ".semctx", "semantic", "changes"), { recursive: true });
+    const authored = join(currentRoot, ".semctx", "semantic", "changes", "custom.sem");
+    writeFileSync(authored, "not-a-semantic-block value\n", "utf8");
+
+    expect(() => planSetupRepository(currentRoot)).toThrow("semantic model contains syntax errors");
+    expect(readFileSync(authored, "utf8")).toBe("not-a-semantic-block value\n");
+    expect(existsSync(join(currentRoot, ".semctx", "config.json"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".semctx", "semantic", "goals.sem"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".semctx", "semctx.db"))).toBe(false);
+    expect(existsSync(join(currentRoot, ".gitignore"))).toBe(false);
+  });
+
   it.each(["-wal", "-shm", "-journal"])("dry plan exercises the SQLite writer sidecar link guard: %s", (suffix) => {
     root = freshSample();
     const outside = mkdtempSync(join(tmpdir(), "semctx-setup-sidecar-outside-"));
