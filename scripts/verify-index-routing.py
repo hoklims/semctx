@@ -26,7 +26,11 @@ def main() -> int:
             raise RuntimeError(f"expected exactly one regression case: {name}")
         suite.addTest(case)
     result = unittest.TextTestRunner().run(suite)
-    return 0 if result.wasSuccessful() else 1
+    if result.skipped:
+        for case, reason in result.skipped:
+            print(f"skipped HOK-834 regression: {case.id()}: {reason}", file=sys.stderr)
+        return 1
+    return 0 if result.wasSuccessful() and result.testsRun == len(TESTS) else 1
 
 
 if __name__ == "__main__":

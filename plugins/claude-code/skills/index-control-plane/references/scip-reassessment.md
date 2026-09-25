@@ -51,10 +51,15 @@ supported machine-readable form.
 | TestForge TypeScript | 14/14 | 6/6 | 53.3 ms | 9.73 MB | 2.76 ms | 451 ms | 40.75 MB |
 | Semctx Python | 8/8 | 2/2 | 9.1 ms | 1.78 MB | 0.30 ms | 213 ms | 30.75 MB |
 
-Raw results:
+Historical raw results are held in the private source skill repository and are
+not bundled with the Semctx host plugins. They are available to authorized
+readers at the immutable HOK-834 skill commit:
 
-- `evals/scip-json-typescript-2026-08-16.json`
-- `evals/scip-json-python-2026-08-16.json`
+- [TypeScript pilot](https://github.com/hoklims/index-control-plane/blob/f75c6866f3f4d1b598a60f65651b04f83bec4662/evals/scip-json-typescript-2026-08-16.json)
+- [Python pilot](https://github.com/hoklims/index-control-plane/blob/f75c6866f3f4d1b598a60f65651b04f83bec4662/evals/scip-json-python-2026-08-16.json)
+
+The local clone path above records the historical patch workspace, not an
+installation requirement or a currently published upstream fix.
 
 ## Routing decision
 
