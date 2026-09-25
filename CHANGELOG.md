@@ -9,6 +9,17 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-09-25
+
+### Fixed
+
+- `semctx setup --dry-run --json` is now strictly read-only: it validates deterministic workspace
+  conflicts and reports planned config, semantic and `.gitignore` changes without writing files or
+  building an index. Index and readiness outcomes remain explicitly unknown until real setup runs.
+- `semctx install` runs that workspace preflight before any Codex or Claude marketplace mutation,
+  so a malformed config, unsafe link or scaffold conflict cannot leave host installation partially
+  applied first.
+
 ## [0.3.3] - 2026-09-24
 
 ### Added
@@ -664,7 +675,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/hoklims/semctx/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/hoklims/semctx/compare/v0.3.1...v0.3.3
 [0.3.1]: https://github.com/hoklims/semctx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/hoklims/semctx/compare/v0.2.1...v0.3.0

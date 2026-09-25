@@ -1,6 +1,6 @@
 # Semctx roadmap
 
-> Revised 2026-09-24. Released baseline: **v0.3.3**.
+> Revised 2026-09-25. Released baseline: **v0.3.4**.
 > Future versions are outcome targets, not available features or promised dates.
 
 ## Understand the risk of a change before running the checks
