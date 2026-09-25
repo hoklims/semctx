@@ -95,6 +95,27 @@ describe("semctx setup --dry-run --json", () => {
     expect(existsSync(join(root, ".gitignore"))).toBe(false);
   });
 
+  test("real preset setup rejects a linked sidecar before writing host or workspace files", () => {
+    const root = freshRoot();
+    const outside = freshRoot();
+    mkdirSync(join(root, ".semctx"), { recursive: true });
+    symlinkSync(outside, join(root, ".semctx", "semctx.db-wal"), process.platform === "win32" ? "junction" : "dir");
+    const result = run(root, ["--preset", "github-claude"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      preset: "github-claude",
+      conflict: { code: "CONFIG_INVALID" },
+    });
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+    expect(existsSync(join(root, ".semctx", "config.json"))).toBe(false);
+    expect(existsSync(join(root, ".semctx", "semantic"))).toBe(false);
+    expect(existsSync(join(outside, "semctx.yml"))).toBe(false);
+  });
+
   test("rejects a linked preset ancestor before any workspace or outside write", () => {
     const root = freshRoot();
     const outside = freshRoot();

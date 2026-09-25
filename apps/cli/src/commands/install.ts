@@ -486,6 +486,16 @@ function parseJsonObject(out: string): Record<string, unknown> | null {
   }
 }
 
+/** Preserve schema-valid setup reports even when their domain verdict exits non-zero. */
+export function setupExecutionFromCommandResult(result: CommandResult): SetupExecution {
+  const report = parseJsonObject(result.out);
+  return {
+    code: result.code,
+    report,
+    err: result.err || (result.code !== 0 && report === null ? result.out : ""),
+  };
+}
+
 /**
  * The version segment comes from the host, so it is allow-listed rather than filtered: a plugin
  * version is a semver-shaped token, and anything else — separators, drive letters, control
@@ -606,11 +616,7 @@ function defaultSetup(root: string, dryRun: boolean): SetupExecution {
     [process.execPath, entrypoint, "setup", "--root", root, "--json", ...(dryRun ? ["--dry-run"] : [])],
     root,
   );
-  return {
-    code: result.code,
-    report: result.code === 0 ? parseJsonObject(result.out) : null,
-    err: result.err || (result.code === 0 ? "" : result.out),
-  };
+  return setupExecutionFromCommandResult(result);
 }
 
 const DEFAULT_RUNTIME: InstallRuntime = {
@@ -1341,10 +1347,18 @@ function workspaceReport(
   const dryRun = flagBool(args, "dry-run");
   const result = runtime.setup(repositoryRoot, dryRun);
   if (result.code !== 0 || result.report === null) {
+    const conflict = result.report?.["conflict"];
+    const structuredMessage = conflict !== null && typeof conflict === "object" && !Array.isArray(conflict)
+      && typeof (conflict as Record<string, unknown>)["message"] === "string"
+      ? String((conflict as Record<string, unknown>)["message"])
+      : typeof result.report?.["reason"] === "string"
+        ? String(result.report["reason"])
+        : undefined;
     return {
       status: "failed",
       root: repositoryRoot,
-      error: result.err || "semctx setup failed without a structured report",
+      ...(result.report === null ? {} : { report: result.report }),
+      error: result.err || structuredMessage || "semctx setup failed without a structured report",
       next: `fix the reported issue, then run MCP semctx_setup (confirm:true) or 'semctx setup --root "${repositoryRoot}"'`,
     };
   }

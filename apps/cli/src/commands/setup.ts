@@ -38,6 +38,8 @@ type RenderableSetupPlan = ReturnType<typeof planSetupRepository>
 
 export function runSetup(root: string, args: ParsedArgs): number {
   if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
+  const conflict = runSetupWritePreflight(root, args);
+  if (conflict !== undefined) return conflict;
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
   const report = prepared.policyRefusal ?? setupRepository(root, setupOptions(prepared));
@@ -47,11 +49,26 @@ export function runSetup(root: string, args: ParsedArgs): number {
 export async function runSetupAsync(root: string, args: ParsedArgs): Promise<number> {
   if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
   const workers = parseIndexWorkers(args);
+  const conflict = runSetupWritePreflight(root, args);
+  if (conflict !== undefined) return conflict;
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
   const report = prepared.policyRefusal
     ?? await setupRepositoryAsync(root, { ...setupOptions(prepared), workers });
   return renderSetup(report, prepared);
+}
+
+function runSetupWritePreflight(root: string, args: ParsedArgs): number | undefined {
+  try {
+    const workspace = planSetupRepository(root, { polyglot: flagBool(args, "polyglot") });
+    const preset = flagString(args, "preset");
+    if (workspace.kind === "setup_plan" && preset !== undefined) {
+      planPreset(root, preset, args, { includeConfig: false, emitOutput: false });
+    }
+    return undefined;
+  } catch (error) {
+    return renderSetupConflict(root, args, error);
+  }
 }
 
 function runSetupPreflight(root: string, args: ParsedArgs): number {
@@ -72,21 +89,25 @@ function runSetupPreflight(root: string, args: ParsedArgs): number {
       plannedChanges: [...new Set([...workspace.plannedChanges, ...presetChanges])],
     }, prepared);
   } catch (error) {
-    if (!flagBool(args, "json") || !isSemctxError(error)) throw error;
-    json({
-      schemaVersion: 1,
-      kind: "setup_conflict",
-      repositoryRoot: root,
-      conflict: { code: error.code, message: error.message, details: error.details },
-      plannedChanges: [],
-      index: { status: "not-run", reason: "workspace-conflict" },
-      analysisReady: "unknown",
-      setupReady: false,
-      verdict: "SETUP_REFUSED",
-      preset: flagString(args, "preset") ?? null,
-    });
-    return 1;
+    return renderSetupConflict(root, args, error);
   }
+}
+
+function renderSetupConflict(root: string, args: ParsedArgs, error: unknown): number {
+  if (!flagBool(args, "json") || !isSemctxError(error)) throw error;
+  json({
+    schemaVersion: 1,
+    kind: "setup_conflict",
+    repositoryRoot: root,
+    conflict: { code: error.code, message: error.message, details: error.details },
+    plannedChanges: [],
+    index: { status: "not-run", reason: "workspace-conflict" },
+    analysisReady: "unknown",
+    setupReady: false,
+    verdict: "SETUP_REFUSED",
+    preset: flagString(args, "preset") ?? null,
+  });
+  return 1;
 }
 
 function renderSetupPlan(report: RenderableSetupPlan, prepared: PreparedCliSetup): number {

@@ -9,6 +9,7 @@ import {
   DEFERRED_CODEX_CACHE_CLEANUP_SCRIPT,
   resolveCodexCacheEntry,
   resolveCodexHome,
+  setupExecutionFromCommandResult,
   type CodexBundleProbe,
   type CodexCacheCleanupRequest,
   type CodexPayloadProbe,
@@ -273,6 +274,24 @@ function installWithLockedAdd(options: FakeOptions): ReturnType<typeof fakeRunti
 }
 
 describe("semctx install — no-brain host + repository bootstrap", () => {
+  test("preserves a structured nonzero setup report instead of flattening it into stderr", () => {
+    const report = {
+      kind: "setup_conflict",
+      verdict: "SETUP_REFUSED",
+      conflict: { code: "CONFIG_INVALID", message: "linked sidecar", details: { path: "semctx.db-wal" } },
+    };
+    expect(setupExecutionFromCommandResult({ code: 1, out: JSON.stringify(report), err: "" })).toEqual({
+      code: 1,
+      report,
+      err: "",
+    });
+    expect(setupExecutionFromCommandResult({ code: 1, out: "not json", err: "" })).toEqual({
+      code: 1,
+      report: null,
+      err: "not json",
+    });
+  });
+
   test("installs the Codex marketplace and plugin, then prepares the current repository", () => {
     const runtime = fakeRuntime({ codex: true, claude: false });
     const report = executeInstall("C:\\work\\project", parseArgs(["install"]), runtime);
@@ -1468,16 +1487,33 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
   });
 
   test("workspace preflight conflict blocks host mutation before real installation", () => {
+    const conflictReport = {
+      schemaVersion: 1,
+      kind: "setup_conflict",
+      repositoryRoot: "C:\\work\\project",
+      conflict: {
+        code: "CONFIG_INVALID",
+        message: "config.json is not valid JSON",
+        details: { path: "C:\\work\\project\\.semctx\\config.json" },
+      },
+      plannedChanges: [],
+      index: { status: "not-run", reason: "workspace-conflict" },
+      analysisReady: "unknown",
+      setupReady: false,
+      verdict: "SETUP_REFUSED",
+      preset: null,
+    };
     const runtime = fakeRuntime({
       codex: true,
       claude: true,
-      preflight: { code: 1, report: null, err: "[CONFIG_INVALID] config.json is not valid JSON" },
+      preflight: { code: 1, report: conflictReport, err: "" },
     });
     const report = executeInstall("C:\\work\\project", parseArgs(["install", "--host", "all"]), runtime);
 
     expect(report.ok).toBe(false);
     expect(report.workspace.status).toBe("failed");
-    expect(report.workspace.error).toContain("CONFIG_INVALID");
+    expect(report.workspace.error).toBe("config.json is not valid JSON");
+    expect(report.workspace.report).toEqual(conflictReport);
     expect(runtime.commands).toEqual([["git", "rev-parse", "--show-toplevel"]]);
     expect(runtime.setupRoots).toEqual([]);
   });
