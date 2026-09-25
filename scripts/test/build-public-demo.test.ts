@@ -535,14 +535,18 @@ describe("static page contract", () => {
     }
   });
 
-  test("browser reader accepts the committed strict evidence projection", () => {
+  test("browser reader accepts the committed candidate or release projection", () => {
     const evidence = JSON.parse(readFileSync(join(import.meta.dir, "..", "..", "site", "evidence.json"), "utf8"));
     const rendered = renderEvidenceInBrowserShell(evidence);
-    expect(evidence.releaseCommit).toEqual({
-      value: expect.stringMatching(/^[0-9a-f]{40}$/),
-      authority: "caller-asserted",
-    });
     expect(["candidate", "release"]).toContain(evidence.phase);
+    if (evidence.phase === "release") {
+      expect(evidence.releaseCommit).toEqual({
+        value: expect.stringMatching(/^[0-9a-f]{40}$/),
+        authority: "caller-asserted",
+      });
+    } else {
+      expect(evidence.releaseCommit).toBeNull();
+    }
     expect(rendered["phase-value"]?.textContent).toBe(evidence.phase);
     expect(rendered["global-verdict"]?.textContent).toBe("WARN");
     expect(rendered["artifact-version"]?.textContent).toBe("0.3.4");
