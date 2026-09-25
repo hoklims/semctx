@@ -9,6 +9,15 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Fixed
+
+- Index health no longer grows quadratically with the number of indexed candidates. It digests
+  each Plane-A scope once and groups results, fact batches and capability profiles by that key,
+  instead of re-digesting both scopes for every pair. `semctx index-health`, `verify`, `setup`,
+  `doctor` and the MCP control status share this path: on a synthetic 2,401-file corpus one report
+  took 296 s and now takes 1.9 s, and the report is byte-identical. The multicore indexing
+  baseline, which fingerprints this report in every sample, shrinks accordingly.
+
 ## [0.3.3] - 2026-09-24
 
 ### Added
