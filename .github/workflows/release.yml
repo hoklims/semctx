@@ -218,8 +218,8 @@ jobs:
           exit 1
 
   promote:
-    name: promote verified release
-    needs: registry-ready
+    name: promote delivered release
+    needs: deliver
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -230,7 +230,7 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 1
           persist-credentials: false
-      - name: Advance the stable plugin channel after npm is public
+      - name: Advance the stable plugin channel after npm and two-host delivery are proven
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -254,7 +254,7 @@ jobs:
             gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/heads/stable" \
               -f sha="$GITHUB_SHA" -F force=false
           fi
-      - name: Create the GitHub Release after npm is public
+      - name: Create the GitHub Release after candidate delivery is proven
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -294,10 +294,10 @@ jobs:
           [[ "$body" == *"$brief_title"* ]]
 
   deliver:
-    name: prove stable marketplace delivery
-    # Only after npm is public and `stable` points at this commit: installing from a marketplace
-    # that has not been promoted yet would prove the previous release, not this one.
-    needs: promote
+    name: prove immutable candidate marketplace delivery
+    # Prove the annotated release tag after npm is public, before exposing it through `stable`.
+    # The tag is immutable release authority; promotion depends on this two-host witness.
+    needs: registry-ready
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -361,8 +361,9 @@ jobs:
           command -v codex
           command -v claude
       - run: bun install --frozen-lockfile
-      - name: Prove both hosts can install the promoted release
+      - name: Prove both hosts can install the immutable release candidate
         env:
+          SEMCTX_DELIVERY_RELEASE_REF: ${{ github.ref_name }}
           SEMCTX_DELIVERY_SANDBOX: ${{ runner.temp }}/delivery-sandbox
           SEMCTX_RELEASE_CHECKOUT: ${{ github.workspace }}
           SEMCTX_FOREIGN_REPOSITORY: ${{ runner.temp }}/foreign-repository

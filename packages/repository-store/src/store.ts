@@ -36,6 +36,9 @@ export function assertUnlinkedDatabase(dbPath: string): void {
     if (stat.isSymbolicLink()) {
       throw new SemctxError("CONFIG_INVALID", "linked repository store files are unsupported", { path });
     }
+    if (!stat.isFile()) {
+      throw new SemctxError("CONFIG_INVALID", "repository store files must be regular files", { path });
+    }
   }
 }
 

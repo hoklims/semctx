@@ -1,13 +1,15 @@
 import {
   evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   setupRepositoryAsync,
   type SetupPhaseEvent,
   type SetupRefusedReport,
   type SetupResult,
 } from "@semantic-context/app-services";
+import { isSemctxError } from "@semantic-context/core";
 import { isInitialized, loadConfig } from "@semantic-context/repository-store";
-import { runPreset, validatePreset } from "./preset";
+import { planPreset, runPreset, validatePreset, type PresetPlan } from "./preset";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, success, warn, fail, json, c, nowIso } from "../output";
@@ -26,11 +28,18 @@ interface PreparedCliSetup {
   asJson: boolean;
   polyglot: boolean;
   policyRefusal: SetupRefusedReport | null;
+  presetPlan: PresetPlan | null;
   onPhase: ((event: SetupPhaseEvent) => void) | undefined;
   earlyExit?: number;
 }
 
+type RenderableSetupPlan = ReturnType<typeof planSetupRepository>
+  | (Extract<ReturnType<typeof planSetupRepository>, { kind: "setup_plan" }> & { presetPlan: PresetPlan });
+
 export function runSetup(root: string, args: ParsedArgs): number {
+  if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
+  const conflict = runSetupWritePreflight(root, args);
+  if (conflict !== undefined) return conflict;
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
   const report = prepared.policyRefusal ?? setupRepository(root, setupOptions(prepared));
@@ -38,12 +47,82 @@ export function runSetup(root: string, args: ParsedArgs): number {
 }
 
 export async function runSetupAsync(root: string, args: ParsedArgs): Promise<number> {
+  if (flagBool(args, "dry-run")) return runSetupPreflight(root, args);
   const workers = parseIndexWorkers(args);
+  const conflict = runSetupWritePreflight(root, args);
+  if (conflict !== undefined) return conflict;
   const prepared = prepareCliSetup(root, args);
   if (prepared.earlyExit !== undefined) return prepared.earlyExit;
   const report = prepared.policyRefusal
     ?? await setupRepositoryAsync(root, { ...setupOptions(prepared), workers });
   return renderSetup(report, prepared);
+}
+
+function runSetupWritePreflight(root: string, args: ParsedArgs): number | undefined {
+  try {
+    const workspace = planSetupRepository(root, { polyglot: flagBool(args, "polyglot") });
+    const preset = flagString(args, "preset");
+    if (workspace.kind === "setup_plan" && preset !== undefined) {
+      planPreset(root, preset, args, { includeConfig: false, emitOutput: false });
+    }
+    return undefined;
+  } catch (error) {
+    return renderSetupConflict(root, args, error);
+  }
+}
+
+function runSetupPreflight(root: string, args: ParsedArgs): number {
+  try {
+    parseIndexWorkers(args); // validate CLI input without starting workers or indexing
+    const prepared = prepareCliSetup(root, args);
+    if (prepared.earlyExit !== undefined) return prepared.earlyExit;
+    const workspace = planSetupRepository(root, { polyglot: prepared.polyglot });
+    if (workspace.kind !== "setup_plan" || prepared.presetPlan === null) {
+      return renderSetupPlan(workspace, prepared);
+    }
+    const presetChanges = prepared.presetPlan.files
+      .filter((file) => file.action !== "skip-exists")
+      .map((file) => file.path);
+    return renderSetupPlan({
+      ...workspace,
+      presetPlan: prepared.presetPlan,
+      plannedChanges: [...new Set([...workspace.plannedChanges, ...presetChanges])],
+    }, prepared);
+  } catch (error) {
+    return renderSetupConflict(root, args, error);
+  }
+}
+
+function renderSetupConflict(root: string, args: ParsedArgs, error: unknown): number {
+  if (!flagBool(args, "json") || !isSemctxError(error)) throw error;
+  json({
+    schemaVersion: 1,
+    kind: "setup_conflict",
+    repositoryRoot: root,
+    conflict: { code: error.code, message: error.message, details: error.details },
+    plannedChanges: [],
+    index: { status: "not-run", reason: "workspace-conflict" },
+    analysisReady: "unknown",
+    setupReady: false,
+    verdict: "SETUP_REFUSED",
+    preset: flagString(args, "preset") ?? null,
+  });
+  return 1;
+}
+
+function renderSetupPlan(report: RenderableSetupPlan, prepared: PreparedCliSetup): number {
+  if (prepared.asJson) {
+    json({ ...report, preset: prepared.preset ?? null });
+  } else if (report.kind === "setup_refused") {
+    fail(report.reason);
+    for (const step of report.nextSteps) info(c.dim(`  → ${step}`));
+  } else {
+    info(c.dim(`  config    ${report.config.action}`));
+    info(c.dim(`  semantic  ${report.plannedChanges.length} tracked change(s)`));
+    info(c.dim("  index     not run (dry-run)"));
+    success("setup plan is ready; nothing written");
+  }
+  return report.kind === "setup_refused" ? 1 : 0;
 }
 
 function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {
@@ -54,6 +133,7 @@ function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {
   if (!asJson) heading(`semctx setup  ${c.dim("·")}  ${root}`);
 
   let policyRefusal: SetupRefusedReport | null = null;
+  let presetPlan: PresetPlan | null = null;
 
   // Optional host presets (GitHub Action / Claude Code files) remain CLI-only.
   if (preset !== undefined) {
@@ -71,12 +151,13 @@ function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {
 
     if (policyRefusal === null) {
       if (!asJson) info(c.dim(`  applying preset "${preset}"…`));
-      const code = runPreset(root, preset, args, {
-        includeConfig: false,
-        emitOutput: false,
-      });
+      const presetOptions = { includeConfig: false, emitOutput: false } as const;
+      if (flagBool(args, "dry-run")) {
+        presetPlan = planPreset(root, preset, args, presetOptions);
+      }
+      const code = flagBool(args, "dry-run") ? 0 : runPreset(root, preset, args, presetOptions);
       if (code !== 0) {
-        return { preset, asJson, polyglot, policyRefusal, onPhase: undefined, earlyExit: code };
+        return { preset, asJson, polyglot, policyRefusal, presetPlan, onPhase: undefined, earlyExit: code };
       }
     }
   }
@@ -86,6 +167,7 @@ function prepareCliSetup(root: string, args: ParsedArgs): PreparedCliSetup {
     asJson,
     polyglot,
     policyRefusal,
+    presetPlan,
     onPhase: asJson
       ? undefined
       : (event) => {

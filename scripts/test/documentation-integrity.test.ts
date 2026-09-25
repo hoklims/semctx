@@ -39,7 +39,7 @@ function fixture(): string {
     "packages/mcp-server/src/tool-contract.ts",
     `const TOOL_NAMES = [\n${Array.from({ length: toolCount }, (_, index) => `  "tool-${index}",`).join("\n")}\n] as const;\n`,
   );
-  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-25\n`);
+  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-25\n\n## [0.3.3] - 2026-09-24\n`);
   write(root, "ROADMAP.md", `Released baseline: **v${version}**\n`);
   write(root, "docs/README.md", "# Docs\n");
   write(root, "docs/troubleshooting.md", "# Troubleshooting\n");
@@ -110,6 +110,30 @@ describe("documentation integrity", () => {
       line: 1,
       message: `demo evidence must be release phase for package ${version}`,
     });
+  });
+
+  test("candidate docs may retain the immediately preceding published evidence, never older or future evidence", () => {
+    const root = fixture();
+    write(root, "site/evidence.json", JSON.stringify({
+      phase: "candidate",
+      releaseCommit: { value: "a".repeat(40), authority: "caller-asserted" },
+      demo: { packageVersion: "0.3.3" },
+    }));
+    expect(checkDocumentation(root)).toEqual([]);
+    expect(checkDocumentation(root, { requireReleaseEvidence: true })).toContainEqual({
+      file: "site/evidence.json",
+      line: 1,
+      message: `demo evidence must be release phase for package ${version}`,
+    });
+
+    for (const staleVersion of ["0.3.2", "0.3.5"]) {
+      write(root, "site/evidence.json", JSON.stringify({ phase: "candidate", demo: { packageVersion: staleVersion } }));
+      expect(checkDocumentation(root)).toContainEqual({
+        file: "site/evidence.json",
+        line: 1,
+        message: `demo evidence must be candidate or release phase for package ${version} or previous published package 0.3.3`,
+      });
+    }
   });
 
   test("publication rejects a well-formed release commit that does not match the local tag", () => {

@@ -40,6 +40,7 @@ Core:
                                     isolated store no local Git config can redirect (non-mutating,
                                     deadline-bounded and acceptance-capped; UNKNOWN offline)
   setup [--preset github-claude]   one command: config + index + semantic scaffold + check (idempotent)
+      --dry-run --json              validate conflicts + emit planned changes; no writes or indexing
       --polyglot                    create a new workspace with config v2 glob selection
       --workers auto|N              TypeScript workers (default: 1; auto is evidence-gated by platform)
   init [--preset github-claude]    initialise .semctx/ (db + config)

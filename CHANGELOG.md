@@ -13,15 +13,19 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ### Fixed
 
-- Ship the `index-control-plane` skill to both Semctx plugins. After an operator records a
-  recovered Semctx index, routing rereads the host verdict instead of retaining a negative cached
-  result (HOK-834). A host-version mismatch remains visible rather than rebuilding away the skew.
+- `semctx setup --dry-run --json` is now strictly read-only: it validates deterministic workspace
+  conflicts and reports planned config, semantic and `.gitignore` changes without writing files or
+  building an index. Index and readiness outcomes remain explicitly unknown until real setup runs.
+- `semctx install` runs that workspace preflight before any Codex or Claude marketplace mutation,
+  so a malformed config, unsafe link or scaffold conflict cannot leave host installation partially
+  applied first.
+- The `index-control-plane` skill rereads the Semctx verdict after a recovered index is recorded,
+  so a negative cached route does not hide recovery (HOK-834). Host version skew stays visible.
 
 ### Added
 
-- The plugin build and parity gates verify the runtime skill and Python scripts in both host
-  payloads; the regression cases remain in the shared source. Installing the plugin does not enable host routing
-  hooks automatically.
+- Both marketplace plugins ship the corrected index-control runtime skill and scripts. The shared
+  source contains its regression suite; native host routing hooks remain separately configured.
 
 ## [0.3.3] - 2026-09-24
 

@@ -580,7 +580,7 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(release).toBeGreaterThan(stable);
   });
 
-  test("proves stable marketplace delivery only after npm and stable carry this commit", () => {
+  test("proves immutable two-host delivery before exposing the commit through stable", () => {
     const workflow = read(".github/workflows/release.yml");
     const parsed = Bun.YAML.parse(workflow) as {
       jobs: Record<string, {
@@ -591,17 +591,17 @@ describe("Codex and Claude Code plugin parity", () => {
     const deliver = parsed.jobs["deliver"];
     expect(deliver).toBeDefined();
 
-    // Ordering is the invariant: installing from a marketplace that has not been promoted would
-    // prove the previous release. `needs` is what enforces it, so it is asserted structurally.
+    // Ordering is the invariant: the immutable tag is proven after npm, then and only then may
+    // stable expose the candidate. `needs` is what enforces this, so assert it structurally.
     expect(parsed.jobs["registry-ready"]?.needs).toBe("publish");
-    expect(parsed.jobs["promote"]?.needs).toBe("registry-ready");
-    expect(deliver?.needs).toBe("promote");
+    expect(deliver?.needs).toBe("registry-ready");
+    expect(parsed.jobs["promote"]?.needs).toBe("deliver");
 
     const steps = deliver?.steps ?? [];
     const stepNames = steps.map((step) => step.name ?? "");
     expect(stepNames).toContain("Reserve the delivery proof artifact");
     expect(stepNames).toContain("Provision both host CLIs");
-    expect(stepNames).toContain("Prove both hosts can install the promoted release");
+    expect(stepNames).toContain("Prove both hosts can install the immutable release candidate");
     expect(stepNames).toContain("Upload the delivery proof");
 
     // The proof must be archivable with the run that produced it, including when the run failed:
@@ -619,7 +619,7 @@ describe("Codex and Claude Code plugin parity", () => {
     const uploaded = typeof uploadedPath === "string" ? uploadedPath : "";
     const reserveIndex = stepNames.indexOf("Reserve the delivery proof artifact");
     const provisionIndex = stepNames.indexOf("Provision both host CLIs");
-    const proveIndex = stepNames.indexOf("Prove both hosts can install the promoted release");
+    const proveIndex = stepNames.indexOf("Prove both hosts can install the immutable release candidate");
     expect(reserveIndex).toBe(0);
     expect(reserveIndex).toBeLessThan(provisionIndex);
     expect(provisionIndex).toBeLessThan(proveIndex);
@@ -653,7 +653,8 @@ describe("Codex and Claude Code plugin parity", () => {
     expect(workflow).not.toContain("vars.CLAUDE_CLI_PACKAGE");
 
     // The smokes run against a repository outside both the checkout and every plugin cache.
-    const proveStep = steps.find((step) => step.name === "Prove both hosts can install the promoted release");
+    const proveStep = steps.find((step) => step.name === "Prove both hosts can install the immutable release candidate");
+    expect(proveStep?.env?.["SEMCTX_DELIVERY_RELEASE_REF"]).toBe("${{ github.ref_name }}");
     const prove = proveStep?.run ?? "";
     expect(prove).toContain("git init --quiet \"$SEMCTX_FOREIGN_REPOSITORY\"");
     expect(prove).toContain("bun scripts/prove-stable-delivery.ts");

@@ -486,6 +486,16 @@ function parseJsonObject(out: string): Record<string, unknown> | null {
   }
 }
 
+/** Preserve schema-valid setup reports even when their domain verdict exits non-zero. */
+export function setupExecutionFromCommandResult(result: CommandResult): SetupExecution {
+  const report = parseJsonObject(result.out);
+  return {
+    code: result.code,
+    report,
+    err: result.err || (result.code !== 0 && report === null ? result.out : ""),
+  };
+}
+
 /**
  * The version segment comes from the host, so it is allow-listed rather than filtered: a plugin
  * version is a semver-shaped token, and anything else — separators, drive letters, control
@@ -598,22 +608,15 @@ function defaultReadCodexPluginPayload(path: string): CodexPayloadProbe | null {
 }
 
 function defaultSetup(root: string, dryRun: boolean): SetupExecution {
-  if (dryRun) {
-    return { code: 0, report: null, err: "" };
-  }
   const entrypoint = process.argv[1];
   if (entrypoint === undefined) {
     return { code: 1, report: null, err: "cannot resolve the running semctx entrypoint" };
   }
   const result = defaultRun(
-    [process.execPath, entrypoint, "setup", "--root", root, "--json"],
+    [process.execPath, entrypoint, "setup", "--root", root, "--json", ...(dryRun ? ["--dry-run"] : [])],
     root,
   );
-  return {
-    code: result.code,
-    report: result.code === 0 ? parseJsonObject(result.out) : null,
-    err: result.err || (result.code === 0 ? "" : result.out),
-  };
+  return setupExecutionFromCommandResult(result);
 }
 
 const DEFAULT_RUNTIME: InstallRuntime = {
@@ -1341,20 +1344,25 @@ function workspaceReport(
       next: "open a Git repository and run MCP semctx_setup (confirm:true) or 'semctx setup' once",
     };
   }
-  if (flagBool(args, "dry-run")) {
-    return { status: "planned", root: repositoryRoot };
-  }
-
-  const result = runtime.setup(repositoryRoot, false);
+  const dryRun = flagBool(args, "dry-run");
+  const result = runtime.setup(repositoryRoot, dryRun);
   if (result.code !== 0 || result.report === null) {
+    const conflict = result.report?.["conflict"];
+    const structuredMessage = conflict !== null && typeof conflict === "object" && !Array.isArray(conflict)
+      && typeof (conflict as Record<string, unknown>)["message"] === "string"
+      ? String((conflict as Record<string, unknown>)["message"])
+      : typeof result.report?.["reason"] === "string"
+        ? String(result.report["reason"])
+        : undefined;
     return {
       status: "failed",
       root: repositoryRoot,
-      error: result.err || "semctx setup failed without a structured report",
+      ...(result.report === null ? {} : { report: result.report }),
+      error: result.err || structuredMessage || "semctx setup failed without a structured report",
       next: `fix the reported issue, then run MCP semctx_setup (confirm:true) or 'semctx setup --root "${repositoryRoot}"'`,
     };
   }
-  return { status: "ready", root: repositoryRoot, report: result.report };
+  return { status: dryRun ? "planned" : "ready", root: repositoryRoot, report: result.report };
 }
 
 function hostOk(report: HostInstallReport): boolean {
@@ -1427,20 +1435,69 @@ export function executeInstall(
 ): InstallReport {
   const selection = parseSelection(args);
   const dryRun = flagBool(args, "dry-run");
-  const hosts: Record<Host, HostInstallReport> = {
+  const newHostReports = (): Record<Host, HostInstallReport> => ({
     codex: hostReport(selected(selection, "codex")),
     claude: hostReport(selected(selection, "claude")),
-  };
+  });
+  let hosts = newHostReports();
 
+  // Workspace conflicts are deterministic and repository-local. Refuse them before any host
+  // marketplace mutation, even for a real install.
+  const preflightArgs: ParsedArgs = {
+    ...args,
+    flags: new Map(args.flags).set("dry-run", true),
+  };
+  const workspacePreflight = workspaceReport(root, preflightArgs, runtime);
+  if (workspacePreflight.status === "failed") {
+    return {
+      ok: false,
+      version: packageJson.version,
+      dryRun,
+      selection,
+      hosts,
+      workspace: workspacePreflight,
+      next: nextSteps(hosts, workspacePreflight, dryRun),
+    };
+  }
+
+  // Aggregate every requested host's read-only inventory and plan before the first host mutation.
+  // A known conflict on host B must not leave host A installed.
   for (const host of ["codex", "claude"] as const) {
     const report = hosts[host];
     if (!report.requested) continue;
     if (!detectHost(host, root, selection, runtime, report)) continue;
-    if (host === "codex") installCodex(root, dryRun, runtime, report);
-    else installClaude(root, dryRun, runtime, report);
+    if (host === "codex") installCodex(root, true, runtime, report);
+    else installClaude(root, true, runtime, report);
   }
 
-  const workspace = workspaceReport(root, args, runtime);
+  const plannedReports = (Object.keys(hosts) as Host[])
+    .map((host) => hosts[host])
+    .filter((report) => report.requested);
+  const planAdmissible = plannedReports.every(
+    (report) => hostOk(report) || (selection === "auto" && report.status === "not-detected"),
+  ) && plannedReports.some(hostOk);
+  if (!planAdmissible || dryRun) {
+    const ok = planAdmissible;
+    return {
+      ok,
+      version: packageJson.version,
+      dryRun,
+      selection,
+      hosts,
+      workspace: workspacePreflight,
+      next: nextSteps(hosts, workspacePreflight, dryRun),
+    };
+  }
+
+  hosts = newHostReports();
+  for (const host of ["codex", "claude"] as const) {
+    const report = hosts[host];
+    if (!report.requested) continue;
+    if (!detectHost(host, root, selection, runtime, report)) continue;
+    if (host === "codex") installCodex(root, false, runtime, report);
+    else installClaude(root, false, runtime, report);
+  }
+
   const requestedReports = (Object.keys(hosts) as Host[])
     .map((host) => hosts[host])
     .filter((report) => report.requested);
@@ -1449,6 +1506,15 @@ export function executeInstall(
     (report) => hostOk(report) || (selection === "auto" && report.status === "not-detected"),
   );
   const someHostReady = successfulHosts.length > 0;
+  const hostsConverged = explicitHostsOk && someHostReady;
+  const workspace = hostsConverged
+    ? workspaceReport(root, args, runtime)
+    : {
+      status: "skipped" as const,
+      root: workspacePreflight.root,
+      ...(workspacePreflight.report === undefined ? {} : { report: workspacePreflight.report }),
+      next: "repository setup was not applied because requested host installation did not converge",
+    };
   const workspaceOk = workspace.status !== "failed";
   const ok = explicitHostsOk && someHostReady && workspaceOk;
 

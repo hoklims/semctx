@@ -1,10 +1,6 @@
 import {
-  isInitialized,
-  loadConfig,
-} from "@semantic-context/repository-store";
-import {
   SETUP_POLYGLOT_V1_REFUSE_REASON_CODE,
-  evaluatePolyglotSetupPolicy,
+  planSetupRepository,
   setupRepository,
   type SetupRepositoryReport,
   type SetupRefusedReport,
@@ -85,33 +81,22 @@ export function setupTool(
   root: string,
   input: { confirm?: boolean; polyglot?: boolean; now?: string } = {},
 ): SetupToolResult {
+  // The shared read-only planner owns deterministic workspace/config/scaffold/.gitignore
+  // validation. Run it before both the unconfirmed response and every confirmed write.
+  const plan = planSetupRepository(root, {
+    ...(input.polyglot === true ? { polyglot: true } : {}),
+  });
+  if (plan.kind === "setup_refused") return plan;
+
   if (input.confirm !== true) {
-    const initialized = isInitialized(root);
-    // When `.semctx/` exists, always load config: unreadable/schema-invalid must NOT fall
-    // through to a healthy preflight with a suggested next call. Rethrow → MCP catalogue
-    // CONFIG_INVALID (ADR 0012). Polyglot refuse is pure policy on the loaded version.
-    if (initialized) {
-      const config = loadConfig(root);
-      if (input.polyglot === true) {
-        const refused = evaluatePolyglotSetupPolicy({
-          repositoryRoot: root,
-          polyglot: true,
-          alreadyInitialized: true,
-          configVersion: config.version,
-        });
-        if (refused !== null) {
-          return refused;
-        }
-      }
-    }
     return {
       schemaVersion: 1,
       kind: "setup_preflight",
       repositoryRoot: root,
-      initialized,
+      initialized: plan.alreadyInitialized,
       confirmRequired: true,
       requiresUserAuthorization: true,
-      message: initialized
+      message: plan.alreadyInitialized
         ? "Workspace already has .semctx/. Preflight only — no writes. After the user explicitly authorises writes, re-call semctx_setup with confirm:true to re-index and re-validate (idempotent; does not overwrite authored .sem files or an existing config). Do not auto-follow this response as a write."
         : "Workspace is not initialized. Preflight only — no writes. After the user explicitly authorises writes, re-call semctx_setup with confirm:true to write .semctx/, scaffold semantic files, and build the deterministic index. Do not auto-follow this response as a write. No global semctx package install is required when using the plugin MCP.",
       next: {

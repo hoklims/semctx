@@ -3,10 +3,14 @@ import { join } from "node:path";
 import {
   createDefaultConfig,
   createGlobSelectionConfig,
+  SemctxError,
   type SemctxConfig,
 } from "@semantic-context/core";
 import {
   isInitialized,
+  assertUnlinkedDatabase,
+  assertUnlinkedWorkspace,
+  dbPath,
   loadConfig,
   saveConfig,
   semctxDir as resolveSemctxDir,
@@ -144,6 +148,39 @@ export interface SetupRefusedReport {
 
 export type SetupResult = SetupRepositoryReport | SetupRefusedReport;
 
+export interface SetupPlanReport {
+  schemaVersion: 1;
+  kind: "setup_plan";
+  repositoryRoot: string;
+  alreadyInitialized: boolean;
+  polyglot: boolean;
+  config: {
+    action: "create" | "keep";
+    version: number;
+    mode: string;
+  };
+  semantic: {
+    files: Array<{ file: string; action: "create" | "overwrite" | "skip-exists" }>;
+    gitignore: "create" | "update" | "present";
+  };
+  selection: {
+    sourceFiles: number;
+    selectedFiles: number;
+    selectedByLanguage: Record<string, number>;
+    excluded: number;
+    disabled: number;
+    unsupported: number;
+    failed: number;
+  };
+  plannedChanges: string[];
+  index: { status: "not-run"; reason: "dry-run" };
+  analysisReady: "unknown";
+  setupReady: "unknown";
+  verdict: "SETUP_PLANNED";
+}
+
+export type SetupPlanResult = SetupPlanReport | SetupRefusedReport;
+
 /** Inputs for the pure polyglot-vs-config-version policy evaluator. */
 export interface EvaluatePolyglotSetupPolicyInput {
   repositoryRoot: string;
@@ -240,6 +277,83 @@ function smartConfig(root: string, polyglot: boolean): SemctxConfig {
 function resolveIndexedAt(now: string | undefined): string {
   if (now !== undefined) return now;
   return new Date().toISOString();
+}
+
+/**
+ * Read-only setup planner. It exercises every deterministic workspace check used before setup
+ * writes (config validity/link safety, semantic scaffold targets, and .gitignore) while keeping
+ * index/runtime outcomes explicitly unknown.
+ */
+export function planSetupRepository(
+  root: string,
+  options: Pick<SetupRepositoryOptions, "polyglot"> = {},
+): SetupPlanResult {
+  const polyglot = options.polyglot === true;
+  assertUnlinkedWorkspace(root);
+  assertUnlinkedDatabase(dbPath(root));
+  const alreadyInitialized = isInitialized(root);
+  const config = alreadyInitialized ? loadConfig(root) : smartConfig(root, polyglot);
+  const refused = evaluatePolyglotSetupPolicy({
+    repositoryRoot: root,
+    polyglot,
+    alreadyInitialized,
+    configVersion: config.version,
+  });
+  if (refused !== null) return refused;
+
+  const scaffold = initSemanticScaffold(root, { dryRun: true });
+  const authored = loadSemanticModel(root);
+  const syntaxErrors = authored.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
+  if (syntaxErrors.length > 0) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model contains syntax errors", {
+      diagnostics: syntaxErrors.map((diagnostic) => ({
+        file: diagnostic.file,
+        line: diagnostic.line,
+        column: diagnostic.column,
+        ...(diagnostic.code === undefined ? {} : { code: diagnostic.code }),
+        message: diagnostic.message,
+      })),
+    });
+  }
+  const discovery = discoverRepository(config);
+  const selectedByLanguage = Object.fromEntries(
+    ["typescript", "python", "markdown", "sql"].map((language) => [
+      language,
+      discovery.files.filter((file) => (file.language ?? sourceLanguage(file.relPath)) === language).length,
+    ]),
+  );
+  const plannedChanges = [
+    ...(!alreadyInitialized ? [".semctx/config.json"] : []),
+    ...scaffold.plan.filter((entry) => entry.action !== "skip-exists").map((entry) => entry.file),
+    ...(scaffold.gitignore.action === "present" ? [] : [scaffold.gitignore.path]),
+  ];
+  return {
+    schemaVersion: 1,
+    kind: "setup_plan",
+    repositoryRoot: root,
+    alreadyInitialized,
+    polyglot,
+    config: {
+      action: alreadyInitialized ? "keep" : "create",
+      version: config.version,
+      mode: config.version === 2 ? "glob" : "legacy",
+    },
+    semantic: { files: scaffold.plan, gitignore: scaffold.gitignore.action },
+    selection: {
+      sourceFiles: countTypeScriptFiles(config),
+      selectedFiles: discovery.files.length,
+      selectedByLanguage,
+      excluded: discovery.candidates.filter((entry) => entry.selectionDecision === "excluded").length,
+      disabled: discovery.candidates.filter((entry) => entry.analysisOutcome === "disabled").length,
+      unsupported: discovery.candidates.filter((entry) => entry.analysisOutcome === "unsupported").length,
+      failed: discovery.candidates.filter((entry) => entry.analysisOutcome === "failed").length,
+    },
+    plannedChanges,
+    index: { status: "not-run", reason: "dry-run" },
+    analysisReady: "unknown",
+    setupReady: "unknown",
+    verdict: "SETUP_PLANNED",
+  };
 }
 
 interface PreparedSetupRepository {
