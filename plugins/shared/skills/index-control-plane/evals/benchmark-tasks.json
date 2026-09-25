@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"computeG3SearchCorpusSeal","expected":"packages/arena/src/tactical/search-freeze.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"PROTOCOL_PIN_BUILD","expected":"packages/channel/src/protocol-pins.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"ChainDamageSpec","expected":"packages/core/src/spells.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"evaluateCommittedTurn","expected":"packages/decision/src/committed-turn-evaluation.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"tacticalLiveDecide","expected":"packages/decision/src/tactical-live-decide.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"symbol","query":"createParallelCoreScorer","expected":"packages/loadout/scripts/parallel-core-scorer.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"concept","query":"where is the G3 search corpus seal computed","expected":"packages/arena/src/tactical/search-freeze.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"concept","query":"safe incumbent timeout decision handling","expected":"packages/decision/src/decide.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"concept","query":"loadout kit analysis entry point","expected":"packages/loadout/scripts/analyze-kit.ts"},
+    {"project":"battlebot","root":"E:/dofus_battlebot","mode":"architecture","query":"tacticalLiveDecide","expected":"packages/decision/src/tactical-live-decide.ts"},
+
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"LeaseManagementController","expected":"apps/lease-management-api/src/lease-management/interface/http/lease-management.controller.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"resolveTenantPrincipal","expected":"apps/registry-api/src/registry/interface/mcp/tenant-principal.resolver.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"GlobalSearchQuery","expected":"packages/contracts/src/search.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"RegistryModule","expected":"apps/registry-api/src/registry/registry.module.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"CreateUnitInput","expected":"packages/contracts/src/unit.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"symbol","query":"createDocumentStorageTokenProvider","expected":"apps/registry-api/src/registry/registry.module.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"concept","query":"tenant ownership validation before document attachment","expected":"apps/registry-api/src/registry/application/features/attach-document/attach-document.handler.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"concept","query":"lease creation application handler","expected":"apps/lease-management-api/src/lease-management/application/features/create-lease/create-lease.handler.ts"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"concept","query":"shared agent memory validation script","expected":"scripts/validate-memory-files.sh"},
+    {"project":"modelo","root":"E:/modelo-suite/repository","mode":"architecture","query":"RegistryModule","expected":"apps/registry-api/src/registry/registry.module.ts"},
+
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"TestForge","expected":"src/sdk/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"verifyCampaign","expected":"src/engine/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"decideEvidence","expected":"src/core/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"parseVerificationRequest","expected":"src/contracts/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"createTestForgeServer","expected":"src/mcp/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"symbol","query":"replayEvidenceManifest","expected":"src/core/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"concept","query":"verify an evidence campaign against isolated candidates","expected":"src/engine/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"concept","query":"validate and parse a verification request contract","expected":"src/contracts/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"concept","query":"portable safe relative path validation","expected":"src/core/index.ts"},
+    {"project":"testforge","root":"E:/testforge","mode":"architecture","query":"TestForge","expected":"src/sdk/index.ts"}
+  ]
+}

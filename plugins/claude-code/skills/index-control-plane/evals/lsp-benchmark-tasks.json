@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "server_versions": {
+    "typescript": "typescript-language-server 5.3.0 + TypeScript 5.9.3",
+    "python": "pyright 1.1.411"
+  },
+  "tasks": [
+    {
+      "language": "typescript",
+      "root": "E:/dofus_battlebot",
+      "request": "definition",
+      "symbol": "computeG3SearchCorpusSeal",
+      "document": "packages/arena/src/tactical/search-freeze.test.ts",
+      "anchor": "computeG3SearchCorpusSeal()",
+      "occurrence": 1,
+      "expected": "packages/arena/src/tactical/search-freeze.ts"
+    },
+    {
+      "language": "typescript",
+      "root": "E:/dofus_battlebot",
+      "request": "references",
+      "symbol": "computeG3SearchCorpusSeal",
+      "document": "packages/arena/src/tactical/search-freeze.ts",
+      "anchor": "computeG3SearchCorpusSeal",
+      "occurrence": 1,
+      "expected": "packages/arena/src/tactical/search-freeze.test.ts"
+    },
+    {
+      "language": "python",
+      "root": "C:/maintenence/semctx",
+      "request": "definition",
+      "symbol": "repo_root",
+      "document": "benchmarks/change-impact-eval/scripts/select_commits.py",
+      "anchor": "bench_config.repo_root()",
+      "occurrence": 1,
+      "expected": "benchmarks/change-impact-eval/scripts/bench_config.py"
+    },
+    {
+      "language": "python",
+      "root": "C:/maintenence/semctx",
+      "request": "references",
+      "symbol": "repo_root",
+      "document": "benchmarks/change-impact-eval/scripts/bench_config.py",
+      "anchor": "repo_root",
+      "occurrence": 1,
+      "expected": "benchmarks/change-impact-eval/scripts/select_commits.py"
+    }
+  ]
+}

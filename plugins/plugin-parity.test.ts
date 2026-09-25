@@ -47,6 +47,16 @@ function distFiles(
     .sort();
 }
 
+function indexSkillFiles(directory: string, relativeDir = ""): string[] {
+  return readdirSync(resolve(repoRoot, directory, relativeDir), { withFileTypes: true })
+    .filter((entry) => entry.name !== "__pycache__" && !entry.name.endsWith(".pyc"))
+    .flatMap((entry) => {
+      const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+      return entry.isDirectory() ? indexSkillFiles(directory, relativePath) : entry.isFile() ? [relativePath] : [];
+    })
+    .sort();
+}
+
 function skillPath(host: SkillHost): string {
   return host === "claude-code"
     ? "plugins/claude-code/skills/semctx-control/SKILL.md"
@@ -69,6 +79,31 @@ function sharedLifecycleBody(skill: string): string {
 }
 
 describe("Codex and Claude Code plugin parity", () => {
+  test("ships the HOK-834 runtime skill to both hosts and keeps its regression cases", () => {
+    const source = "plugins/shared/skills/index-control-plane";
+    const files = indexSkillFiles(source);
+    const shipped = files.filter((path) =>
+      !path.startsWith("tests/") && !/^evals\/(?:benchmark-2026|scip-)/.test(path));
+    for (const required of [
+      "SKILL.md",
+      "scripts/index_control.py",
+      "scripts/reconcile_worker.py",
+      "tests/test_reconcile_worker.py",
+    ]) expect(files).toContain(required);
+    expect(read(`${source}/tests/test_reconcile_worker.py`)).toContain(
+      "def test_operator_record_recovers_negative_verdict_without_rebuild",
+    );
+    for (const host of ["claude-code", "semctx-control"] as const) {
+      const destination = `plugins/${host}/skills/index-control-plane`;
+      expect(indexSkillFiles(destination)).toEqual(shipped);
+      for (const file of shipped) {
+        expect(readFileSync(resolve(repoRoot, destination, file))).toEqual(
+          readFileSync(resolve(repoRoot, source, file)),
+        );
+      }
+    }
+  });
+
   test("renders the machine workflow contract into both host adapters", () => {
     const template = read("plugins/shared/skills/semctx-control/SKILL.md");
     expect(template).toContain("{{SHARED_WORKFLOW_CONTRACT}}");

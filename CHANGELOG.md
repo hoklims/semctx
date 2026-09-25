@@ -9,6 +9,20 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-09-25
+
+### Fixed
+
+- Ship the `index-control-plane` skill to both Semctx plugins. After an operator records a
+  recovered Semctx index, routing rereads the host verdict instead of retaining a negative cached
+  result (HOK-834). A host-version mismatch remains visible rather than rebuilding away the skew.
+
+### Added
+
+- The plugin build and parity gates verify the runtime skill and Python scripts in both host
+  payloads; the regression cases remain in the shared source. Installing the plugin does not enable host routing
+  hooks automatically.
+
 ## [0.3.3] - 2026-09-24
 
 ### Added
@@ -664,7 +678,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/hoklims/semctx/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/hoklims/semctx/compare/v0.3.1...v0.3.3
 [0.3.1]: https://github.com/hoklims/semctx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/hoklims/semctx/compare/v0.2.1...v0.3.0

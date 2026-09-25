@@ -1,0 +1,4 @@
+interface:
+  display_name: "Index Control Plane"
+  short_description: "Govern code index freshness and health"
+  default_prompt: "Use $index-control-plane to audit or refresh code indexes safely."

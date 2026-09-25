@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-16T12:56:37Z",
+  "manifest": "C:\\Users\\Hokli\\.agents\\skills\\index-control-plane\\evals\\lsp-benchmark-tasks.json",
+  "warm_runs_per_task": 10,
+  "lifecycle": [
+    {
+      "language": "typescript",
+      "server_command": [
+        "C:\\nvm4w\\nodejs\\node.exe",
+        "C:\\ProgramData\\nvm\\v22.21.1\\node_modules\\typescript-language-server\\lib\\cli.mjs",
+        "--stdio"
+      ],
+      "server_version": "typescript-language-server 5.3.0 + TypeScript 5.9.3",
+      "cold_initialize_and_first_query_ms": 2585.077,
+      "cold_first_query_ms": 2465.244,
+      "peak_observed_process_tree_rss_mb": 802.195,
+      "shutdown_ms": 15.728,
+      "process_exited": true
+    },
+    {
+      "language": "python",
+      "server_command": [
+        "C:\\nvm4w\\nodejs\\node.exe",
+        "C:\\ProgramData\\nvm\\v22.21.1\\node_modules\\pyright\\langserver.index.js",
+        "--stdio"
+      ],
+      "server_version": "pyright 1.1.411",
+      "cold_initialize_and_first_query_ms": 526.733,
+      "cold_first_query_ms": 245.418,
+      "peak_observed_process_tree_rss_mb": 147.832,
+      "shutdown_ms": 12.062,
+      "process_exited": true
+    }
+  ],
+  "coverage": {
+    "tasks": 4,
+    "lsp_correct": 4,
+    "gateway_correct": 4
+  },
+  "rows": [
+    {
+      "language": "typescript",
+      "root": "E:/dofus_battlebot",
+      "request": "definition",
+      "symbol": "computeG3SearchCorpusSeal",
+      "document": "packages/arena/src/tactical/search-freeze.test.ts",
+      "anchor": "computeG3SearchCorpusSeal()",
+      "occurrence": 1,
+      "expected": "packages/arena/src/tactical/search-freeze.ts",
+      "line": 16,
+      "character": 11,
+      "lsp_correct": true,
+      "lsp_locations": 1,
+      "lsp_paths": [
+        "e:/dofus_battlebot/packages/arena/src/tactical/search-freeze.ts"
+      ],
+      "lsp_p50_ms": 0.957,
+      "lsp_p95_ms": 75.026,
+      "gateway": {
+        "elapsed_ms": 171.669,
+        "correct": true,
+        "paths": [
+          "docs/changelog.md",
+          "packages/arena/src/tactical/search-freeze.test.ts",
+          "packages/arena/src/tactical/search-freeze.ts"
+        ],
+        "provider": "source",
+        "fallback_used": true
+      }
+    },
+    {
+      "language": "typescript",
+      "root": "E:/dofus_battlebot",
+      "request": "references",
+      "symbol": "computeG3SearchCorpusSeal",
+      "document": "packages/arena/src/tactical/search-freeze.ts",
+      "anchor": "computeG3SearchCorpusSeal",
+      "occurrence": 1,
+      "expected": "packages/arena/src/tactical/search-freeze.test.ts",
+      "line": 258,
+      "character": 16,
+      "lsp_correct": true,
+      "lsp_locations": 2,
+      "lsp_paths": [
+        "e:/dofus_battlebot/packages/arena/src/tactical/search-freeze.test.ts",
+        "e:/dofus_battlebot/packages/arena/src/tactical/search-freeze.ts"
+      ],
+      "lsp_p50_ms": 8.39,
+      "lsp_p95_ms": 13.173,
+      "gateway": {
+        "elapsed_ms": 128.334,
+        "correct": true,
+        "paths": [
+          "docs/changelog.md",
+          "packages/arena/src/tactical/search-freeze.test.ts",
+          "packages/arena/src/tactical/search-freeze.ts"
+        ],
+        "provider": "source",
+        "fallback_used": true
+      }
+    },
+    {
+      "language": "python",
+      "root": "C:/maintenence/semctx",
+      "request": "definition",
+      "symbol": "repo_root",
+      "document": "benchmarks/change-impact-eval/scripts/select_commits.py",
+      "anchor": "bench_config.repo_root()",
+      "occurrence": 1,
+      "expected": "benchmarks/change-impact-eval/scripts/bench_config.py",
+      "line": 8,
+      "character": 7,
+      "lsp_correct": true,
+      "lsp_locations": 1,
+      "lsp_paths": [
+        "c:/maintenence/semctx/benchmarks/change-impact-eval/scripts/bench_config.py"
+      ],
+      "lsp_p50_ms": 0.408,
+      "lsp_p95_ms": 0.721,
+      "gateway": {
+        "elapsed_ms": 127.345,
+        "correct": true,
+        "paths": [
+          "benchmarks/change-impact-eval/scripts/bench_config.py",
+          "benchmarks/change-impact-eval/scripts/run_retrievers.py",
+          "benchmarks/change-impact-eval/scripts/select_commits.py",
+          "benchmarks/change-impact-eval/scripts/smoke_test.py"
+        ],
+        "provider": "source",
+        "fallback_used": true
+      }
+    },
+    {
+      "language": "python",
+      "root": "C:/maintenence/semctx",
+      "request": "references",
+      "symbol": "repo_root",
+      "document": "benchmarks/change-impact-eval/scripts/bench_config.py",
+      "anchor": "repo_root",
+      "occurrence": 1,
+      "expected": "benchmarks/change-impact-eval/scripts/select_commits.py",
+      "line": 43,
+      "character": 4,
+      "lsp_correct": true,
+      "lsp_locations": 3,
+      "lsp_paths": [
+        "c:/maintenence/semctx/benchmarks/change-impact-eval/scripts/bench_config.py",
+        "c:/maintenence/semctx/benchmarks/change-impact-eval/scripts/run_retrievers.py",
+        "c:/maintenence/semctx/benchmarks/change-impact-eval/scripts/select_commits.py"
+      ],
+      "lsp_p50_ms": 2.739,
+      "lsp_p95_ms": 29.992,
+      "gateway": {
+        "elapsed_ms": 119.622,
+        "correct": true,
+        "paths": [
+          "benchmarks/change-impact-eval/scripts/bench_config.py",
+          "benchmarks/change-impact-eval/scripts/run_retrievers.py",
+          "benchmarks/change-impact-eval/scripts/select_commits.py",
+          "benchmarks/change-impact-eval/scripts/smoke_test.py"
+        ],
+        "provider": "source",
+        "fallback_used": true
+      }
+    }
+  ],
+  "decision": "Keep native LSP as the definition/reference lane; do not add a persistent LSP MCP. Start servers on demand per editor/session and terminate them with the owning session."
+}
