@@ -4,10 +4,10 @@
  * Plane B in v1.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { compareIds, SemctxError } from "@semantic-context/core";
-import { isLinkedEntry, semctxDir, writeFileNoFollow } from "@semantic-context/repository-store";
+import { semctxDir, writeFileNoFollow } from "@semantic-context/repository-store";
 import { parseSemanticSource, formatChange, formatModel } from "@semantic-context/semantic-dsl";
 import type { Diagnostic } from "@semantic-context/semantic-dsl";
 import { mergeModels, emptyModel } from "@semantic-context/semantic-model";
@@ -33,10 +33,20 @@ export interface LoadResult {
   duplicateIds: string[];
 }
 
-function assertNotLinked(path: string): void {
-  // `lstat`-based: a dangling link is refused too, not read as an absent entry.
-  if (isLinkedEntry(path)) {
-    throw new SemctxError("CONFIG_INVALID", "semantic model directory symlinks are unsupported", { path });
+function assertSemanticEntryType(path: string, expected: "file" | "directory"): void {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw new SemctxError("CONFIG_INVALID", "semantic model entry could not be inspected", { path, cause: String(error) });
+  }
+  if (stat.isSymbolicLink()) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { path });
+  }
+  const valid = expected === "file" ? stat.isFile() : stat.isDirectory();
+  if (!valid) {
+    throw new SemctxError("CONFIG_INVALID", `semantic model entry must be a ${expected}`, { path, expected });
   }
 }
 
@@ -55,16 +65,16 @@ export function assertUnlinkedSemanticTree(root: string): void {
     changesDir(root),
     targetsDir(root),
     workingDir(root),
-    activeChangePath(root),
-    handoffJsonPath(root),
-    handoffMarkdownPath(root),
   ]) {
-    assertNotLinked(entry);
+    assertSemanticEntryType(entry, "directory");
+  }
+  for (const entry of [activeChangePath(root), handoffJsonPath(root), handoffMarkdownPath(root)]) {
+    assertSemanticEntryType(entry, "file");
   }
 }
 
 export function listSemFiles(dir: string): string[] {
-  assertNotLinked(dir);
+  assertSemanticEntryType(dir, "directory");
   if (!existsSync(dir)) return [];
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
@@ -263,9 +273,7 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
   for (const [name, content] of Object.entries(SCAFFOLD_FILES)) {
     const abs = join(semanticDir(root), name);
     // A linked scaffold target is refused outright rather than reported as "skip-exists".
-    if (isLinkedEntry(abs)) {
-      throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { file: abs });
-    }
+    assertSemanticEntryType(abs, "file");
     const exists = existsSync(abs);
     const action: ScaffoldPlan["action"] = !exists ? "create" : force ? "overwrite" : "skip-exists";
     if (!dryRun && action !== "skip-exists") writeFileNoFollow(root, abs, content);

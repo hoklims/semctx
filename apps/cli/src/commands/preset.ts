@@ -161,8 +161,9 @@ export function planPreset(
     assertPresetTargetType(abs);
     const exists = existsSync(abs);
     const action = !exists ? "create" as const : force ? "overwrite" as const : "skip-exists" as const;
-    // Exercise the writer's complete destination + ancestor link guard before any preset write.
-    if (action !== "skip-exists") assertUnlinkedBelow(root, abs);
+    // Validate every target before the later write loop. A skipped target under a linked ancestor
+    // is still unsafe in a mixed plan because earlier targets would otherwise be written first.
+    assertUnlinkedBelow(root, abs);
     return { path: file.path, action };
   });
   return { preset, files, gitignore: ensureSemanticGitignore(root, true) };
