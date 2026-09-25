@@ -50,7 +50,9 @@ short-lived OIDC credentials; no long-lived `NPM_TOKEN` is stored. Its permissio
 3. `registry-ready` has no write permissions and waits up to 30 minutes for the exact published
    version to expose the tag's `gitHead`; temporary E404 means pending, while wrong/missing identity,
    access errors and deadline expiry block promotion;
-4. `promote` has only `contents: write` and advances `stable` with a non-forced GitHub API update
+4. `deliver` has `contents: read`, installs the immutable release tag through fresh Codex and Claude
+   homes, and requires both CLI/MCP smokes and bundle witnesses to pass;
+5. `promote` has only `contents: write`, depends on `deliver`, and advances `stable` non-forced
    before creating the GitHub Release.
 
 The jobs use Node 24 and pinned npm. The verification gate covers TypeScript, ESLint, Ruff,
@@ -63,8 +65,9 @@ git tag -a v<package-version> -m "semctx v<package-version>"
 git push origin v<package-version>
 ```
 
-The tag workflow publishes npm first, advances the automation-owned `stable` branch to that exact
-release commit, then creates the GitHub Release. This ordering keeps `bunx semctx@latest` and both
+The tag workflow publishes npm first, proves both hosts can install the immutable tag, then advances
+the automation-owned `stable` branch to that exact release commit and creates the GitHub Release.
+This ordering keeps `bunx semctx@latest` and both
 plugin marketplaces on the same public version. Do not push `stable` manually. All steps are
 rerunnable only for the same commit: an existing npm version must expose a `gitHead` exactly equal
 to the tag commit before `stable` can move. An unchanged `stable` ref or GitHub Release is treated
@@ -82,7 +85,7 @@ installed plugin**. Because a merge into `main` does not bump the version either
 `stable` routinely carry the same SemVer at different commits — compare commits, not version
 strings. `semctx plugin-status` reports that comparison read-only, and never advances `stable`.
 
-### Proving stable delivery (`deliver`)
+### Proving candidate delivery before `stable` (`deliver`)
 
 The verified host baseline is Codex CLI **0.147.0** and Claude Code **2.1.229**:
 [the successful v0.1.18 delivery replay](https://github.com/hoklims/semctx/actions/runs/33556339309)
@@ -97,12 +100,11 @@ plugins through its supported CLI path. Since v0.1.19, recognized parser rejecti
 only a successfully observed absence is `false`. Consumers must accept schema 2 and handle
 unknown values explicitly. Semctx does not read private host configuration as a fallback.
 
-The `deliver` job runs after `promote`, never before: installing from a marketplace that has not been
-advanced yet would prove the *previous* release. It stands up one throwaway home per host, installs
-through each host's own supported interface — Codex `plugin marketplace add hoklims/semctx --ref
-stable` then `plugin add semctx-control@semctx-stable`; Claude `plugin marketplace add
-hoklims/semctx@stable` then `plugin install semctx@semctx-stable --scope user` — and archives a
-versioned `stable_delivery_proof` artifact for 90 days.
+The `deliver` job runs after npm availability and before `promote`. It installs from the immutable
+annotated release tag (`v<version>`) through each host's supported marketplace interface, then
+archives a versioned `stable_delivery_proof` artifact for 90 days. `promote` depends on that complete
+two-host witness before advancing `stable` or creating the GitHub Release. A failing candidate is
+therefore never exposed through the stable plugin channel.
 
 **What it proves, and in what order.** That a machine with nothing installed can obtain this exact
 release, and that no authority is ever relied on after the effect it was supposed to authorise. A

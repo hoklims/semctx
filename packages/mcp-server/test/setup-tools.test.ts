@@ -148,6 +148,18 @@ describe("semctx_setup MCP tool", () => {
     expectConfigInvalid(() => setupTool(dir, { polyglot: true }));
   });
 
+  test("preflight and confirm reject an invalid .gitignore before any workspace write", () => {
+    root = freshRepo();
+    const currentRoot = root;
+    const gitignore = join(currentRoot, ".gitignore");
+    rmSync(gitignore, { recursive: true, force: true });
+    mkdirSync(gitignore);
+
+    expectConfigInvalid(() => setupTool(currentRoot, {}));
+    expectConfigInvalid(() => setupTool(currentRoot, { confirm: true, now: "2026-08-01T12:00:00.000Z" }));
+    expect(existsSync(semctxDir(currentRoot))).toBe(false);
+  });
+
   test("preflight with schema-invalid config fails closed even without polyglot (CONFIG_INVALID)", () => {
     root = freshRepo();
     const dir = root;

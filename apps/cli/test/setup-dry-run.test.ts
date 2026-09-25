@@ -199,6 +199,24 @@ describe("semctx setup --dry-run --json", () => {
     expect(existsSync(join(root, ".gitignore"))).toBe(false);
   });
 
+  test("real preset setup rejects a custom authored semantic symlink before all writes", () => {
+    const root = freshRoot();
+    const outside = freshRoot();
+    mkdirSync(join(root, ".semctx", "semantic", "changes"), { recursive: true });
+    symlinkSync(outside, join(root, ".semctx", "semantic", "changes", "custom.sem"), process.platform === "win32" ? "junction" : "dir");
+    const result = run(root, ["--preset", "github-claude"]);
+
+    expect(result.code).toBe(1);
+    expect(result.body).toMatchObject({
+      kind: "setup_conflict",
+      conflict: { code: "CONFIG_INVALID", details: { file: join(root, ".semctx", "semantic", "changes", "custom.sem") } },
+    });
+    expect(existsSync(join(root, ".semctx", "config.json"))).toBe(false);
+    expect(existsSync(join(root, ".github"))).toBe(false);
+    expect(existsSync(join(root, ".claude"))).toBe(false);
+    expect(existsSync(join(root, ".gitignore"))).toBe(false);
+  });
+
   test("skipped preset target under a linked ancestor blocks the whole mixed plan", () => {
     const root = freshRoot();
     const outside = freshRoot();

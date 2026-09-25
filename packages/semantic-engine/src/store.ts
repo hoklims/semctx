@@ -79,10 +79,14 @@ export function listSemFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => compareIds(a.name, b.name))) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...listSemFiles(full));
-    else if (entry.isSymbolicLink() && entry.name.endsWith(".sem")) {
+    if (entry.isSymbolicLink()) {
       throw new SemctxError("CONFIG_INVALID", "semantic model symlinks are unsupported", { file: full });
-    } else if (entry.isFile() && entry.name.endsWith(".sem")) out.push(full);
+    }
+    if (entry.isDirectory()) out.push(...listSemFiles(full));
+    else if (entry.isFile() && entry.name.endsWith(".sem")) out.push(full);
+    else if (!entry.isFile()) {
+      throw new SemctxError("CONFIG_INVALID", "semantic model entries must be regular files or directories", { path: full });
+    }
   }
   return out;
 }
@@ -264,6 +268,8 @@ export function initSemanticScaffold(root: string, opts: { force?: boolean; dryR
   const force = opts.force === true;
   const dryRun = opts.dryRun === true;
   assertUnlinkedSemanticTree(root);
+  // Validate authored/custom semantic entries before creating config-adjacent scaffold files.
+  listSemFiles(semanticDir(root));
   if (!dryRun) {
     mkdirSync(semanticDir(root), { recursive: true });
     mkdirSync(changesDir(root), { recursive: true });

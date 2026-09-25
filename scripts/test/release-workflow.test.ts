@@ -41,11 +41,11 @@ const publishScript = releaseScript(
 );
 const stableScript = releaseScript(
   "promote",
-  "Advance the stable plugin channel after npm is public",
+  "Advance the stable plugin channel after npm and two-host delivery are proven",
 );
 const githubReleaseScript = releaseScript(
   "promote",
-  "Create the GitHub Release after npm is public",
+  "Create the GitHub Release after candidate delivery is proven",
 );
 
 function runRegistry(mode: string): ShellResult {
@@ -83,8 +83,8 @@ describe("registry availability gate", () => {
     expect(workflow.jobs["registry-ready"]?.needs).toBe("publish");
     expect(workflow.jobs["registry-ready"]?.permissions).toEqual({});
     expect(workflow.jobs["registry-ready"]?.["timeout-minutes"]).toBe(35);
-    expect(workflow.jobs.promote?.needs).toBe("registry-ready");
-    expect(workflow.jobs.deliver?.needs).toBe("promote");
+    expect(workflow.jobs.deliver?.needs).toBe("registry-ready");
+    expect(workflow.jobs.promote?.needs).toBe("deliver");
   });
 
   test("accepted publication survives a 7.5-minute delay without republishing", () => {
