@@ -100,7 +100,10 @@ export function skillFiles(directory: string, prefix = ""): string[] {
       if (!entry.isDirectory() && !entry.isFile()) {
         throw new Error(`unsupported index-control-plane skill entry: ${path}`);
       }
-      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) return [];
+      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) {
+        if (entry.isDirectory()) skillFiles(directory, path);
+        return [];
+      }
       return entry.isDirectory() ? skillFiles(directory, path) : [path];
     })
     .sort();

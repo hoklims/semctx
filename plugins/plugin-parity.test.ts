@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import {
@@ -56,7 +56,10 @@ function indexSkillFiles(directory: string, relativeDir = ""): string[] {
       if (!entry.isDirectory() && !entry.isFile()) {
         throw new Error(`unsupported index-control-plane skill entry: ${relativePath}`);
       }
-      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) return [];
+      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) {
+        if (entry.isDirectory()) indexSkillFiles(directory, relativePath);
+        return [];
+      }
       return entry.isDirectory() ? indexSkillFiles(directory, relativePath) : [relativePath];
     })
     .sort();
@@ -92,6 +95,21 @@ describe("Codex and Claude Code plugin parity", () => {
       symlinkSync(target, resolve(fixture, "__pycache__"), "file");
       expect(() => skillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__");
       expect(() => indexSkillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__");
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects links nested inside an excluded skill directory", () => {
+    const fixture = mkdtempSync(resolve(tmpdir(), "semctx-index-skill-"));
+    try {
+      const excluded = resolve(fixture, "__pycache__");
+      mkdirSync(excluded);
+      const target = resolve(fixture, "target.txt");
+      writeFileSync(target, "fixture\n");
+      symlinkSync(target, resolve(excluded, "hidden-link"), "file");
+      expect(() => skillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__/hidden-link");
+      expect(() => indexSkillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__/hidden-link");
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }

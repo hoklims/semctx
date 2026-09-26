@@ -150,7 +150,7 @@ Do not collapse the repository to one red/green answer in user communication. Re
 
 Keep heavy project MCP servers disabled globally. An artefact may exist without being exposed, and an exposed MCP may be stale.
 
-The target host surface is the stable `code_intelligence` gateway with exactly five tools: status, search, symbols, architecture and intent. It chooses providers internally, wakes an expired worker asynchronously, and returns provider, source fingerprint, provider corpus fingerprint, artefact generation, consumer generation, fallback and source locations. Do not expose direct CCC, Graphify, Serena or Semctx MCPs beside it.
+The target host surface is the stable `code_intelligence` gateway with exactly five tools: status, search, symbols, architecture and intent. It chooses providers internally, wakes an expired worker asynchronously, and returns provider, source fingerprint, provider corpus fingerprint, artefact generation, consumer generation, fallback and source locations. Keep the supported direct Semctx MCP available until this gateway is configured on that host, its five tools are observed, and its Semctx route works against the current source generation. Only then retire duplicate direct CCC, Graphify, Serena or Semctx MCP exposure beside the validated gateway.
 
 ## Failure behavior
 
