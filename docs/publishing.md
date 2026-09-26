@@ -158,8 +158,11 @@ that merely looked for the slug would accept `https://evil.example/hoklims/semct
 The helper is currently duplicated because the shared implementation is private, so future changes
 must update both until that maintenance seam is exported. The ref is its own authority: the release
 workflow requires its immutable `v<version>` tag before promotion; diagnostic/manual stable replay
-requires exactly `stable`. Claude reports it in the marketplace list; Codex records it as `ref_name`
-in `.codex-marketplace-install.json`. `main`, an empty ref and an unknown ref each fail closed.
+requires exactly `stable`. Claude reports it in the marketplace list. Codex may record `ref_name`
+in legacy `.codex-marketplace-install.json`; when that declaration is absent, the admitted Git
+snapshot supplies its branch and commit. An immutable-tag checkout is detached: it is accepted
+only when the expected `refs/tags/v<version>` peels to that snapshot's observed commit. `main`,
+an empty ref and an unknown or mismatched ref each fail closed.
 
 **Nothing a host says is a location, and nothing stays admitted.** Every path a host CLI hands back
 — Claude's `installLocation` and `installPath`, Codex's `root`, and the cache path derived from a
