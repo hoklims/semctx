@@ -9,6 +9,24 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-09-26
+
+### Fixed
+
+- Codex release delivery now accepts an absent legacy `ref_name` only when the successful official
+  `plugin marketplace add --ref v<version>` attempt is backed by the installed clone's exact
+  annotated tag object and that tag peels to the released commit. The proof keeps the observed
+  marketplace ref unknown; missing, wrong or lightweight tags and tags on another commit remain
+  fail-closed.
+
+### Release status
+
+- npm `semctx@0.3.4` was published from commit
+  `66b659c00e1362e058b49f7cefbaecb142a593ac`, but its Codex delivery proof stopped with
+  `MARKETPLACE_REF_UNKNOWN`. The `stable` branch therefore remained on 0.3.3 and no v0.3.4 GitHub
+  Release was created. Version 0.3.5 supersedes that partial publication only after its own
+  immutable-tag delivery proof succeeds; this source change alone is not delivery evidence.
+
 ## [0.3.4] - 2026-09-25
 
 ### Fixed
@@ -675,7 +693,8 @@ declared stable).
 - GitHub Action passes all user-controlled inputs through the step `env:` (no `${{ }}` template
   interpolation into run scripts) to prevent Actions injection.
 
-[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/hoklims/semctx/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/hoklims/semctx/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/hoklims/semctx/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/hoklims/semctx/compare/v0.3.1...v0.3.3
 [0.3.1]: https://github.com/hoklims/semctx/compare/v0.3.0...v0.3.1

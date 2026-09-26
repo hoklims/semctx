@@ -158,8 +158,14 @@ that merely looked for the slug would accept `https://evil.example/hoklims/semct
 The helper is currently duplicated because the shared implementation is private, so future changes
 must update both until that maintenance seam is exported. The ref is its own authority: the release
 workflow requires its immutable `v<version>` tag before promotion; diagnostic/manual stable replay
-requires exactly `stable`. Claude reports it in the marketplace list; Codex records it as `ref_name`
-in `.codex-marketplace-install.json`. `main`, an empty ref and an unknown ref each fail closed.
+requires exactly `stable`. Claude reports it in the marketplace list. Codex may record it as
+`ref_name` in `.codex-marketplace-install.json`, but Codex CLI 0.147.0 can instead leave that file
+absent and the installed clone detached. For an immutable release tag only, that missing declaration
+is closed by stronger, separately archived Git evidence: the exact successful official
+`marketplace add --ref v<version>` attempt, an annotated tag object at that exact ref, the tag peeled
+to the released commit, and clone `HEAD` at the same commit. The artifact keeps `marketplaceRef`
+unknown rather than relabelling Git evidence as a host observation. `main`, an empty ref, a missing
+or lightweight tag, a tag on another commit and an unknown ref each fail closed.
 
 **Nothing a host says is a location, and nothing stays admitted.** Every path a host CLI hands back
 — Claude's `installLocation` and `installPath`, Codex's `root`, and the cache path derived from a

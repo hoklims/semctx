@@ -19,6 +19,7 @@ import {
   evaluateCliSmokeReport,
   evaluateControlStatusResponse,
   evaluateDeliveryProof,
+  evaluateExecutionAuthority,
   evaluateJsonRpcResponse,
   EXPECTED_PLUGIN_ID,
   HOST_CLI_SPECIFICATION,
@@ -32,6 +33,7 @@ import {
   normaliseMarketplaceSource,
   main,
   marketplaceCommand,
+  marketplaceTagProvesRequestedRef,
   normaliseCliVersion,
   placeholderProof,
   PLUGIN_RUNTIME_BUNDLES,
@@ -42,6 +44,7 @@ import {
   proofExitCode,
   PROOF_HOSTS,
   readWitness,
+  readMarketplaceSnapshotIdentity,
   releaseFromEnvironment,
   runFromEnvironment,
   runStableDeliveryProof,
@@ -158,6 +161,7 @@ function host(name: ProofHost, overrides: Partial<HostObservation> = {}): HostOb
     marketplaceConfigured: true,
     marketplaceSource: "hoklims/semctx",
     marketplaceRef: "stable",
+    marketplaceTag: null,
     marketplaceRoot: name === "codex" ? CODEX_MARKETPLACE_ROOT : CLAUDE_MARKETPLACE_ROOT,
     marketplaceCommit: RELEASE.sha,
     reportedVersion: RELEASE.version,
@@ -914,6 +918,11 @@ interface FakeOptions {
   throwOnCommand?: string;
   /** Current Codex releases may leave snapshot identity solely to Git. */
   missingCodexMetadata?: boolean;
+  /** Immutable-tag evidence exposed by the installed marketplace clone. */
+  tagObjectId?: string | null;
+  tagObjectType?: string | null;
+  tagPeeledCommit?: string | null;
+  detachedMarketplace?: boolean;
   /** Files that remain present and admitted but cannot be read as text. */
   unreadableTextPaths?: string[];
 }
@@ -947,9 +956,32 @@ function fakeRuntime(options: FakeOptions = {}) {
         throw new Error(`spawn failed: ${line}`);
       }
       const [binary, ...rest] = command;
+      if (binary === "git" && cwd === CODEX_MARKETPLACE_ROOT && rest.includes("cat-file")) {
+        const objectType = options.tagObjectType === undefined ? "tag" : options.tagObjectType;
+        return objectType === null
+          ? { code: 1, out: "", err: "object missing" }
+          : { code: 0, out: `${objectType}\n`, err: "" };
+      }
       if (binary === "git" && rest.includes("rev-parse")) {
         if (cwd === CODEX_MARKETPLACE_ROOT || cwd === CLAUDE_MARKETPLACE_ROOT) {
-          const value = rest.includes("--abbrev-ref") ? "stable" : revision;
+          const revisionArg = rest.at(-1) ?? "";
+          if (cwd === CODEX_MARKETPLACE_ROOT && revisionArg.startsWith("refs/tags/")) {
+            const value = revisionArg.endsWith("^{commit}")
+              ? (options.tagPeeledCommit === undefined ? revision : options.tagPeeledCommit)
+              : (options.tagObjectId === undefined ? "e".repeat(40) : options.tagObjectId);
+            return value === null
+              ? { code: 1, out: "", err: "tag missing" }
+              : { code: 0, out: `${value}\n`, err: "" };
+          }
+          if (cwd === CODEX_MARKETPLACE_ROOT && revisionArg.endsWith("^{commit}")) {
+            const value = options.tagPeeledCommit === undefined ? revision : options.tagPeeledCommit;
+            return value === null
+              ? { code: 1, out: "", err: "tag cannot be peeled" }
+              : { code: 0, out: `${value}\n`, err: "" };
+          }
+          const value = rest.includes("--abbrev-ref")
+            ? (options.detachedMarketplace === true ? "HEAD" : "stable")
+            : revision;
           return { code: 0, out: `${value}\n`, err: "" };
         }
         const head = options.head === undefined ? RELEASE.sha : options.head;
@@ -2327,6 +2359,95 @@ describe("hostile 13 — an invalid authority authorises no effect", () => {
       expect.objectContaining({ label: "marketplace.metadata#absent", reason: null }),
     );
     expect(proof.hosts.codex.ok).toBe(true);
+  });
+
+  test("Codex records an exact annotated immutable tag without inventing a marketplace ref", () => {
+    const { runtime } = fakeRuntime({ missingCodexMetadata: true, detachedMarketplace: true });
+    const admissions: PathAdmission[] = [];
+    const identity = readMarketplaceSnapshotIdentity(
+      "codex",
+      runtime,
+      new ConfinedAccess(runtime, SANDBOX, admissions),
+      CODEX_MARKETPLACE_ROOT,
+      { PATH: "/usr/bin" },
+      RELEASE.tag,
+    );
+    expect(identity.ref).toBeNull();
+    expect(identity.commit).toBe(RELEASE.sha);
+    expect(identity.tag).toEqual({
+      ref: RELEASE.tag,
+      objectId: "e".repeat(40),
+      objectType: "tag",
+      peeledCommit: RELEASE.sha,
+    });
+  });
+
+  test.each([
+    ["missing", { tagObjectId: null }, null, null, null],
+    ["lightweight", { tagObjectType: "commit" }, "e".repeat(40), "commit", RELEASE.sha],
+    ["unrelated", { tagPeeledCommit: "4".repeat(40) }, "e".repeat(40), "tag", "4".repeat(40)],
+  ] as const)("archives %s immutable-tag evidence without upgrading it", (
+    _label,
+    options,
+    objectId,
+    objectType,
+    peeledCommit,
+  ) => {
+    const { runtime } = fakeRuntime({
+      missingCodexMetadata: true,
+      detachedMarketplace: true,
+      ...options,
+    });
+    const identity = readMarketplaceSnapshotIdentity(
+      "codex",
+      runtime,
+      new ConfinedAccess(runtime, SANDBOX, []),
+      CODEX_MARKETPLACE_ROOT,
+      { PATH: "/usr/bin" },
+      RELEASE.tag,
+    );
+    expect(identity.ref).toBeNull();
+    expect(identity.tag).toEqual({ ref: RELEASE.tag, objectId, objectType, peeledCommit });
+  });
+
+  test("an exact successful Codex tag install closes only the absent-ref case", () => {
+    const tagged = host("codex", {
+      marketplaceRef: null,
+      marketplaceTag: {
+        ref: RELEASE.tag,
+        objectId: "e".repeat(40),
+        objectType: "tag",
+        peeledCommit: RELEASE.sha,
+      },
+      installAttempts: [{
+        argv: installCommands("codex", RELEASE.tag)[0]!,
+        code: 0,
+        stdout: "{}",
+        stderr: "",
+      }],
+    });
+    expect(marketplaceTagProvesRequestedRef(tagged, RELEASE, RELEASE.tag)).toBe(true);
+    expect(evaluateExecutionAuthority(tagged, RELEASE, WITNESS, SANDBOX, process.platform, RELEASE.tag))
+      .not.toContain("MARKETPLACE_REF_UNKNOWN");
+    expect(tagged.marketplaceRef).toBeNull();
+  });
+
+  test.each([
+    ["missing tag", null, installCommands("codex", RELEASE.tag)[0]!],
+    ["wrong tag", { ref: "v9.9.9", objectId: "e".repeat(40), objectType: "tag", peeledCommit: RELEASE.sha }, installCommands("codex", RELEASE.tag)[0]!],
+    ["malformed tag object", { ref: RELEASE.tag, objectId: "not-an-object", objectType: "tag", peeledCommit: RELEASE.sha }, installCommands("codex", RELEASE.tag)[0]!],
+    ["lightweight tag", { ref: RELEASE.tag, objectId: "e".repeat(40), objectType: "commit", peeledCommit: RELEASE.sha }, installCommands("codex", RELEASE.tag)[0]!],
+    ["tag on an unrelated commit", { ref: RELEASE.tag, objectId: "e".repeat(40), objectType: "tag", peeledCommit: "4".repeat(40) }, installCommands("codex", RELEASE.tag)[0]!],
+    ["unproven install request", { ref: RELEASE.tag, objectId: "e".repeat(40), objectType: "tag", peeledCommit: RELEASE.sha }, ["codex", "plugin", "marketplace", "add", "hoklims/semctx", "--json"]],
+  ] as const)("refuses %s when Codex metadata is absent", (_label, marketplaceTag, argv) => {
+    const tagged = host("codex", {
+      marketplaceRef: null,
+      marketplaceTag,
+      installAttempts: [{ argv, code: 0, stdout: "{}", stderr: "" }],
+    });
+    expect(marketplaceTagProvesRequestedRef(tagged, RELEASE, RELEASE.tag)).toBe(false);
+    expect(evaluateExecutionAuthority(tagged, RELEASE, WITNESS, SANDBOX, process.platform, RELEASE.tag))
+      .toContain("MARKETPLACE_REF_UNKNOWN");
   });
 
   test("a swapped Codex snapshot is refused before optional metadata is consulted", async () => {

@@ -212,6 +212,19 @@ export interface InstallAttempt {
   stderr: string;
 }
 
+/**
+ * Immutable-tag evidence read from the installed marketplace checkout when a Codex release does
+ * not persist `ref_name`. This is deliberately separate from `marketplaceRef`: an annotated tag
+ * proves which immutable object the successful `--ref` request resolved, but it is not a
+ * host-reported ref and must never be presented as one.
+ */
+export interface MarketplaceTagEvidence {
+  ref: string;
+  objectId: string | null;
+  objectType: string | null;
+  peeledCommit: string | null;
+}
+
 /** Where a path the proof consumed came from, and whether it was admitted. */
 export interface PathAdmission {
   label: string;
@@ -258,6 +271,7 @@ export interface HostObservation {
   marketplaceConfigured: boolean;
   marketplaceSource: string | null;
   marketplaceRef: string | null;
+  marketplaceTag: MarketplaceTagEvidence | null;
   /** Marketplace snapshot root, as the host reports it and after admission. */
   marketplaceRoot: string | null;
   /** Commit the installed marketplace snapshot came from. `null` when the host did not expose it. */
@@ -328,6 +342,7 @@ export interface HostProof {
   marketplaceRoot: string | null;
   marketplaceCommit: string | null;
   marketplaceRef: string | null;
+  marketplaceTag: MarketplaceTagEvidence | null;
   version: string | null;
   cachePath: string | null;
   pathAdmissions: PathAdmission[];
@@ -659,6 +674,40 @@ export function cliIdentityProven(cli: HostCliObservation): boolean {
   return evaluateCli(cli).length === 0;
 }
 
+function sameArgv(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+/**
+ * Prove an immutable Codex marketplace ref without pretending Git's detached checkout reported a
+ * ref name. The official install request, annotated tag object, peeled commit and checkout HEAD
+ * must all agree with the release. A stable branch or a host-reported ref still uses the ordinary
+ * `marketplaceRef` authority and never enters this fallback.
+ */
+export function marketplaceTagProvesRequestedRef(
+  observation: HostObservation,
+  release: ReleaseIdentity,
+  releaseRef: string,
+): boolean {
+  if (observation.host !== "codex" || !/^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(releaseRef)) {
+    return false;
+  }
+  if (releaseRef !== release.tag || observation.marketplaceCommit !== release.sha) return false;
+  const tag = observation.marketplaceTag;
+  if (tag === null
+    || tag.ref !== releaseRef
+    || tag.objectId === null
+    || !/^[0-9a-f]{40}(?:[0-9a-f]{24})?$/.test(tag.objectId)
+    || tag.objectType !== "tag"
+    || tag.peeledCommit !== release.sha) {
+    return false;
+  }
+  const expectedInstall = installCommands("codex", releaseRef)[0];
+  return expectedInstall !== undefined && observation.installAttempts.some((attempt) =>
+    attempt.code === 0 && sameArgv(attempt.argv, expectedInstall)
+  );
+}
+
 /** Reasons that must be empty before any installed payload is allowed to execute. */
 export function evaluateExecutionAuthority(
   observation: HostObservation,
@@ -666,6 +715,7 @@ export function evaluateExecutionAuthority(
   witness: Record<string, string>,
   sandboxRoot: string | null,
   platform: NodeJS.Platform,
+  releaseRef: string = RELEASE_REF,
 ): ProofReason[] {
   const reasons: ProofReason[] = [];
 
@@ -687,10 +737,14 @@ export function evaluateExecutionAuthority(
 
   if (!observation.marketplaceConfigured) reasons.push("MARKETPLACE_NOT_CONFIGURED");
   if (!isSemctxSource(observation.marketplaceSource)) reasons.push("MARKETPLACE_SOURCE_MISMATCH");
-  // The channel is its own authority: a marketplace on the right repository but the wrong ref
-  // delivers a different commit, and an absent ref is an unknown rather than a default.
-  if (!isNonEmpty(observation.marketplaceRef)) reasons.push("MARKETPLACE_REF_UNKNOWN");
-  else if (observation.marketplaceRef !== RELEASE_REF) reasons.push("MARKETPLACE_REF_UNEXPECTED");
+  // The channel is its own authority. Current Codex releases can omit `ref_name` after a
+  // successful immutable-tag install, so only the stronger, separately archived Git attestation
+  // may close that absence. It does not populate `marketplaceRef` or weaken stable-channel checks.
+  if (!isNonEmpty(observation.marketplaceRef)) {
+    if (!marketplaceTagProvesRequestedRef(observation, release, releaseRef)) {
+      reasons.push("MARKETPLACE_REF_UNKNOWN");
+    }
+  } else if (observation.marketplaceRef !== releaseRef) reasons.push("MARKETPLACE_REF_UNEXPECTED");
   if (!isNonEmpty(observation.marketplaceRoot)) reasons.push("MARKETPLACE_ROOT_UNKNOWN");
   if (!isNonEmpty(observation.marketplaceCommit)) reasons.push("MARKETPLACE_COMMIT_UNKNOWN");
   else if (observation.marketplaceCommit !== release.sha) reasons.push("MARKETPLACE_COMMIT_MISMATCH");
@@ -734,6 +788,7 @@ function evaluateHost(
     marketplaceRoot: observation.marketplaceRoot,
     marketplaceCommit: observation.marketplaceCommit,
     marketplaceRef: observation.marketplaceRef,
+    marketplaceTag: observation.marketplaceTag,
     version: observation.reportedVersion,
     cachePath: observation.cachePath,
     pathAdmissions: observation.pathAdmissions,
@@ -924,6 +979,7 @@ export function evaluateDeliveryProof(input: DeliveryProofInput): StableDelivery
         marketplaceRoot: null,
         marketplaceCommit: null,
         marketplaceRef: null,
+        marketplaceTag: null,
         version: null,
         cachePath: null,
         pathAdmissions: [],
@@ -1203,14 +1259,14 @@ export function hostEnvironment(
 }
 
 /** Official, supported host commands. Nothing here reaches around a host's own installer. */
-export function installCommands(host: ProofHost): Array<readonly string[]> {
+export function installCommands(host: ProofHost, releaseRef: string = RELEASE_REF): Array<readonly string[]> {
   return host === "codex"
     ? [
-        ["codex", "plugin", "marketplace", "add", "hoklims/semctx", "--ref", RELEASE_REF, "--json"],
+        ["codex", "plugin", "marketplace", "add", "hoklims/semctx", "--ref", releaseRef, "--json"],
         ["codex", "plugin", "add", EXPECTED_PLUGIN_ID.codex, "--json"],
       ]
     : [
-        ["claude", "plugin", "marketplace", "add", `hoklims/semctx@${RELEASE_REF}`, "--scope", "user"],
+        ["claude", "plugin", "marketplace", "add", `hoklims/semctx@${releaseRef}`, "--scope", "user"],
         ["claude", "plugin", "install", EXPECTED_PLUGIN_ID.claude, "--scope", "user"],
       ];
 }
@@ -1422,6 +1478,7 @@ export interface MarketplaceSnapshotIdentity {
   commit: string | null;
   ref: string | null;
   source: string | null;
+  tag: MarketplaceTagEvidence | null;
 }
 
 /**
@@ -1435,10 +1492,12 @@ export function readMarketplaceSnapshotIdentity(
   access: ConfinedAccess,
   snapshotRoot: string,
   env: Record<string, string | undefined>,
+  releaseRef: string = RELEASE_REF,
 ): MarketplaceSnapshotIdentity {
   let commit: string | null = null;
   let ref: string | null = null;
   let source: string | null = null;
+  let tag: MarketplaceTagEvidence | null = null;
   const codexMetadata = runtime.joinPath(snapshotRoot, ".codex-marketplace-install.json");
   // Current Codex releases may omit this legacy declaration. Absence is not an unreadable path:
   // the admitted Git snapshot remains the authority for commit/ref, while a present-but-unsafe
@@ -1471,8 +1530,37 @@ export function readMarketplaceSnapshotIdentity(
       const name = branch.code === 0 ? text(branch.out) : null;
       ref = name === "HEAD" ? null : name;
     }
+    if (host === "codex" && root !== null && ref === null
+      && /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(releaseRef)) {
+      const tagRef = `refs/tags/${releaseRef}`;
+      const object = runtime.run(
+        ["git", "--no-replace-objects", "rev-parse", "--verify", tagRef],
+        root,
+        env,
+      );
+      const candidateObjectId = object.code === 0 ? text(object.out) : null;
+      const objectId = candidateObjectId !== null && /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/.test(candidateObjectId)
+        ? candidateObjectId
+        : null;
+      const type = objectId === null
+        ? null
+        : runtime.run(["git", "--no-replace-objects", "cat-file", "-t", objectId], root, env);
+      const peeled = objectId === null
+        ? null
+        : runtime.run(
+            ["git", "--no-replace-objects", "rev-parse", "--verify", `${objectId}^{commit}`],
+            root,
+            env,
+          );
+      tag = {
+        ref: releaseRef,
+        objectId,
+        objectType: type !== null && type.code === 0 ? text(type.out) : null,
+        peeledCommit: peeled !== null && peeled.code === 0 ? text(peeled.out) : null,
+      };
+    }
   }
-  return { commit, ref, source };
+  return { commit, ref, source, tag };
 }
 
 /**
@@ -1534,6 +1622,7 @@ export async function exerciseHost(
     marketplaceConfigured: false,
     marketplaceSource: null,
     marketplaceRef: null,
+    marketplaceTag: null,
     marketplaceRoot: null,
     marketplaceCommit: null,
     reportedVersion: null,
@@ -1617,6 +1706,7 @@ export async function exerciseHost(
   if (marketplaceRoot !== null) {
     const snapshotIdentity = readMarketplaceSnapshotIdentity(host, runtime, access, marketplaceRoot, env);
     observation.marketplaceCommit = snapshotIdentity.commit;
+    observation.marketplaceTag = snapshotIdentity.tag;
     // Claude reports the tracked ref in its list. Codex records `ref_name` in the marketplace
     // install metadata, and its canonical list shape does not promise a `ref` property.
     observation.marketplaceRef ??= snapshotIdentity.ref;
