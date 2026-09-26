@@ -7,7 +7,7 @@ import { checkDocumentation } from "../documentation-integrity";
 import { renderPagesWorkflow } from "../pages-workflow";
 
 const temporaryDirectories: string[] = [];
-const version = "0.3.4";
+const version = "0.3.5";
 const action = `hoklims/semctx/packages/github-action@v${version}`;
 const toolCount = 38;
 
@@ -39,8 +39,8 @@ function fixture(): string {
     "packages/mcp-server/src/tool-contract.ts",
     `const TOOL_NAMES = [\n${Array.from({ length: toolCount }, (_, index) => `  "tool-${index}",`).join("\n")}\n] as const;\n`,
   );
-  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-25\n\n## [0.3.3] - 2026-09-24\n`);
-  write(root, "ROADMAP.md", `Released baseline: **v${version}**\n`);
+  write(root, "CHANGELOG.md", `## [${version}] - 2026-09-26\n\n## [0.3.4] - 2026-09-25\n`);
+  write(root, "ROADMAP.md", `Source baseline: **v${version}**\n`);
   write(root, "docs/README.md", "# Docs\n");
   write(root, "docs/troubleshooting.md", "# Troubleshooting\n");
   write(root, "docs/contributing/public-contracts.md", "# Contracts\n");
@@ -117,7 +117,7 @@ describe("documentation integrity", () => {
     write(root, "site/evidence.json", JSON.stringify({
       phase: "candidate",
       releaseCommit: { value: "a".repeat(40), authority: "caller-asserted" },
-      demo: { packageVersion: "0.3.3" },
+      demo: { packageVersion: "0.3.4" },
     }));
     expect(checkDocumentation(root)).toEqual([]);
     expect(checkDocumentation(root, { requireReleaseEvidence: true })).toContainEqual({
@@ -126,12 +126,12 @@ describe("documentation integrity", () => {
       message: `demo evidence must be release phase for package ${version}`,
     });
 
-    for (const staleVersion of ["0.3.2", "0.3.5"]) {
+    for (const staleVersion of ["0.3.3", "0.3.6"]) {
       write(root, "site/evidence.json", JSON.stringify({ phase: "candidate", demo: { packageVersion: staleVersion } }));
       expect(checkDocumentation(root)).toContainEqual({
         file: "site/evidence.json",
         line: 1,
-        message: `demo evidence must be candidate or release phase for package ${version} or previous published package 0.3.3`,
+        message: `demo evidence must be candidate or release phase for package ${version} or previous published package 0.3.4`,
       });
     }
   });

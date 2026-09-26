@@ -1424,6 +1424,26 @@ export interface MarketplaceSnapshotIdentity {
   source: string | null;
 }
 
+/** A tag checkout is detached in Codex 0.147.0. Accept only the expected tag when
+ * the snapshot itself resolves that tag to its observed HEAD. */
+export function detachedMarketplaceTagRef(
+  runtime: DeliveryProofRuntime,
+  root: string,
+  env: Record<string, string | undefined>,
+  head: string | null,
+  expectedRef: string,
+): string | null {
+  if (head === null || !/^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(expectedRef)) {
+    return null;
+  }
+  const tag = runtime.run(
+    ["git", "--no-replace-objects", "rev-parse", "--verify", `refs/tags/${expectedRef}^{commit}`],
+    root,
+    env,
+  );
+  return tag.code === 0 && text(tag.out) === head ? expectedRef : null;
+}
+
 /**
  * The identity a host's marketplace snapshot came from. Codex writes source, `ref_name` and
  * revision declaratively; both hosts leave a checkout, so Git is the fallback for commit and ref.
@@ -1470,6 +1490,9 @@ export function readMarketplaceSnapshotIdentity(
       );
       const name = branch.code === 0 ? text(branch.out) : null;
       ref = name === "HEAD" ? null : name;
+      if (host === "codex" && ref === null) {
+        ref = detachedMarketplaceTagRef(runtime, root, env, commit, RELEASE_REF);
+      }
     }
   }
   return { commit, ref, source };

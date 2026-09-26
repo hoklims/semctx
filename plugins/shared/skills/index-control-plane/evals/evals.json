@@ -1,0 +1,29 @@
+{
+  "skill_name": "index-control-plane",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Sur un worktree TypeScript, Graphify indique que graph.json est READY pour la génération 42, mais le MCP Graphify a été lancé avant ce refresh et sert encore la génération 41. CCC est READY et Semctx est STALE. Explique précisément ce qui est utilisable, quelle route choisir pour une question d'architecture transverse, et quelles actions sûres entreprendre sans rendre artificiellement les statuts verts.",
+      "expected_output": "Distingue artefact et consommateur, refuse Graphify tant que la génération consommée ne correspond pas, propose un fallback source/LSP ou ciblé, et n'utilise pas CCC/Semctx hors de leur rôle.",
+      "files": [],
+      "expectations": [
+        "Distingue explicitement la fraîcheur de l'artefact de la fraîcheur du consommateur.",
+        "Refuse d'utiliser Graphify comme preuve courante tant que le consommateur sert la génération 41.",
+        "Propose un fallback source ou LSP pour la question d'architecture.",
+        "Ne suggère pas de falsifier ou forcer un statut READY."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Mon hook UserPromptSubmit prend environ 900 ms parce qu'il exécute git status, recalcule le dirty digest et sonde trois providers à chaque prompt. Je veux garder un fail-closed strict entre Codex et Claude. Propose le changement minimal de control plane, le budget de performance et les tests hostiles nécessaires.",
+      "expected_output": "Déplace le fingerprinting hors du hot path, utilise un cache publié par le worker avec expiration conservatrice, conserve le fallback exact/LSP et couvre mutations externes, expiration et courses entre hôtes.",
+      "files": [],
+      "expectations": [
+        "Retire Git et les probes provider du chemin synchrone du prompt.",
+        "Conserve un mécanisme fail-closed avec expiration ou génération.",
+        "Fixe un objectif p95 inférieur à 50 ms.",
+        "Inclut des tests de mutation externe, expiration et concurrence Codex/Claude."
+      ]
+    }
+  ]
+}

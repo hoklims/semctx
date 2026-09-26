@@ -306,6 +306,6 @@ describe("semctx setup --dry-run --json", () => {
     expect(applied.code).toBe(1); // no Git seal: files are written, analysis remains not ready
     expect(existsSync(join(root, ".github", "workflows", "semctx.yml"))).toBe(true);
     expect(existsSync(join(root, ".claude", "semctx.md"))).toBe(true);
-    expect(readFileSync(join(root, ".github", "workflows", "semctx.yml"), "utf8")).toContain("github-action@v0.3.4");
+    expect(readFileSync(join(root, ".github", "workflows", "semctx.yml"), "utf8")).toContain("github-action@v0.3.5");
   });
 });

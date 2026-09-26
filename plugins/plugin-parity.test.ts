@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import {
   AGENT_LIFECYCLE_POLICY_V1,
@@ -10,6 +11,7 @@ import {
   hostCliLadder,
   renderControlSkill,
   renderSharedLifecycleContract,
+  skillFiles,
   type SkillHost,
 } from "../scripts/build-plugin-runtime.ts";
 import { HOST_CLI_SPECIFICATION } from "../scripts/prove-stable-delivery.ts";
@@ -47,6 +49,22 @@ function distFiles(
     .sort();
 }
 
+function indexSkillFiles(directory: string, relativeDir = ""): string[] {
+  return readdirSync(resolve(repoRoot, directory, relativeDir), { withFileTypes: true })
+    .flatMap((entry) => {
+      const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+      if (!entry.isDirectory() && !entry.isFile()) {
+        throw new Error(`unsupported index-control-plane skill entry: ${relativePath}`);
+      }
+      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) {
+        if (entry.isDirectory()) indexSkillFiles(directory, relativePath);
+        return [];
+      }
+      return entry.isDirectory() ? indexSkillFiles(directory, relativePath) : [relativePath];
+    })
+    .sort();
+}
+
 function skillPath(host: SkillHost): string {
   return host === "claude-code"
     ? "plugins/claude-code/skills/semctx-control/SKILL.md"
@@ -69,6 +87,59 @@ function sharedLifecycleBody(skill: string): string {
 }
 
 describe("Codex and Claude Code plugin parity", () => {
+  test("rejects symbolic links even under an excluded skill-directory name", () => {
+    const fixture = mkdtempSync(resolve(tmpdir(), "semctx-index-skill-"));
+    try {
+      const target = resolve(fixture, "target.txt");
+      writeFileSync(target, "fixture\n");
+      symlinkSync(target, resolve(fixture, "__pycache__"), "file");
+      expect(() => skillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__");
+      expect(() => indexSkillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__");
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects links nested inside an excluded skill directory", () => {
+    const fixture = mkdtempSync(resolve(tmpdir(), "semctx-index-skill-"));
+    try {
+      const excluded = resolve(fixture, "__pycache__");
+      mkdirSync(excluded);
+      const target = resolve(fixture, "target.txt");
+      writeFileSync(target, "fixture\n");
+      symlinkSync(target, resolve(excluded, "hidden-link"), "file");
+      expect(() => skillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__/hidden-link");
+      expect(() => indexSkillFiles(fixture)).toThrow("unsupported index-control-plane skill entry: __pycache__/hidden-link");
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("ships the HOK-834 runtime skill to both hosts and keeps its regression cases", () => {
+    const source = "plugins/shared/skills/index-control-plane";
+    const files = indexSkillFiles(source);
+    const shipped = files.filter((path) =>
+      !path.startsWith("tests/") && !/^evals\/(?:benchmark-2026|scip-)/.test(path));
+    for (const required of [
+      "SKILL.md",
+      "scripts/index_control.py",
+      "scripts/reconcile_worker.py",
+      "tests/test_reconcile_worker.py",
+    ]) expect(files).toContain(required);
+    expect(read(`${source}/tests/test_reconcile_worker.py`)).toContain(
+      "def test_operator_record_recovers_negative_verdict_without_rebuild",
+    );
+    for (const host of ["claude-code", "semctx-control"] as const) {
+      const destination = `plugins/${host}/skills/index-control-plane`;
+      expect(indexSkillFiles(destination)).toEqual(shipped);
+      for (const file of shipped) {
+        expect(readFileSync(resolve(repoRoot, destination, file))).toEqual(
+          readFileSync(resolve(repoRoot, source, file)),
+        );
+      }
+    }
+  });
+
   test("renders the machine workflow contract into both host adapters", () => {
     const template = read("plugins/shared/skills/semctx-control/SKILL.md");
     expect(template).toContain("{{SHARED_WORKFLOW_CONTRACT}}");

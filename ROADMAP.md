@@ -1,6 +1,6 @@
 # Semctx roadmap
 
-> Revised 2026-09-25. Released baseline: **v0.3.4**.
+> Revised 2026-09-26. Source baseline: **v0.3.5**. Publication and host delivery are gated separately.
 > Future versions are outcome targets, not available features or promised dates.
 
 ## Understand the risk of a change before running the checks

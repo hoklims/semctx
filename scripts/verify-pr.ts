@@ -73,6 +73,10 @@ export function verificationSteps(options: VerifyOptions): VerificationStep[] {
       label: "Python smoke",
       argv: ["python", "benchmarks/change-impact-eval/scripts/smoke_test.py"],
     },
+    {
+      label: "index routing recovery regressions",
+      argv: ["python", "scripts/verify-index-routing.py"],
+    },
     { label: "plugin parity", argv: ["bun", "run", "plugin:check"] },
     { label: "tests", argv: ["bun", "run", "test"] },
   ];

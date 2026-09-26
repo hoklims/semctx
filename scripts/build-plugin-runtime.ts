@@ -87,6 +87,62 @@ const skillOutputs: Record<SkillHost, string> = {
   "claude-code": resolve(root, "plugins/claude-code/skills/semctx-control/SKILL.md"),
   "semctx-control": resolve(root, "plugins/semctx-control/skills/semctx-control/SKILL.md"),
 };
+const indexControlSkillSource = resolve(root, "plugins/shared/skills/index-control-plane");
+const indexControlSkillOutputs = [
+  resolve(root, "plugins/claude-code/skills/index-control-plane"),
+  resolve(root, "plugins/semctx-control/skills/index-control-plane"),
+];
+
+export function skillFiles(directory: string, prefix = ""): string[] {
+  return readdirSync(resolve(directory, prefix), { withFileTypes: true })
+    .flatMap((entry) => {
+      const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (!entry.isDirectory() && !entry.isFile()) {
+        throw new Error(`unsupported index-control-plane skill entry: ${path}`);
+      }
+      if (entry.name === "__pycache__" || entry.name.endsWith(".pyc")) {
+        if (entry.isDirectory()) skillFiles(directory, path);
+        return [];
+      }
+      return entry.isDirectory() ? skillFiles(directory, path) : [path];
+    })
+    .sort();
+}
+
+function syncIndexControlSkill(): void {
+  const sourceFiles = skillFiles(indexControlSkillSource);
+  const expected = sourceFiles.filter((path) =>
+    !path.startsWith("tests/") && !/^evals\/(?:benchmark-2026|scip-)/.test(path));
+  if (!expected.includes("SKILL.md") || !expected.includes("scripts/reconcile_worker.py")
+    || !sourceFiles.includes("tests/test_reconcile_worker.py")) {
+    throw new Error("incomplete shared index-control-plane skill");
+  }
+  for (const destination of indexControlSkillOutputs) {
+    if (check) {
+      if (!existsSync(destination) || skillFiles(destination).join("\n") !== expected.join("\n")) {
+        throw new Error(`stale index-control-plane skill inventory: ${destination}; run 'bun run plugin:build'`);
+      }
+      for (const path of expected) {
+        if (!filesEqual(resolve(indexControlSkillSource, path), resolve(destination, path))) {
+          throw new Error(`stale index-control-plane skill file: ${resolve(destination, path)}`);
+        }
+      }
+      continue;
+    }
+    const relativeDestination = relative(root, destination).replaceAll("\\", "/");
+    if (!indexControlSkillOutputs.includes(destination)
+      || !relativeDestination.startsWith("plugins/")
+      || relativeDestination.includes("..")) {
+      throw new Error(`unsafe index-control-plane output path: ${destination}`);
+    }
+    rmSync(destination, { recursive: true, force: true });
+    for (const path of expected) {
+      const output = resolve(destination, path);
+      mkdirSync(dirname(output), { recursive: true });
+      copyFileSync(resolve(indexControlSkillSource, path), output);
+    }
+  }
+}
 
 /**
  * The one lifecycle checkpoint a host event can carry on its own. The other three need the task
@@ -811,6 +867,7 @@ async function main(): Promise<void> {
     mkdirSync(dirname(output), { recursive: true });
     await Bun.write(output, expected);
   }
+  syncIndexControlSkill();
 
   // Shadow lifecycle hook: one shared body plus one generated contract, byte-identical per host.
   const lifecycleHookFiles: Record<string, string> = {

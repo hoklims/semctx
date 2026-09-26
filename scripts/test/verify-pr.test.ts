@@ -81,6 +81,7 @@ describe("argument parsing and command construction", () => {
       ["bun", "run", "quality"],
       ["python", "-m", "compileall", "-q", "benchmarks/change-impact-eval/scripts"],
       ["python", "benchmarks/change-impact-eval/scripts/smoke_test.py"],
+      ["python", "scripts/verify-index-routing.py"],
       ["bun", "run", "plugin:check"],
       ["bun", "run", "test"],
     ]);

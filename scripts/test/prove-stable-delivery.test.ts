@@ -13,6 +13,7 @@ import {
   ConfinedAccess,
   CONTROL_STATUS_TOOL,
   defaultMcpHandshake,
+  detachedMarketplaceTagRef,
   evaluatePreflight,
   defaultProofRuntime,
   environmentIsUsable,
@@ -2327,6 +2328,41 @@ describe("hostile 13 — an invalid authority authorises no effect", () => {
       expect.objectContaining({ label: "marketplace.metadata#absent", reason: null }),
     );
     expect(proof.hosts.codex.ok).toBe(true);
+  });
+
+  test("a detached Codex marketplace proves the expected tag from its own Git ref", () => {
+    const good = fakeRuntime();
+    const env = { PATH: process.env["PATH"] };
+    expect(detachedMarketplaceTagRef(good.runtime, CODEX_MARKETPLACE_ROOT, env,
+      RELEASE.sha, "v0.3.5")).toBe("v0.3.5");
+    expect(good.calls.at(-1)?.command).toEqual([
+      "git", "--no-replace-objects", "rev-parse", "--verify", "refs/tags/v0.3.5^{commit}",
+    ]);
+    expect(detachedMarketplaceTagRef(good.runtime, CODEX_MARKETPLACE_ROOT, env,
+      RELEASE.sha, "stable")).toBeNull();
+    const wrongTag = fakeRuntime({ marketplaceRevision: "4".repeat(40) });
+    expect(detachedMarketplaceTagRef(wrongTag.runtime, CODEX_MARKETPLACE_ROOT, env,
+      RELEASE.sha, "v0.3.5")).toBeNull();
+  });
+
+  test("the real Git fallback accepts a matching annotated tag and rejects a moved HEAD", () => {
+    const runtime = defaultProofRuntime();
+    const root = temporaryRoot();
+    const env = { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"] };
+    const git = (...args: string[]) => runtime.run(["git", ...args], root, env);
+    expect(git("init", "--quiet").code).toBe(0);
+    writeFileSync(join(root, "proof.txt"), "one\n");
+    expect(git("add", "proof.txt").code).toBe(0);
+    expect(git("-c", "user.name=t", "-c", "user.email=t@example.test", "commit", "--quiet", "-m", "first").code).toBe(0);
+    expect(git("-c", "user.name=t", "-c", "user.email=t@example.test", "tag", "-a", "v0.3.5", "-m", "release").code).toBe(0);
+    const tagged = git("rev-parse", "HEAD").out.trim();
+    expect(git("checkout", "--quiet", "--detach", "HEAD").code).toBe(0);
+    expect(detachedMarketplaceTagRef(runtime, root, env, tagged, "v0.3.5")).toBe("v0.3.5");
+    writeFileSync(join(root, "proof.txt"), "two\n");
+    expect(git("add", "proof.txt").code).toBe(0);
+    expect(git("-c", "user.name=t", "-c", "user.email=t@example.test", "commit", "--quiet", "-m", "second").code).toBe(0);
+    const moved = git("rev-parse", "HEAD").out.trim();
+    expect(detachedMarketplaceTagRef(runtime, root, env, moved, "v0.3.5")).toBeNull();
   });
 
   test("a swapped Codex snapshot is refused before optional metadata is consulted", async () => {
