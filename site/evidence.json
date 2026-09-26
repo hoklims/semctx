@@ -5,7 +5,7 @@
   "generatedAt": "2026-09-25T22:29:35.714Z",
   "evidenceState": "OBSERVED",
   "releaseCommit": {
-    "value": "66b659c00e1362e058b49f7cefbaecb142a593ac",
+    "value": "3a005480bb61c76b88222362e2a880f04e6c3bb2",
     "authority": "caller-asserted"
   },
   "demo": {
