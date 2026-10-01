@@ -24,7 +24,7 @@
     "@semantic-context/control-engine": "workspace:*",
     "@semantic-context/change-authorization-verifier": "workspace:*",
     "@semantic-context/app-services": "workspace:*",
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.2.0",
     "zod": "^3.23.8",
     "zod-to-json-schema": "3.25.2",
     "zod-v4": "npm:zod@4.2.0"
