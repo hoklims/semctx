@@ -28,6 +28,7 @@ import {
   type FixtureIdentity,
 } from "./benchmark-multicore-index/fixtures";
 import { captureHostIdentity, captureImplementationIdentity } from "./benchmark-multicore-index/host-identity";
+import { parallelismMismatch } from "./benchmark-multicore-index/parallelism";
 import { WORKER_COUNTS, buildSamplePlan, type SamplePlanEntry, type WorkerCount } from "./benchmark-multicore-index/plan";
 import { observeCpuTime, observePeakRssBytes, type CpuTimeObservation, type PeakMemoryObservation } from "./benchmark-multicore-index/resource-usage";
 import { summarizeDurations, summarizePeakRss, type MetricSummary } from "./benchmark-multicore-index/summary";
@@ -134,6 +135,14 @@ function runCorpus(id: CorpusId, dimensions: CorpusDimensions, plan: readonly Sa
     materializeCorpus(id, root, dimensions);
     const fixture = captureFixtureIdentity(root);
     const samples: CorpusSample[] = plan.map((entry) => runSample(id, root, entry));
+    for (const sample of samples) {
+      const mismatch = parallelismMismatch(id, sample);
+      if (mismatch !== null) {
+        throw new Error(
+          `corpus ${id} sample ${sample.position} (workers=${sample.requestedWorkers}) did not take its expected path: ${mismatch}`,
+        );
+      }
+    }
     const equivalence = compareFingerprints(samples.map((sample) => sample.fingerprint));
     if (!equivalence.equivalent) {
       throw new Error(
