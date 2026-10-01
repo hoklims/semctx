@@ -16,6 +16,7 @@ import {
 } from "../benchmark-multicore-index/fingerprint";
 import { captureImplementationIdentity } from "../benchmark-multicore-index/host-identity";
 import { materializeCorpus } from "../benchmark-multicore-index/fixtures";
+import { parallelismMismatch } from "../benchmark-multicore-index/parallelism";
 import { buildSamplePlan, WORKER_COUNTS, type SamplePlanEntry } from "../benchmark-multicore-index/plan";
 import { observeCpuTime, observePeakRssBytes } from "../benchmark-multicore-index/resource-usage";
 import { summarizeDurations, summarizePeakRss } from "../benchmark-multicore-index/summary";
@@ -53,6 +54,29 @@ describe("buildSamplePlan", () => {
     ];
     expect(buildSamplePlan()).toEqual(expected);
     expect(buildSamplePlan()).toEqual(expected);
+  });
+});
+
+describe("parallel path evidence", () => {
+  test("accepts the requested parallel path and rejects a false single-worker fallback", () => {
+    expect(parallelismMismatch("disconnected-modules", {
+      requestedWorkers: 4, usedWorkers: 4, mode: "parallel", reason: null,
+    })).toBeNull();
+    expect(parallelismMismatch("disconnected-modules", {
+      requestedWorkers: 4, usedWorkers: 1, mode: "single", reason: null,
+    })).toContain('expected mode "parallel" with 4 worker(s)');
+  });
+
+  test("requires the named hostile-corpus fallback rather than accepting any single-worker result", () => {
+    expect(parallelismMismatch("global-script-fallback", {
+      requestedWorkers: 2,
+      usedWorkers: 1,
+      mode: "preflight-fallback",
+      reason: "global script: /fixture/hostile.ts",
+    })).toBeNull();
+    expect(parallelismMismatch("global-script-fallback", {
+      requestedWorkers: 2, usedWorkers: 1, mode: "single", reason: null,
+    })).not.toBeNull();
   });
 });
 
