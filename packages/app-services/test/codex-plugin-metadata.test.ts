@@ -198,6 +198,44 @@ describe("Codex declarative plugin inventory", () => {
       `[profiles.p${index}]\nmodel = 'gpt-6.1-sol'\n`).join(""))).toBeNull();
   });
 
+  test("inactive native profile scalar domains reject malformed strings", () => {
+    for (const [key, value] of [
+      ["model_reasoning_summary", "unsupported-summary"],
+      ["model_reasoning_summary", ""],
+      ["model_reasoning_summary", "AUTO"],
+      ["model_verbosity", "detailed"],
+      ["model_verbosity", ""],
+      ["model_verbosity", "high "],
+      ["model_reasoning_effort", ""],
+    ]) {
+      const { home, repo } = fixture();
+      const config = `[profiles.inactive]\n${key} = ${JSON.stringify(value)}\n`;
+      writeFileSync(join(home, "config.toml"), config);
+      expect(readCodexPluginMetadataInventory(repo, home, undefined, home,
+        { systemFiles: [], managedPreferences: () => "absent" })).toBeNull();
+      expect(readFileSync(join(home, "config.toml"), "utf8")).toBe(config);
+    }
+  });
+
+  test("inactive native profile domains preserve open identifiers and every supported closed value", () => {
+    for (const [key, values] of [
+      ["model_reasoning_summary", ["auto", "concise", "detailed", "none"]],
+      ["model_verbosity", ["low", "medium", "high"]],
+      ["model_reasoning_effort", ["medium", "future-effort"]],
+      ["model", ["future-model"]],
+      ["service_tier", ["priority", "flex", "fast", "future-tier"]],
+    ] as const) {
+      for (const value of values) {
+        const { home, repo } = fixture();
+        const config = `[profiles.inactive]\n${key} = ${JSON.stringify(value)}\n`;
+        writeFileSync(join(home, "config.toml"), config);
+        expect(readCodexPluginMetadataInventory(repo, home, undefined, home,
+          { systemFiles: [], managedPreferences: () => "absent" })).toEqual({ marketplaces: [], plugins: [] });
+        expect(readFileSync(join(home, "config.toml"), "utf8")).toBe(config);
+      }
+    }
+  });
+
   test("trusted project configuration overrides user enablement and selects the highest cached version", () => {
     const { home, repo } = fixture();
     const escapedRepo = repo.replace(/'/g, "''");

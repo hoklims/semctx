@@ -2133,6 +2133,12 @@ const CODEX_INACTIVE_PROFILE_FIELDS = new Set([
   "model_verbosity",
   "service_tier",
 ]);
+// Native schemas rust-v0.147.0 and rust-v0.160.0 keep model/service tier open and
+// reasoning effort extensible but non-empty; only these two settings are closed enums.
+const CODEX_INACTIVE_PROFILE_ENUM_VALUES: Readonly<Record<string, ReadonlySet<string>>> = {
+  model_reasoning_summary: new Set(["auto", "concise", "detailed", "none"]),
+  model_verbosity: new Set(["low", "medium", "high"]),
+};
 const CODEX_HOME_MARKETPLACE_MANIFESTS = [
   [".agents", "plugins", "marketplace.json"],
   [".agents", "plugins", "api_marketplace.json"],
@@ -2184,7 +2190,9 @@ function validInactiveCodexProfiles(raw: unknown): boolean {
   return Object.values(profiles).every((rawProfile) => {
     const profile = codexTomlTable(rawProfile);
     return profile !== null && Object.entries(profile).every(([key, value]) =>
-      CODEX_INACTIVE_PROFILE_FIELDS.has(key) && typeof value === "string");
+      CODEX_INACTIVE_PROFILE_FIELDS.has(key) && typeof value === "string"
+      && (key !== "model_reasoning_effort" || value.length > 0)
+      && (CODEX_INACTIVE_PROFILE_ENUM_VALUES[key]?.has(value) ?? true));
   });
 }
 
