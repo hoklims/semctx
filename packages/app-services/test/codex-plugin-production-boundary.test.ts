@@ -88,6 +88,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
     const rawCodexHome = cancelled + sep + ".." + sep + "profile";
     const codexHome = source === "OS_HOME" ? join(osHome, ".codex") : home;
     const cachePath = join(codexHome, "plugins", "cache", "semctx-stable", "semctx-control", "local");
+    const ownedCodex = join(root, "bin", process.platform === "win32" ? "codex.exe" : "codex");
     const dirs = new Set(), files = new Map(), identities = new Map();
     let identity = 1, phase = 0, systemPhase = 0, windowsQueryPhase = 0, rawHits = 0, nextDescriptor = 100;
     let cacheManifestOpens = 0;
@@ -121,6 +122,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
     };
     for (const path of [repo, home, osHome, cancelled, codexHome, knownFolder, systemCancelled, join(root, "owned-temp"),
       join(root, "program-data")]) addDirectory(path);
+    if (process.platform === "win32") addFile(ownedCodex, "owned synthetic Codex executable");
     if (process.platform !== "win32") addDirectory("/etc");
     addFile(join(gitRoot, ".git", "HEAD"), "ref: refs/heads/main\\n");
     if (systemPolicy === "disabled") addFile(join(knownFolder, "OpenAI", "Codex", "config.toml"),
@@ -355,22 +357,24 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
           ? jsonFixture.artifacts.gitRef ?? "stable" : "1".repeat(40)),
           stderr: Buffer.alloc(0) };
       }
-      if (caller === "install" && jsonFixture !== null && argv[0] === "codex") {
-        nativeCalls.push("codex-attempt:" + argv.join(" "));
-        nativeOptions.push({ command: argv, timeout: options.timeout ?? null, maxBuffer: options.maxBuffer ?? null });
+      const ownedCodexInvocation = process.platform === "win32" ? argv[0] === ownedCodex : argv[0] === "codex";
+      if (caller === "install" && jsonFixture !== null && ownedCodexInvocation) {
+        const semanticArgv = ["codex", ...argv.slice(1)];
+        nativeCalls.push("codex-attempt:" + semanticArgv.join(" "));
+        nativeOptions.push({ command: semanticArgv, timeout: options.timeout ?? null, maxBuffer: options.maxBuffer ?? null });
         if (jsonFixture.recovery !== undefined) {
-          if (argv[1] === "plugin" && argv[2] === "marketplace") {
+          if (semanticArgv[1] === "plugin" && semanticArgv[2] === "marketplace") {
             if (jsonFixture.transport?.timedOutMutation) return {
               exitCode: 0, stdout: Buffer.from("{}"), stderr: Buffer.alloc(0), exitedDueToTimeout: true,
             };
             if (jsonFixture.transport !== undefined) {
-              const result = runOwnedHost(argv, options);
+              const result = runOwnedHost(semanticArgv, options);
               nativeClockAdvance += jsonFixture.transport.advanceAfterMarketplace ?? 0;
               return result;
             }
             return { exitCode: 0, stdout: Buffer.from("{}"), stderr: Buffer.alloc(0) };
           }
-          if (argv[1] === "plugin" && argv[2] === "add") {
+          if (semanticArgv[1] === "plugin" && semanticArgv[2] === "add") {
             if (jsonFixture.recovery.configAfterAdd !== undefined) addFile(
               join(codexHome, "config.toml"), jsonFixture.recovery.configAfterAdd);
             if (jsonFixture.recovery.sidecarAfterAdd !== undefined) addFile(
@@ -382,13 +386,15 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
             for (const bundle of ["semctx-index-worker.js", "semctx-mcp.js", "semctx-shared.js", "semctx.js"]) {
               addFile(join(versioned, "dist", bundle), "same bundle: " + bundle);
             }
-            if (jsonFixture.transport !== undefined) return runOwnedHost(argv, options);
+            if (jsonFixture.transport !== undefined) return runOwnedHost(semanticArgv, options);
             if (jsonFixture.recovery.success) return { exitCode: 0, stdout: Buffer.from("{}"), stderr: Buffer.alloc(0) };
             return { exitCode: 1, stdout: Buffer.alloc(0),
               stderr: Buffer.from("failed to back up plugin cache entry: locked (os error 32)") };
           }
-          if (argv[1] === "plugin" && argv[2] === "list" && jsonFixture.transport !== undefined) return runOwnedHost(argv, options);
-          if (argv[1] === "plugin" && argv[2] === "list") {
+          if (semanticArgv[1] === "plugin" && semanticArgv[2] === "list" && jsonFixture.transport !== undefined) {
+            return runOwnedHost(semanticArgv, options);
+          }
+          if (semanticArgv[1] === "plugin" && semanticArgv[2] === "list") {
             const reply = {
               exitCode: 0, stderr: Buffer.alloc(0), stdout: Buffer.from(JSON.stringify({ installed: [{
               pluginId: "semctx-control@semctx-stable", installed: true, enabled: true, version: fixtureVersion,
@@ -415,7 +421,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
       nativeCalls.push("cleanup-scheduled");
       return { pid: 123, unref() {} };
     };
-    Bun.which = (name) => name === "codex" ? join(root, "bin", "codex") : null;
+    Bun.which = (name) => name === "codex" ? ownedCodex : null;
     const { pluginDeliveryStatus } = await import(${JSON.stringify(moduleUrl)});
     let report;
     if (caller === "install") {

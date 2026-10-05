@@ -864,26 +864,38 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     const profile = join(root, "profile");
     const project = join(root, "project");
     const bin = join(root, "bin");
+    const programData = join(root, "program-data");
     const unexpected = join(root, "unexpected-codex-invocation");
     mkdirSync(profile);
     mkdirSync(bin);
+    mkdirSync(programData);
     mkdirSync(join(project, ".git"), { recursive: true });
     writeFileSync(join(project, ".git", "HEAD"), "ref: refs/heads/main\n");
     const script = join(bin, "codex-shim.js");
     writeFileSync(script,
       `require("node:fs").writeFileSync(${JSON.stringify(unexpected)}, "called"); process.exit(9);\n`);
     if (process.platform === "win32") {
-      const compiled = Bun.spawnSync(
-        [process.execPath, "build", "--compile", script, "--outfile", join(bin, "codex.exe")],
-        { stdout: "pipe", stderr: "pipe" },
-      );
-      expect(compiled.exitCode).toBe(0);
+      const powershellProbe = join(bin, "powershell-probe.js");
+      writeFileSync(powershellProbe,
+        `process.stdout.write(Buffer.from(${JSON.stringify(programData)}).toString("base64"));\n`);
+      for (const [source, executable] of [
+        [script, join(bin, "codex.exe")],
+        [powershellProbe, join(bin, "powershell.exe")],
+      ]) {
+        const compiled = Bun.spawnSync(
+          [process.execPath, "build", "--compile", source, "--outfile", executable],
+          { stdout: "pipe", stderr: "pipe" },
+        );
+        expect(compiled.exitCode).toBe(0);
+      }
     } else {
       writeFileSync(join(bin, "codex"), `#!/bin/sh\n"${process.execPath}" "${script}" "$@"\n`);
       chmodSync(join(bin, "codex"), 0o755);
     }
     const environment = fixtureEnvironmentWithPath(bin);
     environment["CODEX_HOME"] = profile;
+    environment["ProgramData"] = programData;
+    environment["PROGRAMDATA"] = programData;
     environment["HOME"] = join(root, "home");
     // The read-only Windows OS query requires an existing home, never startup-created caller state.
     mkdirSync(environment["HOME"]);
