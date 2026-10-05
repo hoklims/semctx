@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import {
   chmodSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -340,7 +341,11 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     const root = mkdtempSync(join(tmpdir(), "semctx-codex-launcher-"));
     const launcher = join(root, "codex.cmd");
     const batchLauncher = join(root, "codex.bat");
-    const node = process.execPath;
+    const node = process.platform === "win32" ? process.execPath : join(root, "node.exe");
+    if (process.platform !== "win32") {
+      copyFileSync(process.execPath, node);
+      chmodSync(node, 0o755);
+    }
     const entrypoint = join(root, "node_modules", "@openai", "codex", "bin", "codex.js");
     const args = ["plugin", "marketplace", "add", "source with spaces", "--ref", "stable&literal"];
     mkdirSync(resolve(entrypoint, ".."), { recursive: true });
@@ -354,7 +359,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
         (name) => name === "codex" ? launcher : name === "node" ? node : null,
       );
       expect(resolved).toEqual([node, entrypoint, ...args]);
-      const child = Bun.spawnSync(resolved!, { stdout: "pipe", stderr: "pipe" });
+      const child = Bun.spawnSync([...resolved!], { stdout: "pipe", stderr: "pipe" });
       expect(child.exitCode).toBe(0);
       expect(JSON.parse(new TextDecoder().decode(child.stdout))).toEqual(args);
       expect(resolveInstallHostCommand(
