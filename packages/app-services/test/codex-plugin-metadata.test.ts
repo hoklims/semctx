@@ -24,10 +24,15 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-function cache(home: string, version: string): void {
-  const root = join(home, "plugins", "cache", "semctx-stable", "semctx-control", version, ".codex-plugin");
+function cache(
+  home: string,
+  version: string,
+  marketplace = "semctx-stable",
+  plugin = "semctx-control",
+): void {
+  const root = join(home, "plugins", "cache", marketplace, plugin, version, ".codex-plugin");
   mkdirSync(root, { recursive: true });
-  writeFileSync(join(root, "plugin.json"), JSON.stringify({ name: "semctx-control", version }));
+  writeFileSync(join(root, "plugin.json"), JSON.stringify({ name: plugin, version }));
 }
 function snapshot(home: string): void {
   const root = join(home, ".tmp", "marketplaces", "semctx-stable");
@@ -156,6 +161,42 @@ describe("Codex declarative plugin inventory", () => {
     expect(readdirSync(home)).toEqual([]);
   });
 
+  test("inactive execution profiles preserve the default user plugin metadata", () => {
+    const { home, repo } = fixture();
+    const pluginMetadata = "[marketplaces.semctx-stable]\nsource_type = 'git'\nsource = 'hoklims/semctx'\n";
+    snapshot(home);
+    writeFileSync(join(home, "config.toml"), pluginMetadata);
+    const ordinary = readCodexPluginMetadataInventory(repo, home, undefined, home);
+    writeFileSync(join(home, "config.toml"), pluginMetadata
+      + "[profiles.fast]\nmodel = 'gpt-6.1-sol'\nmodel_reasoning_effort = 'medium'\n"
+      + "model_reasoning_summary = 'concise'\nmodel_verbosity = 'low'\nservice_tier = 'priority'\n"
+      + "[profiles.careful]\nmodel = 'gpt-6-astra'\nmodel_reasoning_effort = 'high'\n");
+
+    expect(readCodexPluginMetadataInventory(repo, home, undefined, home)).toEqual(ordinary);
+  });
+
+  test("selected, authority-bearing, malformed and oversized profiles remain unknown", () => {
+    const inspect = (profiles: string) => {
+      const { home, repo } = fixture();
+      writeFileSync(join(home, "config.toml"), profiles);
+      return readCodexPluginMetadataInventory(repo, home, undefined, home);
+    };
+
+    expect(inspect("profile = 'fast'\n[profiles.fast]\nmodel = 'gpt-6.1-sol'\n")).toBeNull();
+    for (const authority of ["marketplaces", "plugins", "mcp_servers", "hooks", "permissions", "sandbox_mode",
+      "approval_policy", "project_root_markers"]) {
+      expect(inspect(`[profiles.fast]\n${authority} = 'forbidden'\n`)).toBeNull();
+    }
+    for (const malformed of [
+      "profiles = 'not-a-table'\n",
+      "[profiles]\nfast = 'not-a-table'\n",
+      "[profiles.fast]\nmodel = 42\n",
+      "[profiles.fast]\nmodel = 'gpt-6.1-sol'\nunknown = 'value'\n",
+    ]) expect(inspect(malformed)).toBeNull();
+    expect(inspect(Array.from({ length: 257 }, (_, index) =>
+      `[profiles.p${index}]\nmodel = 'gpt-6.1-sol'\n`).join(""))).toBeNull();
+  });
+
   test("trusted project configuration overrides user enablement and selects the highest cached version", () => {
     const { home, repo } = fixture();
     const escapedRepo = repo.replace(/'/g, "''");
@@ -236,6 +277,100 @@ describe("Codex declarative plugin inventory", () => {
       renameSync(plugins, moved);
       symlinkSync(moved, plugins, process.platform === "win32" ? "junction" : "dir");
     }, home)).toBeNull();
+  });
+
+  test("native selection ignores an old residual and matching latest without dropping the foreign plugin", () => {
+    const { home, repo } = fixture();
+    const marketplace = "openai-bundled";
+    const plugin = "chrome";
+    const oldVersion = "26.930.31428";
+    const selectedVersion = "26.930.31730";
+    const marketplaceRoot = join(home, ".tmp", "marketplaces", marketplace);
+    mkdirSync(join(marketplaceRoot, ".agents", "plugins"), { recursive: true });
+    mkdirSync(join(marketplaceRoot, "plugins", plugin), { recursive: true });
+    writeFileSync(join(marketplaceRoot, ".agents", "plugins", "marketplace.json"), JSON.stringify({
+      name: marketplace,
+      plugins: [{ name: plugin, source: { source: "local", path: `./plugins/${plugin}` } }],
+    }));
+    writeFileSync(join(home, "config.toml"),
+      `[marketplaces.${marketplace}]\nsource_type = 'git'\nsource = 'openai/codex'\n`
+      + `[plugins.'${plugin}@${marketplace}']\nenabled = true\n`);
+    cache(home, selectedVersion, marketplace, plugin);
+    const cacheRoot = join(home, "plugins", "cache", marketplace, plugin);
+    const oldRoot = join(cacheRoot, oldVersion);
+    const selectedRoot = join(cacheRoot, selectedVersion);
+    mkdirSync(oldRoot);
+    writeFileSync(join(oldRoot, "residual"), "old incomplete payload");
+    symlinkSync(selectedRoot, join(cacheRoot, "latest"), process.platform === "win32" ? "junction" : "dir");
+
+    expect(readCodexPluginMetadataInventory(repo, home, undefined, home)?.plugins)
+      .toEqual([expect.objectContaining({
+        pluginId: `${plugin}@${marketplace}`,
+        installed: true,
+        enabled: true,
+        version: selectedVersion,
+        cacheDirectory: selectedVersion,
+      })]);
+  });
+
+  test("selected empty, malformed, local or wrong-identity payloads remain unknown", () => {
+    const inspect = (configure: (home: string, cacheRoot: string) => void) => {
+      const { home, repo } = fixture();
+      const cacheRoot = join(home, "plugins", "cache", "semctx-stable", "semctx-control");
+      cache(home, "1.0.0");
+      configure(home, cacheRoot);
+      return readCodexPluginMetadataInventory(repo, home, undefined, home);
+    };
+    expect(inspect((_home, root) => mkdirSync(join(root, "2.0.0")))).toBeNull();
+    expect(inspect((_home, root) => {
+      mkdirSync(join(root, "2.0.0"));
+      writeFileSync(join(root, "2.0.0", "residual"), "selected but incomplete");
+    })).toBeNull();
+    expect(inspect((_home, root) => mkdirSync(join(root, "local")))).toBeNull();
+    expect(inspect((home) => {
+      cache(home, "2.0.0");
+      writeFileSync(join(home, "plugins", "cache", "semctx-stable", "semctx-control", "2.0.0",
+        ".codex-plugin", "plugin.json"), JSON.stringify({ name: "foreign", version: "2.0.0" }));
+    })).toBeNull();
+  });
+
+  test("latest and other cache links remain bounded, stable and non-authoritative", () => {
+    const inspect = (
+      configure: (value: ReturnType<typeof fixture>, cacheRoot: string, selectedRoot: string) => void,
+      afterObservation?: (value: ReturnType<typeof fixture>, cacheRoot: string, selectedRoot: string) => void,
+    ) => {
+      const value = fixture();
+      cache(value.home, "1.0.0");
+      const cacheRoot = join(value.home, "plugins", "cache", "semctx-stable", "semctx-control");
+      const selectedRoot = join(cacheRoot, "1.0.0");
+      configure(value, cacheRoot, selectedRoot);
+      return readCodexPluginMetadataInventory(value.repo, value.home,
+        afterObservation === undefined ? undefined : () => afterObservation(value, cacheRoot, selectedRoot),
+        value.home);
+    };
+    const linkType = process.platform === "win32" ? "junction" : "dir";
+    expect(inspect((value, root) => {
+      const outside = join(value.root, "outside");
+      mkdirSync(outside);
+      symlinkSync(outside, join(root, "latest"), linkType);
+    })).toBeNull();
+    expect(inspect((_value, root) => {
+      symlinkSync(join(root, "missing"), join(root, "latest"), linkType);
+    })).toBeNull();
+    expect(inspect((_value, root) => {
+      cache(_value.home, "0.9.0");
+      symlinkSync(join(root, "0.9.0"), join(root, "latest"), linkType);
+    })).toBeNull();
+    expect(inspect((_value, root, selected) => {
+      cache(_value.home, "0.9.0");
+      symlinkSync(selected, join(root, "latest"), linkType);
+    }, (_value, root) => {
+      rmSync(join(root, "latest"), { force: true });
+      symlinkSync(join(root, "0.9.0"), join(root, "latest"), linkType);
+    })).toBeNull();
+    expect(inspect((_value, root, selected) => {
+      symlinkSync(selected, join(root, "alias"), linkType);
+    })).toBeNull();
   });
 
   test("cache manifest identity is required and wrong or malformed names are unknown", () => {

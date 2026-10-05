@@ -24,7 +24,7 @@ import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { lstatSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute, join, resolve, sep } from "node:path";
+import { dirname, extname, isAbsolute, join, resolve, sep } from "node:path";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { c, fail, heading, info, json, success } from "../output";
@@ -260,6 +260,33 @@ function decode(bytes: Uint8Array | undefined): string {
   return bytes === undefined ? "" : new TextDecoder().decode(bytes);
 }
 
+export function resolveInstallHostCommand(
+  command: readonly string[],
+  platform: NodeJS.Platform = process.platform,
+  findExecutable: (name: string) => string | null = (name) => Bun.which(name),
+): readonly string[] | null {
+  if (platform !== "win32" || command[0] !== "codex") return command;
+  const launcher = findExecutable("codex");
+  if (launcher === null) return null;
+  const regularFile = (path: string): boolean => {
+    try {
+      return lstatSync(path).isFile();
+    } catch {
+      return false;
+    }
+  };
+  const extension = extname(launcher).toLowerCase();
+  if (extension === ".exe" || extension === ".com") {
+    return regularFile(launcher) ? [launcher, ...command.slice(1)] : null;
+  }
+  if (extension !== ".cmd" && extension !== ".bat") return null;
+  const node = findExecutable("node");
+  const entrypoint = join(dirname(launcher), "node_modules", "@openai", "codex", "bin", "codex.js");
+  if (node === null || ![".exe", ".com"].includes(extname(node).toLowerCase())
+    || !regularFile(node) || !regularFile(entrypoint)) return null;
+  return [node, entrypoint, ...command.slice(1)];
+}
+
 function defaultRun(command: readonly string[], cwd: string, budget?: NativeInstallBudget): CommandResult {
   if (command[0] === "codex" || command[0] === "claude") {
     const remaining = budget === undefined ? NATIVE_OPERATION_TIMEOUT_MS : budget.deadline - Date.now();
@@ -268,7 +295,13 @@ function defaultRun(command: readonly string[], cwd: string, budget?: NativeInst
       timedOut: true,
     };
     const readback = command[1] === "--version" || command[2] === "list" || command[3] === "list";
-    const result = runPluginDeliveryQuery(command, cwd, {
+    const resolvedCommand = resolveInstallHostCommand(command);
+    if (resolvedCommand === null) return {
+      code: 1,
+      out: "",
+      err: "cannot resolve a safe native Codex launcher",
+    };
+    const result = runPluginDeliveryQuery(resolvedCommand, cwd, {
       timeoutMs: Math.min(remaining, readback ? PLUGIN_DELIVERY_QUERY_TIMEOUT_MS : NATIVE_MUTATION_TIMEOUT_MS),
       maxBytes: PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES,
       ...(command[0] === "claude" ? { env: {
@@ -307,9 +340,28 @@ function defaultRun(command: readonly string[], cwd: string, budget?: NativeInst
 }
 
 const DEFERRED_CODEX_CLEANUP_SCRIPT = String.raw`
+const { lstatSync } = await import("node:fs");
+const { dirname, extname, join } = await import("node:path");
 const root = process.argv[1];
 const payload = process.argv[2];
 const allowed = new Set(["personal", "semctx"]);
+const regularFile = (path) => {
+  try { return lstatSync(path).isFile(); } catch { return false; }
+};
+const resolveCodex = () => {
+  if (process.platform !== "win32") return ["codex"];
+  const launcher = Bun.which("codex");
+  if (launcher === null) return null;
+  const extension = extname(launcher).toLowerCase();
+  if (extension === ".exe" || extension === ".com") return regularFile(launcher) ? [launcher] : null;
+  if (extension !== ".cmd" && extension !== ".bat") return null;
+  const node = Bun.which("node");
+  const entrypoint = join(dirname(launcher), "node_modules", "@openai", "codex", "bin", "codex.js");
+  return node !== null && [".exe", ".com"].includes(extname(node).toLowerCase())
+    && regularFile(node) && regularFile(entrypoint) ? [node, entrypoint] : null;
+};
+const codexCommand = resolveCodex();
+if (codexCommand === null) process.exit(1);
 let marketplaceNames;
 try {
   marketplaceNames = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
@@ -351,9 +403,9 @@ const parseObject = (result) => {
 
 const deadline = Date.now() + 12 * 60 * 60 * 1000;
 while (Date.now() < deadline) {
-  const pluginState = parseObject(run(["codex", "plugin", "list", "--json"]));
+  const pluginState = parseObject(run([...codexCommand, "plugin", "list", "--json"]));
   const marketplaceState = parseObject(
-    run(["codex", "plugin", "marketplace", "list", "--json"]),
+    run([...codexCommand, "plugin", "marketplace", "list", "--json"]),
   );
   const installed = pluginState?.installed;
   const marketplaces = marketplaceState?.marketplaces;
@@ -363,14 +415,14 @@ while (Date.now() < deadline) {
     for (const name of marketplaceNames) {
       const pluginId = "semctx-control@" + name;
       if (installed.some((plugin) => plugin?.pluginId === pluginId && plugin?.installed === true)) {
-        const removed = run(["codex", "plugin", "remove", pluginId, "--json"]);
+        const removed = run([...codexCommand, "plugin", "remove", pluginId, "--json"]);
         if (removed.exitCode !== 0) {
           complete = false;
           break;
         }
       }
       if (marketplaces.some((marketplace) => marketplace?.name === name)) {
-        const removed = run(["codex", "plugin", "marketplace", "remove", name, "--json"]);
+        const removed = run([...codexCommand, "plugin", "marketplace", "remove", name, "--json"]);
         if (removed.exitCode !== 0) {
           complete = false;
           break;
@@ -427,8 +479,26 @@ function defaultDeferCodexCleanup(
  * is never a target, and its disappearance aborts the run.
  */
 export const DEFERRED_CODEX_CACHE_CLEANUP_SCRIPT = String.raw`
-const { existsSync, renameSync, rmSync } = await import("node:fs");
-const { isAbsolute, join, resolve } = await import("node:path");
+const { existsSync, lstatSync, renameSync, rmSync } = await import("node:fs");
+const { dirname, extname, isAbsolute, join, resolve } = await import("node:path");
+
+const regularFile = (path) => {
+  try { return lstatSync(path).isFile(); } catch { return false; }
+};
+const resolveCodex = () => {
+  if (process.platform !== "win32") return ["codex"];
+  const launcher = Bun.which("codex");
+  if (launcher === null) return null;
+  const extension = extname(launcher).toLowerCase();
+  if (extension === ".exe" || extension === ".com") return regularFile(launcher) ? [launcher] : null;
+  if (extension !== ".cmd" && extension !== ".bat") return null;
+  const node = Bun.which("node");
+  const entrypoint = join(dirname(launcher), "node_modules", "@openai", "codex", "bin", "codex.js");
+  return node !== null && [".exe", ".com"].includes(extname(node).toLowerCase())
+    && regularFile(node) && regularFile(entrypoint) ? [node, entrypoint] : null;
+};
+const codexCommand = resolveCodex();
+if (codexCommand === null) process.exit(1);
 
 let request;
 try {
@@ -465,7 +535,7 @@ if (root !== cacheRoot || resolvedEntry !== entry
 
 const retired = resolvedEntry + ".semctx-obsolete";
 const selectedVersion = () => {
-  const result = Bun.spawnSync(["codex", "plugin", "list", "--json"], {
+  const result = Bun.spawnSync([...codexCommand, "plugin", "list", "--json"], {
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
