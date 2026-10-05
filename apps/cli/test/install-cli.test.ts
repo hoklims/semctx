@@ -18,6 +18,7 @@ import packageJson from "../package.json";
 import {
   executeInstall,
   DEFERRED_CODEX_CACHE_CLEANUP_SCRIPT,
+  resolveInstallHostCommand,
   resolveCodexCacheEntry,
   resolveCodexHome,
   setupExecutionFromCommandResult,
@@ -333,6 +334,50 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
     expect(Object.keys(environment).filter((name) => name.toUpperCase() === "PATH")).toEqual(["PATH"]);
     expect(environment["PATH"]).toBe(`C:\\fixture-bin${delimiter}C:\\system-bin`);
     expect(environment["CLAUDE_CONFIG_DIR"]).toBe("C:\\profile");
+  });
+
+  test("resolves a Windows npm Codex shim to Node and preserves argv boundaries", () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-codex-launcher-"));
+    const launcher = join(root, "codex.cmd");
+    const batchLauncher = join(root, "codex.bat");
+    const node = process.execPath;
+    const entrypoint = join(root, "node_modules", "@openai", "codex", "bin", "codex.js");
+    const args = ["plugin", "marketplace", "add", "source with spaces", "--ref", "stable&literal"];
+    mkdirSync(resolve(entrypoint, ".."), { recursive: true });
+    writeFileSync(launcher, "@echo off\r\nexit /b 99\r\n");
+    writeFileSync(batchLauncher, "@echo off\r\nexit /b 99\r\n");
+    writeFileSync(entrypoint, "process.stdout.write(JSON.stringify(process.argv.slice(2)));\n");
+    try {
+      const resolved = resolveInstallHostCommand(
+        ["codex", ...args],
+        "win32",
+        (name) => name === "codex" ? launcher : name === "node" ? node : null,
+      );
+      expect(resolved).toEqual([node, entrypoint, ...args]);
+      const child = Bun.spawnSync(resolved!, { stdout: "pipe", stderr: "pipe" });
+      expect(child.exitCode).toBe(0);
+      expect(JSON.parse(new TextDecoder().decode(child.stdout))).toEqual(args);
+      expect(resolveInstallHostCommand(
+        ["codex", ...args],
+        "win32",
+        (name) => name === "codex" ? batchLauncher : name === "node" ? node : null,
+      )).toEqual([node, entrypoint, ...args]);
+      expect(resolveInstallHostCommand(
+        ["codex", ...args],
+        "win32",
+        (name) => name === "codex" ? launcher : null,
+      )).toBeNull();
+      rmSync(entrypoint);
+      expect(resolveInstallHostCommand(
+        ["codex", ...args],
+        "win32",
+        (name) => name === "codex" ? launcher : name === "node" ? node : null,
+      )).toBeNull();
+      expect(resolveInstallHostCommand(["codex", ...args], "linux", () => launcher))
+        .toEqual(["codex", ...args]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   test("preserves a structured nonzero setup report instead of flattening it into stderr", () => {
@@ -2892,11 +2937,14 @@ describe("obsolete Codex cache janitor", () => {
   function codexShim(): { directory: string; script: string; counter: string } {
     const directory = mkdtempSync(join(tmpdir(), "semctx-janitor-codex-"));
     trees.push(directory);
-    const script = join(directory, "codex-shim.js");
+    const script = process.platform === "win32"
+      ? join(directory, "node_modules", "@openai", "codex", "bin", "codex.js")
+      : join(directory, "codex-shim.js");
     const counter = join(directory, "counter.txt");
+    mkdirSync(resolve(script, ".."), { recursive: true });
     writeFileSync(
       script,
-      `const { readFileSync, writeFileSync } = await import("node:fs");
+      `const { readFileSync, writeFileSync } = require("node:fs");
 const versions = JSON.parse(process.env.SEMCTX_JANITOR_SELECTED_VERSIONS ?? "[]");
 let index = 0;
 try { index = Number(readFileSync(process.env.SEMCTX_JANITOR_COUNTER, "utf8")); } catch {}
@@ -2913,7 +2961,7 @@ process.stdout.write(JSON.stringify({ installed: [{
     if (process.platform === "win32") {
       writeFileSync(
         join(directory, "codex.cmd"),
-        "@echo off\r\n\"%SEMCTX_JANITOR_BUN%\" \"%SEMCTX_JANITOR_SHIM%\" %*\r\n",
+        "@echo off\r\nnode \"%~dp0\\node_modules\\@openai\\codex\\bin\\codex.js\" %*\r\n",
       );
     } else {
       const executable = join(directory, "codex");

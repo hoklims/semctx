@@ -2126,6 +2126,13 @@ interface CodexConfigTables {
 const CODEX_ENTRY_NAME = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
 const CODEX_CACHE_NAME = /^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}$/;
 const MAX_CODEX_ENTRIES = 256;
+const CODEX_INACTIVE_PROFILE_FIELDS = new Set([
+  "model",
+  "model_reasoning_effort",
+  "model_reasoning_summary",
+  "model_verbosity",
+  "service_tier",
+]);
 const CODEX_HOME_MARKETPLACE_MANIFESTS = [
   [".agents", "plugins", "marketplace.json"],
   [".agents", "plugins", "api_marketplace.json"],
@@ -2171,6 +2178,16 @@ function validCodexProjects(projects: Record<string, unknown>): boolean {
   });
 }
 
+function validInactiveCodexProfiles(raw: unknown): boolean {
+  const profiles = codexTomlTable(raw);
+  if (profiles === null || Object.keys(profiles).length > MAX_CODEX_ENTRIES) return false;
+  return Object.values(profiles).every((rawProfile) => {
+    const profile = codexTomlTable(rawProfile);
+    return profile !== null && Object.entries(profile).every(([key, value]) =>
+      CODEX_INACTIVE_PROFILE_FIELDS.has(key) && typeof value === "string");
+  });
+}
+
 function parseCodexConfig(observation: OptionalMetadataFile): Record<string, unknown> | null {
   if (observation.status === "unsafe") return null;
   if (observation.status === "absent") return {};
@@ -2185,8 +2202,11 @@ function parseCodexConfig(observation: OptionalMetadataFile): Record<string, unk
   if (config === null) return null;
   // Bare plugin commands do not select a profile. A separately selected profile cannot be
   // reconstructed from this metadata-only boundary and must not be treated as the user layer.
-  if (config["profile"] !== undefined || config["profiles"] !== undefined
-    || config["project_root_markers"] !== undefined) return null;
+  if (config["profile"] !== undefined || config["project_root_markers"] !== undefined) return null;
+  if (config["profiles"] !== undefined) {
+    if (!validInactiveCodexProfiles(config["profiles"])) return null;
+    delete config["profiles"];
+  }
   return config;
 }
 
@@ -2205,6 +2225,41 @@ function effectiveCodexConfigTables(config: Record<string, unknown>): CodexConfi
 }
 
 interface CodexCachedVersion { directory: string; version: string }
+
+function observeCodexLatestAlias(
+  alias: string,
+  selectedRoot: string,
+  observations: string[],
+): boolean {
+  try {
+    const before = lstatSync(alias);
+    if (!before.isSymbolicLink()) return false;
+    const beforeTarget = readlinkSync(alias);
+    const resolvedTarget = resolve(dirname(alias), beforeTarget);
+    if (lexicalPathIdentity(resolvedTarget) !== lexicalPathIdentity(selectedRoot)
+      || lexicalPathIdentity(realpathSync.native(alias)) !== lexicalPathIdentity(realpathSync.native(selectedRoot))) {
+      return false;
+    }
+    const after = lstatSync(alias);
+    const afterTarget = readlinkSync(alias);
+    if (!after.isSymbolicLink() || after.dev !== before.dev || after.ino !== before.ino
+      || after.mode !== before.mode || afterTarget !== beforeTarget
+      || lexicalPathIdentity(realpathSync.native(alias)) !== lexicalPathIdentity(realpathSync.native(selectedRoot))) {
+      return false;
+    }
+    observations.push(JSON.stringify({
+      latestAlias: alias,
+      target: beforeTarget,
+      resolvedTarget,
+      dev: before.dev,
+      ino: before.ino,
+      mode: before.mode,
+    }));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function readCodexMetadataFile(
   file: string, root: string, observations: string[], maxBytes = PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES,
@@ -2256,11 +2311,13 @@ function readCodexCachedVersion(
     return cause !== null && typeof cause === "object" && "code" in cause
       && (cause as { code?: unknown }).code === "ENOENT" ? null : false;
   }
-  if (entries.length > MAX_CODEX_ENTRIES) return false;
+  if (entries.length > MAX_CODEX_ENTRIES
+    || !sameRawTraversal(root, false, "directory", traversal)) return false;
   observations.push(JSON.stringify({ root, traversal: captureRawTraversal(root, false, "directory"), entries: entries.map((entry) => ({
     name: entry.name, directory: entry.isDirectory(), file: entry.isFile(), link: entry.isSymbolicLink(),
   })).sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0) }));
-  const versions: CodexCachedVersion[] = [];
+  const versions: Array<{ directory: string; root: string }> = [];
+  let latestAlias: string | null = null;
   for (const entry of entries) {
     if (entry.isFile() && entry.name === ".codex-remote-plugin-install.json") {
       const metadata = readCodexMetadataFile(join(root, entry.name), home, observations);
@@ -2270,25 +2327,56 @@ function readCodexCachedVersion(
         || value["remote_plugin_id"].trim().length === 0) return false;
       continue;
     }
+    if (entry.isSymbolicLink()) {
+      if (entry.name !== "latest" || latestAlias !== null) return false;
+      latestAlias = join(root, entry.name);
+      continue;
+    }
     if (!entry.isDirectory() || !CODEX_CACHE_NAME.test(entry.name)) return false;
-    const manifest = readCodexMetadataFile(
-      join(root, entry.name, ".codex-plugin", "plugin.json"),
-      home,
-      observations,
-    );
-    if (manifest.status !== "ok") return false;
-    const identity = codexPluginManifestIdentity(decodeCodexMetadataObject(manifest.bytes), plugin);
-    const declared = identity?.version;
-    if (identity === null || declared === undefined || !CODEX_CACHE_NAME.test(declared)
-      || (entry.name !== "local" && declared !== entry.name)) return false;
-    versions.push({ directory: entry.name, version: declared });
+    const versionRoot = join(root, entry.name);
+    const versionTraversal = captureRawTraversal(versionRoot, false, "directory");
+    if (versionTraversal === null) return false;
+    let versionEntries: Dirent[];
+    try {
+      const stats = lstatSync(versionRoot);
+      if (!stats.isDirectory() || stats.isSymbolicLink()) return false;
+      versionEntries = readdirSync(versionRoot, { withFileTypes: true });
+    } catch {
+      return false;
+    }
+    if (versionEntries.length > MAX_CODEX_ENTRIES
+      || !sameRawTraversal(versionRoot, false, "directory", versionTraversal)) return false;
+    observations.push(JSON.stringify({
+      cacheVersionRoot: versionRoot,
+      traversal: versionTraversal,
+      entries: versionEntries.map((child) => ({
+        name: child.name,
+        directory: child.isDirectory(),
+        file: child.isFile(),
+        link: child.isSymbolicLink(),
+      })).sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0),
+    }));
+    versions.push({ directory: entry.name, root: versionRoot });
   }
-  if (versions.length === 0) return null;
+  if (versions.length === 0) return latestAlias === null ? null : false;
   const local = versions.find((entry) => entry.directory === "local");
-  if (local !== undefined) return local;
-  // Captured Codex 0.147.0 and 0.155.1 use semver 1.0.27 Version::cmp, including pre and build.
-  versions.sort((left, right) => compareNativeCodexVersions(left.version, right.version));
-  return versions.at(-1) ?? false;
+  // Captured Codex 0.147.0, 0.155.1 and 0.160.0 select regular directory names first: `local`
+  // wins, otherwise semver 1.0.27 Version::cmp ordering selects the last name.
+  versions.sort((left, right) => compareNativeCodexVersions(left.directory, right.directory));
+  const selected = local ?? versions.at(-1);
+  if (selected === undefined
+    || (latestAlias !== null && !observeCodexLatestAlias(latestAlias, selected.root, observations))) return false;
+  const manifest = readCodexMetadataFile(
+    join(selected.root, ".codex-plugin", "plugin.json"),
+    home,
+    observations,
+  );
+  if (manifest.status !== "ok") return false;
+  const identity = codexPluginManifestIdentity(decodeCodexMetadataObject(manifest.bytes), plugin);
+  const declared = identity?.version;
+  if (identity === null || declared === undefined || !CODEX_CACHE_NAME.test(declared)
+    || (selected.directory !== "local" && declared !== selected.directory)) return false;
+  return { directory: selected.directory, version: declared };
 }
 
 interface CodexMarketplaceManifest {
