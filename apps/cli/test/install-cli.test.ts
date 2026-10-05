@@ -881,7 +881,7 @@ describe("semctx install — no-brain host + repository bootstrap", () => {
       for (const [source, executable] of [
         [script, join(bin, "codex.exe")],
         [powershellProbe, join(bin, "powershell.exe")],
-      ]) {
+      ] as const) {
         const compiled = Bun.spawnSync(
           [process.execPath, "build", "--compile", source, "--outfile", executable],
           { stdout: "pipe", stderr: "pipe" },
