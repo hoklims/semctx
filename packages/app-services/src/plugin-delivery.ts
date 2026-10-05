@@ -2235,6 +2235,8 @@ function observeCodexLatestAlias(
     const before = lstatSync(alias);
     if (!before.isSymbolicLink()) return false;
     const beforeTarget = readlinkSync(alias);
+    if (beforeTarget.length === 0 || hasIdentityControlCharacter(beforeTarget)
+      || hasExplicitTraversalSegment(beforeTarget)) return false;
     const resolvedTarget = resolve(dirname(alias), beforeTarget);
     if (lexicalPathIdentity(resolvedTarget) !== lexicalPathIdentity(selectedRoot)
       || lexicalPathIdentity(realpathSync.native(alias)) !== lexicalPathIdentity(realpathSync.native(selectedRoot))) {

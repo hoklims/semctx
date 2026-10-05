@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { randomUUID } from "node:crypto";
+import * as fs from "node:fs";
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
@@ -349,6 +350,9 @@ describe("Codex declarative plugin inventory", () => {
         value.home);
     };
     const linkType = process.platform === "win32" ? "junction" : "dir";
+    expect(inspect((_value, root) => {
+      symlinkSync("1.0.0", join(root, "latest"), "dir");
+    })).not.toBeNull();
     expect(inspect((value, root) => {
       const outside = join(value.root, "outside");
       mkdirSync(outside);
@@ -371,6 +375,31 @@ describe("Codex declarative plugin inventory", () => {
     expect(inspect((_value, root, selected) => {
       symlinkSync(selected, join(root, "alias"), linkType);
     })).toBeNull();
+
+    const hostile = fixture();
+    cache(hostile.home, "1.0.0");
+    const hostileRoot = join(hostile.home, "plugins", "cache", "semctx-stable", "semctx-control");
+    const hostileSelected = join(hostileRoot, "1.0.0");
+    const outside = join(hostile.root, "outside-jump");
+    const latest = join(hostileRoot, "latest");
+    mkdirSync(outside);
+    symlinkSync(outside, join(hostileSelected, "jump"), linkType);
+    symlinkSync("1.0.0/jump/../../1.0.0", latest, "dir");
+    const nativeRealpath = fs.realpathSync.native;
+    let latestRealpathCalls = 0;
+    const realpathProbe = spyOn(fs.realpathSync, "native").mockImplementation(((path) => {
+      if (String(path) === latest) {
+        latestRealpathCalls += 1;
+        throw new Error("hostile latest alias must not be followed");
+      }
+      return nativeRealpath(path);
+    }) as typeof fs.realpathSync.native);
+    try {
+      expect(readCodexPluginMetadataInventory(hostile.repo, hostile.home, undefined, hostile.home)).toBeNull();
+      expect(latestRealpathCalls).toBe(0);
+    } finally {
+      realpathProbe.mockRestore();
+    }
   });
 
   test("cache manifest identity is required and wrong or malformed names are unknown", () => {
