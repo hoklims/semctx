@@ -3229,8 +3229,8 @@ process.stdout.write(JSON.stringify({ installed: [{
     expect(observed.exitCode).toBe(0);
     expect(observed.shim.directory).toContain("semctx janitor & codex-");
     expect(observed.invocations).toEqual([
-      { executable: Bun.which("node"), argv: ["plugin", "list", "--json"] },
-      { executable: Bun.which("node"), argv: ["plugin", "list", "--json"] },
+      { executable: Bun.which("node")!, argv: ["plugin", "list", "--json"] },
+      { executable: Bun.which("node")!, argv: ["plugin", "list", "--json"] },
     ]);
 
     const before = observed.invocations.length;
