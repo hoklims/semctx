@@ -1374,38 +1374,64 @@ export function pluginCliPath(env = process.env, exists = existsSync) {
   return null;
 }
 
-/**
- * Whether a `bun` executable is on PATH. Directory probe only — the guard must stay fast and
- * side-effect free, so it never spawns a process to answer this.
- */
-export function bunOnPath(env = process.env, exists = existsSync) {
-  const entries = String(environmentValue(env, "PATH") ?? "").split(process.platform === "win32" ? ";" : ":");
-  const names = process.platform === "win32" ? ["bun.exe", "bun.cmd", "bun"] : ["bun"];
-  for (const entry of entries) {
-    if (!entry) continue;
-    for (const name of names) {
-      try {
-        if (exists(join(entry, name))) return true;
-      } catch {
-        // unreadable PATH entry: keep probing
-      }
-    }
-  }
-  return false;
+/** Absolute PATH resolution excludes empty/relative entries and cwd shadow programs. */
+function pathExecutables(name, env, exists = existsSync) {
+  const names = process.platform === "win32" ? [`${name}.exe`, `${name}.cmd`, name] : [name];
+  return String(environmentValue(env, "PATH") ?? "").split(process.platform === "win32" ? ";" : ":")
+    .filter((entry) => isAbsolute(entry))
+    .flatMap((entry) => names.map((name) => join(entry, name)))
+    .filter((path) => { try { return exists(path); } catch { return false; } });
 }
 
-/**
- * Prefer the plugin-bundled CLI (same release as the MCP runtime) and emit it as an ALREADY
- * RESOLVED, shell-quoted absolute path — the agent runs this string in a shell that does not
- * receive CLAUDE_PLUGIN_ROOT, so a deferred `"$CLAUDE_PLUGIN_ROOT/…"` would expand to `/dist/…`.
- * Fall back to a global `semctx` when no bundle is in reach, or when Bun is absent: this hook runs
- * under Node precisely so guarded mode works on Bun-less machines, and a block message must never
- * name a runtime the user does not have.
- */
-export function verifyRecordCommand(env = process.env, exists = existsSync) {
-  const cli = pluginCliPath(env, exists);
-  if (!cli || !bunOnPath(env, exists)) return GLOBAL_VERIFY_COMMAND;
-  return `bun ${shellQuote(cli)} verify diff --record`;
+export function bunOnPath(env = process.env, exists = existsSync) {
+  return pathExecutables("bun", env, exists).some((path) => !/\.(cmd|bat)$/i.test(path));
+}
+
+const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
+/** Only this hook's own manifest defines its required verifier version. */
+export function verifyRecordCommand(env = process.env, exists = existsSync, targetRoot) {
+  const ownRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  let required;
+  try { required = JSON.parse(readFileSync(join(ownRoot, ".claude-plugin", "plugin.json"), "utf8")).version; } catch {
+    // Missing or unreadable own metadata cannot authorize a recovery command.
+  }
+  if (typeof required !== "string" || !SEMVER.test(required)) {
+    return "Recovery unavailable: this hook's own plugin version metadata is missing or invalid; repair the plugin installation.";
+  }
+  if (!targetRoot || !isAbsolute(targetRoot)) {
+    return "Recovery unavailable: repository root is unknown; resolve the exact repository before verifying.";
+  }
+  const diagnostics = [];
+  const qualify = (executable, args) => {
+    // Node cannot execute Windows npm cmd wrappers natively. Refuse them explicitly rather than
+    // interpreting a shell command with an unbounded wrapper or accepting existence as proof.
+    if (/\.(cmd|bat)$/i.test(executable)) { diagnostics.push(`${executable}: unsupported Windows wrapper`); return false; }
+    const result = spawnSync(executable, [...args, "--version"], {
+      cwd: targetRoot, env, encoding: "utf8", shell: false, timeout: 1000, maxBuffer: 64 * 1024, windowsHide: true,
+    });
+    const version = String(result.stdout ?? "").trim();
+    if (!result.error && result.status === 0 && SEMVER.test(version) && version === required) return true;
+    diagnostics.push(`${executable}: ${result.error?.code ?? (SEMVER.test(version) ? `version ${version}` : "unknown or malformed version")}`);
+    return false;
+  };
+  const bun = pathExecutables("bun", env, exists).find((path) => !/\.(cmd|bat)$/i.test(path));
+  const declared = String(environmentValue(env, "CLAUDE_PLUGIN_ROOT") ?? "").trim();
+  const bundles = [...new Set([
+    ...(isAbsolute(declared) ? [join(declared, "dist", "semctx.js")] : []),
+    join(ownRoot, "dist", "semctx.js"),
+  ])];
+  if (bun) {
+    for (const bundle of bundles) {
+      if (exists(bundle) && qualify(bun, [bundle])) {
+        return `cd ${shellQuote(targetRoot)} && ${shellQuote(bun)} ${shellQuote(bundle)} verify diff --record`;
+      }
+    }
+  } else diagnostics.push("Bun unavailable on absolute PATH entries");
+  for (const cli of pathExecutables("semctx", env, exists)) {
+    if (qualify(cli, [])) return `cd ${shellQuote(targetRoot)} && ${shellQuote(cli)} verify diff --record`;
+  }
+  return `Recovery unavailable: need semctx ${required} matching this hook; ${diagnostics.join("; ") || "no verifier on absolute PATH entries"}. Repair the compatible CLI installation, then verify this repository.`;
 }
 
 /**
@@ -1416,7 +1442,7 @@ export function verifyRecordCommand(env = process.env, exists = existsSync) {
 export function guardDecision(ctx) {
   if (!ctx.enabled || !ctx.terminalVerb) return { block: false };
   const verifyCmd = ctx.verifyCommand ?? GLOBAL_VERIFY_COMMAND;
-  const retry = `then retry the ${ctx.terminalVerb}. (strictly disable: SEMCTX_GUARD=off)`;
+  const retry = `then retry the ${ctx.terminalVerb}.`;
   if (ctx.commandIsolated === false) {
     return {
       block: true,
@@ -1852,7 +1878,8 @@ export function evaluateGuard({ command, cwd, sessionCwd, env, overriddenEnvKeys
     || (commandIsolated && commitHookSurfaceClear(targetCwd));
   const pushHooksAbsent = terminalVerb !== "push" || hooksProjectManaged
     || (commandIsolated && pushHookSurfaceClear(targetCwd));
-  return guardDecision({
+  const recoveryPlaceholder = "__SEMCTX_RECOVERY__";
+  const decision = guardDecision({
     enabled,
     terminalVerb,
     commandIsolated,
@@ -1864,8 +1891,20 @@ export function evaluateGuard({ command, cwd, sessionCwd, env, overriddenEnvKeys
     pushHooksAbsent,
     state,
     currentState,
-    verifyCommand: verifyRecordCommand(effectiveEnv),
+    verifyCommand: recoveryPlaceholder,
   });
+  if (!decision.block || !decision.reason.includes(recoveryPlaceholder)) return decision;
+  let repairRoot;
+  try {
+    repairRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: targetCwd, encoding: "utf8" }).trim();
+  } catch {
+    // Git could not establish a repository root; keep recovery diagnostic-only.
+  }
+  const recovery = verifyRecordCommand(effectiveEnv, existsSync, repairRoot);
+  const reason = recovery.startsWith("Recovery unavailable:")
+    ? decision.reason.replace(/(?:Run|Re-run|re-run):\n {2}__SEMCTX_RECOVERY__/, recovery)
+    : decision.reason.replace(recoveryPlaceholder, recovery);
+  return { ...decision, reason };
 }
 
 function exitForInvalidHookInput() {
