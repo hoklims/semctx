@@ -77,6 +77,18 @@ function canonicalGitRoot(root: string) {
   return realpathSync(execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: root, encoding: "utf8" }).trim());
 }
 
+function expectRecordingTarget(output: string, installation: string, repository: string) {
+  const observed = JSON.parse(output);
+  expect(observed.args.slice(0, 4)).toEqual(["verify", "diff", "--record", "--root"]);
+  expect(observed.args).toHaveLength(5);
+  expect(realpathSync(observed.args[4])).toBe(realpathSync(repository));
+  // Compare directory identity rather than Windows short/long path spelling.
+  const actual = lstatSync(observed.cwd);
+  const expected = lstatSync(installation);
+  expect(actual.dev).toBe(expected.dev);
+  expect(actual.ino).toBe(expected.ino);
+}
+
 function createRecoveryRepository(root: string) {
   mkdirSync(root);
   execFileSync("git", ["init", "-b", "main"], { cwd: root, stdio: "ignore" });
@@ -652,7 +664,7 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
       expect(printed).toBeDefined();
       const replay = spawnSync("bash", ["-c", printed], { cwd: repository, env: process.env, encoding: "utf8" });
       expect(replay.status).toBe(0);
-      expect(JSON.parse(replay.stdout)).toEqual({ cwd: realpathSync(worktree), args: ["verify", "diff", "--record"] });
+      expectRecordingTarget(replay.stdout, root, worktree);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
@@ -666,10 +678,10 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
       const printed = decision.reason.split("\n").map((line: string) => line.trim()).find((line: string) => line.startsWith("cd "));
       expect(printed).toBeDefined();
       const printedRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: repository, encoding: "utf8" }).trim();
-      expect(printed).toContain(`cd ${shellQuote(printedRoot)} &&`);
+      expect(printed).toContain(`--root ${shellQuote(printedRoot)}`);
       const replay = spawnSync("bash", ["-c", printed], { cwd: root, env: process.env, encoding: "utf8" });
       expect(replay.status).toBe(0);
-      expect(JSON.parse(replay.stdout)).toEqual({ cwd: realpathSync(repository), args: ["verify", "diff", "--record"] });
+      expectRecordingTarget(replay.stdout, root, repository);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
@@ -685,6 +697,40 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
       expect(decision.block).toBe(true);
       expect(decision.reason).toContain(`${wrapper}: unsupported Windows wrapper`);
       expect(decision.reason).not.toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("isolates recovery probes from checkout preload and environment", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "hostile repository"));
+      const marker = join(repository, "preload-ran");
+      writeFileSync(join(repository, "bunfig.toml"), 'preload = ["./preload.js"]\n');
+      writeFileSync(join(repository, "preload.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "ran");`);
+      writeFileSync(join(repository, ".env"), "SEMCTX_RECOVERY_STARTUP=checkout\n");
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.env.SEMCTX_RECOVERY_STARTUP) process.exit(9); process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const command = guard.verifyRecordCommand({ ...env, SEMCTX_RECOVERY_STARTUP: undefined }, undefined, repository);
+      expect(existsSync(marker)).toBe(false);
+      expect(command).toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(!bashCanRunBun)("isolates printed recording from checkout preload and environment", async () => {
+    const { root, guard } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "hostile repository"));
+      const marker = join(repository, "preload-ran");
+      writeFileSync(join(repository, "bunfig.toml"), 'preload = ["./preload.js"]\n');
+      writeFileSync(join(repository, "preload.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "ran");`);
+      writeFileSync(join(repository, ".env"), "SEMCTX_RECOVERY_STARTUP=checkout\n");
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2),loaded:process.env.SEMCTX_RECOVERY_STARTUP??null}));`);
+      const command = guard.verifyRecordCommand({ ...process.env, SEMCTX_RECOVERY_STARTUP: undefined }, undefined, repository);
+      if (existsSync(marker)) unlinkSync(marker);
+      const replay = spawnSync("bash", ["-c", command], { cwd: repository, env: { ...process.env, SEMCTX_RECOVERY_STARTUP: undefined }, encoding: "utf8" });
+      expect(replay.status).toBe(0);
+      expect(existsSync(marker)).toBe(false);
+      expectRecordingTarget(replay.stdout, root, repository);
+      expect(JSON.parse(replay.stdout).loaded).toBeNull();
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
@@ -1179,7 +1225,7 @@ describe("guard runtime — large working diffs", () => {
         encoding: "utf8",
       });
       expect(replay.status).toBe(0);
-      expect(JSON.parse(replay.stdout)).toEqual({ cwd: canonicalGitRoot(repo), args: ["verify", "diff", "--record"] });
+      expectRecordingTarget(replay.stdout, resolve(import.meta.dir, ".."), canonicalGitRoot(repo));
     } finally {
       rmSync(repo, { recursive: true, force: true });
       rmSync(pluginParent, { recursive: true, force: true });

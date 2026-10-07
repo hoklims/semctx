@@ -1408,7 +1408,7 @@ export function verifyRecordCommand(env = process.env, exists = existsSync, targ
     // interpreting a shell command with an unbounded wrapper or accepting existence as proof.
     if (/\.(cmd|bat)$/i.test(executable)) { diagnostics.push(`${executable}: unsupported Windows wrapper`); return false; }
     const result = spawnSync(executable, [...args, "--version"], {
-      cwd: targetRoot, env, encoding: "utf8", shell: false, timeout: 1000, maxBuffer: 64 * 1024, windowsHide: true,
+      cwd: ownRoot, env, encoding: "utf8", shell: false, timeout: 1000, maxBuffer: 64 * 1024, windowsHide: true,
     });
     const version = String(result.stdout ?? "").trim();
     if (!result.error && result.status === 0 && SEMVER.test(version) && version === required) return true;
@@ -1423,13 +1423,15 @@ export function verifyRecordCommand(env = process.env, exists = existsSync, targ
   ])];
   if (bun) {
     for (const bundle of bundles) {
-      if (exists(bundle) && qualify(bun, [bundle])) {
-        return `cd ${shellQuote(targetRoot)} && ${shellQuote(bun)} ${shellQuote(bundle)} verify diff --record`;
+      // Bun startup reads cwd/bunfig.toml and .env before the bundle. Pin it to the trusted
+      // hook installation; the CLI's explicit root keeps recording in the requested repository.
+      if (exists(bundle) && qualify(bun, ["--cwd", ownRoot, bundle])) {
+        return `cd ${shellQuote(ownRoot)} && ${shellQuote(bun)} --cwd ${shellQuote(ownRoot)} ${shellQuote(bundle)} verify diff --record --root ${shellQuote(targetRoot)}`;
       }
     }
   } else diagnostics.push("Bun unavailable on absolute PATH entries");
   for (const cli of pathExecutables("semctx", env, exists)) {
-    if (qualify(cli, [])) return `cd ${shellQuote(targetRoot)} && ${shellQuote(cli)} verify diff --record`;
+    if (qualify(cli, [])) return `cd ${shellQuote(ownRoot)} && ${shellQuote(cli)} verify diff --record --root ${shellQuote(targetRoot)}`;
   }
   return `Recovery unavailable: need semctx ${required} matching this hook; ${diagnostics.join("; ") || "no verifier on absolute PATH entries"}. Repair the compatible CLI installation, then verify this repository.`;
 }

@@ -136,7 +136,9 @@ entries are excluded. Windows command wrappers are explicitly unsupported rather
 from their presence alone. Bun is needed only for bundled candidates; a matching native global
 CLI can support a Node-only host.
 
-The printed repair changes to the explicitly quoted resolved target repository before recording,
+Qualification and printed recovery start in this hook's own installation directory; bundled
+commands also pin Bun's `--cwd` there so the target checkout's `bunfig.toml` preloads and `.env`
+cannot run during startup. The CLI receives the explicitly quoted resolved target as `--root`,
 including a linked worktree selected by `git -C`. Unknown repository roots, missing or invalid
 own metadata, and incompatible or unresponsive candidates retain the block with installation
 and version diagnostics, without a runnable recording command. Authorized and advisory calls
