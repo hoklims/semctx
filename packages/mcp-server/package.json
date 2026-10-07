@@ -31,6 +31,6 @@
   },
   "devDependencies": {
     "@semantic-context/test-fixtures": "workspace:*",
-    "@modelcontextprotocol/client": "2.0.0"
+    "@modelcontextprotocol/client": "2.2.0"
   }
 }
