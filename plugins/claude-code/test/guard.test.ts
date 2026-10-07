@@ -61,7 +61,7 @@ const GUARD_SCRIPT = join(import.meta.dir, "..", "hooks", "semctx-guard.mjs");
 const PLUGIN_VERSION: string = JSON.parse(readFileSync(join(import.meta.dir, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
 
 async function isolatedRecoveryFixture() {
-  const root = mkdtempSync(join(tmpdir(), "semctx-guard-recovery-"));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "semctx-guard-recovery-")));
   mkdirSync(join(root, "hooks"));
   mkdirSync(join(root, "dist"));
   mkdirSync(join(root, ".claude-plugin"));
@@ -1139,7 +1139,7 @@ describe("guard runtime — large working diffs", () => {
         encoding: "utf8",
       });
       expect(replay.status).toBe(0);
-      expect(JSON.parse(replay.stdout)).toEqual({ cwd: repo, args: ["verify", "diff", "--record"] });
+      expect(JSON.parse(replay.stdout)).toEqual({ cwd: realpathSync(repo), args: ["verify", "diff", "--record"] });
     } finally {
       rmSync(repo, { recursive: true, force: true });
       rmSync(pluginParent, { recursive: true, force: true });
