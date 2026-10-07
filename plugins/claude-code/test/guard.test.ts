@@ -659,15 +659,51 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
   it.skipIf(!bashCanRunBun)("replays recovery from a hostile literal repository directory", async () => {
     const { root, guard } = await isolatedRecoveryFixture();
     try {
-      const repository = createRecoveryRepository(join(root, "it's a$b`repository"));
+      const repository = createRecoveryRepository(join(root, "it's a$b`repository $& $'"));
       writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));`);
       const decision = guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: { ...process.env, CLAUDE_PLUGIN_ROOT: root } });
       expect(decision.block).toBe(true);
       const printed = decision.reason.split("\n").map((line: string) => line.trim()).find((line: string) => line.startsWith("cd "));
       expect(printed).toBeDefined();
+      const printedRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: repository, encoding: "utf8" }).trim();
+      expect(printed).toContain(`cd ${shellQuote(printedRoot)} &&`);
       const replay = spawnSync("bash", ["-c", printed], { cwd: root, env: process.env, encoding: "utf8" });
       expect(replay.status).toBe(0);
       expect(JSON.parse(replay.stdout)).toEqual({ cwd: realpathSync(repository), args: ["verify", "diff", "--record"] });
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(process.platform !== "win32")("preserves literal replacement tokens in diagnostic recovery paths", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "repository"));
+      const bin = join(root, "wrapper $& $' $` directory");
+      mkdirSync(bin);
+      const wrapper = join(bin, "semctx.cmd");
+      writeFileSync(wrapper, "@echo unexpected\r\n");
+      const decision = guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: { ...env, PATH: bin, SEMCTX_GUARD: "on" } });
+      expect(decision.block).toBe(true);
+      expect(decision.reason).toContain(`${wrapper}: unsupported Windows wrapper`);
+      expect(decision.reason).not.toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("enforces the one-second and 64KiB candidate probe limits with real processes", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const bundle = join(root, "dist", "semctx.js");
+      const cases = [
+        { body: `setTimeout(() => process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}), 1500);`, code: "ETIMEDOUT" },
+        { body: `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)} + " ".repeat(128 * 1024));`, code: "ENOBUFS" },
+        { body: `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); process.stderr.write(" ".repeat(128 * 1024));`, code: "ENOBUFS" },
+      ];
+      for (const { body, code } of cases) {
+        writeFileSync(bundle, body);
+        const result = guard.verifyRecordCommand(env, undefined, root);
+        expect(result).toContain("Recovery unavailable");
+        expect(result).toContain(code);
+        expect(result).not.toContain("verify diff --record");
+      }
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 

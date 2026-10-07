@@ -1902,8 +1902,8 @@ export function evaluateGuard({ command, cwd, sessionCwd, env, overriddenEnvKeys
   }
   const recovery = verifyRecordCommand(effectiveEnv, existsSync, repairRoot);
   const reason = recovery.startsWith("Recovery unavailable:")
-    ? decision.reason.replace(/(?:Run|Re-run|re-run):\n {2}__SEMCTX_RECOVERY__/, recovery)
-    : decision.reason.replace(recoveryPlaceholder, recovery);
+    ? decision.reason.replace(/(?:Run|Re-run|re-run):\n {2}__SEMCTX_RECOVERY__/, () => recovery)
+    : decision.reason.replace(recoveryPlaceholder, () => recovery);
   return { ...decision, reason };
 }
 
