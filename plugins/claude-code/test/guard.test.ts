@@ -72,6 +72,11 @@ async function isolatedRecoveryFixture() {
   return { root, guard, env: { ...process.env, PATH: dirname(process.execPath) } };
 }
 
+function canonicalGitRoot(root: string) {
+  // Git resolves Windows 8.3 aliases that fs.realpathSync may preserve.
+  return realpathSync(execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: root, encoding: "utf8" }).trim());
+}
+
 function createRecoveryRepository(root: string) {
   mkdirSync(root);
   execFileSync("git", ["init", "-b", "main"], { cwd: root, stdio: "ignore" });
@@ -81,6 +86,7 @@ function createRecoveryRepository(root: string) {
   execFileSync("git", ["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
   mkdirSync(join(root, ".semctx"));
   writeFileSync(join(root, ".semctx", "guard.json"), '{"enabled":true}');
+  return canonicalGitRoot(root);
 }
 
 function runGuardProcess(
@@ -576,8 +582,7 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
   it("does not probe a reachable verifier for an authorized exact commit", async () => {
     const { root, guard, env } = await isolatedRecoveryFixture();
     try {
-      const repository = join(root, "repository");
-      createRecoveryRepository(repository);
+      const repository = createRecoveryRepository(join(root, "repository"));
       const marker = join(root, "probed");
       writeFileSync(join(root, "dist", "semctx.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "yes"); process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
       const runtimeEnv = { ...process.env, ...env, CLAUDE_PLUGIN_ROOT: root, SEMCTX_GUARD: "on" };
@@ -633,10 +638,10 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
   it.skipIf(!bashCanRunBun)("targets a quoted linked worktree instead of the session repository", async () => {
     const { root, guard } = await isolatedRecoveryFixture();
     try {
-      const repository = join(root, "repository");
-      createRecoveryRepository(repository);
-      const worktree = join(root, "My worktree");
+      const repository = createRecoveryRepository(join(root, "repository"));
+      let worktree = join(root, "My worktree");
       execFileSync("git", ["worktree", "add", "-b", "linked", worktree], { cwd: repository, stdio: "ignore" });
+      worktree = canonicalGitRoot(worktree);
       expect(lstatSync(join(worktree, ".git")).isFile()).toBe(true);
       mkdirSync(join(worktree, ".semctx"));
       writeFileSync(join(worktree, ".semctx", "guard.json"), '{"enabled":true}');
@@ -654,8 +659,7 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
   it.skipIf(!bashCanRunBun)("replays recovery from a hostile literal repository directory", async () => {
     const { root, guard } = await isolatedRecoveryFixture();
     try {
-      const repository = join(root, "it's a$b`repository");
-      createRecoveryRepository(repository);
+      const repository = createRecoveryRepository(join(root, "it's a$b`repository"));
       writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));`);
       const decision = guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: { ...process.env, CLAUDE_PLUGIN_ROOT: root } });
       expect(decision.block).toBe(true);
@@ -1139,7 +1143,7 @@ describe("guard runtime — large working diffs", () => {
         encoding: "utf8",
       });
       expect(replay.status).toBe(0);
-      expect(JSON.parse(replay.stdout)).toEqual({ cwd: realpathSync(repo), args: ["verify", "diff", "--record"] });
+      expect(JSON.parse(replay.stdout)).toEqual({ cwd: canonicalGitRoot(repo), args: ["verify", "diff", "--record"] });
     } finally {
       rmSync(repo, { recursive: true, force: true });
       rmSync(pluginParent, { recursive: true, force: true });
