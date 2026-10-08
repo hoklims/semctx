@@ -319,6 +319,27 @@ describe("SQLite load validation", () => {
 });
 
 describe("owned graph decoding matches canonical JSON schemas", () => {
+  it("keeps empty collections independent across rows and successive snapshots", () => database((path) => {
+    const emptyGraph: RepositoryGraph = {
+      nodes: [graph.nodes[0]!, { ...graph.nodes[0]!, id: "node:2" }],
+      edges: [graph.edges[0]!, { ...graph.edges[0]!, id: "edge:2" }],
+    };
+    const writer = SqliteRepositoryStore.open(path);
+    try { writer.saveGraph(emptyGraph, []); } finally { writer.close(); }
+    for (const open of [(p: string) => SqliteRepositoryStore.open(p), (p: string) => SqliteRepositoryReader.openExisting(p)]) {
+      const reader = open(path);
+      try {
+        const loaded = reader.loadGraph();
+        loaded.nodes[0]!.tags.push("modified");
+        loaded.nodes[0]!.metadata["value"] = "modified";
+        loaded.edges[0]!.metadata["value"] = "modified";
+        expect(loaded.nodes[1]).toEqual(emptyGraph.nodes[1]);
+        expect(loaded.edges[1]).toEqual(emptyGraph.edges[1]);
+        expect(reader.loadGraph()).toEqual(emptyGraph);
+      } finally { reader.close(); }
+    }
+  }));
+
   it("retains canonical inherited enumerable metadata semantics", () => database((path) => {
     const key = "semctxOwnedMetadataInheritedTest";
     try {
@@ -356,6 +377,7 @@ describe("owned graph decoding matches canonical JSON schemas", () => {
     ["edges", "to_id", new Uint8Array([97]), false],
     ["nodes", "tags", "null", false],
     ["nodes", "tags", "{}", false],
+    ["nodes", "tags", '"[]"', false],
     ["nodes", "tags", '["", "x", "x"]', true],
     ["nodes", "evidence", '[[]]', false],
     ["nodes", "evidence", '[{"filePath":1,"sourceKind":"code"}]', false],
@@ -367,6 +389,7 @@ describe("owned graph decoding matches canonical JSON schemas", () => {
     ["edges", "evidence", '[{"filePath":"a","sourceKind":"runtime","excerpt":null}]', false],
     ["edges", "evidence", '[{"filePath":"","sourceKind":"test","extension":[1,null],"__proto__":"keep"}]', true],
     ["nodes", "metadata", 'null', false],
+    ["nodes", "metadata", '"{}"', false],
     ["nodes", "metadata", '{"n":1e400}', false],
     ["edges", "metadata", '{"n":-1e400}', false],
     ["edges", "metadata", '{"n":null}', false],

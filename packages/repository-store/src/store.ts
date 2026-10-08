@@ -481,6 +481,7 @@ const evidenceSourceKinds = new Set<string>(EvidenceSourceKindSchema.options);
 // are dense and cannot carry replaced iterators or non-JSON object instances.
 function decodeTags(text: string): string[] {
   if (typeof text !== "string") throw new Error("tags must be JSON text");
+  if (text === "[]") return [];
   const value: unknown = JSON.parse(text);
   if (!Array.isArray(value)) throw new Error("tags must be an array");
   for (let index = 0; index < value.length; index++) {
@@ -510,7 +511,7 @@ function decodeEvidence(text: string): RepositoryNode["evidence"] {
 
 function decodeMetadata(text: string): RepositoryNode["metadata"] {
   if (typeof text !== "string") throw new Error("metadata must be JSON text");
-  const value: unknown = JSON.parse(text);
+  const value: unknown = text === "{}" ? {} : JSON.parse(text);
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new Error("metadata must be a record");
   const record = value as Record<string, unknown>;
   // Match the canonical schema's inherited enumerable property semantics.
