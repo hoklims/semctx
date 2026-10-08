@@ -1,4 +1,4 @@
-import { EvidenceRecordSchema, ClaimSchema, TaskFrameSchema, ContextPackSchema } from "@semantic-context/core";
+import { EvidenceRecordSchema, ClaimSchema, TaskFrameSchema, ContextPackSchema, NodeKindSchema, EdgeKindSchema, EvidenceSourceKindSchema } from "@semantic-context/core";
 import { constants, Database } from "bun:sqlite";
 import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -473,10 +473,54 @@ function isIndexed(db: Database): boolean {
   return row !== null && row.c > 0;
 }
 
-function parseJsonArray(text: string): unknown[] {
-  const value = JSON.parse(text) as unknown;
-  if (!Array.isArray(value)) throw new SemctxError("STORE_ERROR", "expected JSON array", { text });
-  return value;
+const nodeKinds = new Set<string>(NodeKindSchema.options);
+const edgeKinds = new Set<string>(EdgeKindSchema.options);
+const evidenceSourceKinds = new Set<string>(EvidenceSourceKindSchema.options);
+
+// These decoders only receive freshly parsed JSON owned by this module. JSON arrays
+// are dense and cannot carry replaced iterators or non-JSON object instances.
+function decodeTags(text: string): string[] {
+  if (typeof text !== "string") throw new Error("tags must be JSON text");
+  if (text === "[]") return [];
+  const value: unknown = JSON.parse(text);
+  if (!Array.isArray(value)) throw new Error("tags must be an array");
+  for (let index = 0; index < value.length; index++) {
+    if (typeof value[index] !== "string") throw new Error("tags must contain strings");
+  }
+  return value as string[];
+}
+
+function decodeEvidence(text: string): RepositoryNode["evidence"] {
+  if (typeof text !== "string") throw new Error("evidence must be JSON text");
+  const value: unknown = JSON.parse(text);
+  if (!Array.isArray(value)) throw new Error("evidence must be an array");
+  for (let index = 0; index < value.length; index++) {
+    const item: unknown = value[index];
+    if (item === null || typeof item !== "object" || Array.isArray(item)) throw new Error("evidence must contain records");
+    const ref = item as Record<string, unknown>;
+    if (typeof ref["filePath"] !== "string" || typeof ref["sourceKind"] !== "string"
+      || !evidenceSourceKinds.has(ref["sourceKind"])
+      || (ref["startLine"] !== undefined && !(typeof ref["startLine"] === "number" && Number.isSafeInteger(ref["startLine"]) && ref["startLine"] > 0))
+      || (ref["endLine"] !== undefined && !(typeof ref["endLine"] === "number" && Number.isSafeInteger(ref["endLine"]) && ref["endLine"] > 0))
+      || (ref["excerpt"] !== undefined && typeof ref["excerpt"] !== "string")) {
+      throw new Error("invalid evidence reference");
+    }
+  }
+  return value as RepositoryNode["evidence"];
+}
+
+function decodeMetadata(text: string): RepositoryNode["metadata"] {
+  if (typeof text !== "string") throw new Error("metadata must be JSON text");
+  const value: unknown = text === "{}" ? {} : JSON.parse(text);
+  if (value === null || typeof value !== "object" || Array.isArray(value)) throw new Error("metadata must be a record");
+  const record = value as Record<string, unknown>;
+  // Match the canonical schema's inherited enumerable property semantics.
+  for (const key in record) {
+    const item = record[key];
+    if (typeof item !== "string" && typeof item !== "boolean"
+      && !(typeof item === "number" && Number.isFinite(item))) throw new Error("invalid metadata value");
+  }
+  return record as RepositoryNode["metadata"];
 }
 
 function loadRow<T>(table: string, id: string, schema: { parse(value: unknown): T }, value: () => unknown): T {
@@ -490,28 +534,49 @@ function loadRow<T>(table: string, id: string, schema: { parse(value: unknown): 
 }
 
 function rowToNode(row: NodeRow): RepositoryNode {
-  return {
-    id: row.id,
-    kind: row.kind as RepositoryNode["kind"],
-    name: row.name,
-    ...(row.file_path !== null ? { filePath: row.file_path } : {}),
-    ...(row.bounded_context !== null ? { boundedContext: row.bounded_context } : {}),
-    ...(row.exported !== null ? { exported: row.exported === 1 } : {}),
-    evidence: parseJsonArray(row.evidence) as RepositoryNode["evidence"],
-    tags: parseJsonArray(row.tags) as string[],
-    metadata: JSON.parse(row.metadata) as RepositoryNode["metadata"],
-  };
+  try {
+    if (typeof row.id !== "string" || row.id.length === 0
+      || typeof row.kind !== "string" || !nodeKinds.has(row.kind) || typeof row.name !== "string"
+      || (row.file_path !== null && typeof row.file_path !== "string")
+      || (row.bounded_context !== null && typeof row.bounded_context !== "string")
+      || (row.exported !== null && row.exported !== 0 && row.exported !== 1)) throw new Error("invalid node scalar");
+    return {
+      id: row.id,
+      kind: row.kind as RepositoryNode["kind"],
+      name: row.name,
+      ...(row.file_path !== null ? { filePath: row.file_path } : {}),
+      ...(row.bounded_context !== null ? { boundedContext: row.bounded_context } : {}),
+      ...(row.exported !== null ? { exported: row.exported === 1 } : {}),
+      evidence: decodeEvidence(row.evidence),
+      tags: decodeTags(row.tags),
+      metadata: decodeMetadata(row.metadata),
+    };
+  } catch (cause) {
+    throw new SemctxError("STORE_ERROR", "invalid persisted repository row", {
+      table: "nodes", id: row.id, cause: cause instanceof Error ? cause.message : String(cause),
+    });
+  }
 }
 
 function rowToEdge(row: EdgeRow): RepositoryEdge {
-  return {
-    id: row.id,
-    kind: row.kind as RepositoryEdge["kind"],
-    from: row.from_id,
-    to: row.to_id,
-    evidence: parseJsonArray(row.evidence) as RepositoryEdge["evidence"],
-    metadata: JSON.parse(row.metadata) as RepositoryEdge["metadata"],
-  };
+  try {
+    if (typeof row.id !== "string" || row.id.length === 0
+      || typeof row.kind !== "string" || !edgeKinds.has(row.kind)
+      || typeof row.from_id !== "string" || row.from_id.length === 0
+      || typeof row.to_id !== "string" || row.to_id.length === 0) throw new Error("invalid edge scalar");
+    return {
+      id: row.id,
+      kind: row.kind as RepositoryEdge["kind"],
+      from: row.from_id,
+      to: row.to_id,
+      evidence: decodeEvidence(row.evidence),
+      metadata: decodeMetadata(row.metadata),
+    };
+  } catch (cause) {
+    throw new SemctxError("STORE_ERROR", "invalid persisted repository row", {
+      table: "edges", id: row.id, cause: cause instanceof Error ? cause.message : String(cause),
+    });
+  }
 }
 
 function rowToEvidence(row: EvidenceRow): EvidenceRecord {
