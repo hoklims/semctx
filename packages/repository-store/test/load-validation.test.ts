@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ClaimSchema, ContextPackSchema, RepositoryNodeSchema, SemctxError, TaskFrameSchema, type Claim, type ContextPack, type EvidenceRecord, type RepositoryGraph, type TaskFrame } from "@semantic-context/core";
+import { ClaimSchema, ContextPackSchema, RepositoryEdgeSchema, RepositoryNodeSchema, SemctxError, TaskFrameSchema, type Claim, type ContextPack, type EvidenceRecord, type RepositoryGraph, type TaskFrame } from "@semantic-context/core";
 import { SqliteRepositoryReader, SqliteRepositoryStore } from "@semantic-context/repository-store";
 
 const graph: RepositoryGraph = {
@@ -55,6 +55,19 @@ function expectLoadError(load: () => unknown, table: string, id: string): void {
 }
 
 const corruptions = [
+  ["nodes", "node:1", "kind", "unknown"],
+  ["nodes", "node:1", "exported", 2],
+  ["nodes", "node:1", "exported", "bad"],
+  ["nodes", "node:1", "evidence", "{"],
+  ["nodes", "node:1", "evidence", "null"],
+  ["nodes", "node:1", "evidence", "[null]"],
+  ["nodes", "node:1", "evidence", '[{"filePath":"a.ts","sourceKind":"unknown"}]'],
+  ["nodes", "node:1", "evidence", '[{"filePath":"a.ts","sourceKind":"code","startLine":"1"}]'],
+  ["nodes", "node:1", "tags", "[1]"],
+  ["nodes", "node:1", "metadata", '{"nested":{}}'],
+  ["edges", "edge:1", "kind", "unknown"],
+  ["edges", "edge:1", "evidence", "[{}]"],
+  ["edges", "edge:1", "metadata", "[]"],
   ["evidence", "evidence:1", "source_kind", "unknown"],
   ["evidence", "evidence:1", "start_line", "zero"],
   ["claims", "claim:1", "kind", "unknown"],
@@ -261,7 +274,8 @@ describe("SQLite load validation", () => {
       db.close();
       const store = SqliteRepositoryStore.open(path);
       try {
-        const load = table === "claims" ? () => store.loadClaims()
+        const load = table === "nodes" || table === "edges" ? () => store.loadGraph()
+          : table === "claims" ? () => store.loadClaims()
           : table === "evidence" ? () => store.loadEvidence()
           : table === "task_frames" ? () => store.getTaskFrame(id)
           : () => store.getContextPack(id);
@@ -272,6 +286,7 @@ describe("SQLite load validation", () => {
       }
       const reader = SqliteRepositoryReader.openExisting(path);
       try {
+        if (table === "nodes" || table === "edges") expectLoadError(() => reader.loadGraph(), table, id);
         if (table === "claims") expectLoadError(() => reader.loadClaims(), table, id);
         if (table === "evidence") expectLoadError(() => reader.loadEvidence(), table, id);
         if (table === "task_frames") expectLoadError(() => reader.getTaskFrame(id), table, id);
@@ -301,4 +316,105 @@ describe("SQLite load validation", () => {
       store.close();
     }
   }));
+});
+
+describe("owned graph decoding matches canonical JSON schemas", () => {
+  it("retains canonical inherited enumerable metadata semantics", () => database((path) => {
+    const key = "semctxOwnedMetadataInheritedTest";
+    try {
+      for (const value of ["accepted", {}]) {
+        Object.defineProperty(Object.prototype, key, { value, enumerable: true, configurable: true });
+        const valid = typeof value === "string";
+        expect(RepositoryNodeSchema.safeParse(graph.nodes[0]).success).toBe(valid);
+        expect(RepositoryEdgeSchema.safeParse(graph.edges[0]).success).toBe(valid);
+        for (const open of [(p: string) => SqliteRepositoryStore.open(p), (p: string) => SqliteRepositoryReader.openExisting(p)]) {
+          const reader = open(path);
+          try {
+            if (valid) expect(reader.loadGraph()).toEqual(graph);
+            else expectLoadError(() => reader.loadGraph(), "nodes", "node:1");
+          } finally { reader.close(); }
+        }
+      }
+    } finally { Reflect.deleteProperty(Object.prototype, key); }
+  }));
+
+  const cases = [
+    ["nodes", "name", 42, true], // TEXT affinity returns a string.
+    ["nodes", "file_path", null, true],
+    ["nodes", "bounded_context", null, true],
+    ["nodes", "exported", "1", true], // INTEGER affinity returns 1.
+    ["nodes", "exported", 0, true],
+    ["nodes", "exported", null, true],
+    ["nodes", "exported", 1.5, false],
+    ["nodes", "name", new Uint8Array([97]), false],
+    ["nodes", "file_path", new Uint8Array([97]), false],
+    ["nodes", "bounded_context", new Uint8Array([97]), false],
+    ["nodes", "id", "", false],
+    ["nodes", "id", null, false],
+    ["edges", "id", "", false],
+    ["edges", "from_id", "", false],
+    ["edges", "to_id", new Uint8Array([97]), false],
+    ["nodes", "tags", "null", false],
+    ["nodes", "tags", "{}", false],
+    ["nodes", "tags", '["", "x", "x"]', true],
+    ["nodes", "evidence", '[[]]', false],
+    ["nodes", "evidence", '[{"filePath":1,"sourceKind":"code"}]', false],
+    ["nodes", "evidence", '[{"filePath":"","sourceKind":"manual","startLine":9007199254740991,"endLine":1,"excerpt":"","extension":{"n":1e400},"__proto__":{"keep":true}}]', true],
+    ["nodes", "evidence", '[{"filePath":"a","sourceKind":"code","startLine":9007199254740992}]', false],
+    ["nodes", "evidence", '[{"filePath":"a","sourceKind":"code","endLine":1e400}]', false],
+    ["nodes", "evidence", '[{"filePath":"a","sourceKind":"code","startLine":0}]', false],
+    ["edges", "evidence", '[{"filePath":"a","sourceKind":"git","endLine":-1}]', false],
+    ["edges", "evidence", '[{"filePath":"a","sourceKind":"runtime","excerpt":null}]', false],
+    ["edges", "evidence", '[{"filePath":"","sourceKind":"test","extension":[1,null],"__proto__":"keep"}]', true],
+    ["nodes", "metadata", 'null', false],
+    ["nodes", "metadata", '{"n":1e400}', false],
+    ["edges", "metadata", '{"n":-1e400}', false],
+    ["edges", "metadata", '{"n":null}', false],
+    ["nodes", "metadata", '{"__proto__":"keep","n":9007199254740992,"b":false,"s":""}', true],
+    ["edges", "metadata", '{"__proto__":{"nested":true}}', false],
+  ] as const;
+
+  for (const [index, [table, column, value, valid]] of cases.entries()) {
+    it(`matches canonical ${table}.${column} case ${index + 1}`, () => database((path) => {
+      const originalId = table === "nodes" ? "node:1" : "edge:1";
+      const db = new Database(path);
+      let raw: Record<string, unknown>;
+      try {
+        db.query(`UPDATE ${table} SET ${column} = ? WHERE id = ?`).run(value, originalId);
+        raw = db.query(`SELECT * FROM ${table}`).get() as Record<string, unknown>;
+      } finally { db.close(); }
+      const expected = table === "nodes" ? {
+        id: raw["id"], kind: raw["kind"], name: raw["name"],
+        ...(raw["file_path"] !== null ? { filePath: raw["file_path"] } : {}),
+        ...(raw["bounded_context"] !== null ? { boundedContext: raw["bounded_context"] } : {}),
+        ...(raw["exported"] !== null ? { exported: raw["exported"] === 1 } : {}),
+        evidence: JSON.parse(raw["evidence"] as string) as unknown,
+        tags: JSON.parse(raw["tags"] as string) as unknown,
+        metadata: JSON.parse(raw["metadata"] as string) as unknown,
+      } : {
+        id: raw["id"], kind: raw["kind"], from: raw["from_id"], to: raw["to_id"],
+        evidence: JSON.parse(raw["evidence"] as string) as unknown,
+        metadata: JSON.parse(raw["metadata"] as string) as unknown,
+      };
+      const canonical = (table === "nodes" ? RepositoryNodeSchema : RepositoryEdgeSchema).safeParse(expected);
+      // SQLite's exported encoding is stricter than a decoded boolean.
+      if (column === "exported" && !valid) expect(canonical.success).toBe(true);
+      else expect(canonical.success).toBe(valid);
+      for (const open of [(p: string) => SqliteRepositoryStore.open(p), (p: string) => SqliteRepositoryReader.openExisting(p)]) {
+        const reader = open(path);
+        try {
+          if (valid) {
+            const loaded = reader.loadGraph()[table][0]!;
+            expect(loaded as unknown).toEqual(expected);
+            expect(JSON.stringify(loaded)).toBe(JSON.stringify(expected));
+          } else {
+            expect(() => reader.loadGraph()).toThrow(SemctxError);
+            try { reader.loadGraph(); } catch (error) {
+              expect(error).toMatchObject({ code: "STORE_ERROR", details: { table, id: raw["id"], cause: expect.any(String) } });
+            }
+          }
+        } finally { reader.close(); }
+      }
+    }));
+  }
 });
