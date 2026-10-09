@@ -173,9 +173,9 @@ complete Python semantic analysis.
 ## Public-status boundary
 
 `IndexHealthReportV1` is a versioned shared read-only report exposed as `semctx index-health --json`.
-`semctx_index_health` and the CLI `--summary` / `--section` options expose the bounded, paginated
-`IndexHealthReportV2` projection of the same report (ADR 0012, #316). Neither transport exposes or
-stabilizes the private producer seam.
+`semctx_index_health` and the CLI `--summary --json` / `--section <name> --json` options expose the
+bounded, paginated `IndexHealthReportV2` projection of the same report (ADR 0012, #316). Neither
+transport exposes or stabilizes the private producer seam.
 
 This runtime does not freeze a public language adapter, stable sidecar schema, or producer plugin
 API. Adapter stabilization still requires the ADR 0010 conformance cases, deterministic unit and
