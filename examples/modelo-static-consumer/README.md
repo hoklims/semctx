@@ -28,6 +28,8 @@ declared versions do not count as observed runtime versions.
 Build the legacy baseline from `f6c0556d51662b8b763500945215f82ae75f64b9`
 and the pre-audit-correction artifact from `774bb72027f3ce68b69c29b1f12acf3c110a3ef0`.
 Both are public source revisions and use generated anonymous fixtures.
+`--audit-witnesses-only` runs only the three before/after audit cases. It records
+`scope: "audit-witnesses-only"` and `qualified: false`, even when those assertions pass.
 
 The process exits nonzero if any scenario fails or if either actual historical
 witness is absent. `qualification.json` retains raw commands, stdout, stderr,
