@@ -258,7 +258,8 @@ function isContainedTypeScriptPath(repoRoot: string, filePath: string): boolean 
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`) && !isAbsolute(rel));
 }
 
-function canonicalFilesystemPath(filePath: string): string {
+/** Internal confinement helper shared with discovery; not part of the package root API. */
+export function canonicalFilesystemPath(filePath: string): string {
   const absolute = resolve(filePath);
   let ancestor = absolute;
   for (;;) {

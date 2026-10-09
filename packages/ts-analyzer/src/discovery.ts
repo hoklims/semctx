@@ -1,9 +1,9 @@
-import { lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { normalizePath, SemctxError } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
 import ts from "typescript";
-import { resolveTypeScriptModule } from "./ts-symbols";
+import { canonicalFilesystemPath as canonicalPath, resolveTypeScriptModule } from "./ts-symbols";
 
 export type FileRole = "source" | "test" | "document" | "migration" | "other";
 export type SourceLanguage = "typescript" | "javascript" | "python" | "markdown" | "sql" | "unknown";
@@ -157,14 +157,6 @@ function isNestedGitWorktree(directory: string, root: string): boolean {
 function isContained(root: string, candidate: string): boolean {
   const rel = relative(root, candidate);
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`));
-}
-
-function canonicalPath(path: string): string {
-  try {
-    return realpathSync.native(path);
-  } catch {
-    return resolve(path);
-  }
 }
 
 function escapedDependencyReason(
