@@ -1,0 +1,58 @@
+goal goal.semctx.honest-project-evidence
+  statement: Project policy explicitly selects repository-relative candidates across the monorepo while keeping selection, capability, freshness and behavioral proof distinct.
+  status: declared
+  provenance: author
+  appliesAtLevel: 5
+  file: docs/reference/configuration.md
+  tag: project-evidence
+
+invariant invariant.semctx.project-evidence-honesty
+  statement: Keep invariant, critical-contract and security rules strict; never treat an analyzed file, a fresh index or a policy PASS as proof of complete coverage or passing runtime behavior.
+  status: declared
+  provenance: author
+  appliesAtLevel: 4
+  serves: goal.semctx.honest-project-evidence
+  file: docs/adr/0010-multilanguage-plane-a-capability-and-authority.md
+  tag: project-evidence
+
+unknown unknown.semctx.project-negative-completeness
+  statement: Index health reports AMBIGUOUS_LAYOUT for the semctx identities at apps/cli and plugins/claude-code, plus NEGATIVE_COMPLETENESS_MISSING; negative completeness remains unproven.
+  status: declared
+  provenance: author
+  appliesAtLevel: 4
+  tag: coverage
+
+unknown unknown.semctx.project-analysis-boundaries
+  statement: JavaScript hooks and site code, JSON/YAML configuration and shell scripts have no registered analyzer here; Python lacks inferred calls, test coverage and negative completeness, while Markdown and the example SQL migration receive structural classification only.
+  status: declared
+  provenance: author
+  appliesAtLevel: 4
+  file: docs/reference/configuration.md
+  tag: coverage
+
+evidence proof.semctx.project-config-native-checks
+  statement: On 2026-10-07, after rebasing onto upstream/main e6ac3fe, Bun 1.4.0 on macOS arm64 passed 79 existing source tests across discovery-selection, config-migration, verify-analysis-scope, l6-l0-refinement-round-trip and l6-l0-public-round-trip; this is bounded checkout execution, not npm execution, the full suite or cross-platform proof.
+  status: tested
+  provenance: author
+  appliesAtLevel: 1
+  file: packages/ts-analyzer/test/discovery-selection.test.ts
+  file: packages/app-services/test/config-migration.test.ts
+  file: packages/app-services/test/verify-analysis-scope.test.ts
+  file: packages/control-engine/test/l6-l0-refinement-round-trip.test.ts
+  file: packages/app-services/test/l6-l0-public-round-trip.test.ts
+  tag: test
+
+change change.semctx.project-evidence-config
+  statement: Deliberately migrate v1 to v2 recursive candidate selection, preserve strict policy, use the CLI source of this checkout for repository dogfooding and current evidence, rebuild and verify the local index, and retain unresolved analysis limits.
+  status: partial
+  provenance: author
+  appliesAtLevel: 1
+  serves: goal.semctx.honest-project-evidence
+  serves: goal.semctx.reconstructive-control
+  preserves: invariant.semctx.project-evidence-honesty
+  preserves: invariant.semctx.fail-closed-control
+  preserves: invariant.semctx.plane-separation
+  requires: proof.semctx.project-config-native-checks
+  unknown: unknown.semctx.project-negative-completeness
+  unknown: unknown.semctx.project-analysis-boundaries
+  tag: project-evidence

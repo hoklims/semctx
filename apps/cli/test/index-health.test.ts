@@ -8,6 +8,7 @@ import {
   indexHealth,
   indexRepository,
 } from "@semantic-context/app-services";
+import { canonicalJson } from "@semantic-context/core";
 import { digestCanonical, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
 import { openStore, initWorkspace, loadConfig } from "@semantic-context/repository-store";
 import { initSemanticScaffold } from "@semantic-context/semantic-engine";
@@ -37,7 +38,7 @@ function git(cwd: string, ...args: string[]): void {
   }
 }
 
-function run(args: string[]): { code: number; out: string } {
+function run(args: string[]): { code: number; out: string; error: string } {
   const result = Bun.spawnSync(["bun", "run", CLI, ...args], {
     stdout: "pipe",
     stderr: "pipe",
@@ -45,6 +46,7 @@ function run(args: string[]): { code: number; out: string } {
   return {
     code: result.exitCode ?? 1,
     out: new TextDecoder().decode(result.stdout),
+    error: new TextDecoder().decode(result.stderr),
   };
 }
 
@@ -193,6 +195,7 @@ describe("index-health CLI", () => {
     const result = run(["--help"]);
     expect(result.code).toBe(0);
     expect(result.out).toContain("index-health [--json]");
+    expect(result.out).toContain("--summary | --section <section>");
     expect(result.out).toContain("status [--json]");
   });
 
@@ -206,6 +209,113 @@ describe("index-health CLI", () => {
     expect(expected.coverage.status).toBe("partial");
     expect(result.code).toBe(2);
     expect(JSON.parse(result.out)).toEqual(expected);
+  });
+
+  it("opts into a bounded versioned summary without hiding partial coverage", () => {
+    writeSnapshot(true);
+    const result = run(["index-health", "--root", root, "--summary", "--json"]);
+    const report = JSON.parse(result.out);
+
+    expect(result.code).toBe(2);
+    expect(report).toMatchObject({
+      schemaVersion: 2,
+      status: "degraded",
+      binding: { status: "valid" },
+      freshness: { canRunHighRiskControl: true },
+      coverage: { status: "partial", candidates: 1 },
+      page: null,
+    });
+    expect(report).not.toHaveProperty("candidates");
+    expect(report.evaluations).not.toHaveProperty("decisions");
+    expect(result.out).toBe(`${canonicalJson(report)}\n`);
+  });
+
+  it("paginates candidates deterministically through opaque service cursors", () => {
+    indexRepository(root, CAPTURED_AT);
+    const expected = indexHealth(root);
+    expect(expected.candidates.length).toBeGreaterThan(1);
+    const first = run(["index-health", "--root", root, "--section", "candidates", "--limit", "1", "--json"]);
+    const firstPage = JSON.parse(first.out);
+    expect(firstPage).toMatchObject({
+      schemaVersion: 2,
+      coverage: expected.coverage,
+      page: { section: "candidates", offset: 0, returned: 1, total: expected.candidates.length },
+    });
+    expect(firstPage.page.items).toEqual(expected.candidates.slice(0, 1));
+    expect(firstPage.page.nextCursor).toBeString();
+    expect(first.out).toBe(`${canonicalJson(firstPage)}\n`);
+    const second = run([
+      "index-health", "--root", root, "--section", "candidates", "--limit", "1", "--json",
+      "--cursor", firstPage.page.nextCursor,
+    ]);
+    const secondPage = JSON.parse(second.out);
+    expect(second.code).toBe(first.code);
+    expect(secondPage.page).toMatchObject({ offset: 1, returned: 1 });
+    expect(secondPage.page.items).toEqual(expected.candidates.slice(1, 2));
+  });
+
+  it("keeps the full report gate when a selected detail page is empty", () => {
+    writeSnapshot(true);
+    const result = run(["index-health", "--root", root, "--section", "workspace_candidates", "--json"]);
+    const report = JSON.parse(result.out);
+
+    expect(result.code).toBe(2);
+    expect(report).toMatchObject({
+      status: "degraded",
+      coverage: { status: "partial" },
+      page: { section: "workspace_candidates", total: 0, returned: 0, nextCursor: null, items: [] },
+    });
+  });
+
+  it.each([
+    { options: ["--summary"] },
+    { options: ["--section", "candidates"] },
+  ])("requires --json for opt-in view flags: %j", ({ options }) => {
+    const result = run(["index-health", "--root", root, ...options]);
+    expect(result.code).toBe(1);
+    expect(result.error).toContain("[INVALID_TASK_INPUT]");
+    expect(result.error).toContain("require --json");
+    expect(result.out).toBe("");
+  });
+
+  it.each([
+    ["--summary", "--summary"],
+    ["--summary=false"],
+    ["--summary=unexpected"],
+    ["--section"],
+    ["--section="],
+    ["--section", "unknown"],
+    ["--section", "candidates", "--section", "evaluations"],
+    ["--cursor", "abc"],
+    ["--limit", "1"],
+    ["--section", "candidates", "--cursor"],
+    ["--section", "candidates", "--cursor="],
+    ["--section", "candidates", "--cursor", "abc", "--cursor", "def"],
+    ["--section", "candidates", "--limit"],
+    ["--section", "candidates", "--limit="],
+    ["--section", "candidates", "--limit", "1", "--limit", "2"],
+    ["--section", "candidates", "--limit", "0"],
+    ["--section", "candidates", "--limit", "101"],
+    ["--section", "candidates", "--limit=-1"],
+    ["--section", "candidates", "--limit", "1.5"],
+    ["--section", "candidates", "--limit", "1junk"],
+    ["--section", "candidates", "--limit", "1e1"],
+    ["--section", "candidates", "--limit", "0x10"],
+    ["--section", "candidates", "--limit", "Infinity"],
+    ["--section", "candidates", "--limit", "NaN"],
+    ["--summary", "--section", "candidates"],
+  ].map((options) => ({ options })))("rejects malformed view flags before repository access: %j", ({ options }) => {
+    const result = run([
+      "index-health",
+      "--root",
+      join(root, "missing-repository"),
+      "--json",
+      ...options,
+    ]);
+
+    expect(result.code).toBe(1);
+    expect(result.error).toContain("[INVALID_TASK_INPUT]");
+    expect(result.out).toBe("");
   });
 
   it("keeps freshness and coverage separate in concise text", () => {
@@ -233,6 +343,9 @@ describe("index-health CLI", () => {
       coverage: { status: "complete" },
     });
     expect(result.code).toBe(0);
+    const summary = run(["index-health", "--root", root, "--summary", "--json"]);
+    expect(summary.code).toBe(0);
+    expect(JSON.parse(summary.out).status).toBe("healthy");
   });
 
   it("exits 3 for an absent or otherwise insufficient index health binding", () => {
@@ -241,6 +354,13 @@ describe("index-health CLI", () => {
       const result = run(["index-health", "--root", uninitialized, "--json"]);
       expect(result.code).toBe(3);
       expect(JSON.parse(result.out)).toMatchObject({
+        binding: { status: "absent" },
+        coverage: { status: "insufficient" },
+      });
+      const summary = run(["index-health", "--root", uninitialized, "--summary", "--json"]);
+      expect(summary.code).toBe(3);
+      expect(JSON.parse(summary.out)).toMatchObject({
+        status: "blocked",
         binding: { status: "absent" },
         coverage: { status: "insufficient" },
       });

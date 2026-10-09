@@ -1,3 +1,4 @@
+import { EvidenceRecordSchema, ClaimSchema, TaskFrameSchema, ContextPackSchema } from "@semantic-context/core";
 import { constants, Database } from "bun:sqlite";
 import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -88,6 +89,7 @@ interface ClaimRow {
 }
 
 interface PayloadRow {
+  id: string;
   payload: string;
 }
 
@@ -275,8 +277,8 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   listTaskFrames(): TaskFrame[] {
-    const rows = this.db.query(`SELECT payload FROM task_frames ORDER BY created_at DESC`).all() as PayloadRow[];
-    return rows.map((r) => JSON.parse(r.payload) as TaskFrame);
+    const rows = this.db.query(`SELECT id, payload FROM task_frames ORDER BY created_at DESC`).all() as PayloadRow[];
+    return rows.map((row) => loadRow("task_frames", row.id, TaskFrameSchema, () => JSON.parse(row.payload) as unknown));
   }
 
   saveContextPack(pack: ContextPack): void {
@@ -286,8 +288,8 @@ export class SqliteRepositoryStore implements RepositoryStore {
   }
 
   getContextPack(taskId: string): ContextPack | undefined {
-    const row = this.db.query(`SELECT payload FROM context_packs WHERE task_id = ?`).get(taskId) as PayloadRow | null;
-    return row === null ? undefined : (JSON.parse(row.payload) as ContextPack);
+    const row = this.db.query(`SELECT id, payload FROM context_packs WHERE task_id = ?`).get(taskId) as PayloadRow | null;
+    return row === null ? undefined : loadRow("context_packs", row.id, ContextPackSchema, () => JSON.parse(row.payload) as unknown);
   }
 
   setMeta(key: string, value: string): void {
@@ -457,8 +459,8 @@ function loadClaims(db: Database): Claim[] {
 }
 
 function getTaskFrame(db: Database, id: string): TaskFrame | undefined {
-  const row = db.query(`SELECT payload FROM task_frames WHERE id = ?`).get(id) as PayloadRow | null;
-  return row === null ? undefined : (JSON.parse(row.payload) as TaskFrame);
+  const row = db.query(`SELECT id, payload FROM task_frames WHERE id = ?`).get(id) as PayloadRow | null;
+  return row === null ? undefined : loadRow("task_frames", row.id, TaskFrameSchema, () => JSON.parse(row.payload) as unknown);
 }
 
 function getMeta(db: Database, key: string): string | undefined {
@@ -475,6 +477,16 @@ function parseJsonArray(text: string): unknown[] {
   const value = JSON.parse(text) as unknown;
   if (!Array.isArray(value)) throw new SemctxError("STORE_ERROR", "expected JSON array", { text });
   return value;
+}
+
+function loadRow<T>(table: string, id: string, schema: { parse(value: unknown): T }, value: () => unknown): T {
+  try {
+    return schema.parse(value());
+  } catch (cause) {
+    throw new SemctxError("STORE_ERROR", "invalid persisted repository row", {
+      table, id, cause: cause instanceof Error ? cause.message : String(cause),
+    });
+  }
 }
 
 function rowToNode(row: NodeRow): RepositoryNode {
@@ -503,29 +515,29 @@ function rowToEdge(row: EdgeRow): RepositoryEdge {
 }
 
 function rowToEvidence(row: EvidenceRow): EvidenceRecord {
-  return {
+  return loadRow("evidence", row.id, EvidenceRecordSchema, () => ({
     id: row.id,
     filePath: row.file_path,
     ...(row.start_line !== null ? { startLine: row.start_line } : {}),
     ...(row.end_line !== null ? { endLine: row.end_line } : {}),
-    sourceKind: row.source_kind as EvidenceRecord["sourceKind"],
+    sourceKind: row.source_kind,
     ...(row.excerpt !== null ? { excerpt: row.excerpt } : {}),
-  };
+  }));
 }
 
 function rowToClaim(row: ClaimRow): Claim {
-  return {
+  return loadRow("claims", row.id, ClaimSchema, () => ({
     id: row.id,
-    kind: row.kind as Claim["kind"],
+    kind: row.kind,
     statement: row.statement,
-    subjectNodeIds: parseJsonArray(row.subject_node_ids) as string[],
-    evidenceIds: parseJsonArray(row.evidence_ids) as string[],
+    subjectNodeIds: JSON.parse(row.subject_node_ids) as unknown,
+    evidenceIds: JSON.parse(row.evidence_ids) as unknown,
     authority: row.authority,
     freshness: row.freshness,
     confidence: row.confidence,
-    verificationStatus: row.verification_status as Claim["verificationStatus"],
+    verificationStatus: row.verification_status,
     ...(row.valid_from !== null ? { validFrom: row.valid_from } : {}),
     ...(row.valid_until !== null ? { validUntil: row.valid_until } : {}),
-    tags: parseJsonArray(row.tags) as string[],
-  };
+    tags: JSON.parse(row.tags) as unknown,
+  }));
 }

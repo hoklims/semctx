@@ -218,6 +218,46 @@ describe("guard evaluation parity — Claude hook vs OMP bash tool_call (ADR 002
 });
 
 describe("OMP extension adapter wiring (omp/semctx-guard.ts)", () => {
+  test("never probes caller-controlled verifier environment", () => {
+    const repo = createGuardedRepo("semctx-omp-recovery-env-");
+    const callerPlugin = mkdtempSync(join(tmpdir(), "semctx-omp-caller-plugin-"));
+    const trustedPlugin = mkdtempSync(join(tmpdir(), "semctx-omp-host-plugin-"));
+    const marker = join(callerPlugin, "executed");
+    const trustedMarker = join(trustedPlugin, "environment");
+    const previousRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const previousContext = process.env.SEMCTX_PROBE_CONTEXT;
+    try {
+      mkdirSync(join(callerPlugin, "dist"));
+      mkdirSync(join(trustedPlugin, "dist"));
+      const version = json<{ version: string }>("plugins/claude-code/.claude-plugin/plugin.json").version;
+      writeFileSync(join(callerPlugin, "dist", "semctx.js"),
+        `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "ran"); process.stdout.write(${JSON.stringify(version)});`);
+      writeFileSync(join(trustedPlugin, "dist", "semctx.js"),
+        `require("node:fs").writeFileSync(${JSON.stringify(trustedMarker)}, process.env.SEMCTX_PROBE_CONTEXT ?? "missing"); process.stdout.write(${JSON.stringify(version)});`);
+      process.env.CLAUDE_PLUGIN_ROOT = trustedPlugin;
+      process.env.SEMCTX_PROBE_CONTEXT = "host";
+      const decision = evaluateOmpToolCall({
+        type: "tool_call", toolCallId: "recovery-env", toolName: "bash",
+        input: { command: "git commit -m x", env: {
+          SEMCTX_GUARD: "on", CLAUDE_PLUGIN_ROOT: callerPlugin, SEMCTX_PROBE_CONTEXT: "caller",
+        } },
+      }, { cwd: repo });
+      expect(existsSync(marker)).toBe(false);
+      expect(readFileSync(trustedMarker, "utf8")).toBe("host");
+      expect(decision?.block).toBe(true);
+      expect(decision?.reason).toContain(trustedPlugin);
+      expect(decision?.reason).not.toContain(callerPlugin);
+    } finally {
+      if (previousRoot === undefined) delete process.env.CLAUDE_PLUGIN_ROOT;
+      else process.env.CLAUDE_PLUGIN_ROOT = previousRoot;
+      if (previousContext === undefined) delete process.env.SEMCTX_PROBE_CONTEXT;
+      else process.env.SEMCTX_PROBE_CONTEXT = previousContext;
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(callerPlugin, { recursive: true, force: true });
+      rmSync(trustedPlugin, { recursive: true, force: true });
+    }
+  });
+
   test("matches OMP 18.1.11 filesystem cwd normalization, including host aliases", () => {
     const options = { platform: "win32" as const, env: {}, home: "C:\\Users\\OMP User" };
     const session = "C:\\work\\session";

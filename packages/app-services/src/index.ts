@@ -51,7 +51,9 @@ export {
   isCanonicalClaudeMarketplaceRecord,
   isCanonicalClaudeMarketplaceSource,
   isHostInterfaceUnsupportedFailure,
+  normalizeGitSource,
   pluginDeliveryStatus,
+  redactUrlUserInfo,
   readCodexMetadataObject,
   readCodexPluginMetadataInventory,
   readClaudePluginMetadataInventory,
@@ -103,6 +105,18 @@ export type {
   VerificationHookRefusal,
 } from "./verification-hook";
 export { indexHealth, indexHealthStatus } from "./index-health";
+export {
+  INDEX_HEALTH_SECTIONS,
+  INDEX_HEALTH_VIEW_MAX_BYTES,
+  indexHealthView,
+  projectIndexHealth,
+} from "./index-health-view";
+export type {
+  IndexHealthPageV2,
+  IndexHealthReportV2,
+  IndexHealthSection,
+  IndexHealthViewRequest,
+} from "./index-health-view";
 export type {
   IndexHealthCandidateV1,
   IndexHealthReportV1,

@@ -26,7 +26,7 @@ export {
   TaskRiskV1Schema,
   WorkspaceBaselineSnapshotV1Schema,
 } from "./task-envelope-schemas";
-export { Sha256HashSchema } from "./primitive-schemas";
+export { AuthoredSemanticLevelSchema, Sha256HashSchema } from "./primitive-schemas";
 export {
   CLEAN_CONTROL_WORKING_DIFF_HASH,
   CONTROL_FRESHNESS_REASON_ORDER,

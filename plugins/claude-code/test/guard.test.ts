@@ -22,9 +22,10 @@ import {
   GLOBAL_VERIFY_COMMAND,
 } from "../hooks/semctx-guard.mjs";
 import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, renameSync, rmdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, lstatSync, readFileSync, realpathSync, chmodSync, mkdirSync, mkdtempSync, renameSync, rmdirSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   captureRecordableVerificationGitState,
   captureVerificationGitState as captureApplicationVerificationGitState,
@@ -57,6 +58,48 @@ const bashCanRunBun =
   })();
 
 const GUARD_SCRIPT = join(import.meta.dir, "..", "hooks", "semctx-guard.mjs");
+const PLUGIN_VERSION: string = JSON.parse(readFileSync(join(import.meta.dir, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
+
+async function isolatedRecoveryFixture() {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "semctx-guard-recovery-")));
+  mkdirSync(join(root, "hooks"));
+  mkdirSync(join(root, "dist"));
+  mkdirSync(join(root, ".claude-plugin"));
+  const hook = join(root, "hooks", "guard.mjs");
+  copyFileSync(GUARD_SCRIPT, hook);
+  writeFileSync(join(root, ".claude-plugin", "plugin.json"), JSON.stringify({ version: PLUGIN_VERSION }));
+  const guard = await import(pathToFileURL(hook).href);
+  return { root, guard, env: { ...process.env, PATH: dirname(process.execPath) } };
+}
+
+function canonicalGitRoot(root: string) {
+  // Git resolves Windows 8.3 aliases that fs.realpathSync may preserve.
+  return realpathSync(execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: root, encoding: "utf8" }).trim());
+}
+
+function expectRecordingTarget(output: string, installation: string, repository: string) {
+  const observed = JSON.parse(output);
+  expect(observed.args.slice(0, 4)).toEqual(["verify", "diff", "--record", "--root"]);
+  expect(observed.args).toHaveLength(5);
+  expect(realpathSync(observed.args[4])).toBe(realpathSync(repository));
+  // Compare directory identity rather than Windows short/long path spelling.
+  const actual = lstatSync(observed.cwd);
+  const expected = lstatSync(installation);
+  expect(actual.dev).toBe(expected.dev);
+  expect(actual.ino).toBe(expected.ino);
+}
+
+function createRecoveryRepository(root: string) {
+  mkdirSync(root);
+  execFileSync("git", ["init", "-b", "main"], { cwd: root, stdio: "ignore" });
+  writeFileSync(join(root, "tracked.ts"), "export const answer = 42;\n");
+  writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+  execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
+  execFileSync("git", ["-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.invalid", "commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
+  mkdirSync(join(root, ".semctx"));
+  writeFileSync(join(root, ".semctx", "guard.json"), '{"enabled":true}');
+  return canonicalGitRoot(root);
+}
 
 function runGuardProcess(
   cwd: string,
@@ -465,92 +508,279 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
     expect(d.reason).toContain("verify diff --record");
   });
 
-  it("emits a resolved, shell-quoted plugin CLI path — never a deferred shell variable", () => {
-    // The reason string is executed by the agent's shell, which does NOT receive
-    // CLAUDE_PLUGIN_ROOT (Claude Code exports it to hook and MCP processes only). A deferred
-    // "$CLAUDE_PLUGIN_ROOT/…" would expand to "/dist/semctx.js".
-    const missing = () => false;
-    expect(verifyRecordCommand({}, missing)).toBe(GLOBAL_VERIFY_COMMAND);
-    expect(verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: "" }, missing)).toBe(GLOBAL_VERIFY_COMMAND);
-    expect(verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: "   " }, missing)).toBe(GLOBAL_VERIFY_COMMAND);
+  it("refuses an unknown root before probing a verifier", () => {
+    expect(verifyRecordCommand({ PATH: process.env.PATH })).toContain("repository root is unknown");
+  });
 
-    const root = mkdtempSync(join(tmpdir(), "semctx-guard-plugin-root-"));
+  it("rejects legacy declared bundles and falls back to its qualified own bundle", async () => {
+    const { root: parent, guard, env } = await isolatedRecoveryFixture();
     try {
-      mkdirSync(join(root, "dist"));
-      writeFileSync(join(root, "dist", "semctx.js"), "// bundle\n");
-      const command = verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: root, PATH: process.env.PATH });
-      expect(command).toBe(`bun '${join(root, "dist", "semctx.js")}' verify diff --record`);
-      expect(command).not.toContain("$CLAUDE_PLUGIN_ROOT");
-
-      const d = guardDecision({
-        enabled: true,
-        terminalVerb: "commit",
-        state: null,
-        currentState: CURRENT,
-        verifyCommand: command,
-      });
-      expect(d.reason).toContain(command);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
+      const legacy = join(parent, "legacy");
+      mkdirSync(join(legacy, "dist"), { recursive: true });
+      mkdirSync(join(legacy, ".claude-plugin"));
+      writeFileSync(join(legacy, ".claude-plugin", "plugin.json"), '{"version":"0.2.0"}');
+      writeFileSync(join(legacy, "dist", "semctx.js"), 'process.stdout.write("0.2.0");');
+      writeFileSync(join(parent, "dist", "semctx.js"), `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const command = guard.verifyRecordCommand({ ...env, CLAUDE_PLUGIN_ROOT: legacy }, undefined, parent);
+      expect(command).not.toContain(join(legacy, "dist", "semctx.js"));
+      expect(command).toContain(shellQuote(join(parent, "dist", "semctx.js")));
+      expect(command).toContain("verify diff --record");
+      expect(command).toContain(`cd ${shellQuote(parent)} &&`);
+    } finally { rmSync(parent, { recursive: true, force: true }); }
   });
 
-  it("shell-quotes roots containing spaces, quotes, and dollar signs", () => {
-    for (const name of ["My Plugin", "it's", "a$b", "back`tick"]) {
-      const parent = mkdtempSync(join(tmpdir(), "semctx-guard-odd-root-"));
-      try {
-        const root = join(parent, name);
-        const bundle = join(root, "dist", "semctx.js");
-        mkdirSync(join(root, "dist"), { recursive: true });
-        writeFileSync(bundle, "// bundle\n");
-        // Independent expected form (POSIX single-quote rule) — not shellQuote() itself, so a
-        // degenerate identity transform would fail without needing bash.
-        const expected = `bun '${bundle.replaceAll("'", "'\\''")}' verify diff --record`;
-        expect(verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: root, PATH: process.env.PATH })).toBe(expected);
-      } finally {
-        rmSync(parent, { recursive: true, force: true });
-      }
-    }
-  });
-
-  it.skipIf(!hasHostCompatibleBash)("shellQuote round-trips hostile paths through a real shell", () => {
-    for (const name of ["My Plugin", "it's", "a$b", "back`tick"]) {
-      const parent = mkdtempSync(join(tmpdir(), "semctx-guard-quote-roundtrip-"));
-      try {
-        const root = join(parent, name);
-        const bundle = join(root, "dist", "semctx.js");
-        mkdirSync(join(root, "dist"), { recursive: true });
-        writeFileSync(bundle, "// bundle\n");
-        const echoed = execFileSync("bash", ["-c", `printf '%s' ${shellQuote(bundle)}`], {
-          encoding: "utf8",
-        });
-        expect(echoed).toBe(bundle);
-      } finally {
-        rmSync(parent, { recursive: true, force: true });
-      }
-    }
-  });
-
-  it("falls back to the global CLI when Bun is absent — the hook itself runs under Node", () => {
+  it("refuses cwd-shadow and Bunless unknown globals without recommending an unsafe record", () => {
     const root = mkdtempSync(join(tmpdir(), "semctx-guard-nobun-"));
     try {
-      mkdirSync(join(root, "dist"));
-      writeFileSync(join(root, "dist", "semctx.js"), "// bundle\n");
-      // Bundle present, but no `bun` anywhere on PATH.
-      expect(verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: root, PATH: join(root, "empty-bin") })).toBe(
-        GLOBAL_VERIFY_COMMAND,
-      );
-      expect(verifyRecordCommand({ CLAUDE_PLUGIN_ROOT: root, PATH: "" })).toBe(GLOBAL_VERIFY_COMMAND);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
+      expect(verifyRecordCommand({ PATH: "." }, undefined, root)).toContain("Recovery unavailable");
+      expect(verifyRecordCommand({ PATH: "" }, undefined, root)).toContain(`need semctx ${PLUGIN_VERSION}`);
+      expect(verifyRecordCommand({ PATH: "" }, undefined, root)).not.toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
-  it("falls back to this hook's own bundle location when CLAUDE_PLUGIN_ROOT is absent", () => {
-    // plugins/claude-code/hooks/../dist/semctx.js is a tracked artifact in this repo.
-    expect(verifyRecordCommand({ PATH: process.env.PATH })).toBe(
-      `bun '${resolve(import.meta.dir, "../dist/semctx.js")}' verify diff --record`,
-    );
+  it("qualifies real same-version bundles and quote-protects the selected root", () => {
+    const parent = mkdtempSync(join(tmpdir(), "semctx-guard-quote-"));
+    try {
+      const root = join(parent, "it's a$b`root");
+      mkdirSync(join(root, "dist"), { recursive: true });
+      writeFileSync(join(root, "dist", "semctx.js"), `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const command = verifyRecordCommand({ ...process.env, CLAUDE_PLUGIN_ROOT: root }, undefined, root);
+      expect(command).toContain(shellQuote(root));
+      expect(command).toContain(shellQuote(join(root, "dist", "semctx.js")));
+    } finally { rmSync(parent, { recursive: true, force: true }); }
+  });
+
+  it("uses only own metadata and rejects malformed, incompatible, and timed-out bundles", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-guard-isolated-"));
+    try {
+      mkdirSync(join(root, "hooks"));
+      mkdirSync(join(root, "dist"));
+      mkdirSync(join(root, ".claude-plugin"));
+      writeFileSync(join(root, "hooks", "guard.mjs"), readFileSync(resolve(import.meta.dir, "../hooks/semctx-guard.mjs")));
+      const isolated = await import(pathToFileURL(join(root, "hooks", "guard.mjs")).href);
+      const bunRoot = dirname(process.execPath);
+      const env = { PATH: bunRoot, CLAUDE_PLUGIN_ROOT: root };
+      expect(isolated.verifyRecordCommand(env, undefined, root)).toContain("metadata is missing or invalid");
+      writeFileSync(join(root, ".claude-plugin", "plugin.json"), JSON.stringify({ version: PLUGIN_VERSION }));
+      for (const body of [
+        'process.stdout.write("0.2.0");',
+        'process.stdout.write("semctx 0.4.2");',
+        'process.stdout.write("0.4.2.0");',
+        'setTimeout(() => process.stdout.write("0.4.2"), 5000);',
+      ]) {
+        writeFileSync(join(root, "dist", "semctx.js"), body);
+        const result = isolated.verifyRecordCommand(env, undefined, root);
+        expect(result).toContain("Recovery unavailable");
+        expect(result).not.toContain("verify diff --record");
+      }
+      writeFileSync(join(root, "dist", "semctx.js"), `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      expect(isolated.verifyRecordCommand(env, undefined, root)).toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("does not probe verifier dependencies for advisory or unrelated calls", () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-guard-no-probe-"));
+    try {
+      mkdirSync(join(root, "dist"));
+      const marker = join(root, "probed");
+      writeFileSync(join(root, "dist", "semctx.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "yes"); process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const env = { ...process.env, CLAUDE_PLUGIN_ROOT: root, SEMCTX_GUARD: "off" };
+      expect(evaluateGuard({ command: "git commit -m x", cwd: root, env }).block).toBe(false);
+      expect(evaluateGuard({ command: "git status", cwd: root, env: { ...env, SEMCTX_GUARD: "on" } }).block).toBe(false);
+      expect(existsSync(marker)).toBe(false);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("does not probe a reachable verifier for an authorized exact commit", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "repository"));
+      const marker = join(root, "probed");
+      writeFileSync(join(root, "dist", "semctx.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "yes"); process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const runtimeEnv = { ...process.env, ...env, CLAUDE_PLUGIN_ROOT: root, SEMCTX_GUARD: "on" };
+      expect(guard.verifyRecordCommand(runtimeEnv, undefined, repository)).toContain("verify diff --record");
+      expect(existsSync(marker)).toBe(true);
+      unlinkSync(marker);
+      writeFileSync(join(repository, ".semctx", "verification-state.json"), JSON.stringify({
+        version: 3, ...captureVerificationGitState(repository), verdict: "PASS", recordedAt: "2026-10-07T00:00:00.000Z",
+      }));
+      expect(guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: runtimeEnv })).toEqual({ block: false });
+      expect(existsSync(marker)).toBe(false);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("qualifies a matching native global executable without a Bun PATH entry", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const bin = join(root, "bin");
+      mkdirSync(bin);
+      const native = join(bin, process.platform === "win32" ? "semctx.exe" : "semctx");
+      // The fixture runner has a native version protocol; this tests qualification only,
+      // rather than claiming an installed Semctx distribution can run without Bun.
+      copyFileSync(process.execPath, native);
+      chmodSync(native, 0o755);
+      const nativeVersion = execFileSync(process.execPath, ["--version"], { encoding: "utf8" }).trim();
+      writeFileSync(join(root, ".claude-plugin", "plugin.json"), JSON.stringify({ version: nativeVersion }));
+      const command = guard.verifyRecordCommand({ ...env, PATH: bin }, undefined, root);
+      expect(command).toContain(`${shellQuote(native)} verify diff --record`);
+      expect(guard.bunOnPath({ PATH: bin })).toBe(false);
+      const hookUrl = pathToFileURL(join(root, "hooks", "guard.mjs")).href;
+      const probe = `import { verifyRecordCommand } from ${JSON.stringify(hookUrl)}; console.log(verifyRecordCommand(process.env, undefined, process.cwd()));`;
+      const shadowed = spawnSync(process.execPath, ["-e", probe], { cwd: bin, env: { ...process.env, PATH: "." }, encoding: "utf8" });
+      expect(shadowed.status).toBe(0);
+      expect(shadowed.stdout).toContain("Recovery unavailable");
+      expect(shadowed.stdout).not.toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(process.platform !== "win32")("refuses a Windows command wrapper without executing it", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const bin = join(root, "bin");
+      mkdirSync(bin);
+      const marker = join(root, "wrapper-ran");
+      writeFileSync(join(bin, "semctx.cmd"), `@echo off\r\necho unexpected > "${marker}"\r\necho ${PLUGIN_VERSION}\r\n`);
+      const result = guard.verifyRecordCommand({ ...env, PATH: bin }, undefined, root);
+      expect(result).toContain("unsupported Windows wrapper");
+      expect(result).not.toContain("verify diff --record");
+      expect(existsSync(marker)).toBe(false);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(!bashCanRunBun)("targets a quoted linked worktree instead of the session repository", async () => {
+    const { root, guard } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "repository"));
+      let worktree = join(root, "My worktree");
+      execFileSync("git", ["worktree", "add", "-b", "linked", worktree], { cwd: repository, stdio: "ignore" });
+      worktree = canonicalGitRoot(worktree);
+      expect(lstatSync(join(worktree, ".git")).isFile()).toBe(true);
+      mkdirSync(join(worktree, ".semctx"));
+      writeFileSync(join(worktree, ".semctx", "guard.json"), '{"enabled":true}');
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));`);
+      const decision = guard.evaluateGuard({ command: `git -C ${shellQuote(worktree)} commit -m x`, cwd: repository, sessionCwd: repository, env: { ...process.env, CLAUDE_PLUGIN_ROOT: root } });
+      expect(decision.block).toBe(true);
+      const printed = decision.reason.split("\n").map((line: string) => line.trim()).find((line: string) => line.startsWith("cd "));
+      expect(printed).toBeDefined();
+      const replay = spawnSync("bash", ["-c", printed], { cwd: repository, env: process.env, encoding: "utf8" });
+      expect(replay.status).toBe(0);
+      expectRecordingTarget(replay.stdout, root, worktree);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(!bashCanRunBun)("replays recovery from a hostile literal repository directory", async () => {
+    const { root, guard } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "it's a$b`repository $& $'"));
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));`);
+      const decision = guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: { ...process.env, CLAUDE_PLUGIN_ROOT: root } });
+      expect(decision.block).toBe(true);
+      const printed = decision.reason.split("\n").map((line: string) => line.trim()).find((line: string) => line.startsWith("cd "));
+      expect(printed).toBeDefined();
+      const printedRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: repository, encoding: "utf8" }).trim();
+      expect(printed).toContain(`--root ${shellQuote(printedRoot)}`);
+      const replay = spawnSync("bash", ["-c", printed], { cwd: root, env: process.env, encoding: "utf8" });
+      expect(replay.status).toBe(0);
+      expectRecordingTarget(replay.stdout, root, repository);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(process.platform !== "win32")("preserves literal replacement tokens in diagnostic recovery paths", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "repository"));
+      const bin = join(root, "wrapper $& $' $` directory");
+      mkdirSync(bin);
+      const wrapper = join(bin, "semctx.cmd");
+      writeFileSync(wrapper, "@echo unexpected\r\n");
+      const decision = guard.evaluateGuard({ command: "git commit -m x", cwd: repository, env: { ...env, PATH: bin, SEMCTX_GUARD: "on" } });
+      expect(decision.block).toBe(true);
+      expect(decision.reason).toContain(`${wrapper}: unsupported Windows wrapper`);
+      expect(decision.reason).not.toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("isolates recovery probes from checkout preload and environment", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "hostile repository"));
+      const marker = join(repository, "preload-ran");
+      writeFileSync(join(repository, "bunfig.toml"), 'preload = ["./preload.js"]\n');
+      writeFileSync(join(repository, "preload.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "ran");`);
+      writeFileSync(join(repository, ".env"), "SEMCTX_RECOVERY_STARTUP=checkout\n");
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.env.SEMCTX_RECOVERY_STARTUP) process.exit(9); process.stdout.write(${JSON.stringify(PLUGIN_VERSION)});`);
+      const command = guard.verifyRecordCommand({ ...env, SEMCTX_RECOVERY_STARTUP: undefined }, undefined, repository);
+      expect(existsSync(marker)).toBe(false);
+      expect(command).toContain("verify diff --record");
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(!bashCanRunBun)("isolates printed recording from checkout preload and environment", async () => {
+    const { root, guard } = await isolatedRecoveryFixture();
+    try {
+      const repository = createRecoveryRepository(join(root, "hostile repository"));
+      const marker = join(repository, "preload-ran");
+      writeFileSync(join(repository, "bunfig.toml"), 'preload = ["./preload.js"]\n');
+      writeFileSync(join(repository, "preload.js"), `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "ran");`);
+      writeFileSync(join(repository, ".env"), "SEMCTX_RECOVERY_STARTUP=checkout\n");
+      writeFileSync(join(root, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2),loaded:process.env.SEMCTX_RECOVERY_STARTUP??null}));`);
+      const command = guard.verifyRecordCommand({ ...process.env, SEMCTX_RECOVERY_STARTUP: undefined }, undefined, repository);
+      if (existsSync(marker)) unlinkSync(marker);
+      const replay = spawnSync("bash", ["-c", command], { cwd: repository, env: { ...process.env, SEMCTX_RECOVERY_STARTUP: undefined }, encoding: "utf8" });
+      expect(replay.status).toBe(0);
+      expect(existsSync(marker)).toBe(false);
+      expectRecordingTarget(replay.stdout, root, repository);
+      expect(JSON.parse(replay.stdout).loaded).toBeNull();
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(process.platform === "win32")("terminates a verifier that ignores SIGTERM", async () => {
+    const { root } = await isolatedRecoveryFixture();
+    try {
+      const hookUrl = pathToFileURL(join(root, "hooks", "guard.mjs")).href;
+      const probe = `
+        import { writeFileSync, chmodSync, mkdirSync } from "node:fs";
+        import { join } from "node:path";
+        import { verifyRecordCommand } from ${JSON.stringify(hookUrl)};
+        const root = ${JSON.stringify(root)};
+        const bin = join(root, "native-bin");
+        mkdirSync(bin);
+        const candidate = join(bin, "semctx");
+        writeFileSync(candidate, "#!" + process.execPath + "\\nprocess.on('SIGTERM',()=>{}); setTimeout(()=>process.exit(0),6000);\\n");
+        chmodSync(candidate, 0o755);
+        const start = performance.now();
+        const diagnostic = verifyRecordCommand({ PATH: bin }, undefined, root);
+        console.log(JSON.stringify({ elapsed: performance.now() - start, diagnostic }));
+      `;
+      // A separate Node process exercises the production runtime, with its own hard stop.
+      const result = spawnSync("node", ["--input-type=module", "-e", probe], {
+        encoding: "utf8", timeout: 10000, killSignal: "SIGKILL",
+      });
+      expect(result.status).toBe(0);
+      const observed = JSON.parse(result.stdout);
+      expect(observed.diagnostic).toContain("ETIMEDOUT");
+      expect(observed.diagnostic).not.toContain("verify diff --record");
+      expect(observed.elapsed).toBeLessThan(3000);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  it("enforces the one-second and 64KiB candidate probe limits with real processes", async () => {
+    const { root, guard, env } = await isolatedRecoveryFixture();
+    try {
+      const bundle = join(root, "dist", "semctx.js");
+      const cases = [
+        { body: `setTimeout(() => process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}), 1500);`, code: "ETIMEDOUT" },
+        { body: `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)} + " ".repeat(128 * 1024));`, code: "ENOBUFS" },
+        { body: `process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); process.stderr.write(" ".repeat(128 * 1024));`, code: "ENOBUFS" },
+      ];
+      for (const { body, code } of cases) {
+        writeFileSync(bundle, body);
+        const result = guard.verifyRecordCommand(env, undefined, root);
+        expect(result).toContain("Recovery unavailable");
+        expect(result).toContain(code);
+        expect(result).not.toContain("verify diff --record");
+      }
+    } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
   it("guardDecision is pure — no env read, no filesystem access", () => {
@@ -993,7 +1223,7 @@ describe("guard runtime — large working diffs", () => {
       mkdirSync(join(repo, ".semctx"));
       writeFileSync(join(repo, ".semctx", "guard.json"), JSON.stringify({ enabled: true }));
       mkdirSync(join(pluginRoot, "dist"), { recursive: true });
-      writeFileSync(join(pluginRoot, "dist", "semctx.js"), 'process.stdout.write("bundle-ran");\n');
+      writeFileSync(join(pluginRoot, "dist", "semctx.js"), `if (process.argv.includes("--version")) process.stdout.write(${JSON.stringify(PLUGIN_VERSION)}); else process.stdout.write(JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));\n`);
 
       // No verification-state.json → block with "Run: <verify command>"
       const guard = resolve(import.meta.dir, "../hooks/semctx-guard.mjs");
@@ -1016,16 +1246,16 @@ describe("guard runtime — large working diffs", () => {
       const printed = result.stderr
         .split("\n")
         .map((line) => line.trim())
-        .find((line) => line.startsWith("bun "));
+        .find((line) => line.startsWith("cd "));
       expect(printed).toBeDefined();
       const { CLAUDE_PLUGIN_ROOT: _dropped, ...agentEnv } = process.env;
-      const replay = spawnSync("bash", ["-c", printed!.replace(" verify diff --record", "")], {
-        cwd: repo,
+      const replay = spawnSync("bash", ["-c", printed!], {
+        cwd: pluginParent,
         env: agentEnv,
         encoding: "utf8",
       });
       expect(replay.status).toBe(0);
-      expect(replay.stdout).toBe("bundle-ran");
+      expectRecordingTarget(replay.stdout, resolve(import.meta.dir, ".."), canonicalGitRoot(repo));
     } finally {
       rmSync(repo, { recursive: true, force: true });
       rmSync(pluginParent, { recursive: true, force: true });

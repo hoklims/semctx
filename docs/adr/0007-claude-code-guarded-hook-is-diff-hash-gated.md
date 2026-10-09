@@ -124,3 +124,26 @@ authorize a terminal Git operation.
   unchanged.
 - Cross-platform: the state/hash logic is a plain script; the guard reads stdin JSON from Claude
   Code's hook protocol and returns a structured decision.
+
+## Recovery command compatibility
+
+A blocked operation that requires a new record may suggest a verifier only after a bounded
+`--version` probe (one second and 64 KiB per candidate, without shell evaluation).
+Probes use non-catchable termination so a verifier cannot extend the probe by handling `SIGTERM`.
+Recovery probes restore every per-call environment override from the hook process environment,
+so caller-supplied plugin roots and loader settings cannot select or inject probe code. The reported
+Semver must match the manifest adjacent to this hook; environment-declared plugin roots and
+installed global CLIs cannot define that required version. Candidates are the declared bundle,
+the hook's own bundle, then absolute PATH-resolved global executables. Empty and relative PATH
+entries are excluded. Windows command wrappers are explicitly unsupported rather than accepted
+from their presence alone. Bun is needed only for bundled candidates; a matching native global
+CLI can support a Node-only host.
+
+Qualification and printed recovery start in this hook's own installation directory; bundled
+commands also pin Bun's `--cwd` there so the target checkout's `bunfig.toml` preloads and `.env`
+cannot run during startup. The CLI receives the explicitly quoted resolved target as `--root`,
+including a linked worktree selected by `git -C`. Unknown repository roots, missing or invalid
+own metadata, and incompatible or unresponsive candidates retain the block with installation
+and version diagnostics, without a runnable recording command. Authorized and advisory calls
+perform no verifier probes. This qualification establishes command compatibility only; it does
+not establish MCP health, index freshness, or a passing verification verdict.

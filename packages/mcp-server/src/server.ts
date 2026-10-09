@@ -3,6 +3,7 @@ import packageJson from "../package.json";
 import type { ZodType, ZodTypeDef } from "zod";
 import { z } from "zod-v4";
 import { isAbsolute } from "node:path";
+import { INDEX_HEALTH_SECTIONS } from "@semantic-context/app-services";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
 import {
   semanticSliceTool,
@@ -384,17 +385,30 @@ export function createSemctxServer(
     {
       title: "Check shared index health",
       description:
-        "Read-only Plane-A index health report. Returns the exact shared binding, freshness, coverage, candidate outcome, workspace diagnostic, and reason data; freshness and coverage remain separate dimensions.",
+        "Read-only bounded IndexHealthReportV2 summary: complete binding, freshness reasons, coverage counts and evaluation totals. Details require section; pages default to 20 items, max 100, and may be shortened by the byte budget. Continue with nextCursor and the same section; a stale cursor requires restarting. Freshness and coverage remain separate; omitted details never imply complete analysis.",
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
         openWorldHint: false,
       },
-      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+      inputSchema: {
+        repositoryRoot: REPOSITORY_ROOT,
+        section: z.enum(INDEX_HEALTH_SECTIONS).optional().describe("Opt in to one detail collection; omit for the summary."),
+        cursor: z.string().min(1).max(1_024).optional().describe("Opaque nextCursor from the same section and unchanged report; requires section."),
+        limit: z.number().int().min(1).max(100).optional().describe("Maximum items per page, default 20; requires section. Byte budget can return fewer."),
+      },
     },
-    ({ repositoryRoot }) =>
-      ok(indexHealthTool(rootResolver.resolve(repositoryRoot))),
+    ({ repositoryRoot, ...request }) => {
+      const report = indexHealthTool(rootResolver.resolve(repositoryRoot), request);
+      return {
+        structuredContent: report,
+        content: [{
+          type: "text",
+          text: `Index health: ${report.status}; binding ${report.binding.status}; freshness ${report.freshness.verdict}; coverage ${report.coverage.status} (${report.coverage.analyzed}/${report.coverage.candidates} analyzed). Read structuredContent for the V2 summary and any requested detail page.`,
+        }],
+      };
+    },
   );
 
   tools.registerTool(

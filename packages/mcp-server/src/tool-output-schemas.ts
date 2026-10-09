@@ -49,6 +49,7 @@ import {
 import { TargetArchitectureArtifactV1Schema } from "@semantic-context/semantic-engine";
 import { SETUP_POLYGLOT_V1_REFUSE_REASON_CODE } from "@semantic-context/app-services";
 import { ControlExplorerOutputSchema } from "./control-explorer";
+import { HandoffCapsuleSchema } from "@semantic-context/semantic-engine";
 import { mcpSchema } from "./schema-boundary";
 import type { SemctxToolName } from "./tool-contract";
 
@@ -414,21 +415,15 @@ const SemanticInspectionSchema = z.object({
   linkResolutions: described(z.array(LinkResolutionSchema), "Repository-link resolutions."),
 }).strict();
 
-const HandoffSchema = z.object({
-  version: described(z.literal(1), "Handoff-capsule schema version."),
-  createdAt: described(z.string(), "ISO capture timestamp."),
-  activeChangeId: described(z.string().optional(), "Optional active change identifier."),
-  changeLifecycle: described(z.string().optional(), "Optional active change lifecycle."),
-  statement: described(z.string().optional(), "Optional active change statement."),
-  touchedInvariants: stringArray("Invariants to preserve."),
-  proofsObtained: stringArray("Evidence already proven."),
-  pendingProofs: stringArray("Evidence still pending."),
-  activeAssumptions: stringArray("Active assumption identifiers."),
-  exploredLinks: stringArray("Repository links already explored."),
-  openUnknowns: stringArray("Open unknown identifiers."),
-  nextValidations: stringArray("Next required validations."),
-  note: described(z.string().optional(), "Optional handoff note."),
-}).strict();
+const convertedHandoffSchema = mcpSchema(HandoffCapsuleSchema);
+const versionDescription = HandoffCapsuleSchema.shape.version.description;
+const HandoffSchema = convertedHandoffSchema instanceof z.ZodObject
+  && convertedHandoffSchema.shape.version instanceof z.ZodType
+  && versionDescription !== undefined
+  ? convertedHandoffSchema.safeExtend({
+      version: convertedHandoffSchema.shape.version.describe(versionDescription),
+    })
+  : convertedHandoffSchema;
 
 const ResumeSchema = z.union([
   HandoffSchema,
@@ -664,6 +659,56 @@ const IndexHealthReportSchema = z.object({
   ),
 }).strict();
 
+function indexHealthPage(section: string, items: z.ZodType) {
+  return z.object({
+    section: z.literal(section),
+    total: z.number().int().nonnegative(),
+    offset: z.number().int().nonnegative(),
+    returned: z.number().int().nonnegative(),
+    nextCursor: z.string().nullable(),
+    items,
+  }).strict();
+}
+
+const IndexHealthReportV2Schema = z.object({
+  ...IndexHealthReportSchema.pick({
+    kind: true, capturedAt: true, binding: true, freshness: true, coverage: true, reasonSummary: true,
+  }).shape,
+  schemaVersion: described(z.literal(2), "Bounded index-health report schema version."),
+  status: described(z.enum(["healthy", "degraded", "blocked"]), "Aggregate status from the entire report, independent of the returned page."),
+  evaluations: z.object({
+    reasonSummary: IndexHealthReportSchema.shape.evaluations.shape.reasonSummary,
+    primaryReason: IndexHealthReportSchema.shape.evaluations.shape.primaryReason,
+    outcomeCounts: z.object({
+      PASS: z.number().int().nonnegative(),
+      UNKNOWN: z.number().int().nonnegative(),
+      INSUFFICIENT_ANALYSIS: z.number().int().nonnegative(),
+      POLICY_DENIED: z.number().int().nonnegative(),
+    }).strict(),
+  }).strict(),
+  details: z.object({
+    candidates: z.number().int().nonnegative(),
+    capabilities: z.number().int().nonnegative(),
+    evaluations: z.number().int().nonnegative(),
+    workspace: z.object({
+      repositoryId: z.string(),
+      nodes: z.number().int().nonnegative(),
+      edges: z.number().int().nonnegative(),
+      candidates: z.number().int().nonnegative(),
+      diagnostics: z.number().int().nonnegative(),
+    }).strict().nullable(),
+  }).strict(),
+  page: described(z.union([
+    indexHealthPage("candidates", IndexHealthReportSchema.shape.candidates),
+    indexHealthPage("capabilities", IndexHealthReportSchema.shape.capabilities),
+    indexHealthPage("evaluations", IndexHealthReportSchema.shape.evaluations.shape.decisions),
+    indexHealthPage("workspace_nodes", WorkspaceProjectionSchema.shape.nodes),
+    indexHealthPage("workspace_edges", WorkspaceProjectionSchema.shape.edges),
+    indexHealthPage("workspace_candidates", WorkspaceProjectionSchema.shape.candidates),
+    indexHealthPage("workspace_diagnostics", WorkspaceProjectionSchema.shape.diagnostics),
+  ]).nullable(), "Opt-in bounded page. Null means details were not requested; it never means there are no details."),
+}).strict();
+
 /**
  * Precise machine-readable result contracts for every public semctx MCP tool.
  * Business-layer Zod 3 contracts cross the MCP v2 boundary only through mcpSchema.
@@ -747,7 +792,7 @@ export const TOOL_OUTPUT_SCHEMAS = {
   semctx_semantic_inspect: SemanticInspectionSchema,
   semctx_handoff: HandoffSchema,
   semctx_resume: ResumeSchema,
-  semctx_index_health: IndexHealthReportSchema,
+  semctx_index_health: IndexHealthReportV2Schema,
   semctx_setup: z.union([
     z.object({
       schemaVersion: described(z.literal(1), "Setup preflight schema version."),

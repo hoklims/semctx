@@ -51,7 +51,8 @@ Core:
                                    analyse the repo -> deterministic graph (default: 1; auto is evidence-gated by platform)
       --record                       rebuild, verify the working tree, and atomically record evidence
                                     (recovers a stale verification baseline in one command)
-  index-health [--json]            report index binding, freshness, and analysis coverage
+  index-health [--json] [--summary | --section <section> [--cursor <cursor>] [--limit <1..100>]]
+      report index binding, freshness, and analysis coverage; summary and pages require --json
   verify diff [options]            analyse a git range -> impact + PASS/WARN/BLOCK
       --base <ref>                   compare against <ref> (real merge-base; required in CI)
       --head <ref>                   head ref (default: HEAD)

@@ -33,7 +33,7 @@ Adopt the complete stable and locally safe MCP 2026 surface:
 4. Give every tool a declared input schema, output schema, effect annotation, and explicit UI
    visibility.
 5. Return one canonical result object as both `structuredContent` and deterministic JSON text for
-   legacy hosts.
+   legacy hosts, subject to the scoped index-health corrective amendment below.
 6. Cache only the deterministic tool/discovery catalogues and the versioned static App resource,
    with private scope. Do not cache repository reports, freshness decisions, authority decisions,
    errors, or tool calls.
@@ -83,7 +83,8 @@ For every successful tool call:
 - the application service produces one canonical JSON-compatible value;
 - that value is validated against the tool's declared output schema;
 - `structuredContent` contains the canonical value;
-- the text fallback is derived from the same value using the existing deterministic formatting;
+- the text fallback is derived from the same value using the existing deterministic formatting,
+  subject to the scoped index-health corrective amendment below;
 - neither transport metadata nor trace context can change the value.
 
 Error responses remain `isError: true`, bounded, and text-compatible. Their text is deterministic
@@ -154,9 +155,9 @@ The migration is accepted only when all of the following are fresh and green:
 ## Consequences
 
 Modern MCP clients receive typed results, catalogue caching, trace correlation, and a native
-read-only control view. Legacy clients keep the same stdio path and text result semantics. The
-protocol becomes easier to consume without turning semctx into a remote service or expanding Plane
-C into execution authority.
+read-only control view. Legacy clients keep the same stdio path; index-health text result semantics
+change under the scoped corrective amendment below. The protocol becomes easier to consume without
+turning semctx into a remote service or expanding Plane C into execution authority.
 
 Tasks and HTTP remain honest future work behind explicit upstream, identity, isolation, and
 security gates.
@@ -179,3 +180,44 @@ the smaller SDK default, while the Git-read fallback remains available. Runtime 
 must cover admitted large messages, follow-up RPC, rejection above the bound, stderr-only
 guidance, and modern/legacy negotiation. Source and cross-host generated-byte parity remain
 required before publication; publication and fresh-session activation are separate evidence.
+
+## Accepted corrective index-health contract — #316
+
+This amendment was accepted with the correction for [#316](https://github.com/hoklims/semctx/issues/316),
+merged in [#317](https://github.com/hoklims/semctx/pull/317).
+The complete V1 health report grows with repository candidates and was serialized twice. The issue
+reports a 16.6 MB response for 1,000 files and connection closure on larger responses. Increasing
+the transport buffer again would leave that growth unbounded.
+
+The scoped decision is to expose a shared `IndexHealthReportV2` through `semctx_index_health`:
+
+- return a summary by default, preserving full-report status, binding, freshness reasons, coverage,
+  evaluation outcome counts, and detail totals;
+- opt into one of the seven detail sections per request, with deterministic pagination, a default
+  limit of 20, a maximum of 100, and shorter pages when the byte budget requires it;
+- bind cursors to the section and canonical digest of the complete V1 report; changed reports
+  require restarting rather than combining different snapshots;
+- limit the canonical V2 report to 240 KiB and the serialized MCP result to 255 KiB before the
+  JSON-RPC envelope;
+- return a catalogue error when a summary or indivisible entry cannot fit, rather than truncate it;
+- place the V2 payload once in `structuredContent`, with a short deterministic human status summary
+  in `content`, for this tool only.
+
+The [MCP 2026-07-28 structured-content specification](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#structured-content)
+recommends serialized text duplication with `SHOULD`, rather than requiring it with `MUST`.
+This exception deliberately gives up the JSON text fallback for index-health to avoid duplicating
+the bounded report. Other tools retain the original structured/text equivalence contract, and
+catalogue error handling is unchanged.
+
+The CLI keeps complete V1 `index-health --json` output for compatibility; `--summary --json` and
+`--section … --json` use exactly the shared V2 projection and pagination service. Both supported
+MCP protocol negotiations return V2. Existing clients must migrate from V1 or JSON text parsing to
+the V2 `structuredContent`; text-only hosts receive a basic status summary. An omitted page does
+not claim absent details, and pagination never upgrades blocked or degraded health.
+
+The correction requires regression oracles for a synthetic 1,000-file repository, result byte
+bounds including escaped UTF-8, all detail sections and continuations, stale and invalid cursors,
+oversized indivisible entries, full-report health gates, CLI V1 compatibility and V2 parity, and
+follow-up calls through legacy and 2026 stdio. These bound the delivered result, not repository
+size, indexing work, or total runtime memory. Repository checks and plugin byte parity remain
+required before publication.

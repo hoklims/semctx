@@ -18,6 +18,60 @@ import {
   CONTROL_INDEX_SNAPSHOT_META_KEY,
   PLANE_A_INDEX_SNAPSHOT_META_KEY,
 } from "../src/freshness";
+import { parsePlaneAIndexSnapshot } from "../src/index-health";
+
+function persistedSnapshot(provenance: unknown = undefined) {
+  const hash = `sha256:${"0".repeat(64)}`;
+  const scope = {
+    repositoryIdentity: "repo", sourceStateDigest: hash, selectedPathSetDigest: hash,
+    selectedPaths: ["src/a.ts"], language: "typescript",
+  };
+  const edge = {
+    factType: "edge", ordinal: 0, kind: "calls", from: "a", to: "b",
+    evidence: [], metadata: {}, ...(provenance !== undefined ? { provenance } : {}),
+  };
+  const sidecar = {
+    schemaVersion: 1, scope, producerConfigurationDigest: hash,
+    factSchemaDigest: hash, sourceDigest: hash,
+    capabilityProfiles: [], discoveryLedger: [], producerResults: [],
+    factBatches: [{
+      schemaVersion: 1, batchId: "batch", scope,
+      producer: { identity: "producer", version: "1" },
+      producerConfigurationDigest: hash, factSchemaDigest: hash,
+      sourceDigest: hash, factKinds: ["calls"], capabilityProfileIds: [],
+      evidenceContract: "contract", facts: [edge],
+    }],
+  };
+  const workspace = {
+    schemaVersion: 1, repositoryId: "repo", nodes: [], edges: [],
+    candidates: [], diagnostics: [],
+  };
+  return {
+    schemaVersion: 1, capturedAt: "2026-10-08T00:00:00.000Z",
+    repositoryGraphHash: hash, sidecarDigest: digestCanonical(sidecar),
+    workspaceDigest: digestCanonical(workspace), sidecar, workspace,
+  };
+}
+
+describe("persisted snapshot validation", () => {
+  it("retains accepted extension fields and their bound digest", () => {
+    const snapshot = { ...persistedSnapshot(), extension: { compatible: true } };
+    const parsed = parsePlaneAIndexSnapshot(JSON.stringify(snapshot));
+    expect(parsed).toBeDefined();
+    expect(digestCanonical(parsed)).toBe(digestCanonical(snapshot));
+  });
+
+  it.each([undefined, "authored", "derived"].map((provenance) => ({ provenance })))("accepts valid edge provenance %p", ({ provenance }) => {
+    const snapshot = persistedSnapshot(provenance);
+    const parsed = parsePlaneAIndexSnapshot(JSON.stringify(snapshot));
+    expect(parsed).toBeDefined();
+    expect(digestCanonical(parsed)).toBe(digestCanonical(snapshot));
+  });
+
+  it.each(["unexpected", null, 42, [], {}].map((provenance) => ({ provenance })))("rejects invalid edge provenance %p", ({ provenance }) => {
+    expect(parsePlaneAIndexSnapshot(JSON.stringify(persistedSnapshot(provenance)))).toBeUndefined();
+  });
+});
 
 const roots: string[] = [];
 

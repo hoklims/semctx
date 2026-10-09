@@ -36,7 +36,7 @@ const DOCUMENT_EVIDENCE = [
 }));
 // The disposable fixture binds the source bytes copied for this run. It is not an old
 // execution receipt rebound to current code; the authored repository model stays untouched.
-const TEST_EVIDENCE = {
+const TEST_SOURCE_EVIDENCE = {
   locator: "packages/control-engine/test/l6-l0-refinement-round-trip.test.ts",
   digest: sha256HashBytes(new Uint8Array(readFileSync(join(SOURCE_ROOT, "packages", "control-engine", "test", "l6-l0-refinement-round-trip.test.ts")))),
 };
@@ -53,7 +53,7 @@ const LOAD_BEARING_RELATIONS = [
 ];
 const EXPECTED_VERIFIED_EVIDENCE = ([
   HUNK_ID,
-  TEST_EVIDENCE.digest,
+  TEST_SOURCE_EVIDENCE.digest,
   "sha256:212f92327d1debf6079eba2fcfc0bf6a0ac202427a1516f73bb3413a45e2bbc2",
   "sha256:258e8e1e0efcd327af26a15d3804d975a44868baa030e3058a4314fd1509dcb8",
   "sha256:3b395f70d7f4fd8442befebfa2b55db4bf2c1a202d98bf55074c3e8e2b99dea2",
@@ -112,8 +112,8 @@ describe("public indexed L6-to-L0 round trip", () => {
   it("refuses coverage after the copied test source changes without rebinding fixture evidence", () => {
     const modelPath = join(root, ".semctx", "semantic", "project", "control-plane.sem");
     const modelBytes = readFileSync(modelPath);
-    expect(queryControlGraph(root).payload?.verifiedEvidenceDigests).toContain(TEST_EVIDENCE.digest);
-    const testPath = join(root, ...TEST_EVIDENCE.locator.split("/"));
+    expect(queryControlGraph(root).payload?.verifiedEvidenceDigests).toContain(TEST_SOURCE_EVIDENCE.digest);
+    const testPath = join(root, ...TEST_SOURCE_EVIDENCE.locator.split("/"));
     writeFileSync(testPath, `${readFileSync(testPath, "utf8")}\n// post-index source drift\n`);
     expect(queryControlRefinementCoverage(root, { sourceId: GOAL, targetLevel: 0, direction: "lower" })).toMatchObject({
       terminalStatus: "refused", reasonCodes: ["INDEX_STALE"], payload: null,
@@ -172,6 +172,7 @@ describe("public indexed L6-to-L0 round trip", () => {
     expect(lower.payload?.loadBearingSteps.map((step) => step.relation.id)).toEqual(
       LOAD_BEARING_RELATIONS,
     );
+    expect(lower.payload?.proofs).toEqual([]);
     expect(lower.payload?.advisorySteps.map((step) => step.relation.id)).toEqual([
       "refinement.90.llm-advisory",
       "refinement.91.multilevel-advisory",
@@ -194,6 +195,7 @@ describe("public indexed L6-to-L0 round trip", () => {
       },
     });
     expect(lifted.payload?.visitedCoordinates).toContain(GOAL);
+    expect(lifted.payload?.proofs).toEqual([]);
     expect(lifted.payload?.governingConstraints.map((relation) => relation.id)).toEqual([
       "refinement.07.plane-separation-constraint",
       "refinement.08.fail-closed-constraint",
@@ -310,7 +312,7 @@ function refreshFixtureEvidenceDigests(): void {
   let semanticSource = readFileSync(semanticPath, "utf8");
   for (const { kind, locator, digest } of [
     ...DOCUMENT_EVIDENCE.map((entry) => ({ ...entry, kind: "document_span" })),
-    { ...TEST_EVIDENCE, kind: "test_result" },
+    { ...TEST_SOURCE_EVIDENCE, kind: "document_span" },
   ]) {
     const prefix = `evidenceRef ${kind} ${locator} `;
     const pattern = new RegExp(`^${escapeRegExp(prefix)}sha256:[0-9a-f]{64}$`, "gm");

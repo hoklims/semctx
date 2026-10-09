@@ -193,8 +193,11 @@ or negative completeness. See
 [ADR 0011](../adr/0011-lezer-python-for-first-plane-a-vertical.md).
 
 The Plane-A assembly and workspace projection used by this runtime remain private and provisional.
-`IndexHealthReportV1` is an additive versioned read-only report, but this branch does not freeze a
-public language-adapter API.
+`IndexHealthReportV1` remains the complete CLI `index-health --json` report. The shared
+`IndexHealthReportV2` is a bounded summary with opt-in detail pages: MCP uses V2 by default, and the
+CLI exposes it through `--summary --json` or `--section … --json`. See the
+[index-health reference](cli.md#index-health) for sections, cursors, output limits, and client
+migration. Neither report freezes a public language-adapter API.
 
 ## Blocking rules and severity tiers
 

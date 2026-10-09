@@ -12,6 +12,7 @@ import {
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/server/validators/cf-worker";
 import {
   isSemctxError,
+  SemctxError,
   type SemctxErrorCode,
 } from "@semantic-context/core";
 import { z } from "zod-v4";
@@ -136,6 +137,7 @@ const PUBLIC_INPUT_MAX_DEPTH = 64;
 const PUBLIC_INPUT_MAX_NODES = 100_000;
 const PUBLIC_INPUT_MAX_ARRAY_LENGTH = 50_000;
 const PUBLIC_INPUT_MAX_KEY_LENGTH = 1_024;
+const INDEX_HEALTH_RESULT_MAX_BYTES = 255 * 1024;
 
 type PublicErrorCode =
   | SemctxErrorCode
@@ -158,6 +160,9 @@ const PUBLIC_ERROR_MESSAGES: Record<PublicErrorCode, string> = {
   INTERNAL_ERROR: "The tool could not complete the request",
   INVALID_ARGUMENTS: "Tool arguments are invalid",
   INVALID_OUTPUT: "Tool output did not match its public contract",
+  INDEX_HEALTH_CURSOR_INVALID: "Index health cursor is invalid for this section; restart pagination without a cursor",
+  INDEX_HEALTH_CURSOR_STALE: "Index health changed; restart pagination without a cursor",
+  INDEX_HEALTH_RESPONSE_TOO_LARGE: "Index health summary or detail entry exceeds the response byte limit; use CLI index-health --json for the full report",
   REPOSITORY_ROOT_INVALID: "repository root must be absolute",
   REPOSITORY_ROOT_UNAVAILABLE:
     "repository root does not exist or is not accessible",
@@ -256,7 +261,7 @@ function withStructuredContent(
   const text = result.content.find((item) => item.type === "text");
   let structuredContent = result.structuredContent;
 
-  if (text?.type === "text") {
+  if (text?.type === "text" && !(name === "semctx_index_health" && structuredContent !== undefined)) {
     try {
       structuredContent = JSON.parse(text.text);
     } catch {
@@ -271,7 +276,11 @@ function withStructuredContent(
     throw outputValidationError(validation.error.issues);
   }
 
-  return { ...result, structuredContent };
+  const validatedResult = { ...result, structuredContent };
+  if (name === "semctx_index_health" && Buffer.byteLength(JSON.stringify(validatedResult), "utf8") > INDEX_HEALTH_RESULT_MAX_BYTES) {
+    throw new SemctxError("INDEX_HEALTH_RESPONSE_TOO_LARGE", "Index health MCP result exceeds the response byte limit");
+  }
+  return validatedResult;
 }
 
 export interface ToolRegistrarOptions {

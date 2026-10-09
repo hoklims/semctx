@@ -2,6 +2,7 @@
 export * from "./ids";
 export * from "./errors";
 export * from "./schemas";
+export * from "./repository-schemas";
 export * from "./config-defaults";
 export * from "./verify-report";
 export * from "./change-impact";

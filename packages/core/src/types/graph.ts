@@ -1,48 +1,13 @@
+import type { z } from "zod";
+import type { NodeKindSchema, EdgeKindSchema, EvidenceSourceKindSchema } from "../repository-schemas";
+
 /** Repository graph: nodes, edges, evidence and paths. All structurally derived. */
 
-export type NodeKind =
-  | "repository"
-  | "package"
-  | "module"
-  | "symbol"
-  | "type"
-  | "function"
-  | "class"
-  | "interface"
-  | "enum"
-  | "test"
-  | "migration"
-  | "document"
-  | "contract"
-  | "invariant"
-  | "capability"
-  | "bounded_context"
-  | "decision"
-  | "risk"
-  | "external_integration";
+export type NodeKind = z.infer<typeof NodeKindSchema>;
 
-export type EdgeKind =
-  | "imports"
-  | "exports"
-  | "calls"
-  | "references"
-  | "extends"
-  | "implements"
-  | "declares"
-  | "tested_by"
-  | "covers"
-  | "depends_on"
-  | "belongs_to"
-  | "implements_capability"
-  | "constrained_by"
-  | "verifies"
-  | "documents"
-  | "decides"
-  | "changes"
-  | "contradicts"
-  | "related_to";
+export type EdgeKind = z.infer<typeof EdgeKindSchema>;
 
-export type EvidenceSourceKind = "code" | "test" | "document" | "git" | "runtime" | "manual";
+export type EvidenceSourceKind = z.infer<typeof EvidenceSourceKindSchema>;
 
 /** A precise, checkable pointer into a source of truth. */
 export interface EvidenceRef {

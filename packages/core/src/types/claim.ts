@@ -1,25 +1,11 @@
+import type { z } from "zod";
+import type { ClaimKindSchema, VerificationStatusSchema, QuestionKindSchema } from "../repository-schemas";
+
 /** Verifiable claims and the task-relative authority policies that rank them. */
 
-export type ClaimKind =
-  | "contract"
-  | "invariant"
-  | "decision"
-  | "capability"
-  | "behavior"
-  | "risk"
-  | "ownership"
-  | "deprecation"
-  | "assumption";
+export type ClaimKind = z.infer<typeof ClaimKindSchema>;
 
-export type VerificationStatus =
-  | "unverified"
-  | "inferred"
-  | "documented"
-  | "tested"
-  | "statically_verified"
-  | "runtime_verified"
-  | "contradicted"
-  | "deprecated";
+export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 
 export interface Claim {
   id: string;
@@ -42,14 +28,7 @@ export interface Claim {
   tags: string[];
 }
 
-export type QuestionKind =
-  | "public_api"
-  | "persistence"
-  | "business_rule"
-  | "runtime_behavior"
-  | "historical_reason"
-  | "style"
-  | "security";
+export type QuestionKind = z.infer<typeof QuestionKindSchema>;
 
 /** Declarative rule: which claim kinds/statuses are authoritative for a question. */
 export interface AuthorityPolicy {
