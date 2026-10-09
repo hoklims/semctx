@@ -22,7 +22,7 @@ import { classifyQuestion, policyFor } from "./authority-policies";
 import { detectContradictions } from "./contradiction";
 import { evaluateClaim, type PriorityContext } from "./priority-engine";
 
-const GENERATOR = "semctx@0.1.0";
+const GENERATOR = "semctx@0.4.2";
 
 const CODE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>(["function", "class", "interface", "type", "enum"]);
 const REACHABILITY_EDGES: readonly EdgeKind[] = [

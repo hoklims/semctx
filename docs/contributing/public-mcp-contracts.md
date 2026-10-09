@@ -6,13 +6,21 @@ not supersede it. When in doubt, the ADR wins.
 
 Relevant ADR 0012 invariants (non-exhaustive):
 
-- successful tools return one schema-validated value as both `structuredContent` and JSON text;
+- successful tools return one schema-validated value as both `structuredContent` and JSON text,
+  except for the scoped `semctx_index_health` V2 contract below;
 - **error** responses are catalogue-only (`isError: true`, fixed code + public message, **no**
   `structuredContent`);
 - **a handler cannot publish its own `isError` payload** — such a return is normalized as an
   internal contract failure;
 - effect annotations, catalogue cache, root confinement, trace non-leakage, plugin parity, and
   App visibility rules remain as stated in the ADR.
+
+The index-health corrective amendment in ADR 0012 returns the bounded V2 report once in
+`structuredContent` and a short human status summary in text. This exception is named to that tool
+in `ToolRegistrar`; it does not permit other handlers to bypass JSON text equivalence or output
+validation. Review index-health for global blocked/degraded status preservation, opt-in bounded
+pages, changed-report cursor rejection, and the final serialized-result byte limit. CLI V1 remains
+complete by default; CLI V2 and MCP share the same projection and pagination service.
 
 ## Blast-radius tiers (not Plane A/B/C)
 
@@ -83,7 +91,7 @@ every row.
 ### Common
 - [ ] Diff classified: PUBLIC_CONTRACT / DOMAIN_FEATURE / TRANSPORT_DX (not “Class A/B/C”)
 - [ ] No silent supersession of ADR 0012 (error catalogue, no handler-authored isError body)
-- [ ] Successful results: schema-valid structuredContent + deterministic JSON text
+- [ ] Successful results: schema-valid structuredContent + deterministic JSON text, or the named ADR 0012 index-health V2 summary exception
 - [ ] Catalogue errors: isError true, fixed code/message, no structuredContent
 - [ ] Input gates still fail closed (budget / JSON Schema / Zod) before handler runs
 - [ ] Root confinement / pin policy unchanged unless intentionally scoped + tested

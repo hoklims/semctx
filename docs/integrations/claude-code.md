@@ -153,8 +153,10 @@ automatically.
 1. Use normal repository search and Git inspection first.
 2. Frame the top-down diagnosis and record `HIGHEST_BROKEN_LEVEL`, `WHY_NOT_HIGHER`,
    `WHY_NOT_LOWER`, and `PROOF_PLAN` before substantial edits.
-3. Call `semctx_index_health`; keep binding, index freshness, coverage, candidate outcomes, workspace
-   diagnostics, and reasons separate.
+3. Call `semctx_index_health` and read its bounded V2 summary from `structuredContent`; keep binding,
+   index freshness, coverage, outcome counts, and reasons separate. Candidate outcomes and workspace
+   diagnostics are opt-in `section` pages; follow `nextCursor` rather than assuming the summary is
+   complete.
 4. Resume an exact Control Handoff v2 hash with `semctx_control_resume` when one exists. Use
    `semctx_resume` only for legacy Plane-B Handoff v1 intent; otherwise inspect or slice existing
    authored intent.

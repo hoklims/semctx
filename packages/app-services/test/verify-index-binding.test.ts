@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it } from "bun:test";
+import { Database } from "bun:sqlite";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDefaultConfig } from "@semantic-context/core";
-import { initWorkspace, openStore } from "@semantic-context/repository-store";
+import { dbPath, initWorkspace, openStore } from "@semantic-context/repository-store";
 import { captureRecordableVerificationGitState, indexRepository, runVerify } from "../src";
 import { __setVerifyCaptureBarrierForTesting } from "../src/verify";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY } from "../src/freshness";
@@ -404,10 +405,26 @@ describe("index binding gate", () => {
   // record chain reports it before the seal ever gets a chance to be built.
   it("blocks when the index carries no binding snapshot at all", () => {
     const root = repository();
-    forgeIndexSnapshot(root, () => "");
+    const db = new Database(dbPath(root));
+    try {
+      db.query("DELETE FROM meta WHERE key = ?").run(CONTROL_INDEX_SNAPSHOT_META_KEY);
+    } finally {
+      db.close();
+    }
 
     const reasons = blockingReasons(root);
     expect(reasons).toContain("UNRESOLVED_REFERENCE_CONTROL_SNAPSHOT_ABSENT");
+    expect(reasons).not.toContain("ANALYZED_COMMIT_MISMATCH");
+  });
+
+  it("blocks when the persisted binding snapshot is empty", () => {
+    const root = repository();
+    forgeIndexSnapshot(root, () => "");
+
+    const reasons = blockingReasons(root);
+    expect(reasons).toContain("UNRESOLVED_REFERENCE_CONTROL_SNAPSHOT_INVALID");
+    expect(reasons).toContain("INDEX_SNAPSHOT_INVALID");
+    expect(reasons).not.toContain("UNRESOLVED_REFERENCE_CONTROL_SNAPSHOT_ABSENT");
     expect(reasons).not.toContain("ANALYZED_COMMIT_MISMATCH");
   });
 

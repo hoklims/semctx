@@ -7,6 +7,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { z } from "zod";
 import { compareIds, SemctxError } from "@semantic-context/core";
 import { writeFileNoFollow } from "@semantic-context/repository-store";
 import { SemanticIndex, PROVEN_STATUSES, repositoryLinkToRef } from "@semantic-context/semantic-model";
@@ -16,21 +17,23 @@ import { assertUnlinkedSemanticTree } from "./store";
 
 export const HANDOFF_SCHEMA_VERSION = 1 as const;
 
-export interface HandoffCapsule {
-  version: typeof HANDOFF_SCHEMA_VERSION;
-  createdAt: string;
-  activeChangeId?: string;
-  changeLifecycle?: string;
-  statement?: string;
-  touchedInvariants: string[];
-  proofsObtained: string[];
-  pendingProofs: string[];
-  activeAssumptions: string[];
-  exploredLinks: string[];
-  openUnknowns: string[];
-  nextValidations: string[];
-  note?: string;
-}
+export const HandoffCapsuleSchema = z.object({
+  version: z.literal(HANDOFF_SCHEMA_VERSION).describe("Handoff-capsule schema version."),
+  createdAt: z.string().describe("ISO capture timestamp."),
+  activeChangeId: z.string().optional().describe("Optional active change identifier."),
+  changeLifecycle: z.string().optional().describe("Optional active change lifecycle."),
+  statement: z.string().optional().describe("Optional active change statement."),
+  touchedInvariants: z.array(z.string()).describe("Invariants to preserve."),
+  proofsObtained: z.array(z.string()).describe("Evidence already proven."),
+  pendingProofs: z.array(z.string()).describe("Evidence still pending."),
+  activeAssumptions: z.array(z.string()).describe("Active assumption identifiers."),
+  exploredLinks: z.array(z.string()).describe("Repository links already explored."),
+  openUnknowns: z.array(z.string()).describe("Open unknown identifiers."),
+  nextValidations: z.array(z.string()).describe("Next required validations."),
+  note: z.string().optional().describe("Optional handoff note."),
+}).strict();
+
+export type HandoffCapsule = z.infer<typeof HandoffCapsuleSchema>;
 
 export interface CaptureArgs {
   root: string;
@@ -120,14 +123,8 @@ export function captureHandoff(args: CaptureArgs): HandoffCapsule {
   return capsule;
 }
 
-const REQUIRED_ARRAYS = ["touchedInvariants", "proofsObtained", "pendingProofs", "activeAssumptions", "exploredLinks", "openUnknowns", "nextValidations"] as const;
-
-/** Structural guard at the file boundary: a hand-edited/stale handoff.json must not crash resume. */
 function isHandoffCapsule(value: unknown): value is HandoffCapsule {
-  if (typeof value !== "object" || value === null) return false;
-  const v = value as Record<string, unknown>;
-  if (typeof v["createdAt"] !== "string") return false;
-  return REQUIRED_ARRAYS.every((key) => Array.isArray(v[key]));
+  return HandoffCapsuleSchema.safeParse(value).success;
 }
 
 /** Read a previously captured handoff capsule. Absence is optional; malformed content is not. */
@@ -146,9 +143,10 @@ export function readHandoff(root: string): HandoffCapsule | undefined {
     });
   }
   if (!isHandoffCapsule(parsed)) {
-    throw new SemctxError("CONFIG_INVALID", "handoff capsule is incomplete", {
+    throw new SemctxError("CONFIG_INVALID", "handoff capsule does not match its schema", {
       path,
       reason: "CAPSULE_INVALID",
+      issues: HandoffCapsuleSchema.safeParse(parsed).error?.issues,
     });
   }
   return parsed;

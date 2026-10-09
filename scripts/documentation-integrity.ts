@@ -246,6 +246,18 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
   const version = cliPackage.version;
   const toolCount = registeredToolCount(root);
   const action = `hoklims/semctx/packages/github-action@v${version}`;
+  const actionPackageFile = "packages/github-action/package.json";
+  let actionPackageText = "";
+  try {
+    actionPackageText = readFileSync(resolve(root, actionPackageFile), "utf8");
+    const actionPackage = JSON.parse(actionPackageText) as { version?: unknown } | null;
+    if (actionPackage?.version !== version) {
+      add(problems, actionPackageFile, actionPackageText, 0, `current Action package version must be ${version}`);
+    }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.split("\n", 1)[0] : String(error);
+    add(problems, actionPackageFile, actionPackageText, 0, `cannot read current Action package version: ${detail}`);
+  }
   for (const file of CURRENT_ACTION_FILES) {
     if (!existsSync(resolve(root, file))) {
       add(problems, file, "", 0, "current Action surface is missing; update CURRENT_ACTION_FILES if it moved");

@@ -114,6 +114,9 @@ structural classification, not general language analysis.
 
 Selection is not proof of coverage. `semctx index-health` (and `semctx_index_health` over MCP)
 reports binding, freshness, coverage, candidate outcomes, and producer capabilities separately.
+MCP returns a bounded `IndexHealthReportV2` summary by default, with opt-in detail pages. CLI
+`index-health --json` keeps the complete V1 report; `--summary --json` and `--section … --json`
+use the shared V2 view. See [index-health output and pagination](docs/reference/cli.md#index-health).
 With config v2, `verify diff` blocks when a changed selected scope is missing, disabled,
 unsupported, failed, stale, or invalidly bound; partial Python negative evidence stays an explicit
 warning/unknown rather than becoming a green absence claim.
@@ -464,13 +467,16 @@ authorization tools report whether a transition, step, or deletion is admissible
 execute it.
 
 The server uses the stable MCP 2026-07-28 stdio surface with legacy-serve compatibility. Successful
-calls return the same canonical object as structured content and deterministic JSON text. The
-Control Explorer resource is `ui://semctx/control-explorer-v1.html`; it has no network or write
+calls return the same canonical object as structured content and deterministic JSON text, except
+`semctx_index_health`: its V2 report appears once in `structuredContent`, with a short human text
+summary. Both protocol negotiations use V2; clients must read structured content for machine data.
+The Control Explorer resource is `ui://semctx/control-explorer-v1.html`; it has no network or write
 permission and always displays `executionAuthority: "none"`.
 
-CLI and MCP are thin transports over the same application services, schemas, reason precedence,
-and canonical serialization. The easiest path is the Codex or Claude Code plugin above; to
-register the server directly over stdio:
+CLI and MCP are thin transports over shared application services and reason precedence, with
+versioned schemas and deterministic outputs. Index-health keeps CLI V1 compatibility while sharing
+its opt-in V2 summary and pagination service with MCP. The easiest path is the Codex or Claude Code
+plugin above; to register the server directly over stdio:
 
 ```json
 {

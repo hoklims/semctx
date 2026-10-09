@@ -4,7 +4,7 @@ import {
   controlAgentLifecycleCheckpoint,
   controlAltitudeAuthority,
   controlStatus,
-  indexHealth,
+  indexHealthView,
   planControlMigration,
   queryControlArchitectureComparison,
   queryControlDeletionAuthorization,
@@ -23,7 +23,8 @@ import {
   type StepAuthorizationQueryV1,
   type TransitionAuthorizationQueryV1,
   type TraversalQueryV1,
-  type IndexHealthReportV1,
+  type IndexHealthReportV2,
+  type IndexHealthViewRequest,
 } from "@semantic-context/app-services";
 import type {
   AgentLifecycleCheckpointRequestV1,
@@ -72,8 +73,8 @@ export function controlStatusTool(root: string): ControlFreshnessStatusReport {
   return controlStatus(root);
 }
 
-export function indexHealthTool(root: string): IndexHealthReportV1 {
-  return indexHealth(root);
+export function indexHealthTool(root: string, request: IndexHealthViewRequest = {}): IndexHealthReportV2 {
+  return indexHealthView(root, request);
 }
 
 export function controlTraceTool(root: string, input: ControlTraceInput): TraversalReportV2 {

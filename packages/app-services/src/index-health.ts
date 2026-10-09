@@ -1,16 +1,13 @@
+import type { Claim, EvidenceRecord, RepositoryGraph } from "@semantic-context/core";
 import type { ControlFreshnessStatusReport } from "@semantic-context/control-model";
-import type {
-  Claim,
-  EvidenceRecord,
-  RepositoryGraph,
-} from "@semantic-context/core";
-import { isSemctxError } from "@semantic-context/core";
+import { isSemctxError, NodeKindSchema, EdgeKindSchema, EvidenceRefSchema } from "@semantic-context/core";
 import {
   PLANE_A_REASON_CODES,
   admissibleFor,
   aggregatePlaneAEvaluations,
   digestCanonical,
   evaluatePlaneA,
+  isEdgeProvenance,
   type AnalysisOutcome,
   type DiscoveryLedgerEntry,
   type PlaneAEvaluationDecision,
@@ -237,7 +234,7 @@ function isEvidenceRef(value: unknown): boolean {
   );
 }
 
-function isArtifactScope(value: unknown): boolean {
+function isArtifactScope(value: unknown): value is PlaneASidecarV1["scope"] {
   if (!isRecord(value)) return false;
   return (
     isNonEmptyString(value["repositoryIdentity"])
@@ -250,7 +247,7 @@ function isArtifactScope(value: unknown): boolean {
   );
 }
 
-function isProducerIdentity(value: unknown): boolean {
+function isProducerIdentity(value: unknown): value is PlaneASidecarV1["producerResults"][number]["producer"] {
   return (
     isRecord(value)
     && isNonEmptyString(value["identity"])
@@ -258,7 +255,7 @@ function isProducerIdentity(value: unknown): boolean {
   );
 }
 
-function isPlaneAFact(value: unknown): boolean {
+function isPlaneAFact(value: unknown): value is PlaneASidecarV1["factBatches"][number]["facts"][number] {
   if (
     !isRecord(value)
     || typeof value["ordinal"] !== "number"
@@ -269,7 +266,7 @@ function isPlaneAFact(value: unknown): boolean {
   }
   if (
     !Array.isArray(value["evidence"])
-    || !value["evidence"].every(isEvidenceRef)
+    || !value["evidence"].every((item: unknown) => EvidenceRefSchema.safeParse(item).success)
     || !isMetadata(value["metadata"])
   ) {
     return false;
@@ -277,7 +274,7 @@ function isPlaneAFact(value: unknown): boolean {
   if (value["factType"] === "node") {
     return (
       isNonEmptyString(value["id"])
-      && NODE_KINDS.has(value["kind"] as string)
+      && NodeKindSchema.safeParse(value["kind"]).success
       && isString(value["name"])
       && isOptionalString(value["filePath"])
       && isOptionalString(value["boundedContext"])
@@ -287,15 +284,16 @@ function isPlaneAFact(value: unknown): boolean {
   }
   if (value["factType"] === "edge") {
     return (
-      EDGE_KINDS.has(value["kind"] as string)
+      EdgeKindSchema.safeParse(value["kind"]).success
       && isNonEmptyString(value["from"])
       && isNonEmptyString(value["to"])
+      && (value["provenance"] === undefined || isEdgeProvenance(value["provenance"]))
     );
   }
   return false;
 }
 
-function isCapabilityProfile(value: unknown): boolean {
+function isCapabilityProfile(value: unknown): value is CapabilityProfile {
   if (!isRecord(value)) return false;
   return (
     isNonEmptyString(value["profileId"])
@@ -313,20 +311,20 @@ function isCapabilityProfile(value: unknown): boolean {
   );
 }
 
-function isDiscoveryLedgerEntry(value: unknown): boolean {
+function isDiscoveryLedgerEntry(value: unknown): value is DiscoveryLedgerEntry {
   if (!isRecord(value)) return false;
   return (
     isNonEmptyString(value["candidateIdentity"])
     && isArtifactScope(value["scope"])
     && (value["selectionDecision"] === "selected" || value["selectionDecision"] === "excluded")
-    && ANALYSIS_OUTCOMES.has(value["analysisOutcome"] as AnalysisOutcome)
+    && (typeof value["analysisOutcome"] === "string" && [...ANALYSIS_OUTCOMES].some((outcome) => outcome === value["analysisOutcome"]))
     && isStringArray(value["selectionReasons"])
     && isStringArray(value["analysisReasons"])
     && (value["selectedProducer"] === undefined || isProducerIdentity(value["selectedProducer"]))
   );
 }
 
-function isProducerResult(value: unknown): boolean {
+function isProducerResult(value: unknown): value is PlaneASidecarV1["producerResults"][number] {
   if (!isRecord(value)) return false;
   return (
     isNonEmptyString(value["resultId"])
@@ -337,7 +335,7 @@ function isProducerResult(value: unknown): boolean {
   );
 }
 
-function isFactBatch(value: unknown): boolean {
+function isFactBatch(value: unknown): value is PlaneASidecarV1["factBatches"][number] {
   if (!isRecord(value)) return false;
   return (
     value["schemaVersion"] === 1
@@ -420,9 +418,9 @@ function hasExactAnalyzedCardinality(sidecar: PlaneASidecarV1): boolean {
   });
 }
 
-function isPlaneASidecar(value: unknown): value is PlaneASidecarV1 {
+function isPlaneASidecarShape(value: unknown): value is PlaneASidecarV1 {
   if (!isRecord(value)) return false;
-  const structurallyValid = (
+  return (
     value["schemaVersion"] === 1
     && isArtifactScope(value["scope"])
     && isSha256(value["producerConfigurationDigest"])
@@ -437,8 +435,10 @@ function isPlaneASidecar(value: unknown): value is PlaneASidecarV1 {
     && Array.isArray(value["factBatches"])
     && value["factBatches"].every(isFactBatch)
   );
-  return structurallyValid
-    && hasExactAnalyzedCardinality(value as unknown as PlaneASidecarV1);
+}
+
+function isPlaneASidecar(value: unknown): value is PlaneASidecarV1 {
+  return isPlaneASidecarShape(value) && hasExactAnalyzedCardinality(value);
 }
 
 function isWorkspaceManifestEvidence(value: unknown): boolean {
@@ -581,7 +581,13 @@ export function parsePlaneAIndexSnapshot(
     ) {
       return undefined;
     }
-    return value as unknown as PersistedPlaneAIndexSnapshotV1;
+    return {
+      ...value,
+      schemaVersion: value["schemaVersion"], capturedAt: value["capturedAt"],
+      repositoryGraphHash: value["repositoryGraphHash"], sidecarDigest: value["sidecarDigest"], workspaceDigest: value["workspaceDigest"],
+      ...(value["unresolvedReferenceIndexHash"] !== undefined ? { unresolvedReferenceIndexHash: value["unresolvedReferenceIndexHash"] } : {}),
+      sidecar: value["sidecar"], workspace: value["workspace"],
+    };
   } catch {
     return undefined;
   }
@@ -1022,7 +1028,7 @@ export function indexHealth(root: string): IndexHealthReportV1 {
     if (
       isSemctxError(error)
       && error.code === "STORE_ERROR"
-      && error.message === "invalid persisted control index snapshot"
+      && (error.message === "invalid persisted control index snapshot" || error.message === "invalid persisted repository row")
     ) {
       return invalidBindingReport(freshness, snapshot);
     }

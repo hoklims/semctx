@@ -3,10 +3,9 @@
 import { z } from "zod";
 import {
   AuthoredSemanticLevelSchema,
-  CanonicalRepositoryLinkSchema,
-  REPOSITORY_LINK_KINDS,
   RefinementRelationV1Schema,
-} from "@semantic-context/control-model";
+} from "@semantic-context/control-model/reconciliation";
+import { CanonicalRepositoryLinkSchema, REPOSITORY_LINK_KINDS } from "@semantic-context/control-model/link-resolution";
 
 export const SemanticNodeKindSchema = z.enum([
   "goal",

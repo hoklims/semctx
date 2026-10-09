@@ -296,7 +296,7 @@ describe("gitignore policy", () => {
     const result = computeGitignore(`node_modules/${internalLfRun}.semctx/\n`);
 
     expect(result.content).toBe(
-      `node_modules/${internalLfRun}.semctx/*\n!.semctx/semantic/\n!.semctx/config.json\n`,
+      `node_modules/${internalLfRun}.semctx/*\n!.semctx/semantic/\n!.semctx/semantic/**\n!.semctx/config.json\n`,
     );
   });
 

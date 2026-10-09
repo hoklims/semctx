@@ -29,6 +29,7 @@
  * already replaced. The tree is therefore always entirely migrated or entirely untouched.
  */
 
+import { z } from "zod";
 import { createHash, randomBytes } from "node:crypto";
 import {
   chmodSync,
@@ -486,29 +487,40 @@ function planFile(
   };
 }
 
-type TransactionState =
-  | "BEGIN"
-  | "PREPARED"
-  | "REPLACE_STARTED"
-  | "REPLACED"
-  | "COMMITTED"
-  | "ROLLBACK_STARTED"
-  | "RESTORED"
-  | "ROLLED_BACK";
+const TransactionEntrySchema = z.object({
+  relPath: z.string().refine(isCanonicalSemanticRelPath, "expected a canonical semantic path"),
+  beforeHash: z.string().regex(/^[0-9a-f]{64}$/),
+  afterHash: z.string().regex(/^[0-9a-f]{64}$/),
+  mode: z.number().int(),
+}).strict();
 
-interface TransactionEntry {
-  relPath: string;
-  beforeHash: string;
-  afterHash: string;
-  mode: number;
-}
+const TransactionRecordSchema = z.discriminatedUnion("state", [
+  z.object({
+    state: z.literal("BEGIN"),
+    at: z.string(),
+    transactionId: z.string().min(1),
+    entries: z.never().optional(),
+  }).strict(),
+  z.object({
+    state: z.literal("PREPARED"),
+    at: z.string(),
+    transactionId: z.never().optional(),
+    entries: z.array(TransactionEntrySchema).min(1).refine(
+      (entries) => new Set(entries.map((entry) => entry.relPath)).size === entries.length,
+      "duplicate transaction target",
+    ),
+  }).strict(),
+  z.object({
+    state: z.enum(["REPLACE_STARTED", "REPLACED", "COMMITTED", "ROLLBACK_STARTED", "RESTORED", "ROLLED_BACK"]),
+    at: z.string(),
+    transactionId: z.never().optional(),
+    entries: z.never().optional(),
+  }).strict(),
+]);
 
-interface TransactionRecord {
-  state: TransactionState;
-  at: string;
-  transactionId?: string;
-  entries?: TransactionEntry[];
-}
+type TransactionEntry = z.infer<typeof TransactionEntrySchema>;
+type TransactionRecord = z.infer<typeof TransactionRecordSchema>;
+type TransactionState = TransactionRecord["state"];
 
 const TRANSACTION_DIRECTORY = "anchor-migration-v1";
 const TRANSACTION_ACTIVE = "active";
@@ -738,14 +750,14 @@ function readRecords(
     const line = lines[index]!;
     if (line === "") continue;
     try {
-      const value = JSON.parse(line) as Partial<TransactionRecord>;
-      if (!isTransactionRecord(value)) throw new Error("invalid record");
-      records.push(value as TransactionRecord);
+      const value: unknown = JSON.parse(line);
+      records.push(TransactionRecordSchema.parse(value));
     } catch (error) {
       const isTail = index === lines.length - 1 && !text.endsWith("\n");
       if (isTail) break;
       throw new SemctxError("STORE_ERROR", "anchor migration journal is corrupt", {
         reason: "TRANSACTION_JOURNAL_CORRUPT",
+        path,
         line: index + 1,
         cause: error instanceof Error ? error.message : String(error),
       });
@@ -753,34 +765,6 @@ function readRecords(
   }
   validateRecordSequence(records);
   return records;
-}
-
-const TRANSACTION_STATES = new Set<TransactionState>([
-  "BEGIN", "PREPARED", "REPLACE_STARTED", "REPLACED", "COMMITTED",
-  "ROLLBACK_STARTED", "RESTORED", "ROLLED_BACK",
-]);
-
-function isTransactionEntry(value: unknown): value is TransactionEntry {
-  if (typeof value !== "object" || value === null) return false;
-  const entry = value as Partial<TransactionEntry>;
-  return typeof entry.relPath === "string"
-    && isCanonicalSemanticRelPath(entry.relPath)
-    && /^[0-9a-f]{64}$/.test(entry.beforeHash ?? "")
-    && /^[0-9a-f]{64}$/.test(entry.afterHash ?? "")
-    && Number.isInteger(entry.mode);
-}
-
-function isTransactionRecord(value: Partial<TransactionRecord>): value is TransactionRecord {
-  if (typeof value.state !== "string" || !TRANSACTION_STATES.has(value.state as TransactionState)) return false;
-  if (typeof value.at !== "string") return false;
-  if (value.state === "BEGIN") return typeof value.transactionId === "string" && value.transactionId.length > 0;
-  if (value.state === "PREPARED") {
-    return Array.isArray(value.entries)
-      && value.entries.length > 0
-      && value.entries.every(isTransactionEntry)
-      && new Set(value.entries.map((entry) => entry.relPath)).size === value.entries.length;
-  }
-  return value.entries === undefined && value.transactionId === undefined;
 }
 
 function validateRecordSequence(records: readonly TransactionRecord[]): void {
@@ -968,6 +952,14 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
     try { candidateReal = realpathSync(candidate); } catch (error) {
       if (errorCode(error) === "ENOENT") continue;
       throw error;
+    }
+    if (info.isDirectory() && !info.isSymbolicLink() && candidateReal !== join(canonicalDirectory, name)) {
+      // macOS can resolve an opened directory after another process renames it to active.
+      // Only a vanished original name is benign; a remaining unsafe entry still refuses.
+      try { lstatSync(candidate); } catch (error) {
+        if (errorCode(error) === "ENOENT") continue;
+        throw error;
+      }
     }
     if (info.isSymbolicLink() || !info.isDirectory() || candidateReal !== join(canonicalDirectory, name)) {
       throw new SemctxError("STORE_ERROR", "anchor migration acquisition state is unsafe", {

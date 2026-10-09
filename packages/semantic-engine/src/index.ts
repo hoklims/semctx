@@ -111,7 +111,7 @@ export type {
 export { inspectSemantic } from "./inspect";
 export type { SemanticInspection, IncomingReference } from "./inspect";
 
-export { captureHandoff, buildHandoffCapsule, readHandoff, renderHandoffMarkdown, HANDOFF_SCHEMA_VERSION } from "./handoff";
+export { captureHandoff, buildHandoffCapsule, readHandoff, renderHandoffMarkdown, HandoffCapsuleSchema, HANDOFF_SCHEMA_VERSION } from "./handoff";
 export type { HandoffCapsule, CaptureArgs } from "./handoff";
 
 export { semanticExposure } from "./impact";

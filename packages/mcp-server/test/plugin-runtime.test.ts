@@ -176,9 +176,12 @@ describe("packaged MCP runtime", () => {
       if (!Array.isArray(health.content)) throw new Error("MCP health content must be an array");
       const healthBlock = health.content[0];
       if (healthBlock?.type !== "text") throw new Error("MCP health must contain text");
-      const healthPayload = JSON.parse(healthBlock.text);
-      expect(healthPayload.kind).toBe("index_health");
-      expect(healthPayload.binding.status).toBe("valid");
+      expect(healthBlock.text).toContain("Index health:");
+      expect(health.structuredContent).toMatchObject({
+        schemaVersion: 2,
+        kind: "index_health",
+        binding: { status: "valid" },
+      });
       const response = await client.callTool({
         name: "semctx_verify_change",
         arguments: {

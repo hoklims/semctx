@@ -87,10 +87,10 @@ if (args[0] === "init") {
   mkdirSync(root + "/.semctx", { recursive: true });
   writeFileSync(root + "/.semctx/stub-marker", "initialized");
   if (process.env.SEMCTX_PILOT_TEST_GITIGNORE === "canonical") {
-    writeFileSync(root + "/.gitignore", "node_modules\\n.semctx/*\\n!.semctx/semantic/\\n!.semctx/config.json\\n");
+    writeFileSync(root + "/.gitignore", "node_modules\\n.semctx/*\\n!.semctx/semantic/\\n!.semctx/semantic/**\\n!.semctx/config.json\\n");
   }
   if (process.env.SEMCTX_PILOT_TEST_GITIGNORE === "canonical-missing") {
-    writeFileSync(root + "/.gitignore", ".semctx/*\\n!.semctx/semantic/\\n!.semctx/config.json\\n");
+    writeFileSync(root + "/.gitignore", ".semctx/*\\n!.semctx/semantic/\\n!.semctx/semantic/**\\n!.semctx/config.json\\n");
   }
   if (process.env.SEMCTX_PILOT_TEST_GITIGNORE === "poison") writeFileSync(root + "/.gitignore", "*\\n");
   mutateCheckout("init");

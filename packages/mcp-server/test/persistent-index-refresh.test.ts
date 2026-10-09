@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createGlobSelectionConfig, type SemctxConfigV2 } from "@semantic-context/core";
-import { fingerprintRepositoryFacts, indexHealth, indexRepository, type IndexHealthReportV1 } from "@semantic-context/app-services";
+import { fingerprintRepositoryFacts, indexHealthView, indexRepository, type IndexHealthReportV2 } from "@semantic-context/app-services";
 import { initWorkspace, openReader } from "@semantic-context/repository-store";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
@@ -137,13 +137,15 @@ describe("persistent MCP process observes an out-of-process index rebuild", () =
         const oldMatched = (oldInspect["matchedNodes"] as Array<{ name?: string }> | undefined) ?? [];
         expect(oldMatched.some((node) => node.name === "oldSymbol")).toBe(true);
 
-        const oldHealth = jsonText<IndexHealthReportV1>(await client.callTool({
+        const oldHealthResponse = await client.callTool({
           name: "semctx_index_health",
           arguments: { repositoryRoot: root },
-        }) as TextToolResult);
+        });
+        expect(oldHealthResponse.isError).not.toBe(true);
+        const oldHealth = oldHealthResponse.structuredContent as IndexHealthReportV2;
         expect(oldHealth.capturedAt).toBe(capturedAtOld);
         expect(oldHealth.binding?.status).toBe("valid");
-        expect(oldHealth).toEqual(indexHealth(root));
+        expect(oldHealth).toEqual(indexHealthView(root));
 
         const readerBefore = openReader(root);
         const indexedCommitBefore = readerBefore.getMeta("indexed_commit");
@@ -188,14 +190,16 @@ describe("persistent MCP process observes an out-of-process index rebuild", () =
         const newMatchedNew = (newInspectNew["matchedNodes"] as Array<{ name?: string }> | undefined) ?? [];
         expect(newMatchedNew.some((node) => node.name === "newSymbol")).toBe(true);
 
-        const newHealth = jsonText<IndexHealthReportV1>(await client.callTool({
+        const newHealthResponse = await client.callTool({
           name: "semctx_index_health",
           arguments: { repositoryRoot: root },
-        }) as TextToolResult);
+        });
+        expect(newHealthResponse.isError).not.toBe(true);
+        const newHealth = newHealthResponse.structuredContent as IndexHealthReportV2;
         expect(newHealth.capturedAt).toBe(capturedAtNew);
         expect(newHealth.capturedAt).not.toBe(oldHealth.capturedAt);
         expect(newHealth.binding?.status).toBe("valid");
-        expect(newHealth).toEqual(indexHealth(root));
+        expect(newHealth).toEqual(indexHealthView(root));
         expect(transport.pid).toBe(persistentPid);
       } finally {
         await client.close();

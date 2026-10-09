@@ -1,62 +1,75 @@
 {
-  "version": 1,
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".semctx",
-    ".git",
-    "coverage"
+  "blockingRules": [
+    {
+      "description": "A change touching an invariant-constrained symbol must be covered by a test.",
+      "id": "invariant-needs-test",
+      "severity": "block",
+      "tier": "strict",
+      "when": "invariant_touched_without_test"
+    },
+    {
+      "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
+      "id": "critical-contract-needs-test",
+      "severity": "block",
+      "tier": "strict",
+      "when": "critical_contract_changed_without_test"
+    },
+    {
+      "description": "A security-surface change needs an explicit verification.",
+      "id": "security-needs-verification",
+      "severity": "block",
+      "tier": "strict",
+      "when": "security_surface_without_verification"
+    },
+    {
+      "description": "A change to an exported contract should be covered by a contract test.",
+      "id": "contract-needs-test",
+      "severity": "warn",
+      "tier": "advisory",
+      "when": "contract_changed_without_test"
+    },
+    {
+      "description": "An unresolved contradiction in touched sources should be surfaced.",
+      "id": "contradiction-unresolved",
+      "severity": "warn",
+      "tier": "advisory",
+      "when": "contradiction_unresolved"
+    }
   ],
   "docsDirs": [
     "docs"
   ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.semctx/**",
+    "**/.git/**",
+    "**/.turbo/**",
+    "**/.next/**",
+    "**/.venv/**",
+    "**/__pycache__/**",
+    "**/.ruff_cache/**"
+  ],
+  "include": [
+    "**/*.{ts,tsx,mts,cts,py,md,mdx,sql}"
+  ],
+  "languages": {
+    "markdown": "on",
+    "python": "on",
+    "sql": "on",
+    "typescript": "on"
+  },
   "migrationsDirs": [
     "migrations"
   ],
+  "selectionMode": "globs-v1",
+  "semanticProvider": "none",
   "testGlobs": [
     "**/*.test.ts",
     "**/*.spec.ts",
     "test/**/*.ts"
   ],
-  "semanticProvider": "none",
-  "blockingRules": [
-    {
-      "id": "invariant-needs-test",
-      "description": "A change touching an invariant-constrained symbol must be covered by a test.",
-      "when": "invariant_touched_without_test",
-      "severity": "block",
-      "tier": "strict"
-    },
-    {
-      "id": "critical-contract-needs-test",
-      "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
-      "when": "critical_contract_changed_without_test",
-      "severity": "block",
-      "tier": "strict"
-    },
-    {
-      "id": "security-needs-verification",
-      "description": "A security-surface change needs an explicit verification.",
-      "when": "security_surface_without_verification",
-      "severity": "block",
-      "tier": "strict"
-    },
-    {
-      "id": "contract-needs-test",
-      "description": "A change to an exported contract should be covered by a contract test.",
-      "when": "contract_changed_without_test",
-      "severity": "warn",
-      "tier": "advisory"
-    },
-    {
-      "id": "contradiction-unresolved",
-      "description": "An unresolved contradiction in touched sources should be surfaced.",
-      "when": "contradiction_unresolved",
-      "severity": "warn",
-      "tier": "advisory"
-    }
-  ]
+  "version": 2
 }

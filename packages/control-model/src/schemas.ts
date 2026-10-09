@@ -17,8 +17,9 @@ import {
   UnsupportedCoordinateSourceSchema,
   UnmappedCoordinateSourceSchema,
 } from "./primitive-schemas";
-import type { AuthoredSemanticLevel, ControlFreshnessSeal } from "./types";
+import type { ControlFreshnessSeal } from "./types";
 export {
+  AuthoredSemanticLevelSchema,
   CoordinateCategorySchema,
   CoordinateEdgeSchema,
   CoordinatePlaneSchema,
@@ -34,10 +35,6 @@ export {
   UnmappedCoordinateSourceSchema,
 } from "./primitive-schemas";
 
-export const AuthoredSemanticLevelSchema = SemanticLevelSchema.refine(
-  (level): level is AuthoredSemanticLevel => level > 0,
-  "authored semantics cannot occupy observed L0",
-);
 export const CoordinateNodeSchema = z.object({
   id: QualifiedCoordinateIdSchema,
   plane: CoordinatePlaneSchema,

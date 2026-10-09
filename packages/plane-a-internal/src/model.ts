@@ -63,7 +63,12 @@ export interface NodeFact {
  * A dedicated field rather than a metadata key: metadata is an open bag any producer may write, and
  * the distinction decides whether a missing endpoint is a diagnostic or a fatal assembly error.
  */
-export type EdgeProvenance = "authored" | "derived";
+const EDGE_PROVENANCES = ["authored", "derived"] as const;
+export type EdgeProvenance = (typeof EDGE_PROVENANCES)[number];
+
+export function isEdgeProvenance(value: unknown): value is EdgeProvenance {
+  return EDGE_PROVENANCES.some((provenance) => provenance === value);
+}
 
 export interface EdgeFact {
   factType: "edge";

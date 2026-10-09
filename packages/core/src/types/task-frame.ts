@@ -1,13 +1,9 @@
+import type { z } from "zod";
+import type { TaskModeSchema } from "../schemas";
+
 /** Structured representation of a user task. Produced by a TaskFrameExtractor. */
 
-export type TaskMode =
-  | "bugfix"
-  | "feature"
-  | "refactor"
-  | "audit"
-  | "performance"
-  | "security"
-  | "migration";
+export type TaskMode = z.infer<typeof TaskModeSchema>;
 
 export interface TaskHypothesis {
   id: string;

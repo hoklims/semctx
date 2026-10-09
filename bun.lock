@@ -15,7 +15,7 @@
     },
     "apps/cli": {
       "name": "semctx",
-      "version": "0.4.0",
+      "version": "0.4.2",
       "bin": {
         "semctx": "./dist/index.js",
       },
@@ -37,7 +37,7 @@
     },
     "packages/app-services": {
       "name": "@semantic-context/app-services",
-      "version": "0.4.0",
+      "version": "0.4.2",
       "dependencies": {
         "@semantic-context/context-engine": "workspace:*",
         "@semantic-context/control-engine": "workspace:*",
@@ -124,11 +124,11 @@
     },
     "packages/github-action": {
       "name": "@semantic-context/github-action",
-      "version": "0.1.0",
+      "version": "0.4.2",
     },
     "packages/mcp-server": {
       "name": "@semantic-context/mcp-server",
-      "version": "0.4.0",
+      "version": "0.4.2",
       "bin": {
         "semctx-mcp": "./src/index.ts",
       },

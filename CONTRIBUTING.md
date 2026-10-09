@@ -51,6 +51,29 @@ Stage every intended new file first. The gate rejects any remaining non-ignored 
 that a contributor cannot accidentally omit new source, tests, documentation, or generated output
 from the reviewed change.
 
+### Analyze this repository with HEAD
+
+For repository dogfooding and project-configuration evidence, run the CLI source from this
+checkout. The root `semctx` script runs `bun apps/cli/src/index.ts`; it does not resolve a
+published package or a global binary. From the repository root:
+
+```bash
+bun run semctx index
+bun run semctx status --json
+bun run semctx index-health --json
+bun run semctx semantic check --json
+bun run semctx verify diff --base upstream/main --format json
+bun run semctx change verify change.semctx.project-evidence-config --base upstream/main --format json
+```
+
+Fetch `upstream/main` first, or use the actual integration base ref of your checkout. After a
+rebase invalidates recorded verification evidence, use `bun run semctx index --record` to
+rebuild and verify the working tree. Report freshness, coverage and verification verdicts
+separately; a successful index is not evidence of complete coverage or passing runtime tests.
+Use this same source entrypoint for any project-managed hook that analyzes this repository.
+Published npm packages and pinned consumer Actions remain appropriate for installation,
+release-delivery checks and demos that exercise the packaged consumer journey.
+
 The selected CI gates and `semctx-required` must pass on the exact PR SHA. Targeted local checks
 must state what they cover; they do not count as a full `verify:pr` result. See the
 [public-contract contributor guide](docs/contributing/public-contracts.md) for change tiers,

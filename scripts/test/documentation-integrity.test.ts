@@ -34,6 +34,7 @@ function fixture(): string {
   ]) {
     write(root, path, `${action}\n`);
   }
+  write(root, "packages/github-action/package.json", JSON.stringify({ version }));
   write(root, "README.md", `${action}\n${toolCount} schema-declared tools\n${toolCount} schema-declared tools\n`);
   write(
     root,
@@ -100,6 +101,43 @@ afterEach(() => {
 describe("documentation integrity", () => {
   test("accepts one coherent current release fixture", () => {
     expect(checkDocumentation(fixture())).toEqual([]);
+  });
+
+  test.each([
+    { version: "0.1.0" },
+    { version: "99.0.0" },
+    { version: `v${version}` },
+    { version: null },
+    { version: 42 },
+    {},
+    null,
+    [],
+  ].map((manifest) => JSON.stringify(manifest)))("rejects an Action manifest without the current CLI version: %s", (manifest) => {
+    const root = fixture();
+    write(root, "packages/github-action/package.json", manifest);
+    expect(checkDocumentation(root)).toContainEqual({
+      file: "packages/github-action/package.json",
+      line: 1,
+      message: `current Action package version must be ${version}`,
+    });
+  });
+
+  test("rejects a missing Action manifest", () => {
+    const root = fixture();
+    unlinkSync(join(root, "packages/github-action/package.json"));
+    expect(checkDocumentation(root)).toContainEqual(expect.objectContaining({
+      file: "packages/github-action/package.json",
+      message: expect.stringContaining("cannot read current Action package version:"),
+    }));
+  });
+
+  test("rejects invalid Action manifest JSON even when it contains the current version", () => {
+    const root = fixture();
+    write(root, "packages/github-action/package.json", `{"version":"${version}",}`);
+    expect(checkDocumentation(root)).toContainEqual(expect.objectContaining({
+      file: "packages/github-action/package.json",
+      message: expect.stringContaining("cannot read current Action package version:"),
+    }));
   });
 
   test("accepts candidate evidence before publication but requires release evidence for publication", () => {

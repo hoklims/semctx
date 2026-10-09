@@ -19,13 +19,13 @@ import { join } from "node:path";
 
 const IGNORE_CHILDREN = ".semctx/*";
 const TRACK_SEMANTIC = "!.semctx/semantic/";
+const TRACK_SEMANTIC_DESCENDANTS = "!.semctx/semantic/**";
 const TRACK_CONFIG = "!.semctx/config.json";
 const IGNORE_SEMANTIC_CHILDREN = ".semctx/semantic/*";
 const TRACK_PROJECT = "!.semctx/semantic/project/";
 const TRACK_PROJECT_DESCENDANTS = "!.semctx/semantic/project/**";
 const BLANKET_RE = /^\.semctx\/?$/;
 
-/** Complete project-only semantic + shareable config policy (early-exit when already present). */
 const PROJECT_ONLY_POLICY = [
   IGNORE_CHILDREN,
   TRACK_SEMANTIC,
@@ -40,75 +40,50 @@ export interface GitignoreResult {
   action: "create" | "update" | "present";
 }
 
-function insertAfter(out: string[], marker: string, line: string): void {
-  const at = out.indexOf(marker);
-  if (at >= 0) {
-    out.splice(at + 1, 0, line);
-    return;
-  }
-  out.push(line);
-}
-
 export function computeGitignore(existing: string | undefined): { content: string; changed: boolean } {
   const original = existing ?? "";
   const lines = original.length === 0 ? [] : removeTrailingLf(original).split(/\r?\n/);
-  const trimmedLines = new Set(lines.map((line) => line.trim()));
-  if (PROJECT_ONLY_POLICY.every((line) => trimmedLines.has(line))) {
+  const policyRules = new Set<string>([...PROJECT_ONLY_POLICY, TRACK_SEMANTIC_DESCENDANTS]);
+  const trimmedLines = lines.map((line) => line.trim());
+  const isManagedRule = (line: string): boolean => policyRules.has(line) || BLANKET_RE.test(line);
+  const recognizedRules = trimmedLines.filter(isManagedRule);
+  const effectiveRules = lines
+    .map((line) => line.replace(/\r$/, "").replace(/ +$/, ""))
+    .filter(isManagedRule);
+  // Inactive rules cannot override a usable policy; wholly malformed policies retain their intent.
+  const variantRules = effectiveRules.some(
+    (line) =>
+      line === TRACK_SEMANTIC ||
+      line === IGNORE_SEMANTIC_CHILDREN ||
+      line === TRACK_SEMANTIC_DESCENDANTS ||
+      line === TRACK_PROJECT ||
+      line === TRACK_PROJECT_DESCENDANTS,
+  ) ? effectiveRules : recognizedRules;
+  const lastForeignRule = trimmedLines.findLastIndex(
+    (line) => line.length > 0 && !line.startsWith("#") && !isManagedRule(line),
+  );
+  const firstManagedRule = trimmedLines.findIndex(isManagedRule);
+  const projectOnly =
+    variantRules.lastIndexOf(IGNORE_SEMANTIC_CHILDREN) >
+      variantRules.lastIndexOf(TRACK_SEMANTIC_DESCENDANTS);
+  const policy = projectOnly
+    ? PROJECT_ONLY_POLICY
+    : [IGNORE_CHILDREN, TRACK_SEMANTIC, TRACK_SEMANTIC_DESCENDANTS, TRACK_CONFIG];
+  const semanticRules = recognizedRules.filter((line) => line !== TRACK_CONFIG);
+  const expectedSemanticRules = policy.filter((line) => line !== TRACK_CONFIG);
+  const hasEffectivePolicy =
+    lines.every((line) => !isManagedRule(line.trim()) || line.replace(/\r$/, "") === line.trim()) &&
+    firstManagedRule > lastForeignRule &&
+    recognizedRules.length === policy.length &&
+    semanticRules.length === expectedSemanticRules.length &&
+    semanticRules.every((line, index) => line === expectedSemanticRules[index]) &&
+    recognizedRules.indexOf(TRACK_CONFIG) > recognizedRules.indexOf(IGNORE_CHILDREN);
+  if (hasEffectivePolicy) {
     const content = normalizeTrailing(original);
     return { content, changed: content !== original };
   }
-  const out: string[] = [];
-  let sawIgnore = false;
-  let sawTrack = false;
-  let sawConfig = false;
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (BLANKET_RE.test(trimmed) || trimmed === IGNORE_CHILDREN) {
-      if (!sawIgnore) {
-        out.push(IGNORE_CHILDREN);
-        sawIgnore = true;
-        if (!sawTrack) {
-          out.push(TRACK_SEMANTIC);
-          sawTrack = true;
-        }
-        if (!sawConfig) {
-          out.push(TRACK_CONFIG);
-          sawConfig = true;
-        }
-      }
-      continue;
-    }
-    if (trimmed === TRACK_SEMANTIC) {
-      if (!sawTrack) {
-        out.push(TRACK_SEMANTIC);
-        sawTrack = true;
-      }
-      continue;
-    }
-    if (trimmed === TRACK_CONFIG) {
-      if (!sawConfig) {
-        out.push(TRACK_CONFIG);
-        sawConfig = true;
-      }
-      continue;
-    }
-    out.push(line);
-  }
-  if (!sawIgnore) {
-    out.push(IGNORE_CHILDREN);
-    out.push(TRACK_SEMANTIC);
-    out.push(TRACK_CONFIG);
-  } else {
-    if (!sawTrack) {
-      // ignore rule present but no track rule: insert it right after the ignore rule.
-      insertAfter(out, IGNORE_CHILDREN, TRACK_SEMANTIC);
-    }
-    if (!sawConfig) {
-      // Prefer config re-include immediately after the semantic re-include.
-      // TRACK_SEMANTIC is guaranteed present after the branch above or the loop.
-      insertAfter(out, TRACK_SEMANTIC, TRACK_CONFIG);
-    }
-  }
+  const out = lines.filter((line) => !isManagedRule(line.trim()));
+  out.push(...policy);
   const content = `${out.join("\n")}\n`;
   return { content, changed: content !== normalizeTrailing(original) };
 }

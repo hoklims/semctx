@@ -468,47 +468,57 @@ export function captureGitStateEntries(root: string): { headCommit: string | nul
   return { headCommit, entries };
 }
 
-export function parseIndexedControlSnapshot(value: string | undefined): IndexedControlSnapshot | null {
-  if (value === undefined || value.length === 0) return null;
-  try {
-    const parsed = JSON.parse(value) as Partial<IndexedControlSnapshot>;
-    const isHash = (candidate: unknown): candidate is Sha256Hash =>
-      typeof candidate === "string" && /^sha256:[0-9a-f]{64}$/.test(candidate);
-    if (
-      (parsed.schemaVersion !== 1 && parsed.schemaVersion !== 2)
-      || typeof parsed.capturedAt !== "string"
-      || !Number.isFinite(Date.parse(parsed.capturedAt))
-      || typeof parsed.repositoryRoot !== "string"
-      || parsed.repositoryRoot.length === 0
-      || (parsed.headCommit !== null && typeof parsed.headCommit !== "string")
-      || !isHash(parsed.repositoryGraphHash)
-      || !isHash(parsed.semanticModelHash)
-      || !isHash(parsed.analysisInputHash)
-      || (parsed.workingDiffHash !== null && !isHash(parsed.workingDiffHash))
-      || !Number.isSafeInteger(parsed.storeSchemaVersion)
-      || (parsed.storeSchemaVersion ?? -1) < 0
-      || typeof parsed.toolVersion !== "string"
-      || parsed.toolVersion.length === 0
-      || (
-        parsed.schemaVersion === 2
-        && (
-          !isHash((parsed as Partial<IndexedControlSnapshotV2>).observedHunkIndexHash)
-          || (
-            (parsed as Partial<IndexedControlSnapshotV2>).planeAIndexSnapshotHash !== undefined
-            && !isHash((parsed as Partial<IndexedControlSnapshotV2>).planeAIndexSnapshotHash)
-          )
-          || (
-            (parsed as Partial<IndexedControlSnapshotV2>).attestationSetHash !== null
-            && !isHash((parsed as Partial<IndexedControlSnapshotV2>).attestationSetHash)
-          )
+function isSnapshotRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isIndexedControlSnapshot(value: unknown): value is IndexedControlSnapshot {
+  if (!isSnapshotRecord(value)) return false;
+  const parsed = value;
+  const isHash = (candidate: unknown): candidate is Sha256Hash =>
+    typeof candidate === "string" && /^sha256:[0-9a-f]{64}$/.test(candidate);
+  return !(
+    (parsed["schemaVersion"] !== 1 && parsed["schemaVersion"] !== 2)
+    || typeof parsed["capturedAt"] !== "string"
+    || !Number.isFinite(Date.parse(parsed["capturedAt"]))
+    || typeof parsed["repositoryRoot"] !== "string"
+    || parsed["repositoryRoot"].length === 0
+    || (parsed["headCommit"] !== null && typeof parsed["headCommit"] !== "string")
+    || !isHash(parsed["repositoryGraphHash"])
+    || !isHash(parsed["semanticModelHash"])
+    || !isHash(parsed["analysisInputHash"])
+    || (parsed["workingDiffHash"] !== null && !isHash(parsed["workingDiffHash"]))
+    || typeof parsed["storeSchemaVersion"] !== "number"
+    || !Number.isSafeInteger(parsed["storeSchemaVersion"])
+    || parsed["storeSchemaVersion"] < 0
+    || typeof parsed["toolVersion"] !== "string"
+    || parsed["toolVersion"].length === 0
+    || (
+      parsed["schemaVersion"] === 2
+      && (
+        !isHash(parsed["observedHunkIndexHash"])
+        || (
+          parsed["planeAIndexSnapshotHash"] !== undefined
+          && !isHash(parsed["planeAIndexSnapshotHash"])
+        )
+        || (
+          parsed["attestationSetHash"] !== null
+          && !isHash(parsed["attestationSetHash"])
         )
       )
-    ) {
-      throw new Error("invalid control index snapshot");
-    }
-    return parsed as IndexedControlSnapshot;
+    )
+  );
+}
+
+export function parseIndexedControlSnapshot(value: string | undefined): IndexedControlSnapshot | null {
+  if (value === undefined) return null;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!isIndexedControlSnapshot(parsed)) throw new Error("invalid control index snapshot");
+    return parsed;
   } catch (error) {
     throw new SemctxError("STORE_ERROR", "invalid persisted control index snapshot", {
+      table: "meta", id: CONTROL_INDEX_SNAPSHOT_META_KEY,
       cause: error instanceof Error ? error.message : String(error),
     });
   }

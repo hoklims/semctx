@@ -14,6 +14,7 @@ import {
 import { initWorkspace } from "@semantic-context/repository-store";
 import { newChangeContract, writeActiveChange, writeChangeFile } from "@semantic-context/semantic-engine";
 import { sampleConfig } from "@semantic-context/test-fixtures";
+import { parseIndexedControlSnapshot } from "../src/freshness";
 import * as appServices from "../src";
 import { buildControlFreshnessSeal, captureGitState, controlStatus, fingerprintAnalysisInputs, indexRepository, type IndexedControlSnapshot } from "../src";
 
@@ -529,5 +530,26 @@ describe("preflight verdict on an unprojectable semantic model", () => {
     expect(status.reasons).toEqual(["SEMANTIC_MODEL_INVALID", "SEMANTIC_LIFECYCLE_INVALID"]);
     expect(status.canRunHighRiskControl).toBe(false);
     expect(ControlFreshnessStatusReportSchema.safeParse(status).success).toBe(true);
+  });
+});
+
+describe("persisted control snapshot boundary", () => {
+  for (const raw of ["", "{", "null", "[]", JSON.stringify({ ...indexedSnapshot(buildControlFreshnessSeal(base)), repositoryGraphHash: 1 })]) {
+    it(`rejects malformed snapshot ${raw}`, () => {
+      expect(() => parseIndexedControlSnapshot(raw)).toThrow("invalid persisted control index snapshot");
+      try {
+        parseIndexedControlSnapshot(raw);
+      } catch (error) {
+        expect(error).toMatchObject({ code: "STORE_ERROR", details: { table: "meta", id: "control_index_snapshot_v1" } });
+      }
+    });
+  }
+  it("reads valid v1 and v2 snapshots without coercion", () => {
+    const v1 = indexedSnapshot(buildControlFreshnessSeal(base));
+    const v2 = { ...v1, schemaVersion: 2 as const, observedHunkIndexHash: base.analysisInputHash, attestationSetHash: null };
+    expect(parseIndexedControlSnapshot(undefined)).toBeNull();
+    expect(parseIndexedControlSnapshot(JSON.stringify(v1))).toEqual(v1);
+    expect(parseIndexedControlSnapshot(JSON.stringify(v2))).toEqual(v2);
+    expect(() => parseIndexedControlSnapshot(JSON.stringify({ ...v2, attestationSetHash: "invalid" }))).toThrow();
   });
 });

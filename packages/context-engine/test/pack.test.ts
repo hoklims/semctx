@@ -12,6 +12,7 @@ import {
 import { analyzeAndBuildClaims } from "@semantic-context/app-services";
 import type { ContextPack, RepositoryGraph, TaskFrame } from "@semantic-context/core";
 import { sampleConfig, sampleTaskMarkdown, EXPECTED } from "@semantic-context/test-fixtures";
+import cliPackage from "../../../apps/cli/package.json";
 
 const { analysis, claims } = analyzeAndBuildClaims(sampleConfig());
 const NOW = "2026-01-01T00:00:00.000Z";
@@ -25,6 +26,10 @@ const pack = build();
 const readPaths = pack.recommendedReads.map((r) => r.path);
 
 describe("ContextPack — meets the objective", () => {
+  it("reports the canonical CLI version in its generator metadata", () => {
+    expect(pack.meta.generator).toBe(`semctx@${cliPackage.version}`);
+  });
+
   it("1. surfaces the capability contract (confirmation code)", () => {
     expect(readPaths).toContain("src/domain/confirmation.ts");
     expect(readPaths).toContain("src/app/confirm-reservation-handler.ts");

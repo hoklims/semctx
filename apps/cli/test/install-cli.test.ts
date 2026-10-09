@@ -33,6 +33,7 @@ import {
   type SetupExecution,
 } from "../src/commands/install";
 import {
+  pluginDeliveryStatus,
   readClaudePluginMetadataInventory,
   type CodexPluginMetadataInventory,
   type ClaudePluginMetadataInventory,
@@ -327,6 +328,206 @@ function installWithLockedAdd(options: FakeOptions): ReturnType<typeof fakeRunti
 }
 
 describe("semctx install — no-brain host + repository bootstrap", () => {
+  test.each([["NUL", "\u0000"], ["bidi", "\u202e"]] as const)(
+    "raw locked-cache replacement diagnostics reject %s controls", (_name, control) => {
+      const runtime = installWithLockedAdd({
+        codexPluginsAfter: codexPluginsAfter({}),
+        failError: `failed to back up plugin cache en${control}try (os error 5)`,
+      });
+      const report = executeInstall(CODEX_HOME, parseArgs(["install", "--host", "codex", "--skip-setup"]), runtime);
+      expect(report.ok).toBe(false);
+      expect(report.hosts.codex.status).toBe("failed");
+      expect(report.hosts.codex.error).toContain("the failure is not an active-cache lock");
+      expect(runtime.payloadProbes).toEqual([]);
+      expect(runtime.deferredCacheCleanups).toEqual([]);
+    },
+  );
+
+  test.each([["NUL", "\u0000"], ["bidi", "\u202e"]] as const)(
+    "raw locked-cache removal diagnostics reject %s controls", (_name, control) => {
+      const runtime = fakeRuntime({
+        codexMarketplaces: { marketplaces: [{ name: "personal", marketplaceSource: { sourceType: "git", source: SEMCTX_SOURCE } }] },
+        codexPlugins: { installed: [{ pluginId: "semctx-control@personal", installed: true, enabled: true, version: "0.1.10" }] },
+        failCommand: "codex plugin remove semctx-control@personal --json",
+        failError: `failed to remove existing plugin cache en${control}try (os error 32)`,
+      });
+      const report = executeInstall(CODEX_HOME, parseArgs(["install", "--host", "codex", "--skip-setup"]), runtime);
+      expect(report.ok).toBe(false);
+      expect(report.hosts.codex.status).toBe("failed");
+      expect(runtime.deferredCodexCleanups).toEqual([]);
+    },
+  );
+
+  test.each(["codex", "claude"] as const)("credentialed host metadata in %s versions is redacted", (host) => {
+    const source = "https://user:token@secretSuffix@github.com/hoklims/semctx";
+    const runtime = fakeRuntime({
+      claude: true,
+      codexPluginsAfter: codexPluginsAfter({ version: source }),
+      claudePluginsAfter: [{ id: "semctx@semctx-stable", scope: "user", enabled: true, version: source }],
+    });
+    const report = executeInstall(CODEX_HOME, parseArgs(["install", "--host", host, "--skip-setup"]), runtime);
+    expect(report.ok).toBe(false);
+    expect(report.hosts[host].status).toBe("failed");
+    expect(report.hosts[host].error).toContain("found vhttps://github.com/hoklims/semctx");
+    const output = JSON.stringify(report);
+    expect(output).not.toContain("user:token");
+    expect(output).not.toContain("secretSuffix");
+  });
+
+  test.each([true, false])("credentialed host metadata in detection is redacted for dry-run %s", (dryRun) => {
+    const source = "https://user:token@github.com/hoklims/semctx";
+    const runtime = fakeRuntime({
+      codexPluginsAfter: codexPluginsAfter({}),
+      queryOutcomes: { "codex --version": { code: 0, out: `codex ${source}` } },
+    });
+    const report = executeInstall(CODEX_HOME, parseArgs([
+      "install", "--host", "codex", "--skip-setup", ...(dryRun ? ["--dry-run"] : []),
+    ]), runtime);
+    expect(report.ok).toBe(true);
+    expect(report.hosts.codex.version).toBe("codex https://github.com/hoklims/semctx");
+    expect(JSON.stringify(report)).not.toContain("user:token");
+  });
+
+  test.each(["version", "snapshot"] as const)("credentialed host metadata in locked-cache %s failures is redacted", (field) => {
+    const source = "https://user:token@secretSuffix@github.com/hoklims/semctx";
+    const runtime = installWithLockedAdd({
+      codexPluginsAfter: codexPluginsAfter(field === "version"
+        ? { version: source } : { source: { path: source } }),
+    });
+    const report = executeInstall(CODEX_HOME, parseArgs(["install", "--host", "codex", "--skip-setup"]), runtime);
+    expect(report.ok).toBe(false);
+    expect(report.hosts.codex.status).toBe("failed");
+    expect(report.hosts.codex.error).toContain("https://github.com/hoklims/semctx");
+    expect(runtime.payloadProbes).not.toContain(source);
+    expect(runtime.deferredCacheCleanups).toEqual([]);
+    const output = JSON.stringify(report);
+    expect(output).not.toContain("user:token");
+    expect(output).not.toContain("secretSuffix");
+  });
+
+  test("redacts bounded-size host diagnostics without blocking on non-URL text", () => {
+    const moduleUrl = pathToFileURL(resolve(import.meta.dir,
+      "../../../packages/app-services/src/plugin-delivery.ts")).href;
+    const program = `
+      import { redactUrlUserInfo, PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES } from ${JSON.stringify(moduleUrl)};
+      const prefix = "a".repeat(PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES - 256);
+      const source = "https://user:token@secretSuffix@github.com/hoklims/semctx";
+      const clean = "https://github.com/hoklims/semctx";
+      const result = redactUrlUserInfo(prefix + " failed " + source + "; retry " + source);
+      if (result !== prefix + " failed " + clean + "; retry " + clean) {
+        throw new Error("bounded diagnostic redaction changed text or left credentials");
+      }
+      console.log("complete redaction");
+    `;
+    const child = Bun.spawnSync([process.execPath, "-e", program], {
+      stdout: "pipe", stderr: "pipe", timeout: 10_000, killSignal: "SIGKILL", maxBuffer: 16_384,
+    });
+    expect(child.exitCode).toBe(0);
+    expect(new TextDecoder().decode(child.stdout).trim()).toBe("complete redaction");
+    expect(new TextDecoder().decode(child.stderr)).toBe("");
+  }, 15_000);
+
+  test.each([
+    ["https://user:token@github.com/hoklims/semctx", true, "https://github.com/hoklims/semctx"],
+    ["https://user:token@host/hoklims/semctx", false, "https://host/hoklims/semctx"],
+    ["https://user:token@github.com/someone/else.git", false, "https://github.com/someone/else.git"],
+    ["https://user:token@secretSuffix@github.com/hoklims/semctx", true, "https://github.com/hoklims/semctx"],
+    ["https://user:token@middle@secretSuffix@github.com/hoklims/semctx", true, "https://github.com/hoklims/semctx"],
+    ["https://user%40name:token%3Fpart%23fragment@github.com/hoklims/semctx", true, "https://github.com/hoklims/semctx"],
+    ["https://evil.invalid?@github.com/hoklims/semctx", false, "https://evil.invalid?@github.com/hoklims/semctx"],
+    ["https://evil.invalid#@github.com/hoklims/semctx", false, "https://evil.invalid#@github.com/hoklims/semctx"],
+    ["https://evil.invalid\\@github.com/hoklims/semctx", false, "https://evil.invalid\\@github.com/hoklims/semctx"],
+    ["https://user:token\n@github.com/hoklims/semctx", false, "https://github.com/hoklims/semctx"],
+    ["https://github.com/ho\nklims/semctx", false, "https://github.com/hoklims/semctx"],
+  ] as const)("status and install agree on credentialed marketplace %s", (source, matchesSemctx, displayedSource) => {
+    for (const dryRun of [true, false]) {
+      const runtime = fakeRuntime({
+        codexMarketplaces: {
+          marketplaces: [{
+            name: "semctx-stable",
+            path: join(CODEX_HOME, ".tmp", "marketplaces", "semctx-stable"),
+            marketplaceSource: { sourceType: "git", source },
+            ref: "stable",
+          }],
+        },
+        codexPluginsAfter: codexPluginsAfter({}),
+      });
+      const status = pluginDeliveryStatus({
+        repositoryRoot: CODEX_HOME,
+        version: packageJson.version,
+        hosts: ["codex"],
+      }, {
+        runQuery: (command, cwd) => runtime.run(command, cwd),
+        resolveHostHome: () => CODEX_HOME,
+        readRepositoryChannel: () => ({ commit: null, originIsSemctx: false }),
+        resolvePublicRelease: () => ({
+          authority: "absent", source: null, commit: null, version: null,
+          status: "unknown", reasons: ["PUBLIC_RELEASE_UNAVAILABLE"], bundles: null,
+        }),
+        readMarketplaceSnapshot: () => null,
+        readInstalledPayload: () => null,
+        observeSessionVersion: () => ({ status: "unknown", version: null, reason: null }),
+      });
+      const install = executeInstall(CODEX_HOME, parseArgs([
+        "install", "--host", "codex", "--skip-setup",
+        ...(dryRun ? ["--dry-run"] : []),
+      ]), runtime);
+
+      expect(status.hosts.codex.marketplace.matchesSemctx).toBe(matchesSemctx);
+      expect(install.ok).toBe(matchesSemctx);
+      expect(install.hosts.codex.status).toBe(
+        matchesSemctx ? (dryRun ? "planned" : "installed") : "conflict",
+      );
+      expect(status.hosts.codex.marketplace.source).toBe(displayedSource);
+      const output = JSON.stringify({ status, install });
+      expect(output).not.toContain("user");
+      expect(output).not.toContain("token");
+      expect(output).not.toContain("user:token@");
+      expect(output).not.toContain("secretSuffix");
+      if (!matchesSemctx || dryRun) {
+        expect(runtime.commands.some((command) => command.some((token) =>
+          ["add", "install", "update", "upgrade", "remove", "enable"].includes(token)))).toBe(false);
+      }
+    }
+  });
+
+  test.each((["out", "err"] as const).flatMap((stream) => [
+    "https://user:token@github.com/hoklims/semctx",
+    "https://user:token@secretSuffix@github.com/hoklims/semctx",
+    "https://user:token@middle@secretSuffix@github.com/hoklims/semctx",
+    "https://user%40name:token%3Fpart%23fragment@github.com/hoklims/semctx",
+    "https://user:token\nsecretSuffix@github.com/hoklims/semctx",
+  ].flatMap((source) => ["; retry ", ";"].map((separator) => [stream, source, separator] as const))))(
+    "credentialed marketplace failures redact host %s %s %s", (stream, source, separator) => {
+    const runtime = fakeRuntime({
+      codexMarketplaces: {
+        marketplaces: [{
+          name: "semctx-stable",
+          marketplaceSource: { sourceType: "git", source: "https://user:token@github.com/hoklims/semctx" },
+          ref: "stable",
+        }],
+      },
+      queryOutcomes: {
+        "codex plugin marketplace upgrade semctx-stable --json": {
+          code: 1,
+          [stream]: `failed to fetch ${source}${separator}${source}`,
+        },
+      },
+    });
+    const report = executeInstall(CODEX_HOME,
+      parseArgs(["install", "--host", "codex", "--skip-setup"]), runtime);
+
+    expect(report.ok).toBe(false);
+    expect(report.hosts.codex.status).toBe("failed");
+    expect(report.hosts.codex.error).toBe(
+      `refresh Semctx Codex marketplace: failed to fetch https://github.com/hoklims/semctx${separator}https://github.com/hoklims/semctx`,
+    );
+    const output = JSON.stringify(report);
+    expect(output).not.toContain("user:token@");
+    expect(output).not.toContain("token");
+    expect(output).not.toContain("secretSuffix");
+  });
+
   test("fixture PATH replaces a Windows-style Path key instead of creating an ambiguous duplicate", () => {
     const environment = fixtureEnvironmentWithPath("C:\\fixture-bin", {
       Path: "C:\\system-bin",
@@ -3354,5 +3555,26 @@ process.stdout.write(JSON.stringify({ installed: [{
     expect(existsSync(join(entry("0.1.16"), "dist", "semctx.js"))).toBe(true);
     expect(existsSync(retired)).toBe(false);
     expect(existsSync(join(entry("0.1.17"), "dist", "semctx.js"))).toBe(true);
+  });
+});
+
+describe("Claude inventory JSON boundary", () => {
+  for (const entry of [null, 1, "plugin", []]) {
+    for (const inventory of ["claudeMarketplaces", "claudePlugins"] as const) {
+      test(`rejects ${inventory} entry ${JSON.stringify(entry)} before mutation`, () => {
+        const runtime = fakeRuntime({ codex: false, claude: true, [inventory]: [entry] });
+        const report = executeInstall("C:\\work\\project", parseArgs(["install", "--host", "claude", "--skip-setup"]), runtime);
+        expect(report.ok).toBe(false);
+        expect(report.hosts.claude.status).toBe("failed");
+        expect(report.hosts.claude.error).toContain(inventory === "claudeMarketplaces" ? "cannot inspect Claude marketplaces" : "cannot inspect Claude plugins");
+        expect(runtime.commands.some((command) => command.includes("add") || command.includes("install") || command.includes("enable"))).toBe(false);
+      });
+    }
+  }
+  test("rejects a malformed final inventory through a structured failure", () => {
+    const runtime = fakeRuntime({ codex: false, claude: true, claudePluginsAfter: [null] });
+    const report = executeInstall("C:\\work\\project", parseArgs(["install", "--host", "claude", "--skip-setup"]), runtime);
+    expect(report.ok).toBe(false);
+    expect(report.hosts.claude.error).toContain("cannot inspect final Claude plugin state");
   });
 });

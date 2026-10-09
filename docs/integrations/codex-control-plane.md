@@ -155,9 +155,11 @@ install or upgrade automatically.
 1. Use normal Git/code search to find the implementation surface.
 2. Frame the top-down diagnosis and record `HIGHEST_BROKEN_LEVEL`, `WHY_NOT_HIGHER`,
    `WHY_NOT_LOWER`, and `PROOF_PLAN` before substantial edits.
-3. Call `semctx_index_health`; preserve binding, index freshness, coverage, candidate outcomes, workspace
-   diagnostics, and reasons as separate fields. Do not use a current freshness verdict as proof of
-   complete analysis.
+3. Call `semctx_index_health` and read its bounded V2 summary from `structuredContent`; preserve
+   binding, index freshness, coverage, outcome counts, and reasons as separate fields. Candidate
+   outcomes and workspace diagnostics are opt-in `section` pages; follow `nextCursor` rather than
+   assuming the summary is complete. Do not use a current freshness verdict as proof of complete
+   analysis.
 4. Resume an exact Control Handoff v2 hash with `semctx_control_resume` when one exists. Use
    `semctx_resume` only for legacy Plane-B Handoff v1 intent; otherwise inspect or slice existing
    authored intent with `semctx_semantic_inspect` or `semctx_semantic_slice`.

@@ -404,7 +404,8 @@ function unavailableStatus(error: unknown): ControlFreshnessStatusReport | null 
   if (
     error.code === "STORE_ERROR"
     && (
-      error.message === "invalid persisted control index snapshot"
+      error.message === "invalid persisted repository row"
+      || error.message === "invalid persisted control index snapshot"
       || error.message === "invalid persisted control observed hunk index"
       || error.message === "invalid persisted plane-a unresolved reference index"
     )

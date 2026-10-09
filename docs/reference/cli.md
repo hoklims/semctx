@@ -171,12 +171,46 @@ and reason report without writing repository state.
 
 ```text
 semctx index-health [--json]
+semctx index-health --summary --json
+semctx index-health --section <section> [--limit <1..100>] [--cursor <cursor>] --json
 ```
+
+Without the new view flags, text output and the complete `IndexHealthReportV1` JSON remain unchanged.
+`--summary` and `--section` opt into the shared `IndexHealthReportV2` and require `--json`; they are
+mutually exclusive. `--cursor` and `--limit` require `--section`.
 
 The report keeps `freshness` and `coverage` separate. Coverage is `complete`, `partial`, or
 `insufficient`; it never upgrades the nested control-freshness verdict. Exit 0 requires a valid
 binding, high-risk-capable freshness, and complete coverage. Partial coverage exits 2. Invalid or
 absent binding, freshness that cannot run high-risk control, or insufficient coverage exits 3.
+V2 adds `status` (`healthy`, `degraded`, or `blocked`) from this full-report gate. A selected page
+does not change the gate, including when that page is empty.
+
+V2 retains binding, freshness reasons, coverage counters, reason summaries, evaluation outcome
+counts, and detail totals. The summary has `page: null`, meaning details were not requested;
+`details` still reports their counts. Each detail response includes this same global summary and
+one page with `section`, `total`, `offset`, `returned`, `nextCursor`, and `items`.
+
+Allowed sections are `candidates`, `capabilities`, `evaluations`, `workspace_nodes`,
+`workspace_edges`, `workspace_candidates`, and `workspace_diagnostics`. Pages default to 20 items,
+accept an integer limit from 1 through 100, and can return fewer items to fit the byte budget.
+Continue with the same section and the returned opaque `nextCursor` until it is `null`.
+The cursor binds to the complete report, so any report change produces `INDEX_HEALTH_CURSOR_STALE`;
+restart without a cursor. The shared pagination service reports `INDEX_HEALTH_CURSOR_INVALID`
+for malformed or mismatched tokens. CLI and MCP can reject invalid arguments before calling this
+service, including empty cursor options and MCP cursor strings longer than 1,024 characters.
+
+The current V2 limit is 240 KiB of canonical UTF-8 JSON. An oversized summary or indivisible detail
+entry fails with `INDEX_HEALTH_RESPONSE_TOO_LARGE` instead of silently omitting information; use
+the complete CLI `--json` report to inspect such an entry. The complete V1 report remains unbounded.
+These output limits do not bound indexing work or process memory.
+
+MCP `semctx_index_health` returns V2 by default, and accepts the same `section`, `limit`, and
+`cursor` parameters for details. Its serialized tool result is limited to 255 KiB before the
+JSON-RPC envelope. The V2 report is present only in `structuredContent`; `content` contains a short
+human status summary. Both legacy and 2026-07-28 negotiations use this contract. MCP clients that
+parsed JSON from text must switch
+to `structuredContent` and V2; text-only hosts retain the basic status summary.
 
 ## `migrate config`
 

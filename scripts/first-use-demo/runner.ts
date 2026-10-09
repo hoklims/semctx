@@ -136,7 +136,7 @@ function writeFixtureFiles(root: string, files: ReadonlyMap<string, string>): vo
   }
 }
 
-const GENERATED_GITIGNORE = ".semctx/*\n!.semctx/semantic/\n!.semctx/config.json\n";
+const GENERATED_GITIGNORE = ".semctx/*\n!.semctx/semantic/\n!.semctx/semantic/**\n!.semctx/config.json\n";
 
 interface FixtureSnapshot {
   headCommit: string;

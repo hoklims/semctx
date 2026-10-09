@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type {
+  AuthoredSemanticLevel,
   CoordinateCategory,
   CoordinateEdge,
   CoordinatePlane,
@@ -19,6 +20,10 @@ export const Sha256HashSchema = z.string()
 
 // These casts brand values only after the complete runtime predicate has accepted their bytes.
 export const SemanticLevelSchema = z.number().int().min(0).max(6);
+export const AuthoredSemanticLevelSchema = SemanticLevelSchema.refine(
+  (level): level is AuthoredSemanticLevel => level > 0,
+  "authored semantics cannot occupy observed L0",
+);
 export const CoordinatePlaneSchema = z.enum(["repo", "semantic"]) satisfies z.ZodType<CoordinatePlane>;
 export const RepositoryCoordinateIdSchema = z.string()
   .regex(/^repo:.+$/, "expected repo:<repository-node-id>") as z.ZodType<RepositoryCoordinateId>;

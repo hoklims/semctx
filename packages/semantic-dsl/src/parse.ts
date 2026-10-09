@@ -8,6 +8,7 @@
 
 import {
   DEFAULT_STATUS_BY_KIND,
+  SemanticModelSchema,
   isChangeLifecycle,
   isSemanticNodeKind,
   isSemanticProvenance,
@@ -200,12 +201,65 @@ export function parseSemanticSource(text: string, file: string): ParseResult {
     else nodes.push(finalizeNode(block, file, diagnostics));
   }
 
-  const model = { nodes, changes, refinementRelations: refinement.relations };
+  const model = validateParsedModel({ nodes, changes, refinementRelations: refinement.relations }, blocks, file, diagnostics);
   const compatibility = normalizeLegacySemanticModelV1(model).compatibility;
   return {
     model,
     diagnostics,
     compatibility,
+  };
+}
+
+function validateParsedModel(
+  model: SemanticModel,
+  blocks: RawBlock[],
+  file: string,
+  diagnostics: Diagnostic[],
+): SemanticModel {
+  const result = SemanticModelSchema.safeParse(model);
+  if (result.success) return model;
+  const invalidNodes = new Set<number>();
+  const invalidChanges = new Set<number>();
+  const nodeBlocks = blocks.filter((block) => block.kind !== "change");
+  const changeBlocks = blocks.filter((block) => block.kind === "change");
+  for (const issue of result.error.issues) {
+    const [collection, index, property, itemIndex] = issue.path;
+    const block = typeof index === "number"
+      ? (collection === "nodes" ? nodeBlocks : changeBlocks)[index]
+      : undefined;
+    if (typeof index === "number") {
+      if (collection === "nodes") invalidNodes.add(index);
+      if (collection === "changes") invalidChanges.add(index);
+    }
+    const entity = typeof index === "number"
+      ? (collection === "nodes" ? model.nodes : model.changes)[index]
+      : undefined;
+    const link = typeof itemIndex === "number" ? entity?.repositoryLinks[itemIndex] : undefined;
+    const relation = collection === "nodes" && typeof index === "number" && typeof itemIndex === "number"
+      ? model.nodes[index]?.relations[itemIndex]
+      : undefined;
+    const field = block?.fields.find((field) => {
+      if (property === "repositoryLinks") {
+        if (field.key !== "link" && field.key !== "file") return false;
+        const candidate = repositoryLinkFromRef(field.key === "file" ? `file:${field.value}` : field.value);
+        return candidate.kind === link?.kind && candidate.ref === link.ref;
+      }
+      if (property === "relations") return RELATION_FIELD[field.key] === relation?.kind && field.value === relation?.to;
+      return field.key === property;
+    });
+    diagnostics.push({
+      file,
+      line: field?.line ?? block?.headerLine ?? 1,
+      column: field?.column ?? 1,
+      severity: "error",
+      code: "SEMANTIC_SCHEMA_INVALID",
+      message: `${issue.path.join(".")}: ${issue.message}`,
+    });
+  }
+  return {
+    nodes: model.nodes.filter((_, index) => !invalidNodes.has(index)),
+    changes: model.changes.filter((_, index) => !invalidChanges.has(index)),
+    refinementRelations: model.refinementRelations ?? [],
   };
 }
 

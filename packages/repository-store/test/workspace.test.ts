@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, expectTypeOf, it } from "bun:test";
 import {
   existsSync,
   mkdirSync,
@@ -11,6 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDefaultConfig, createGlobSelectionConfig } from "@semantic-context/core";
+import type { SemctxConfig, SemctxConfigV1, SemctxConfigV2 } from "@semantic-context/core";
 import { initWorkspace, loadConfig, openReader, openStore, saveConfig, toDiskConfig } from "../src/workspace";
 
 const roots: string[] = [];
@@ -24,6 +25,51 @@ function tempRoot(): string {
   roots.push(root);
   return root;
 }
+
+describe("disk config projection types (#243)", () => {
+  it("preserves the v1 variant without repositoryRoot", () => {
+    const policy = toDiskConfig(createDefaultConfig(tempRoot()));
+
+    expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV1, "repositoryRoot">>();
+    expectTypeOf(policy.version).toEqualTypeOf<1>();
+    expectTypeOf(policy).not.toHaveProperty("repositoryRoot");
+    expectTypeOf(policy).not.toHaveProperty("selectionMode");
+    expectTypeOf(policy).not.toHaveProperty("languages");
+  });
+
+  it("preserves the v2 variant without repositoryRoot", () => {
+    const policy = toDiskConfig(createGlobSelectionConfig(tempRoot()));
+
+    expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV2, "repositoryRoot">>();
+    expectTypeOf(policy.version).toEqualTypeOf<2>();
+    expectTypeOf(policy.selectionMode).toEqualTypeOf<"globs-v1">();
+    expectTypeOf(policy.languages).toEqualTypeOf<SemctxConfigV2["languages"]>();
+    expectTypeOf(policy).not.toHaveProperty("repositoryRoot");
+  });
+
+  it("preserves a discriminated v1 | v2 union without repositoryRoot", () => {
+    const root = tempRoot();
+    const configs: SemctxConfig[] = [createDefaultConfig(root), createGlobSelectionConfig(root)];
+
+    for (const config of configs) {
+      const policy = toDiskConfig(config);
+
+      expectTypeOf(policy).toEqualTypeOf<
+        Omit<SemctxConfigV1, "repositoryRoot"> | Omit<SemctxConfigV2, "repositoryRoot">
+      >();
+      expectTypeOf(policy).not.toHaveProperty("repositoryRoot");
+      if (policy.version === 2) {
+        expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV2, "repositoryRoot">>();
+        expectTypeOf(policy.selectionMode).toEqualTypeOf<"globs-v1">();
+        expectTypeOf(policy.languages).toEqualTypeOf<SemctxConfigV2["languages"]>();
+      } else {
+        expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV1, "repositoryRoot">>();
+        expectTypeOf(policy).not.toHaveProperty("selectionMode");
+        expectTypeOf(policy).not.toHaveProperty("languages");
+      }
+    }
+  });
+});
 
 describe("uninitialized workspace refusal", () => {
   it("refuses reader and writer opens without creating .semctx", () => {

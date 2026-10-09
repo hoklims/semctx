@@ -782,6 +782,65 @@ describe("persistent crash recovery", () => {
     expect(existsSync(activeDir(root))).toBe(true);
   });
 
+  it.each([
+    { state: "BEGIN", at: "now", transactionId: "id", entries: "invalid" },
+    { state: "BEGIN", at: "now", transactionId: "id", entries: [] },
+    { state: "PREPARED", at: "now", transactionId: 42, entries: [] },
+  ])("rejects out-of-schema journal fields before restoring authored files: %j", (record) => {
+    const { root } = twoCrashFiles();
+    expect(crashMigration(root, "after-first-replace")).toBe(86);
+    const journal = join(activeDir(root), "journal.ndjson");
+    const lines = readFileSync(journal, "utf8").trimEnd().split("\n");
+    lines[0] = JSON.stringify(record);
+    writeFileSync(journal, `${lines.join("\n")}\n`, "utf8");
+    const beforeA = readFileSync(semanticPath(root, "a.sem"));
+    const beforeB = readFileSync(semanticPath(root, "b.sem"));
+    expect(() => recoverAnchorMigration(root)).toThrow(/journal is corrupt/);
+    expect(readFileSync(semanticPath(root, "a.sem"))).toEqual(beforeA);
+    expect(readFileSync(semanticPath(root, "b.sem"))).toEqual(beforeB);
+    expect(existsSync(activeDir(root))).toBe(true);
+  });
+
+  it.each([null, [], 42, "record", {}, { state: "BEGIN", transactionId: "id" }, { state: "UNKNOWN", at: "now" }].map((value) => ({ value })))("rejects malformed journal records with the journal path and line: %j", ({ value }) => {
+    const { root } = twoCrashFiles();
+    expect(crashMigration(root, "after-first-replace")).toBe(86);
+    const journal = join(activeDir(root), "journal.ndjson");
+    const lines = readFileSync(journal, "utf8").trimEnd().split("\n");
+    lines[0] = JSON.stringify(value);
+    writeFileSync(journal, `${lines.join("\n")}\n`, "utf8");
+    const beforeA = readFileSync(semanticPath(root, "a.sem"));
+    let caught: unknown;
+    try { recoverAnchorMigration(root); } catch (error) { caught = error; }
+    expect(caught).toMatchObject({
+      code: "STORE_ERROR", details: { reason: "TRANSACTION_JOURNAL_CORRUPT", path: journal, line: 1 },
+    });
+    expect(readFileSync(semanticPath(root, "a.sem"))).toEqual(beforeA);
+    expect(existsSync(activeDir(root))).toBe(true);
+  });
+
+  it.each([
+    { beforeHash: ["a".repeat(64)] },
+    { afterHash: ["a".repeat(64)] },
+    { beforeHash: null },
+    { relPath: 42 },
+    { mode: "420" },
+    { mode: 1.5 },
+  ])("rejects malformed prepared entries before restoring authored files: %j", (patch) => {
+    const { root } = twoCrashFiles();
+    expect(crashMigration(root, "after-first-replace")).toBe(86);
+    const journal = join(activeDir(root), "journal.ndjson");
+    const records = readFileSync(journal, "utf8").trimEnd().split("\n").map((line) => JSON.parse(line));
+    const prepared = records.find((record) => record.state === "PREPARED");
+    prepared.entries[0] = { ...prepared.entries[0], ...patch };
+    writeFileSync(journal, `${records.map((record) => JSON.stringify(record)).join("\n")}\n`, "utf8");
+    const beforeA = readFileSync(semanticPath(root, "a.sem"));
+    const beforeB = readFileSync(semanticPath(root, "b.sem"));
+    expect(() => recoverAnchorMigration(root)).toThrow(/journal is corrupt/);
+    expect(readFileSync(semanticPath(root, "a.sem"))).toEqual(beforeA);
+    expect(readFileSync(semanticPath(root, "b.sem"))).toEqual(beforeB);
+    expect(existsSync(activeDir(root))).toBe(true);
+  });
+
   it("fails closed on a third target hash before restoring any sibling", () => {
     const { root } = twoCrashFiles();
     expect(crashMigration(root, "after-first-replace")).toBe(86);
@@ -854,6 +913,63 @@ describe("persistent crash recovery", () => {
 });
 
 describe("exclusive transaction ownership and durability faults", () => {
+  it("recognizes a live transaction published during acquisition path resolution", async () => {
+    const root = repository({
+      "race.sem": invariantFile("invariant.race", ["sym:function:src/a.ts:run:42"]),
+    });
+    const before = read(root, "race.sem");
+    const source = `
+      import * as fs from "node:fs";
+      import { join } from "node:path";
+      import { mock } from "bun:test";
+      const original = { ...fs };
+      const root = process.argv[1];
+      const directory = join(root, ".semctx", "working", "anchor-migration-v1");
+      const candidate = join(directory, "acquire-" + process.pid + "-0123456789abcdef01");
+      const active = join(directory, "active");
+      original.mkdirSync(join(candidate, "blobs"), { recursive: true });
+      original.writeFileSync(join(candidate, "owner.json"), JSON.stringify({
+        pid: process.pid, token: "0123456789abcdef0123456789abcdef",
+      }));
+      let published = false;
+      const realpath = Object.assign((path, ...options) => {
+        if (String(path) === candidate && !published) {
+          published = true;
+          original.renameSync(candidate, active);
+          return original.realpathSync(active, ...options);
+        }
+        return original.realpathSync(path, ...options);
+      }, { native: original.realpathSync.native });
+      // Model macOS resolving an opened descriptor after its directory was renamed.
+      mock.module("node:fs", () => ({
+        ...original, realpathSync: realpath,
+        default: { ...original, realpathSync: realpath },
+      }));
+      const { recoverAnchorMigration } = await import("./packages/semantic-engine/src/index.ts");
+      let reason = null;
+      try { recoverAnchorMigration(root); }
+      catch (error) { reason = error?.details?.reason ?? "UNKNOWN"; }
+      console.log(JSON.stringify({
+        published, reason,
+        candidateAbsent: !original.existsSync(candidate),
+        activePreserved: original.existsSync(active),
+        ownerPreserved: JSON.parse(original.readFileSync(join(active, "owner.json"), "utf8")).pid === process.pid,
+      }));
+    `;
+    const child = Bun.spawn([process.execPath, "-e", source, root], {
+      cwd: process.cwd(), stdout: "pipe", stderr: "pipe",
+    });
+    const [exit, stdout, stderr] = await Promise.all([
+      child.exited, new Response(child.stdout).text(), new Response(child.stderr).text(),
+    ]);
+    expect({ exit, stderr }).toEqual({ exit: 0, stderr: "" });
+    expect(JSON.parse(stdout)).toEqual({
+      published: true, reason: "TRANSACTION_ALREADY_ACTIVE",
+      candidateAbsent: true, activePreserved: true, ownerPreserved: true,
+    });
+    expect(read(root, "race.sem")).toBe(before);
+  });
+
   it("allows only one real subprocess to acquire the active transaction", async () => {
     const root = repository({
       "race.sem": invariantFile("invariant.race", ["sym:function:src/a.ts:run:42"]),

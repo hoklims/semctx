@@ -23,7 +23,7 @@ export {
   evaluatePlaneA,
   normalizeDiscoveryLedgerEntry,
 } from "./evaluation";
-export { PLANE_A_REASON_CODES } from "./model";
+export { PLANE_A_REASON_CODES, isEdgeProvenance } from "./model";
 export { admissibleFor } from "./policy";
 export type {
   PlaneAAdmissibilityDecision,
