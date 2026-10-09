@@ -14,6 +14,8 @@ const mcp = option("--mcp", join(sourceRoot, "plugins/claude-code/dist/semctx-mc
 const pluginCli = option("--plugin-cli", join(sourceRoot, "plugins/claude-code/dist/semctx.js"));
 const output = option("--output-dir", join(sourceRoot, ".omx/qualification/modelo-static"));
 const legacyCli = process.argv.includes("--legacy-cli") ? option("--legacy-cli", cli) : null;
+const regressionCli = process.argv.includes("--regression-cli") ? option("--regression-cli", cli) : null;
+const auditWitnessesOnly = process.argv.includes("--audit-witnesses-only");
 const observations: Record<string, unknown> = {};
 const failures: string[] = [];
 mkdirSync(output, { recursive: true });
@@ -37,6 +39,33 @@ function fixture(name: string, qualified = true, bundle = cli): string {
   git(root, ["add", "-A"]); git(root, ["commit", "-qm", "initialize public analysis policy"]);
   return root;
 }
+function typescriptAuditFixture(name: string, variant: "reexport" | "literal-import" | "inherited-nodenext", bundle: string): string {
+  const root = join(output, `consumer-${name}`);
+  assert(!existsSync(root), `Refusing to overwrite existing consumer ${root}`);
+  mkdirSync(root, { recursive: true });
+  put(root, ".gitignore", ".semctx/\n");
+  put(root, "package.json", JSON.stringify({ name: "public-typescript-audit-consumer", private: true, type: "module" }));
+  put(root, "src/main.ts", "export function main(input: number): number { return input + 1; }\n");
+  put(root, "tsconfig.json", JSON.stringify({ extends: "./configs/base.json", include: ["src/**/*.ts", "hidden.ts"] }));
+  const module = variant === "inherited-nodenext" ? "NodeNext" : "ESNext";
+  const moduleResolution = variant === "inherited-nodenext" ? "NodeNext" : "Bundler";
+  put(root, "configs/base.json", JSON.stringify({ compilerOptions: { strict: true, target: "ES2022", module, moduleResolution, noEmit: true } }));
+  if (variant === "reexport") put(root, "hidden.ts", 'export { main } from "./src/main";\n');
+  if (variant === "literal-import") put(root, "hidden.ts", 'export async function hidden() { return import("./src/main"); }\n');
+  git(root, ["init", "-q"]); git(root, ["add", "-A"]); git(root, ["commit", "-qm", "public TypeScript audit fixture"]);
+  const initialized = semctx(root, ["init"], bundle); assert.equal(initialized.code, 0, initialized.stderr);
+  const configPath = join(root, ".semctx/config.json");
+  const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+  Object.assign(config, { version: 2, selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", languages: { typescript: "on", javascript: "on" }, include: ["**/*.ts"], exclude: ["hidden.ts", "**/node_modules/**", "**/.git/**", "**/.semctx/**"] });
+  writeFileSync(configPath, JSON.stringify(config));
+  git(root, ["add", "-A"]); git(root, ["commit", "-qm", "initialize qualified audit policy"]);
+  const initial = semctx(root, ["index", "--json"], bundle); observations[`${name}:initial-index`] = initial;
+  assert.equal(initial.code, 0, initial.stderr);
+  put(root, "src/main.ts", "export function main(input: number): number { return input + 2; }\n");
+  const refreshed = semctx(root, ["index", "--json"], bundle); observations[`${name}:refreshed-index`] = refreshed;
+  assert.equal(refreshed.code, 0, refreshed.stderr);
+  return root;
+}
 function report(result: Observation): Report { return JSON.parse(result.stdout) as Report; }
 function blocked(result: Observation): void {
   assert.notEqual(result.code, 0, "A gate must receive a nonzero exit when admission is refused");
@@ -49,6 +78,7 @@ function blocked(result: Observation): void {
   }
 }
 async function scenario(name: string, action: () => void | Promise<void>): Promise<void> {
+  if (auditWitnessesOnly && !name.startsWith("audit-")) return;
   try { await action(); observations[`${name}:assertions`] = "passed"; }
   catch (error) { failures.push(name); observations[`${name}:assertions`] = { status: "failed", error: String(error) }; }
   writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, mcp, pluginCli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, observations, failures }, null, 2));
@@ -157,6 +187,33 @@ if (legacyCli) await scenario("legacy-before-matrix", () => {
   }
   observations["legacy-before-matrix:interruption"] = "NO_ATTESTED_LEGACY_PROCESS_INTERRUPTION; see actual candidate process interruption witness separately";
 });
+
+for (const variant of ["reexport", "literal-import", "inherited-nodenext"] as const) {
+  if (regressionCli) await scenario(`audit-before-${variant}`, () => {
+    const label = `audit-before-${variant}`;
+    const root = typescriptAuditFixture(label, variant, regressionCli);
+    const result = verify(root, label, regressionCli);
+    const before = report(result);
+    assert.equal(result.code, 0, "The actual pre-fix package must reproduce the admitted result");
+    assert.equal((before.analysisAdmission as { status: string }).status, "admitted");
+    observations[`${label}:health`] = semctx(root, ["index-health", "--json"], regressionCli);
+  });
+  await scenario(`audit-after-${variant}`, () => {
+    const label = `audit-after-${variant}`;
+    const root = typescriptAuditFixture(label, variant, cli);
+    const result = verify(root, label); blocked(result);
+    const admission = report(result).analysisAdmission as { changeCoverage: { expected: string[]; files: { path: string; status: string; reasons: string[] }[] } };
+    if (variant === "inherited-nodenext") {
+      const serialized = JSON.stringify(admission);
+      assert(serialized.includes("SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:NodeNext"), "Inherited module mode must have an explicit diagnostic");
+      assert(serialized.includes("SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:NodeNext"), "Inherited module resolution must have an explicit diagnostic");
+    } else {
+      assert(admission.changeCoverage.expected.includes("hidden.ts"), "Excluded transitive importer must remain an obligation");
+      const hidden = admission.changeCoverage.files.find((file) => file.path === "hidden.ts");
+      assert(hidden); assert.equal(hidden.status, "excluded"); assert(hidden.reasons.length > 0, "Excluded required importer must retain its reason");
+    }
+  });
+}
 
 await scenario("mixed-transitive-analysis", async () => {
   const root = fixture("mixed");
@@ -274,11 +331,11 @@ await scenario("interrupted-index", async () => {
   assert.notEqual(child.exitCode, 0); blocked(verify(root, "interrupted"));
 });
 await scenario("artifact-identities", () => {
-  observations["artifacts"] = [cli, mcp, pluginCli].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
+  observations["artifacts"] = [...new Set([cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : [])])].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
   observations["source-commit"] = run(["git", "rev-parse", "HEAD"], sourceRoot);
   observations["source-status"] = run(["git", "status", "--porcelain"], sourceRoot);
 });
 observations["runtime-obligations"] = { testExecution: observations["consumer:tests"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", turboCache: observations["consumer:turbo-hit"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", failurePropagation: observations["consumer:failed-build"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", pipeline: "SYNTHETIC_ONLY_REAL_CONSUMER_NOT_QUALIFIED", consumerToolPins: observations["consumer:install"] ? "SEE_RAW_OBSERVATION" : "DECLARED_ONLY" };
-writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", qualified: failures.length === 0 && legacyCli !== null, legacyWitnessObserved: legacyCli !== null, failures, observations }, null, 2));
+writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", scope: auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !auditWitnessesOnly && failures.length === 0 && legacyCli !== null && regressionCli !== null, legacyWitnessObserved: !auditWitnessesOnly && legacyCli !== null, regressionWitnessObserved: regressionCli !== null, failures, observations }, null, 2));
 console.log(JSON.stringify({ profile: "modelo-suite-static-v1", failures, report: join(output, "qualification.json") }));
-process.exitCode = failures.length === 0 && legacyCli !== null ? 0 : 1;
+process.exitCode = failures.length === 0 && regressionCli !== null && (auditWitnessesOnly || legacyCli !== null) ? 0 : 1;
