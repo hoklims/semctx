@@ -558,6 +558,7 @@ MCP tools or the hooks — reindexes or seals.
 | Reason | Meaning | Remedy |
 | --- | --- | --- |
 | `SEMANTIC_LIFECYCLE_INVALID` / `EVIDENCE_BASELINE_STALE` | the recorded verification baseline no longer matches the analysed content | `semctx index --record` |
+| `SEMANTIC_LIFECYCLE_INVALID` / `EVIDENCE_BASELINE_INVALID` | the recorded verification baseline is malformed | none (`remedy: null`): indexing refuses to seal while it stands; repair `.semctx/verification-state.json` by hand |
 | `SEMANTIC_LIFECYCLE_INVALID` / `ACTIVE_CHANGE_*` | the active-change pointer or a non-terminal contract is inconsistent | `semctx semantic check` |
 | `INDEX_SNAPSHOT_MISSING`, `REPOSITORY_NOT_INDEXED`, `INDEX_SNAPSHOT_INVALID` | no usable seal exists | `semctx index --record` |
 | `HEAD_MISMATCH`, `ANALYSIS_INPUT_MISMATCH`, `WORKING_DIFF_MISMATCH`, other `*_MISMATCH` (`STALE`) | the repository moved since sealing | `semctx index --record` at the new checkpoint |

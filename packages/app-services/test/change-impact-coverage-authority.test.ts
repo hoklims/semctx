@@ -261,6 +261,20 @@ describe("impact diff — single-authority invariant", () => {
     expect(authority?.occurrences.map((occurrence) => occurrence.file)).not.toContain("build/trust.json");
   });
 
+  it("names a declaration the change removes instead of dropping its check silently", () => {
+    const root = repository();
+    git(root, "add", "-f", ".semctx/semantic/invariants.sem");
+    git(root, "commit", "-qm", "version the declaration");
+    write(root, ".semctx/semantic/invariants.sem", invariant([]));
+    edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");
+    const report = analyse(root);
+    expect(report.authorityInvariants).toEqual([]);
+    expect(report.unresolved.find((gap) => gap.code === "AUTHORITY_DECLARATION_REMOVED")).toMatchObject({
+      nodeId: "invariant.trust-policy.single-source",
+      affects: "claims",
+    });
+  });
+
   it("rejects a declaration whose source names no file", () => {
     const root = repository(invariant([`authority.value=${DIGEST}`, "authority.source="]));
     edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");

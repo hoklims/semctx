@@ -118,8 +118,10 @@ stored in another encoding (UTF-16, for example) is not seen. For a
 working-tree or staged change, a worktree or index that moves during the search voids the result
 (`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`); on every source, a range included, so
 does an authored model whose declarations changed before the analysis ended. Text output lists each
-exposed invariant with its status and the current-side copies. It is a textual fact, not a verdict:
-deciding whether a copy is acceptable stays with the consumer.
+exposed invariant with its status and the current-side copies. A declaration that a changed `.sem`
+file held on the old side and that the current model no longer makes is reported as
+`AUTHORITY_DECLARATION_REMOVED`, so removing a check is never silent. It is a textual fact, not a
+verdict: deciding whether a copy is acceptable stays with the consumer.
 
 ## How a change is classified
 
@@ -222,7 +224,8 @@ crossed, so their distance is not bounded by `maxDistance`.
 | `SEMANTIC_LINK_NOT_POSITIONAL` | claims | an authored link to a claim or evidence record, which has no code position |
 | `SEMANTIC_INVARIANT_UNANCHORED` | claims | an authored invariant with no repository link: its exposure is unknown |
 | `AUTHORITY_DECLARATION_INVALID` | claims | an `authority.*` declaration that is incomplete, has an empty source, is on a non-invariant, is too short, or retires its own value |
-| `AUTHORITY_SCAN_FAILED` | claims | a diff side could not be searched for an authority value; its occurrences are unknown |
+| `AUTHORITY_DECLARATION_REMOVED` | claims | the change removes a single-authority declaration from a `.sem` file; its copies are no longer checked |
+| `AUTHORITY_SCAN_FAILED` | claims | a diff side could not be searched for an authority value, or a changed `.sem` file could not be read on the old side |
 | `AUTHORITY_SCAN_UNSTABLE` | claims | the worktree, the Git index or the authored declarations changed while authority values were searched; `authorityInvariants` is `null` |
 | `POSSIBLE_TIER_TRUNCATED` | none | possible targets omitted after `maxTargets` (surfaces then read `unknown`) |
 | `ADDED_PATH_NOT_INDEXED` | none | an added file the old-side index cannot describe; no indexed edge points to it |

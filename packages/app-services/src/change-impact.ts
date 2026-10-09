@@ -48,7 +48,7 @@ import {
   parseIndexedControlSnapshot,
   type GitStateEntry,
 } from "./freshness";
-import { evaluateAuthorityInvariants } from "./authority-invariants";
+import { evaluateAuthorityInvariants, removedAuthorityDeclarations } from "./authority-invariants";
 import { withFileCoverage } from "./file-coverage";
 import { parsePlaneAIndexSnapshot } from "./index-health";
 import { observeIndexBinding, resolveSource } from "./verify";
@@ -447,7 +447,9 @@ function authorityInvariants(
   }
   const modelHash = usableModelHash(loaded);
   if (modelHash === null) return { impacts: null, gaps: [], modelHash: null };
-  return { ...evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths), modelHash };
+  const evaluated = evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths);
+  const removed = removedAuthorityDeclarations(root, loaded.model, revisions.old, changedPaths);
+  return { impacts: evaluated.impacts, gaps: [...evaluated.gaps, ...removed], modelHash };
 }
 
 /** The usable authored model's fingerprint as a fresh reader sees it now; null when it is not usable. */

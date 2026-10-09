@@ -8,6 +8,7 @@
  */
 
 import { compareIds, type AuthorityInvariantImpact, type UnresolvedImpact } from "@semantic-context/core";
+import { parseSemanticSource } from "@semantic-context/semantic-engine/reconciliation-read";
 import type { SemanticModel, SemanticNode } from "@semantic-context/semantic-model/reconciliation-read";
 
 export const AUTHORITY_VALUE_KEY = "authority.value";
@@ -107,6 +108,51 @@ function declarations(model: SemanticModel): { valid: AuthorityDeclaration[]; ga
     valid.push({ node, value: value!, source: source!, retired });
   }
   return { valid, gaps };
+}
+
+/** Authored `.sem` files live here, Git-versioned; a change can add, edit or delete them. */
+const SEMANTIC_DIRECTORY = ".semctx/semantic/";
+
+function declaresAuthority(node: SemanticNode): boolean {
+  const metadata = node.metadata ?? {};
+  return metadata[AUTHORITY_VALUE_KEY] !== undefined || metadata[AUTHORITY_SOURCE_KEY] !== undefined;
+}
+
+/**
+ * Declarations a changed `.sem` file held on the old side that the current model no longer makes.
+ * The scan reads only current declarations, so a change that deletes one would otherwise drop its
+ * check without a trace — possibly alongside new copies of its value.
+ */
+export function removedAuthorityDeclarations(
+  root: string,
+  model: SemanticModel,
+  oldRevision: string,
+  changedPaths: ReadonlySet<string>,
+): UnresolvedImpact[] {
+  const declaringNow = new Set(model.nodes.filter(declaresAuthority).map((node) => node.id));
+  const gaps: UnresolvedImpact[] = [];
+  for (const path of [...changedPaths].sort(compareIds)) {
+    if (!path.startsWith(SEMANTIC_DIRECTORY) || !path.endsWith(".sem")) continue;
+    const listed = git(root, ["ls-tree", "-z", "--name-only", oldRevision, "--", path]);
+    if (listed.code !== 0 || listed.out.length === 0) continue; // added by the change: nothing to remove
+    const blob = git(root, ["cat-file", "blob", `${oldRevision}:./${path}`]);
+    if (blob.code !== 0) {
+      gaps.push({ code: "AUTHORITY_SCAN_FAILED", scope: "run", detail: `${path} could not be read on the old side; declarations it removes are unknown`, affects: "claims" });
+      continue;
+    }
+    for (const node of parseSemanticSource(blob.out, path).model.nodes) {
+      if (!declaresAuthority(node) || declaringNow.has(node.id)) continue;
+      const value = node.metadata?.[AUTHORITY_VALUE_KEY];
+      gaps.push({
+        code: "AUTHORITY_DECLARATION_REMOVED",
+        scope: "node",
+        nodeId: node.id,
+        detail: `the change removes this single-authority declaration${value === undefined ? "" : ` of ${value}`}; its copies are no longer checked`,
+        affects: "claims",
+      });
+    }
+  }
+  return gaps;
 }
 
 /**

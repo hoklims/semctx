@@ -10,9 +10,10 @@ import {
 /** The one documented way to refresh and seal the index at a checkpoint (docs/reference/cli.md, `status`). */
 export const SEAL_COMMAND = "semctx index --record";
 
-const LIFECYCLE_REMEDY: Record<string, string> = {
+/** `null`: no command repairs the cause; indexing itself refuses to seal while it stands. */
+const LIFECYCLE_REMEDY: Record<string, string | null> = {
   EVIDENCE_BASELINE_STALE: SEAL_COMMAND,
-  EVIDENCE_BASELINE_INVALID: SEAL_COMMAND,
+  EVIDENCE_BASELINE_INVALID: null,
   EVIDENCE_BASELINE_SUPERSEDED: "semctx verify diff --record",
   ACTIVE_CHANGE_POINTER_INVALID: "semctx semantic check",
   ACTIVE_CHANGE_POINTER_MISSING: "semctx semantic check",
@@ -136,7 +137,7 @@ export function explainControlStatus(status: ControlFreshnessStatusReport, failu
       const findings = lifecycleFindings(details);
       for (const finding of findings) {
         const subjects = finding.subjectIds !== undefined && finding.subjectIds.length > 0 ? ` (${finding.subjectIds.join(", ")})` : "";
-        explanation.push({ reason, code: finding.code, detail: `${finding.message}${subjects}`, remedy: LIFECYCLE_REMEDY[finding.code] ?? "semctx semantic check" });
+        explanation.push({ reason, code: finding.code, detail: `${finding.message}${subjects}`, remedy: Object.hasOwn(LIFECYCLE_REMEDY, finding.code) ? LIFECYCLE_REMEDY[finding.code]! : "semctx semantic check" });
       }
       if (findings.length > 0) continue;
     }
