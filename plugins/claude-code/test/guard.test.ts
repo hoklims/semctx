@@ -734,6 +734,36 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 
+  it.skipIf(process.platform === "win32")("terminates a verifier that ignores SIGTERM", async () => {
+    const { root } = await isolatedRecoveryFixture();
+    try {
+      const hookUrl = pathToFileURL(join(root, "hooks", "guard.mjs")).href;
+      const probe = `
+        import { writeFileSync, chmodSync, mkdirSync } from "node:fs";
+        import { join } from "node:path";
+        import { verifyRecordCommand } from ${JSON.stringify(hookUrl)};
+        const root = ${JSON.stringify(root)};
+        const bin = join(root, "native-bin");
+        mkdirSync(bin);
+        const candidate = join(bin, "semctx");
+        writeFileSync(candidate, "#!" + process.execPath + "\\nprocess.on('SIGTERM',()=>{}); setTimeout(()=>process.exit(0),6000);\\n");
+        chmodSync(candidate, 0o755);
+        const start = performance.now();
+        const diagnostic = verifyRecordCommand({ PATH: bin }, undefined, root);
+        console.log(JSON.stringify({ elapsed: performance.now() - start, diagnostic }));
+      `;
+      // A separate Node process exercises the production runtime, with its own hard stop.
+      const result = spawnSync("node", ["--input-type=module", "-e", probe], {
+        encoding: "utf8", timeout: 10000, killSignal: "SIGKILL",
+      });
+      expect(result.status).toBe(0);
+      const observed = JSON.parse(result.stdout);
+      expect(observed.diagnostic).toContain("ETIMEDOUT");
+      expect(observed.diagnostic).not.toContain("verify diff --record");
+      expect(observed.elapsed).toBeLessThan(3000);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
   it("enforces the one-second and 64KiB candidate probe limits with real processes", async () => {
     const { root, guard, env } = await isolatedRecoveryFixture();
     try {

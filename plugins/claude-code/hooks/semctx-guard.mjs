@@ -1408,7 +1408,7 @@ export function verifyRecordCommand(env = process.env, exists = existsSync, targ
     // interpreting a shell command with an unbounded wrapper or accepting existence as proof.
     if (/\.(cmd|bat)$/i.test(executable)) { diagnostics.push(`${executable}: unsupported Windows wrapper`); return false; }
     const result = spawnSync(executable, [...args, "--version"], {
-      cwd: ownRoot, env, encoding: "utf8", shell: false, timeout: 1000, maxBuffer: 64 * 1024, windowsHide: true,
+      cwd: ownRoot, env, encoding: "utf8", shell: false, timeout: 1000, killSignal: "SIGKILL", maxBuffer: 64 * 1024, windowsHide: true,
     });
     const version = String(result.stdout ?? "").trim();
     if (!result.error && result.status === 0 && SEMVER.test(version) && version === required) return true;
@@ -1839,6 +1839,17 @@ export function captureVerificationGitState(cwd) {
   };
 }
 
+/** Per-call environment overrides must not select or inject code into recovery probes. */
+function verifierEnvironment(env, overriddenEnvKeys) {
+  if (overriddenEnvKeys.length === 0) return env;
+  const normalize = (name) => process.platform === "win32" ? name.toUpperCase() : name;
+  const overridden = new Set(overriddenEnvKeys.map(normalize));
+  return {
+    ...Object.fromEntries(Object.entries(env).filter(([name]) => !overridden.has(normalize(name)))),
+    ...Object.fromEntries(Object.entries(process.env).filter(([name]) => overridden.has(normalize(name)))),
+  };
+}
+
 /**
  * Evaluate the ADR 0007 guard for one Bash invocation, independent of the calling host's hook
  * envelope. Claude Code's `main()` below and the OMP `omp/semctx-guard.ts` adapter both call this
@@ -1902,7 +1913,7 @@ export function evaluateGuard({ command, cwd, sessionCwd, env, overriddenEnvKeys
   } catch {
     // Git could not establish a repository root; keep recovery diagnostic-only.
   }
-  const recovery = verifyRecordCommand(effectiveEnv, existsSync, repairRoot);
+  const recovery = verifyRecordCommand(verifierEnvironment(effectiveEnv, overriddenEnvKeys), existsSync, repairRoot);
   const reason = recovery.startsWith("Recovery unavailable:")
     ? decision.reason.replace(/(?:Run|Re-run|re-run):\n {2}__SEMCTX_RECOVERY__/, () => recovery)
     : decision.reason.replace(recoveryPlaceholder, () => recovery);

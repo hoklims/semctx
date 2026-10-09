@@ -128,7 +128,10 @@ authorize a terminal Git operation.
 ## Recovery command compatibility
 
 A blocked operation that requires a new record may suggest a verifier only after a bounded
-`--version` probe (one second and 64 KiB per candidate, without shell evaluation). Its exact
+`--version` probe (one second and 64 KiB per candidate, without shell evaluation).
+Probes use non-catchable termination so a verifier cannot extend the probe by handling `SIGTERM`.
+Recovery probes restore every per-call environment override from the hook process environment,
+so caller-supplied plugin roots and loader settings cannot select or inject probe code. The reported
 Semver must match the manifest adjacent to this hook; environment-declared plugin roots and
 installed global CLIs cannot define that required version. Candidates are the declared bundle,
 the hook's own bundle, then absolute PATH-resolved global executables. Empty and relative PATH
