@@ -58,6 +58,9 @@ settings, including inherited NodeNext/Node16 or CommonJS, remain outside qualif
 produce `SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:<name>` or
 `SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:<name>`; hashing the configuration cannot
 substitute for honoring or refusing its semantics.
+Scope reconstruction also refuses CommonJS loading, including a literal `require()` or
+external `import = require()` in an excluded source. Such an importer cannot disappear
+from the dependency obligation merely because it is outside the configured selector.
 
 ## Reproduction and validation
 

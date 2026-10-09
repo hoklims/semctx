@@ -23,6 +23,7 @@ including renames and deletions, then closes over statically extracted imports, 
 calls and dependency relations. Discovery outside configured selectors detects excluded
 importers. Static reexports and literal dynamic imports also contribute to the closure
 when the repository contains only TypeScript. Parse failure, unreadable sources,
+CommonJS loading (including literal `require()` and external `import = require()`),
 unresolved non-external imports and computed imports that could conceal
 an inbound dependency prevent admission. Exclusions remain visible and never discharge
 an obligated source. Unknown configuration/runtime semantics and deleted post-images
