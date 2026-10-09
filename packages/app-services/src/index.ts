@@ -1,4 +1,6 @@
 export { analyzeAndBuildClaims, indexRepository, indexRepositoryAsync } from "./indexing";
+export { isExactSetupScopeInclude, isSetupScopeDisplayPath, projectSetupScope, SETUP_SCOPE_LIMITS } from "./setup-scope";
+export type { SetupScopeCounts, SetupScopeReasonCount, SetupScopeReport, SetupScopeRoot } from "./setup-scope";
 export { controlAgentLifecycleCheckpoint } from "./agent-lifecycle";
 export { captureControlHandoffV2, resumeControlHandoffV2 } from "./control-handoff";
 export { probeCliCompatibility } from "./cli-compatibility";

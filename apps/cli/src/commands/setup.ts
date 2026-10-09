@@ -6,6 +6,7 @@ import {
   type SetupPhaseEvent,
   type SetupRefusedReport,
   type SetupResult,
+  type SetupScopeReport,
 } from "@semantic-context/app-services";
 import { isSemctxError } from "@semantic-context/core";
 import { isInitialized, loadConfig } from "@semantic-context/repository-store";
@@ -120,6 +121,7 @@ function renderSetupPlan(report: RenderableSetupPlan, prepared: PreparedCliSetup
     info(c.dim(`  config    ${report.config.action}`));
     info(c.dim(`  semantic  ${report.plannedChanges.length} tracked change(s)`));
     info(c.dim("  index     not run (dry-run)"));
+    renderSetupScope(report.scope);
     success("setup plan is ready; nothing written");
   }
   return report.kind === "setup_refused" ? 1 : 0;
@@ -273,6 +275,7 @@ function renderSetup(report: SetupResult, prepared: PreparedCliSetup): number {
   }
 
   info("");
+  renderSetupScope(report.scope);
   if (report.parallelism !== undefined) {
     info(c.dim(`TypeScript analysis: ${report.parallelism.used} worker(s), ${report.parallelism.mode}`));
   }
@@ -315,4 +318,22 @@ function renderSetup(report: SetupResult, prepared: PreparedCliSetup): number {
     }
   }
   return report.setupReady ? 0 : 1;
+}
+
+function renderSetupScope(scope: SetupScopeReport | undefined): void {
+  if (scope === undefined) return;
+  info(`  scope     observed TS/Python: ${scope.counts.selected} selected, ${scope.counts.excluded} excluded, ${scope.counts.unavailable} unavailable`);
+  for (const row of scope.roots) {
+    if (row.counts.excluded === 0 && row.counts.unavailable === 0) continue;
+    info(`    ${row.root}: ${row.counts.excluded} excluded, ${row.counts.unavailable} unavailable (${row.reasonCounts.map((entry) => `${entry.reason}:${entry.count}`).join(", ")})`);
+  }
+  if (scope.rootsOmitted > 0) info(`    ${scope.rootsOmitted} observed root(s) omitted from display`);
+  if (scope.proposedIncludes.length > 0) {
+    info("  Proposed exact includes: explicitly add desired entries to .semctx/config.json; existing excludes and language gates still apply.");
+    for (const path of scope.proposedIncludes) info(`    ${JSON.stringify(path)}`);
+  }
+  if (scope.proposedIncludesOmitted > 0 || scope.unproposableIncludeMisses > 0) {
+    info(`    ${scope.proposedIncludesOmitted} proposal(s) omitted; ${scope.unproposableIncludeMisses} include miss(es) cannot be represented safely`);
+  }
+  info(c.dim("  Observed selection only; excluded files were not read and this does not establish semantic coverage or task readiness."));
 }

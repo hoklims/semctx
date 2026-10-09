@@ -139,6 +139,16 @@ Version 2 selection has these rules:
 substring matcher. Changing them intentionally changes the selected path set and its bound
 analysis-input identity.
 
+Setup's optional `scope.proposedIncludes` contains at most 20 exact observed TypeScript/Python
+paths missed by v2 includes while their language is enabled. Add only the desired entries to
+`include` explicitly, then rerun setup. Existing configuration, including empty or restricted
+includes, is preserved byte-for-byte by the diagnostic. It does not propose explicit excludes,
+disabled/unsupported/failed candidates or refused links. Glob punctuation, control characters,
+nonrelative paths and paths over 240 UTF-8 bytes are withheld rather than escaped or widened;
+`unproposableIncludeMisses` counts eligible misses without a safe exact representation, while
+`proposedIncludesOmitted` counts safe entries beyond the output cap. Applying a proposal still
+preserves exclude precedence, language modes and existing link/import boundary checks.
+
 ## Config migration (v1 to v2)
 
 `semctx migrate config` (ADR 0028) is the deliberate path from an existing v1 file to an explicit

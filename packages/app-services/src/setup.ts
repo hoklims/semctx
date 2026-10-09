@@ -32,6 +32,7 @@ import {
 import { indexHealth } from "./index-health";
 import { indexRepository, indexRepositoryAsync, type RepositoryIndex } from "./indexing";
 import { openReadyRepository } from "./readiness";
+import { projectSetupScope, type SetupScopeReport } from "./setup-scope";
 
 /**
  * Bootstrap readiness — namespaced away from Plane C migration `READY`/`BLOCKED`
@@ -65,6 +66,7 @@ export interface SetupRepositoryOptions {
 }
 
 export interface SetupRepositoryReport {
+  scope?: SetupScopeReport;
   schemaVersion: 1;
   kind: "setup";
   repositoryRoot: string;
@@ -149,6 +151,7 @@ export interface SetupRefusedReport {
 export type SetupResult = SetupRepositoryReport | SetupRefusedReport;
 
 export interface SetupPlanReport {
+  scope?: SetupScopeReport;
   schemaVersion: 1;
   kind: "setup_plan";
   repositoryRoot: string;
@@ -330,6 +333,7 @@ export function planSetupRepository(
   return {
     schemaVersion: 1,
     kind: "setup_plan",
+    scope: projectSetupScope(config, discovery),
     repositoryRoot: root,
     alreadyInitialized,
     polyglot,
@@ -540,6 +544,7 @@ function completeSetupRepository(
   return {
     schemaVersion: 1,
     kind: "setup",
+    scope: projectSetupScope(config, discovery),
     repositoryRoot: root,
     configWritten,
     semctxDir: resolveSemctxDir(root),
