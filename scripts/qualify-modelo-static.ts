@@ -256,9 +256,15 @@ await scenario("interrupted-index", async () => {
   try {
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline && child.exitCode === null) {
-      const db = new Database(join(root, ".semctx/semctx.db"), { readonly: true });
-      try { observedIncomplete = (db.query("SELECT value FROM meta WHERE key = 'qualified_analysis_build_v1'").get() as { value: string } | null)?.value === "incomplete"; }
-      finally { db.close(); }
+      let db: Database | undefined;
+      try {
+        db = new Database(join(root, ".semctx/semctx.db"), { readonly: true });
+        observedIncomplete = (db.query("SELECT value FROM meta WHERE key = 'qualified_analysis_build_v1'").get() as { value: string } | null)?.value === "incomplete";
+      } catch (error) {
+        // The real writer briefly owns SQLite's lock. Only this transient error
+        // is retried; admission still requires observing its persisted marker.
+        if (!(error instanceof Error && error.message === "database is locked")) throw error;
+      } finally { db?.close(); }
       if (observedIncomplete) break;
       await new Promise<void>((done) => setTimeout(done, 10));
     }
