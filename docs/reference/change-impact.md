@@ -110,8 +110,11 @@ read on the new side:
 | `diverged` | a retired value remains somewhere, or other files hold the value while the source does not |
 | `absent` | the value is nowhere |
 
-The scan reads Git, not the index, so it is reported even when the binding is broken. Values are
-matched as UTF-8 bytes: a copy stored in another encoding (UTF-16, for example) is not seen. For a
+The scan reads Git, not the index, so it is reported even when the binding is broken. It searches
+what a diff side holds: a commit's tree, the Git index, or for a working-tree change the tracked and
+untracked files Git does not ignore. A copy in an ignored file (a build output, a local
+configuration) is on no diff side and is not reported. Values are matched as UTF-8 bytes: a copy
+stored in another encoding (UTF-16, for example) is not seen. For a
 working-tree or staged change, a worktree or index that moves during the search voids the result
 (`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`); on every source, a range included, so
 does an authored model whose declarations changed before the analysis ended. Text output lists each

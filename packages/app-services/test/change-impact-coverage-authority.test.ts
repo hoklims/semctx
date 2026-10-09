@@ -239,6 +239,28 @@ describe("impact diff — single-authority invariant", () => {
     expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "AUTHORITY_SCAN_UNSTABLE", affects: "claims" }));
   });
 
+  it("voids a clean range scan when the declarations stop parsing while it runs", () => {
+    const root = repository();
+    const base = git(root, "rev-parse", "HEAD");
+    edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");
+    git(root, "commit", "-qam", "touch a copy");
+    // The parser recovers the same nodes around the bad line: only its diagnostics change.
+    __setVerifyControlBarrierForTesting(() => edit(root, ".semctx/semantic/invariants.sem", "authority.source=src/policy.ts\n", "authority.source=src/policy.ts\n\n???\n"));
+    const report = analyse(root, { kind: "range", base });
+    expect(report.authorityInvariants).toBeNull();
+    expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "AUTHORITY_SCAN_UNSTABLE", affects: "claims" }));
+  });
+
+  it("searches what a diff side holds: an ignored copy is on no side", () => {
+    const root = repository();
+    writeFileSync(join(root, ".git", "info", "exclude"), "build/\n");
+    write(root, "build/trust.json", `{"digest":"${DIGEST}"}\n`);
+    edit(root, "src/consumer.ts", "export function trusted", "export function isTrusted");
+    const authority = analyse(root).authorityInvariants?.[0];
+    expect(authority?.status).toBe("duplicated");
+    expect(authority?.occurrences.map((occurrence) => occurrence.file)).not.toContain("build/trust.json");
+  });
+
   it("rejects a declaration whose source names no file", () => {
     const root = repository(invariant([`authority.value=${DIGEST}`, "authority.source="]));
     edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");

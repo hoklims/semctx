@@ -421,7 +421,16 @@ function joinSemanticLayer(root: string, core: ChangeImpactCore, facts: Paramete
 }
 
 /**
- * Single-authority invariants exposed by the change; null when the authored model cannot be read.
+ * The fingerprint of an authored model whose declarations can be used, or null. A parse error or a
+ * duplicate id makes the model unusable even when the parser recovered the same nodes.
+ */
+function usableModelHash(loaded: ReturnType<typeof loadSemanticModel>): string | null {
+  if (loaded.duplicateIds.length > 0 || loaded.diagnostics.some((diagnostic) => diagnostic.severity === "error")) return null;
+  return fingerprintSemanticModel(loaded.model);
+}
+
+/**
+ * Single-authority invariants exposed by the change; null when the authored model cannot be used.
  * `modelHash` fingerprints the declarations the scan used, so the caller can prove they still hold
  * once the analysis is over.
  */
@@ -436,16 +445,15 @@ function authorityInvariants(
   } catch {
     return { impacts: null, gaps: [], modelHash: null };
   }
-  if (loaded.duplicateIds.length > 0 || loaded.diagnostics.some((diagnostic) => diagnostic.severity === "error")) {
-    return { impacts: null, gaps: [], modelHash: null };
-  }
-  return { ...evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths), modelHash: fingerprintSemanticModel(loaded.model) };
+  const modelHash = usableModelHash(loaded);
+  if (modelHash === null) return { impacts: null, gaps: [], modelHash: null };
+  return { ...evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths), modelHash };
 }
 
-/** The authored model's fingerprint as a fresh reader sees it now; null when it cannot be read. */
-function currentSemanticModelHash(root: string): string | null {
+/** The usable authored model's fingerprint as a fresh reader sees it now; null when it is not usable. */
+function currentUsableModelHash(root: string): string | null {
   try {
-    return fingerprintSemanticModel(loadSemanticModel(root).model);
+    return usableModelHash(loadSemanticModel(root));
   } catch {
     return null;
   }
@@ -628,7 +636,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       breaks.push("INDEX_CHANGED_DURING_ANALYSIS");
     }
     const uniqueBreaks = [...new Set(breaks)];
-    const declarationsMoved = scanned.impacts !== null && currentSemanticModelHash(root) !== scanned.modelHash;
+    const declarationsMoved = scanned.impacts !== null && currentUsableModelHash(root) !== scanned.modelHash;
     const authority = uniqueBreaks.includes("WORKING_TREE_CHANGED_DURING_ANALYSIS") || declarationsMoved
       ? {
           impacts: null,

@@ -46,7 +46,9 @@ function normalizePath(path: string): string {
 
 /**
  * Every line holding `literal` on one side, outside `.semctx/` (where the declaration itself lives).
- * Two passes: text files with their line numbers, then every matching file, so a file Git treats
+ * A side is what a diff can see: a commit's tree, the Git index, or for the worktree its tracked and
+ * untracked files minus those Git ignores. An ignored file is on no diff side and is not searched,
+ * so the same scope holds for every source. Two passes: text files with their line numbers, then every matching file, so a file Git treats
  * as binary still counts as an occurrence (with no line) instead of disappearing from the report.
  * Values are matched as UTF-8 bytes; a copy stored in another encoding (UTF-16) is not seen.
  */
