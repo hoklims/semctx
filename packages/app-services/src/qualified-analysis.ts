@@ -2,7 +2,7 @@ import type { AnalysisAdmission, RepositoryGraph, SemctxConfig } from "@semantic
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import { discoverRepository, extractTypeScript, inspectSourceParsing, inspectModuleConfiguration } from "@semantic-context/ts-analyzer";
 import type { IndexHealthReportV1 } from "./index-health";
-import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity.generated";
+import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
 import { isBuiltin } from "node:module";
 import ts from "typescript";
 import { evaluateAnalysisAdmission } from "@semantic-context/context-engine";

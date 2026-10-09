@@ -32,7 +32,7 @@ import {
   digestCanonical,
 } from "@semantic-context/plane-a-internal";
 import packageJson from "../package.json";
-import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity.generated";
+import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
 
 export const CONTROL_INDEX_SNAPSHOT_META_KEY = "control_index_snapshot_v1";
 export const PLANE_A_INDEX_SNAPSHOT_META_KEY = "plane_a_index_snapshot_v1";

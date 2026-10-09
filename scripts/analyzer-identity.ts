@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import ts from "typescript";
 
-const GENERATED = "packages/app-services/src/analyzer-identity.generated.ts";
+const GENERATED = "packages/app-services/src/analyzer-identity-generated.ts";
 const hash = (bytes: string | Uint8Array): string => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 
 function sources(root: string, directory: string): string[] {
