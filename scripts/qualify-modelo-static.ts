@@ -112,6 +112,51 @@ if (legacyCli) await scenario("legacy-refuses-qualified-config", () => {
   assert.notEqual(legacyIndex.code, 0, "Legacy indexing must refuse the unsupported qualified selection mode");
   blocked(verify(root, "legacy-qualified-policy", legacyCli));
 });
+if (legacyCli) await scenario("legacy-before-matrix", () => {
+  const root = fixture("legacy-before-matrix", false, legacyCli);
+  const initialIndex = semctx(root, ["index", "--json"], legacyCli);
+  observations["legacy-before-matrix:index"] = initialIndex;
+  assert.equal(initialIndex.code, 0, initialIndex.stderr);
+  const configPath = join(root, ".semctx/config.json");
+  const originalConfig = readFileSync(configPath, "utf8");
+  const added = "suite/tooling/check/legacy-added.mjs";
+  const renamed = LEAF.replace("value.mjs", "renamed.mjs");
+  const matrix: Record<string, unknown> = {};
+  observations["legacy-before-matrix:observations"] = matrix;
+  for (const variant of ["edit", "add", "delete", "rename", "parse", "dynamic", "commonjs", "partial-language", "empty-selection", "wrong-root"] as const) {
+    let analyzedRoot = root;
+    if (variant === "edit") put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 4"));
+    if (variant === "add") { put(root, added, "export function added() { return 4; }\n"); git(root, ["add", added]); }
+    if (variant === "delete") rmSync(join(root, LEAF));
+    if (variant === "rename") { renameSync(join(root, LEAF), join(root, renamed)); git(root, ["add", LEAF, renamed]); }
+    if (variant === "parse") put(root, LEAF, "export function value( {\n");
+    if (variant === "dynamic") put(root, LEAF, "export async function value(name) { return import(name); }\n");
+    if (variant === "commonjs") { put(root, "suite/tooling/check/legacy.cjs", "module.exports = function check(input) { return input; };\n"); git(root, ["add", "suite/tooling/check/legacy.cjs"]); }
+    if (variant === "partial-language" || variant === "empty-selection") {
+      const config = JSON.parse(originalConfig) as Record<string, unknown>;
+      Object.assign(config, { version: 2, selectionMode: "globs-v1", languages: { typescript: "on", javascript: "off" }, include: variant === "empty-selection" ? ["absent/**/*.ts"] : ["suite/**/*"] });
+      writeFileSync(configPath, JSON.stringify(config)); put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 4"));
+    }
+    if (variant === "wrong-root") { analyzedRoot = join(root, "suite/apps/web"); put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 4")); }
+    // Parsing/unsupported/selection cases also rebuild: distinguish an omitted file
+    // from stale state rather than assuming all old failures had the same cause.
+    const refreshed = ["parse", "dynamic", "commonjs", "partial-language", "empty-selection"].includes(variant)
+      ? semctx(root, ["index", "--json"], legacyCli) : null;
+    const health = semctx(analyzedRoot, ["index-health", "--json"], legacyCli);
+    const verified = semctx(analyzedRoot, ["verify", "diff", "--format", "json"], legacyCli);
+    matrix[variant] = { refreshed, health, verify: verified, extractedLeaf: graph(root).nodes.filter((node) => node.file_path === LEAF) };
+    // Reset only this generated fixture's concrete mutations. Keep every raw
+    // result; old refusals are observations, not historical false positives.
+    git(root, ["reset", "HEAD", "--", LEAF, added, renamed, "suite/tooling/check/legacy.cjs"]);
+    for (const path of [added, renamed, "suite/tooling/check/legacy.cjs"]) rmSync(join(root, path), { force: true });
+    put(root, LEAF, LEAF_SOURCE); writeFileSync(configPath, originalConfig);
+    if (refreshed) {
+      const restored = semctx(root, ["index", "--json"], legacyCli);
+      matrix[`${variant}:restored-index`] = restored; assert.equal(restored.code, 0, restored.stderr);
+    }
+  }
+  observations["legacy-before-matrix:interruption"] = "NO_ATTESTED_LEGACY_PROCESS_INTERRUPTION; see actual candidate process interruption witness separately";
+});
 
 await scenario("mixed-transitive-analysis", async () => {
   const root = fixture("mixed");

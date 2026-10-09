@@ -33,6 +33,7 @@ are never overwritten; use a new output directory for each run.
 | --- | --- |
 | Historical `.mjs` omission | Baseline has no `value` symbol; health says STALE; verify nevertheless returns PASS and exit 0 |
 | Qualified configuration boundary | `qualified-static-v1` requires the named profile; the old CLI rejects indexing and verification with nonzero exits |
+| Historical case matrix | Actual old CLI health, index and verify observations for edit/add/delete/rename, syntax errors, computed import, CommonJS, partial/empty selection and wrong root; existing refusals remain explicit |
 | Mixed ESM / TypeScript | Exported `.mjs` symbol, imports and real call edges reach `.ts` bridge and `.js` consumer |
 | Refresh | Source edit first refuses; full indexing then admits the covered static change |
 | CLI / plugin / MCP | Built artifacts report the same admission; MCP is invoked through real stdio JSON-RPC |
@@ -59,3 +60,9 @@ root, dependency or bundle change invalidates the relevant qualification receipt
 An interrupted rebuild, stale index or new unsupported obligation requires a
 fresh analysis before admission. Independent proof review of the frozen candidate
 remains required; the modified admission code cannot approve itself.
+
+The historical matrix records old behavior without requiring every old case to
+have passed: a refusal already present is not a regression fixed by this change.
+An old process-interruption observation is not attested by this harness. The
+candidate interruption witness instead waits for its actual persisted incomplete
+marker before killing the rebuild. These two evidence scopes remain separate.
