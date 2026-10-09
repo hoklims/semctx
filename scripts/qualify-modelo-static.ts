@@ -32,7 +32,7 @@ function fixture(name: string, qualified = true, bundle = cli): string {
   const initialized = semctx(root, ["init"], bundle); assert.equal(initialized.code, 0, initialized.stderr);
   const configPath = join(root, ".semctx/config.json");
   const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-  if (qualified) Object.assign(config, { version: 2, selectionMode: "globs-v1", analysisProfile: "modelo-suite-static-v1", languages: { typescript: "on", javascript: "on" }, include: ["suite/**/*"], exclude: ["**/node_modules/**", "**/.git/**", "**/.semctx/**"] });
+  if (qualified) Object.assign(config, { version: 2, selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", languages: { typescript: "on", javascript: "on" }, include: ["suite/**/*"], exclude: ["**/node_modules/**", "**/.git/**", "**/.semctx/**"] });
   writeFileSync(configPath, JSON.stringify(config, null, 2));
   git(root, ["add", "-A"]); git(root, ["commit", "-qm", "initialize public analysis policy"]);
   return root;
@@ -103,6 +103,14 @@ if (legacyCli) await scenario("legacy-incident", () => {
   const result = verify(root, "legacy", legacyCli);
   assert.equal(report(result).verdict, "PASS", "Legacy witness must reproduce the false positive, not merely predict it");
   assert(!graph(root).nodes.some((node) => node.file_path === LEAF && node.name === "value"));
+});
+if (legacyCli) await scenario("legacy-refuses-qualified-config", () => {
+  const root = fixture("legacy-qualified-policy", true, legacyCli);
+  put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 7"));
+  const legacyIndex = semctx(root, ["index", "--json"], legacyCli);
+  observations["legacy-qualified-policy:index"] = legacyIndex;
+  assert.notEqual(legacyIndex.code, 0, "Legacy indexing must refuse the unsupported qualified selection mode");
+  blocked(verify(root, "legacy-qualified-policy", legacyCli));
 });
 
 await scenario("mixed-transitive-analysis", async () => {

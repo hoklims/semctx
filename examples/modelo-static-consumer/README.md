@@ -32,6 +32,7 @@ are never overwritten; use a new output directory for each run.
 | Witness | Required observation |
 | --- | --- |
 | Historical `.mjs` omission | Baseline has no `value` symbol; health says STALE; verify nevertheless returns PASS and exit 0 |
+| Qualified configuration boundary | `qualified-static-v1` requires the named profile; the old CLI rejects indexing and verification with nonzero exits |
 | Mixed ESM / TypeScript | Exported `.mjs` symbol, imports and real call edges reach `.ts` bridge and `.js` consumer |
 | Refresh | Source edit first refuses; full indexing then admits the covered static change |
 | CLI / plugin / MCP | Built artifacts report the same admission; MCP is invoked through real stdio JSON-RPC |
