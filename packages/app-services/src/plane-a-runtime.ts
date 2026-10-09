@@ -56,6 +56,7 @@ import {
   type IndexWorkerSelection,
   type MarkerDeclaration,
   type TypeScriptParallelism,
+  type CompilerInputSnapshot,
 } from "@semantic-context/ts-analyzer";
 import {
   analyzeWorkspaceSync,
@@ -118,19 +119,27 @@ interface PythonFacts {
 export function analyzePlaneARuntime(
   config: SemctxConfig,
   discovery: DiscoveryResult,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneARuntimeResult {
-  const legacyAnalysis = analyzeRepository(config, discovery.files);
-  return composePlaneARuntime(config, discovery, legacyAnalysis);
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  const legacyAnalysis = analyzeRepository(config, discovery.files, compilerInputs);
+  return composePlaneARuntime(config, discovery, legacyAnalysis, compilerInputs);
 }
 
 export async function analyzePlaneARuntimeAsync(
   config: SemctxConfig,
   discovery: DiscoveryResult,
   workers: IndexWorkerSelection,
+  compilerInputs?: CompilerInputSnapshot,
 ): Promise<AsyncPlaneARuntimeResult> {
-  const result = await analyzeRepositoryAsync(config, discovery.files, workers);
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  const result = await analyzeRepositoryAsync(config, discovery.files, workers, compilerInputs);
   return {
-    ...composePlaneARuntime(config, discovery, result.analysis),
+    ...composePlaneARuntime(config, discovery, result.analysis, compilerInputs),
     parallelism: result.parallelism,
   };
 }
@@ -139,6 +148,7 @@ function composePlaneARuntime(
   config: SemctxConfig,
   discovery: DiscoveryResult,
   legacyAnalysis: AnalysisResult,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneARuntimeResult {
   const legacySidecar = getPlaneASidecar(legacyAnalysis);
   if (legacySidecar === undefined) {
@@ -199,7 +209,7 @@ function composePlaneARuntime(
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
     if (config.version === 2 && candidate.language === "typescript") {
-      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot)];
+      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs)];
       if (reasons.length > 0) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
@@ -207,7 +217,7 @@ function composePlaneARuntime(
       }
     }
     if (candidate.language === "javascript") {
-      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot);
+      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs);
       if (diagnostics.parseFailed) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...diagnostics.reasons]);

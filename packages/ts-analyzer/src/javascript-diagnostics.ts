@@ -1,12 +1,12 @@
 import ts from "typescript";
-import { dirname, relative, isAbsolute } from "node:path";
+import { dirname, relative, isAbsolute, join } from "node:path";
 import { builtinModules } from "node:module";
-import { resolveTypeScriptModule } from "./ts-symbols";
+import { resolveTypeScriptModule, retainedCompilerSystem, type CompilerInputSnapshot } from "./ts-symbols";
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
 /** Diagnostic-only constructs never acquire a complete ESM capability by extension recognition. */
-export function inspectJavaScriptSource(path: string, content: string, repositoryRoot?: string): {
+export function inspectJavaScriptSource(path: string, content: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot): {
   parseFailed: boolean;
   reasons: string[];
   staticExports: { name: string; declarationKind: string }[];
@@ -20,9 +20,34 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const staticExports: { name: string; declarationKind: string }[] = [];
   const staticModuleLinks: { specifier: string; resolution: "resolved" | "external" | "unresolved" }[] = [];
+  const isDeclaredExternal = (specifier: string): boolean => {
+    const packageName = specifier.startsWith("@") ? specifier.split("/").slice(0, 2).join("/") : specifier.split("/")[0]!;
+    const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
+    for (let directory = dirname(path); ; directory = dirname(directory)) {
+      if (repositoryRoot) {
+        const relation = relative(repositoryRoot, directory).replaceAll("\\", "/");
+        if (relation === ".." || relation.startsWith("../") || isAbsolute(relation)) return false;
+      }
+      const text = system.readFile(join(directory, "package.json"));
+      if (text !== undefined) {
+        try {
+          const manifest = JSON.parse(text) as Record<string, unknown>;
+          if (manifest.name === packageName) return false;
+          for (const field of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+            const dependencies = manifest[field];
+            if (dependencies && typeof dependencies === "object") {
+              const version = (dependencies as Record<string, unknown>)[packageName];
+              if (typeof version === "string") return !/^(workspace:|file:|link:)/.test(version);
+            }
+          }
+        } catch { return false; }
+      }
+      if (dirname(directory) === directory) return false;
+    }
+  };
   const recordModuleLink = (specifier: string): void => {
-    const resolved = resolveTypeScriptModule(specifier, path);
-    const external = BUILTIN_MODULES.has(specifier.replace(/^node:/, "")) || (resolved !== undefined && /[/\\]node_modules[/\\]/.test(resolved));
+    const resolved = resolveTypeScriptModule(specifier, path, undefined, true, compilerInputs);
+    const external = BUILTIN_MODULES.has(specifier.replace(/^node:/, "")) || (resolved !== undefined && /[/\\]node_modules[/\\]/.test(resolved)) || (resolved === undefined && !specifier.startsWith(".") && isDeclaredExternal(specifier));
     staticModuleLinks.push({ specifier, resolution: external ? "external" : resolved !== undefined ? "resolved" : "unresolved" });
     if (resolved === undefined && !external) reasons.add(`JAVASCRIPT_IMPORT_UNRESOLVED:${specifier}`);
   };
@@ -71,7 +96,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     ts.forEachChild(node, visit);
   };
   visit(source);
-  for (const reason of inspectModuleConfiguration(path, repositoryRoot)) reasons.add(reason);
+  for (const reason of inspectModuleConfiguration(path, repositoryRoot, compilerInputs)) reasons.add(reason);
   return { parseFailed: diagnostics.length > 0, reasons: [...reasons].sort(), staticExports: staticExports.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0), staticModuleLinks };
 }
 
@@ -83,8 +108,9 @@ export function inspectSourceParsing(path: string, content: string): string[] {
     `SOURCE_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`);
 }
 
-export function inspectModuleConfiguration(path: string, repositoryRoot?: string): string[] {
-  const configPath = ts.findConfigFile(dirname(path), candidate => ts.sys.fileExists(candidate));
+export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot): string[] {
+  const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
+  const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
   if (!configPath) return [];
   const contained = (candidate: string): boolean => {
     if (!repositoryRoot) return true;
@@ -92,13 +118,13 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     return relation !== ".." && !relation.startsWith("../") && !isAbsolute(relation);
   };
   if (!contained(configPath)) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];
-  const config = ts.readConfigFile(configPath, candidate => ts.sys.readFile(candidate));
+  const config = ts.readConfigFile(configPath, candidate => system.readFile(candidate));
   let escaped = false;
-  const diagnostics = config.error ? [config.error] : ts.parseJsonConfigFileContent(config.config, { ...ts.sys,
+  const diagnostics = config.error ? [config.error] : ts.parseJsonConfigFileContent(config.config, { ...system,
     readDirectory: () => [],
     readFile: candidate => {
       if (!contained(candidate)) { escaped = true; return undefined; }
-      return ts.sys.readFile(candidate);
+      return system.readFile(candidate);
     },
   }, dirname(configPath)).errors;
   if (escaped) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];

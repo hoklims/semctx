@@ -46,6 +46,8 @@ import {
   type IndexWorkerSelection,
   type TsExtraction,
   type TypeScriptParallelism,
+  type CompilerInputSnapshot,
+  retainedCompilerSystem,
 } from "./ts-symbols";
 import { groupSymbols } from "./symbol-grouping";
 import { inspectJavaScriptSource } from "./javascript-diagnostics";
@@ -90,30 +92,35 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
   { filePath: relPath, startLine: line, sourceKind: kind },
 ];
 
-export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[]): AnalysisResult {
+export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], compilerInputs?: CompilerInputSnapshot): AnalysisResult {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
+  assertSnapshotInputs(tsFiles, compilerInputs, config);
   const extraction = extractTypeScript(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
+    compilerInputs,
   );
-  return assembleRepository(config, files, extraction);
+  return assembleRepository(config, files, extraction, compilerInputs);
 }
 
 export async function analyzeRepositoryAsync(
   config: SemctxConfig,
   discoveredFiles?: readonly DiscoveredFile[],
   workers: IndexWorkerSelection = "auto",
+  compilerInputs?: CompilerInputSnapshot,
 ): Promise<AsyncAnalysisResult> {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
+  assertSnapshotInputs(tsFiles, compilerInputs, config);
   const result = await extractTypeScriptParallel(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
     workers,
+    compilerInputs,
   );
   return {
-    analysis: assembleRepository(config, files, result.extraction),
+    analysis: assembleRepository(config, files, result.extraction, compilerInputs),
     parallelism: result.parallelism,
   };
 }
@@ -123,6 +130,7 @@ export function assembleRepository(
   config: SemctxConfig,
   files: readonly DiscoveredFile[],
   extraction: TsExtraction,
+  compilerInputs?: CompilerInputSnapshot,
 ): AnalysisResult {
   const tsFiles = files.filter(isTypeScriptSource);
   const analyzedFiles = files.filter((file) =>
@@ -147,7 +155,7 @@ export function assembleRepository(
     const isTest = file.role === "test";
     const id = isTest ? testId(file.relPath) : moduleId(file.relPath);
     nodeIdByRel.set(file.relPath, id);
-    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot) : undefined;
+    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs) : undefined;
     builder.node({
       id,
       kind: isTest ? "test" : "module",
@@ -288,7 +296,7 @@ export function assembleRepository(
   const analysis = builder.build();
   return attachPlaneASidecar(
     analysis,
-    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId),
+    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId, compilerInputs),
   );
 }
 
@@ -318,11 +326,23 @@ function isTypeScriptSource(file: DiscoveredFile): boolean {
     && (file.language === undefined || file.language === "typescript" || file.language === "javascript");
 }
 
+function assertSnapshotInputs(files: readonly DiscoveredFile[], compilerInputs: CompilerInputSnapshot | undefined, config: SemctxConfig): void {
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  if (compilerInputs === undefined) return;
+  const system = retainedCompilerSystem(compilerInputs);
+  for (const file of files) {
+    if (system.readFile(file.absPath) !== file.content) throw new Error(`SOURCE_SNAPSHOT_MISMATCH: ${file.relPath}`);
+  }
+}
+
 function buildTypeScriptSidecar(
   config: SemctxConfig,
   files: readonly DiscoveredFile[],
   builder: DeterministicGraphAssembler,
   repositoryIdentity: string,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneASidecarV1 {
   const selectedPaths = files.map((file) => file.relPath).sort();
   const sourceInputs = files
@@ -397,7 +417,7 @@ function buildTypeScriptSidecar(
       (file.language ?? sourceLanguage(file.relPath)) === language);
     const languagePaths = languageFiles.map((file) => file.relPath).sort();
     const javascriptDiagnostics = language === "javascript"
-      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot))
+      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs))
       : [];
     const analysisReasons = [...new Set(javascriptDiagnostics.flatMap(result => result.reasons))].sort();
     const parsingFailed = javascriptDiagnostics.some(result => result.parseFailed);

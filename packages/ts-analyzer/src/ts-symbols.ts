@@ -7,6 +7,33 @@ import { parseMarkers, type ParsedMarker } from "./markers";
 
 /** Exact TypeScript runtime version bound into Plane A capability scopes. */
 export const TYPESCRIPT_DIALECT_VERSION = ts.version;
+export type CompilerInputSnapshot = ReadonlyMap<string, string>;
+const snapshotSystems = new WeakMap<CompilerInputSnapshot, ts.System>();
+
+function snapshotSystem(snapshot: CompilerInputSnapshot): ts.System {
+  const cached = snapshotSystems.get(snapshot);
+  if (cached) return cached;
+  const retained = new Map([...snapshot].map(([path, content]) => [canonicalTypeScriptFileKey(path), content]));
+  const libraryRoot = canonicalTypeScriptFileKey(dirname(ts.getDefaultLibFilePath(COMPILER_OPTIONS)));
+  const library = (path: string): boolean => canonicalTypeScriptFileKey(path).startsWith(`${libraryRoot}/`);
+  const system: ts.System = {
+    ...ts.sys,
+    readFile: path => retained.get(canonicalTypeScriptFileKey(path)) ?? (library(path) ? ts.sys.readFile(path) : undefined),
+    fileExists: path => retained.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.fileExists(path)),
+    directoryExists: path => {
+      const prefix = `${canonicalTypeScriptFileKey(path)}/`;
+      return [...retained.keys()].some(key => key.startsWith(prefix)) || (library(path) && ts.sys.directoryExists(path));
+    },
+    readDirectory: () => [],
+  };
+  snapshotSystems.set(snapshot, system);
+  return system;
+}
+
+/** Internal read seam for diagnostics over the same retained compiler inputs. */
+export function retainedCompilerSystem(snapshot: CompilerInputSnapshot): ts.System {
+  return snapshotSystem(snapshot);
+}
 
 export interface ExtractedSymbol {
   name: string;
@@ -122,14 +149,20 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
 
 /** Internal semantic context; intentionally not exported from the package root. */
 export const extractionContext = {
-  createProgram(this: void, rootAbsPaths: string[]): ts.Program {
+  createProgram(this: void, rootAbsPaths: string[], snapshot?: CompilerInputSnapshot): ts.Program {
     const host = ts.createCompilerHost(COMPILER_OPTIONS);
+    const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
+    if (snapshot !== undefined) {
+      host.readFile = path => system.readFile(path);
+      host.fileExists = path => system.fileExists(path);
+      host.directoryExists = path => system.directoryExists!(path);
+    }
     // Match tsc's semantic parsing: retain type-error JSDoc, avoid prose ASTs in dependencies.
     // Semctx reads its JSDoc/markers from source text, independently of these compiler nodes.
     host.jsDocParsingMode = ts.JSDocParsingMode.ParseForTypeErrors;
-    if (rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+    if (snapshot !== undefined || rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
       host.resolveModuleNames = (names, containingFile) => names.map(name =>
-        resolveConfiguredModule(name, containingFile)?.resolvedModule);
+        resolveConfiguredModule(name, containingFile, undefined, system)?.resolvedModule);
     }
     return ts.createProgram(rootAbsPaths, COMPILER_OPTIONS, host);
   },
@@ -167,29 +200,31 @@ export function resolveTypeScriptModule(
   containingFile: string,
   resolutionMode?: ts.ResolutionMode,
   configured = /\.(mjs|cjs|js|jsx)$/.test(containingFile),
+  snapshot?: CompilerInputSnapshot,
 ): string | undefined {
+  const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
   const resolved = configured
-    ? resolveConfiguredModule(specifier, containingFile, resolutionMode)
-    : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, ts.sys, undefined, undefined, resolutionMode);
+    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system)
+    : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, system, undefined, undefined, resolutionMode);
   // A declaration companion describes the runtime module; dependency edges target the actual
   // source when it exists, rather than silently ending at the skipped .d.mts/.d.cts artifact.
   const declarationPath = resolved.resolvedModule?.resolvedFileName;
   if (configured && declarationPath !== undefined && /\.d\.(mts|cts|ts)$/.test(declarationPath)) {
     const runtimePath = declarationPath.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
       extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
-    if (existsSync(runtimePath)) return runtimePath;
+    if (system.fileExists(runtimePath)) return runtimePath;
   }
   return declarationPath;
 }
 
-function resolveConfiguredModule(specifier: string, containingFile: string, resolutionMode?: ts.ResolutionMode): ts.ResolvedModuleWithFailedLookupLocations {
-  const configPath = ts.findConfigFile(dirname(containingFile), path => ts.sys.fileExists(path));
+function resolveConfiguredModule(specifier: string, containingFile: string, resolutionMode?: ts.ResolutionMode, system: ts.System = ts.sys): ts.ResolvedModuleWithFailedLookupLocations {
+  const configPath = ts.findConfigFile(dirname(containingFile), path => system.fileExists(path));
   let options = COMPILER_OPTIONS;
   if (configPath !== undefined) {
-    const config = ts.readConfigFile(configPath, path => ts.sys.readFile(path));
+    const config = ts.readConfigFile(configPath, path => system.readFile(path));
     if (config.error === undefined) {
       // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
-      const parsed = ts.parseJsonConfigFileContent(config.config, { ...ts.sys, readDirectory: () => [] }, dirname(configPath));
+      const parsed = ts.parseJsonConfigFileContent(config.config, { ...system, readDirectory: () => [] }, dirname(configPath));
       options = { ...parsed.options, ...COMPILER_OPTIONS, paths: parsed.options.paths, baseUrl: parsed.options.baseUrl };
     }
   }
@@ -197,7 +232,7 @@ function resolveConfiguredModule(specifier: string, containingFile: string, reso
     specifier,
     containingFile,
     options,
-    ts.sys,
+    system,
     undefined,
     undefined,
     resolutionMode,
@@ -245,7 +280,7 @@ function canonicalFilesystemPath(filePath: string): string {
  * Bare package imports, configured type packages and the standard library remain delegated to the
  * normal compiler host so the analyzer keeps the same TypeChecker environment for admitted input.
  */
-function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRoot: string): void {
+function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRoot: string, snapshot?: CompilerInputSnapshot): void {
   const canonicalRoot = canonicalFilesystemPath(repoRoot);
   const pending = [...rootAbsPaths];
   const visited = new Set<string>();
@@ -258,7 +293,8 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
     const key = canonicalTypeScriptFileKey(canonical);
     if (visited.has(key)) continue;
     visited.add(key);
-    const source = readFileSync(path, "utf8");
+    const source = snapshot === undefined ? readFileSync(path, "utf8") : snapshotSystem(snapshot).readFile(path);
+    if (source === undefined) throw new Error(`SOURCE_SNAPSHOT_MISSING: ${normalizePath(relative(repoRoot, path))}`);
     const preprocessed = ts.preProcessFile(source, true, true);
     for (const imported of preprocessed.importedFiles) {
       if (!imported.fileName.startsWith(".")) continue;
@@ -266,7 +302,7 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
       if (!isContainedTypeScriptPath(canonicalRoot, canonicalFilesystemPath(lexical))) {
         throw new Error(`IMPORT_OUTSIDE_REPOSITORY: ${imported.fileName}`);
       }
-      const resolved = resolveTypeScriptModule(imported.fileName, path);
+      const resolved = resolveTypeScriptModule(imported.fileName, path, undefined, snapshot !== undefined || /\.(mjs|cjs|js|jsx)$/.test(path), snapshot);
       if (resolved === undefined) continue;
       const resolvedCanonical = canonicalFilesystemPath(resolved);
       if (!isContainedTypeScriptPath(canonicalRoot, resolvedCanonical)) {
@@ -289,9 +325,10 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
 }
 
 /** Extract modules, symbols, imports and best-effort resolved calls from source/test files. */
-export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsExtraction {
-  assertConfinedTypeScriptSources(rootAbsPaths, repoRoot);
-  const program = extractionContext.createProgram(rootAbsPaths);
+export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, suppliedSnapshot?: CompilerInputSnapshot): TsExtraction {
+  const snapshot = suppliedSnapshot === undefined ? undefined : new Map(suppliedSnapshot);
+  assertConfinedTypeScriptSources(rootAbsPaths, repoRoot, snapshot);
+  const program = extractionContext.createProgram(rootAbsPaths, snapshot);
   const checker = program.getTypeChecker();
   const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
   const javascriptEnabled = rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path));
@@ -404,7 +441,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
         const names = importedNames(node);
         imports.push({
           fromRelPath: relPath,
@@ -415,7 +452,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         });
       } else if (javascriptEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
         imports.push({
           fromRelPath: relPath,
           moduleSpecifier: specifier,
@@ -427,14 +464,14 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         if (javascriptEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
           node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
           const specifier = (node.arguments[0] as ts.StringLiteral).text;
-          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
           imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
         }
         const calleeName = nameOfCallee(node.expression);
         if (calleeName !== undefined) {
-          const resolved = resolveCallTarget(checker, node.expression, relOf, javascriptEnabled);
+          const resolved = resolveCallTarget(checker, node.expression, relOf, javascriptEnabled, snapshot);
           calls.push({
             callerRelPath: relPath,
             ...(symbolPathStack.length > 0
@@ -470,7 +507,11 @@ export async function extractTypeScriptParallel(
   rootAbsPaths: string[],
   repoRoot: string,
   requested: IndexWorkerSelection = "auto",
+  snapshot?: CompilerInputSnapshot,
 ): Promise<ParallelTsExtraction> {
+  if (snapshot !== undefined) {
+    return { extraction: extractTypeScript(rootAbsPaths, repoRoot, snapshot), parallelism: { requested, used: 1, mode: "preflight-fallback", reason: "retained compiler input snapshot requires one semantic Program" } };
+  }
   assertConfinedTypeScriptSources(rootAbsPaths, repoRoot);
   const workerLimit = resolveWorkerCount(requested, rootAbsPaths.length);
   if (workerLimit > 1 && rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
@@ -959,6 +1000,7 @@ function resolveCallTarget(
   expr: ts.Expression,
   relOf: (abs: string) => string,
   javascriptEnabled = false,
+  snapshot?: CompilerInputSnapshot,
 ): { relPath?: string; symbolPath?: string } | undefined {
   let symbol = checker.getSymbolAtLocation(expr);
   if (symbol === undefined) return undefined;
@@ -976,7 +1018,7 @@ function resolveCallTarget(
     if (javascriptEnabled && /\.d\.(mts|cts|ts)$/.test(sf.fileName)) {
       const runtimePath = sf.fileName.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
         extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
-      if (existsSync(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
+      if (snapshot === undefined ? existsSync(runtimePath) : snapshotSystem(snapshot).fileExists(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
     }
     return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
   }

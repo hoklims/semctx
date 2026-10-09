@@ -32,6 +32,7 @@ export type {
   IndexWorkerSelection,
   ParallelTsExtraction,
   TypeScriptParallelism,
+  CompilerInputSnapshot,
 } from "./ts-symbols";
 
 export {
