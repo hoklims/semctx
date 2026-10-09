@@ -181,9 +181,10 @@ must cover admitted large messages, follow-up RPC, rejection above the bound, st
 guidance, and modern/legacy negotiation. Source and cross-host generated-byte parity remain
 required before publication; publication and fresh-session activation are separate evidence.
 
-## Proposed corrective index-health contract — #316
+## Accepted corrective index-health contract — #316
 
-This amendment is proposed with the correction for [#316](https://github.com/hoklims/semctx/issues/316).
+This amendment was accepted with the correction for [#316](https://github.com/hoklims/semctx/issues/316),
+merged in [#317](https://github.com/hoklims/semctx/pull/317).
 The complete V1 health report grows with repository candidates and was serialized twice. The issue
 reports a 16.6 MB response for 1,000 files and connection closure on larger responses. Increasing
 the transport buffer again would leave that growth unbounded.
