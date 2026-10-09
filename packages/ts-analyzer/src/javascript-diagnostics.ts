@@ -120,14 +120,26 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   if (!contained(configPath)) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];
   const config = ts.readConfigFile(configPath, candidate => system.readFile(candidate));
   let escaped = false;
-  const diagnostics = config.error ? [config.error] : ts.parseJsonConfigFileContent(config.config, { ...system,
+  const parsed = config.error ? undefined : ts.parseJsonConfigFileContent(config.config, { ...system,
     readDirectory: () => [],
     readFile: candidate => {
       if (!contained(candidate)) { escaped = true; return undefined; }
       return system.readFile(candidate);
     },
-  }, dirname(configPath)).errors;
+  }, dirname(configPath));
   if (escaped) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];
-  return diagnostics.filter(diagnostic => diagnostic.code !== 18003).map(diagnostic =>
+  const diagnostics = config.error ? [config.error] : parsed?.errors ?? [];
+  const reasons = diagnostics.filter(diagnostic => diagnostic.code !== 18003).map(diagnostic =>
     `SOURCE_CONFIGURATION_INVALID:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`);
+  // The named snapshot profile qualifies ESNext/Bundler, including inherited options. Hashing
+  // NodeNext bytes does not authorize analyzing them under overwritten Bundler semantics.
+  if (compilerInputs !== undefined && parsed !== undefined) {
+    if (parsed.options.module !== undefined && parsed.options.module !== ts.ModuleKind.ESNext) {
+      reasons.push(`SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:${ts.ModuleKind[parsed.options.module]}`);
+    }
+    if (parsed.options.moduleResolution !== undefined && parsed.options.moduleResolution !== ts.ModuleResolutionKind.Bundler) {
+      reasons.push(`SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:${ts.ModuleResolutionKind[parsed.options.moduleResolution]}`);
+    }
+  }
+  return reasons;
 }

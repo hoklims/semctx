@@ -333,6 +333,9 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
   const checker = program.getTypeChecker();
   const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
   const javascriptEnabled = rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path));
+  // A retained qualified snapshot needs complete static module links even in a TS-only graph.
+  // Keep the historical no-snapshot TS extraction unchanged for legacy callers.
+  const staticModuleLinksEnabled = javascriptEnabled || snapshot !== undefined;
 
   const modules: string[] = [];
   const symbols: ExtractedSymbol[] = [];
@@ -451,7 +454,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
           names,
           line: lineOf(sf, node.getStart()),
         });
-      } else if (javascriptEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      } else if (staticModuleLinksEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
         const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
         imports.push({
@@ -462,7 +465,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
           line: lineOf(sf, node.getStart()),
         });
       } else if (ts.isCallExpression(node)) {
-        if (javascriptEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+        if (staticModuleLinksEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
           node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
           const specifier = (node.arguments[0] as ts.StringLiteral).text;
           const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
