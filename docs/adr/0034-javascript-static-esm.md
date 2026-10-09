@@ -56,6 +56,12 @@ and declaration-companion semantics across the full selected source set.
 
 ## Evidence and boundaries
 
+The independent Plane-A operation registry admits the 22 declared JavaScript
+fact kinds only for configuration v2, compiler dialect 5.9.3 and static
+`verify` / `change` analysis. Capability and completeness checks still reject
+partial CommonJS, computed imports and parsing failures. This registration
+grants no approval, execution, merge or deployment authority.
+
 Public fixtures contain only generated, anonymous sources. The JavaScript
 discovery regression fails on the previous source because all four JavaScript
 variants are absent from analyzed files. It passes after real symbol/call/module

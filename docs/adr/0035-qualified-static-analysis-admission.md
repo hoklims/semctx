@@ -42,6 +42,11 @@ outside the named change closure; the report enumerates both scopes.
 
 ## Proof boundary
 
+Every required closure member must also have admitted Plane-A fact-use tuples.
+The JavaScript registration covers the 22 declared ESM fact kinds for v2,
+dialect 5.9.3 and `verify` / `change` only. It does not replace capability,
+completeness, binding or freshness checks and grants no execution or approval authority.
+
 `PASS` is a static analysis result. It does not prove test execution, Turbo cache
 invalidation, failure propagation or pipeline execution. The report names those as
 unobserved proof obligations and specifies the required observations. Static admission
