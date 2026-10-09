@@ -56,9 +56,18 @@ function renderText(report: ChangeImpactReport): void {
   info(`  confidence : ${analysis.confidence.level} (${analysis.confidence.reasons.join(", ")})`);
   info(`  blast      : ${report.blastRadius.scope}${report.blastRadius.complete ? "" : " (reach incomplete)"}`);
   info(`  semantic   : ${analysis.semanticLayer}`);
+  if (analysis.fileCoverage !== undefined) {
+    const reasons = Object.entries(analysis.fileCoverage.reasons).map(([reason, count]) => `${reason} ${count}`).join(", ");
+    info(`  coverage   : ${analysis.fileCoverage.analyzed}/${analysis.fileCoverage.files} files analyzed${reasons === "" ? "" : ` (${reasons})`}`);
+  }
 
   heading(`Changed (${report.changes.files.length} files)`);
-  for (const file of report.changes.files) info(`  ${file.path} ${c.dim(`[${file.status}]`)}`);
+  for (const file of report.changes.files) {
+    const coverage = file.coverage === undefined
+      ? ""
+      : `, ${file.coverage.language} ${file.coverage.status === "analyzed" ? "analyzed" : `not analyzed: ${file.coverage.reason}`}`;
+    info(`  ${file.path} ${c.dim(`[${file.status}${coverage}]`)}`);
+  }
   for (const unit of report.changes.units ?? []) {
     const marker = unit.behavioral ? c.yellow("*") : c.dim("-");
     info(`  ${marker} ${unit.kind} ${unit.names.join(", ") || unit.file}`);

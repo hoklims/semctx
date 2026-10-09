@@ -108,12 +108,14 @@ export { indexHealth, indexHealthStatus } from "./index-health";
 export {
   INDEX_HEALTH_SECTIONS,
   INDEX_HEALTH_VIEW_MAX_BYTES,
+  indexHealthTimeout,
   indexHealthView,
   projectIndexHealth,
 } from "./index-health-view";
 export type {
   IndexHealthPageV2,
   IndexHealthReportV2,
+  IndexHealthTimeoutReportV2,
   IndexHealthSection,
   IndexHealthViewRequest,
 } from "./index-health-view";
@@ -148,6 +150,7 @@ export type { OpenChangeCommand, UpdateChangeCommand } from "./changes";
 export {
   controlAltitudeAuthority,
   controlStatus,
+  controlStatusExplained,
   loadControlQueryRuntime,
   loadControlState,
   planControlMigration,
@@ -164,6 +167,15 @@ export {
   trustedControlSealHash,
 } from "./control";
 export type { ControlPlanCommand, ControlTraceCommand, CurrentControlState } from "./control";
+export { SEAL_COMMAND, controlStatusTimeout, explainControlStatus } from "./status-explanation";
+export {
+  DEFAULT_PREFLIGHT_BUDGET_MS,
+  MAX_PREFLIGHT_BUDGET_MS,
+  MIN_PREFLIGHT_BUDGET_MS,
+  isValidPreflightBudget,
+  runProcessWithinBudget,
+  type BoundedProcessOutcome,
+} from "./bounded-process";
 export {
   applyConfigMigration,
   planConfigMigration,

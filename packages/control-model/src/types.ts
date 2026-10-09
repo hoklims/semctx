@@ -180,6 +180,36 @@ export interface ControlFreshnessStatusReport {
   freshnessSeal: ControlFreshnessSeal | null;
 }
 
+export interface ControlStatusExplanation {
+  /** The status reason this entry explains (`STATUS_BUDGET_EXCEEDED` only on a TIMEOUT). */
+  reason: ControlFreshnessReason | "STATUS_BUDGET_EXCEEDED";
+  /** The concrete cause behind the reason, e.g. a lifecycle finding code such as EVIDENCE_BASELINE_STALE. */
+  code: string;
+  detail: string;
+  /** A command the operator may run to address the cause; semctx never runs it on its own. */
+  remedy: string | null;
+}
+
+/** The public preflight answer: the freshness report plus one explanation per reason. */
+export interface ControlStatusExplainedReport extends ControlFreshnessStatusReport {
+  explanation: ControlStatusExplanation[];
+}
+
+export interface ControlStatusTimeoutReport {
+  schemaVersion: 1;
+  kind: "control_freshness_status";
+  basis: "control_index_snapshot_v1";
+  verdict: "TIMEOUT";
+  canRunHighRiskControl: false;
+  reasons: ["STATUS_BUDGET_EXCEEDED"];
+  freshnessSeal: null;
+  budget: { budgetMs: number; elapsedMs: number };
+  explanation: [ControlStatusExplanation];
+}
+
+/** FRESH, DIRTY_KNOWN, STALE, UNSEALED or TIMEOUT — always typed, always with its reasons. */
+export type ControlStatusPreflightReport = ControlStatusExplainedReport | ControlStatusTimeoutReport;
+
 export type TraversalDirection = "lift" | "lower";
 
 export interface TraversalReport {

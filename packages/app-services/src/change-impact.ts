@@ -6,6 +6,7 @@ import {
   SemctxError,
   SurfaceMapSchema,
   compareIds,
+  type AuthorityInvariantImpact,
   type ChangeImpactAnalysis,
   type ChangeImpactReport,
   type ExposedClaim,
@@ -47,6 +48,8 @@ import {
   parseIndexedControlSnapshot,
   type GitStateEntry,
 } from "./freshness";
+import { evaluateAuthorityInvariants } from "./authority-invariants";
+import { withFileCoverage } from "./file-coverage";
 import { parsePlaneAIndexSnapshot } from "./index-health";
 import { observeIndexBinding, resolveSource } from "./verify";
 
@@ -417,6 +420,28 @@ function joinSemanticLayer(root: string, core: ChangeImpactCore, facts: Paramete
   return { layer: "joined", claims: joined.claims, gaps, modelHash };
 }
 
+/** Single-authority invariants exposed by the change; null when the authored model cannot be read. */
+function authorityInvariants(
+  root: string,
+  revisions: SideRevisions,
+  changedPaths: ReadonlySet<string>,
+): { impacts: AuthorityInvariantImpact[] | null; gaps: UnresolvedImpact[] } {
+  let loaded: ReturnType<typeof loadSemanticModel>;
+  try {
+    loaded = loadSemanticModel(root);
+  } catch {
+    return { impacts: null, gaps: [] };
+  }
+  if (loaded.duplicateIds.length > 0 || loaded.diagnostics.some((diagnostic) => diagnostic.severity === "error")) {
+    return { impacts: null, gaps: [] };
+  }
+  return evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths);
+}
+
+function changedPathsOf(files: readonly { path: string; oldPath?: string }[]): Set<string> {
+  return new Set(files.flatMap((file) => (file.oldPath === undefined ? [file.path] : [file.path, file.oldPath])));
+}
+
 function unknownSurfaces(map: SurfaceMap | null): SurfaceImpact[] | null {
   if (map === null) return null;
   return map.surfaces.map((surface) => ({
@@ -612,17 +637,23 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         : { verdict: observed.freshness.verdict, reasons: [...observed.freshness.reasons] },
     };
 
+    const indexedFiles = new Set(graph.nodes.flatMap((node) => (node.filePath === undefined ? [] : [node.filePath])));
+    const coverage = (files: Parameters<typeof withFileCoverage>[0]) =>
+      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles } });
+
     if (broken || core === null) {
       // Re-indexing cannot bind a staged or range diff while the index reads uncommitted files.
       const remedy = source.kind !== "working-tree" && indexedDirty && uniqueBreaks.includes("INDEX_COORDINATES_NOT_ON_DIFF_SIDE")
         ? "Rebuild the index on a tree whose analysed files are all committed (commit or stash first), then retry."
         : "Re-run `semctx index`, then retry.";
-      const unresolved: UnresolvedImpact[] = [{
+      const covered = coverage(changedFilesFromDiff(diff, untracked));
+      const authority = authorityInvariants(root, revisions, changedPathsOf(covered.files));
+      const unresolved: UnresolvedImpact[] = sortUnresolved([{
         code: "INDEX_BINDING_BROKEN",
         scope: "run",
         detail: `the index is not bound to this diff (${uniqueBreaks.join(", ")}); no index-derived reach holds. ${remedy}`,
         affects: "reach",
-      }];
+      }, ...authority.gaps]);
       return {
         schemaVersion: CHANGE_IMPACT_SCHEMA_VERSION,
         kind: "change_impact",
@@ -633,8 +664,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           bounds: { ...bounds },
           semanticLayer: "not_computed",
           limits: ANALYSIS_LIMITS.map((limit) => ({ ...limit })),
+          fileCoverage: covered.summary,
         },
-        changes: { files: changedFilesFromDiff(diff, untracked), units: null },
+        changes: { files: covered.files, units: null },
         directlyAffected: null,
         transitivelyAffected: null,
         possiblyAffected: null,
@@ -649,14 +681,17 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           rationale: ["INDEX_BINDING_BROKEN"],
         },
         unresolved,
+        authorityInvariants: authority.impacts,
       };
     }
 
     const semantic = joinSemanticLayer(root, core, facts);
     subject.inputs.semanticModelHash = semantic.modelHash;
-    const unresolved = sortUnresolved([...core.unresolved, ...semantic.gaps]);
+    const authority = authorityInvariants(root, revisions, changedPathsOf(core.files));
+    const unresolved = sortUnresolved([...core.unresolved, ...semantic.gaps, ...authority.gaps]);
     const exposedClaims = [...core.markerClaims, ...semantic.claims]
       .sort((a, b) => TIER_RANK[a.exposure] - TIER_RANK[b.exposure] || compareIds(a.id, b.id));
+    const covered = coverage(core.files);
     return {
       schemaVersion: CHANGE_IMPACT_SCHEMA_VERSION,
       kind: "change_impact",
@@ -667,8 +702,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         bounds: { ...bounds },
         semanticLayer: semantic.layer,
         limits: ANALYSIS_LIMITS.map((limit) => ({ ...limit })),
+        fileCoverage: covered.summary,
       },
-      changes: { files: core.files, units: core.units },
+      changes: { files: covered.files, units: core.units },
       directlyAffected: core.directlyAffected,
       transitivelyAffected: core.transitivelyAffected,
       possiblyAffected: core.possiblyAffected,
@@ -677,6 +713,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       surfaces: core.surfaces,
       blastRadius: core.blastRadius,
       unresolved,
+      authorityInvariants: authority.impacts,
     };
   } finally {
     store.close();

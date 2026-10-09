@@ -150,7 +150,10 @@ change change.stripe-webhook-retry
   `contradicts`, `supersedes`. Change-only: `unknown`.
 - **Multi-value**, all unambiguous: repeated `key: v`, inline `key: [a, b]`, or a bare `key:` with
   `  - item` lines under it.
-- `link:` / `file:` → a `RepositoryLink`; `tag:` → a tag; `meta: k=v` → string metadata.
+- `link:` / `file:` → a `RepositoryLink`; `tag:` → a tag; `meta: k=v` → string metadata. The
+  `authority.value`, `authority.source` and `authority.retired` keys on an `invariant` declare a
+  single-authority value that `impact diff` checks
+  ([reference](../reference/change-impact.md#single-authority-invariants)).
 - Comments start with `#`. Lines are ASCII; tabs draw a warning.
 
 The **parser is tolerant** (never throws; returns `{ model, diagnostics }` with file/line/column).

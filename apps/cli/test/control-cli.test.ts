@@ -5,6 +5,7 @@ import { join, relative, sep } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
 import { queryControlDeletionAuthorization, queryControlGraph } from "@semantic-context/app-services";
+import { ControlStatusPreflightReportSchema } from "@semantic-context/control-model";
 import { parseArgs } from "../src/args";
 import { runControl, loadCurrentControlState } from "../src/commands/control";
 import { runIndex } from "../src/commands/index-cmd";
@@ -103,6 +104,47 @@ describe("semctx control CLI", () => {
       canRunHighRiskControl: true,
       reasons: [],
     });
+  });
+
+  it("explains every status reason and keeps FRESH explanation-free", () => {
+    const fresh = JSON.parse(runCli(root, ["status", "--json"]).out);
+    expect(fresh.explanation).toEqual([]);
+    expect(ControlStatusPreflightReportSchema.safeParse(fresh).success).toBe(true);
+    const empty = mkdtempSync(join(tmpdir(), "semctx-status-explained-"));
+    try {
+      const unsealed = JSON.parse(runCli(empty, ["status", "--json"]).out);
+      expect(unsealed.explanation).toEqual([{
+        reason: "REPOSITORY_NOT_INITIALIZED",
+        code: "REPOSITORY_NOT_INITIALIZED",
+        detail: expect.stringContaining("never set up"),
+        remedy: "semctx setup",
+      }]);
+      expect(ControlStatusPreflightReportSchema.safeParse(unsealed).success).toBe(true);
+    } finally {
+      rmSync(empty, { recursive: true, force: true });
+    }
+  });
+
+  it("answers a budgeted status with a typed verdict within the budget, never without one", () => {
+    const unbudgeted = runCli(root, ["status", "--json"]);
+    const generous = runCli(root, ["status", "--json", "--budget-ms", "120000"]);
+    expect(generous.code).toBe(unbudgeted.code);
+    expect(JSON.parse(generous.out)).toEqual(JSON.parse(unbudgeted.out));
+
+    const started = performance.now();
+    const tight = runCli(root, ["status", "--json", "--budget-ms", "1000"]);
+    expect(performance.now() - started).toBeLessThan(4_000);
+    const report = JSON.parse(tight.out);
+    // Whichever way the race goes on this machine, the answer is typed and schema-valid.
+    expect(["FRESH", "TIMEOUT"]).toContain(report.verdict);
+    expect(ControlStatusPreflightReportSchema.safeParse(report).success).toBe(true);
+    expect(tight.code).toBe(report.verdict === "FRESH" ? 0 : 3);
+  }, 180_000);
+
+  it("refuses a budget outside its bounds", () => {
+    const result = runCli(root, ["status", "--json", "--budget-ms", "10"]);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain("--budget-ms");
   });
 
   it("reports a captured non-empty working diff as DIRTY_KNOWN", () => {

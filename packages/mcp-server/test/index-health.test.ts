@@ -119,10 +119,17 @@ describe("index-health MCP transport", () => {
       properties?: Record<string, unknown>;
       required?: string[];
     };
-    const outputSchema = tool?.outputSchema as {
-      properties?: Record<string, { description?: string }>;
+    type ObjectSchema = {
+      properties?: Record<string, { description?: string; const?: unknown }>;
       required?: string[];
     };
+    // The V2 summary and the typed budget timeout are the two advertised result shapes.
+    const variants = (tool?.outputSchema as { anyOf?: ObjectSchema[] }).anyOf ?? [];
+    expect(variants).toHaveLength(2);
+    const outputSchema = variants.find((variant) => variant.properties?.["binding"] !== undefined)!;
+    const timeoutSchema = variants.find((variant) => variant.properties?.["budget"] !== undefined)!;
+    expect(timeoutSchema.properties?.["status"]?.const).toBe("timeout");
+    expect(timeoutSchema.required).toEqual(expect.arrayContaining(["status", "reason", "budget", "remedy"]));
     expect(schema.properties?.["repositoryRoot"]).toBeDefined();
     expect(schema.required).toContain("repositoryRoot");
     expect(outputSchema.properties?.["binding"]?.description).toContain(

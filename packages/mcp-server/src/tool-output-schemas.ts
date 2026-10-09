@@ -7,7 +7,7 @@ import {
   ChangeAuthorizationVerdictV1Schema,
   ControlFreshnessReasonSchema,
   ControlFreshnessSealV2Schema,
-  ControlFreshnessStatusReportSchema,
+  ControlStatusPreflightReportSchema,
   ControlReasonCodeV1Schema,
   ControlTerminalStatusV1Schema,
   CoordinateGraphReportV2Schema,
@@ -779,6 +779,19 @@ const ChangeAuthorizationVerificationReportSchema = z.object({
   }
 });
 
+const IndexHealthTimeoutReportV2Schema = z.object({
+  schemaVersion: described(z.literal(2), "Bounded index-health report schema version."),
+  kind: z.literal("index_health"),
+  status: described(z.literal("timeout"), "The call did not finish inside its budget; nothing was observed."),
+  reason: z.literal("HEALTH_BUDGET_EXCEEDED"),
+  budget: z.object({
+    budgetMs: z.number().int().positive(),
+    elapsedMs: z.number().int().nonnegative(),
+  }).strict(),
+  detail: z.string(),
+  remedy: described(z.string(), "Command that reports the same health outside the budget; never run by semctx."),
+}).strict();
+
 export const TOOL_OUTPUT_SCHEMAS = {
   semctx_verify_change: VerifyReportSchema,
   semctx_inspect: InspectionResultSchema,
@@ -792,7 +805,7 @@ export const TOOL_OUTPUT_SCHEMAS = {
   semctx_semantic_inspect: SemanticInspectionSchema,
   semctx_handoff: HandoffSchema,
   semctx_resume: ResumeSchema,
-  semctx_index_health: IndexHealthReportV2Schema,
+  semctx_index_health: z.union([IndexHealthReportV2Schema, IndexHealthTimeoutReportV2Schema]),
   semctx_setup: z.union([
     z.object({
       schemaVersion: described(z.literal(1), "Setup preflight schema version."),
@@ -984,7 +997,7 @@ export const TOOL_OUTPUT_SCHEMAS = {
     ]), "Canonical compatibility reason."),
     upgradeCommand: described(z.string(), "Explicit manual command for installing the required CLI version."),
   }).strict(),
-  semctx_control_status: mcpSchema(ControlFreshnessStatusReportSchema),
+  semctx_control_status: mcpSchema(ControlStatusPreflightReportSchema),
   semctx_control_agent_lifecycle: mcpSchema(AgentLifecycleReportV1Schema),
   semctx_control_authority: mcpSchema(AltitudeAuthorityReportV1Schema),
   semctx_control_trace: mcpSchema(TraversalReportV2Schema),

@@ -3,7 +3,13 @@ import packageJson from "../package.json";
 import type { ZodType, ZodTypeDef } from "zod";
 import { z } from "zod-v4";
 import { isAbsolute } from "node:path";
-import { INDEX_HEALTH_SECTIONS } from "@semantic-context/app-services";
+import {
+  DEFAULT_PREFLIGHT_BUDGET_MS,
+  INDEX_HEALTH_SECTIONS,
+  MAX_PREFLIGHT_BUDGET_MS,
+  MIN_PREFLIGHT_BUDGET_MS,
+} from "@semantic-context/app-services";
+import { boundedControlStatus, boundedIndexHealth } from "./bounded-call";
 import { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
 import {
   semanticSliceTool,
@@ -26,10 +32,8 @@ import {
   controlExplainWhyTool,
   controlGraphTool,
   controlImpactTool,
-  indexHealthTool,
   controlPlanTool,
   controlRefinementCoverageTool,
-  controlStatusTool,
   controlTraceTool,
   controlTraversalTool,
 } from "./control-tools";
@@ -97,6 +101,10 @@ const MCP_TRAVERSAL_DIRECTION = mcpSchema(TraversalDirectionSchema);
 const CHANGE_LIFECYCLE = z.enum(["draft", "active", "partial", "blocked", "stale", "superseded"]);
 const REPOSITORY_ROOT = z.string().min(1).refine(isAbsolute, "repositoryRoot must be absolute").describe(
   "absolute repository root; required on every call so plugin-cache launch directories cannot become implicit targets",
+);
+
+const PREFLIGHT_BUDGET_MS = z.number().int().min(MIN_PREFLIGHT_BUDGET_MS).max(MAX_PREFLIGHT_BUDGET_MS).optional().describe(
+  `wall-clock budget in milliseconds (default ${DEFAULT_PREFLIGHT_BUDGET_MS}); past it the call answers TIMEOUT instead of blocking`,
 );
 
 interface TextResult {
@@ -385,7 +393,7 @@ export function createSemctxServer(
     {
       title: "Check shared index health",
       description:
-        "Read-only bounded IndexHealthReportV2 summary: complete binding, freshness reasons, coverage counts and evaluation totals. Details require section; pages default to 20 items, max 100, and may be shortened by the byte budget. Continue with nextCursor and the same section; a stale cursor requires restarting. Freshness and coverage remain separate; omitted details never imply complete analysis.",
+        "Read-only bounded IndexHealthReportV2 summary: complete binding, freshness reasons, coverage counts and evaluation totals. Details require section; pages default to 20 items, max 100, and may be shortened by the byte budget. Continue with nextCursor and the same section; a stale cursor requires restarting. Freshness and coverage remain separate; omitted details never imply complete analysis. Time-bounded by budgetMs (default 15000): a call that does not finish returns status 'timeout', which reports nothing as healthy.",
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -397,15 +405,18 @@ export function createSemctxServer(
         section: z.enum(INDEX_HEALTH_SECTIONS).optional().describe("Opt in to one detail collection; omit for the summary."),
         cursor: z.string().min(1).max(1_024).optional().describe("Opaque nextCursor from the same section and unchanged report; requires section."),
         limit: z.number().int().min(1).max(100).optional().describe("Maximum items per page, default 20; requires section. Byte budget can return fewer."),
+        budgetMs: PREFLIGHT_BUDGET_MS,
       },
     },
-    ({ repositoryRoot, ...request }) => {
-      const report = indexHealthTool(rootResolver.resolve(repositoryRoot), request);
+    async ({ repositoryRoot, budgetMs, ...request }) => {
+      const report = await boundedIndexHealth(rootResolver.resolve(repositoryRoot), request, budgetMs ?? DEFAULT_PREFLIGHT_BUDGET_MS);
       return {
         structuredContent: report,
         content: [{
           type: "text",
-          text: `Index health: ${report.status}; binding ${report.binding.status}; freshness ${report.freshness.verdict}; coverage ${report.coverage.status} (${report.coverage.analyzed}/${report.coverage.candidates} analyzed). Read structuredContent for the V2 summary and any requested detail page.`,
+          text: report.status === "timeout"
+            ? `Index health: TIMEOUT after ${report.budget.elapsedMs} ms (budget ${report.budget.budgetMs} ms); binding, freshness and coverage are unknown. Retry with a larger budgetMs or run ${report.remedy}.`
+            : `Index health: ${report.status}; binding ${report.binding.status}; freshness ${report.freshness.verdict}; coverage ${report.coverage.status} (${report.coverage.analyzed}/${report.coverage.candidates} analyzed). Read structuredContent for the V2 summary and any requested detail page.`,
         }],
       };
     },
@@ -430,16 +441,17 @@ export function createSemctxServer(
     {
       title: "Check control-plane freshness",
       description:
-        "Read-only preflight returning FRESH, DIRTY_KNOWN, STALE, or UNSEALED. High-risk control operations fail closed on STALE or UNSEALED inputs.",
+        "Read-only preflight returning FRESH, DIRTY_KNOWN, STALE, UNSEALED, or TIMEOUT, with one explanation (cause code, detail, remedy command) per reason. High-risk control operations fail closed on STALE, UNSEALED or TIMEOUT. Time-bounded by budgetMs (default 15000); remedies are never run by semctx.",
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
         idempotentHint: true,
         openWorldHint: false,
       },
-      inputSchema: { repositoryRoot: REPOSITORY_ROOT },
+      inputSchema: { repositoryRoot: REPOSITORY_ROOT, budgetMs: PREFLIGHT_BUDGET_MS },
     },
-    ({ repositoryRoot }) => ok(controlStatusTool(rootResolver.resolve(repositoryRoot))),
+    async ({ repositoryRoot, budgetMs }) =>
+      ok(await boundedControlStatus(rootResolver.resolve(repositoryRoot), budgetMs ?? DEFAULT_PREFLIGHT_BUDGET_MS)),
   );
 
   tools.registerTool(
