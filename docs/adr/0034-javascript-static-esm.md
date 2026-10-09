@@ -50,6 +50,9 @@ withdraw admission after they change. The analyzer does not create missing built
 outputs or establish arbitrary package/workspace aliases by directory name.
 Configuration outside the repository boundary, including inherited `extends`,
 is reported explicitly and cannot support a qualified positive result.
+The qualified profile uses ESNext/Bundler when module settings are absent and
+refuses explicitly incompatible direct or inherited settings, including NodeNext,
+Node16 and CommonJS. Those semantics are not silently replaced by defaults.
 Mixed JavaScript/TypeScript extraction uses one compiler Program. Explicit worker
 requests fall back to a single Program with a reported reason, preserving alias
 and declaration-companion semantics across the full selected source set.

@@ -21,7 +21,9 @@ commit identities, a current bound index, completed reconstruction and a non-emp
 effectively analyzed change scope. The scope starts with both sides of the exact diff,
 including renames and deletions, then closes over statically extracted imports, exports,
 calls and dependency relations. Discovery outside configured selectors detects excluded
-importers. Parse failure, unreadable sources, unresolved non-external imports and computed imports that could conceal
+importers. Static reexports and literal dynamic imports also contribute to the closure
+when the repository contains only TypeScript. Parse failure, unreadable sources,
+unresolved non-external imports and computed imports that could conceal
 an inbound dependency prevent admission. Exclusions remain visible and never discharge
 an obligated source. Unknown configuration/runtime semantics and deleted post-images
 are conservatively outside this bounded ESM/TypeScript profile.

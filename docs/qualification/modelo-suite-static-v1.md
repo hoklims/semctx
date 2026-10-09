@@ -36,6 +36,8 @@ unreleased candidate until its own artifacts are qualified.
 | --- | --- | --- |
 | JavaScript analysis | Actual `.mjs/.js/.jsx` functions, classes, exports, imports and resolved calls | Non-function exports are explicit module metadata; no invented variable call edges |
 | Mixed-language impact | TypeScript to JavaScript and JavaScript to TypeScript paths, transitive callers, inherited aliases and `.d.mts` companions | Resolved static ESM only; arbitrary runtime resolution is not complete |
+| TypeScript-only closure | Static reexports and literal dynamic imports, including excluded inbound importers | Required links are extracted even when no JavaScript file is present |
+| Effective module configuration | Direct and inherited compiler options are inspected | The profile uses ESNext/Bundler defaults and refuses explicit incompatible module or resolution semantics |
 | Monorepo selection | Exact changed paths plus required dependencies, including excluded importers | A required exclusion, wrong root, empty selection or zero analysis rejects admission |
 | Source identity | Exact Git endpoints, diff, raw source/configuration input digest, analyzer and index identities | Selected and excluded/untracked source/configuration drift invalidates qualification |
 | Reconstruction | Sources actually consumed; completed snapshot plus explicit build state | Interrupted rebuilding and partial/failed required analysis refuse admission |
@@ -50,6 +52,12 @@ The standalone witness uses Bun 1.4.2, pnpm 12.9.1, TypeScript 7.0.2, Vitest 5.0
 and Turbo 2.11.7 with nested `apps/*`, `contracts/*`, `design-system/*`, `domains/*/*`,
 `platform/*` and `tooling/*` workspaces. Semctx's analysis compiler is separately pinned
 to TypeScript 5.9.3. Newer consumer syntax that cannot be parsed remains a failure.
+The profile's effective module settings are `module: "ESNext"` and
+`moduleResolution: "Bundler"`. Missing settings take those defaults. Explicit incompatible
+settings, including inherited NodeNext/Node16 or CommonJS, remain outside qualification and
+produce `SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:<name>` or
+`SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:<name>`; hashing the configuration cannot
+substitute for honoring or refusing its semantics.
 
 ## Reproduction and validation
 
