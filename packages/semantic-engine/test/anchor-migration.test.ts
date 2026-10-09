@@ -913,6 +913,63 @@ describe("persistent crash recovery", () => {
 });
 
 describe("exclusive transaction ownership and durability faults", () => {
+  it("recognizes a live transaction published during acquisition path resolution", async () => {
+    const root = repository({
+      "race.sem": invariantFile("invariant.race", ["sym:function:src/a.ts:run:42"]),
+    });
+    const before = read(root, "race.sem");
+    const source = `
+      import * as fs from "node:fs";
+      import { join } from "node:path";
+      import { mock } from "bun:test";
+      const original = { ...fs };
+      const root = process.argv[1];
+      const directory = join(root, ".semctx", "working", "anchor-migration-v1");
+      const candidate = join(directory, "acquire-" + process.pid + "-0123456789abcdef01");
+      const active = join(directory, "active");
+      original.mkdirSync(join(candidate, "blobs"), { recursive: true });
+      original.writeFileSync(join(candidate, "owner.json"), JSON.stringify({
+        pid: process.pid, token: "0123456789abcdef0123456789abcdef",
+      }));
+      let published = false;
+      const realpath = Object.assign((path, ...options) => {
+        if (String(path) === candidate && !published) {
+          published = true;
+          original.renameSync(candidate, active);
+          return original.realpathSync(active, ...options);
+        }
+        return original.realpathSync(path, ...options);
+      }, { native: original.realpathSync.native });
+      // Model macOS resolving an opened descriptor after its directory was renamed.
+      mock.module("node:fs", () => ({
+        ...original, realpathSync: realpath,
+        default: { ...original, realpathSync: realpath },
+      }));
+      const { recoverAnchorMigration } = await import("./packages/semantic-engine/src/index.ts");
+      let reason = null;
+      try { recoverAnchorMigration(root); }
+      catch (error) { reason = error?.details?.reason ?? "UNKNOWN"; }
+      console.log(JSON.stringify({
+        published, reason,
+        candidateAbsent: !original.existsSync(candidate),
+        activePreserved: original.existsSync(active),
+        ownerPreserved: JSON.parse(original.readFileSync(join(active, "owner.json"), "utf8")).pid === process.pid,
+      }));
+    `;
+    const child = Bun.spawn([process.execPath, "-e", source, root], {
+      cwd: process.cwd(), stdout: "pipe", stderr: "pipe",
+    });
+    const [exit, stdout, stderr] = await Promise.all([
+      child.exited, new Response(child.stdout).text(), new Response(child.stderr).text(),
+    ]);
+    expect({ exit, stderr }).toEqual({ exit: 0, stderr: "" });
+    expect(JSON.parse(stdout)).toEqual({
+      published: true, reason: "TRANSACTION_ALREADY_ACTIVE",
+      candidateAbsent: true, activePreserved: true, ownerPreserved: true,
+    });
+    expect(read(root, "race.sem")).toBe(before);
+  });
+
   it("allows only one real subprocess to acquire the active transaction", async () => {
     const root = repository({
       "race.sem": invariantFile("invariant.race", ["sym:function:src/a.ts:run:42"]),

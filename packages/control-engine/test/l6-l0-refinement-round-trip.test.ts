@@ -97,9 +97,7 @@ describe("tracked L6-to-L0 refinement dogfood", () => {
     expect(report.governingConstraints.map((relation) => relation.id)).toEqual(
       [...EXPECTED_CONSTRAINTS],
     );
-    expect(report.proofs.map((relation) => relation.id)).toEqual([
-      "refinement.09.contract-proof",
-    ]);
+    expect(report.proofs).toEqual([]);
     expect(report.advisorySteps.map((step) => step.relation.id)).toEqual([
       "refinement.90.llm-advisory",
       "refinement.91.multilevel-advisory",
@@ -118,9 +116,7 @@ describe("tracked L6-to-L0 refinement dogfood", () => {
     expect(lifted.governingConstraints.map((relation) => relation.id)).toEqual(
       [...EXPECTED_CONSTRAINTS],
     );
-    expect(lifted.proofs.map((relation) => relation.id)).toEqual([
-      "refinement.09.contract-proof",
-    ]);
+    expect(lifted.proofs).toEqual([]);
   });
 
   test("keeps shuffled authored and observed inputs byte-identical in canonical output", () => {

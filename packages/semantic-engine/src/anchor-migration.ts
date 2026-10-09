@@ -953,6 +953,14 @@ function cleanupAbandonedAcquisitions(root: string, files: AnchorMigrationFileSy
       if (errorCode(error) === "ENOENT") continue;
       throw error;
     }
+    if (info.isDirectory() && !info.isSymbolicLink() && candidateReal !== join(canonicalDirectory, name)) {
+      // macOS can resolve an opened directory after another process renames it to active.
+      // Only a vanished original name is benign; a remaining unsafe entry still refuses.
+      try { lstatSync(candidate); } catch (error) {
+        if (errorCode(error) === "ENOENT") continue;
+        throw error;
+      }
+    }
     if (info.isSymbolicLink() || !info.isDirectory() || candidateReal !== join(canonicalDirectory, name)) {
       throw new SemctxError("STORE_ERROR", "anchor migration acquisition state is unsafe", {
         reason: "TRANSACTION_WORKSPACE_UNSAFE",
