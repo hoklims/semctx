@@ -79,6 +79,19 @@ function renderText(report: ChangeImpactReport): void {
     heading("Exposed claims");
     for (const claim of report.exposedClaims ?? []) info(`  ${claim.id} ${c.dim(`[${claim.source}, ${claim.exposure}]`)}`);
   }
+  if ((report.authorityInvariants ?? []).length > 0) {
+    heading("Single-authority invariants");
+    for (const invariant of report.authorityInvariants ?? []) {
+      const marker = invariant.status === "single_source" ? c.dim("-") : c.yellow("!");
+      info(`  ${marker} ${invariant.id}: ${invariant.status} ${c.dim(`[source ${invariant.source}]`)}`);
+      // The current side only: where the value (or a retired one) still lives outside its source.
+      for (const occurrence of invariant.occurrences) {
+        if (occurrence.side !== "new" || (occurrence.kind === "authority" && occurrence.authoritative)) continue;
+        const at = occurrence.line === null ? `${occurrence.file} (binary)` : `${occurrence.file}:${occurrence.line}`;
+        info(`      ${occurrence.kind === "retired" ? "retired" : "copy"} ${at}${occurrence.changed ? c.dim(" [changed]") : ""}`);
+      }
+    }
+  }
   if (report.surfaces !== null) {
     heading("Surfaces");
     for (const surface of report.surfaces) info(`  ${surface.name}: ${surface.exposure}`);

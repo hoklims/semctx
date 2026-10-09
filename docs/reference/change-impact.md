@@ -95,8 +95,8 @@ invariant invariant.trust-policy.single-source
 ```
 
 `authority.value` and `authority.source` are required; `authority.retired` is an optional
-comma-separated list of superseded values that must appear nowhere. Values shorter than 8
-characters are refused (`AUTHORITY_DECLARATION_INVALID`). `impact diff` searches both diff sides
+comma-separated list of superseded values that must appear nowhere. An empty source and values
+shorter than 8 characters are refused (`AUTHORITY_DECLARATION_INVALID`). `impact diff` searches both diff sides
 with Git for every value, outside `.semctx/`, and reports the invariant when the change touches a
 file that holds a value on either side, the declared source, or the declaring `.sem` file. Each
 entry lists every `occurrence` (`file`, `line` — `null` for a file Git treats as binary, which
@@ -113,7 +113,9 @@ read on the new side:
 The scan reads Git, not the index, so it is reported even when the binding is broken. Values are
 matched as UTF-8 bytes: a copy stored in another encoding (UTF-16, for example) is not seen. For a
 working-tree or staged change, a worktree or index that moves during the search voids the result
-(`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`). It is a textual fact, not a verdict:
+(`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`); on every source, a range included, so
+does an authored model whose declarations changed before the analysis ended. Text output lists each
+exposed invariant with its status and the current-side copies. It is a textual fact, not a verdict:
 deciding whether a copy is acceptable stays with the consumer.
 
 ## How a change is classified
@@ -216,9 +218,9 @@ crossed, so their distance is not bounded by `maxDistance`.
 | `SEMANTIC_LINK_UNRESOLVED` | claims | an authored link that does not resolve against the index |
 | `SEMANTIC_LINK_NOT_POSITIONAL` | claims | an authored link to a claim or evidence record, which has no code position |
 | `SEMANTIC_INVARIANT_UNANCHORED` | claims | an authored invariant with no repository link: its exposure is unknown |
-| `AUTHORITY_DECLARATION_INVALID` | claims | an `authority.*` declaration that is incomplete, on a non-invariant, too short, or retires its own value |
+| `AUTHORITY_DECLARATION_INVALID` | claims | an `authority.*` declaration that is incomplete, has an empty source, is on a non-invariant, is too short, or retires its own value |
 | `AUTHORITY_SCAN_FAILED` | claims | a diff side could not be searched for an authority value; its occurrences are unknown |
-| `AUTHORITY_SCAN_UNSTABLE` | claims | the worktree or Git index changed while authority values were searched; `authorityInvariants` is `null` |
+| `AUTHORITY_SCAN_UNSTABLE` | claims | the worktree, the Git index or the authored declarations changed while authority values were searched; `authorityInvariants` is `null` |
 | `POSSIBLE_TIER_TRUNCATED` | none | possible targets omitted after `maxTargets` (surfaces then read `unknown`) |
 | `ADDED_PATH_NOT_INDEXED` | none | an added file the old-side index cannot describe; no indexed edge points to it |
 | `UNTRACKED_PATH_NOT_DIFFED` | none / reach | an untracked file outside the diff: `none` when the index does not describe it either, or when the binding proved it unchanged since the index read it from disk (committed code then reaches it only through the changed files that import it, or by resolution take-over, reported separately); `reach` when the index read it and whether it changed since is unknown |

@@ -83,23 +83,26 @@ function declarations(model: SemanticModel): { valid: AuthorityDeclaration[]; ga
   for (const node of model.nodes) {
     const metadata = node.metadata ?? {};
     const value = metadata[AUTHORITY_VALUE_KEY];
-    const source = metadata[AUTHORITY_SOURCE_KEY];
-    if (value === undefined && source === undefined) continue;
+    const rawSource = metadata[AUTHORITY_SOURCE_KEY];
+    if (value === undefined && rawSource === undefined) continue;
+    const source = rawSource === undefined ? undefined : normalizePath(rawSource.trim());
     const retired = (metadata[AUTHORITY_RETIRED_KEY] ?? "").split(",").map((entry) => entry.trim()).filter((entry) => entry.length > 0);
     const problem = node.kind !== "invariant"
       ? "only an invariant can declare a single authority"
       : value === undefined || source === undefined
         ? `a single authority needs both meta ${AUTHORITY_VALUE_KEY} and meta ${AUTHORITY_SOURCE_KEY}`
-        : [value, ...retired].some((literal) => literal.length < MIN_AUTHORITY_VALUE_LENGTH)
-          ? `authority values must be at least ${MIN_AUTHORITY_VALUE_LENGTH} characters`
-          : retired.includes(value)
-            ? "the authority value cannot also be retired"
-            : undefined;
+        : source.length === 0
+          ? `meta ${AUTHORITY_SOURCE_KEY} must name the file that holds the value`
+          : [value, ...retired].some((literal) => literal.length < MIN_AUTHORITY_VALUE_LENGTH)
+            ? `authority values must be at least ${MIN_AUTHORITY_VALUE_LENGTH} characters`
+            : retired.includes(value)
+              ? "the authority value cannot also be retired"
+              : undefined;
     if (problem !== undefined) {
       gaps.push({ code: "AUTHORITY_DECLARATION_INVALID", scope: "node", nodeId: node.id, detail: problem, affects: "claims" });
       continue;
     }
-    valid.push({ node, value: value!, source: normalizePath(source!), retired });
+    valid.push({ node, value: value!, source: source!, retired });
   }
   return { valid, gaps };
 }

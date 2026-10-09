@@ -420,22 +420,35 @@ function joinSemanticLayer(root: string, core: ChangeImpactCore, facts: Paramete
   return { layer: "joined", claims: joined.claims, gaps, modelHash };
 }
 
-/** Single-authority invariants exposed by the change; null when the authored model cannot be read. */
+/**
+ * Single-authority invariants exposed by the change; null when the authored model cannot be read.
+ * `modelHash` fingerprints the declarations the scan used, so the caller can prove they still hold
+ * once the analysis is over.
+ */
 function authorityInvariants(
   root: string,
   revisions: SideRevisions,
   changedPaths: ReadonlySet<string>,
-): { impacts: AuthorityInvariantImpact[] | null; gaps: UnresolvedImpact[] } {
+): { impacts: AuthorityInvariantImpact[] | null; gaps: UnresolvedImpact[]; modelHash: string | null } {
   let loaded: ReturnType<typeof loadSemanticModel>;
   try {
     loaded = loadSemanticModel(root);
   } catch {
-    return { impacts: null, gaps: [] };
+    return { impacts: null, gaps: [], modelHash: null };
   }
   if (loaded.duplicateIds.length > 0 || loaded.diagnostics.some((diagnostic) => diagnostic.severity === "error")) {
-    return { impacts: null, gaps: [] };
+    return { impacts: null, gaps: [], modelHash: null };
   }
-  return evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths);
+  return { ...evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths), modelHash: fingerprintSemanticModel(loaded.model) };
+}
+
+/** The authored model's fingerprint as a fresh reader sees it now; null when it cannot be read. */
+function currentSemanticModelHash(root: string): string | null {
+  try {
+    return fingerprintSemanticModel(loadSemanticModel(root).model);
+  } catch {
+    return null;
+  }
 }
 
 function changedPathsOf(files: readonly { path: string; oldPath?: string }[]): Set<string> {
@@ -597,7 +610,8 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         });
 
     // Searched inside the mutable-state bracket below: a worktree or index that moves during the
-    // search makes its result unusable, exactly like the index-derived sets.
+    // search makes its result unusable, exactly like the index-derived sets. The declarations come
+    // from the mutable authored model on every source, a range included, so they are re-read too.
     const scanned = authorityInvariants(root, revisions, changedPathsOf(changedFilesFromDiff(diff, untracked)));
 
     // Probed after the analysis, as `verify` does, so the binding describes the index just used.
@@ -614,17 +628,20 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       breaks.push("INDEX_CHANGED_DURING_ANALYSIS");
     }
     const uniqueBreaks = [...new Set(breaks)];
-    const authority = uniqueBreaks.includes("WORKING_TREE_CHANGED_DURING_ANALYSIS")
+    const declarationsMoved = scanned.impacts !== null && currentSemanticModelHash(root) !== scanned.modelHash;
+    const authority = uniqueBreaks.includes("WORKING_TREE_CHANGED_DURING_ANALYSIS") || declarationsMoved
       ? {
           impacts: null,
           gaps: [{
             code: "AUTHORITY_SCAN_UNSTABLE",
             scope: "run" as const,
-            detail: "the worktree or Git index changed while authority values were searched; their occurrences are unknown",
+            detail: declarationsMoved
+              ? "the authored model changed while authority values were searched; the declarations scanned are no longer current"
+              : "the worktree or Git index changed while authority values were searched; their occurrences are unknown",
             affects: "claims" as const,
           }],
         }
-      : scanned;
+      : { impacts: scanned.impacts, gaps: scanned.gaps };
     const broken = core === null || uniqueBreaks.length > 0;
 
     const subject: ChangeImpactReport["subject"] = {

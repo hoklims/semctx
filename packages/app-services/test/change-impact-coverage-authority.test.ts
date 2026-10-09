@@ -226,6 +226,30 @@ describe("impact diff — single-authority invariant", () => {
     expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "AUTHORITY_SCAN_UNSTABLE", affects: "claims" }));
   });
 
+  it("voids a clean range scan when the declarations change while it runs", () => {
+    const root = repository();
+    const base = git(root, "rev-parse", "HEAD");
+    edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");
+    git(root, "commit", "-qam", "touch a copy");
+    // A range reads only commits, so the worktree is not bracketed; the authored model still is.
+    __setVerifyControlBarrierForTesting(() => edit(root, ".semctx/semantic/invariants.sem", "authority.source=src/policy.ts", "authority.source=src/consumer.ts"));
+    const report = analyse(root, { kind: "range", base });
+    expect(report.analysis.binding.breaks).not.toContain("WORKING_TREE_CHANGED_DURING_ANALYSIS");
+    expect(report.authorityInvariants).toBeNull();
+    expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "AUTHORITY_SCAN_UNSTABLE", affects: "claims" }));
+  });
+
+  it("rejects a declaration whose source names no file", () => {
+    const root = repository(invariant([`authority.value=${DIGEST}`, "authority.source="]));
+    edit(root, "native/Installer.cs", "class Installer", "sealed class Installer");
+    const report = analyse(root);
+    expect(report.authorityInvariants).toEqual([]);
+    expect(report.unresolved.find((gap) => gap.code === "AUTHORITY_DECLARATION_INVALID")).toMatchObject({
+      nodeId: "invariant.trust-policy.single-source",
+      affects: "claims",
+    });
+  });
+
   it("reports an unusable declaration instead of scanning for a trivial literal", () => {
     const root = repository(invariant(["authority.value=1", "authority.source=src/policy.ts"]));
     edit(root, "src/policy.ts", DIGEST, NEXT);
