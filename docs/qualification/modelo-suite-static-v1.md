@@ -70,6 +70,7 @@ bun scripts/qualify-modelo-static.ts --source-root <candidate> \
   --mcp <candidate>/plugins/claude-code/dist/semctx-mcp.js \
   --plugin-cli <candidate>/plugins/claude-code/dist/semctx.js \
   --legacy-cli <baseline>/apps/cli/dist/index.js \
+  --regression-cli <pre-audit-correction>/apps/cli/dist/index.js \
   --output-dir <new-disposable-evidence-directory>
 ```
 
@@ -80,6 +81,9 @@ modified, renamed and deleted files after indexing; failed parsing, unsupported 
 partial indexing, empty selectors, wrong roots and real process interruption. The old runtime
 must also refuse the qualified selector. No absence of detected violations substitutes for
 analyzed obligations.
+Build the regression CLI from commit `774bb72027f3ce68b69c29b1f12acf3c110a3ef0`.
+It reproduces positive admission for excluded TypeScript-only reexports/literal imports
+and incompatible inherited module settings. The candidate must refuse those same inputs.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent

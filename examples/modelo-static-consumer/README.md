@@ -15,6 +15,7 @@ bun scripts/qualify-modelo-static.ts \
   --mcp /path/to/candidate/plugins/claude-code/dist/semctx-mcp.js \
   --plugin-cli /path/to/candidate/plugins/claude-code/dist/semctx.js \
   --legacy-cli /path/to/baseline/apps/cli/dist/index.js \
+  --regression-cli /path/to/pre-audit-correction/apps/cli/dist/index.js \
   --output-dir /path/to/new-evidence-directory
 ```
 
@@ -24,7 +25,11 @@ internal TypeScript version remains a separate artifact identity. Network access
 is necessary for the initial installation. Installation errors fail qualification;
 declared versions do not count as observed runtime versions.
 
-The process exits nonzero if any scenario fails or if the actual historical
+Build the legacy baseline from `f6c0556d51662b8b763500945215f82ae75f64b9`
+and the pre-audit-correction artifact from `774bb72027f3ce68b69c29b1f12acf3c110a3ef0`.
+Both are public source revisions and use generated anonymous fixtures.
+
+The process exits nonzero if any scenario fails or if either actual historical
 witness is absent. `qualification.json` retains raw commands, stdout, stderr,
 exit codes, source identity and bundle SHA-256 hashes. Existing fixture paths
 are never overwritten; use a new output directory for each run.
@@ -35,6 +40,8 @@ are never overwritten; use a new output directory for each run.
 | Qualified configuration boundary | `qualified-static-v1` requires the named profile; the old CLI rejects indexing and verification with nonzero exits |
 | Historical case matrix | Actual old CLI health, index and verify observations for edit/add/delete/rename, syntax errors, computed import, CommonJS, partial/empty selection and wrong root; existing refusals remain explicit |
 | Mixed ESM / TypeScript | Exported `.mjs` symbol, imports and real call edges reach `.ts` bridge and `.js` consumer |
+| TypeScript-only inbound closure | An excluded static reexport or literal dynamic importer remains a required file and rejects admission; the pre-audit artifact admits the same input |
+| Inherited module semantics | Explicit inherited NodeNext settings are refused by the ESNext/Bundler profile; the pre-audit artifact silently admits the same input |
 | Refresh | Source edit first refuses; full indexing then admits the covered static change |
 | CLI / plugin / MCP | Built artifacts report the same admission; MCP is invoked through real stdio JSON-RPC |
 | Added / edited / deleted / renamed | Index taken before the mutation cannot admit the change |
