@@ -1,0 +1,90 @@
+# Modelo Suite static profile qualification
+
+This qualification concerns `modelo-suite-static-v1`, selected explicitly by configuration
+version 2 with `selectionMode: "qualified-static-v1"`. It covers the analyzed ESM/TypeScript
+change and its static dependency closure. It does not qualify the entire consumer repository
+or its production pipeline. Public fixtures use generated anonymous sources.
+
+## Use and admission
+
+```json
+{
+  "version": 2,
+  "selectionMode": "qualified-static-v1",
+  "analysisProfile": "modelo-suite-static-v1",
+  "languages": { "typescript": "on", "javascript": "on" },
+  "include": ["scripts/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}", "suite/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}"],
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/.semctx/**"]
+}
+```
+
+Apply these fields to a complete existing configuration; preserve its blocking rules and other
+settings. This excerpt is not a replacement configuration. Select the exact Git worktree root,
+inspect the proposed source roots and configure the required paths explicitly. Existing
+configuration is never broadened automatically. Rebuild the index after editing the sources.
+
+Consumers must inspect `analysisAdmission.profile`, `analysisAdmission.status`, binding,
+index freshness, check freshness, change coverage and the actual exit status. A legacy report
+without this admission is not qualified. An older runtime rejects the new selection mode.
+The analyzer digest identifies the implementation and actual compiler bytes independently
+of the package version. A source build carrying an existing release version is still a new
+unreleased candidate until its own artifacts are qualified.
+
+## Coverage and boundaries
+
+| Obligation | Evidence required | Scope and limitation |
+| --- | --- | --- |
+| JavaScript analysis | Actual `.mjs/.js/.jsx` functions, classes, exports, imports and resolved calls | Non-function exports are explicit module metadata; no invented variable call edges |
+| Mixed-language impact | TypeScript to JavaScript and JavaScript to TypeScript paths, transitive callers, inherited aliases and `.d.mts` companions | Resolved static ESM only; arbitrary runtime resolution is not complete |
+| Monorepo selection | Exact changed paths plus required dependencies, including excluded importers | A required exclusion, wrong root, empty selection or zero analysis rejects admission |
+| Source identity | Exact Git endpoints, diff, raw source/configuration input digest, analyzer and index identities | Selected and excluded/untracked source/configuration drift invalidates qualification |
+| Reconstruction | Sources actually consumed; completed snapshot plus explicit build state | Interrupted rebuilding and partial/failed required analysis refuse admission |
+| Parsing and unresolved constructs | File outcome and diagnostic, with nonpositive admission | CommonJS, computed loading/evaluation and missing/deleted post-images require another profile |
+| CLI, MCP, plugin and Action | Actual structured outputs and process results | A qualified rejection returns nonzero even in advisory consumption |
+| Tests | Executed tests on the exact input with retained outcomes | Static test edges and recommendations do not establish execution |
+| Turbo cache | Miss, hit and invalidation observed on representative tasks | The synthetic task graph qualifies only that task graph |
+| Failure propagation | Injected failed task produces an observed nonzero enclosing command | Static code analysis does not establish pipeline propagation |
+| Pipeline | Actual required pipeline execution on the exact candidate | Synthetic consumer observations do not establish the private production pipeline |
+
+The standalone witness uses Bun 1.4.2, pnpm 12.9.1, TypeScript 7.0.2, Vitest 5.0.3
+and Turbo 2.11.7 with nested `apps/*`, `contracts/*`, `design-system/*`, `domains/*/*`,
+`platform/*` and `tooling/*` workspaces. Semctx's analysis compiler is separately pinned
+to TypeScript 5.9.3. Newer consumer syntax that cannot be parsed remains a failure.
+
+## Reproduction and validation
+
+Build and pack the CLI, install that tarball into a disposable wrapper, generate the plugins
+with the repository's pinned Bun 1.4.0, then run the public harness with explicit artifact paths:
+
+```sh
+bun scripts/qualify-modelo-static.ts --source-root <candidate> \
+  --cli <disposable-install>/node_modules/semctx/dist/index.js \
+  --mcp <candidate>/plugins/claude-code/dist/semctx-mcp.js \
+  --plugin-cli <candidate>/plugins/claude-code/dist/semctx.js \
+  --legacy-cli <baseline>/apps/cli/dist/index.js \
+  --output-dir <new-disposable-evidence-directory>
+```
+
+The harness preserves actual command output and numeric exit codes. Its baseline reproduces
+the incident with `PASS` despite an unanalysed changed `.mjs` and stale index. The corrected
+profile requires effective extraction after actual rebuilding. Negative cases cover added,
+modified, renamed and deleted files after indexing; failed parsing, unsupported constructs,
+partial indexing, empty selectors, wrong roots and real process interruption. The old runtime
+must also refuse the qualified selector. No absence of detected violations substitutes for
+analyzed obligations.
+
+Repository gates, independently executed negative witnesses and the fresh aggregate auditor
+must all bind the complete candidate. Source, build, local checks, hosted CI and independent
+review remain separate observations. See the PR evidence for the exact commit, commands,
+artifact identities and observed results; this document alone is not a readiness receipt.
+
+## Invalidation and delivery states
+
+Any source/configuration/selector, relevant manifest or lockfile, Git endpoint, analyzer/compiler,
+index snapshot or store change invalidates the corresponding qualification. Unsupported required
+syntax, unresolved scope, failed parsing, stale input, source drift during analysis and interrupted
+rebuilding suspend admission. Rebuilding must consume sources and record a new complete result.
+
+Package qualification does not install a global CLI or plugin, reload an existing host session,
+activate a consumer gate or establish observed use in that consumer. Those states require their
+own observations. Approval gates, brokers and shared agent approval policy are outside this PR.

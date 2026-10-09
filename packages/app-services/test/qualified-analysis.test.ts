@@ -136,3 +136,18 @@ test("qualified raw input inventory refuses an external directory link without f
   symlinkSync(outside, join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
   expect(() => runVerify(root, { kind: "working-tree" })).toThrow("cannot read a symbolic link");
 });
+
+test("excluded TypeScript dynamic construction cannot hide an inbound scope", () => {
+  for (const content of [
+    'const load = new Function("return import(\'./src/main.ts\')"); export const result = load();\n',
+    'with (globalThis) { const load = packageLoader; load("./src/main.ts"); }\n',
+  ]) {
+    const root = selectedRepository();
+    writeFileSync(join(root, "hidden.ts"), content);
+    writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+    indexRepository(root, "2026-10-09T10:01:00.000Z");
+    const report = runVerify(root, { kind: "working-tree" }).report;
+    expect(report.analysisAdmission?.status).toBe("rejected");
+    expect(report.analysisAdmission?.reasons).toContain("DEPENDENCY_SCOPE_RUNTIME_CODE:hidden.ts");
+  }
+});

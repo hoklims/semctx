@@ -93,6 +93,10 @@ export function qualifiedAdmission(input: {
         if ((dynamic || requireCall) && (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!))) reasons.push(`DEPENDENCY_SCOPE_COMPUTED_IMPORT:${source.relPath}`);
         if (ts.isIdentifier(node.expression) && ["eval", "Function"].includes(node.expression.text)) reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
       }
+      if (ts.isWithStatement(node)
+        || (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "Function")) {
+        reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
+      }
       ts.forEachChild(node, visit);
     };
     visit(ast);
