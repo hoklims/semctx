@@ -204,7 +204,7 @@ export interface ControlStatusTimeoutReport {
   reasons: ["STATUS_BUDGET_EXCEEDED"];
   freshnessSeal: null;
   budget: { budgetMs: number; elapsedMs: number };
-  explanation: [ControlStatusExplanation];
+  explanation: [ControlStatusExplanation & { reason: "STATUS_BUDGET_EXCEEDED" }];
 }
 
 /** FRESH, DIRTY_KNOWN, STALE, UNSEALED or TIMEOUT — always typed, always with its reasons. */

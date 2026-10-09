@@ -99,8 +99,9 @@ comma-separated list of superseded values that must appear nowhere. Values short
 characters are refused (`AUTHORITY_DECLARATION_INVALID`). `impact diff` searches both diff sides
 with Git for every value, outside `.semctx/`, and reports the invariant when the change touches a
 file that holds a value on either side, the declared source, or the declaring `.sem` file. Each
-entry lists every `occurrence` (`file`, `line`, `side`, `kind` `authority` \| `retired`,
-`authoritative`, `changed`) and a `status` read on the new side:
+entry lists every `occurrence` (`file`, `line` — `null` for a file Git treats as binary, which
+still counts — `side`, `kind` `authority` \| `retired`, `authoritative`, `changed`) and a `status`
+read on the new side:
 
 | `status` | meaning |
 | --- | --- |
@@ -109,8 +110,11 @@ entry lists every `occurrence` (`file`, `line`, `side`, `kind` `authority` \| `r
 | `diverged` | a retired value remains somewhere, or other files hold the value while the source does not |
 | `absent` | the value is nowhere |
 
-The scan reads Git, not the index, so it is reported even when the binding is broken. It is a
-textual fact, not a verdict: deciding whether a copy is acceptable stays with the consumer.
+The scan reads Git, not the index, so it is reported even when the binding is broken. Values are
+matched as UTF-8 bytes: a copy stored in another encoding (UTF-16, for example) is not seen. For a
+working-tree or staged change, a worktree or index that moves during the search voids the result
+(`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`). It is a textual fact, not a verdict:
+deciding whether a copy is acceptable stays with the consumer.
 
 ## How a change is classified
 
@@ -214,6 +218,7 @@ crossed, so their distance is not bounded by `maxDistance`.
 | `SEMANTIC_INVARIANT_UNANCHORED` | claims | an authored invariant with no repository link: its exposure is unknown |
 | `AUTHORITY_DECLARATION_INVALID` | claims | an `authority.*` declaration that is incomplete, on a non-invariant, too short, or retires its own value |
 | `AUTHORITY_SCAN_FAILED` | claims | a diff side could not be searched for an authority value; its occurrences are unknown |
+| `AUTHORITY_SCAN_UNSTABLE` | claims | the worktree or Git index changed while authority values were searched; `authorityInvariants` is `null` |
 | `POSSIBLE_TIER_TRUNCATED` | none | possible targets omitted after `maxTargets` (surfaces then read `unknown`) |
 | `ADDED_PATH_NOT_INDEXED` | none | an added file the old-side index cannot describe; no indexed edge points to it |
 | `UNTRACKED_PATH_NOT_DIFFED` | none / reach | an untracked file outside the diff: `none` when the index does not describe it either, or when the binding proved it unchanged since the index read it from disk (committed code then reaches it only through the changed files that import it, or by resolution take-over, reported separately); `reach` when the index read it and whether it changed since is unknown |

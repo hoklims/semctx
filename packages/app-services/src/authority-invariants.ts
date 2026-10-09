@@ -31,7 +31,8 @@ interface AuthorityDeclaration {
 
 interface Occurrence {
   file: string;
-  line: number;
+  /** Null for a file Git treats as binary: the bytes match, but no line can be named. */
+  line: number | null;
 }
 
 function git(root: string, args: string[]): { code: number; out: string } {
@@ -43,20 +44,35 @@ function normalizePath(path: string): string {
   return path.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
-/** Every line holding `literal` on one side, outside `.semctx/` (where the declaration itself lives). */
+/**
+ * Every line holding `literal` on one side, outside `.semctx/` (where the declaration itself lives).
+ * Two passes: text files with their line numbers, then every matching file, so a file Git treats
+ * as binary still counts as an occurrence (with no line) instead of disappearing from the report.
+ * Values are matched as UTF-8 bytes; a copy stored in another encoding (UTF-16) is not seen.
+ */
 function scan(root: string, revision: string | null, literal: string): Occurrence[] | undefined {
   const where = revision === null ? ["--untracked"] : revision === "" ? ["--cached"] : [revision];
-  const result = git(root, ["grep", "--no-full-name", "-n", "-I", "-F", "-z", "-e", literal, ...where, "--", ".", ":(exclude).semctx"]);
-  if (result.code === 1) return [];
-  if (result.code !== 0) return undefined;
+  const pathspec = ["--", ".", ":(exclude).semctx"];
+  const lines = git(root, ["grep", "--no-full-name", "-n", "-I", "-F", "-z", "-e", literal, ...where, ...pathspec]);
+  const files = git(root, ["grep", "--no-full-name", "-l", "-F", "-z", "-e", literal, ...where, ...pathspec]);
+  if ((lines.code !== 0 && lines.code !== 1) || (files.code !== 0 && files.code !== 1)) return undefined;
   const prefix = revision === null || revision === "" ? "" : `${revision}:`;
+  const unprefixed = (rawPath: string): string => normalizePath(rawPath.startsWith(prefix) ? rawPath.slice(prefix.length) : rawPath);
   const occurrences: Occurrence[] = [];
-  for (const record of result.out.split("\n")) {
+  const textFiles = new Set<string>();
+  for (const record of lines.out.split("\n")) {
     const [rawPath, rawLine] = record.split("\0");
     if (rawPath === undefined || rawLine === undefined || rawPath.length === 0) continue;
-    const path = rawPath.startsWith(prefix) ? rawPath.slice(prefix.length) : rawPath;
     const line = Number(rawLine);
-    if (Number.isSafeInteger(line)) occurrences.push({ file: normalizePath(path), line });
+    if (!Number.isSafeInteger(line)) continue;
+    const file = unprefixed(rawPath);
+    textFiles.add(file);
+    occurrences.push({ file, line });
+  }
+  for (const rawPath of files.out.split("\0")) {
+    if (rawPath.length === 0) continue;
+    const file = unprefixed(rawPath);
+    if (!textFiles.has(file)) occurrences.push({ file, line: null });
   }
   return occurrences;
 }
@@ -154,7 +170,7 @@ export function evaluateAuthorityInvariants(
       occurrences: occurrences.sort((left, right) =>
         compareIds(left.side, right.side)
         || compareIds(left.file, right.file)
-        || left.line - right.line
+        || (left.line ?? 0) - (right.line ?? 0)
         || compareIds(left.kind, right.kind)),
     });
   }

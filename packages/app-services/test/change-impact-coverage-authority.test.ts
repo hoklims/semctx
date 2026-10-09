@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { ChangeImpactReportSchema, createDefaultConfig, type ChangeImpactReport } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runChangeImpact } from "../src";
+import { __setVerifyControlBarrierForTesting } from "../src/verify";
 
 /**
  * Two properties `impact diff` must make visible on any change: which changed files were actually
@@ -27,6 +28,7 @@ const GIT_ENV = {
 const parents: string[] = [];
 
 afterAll(() => {
+  __setVerifyControlBarrierForTesting(undefined);
   for (const parent of parents) rmSync(parent, { recursive: true, force: true });
 });
 
@@ -136,6 +138,15 @@ describe("impact diff — per-file coverage", () => {
     });
   });
 
+  it("names the language of the side the analysis read for a rename", () => {
+    const root = repository();
+    git(root, "mv", "src/unrelated.ts", "src/unrelated.cs");
+    const report = analyse(root);
+    const renamed = report.changes.files.find((file) => file.path === "src/unrelated.cs");
+    expect(renamed).toMatchObject({ oldPath: "src/unrelated.ts", status: "renamed" });
+    expect(renamed?.coverage).toEqual({ status: "analyzed", language: "typescript" });
+  });
+
   it("the contract rejects a summary that disagrees with the files", () => {
     const root = repository();
     edit(root, "src/unrelated.ts", "= 1", "= 2");
@@ -192,6 +203,27 @@ describe("impact diff — single-authority invariant", () => {
     expect(authority?.status).toBe("diverged");
     expect(authority?.occurrences.filter((occurrence) => occurrence.side === "new" && occurrence.kind === "retired").map((occurrence) => occurrence.file))
       .toEqual(["native/Installer.cs", "src/consumer.ts"]);
+  });
+
+  it("counts a copy in a file Git treats as binary instead of reporting a single source", () => {
+    const root = repository();
+    edit(root, "src/consumer.ts", `export const pinned = "${DIGEST}";`, "export const pinned = TRUST_POLICY_DIGEST;");
+    edit(root, "native/Installer.cs", `"${DIGEST}"`, "Policy.Digest");
+    writeFileSync(join(root, "native/trust.bin"), Buffer.concat([Buffer.from([0, 1, 2, 0]), Buffer.from(DIGEST, "utf8"), Buffer.from([0])]));
+    const authority = analyse(root).authorityInvariants?.[0];
+    expect(authority?.status).toBe("duplicated");
+    expect(authority?.occurrences.filter((occurrence) => occurrence.side === "new" && !occurrence.authoritative))
+      .toEqual([{ file: "native/trust.bin", line: null, side: "new", kind: "authority", authoritative: false, changed: true }]);
+  });
+
+  it("voids the scan when the worktree moves while it is searched", () => {
+    const root = repository();
+    edit(root, "src/consumer.ts", "export function trusted", "export function isTrusted");
+    __setVerifyControlBarrierForTesting(() => edit(root, "native/Installer.cs", `"${DIGEST}"`, "Policy.Digest"));
+    const report = analyse(root);
+    expect(report.analysis.binding.breaks).toContain("WORKING_TREE_CHANGED_DURING_ANALYSIS");
+    expect(report.authorityInvariants).toBeNull();
+    expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "AUTHORITY_SCAN_UNSTABLE", affects: "claims" }));
   });
 
   it("reports an unusable declaration instead of scanning for a trivial literal", () => {

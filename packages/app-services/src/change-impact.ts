@@ -596,6 +596,10 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           bounds,
         });
 
+    // Searched inside the mutable-state bracket below: a worktree or index that moves during the
+    // search makes its result unusable, exactly like the index-derived sets.
+    const scanned = authorityInvariants(root, revisions, changedPathsOf(changedFilesFromDiff(diff, untracked)));
+
     // Probed after the analysis, as `verify` does, so the binding describes the index just used.
     const semanticInputHashes: string[] = [];
     const observed = observeIndexBinding(root, store, resolved.identity, (hash) => semanticInputHashes.push(hash));
@@ -610,6 +614,17 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       breaks.push("INDEX_CHANGED_DURING_ANALYSIS");
     }
     const uniqueBreaks = [...new Set(breaks)];
+    const authority = uniqueBreaks.includes("WORKING_TREE_CHANGED_DURING_ANALYSIS")
+      ? {
+          impacts: null,
+          gaps: [{
+            code: "AUTHORITY_SCAN_UNSTABLE",
+            scope: "run" as const,
+            detail: "the worktree or Git index changed while authority values were searched; their occurrences are unknown",
+            affects: "claims" as const,
+          }],
+        }
+      : scanned;
     const broken = core === null || uniqueBreaks.length > 0;
 
     const subject: ChangeImpactReport["subject"] = {
@@ -647,7 +662,6 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         ? "Rebuild the index on a tree whose analysed files are all committed (commit or stash first), then retry."
         : "Re-run `semctx index`, then retry.";
       const covered = coverage(changedFilesFromDiff(diff, untracked));
-      const authority = authorityInvariants(root, revisions, changedPathsOf(covered.files));
       const unresolved: UnresolvedImpact[] = sortUnresolved([{
         code: "INDEX_BINDING_BROKEN",
         scope: "run",
@@ -687,7 +701,6 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
 
     const semantic = joinSemanticLayer(root, core, facts);
     subject.inputs.semanticModelHash = semantic.modelHash;
-    const authority = authorityInvariants(root, revisions, changedPathsOf(core.files));
     const unresolved = sortUnresolved([...core.unresolved, ...semantic.gaps, ...authority.gaps]);
     const exposedClaims = [...core.markerClaims, ...semantic.claims]
       .sort((a, b) => TIER_RANK[a.exposure] - TIER_RANK[b.exposure] || compareIds(a.id, b.id));

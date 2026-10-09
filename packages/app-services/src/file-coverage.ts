@@ -64,7 +64,10 @@ export interface FileCoverageInput {
  * index binding, then what the diff carries, then whether the index holds the file.
  */
 export function coverageOf(file: ChangedFile, input: FileCoverageInput): FileCoverage {
-  const language = fileLanguage(file.path);
+  // The language of the content the analysis read: a rename bound on the old side was read at its
+  // old path (an indexed `foo.ts` renamed to `foo.cs` is still TypeScript to the analysis).
+  const boundPath = input.bound !== null && input.bound.sideOf(file.path) === "old" ? (file.oldPath ?? file.path) : file.path;
+  const language = fileLanguage(boundPath);
   const notAnalyzed = (reason: string): FileCoverage => ({ status: "not_analyzed", language, reason });
   if (!ANALYZED_LANGUAGES.has(language)) return notAnalyzed("LANGUAGE_UNSUPPORTED");
   if (!isPathSelected(input.config, file.path) && (file.oldPath === undefined || !isPathSelected(input.config, file.oldPath))) {
@@ -75,8 +78,6 @@ export function coverageOf(file: ChangedFile, input: FileCoverageInput): FileCov
   if (file.status === "mode_only") return notAnalyzed("METADATA_ONLY");
   if (file.status === "unrecognized") return notAnalyzed("UNRECOGNIZED_DIFF_BLOCK");
   if (file.status === "untracked") return notAnalyzed("UNTRACKED_NOT_DIFFED");
-  const side = input.bound.sideOf(file.path);
-  const boundPath = side === "old" ? (file.oldPath ?? file.path) : file.path;
   return input.bound.indexedFiles.has(boundPath)
     ? { status: "analyzed", language }
     : notAnalyzed("NOT_INDEXED");

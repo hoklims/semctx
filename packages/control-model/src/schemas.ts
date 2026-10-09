@@ -233,7 +233,12 @@ export const ControlStatusTimeoutReportSchema = z.object({
     budgetMs: z.number().int().positive(),
     elapsedMs: z.number().int().nonnegative(),
   }).strict(),
-  explanation: z.tuple([ControlStatusExplanationSchema]),
+  explanation: z.tuple([z.object({
+    reason: z.literal(CONTROL_STATUS_BUDGET_EXCEEDED),
+    code: z.string().min(1),
+    detail: z.string().min(1),
+    remedy: z.string().min(1).nullable(),
+  }).strict()]),
 }).strict();
 
 export const ControlStatusPreflightReportSchema = z.union([

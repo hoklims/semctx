@@ -269,7 +269,8 @@ export interface AuthorityInvariantImpact {
   status: "single_source" | "duplicated" | "diverged" | "absent";
   occurrences: {
     file: string;
-    line: number;
+    /** Null when Git treats the file as binary: its bytes hold the value, but no line can be named. */
+    line: number | null;
     side: "old" | "new";
     kind: "authority" | "retired";
     /** The occurrence is in the declared source file. */
@@ -559,7 +560,7 @@ const ChangeImpactReportShape = z
               z
                 .object({
                   file: z.string(),
-                  line: z.number().int().min(1),
+                  line: z.number().int().min(1).nullable(),
                   side: z.enum(["old", "new"]),
                   kind: z.enum(["authority", "retired"]),
                   authoritative: z.boolean(),
