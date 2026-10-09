@@ -21,7 +21,7 @@ describe("MCP 2026 SDK boundary", () => {
     };
 
     expect(manifest.dependencies?.["@modelcontextprotocol/server"]).toBe("2.2.0");
-    expect(manifest.devDependencies?.["@modelcontextprotocol/client"]).toBe("2.0.0");
+    expect(manifest.devDependencies?.["@modelcontextprotocol/client"]).toBe("2.2.0");
     expect(manifest.dependencies?.["@modelcontextprotocol/sdk"]).toBeUndefined();
     expect(manifest.dependencies?.["zod"]).toBe("^3.23.8");
     expect(manifest.dependencies?.["zod-v4"]).toBe("npm:zod@4.2.0");
