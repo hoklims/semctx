@@ -90,9 +90,14 @@ export function qualifiedAdmission(input: {
       if (ts.isCallExpression(node)) {
         const dynamic = node.expression.kind === ts.SyntaxKind.ImportKeyword;
         const requireCall = ts.isIdentifier(node.expression) && node.expression.text === "require";
+        if (requireCall) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
         if ((dynamic || requireCall) && (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!))) reasons.push(`DEPENDENCY_SCOPE_COMPUTED_IMPORT:${source.relPath}`);
         if (ts.isIdentifier(node.expression) && ["eval", "Function"].includes(node.expression.text)) reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
       }
+      if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+        reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
+      }
+      if (ts.isImportTypeNode(node)) reasons.push(`DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:${source.relPath}`);
       if (ts.isWithStatement(node)
         || (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "Function")) {
         reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
