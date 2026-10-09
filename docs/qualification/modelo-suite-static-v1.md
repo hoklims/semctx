@@ -61,6 +61,9 @@ substitute for honoring or refusing its semantics.
 Scope reconstruction also refuses CommonJS loading, including a literal `require()` or
 external `import = require()` in an excluded source. Such an importer cannot disappear
 from the dependency obligation merely because it is outside the configured selector.
+Inline TypeScript `import()` type queries are also outside the profile and suspend scope
+admission with `DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:<path>` until qualified static
+module links are available for that construct.
 
 ## Reproduction and validation
 
