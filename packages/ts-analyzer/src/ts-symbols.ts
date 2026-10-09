@@ -113,7 +113,8 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
   target: ts.ScriptTarget.ES2022,
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.Bundler,
-  allowJs: false,
+  allowJs: true,
+  jsx: ts.JsxEmit.Preserve,
   skipLibCheck: true,
   noEmit: true,
   strict: false,
@@ -126,6 +127,10 @@ export const extractionContext = {
     // Match tsc's semantic parsing: retain type-error JSDoc, avoid prose ASTs in dependencies.
     // Semctx reads its JSDoc/markers from source text, independently of these compiler nodes.
     host.jsDocParsingMode = ts.JSDocParsingMode.ParseForTypeErrors;
+    if (rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+      host.resolveModuleNames = (names, containingFile) => names.map(name =>
+        resolveConfiguredModule(name, containingFile)?.resolvedModule);
+    }
     return ts.createProgram(rootAbsPaths, COMPILER_OPTIONS, host);
   },
 };
@@ -161,17 +166,42 @@ export function resolveTypeScriptModule(
   specifier: string,
   containingFile: string,
   resolutionMode?: ts.ResolutionMode,
+  configured = /\.(mjs|cjs|js|jsx)$/.test(containingFile),
 ): string | undefined {
-  const resolved = ts.resolveModuleName(
+  const resolved = configured
+    ? resolveConfiguredModule(specifier, containingFile, resolutionMode)
+    : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, ts.sys, undefined, undefined, resolutionMode);
+  // A declaration companion describes the runtime module; dependency edges target the actual
+  // source when it exists, rather than silently ending at the skipped .d.mts/.d.cts artifact.
+  const declarationPath = resolved.resolvedModule?.resolvedFileName;
+  if (configured && declarationPath !== undefined && /\.d\.(mts|cts|ts)$/.test(declarationPath)) {
+    const runtimePath = declarationPath.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
+      extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
+    if (existsSync(runtimePath)) return runtimePath;
+  }
+  return declarationPath;
+}
+
+function resolveConfiguredModule(specifier: string, containingFile: string, resolutionMode?: ts.ResolutionMode): ts.ResolvedModuleWithFailedLookupLocations {
+  const configPath = ts.findConfigFile(dirname(containingFile), path => ts.sys.fileExists(path));
+  let options = COMPILER_OPTIONS;
+  if (configPath !== undefined) {
+    const config = ts.readConfigFile(configPath, path => ts.sys.readFile(path));
+    if (config.error === undefined) {
+      // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
+      const parsed = ts.parseJsonConfigFileContent(config.config, { ...ts.sys, readDirectory: () => [] }, dirname(configPath));
+      options = { ...parsed.options, ...COMPILER_OPTIONS, paths: parsed.options.paths, baseUrl: parsed.options.baseUrl };
+    }
+  }
+  return ts.resolveModuleName(
     specifier,
     containingFile,
-    COMPILER_OPTIONS,
+    options,
     ts.sys,
     undefined,
     undefined,
     resolutionMode,
   );
-  return resolved.resolvedModule?.resolvedFileName;
 }
 
 function canonicalTypeScriptFileKey(filePath: string): string {
@@ -264,6 +294,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
   const program = extractionContext.createProgram(rootAbsPaths);
   const checker = program.getTypeChecker();
   const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
+  const javascriptEnabled = rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path));
 
   const modules: string[] = [];
   const symbols: ExtractedSymbol[] = [];
@@ -278,6 +309,16 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
     if (!rootSet.has(canonicalTypeScriptFileKey(sf.fileName))) continue;
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
+    const exportedDeclarations = new Set<ts.Declaration>();
+    if (javascriptEnabled) {
+      const moduleSymbol = checker.getSymbolAtLocation(sf);
+      if (moduleSymbol !== undefined) {
+        for (let symbol of checker.getExportsOfModule(moduleSymbol)) {
+          if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+          for (const declaration of symbol.getDeclarations() ?? []) exportedDeclarations.add(declaration);
+        }
+      }
+    }
 
     // Scope-qualified paths of the enclosing extracted symbols, innermost last. Distinct from
     // `scopeStack`, which only tracks what can *contain*: a method is a scope but is not itself an
@@ -301,7 +342,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         scope: [...scopeStack],
         startLine: lineOf(sf, node.getStart()),
         endLine: lineOf(sf, node.getEnd()),
-        exported: isExported(node),
+        exported: isExported(node) || exportedDeclarations.has(node as ts.Declaration),
         ...(signatureOnly ? { signatureOnly: true } : {}),
         ...(jsdoc !== undefined ? { jsdoc } : {}),
         markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
@@ -347,7 +388,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
               scope: [...scopeStack],
               startLine: lineOf(sf, node.getStart()),
               endLine: lineOf(sf, decl.getEnd()),
-              exported,
+              exported: exported || exportedDeclarations.has(decl),
               ...(jsdoc !== undefined ? { jsdoc } : {}),
               markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
             });
@@ -363,7 +404,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
         const names = importedNames(node);
         imports.push({
           fromRelPath: relPath,
@@ -372,10 +413,28 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
           names,
           line: lineOf(sf, node.getStart()),
         });
+      } else if (javascriptEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+        const specifier = node.moduleSpecifier.text;
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
+        imports.push({
+          fromRelPath: relPath,
+          moduleSpecifier: specifier,
+          ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
+          names: [],
+          line: lineOf(sf, node.getStart()),
+        });
       } else if (ts.isCallExpression(node)) {
+        if (javascriptEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+          node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
+          const specifier = (node.arguments[0] as ts.StringLiteral).text;
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled);
+          imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
+            ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
+            names: [], line: lineOf(sf, node.getStart()) });
+        }
         const calleeName = nameOfCallee(node.expression);
         if (calleeName !== undefined) {
-          const resolved = resolveCallTarget(checker, node.expression, relOf);
+          const resolved = resolveCallTarget(checker, node.expression, relOf, javascriptEnabled);
           calls.push({
             callerRelPath: relPath,
             ...(symbolPathStack.length > 0
@@ -414,6 +473,12 @@ export async function extractTypeScriptParallel(
 ): Promise<ParallelTsExtraction> {
   assertConfinedTypeScriptSources(rootAbsPaths, repoRoot);
   const workerLimit = resolveWorkerCount(requested, rootAbsPaths.length);
+  if (workerLimit > 1 && rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+    return {
+      extraction: extractTypeScript(rootAbsPaths, repoRoot),
+      parallelism: { requested, used: 1, mode: "preflight-fallback", reason: "mixed JavaScript/TypeScript extraction requires one semantic Program" },
+    };
+  }
   if (workerLimit <= 1 || rootAbsPaths.length <= 1) {
     return {
       extraction: extractTypeScript(rootAbsPaths, repoRoot),
@@ -893,6 +958,7 @@ function resolveCallTarget(
   checker: ts.TypeChecker,
   expr: ts.Expression,
   relOf: (abs: string) => string,
+  javascriptEnabled = false,
 ): { relPath?: string; symbolPath?: string } | undefined {
   let symbol = checker.getSymbolAtLocation(expr);
   if (symbol === undefined) return undefined;
@@ -905,9 +971,17 @@ function resolveCallTarget(
   const decl = declarations[0];
   if (decl === undefined) return undefined;
   const sf = decl.getSourceFile();
-  if (sf.isDeclarationFile) return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()) };
+  const symbolName = javascriptEnabled ? scopeNameOf(decl) ?? symbol.getName() : symbol.getName();
+  if (sf.isDeclarationFile) {
+    if (javascriptEnabled && /\.d\.(mts|cts|ts)$/.test(sf.fileName)) {
+      const runtimePath = sf.fileName.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
+        extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
+      if (existsSync(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
+    }
+    return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
+  }
   return {
     relPath: relOf(sf.fileName),
-    symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()),
+    symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName),
   };
 }

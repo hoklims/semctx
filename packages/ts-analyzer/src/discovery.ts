@@ -6,7 +6,7 @@ import ts from "typescript";
 import { resolveTypeScriptModule } from "./ts-symbols";
 
 export type FileRole = "source" | "test" | "document" | "migration" | "other";
-export type SourceLanguage = "typescript" | "python" | "markdown" | "sql" | "unknown";
+export type SourceLanguage = "typescript" | "javascript" | "python" | "markdown" | "sql" | "unknown";
 
 export interface DiscoveredFile {
   absPath: string;
@@ -59,10 +59,11 @@ const IGNORED_SEGMENTS = new Set([
   ".next",
 ]);
 
-const TEST_FILENAME_RE = /\.(test|spec)\.(ts|tsx|mts|cts)$/;
+const TEST_FILENAME_RE = /\.(test|spec)\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const TEST_DIR_SEGMENTS = new Set(["test", "tests", "__tests__"]);
 const TEST_IMPORT_RE = /from\s+["'](vitest|bun:test|node:test)["']/;
 const TS_FILE_RE = /\.(ts|tsx|mts|cts)$/;
+const JS_FILE_RE = /\.(js|jsx|mjs|cjs)$/;
 const PYTHON_FILE_RE = /\.py$/;
 const MARKDOWN_RE = /\.mdx?$/;
 const SQL_RE = /\.sql$/;
@@ -96,7 +97,7 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
     return isTest ? "test" : "source";
   }
 
-  if (TS_FILE_RE.test(relPath)) {
+  if (TS_FILE_RE.test(relPath) || JS_FILE_RE.test(relPath)) {
     const isTest =
       TEST_FILENAME_RE.test(relPath) ||
       parts.some((p) => TEST_DIR_SEGMENTS.has(p)) ||
@@ -108,6 +109,7 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
 
 export function sourceLanguage(relPath: string): SourceLanguage {
   if (TS_FILE_RE.test(relPath)) return "typescript";
+  if (JS_FILE_RE.test(relPath)) return "javascript";
   if (PYTHON_FILE_RE.test(relPath)) return "python";
   if (MARKDOWN_RE.test(relPath)) return "markdown";
   if (SQL_RE.test(relPath)) return "sql";
@@ -412,7 +414,7 @@ export function discoverRepository(config: SemctxConfig): DiscoveryResult {
       });
       continue;
     }
-    const boundaryFailure = language === "typescript"
+    const boundaryFailure = language === "typescript" || language === "javascript"
       ? escapedDependencyReason(absPath, root, content)
       : undefined;
     if (boundaryFailure !== undefined) {

@@ -50,6 +50,9 @@ import {
   type DiscoveryCandidate,
   type DiscoveryResult,
   TYPESCRIPT_DIALECT_VERSION,
+  inspectJavaScriptSource,
+  inspectSourceParsing,
+  inspectModuleConfiguration,
   type IndexWorkerSelection,
   type MarkerDeclaration,
   type TypeScriptParallelism,
@@ -67,6 +70,11 @@ const TYPESCRIPT_PRODUCER: ProducerIdentity = {
 
 const PYTHON_PRODUCER: ProducerIdentity = {
   identity: "@semantic-context/python-analyzer",
+  version: "0.1.0",
+};
+
+const JAVASCRIPT_PRODUCER: ProducerIdentity = {
+  identity: "@semantic-context/ts-analyzer/javascript",
   version: "0.1.0",
 };
 
@@ -190,6 +198,31 @@ function composePlaneARuntime(
   for (const candidate of selectedAnalyzable) {
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
+    if (config.version === 2 && candidate.language === "typescript") {
+      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot)];
+      if (reasons.length > 0) {
+        forcedOutcomes.set(candidate.relPath, "failed");
+        forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
+        continue;
+      }
+    }
+    if (candidate.language === "javascript") {
+      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot);
+      if (diagnostics.parseFailed) {
+        forcedOutcomes.set(candidate.relPath, "failed");
+        forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...diagnostics.reasons]);
+        continue;
+      }
+      perPath.push({
+        candidate, file, producer: JAVASCRIPT_PRODUCER,
+        facts: legacyFactsByPath.get(candidate.relPath) ?? [],
+        analysisReasons: diagnostics.reasons,
+        completenessClaim: diagnostics.reasons.length === 0 ? "producer-declared" : "partial",
+        negativeEvidenceEligible: false,
+        resolutionSemantics: "javascript-static-esm-v1",
+      });
+      continue;
+    }
     if (candidate.language === "python") {
       if (config.version === 1) continue;
       if (forcedOutcomes.has(candidate.relPath)) {
@@ -729,7 +762,7 @@ function scopeForCandidate(
     selectedPaths,
     ...(workspaceUnitId === undefined ? {} : { workspaceUnitId }),
     language: candidate.language,
-    ...(candidate.language === "typescript"
+    ...(candidate.language === "typescript" || candidate.language === "javascript"
       ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
       : {}),
     ...(candidate.language === "python" ? { dialectVersion: "<=3.12" } : {}),

@@ -48,6 +48,7 @@ import {
   type TypeScriptParallelism,
 } from "./ts-symbols";
 import { groupSymbols } from "./symbol-grouping";
+import { inspectJavaScriptSource } from "./javascript-diagnostics";
 import {
   degradeDivergentMarkerNodes,
   detectMarkerDivergence,
@@ -72,6 +73,10 @@ type GraphBuilder = DeterministicGraphAssembler;
 
 const TYPESCRIPT_PRODUCER: ProducerIdentity = {
   identity: "@semantic-context/ts-analyzer",
+  version: "0.1.0",
+};
+const JAVASCRIPT_PRODUCER: ProducerIdentity = {
+  identity: "@semantic-context/ts-analyzer/javascript",
   version: "0.1.0",
 };
 
@@ -142,11 +147,13 @@ export function assembleRepository(
     const isTest = file.role === "test";
     const id = isTest ? testId(file.relPath) : moduleId(file.relPath);
     nodeIdByRel.set(file.relPath, id);
+    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot) : undefined;
     builder.node({
       id,
       kind: isTest ? "test" : "module",
       name: basename(file.relPath),
       filePath: file.relPath,
+      ...(javascriptFacts ? { metadata: { staticExports: JSON.stringify(javascriptFacts.staticExports), staticModuleLinks: JSON.stringify(javascriptFacts.staticModuleLinks) } } : {}),
       evidence: [{ filePath: file.relPath, sourceKind: isTest ? "test" : "code" }],
     });
     builder.edge("belongs_to", id, repoNodeId, [{ filePath: file.relPath, sourceKind: "code" }]);
@@ -308,7 +315,7 @@ function unique(nodes: readonly RepositoryNode[] | undefined): RepositoryNode | 
 
 function isTypeScriptSource(file: DiscoveredFile): boolean {
   return (file.role === "source" || file.role === "test")
-    && (file.language === undefined || file.language === "typescript");
+    && (file.language === undefined || file.language === "typescript" || file.language === "javascript");
 }
 
 function buildTypeScriptSidecar(
@@ -389,6 +396,12 @@ function buildTypeScriptSidecar(
     const languageFiles = files.filter((file) =>
       (file.language ?? sourceLanguage(file.relPath)) === language);
     const languagePaths = languageFiles.map((file) => file.relPath).sort();
+    const javascriptDiagnostics = language === "javascript"
+      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot))
+      : [];
+    const analysisReasons = [...new Set(javascriptDiagnostics.flatMap(result => result.reasons))].sort();
+    const parsingFailed = javascriptDiagnostics.some(result => result.parseFailed);
+    const producer = language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
     const languageSourceDigest = digestCanonical(sourceInputs.filter((input) =>
       languagePaths.includes(input.relPath)));
     const languageScope: ArtifactScope = {
@@ -397,7 +410,7 @@ function buildTypeScriptSidecar(
       selectedPathSetDigest: digestCanonical(languagePaths),
       selectedPaths: languagePaths,
       language,
-      ...(language === "typescript"
+      ...(language === "typescript" || language === "javascript"
         ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
         : {}),
     };
@@ -406,29 +419,29 @@ function buildTypeScriptSidecar(
       profileId: `${language}:${factKind}:${languageScope.selectedPathSetDigest}:${factSchemaDigest}`,
       factKind,
       scope: languageScope,
-      producer: TYPESCRIPT_PRODUCER,
+      producer,
       producerConfigurationDigest,
       factSchemaDigest,
       evidenceContract: "source-lines-v1",
-      resolutionSemantics: language === "typescript"
+      resolutionSemantics: language === "javascript" ? "javascript-static-esm-v1" : language === "typescript"
         ? "typescript-static-v1"
         : "structural-source-v1",
       soundnessClaim: "best-effort-static",
-      completenessClaim: "producer-declared",
+      completenessClaim: analysisReasons.length > 0 ? "partial" : "producer-declared",
       negativeEvidenceEligible: false,
-      label: "structural",
+      label: analysisReasons.length > 0 ? "partial" : "structural",
     }));
     const batch: FactBatchV1 = {
       schemaVersion: 1,
       batchId: digestCanonical({
         scope: languageScope,
-        producer: TYPESCRIPT_PRODUCER,
+        producer,
         producerConfigurationDigest,
         factSchemaDigest,
         facts: languageFacts,
       }),
       scope: languageScope,
-      producer: TYPESCRIPT_PRODUCER,
+      producer,
       producerConfigurationDigest,
       factSchemaDigest,
       sourceDigest: languageSourceDigest,
@@ -443,10 +456,10 @@ function buildTypeScriptSidecar(
       candidateIdentity: `${language}:${languageScope.selectedPathSetDigest}`,
       scope: languageScope,
       selectionDecision: "selected",
-      analysisOutcome: "analyzed",
+      analysisOutcome: parsingFailed ? "failed" : "analyzed",
       selectionReasons: [],
-      analysisReasons: [],
-      selectedProducer: TYPESCRIPT_PRODUCER,
+      analysisReasons: parsingFailed ? ["PRODUCER_FAILED", ...analysisReasons] : analysisReasons,
+      selectedProducer: producer,
     });
   }
   return {
@@ -465,7 +478,7 @@ function buildTypeScriptSidecar(
         factSchemaDigest,
       }),
       status: "completed",
-      producer: TYPESCRIPT_PRODUCER,
+      producer: batch.producer,
       scope: batch.scope,
       factBatchId: batch.batchId,
     })),

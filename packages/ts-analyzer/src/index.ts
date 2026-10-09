@@ -1,6 +1,7 @@
 /** Public surface of @semantic-context/ts-analyzer. */
 export { analyzeRepository, analyzeRepositoryAsync, assembleRepository } from "./analyze";
 export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
+export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration } from "./javascript-diagnostics";
 
 export {
   discoverFiles,
