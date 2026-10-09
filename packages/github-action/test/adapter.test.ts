@@ -61,6 +61,18 @@ function runAdapter(rep: unknown, failOn: string): { code: number; out: string; 
 }
 
 describe("github-action adapter", () => {
+  it("refuses qualified rejection even with advisory none policy", () => {
+    const digest = `sha256:${"0".repeat(64)}`;
+    const qualified: Report = { ...BLOCK, analysisAdmission: {
+      schemaVersion: 1, profile: "modelo-suite-static-v1", status: "rejected",
+      identity: { source: digest, sourceCommits: ["0".repeat(40)], baseCommit: null, diff: digest, config: digest, analyzer: digest, indexSnapshot: digest },
+      binding: { status: "valid", reasons: [] }, indexFreshness: { verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] },
+      controlFreshness: { verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] }, checkFreshness: { status: "current", reasons: [] },
+      repositoryCoverage: { status: "partial", files: [] }, changeCoverage: { expected: ["src/a.ts"], analyzed: [], files: [{ path: "src/a.ts", status: "missing", reasons: ["NO_CURRENT_ANALYZED_SOURCE"] }] },
+      reasons: ["INDEX_NOT_FRESH"], limitations: ["Static analysis only."], proofObligations: [],
+    } };
+    expect(runAdapter(qualified, "none").code).toBe(1);
+  });
   it("emits annotations, summary and outputs for a BLOCK report", () => {
     const r = runAdapter(BLOCK, "block");
     expect(r.out).toMatch(/^::error /m);

@@ -230,7 +230,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
 
   if (recordedPath !== undefined && format === "text") info(c.dim(`recorded verification state -> ${recordedPath}`));
 
-  return exitCode(report.verdict, failOn);
+  return report.analysisAdmission?.status === "rejected" ? 3 : exitCode(report.verdict, failOn);
 }
 
 /**

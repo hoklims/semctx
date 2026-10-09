@@ -1,4 +1,5 @@
 import { z } from "zod-v4";
+import { AnalysisAdmissionSchema, VerifyReportSchema as CoreVerifyReportSchema } from "@semantic-context/core";
 import {
   AgentLifecycleReportV1Schema,
   AltitudeAuthorityReportV1Schema,
@@ -125,6 +126,7 @@ const VerifyReportClaimSchema = z.object({
 }).strict();
 
 const VerifyReportSchema = z.object({
+  analysisAdmission: described(mcpSchema(AnalysisAdmissionSchema).optional(), "Opt-in qualified static analysis admission; independent freshness, coverage and runtime proof obligations."),
   schemaVersion: described(z.literal(1), "Verify-report schema version."),
   verdict: described(z.enum(["PASS", "WARN", "BLOCK"]), "Overall deterministic verdict."),
   base: described(z.string().nullable(), "Requested base ref, if any."),
@@ -167,7 +169,10 @@ const VerifyReportSchema = z.object({
     blockCount: described(z.number().int().nonnegative(), "Blocking finding count."),
     warnCount: described(z.number().int().nonnegative(), "Warning finding count."),
   }).strict(), "Finding counts."),
-}).strict();
+}).strict().superRefine((value, context) => {
+  const result = CoreVerifyReportSchema.safeParse(value);
+  if (!result.success) for (const issue of result.error.issues) context.addIssue({ code: "custom", path: issue.path, message: issue.message });
+});
 
 const InspectionResultSchema = z.object({
   query: described(z.string(), "Original inspection query."),

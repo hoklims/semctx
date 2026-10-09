@@ -12,6 +12,51 @@ import type { SeverityTier } from "./types/config";
 
 export const VERIFY_REPORT_SCHEMA_VERSION = 1 as const;
 
+const AdmissionFileSchema = z.object({
+  path: z.string(),
+  status: z.enum(["analyzed", "excluded", "unsupported", "failed", "missing"]),
+  reasons: z.array(z.string()),
+}).strict();
+const AdmissionDigestSchema = z.string().regex(/^sha256:[a-f0-9]{64}$/);
+const AdmissionCommitSchema = z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
+const AdmissionFreshnessSchema = z.object({ verdict: z.enum(["FRESH", "DIRTY_KNOWN", "STALE", "UNSEALED"]), reasons: z.array(z.string()) }).strict();
+export const AnalysisAdmissionSchema = z.object({
+  schemaVersion: z.literal(1),
+  profile: z.literal("modelo-suite-static-v1"),
+  status: z.enum(["admitted", "rejected"]),
+  identity: z.object({ source: AdmissionDigestSchema, sourceCommits: z.array(AdmissionCommitSchema), baseCommit: AdmissionCommitSchema.nullable(), diff: AdmissionDigestSchema, config: AdmissionDigestSchema, analyzer: AdmissionDigestSchema, indexSnapshot: AdmissionDigestSchema }).strict(),
+  binding: z.object({ status: z.enum(["valid", "invalid", "absent"]), reasons: z.array(z.string()) }).strict(),
+  indexFreshness: AdmissionFreshnessSchema,
+  checkFreshness: z.object({ status: z.enum(["current", "changed"]), reasons: z.array(z.string()) }).strict(),
+  controlFreshness: AdmissionFreshnessSchema,
+  repositoryCoverage: z.object({ status: z.enum(["complete", "partial", "insufficient"]), files: z.array(AdmissionFileSchema) }).strict(),
+  changeCoverage: z.object({ expected: z.array(z.string()), analyzed: z.array(z.string()), files: z.array(AdmissionFileSchema) }).strict(),
+  reasons: z.array(z.string()),
+  limitations: z.array(z.string()),
+  proofObligations: z.array(z.object({ id: z.string(), status: z.literal("not_observed"), observation: z.string() }).strict()),
+}).strict().superRefine((value, context) => {
+  if (value.status !== "admitted") return;
+  const expected = value.changeCoverage.expected;
+  const actual = value.changeCoverage.files;
+  if (value.binding.status !== "valid" || value.binding.reasons.length > 0
+    || value.identity.sourceCommits.length === 0 || new Set(value.identity.sourceCommits).size !== value.identity.sourceCommits.length
+    || [value.indexFreshness, value.controlFreshness].some((freshness) => freshness.verdict === "FRESH" ? freshness.reasons.length > 0 : freshness.verdict === "DIRTY_KNOWN" && (freshness.reasons.length !== 1 || freshness.reasons[0] !== "WORKING_TREE_DIRTY"))
+    || !["FRESH", "DIRTY_KNOWN"].includes(value.indexFreshness.verdict)
+    || !["FRESH", "DIRTY_KNOWN"].includes(value.controlFreshness.verdict)
+    || value.checkFreshness.status !== "current" || value.checkFreshness.reasons.length > 0
+    || value.reasons.length > 0 || expected.length === 0
+    || new Set(expected).size !== expected.length
+    || actual.length !== expected.length
+    || actual.some((file) => file.status !== "analyzed" || file.reasons.length > 0 || !expected.includes(file.path))
+    || new Set(actual.map((file) => file.path)).size !== expected.length
+    || value.changeCoverage.analyzed.length !== expected.length
+    || value.changeCoverage.analyzed.some((path) => !expected.includes(path))
+    || new Set(value.changeCoverage.analyzed).size !== expected.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "admitted analysis requires current compatible binding and complete non-empty analyzed obligations" });
+  }
+});
+export type AnalysisAdmission = z.infer<typeof AnalysisAdmissionSchema>;
+
 export interface VerifyReportSymbol {
   id: string;
   name: string;
@@ -64,6 +109,7 @@ export interface VerifyReportCoChange {
 }
 
 export interface VerifyReport {
+  analysisAdmission?: AnalysisAdmission;
   schemaVersion: typeof VERIFY_REPORT_SCHEMA_VERSION;
   verdict: "PASS" | "WARN" | "BLOCK";
   /** The git base ref requested, or null when the diff came from --staged/--from-file/HEAD. */
@@ -143,6 +189,7 @@ const VerifyReportCoChangeSchema = z.object({
 }).passthrough();
 
 export const VerifyReportSchema = z.object({
+  analysisAdmission: AnalysisAdmissionSchema.optional(),
   schemaVersion: z.literal(VERIFY_REPORT_SCHEMA_VERSION),
   verdict: z.enum(["PASS", "WARN", "BLOCK"]),
   base: z.string().nullable(),
@@ -160,4 +207,8 @@ export const VerifyReportSchema = z.object({
   impactedConsumers: z.array(VerifyReportConsumerSchema).optional(),
   coChangedFiles: z.array(VerifyReportCoChangeSchema).optional(),
   summary: z.object({ blockCount: z.number(), warnCount: z.number() }).passthrough(),
-}).passthrough();
+}).passthrough().superRefine((value, context) => {
+  if (value.analysisAdmission?.status === "rejected" && value.verdict !== "BLOCK") {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["verdict"], message: "rejected qualified analysis must produce BLOCK" });
+  }
+});

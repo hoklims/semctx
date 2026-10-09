@@ -24,6 +24,8 @@ import {
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
 import type { ControlFreshnessReason, ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource } from "./verification-state";
+import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
+import { canonicalRepositoryRoot, fingerprintAnalysisInputs } from "./freshness";
 
 /**
  * `head` names the commit the analysed post-image belongs to. It is optional everywhere and means
@@ -576,6 +578,13 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
   const store = openReadyRepository(root);
   try {
     const config = loadConfig(root);
+    if (isQualified(config)) {
+      const worktree = git(root, ["rev-parse", "--show-toplevel"]);
+      if (worktree.code !== 0 || canonicalRepositoryRoot(worktree.out.trim()) !== canonicalRepositoryRoot(root)) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified analysis root must be the exact Git worktree root");
+      }
+    }
+    const inputBefore = isQualified(config) ? fingerprintAnalysisInputs(config, discoverRepository(config).files) : null;
     const resolved = resolveSource(root, source, false);
     const graph = store.loadGraph();
     const claims = store.loadClaims();
@@ -586,9 +595,9 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       claims,
       config,
       diffText: resolved.diffText ?? "",
-      // Working-tree and staged indexes describe the old HEAD snapshot. A commit range is
-      // analysed against its indexed head, so its graph ranges use the diff's new coordinates.
-      nodeRangeSide: source.kind === "range" ? "new" : "old",
+      // Qualified analysis requires a current post-image index. Legacy working-tree and staged
+      // analysis retains old HEAD coordinates; ranges always use the indexed new side.
+      nodeRangeSide: source.kind === "range" || isQualified(config) ? "new" : "old",
     });
     const afterAnalysis = verifyAnalysisBarrierForTesting;
     verifyAnalysisBarrierForTesting = undefined;
@@ -601,7 +610,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       store,
       applyIndexBindingGate(root, store, baseResult, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)),
     );
-    const result = config.version === 2
+    let result = config.version === 2
       ? applyAnalysisHealthPreflight(
           gated,
           changedScopePaths,
@@ -610,12 +619,38 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
           (path) => isPathSelected(config, path),
         )
       : gated;
+    const analysisAdmission = isQualified(config) ? qualifiedAdmission({
+      config, graph, changedPaths: changedScopePaths, health: indexHealth(root),
+      sourceHash: digestCanonical({ inputs: inputBefore, sourceIdentity: resolved.identity }), diff: resolved.diffText ?? "", indexSnapshot: analyzedIndexSnapshotHash,
+      bindingReasons: observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)).breaks,
+      checkChanged: inputBefore !== fingerprintAnalysisInputs(loadConfig(root), discoverRepository(loadConfig(root)).files),
+      buildState: store.getMeta(QUALIFIED_BUILD_META),
+      sourceCommits: resolved.identity.kind === "absent" ? [] : [...resolved.identity.commits], baseCommit: resolved.git.mergeBase,
+      expectedInputHash: inputBefore!,
+    }) : undefined;
     const coChanges = resolved.includeCoChanges && resolved.coChangeHead !== null
       ? historicalCoChanges(root, result.changedFiles, resolved.coChangeHead)
       : [];
+    if (analysisAdmission !== undefined) {
+      const finalSource = resolveSource(root, source, false);
+      if (inputBefore !== fingerprintAnalysisInputs(loadConfig(root), discoverRepository(loadConfig(root)).files)
+        || finalSource.diffText !== resolved.diffText
+        || digestCanonical(finalSource.identity) !== digestCanonical(resolved.identity)
+        || digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null) !== analyzedIndexSnapshotHash
+        || store.getMeta(QUALIFIED_BUILD_META) !== "complete") {
+        analysisAdmission.status = "rejected";
+        analysisAdmission.checkFreshness = { status: "changed", reasons: ["CHECK_INPUT_CHANGED"] };
+        analysisAdmission.reasons = [...new Set([...analysisAdmission.reasons, "CHECK_INPUT_CHANGED"])];
+      }
+    }
+    if (analysisAdmission?.status === "rejected") {
+      result = { ...result, verdict: "BLOCK", findings: [...result.findings, {
+        rule: "analysis_scope_incomplete", severity: "block", message: `Qualified analysis rejected: ${analysisAdmission.reasons.join(", ")}`, nodeIds: [],
+      }] };
+    }
     return {
       result,
-      report: buildVerifyReport(result, resolved.git, config.blockingRules, coChanges),
+      report: { ...buildVerifyReport(result, resolved.git, config.blockingRules, coChanges), ...(analysisAdmission === undefined ? {} : { analysisAdmission }) },
       git: resolved.git,
       coChanges,
       analyzedSourceHash: resolved.analyzedSourceHash ?? null,

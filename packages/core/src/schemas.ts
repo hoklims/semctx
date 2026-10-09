@@ -75,19 +75,35 @@ const SemctxConfigBaseSchema = z.object({
   semantic: SemanticPolicyConfigSchema.optional(),
 });
 
-export const SemctxConfigV1Schema = SemctxConfigBaseSchema.extend({
+const SemctxConfigV1ShapeSchema = SemctxConfigBaseSchema.extend({
   version: z.literal(1),
 });
+function rejectLegacyQualifiedMarkers(value: unknown, context: z.RefinementCtx): unknown {
+  if (typeof value === "object" && value !== null && "version" in value && value.version === 1
+    && (("analysisProfile" in value && value.analysisProfile !== undefined)
+      || ("selectionMode" in value && value.selectionMode === "qualified-static-v1"))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "qualified static analysis requires configuration version 2" });
+  }
+  return value;
+}
+export const SemctxConfigV1Schema = z.preprocess(rejectLegacyQualifiedMarkers, SemctxConfigV1ShapeSchema);
 
-export const SemctxConfigV2Schema = SemctxConfigBaseSchema.extend({
+const SemctxConfigV2ShapeSchema = SemctxConfigBaseSchema.extend({
   version: z.literal(2),
-  selectionMode: z.literal("globs-v1"),
+  analysisProfile: z.literal("modelo-suite-static-v1").optional(),
+  selectionMode: z.enum(["globs-v1", "qualified-static-v1"]),
   languages: z.record(z.enum(["on", "off"])),
 });
+function validateAnalysisProfile(value: { version: number; selectionMode?: string; analysisProfile?: string }, context: z.RefinementCtx): void {
+  if ((value.selectionMode === "qualified-static-v1") !== (value.analysisProfile === "modelo-suite-static-v1")) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["analysisProfile"], message: "modelo-suite-static-v1 requires the versioned qualified-static-v1 selection mode and vice versa" });
+  }
+}
+export const SemctxConfigV2Schema = SemctxConfigV2ShapeSchema.superRefine(validateAnalysisProfile);
 
-export const SemctxConfigSchema = z.discriminatedUnion("version", [
-  SemctxConfigV1Schema,
-  SemctxConfigV2Schema,
-]);
+export const SemctxConfigSchema = z.preprocess(rejectLegacyQualifiedMarkers, z.discriminatedUnion("version", [
+  SemctxConfigV1ShapeSchema,
+  SemctxConfigV2ShapeSchema,
+]).superRefine(validateAnalysisProfile));
 
 export type SemctxConfigParsed = z.infer<typeof SemctxConfigSchema>;

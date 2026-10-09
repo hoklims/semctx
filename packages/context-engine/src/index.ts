@@ -94,3 +94,5 @@ export {
   computeConfidence,
   WEIGHTS,
 } from "./scoring";
+export { evaluateAnalysisAdmission } from "./analysis-admission";
+export type { AdmissionCandidate } from "./analysis-admission";
