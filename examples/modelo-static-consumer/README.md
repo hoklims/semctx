@@ -17,6 +17,7 @@ bun scripts/qualify-modelo-static.ts \
   --legacy-cli /path/to/baseline/apps/cli/dist/index.js \
   --regression-cli /path/to/pre-audit-correction/apps/cli/dist/index.js \
   --directory-regression-cli /path/to/pre-directory-correction/apps/cli/dist/index.js \
+  --loader-regression-cli /path/to/pre-loader-correction/apps/cli/dist/index.js \
   --output-dir /path/to/new-evidence-directory
 ```
 
@@ -35,6 +36,11 @@ Build the directory regression artifact from
 `--audit-witnesses-only` runs only the three before/after audit cases. It records
 `scope: "audit-witnesses-only"` and `qualified: false`, even when those assertions pass.
 `--directory-witnesses-only` has the same qualification boundary for directory cases.
+Build the loader regression artifact from
+`95744a3c0df2bfe4a0cac06ac5b452d649ce9317`. `--loader-witnesses-only` runs its
+four before/after cases and records `qualified: false` even when they pass.
+Complete qualification requires `--loader-regression-cli`; other focused modes
+retain their existing requirements and never qualify the complete profile.
 
 The process exits nonzero if any scenario fails or if any required actual historical
 witness is absent. `qualification.json` retains raw commands, stdout, stderr,
@@ -56,6 +62,7 @@ are never overwritten; use a new output directory for each run.
 | Failed parse | Invalid `.mjs` cannot be represented as analyzed PASS |
 | Unsupported construction | Nonliteral dynamic import refuses admission |
 | CommonJS | Diagnostic-only `.cjs` is an explicit negative case |
+| `createRequire` family | Selected direct factory, excluded named alias, excluded TypeScript namespace factory and excluded reexport barrel reject with explicit CommonJS diagnostics after fresh indexing; no loaded-target edge is fabricated |
 | Partial / empty selection | Disabled JavaScript or selector matching no source cannot admit obligations |
 | Wrong nested root | An initialized parent does not silently turn an uninitialized leaf into success |
 | Interrupted indexing | After observing the persisted incomplete marker, kill a real rebuild; the previous complete index cannot admit the source change |
@@ -66,6 +73,9 @@ PASS is a static analysis result. It does not establish test execution, Turbo
 cache validity, failure propagation or pipeline health. Those obligations have
 separate raw observations here, limited to this synthetic consumer. A `.cjs`
 file or unresolved dynamic module expression is outside the admitted profile.
+Node `createRequire`, including factory aliases, namespace access and reexport
+barrels, also remains outside that profile. The witness changes a local `.mjs`
+with a real TypeScript consumer and captures the loader limitation separately.
 
 The harness proves package behavior for the named static profile only when all
 its assertions pass. It does not prove installation in the real consumer, loading

@@ -17,10 +17,12 @@ const output = option("--output-dir", join(sourceRoot, ".omx/qualification/model
 const legacyCli = process.argv.includes("--legacy-cli") ? option("--legacy-cli", cli) : null;
 const regressionCli = process.argv.includes("--regression-cli") ? option("--regression-cli", cli) : null;
 const directoryRegressionCli = process.argv.includes("--directory-regression-cli") ? option("--directory-regression-cli", cli) : null;
+const loaderRegressionCli = process.argv.includes("--loader-regression-cli") ? option("--loader-regression-cli", cli) : null;
 const auditWitnessesOnly = process.argv.includes("--audit-witnesses-only");
 const directoryWitnessesOnly = process.argv.includes("--directory-witnesses-only");
 const interruptionWitnessOnly = process.argv.includes("--interruption-witness-only");
-assert([auditWitnessesOnly, directoryWitnessesOnly, interruptionWitnessOnly].filter(Boolean).length <= 1, "Choose one focused witness scope");
+const loaderWitnessesOnly = process.argv.includes("--loader-witnesses-only");
+assert([auditWitnessesOnly, directoryWitnessesOnly, interruptionWitnessOnly, loaderWitnessesOnly].filter(Boolean).length <= 1, "Choose one focused witness scope");
 const observations: Record<string, unknown> = {};
 const failures: string[] = [];
 mkdirSync(output, { recursive: true });
@@ -104,6 +106,33 @@ function directoryHealth(root: string, name: string, bundle: string): { freshnes
   assert([0, 2].includes(result.code), result.stderr);
   return JSON.parse(result.stdout) as ReturnType<typeof directoryHealth>;
 }
+const loaderSources = {
+  direct: { path: "hidden.mjs", source: 'import { createRequire } from "node:module"; const load = createRequire(import.meta.url); export function hidden() { return load("./src/main.mjs").main(); }\n', selected: true },
+  alias: { path: "hidden-alias.mjs", source: 'import { createRequire as makeLoader } from "module"; const load = makeLoader(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  namespace: { path: "hidden-namespace.ts", source: 'import * as nodeModule from "node:module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  barrel: { path: "hidden-barrel.ts", source: 'import { make } from "./barrel.mjs"; const load = make(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+} as const;
+function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle: string): string {
+  const root = join(output, `consumer-${name}`); assert(!existsSync(root), `Refusing to overwrite existing consumer ${root}`);
+  mkdirSync(root, { recursive: true });
+  put(root, ".gitignore", ".semctx/\nnode_modules/\n");
+  put(root, "package.json", JSON.stringify({ name: "public-loader-witness", private: true, type: "module" }));
+  put(root, "tsconfig.json", JSON.stringify({ compilerOptions: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, noEmit: true }, include: ["**/*.ts", "**/*.mjs"] }));
+  put(root, "src/main.mjs", "export function main(input) { return input + 1; }\n");
+  put(root, "src/bridge.ts", 'import { main } from "./main.mjs";\nexport function bridge(input: number) { return main(input); }\n');
+  const loader = loaderSources[variant]; put(root, loader.path, loader.source);
+  if (variant === "barrel") put(root, "barrel.mjs", 'export { createRequire as make } from "node:module";\n');
+  git(root, ["init", "-q"]); git(root, ["add", "-A"]); git(root, ["commit", "-qm", "public mixed language loader witness"]);
+  const initialized = semctx(root, ["init"], bundle); assert.equal(initialized.code, 0, initialized.stderr);
+  const path = join(root, ".semctx/config.json"); const config = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+  Object.assign(config, { version: 2, selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", languages: { typescript: "on", javascript: "on" }, include: ["src/**/*", ...(loader.selected ? [loader.path] : [])], exclude: ["**/node_modules/**", "**/.git/**", "**/.semctx/**"] });
+  writeFileSync(path, JSON.stringify(config)); git(root, ["add", "-A"]); git(root, ["commit", "-qm", "initialize qualified loader policy"]);
+  for (const phase of ["initial", "refreshed"] as const) {
+    if (phase === "refreshed") put(root, "src/main.mjs", "export function main(input) { return input + 2; }\n");
+    const indexed = semctx(root, ["index", "--json"], bundle); observations[`${name}:${phase}-index`] = indexed; assert.equal(indexed.code, 0, indexed.stderr);
+  }
+  return root;
+}
 function blocked(result: Observation): void {
   assert.notEqual(result.code, 0, "A gate must receive a nonzero exit when admission is refused");
   if (result.stdout.trim().startsWith("{")) {
@@ -118,6 +147,7 @@ async function scenario(name: string, action: () => void | Promise<void>): Promi
   if (auditWitnessesOnly && !name.startsWith("audit-")) return;
   if (directoryWitnessesOnly && !name.startsWith("directory-")) return;
   if (interruptionWitnessOnly && name !== "interrupted-index" && name !== "artifact-identities") return;
+  if (loaderWitnessesOnly && !name.startsWith("loader-")) return;
   try { await action(); observations[`${name}:assertions`] = "passed"; }
   catch (error) { failures.push(name); observations[`${name}:assertions`] = { status: "failed", error: String(error) }; }
   writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, mcp, pluginCli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, observations, failures }, null, 2));
@@ -308,6 +338,26 @@ for (const hidden of directoryPaths) {
   });
 }
 
+for (const variant of Object.keys(loaderSources) as (keyof typeof loaderSources)[]) {
+  if (loaderRegressionCli) await scenario(`loader-before-${variant}`, () => {
+    const label = `loader-before-${variant}`; const root = loaderFixture(label, variant, loaderRegressionCli);
+    const result = verify(root, label, loaderRegressionCli); const admission = report(result).analysisAdmission as DirectoryAdmission;
+    assert.equal(result.code, 0); assert.equal(admission.status, "admitted"); assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict));
+  });
+  await scenario(`loader-after-${variant}`, () => {
+    const label = `loader-after-${variant}`; const root = loaderFixture(label, variant, cli);
+    const result = verify(root, label); blocked(result); assert.equal(result.code, 3);
+    const admission = report(result).analysisAdmission as DirectoryAdmission;
+    assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict), "The loader refusal must not rely on stale indexing");
+    assert(JSON.stringify(admission).includes("COMMONJS_UNSUPPORTED"), "Unsupported loader semantics must be diagnosed explicitly");
+    const offending = variant === "barrel" ? "barrel.mjs" : loaderSources[variant].path;
+    assert(JSON.stringify(admission).includes(offending), "The diagnostic must retain its offending source");
+    const extracted = graph(root); observations[`${label}:graph`] = extracted;
+    const loaded = new Set(extracted.nodes.filter((node) => node.file_path === "src/main.mjs").map((node) => node.id));
+    const loaders = new Set(extracted.nodes.filter((node) => node.file_path === loaderSources[variant].path || (variant === "barrel" && node.file_path === "barrel.mjs")).map((node) => node.id));
+    assert(!extracted.edges.some((edge) => loaders.has(edge.from_id) && loaded.has(edge.to_id)), "Unsupported runtime loading must not fabricate a static target edge");
+  });
+}
 await scenario("mixed-transitive-analysis", async () => {
   const root = fixture("mixed");
   const install = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "install", "--ignore-scripts"], join(root, "suite"), 180_000);
@@ -465,15 +515,16 @@ await scenario("interrupted-index", async () => {
   observations["interrupted:verify-fail-on-none"] = failOnNone;
   assertInterruptedAdmission(failOnNone);
 });
-await scenario(directoryWitnessesOnly ? "directory-artifact-identities" : "artifact-identities", () => {
-  const artifacts = interruptionWitnessOnly ? [cli] : directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : [])];
+await scenario(loaderWitnessesOnly ? "loader-artifact-identities" : directoryWitnessesOnly ? "directory-artifact-identities" : "artifact-identities", () => {
+  const artifacts = interruptionWitnessOnly ? [cli] : loaderWitnessesOnly ? [cli, ...(loaderRegressionCli ? [loaderRegressionCli] : [])] : directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : []), ...(loaderRegressionCli ? [loaderRegressionCli] : [])];
   observations["artifacts"] = [...new Set(artifacts)].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
   observations["source-commit"] = run(["git", "rev-parse", "HEAD"], sourceRoot);
   observations["source-status"] = run(["git", "status", "--porcelain"], sourceRoot);
 });
 observations["runtime-obligations"] = { testExecution: observations["consumer:tests"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", turboCache: observations["consumer:turbo-hit"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", failurePropagation: observations["consumer:failed-build"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", pipeline: "SYNTHETIC_ONLY_REAL_CONSUMER_NOT_QUALIFIED", consumerToolPins: observations["consumer:install"] ? "SEE_RAW_OBSERVATION" : "DECLARED_ONLY" };
-const focused = auditWitnessesOnly || directoryWitnessesOnly || interruptionWitnessOnly;
+const focused = auditWitnessesOnly || directoryWitnessesOnly || interruptionWitnessOnly || loaderWitnessesOnly;
 const directoryWitnessObserved = directoryRegressionCli !== null && !auditWitnessesOnly;
-writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, scope: interruptionWitnessOnly ? "interruption-witness-only" : directoryWitnessesOnly ? "directory-witnesses-only" : auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !focused && failures.length === 0 && legacyCli !== null && regressionCli !== null && directoryWitnessObserved, legacyWitnessObserved: !focused && legacyCli !== null, regressionWitnessObserved: !directoryWitnessesOnly && regressionCli !== null, directoryWitnessObserved, failures, observations }, null, 2));
+const loaderWitnessObserved = loaderRegressionCli !== null && (!focused || loaderWitnessesOnly);
+writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, scope: loaderWitnessesOnly ? "loader-witnesses-only" : interruptionWitnessOnly ? "interruption-witness-only" : directoryWitnessesOnly ? "directory-witnesses-only" : auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !focused && failures.length === 0 && legacyCli !== null && regressionCli !== null && directoryWitnessObserved && loaderWitnessObserved, legacyWitnessObserved: !focused && legacyCli !== null, regressionWitnessObserved: !directoryWitnessesOnly && regressionCli !== null, directoryWitnessObserved, loaderWitnessObserved, failures, observations }, null, 2));
 console.log(JSON.stringify({ profile: "modelo-suite-static-v1", failures, report: join(output, "qualification.json") }));
-process.exitCode = failures.length === 0 && (interruptionWitnessOnly ? true : directoryWitnessesOnly ? directoryWitnessObserved : regressionCli !== null && (auditWitnessesOnly || (legacyCli !== null && directoryWitnessObserved))) ? 0 : 1;
+process.exitCode = failures.length === 0 && (loaderWitnessesOnly ? loaderWitnessObserved : interruptionWitnessOnly ? true : directoryWitnessesOnly ? directoryWitnessObserved : regressionCli !== null && (auditWitnessesOnly || (legacyCli !== null && directoryWitnessObserved && loaderWitnessObserved))) ? 0 : 1;

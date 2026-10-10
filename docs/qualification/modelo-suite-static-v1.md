@@ -92,6 +92,7 @@ bun scripts/qualify-modelo-static.ts --source-root <candidate> \
   --legacy-cli <baseline>/apps/cli/dist/index.js \
   --regression-cli <pre-audit-correction>/apps/cli/dist/index.js \
   --directory-regression-cli <pre-directory-correction>/apps/cli/dist/index.js \
+  --loader-regression-cli <pre-loader-correction>/apps/cli/dist/index.js \
   --output-dir <new-disposable-evidence-directory>
 ```
 
@@ -110,6 +111,18 @@ The directory regression artifact comes from public commit
 disappear even with an explicit selector. The corrected package must enumerate the importer,
 reject it when excluded, and actually analyze it when selected. Existing drift refusals in
 the historical artifact remain recorded as existing protections.
+
+The loader regression artifact comes from public commit
+`95744a3c0df2bfe4a0cac06ac5b452d649ce9317`. Its selected direct `createRequire`
+loader, excluded named alias, excluded TypeScript namespace factory and excluded
+reexport barrel can admit a changed local `.mjs` after a fresh rebuild. The public
+witnesses retain those actual outcomes. The corrected package must reject the same
+sources with `COMMONJS_UNSUPPORTED` diagnostics naming the offending source, not
+invent an import/call edge for the runtime-loaded target. This remains diagnostic
+coverage: runtime CommonJS loading is outside the admitted static profile.
+`--loader-witnesses-only` runs these before/after cases without dependency installs
+or a pipeline campaign; its receipt always has `qualified: false`. Complete
+qualification requires all historical artifacts, including `--loader-regression-cli`.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent
