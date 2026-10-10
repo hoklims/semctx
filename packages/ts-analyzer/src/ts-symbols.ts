@@ -364,6 +364,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
     const exportedDeclarations = new Set<ts.Declaration>();
+    const namespaceReferences = staticModuleLinksEnabled ? namespaceCallReferences(sf, checker) : undefined;
     if (staticModuleLinksEnabled) {
       const moduleSymbol = checker.getSymbolAtLocation(sf);
       if (moduleSymbol !== undefined) {
@@ -462,7 +463,11 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         const specifier = node.moduleSpecifier.text;
         const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
         const names = importedNames(node, staticModuleLinksEnabled);
-        const bindingTargets = staticModuleLinksEnabled ? valueImportBindings(node).flatMap(binding => {
+        const namespace = node.importClause?.namedBindings;
+        const namespaceSymbol = node.importClause?.isTypeOnly !== true && namespace !== undefined && ts.isNamespaceImport(namespace)
+          ? checker.getSymbolAtLocation(namespace.name) : undefined;
+        const references = [...valueImportBindings(node), ...(namespaceSymbol === undefined ? [] : namespaceReferences?.get(namespaceSymbol) ?? [])];
+        const bindingTargets = staticModuleLinksEnabled ? references.flatMap(binding => {
           const target = resolveCallTarget(checker, binding, relOf, javascriptEnabled, snapshot);
           return target?.relPath !== undefined && target.symbolPath !== undefined ? [{ relPath: target.relPath, symbolPath: target.symbolPath }] : [];
         }) : undefined;
@@ -1006,6 +1011,41 @@ function valueImportBindings(node: ts.ImportDeclaration): ts.Identifier[] {
     for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) bindings.push(element.name);
   }
   return bindings;
+}
+
+/** Called member references keyed by their actual lexical receiver binding, never its spelling. */
+function namespaceCallReferences(source: ts.SourceFile, checker: ts.TypeChecker): Map<ts.Symbol, ts.Expression[]> {
+  const references = new Map<ts.Symbol, ts.Expression[]>();
+  const unwrap = (expression: ts.Expression): ts.Expression => {
+    while (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
+      || ts.isNonNullExpression(expression) || ts.isSatisfiesExpression(expression)) expression = expression.expression;
+    return expression;
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
+      const member = unwrap(node.expression);
+      if (ts.isPropertyAccessExpression(member)) {
+        let target = checker.getSymbolAtLocation(member);
+        if (target !== undefined && (target.flags & ts.SymbolFlags.Alias) !== 0) target = checker.getAliasedSymbol(target);
+        const declaration = target?.getDeclarations()?.[0];
+        // Only owners already extracted as callable symbols can supply coverage. Property,
+        // method and callback origins cannot borrow a same-named file-level coordinate.
+        const modeled = declaration !== undefined && (ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration)
+          || (ts.isVariableDeclaration(declaration) && declaration.initializer !== undefined && isFunctionLike(declaration.initializer)));
+        if (!modeled) { ts.forEachChild(node, visit); return; }
+        let receiver = unwrap(member.expression);
+        while (ts.isPropertyAccessExpression(receiver)) receiver = unwrap(receiver.expression);
+        const binding = checker.getSymbolAtLocation(receiver);
+        if (binding !== undefined) {
+          const targets = references.get(binding) ?? [];
+          targets.push(member); references.set(binding, targets);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return references;
 }
 
 /**

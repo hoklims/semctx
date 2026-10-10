@@ -280,6 +280,22 @@ function scanModuleLinks(
   };
   const links: UnindexedModuleLink[] = [];
   const whole: WholeModuleRead[] = [];
+  const nodePaths = new Map(graph.nodes.map(node => [node.id, node.filePath]));
+  const importTargets = new Map<string, Set<string>>();
+  for (const edge of graph.edges) {
+    if (edge.kind !== "imports") continue;
+    const from = nodePaths.get(edge.from); const to = nodePaths.get(edge.to);
+    if (from === undefined || to === undefined || !indexed.has(to)) continue;
+    let specifiers: unknown = typeof edge.metadata["specifier"] === "string" ? [edge.metadata["specifier"]] : [];
+    if (typeof edge.metadata["specifiers"] === "string") {
+      try { specifiers = JSON.parse(edge.metadata["specifiers"]); } catch { continue; }
+    }
+    if (!Array.isArray(specifiers) || !specifiers.every(specifier => typeof specifier === "string")) continue;
+    for (const specifier of specifiers) {
+      const key = JSON.stringify([from, specifier]); const targets = importTargets.get(key) ?? new Set<string>();
+      targets.add(to); importTargets.set(key, targets);
+    }
+  }
   for (const path of [...candidates, ...gitBlind]) {
     const text = texts.get(path);
     if (text === undefined) continue;
@@ -288,9 +304,13 @@ function scanModuleLinks(
         if (link.kind !== "import") links.push({ from: path, kind: link.kind, line: link.line, target: { nonLiteral: true } });
         continue;
       }
+      const resolved = link.kind === "import" ? importTargets.get(JSON.stringify([path, link.specifier])) : undefined;
+      const resolvedTarget = resolved?.size === 1 ? [...resolved][0] : undefined;
+      if (resolvedTarget !== undefined && link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: resolvedTarget } });
       if (link.specifier.startsWith(".")) {
-        const target = resolveRelativeSpecifier(path, link.specifier, indexed);
-        if (target !== undefined && link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
+        const target = resolved === undefined ? resolveRelativeSpecifier(path, link.specifier, indexed)
+          : resolvedTarget;
+        if (target !== undefined && link.whole === true && resolved === undefined) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
         // A relative import already has its edge; only the edgeless kinds are needed here.
         if (link.kind === "import") continue;
         if (target !== undefined) links.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
@@ -299,7 +319,7 @@ function scanModuleLinks(
       const identity = packageOf(link.specifier);
       if (identity === undefined) continue;
       links.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
-      if (link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
+      if (link.whole === true && resolved === undefined) whole.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
     }
   }
   return { links, unread, whole };

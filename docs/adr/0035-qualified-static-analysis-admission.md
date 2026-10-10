@@ -65,6 +65,13 @@ is observed in batches and rechecked; conversion errors or drift refuse comparis
 Raw retained bytes still bind the compiler snapshot and input digest. Missing inputs
 or differing converted objects refuse admission.
 
+Qualified verification refuses sparse checkout and relevant tracked inputs marked
+`skip-worktree` or `assume-unchanged`: these flags can hide an unmaterialized importer
+from working-tree discovery and diff coverage. Ordinary analysis and verification keep
+their existing behavior. Changed Python files already receive unsupported coverage with
+`OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE`; the ordinary Python producer does not establish
+the broad Python dependency closure required to qualify those changes.
+
 The profile refuses actual global scripts, global declaration files, and global or
 string-named module augmentations because their cross-file bindings are not modeled.
 Explicit import/export boundaries and the `.mjs`/`.mts` modes marked external by the
@@ -101,6 +108,13 @@ Semantic JavaScript JSDoc import types and import tags are outside this profile 
 their dependency links are extracted. Actual attached JSDoc AST nodes make selected
 producers partial and prevent broad qualified scope from silently omitting an importer.
 Ordinary prose mentions of imports and nonsemantic TypeScript JSDoc are not dependencies.
+
+Namespace test associations use explicit calls or constructions whose receiver is the
+actual namespace import binding and whose target has an existing modeled declaration.
+Canonical leaf/default coordinates are preserved through barrels. Dynamic whole reads,
+local shadows and unmodeled object members do not provide `tested_by`/`covers` evidence.
+These associations do not observe test execution. Whole-module impact reads use the
+indexed import target, including TypeScript extension substitution, before fallback probes.
 
 TypeScript/TSX files classified as migrations retain legacy structural migration facts,
 but this profile refuses their selected producer scope and broad dependency scope because

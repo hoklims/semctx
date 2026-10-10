@@ -20,6 +20,38 @@ test("semantic parenthesized call retains its actual owner edge", () => {
   const caller = result.nodes.find(node => node.name === "caller")!;
   expect(result.edges).toContainEqual(expect.objectContaining({ kind: "calls", from: caller.id, to: helper.id }));
 });
+for (const extension of ["js", "ts"]) test(`namespace member calls create canonical test coverage in ${extension}`, () => {
+  const result = graph({ "lib.mjs": "export function helper() { return 1; } export function unused() { return 2; }", [`lib.test.${extension}`]: "import * as lib from './lib.mjs'; lib.helper();" });
+  const helper = result.nodes.find(node => node.name === "helper")!;
+  const unused = result.nodes.find(node => node.name === "unused")!;
+  const tester = result.nodes.find(node => node.kind === "test")!;
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "tested_by", from: helper.id, to: tester.id }));
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "covers", from: tester.id, to: helper.id }));
+  expect(result.edges.some(edge => edge.kind === "tested_by" && edge.from === unused.id)).toBe(false);
+});
+test("namespace test coverage follows actual leaf aliases and excludes a shadowed namespace", () => {
+  const result = graph({ "leaf.mjs": "export function helper() { return 1; }", "barrel.mjs": "export { helper as facade } from './leaf.mjs';", "leaf.test.js": "import * as lib from './barrel.mjs'; lib.facade();" });
+  const helper = result.nodes.find(node => node.name === "helper")!; const tester = result.nodes.find(node => node.kind === "test")!;
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "tested_by", from: helper.id, to: tester.id }));
+  const shadow = graph({ "lib.mjs": "export function helper() { return 1; }", "lib.test.js": "import * as lib from './lib.mjs'; function ordinary(lib) { lib.helper(); } ordinary({ helper() {} });" });
+  expect(shadow.edges.some(edge => edge.kind === "tested_by")).toBe(false);
+});
+test("namespace default calls retain declaration coordinates while dynamic whole reads do not claim coverage", () => {
+  const result = graph({ "lib.mjs": "export default function namedFn() { return 1; }", "lib.test.js": "import * as lib from './lib.mjs'; lib.default();" });
+  const helper = result.nodes.find(node => node.name === "namedFn")!; const tester = result.nodes.find(node => node.kind === "test")!;
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "tested_by", from: helper.id, to: tester.id }));
+  const dynamic = graph({ "lib.mjs": "export function helper() { return 1; }", "lib.test.js": "import * as lib from './lib.mjs'; Object.keys(lib);" });
+  expect(dynamic.edges.some(edge => edge.kind === "tested_by")).toBe(false);
+});
+test("unmodeled object members cannot claim namespace test coverage of a global homonym", () => {
+  const result = graph({ "lib.mjs": "export function helper() { return 1; } export const obj = { helper() { return 2; } };", "lib.test.js": "import * as lib from './lib.mjs'; lib.obj.helper();" });
+  expect(result.edges.some(edge => edge.kind === "tested_by" || edge.kind === "covers")).toBe(false);
+});
+test("namespace construction associates the actual modeled class declaration", () => {
+  const result = graph({ "lib.mjs": "export class Model {}", "lib.test.js": "import * as lib from './lib.mjs'; new lib.Model();" });
+  const model = result.nodes.find(node => node.name === "Model")!; const tester = result.nodes.find(node => node.kind === "test")!;
+  expect(result.edges).toContainEqual(expect.objectContaining({ kind: "tested_by", from: model.id, to: tester.id }));
+});
 test("retained TypeScript transparent calls use the owner while v1 no-snapshot stays unchanged", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-js-contract-")); roots.push(root);
   const path = join(root, "lib.ts");

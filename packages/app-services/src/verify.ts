@@ -615,6 +615,23 @@ function qualifiedPostImageInputs(root: string, config: Parameters<typeof captur
   return reasons;
 }
 
+/** The qualified closure requires materialized relevant tracked inputs; ordinary analysis is unchanged. */
+function qualifiedCheckoutReasons(root: string): string[] {
+  const reasons: string[] = [];
+  const sparse = git(root, ["config", "--bool", "core.sparseCheckout"]);
+  if (sparse.code === 0 && sparse.out.trim() === "true") reasons.push("QUALIFIED_SPARSE_CHECKOUT_UNSUPPORTED");
+  else if (sparse.code !== 0 && sparse.code !== 1) reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE");
+  const flags = git(root, ["ls-files", "-v", "-z"]);
+  if (flags.code !== 0) return [...reasons, "QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"];
+  for (const record of flags.out.split("\0").filter(Boolean)) {
+    if (!/^[A-Za-z] /.test(record)) { reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"); continue; }
+    const path = record.slice(2);
+    if (/^[Ss] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_SKIP_WORKTREE_UNSUPPORTED:${path}`);
+    if (/^[a-z] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_ASSUME_UNCHANGED_UNSUPPORTED:${path}`);
+  }
+  return reasons;
+}
+
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
 export function runVerify(root: string, source: VerifySource): VerifyComputation {
   const store = openReadyRepository(root);
@@ -662,7 +679,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
           (path) => isPathSelected(config, path),
         )
       : gated;
-    const qualifiedPostImageReasons: string[] = [];
+    const qualifiedPostImageReasons: string[] = isQualified(config) ? qualifiedCheckoutReasons(root) : [];
     if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {
       let indexed: ReturnType<typeof parseIndexedControlSnapshot> = null;
       try {
