@@ -18,6 +18,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
     if (ts.isNewExpression(node)) needsChecker = true;
+    if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["setTimeout", "setInterval"].includes(node.text)) needsChecker = true;
     if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) reasons.add("SOURCE_ACCESSOR_UNSUPPORTED");
     if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
     if (ts.isExportDeclaration(node) || (ts.isVariableStatement(node)
@@ -107,19 +108,74 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return (symbol?.getDeclarations() ?? []).some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
       && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "Object" && symbol!.getName() === "constructor");
   };
-  const sdkConstruction = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+  const sdkValue = (expression: ts.Expression, seen = new Set<ts.Node>()): ts.Symbol | undefined => {
     const value = unwrapStaticExpression(expression);
-    if (seen.has(value) || !(ts.isIdentifier(value) || ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value))) return false;
+    if (seen.has(value) || !(ts.isIdentifier(value) || ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value))) return undefined;
     seen.add(value);
     const origins = declarations(value);
-    if (origins.length > 0 && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))
-      && checker.getTypeAtLocation(value).getConstructSignatures().some(signature => {
-        const declaration = signature.getDeclaration(); return declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile());
-      })) return true;
+    if (origins.length > 0 && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))) {
+      let symbol = checker.getSymbolAtLocation(value);
+      if (symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+      return symbol;
+    }
     // An annotation or returned SDK type is not the runtime constructor's origin.
     // Only immutable transparent value aliases can preserve a proven SDK binding.
-    return origins.some(origin => ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
-      && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined && sdkConstruction(origin.initializer, seen));
+    for (const origin of origins) if (ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
+      && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) {
+      const symbol = sdkValue(origin.initializer, seen); if (symbol !== undefined) return symbol;
+    }
+    return undefined;
+  };
+  const sdkConstruction = (symbol: ts.Symbol | undefined): boolean => symbol !== undefined
+    && checker.getTypeOfSymbolAtLocation(symbol, symbol.getDeclarations()![0]!).getConstructSignatures().some(signature => {
+      const declaration = signature.getDeclaration(); return declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile());
+    });
+  const timerNames = new Set(["setTimeout", "setInterval"]);
+  const sdkTimer = (symbol: ts.Symbol | undefined): boolean => symbol !== undefined && timerNames.has(symbol.getName())
+    && (symbol.getDeclarations()?.length ?? 0) > 0 && symbol.getDeclarations()!.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()));
+  const timerValue = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    if (sdkTimer(sdkValue(value))) return true;
+    for (const declaration of declarations(value)) {
+      if (ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+        && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined
+        && timerValue(declaration.initializer, seen)) return true;
+      if (ts.isBindingElement(declaration) && ts.isObjectBindingPattern(declaration.parent)
+      && ts.isVariableDeclaration(declaration.parent.parent) && declaration.parent.parent.initializer !== undefined
+      && ts.isVariableDeclarationList(declaration.parent.parent.parent) && (declaration.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0) {
+      const member = declaration.propertyName ?? declaration.name;
+      if ((ts.isIdentifier(member) || ts.isStringLiteral(member)) && sdkTimer(checker.getPropertyOfType(checker.getTypeAtLocation(declaration.parent.parent.initializer), member.text))) return true;
+      }
+    }
+    return false;
+  };
+  const unsafeHandler = (type: ts.Type): boolean => {
+    if ((type.flags & (ts.TypeFlags.StringLike | ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0) return true;
+    if (type.isUnion()) return type.types.some(unsafeHandler);
+    if (type.isIntersection() && type.types.some(part => (part.flags & (ts.TypeFlags.StringLike | ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0)) return true;
+    return type.getCallSignatures().length === 0 && !(type.getSymbol()?.getName() === "Function"
+      && type.getSymbol()!.getDeclarations()?.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())));
+  };
+  const inspectTimerUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
+    const parent = node.parent;
+    if (ts.isIdentifier(node) && ((ts.isPropertyAccessExpression(parent) && parent.name === node)
+      || (ts.isVariableDeclaration(parent) && parent.name === node) || ts.isBindingElement(parent))) return;
+    if (!timerValue(node)) return;
+    for (let current: ts.Node | undefined = node; current !== undefined; current = current.parent) if (ts.isTypeNode(current)) return;
+    let usage: ts.Expression = node;
+    while (ts.isParenthesizedExpression(usage.parent) || ts.isAsExpression(usage.parent) || ts.isTypeAssertionExpression(usage.parent)
+      || ts.isNonNullExpression(usage.parent) || ts.isSatisfiesExpression(usage.parent)) {
+      if (unwrapStaticExpression(usage.parent) !== unwrapStaticExpression(node)) break;
+      usage = usage.parent;
+    }
+    const container = usage.parent;
+    if (ts.isVariableDeclaration(container) && container.initializer === usage && ts.isIdentifier(container.name)
+      && ts.isVariableDeclarationList(container.parent) && (container.parent.flags & ts.NodeFlags.Const) !== 0) return;
+    if (ts.isCallExpression(container) && container.expression === usage && container.arguments[0] !== undefined
+      && !unsafeHandler(checker.getTypeAtLocation(unwrapStaticExpression(container.arguments[0])))) return;
+    reasons.add("SOURCE_TIMER_EVALUATION_UNSUPPORTED");
   };
   const internalBase = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const base = unwrapStaticExpression(expression);
@@ -133,7 +189,12 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && declaration.initializer !== undefined && internalBase(declaration.initializer, seen)));
   };
   const visit = (node: ts.Node): void => {
-    if (ts.isNewExpression(node) && !sdkConstruction(node.expression)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
+    if (ts.isNewExpression(node)) {
+      const origin = sdkValue(node.expression);
+      if (!sdkConstruction(origin)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
+      else if (["Worker", "SharedWorker"].includes(origin!.getName())) reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
+    }
+    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectTimerUse(node);
     if (ts.isPropertyAccessExpression(node) && functionHelper(node)) reasons.add("SOURCE_FUNCTION_HELPER_UNSUPPORTED");
     if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && intrinsicConstructor(node)) reasons.add("SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED");
     if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) {

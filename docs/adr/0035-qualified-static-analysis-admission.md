@@ -146,6 +146,16 @@ unsupported. Transparent immutable aliases of actual SDK values retain that opaq
 boundary; an annotation, assertion or call-return type alone cannot establish it.
 Ordinary/legacy construction facts and static namespace class-test associations remain
 available, but those associations do not qualify the constructor invocation itself.
+Actual SDK Worker/SharedWorker constructors are code loaders and remain unsupported,
+including transparent aliases and URL-valued arguments; no worker dependency edge is
+invented. Other known SDK constructor boundaries retain their domain.
+
+Browser SDK setTimeout/setInterval calls with string, possibly string, any/unknown or
+generic handlers are unsupported runtime evaluation. Known function callbacks remain
+eligible under the existing opaque SDK boundary. Timer aliases and destructuring are
+tracked; helpers and value escapes without a proven safe direct call are refused.
+Local/own methods and Node timer imports do not acquire the browser SDK origin merely
+from their spelling. Ordinary TypeScript without retained inputs remains unchanged.
 
 Tagged-template invocations have no extracted callee edges and are explicitly unsupported:
 JavaScript producers report `JAVASCRIPT_TAGGED_TEMPLATE_UNSUPPORTED`, while qualified
