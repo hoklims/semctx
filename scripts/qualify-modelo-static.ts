@@ -15,7 +15,10 @@ const pluginCli = option("--plugin-cli", join(sourceRoot, "plugins/claude-code/d
 const output = option("--output-dir", join(sourceRoot, ".omx/qualification/modelo-static"));
 const legacyCli = process.argv.includes("--legacy-cli") ? option("--legacy-cli", cli) : null;
 const regressionCli = process.argv.includes("--regression-cli") ? option("--regression-cli", cli) : null;
+const directoryRegressionCli = process.argv.includes("--directory-regression-cli") ? option("--directory-regression-cli", cli) : null;
 const auditWitnessesOnly = process.argv.includes("--audit-witnesses-only");
+const directoryWitnessesOnly = process.argv.includes("--directory-witnesses-only");
+assert(!(auditWitnessesOnly && directoryWitnessesOnly), "Choose one focused witness scope");
 const observations: Record<string, unknown> = {};
 const failures: string[] = [];
 mkdirSync(output, { recursive: true });
@@ -67,6 +70,38 @@ function typescriptAuditFixture(name: string, variant: "reexport" | "literal-imp
   return root;
 }
 function report(result: Observation): Report { return JSON.parse(result.stdout) as Report; }
+type DirectoryAdmission = {
+  status: string;
+  indexFreshness: { verdict: string };
+  changeCoverage: { expected: string[]; analyzed: string[]; files: { path: string; status: string; reasons: string[] }[] };
+};
+const directoryPaths = ["tooling/build/hidden.ts", "dist/hidden.mjs"] as const;
+function directoryFixture(name: string, hidden: typeof directoryPaths[number], selected: boolean, bundle: string): string {
+  const root = join(output, `consumer-${name}`);
+  assert(!existsSync(root), `Refusing to overwrite existing consumer ${root}`);
+  mkdirSync(root, { recursive: true });
+  put(root, ".gitignore", ".semctx/\nnode_modules/\n");
+  put(root, "package.json", JSON.stringify({ name: "public-directory-witness", private: true, type: "module" }));
+  put(root, "tsconfig.json", JSON.stringify({ compilerOptions: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, noEmit: true }, include: ["src/**/*.ts", hidden] }));
+  put(root, "src/main.ts", "export function main(input: number): number { return input + 1; }\n");
+  put(root, hidden, hidden.endsWith(".ts") ? 'export { main } from "../../src/main";\n' : 'export { main } from "../src/main.ts";\n');
+  git(root, ["init", "-q"]); git(root, ["add", "-A"]); git(root, ["commit", "-qm", "public tracked directory witness"]);
+  const initialized = semctx(root, ["init"], bundle); assert.equal(initialized.code, 0, initialized.stderr);
+  const configPath = join(root, ".semctx/config.json");
+  const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+  Object.assign(config, { version: 2, selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", languages: { typescript: "on", javascript: "on" }, include: selected ? ["src/**/*.ts", hidden] : ["src/**/*.ts"], exclude: ["**/node_modules/**", "**/.git/**", "**/.semctx/**"] });
+  writeFileSync(configPath, JSON.stringify(config));
+  git(root, ["add", "-A"]); git(root, ["commit", "-qm", "initialize qualified directory policy"]);
+  const initial = semctx(root, ["index", "--json"], bundle); observations[`${name}:initial-index`] = initial; assert.equal(initial.code, 0, initial.stderr);
+  put(root, "src/main.ts", "export function main(input: number): number { return input + 2; }\n");
+  const refreshed = semctx(root, ["index", "--json"], bundle); observations[`${name}:refreshed-index`] = refreshed; assert.equal(refreshed.code, 0, refreshed.stderr);
+  return root;
+}
+function directoryHealth(root: string, name: string, bundle: string): { freshness: { verdict: string }; candidates: { path: string; selectionDecision: string; analysisOutcome: string }[] } {
+  const result = semctx(root, ["index-health", "--json"], bundle); observations[`${name}:health`] = result;
+  assert([0, 2].includes(result.code), result.stderr);
+  return JSON.parse(result.stdout) as ReturnType<typeof directoryHealth>;
+}
 function blocked(result: Observation): void {
   assert.notEqual(result.code, 0, "A gate must receive a nonzero exit when admission is refused");
   if (result.stdout.trim().startsWith("{")) {
@@ -79,6 +114,7 @@ function blocked(result: Observation): void {
 }
 async function scenario(name: string, action: () => void | Promise<void>): Promise<void> {
   if (auditWitnessesOnly && !name.startsWith("audit-")) return;
+  if (directoryWitnessesOnly && !name.startsWith("directory-")) return;
   try { await action(); observations[`${name}:assertions`] = "passed"; }
   catch (error) { failures.push(name); observations[`${name}:assertions`] = { status: "failed", error: String(error) }; }
   writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, mcp, pluginCli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, observations, failures }, null, 2));
@@ -215,6 +251,60 @@ for (const variant of ["reexport", "literal-import", "inherited-nodenext"] as co
   });
 }
 
+for (const hidden of directoryPaths) {
+  const directory = hidden.endsWith(".ts") ? "build-ts" : "dist-mjs";
+  for (const selected of [false, true]) {
+    if (directoryRegressionCli) await scenario(`directory-before-${directory}-${selected ? "selected" : "excluded"}`, () => {
+      const label = `directory-before-${directory}-${selected ? "selected" : "excluded"}`;
+      const root = directoryFixture(label, hidden, selected, directoryRegressionCli);
+      const result = verify(root, label, directoryRegressionCli);
+      const admission = report(result).analysisAdmission as DirectoryAdmission;
+      assert.equal(result.code, 0, "Actual package 52 must reproduce false admission"); assert.equal(admission.status, "admitted");
+      assert(!admission.changeCoverage.expected.includes(hidden), "Before-fix closure must omit the tracked importer");
+      const health = directoryHealth(root, label, directoryRegressionCli);
+      assert(!health.candidates.some((candidate) => candidate.path === hidden), "Before-fix discovery must omit the tracked importer");
+      const stored = graph(root); observations[`${label}:graph`] = stored;
+      assert(!stored.nodes.some((node) => node.file_path === hidden), "Before-fix graph must omit the tracked importer");
+      // Preserve the old package's existing Git-diff freshness protection separately from the missing closure.
+      put(root, hidden, readFileSync(join(root, hidden), "utf8") + "// actual post-index drift\n");
+      const drift = verify(root, `${label}-inventory-drift`, directoryRegressionCli);
+      assert.equal(drift.code, 3); blocked(drift);
+      assert.equal((report(drift).analysisAdmission as DirectoryAdmission).indexFreshness.verdict, "STALE");
+    });
+    await scenario(`directory-after-${directory}-${selected ? "selected" : "excluded"}`, () => {
+      const label = `directory-after-${directory}-${selected ? "selected" : "excluded"}`;
+      const root = directoryFixture(label, hidden, selected, cli);
+      const result = verify(root, label);
+      const admission = report(result).analysisAdmission as DirectoryAdmission;
+      assert(admission.changeCoverage.expected.includes(hidden), "Tracked transitive importer must remain a coverage obligation");
+      const health = directoryHealth(root, label, cli);
+      const candidate = health.candidates.find((item) => item.path === hidden);
+      assert(candidate, "Tracked directory importer must persist in discovery");
+      const stored = graph(root); observations[`${label}:graph`] = stored;
+      if (!selected) {
+        assert.equal(result.code, 3, "Excluded required importer must refuse with the actual CLI admission exit"); blocked(result);
+        const obligation = admission.changeCoverage.files.find((file) => file.path === hidden);
+        assert(obligation); assert.equal(obligation.status, "excluded"); assert(obligation.reasons.length > 0);
+        assert.equal(candidate.selectionDecision, "excluded");
+      } else {
+        assert.equal(result.code, 0); assert.equal(admission.status, "admitted");
+        for (const path of ["src/main.ts", hidden]) assert(admission.changeCoverage.analyzed.includes(path), `Selected source ${path} must actually be analyzed`);
+        assert.equal(health.freshness.verdict, "DIRTY_KNOWN");
+        for (const path of ["src/main.ts", hidden]) assert(health.candidates.some((candidate) => candidate.path === path && candidate.selectionDecision === "selected" && candidate.analysisOutcome === "analyzed"), `Fresh persisted discovery must retain analyzed source ${path}`);
+        assert(stored.nodes.some((node) => node.file_path === hidden), "Selected importer must persist in the graph");
+      }
+    });
+  }
+  await scenario(`directory-after-${directory}-inventory-drift`, () => {
+    const label = `directory-after-${directory}-inventory-drift`;
+    const root = directoryFixture(label, hidden, true, cli);
+    const before = verify(root, `${label}-fresh`); assert.equal(before.code, 0);
+    put(root, hidden, readFileSync(join(root, hidden), "utf8") + "// actual post-index drift\n");
+    const drift = verify(root, label); assert.equal(drift.code, 3); blocked(drift);
+    assert.equal((report(drift).analysisAdmission as DirectoryAdmission).indexFreshness.verdict, "STALE", "Tracked output-path drift must invalidate the input snapshot");
+  });
+}
+
 await scenario("mixed-transitive-analysis", async () => {
   const root = fixture("mixed");
   const install = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "install", "--ignore-scripts"], join(root, "suite"), 180_000);
@@ -330,12 +420,15 @@ await scenario("interrupted-index", async () => {
   assert(observedIncomplete, "Must observe the actual rebuild marker before interrupting the process");
   assert.notEqual(child.exitCode, 0); blocked(verify(root, "interrupted"));
 });
-await scenario("artifact-identities", () => {
-  observations["artifacts"] = [...new Set([cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : [])])].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
+await scenario(directoryWitnessesOnly ? "directory-artifact-identities" : "artifact-identities", () => {
+  const artifacts = directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : [])];
+  observations["artifacts"] = [...new Set(artifacts)].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
   observations["source-commit"] = run(["git", "rev-parse", "HEAD"], sourceRoot);
   observations["source-status"] = run(["git", "status", "--porcelain"], sourceRoot);
 });
 observations["runtime-obligations"] = { testExecution: observations["consumer:tests"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", turboCache: observations["consumer:turbo-hit"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", failurePropagation: observations["consumer:failed-build"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", pipeline: "SYNTHETIC_ONLY_REAL_CONSUMER_NOT_QUALIFIED", consumerToolPins: observations["consumer:install"] ? "SEE_RAW_OBSERVATION" : "DECLARED_ONLY" };
-writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", scope: auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !auditWitnessesOnly && failures.length === 0 && legacyCli !== null && regressionCli !== null, legacyWitnessObserved: !auditWitnessesOnly && legacyCli !== null, regressionWitnessObserved: regressionCli !== null, failures, observations }, null, 2));
+const focused = auditWitnessesOnly || directoryWitnessesOnly;
+const directoryWitnessObserved = directoryRegressionCli !== null && !auditWitnessesOnly;
+writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, scope: directoryWitnessesOnly ? "directory-witnesses-only" : auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !focused && failures.length === 0 && legacyCli !== null && regressionCli !== null && directoryWitnessObserved, legacyWitnessObserved: !focused && legacyCli !== null, regressionWitnessObserved: !directoryWitnessesOnly && regressionCli !== null, directoryWitnessObserved, failures, observations }, null, 2));
 console.log(JSON.stringify({ profile: "modelo-suite-static-v1", failures, report: join(output, "qualification.json") }));
-process.exitCode = failures.length === 0 && regressionCli !== null && (auditWitnessesOnly || legacyCli !== null) ? 0 : 1;
+process.exitCode = failures.length === 0 && (directoryWitnessesOnly ? directoryWitnessObserved : regressionCli !== null && (auditWitnessesOnly || (legacyCli !== null && directoryWitnessObserved))) ? 0 : 1;
