@@ -29,7 +29,7 @@ export function qualifiedAdmission(input: {
   // Re-discover outside configured selectors: an excluded importer must not vanish from closure.
   const broad = discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", include: ["**/*"], exclude: [], languages: {
     typescript: "on", javascript: "on", python: "on", markdown: "on", sql: "on",
-  } });
+  } }, config);
   const links: [string, string][] = [];
   const consumed = captureQualifiedAnalysisInputs(config);
   const sourceFiles = consumed.files.filter((file) => /\.[cm]?[jt]sx?$/.test(file.path)).map((file) => ({ relPath: file.path, absPath: resolve(config.repositoryRoot, file.path), content: Buffer.from(file.bytes).toString("utf8") }));

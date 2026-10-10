@@ -9,6 +9,8 @@ export {
   countTypeScriptFiles,
   isPathSelected,
   sourceLanguage,
+  createQualifiedPathEligibility,
+  isHardExcludedPath,
 } from "./discovery";
 export type {
   DiscoveredFile,

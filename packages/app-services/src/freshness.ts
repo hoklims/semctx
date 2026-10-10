@@ -27,6 +27,7 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -204,25 +205,26 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
 } {
     const entries: { path: string; contentHash: string }[] = [];
     const files: { path: string; bytes: Uint8Array }[] = [];
-    const ignored = new Set([".git", ".semctx", "node_modules", "dist", "build", "coverage", ".turbo", ".next"]);
+    const eligible = createQualifiedPathEligibility(config);
     const qualifiedRoot = canonicalRepositoryRoot(config.repositoryRoot);
     const walk = (dir: string): void => {
       if (dir !== config.repositoryRoot && existsSync(resolve(dir, ".git"))) {
         throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope contains a nested Git repository", { path: relative(config.repositoryRoot, dir) });
       }
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (ignored.has(entry.name)) continue;
         const path = resolve(dir, entry.name);
+        const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
+        if (isHardExcludedPath(relPath)) continue;
         const stat = lstatSync(path);
+        if (!entry.isDirectory() && !eligible(relPath)) continue;
         if (stat.isSymbolicLink()) {
           throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope cannot read a symbolic link", { path: relative(config.repositoryRoot, path) });
         }
         if (entry.isDirectory()) { walk(path); continue; }
         // Source bytes, raw manifests/configuration and lockfiles all influence qualification.
-        if (!/\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(entry.name) && !/^(?:bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(entry.name)) continue;
+        if (!/\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(entry.name) && !/^(?:\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(entry.name)) continue;
         if (!canonicalRepositoryRoot(path).startsWith(`${qualifiedRoot}/`)) throw new SemctxError("INVALID_TASK_INPUT", "qualified source lies outside the repository");
         const bytes = readFileSync(path);
-        const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
         entries.push({ path: relPath, contentHash: hash("qualified-input-bytes", bytes) });
         files.push({ path: relPath, bytes });
       }
