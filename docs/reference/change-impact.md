@@ -46,19 +46,83 @@ or a range); `--from-file` is refused because a supplied diff cannot be bound to
 | `analysis.bounds` | `maxDistance` (default 4), `maxTargets` (default 250) |
 | `analysis.semanticLayer` | `joined` \| `absent` \| `unavailable` \| `not_computed` (authored `.semctx/semantic` nodes) |
 | `analysis.limits` | static limits of this run (`code`, `detail`) |
-| `changes.files` | every changed path with `status` (`modified`, `added`, `deleted`, `renamed` + `oldPath`, `binary`, `mode_only`, `untracked`, `unrecognized`) |
+| `analysis.fileCoverage` | counts over `changes.files[].coverage`: `files`, `analyzed`, `notAnalyzed`, `reasons` (per reason code). `analyzed: 0` means the run analysed no changed file, so no symbol |
+| `changes.files` | every changed path with `status` (`modified`, `added`, `deleted`, `renamed` + `oldPath`, `binary`, `mode_only`, `untracked`, `unrecognized`) and `coverage`: `status` `analyzed` \| `not_analyzed`, the `language` named from the path, and for `not_analyzed` a `reason` (see [File coverage](#file-coverage)) |
 | `changes.units` | classified changes: `kind` (`symbol`, `declaration`, `module_statement`, `file`, `added_declaration`, `removed_declaration`, `doc_comment`, `trivia`, `unclassified`), `side`, `lines`, `names`, `exported` (`true` \| `false` \| `null` = unknown), `behavioral`, `runsOnLoad` (present when the changed code runs as its module loads), `surfaces` |
 | `directlyAffected` / `transitivelyAffected` / `possiblyAffected` | targets: `id`, `kind`, `name`, `file`, `package`, `surfaces`, `distance`, `reason`, `via` (each step: `relation`, `from`, `to`, optional `evidence {file, line}`) |
 | `exposedClaims` | marker (`@invariant`, `@capability`, …) and authored claims anchored to an exposed node: `source` `marker` \| `semantic`, `exposure` (strongest tier of its anchors), `anchors` with the relation that ties them |
 | `surfaces` | per declared surface: `exposure` (`changed` \| `direct` \| `transitive` \| `possible` \| `not_reached` \| `unknown`) and `counts`; `null` without `--surfaces` |
 | `blastRadius` | `scope` of the **known** reach (`local` \| `package` \| `repository` \| `unknown`), `complete`, `known {files, packages, surfaces}`, `possible {files, packages, surfaces, omitted}`, `rationale` |
 | `unresolved` | boundaries: `code`, `scope` (`run` \| `file` \| `node`), `file`/`nodeId`, `detail`, `affects` (`reach` \| `claims` \| `none`) |
+| `authorityInvariants` | single-authority invariants the change exposes (see [Single-authority invariants](#single-authority-invariants)); `null` when the authored model could not be read |
 
 `blastRadius.scope` summarizes only the known reach (behavioural changes plus direct and
 transitive targets): `local` = within the changed files, `package` = within the manifest-evidenced
 workspace packages of the changed files, `repository` = beyond them or where no package boundary
 applies. It is `unknown` whenever the reach is incomplete. The possible tier is reported as facts
 only and never summarized into a scope.
+
+## File coverage
+
+`changes.files[].coverage` says whether the analysis read each changed file. `analyzed` means the
+index holds facts for the file on the bound side, so its hunks were joined to graph units; it does
+not make the reach complete. A `not_analyzed` file contributes no unit and no target. Reasons, in
+the order they are decided (an open code set):
+
+| `reason` | meaning |
+| --- | --- |
+| `LANGUAGE_UNSUPPORTED` | no enabled semctx producer reads this language (`csharp`, `rust`, `yaml`, `toml`, `json`, `powershell`, `msbuild`, … or `unknown`); JavaScript additionally requires configuration v2 and explicit language registration |
+| `LANGUAGE_DISABLED`, `ANALYZER_EVIDENCE_MISSING`, `ANALYSIS_FAILED`, `ANALYSIS_PARTIAL` | JavaScript was disabled, has no bound producer ledger, failed parsing, or produced explicit partial diagnostics; an indexed node alone does not establish effective analysis |
+| `OUTSIDE_SELECTION` | a supported language outside the configured analysis selection |
+| `INDEX_BINDING_BROKEN` | the binding is broken, so no file was joined to the index |
+| `BINARY_CONTENT`, `METADATA_ONLY`, `UNRECOGNIZED_DIFF_BLOCK` | the diff carries no analysable text for the file |
+| `UNTRACKED_NOT_DIFFED` | an untracked file `git diff` does not include |
+| `NOT_INDEXED` | the index holds no facts for the file on the bound side (an added file under an old-side index, a deleted file under a head index, a failed producer) |
+
+A verdict computed over a change whose files are all `not_analyzed` rests on no analysed symbol;
+`analysis.fileCoverage.analyzed` makes that visible without reading every file.
+
+## Single-authority invariants
+
+An authored invariant can declare that a literal value — a trust-policy digest, a pinned version,
+a key id — has exactly one source file:
+
+```text
+invariant invariant.trust-policy.single-source
+  rule: The trust-policy digest is defined only by the qualifier.
+  meta: authority.value=sha256:6d14a9ee…
+  meta: authority.source=tools/proof/qualifier.ts
+  meta: authority.retired=sha256:<superseded digest>
+```
+
+`authority.value` and `authority.source` are required; `authority.retired` is an optional
+comma-separated list of superseded values that must appear nowhere. An empty source and values
+shorter than 8 characters are refused (`AUTHORITY_DECLARATION_INVALID`). `impact diff` searches both diff sides
+with Git for every value, outside `.semctx/`, and reports the invariant when the change touches a
+file that holds a value on either side, the declared source, or the declaring `.sem` file. Each
+entry lists every `occurrence` (`file`, `line` — `null` for a file Git treats as binary, which
+still counts — `side`, `kind` `authority` \| `retired`, `authoritative`, `changed`) and a `status`
+read on the new side:
+
+| `status` | meaning |
+| --- | --- |
+| `single_source` | only the source holds the value |
+| `duplicated` | the source and at least one other file hold the value |
+| `diverged` | a retired value remains somewhere, or other files hold the value while the source does not |
+| `absent` | the value is nowhere |
+
+The scan reads Git, not the index, so it is reported even when the binding is broken. It searches
+what a diff side holds: a commit's tree, the Git index, or for a working-tree change the tracked and
+untracked files Git does not ignore. A copy in an ignored file (a build output, a local
+configuration) is on no diff side and is not reported. Values are matched as UTF-8 bytes: a copy
+stored in another encoding (UTF-16, for example) is not seen. For a
+working-tree or staged change, a worktree or index that moves during the search voids the result
+(`authorityInvariants: null`, `AUTHORITY_SCAN_UNSTABLE`); on every source, a range included, so
+does an authored model whose declarations changed before the analysis ended. Text output lists each
+exposed invariant with its status and the current-side copies. A declaration that a changed `.sem`
+file held on the old side and that the current model no longer makes is reported as
+`AUTHORITY_DECLARATION_REMOVED`, so removing a check is never silent. It is a textual fact, not a
+verdict: deciding whether a copy is acceptable stays with the consumer.
 
 ## How a change is classified
 
@@ -160,6 +224,10 @@ crossed, so their distance is not bounded by `maxDistance`.
 | `SEMANTIC_LINK_UNRESOLVED` | claims | an authored link that does not resolve against the index |
 | `SEMANTIC_LINK_NOT_POSITIONAL` | claims | an authored link to a claim or evidence record, which has no code position |
 | `SEMANTIC_INVARIANT_UNANCHORED` | claims | an authored invariant with no repository link: its exposure is unknown |
+| `AUTHORITY_DECLARATION_INVALID` | claims | an `authority.*` declaration that is incomplete, has an empty source, is on a non-invariant, is too short, or retires its own value |
+| `AUTHORITY_DECLARATION_REMOVED` | claims | the change removes a single-authority declaration from a `.sem` file; its copies are no longer checked |
+| `AUTHORITY_SCAN_FAILED` | claims | a diff side could not be searched for an authority value, or a changed `.sem` file could not be read on the old side |
+| `AUTHORITY_SCAN_UNSTABLE` | claims | the worktree, the Git index or the authored declarations changed while authority values were searched; `authorityInvariants` is `null` |
 | `POSSIBLE_TIER_TRUNCATED` | none | possible targets omitted after `maxTargets` (surfaces then read `unknown`) |
 | `ADDED_PATH_NOT_INDEXED` | none | an added file the old-side index cannot describe; no indexed edge points to it |
 | `UNTRACKED_PATH_NOT_DIFFED` | none / reach | an untracked file outside the diff: `none` when the index does not describe it either, or when the binding proved it unchanged since the index read it from disk (committed code then reaches it only through the changed files that import it, or by resolution take-over, reported separately); `reach` when the index read it and whether it changed since is unknown |

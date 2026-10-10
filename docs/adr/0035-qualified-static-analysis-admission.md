@@ -3,7 +3,7 @@
 - Status: accepted
 - Date: 2026-10-09
 - Related: ADR 0008 (additive reports), ADR 0010 (trust dimensions), ADR 0012
-  (transport parity), ADR 0028 (explicit configuration migration), ADR 0033 (scope)
+  (transport parity), ADR 0028 (explicit configuration migration), ADR 0036 (scope)
 
 ## Decision
 

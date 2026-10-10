@@ -56,9 +56,18 @@ function renderText(report: ChangeImpactReport): void {
   info(`  confidence : ${analysis.confidence.level} (${analysis.confidence.reasons.join(", ")})`);
   info(`  blast      : ${report.blastRadius.scope}${report.blastRadius.complete ? "" : " (reach incomplete)"}`);
   info(`  semantic   : ${analysis.semanticLayer}`);
+  if (analysis.fileCoverage !== undefined) {
+    const reasons = Object.entries(analysis.fileCoverage.reasons).map(([reason, count]) => `${reason} ${count}`).join(", ");
+    info(`  coverage   : ${analysis.fileCoverage.analyzed}/${analysis.fileCoverage.files} files analyzed${reasons === "" ? "" : ` (${reasons})`}`);
+  }
 
   heading(`Changed (${report.changes.files.length} files)`);
-  for (const file of report.changes.files) info(`  ${file.path} ${c.dim(`[${file.status}]`)}`);
+  for (const file of report.changes.files) {
+    const coverage = file.coverage === undefined
+      ? ""
+      : `, ${file.coverage.language} ${file.coverage.status === "analyzed" ? "analyzed" : `not analyzed: ${file.coverage.reason}`}`;
+    info(`  ${file.path} ${c.dim(`[${file.status}${coverage}]`)}`);
+  }
   for (const unit of report.changes.units ?? []) {
     const marker = unit.behavioral ? c.yellow("*") : c.dim("-");
     info(`  ${marker} ${unit.kind} ${unit.names.join(", ") || unit.file}`);
@@ -69,6 +78,19 @@ function renderText(report: ChangeImpactReport): void {
   if ((report.exposedClaims ?? []).length > 0) {
     heading("Exposed claims");
     for (const claim of report.exposedClaims ?? []) info(`  ${claim.id} ${c.dim(`[${claim.source}, ${claim.exposure}]`)}`);
+  }
+  if ((report.authorityInvariants ?? []).length > 0) {
+    heading("Single-authority invariants");
+    for (const invariant of report.authorityInvariants ?? []) {
+      const marker = invariant.status === "single_source" ? c.dim("-") : c.yellow("!");
+      info(`  ${marker} ${invariant.id}: ${invariant.status} ${c.dim(`[source ${invariant.source}]`)}`);
+      // The current side only: where the value (or a retired one) still lives outside its source.
+      for (const occurrence of invariant.occurrences) {
+        if (occurrence.side !== "new" || (occurrence.kind === "authority" && occurrence.authoritative)) continue;
+        const at = occurrence.line === null ? `${occurrence.file} (binary)` : `${occurrence.file}:${occurrence.line}`;
+        info(`      ${occurrence.kind === "retired" ? "retired" : "copy"} ${at}${occurrence.changed ? c.dim(" [changed]") : ""}`);
+      }
+    }
   }
   if (report.surfaces !== null) {
     heading("Surfaces");

@@ -99,6 +99,12 @@ describe("semctx index --record (CLI, real git)", () => {
     const status = semctx(root, ["status", "--json"]);
     expect(status.code).toBe(3);
     expect(JSON.parse(status.stdout).reasons).toContain("SEMANTIC_LIFECYCLE_INVALID");
+    // UNSEALED says why: the concrete lifecycle finding and the one command that seals again.
+    expect(JSON.parse(status.stdout).explanation).toContainEqual(expect.objectContaining({
+      reason: "SEMANTIC_LIFECYCLE_INVALID",
+      code: "EVIDENCE_BASELINE_STALE",
+      remedy: "semctx index --record",
+    }));
     expect(status.stderr).toContain("semctx index --record");
     const semantic = semctx(root, ["semantic", "check", "--json"]);
     expect(semantic.code).toBe(1);
@@ -111,6 +117,20 @@ describe("semctx index --record (CLI, real git)", () => {
     const verified = semctx(root, ["verify", "diff", "--record", "--format", "json"]);
     expect(verified.code).toBe(3);
     expect(JSON.parse(verified.stdout).unknowns.join("\n")).toContain("semctx index --record");
+  });
+
+  test("the documented sealing path turns an explained UNSEALED into FRESH", () => {
+    const root = repository();
+    writeFileSync(join(root, "src", "a.ts"), FEATURE);
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "checkpoint");
+    const before = JSON.parse(semctx(root, ["status", "--json"]).stdout);
+    expect(before.verdict).toBe("UNSEALED");
+    expect(before.explanation.map((entry: { remedy: string | null }) => entry.remedy)).toContain("semctx index --record");
+    semctx(root, ["index", "--record", "--json"]);
+    const after = semctx(root, ["status", "--json"]);
+    expect(JSON.parse(after.stdout)).toMatchObject({ verdict: "FRESH", reasons: [], explanation: [] });
+    expect(after.code).toBe(0);
   });
 
   test("--help names --record under index", () => {

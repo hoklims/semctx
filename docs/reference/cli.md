@@ -521,19 +521,59 @@ That transfer is real, and it happens only when you ask for it by name.
 Evaluate the persisted control index snapshot against the current repository without writing state.
 
 ```text
-semctx status [--json]
+semctx status [--json] [--budget-ms <1000..600000>]
 ```
 
 Returns `FRESH` when all inputs match and the sealed diff is empty, `DIRTY_KNOWN` when the current
 non-empty diff exactly matches the sealed diff, `STALE` on any current/indexed mismatch, and
 `UNSEALED` when required snapshot, Git, or store evidence is unavailable. Exit code 0 means
-`FRESH`/`DIRTY_KNOWN`; exit code 3 means `STALE`/`UNSEALED`; usage errors remain 2 and unexpected
-evaluation failures remain 1.
+`FRESH`/`DIRTY_KNOWN`; exit code 3 means `STALE`/`UNSEALED`/`TIMEOUT`; usage errors remain 2 and
+unexpected evaluation failures remain 1.
 
 An authored semantic model that no longer projects into Plane C is also reported as a verdict rather
 than an error: `SEMANTIC_MODEL_INVALID` for error-severity diagnostics or duplicate ids, and
 `SEMANTIC_LIFECYCLE_INVALID` for error-severity lifecycle findings. Both are `UNSEALED` and exit 3.
-Run `semctx semantic check` to see the individual findings behind the reason code.
+
+Every reason carries one or more `explanation` entries `{ reason, code, detail, remedy }`: `code` is
+the concrete cause (a lifecycle finding such as `EVIDENCE_BASELINE_STALE`, a parser diagnostic, or
+the reason itself), `detail` cites the values the seal compared (for example the sealed and current
+`HEAD`), and `remedy` is the command that addresses it, or `null`. Semctx never runs a remedy on its
+own. `FRESH` has an empty `explanation`.
+
+`--budget-ms N` bounds the preflight in wall-clock time from the start of the process: the status is
+computed in a child process that is stopped at the deadline, and the answer is then
+`TIMEOUT` — `canRunHighRiskControl: false`, `reasons: ["STATUS_BUDGET_EXCEEDED"]`,
+`freshnessSeal: null`, `budget: { budgetMs, elapsedMs }` — rather than no verdict. A `TIMEOUT`
+observed nothing and authorizes nothing. Allow about 150 ms of process start-up on top of `N` when
+an outer hook enforces its own limit. Without `--budget-ms` the command never answers `TIMEOUT`.
+The MCP tool `semctx_control_status` always runs with a budget (`budgetMs`, default 15 000 ms) and
+returns the same document.
+
+### Sealing the index at a checkpoint
+
+`semctx index --record` is the one command that refreshes and seals the index: it rebuilds the
+graph, verifies the working tree, and atomically records the verification baseline and the control
+snapshot that `status` compares against. Nothing else — `status`, `impact diff`, `index-health`, the
+MCP tools or the hooks — reindexes or seals.
+
+1. Reach the checkpoint: commit or stash, so the working tree is clean. A seal over uncommitted
+   changes is valid (`DIRTY_KNOWN`) only for that exact tree.
+2. Run `semctx status --json` and read `explanation`. Fix every cause whose remedy is not
+   `semctx index --record` first — for example an `ACTIVE_CHANGE_*` lifecycle finding needs
+   `semctx semantic check` and the change contract it names, which sealing does not repair.
+3. Run `semctx index --record`.
+4. Run `semctx status --json` again: `FRESH` (or `DIRTY_KNOWN`) means the index is sealed at the
+   checkpoint. Any other verdict lists, again, why.
+
+| Reason | Meaning | Remedy |
+| --- | --- | --- |
+| `SEMANTIC_LIFECYCLE_INVALID` / `EVIDENCE_BASELINE_STALE` | the recorded verification baseline no longer matches the analysed content | `semctx index --record` |
+| `SEMANTIC_LIFECYCLE_INVALID` / `EVIDENCE_BASELINE_INVALID` | the recorded verification baseline is malformed | none (`remedy: null`): indexing refuses to seal while it stands; repair `.semctx/verification-state.json` by hand |
+| `SEMANTIC_LIFECYCLE_INVALID` / `ACTIVE_CHANGE_*` | the active-change pointer or a non-terminal contract is inconsistent | `semctx semantic check` |
+| `INDEX_SNAPSHOT_MISSING`, `REPOSITORY_NOT_INDEXED`, `INDEX_SNAPSHOT_INVALID` | no usable seal exists | `semctx index --record` |
+| `HEAD_MISMATCH`, `ANALYSIS_INPUT_MISMATCH`, `WORKING_DIFF_MISMATCH`, other `*_MISMATCH` (`STALE`) | the repository moved since sealing | `semctx index --record` at the new checkpoint |
+| `REPOSITORY_NOT_INITIALIZED` | no `.semctx/config.json` | `semctx setup` |
+| `STATUS_BUDGET_EXCEEDED` (`TIMEOUT`) | the preflight did not finish in its budget | rerun `semctx status --json` without a budget |
 
 ## `control target-propose`
 

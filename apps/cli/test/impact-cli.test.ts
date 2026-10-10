@@ -76,6 +76,40 @@ describe("impact diff (CLI, real git)", () => {
     expect(r.out).not.toMatch(/\b(PASS|BLOCK)\b/);
   });
 
+  it("renders single-authority invariants in text, not only in JSON", () => {
+    const digest = `sha256:${"6d14a9ee".repeat(8)}`;
+    const authority = mkdtempSync(join(tmpdir(), "semctx-impact-authority-"));
+    try {
+      mkdirSync(join(authority, "src"), { recursive: true });
+      writeFileSync(join(authority, "src", "policy.ts"), `export const DIGEST = "${digest}";\n`);
+      writeFileSync(join(authority, "src", "copy.ts"), `export const pinned = "${digest}";\n`);
+      writeFileSync(join(authority, "package.json"), JSON.stringify({ name: "tmp-authority", version: "0.0.0" }));
+      writeFileSync(join(authority, ".gitignore"), ".semctx/\n");
+      git(authority, ["init", "-q"]);
+      git(authority, ["add", "-A"]);
+      git(authority, ["commit", "-q", "-m", "init"]);
+      semctx(["init"], authority);
+      mkdirSync(join(authority, ".semctx", "semantic"), { recursive: true });
+      writeFileSync(join(authority, ".semctx", "semantic", "invariants.sem"), [
+        "invariant invariant.digest.single-source",
+        "  rule: The digest has exactly one source.",
+        `  meta: authority.value=${digest}`,
+        "  meta: authority.source=src/policy.ts",
+        "",
+      ].join("\n"));
+      semctx(["index"], authority);
+      writeFileSync(join(authority, "src", "copy.ts"), `export const pinned = "${digest}";\nexport const other = 1;\n`);
+      const r = semctx(["impact", "diff"], authority);
+      expect(r.code).toBe(0);
+      expect(r.out).toContain("Single-authority invariants");
+      expect(r.out).toContain("invariant.digest.single-source: duplicated");
+      expect(r.out).toContain("copy src/copy.ts:1");
+      expect(r.out).not.toMatch(/\b(PASS|BLOCK)\b/);
+    } finally {
+      rmSync(authority, { recursive: true, force: true });
+    }
+  });
+
   it("refuses inputs it cannot bind to the index", () => {
     expect(semctx(["impact", "diff", "--from-file", "x.diff"], repo).code).toBe(1);
     expect(semctx(["impact", "diff", "--base", "main", "--staged"], repo).code).toBe(1);

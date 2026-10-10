@@ -29,6 +29,12 @@ export const CONTROL_FRESHNESS_REASON_ORDER = [
   "WORKING_TREE_DIRTY",
 ] as const satisfies readonly ControlFreshnessReason[];
 
+/**
+ * The one reason of a TIMEOUT preflight. It is deliberately outside the freshness reason order: a
+ * status that did not finish observed nothing, so it can never appear beside a freshness reason.
+ */
+export const CONTROL_STATUS_BUDGET_EXCEEDED = "STATUS_BUDGET_EXCEEDED" as const;
+
 export interface ControlFreshnessClassification {
   verdict: ControlFreshnessVerdict;
   reasons: ControlFreshnessReason[];

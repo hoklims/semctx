@@ -27,6 +27,8 @@ import {
   type TargetArchitectureArtifactV1,
 } from "./target-architecture-artifact";
 export { computeTargetArchitecturePayloadHash, parseTargetArchitectureArtifact } from "./target-architecture-artifact";
+/** The pure DSL parser, for reading an authored file from another revision without touching the store. */
+export { parseSemanticSource };
 export type {
   TargetArchitectureArtifactV1,
   TargetArchitectureRevisionRefV1,

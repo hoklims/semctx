@@ -1,4 +1,4 @@
-# ADR 0033 — Setup exposes observed selection scope without changing it
+# ADR 0036 — Setup exposes observed selection scope without changing it
 
 - Status: accepted
 - Date: 2026-10-09

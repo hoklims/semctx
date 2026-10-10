@@ -79,6 +79,8 @@ export interface ChangeImpactAnalysis {
   semanticLayer: "joined" | "absent" | "unavailable" | "not_computed";
   /** Static analysis limits that always apply to this run (open code set). */
   limits: { code: string; detail: string }[];
+  /** Summary of per-file coverage. Optional within schemaVersion 1; emitted by producers implementing ADR 0033. */
+  fileCoverage?: FileCoverageSummary;
 }
 
 export type ChangedFileStatus =
@@ -91,12 +93,37 @@ export type ChangedFileStatus =
   | "untracked"
   | "unrecognized";
 
+/**
+ * Whether the analysis read this changed file, and why not when it did not. `analyzed` means the
+ * index holds facts for the file on the bound side, so its hunks were joined to graph units; it
+ * says nothing about the completeness of the reach. A `not_analyzed` file contributes no unit and
+ * no target: a report whose every changed file is `not_analyzed` analysed no symbol at all.
+ */
+export interface FileCoverage {
+  status: "analyzed" | "not_analyzed";
+  /** Language named from the path (open set): typescript, python, markdown, sql, csharp, rust, yaml, ... or unknown. */
+  language: string;
+  /** Why the file was not analysed (open code set, see docs/reference/change-impact.md); absent when analysed. */
+  reason?: string;
+}
+
 export interface ChangedFile {
   path: string;
   oldPath?: string;
   status: ChangedFileStatus;
   /** Content hunks in the diff (0 for header-only blocks and untracked files). */
   hunks: number;
+  /** Per-file analysis coverage. Optional within schemaVersion 1; emitted by producers implementing ADR 0033. */
+  coverage?: FileCoverage;
+}
+
+/** Counts over `changes.files[].coverage`: a run with `analyzed: 0` analysed no changed file. */
+export interface FileCoverageSummary {
+  files: number;
+  analyzed: number;
+  notAnalyzed: number;
+  /** `not_analyzed` files per reason code. */
+  reasons: Record<string, number>;
 }
 
 export type ChangeUnitKind =
@@ -220,6 +247,39 @@ export interface UnresolvedImpact {
   affects: "reach" | "claims" | "none";
 }
 
+/**
+ * An authored invariant declaring that a literal value has a single source file (`meta:
+ * authority.value`, `authority.source`, optional `authority.retired`), exposed because the change
+ * touches a file holding the value, the declared source, or the declaration. Occurrences come from
+ * a textual scan of both diff sides, outside `.semctx/`; they are facts, not a verdict.
+ */
+export interface AuthorityInvariantImpact {
+  id: string;
+  statement?: string;
+  value: string;
+  /** The only file allowed to carry `value`. */
+  source: string;
+  /** Superseded values that must appear nowhere. */
+  retired?: string[];
+  /**
+   * On the new side: `single_source` (only the source holds the value); `duplicated` (the source
+   * and at least one copy); `diverged` (a retired value remains, or copies hold the value while
+   * the source does not); `absent` (the value is nowhere).
+   */
+  status: "single_source" | "duplicated" | "diverged" | "absent";
+  occurrences: {
+    file: string;
+    /** Null when Git treats the file as binary: its bytes hold the value, but no line can be named. */
+    line: number | null;
+    side: "old" | "new";
+    kind: "authority" | "retired";
+    /** The occurrence is in the declared source file. */
+    authoritative: boolean;
+    /** The file is part of this change. */
+    changed: boolean;
+  }[];
+}
+
 export interface ChangeImpactReport {
   schemaVersion: typeof CHANGE_IMPACT_SCHEMA_VERSION;
   kind: "change_impact";
@@ -235,6 +295,12 @@ export interface ChangeImpactReport {
   surfaces: SurfaceImpact[] | null;
   blastRadius: BlastRadius;
   unresolved: UnresolvedImpact[];
+  /**
+   * Single-authority invariants this change exposes. Optional within schemaVersion 1 (always
+   * emitted by producers implementing ADR 0033); null when the authored model could not be read. Not index-derived: it is
+   * computed from Git even when the binding is broken.
+   */
+  authorityInvariants?: AuthorityInvariantImpact[] | null;
 }
 
 // --- Surface map input (user-owned taxonomy, never hardcoded in the engine) ---
@@ -349,6 +415,15 @@ const ChangeImpactReportShape = z
         bounds: z.object({ maxDistance: z.number().int().min(1), maxTargets: z.number().int().min(1) }).strict(),
         semanticLayer: z.enum(["joined", "absent", "unavailable", "not_computed"]),
         limits: z.array(z.object({ code: z.string(), detail: z.string() }).strict()),
+        fileCoverage: z
+          .object({
+            files: z.number().int().min(0),
+            analyzed: z.number().int().min(0),
+            notAnalyzed: z.number().int().min(0),
+            reasons: z.record(z.number().int().min(1)),
+          })
+          .strict()
+          .optional(),
       })
       .strict(),
     changes: z
@@ -360,6 +435,17 @@ const ChangeImpactReportShape = z
               oldPath: z.string().optional(),
               status: z.enum(["added", "deleted", "modified", "renamed", "binary", "mode_only", "untracked", "unrecognized"]),
               hunks: z.number().int().min(0),
+              coverage: z
+                .object({
+                  status: z.enum(["analyzed", "not_analyzed"]),
+                  language: z.string().min(1),
+                  reason: z.string().min(1).optional(),
+                })
+                .strict()
+                .refine((coverage) => (coverage.status === "analyzed") === (coverage.reason === undefined), {
+                  message: "a not_analyzed file names its reason; an analyzed file has none",
+                })
+                .optional(),
             })
             .strict(),
         ),
@@ -460,6 +546,33 @@ const ChangeImpactReportShape = z
         })
         .strict(),
     ),
+    authorityInvariants: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            statement: z.string().optional(),
+            value: z.string().min(1),
+            source: z.string().min(1),
+            retired: z.array(z.string().min(1)).min(1).optional(),
+            status: z.enum(["single_source", "duplicated", "diverged", "absent"]),
+            occurrences: z.array(
+              z
+                .object({
+                  file: z.string(),
+                  line: z.number().int().min(1).nullable(),
+                  side: z.enum(["old", "new"]),
+                  kind: z.enum(["authority", "retired"]),
+                  authoritative: z.boolean(),
+                  changed: z.boolean(),
+                })
+                .strict(),
+            ),
+          })
+          .strict(),
+      )
+      .nullable()
+      .optional(),
   })
   .strict();
 
@@ -489,6 +602,36 @@ export const ChangeImpactReportSchema = ChangeImpactReportShape.superRefine((rep
     if (!reachGap && report.analysis.confidence.level !== "moderate") fail("confidence is moderate only when no gap affects the reach");
   }
   if (report.blastRadius.complete === reachGap) fail("the reach is complete exactly when no gap affects it");
+  const summary = report.analysis.fileCoverage;
+  if (summary !== undefined) {
+    const covered = report.changes.files.filter((file) => file.coverage !== undefined);
+    const analyzed = covered.filter((file) => file.coverage!.status === "analyzed").length;
+    const reasons: Record<string, number> = {};
+    for (const file of covered) {
+      if (file.coverage!.reason !== undefined) reasons[file.coverage!.reason] = (reasons[file.coverage!.reason] ?? 0) + 1;
+    }
+    if (covered.length !== report.changes.files.length) fail("a coverage summary requires coverage on every changed file");
+    if (summary.files !== report.changes.files.length || summary.analyzed !== analyzed || summary.notAnalyzed !== covered.length - analyzed) {
+      fail("the coverage summary contradicts the per-file coverage");
+    }
+    if (JSON.stringify(Object.entries(summary.reasons).sort()) !== JSON.stringify(Object.entries(reasons).sort())) {
+      fail("the coverage reasons contradict the per-file coverage");
+    }
+  }
+  if (report.analysis.binding.status === "broken" && report.changes.files.some((file) => file.coverage?.status === "analyzed")) {
+    fail("no file is analyzed through a broken binding");
+  }
+  for (const authority of report.authorityInvariants ?? []) {
+    if (authority.occurrences.some((occurrence) => occurrence.authoritative !== (occurrence.file === authority.source))) {
+      fail(`authority ${authority.id}: only occurrences in its source are authoritative`);
+    }
+    const current = authority.occurrences.filter((occurrence) => occurrence.side === "new");
+    const sourceHolds = current.some((occurrence) => occurrence.kind === "authority" && occurrence.authoritative);
+    const copies = current.some((occurrence) => occurrence.kind === "authority" && !occurrence.authoritative);
+    const retired = current.some((occurrence) => occurrence.kind === "retired");
+    const expected = retired || (!sourceHolds && copies) ? "diverged" : copies ? "duplicated" : sourceHolds ? "single_source" : "absent";
+    if (authority.status !== expected) fail(`authority ${authority.id}: status ${authority.status} contradicts its occurrences (${expected})`);
+  }
   if (!report.blastRadius.complete && report.blastRadius.scope !== "unknown") fail("an incomplete reach has an unknown scope");
   const untruncated = report.blastRadius.complete && report.blastRadius.possible.omitted === 0;
   for (const surface of report.surfaces ?? []) {

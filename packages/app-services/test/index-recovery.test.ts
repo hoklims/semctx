@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { createDefaultConfig, SemctxError } from "@semantic-context/core";
 import { initWorkspace, openStore, verificationStatePath } from "@semantic-context/repository-store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
-import { captureRecordableVerificationGitState, checkSemanticState, indexRepository } from "../src";
+import { captureRecordableVerificationGitState, checkSemanticState, controlStatusExplained, indexRepository } from "../src";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY } from "../src/freshness";
 import { __setIndexRepositoryCaptureBarrierForTesting } from "../src/indexing";
 import { recoverIndexEvidence, recoverIndexEvidenceAsync } from "../src/index-recovery";
@@ -78,6 +78,9 @@ describe("EVIDENCE_BASELINE_STALE is repairable by ordinary indexing", () => {
     expect(() => indexRepository(root, "2026-09-13T00:02:00.000Z")).toThrow(
       "semantic model cannot be sealed during indexing",
     );
+    // `status` must not prescribe the sealing command that has just refused to run.
+    const explanation = controlStatusExplained(root).explanation.find((entry) => entry.code === "EVIDENCE_BASELINE_INVALID");
+    expect(explanation).toMatchObject({ reason: "SEMANTIC_LIFECYCLE_INVALID", remedy: null });
   });
 });
 
