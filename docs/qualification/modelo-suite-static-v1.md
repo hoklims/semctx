@@ -123,6 +123,10 @@ coverage: runtime CommonJS loading is outside the admitted static profile.
 `--loader-witnesses-only` runs these before/after cases without dependency installs
 or a pipeline campaign; its receipt always has `qualified: false`. Complete
 qualification requires all historical artifacts, including `--loader-regression-cli`.
+The same matrix includes excluded JavaScript and TypeScript namespaces copied by
+assignment before accessing `createRequire`. These reproduce admission in the
+historical loader artifact and must produce the same explicit CommonJS refusal.
+Namespace escape through assignment is not a qualified static dependency path.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent

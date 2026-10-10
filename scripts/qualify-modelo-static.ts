@@ -110,6 +110,8 @@ const loaderSources = {
   direct: { path: "hidden.mjs", source: 'import { createRequire } from "node:module"; const load = createRequire(import.meta.url); export function hidden() { return load("./src/main.mjs").main(); }\n', selected: true },
   alias: { path: "hidden-alias.mjs", source: 'import { createRequire as makeLoader } from "module"; const load = makeLoader(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   namespace: { path: "hidden-namespace.ts", source: 'import * as nodeModule from "node:module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "assignment-js": { path: "hidden-assignment.mjs", source: 'import * as nodeModule from "node:module"; let assigned; assigned = nodeModule; const load = assigned.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "assignment-ts": { path: "hidden-assignment.ts", source: 'import * as nodeModule from "node:module"; let assigned; assigned = nodeModule; const load = assigned.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   barrel: { path: "hidden-barrel.ts", source: 'import { make } from "./barrel.mjs"; const load = make(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
 } as const;
 function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle: string): string {

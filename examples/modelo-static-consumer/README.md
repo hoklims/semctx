@@ -38,7 +38,7 @@ Build the directory regression artifact from
 `--directory-witnesses-only` has the same qualification boundary for directory cases.
 Build the loader regression artifact from
 `95744a3c0df2bfe4a0cac06ac5b452d649ce9317`. `--loader-witnesses-only` runs its
-four before/after cases and records `qualified: false` even when they pass.
+six before/after cases and records `qualified: false` even when they pass.
 Complete qualification requires `--loader-regression-cli`; other focused modes
 retain their existing requirements and never qualify the complete profile.
 
@@ -62,7 +62,7 @@ are never overwritten; use a new output directory for each run.
 | Failed parse | Invalid `.mjs` cannot be represented as analyzed PASS |
 | Unsupported construction | Nonliteral dynamic import refuses admission |
 | CommonJS | Diagnostic-only `.cjs` is an explicit negative case |
-| `createRequire` family | Selected direct factory, excluded named alias, excluded TypeScript namespace factory and excluded reexport barrel reject with explicit CommonJS diagnostics after fresh indexing; no loaded-target edge is fabricated |
+| `createRequire` family | Selected direct factory, excluded named alias, excluded TypeScript namespace factory, JavaScript/TypeScript namespace assignment and excluded reexport barrel reject with explicit CommonJS diagnostics after fresh indexing; no loaded-target edge is fabricated |
 | Partial / empty selection | Disabled JavaScript or selector matching no source cannot admit obligations |
 | Wrong nested root | An initialized parent does not silently turn an uninitialized leaf into success |
 | Interrupted indexing | After observing the persisted incomplete marker, kill a real rebuild; the previous complete index cannot admit the source change |
