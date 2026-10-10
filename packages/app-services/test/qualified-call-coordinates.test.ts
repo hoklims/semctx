@@ -27,7 +27,7 @@ for (const content of [
       if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
     }
     initWorkspace(root, { ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", include: ["src/**/*"], languages: { typescript: "on", javascript: "on" } });
-    writeFileSync(join(root, "src/main.ts"), `${content.replace("{", "{ ")}\n`);
+    writeFileSync(join(root, "src/main.ts"), `${content}\n\n`);
     indexRepository(root, "2026-10-10T10:00:00.000Z");
     const candidate = indexHealth(root).candidates.find(candidate => candidate.path === "src/main.ts")!;
     const report = runVerify(root, { kind: "working-tree" }).report;
