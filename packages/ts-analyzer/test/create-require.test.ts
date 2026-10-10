@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { inspectJavaScriptSource } from "../src/javascript-diagnostics";
+import ts from "typescript";
+import { inspectJavaScriptSource, inspectNativeModuleBindings, hasNodeCreateRequireUse } from "../src/javascript-diagnostics";
 
 for (const source of [
   "import { createRequire as make } from 'node:module'; const load = make(import.meta.url);",
@@ -22,8 +23,18 @@ for (const source of [
   "import * as m from 'node:module'; const { default: M } = m; const r = M.createRequire(import.meta.url);",
   "import * as m from 'node:module'; const { 'Module': M } = m; const r = M.createRequire(import.meta.url);",
   "import * as m from 'node:module'; const { 'createRequire': make } = m; const r = make(import.meta.url);",
+  "import M from 'node:module'; const value = M._load('./src/main.mjs', undefined, false);",
+  "import { _load as nativeLoad } from 'module'; const value = nativeLoad('./src/main.mjs', undefined, false);",
 ]) test("selected JavaScript diagnoses Node CommonJS loader bindings", () => {
   expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+});
+for (const [source, member] of [
+  ["import M from 'node:module'; const loader = M.prototype.require;", "prototype"],
+  ["import { _resolveFilename as resolveName } from 'node:module'; const value = resolveName('./file');", "_resolveFilename"],
+] as const) test("unknown used native members remain explicitly unmodeled", () => {
+  const reasons = inspectJavaScriptSource("/fixture/main.mjs", source).reasons;
+  expect(reasons).toContain(`JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:${member}`);
+  expect(reasons).not.toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
 });
 test("ordinary Node APIs and unrelated factories remain ordinary static JavaScript", () => {
   for (const source of [
@@ -42,5 +53,15 @@ test("ordinary Node APIs and unrelated factories remain ordinary static JavaScri
     "import * as m from 'node:module'; const { default: M } = m; export function known(name) { return M.isBuiltin(name); }",
     "import * as m from 'node:module'; const { 'isBuiltin': known } = m; export function query(name) { return known(name); }",
     "import { default as M } from 'node:module'; export function known(M) { return M.isBuiltin(1); }",
+    "import { builtinModules } from 'node:module'; export const known = builtinModules;",
+    "import { _resolveFilename } from 'node:module'; export const unused = 1;",
+    "import { _resolveFilename as resolveName } from 'node:module'; export function known(resolveName) { return resolveName(1); }",
   ]) expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toEqual([]);
+});
+test("type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim", () => {
+  const typeOnly = ts.createSourceFile("/fixture/main.ts", "import type { _resolveFilename as Native } from 'node:module'; export type Alias = Native;", ts.ScriptTarget.Latest, true);
+  expect(inspectNativeModuleBindings(typeOnly)).toEqual({ commonJsUnsupported: false, unmodeledMembers: [] });
+  const unknown = ts.createSourceFile("/fixture/main.mjs", "import M from 'node:module'; const loader = M.prototype.require;", ts.ScriptTarget.Latest, true);
+  expect(hasNodeCreateRequireUse(unknown)).toBe(false);
+  expect(inspectNativeModuleBindings(unknown)).toEqual({ commonJsUnsupported: false, unmodeledMembers: ["prototype"] });
 });

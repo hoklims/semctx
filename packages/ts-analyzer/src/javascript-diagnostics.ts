@@ -5,20 +5,31 @@ import { resolveTypeScriptModule, retainedCompilerSystem, type CompilerInputSnap
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
-/** Known Node CommonJS loader bindings, without inventing dependencies loaded at runtime. */
-export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
-  type Origin = "factory" | "namespace" | "other";
-  const nativeExportOrigin = (name: string | undefined): Origin => name === "createRequire" ? "factory"
-    : name === "default" || name === "Module" ? "namespace" : "other";
+/** Closed native-module eligibility, without inventing dependencies loaded at runtime. */
+export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[] } {
+  type Origin = "factory" | "namespace" | "ordinary" | "unmodeled" | "other";
+  const unmodeledMembers = new Set<string>();
+  let found = false;
+  const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort() });
+  const nativeExportOrigin = (name: string | undefined): Origin => {
+    if (name === "createRequire" || name === "_load") return "factory";
+    if (name === "default" || name === "Module") return "namespace";
+    if (name === "isBuiltin" || name === "builtinModules") return "ordinary";
+    unmodeledMembers.add(name ?? "<computed>");
+    return "unmodeled";
+  };
   const staticName = (node: ts.Node | undefined): string | undefined => node !== undefined
     && (ts.isIdentifier(node) || ts.isStringLiteral(node)) ? node.text : undefined;
   const isNodeModule = (node: ts.Node | undefined): boolean => node !== undefined && ts.isStringLiteral(node)
     && ["node:module", "module"].includes(node.text);
   for (const statement of source.statements) {
     if (!ts.isExportDeclaration(statement) || statement.isTypeOnly || !isNodeModule(statement.moduleSpecifier)) continue;
-    if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)
-      || (ts.isNamedExports(statement.exportClause) && statement.exportClause.elements.some((element) =>
-        !element.isTypeOnly && nativeExportOrigin(staticName(element.propertyName ?? element.name)) !== "other"))) return true;
+    if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)) found = true;
+    else for (const element of statement.exportClause.elements) {
+      if (element.isTypeOnly) continue;
+      const kind = nativeExportOrigin(staticName(element.propertyName ?? element.name));
+      if (kind === "factory" || kind === "namespace") found = true;
+    }
   }
   let importsNodeModule = false;
   const findModule = (node: ts.Node): void => {
@@ -27,7 +38,7 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
     ts.forEachChild(node, findModule);
   };
   findModule(source);
-  if (!importsNodeModule) return false;
+  if (!importsNodeModule) return result();
   // Bind only the supplied AST. No source, dependency or configuration is read from disk.
   const options: ts.CompilerOptions = { noLib: true, noResolve: true, allowJs: true, target: ts.ScriptTarget.ESNext };
   const host = ts.createCompilerHost(options);
@@ -65,7 +76,7 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
   const safeNamespaceUse = (node: ts.Node): boolean => {
     const parent = node.parent;
     if ((ts.isPropertyAccessExpression(parent) || ts.isElementAccessExpression(parent)) && parent.expression === node) {
-      return ts.isPropertyAccessExpression(parent) || ts.isStringLiteral(parent.argumentExpression);
+      return true; // Unknown/computed members are classified separately as unmodeled.
     }
     if ((ts.isParenthesizedExpression(parent) || ts.isAsExpression(parent) || ts.isNonNullExpression(parent) || ts.isAwaitExpression(parent)) && parent.expression === node) return true;
     if (ts.isTypeOfExpression(parent) || ts.isTypeNode(parent)) return true;
@@ -75,14 +86,13 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
       !element.dotDotDotToken && ts.isIdentifier(element.name)
       && (element.propertyName === undefined || ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))));
   };
-  let found = false;
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)) return; // An unused binding is not a loader use.
     if (ts.isShorthandPropertyAssignment(node)) {
       const target = checker.getShorthandAssignmentValueSymbol(node);
       for (const declaration of target?.declarations ?? []) {
         const name = (declaration as ts.NamedDeclaration).name;
-        if (name && ts.isIdentifier(name) && origin(name) !== "other") found = true;
+        if (name && ts.isIdentifier(name) && ["factory", "namespace"].includes(origin(name))) found = true;
       }
     }
     if (ts.isExportAssignment(node) && origin(node.expression) === "namespace") found = true;
@@ -92,7 +102,7 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
       const target = checker.getExportSpecifierLocalTargetSymbol(node);
       for (const declaration of target?.declarations ?? []) {
         const name = (declaration as ts.NamedDeclaration).name;
-        if (name && ts.isIdentifier(name) && origin(name) !== "other") found = true;
+        if (name && ts.isIdentifier(name) && ["factory", "namespace"].includes(origin(name))) found = true;
       }
     }
     const declarationName = ts.isIdentifier(node) && ((ts.isVariableDeclaration(node.parent) && node.parent.name === node)
@@ -105,7 +115,12 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
     ts.forEachChild(node, visit);
   };
   visit(source);
-  return found;
+  return result();
+}
+
+/** Compatibility predicate: unknown native members are not claimed to execute CommonJS. */
+export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
+  return inspectNativeModuleBindings(source).commonJsUnsupported;
 }
 
 /** Diagnostic-only constructs never acquire a complete ESM capability by extension recognition. */
@@ -121,7 +136,9 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   const reasons = new Set<string>(diagnostics.map(diagnostic =>
     `JAVASCRIPT_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`));
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
-  if (hasNodeCreateRequireUse(source)) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+  const native = inspectNativeModuleBindings(source);
+  if (native.commonJsUnsupported) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+  for (const member of native.unmodeledMembers) reasons.add(`JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:${member}`);
   const staticExports: { name: string; declarationKind: string }[] = [];
   const staticModuleLinks: { specifier: string; resolution: "resolved" | "external" | "unresolved" }[] = [];
   const isDeclaredExternal = (specifier: string): boolean => {

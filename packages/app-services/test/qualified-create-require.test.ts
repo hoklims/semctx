@@ -6,7 +6,7 @@ import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "../src";
 
-const cases: { path: string; source: string; selected: boolean; barrel?: string; mainPath?: string }[] = [
+const cases: { path: string; source: string; selected: boolean; barrel?: string; mainPath?: string; unmodeled?: string }[] = [
   { path: "hidden.mjs", source: "import { createRequire } from 'node:module'; const load = createRequire(import.meta.url); export function hidden() { return load('./src/main.ts').main(); }", selected: true },
   { path: "hidden-alias.mjs", source: "import { createRequire as makeLoader } from 'module'; const load = makeLoader(import.meta.url); export const hidden = load('./src/main.ts');", selected: false },
   { path: "hidden-namespace.ts", source: "import * as nodeModule from 'node:module'; const load = nodeModule.createRequire(import.meta.url); export const hidden = load('./src/main.ts');", selected: false },
@@ -18,8 +18,12 @@ const cases: { path: string; source: string; selected: boolean; barrel?: string;
   { path: "hidden-export-destructure.mjs", source: "import * as m from 'node:module'; const { default: M } = m; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
   { path: "hidden-export-module.ts", source: "import * as m from 'node:module'; const { Module: M } = m; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
   { path: "hidden-export-quoted.mjs", source: "import * as m from 'node:module'; const { 'createRequire': make } = m; const r = make(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-native-load.mjs", source: "import M from 'node:module'; export const hidden = M._load('./src/main.mjs', undefined, false);", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-native-load.ts", source: "import { _load as nativeLoad } from 'module'; export const hidden = nativeLoad('./src/main.mjs', undefined, false);", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-native-prototype.mjs", source: "import M from 'node:module'; const loader = M.prototype.require; export const hidden = loader.call({filename: import.meta.filename}, './src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "prototype" },
+  { path: "hidden-native-member.ts", source: "import { _resolveFilename as resolveName } from 'node:module'; export const hidden = resolveName('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "_resolveFilename" },
 ];
-for (const { path, source, selected, barrel, mainPath = "src/main.ts" } of cases) test(`qualified ${path} createRequire source cannot hide its CommonJS dependency`, () => {
+for (const { path, source, selected, barrel, mainPath = "src/main.ts", unmodeled } of cases) test(`qualified ${path} createRequire source cannot hide its CommonJS dependency`, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-node-loader-"));
   const git = (...args: string[]): void => {
     const command = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -38,7 +42,9 @@ for (const { path, source, selected, barrel, mainPath = "src/main.ts" } of cases
     const cli = Bun.spawnSync(["bun", join(import.meta.dir, "../../../apps/cli/src/index.ts"), "verify", "diff", "--root", root, "--format", "json", "--fail-on", "none"], { stdout: "pipe", stderr: "pipe" });
     console.info(JSON.stringify({ path, selected, admission: report.analysisAdmission?.status, cliExit: cli.exitCode }));
     expect(report.analysisAdmission?.status).toBe("rejected");
-    expect(report.analysisAdmission?.reasons).toContain(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${barrel === undefined ? path : "barrel.mjs"}`);
+    expect(report.analysisAdmission?.reasons).toContain(unmodeled === undefined
+      ? `DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${barrel === undefined ? path : "barrel.mjs"}`
+      : `DEPENDENCY_SCOPE_NATIVE_MODULE_MEMBER_UNSUPPORTED:${path}:${unmodeled}`);
     expect(cli.exitCode).toBe(3);
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 60_000);
