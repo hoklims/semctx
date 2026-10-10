@@ -9,6 +9,56 @@ import { __setIndexRepositoryCaptureBarrierForTesting } from "../src/indexing";
 import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
 
 const roots: string[] = [];
+for (const mutation of ["exports.legacy = main;", "Object.assign(exports, { main });"]) test(`round2 ambient TypeScript exports rejects: ${mutation}`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "src/main.ts"), `export function main() { return 2; } ${mutation}\n`);
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toContain("DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:src/main.ts");
+});
+test("round2 local exports and evaluator shadows remain admitted ordinary functions", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "src/main.ts"), "const exports = { legacy: 0 }; function eval(value: number) { return value; } function Function(value: number) { return value; } export function main() { exports.legacy = 2; return eval(Function(exports.legacy)); }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  expect(runVerify(root, { kind: "working-tree" }).report.analysisAdmission?.status).toBe("admitted");
+});
+for (const content of [
+  "globalThis.eval(\"import('./src/main.ts')\");",
+  "window.eval(\"import('./src/main.ts')\");",
+  "const load = self.Function(\"return import('./src/main.ts')\"); load();",
+  "const name = 'eval'; window[name](\"import('./src/main.ts')\");",
+  "const run = eval; run(\"import('./src/main.ts')\");",
+  "const Build = globalThis.Function; new Build(\"return import('./src/main.ts')\");",
+]) test(`round2 excluded intrinsic evaluation rejects: ${content}`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "hidden.ts"), content);
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toContain("DEPENDENCY_SCOPE_RUNTIME_CODE:hidden.ts");
+});
+test("round2 TypeScript export equals rejects the qualified ESM profile", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "src/main.ts"), "function main() { return 2; } export = main;\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toContain("DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:src/main.ts");
+});
+test("round2 unretained generated reference returns structured rejected admission", () => {
+  const root = selectedRepository();
+  mkdirSync(join(root, "build"));
+  writeFileSync(join(root, ".gitignore"), ".semctx/\nbuild/\n");
+  writeFileSync(join(root, "build/generated.ts"), "export const generated = 1;\n");
+  writeFileSync(join(root, "src/main.ts"), '/// <reference path="../build/generated.ts" />\nexport function main() { return 2; }\n');
+  expect(() => indexRepository(root, "2026-10-09T10:01:00.000Z")).not.toThrow();
+  const report = runVerify(root, { kind: "working-tree" }).report;
+  expect(report.analysisAdmission?.status).toBe("rejected");
+  expect(report.analysisAdmission?.reasons).toContain("DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/main.ts:../build/generated.ts");
+  expect(VerifyReportSchema.safeParse(report).success).toBe(true);
+});
 test("manifest optional dependencies are admitted as opaque external boundaries", () => {
   const root = selectedRepository();
   writeFileSync(join(root, "package.json"), JSON.stringify({ name: "fixture", optionalDependencies: { optional: "1.0.0" } }));

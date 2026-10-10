@@ -6,12 +6,14 @@ import { resolveTypeScriptModule, retainedCompilerSystem, type CompilerInputSnap
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
 /** Closed native-module eligibility, without inventing dependencies loaded at runtime. */
-export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[] } {
-  type Origin = "factory" | "namespace" | "global" | "process" | "ordinary" | "unmodeled" | "other";
+export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[]; runtimeEvaluationUnsupported?: true } {
+  type Origin = "factory" | "namespace" | "global" | "browser-global" | "process" | "evaluation" | "ordinary" | "unmodeled" | "other";
   const unmodeledMembers = new Set<string>();
   const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
   let found = false;
-  const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort() });
+  let runtimeEvaluationUnsupported = false;
+  const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort(),
+    ...(runtimeEvaluationUnsupported ? { runtimeEvaluationUnsupported: true as const } : {}) });
   const nativeExportOrigin = (name: string | undefined): Origin => {
     if (name === "createRequire" || name === "_load") return "factory";
     if (name === "default" || name === "Module") return "namespace";
@@ -37,8 +39,10 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     return "unmodeled";
   };
   const globalMemberOrigin = (name: string | undefined): Origin => {
+    if (name === "eval" || name === "Function") return "evaluation";
+    if (name === "window" || name === "self") return "browser-global";
     if (name === "require") return "factory";
-    if (name === "module") { found = true; return "namespace"; }
+    if (name === "module" || name === "exports") { found = true; return "namespace"; }
     return name === "process" ? "process" : name === "global" || name === "globalThis" ? "global" : "other";
   };
   for (const statement of source.statements) {
@@ -63,7 +67,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
-    if (ts.isIdentifier(node) && ["globalThis", "global", "process", "require", "module"].includes(node.text)) importsNodeModule = true;
+    if (ts.isIdentifier(node) && ["globalThis", "global", "window", "self", "process", "require", "module", "exports", "eval", "Function"].includes(node.text)) importsNodeModule = true;
     if ((ts.isPropertyAccessExpression(node) && node.name.text === "getBuiltinModule")
       || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")
       || (ts.isBindingElement(node) && staticName(node.propertyName ?? node.name) === "getBuiltinModule")) importsNodeModule = true;
@@ -79,7 +83,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   host.readFile = (path) => path === source.fileName ? source.text : undefined;
   host.resolveModuleNames = (names) => names.map(() => undefined);
   const checker = ts.createProgram([source.fileName], options, host).getTypeChecker();
-  const origin = (node: ts.Node, seen = new Set<ts.Symbol>()): Origin => {
+  const origin = (node: ts.Node, seen = new Set<ts.Symbol | ts.Node>()): Origin => {
     if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isAwaitExpression(node)) return origin(node.expression, seen);
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeModule(node.arguments[0])) return "namespace";
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeProcess(node.arguments[0])) return "process";
@@ -87,11 +91,22 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
       if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
       if (origin(node.expression, seen) === "global") return globalMemberOrigin(property);
+      if (origin(node.expression, seen) === "browser-global") {
+        return property === "eval" || property === "Function" ? "evaluation"
+          : property === "window" || property === "self" || property === "globalThis" ? "browser-global" : "other";
+      }
       if (origin(node.expression, seen) === "process") return processExportOrigin(property);
       return "other";
     }
     if (!ts.isIdentifier(node)) return "other";
     const symbol = checker.getSymbolAtLocation(node);
+    if (node.text === "globalThis" && !symbol?.declarations?.length) {
+      // TS's intrinsic globalThis wins binding in a script AST even when a lexical binding
+      // shadows it. Recover that source-local binding rather than assigning ambient origin.
+      const local = source.statements.filter(ts.isVariableStatement).flatMap(statement => statement.declarationList.declarations)
+        .find(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === "globalThis");
+      if (local !== undefined) return local.initializer === undefined || seen.has(local) ? "other" : origin(local.initializer, new Set(seen).add(local));
+    }
     if (symbol === undefined) {
       if (["globalThis", "global"].includes(node.text)) return "global";
       return globalMemberOrigin(node.text);
@@ -117,6 +132,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
         const member = staticName(declaration.propertyName ?? declaration.name);
         if (container === "namespace") return nativeExportOrigin(member);
         if (container === "global") return globalMemberOrigin(member);
+        if (container === "browser-global") return member === "eval" || member === "Function" ? "evaluation" : "other";
         if (container === "process") return processExportOrigin(member);
       }
     }
@@ -169,6 +185,12 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       || (ts.isPropertyAssignment(node.parent) && node.parent.name === node)
       || (ts.isParameter(node.parent) && node.parent.name === node));
     if (!declarationName && origin(node) === "factory") found = true;
+    // Ambient evaluator references can escape through any alias/container/callback route.
+    if (!declarationName && origin(node) === "evaluation") runtimeEvaluationUnsupported = true;
+    if (!declarationName && origin(node) === "browser-global" && (!safeNamespaceUse(node)
+      || (ts.isElementAccessExpression(node.parent) && node.parent.expression === node && !ts.isStringLiteral(node.parent.argumentExpression)))) {
+      runtimeEvaluationUnsupported = true;
+    }
     // A namespace containing createRequire cannot leave the understood immutable binding
     // routes: assignment, return, container and callback flows have no modeled load edges.
     if (!declarationName && origin(node) === "namespace" && !safeNamespaceUse(node)) found = true;
@@ -203,6 +225,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const native = inspectNativeModuleBindings(source);
   if (native.commonJsUnsupported) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+  if (native.runtimeEvaluationUnsupported) reasons.add("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
   for (const member of native.unmodeledMembers) reasons.add(`JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:${member}`);
   const staticExports: { name: string; declarationKind: string }[] = [];
   const staticModuleLinks: { specifier: string; resolution: "resolved" | "external" | "unresolved" }[] = [];
@@ -268,13 +291,8 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
         }
       }
       if (ts.isIdentifier(node.expression) && node.expression.text === "require") reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
-      if (ts.isIdentifier(node.expression) && node.expression.text === "eval") reasons.add("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
     }
-    if (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "Function") reasons.add("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
     if (ts.isWithStatement(node)) reasons.add("JAVASCRIPT_DYNAMIC_SCOPE_UNSUPPORTED");
-    if (ts.isPropertyAccessExpression(node) &&
-      ((ts.isIdentifier(node.expression) && node.expression.text === "module" && node.name.text === "exports") ||
-       (ts.isIdentifier(node.expression) && node.expression.text === "exports"))) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
     if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
       const specifier = node.moduleSpecifier.text;
       recordModuleLink(specifier);

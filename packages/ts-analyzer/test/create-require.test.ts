@@ -1,6 +1,35 @@
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import { inspectJavaScriptSource, inspectNativeModuleBindings, hasNodeCreateRequireUse } from "../src/javascript-diagnostics";
+for (const source of ["exports.legacy = 1;", "Object.assign(exports, { value: 1 });", "const target = globalThis.exports; target.value = 1;"]) test(`round2 ambient exports have CommonJS origin: ${source}`, () => {
+  expect(inspectNativeModuleBindings(ts.createSourceFile("/fixture/main.ts", source, ts.ScriptTarget.Latest, true)).commonJsUnsupported).toBe(true);
+});
+for (const source of ["const exports = { legacy: 0 }; exports.legacy = 1;", "function update(exports) { Object.assign(exports, { value: 1 }); }"]) test(`round2 local exports keep ordinary origin: ${source}`, () => {
+  expect(inspectNativeModuleBindings(ts.createSourceFile("/fixture/main.ts", source, ts.ScriptTarget.Latest, true)).commonJsUnsupported).toBe(false);
+  expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).not.toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+});
+for (const source of [
+  "globalThis.eval('code');", "window.eval('code');", "const load = self.Function('code'); load();",
+  "const run = eval; run('code');", "const Build = globalThis.Function; new Build('code');",
+  "const { eval: run } = globalThis; run('code');", "const host = globalThis; host['Function']('code');",
+  "const name = 'eval'; window[name]('code');", "const browser = window; browser['ev' + 'al']('code');",
+  "const name = 'Function'; self[name]('code');", "const box = { browser: window }; box.browser.eval('code');",
+  "(0, eval)('code');", "eval.call(null, 'code');", "Function('code');",
+]) test(`round2 JavaScript intrinsic references remain unsupported: ${source}`, () => {
+  expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toContain("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
+});
+for (const source of [
+  "function eval(value) { return value; } eval('code');",
+  "function Function(value) { return value; } new Function('code');",
+  "function run(globalThis) { return globalThis.eval('code'); }",
+  "function run(window) { return window.eval('code'); }", "const self = { Function: value => () => value }; self.Function('code')();",
+  "const globalThis = { eval: value => value }; const run = globalThis.eval; run('code');",
+  "const tools = { eval: value => value }; tools.eval('code');",
+  "const window = { eval: value => value }; const name = 'eval'; window[name]('code');",
+  "import { eval as run } from 'ordinary'; run('code');",
+]) test(`round2 local evaluation-like bindings keep ordinary origin: ${source}`, () => {
+  expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).not.toContain("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
+});
 
 for (const source of [
   "const load = globalThis.require; const hidden = load('./src/main.mjs');",

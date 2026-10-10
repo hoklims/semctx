@@ -320,7 +320,9 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
       if (!isContainedTypeScriptPath(canonicalRoot, referencedCanonical)) {
         throw new Error(`REFERENCE_OUTSIDE_REPOSITORY: ${referenced.fileName}`);
       }
-      if (existsSync(lexical)) pending.push(lexical);
+      // A retained analysis cannot enqueue or read a reference omitted from its snapshot.
+      // Qualified admission reports that missing dependency as a structured scope rejection.
+      if (snapshot === undefined ? existsSync(lexical) : snapshotSystem(snapshot).fileExists(lexical)) pending.push(lexical);
     }
   }
 }

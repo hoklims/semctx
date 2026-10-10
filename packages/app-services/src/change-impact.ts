@@ -573,6 +573,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const typescriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
     const planeSnapshot = parsePlaneAIndexSnapshot(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     for (const entry of planeSnapshot?.sidecar.discoveryLedger ?? []) {
+      if (entry.selectionDecision !== "selected") continue;
       const outcomes = entry.scope.language === "javascript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
         ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
           ? typescriptOutcomes : undefined;
@@ -585,6 +586,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         && javascriptOutcomes.get(path)?.outcome === "analyzed" && javascriptOutcomes.get(path)?.reasons.length === 0);
     const unsupportedSourceFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
       && ["javascript", "typescript"].includes(sourceLanguage(node.filePath)) && !eligibleSource(node.filePath) ? [node.filePath] : []));
+    for (const path of [...typescriptOutcomes.keys(), ...javascriptOutcomes.keys()]) {
+      if (!eligibleSource(path)) unsupportedSourceFiles.add(path);
+    }
     const impactNodes = graph.nodes.filter((node) => node.filePath === undefined || !unsupportedSourceFiles.has(node.filePath));
     const impactNodeIds = new Set(impactNodes.map((node) => node.id));
     const impactGraph = { nodes: impactNodes, edges: graph.edges.filter((edge) => impactNodeIds.has(edge.from) && impactNodeIds.has(edge.to)) };

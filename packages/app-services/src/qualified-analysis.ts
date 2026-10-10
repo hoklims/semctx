@@ -93,6 +93,12 @@ export function qualifiedAdmission(input: {
     const ast = ts.createSourceFile(source.relPath, source.content, ts.ScriptTarget.Latest, true);
     const native = inspectNativeModuleBindings(ast);
     if (native.commonJsUnsupported) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
+    if (native.runtimeEvaluationUnsupported) reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
+    for (const reference of ts.preProcessFile(source.content, true, true).referencedFiles) {
+      if (!compilerInputs.has(resolve(dirname(source.absPath), reference.fileName))) {
+        reasons.push(`DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:${source.relPath}:${reference.fileName}`);
+      }
+    }
     for (const member of native.unmodeledMembers) reasons.push(`DEPENDENCY_SCOPE_NATIVE_MODULE_MEMBER_UNSUPPORTED:${source.relPath}:${member}`);
     for (const diagnostic of inspectSourceParsing(source.relPath, source.content)) reasons.push(`DEPENDENCY_SCOPE_PARSE_FAILED:${source.relPath}:${diagnostic}`);
     for (const diagnostic of inspectModuleConfiguration(source.absPath, config.repositoryRoot, compilerInputs)) reasons.push(`DEPENDENCY_SCOPE_CONFIGURATION:${source.relPath}:${diagnostic}`);
@@ -102,14 +108,13 @@ export function qualifiedAdmission(input: {
         const requireCall = ts.isIdentifier(node.expression) && node.expression.text === "require";
         if (requireCall) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
         if ((dynamic || requireCall) && (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!))) reasons.push(`DEPENDENCY_SCOPE_COMPUTED_IMPORT:${source.relPath}`);
-        if (ts.isIdentifier(node.expression) && ["eval", "Function"].includes(node.expression.text)) reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
       }
-      if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+      if ((ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference))
+        || (ts.isExportAssignment(node) && node.isExportEquals)) {
         reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
       }
       if (ts.isImportTypeNode(node)) reasons.push(`DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:${source.relPath}`);
-      if (ts.isWithStatement(node)
-        || (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "Function")) {
+      if (ts.isWithStatement(node)) {
         reasons.push(`DEPENDENCY_SCOPE_RUNTIME_CODE:${source.relPath}`);
       }
       ts.forEachChild(node, visit);

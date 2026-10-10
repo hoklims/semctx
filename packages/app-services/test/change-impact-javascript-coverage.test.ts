@@ -5,6 +5,29 @@ import { join } from "node:path";
 import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runChangeImpact } from "../src";
+for (const selected of [true, false]) test(`round2 ledger-only escaped importer contributes an impact gap only when selected: ${selected}`, () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-impact-ledger-"));
+  const git = (...args: string[]): void => {
+    const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+  };
+  try {
+    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+    writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\n");
+    writeFileSync(join(root, "src/consumer.ts"), "import { main } from './main'; import { outside } from '../../outside'; export function consumer() { return main() + outside; }\n");
+    git("init", "-q"); git("add", "."); git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
+    initWorkspace(root, { ...createGlobSelectionConfig(root), include: selected ? ["src/**/*.ts"] : ["src/main.ts"], languages: { typescript: "on" } });
+    indexRepository(root, "2026-10-09T10:00:00.000Z");
+    writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+    indexRepository(root, "2026-10-09T10:01:00.000Z");
+    const report = runChangeImpact(root, { kind: "working-tree" });
+    expect(report.analysis.binding.status).toBe("bound");
+    if (selected) {
+      expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "TYPESCRIPT_ANALYSIS_INCOMPLETE", file: "src/consumer.ts", affects: "reach" }));
+      expect(report.analysis.confidence.level).toBe("low");
+    } else expect(report.unresolved.some(gap => gap.code === "TYPESCRIPT_ANALYSIS_INCOMPLETE")).toBe(false);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 60_000);
 
 test("failed v2 TypeScript facts cannot produce analyzed coverage or change units", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-impact-ts-failed-"));
