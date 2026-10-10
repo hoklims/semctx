@@ -31,6 +31,9 @@ for (const source of [
 for (const [source, member] of [
   ["import M from 'node:module'; const loader = M.prototype.require;", "prototype"],
   ["import { _resolveFilename as resolveName } from 'node:module'; const value = resolveName('./file');", "_resolveFilename"],
+  ["const get = process.getBuiltinModule; const M = get('module'); const r = M.createRequire(import.meta.url);", "process.getBuiltinModule"],
+  ["import P from 'node:process'; const M = P.getBuiltinModule('module');", "process.getBuiltinModule"],
+  ["import { getBuiltinModule as get } from 'process'; const M = get('module');", "process.getBuiltinModule"],
 ] as const) test("unknown used native members remain explicitly unmodeled", () => {
   const reasons = inspectJavaScriptSource("/fixture/main.mjs", source).reasons;
   expect(reasons).toContain(`JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:${member}`);
@@ -56,6 +59,10 @@ test("ordinary Node APIs and unrelated factories remain ordinary static JavaScri
     "import { builtinModules } from 'node:module'; export const known = builtinModules;",
     "import { _resolveFilename } from 'node:module'; export const unused = 1;",
     "import { _resolveFilename as resolveName } from 'node:module'; export function known(resolveName) { return resolveName(1); }",
+    "const process = { getBuiltinModule(value) { return value; } }; export function known() { return process.getBuiltinModule(1); }",
+    "export function known(process) { return process.getBuiltinModule(1); }",
+    "import P from 'node:process'; export function known() { return P.platform; }",
+    "import { getBuiltinModule as get } from 'node:process'; export const unused = 1;",
   ]) expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toEqual([]);
 });
 test("type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim", () => {

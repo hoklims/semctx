@@ -22,6 +22,8 @@ const cases: { path: string; source: string; selected: boolean; barrel?: string;
   { path: "hidden-native-load.ts", source: "import { _load as nativeLoad } from 'module'; export const hidden = nativeLoad('./src/main.mjs', undefined, false);", selected: false, mainPath: "src/main.mjs" },
   { path: "hidden-native-prototype.mjs", source: "import M from 'node:module'; const loader = M.prototype.require; export const hidden = loader.call({filename: import.meta.filename}, './src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "prototype" },
   { path: "hidden-native-member.ts", source: "import { _resolveFilename as resolveName } from 'node:module'; export const hidden = resolveName('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "_resolveFilename" },
+  { path: "hidden-global-getter.mjs", source: "const get = process.getBuiltinModule; const M = get('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
+  { path: "hidden-global-getter.ts", source: "const M = process.getBuiltinModule('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
 ];
 for (const { path, source, selected, barrel, mainPath = "src/main.ts", unmodeled } of cases) test(`qualified ${path} createRequire source cannot hide its CommonJS dependency`, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-node-loader-"));
