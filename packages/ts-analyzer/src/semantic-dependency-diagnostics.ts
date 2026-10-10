@@ -16,6 +16,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   let needsChecker = false;
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
+    if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) reasons.add("SOURCE_ACCESSOR_UNSUPPORTED");
     if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
     if (ts.isExportDeclaration(node) || (ts.isVariableStatement(node)
       && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword))) needsChecker = true;

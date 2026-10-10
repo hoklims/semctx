@@ -224,6 +224,7 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
         if (entry.isDirectory()) { walk(path); continue; }
         // Source bytes, raw manifests/configuration and lockfiles all influence qualification.
         if (!isQualifiedRepositoryInputPath(relPath)) continue;
+        if (!stat.isFile()) throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope requires a regular file", { path: relPath });
         if (!canonicalRepositoryRoot(path).startsWith(`${qualifiedRoot}/`)) throw new SemctxError("INVALID_TASK_INPUT", "qualified source lies outside the repository");
         const bytes = readFileSync(path);
         entries.push({ path: relPath, contentHash: hash("qualified-input-bytes", bytes) });

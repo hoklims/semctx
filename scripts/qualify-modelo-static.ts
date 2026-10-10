@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { Database } from "bun:sqlite";
 import { BRIDGE, CONSUMER_VERSIONS, createConsumer, createEligibleConsumer, ENTRY, LEAF, LEAF_SOURCE, put } from "./modelo-static-fixture";
@@ -506,7 +506,7 @@ await scenario("interrupted-index", async () => {
       let db: Database | undefined;
       try {
         // Observe a copy only: live readers can prevent WAL-to-DELETE close.
-        copyFileSync(databasePath, snapshotPath);
+        writeFileSync(snapshotPath, readFileSync(databasePath));
         db = new Database(snapshotPath, { readonly: true });
         observedIncomplete = (db.query("SELECT value FROM meta WHERE key = 'qualified_analysis_build_v1'").get() as { value: string } | null)?.value === "incomplete";
       } catch (error) {

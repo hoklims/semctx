@@ -189,6 +189,20 @@ container escapes also refuse qualification when the loader origin cannot be exc
 Ordinary metadata such as
 `import.meta.url` remains supported. No coordinate, evaluation or loader edge is invented.
 
+Source getter/setter declarations are unsupported in qualified scope because implicit
+accessor invocation dependencies are not extracted. Ordinary data properties, methods
+and SDK/external boundaries keep their existing domain; ordinary TypeScript analysis
+without retained inputs is unchanged. Retained filesystem inputs must be regular files:
+symlinks, FIFOs, sockets and devices do not provide captured source bytes.
+
+Qualified CLI report publication must not create or replace a potentially retained
+repository input after the final capture. The writer checks the prospective canonical
+path, including nonexistent destinations and aliases above the checkout. Use an output
+under the hard-excluded `.semctx` directory or outside the repository; ordinary report
+publication and atomic symlink safeguards remain unchanged. The Action defaults to
+`.semctx/verify.json`, preserving the qualified-rejection report and adapter hand-off.
+This binds the publication operation only; it does not guarantee arbitrary future edits.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so

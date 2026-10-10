@@ -1,14 +1,16 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { replaceLocalReportFile } from "../report-output";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
   captureRecordableVerificationGitState,
+  canonicalRepositoryRoot,
   evaluatePreCommitHook,
   evaluatePrePushHook,
   parsePrePushRefs,
+  isQualifiedRepositoryInputPath,
   planVerify,
   recordVerificationState,
   requireStableVerificationGitState,
@@ -163,6 +165,19 @@ function renderText(
 }
 
 function writeReportAtomic(root: string, path: string, report: VerifyReport): void {
+  if (report.analysisAdmission !== undefined) {
+    // Classify prospective paths as well as existing inputs; canonicalize the nearest
+    // existing ancestor so aliases above the checkout cannot bypass this boundary.
+    let ancestor = resolve(path); const missing: string[] = [];
+    while (!existsSync(ancestor) && dirname(ancestor) !== ancestor) {
+      missing.unshift(basename(ancestor)); ancestor = dirname(ancestor);
+    }
+    const output = resolve(canonicalRepositoryRoot(ancestor), ...missing);
+    const relPath = relative(canonicalRepositoryRoot(root), output).replaceAll("\\", "/");
+    if (relPath !== ".." && !relPath.startsWith("../") && !isAbsolute(relPath) && isQualifiedRepositoryInputPath(relPath)) {
+      throw new SemctxError("INVALID_TASK_INPUT", "qualified report output cannot change repository inputs; use .semctx or a location outside the repository", { path });
+    }
+  }
   replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`, root);
 }
 
