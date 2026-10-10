@@ -7,7 +7,7 @@ const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/
 
 /** Closed native-module eligibility, without inventing dependencies loaded at runtime. */
 export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[] } {
-  type Origin = "factory" | "namespace" | "process" | "ordinary" | "unmodeled" | "other";
+  type Origin = "factory" | "namespace" | "global" | "process" | "ordinary" | "unmodeled" | "other";
   const unmodeledMembers = new Set<string>();
   let found = false;
   const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort() });
@@ -77,12 +77,16 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
       if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
+      if (origin(node.expression, seen) === "global" && property === "process") return "process";
       if (origin(node.expression, seen) === "process") return processExportOrigin(property);
       return "other";
     }
     if (!ts.isIdentifier(node)) return "other";
     const symbol = checker.getSymbolAtLocation(node);
-    if (symbol === undefined) return node.text === "process" ? "process" : "other";
+    if (symbol === undefined) return node.text === "process" ? "process" : ["globalThis", "global"].includes(node.text) ? "global" : "other";
+    // TypeScript binds the intrinsic globalThis even without libraries. Local names
+    // have declarations and must not acquire the ambient native process origin.
+    if (node.text === "globalThis" && symbol.name === "globalThis" && !symbol.declarations?.length) return "global";
     if (seen.has(symbol)) return "other";
     const next = new Set(seen).add(symbol);
     for (const declaration of symbol.declarations ?? []) {
@@ -100,6 +104,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
         const container = origin(declaration.parent.parent.initializer, next);
         const member = staticName(declaration.propertyName ?? declaration.name);
         if (container === "namespace") return nativeExportOrigin(member);
+        if (container === "global" && member === "process") return "process";
         if (container === "process") return processExportOrigin(member);
       }
     }
@@ -119,6 +124,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       && (element.propertyName === undefined || ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))));
   };
   const visit = (node: ts.Node): void => {
+    if (ts.isTypeNode(node)) return; // Type queries do not access the native runtime getter.
     if (ts.isImportDeclaration(node)) return; // An unused binding is not a loader use.
     if (ts.isShorthandPropertyAssignment(node)) {
       const target = checker.getShorthandAssignmentValueSymbol(node);

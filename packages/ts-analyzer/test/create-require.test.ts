@@ -29,6 +29,13 @@ for (const source of [
   expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
 });
 for (const [source, member] of [
+  ["const p = global['process']; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
+  ["const g = globalThis; const p = g['process']; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
+  ["const M = globalThis.process.getBuiltinModule('module'); const r = M.createRequire(import.meta.url);", "process.getBuiltinModule"],
+  ["const p = globalThis['process']; const get = p['getBuiltinModule']; const M = get('module');", "process.getBuiltinModule"],
+  ["const { getBuiltinModule: get } = globalThis.process; const M = get('module');", "process.getBuiltinModule"],
+  ["const { process: p } = globalThis; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
+  ["const { default: p } = globalThis.process; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
   ["import { default as p } from 'node:process'; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
   ["import { 'default' as p } from 'process'; const M = p.getBuiltinModule('module');", "process.getBuiltinModule"],
   ["const { 'getBuiltinModule': get } = process; const M = get('module');", "process.getBuiltinModule"],
@@ -75,6 +82,12 @@ test("ordinary Node APIs and unrelated factories remain ordinary static JavaScri
     "const p = await import('node:process'); export const ordinary = p.platform;",
     "const process = { getBuiltinModule(value) { return value; } }; const { getBuiltinModule: get } = process; export const ordinary = get(1);",
     "import { default as p } from 'node:process'; export function ordinary(p) { return p.getBuiltinModule(1); }",
+    "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; export const ordinary = globalThis.process.getBuiltinModule(1);",
+    "export function ordinary(globalThis) { return globalThis.process.getBuiltinModule(1); }",
+    "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; const { process: p } = globalThis; export const ordinary = p.getBuiltinModule(1);",
+    "export const ordinary = globalThis.process.platform;",
+    "const global = { process: { getBuiltinModule(value) { return value; } } }; export const ordinary = global.process.getBuiltinModule(1);",
+    "export function ordinary(global) { return global.process.getBuiltinModule(1); }",
   ]) expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toEqual([]);
 });
 test("type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim", () => {
@@ -82,6 +95,8 @@ test("type-only native bindings are inert and the compatibility predicate makes 
   expect(inspectNativeModuleBindings(typeOnly)).toEqual({ commonJsUnsupported: false, unmodeledMembers: [] });
   const processTypeOnly = ts.createSourceFile("/fixture/main.ts", "import type { default as p } from 'node:process'; export type Alias = typeof p.getBuiltinModule; export type { getBuiltinModule } from 'node:process';", ts.ScriptTarget.Latest, true);
   expect(inspectNativeModuleBindings(processTypeOnly)).toEqual({ commonJsUnsupported: false, unmodeledMembers: [] });
+  const globalProcessTypeOnly = ts.createSourceFile("/fixture/main.ts", "export type Getter = typeof globalThis.process.getBuiltinModule;", ts.ScriptTarget.Latest, true);
+  expect(inspectNativeModuleBindings(globalProcessTypeOnly)).toEqual({ commonJsUnsupported: false, unmodeledMembers: [] });
   const unknown = ts.createSourceFile("/fixture/main.mjs", "import M from 'node:module'; const loader = M.prototype.require;", ts.ScriptTarget.Latest, true);
   expect(hasNodeCreateRequireUse(unknown)).toBe(false);
   expect(inspectNativeModuleBindings(unknown)).toEqual({ commonJsUnsupported: false, unmodeledMembers: ["prototype"] });
