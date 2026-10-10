@@ -65,6 +65,16 @@ Inline TypeScript `import()` type queries are also outside the profile and suspe
 admission with `DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:<path>` until qualified static
 module links are available for that construct.
 
+The qualified inventory never classifies a source as generated solely because an ancestor
+is named `build`, `dist`, `coverage`, `.turbo` or `.next`. It retains tracked sources,
+repository-locally nonignored sources and sources selected by the original user configuration.
+Repository-local `.gitignore` and `.gitattributes` controls are bound to the input identity.
+Host-global/shared Git exclusions do not narrow this profile. An untracked generated output
+ignored by repository-local rules and outside the original selector is explicitly excluded
+as `IGNORED_GENERATED_OUTPUT`; broad dependency discovery preserves that original boundary.
+Metadata under `.git` and `.semctx`, and installed dependencies under `node_modules`, remain
+outside the qualified source inventory. These boundaries do not establish runtime completeness.
+
 ## Reproduction and validation
 
 Build and pack the CLI, install that tarball into a disposable wrapper, generate the plugins
@@ -77,6 +87,7 @@ bun scripts/qualify-modelo-static.ts --source-root <candidate> \
   --plugin-cli <candidate>/plugins/claude-code/dist/semctx.js \
   --legacy-cli <baseline>/apps/cli/dist/index.js \
   --regression-cli <pre-audit-correction>/apps/cli/dist/index.js \
+  --directory-regression-cli <pre-directory-correction>/apps/cli/dist/index.js \
   --output-dir <new-disposable-evidence-directory>
 ```
 
@@ -90,6 +101,11 @@ analyzed obligations.
 Build the regression CLI from commit `774bb72027f3ce68b69c29b1f12acf3c110a3ef0`.
 It reproduces positive admission for excluded TypeScript-only reexports/literal imports
 and incompatible inherited module settings. The candidate must refuse those same inputs.
+The directory regression artifact comes from public commit
+`52cc7232f691b948b150225118ff2dc4de7f72ad`. Its tracked importers under `build`/`dist`
+disappear even with an explicit selector. The corrected package must enumerate the importer,
+reject it when excluded, and actually analyze it when selected. Existing drift refusals in
+the historical artifact remain recorded as existing protections.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent

@@ -16,6 +16,7 @@ bun scripts/qualify-modelo-static.ts \
   --plugin-cli /path/to/candidate/plugins/claude-code/dist/semctx.js \
   --legacy-cli /path/to/baseline/apps/cli/dist/index.js \
   --regression-cli /path/to/pre-audit-correction/apps/cli/dist/index.js \
+  --directory-regression-cli /path/to/pre-directory-correction/apps/cli/dist/index.js \
   --output-dir /path/to/new-evidence-directory
 ```
 
@@ -28,8 +29,12 @@ declared versions do not count as observed runtime versions.
 Build the legacy baseline from `f6c0556d51662b8b763500945215f82ae75f64b9`
 and the pre-audit-correction artifact from `774bb72027f3ce68b69c29b1f12acf3c110a3ef0`.
 Both are public source revisions and use generated anonymous fixtures.
+Build the directory regression artifact from
+`52cc7232f691b948b150225118ff2dc4de7f72ad` to reproduce tracked source omissions under
+`build`/`dist`, with and without an explicit selector.
 `--audit-witnesses-only` runs only the three before/after audit cases. It records
 `scope: "audit-witnesses-only"` and `qualified: false`, even when those assertions pass.
+`--directory-witnesses-only` has the same qualification boundary for directory cases.
 
 The process exits nonzero if any scenario fails or if either actual historical
 witness is absent. `qualification.json` retains raw commands, stdout, stderr,
@@ -44,6 +49,7 @@ are never overwritten; use a new output directory for each run.
 | Mixed ESM / TypeScript | Exported `.mjs` symbol, imports and real call edges reach `.ts` bridge and `.js` consumer |
 | TypeScript-only inbound closure | An excluded static reexport or literal dynamic importer remains a required file and rejects admission; the pre-audit artifact admits the same input |
 | Inherited module semantics | Explicit inherited NodeNext settings are refused by the ESNext/Bundler profile; the pre-audit artifact silently admits the same input |
+| Authored sources in output directories | Tracked importers under `build`/`dist` remain required; excluded ones reject and selected ones are actually analyzed |
 | Refresh | Source edit first refuses; full indexing then admits the covered static change |
 | CLI / plugin / MCP | Built artifacts report the same admission; MCP is invoked through real stdio JSON-RPC |
 | Added / edited / deleted / renamed | Index taken before the mutation cannot admit the change |

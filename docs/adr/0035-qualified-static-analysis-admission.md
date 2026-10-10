@@ -29,6 +29,13 @@ an inbound dependency prevent admission. Exclusions remain visible and never dis
 an obligated source. Unknown configuration/runtime semantics and deleted post-images
 are conservatively outside this bounded ESM/TypeScript profile.
 
+Output directory names are not source-eligibility evidence. Qualified discovery and retained
+input capture share a tracked/nonignored/originally-selected policy for sources beneath
+`build`, `dist`, `coverage`, `.turbo` and `.next`. Repository-local ignore controls are bound;
+host/shared excludes cannot silently narrow the scope. Ignored untracked generated outputs
+outside the original selector carry a named exclusion. Administrative metadata and installed
+dependencies remain explicit external boundaries.
+
 Source identity hashes raw bytes, including excluded/untracked source and repository
 manifests, lockfiles and JSON/YAML configuration. It includes the generated analyzer
 implementation digest; rebuilding a seal without consuming sources cannot restore it.
