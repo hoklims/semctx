@@ -43,7 +43,7 @@ test("setup plan exposes the four observed roots without broadening selection or
   expect(plan.selection.excluded).toBe(4); // package.json is also a discovery candidate
   expect(plan).toHaveProperty("scope");
   expect(plan.scope?.counts).toEqual({ observed: 4, selected: 1, excluded: 3, unavailable: 0 });
-  expect(plan.scope?.roots.map((row) => row.root)).toEqual(["apps/host", "domains/sample/api", "domains/sample/web", "platform/shared"]);
+  expect(plan.scope?.roots.map((row) => row.root)).toEqual(["domains/sample/api", "domains/sample/web", "platform/shared", "apps/host"]);
   expect(plan.scope?.proposedIncludes).toEqual(paths.slice(1));
   expect(snapshot(root)).toEqual(before);
   expect(existsSync(join(root, ".semctx"))).toBe(false);
@@ -102,6 +102,37 @@ test("explicit excludes, disabled language misses and refused links never become
 function miss(relPath: string): DiscoveryCandidate {
   return { relPath, language: "typescript", selectionDecision: "excluded", analysisOutcome: "not_applicable", reason: "INCLUDE_MISS" };
 }
+
+test("excluded and unavailable roots remain visible before selected-only roots reach the cap", () => {
+  const selected = Array.from({ length: 20 }, (_, index) => ({
+    ...miss(`apps/a${String(index).padStart(2, "0")}/src/index.ts`),
+    selectionDecision: "selected" as const,
+    reason: "SELECTED" as const,
+  }));
+  const excluded = miss("z-excluded/src/index.ts");
+  const unavailable = { ...miss("z-unavailable/src/index.ts"), selectionDecision: "selected" as const, analysisOutcome: "failed" as const, reason: "READ_FAILED" as const };
+  const discovery = { files: selected.map((candidate) => ({ relPath: candidate.relPath, language: "typescript" as const, absPath: candidate.relPath, role: "source" as const, content: "export const value = 1;" })), candidates: [...selected, excluded, unavailable] };
+  const scope = projectSetupScope(createGlobSelectionConfig("unused"), discovery);
+  expect(scope.roots.map((row) => row.root).slice(0, 2)).toEqual(["z-excluded", "z-unavailable"]);
+  expect(scope.roots).toHaveLength(20);
+  expect(scope.rootsTotal).toBe(22);
+  expect(scope.rootsOmitted).toBe(2);
+  expect(scope.counts).toEqual({ observed: 22, selected: 20, excluded: 1, unavailable: 1 });
+  expect(scope).toEqual(projectSetupScope(createGlobSelectionConfig("unused"), { ...discovery, candidates: [...discovery.candidates].reverse() }));
+});
+
+test.each([0x061c, 0x200e, 0x200f, 0x2028, 0x2029, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e, 0x2066, 0x2067, 0x2068, 0x2069])("Unicode display control U+%s cannot appear in roots samples or proposed includes", (code) => {
+  const control = String.fromCodePoint(code);
+  const candidates = [miss(`unsafe${control}/src/index.ts`), miss(`safe/src/name${control}.ts`)];
+  const scope = projectSetupScope(createGlobSelectionConfig("unused"), { files: [], candidates });
+  expect(scope.proposedIncludes).toEqual([]);
+  expect(scope.unproposableIncludeMisses).toBe(2);
+  expect(scope.roots.map((row) => row.root)).toEqual(["safe"]);
+  expect(scope.roots[0]?.samplePaths).toEqual([]);
+  expect(scope.roots[0]?.samplePathsOmitted).toBe(1);
+  expect(scope.counts.excluded).toBe(2);
+  expect(scope.rootsOmitted).toBe(1);
+});
 
 test("scope output is deterministic, bounded and honest about omitted roots samples and includes", () => {
   const config = createGlobSelectionConfig("unused");

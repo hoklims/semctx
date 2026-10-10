@@ -110,6 +110,9 @@ test("MCP preflight and confirm share scope without auto-confirm or readiness pr
   for (const patch of [
     { applyRequired: false }, { counts: { observed: -1, selected: 1, excluded: 3, unavailable: 0 } },
     { proposedIncludes: ["domains/**/*.ts"] }, { proposedIncludes: ["../outside.ts"] },
+    { proposedIncludes: ["domains/\u202efile.ts"] },
+    { roots: [{ ...preflight.scope!.roots[0], root: "domains/\u2028sample" }] },
+    { roots: [{ ...preflight.scope!.roots[0], samplePaths: ["domains/\u2066sample.ts"] }] },
     { proposedIncludes: ["界".repeat(81) + ".ts"] }, { proposedIncludes: Array(21).fill("a.ts") },
     { roots: [{ ...preflight.scope!.roots[0], unexpected: true }] },
     { reasonCounts: [{ reason: "FAKE", count: 1 }] }, { sourceFamilies: ["typescript", "sql"] }, { extra: true },

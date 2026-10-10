@@ -37,7 +37,9 @@ export function isSetupScopeDisplayPath(path: string): boolean {
   return Buffer.byteLength(path, "utf8") <= SETUP_SCOPE_LIMITS.pathBytes
     && ![...path].some((character) => {
       const code = character.charCodeAt(0);
-      return code <= 31 || (code >= 127 && code <= 159);
+      return code <= 31 || (code >= 127 && code <= 159)
+        || code === 0x061c || code === 0x200e || code === 0x200f
+        || (code >= 0x2028 && code <= 0x202e) || (code >= 0x2066 && code <= 0x2069);
     });
 }
 /** No escaping: the active selector normalizes backslashes into separators. */
@@ -88,10 +90,13 @@ export function projectSetupScope(config: SemctxConfig, discovery: DiscoveryResu
     }
   }
   const roots: SetupScopeRoot[] = [];
-  for (const [root, group] of [...groups].sort(([left], [right]) => compare(left, right))) {
+  const orderedGroups = [...groups].map(([root, group]) => ({ root, group, counts: summarize(group, selected) }))
+    .sort((left, right) => Number(right.counts.excluded + right.counts.unavailable > 0)
+      - Number(left.counts.excluded + left.counts.unavailable > 0) || compare(left.root, right.root));
+  for (const { root, group, counts: rootCounts } of orderedGroups) {
     if (!isSetupScopeDisplayPath(root) || roots.length === SETUP_SCOPE_LIMITS.roots) continue;
     const samplePaths = group.map((entry) => entry.relPath).filter(isSetupScopeDisplayPath).slice(0, SETUP_SCOPE_LIMITS.samplesPerRoot);
-    roots.push({ root, counts: summarize(group, selected), reasonCounts: reasonCounts(group), samplePaths, samplePathsOmitted: group.length - samplePaths.length });
+    roots.push({ root, counts: rootCounts, reasonCounts: reasonCounts(group), samplePaths, samplePathsOmitted: group.length - samplePaths.length });
   }
   const proposedIncludes = [...safeIncludes].sort(compare).slice(0, SETUP_SCOPE_LIMITS.proposedIncludes);
   return {
