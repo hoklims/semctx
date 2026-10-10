@@ -97,6 +97,37 @@ describe("ADR-C08 workspace detection", () => {
     ]);
   });
 
+  it("10: a declared workspace member keeps an identity a standalone manifest repeats", async () => {
+    const root = await fixture();
+    await json(root, "package.json", { name: "repo", workspaces: ["apps/*"] });
+    await json(root, "apps/cli/package.json", { name: "tool" });
+    await json(root, "plugins/host/package.json", { name: "tool" });
+
+    for (const projection of [await analyzeWorkspace({ repositoryRoot: root }), analyzeWorkspaceSync({ repositoryRoot: root })]) {
+      expect(projection.nodes.map(({ root: nodeRoot, identity }) => ({ root: nodeRoot, identity }))).toEqual([
+        { root: ".", identity: "repo" },
+        { root: "apps/cli", identity: "tool" },
+      ]);
+      expect(projection.diagnostics).toEqual([
+        expect.objectContaining({ code: "AMBIGUOUS_LAYOUT", roots: ["plugins/host"] }),
+      ]);
+    }
+  });
+
+  it("10: rejects every claimant when more than one root is declared under one identity", async () => {
+    const root = await fixture();
+    await json(root, "package.json", { name: "repo", workspaces: ["apps/*", "packages/*"] });
+    await json(root, "apps/tool/package.json", { name: "tool" });
+    await json(root, "packages/tool/package.json", { name: "tool" });
+
+    const projection = await analyzeWorkspace({ repositoryRoot: root });
+
+    expect(projection.nodes.map((node) => node.root)).toEqual(["."]);
+    expect(projection.diagnostics).toEqual([
+      expect.objectContaining({ code: "AMBIGUOUS_LAYOUT", roots: ["apps/tool", "packages/tool"] }),
+    ]);
+  });
+
   it("4: assigns nested units and artifacts to their nearest admitted ancestor", async () => {
     const root = await fixture();
     await json(root, "package.json", { name: "repo" });

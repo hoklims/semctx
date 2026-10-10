@@ -363,6 +363,12 @@ The following rules are normative:
 - Non-ancestor overlapping ownership claims conflict, emit `AMBIGUOUS_LAYOUT`, and emit no
   conflicting membership edges.
 - Candidate parent links that would create a cycle are rejected as `AMBIGUOUS_LAYOUT`.
+- One workspace identity claimed at several disjoint roots is ambiguous. A root listed by a
+  workspace manifest's members (`workspaces`, `workspaces.packages`, `tool.uv.workspace.members`)
+  is the authoritative claim, since it is what the package manager links under that identity: when
+  exactly one claimant is so declared, it keeps the identity and only the other roots are rejected
+  as `AMBIGUOUS_LAYOUT`. Otherwise every claimant is rejected. (Amended 2026-10-10: a standalone
+  manifest repeating a declared member's name no longer revokes the member.)
 - The admitted workspace graph is acyclic.
 - Containment traversal may be used only for containment and scope. It must not imply imports,
   references, refinement, dependency, proof, capability, or authority.
@@ -383,6 +389,7 @@ The following rules are normative:
 | 7 | A root is external, `..`-escaping, or symlinked. | Reject it; emit no workspace node or edge. |
 | 8 | An artifact has no admitted workspace. | No synthetic package; retain repository scope and legacy `belongs_to` behavior. |
 | 9 | Candidate parent links form a cycle. | Reject the candidate graph as `AMBIGUOUS_LAYOUT`. |
+| 10 | One identity at disjoint roots, exactly one of them a declared workspace member. | Admit the declared member; reject the other roots as `AMBIGUOUS_LAYOUT`. With zero or several declared claimants, reject all of them. |
 
 ## Compatibility and migration
 

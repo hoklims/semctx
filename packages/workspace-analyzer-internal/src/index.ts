@@ -303,10 +303,18 @@ export function projectWorkspaceCandidates(
   for (const candidates of identityRoots.values()) {
     const roots = unique(candidates.map((candidate) => candidate.root));
     if (roots.length <= 1) continue;
-    roots.forEach((root) => invalidRoots.add(root));
+    // A workspace declaration is the authoritative claim: it is what the package manager links
+    // under that identity. When exactly one root is so declared, it keeps the identity and only the
+    // standalone manifests repeating its name are rejected; otherwise every claimant is.
+    const declared = candidates.filter(isDeclaredMember);
+    const owner = declared.length === 1 ? declared[0]!.root : undefined;
+    const rejected = roots.filter((root) => root !== owner);
+    rejected.forEach((root) => invalidRoots.add(root));
     diagnostics.push(ambiguous(
-      roots,
-      `Workspace identity '${candidates[0]!.identity}' is claimed at multiple roots.`,
+      rejected,
+      owner === undefined
+        ? `Workspace identity '${candidates[0]!.identity}' is claimed at multiple roots.`
+        : `Workspace identity '${candidates[0]!.identity}' is claimed at multiple roots; the declared workspace member '${owner}' keeps it.`,
       candidates.flatMap((candidate) => candidate.evidence),
     ));
   }
@@ -587,6 +595,13 @@ function intrinsicManifestCandidate(manifest: ManifestRecord): WorkspaceCandidat
       value: manifest.identity,
     }],
   };
+}
+
+const DECLARATION_FIELD = /^(?:workspaces|workspaces\.packages|tool\.uv\.workspace\.members)\[\d+\]$/;
+
+/** Whether a manifest's workspace member list declares this root, not only its own manifest name. */
+function isDeclaredMember(candidate: WorkspaceCandidate): boolean {
+  return candidate.evidence.some((evidence) => DECLARATION_FIELD.test(evidence.field));
 }
 
 function workspaceDeclarationEvidence(
