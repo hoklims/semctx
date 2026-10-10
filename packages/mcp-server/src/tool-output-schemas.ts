@@ -1,4 +1,5 @@
 import { z } from "zod-v4";
+import { DISCOVERY_CANDIDATE_REASONS } from "@semantic-context/ts-analyzer";
 import { AnalysisAdmissionSchema, VerifyReportSchema as CoreVerifyReportSchema } from "@semantic-context/core";
 import {
   AgentLifecycleReportV1Schema,
@@ -794,9 +795,9 @@ const SetupScopeCountsSchema = z.object({
   unavailable: SetupScopeCountSchema,
 }).strict();
 const SetupScopeReasonCountsSchema = z.array(z.object({
-  reason: z.enum(["LEGACY_UNSUPPORTED_EXTENSION", "INCLUDE_MISS", "EXCLUDE_MATCH", "LANGUAGE_DISABLED", "LANGUAGE_UNSUPPORTED", "READ_FAILED", "IMPORT_OUTSIDE_REPOSITORY", "REFERENCE_OUTSIDE_REPOSITORY", "SOURCE_LINK_OUTSIDE_REPOSITORY", "SELECTED"]),
+  reason: z.enum(DISCOVERY_CANDIDATE_REASONS),
   count: z.number().int().positive(),
-}).strict()).max(10);
+}).strict()).max(DISCOVERY_CANDIDATE_REASONS.length);
 const SetupScopeSchema = z.object({
   schemaVersion: z.literal(1),
   basis: z.literal("observed-discovery"),

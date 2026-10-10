@@ -3,10 +3,74 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { planSetupRepository } from "@semantic-context/app-services";
+import { createGlobSelectionConfig } from "@semantic-context/core";
+import { initWorkspace } from "@semantic-context/repository-store";
+import { DISCOVERY_CANDIDATE_REASONS } from "@semantic-context/ts-analyzer";
+import { Client } from "@modelcontextprotocol/client";
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { setupTool, isSetupAgentSuccess } from "../src/setup-tools";
 import { TOOL_OUTPUT_SCHEMAS } from "../src/tool-output-schemas";
 
 const roots: string[] = [];
+function qualifiedFixture(): string {
+  const root = mkdtempSync(join(tmpdir(), "semctx-scope-mcp-"));
+  roots.push(root);
+  mkdirSync(join(root, "src"));
+  mkdirSync(join(root, "build"));
+  writeFileSync(join(root, "src/index.ts"), "export const value = 1;\n");
+  writeFileSync(join(root, "build/generated.ts"), "export const generated = 1;\n");
+  writeFileSync(join(root, ".gitignore"), "build/\n.semctx/\n");
+  for (const args of [["init", "-q"], ["add", "."], ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture"]]) {
+    const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+  }
+  initWorkspace(root, {
+    ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1",
+    analysisProfile: "modelo-suite-static-v1", include: ["src/**/*.ts"],
+    languages: { typescript: "on", javascript: "on" },
+  });
+  return root;
+}
+
+test("qualified setup scope validates actual ignored generated output through MCP", () => {
+  const root = qualifiedFixture();
+  const plan = planSetupRepository(root);
+  if (plan.kind !== "setup_plan") throw new Error("unexpected refusal");
+  const preflight = setupTool(root);
+  if (preflight.kind !== "setup_preflight") throw new Error("unexpected response");
+  expect(preflight.scope).toEqual(plan.scope);
+  expect(preflight.scope?.reasonCounts).toContainEqual({ reason: "IGNORED_GENERATED_OUTPUT", count: 1 });
+  expect(preflight.scope?.proposedIncludes).not.toContain("build/generated.ts");
+  const cli = Bun.spawnSync([process.execPath, join(import.meta.dir, "../../../apps/cli/src/index.ts"), "setup", "--root", root, "--dry-run", "--json"], { stdout: "pipe", stderr: "pipe" });
+  expect(cli.exitCode, new TextDecoder().decode(cli.stderr)).toBe(0);
+  expect(JSON.parse(new TextDecoder().decode(cli.stdout)).scope).toEqual(preflight.scope);
+  expect(TOOL_OUTPUT_SCHEMAS.semctx_setup.safeParse(preflight).success).toBe(true);
+  const reasonCounts = DISCOVERY_CANDIDATE_REASONS.map((reason) => ({ reason, count: 1 }));
+  expect(reasonCounts).toHaveLength(11);
+  const scope = { ...preflight.scope!, reasonCounts, roots: preflight.scope!.roots.map((entry) => ({ ...entry, reasonCounts })) };
+  const schema = TOOL_OUTPUT_SCHEMAS.semctx_setup;
+  expect(schema.safeParse({ ...preflight, scope }).success).toBe(true);
+  expect(schema.safeParse({ ...preflight, scope: { ...scope, reasonCounts: [...reasonCounts, reasonCounts[0]] } }).success).toBe(false);
+  expect(schema.safeParse({ ...preflight, scope: { ...scope, roots: [{ ...scope.roots[0], reasonCounts: [...reasonCounts, reasonCounts[0]] }] } }).success).toBe(false);
+  expect(schema.safeParse({ ...preflight, scope: { ...scope, reasonCounts: [{ reason: "UNKNOWN_REASON", count: 1 }] } }).success).toBe(false);
+  expect(schema.safeParse({ ...preflight, scope: { ...scope, roots: [{ ...scope.roots[0], reasonCounts: [{ reason: "UNKNOWN_REASON", count: 1 }] }] } }).success).toBe(false);
+});
+
+test("qualified generated output survives the real MCP stdio setup preflight", async () => {
+  const root = qualifiedFixture();
+  const client = new Client({ name: "semctx-scope-contract", version: "0.1.0" });
+  try {
+    await client.connect(new StdioClientTransport({
+      command: "bun", args: [join(import.meta.dir, "../src/index.ts")],
+      cwd: join(import.meta.dir, "../../.."), stderr: "pipe",
+    }));
+    const response = await client.callTool({ name: "semctx_setup", arguments: { repositoryRoot: root } });
+    expect(response.isError).not.toBe(true);
+    expect(response.structuredContent).toEqual(setupTool(root));
+  } finally {
+    await client.close();
+  }
+}, 30_000);
 afterEach(() => {
   for (const root of roots.splice(0)) {
     if (!root.startsWith(join(tmpdir(), "semctx-scope-mcp-"))) throw new Error("unsafe fixture cleanup");

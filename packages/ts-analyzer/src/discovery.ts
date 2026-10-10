@@ -21,6 +21,20 @@ export interface DiscoveredFile {
   language?: Exclude<SourceLanguage, "unknown">;
 }
 
+export const DISCOVERY_CANDIDATE_REASONS = [
+  "LEGACY_UNSUPPORTED_EXTENSION",
+  "INCLUDE_MISS",
+  "EXCLUDE_MATCH",
+  "IGNORED_GENERATED_OUTPUT",
+  "LANGUAGE_DISABLED",
+  "LANGUAGE_UNSUPPORTED",
+  "READ_FAILED",
+  "IMPORT_OUTSIDE_REPOSITORY",
+  "REFERENCE_OUTSIDE_REPOSITORY",
+  "SOURCE_LINK_OUTSIDE_REPOSITORY",
+  "SELECTED",
+] as const;
+
 export interface DiscoveryCandidate {
   relPath: string;
   language: SourceLanguage;
@@ -30,18 +44,7 @@ export interface DiscoveryCandidate {
    * by the Plane-A producer ledger after analysis.
    */
   analysisOutcome?: "not_applicable" | "disabled" | "unsupported" | "failed";
-  reason:
-    | "LEGACY_UNSUPPORTED_EXTENSION"
-    | "INCLUDE_MISS"
-    | "EXCLUDE_MATCH"
-    | "IGNORED_GENERATED_OUTPUT"
-    | "LANGUAGE_DISABLED"
-    | "LANGUAGE_UNSUPPORTED"
-    | "READ_FAILED"
-    | "IMPORT_OUTSIDE_REPOSITORY"
-    | "REFERENCE_OUTSIDE_REPOSITORY"
-    | "SOURCE_LINK_OUTSIDE_REPOSITORY"
-    | "SELECTED";
+  reason: (typeof DISCOVERY_CANDIDATE_REASONS)[number];
 }
 
 export interface DiscoveryResult {

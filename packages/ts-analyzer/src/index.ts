@@ -4,6 +4,7 @@ export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
 export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration } from "./javascript-diagnostics";
 
 export {
+  DISCOVERY_CANDIDATE_REASONS,
   discoverFiles,
   discoverRepository,
   countTypeScriptFiles,
