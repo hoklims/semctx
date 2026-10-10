@@ -358,7 +358,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
     const exportedDeclarations = new Set<ts.Declaration>();
-    if (javascriptEnabled) {
+    if (staticModuleLinksEnabled) {
       const moduleSymbol = checker.getSymbolAtLocation(sf);
       if (moduleSymbol !== undefined) {
         for (let symbol of checker.getExportsOfModule(moduleSymbol)) {
@@ -1054,7 +1054,7 @@ function resolveCallTarget(
   const decl = declarations[0];
   if (decl === undefined) return undefined;
   const sf = decl.getSourceFile();
-  const symbolName = javascriptEnabled ? scopeNameOf(decl) ?? symbol.getName() : symbol.getName();
+  const symbolName = javascriptEnabled || snapshot !== undefined ? scopeNameOf(decl) ?? symbol.getName() : symbol.getName();
   if (sf.isDeclarationFile) {
     if (javascriptEnabled && /\.d\.(mts|cts|ts)$/.test(sf.fileName)) {
       const runtimePath = sf.fileName.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>

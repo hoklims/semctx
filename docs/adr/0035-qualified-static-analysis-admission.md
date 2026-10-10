@@ -99,6 +99,17 @@ their dependency links are extracted. Actual attached JSDoc AST nodes make selec
 producers partial and prevent broad qualified scope from silently omitting an importer.
 Ordinary prose mentions of imports and nonsemantic TypeScript JSDoc are not dependencies.
 
+TypeScript/TSX files classified as migrations retain legacy structural migration facts,
+but this profile refuses their selected producer scope and broad dependency scope because
+their executable symbols and calls are not extracted. Retained TypeScript export clauses
+and named default declarations use the same semantic export coordinates as JavaScript.
+
+Sources containing JSX are unsupported when the pinned compiler's configuration or
+semantic file pragmas introduce an implicit JSX runtime import. This includes automatic
+JSX modes and `jsxImportSource`; extraction still preserves JSX without modeling that
+runtime dependency. JSX-free files remain eligible under those options. Classic pragma
+overrides follow the pinned SDK semantics, including repeated pragma precedence.
+
 For this named profile, already extracted calls whose named endpoint belongs to a
 modeled local module require exactly one grouped symbol coordinate. A missing or
 ambiguous caller/callee makes the caller file partial before capability and discovery

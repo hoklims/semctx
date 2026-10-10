@@ -334,7 +334,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
-  if (!configPath) return [...defaultReasons, ...(source !== undefined && compilerInputs !== undefined
+  if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectAutomaticJsxRuntime(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined
     ? inspectQualifiedModuleScope(source, path) : [])];
   const contained = (candidate: string): boolean => {
     if (!repositoryRoot) return true;
@@ -358,6 +358,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   // The named snapshot profile qualifies ESNext/Bundler, including inherited options. Hashing
   // NodeNext bytes does not authorize analyzing them under overwritten Bundler semantics.
   if (compilerInputs !== undefined && parsed !== undefined) {
+    if (inspectedSource !== undefined) reasons.push(...inspectAutomaticJsxRuntime(inspectedSource, parsed.options));
     if (parsed.options.module !== undefined && parsed.options.module !== ts.ModuleKind.ESNext) {
       reasons.push(`SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:${ts.ModuleKind[parsed.options.module]}`);
     }
@@ -375,6 +376,19 @@ function hasUnsupportedDefaultExpression(source: ts.SourceFile): boolean {
   // Default declarations have extracted owners; expression assignments have no closed
   // ownership contract. Refuse the entire assignment form rather than infer a target.
   return source.statements.some(statement => ts.isExportAssignment(statement) && !statement.isExportEquals);
+}
+
+function inspectAutomaticJsxRuntime(source: ts.SourceFile, options: ts.CompilerOptions): string[] {
+  let jsx = false;
+  const visit = (node: ts.Node): void => {
+    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node) || ts.isJsxFragment(node)) jsx = true;
+    if (!jsx) ts.forEachChild(node, visit);
+  };
+  visit(source);
+  // Use the pinned SDK's semantic pragma/configuration interpretation, including classic
+  // overrides and the last repeated pragma. Preserve extraction does not model this import.
+  const sdk = ts as unknown as { getJSXImplicitImportBase(options: ts.CompilerOptions, source: ts.SourceFile): string | undefined };
+  return jsx && sdk.getJSXImplicitImportBase(options, source) !== undefined ? ["SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED"] : [];
 }
 
 function hasSemanticJSDocImport(source: ts.SourceFile): boolean {

@@ -89,6 +89,7 @@ export function qualifiedAdmission(input: {
   for (const candidate of broad.candidates) {
     if (candidate.reason === "READ_FAILED" || candidate.reason.endsWith("OUTSIDE_REPOSITORY")) reasons.push(`DEPENDENCY_SCOPE_UNREADABLE:${candidate.relPath}`);
   }
+  for (const file of broad.files) if (file.role === "migration" && file.language === "typescript") reasons.push(`DEPENDENCY_SCOPE_MIGRATION_SOURCE_UNSUPPORTED:${file.relPath}`);
   for (const source of sourceFiles) {
     if (/\.d\.(?:ts|mts|cts)$/.test(source.relPath)) reasons.push(`DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:${source.relPath}`);
     const ast = ts.createSourceFile(source.relPath, source.content, ts.ScriptTarget.Latest, true);

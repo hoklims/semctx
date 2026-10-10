@@ -211,6 +211,11 @@ function composePlaneARuntime(
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
     if (config.version === 2 && candidate.language === "typescript") {
+      if (config.selectionMode === "qualified-static-v1" && config.analysisProfile === "modelo-suite-static-v1" && file.role === "migration") {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_MIGRATION_SOURCE_UNSUPPORTED"]);
+        continue;
+      }
       if (/\.d\.(?:ts|mts|cts)$/.test(file.relPath)) {
         forcedOutcomes.set(candidate.relPath, "unsupported");
         forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_DECLARATION_FILE_UNSUPPORTED"]);
