@@ -1,6 +1,6 @@
 import type { AnalysisAdmission, RepositoryGraph, SemctxConfig } from "@semantic-context/core";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
-import { discoverRepository, extractTypeScript, inspectSourceParsing, inspectModuleConfiguration } from "@semantic-context/ts-analyzer";
+import { discoverRepository, extractTypeScript, inspectSourceParsing, inspectModuleConfiguration, hasNodeCreateRequireUse } from "@semantic-context/ts-analyzer";
 import type { IndexHealthReportV1 } from "./index-health";
 import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
 import { isBuiltin } from "node:module";
@@ -84,6 +84,7 @@ export function qualifiedAdmission(input: {
   }
   for (const source of sourceFiles) {
     const ast = ts.createSourceFile(source.relPath, source.content, ts.ScriptTarget.Latest, true);
+    if (hasNodeCreateRequireUse(ast)) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
     for (const diagnostic of inspectSourceParsing(source.relPath, source.content)) reasons.push(`DEPENDENCY_SCOPE_PARSE_FAILED:${source.relPath}:${diagnostic}`);
     for (const diagnostic of inspectModuleConfiguration(source.absPath, config.repositoryRoot, compilerInputs)) reasons.push(`DEPENDENCY_SCOPE_CONFIGURATION:${source.relPath}:${diagnostic}`);
     const visit = (node: ts.Node): void => {

@@ -5,6 +5,82 @@ import { resolveTypeScriptModule, retainedCompilerSystem, type CompilerInputSnap
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
+/** Known Node CommonJS loader bindings, without inventing dependencies loaded at runtime. */
+export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
+  const isNodeModule = (node: ts.Node | undefined): boolean => node !== undefined && ts.isStringLiteral(node)
+    && ["node:module", "module"].includes(node.text);
+  for (const statement of source.statements) {
+    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly || !isNodeModule(statement.moduleSpecifier)) continue;
+    if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)
+      || (ts.isNamedExports(statement.exportClause) && statement.exportClause.elements.some((element) =>
+        !element.isTypeOnly && ["createRequire", "default", "Module"].includes((element.propertyName ?? element.name).text)))) return true;
+  }
+  let importsNodeModule = false;
+  const findModule = (node: ts.Node): void => {
+    if (ts.isStringLiteral(node) && ["node:module", "module"].includes(node.text)
+      && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
+    ts.forEachChild(node, findModule);
+  };
+  findModule(source);
+  if (!importsNodeModule) return false;
+  // Bind only the supplied AST. No source, dependency or configuration is read from disk.
+  const options: ts.CompilerOptions = { noLib: true, noResolve: true, allowJs: true, target: ts.ScriptTarget.ESNext };
+  const host = ts.createCompilerHost(options);
+  host.getSourceFile = (path) => path === source.fileName ? source : undefined;
+  host.fileExists = (path) => path === source.fileName;
+  host.readFile = (path) => path === source.fileName ? source.text : undefined;
+  host.resolveModuleNames = (names) => names.map(() => undefined);
+  const checker = ts.createProgram([source.fileName], options, host).getTypeChecker();
+  type Origin = "factory" | "namespace" | "other";
+  const origin = (node: ts.Node, seen = new Set<ts.Symbol>()): Origin => {
+    if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isAwaitExpression(node)) return origin(node.expression, seen);
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeModule(node.arguments[0])) return "namespace";
+    if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+      const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
+      if (origin(node.expression, seen) === "namespace") return property === "createRequire" ? "factory" : property === "default" || property === "Module" ? "namespace" : "other";
+      return "other";
+    }
+    if (!ts.isIdentifier(node)) return "other";
+    const symbol = checker.getSymbolAtLocation(node);
+    if (symbol === undefined || seen.has(symbol)) return "other";
+    const next = new Set(seen).add(symbol);
+    for (const declaration of symbol.declarations ?? []) {
+      if (ts.isImportSpecifier(declaration) && !declaration.isTypeOnly && !declaration.parent.parent.isTypeOnly
+        && isNodeModule(declaration.parent.parent.parent.moduleSpecifier)) return (declaration.propertyName ?? declaration.name).text === "createRequire" ? "factory" : (declaration.propertyName ?? declaration.name).text === "Module" ? "namespace" : "other";
+      if (ts.isNamespaceImport(declaration) && !declaration.parent.isTypeOnly && isNodeModule(declaration.parent.parent.moduleSpecifier)) return "namespace";
+      if (ts.isImportClause(declaration) && !declaration.isTypeOnly && isNodeModule(declaration.parent.moduleSpecifier)) return "namespace";
+      if (ts.isVariableDeclaration(declaration) && declaration.initializer) return origin(declaration.initializer, next);
+      if (ts.isBindingElement(declaration) && ts.isObjectBindingPattern(declaration.parent)
+        && ts.isVariableDeclaration(declaration.parent.parent) && declaration.parent.parent.initializer
+        && origin(declaration.parent.parent.initializer, next) === "namespace") {
+        return (declaration.propertyName ?? declaration.name).getText(source) === "createRequire" ? "factory" : "other";
+      }
+    }
+    return "other";
+  };
+  let found = false;
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node)) return; // An unused binding is not a loader use.
+    if (ts.isExportAssignment(node) && origin(node.expression) === "namespace") found = true;
+    if (ts.isVariableStatement(node) && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      && node.declarationList.declarations.some((declaration) => declaration.initializer && origin(declaration.initializer) === "namespace")) found = true;
+    if (ts.isExportSpecifier(node) && !node.isTypeOnly && !node.parent.parent.isTypeOnly) {
+      const target = checker.getExportSpecifierLocalTargetSymbol(node);
+      for (const declaration of target?.declarations ?? []) {
+        const name = (declaration as ts.NamedDeclaration).name;
+        if (name && ts.isIdentifier(name) && origin(name) !== "other") found = true;
+      }
+    }
+    const declarationName = ts.isIdentifier(node) && ((ts.isVariableDeclaration(node.parent) && node.parent.name === node)
+      || (ts.isBindingElement(node.parent) && (node.parent.name === node || node.parent.propertyName === node))
+      || (ts.isParameter(node.parent) && node.parent.name === node));
+    if (!declarationName && origin(node) === "factory") found = true;
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
 /** Diagnostic-only constructs never acquire a complete ESM capability by extension recognition. */
 export function inspectJavaScriptSource(path: string, content: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot): {
   parseFailed: boolean;
@@ -18,6 +94,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   const reasons = new Set<string>(diagnostics.map(diagnostic =>
     `JAVASCRIPT_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`));
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+  if (hasNodeCreateRequireUse(source)) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const staticExports: { name: string; declarationKind: string }[] = [];
   const staticModuleLinks: { specifier: string; resolution: "resolved" | "external" | "unresolved" }[] = [];
   const isDeclaredExternal = (specifier: string): boolean => {
