@@ -234,6 +234,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     `JAVASCRIPT_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`));
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const native = inspectNativeModuleBindings(source);
+  if (hasSemanticJSDocImport(source)) reasons.add("JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED");
   if (hasUnsupportedDefaultExpression(source)) reasons.add("JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED");
   if (native.commonJsUnsupported) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   if (native.runtimeEvaluationUnsupported) reasons.add("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
@@ -293,7 +294,9 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   }
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
-      if (ts.isElementAccessExpression(node.expression) || ts.isCallExpression(node.expression)) reasons.add("JAVASCRIPT_DYNAMIC_CALL_UNSUPPORTED");
+      let callee: ts.Expression = node.expression;
+      while (ts.isParenthesizedExpression(callee)) callee = callee.expression;
+      if (!ts.isIdentifier(callee) && !ts.isPropertyAccessExpression(callee) && callee.kind !== ts.SyntaxKind.ImportKeyword) reasons.add("JAVASCRIPT_DYNAMIC_CALL_UNSUPPORTED");
       if (node.expression.kind === ts.SyntaxKind.ImportKeyword) {
         if (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!)) reasons.add("JAVASCRIPT_DYNAMIC_IMPORT_UNSUPPORTED");
         else {
@@ -326,8 +329,10 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
   const retainedText = source === undefined && compilerInputs !== undefined ? system.readFile(path) : undefined;
   const inspectedSource = source ?? (retainedText === undefined ? undefined : ts.createSourceFile(path, retainedText, ts.ScriptTarget.Latest, true));
-  const defaultReasons = inspectedSource !== undefined && hasUnsupportedDefaultExpression(inspectedSource)
-    ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : [];
+  const defaultReasons = inspectedSource === undefined ? [] : [
+    ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
+    ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
+  ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
   if (!configPath) return [...defaultReasons, ...(source !== undefined && compilerInputs !== undefined
     ? inspectQualifiedModuleScope(source, path) : [])];
@@ -370,6 +375,21 @@ function hasUnsupportedDefaultExpression(source: ts.SourceFile): boolean {
   // Default declarations have extracted owners; expression assignments have no closed
   // ownership contract. Refuse the entire assignment form rather than infer a target.
   return source.statements.some(statement => ts.isExportAssignment(statement) && !statement.isExportEquals);
+}
+
+function hasSemanticJSDocImport(source: ts.SourceFile): boolean {
+  if ((source.flags & ts.NodeFlags.JavaScriptFile) === 0) return false;
+  let found = false;
+  const visitDoc = (node: ts.Node): void => {
+    if (ts.isImportTypeNode(node) || ts.isJSDocImportTag(node)) found = true;
+    if (!found) ts.forEachChild(node, visitDoc);
+  };
+  const visit = (node: ts.Node): void => {
+    for (const doc of (node as ts.Node & { jsDoc?: readonly ts.JSDoc[] }).jsDoc ?? []) visitDoc(doc);
+    if (!found) ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
 }
 
 function inspectQualifiedModuleScope(source: ts.SourceFile, path: string): string[] {

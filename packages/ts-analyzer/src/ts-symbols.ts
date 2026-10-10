@@ -59,6 +59,8 @@ export interface ExtractedImport {
   moduleSpecifier: string;
   resolvedRelPath?: string;
   names: string[];
+  /** Canonical value-binding owners, independent of the structurally imported module. */
+  bindingTargets?: { relPath: string; symbolPath: string }[];
   line: number;
 }
 
@@ -71,10 +73,13 @@ export interface ExtractedCall {
    * helper's calls to whichever same-named symbol the index happened to hold.
    */
   callerSymbolPath?: string;
+  callerUnmodeledReason?: string;
   calleeName: string;
   calleeRelPath?: string;
   /** Scope-qualified path of the resolved declaration, for the same reason as `callerSymbolPath`. */
   calleeSymbolPath?: string;
+  /** Retained semantic endpoints whose declaration has no extracted owner coordinate. */
+  calleeUnmodeledReason?: string;
   line: number;
 }
 
@@ -450,12 +455,17 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
         const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
-        const names = importedNames(node);
+        const names = importedNames(node, staticModuleLinksEnabled);
+        const bindingTargets = staticModuleLinksEnabled ? valueImportBindings(node).flatMap(binding => {
+          const target = resolveCallTarget(checker, binding, relOf, javascriptEnabled, snapshot);
+          return target?.relPath !== undefined && target.symbolPath !== undefined ? [{ relPath: target.relPath, symbolPath: target.symbolPath }] : [];
+        }) : undefined;
         imports.push({
           fromRelPath: relPath,
           moduleSpecifier: specifier,
           ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
           names,
+          ...(bindingTargets === undefined ? {} : { bindingTargets }),
           line: lineOf(sf, node.getStart()),
         });
       } else if (staticModuleLinksEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
@@ -477,17 +487,24 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
         }
-        const calleeName = nameOfCallee(node.expression);
+        let callee: ts.Expression = node.expression;
+        if (staticModuleLinksEnabled) {
+          while (ts.isParenthesizedExpression(callee) || ts.isAsExpression(callee) || ts.isTypeAssertionExpression(callee)
+            || ts.isNonNullExpression(callee) || ts.isSatisfiesExpression(callee)) callee = callee.expression;
+        }
+        const calleeName = nameOfCallee(callee);
         if (calleeName !== undefined) {
-          const resolved = resolveCallTarget(checker, node.expression, relOf, javascriptEnabled, snapshot);
+          const resolved = resolveCallTarget(checker, callee, relOf, javascriptEnabled, snapshot);
           calls.push({
             callerRelPath: relPath,
+            ...(snapshot !== undefined && hasObjectLiteralMemberAncestor(node) ? { callerUnmodeledReason: "OBJECT_LITERAL_MEMBER" } : {}),
             ...(symbolPathStack.length > 0
               ? { callerSymbolPath: symbolPathStack[symbolPathStack.length - 1] }
               : {}),
             calleeName,
             ...(resolved?.relPath !== undefined ? { calleeRelPath: resolved.relPath } : {}),
             ...(resolved?.symbolPath !== undefined ? { calleeSymbolPath: resolved.symbolPath } : {}),
+            ...(resolved?.unmodeledReason !== undefined ? { calleeUnmodeledReason: resolved.unmodeledReason } : {}),
             line: lineOf(sf, node.getStart()),
           });
         }
@@ -903,6 +920,9 @@ function isExtractionWorkerResponse(
       && typeof item["moduleSpecifier"] === "string"
       && (item["resolvedRelPath"] === undefined || inRepository(item["resolvedRelPath"]))
       && stringArray(item["names"])
+      && (item["bindingTargets"] === undefined || (Array.isArray(item["bindingTargets"])
+        && item["bindingTargets"].every(target => isRecord(target) && inRepository(target["relPath"])
+          && typeof target["symbolPath"] === "string")))
       && line(item["line"]))
     && dto["calls"].every((item) => isRecord(item)
       && owned(item["callerRelPath"])
@@ -910,6 +930,8 @@ function isExtractionWorkerResponse(
       && typeof item["calleeName"] === "string"
       && (item["calleeRelPath"] === undefined || inRepository(item["calleeRelPath"]))
       && optionalString(item["calleeSymbolPath"])
+      && optionalString(item["calleeUnmodeledReason"])
+      && optionalString(item["callerUnmodeledReason"])
       && line(item["line"]));
 }
 
@@ -950,12 +972,12 @@ function isFunctionLike(node: ts.Node): boolean {
  * `import { type X }`) execute nothing, so they must NOT create tested_by coverage.
  * Structural `imports` edges do not use these names, so they are unaffected.
  */
-function importedNames(node: ts.ImportDeclaration): string[] {
+function importedNames(node: ts.ImportDeclaration, canonical = false): string[] {
   const clause = node.importClause;
   if (clause === undefined) return [];
   if (clause.isTypeOnly) return [];
   const names: string[] = [];
-  if (clause.name) names.push(clause.name.text);
+  if (clause.name) names.push(canonical ? "default" : clause.name.text);
   const bindings = clause.namedBindings;
   if (bindings) {
     if (ts.isNamespaceImport(bindings)) {
@@ -963,11 +985,21 @@ function importedNames(node: ts.ImportDeclaration): string[] {
     } else {
       for (const element of bindings.elements) {
         if (element.isTypeOnly) continue;
-        names.push(element.name.text);
+        names.push(canonical ? (element.propertyName ?? element.name).text : element.name.text);
       }
     }
   }
   return names;
+}
+
+function valueImportBindings(node: ts.ImportDeclaration): ts.Identifier[] {
+  const clause = node.importClause;
+  if (clause === undefined || clause.isTypeOnly) return [];
+  const bindings: ts.Identifier[] = clause.name === undefined ? [] : [clause.name];
+  if (clause.namedBindings !== undefined && ts.isNamedImports(clause.namedBindings)) {
+    for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) bindings.push(element.name);
+  }
+  return bindings;
 }
 
 /**
@@ -995,10 +1027,10 @@ function scopeNameOf(node: ts.Node): string | undefined {
 }
 
 /** Enclosing scope names of a declaration, outermost first, excluding the declaration itself. */
-function enclosingScopeOf(node: ts.Node): string[] {
+function enclosingScopeOf(node: ts.Node, retainInterfaceOwners = false): string[] {
   const scope: string[] = [];
   for (let current: ts.Node | undefined = node.parent; current !== undefined; current = current.parent) {
-    const name = scopeNameOf(current);
+    const name = retainInterfaceOwners && ts.isInterfaceDeclaration(current) ? current.name.text : scopeNameOf(current);
     if (name !== undefined) scope.unshift(name);
   }
   return scope;
@@ -1010,7 +1042,7 @@ function resolveCallTarget(
   relOf: (abs: string) => string,
   javascriptEnabled = false,
   snapshot?: CompilerInputSnapshot,
-): { relPath?: string; symbolPath?: string } | undefined {
+): { relPath?: string; symbolPath?: string; unmodeledReason?: string } | undefined {
   let symbol = checker.getSymbolAtLocation(expr);
   if (symbol === undefined) return undefined;
   // Follow import aliases to the real declaration (imported functions call across files).
@@ -1027,12 +1059,28 @@ function resolveCallTarget(
     if (javascriptEnabled && /\.d\.(mts|cts|ts)$/.test(sf.fileName)) {
       const runtimePath = sf.fileName.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
         extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
-      if (snapshot === undefined ? existsSync(runtimePath) : snapshotSystem(snapshot).fileExists(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
+      if (snapshot === undefined ? existsSync(runtimePath) : snapshotSystem(snapshot).fileExists(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName) };
     }
-    return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName) };
+    return { symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName) };
   }
   return {
     relPath: relOf(sf.fileName),
-    symbolPath: symbolScopePath(enclosingScopeOf(decl), symbolName),
+    symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName),
+    ...(snapshot !== undefined && ts.isObjectLiteralExpression(decl.parent)
+      ? { unmodeledReason: "OBJECT_LITERAL_MEMBER" } : {}),
   };
+}
+
+function hasObjectLiteralMemberAncestor(node: ts.Node): boolean {
+  for (let parent = node.parent; parent !== undefined; parent = parent.parent) {
+    if (parent.parent !== undefined && ts.isObjectLiteralExpression(parent.parent)
+      && (ts.isMethodDeclaration(parent) || ts.isGetAccessorDeclaration(parent) || ts.isSetAccessorDeclaration(parent))) return true;
+    if (isFunctionLike(parent)) {
+      let owner = parent.parent;
+      while (owner !== undefined && (ts.isParenthesizedExpression(owner) || ts.isAsExpression(owner)
+        || ts.isTypeAssertionExpression(owner) || ts.isNonNullExpression(owner) || ts.isSatisfiesExpression(owner))) owner = owner.parent;
+      if (owner !== undefined && ts.isPropertyAssignment(owner) && ts.isObjectLiteralExpression(owner.parent)) return true;
+    }
+  }
+  return false;
 }

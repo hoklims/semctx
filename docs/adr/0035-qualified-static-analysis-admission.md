@@ -85,6 +85,28 @@ profile does not infer an export owner from an expression's apparent shape. Anon
 default function/class declarations retain their existing extracted symbols; legacy v1
 extraction behavior is unchanged.
 
+Opt-in semantic extraction resolves calls through transparent parentheses and
+TypeScript type-only wrappers to the same callable owner. JavaScript calls whose
+unwrapped callee is outside the modeled identifier/property/literal-import forms
+remain partial. Test associations use canonical checker-resolved value-binding
+coordinates, including import aliases and named/anonymous default declarations;
+the structurally imported module remains unchanged across reexports. These import
+associations do not establish test execution. Legacy v1 no-snapshot extraction keeps
+its previous call and import-name behavior.
+
+Semantic JavaScript JSDoc import types and import tags are outside this profile until
+their dependency links are extracted. Actual attached JSDoc AST nodes make selected
+producers partial and prevent broad qualified scope from silently omitting an importer.
+Ordinary prose mentions of imports and nonsemantic TypeScript JSDoc are not dependencies.
+
+For this named profile, already extracted calls whose named endpoint belongs to a
+modeled local module require exactly one grouped symbol coordinate. A missing or
+ambiguous caller/callee makes the caller file partial before capability and discovery
+ledger construction. Unmodeled object-literal callable members cannot reuse same-named
+file-level caller or callee coordinates. Module-level callers and opaque external/declaration boundaries
+remain distinct. This checks coherence of extracted local coordinates, not completeness
+of all possible calls; legacy and manually selected v2 analysis retain their behavior.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so

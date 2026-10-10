@@ -71,6 +71,12 @@ export interface AsyncAnalysisResult {
   parallelism: TypeScriptParallelism;
 }
 
+const qualifiedCallReasons = new WeakMap<AnalysisResult, ReadonlyMap<string, readonly string[]>>();
+/** Private integration seam; reasons never alter legacy serialized analysis shapes. */
+export function getQualifiedCallIntegrityReasons(analysis: AnalysisResult): ReadonlyMap<string, readonly string[]> {
+  return qualifiedCallReasons.get(analysis) ?? new Map();
+}
+
 type GraphBuilder = DeterministicGraphAssembler;
 
 const TYPESCRIPT_PRODUCER: ProducerIdentity = {
@@ -244,7 +250,35 @@ export function assembleRepository(
   // Call edges between resolved symbols (best-effort static). Both endpoints are matched on the
   // exact scope-qualified coordinate; anything that resolves to more than one node is dropped —
   // an approximate call edge is worse than a missing one.
+  const callReasons = new Map<string, string[]>();
+  const checkLocalCalls = config.version === 2 && config.selectionMode === "qualified-static-v1" && config.analysisProfile === "modelo-suite-static-v1";
+  const modeledModules = new Set(extraction.modules);
+  const checkCoordinate = (callerPath: string, role: "CALLER" | "CALLEE", path: string | undefined, coordinate: string | undefined): void => {
+    if (!checkLocalCalls || path === undefined || coordinate === undefined || !modeledModules.has(path)) return;
+    const matches = byQualified.get(path)?.get(coordinate)?.length ?? 0;
+    if (matches === 1) return;
+    const reason = `QUALIFIED_CALL_COORDINATE_${role}_${matches === 0 ? "MISSING" : "AMBIGUOUS"}:${path}:${coordinate}`;
+    const reasons = callReasons.get(callerPath) ?? [];
+    if (!reasons.includes(reason)) reasons.push(reason);
+    callReasons.set(callerPath, reasons);
+  };
   for (const call of extraction.calls) {
+    if (checkLocalCalls && call.callerUnmodeledReason !== undefined && modeledModules.has(call.callerRelPath)) {
+      const reasons = callReasons.get(call.callerRelPath) ?? [];
+      const reason = `QUALIFIED_CALL_COORDINATE_CALLER_UNMODELED:${call.callerRelPath}:${call.callerUnmodeledReason}`;
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(call.callerRelPath, reasons);
+      continue;
+    }
+    if (checkLocalCalls && call.calleeUnmodeledReason !== undefined && call.calleeRelPath !== undefined && modeledModules.has(call.calleeRelPath)) {
+      const reasons = callReasons.get(call.callerRelPath) ?? [];
+      const reason = `QUALIFIED_CALL_COORDINATE_CALLEE_UNMODELED:${call.calleeRelPath}:${call.calleeUnmodeledReason}`;
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(call.callerRelPath, reasons);
+      continue;
+    }
+    checkCoordinate(call.callerRelPath, "CALLER", call.callerRelPath, call.callerSymbolPath);
+    checkCoordinate(call.callerRelPath, "CALLEE", call.calleeRelPath, call.calleeSymbolPath);
     if (call.calleeRelPath === undefined || call.calleeSymbolPath === undefined) continue;
     const callee = unique(byQualified.get(call.calleeRelPath)?.get(call.calleeSymbolPath));
     if (callee === undefined) continue;
@@ -265,8 +299,19 @@ export function assembleRepository(
   // tested_by / covers via test-file imports resolving to symbols.
   for (const imp of extraction.imports) {
     if (roleByRel.get(imp.fromRelPath) !== "test") continue;
-    if (imp.resolvedRelPath === undefined) continue;
     const testNodeId = nodeIdByRel.get(imp.fromRelPath);
+    if (testNodeId === undefined) continue;
+    if (imp.bindingTargets !== undefined) {
+      for (const binding of imp.bindingTargets) {
+        const target = unique(byQualified.get(binding.relPath)?.get(binding.symbolPath));
+        if (target === undefined) continue;
+        const ev = SYMBOL_EDGE_EVIDENCE(imp.fromRelPath, imp.line, "test");
+        builder.edge("tested_by", target.id, testNodeId, ev);
+        builder.edge("covers", testNodeId, target.id, ev);
+      }
+      continue;
+    }
+    if (imp.resolvedRelPath === undefined) continue;
     const perModule = byImportableName.get(imp.resolvedRelPath);
     if (testNodeId === undefined || perModule === undefined) continue;
     for (const name of imp.names) {
@@ -294,6 +339,7 @@ export function assembleRepository(
   degradeDivergentMarkerNodes(builder.nodes.values(), markerDivergences);
 
   const analysis = builder.build();
+  if (checkLocalCalls) qualifiedCallReasons.set(analysis, callReasons);
   return attachPlaneASidecar(
     analysis,
     buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId, compilerInputs),

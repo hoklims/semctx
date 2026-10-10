@@ -43,6 +43,7 @@ import {
 import {
   analyzeRepository,
   analyzeRepositoryAsync,
+  getQualifiedCallIntegrityReasons,
   degradeDivergentPlaneAFacts,
   detectMarkerDivergence,
   type AnalysisResult,
@@ -205,6 +206,7 @@ function composePlaneARuntime(
   }
 
   const perPath: PerPathAnalysis[] = [];
+  const localCallReasons = getQualifiedCallIntegrityReasons(legacyAnalysis);
   for (const candidate of selectedAnalyzable) {
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
@@ -223,6 +225,7 @@ function composePlaneARuntime(
     }
     if (candidate.language === "javascript") {
       const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs);
+      const reasons = [...diagnostics.reasons, ...(localCallReasons.get(candidate.relPath) ?? [])];
       if (diagnostics.parseFailed) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...diagnostics.reasons]);
@@ -231,8 +234,8 @@ function composePlaneARuntime(
       perPath.push({
         candidate, file, producer: JAVASCRIPT_PRODUCER,
         facts: legacyFactsByPath.get(candidate.relPath) ?? [],
-        analysisReasons: diagnostics.reasons,
-        completenessClaim: diagnostics.reasons.length === 0 ? "producer-declared" : "partial",
+        analysisReasons: reasons,
+        completenessClaim: reasons.length === 0 ? "producer-declared" : "partial",
         negativeEvidenceEligible: false,
         resolutionSemantics: "javascript-static-esm-v1",
       });
@@ -269,8 +272,8 @@ function composePlaneARuntime(
         file,
         producer: TYPESCRIPT_PRODUCER,
         facts: legacyFactsByPath.get(candidate.relPath) ?? [],
-        analysisReasons: [],
-        completenessClaim: "producer-declared",
+        analysisReasons: localCallReasons.get(candidate.relPath) ?? [],
+        completenessClaim: (localCallReasons.get(candidate.relPath)?.length ?? 0) === 0 ? "producer-declared" : "partial",
         negativeEvidenceEligible: false,
         resolutionSemantics: candidate.language === "typescript"
           ? "typescript-static-v1"
