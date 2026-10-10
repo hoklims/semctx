@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { planSetupRepository } from "@semantic-context/app-services";
@@ -56,19 +56,30 @@ test("qualified setup scope validates actual ignored generated output through MC
   expect(schema.safeParse({ ...preflight, scope: { ...scope, roots: [{ ...scope.roots[0], reasonCounts: [{ reason: "UNKNOWN_REASON", count: 1 }] }] } }).success).toBe(false);
 });
 
-test("qualified generated output survives the real MCP stdio setup preflight", async () => {
+test("qualified generated output survives MCP stdio preflight through an aliased root", async () => {
   const root = qualifiedFixture();
+  const aliasParent = mkdtempSync(join(tmpdir(), "semctx-scope-mcp-"));
+  roots.push(aliasParent);
+  const requestedRoot = join(aliasParent, "repository");
+  // Exercise canonicalization on every host, including macOS's /var -> /private/var.
+  symlinkSync(root, requestedRoot, process.platform === "win32" ? "junction" : "dir");
   const client = new Client({ name: "semctx-scope-contract", version: "0.1.0" });
   try {
+    const canonicalRoot = realpathSync.native(requestedRoot);
+    expect(canonicalRoot).not.toBe(requestedRoot);
     await client.connect(new StdioClientTransport({
       command: "bun", args: [join(import.meta.dir, "../src/index.ts")],
       cwd: join(import.meta.dir, "../../.."), stderr: "pipe",
     }));
-    const response = await client.callTool({ name: "semctx_setup", arguments: { repositoryRoot: root } });
+    const response = await client.callTool({ name: "semctx_setup", arguments: { repositoryRoot: requestedRoot } });
     expect(response.isError).not.toBe(true);
-    expect(response.structuredContent).toEqual(setupTool(root));
+    expect(response.structuredContent).toEqual(setupTool(canonicalRoot));
   } finally {
-    await client.close();
+    try {
+      await client.close();
+    } finally {
+      unlinkSync(requestedRoot);
+    }
   }
 }, 30_000);
 afterEach(() => {
