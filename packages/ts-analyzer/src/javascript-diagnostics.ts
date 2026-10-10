@@ -8,7 +8,7 @@ const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/
 
 /** Closed native-module eligibility, without inventing dependencies loaded at runtime. */
 export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[]; runtimeEvaluationUnsupported?: true } {
-  type Origin = "factory" | "namespace" | "global" | "browser-global" | "process" | "evaluation" | "ordinary" | "unmodeled" | "other";
+  type Origin = "factory" | "namespace" | "global" | "browser-global" | "module-meta" | "process" | "evaluation" | "ordinary" | "unmodeled" | "other";
   const unmodeledMembers = new Set<string>();
   const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
   let found = false;
@@ -28,6 +28,8 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     && ["node:module", "module"].includes(node.text);
   const isNodeProcess = (node: ts.Node | undefined): boolean => node !== undefined && ts.isStringLiteral(node)
     && ["node:process", "process"].includes(node.text);
+  const isImportMeta = (node: ts.Node): boolean => ts.isMetaProperty(node)
+    && node.keywordToken === ts.SyntaxKind.ImportKeyword && node.name.text === "meta";
   const unmodeledResolver = (): Origin => {
     unmodeledMembers.add("process.getBuiltinModule");
     return "unmodeled";
@@ -65,6 +67,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   }
   let importsNodeModule = false;
   const findModule = (node: ts.Node): void => {
+    if (isImportMeta(node)) importsNodeModule = true;
     if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
@@ -85,11 +88,13 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   host.resolveModuleNames = (names) => names.map(() => undefined);
   const checker = ts.createProgram([source.fileName], options, host).getTypeChecker();
   const origin = (node: ts.Node, seen = new Set<ts.Symbol | ts.Node>()): Origin => {
+    if (isImportMeta(node)) return "module-meta";
     if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isAwaitExpression(node)) return origin(node.expression, seen);
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeModule(node.arguments[0])) return "namespace";
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeProcess(node.arguments[0])) return "process";
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
+      if (origin(node.expression, seen) === "module-meta") return property === "require" ? "factory" : "ordinary";
       if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
       if (origin(node.expression, seen) === "global") return globalMemberOrigin(property);
       if (origin(node.expression, seen) === "browser-global") {
@@ -142,6 +147,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
         const container = origin(declaration.parent.parent.initializer, next);
         const member = staticName(declaration.propertyName ?? declaration.name);
         if (container === "namespace") return nativeExportOrigin(member);
+        if (container === "module-meta") return member === "require" ? "factory" : "ordinary";
         if (container === "global") return globalMemberOrigin(member);
         if (container === "browser-global") return member === "eval" || member === "Function" ? "evaluation" : "other";
         if (container === "process") return processExportOrigin(member);
@@ -198,6 +204,8 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (!declarationName && origin(node) === "factory") found = true;
     // Ambient evaluator references can escape through any alias/container/callback route.
     if (!declarationName && origin(node) === "evaluation") runtimeEvaluationUnsupported = true;
+    if (!declarationName && origin(node) === "module-meta" && (!safeNamespaceUse(node)
+      || (ts.isElementAccessExpression(node.parent) && node.parent.expression === node && !ts.isStringLiteral(node.parent.argumentExpression)))) found = true;
     if (!declarationName && origin(node) === "browser-global" && (!safeNamespaceUse(node)
       || (ts.isElementAccessExpression(node.parent) && node.parent.expression === node && !ts.isStringLiteral(node.parent.argumentExpression)))) {
       runtimeEvaluationUnsupported = true;
@@ -334,6 +342,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
     ...(compilerInputs !== undefined ? inspectUnmodeledInvocations(inspectedSource) : []),
+    ...(compilerInputs !== undefined && inspectNativeModuleBindings(inspectedSource).commonJsUnsupported ? ["SOURCE_COMMONJS_UNSUPPORTED"] : []),
     ...(compilerInputs !== undefined ? inspectSemanticDependencies(inspectedSource, compilerInputs, path) : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));

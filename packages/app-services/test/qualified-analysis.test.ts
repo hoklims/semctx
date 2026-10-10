@@ -10,6 +10,20 @@ import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
 import { captureQualifiedAnalysisInputs } from "../src/freshness";
 
 const roots: string[] = [];
+test("qualified staged attributes and CRLF remain explicitly refused before post-image conversion", () => {
+  const root = selectedRepository();
+  git(root, "config", "core.autocrlf", "false");
+  writeFileSync(join(root, ".gitattributes"), "src/*.ts text eol=lf\n");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\r\n");
+  git(root, "add", ".gitattributes", "src/main.ts");
+  indexRepository(root, "2026-10-10T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "staged" }).report.analysisAdmission;
+  console.info(JSON.stringify({ stagedAttributes: admission?.status, reasons: admission?.reasons }));
+  expect(admission?.reasons.some(reason => reason.includes("QUALIFIED_POST_IMAGE_INPUT_MISMATCH"))).toBe(false);
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toContain("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+  expect(admission?.reasons).toContain("UNSUPPORTED_CHANGED_OBLIGATION:.gitattributes");
+});
 test("qualified clean range compares CRLF retained inputs after Git conversion", () => {
   const root = selectedRepository();
   git(root, "config", "core.autocrlf", "false");

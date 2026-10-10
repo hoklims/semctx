@@ -17,12 +17,15 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
     if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
+    if (ts.isExportDeclaration(node) || (ts.isVariableStatement(node)
+      && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword))) needsChecker = true;
     if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
       const tag = node.tagName;
       const name = ts.isIdentifier(tag) ? tag.text : ts.isJsxNamespacedName(tag) ? `${tag.namespace.text}:${tag.name.text}` : undefined;
       if (name === undefined || !sdk.isIntrinsicJsxName(name)) reasons.add("SOURCE_JSX_COMPONENT_UNSUPPORTED");
     }
-    if (ts.isPropertyAccessExpression(node) && ["call", "apply", "bind"].includes(node.name.text)) needsChecker = true;
+    if ((ts.isPropertyAccessExpression(node) && ["call", "apply", "bind", "constructor"].includes(node.name.text))
+      || (ts.isElementAccessExpression(node) && ts.isStringLiteral(node.argumentExpression) && node.argumentExpression.text === "constructor")) needsChecker = true;
     if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) needsChecker = true;
     ts.forEachChild(node, inspectSyntax);
   };
@@ -66,6 +69,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && potentiallyCallable(checker.getTypeOfSymbolAtLocation(exported, origins[0] ?? bound))) {
       reasons.add("SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED");
     }
+    if (origins.some(origin => internal(origin) && ts.isVariableDeclaration(origin)
+      && (origin.initializer === undefined || !(ts.isArrowFunction(origin.initializer) || ts.isFunctionExpression(origin.initializer))))
+      && potentiallyCallable(checker.getTypeOfSymbolAtLocation(exported, origins[0] ?? bound))) {
+      reasons.add("SOURCE_CALLABLE_EXPORT_UNSUPPORTED");
+    }
   }
   const internalCallable = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const receiver = unwrapStaticExpression(expression);
@@ -86,6 +94,16 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && ts.isInterfaceDeclaration(declaration.parent) && ["Function", "CallableFunction", "NewableFunction"].includes(declaration.parent.name.text)
       && ["call", "apply", "bind"].includes(symbol!.getName())) && internalCallable(receiver);
   };
+  const intrinsicConstructor = (node: ts.PropertyAccessExpression | ts.ElementAccessExpression): boolean => {
+    const name = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
+    if (name !== "constructor") return false;
+    const receiver = unwrapStaticExpression(node.expression);
+    const type = checker.getTypeAtLocation(receiver);
+    if (type.getCallSignatures().length === 0 && type.getConstructSignatures().length === 0) return false;
+    const symbol = checker.getSymbolAtLocation(node) ?? checker.getPropertyOfType(type, name);
+    return (symbol?.getDeclarations() ?? []).some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "Object" && symbol!.getName() === "constructor");
+  };
   const internalBase = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const base = unwrapStaticExpression(expression);
     if (seen.has(base)) return false;
@@ -99,6 +117,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   };
   const visit = (node: ts.Node): void => {
     if (ts.isPropertyAccessExpression(node) && functionHelper(node)) reasons.add("SOURCE_FUNCTION_HELPER_UNSUPPORTED");
+    if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && intrinsicConstructor(node)) reasons.add("SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED");
     if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) {
       for (const base of node.types) {
         if (internalBase(base.expression)) reasons.add("SOURCE_INTERNAL_HERITAGE_UNSUPPORTED");

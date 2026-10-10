@@ -175,6 +175,20 @@ and ordinary TypeScript analysis without retained inputs remain unchanged. These
 apply to selected and broad retained sources, and to the JavaScript producer; no new
 decorator edge, destructured symbol or test-coverage fact is invented.
 
+Other exported variable bindings that are possibly callable or constructible also
+require an existing extraction coordinate. Only direct arrow/function initializers
+currently create variable callable symbols; class expressions, conditionals, aliases,
+calls and wrapped initializers are unsupported exports. Known noncallable bindings and
+modeled function/class declarations retain their existing domain. Actual SDK
+`Object.constructor` access on a callable/constructible receiver is refused as a
+dynamic-evaluation route, including subsequent helper-call chains; own constructor
+properties and noncallable object receivers do not acquire that intrinsic origin.
+Bun `import.meta.require`, including retained aliases and destructuring, is a runtime
+loader outside the qualified static-module domain. Computed metadata access and
+container escapes also refuse qualification when the loader origin cannot be excluded.
+Ordinary metadata such as
+`import.meta.url` remains supported. No coordinate, evaluation or loader edge is invented.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so
