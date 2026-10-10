@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createDefaultConfig, createGlobSelectionConfig } from "@semantic-context/core";
 import { discoverRepository, isPathSelected } from "@semantic-context/ts-analyzer";
-import { initWorkspace, openStore } from "@semantic-context/repository-store";
+import { initWorkspace, loadConfig, openStore } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "../src";
 import { captureQualifiedAnalysisInputs, CONTROL_INDEX_SNAPSHOT_META_KEY } from "../src/freshness";
 
@@ -13,7 +13,10 @@ for (const [hidden, content] of [
   ["dist/hidden.mjs", "export { main } from '../src/main.ts';"],
 ]) for (const explicitlyIncluded of [false, true]) {
   test(`tracked ${hidden}, explicit include ${explicitlyIncluded}, cannot disappear from scope`, () => {
-    const root = mkdtempSync(join(tmpdir(), "semctx-authored-build-scope-"));
+    const physicalRoot = mkdtempSync(join(tmpdir(), "semctx-authored-build-scope-"));
+    const aliasParent = mkdtempSync(join(tmpdir(), "semctx-build-scope-alias-"));
+    const root = join(aliasParent, "checkout");
+    symlinkSync(physicalRoot, root, process.platform === "win32" ? "junction" : "dir");
     const git = (...args: string[]): string => {
       const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
       if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
@@ -36,7 +39,9 @@ for (const [hidden, content] of [
       expect(git("ls-files", "--", hidden!).length > 0).toBe(true);
       expect(isPathSelected(config, hidden!)).toBe(explicitlyIncluded);
       expect(discovery.candidates).toContainEqual(expect.objectContaining({ relPath: hidden, selectionDecision: explicitlyIncluded ? "selected" : "excluded" }));
-      const inputs = captureQualifiedAnalysisInputs(config);
+      // The index binds the canonical configuration loaded by its workspace, including
+      // physical roots such as macOS /private/var and Windows directory junctions.
+      const inputs = captureQualifiedAnalysisInputs(loadConfig(root));
       expect(inputs.files).toContainEqual(expect.objectContaining({ path: hidden }));
       const store = openStore(root);
       try { expect(JSON.parse(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY)!).analysisInputHash).toBe(inputs.digest); }
@@ -54,7 +59,10 @@ for (const [hidden, content] of [
       const stale = runVerify(root, { kind: "working-tree" }).report;
       expect(stale.analysisAdmission?.status).toBe("rejected");
       expect(stale.analysisAdmission?.indexFreshness.verdict).toBe("STALE");
-    } finally { rmSync(root, { recursive: true, force: true }); }
+    } finally {
+      rmSync(aliasParent, { recursive: true, force: true });
+      rmSync(physicalRoot, { recursive: true, force: true });
+    }
   }, 60_000);
 }
 
