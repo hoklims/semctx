@@ -141,6 +141,10 @@ than an inferred dependency edge or a claim that their execution was analyzed.
 Default/Module namespace bindings remain eligible only along the understood
 immutable/static routes. This closed member policy applies to JavaScript analysis
 and broad TypeScript dependency-scope discovery.
+The global Node builtin resolver `process.getBuiltinModule` also remains outside
+the qualified static profile. Its intermediate namespace-alias witness requires
+an explicit unmodeled-member diagnostic; it does not claim that the resolver or
+the resulting loader was executed or that its runtime dependency was extracted.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent

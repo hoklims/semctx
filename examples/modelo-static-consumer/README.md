@@ -38,7 +38,7 @@ Build the directory regression artifact from
 `--directory-witnesses-only` has the same qualification boundary for directory cases.
 Build the loader regression artifact from
 `95744a3c0df2bfe4a0cac06ac5b452d649ce9317`. `--loader-witnesses-only` runs its
-thirteen before/after cases and records `qualified: false` even when they pass.
+fourteen before/after cases and records `qualified: false` even when they pass.
 Complete qualification requires `--loader-regression-cli`; other focused modes
 retain their existing requirements and never qualify the complete profile.
 
@@ -84,6 +84,9 @@ The `_load` JavaScript/default and TypeScript/named-alias cases explicitly refus
 CommonJS analysis. Used unmodeled members, represented by `Module.prototype.require`,
 instead require `NATIVE_MODULE_MEMBER_UNSUPPORTED`; no runtime target edge may be
 fabricated. The closed member policy also governs broad TypeScript discovery.
+The global builtin resolver `process.getBuiltinModule`, through an intermediate
+namespace alias, is likewise outside this profile and requires an explicit
+unmodeled-member refusal rather than a runtime dependency or execution claim.
 
 The harness proves package behavior for the named static profile only when all
 its assertions pass. It does not prove installation in the real consumer, loading

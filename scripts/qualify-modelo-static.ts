@@ -119,6 +119,7 @@ const loaderSources = {
   "native-load-js": { path: "hidden-native-load.mjs", source: 'import Module from "node:module"; export const hidden = Module._load("./src/main.mjs", null, false);\n', selected: false },
   "native-load-ts": { path: "hidden-native-load.ts", source: 'import { _load as nativeLoad } from "module"; export const hidden = nativeLoad("./src/main.mjs", undefined, false);\n', selected: false },
   "native-prototype-js": { path: "hidden-native-prototype.mjs", source: 'import Module from "node:module"; const loader = Module.prototype.require; export const hidden = loader.call({ filename: import.meta.filename }, "./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
+  "global-native-getter-js": { path: "hidden-native-getter.mjs", source: 'const Module = process.getBuiltinModule("module"); const load = Module.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
   barrel: { path: "hidden-barrel.ts", source: 'import { make } from "./barrel.mjs"; const load = make(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
 } as const;
 function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle: string): string {
