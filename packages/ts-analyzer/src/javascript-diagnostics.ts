@@ -9,6 +9,7 @@ const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/
 export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[] } {
   type Origin = "factory" | "namespace" | "global" | "process" | "ordinary" | "unmodeled" | "other";
   const unmodeledMembers = new Set<string>();
+  const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
   let found = false;
   const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort() });
   const nativeExportOrigin = (name: string | undefined): Origin => {
@@ -31,11 +32,9 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   const processExportOrigin = (name: string | undefined): Origin => {
     if (name === "default") return "process";
     if (name === "getBuiltinModule") return unmodeledResolver();
-    if (name === undefined || name === "mainModule") {
-      unmodeledMembers.add(name === undefined ? "process.<computed>" : "process.mainModule");
-      return "unmodeled";
-    }
-    return "other";
+    if (name !== undefined && ordinaryProcessMembers.has(name)) return "ordinary";
+    unmodeledMembers.add(name === undefined ? "process.<computed>" : `process.${name}`);
+    return "unmodeled";
   };
   const globalMemberOrigin = (name: string | undefined): Origin => name === "process" ? "process"
     : name === "global" || name === "globalThis" ? "global" : "other";

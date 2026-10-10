@@ -76,9 +76,12 @@ runtime dependency edges or claim complete runtime resolution.
 The same static boundary applies to the whole native `process` container: opaque arguments,
 exports and container escapes produce `NATIVE_MODULE_MEMBER_UNSUPPORTED:ambient-process`.
 Computed native members and the legacy `mainModule` loader boundary are explicitly unmodeled
-as `process.<computed>` and `process.mainModule`. Ordinary static members such as `env`,
-`argv` and `cwd`, and locally shadowed objects, remain distinct. No `Reflect` resolution or
-runtime CommonJS dependency edge is inferred from these refusals.
+as `process.<computed>` and `process.mainModule`. The ordinary static member set is exactly
+`argv`, `cwd`, `env`, `execPath`, `exit`, `exitCode`, `platform`, `stderr`, `stdout` and `versions`.
+Every other used native member is explicitly unmodeled as `process.<name>`; unused or
+type-only imports and locally shadowed objects remain distinct. This allowlist defines an
+opaque runtime boundary, not execution or dependency completeness for these members.
+No `Reflect` resolution or runtime CommonJS dependency edge is inferred from these refusals.
 
 The qualified inventory never classifies a source as generated solely because an ancestor
 is named `build`, `dist`, `coverage`, `.turbo` or `.next`. It retains tracked sources,
