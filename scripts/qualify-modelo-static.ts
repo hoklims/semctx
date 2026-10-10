@@ -116,6 +116,9 @@ const loaderSources = {
   "default-named-ts": { path: "hidden-default-named.ts", source: 'import { "default" as nodeModule } from "module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   "destructured-module-js": { path: "hidden-destructured-module.mjs", source: 'import * as nodeModule from "node:module"; const { Module: moduleAlias } = nodeModule; const load = moduleAlias.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   "destructured-factory-ts": { path: "hidden-destructured-factory.ts", source: 'import * as nodeModule from "module"; const { "createRequire": makeLoader } = nodeModule; const load = makeLoader(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "native-load-js": { path: "hidden-native-load.mjs", source: 'import Module from "node:module"; export const hidden = Module._load("./src/main.mjs", null, false);\n', selected: false },
+  "native-load-ts": { path: "hidden-native-load.ts", source: 'import { _load as nativeLoad } from "module"; export const hidden = nativeLoad("./src/main.mjs", undefined, false);\n', selected: false },
+  "native-prototype-js": { path: "hidden-native-prototype.mjs", source: 'import Module from "node:module"; const loader = Module.prototype.require; export const hidden = loader.call({ filename: import.meta.filename }, "./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
   barrel: { path: "hidden-barrel.ts", source: 'import { make } from "./barrel.mjs"; const load = make(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
 } as const;
 function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle: string): string {
@@ -355,7 +358,9 @@ for (const variant of Object.keys(loaderSources) as (keyof typeof loaderSources)
     const result = verify(root, label); blocked(result); assert.equal(result.code, 3);
     const admission = report(result).analysisAdmission as DirectoryAdmission;
     assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict), "The loader refusal must not rely on stale indexing");
-    assert(JSON.stringify(admission).includes("COMMONJS_UNSUPPORTED"), "Unsupported loader semantics must be diagnosed explicitly");
+    const loader = loaderSources[variant];
+    const diagnostic = "expectedDiagnostic" in loader ? loader.expectedDiagnostic : "COMMONJS_UNSUPPORTED";
+    assert(JSON.stringify(admission).includes(diagnostic), "Unsupported native module semantics must be diagnosed explicitly");
     const offending = variant === "barrel" ? "barrel.mjs" : loaderSources[variant].path;
     assert(JSON.stringify(admission).includes(offending), "The diagnostic must retain its offending source");
     const extracted = graph(root); observations[`${label}:graph`] = extracted;

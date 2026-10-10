@@ -132,6 +132,15 @@ destructuring of `Module`, and quoted destructuring of `createRequire` have thei
 own JavaScript/TypeScript before/after witnesses. These known static binding
 routes must receive the same loader refusal; this diagnostic coverage does not
 establish completeness for every Node module access or runtime loading pattern.
+The native-module member grammar admits ordinary use only for `isBuiltin` and
+`builtinModules`. Known `createRequire` and `_load` routes receive explicit
+CommonJS refusal, including default-module and named-import `_load` witnesses
+in JavaScript and TypeScript. Other used native members, such as access to
+`Module.prototype.require`, receive `NATIVE_MODULE_MEMBER_UNSUPPORTED` rather
+than an inferred dependency edge or a claim that their execution was analyzed.
+Default/Module namespace bindings remain eligible only along the understood
+immutable/static routes. This closed member policy applies to JavaScript analysis
+and broad TypeScript dependency-scope discovery.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent
