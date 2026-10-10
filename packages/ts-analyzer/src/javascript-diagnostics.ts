@@ -33,6 +33,8 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (name === "getBuiltinModule") return unmodeledResolver();
     return "other";
   };
+  const globalMemberOrigin = (name: string | undefined): Origin => name === "process" ? "process"
+    : name === "global" || name === "globalThis" ? "global" : "other";
   for (const statement of source.statements) {
     if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
     if (isNodeProcess(statement.moduleSpecifier)) {
@@ -55,6 +57,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
+    if (ts.isIdentifier(node) && ["globalThis", "global"].includes(node.text)) importsNodeModule = true;
     if ((ts.isPropertyAccessExpression(node) && node.name.text === "getBuiltinModule")
       || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")
       || (ts.isBindingElement(node) && staticName(node.propertyName ?? node.name) === "getBuiltinModule")) importsNodeModule = true;
@@ -77,7 +80,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
       if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
-      if (origin(node.expression, seen) === "global" && property === "process") return "process";
+      if (origin(node.expression, seen) === "global") return globalMemberOrigin(property);
       if (origin(node.expression, seen) === "process") return processExportOrigin(property);
       return "other";
     }
@@ -104,7 +107,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
         const container = origin(declaration.parent.parent.initializer, next);
         const member = staticName(declaration.propertyName ?? declaration.name);
         if (container === "namespace") return nativeExportOrigin(member);
-        if (container === "global" && member === "process") return "process";
+        if (container === "global") return globalMemberOrigin(member);
         if (container === "process") return processExportOrigin(member);
       }
     }
@@ -123,6 +126,10 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       !element.dotDotDotToken && ts.isIdentifier(element.name)
       && (element.propertyName === undefined || ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))));
   };
+  const markNativeEscape = (kind: Origin): void => {
+    if (kind === "factory" || kind === "namespace") found = true;
+    if (kind === "global") unmodeledMembers.add("ambient-global");
+  };
   const visit = (node: ts.Node): void => {
     if (ts.isTypeNode(node)) return; // Type queries do not access the native runtime getter.
     if (ts.isImportDeclaration(node)) return; // An unused binding is not a loader use.
@@ -130,26 +137,35 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       const target = checker.getShorthandAssignmentValueSymbol(node);
       for (const declaration of target?.declarations ?? []) {
         const name = (declaration as ts.NamedDeclaration).name;
-        if (name && ts.isIdentifier(name) && ["factory", "namespace"].includes(origin(name))) found = true;
+        if (name && ts.isIdentifier(name)) markNativeEscape(origin(name));
       }
     }
-    if (ts.isExportAssignment(node) && origin(node.expression) === "namespace") found = true;
-    if (ts.isVariableStatement(node) && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
-      && node.declarationList.declarations.some((declaration) => declaration.initializer && origin(declaration.initializer) === "namespace")) found = true;
+    if (ts.isExportAssignment(node)) markNativeEscape(origin(node.expression));
+    if (ts.isVariableStatement(node) && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (declaration.initializer) markNativeEscape(origin(declaration.initializer));
+      }
+    }
     if (ts.isExportSpecifier(node) && !node.isTypeOnly && !node.parent.parent.isTypeOnly) {
       const target = checker.getExportSpecifierLocalTargetSymbol(node);
       for (const declaration of target?.declarations ?? []) {
         const name = (declaration as ts.NamedDeclaration).name;
-        if (name && ts.isIdentifier(name) && ["factory", "namespace"].includes(origin(name))) found = true;
+        if (name && ts.isIdentifier(name)) markNativeEscape(origin(name));
       }
     }
     const declarationName = ts.isIdentifier(node) && ((ts.isVariableDeclaration(node.parent) && node.parent.name === node)
       || (ts.isBindingElement(node.parent) && (node.parent.name === node || node.parent.propertyName === node))
+      || (ts.isPropertyAccessExpression(node.parent) && node.parent.name === node)
+      || (ts.isPropertyAssignment(node.parent) && node.parent.name === node)
       || (ts.isParameter(node.parent) && node.parent.name === node));
     if (!declarationName && origin(node) === "factory") found = true;
     // A namespace containing createRequire cannot leave the understood immutable binding
     // routes: assignment, return, container and callback flows have no modeled load edges.
     if (!declarationName && origin(node) === "namespace" && !safeNamespaceUse(node)) found = true;
+    if (!declarationName && origin(node) === "global" && (!safeNamespaceUse(node)
+      || (ts.isElementAccessExpression(node.parent) && node.parent.expression === node && !ts.isStringLiteral(node.parent.argumentExpression)))) {
+      unmodeledMembers.add("ambient-global");
+    }
     ts.forEachChild(node, visit);
   };
   visit(source);

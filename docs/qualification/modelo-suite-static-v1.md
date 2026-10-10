@@ -65,6 +65,14 @@ Inline TypeScript `import()` type queries are also outside the profile and suspe
 admission with `DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:<path>` until qualified static
 module links are available for that construct.
 
+Ambient Node global origins follow the known static `global` and `globalThis` self aliases,
+including quoted member names, before accessing `process`. Exporting the whole ambient
+container, passing it to a call or placing it in another container leaves the qualified
+grammar and produces `NATIVE_MODULE_MEMBER_UNSUPPORTED:ambient-global` (with the source
+path in dependency-scope diagnostics). Ordinary member access such as `globalThis.console`
+and locally shadowed names remain distinct. This refusal does not model `Reflect`, invent
+runtime dependency edges or claim complete runtime resolution.
+
 The qualified inventory never classifies a source as generated solely because an ancestor
 is named `build`, `dist`, `coverage`, `.turbo` or `.next`. It retains tracked sources,
 repository-locally nonignored sources and sources selected by the original user configuration.

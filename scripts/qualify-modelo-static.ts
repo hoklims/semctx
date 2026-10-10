@@ -106,7 +106,12 @@ function directoryHealth(root: string, name: string, bundle: string): { freshnes
   assert([0, 2].includes(result.code), result.stderr);
   return JSON.parse(result.stdout) as ReturnType<typeof directoryHealth>;
 }
+const globalSelfAliasLoaderSource = ["globalThis.globalThis", "globalThis.global", "global.globalThis", "global.global"].map((receiver, index) =>
+  `export function entry${index}() { const native = ${receiver}.process.getBuiltinModule("module"); const load = native.createRequire(import.meta.url); return load("./src/main.mjs"); }`).join("\n");
 const loaderSources = {
+  "ambient-global-escape-ts": { path: "hidden-global-escape.ts", source: 'const nativeProcess = Reflect.get(globalThis, "process"); const native = nativeProcess.getBuiltinModule("module"); const load = native.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
+  "global-self-alias-js": { path: "hidden-global-self-alias.mjs", source: globalSelfAliasLoaderSource, selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
+  "global-self-alias-ts": { path: "hidden-global-self-alias.ts", source: globalSelfAliasLoaderSource, selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
   direct: { path: "hidden.mjs", source: 'import { createRequire } from "node:module"; const load = createRequire(import.meta.url); export function hidden() { return load("./src/main.mjs").main(); }\n', selected: true },
   alias: { path: "hidden-alias.mjs", source: 'import { createRequire as makeLoader } from "module"; const load = makeLoader(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   namespace: { path: "hidden-namespace.ts", source: 'import * as nodeModule from "node:module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },

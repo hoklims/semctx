@@ -6,7 +6,12 @@ import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "../src";
 
+const globalSelfAliasSource = ["globalThis.globalThis", "globalThis.global", "global.globalThis", "global.global"].map((receiver, index) =>
+  `export function entry${index}() { const native = ${receiver}.process.getBuiltinModule('module'); const load = native.createRequire(import.meta.url); return load('./src/main.mjs'); }`).join("\n");
 const cases: { path: string; source: string; selected: boolean; barrel?: string; mainPath?: string; unmodeled?: string }[] = [
+  { path: "hidden-global-escape.ts", source: "const p = Reflect.get(globalThis, 'process'); const M = p.getBuiltinModule('module'); const load = M.createRequire(import.meta.url); export const hidden = load('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "ambient-global" },
+  { path: "hidden-global-self-alias.mjs", source: globalSelfAliasSource, selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
+  { path: "hidden-global-self-alias.ts", source: globalSelfAliasSource, selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
   { path: "hidden-global-process.mjs", source: "const p = global.process; const get = p.getBuiltinModule; const M = get('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
   { path: "hidden-globalthis-process.mjs", source: "const p = globalThis.process; const get = p.getBuiltinModule; const M = get('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
   { path: "hidden-globalthis-process.ts", source: "const { getBuiltinModule: get } = globalThis['process']; const M = get('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
