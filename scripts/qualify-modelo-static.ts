@@ -109,6 +109,7 @@ function directoryHealth(root: string, name: string, bundle: string): { freshnes
 const globalSelfAliasLoaderSource = ["globalThis.globalThis", "globalThis.global", "global.globalThis", "global.global"].map((receiver, index) =>
   `export function entry${index}() { const native = ${receiver}.process.getBuiltinModule("module"); const load = native.createRequire(import.meta.url); return load("./src/main.mjs"); }`).join("\n");
 const loaderSources = {
+  "ambient-require-js": { path: "hidden-ambient-require.mjs", source: 'const load = globalThis.require; export const hidden = load("./src/main.mjs");\n', selected: false },
   "process-opaque-ts": { path: "hidden-process-opaque.ts", source: 'export const native = process.binding("contextify");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
   "process-escape-js": { path: "hidden-process-escape.mjs", source: 'const get = Reflect.get(process, "getBuiltinModule"); const native = get("module"); const load = native.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },
   "process-computed-ts": { path: "hidden-process-computed.ts", source: 'const key = "getBuiltinModule"; const native = process[key]("module"); const load = native.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false, expectedDiagnostic: "NATIVE_MODULE_MEMBER_UNSUPPORTED" },

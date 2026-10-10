@@ -9,6 +9,7 @@ import { indexRepository, runVerify } from "../src";
 const globalSelfAliasSource = ["globalThis.globalThis", "globalThis.global", "global.globalThis", "global.global"].map((receiver, index) =>
   `export function entry${index}() { const native = ${receiver}.process.getBuiltinModule('module'); const load = native.createRequire(import.meta.url); return load('./src/main.mjs'); }`).join("\n");
 const cases: { path: string; source: string; selected: boolean; barrel?: string; mainPath?: string; unmodeled?: string }[] = [
+  { path: "hidden-ambient-require.mjs", source: "const load = globalThis.require; export const hidden = load('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
   { path: "hidden-process-opaque.ts", source: "export const native = process.binding('contextify');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.binding" },
   { path: "hidden-process-escape.mjs", source: "const get = Reflect.get(process, 'getBuiltinModule'); const native = get('module'); const load = native.createRequire(import.meta.url); export const hidden = load('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "ambient-process" },
   { path: "hidden-process-computed.ts", source: "const key = 'getBuiltinModule'; const native = process[key]('module'); const load = native.createRequire(import.meta.url); export const hidden = load('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.<computed>" },

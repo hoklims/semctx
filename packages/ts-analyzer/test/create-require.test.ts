@@ -3,6 +3,10 @@ import ts from "typescript";
 import { inspectJavaScriptSource, inspectNativeModuleBindings, hasNodeCreateRequireUse } from "../src/javascript-diagnostics";
 
 for (const source of [
+  "const load = globalThis.require; const hidden = load('./src/main.mjs');",
+  "const load = require; const hidden = load('./src/main.mjs');",
+  "export const nativeModule = globalThis.module;",
+  "export const nativeModule = module;",
   "import { createRequire as make } from 'node:module'; const load = make(import.meta.url);",
   "import * as nodeModule from 'module'; const factory = nodeModule.createRequire; const load = factory(import.meta.url);",
   "import nodeModule from 'node:module'; const { createRequire: make } = nodeModule; const load = make(import.meta.url);",
@@ -108,6 +112,9 @@ test("ordinary Node APIs and unrelated factories remain ordinary static JavaScri
     "const process = { getBuiltinModule(value) { return value; } }; const get = Reflect.get(process, 'getBuiltinModule'); export const ordinary = get(1);",
     "export const streams = [process.stdout, process.stderr]; export const runtime = process.versions; export const executable = process.execPath; process.exitCode = 0; export function exit() { process.exit(0); }",
     "import { binding } from 'node:process'; export const unused = 1;",
+    "const require = (value) => value; const load = require; export const ordinary = load(1);",
+    "const module = { isBuiltin(value) { return value; } }; export const ordinary = module.isBuiltin(1);",
+    "const globalThis = { require(value) { return value; } }; const load = globalThis.require; export const ordinary = load(1);",
     "const process = { binding(value) { return value; } }; export const ordinary = process.binding(1);",
   ]) expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toEqual([]);
 });

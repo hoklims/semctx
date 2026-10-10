@@ -36,8 +36,11 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     unmodeledMembers.add(name === undefined ? "process.<computed>" : `process.${name}`);
     return "unmodeled";
   };
-  const globalMemberOrigin = (name: string | undefined): Origin => name === "process" ? "process"
-    : name === "global" || name === "globalThis" ? "global" : "other";
+  const globalMemberOrigin = (name: string | undefined): Origin => {
+    if (name === "require") return "factory";
+    if (name === "module") { found = true; return "namespace"; }
+    return name === "process" ? "process" : name === "global" || name === "globalThis" ? "global" : "other";
+  };
   for (const statement of source.statements) {
     if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
     if (isNodeProcess(statement.moduleSpecifier)) {
@@ -60,7 +63,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
-    if (ts.isIdentifier(node) && ["globalThis", "global", "process"].includes(node.text)) importsNodeModule = true;
+    if (ts.isIdentifier(node) && ["globalThis", "global", "process", "require", "module"].includes(node.text)) importsNodeModule = true;
     if ((ts.isPropertyAccessExpression(node) && node.name.text === "getBuiltinModule")
       || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")
       || (ts.isBindingElement(node) && staticName(node.propertyName ?? node.name) === "getBuiltinModule")) importsNodeModule = true;
@@ -89,7 +92,10 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     }
     if (!ts.isIdentifier(node)) return "other";
     const symbol = checker.getSymbolAtLocation(node);
-    if (symbol === undefined) return node.text === "process" ? "process" : ["globalThis", "global"].includes(node.text) ? "global" : "other";
+    if (symbol === undefined) {
+      if (["globalThis", "global"].includes(node.text)) return "global";
+      return globalMemberOrigin(node.text);
+    }
     // TypeScript binds the intrinsic globalThis even without libraries. Local names
     // have declarations and must not acquire the ambient native process origin.
     if (node.text === "globalThis" && symbol.name === "globalThis" && !symbol.declarations?.length) return "global";

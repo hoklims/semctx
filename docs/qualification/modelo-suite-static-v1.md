@@ -82,6 +82,9 @@ Every other used native member is explicitly unmodeled as `process.<name>`; unus
 type-only imports and locally shadowed objects remain distinct. This allowlist defines an
 opaque runtime boundary, not execution or dependency completeness for these members.
 No `Reflect` resolution or runtime CommonJS dependency edge is inferred from these refusals.
+Unshadowed ambient `require` and `module`, including their static global-container members,
+remain unsupported CommonJS primitives when used. Aliasing a loader cannot remove that
+refusal; locally declared names and ordinary global members remain distinct.
 
 The qualified inventory never classifies a source as generated solely because an ancestor
 is named `build`, `dist`, `coverage`, `.turbo` or `.next`. It retains tracked sources,
