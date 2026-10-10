@@ -2,6 +2,7 @@ import ts from "typescript";
 import { dirname, relative, isAbsolute, join } from "node:path";
 import { builtinModules } from "node:module";
 import { resolveTypeScriptModule, retainedCompilerSystem, isModeledCallCallee, type CompilerInputSnapshot } from "./ts-symbols";
+import { inspectSemanticDependencies } from "./semantic-dependency-diagnostics";
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
@@ -232,6 +233,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   const diagnostics = ts.transpileModule(content, { fileName: path, compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.Preserve }, reportDiagnostics: true }).diagnostics ?? [];
   const reasons = new Set<string>(diagnostics.map(diagnostic =>
     `JAVASCRIPT_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`));
+  for (const reason of inspectSemanticDependencies(source, compilerInputs)) reasons.add(reason.replace("SOURCE_", "JAVASCRIPT_"));
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const native = inspectNativeModuleBindings(source);
   if (hasSemanticJSDocImport(source)) reasons.add("JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED");
@@ -332,6 +334,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
     ...(compilerInputs !== undefined ? inspectUnmodeledInvocations(inspectedSource) : []),
+    ...(compilerInputs !== undefined ? inspectSemanticDependencies(inspectedSource, compilerInputs, path) : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
   if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectAutomaticJsxRuntime(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined

@@ -1,0 +1,87 @@
+import ts from "typescript";
+import { resolve } from "node:path";
+import { extractionContext, unwrapStaticExpression, type CompilerInputSnapshot } from "./ts-symbols";
+
+type Context = { program: ts.Program; retained: Set<string> };
+const contexts = new WeakMap<CompilerInputSnapshot, Context>();
+const key = (path: string): string => {
+  const normalized = resolve(path).replaceAll("\\", "/");
+  return ts.sys.useCaseSensitiveFileNames ? normalized : normalized.toLowerCase();
+};
+
+/** Semantic refusal only: never invent dependency edges or read uncaptured repository sources. */
+export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: CompilerInputSnapshot, sourcePath = source.fileName): string[] {
+  const reasons = new Set<string>();
+  const sdk = ts as unknown as { isIntrinsicJsxName(name: string): boolean };
+  let needsChecker = false;
+  const inspectSyntax = (node: ts.Node): void => {
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const tag = node.tagName;
+      const name = ts.isIdentifier(tag) ? tag.text : ts.isJsxNamespacedName(tag) ? `${tag.namespace.text}:${tag.name.text}` : undefined;
+      if (name === undefined || !sdk.isIntrinsicJsxName(name)) reasons.add("SOURCE_JSX_COMPONENT_UNSUPPORTED");
+    }
+    if (ts.isPropertyAccessExpression(node) && ["call", "apply", "bind"].includes(node.name.text)) needsChecker = true;
+    if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) needsChecker = true;
+    ts.forEachChild(node, inspectSyntax);
+  };
+  inspectSyntax(source);
+  if (!needsChecker) return [...reasons].sort();
+  const inputs = snapshot ?? new Map([[source.fileName, source.text]]);
+  let context = contexts.get(inputs);
+  if (context === undefined) {
+    const paths = [...inputs.keys()].filter(path => /\.[cm]?[jt]sx?$/.test(path));
+    context = { program: extractionContext.createProgram(paths, inputs), retained: new Set(paths.map(key)) };
+    contexts.set(inputs, context);
+  }
+  const { program, retained } = context;
+  const bound = program.getSourceFile(sourcePath);
+  if (bound === undefined) return ["SOURCE_SEMANTIC_SOURCE_UNAVAILABLE"];
+  const checker = program.getTypeChecker();
+  const internal = (node: ts.Node): boolean => retained.has(key(node.getSourceFile().fileName)) && !program.isSourceFileDefaultLibrary(node.getSourceFile());
+  const declarations = (expression: ts.Expression): readonly ts.Declaration[] => {
+    let symbol = checker.getSymbolAtLocation(unwrapStaticExpression(expression));
+    if (symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+    return symbol?.getDeclarations() ?? [];
+  };
+  const internalCallable = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const receiver = unwrapStaticExpression(expression);
+    if (seen.has(receiver)) return false;
+    seen.add(receiver);
+    const type = checker.getTypeAtLocation(receiver);
+    if ([...type.getCallSignatures(), ...type.getConstructSignatures()].some(signature => {
+      const declaration = signature.getDeclaration(); return declaration !== undefined && internal(declaration);
+    })) return true;
+    return declarations(receiver).some(declaration => ts.isVariableDeclaration(declaration) && declaration.initializer !== undefined
+      && internalCallable(declaration.initializer, seen));
+  };
+  const functionHelper = (node: ts.PropertyAccessExpression): boolean => {
+    if (!["call", "apply", "bind"].includes(node.name.text)) return false;
+    const receiver = unwrapStaticExpression(node.expression);
+    const symbol = checker.getSymbolAtLocation(node) ?? checker.getPropertyOfType(checker.getTypeAtLocation(receiver), node.name.text);
+    return (symbol?.getDeclarations() ?? []).some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && ["Function", "CallableFunction", "NewableFunction"].includes(declaration.parent.name.text)
+      && ["call", "apply", "bind"].includes(symbol!.getName())) && internalCallable(receiver);
+  };
+  const internalBase = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const base = unwrapStaticExpression(expression);
+    if (seen.has(base)) return false;
+    seen.add(base);
+    if (ts.isConditionalExpression(base)) return internalBase(base.whenTrue, seen) || internalBase(base.whenFalse, seen);
+    if ((checker.getTypeAtLocation(base).getSymbol()?.getDeclarations() ?? []).some(declaration =>
+      (ts.isClassDeclaration(declaration) || ts.isClassExpression(declaration)) && internal(declaration))) return true;
+    return declarations(base).some(declaration => ((ts.isClassDeclaration(declaration) || ts.isClassExpression(declaration)
+      || ts.isFunctionDeclaration(declaration)) && internal(declaration)) || (ts.isVariableDeclaration(declaration)
+      && declaration.initializer !== undefined && internalBase(declaration.initializer, seen)));
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isPropertyAccessExpression(node) && functionHelper(node)) reasons.add("SOURCE_FUNCTION_HELPER_UNSUPPORTED");
+    if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) {
+      for (const base of node.types) {
+        if (internalBase(base.expression)) reasons.add("SOURCE_INTERNAL_HERITAGE_UNSUPPORTED");
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(bound);
+  return [...reasons].sort();
+}

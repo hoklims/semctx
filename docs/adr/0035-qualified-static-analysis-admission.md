@@ -153,6 +153,17 @@ capture serve admission and Git post-image comparison together; no capture is re
 later temporal checks. Useful discovery for candidate/ledger scope remains separate. Source,
 configuration and inventory drift still refuses admission.
 
+Unmodeled JSX component invocations are unsupported; intrinsic lowercase/custom-element
+tags and ordinary literals retain their existing domain, and the automatic JSX-runtime
+gate remains separate. Actual SDK Function/CallableFunction/NewableFunction `call`, `apply`
+and `bind` helpers on retained callable receivers are refused, including aliases. Own class
+methods with those names do not acquire that prototype origin. Class heritage whose base
+resolves to an internal retained class/constructor is unsupported until dependency edges
+are modeled; plain classes and known SDK/external base boundaries retain their existing
+contract. No component, helper or heritage edge is invented. Semantic inspection shares
+one retained Program per snapshot identity and never reuses it across a new boundary;
+repository source reads remain limited to retained bytes plus the pinned SDK libraries.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so
