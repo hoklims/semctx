@@ -72,6 +72,10 @@ Repository-local `.gitignore` and `.gitattributes` controls are bound to the inp
 Host-global/shared Git exclusions do not narrow this profile. An untracked generated output
 ignored by repository-local rules and outside the original selector is explicitly excluded
 as `IGNORED_GENERATED_OUTPUT`; broad dependency discovery preserves that original boundary.
+Named TypeScript configurations, package manifests and lockfiles remain retained even when
+Git ignores them beneath an output directory. Repository-local relative `extends` references
+are retained as configuration inputs; missing or unsupported configuration references remain
+explicit refusals. Unrelated ignored cache JSON stays outside the source inventory.
 Metadata under `.git` and `.semctx`, and installed dependencies under `node_modules`, remain
 outside the qualified source inventory. These boundaries do not establish runtime completeness.
 

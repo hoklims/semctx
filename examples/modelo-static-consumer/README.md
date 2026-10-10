@@ -36,7 +36,7 @@ Build the directory regression artifact from
 `scope: "audit-witnesses-only"` and `qualified: false`, even when those assertions pass.
 `--directory-witnesses-only` has the same qualification boundary for directory cases.
 
-The process exits nonzero if any scenario fails or if either actual historical
+The process exits nonzero if any scenario fails or if any required actual historical
 witness is absent. `qualification.json` retains raw commands, stdout, stderr,
 exit codes, source identity and bundle SHA-256 hashes. Existing fixture paths
 are never overwritten; use a new output directory for each run.
