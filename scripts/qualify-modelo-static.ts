@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { Database } from "bun:sqlite";
 import { BRIDGE, CONSUMER_VERSIONS, createConsumer, ENTRY, LEAF, LEAF_SOURCE, put } from "./modelo-static-fixture";
+import { assertInterruptedAdmission } from "./modelo-interruption-witness";
 
 type Observation = { command: string[]; code: number; stdout: string; stderr: string };
 type Report = { verdict?: string; analysisAdmission?: unknown; impactedSymbols?: unknown; [key: string]: unknown };
@@ -18,7 +19,8 @@ const regressionCli = process.argv.includes("--regression-cli") ? option("--regr
 const directoryRegressionCli = process.argv.includes("--directory-regression-cli") ? option("--directory-regression-cli", cli) : null;
 const auditWitnessesOnly = process.argv.includes("--audit-witnesses-only");
 const directoryWitnessesOnly = process.argv.includes("--directory-witnesses-only");
-assert(!(auditWitnessesOnly && directoryWitnessesOnly), "Choose one focused witness scope");
+const interruptionWitnessOnly = process.argv.includes("--interruption-witness-only");
+assert([auditWitnessesOnly, directoryWitnessesOnly, interruptionWitnessOnly].filter(Boolean).length <= 1, "Choose one focused witness scope");
 const observations: Record<string, unknown> = {};
 const failures: string[] = [];
 mkdirSync(output, { recursive: true });
@@ -115,6 +117,7 @@ function blocked(result: Observation): void {
 async function scenario(name: string, action: () => void | Promise<void>): Promise<void> {
   if (auditWitnessesOnly && !name.startsWith("audit-")) return;
   if (directoryWitnessesOnly && !name.startsWith("directory-")) return;
+  if (interruptionWitnessOnly && name !== "interrupted-index" && name !== "artifact-identities") return;
   try { await action(); observations[`${name}:assertions`] = "passed"; }
   catch (error) { failures.push(name); observations[`${name}:assertions`] = { status: "failed", error: String(error) }; }
   writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, mcp, pluginCli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, observations, failures }, null, 2));
@@ -397,38 +400,80 @@ await scenario("interrupted-index", async () => {
   put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 8"));
   for (let file = 0; file < 128; file++) put(root, `suite/platform/shared/pending-${file}.ts`, Array.from({ length: 32 }, (_, item) => `export function pending${item}(input: number) { return input + ${item}; }`).join("\n"));
   git(root, ["add", "suite/platform/shared"]);
-  const child = Bun.spawn([process.execPath, cli, "index", "--root", root], { cwd: root, stdout: "pipe", stderr: "pipe" });
+  const beforeGraph = graph(root);
+  const databasePath = join(root, ".semctx/semctx.db");
+  const snapshotPath = join(output, "interrupted-marker-snapshot.db");
+  const command = [process.execPath, cli, "index", "--root", root];
+  const child = Bun.spawn(command, { cwd: root, stdout: "pipe", stderr: "pipe" });
   const stdout = new Response(child.stdout).text(); const stderr = new Response(child.stderr).text();
   let observedIncomplete = false;
+  let snapshotError: string | undefined;
+  let preKill: { exitCode: number | null; signalCode: string | null; marker: string | null } | undefined;
+  let killResult: ReturnType<typeof child.kill>;
+  let killRequested = false;
+  let exitCode: number;
   try {
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline && child.exitCode === null) {
       let db: Database | undefined;
       try {
-        db = new Database(join(root, ".semctx/semctx.db"), { readonly: true });
+        // Observe a copy only: live readers can prevent WAL-to-DELETE close.
+        copyFileSync(databasePath, snapshotPath);
+        db = new Database(snapshotPath, { readonly: true });
         observedIncomplete = (db.query("SELECT value FROM meta WHERE key = 'qualified_analysis_build_v1'").get() as { value: string } | null)?.value === "incomplete";
       } catch (error) {
-        // The real writer briefly owns SQLite's lock. Only this transient error
-        // is retried; admission still requires observing its persisted marker.
-        if (!(error instanceof Error && error.message === "database is locked")) throw error;
+        snapshotError = String(error);
       } finally { db?.close(); }
       if (observedIncomplete) break;
       await new Promise<void>((done) => setTimeout(done, 10));
     }
-  } finally { child.kill(); await child.exited; }
-  observations["interrupted:process"] = { code: child.exitCode, observedIncomplete, stdout: await stdout, stderr: await stderr };
-  assert(observedIncomplete, "Must observe the actual rebuild marker before interrupting the process");
-  assert.notEqual(child.exitCode, 0); blocked(verify(root, "interrupted"));
+    preKill = { exitCode: child.exitCode, signalCode: child.signalCode, marker: observedIncomplete ? "incomplete" : null };
+    assert(observedIncomplete, "Must observe the persisted rebuild marker on a copied database");
+    assert.equal(preKill.exitCode, null, "Natural index exit cannot count as forced interruption");
+    assert.equal(preKill.signalCode, null, "Process must still be alive before the deliberate kill");
+    killResult = child.kill("SIGKILL");
+    killRequested = true;
+  } finally {
+    if (!killRequested) child.kill("SIGKILL");
+    exitCode = await child.exited;
+    observations["interrupted:process"] = { command, pid: child.pid, preKill, requestedSignal: "SIGKILL", killRequested, killResult: killResult === undefined ? "returned void" : killResult, code: exitCode, signalCode: child.signalCode, observedIncomplete, snapshotPath, snapshotError, stdout: await stdout, stderr: await stderr };
+  }
+  assert.notEqual(exitCode, 0);
+  assert.equal(child.signalCode, "SIGKILL", "Must attest the deliberate forced stop");
+  // Recover WAL through SQLite only after the writer exits. Do not delete
+  // sidecars or rewrite the marker in this disposable fixture.
+  const recovery = new Database(databasePath);
+  const marker = () => (recovery.query("SELECT value FROM meta WHERE key = 'qualified_analysis_build_v1'").get() as { value: string } | null)?.value;
+  const recoveryObservation: Record<string, unknown> = { commands: ["OPEN SQLite read-write after child.exited", "PRAGMA wal_checkpoint(TRUNCATE);", "PRAGMA journal_mode = DELETE;"], markerBefore: marker() };
+  observations["interrupted:sqlite-recovery"] = recoveryObservation;
+  try {
+    const checkpoint = recovery.query("PRAGMA wal_checkpoint(TRUNCATE);").get() as { busy: number };
+    const journalMode = recovery.query("PRAGMA journal_mode = DELETE;").get() as { journal_mode: string };
+    recoveryObservation.checkpoint = checkpoint;
+    recoveryObservation.journalMode = journalMode;
+    assert.equal(checkpoint.busy, 0);
+    assert.equal(journalMode.journal_mode, "delete");
+    recoveryObservation.markerAfter = marker();
+    assert.equal(recoveryObservation.markerBefore, "incomplete");
+    assert.equal(recoveryObservation.markerAfter, "incomplete");
+  } finally { recovery.close(); }
+  const afterGraph = graph(root);
+  observations["interrupted:graph-preservation"] = { before: beforeGraph, after: afterGraph };
+  assert.deepEqual(afterGraph, beforeGraph, "Interruption and recovery must preserve the old graph");
+  assertInterruptedAdmission(verify(root, "interrupted"));
+  const failOnNone = semctx(root, ["verify", "diff", "--format", "json", "--fail-on", "none"]);
+  observations["interrupted:verify-fail-on-none"] = failOnNone;
+  assertInterruptedAdmission(failOnNone);
 });
 await scenario(directoryWitnessesOnly ? "directory-artifact-identities" : "artifact-identities", () => {
-  const artifacts = directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : [])];
+  const artifacts = interruptionWitnessOnly ? [cli] : directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : [])];
   observations["artifacts"] = [...new Set(artifacts)].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
   observations["source-commit"] = run(["git", "rev-parse", "HEAD"], sourceRoot);
   observations["source-status"] = run(["git", "status", "--porcelain"], sourceRoot);
 });
 observations["runtime-obligations"] = { testExecution: observations["consumer:tests"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", turboCache: observations["consumer:turbo-hit"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", failurePropagation: observations["consumer:failed-build"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", pipeline: "SYNTHETIC_ONLY_REAL_CONSUMER_NOT_QUALIFIED", consumerToolPins: observations["consumer:install"] ? "SEE_RAW_OBSERVATION" : "DECLARED_ONLY" };
-const focused = auditWitnessesOnly || directoryWitnessesOnly;
+const focused = auditWitnessesOnly || directoryWitnessesOnly || interruptionWitnessOnly;
 const directoryWitnessObserved = directoryRegressionCli !== null && !auditWitnessesOnly;
-writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, scope: directoryWitnessesOnly ? "directory-witnesses-only" : auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !focused && failures.length === 0 && legacyCli !== null && regressionCli !== null && directoryWitnessObserved, legacyWitnessObserved: !focused && legacyCli !== null, regressionWitnessObserved: !directoryWitnessesOnly && regressionCli !== null, directoryWitnessObserved, failures, observations }, null, 2));
+writeFileSync(join(output, "qualification.json"), JSON.stringify({ profile: "modelo-suite-static-v1", sourceRoot, cli, runtime: { bun: Bun.version, consumerDeclared: CONSUMER_VERSIONS }, scope: interruptionWitnessOnly ? "interruption-witness-only" : directoryWitnessesOnly ? "directory-witnesses-only" : auditWitnessesOnly ? "audit-witnesses-only" : "complete", qualified: !focused && failures.length === 0 && legacyCli !== null && regressionCli !== null && directoryWitnessObserved, legacyWitnessObserved: !focused && legacyCli !== null, regressionWitnessObserved: !directoryWitnessesOnly && regressionCli !== null, directoryWitnessObserved, failures, observations }, null, 2));
 console.log(JSON.stringify({ profile: "modelo-suite-static-v1", failures, report: join(output, "qualification.json") }));
-process.exitCode = failures.length === 0 && (directoryWitnessesOnly ? directoryWitnessObserved : regressionCli !== null && (auditWitnessesOnly || (legacyCli !== null && directoryWitnessObserved))) ? 0 : 1;
+process.exitCode = failures.length === 0 && (interruptionWitnessOnly ? true : directoryWitnessesOnly ? directoryWitnessObserved : regressionCli !== null && (auditWitnessesOnly || (legacyCli !== null && directoryWitnessObserved))) ? 0 : 1;
