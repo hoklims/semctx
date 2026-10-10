@@ -293,6 +293,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     }
   }
   const visit = (node: ts.Node): void => {
+    if (ts.isTaggedTemplateExpression(node)) reasons.add("JAVASCRIPT_TAGGED_TEMPLATE_UNSUPPORTED");
     if (ts.isCallExpression(node)) {
       if (!isModeledCallCallee(node.expression)) reasons.add("JAVASCRIPT_DYNAMIC_CALL_UNSUPPORTED");
       if (node.expression.kind === ts.SyntaxKind.ImportKeyword) {
@@ -330,8 +331,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   const defaultReasons = inspectedSource === undefined ? [] : [
     ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
-    ...(compilerInputs !== undefined && (inspectedSource.flags & ts.NodeFlags.JavaScriptFile) === 0 && hasUnmodeledCallExpression(inspectedSource)
-      ? ["SOURCE_DYNAMIC_CALL_UNSUPPORTED"] : []),
+    ...(compilerInputs !== undefined ? inspectUnmodeledInvocations(inspectedSource) : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
   if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectAutomaticJsxRuntime(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined
@@ -378,14 +378,15 @@ function hasUnsupportedDefaultExpression(source: ts.SourceFile): boolean {
   return source.statements.some(statement => ts.isExportAssignment(statement) && !statement.isExportEquals);
 }
 
-function hasUnmodeledCallExpression(source: ts.SourceFile): boolean {
-  let found = false;
+function inspectUnmodeledInvocations(source: ts.SourceFile): string[] {
+  const reasons = new Set<string>();
   const visit = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && !isModeledCallCallee(node.expression)) found = true;
-    if (!found) ts.forEachChild(node, visit);
+    if (ts.isTaggedTemplateExpression(node)) reasons.add("SOURCE_TAGGED_TEMPLATE_UNSUPPORTED");
+    if ((source.flags & ts.NodeFlags.JavaScriptFile) === 0 && ts.isCallExpression(node) && !isModeledCallCallee(node.expression)) reasons.add("SOURCE_DYNAMIC_CALL_UNSUPPORTED");
+    ts.forEachChild(node, visit);
   };
   visit(source);
-  return found;
+  return [...reasons].sort();
 }
 
 function inspectAutomaticJsxRuntime(source: ts.SourceFile, options: ts.CompilerOptions): string[] {

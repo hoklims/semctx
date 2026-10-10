@@ -6,7 +6,7 @@ import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
 import { isBuiltin } from "node:module";
 import ts from "typescript";
 import { evaluateAnalysisAdmission } from "@semantic-context/context-engine";
-import { captureQualifiedAnalysisInputs } from "./freshness";
+import type { captureQualifiedAnalysisInputs } from "./freshness";
 import { dirname, resolve } from "node:path";
 
 export const QUALIFIED_BUILD_META = "qualified_analysis_build_v1";
@@ -19,6 +19,7 @@ export function qualifiedAdmission(input: {
   bindingReasons: string[]; checkChanged: boolean; buildState: string | undefined;
   sourceCommits: string[]; baseCommit: string | null;
   expectedInputHash: string;
+  consumedInputs: ReturnType<typeof captureQualifiedAnalysisInputs>;
 }): AnalysisAdmission {
   const { config, health } = input;
   const evaluationsByCandidate = new Map<string, typeof health.evaluations.decisions>();
@@ -31,7 +32,7 @@ export function qualifiedAdmission(input: {
     typescript: "on", javascript: "on", python: "on", markdown: "on", sql: "on",
   } }, config);
   const links: [string, string][] = [];
-  const consumed = captureQualifiedAnalysisInputs(config);
+  const consumed = input.consumedInputs;
   const sourceFiles = consumed.files.filter((file) => /\.[cm]?[jt]sx?$/.test(file.path)).map((file) => ({ relPath: file.path, absPath: resolve(config.repositoryRoot, file.path), content: Buffer.from(file.bytes).toString("utf8") }));
   const compilerInputs = new Map(consumed.files.map((file) => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
   const workspaceNames = new Set<string>();

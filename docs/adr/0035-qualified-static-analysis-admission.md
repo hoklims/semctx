@@ -142,6 +142,17 @@ for selected producers and broad excluded scope. Identifier/property calls keep 
 coordinates; literal `import()` remains a separately guarded module link. This shape check
 does not establish constructor call edges or expand the existing class-construction domain.
 
+Tagged-template invocations have no extracted callee edges and are explicitly unsupported:
+JavaScript producers report `JAVASCRIPT_TAGGED_TEMPLATE_UNSUPPORTED`, while qualified
+retained TS/JS scope reports `SOURCE_TAGGED_TEMPLATE_UNSUPPORTED`, including excluded
+sources. Ordinary template literals keep their existing call references and eligibility.
+
+Verification captures qualified inputs directly at each before-analysis, after-analysis
+and final stability boundary. The digest and retained files from the same after-analysis
+capture serve admission and Git post-image comparison together; no capture is reused across
+later temporal checks. Useful discovery for candidate/ledger scope remains separate. Source,
+configuration and inventory drift still refuses admission.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so

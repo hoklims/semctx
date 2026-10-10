@@ -26,7 +26,7 @@ import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndex
 import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource, retainedGitBlobObjectIds } from "./verification-state";
 import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
-import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, fingerprintAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
+import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
 /**
  * `head` names the commit the analysed post-image belongs to. It is optional everywhere and means
@@ -575,7 +575,7 @@ function discloseUnresolvedReferences(
 }
 
 /** Compare retained repository inputs with the actual selected Git post-image. */
-function qualifiedPostImageInputs(root: string, config: Parameters<typeof captureQualifiedAnalysisInputs>[0], source: VerifySource, identity: SourceIdentity): string[] {
+function qualifiedPostImageInputs(root: string, retained: ReturnType<typeof captureQualifiedAnalysisInputs>, source: VerifySource, identity: SourceIdentity): string[] {
   if (identity.kind !== "commits" || identity.commits.length !== 1) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
   const format = git(root, ["rev-parse", "--show-object-format"]);
   const algorithm = format.out.trim();
@@ -594,7 +594,6 @@ function qualifiedPostImageInputs(root: string, config: Parameters<typeof captur
     blobs.set(path, source.kind === "staged" ? fields[1]! : fields[2]!);
     for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
   }
-  const retained = captureQualifiedAnalysisInputs(config);
   const objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files);
   const reasons: string[] = [];
   const retainedPaths = new Set(retained.files.map(file => file.path));
@@ -643,7 +642,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
         throw new SemctxError("INVALID_TASK_INPUT", "qualified analysis root must be the exact Git worktree root");
       }
     }
-    const inputBefore = isQualified(config) ? fingerprintAnalysisInputs(config, discoverRepository(config).files) : null;
+    const inputBefore = isQualified(config) ? captureQualifiedAnalysisInputs(config).digest : null;
     const resolved = resolveSource(root, source, false);
     const graph = store.loadGraph();
     const claims = store.loadClaims();
@@ -679,6 +678,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
           (path) => isPathSelected(config, path),
         )
       : gated;
+    const inputAfter = isQualified(config) ? captureQualifiedAnalysisInputs(loadConfig(root)) : null;
     const qualifiedPostImageReasons: string[] = isQualified(config) ? qualifiedCheckoutReasons(root) : [];
     if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {
       let indexed: ReturnType<typeof parseIndexedControlSnapshot> = null;
@@ -689,23 +689,24 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       }
       if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
       else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
-      else qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, config, source, resolved.identity));
+      else qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, inputAfter!, source, resolved.identity));
     }
     const analysisAdmission = isQualified(config) ? qualifiedAdmission({
       config, graph, changedPaths: changedScopePaths, health: indexHealth(root),
       sourceHash: digestCanonical({ inputs: inputBefore, sourceIdentity: resolved.identity }), diff: resolved.diffText ?? "", indexSnapshot: analyzedIndexSnapshotHash,
       bindingReasons: [...observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)).breaks, ...qualifiedPostImageReasons],
-      checkChanged: inputBefore !== fingerprintAnalysisInputs(loadConfig(root), discoverRepository(loadConfig(root)).files),
+      checkChanged: inputBefore !== inputAfter!.digest,
       buildState: store.getMeta(QUALIFIED_BUILD_META),
       sourceCommits: resolved.identity.kind === "absent" ? [] : [...resolved.identity.commits], baseCommit: resolved.git.mergeBase,
       expectedInputHash: inputBefore!,
+      consumedInputs: inputAfter!,
     }) : undefined;
     const coChanges = resolved.includeCoChanges && resolved.coChangeHead !== null
       ? historicalCoChanges(root, result.changedFiles, resolved.coChangeHead)
       : [];
     if (analysisAdmission !== undefined) {
       const finalSource = resolveSource(root, source, false);
-      if (inputBefore !== fingerprintAnalysisInputs(loadConfig(root), discoverRepository(loadConfig(root)).files)
+      if (inputBefore !== captureQualifiedAnalysisInputs(loadConfig(root)).digest
         || finalSource.diffText !== resolved.diffText
         || digestCanonical(finalSource.identity) !== digestCanonical(resolved.identity)
         || digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null) !== analyzedIndexSnapshotHash
