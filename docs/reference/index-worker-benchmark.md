@@ -39,6 +39,13 @@ identity/count fields; physical SQLite file bytes are excluded. All samples in a
 fingerprint component; a missing or divergent component fails the benchmark and names the corpus,
 sample index and exact differing component.
 
+Equivalence also requires each sample to take its expected execution path: one requested worker
+must report `single` with one used worker and no fallback reason; the safe corpus at two or four
+workers must report `parallel` with exactly that count and no fallback reason. The hostile corpora
+at two or four workers must report `preflight-fallback` with one used worker and the corpus-specific
+global-script or augmentation reason. A mismatch fails and names the corpus and sample even if
+all fingerprints agree. Intentional changes to explicit-worker policy must update this assertion.
+
 Duration and native peak RSS are summarized per worker count (median, min, max, range), computed
 only over the samples where that metric was actually measured. Native peak RSS (`maxRSS`, bytes)
 and CPU time (`user`/`system`/`total`, microseconds) come from the subprocess's own lifetime
@@ -55,13 +62,20 @@ fixture identity, samples, equivalence verdict and per-worker-count summary. Ver
 must select the new version 2 fields explicitly; current CI only checks the exit status, so no
 threshold is applied to duration or memory.
 
+Under ADR 0031, selected worker/indexing CI lanes run this unchanged protocol with dimensions
+4 by 2. Each successful smoke writes the complete JSON to the ignored `.semctx/multicore-index.json`
+as well as the logs, and uploads it as `multicore-index-<os>-<run_attempt>` using the run's default artifact
+retention. The upload fails if the report is missing. Lanes without a selected smoke produce no
+benchmark artifact. Attempt-specific names retain earlier reports when a job is rerun; the full
+24-by-100 investigation remains available on demand.
+
 ## Known limits
 
 - `crossOsComparability` is always reported as `UNKNOWN`: native resource-usage APIs are
   OS-specific, so only same-host, same-runtime comparisons are meaningful. Windows-vs-other-OS
   comparability is not established by this harness.
-- Real-repository (non-synthetic) and Apple Silicon baselines remain `NOT_MEASURED`; this harness
-  has not been run on Apple Silicon hardware (none is available to the maintainer) and does not
-  claim to represent one from a Windows or synthetic-corpus run.
+- Real-repository (non-synthetic) and calibrated Apple Silicon baselines remain `NOT_MEASURED`;
+  synthetic-corpus runs on an arm64 host do not establish real-repository memory or multicore
+  targets, and Windows results do not represent Apple Silicon.
 - The benchmark proves equivalence and reports the observed cost of that equivalence; it makes no
   performance-improvement claim and applies no automatic time or memory threshold.
