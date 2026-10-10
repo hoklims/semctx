@@ -12,7 +12,7 @@
  */
 
 import { SemctxError } from "@semantic-context/core";
-import { openStore } from "@semantic-context/repository-store";
+import { withStore } from "../store";
 import {
   anchorMigrationAuthority,
   applyConfigMigration,
@@ -110,15 +110,12 @@ function renderText(report: AnchorMigrationReport): void {
 }
 
 function loadFacts(root: string): RepositoryFacts {
-  const store = openStore(root);
-  try {
+  return withStore(root, (store) => {
     if (!store.isIndexed()) {
       throw new SemctxError("REPO_NOT_INDEXED", "run 'semctx index' before migrating anchors");
     }
     return { graph: store.loadGraph(), claims: store.loadClaims(), evidence: store.loadEvidence() };
-  } finally {
-    store.close();
-  }
+  });
 }
 
 const CONFIG_MIGRATION_REFUSAL_HELP: Record<string, string> = {

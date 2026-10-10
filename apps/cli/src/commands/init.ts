@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { createGlobSelectionConfig } from "@semantic-context/core";
-import { initWorkspace, openStore, isInitialized } from "@semantic-context/repository-store";
+import { initWorkspace, isInitialized } from "@semantic-context/repository-store";
+import { withStore } from "../store";
 import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
@@ -27,7 +28,7 @@ export function runInit(root: string, args: ParsedArgs): number {
     root,
     flagBool(args, "polyglot") ? createGlobSelectionConfig(root) : undefined,
   );
-  openStore(root).close();
+  withStore(root, () => undefined);
   ensureSemanticGitignore(root);
 
   if (flagBool(args, "json")) {
