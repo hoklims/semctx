@@ -212,7 +212,7 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
       if (dir !== config.repositoryRoot && existsSync(resolve(dir, ".git"))) {
         throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope contains a nested Git repository", { path: relative(config.repositoryRoot, dir) });
       }
-      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      for (const entry of readdirSync(dir, { withFileTypes: true }).sort((left, right) => compareIds(left.name, right.name))) {
         const path = resolve(dir, entry.name);
         const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
         if (isHardExcludedPath(relPath)) continue;

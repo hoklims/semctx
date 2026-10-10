@@ -14,6 +14,13 @@ function snapshotSystem(snapshot: CompilerInputSnapshot): ts.System {
   const cached = snapshotSystems.get(snapshot);
   if (cached) return cached;
   const retained = new Map([...snapshot].map(([path, content]) => [canonicalTypeScriptFileKey(path), content]));
+  const directories = new Set<string>();
+  for (const path of retained.keys()) {
+    for (let directory = posix.dirname(path); ; directory = posix.dirname(directory)) {
+      directories.add(directory);
+      if (posix.dirname(directory) === directory) break;
+    }
+  }
   const libraryRoot = canonicalTypeScriptFileKey(dirname(ts.getDefaultLibFilePath(COMPILER_OPTIONS)));
   const library = (path: string): boolean => canonicalTypeScriptFileKey(path).startsWith(`${libraryRoot}/`);
   const system: ts.System = {
@@ -21,8 +28,7 @@ function snapshotSystem(snapshot: CompilerInputSnapshot): ts.System {
     readFile: path => retained.get(canonicalTypeScriptFileKey(path)) ?? (library(path) ? ts.sys.readFile(path) : undefined),
     fileExists: path => retained.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.fileExists(path)),
     directoryExists: path => {
-      const prefix = `${canonicalTypeScriptFileKey(path)}/`;
-      return [...retained.keys()].some(key => key.startsWith(prefix)) || (library(path) && ts.sys.directoryExists(path));
+      return directories.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.directoryExists(path));
     },
     readDirectory: () => [],
   };

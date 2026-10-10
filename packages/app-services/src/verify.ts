@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-import { createHash } from "node:crypto";
 import { posix } from "node:path";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import { SemctxError, type VerifyReport } from "@semantic-context/core";
@@ -25,7 +24,7 @@ import {
 } from "./unresolved-references";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
 import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
-import { fingerprintVerificationSource } from "./verification-state";
+import { fingerprintVerificationSource, retainedGitBlobObjectIds } from "./verification-state";
 import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
 import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, fingerprintAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
@@ -596,13 +595,14 @@ function qualifiedPostImageInputs(root: string, config: Parameters<typeof captur
     for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
   }
   const retained = captureQualifiedAnalysisInputs(config);
+  const objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files);
   const reasons: string[] = [];
   const retainedPaths = new Set(retained.files.map(file => file.path));
   for (const file of retained.files) {
     const expected = blobs.get(file.path);
     if (expected === undefined) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_ABSENT:${file.path}`);
     else {
-      const actual = createHash(algorithm).update(`blob ${file.bytes.byteLength}\0`).update(file.bytes).digest("hex");
+      const actual = objectIds.get(file.path);
       if (actual !== expected) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_MISMATCH:${file.path}`);
     }
   }

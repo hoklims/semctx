@@ -1,5 +1,10 @@
 # Semctx GitHub Action
 
+The report step hands a qualified CLI rejection (exit 3) to the adapter only after
+this invocation produced a valid rejected report. The adapter emits annotations,
+summary and outputs, then enforces qualified refusal even with `fail-on: none`.
+Operational failures remain failures. Qualified staged/range verification requires Git >= 2.41.
+
 Run `semctx verify diff` on a pull request: map the diff to affected symbols, exported
 contracts, declared invariants and relevant tests, and gate the PR on a **PASS / WARN / BLOCK**
 verdict. `WARN` never fails the check by default; `BLOCK` does. **No PR comments, no secrets, no

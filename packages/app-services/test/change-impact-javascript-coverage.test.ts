@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runChangeImpact } from "../src";
-test("round3 a JSX directory namespace consumer observes newly exported values", () => {
+for (const sibling of [false, true]) test(`a namespace consumer observes newly exported values with sibling precedence: ${sibling}`, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-impact-jsx-"));
   const git = (...args: string[]): void => {
     const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -15,11 +15,15 @@ test("round3 a JSX directory namespace consumer observes newly exported values",
     mkdirSync(join(root, "src/widget"), { recursive: true });
     writeFileSync(join(root, ".gitignore"), ".semctx/\n");
     writeFileSync(join(root, "src/widget/index.jsx"), "export const existing = 1;\n");
+    if (sibling) {
+      writeFileSync(join(root, "src/widget/index.ts"), "export const decoy = 1;\n");
+      writeFileSync(join(root, "src/widget.js"), "export const existing = 1;\n");
+    }
     writeFileSync(join(root, "src/consumer.mjs"), "import * as ns from './widget'; export function read(key) { return ns[key]; }\n");
     git("init", "-q"); git("add", "."); git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
-    initWorkspace(root, { ...createGlobSelectionConfig(root), include: ["src/**/*.jsx", "src/**/*.mjs"], languages: { javascript: "on" } });
+    initWorkspace(root, { ...createGlobSelectionConfig(root), include: ["src/**/*"], languages: { javascript: "on", typescript: "on" } });
     indexRepository(root, "2026-10-09T10:00:00.000Z");
-    writeFileSync(join(root, "src/widget/index.jsx"), "export const existing = 1;\nexport const added = 2;\n");
+    writeFileSync(join(root, sibling ? "src/widget.js" : "src/widget/index.jsx"), "export const existing = 1;\nexport const added = 2;\n");
     const report = runChangeImpact(root, { kind: "working-tree" });
     expect(report.analysis.binding.status).toBe("bound");
     expect(report.changes.units?.some(unit => unit.behavioral)).toBe(true);

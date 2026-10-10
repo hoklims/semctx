@@ -10,6 +10,21 @@ import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
 import { captureQualifiedAnalysisInputs } from "../src/freshness";
 
 const roots: string[] = [];
+test("qualified clean range compares CRLF retained inputs after Git conversion", () => {
+  const root = selectedRepository();
+  git(root, "config", "core.autocrlf", "false");
+  writeFileSync(join(root, ".gitattributes"), "src/*.ts text eol=crlf\n");
+  git(root, "add", ".gitattributes");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF configuration");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\r\n");
+  writeFileSync(join(root, "src/consumer.ts"), "import { main } from './main'; export function consume() { return main(); }\r\n");
+  git(root, "add", ".");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF candidate");
+  indexRepository(root, "2026-10-10T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
+  console.info(JSON.stringify({ observed: admission?.status, reasons: admission?.binding.reasons }));
+  expect(admission?.status).toBe("admitted");
+});
 for (const extension of ["d.ts", "d.mts", "d.cts"]) test(`round4 v2 declaration ${extension} is unsupported and never supplies complete facts`, () => {
   const root = selectedRepository();
   const path = `src/api.${extension}`;

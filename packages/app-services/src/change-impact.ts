@@ -188,7 +188,7 @@ function untrackedPaths(root: string): string[] {
 }
 
 const TS_PATHSPECS = ["*.ts", "*.tsx", "*.mts", "*.cts", "*.js", "*.jsx", "*.mjs", "*.cjs"];
-const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", "/index.ts", "/index.tsx", ".js", ".jsx", ".mjs", ".cjs", "/index.js", "/index.jsx", "/index.mjs"];
+const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs", ".cjs", "/index.ts", "/index.tsx", "/index.js", "/index.jsx", "/index.mjs"];
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

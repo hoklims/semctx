@@ -57,10 +57,13 @@ Git index or a committed range destination. Exact dirty staged-post-image matchi
 is not implemented and cannot be inferred from stable input observations.
 Clean Git status also does not prove post-image membership: ignored retained sources,
 manifests or empty workspace roots may be absent from the candidate. Staged/range
-admission compares retained repository input bytes with Git blobs and consumed
-workspace roots with the selected directory inventory. Missing or differing inputs
-refuse admission; repository clean/smudge transformations are not assumed equivalent
-to the retained compiler bytes.
+admission compares retained repository inputs with Git blobs and consumed
+workspace roots with the selected directory inventory. Git >= 2.41 is required for
+qualified staged/range verification: retained payloads are converted through Git using
+the selected commit's attributes before object-identity comparison. Attribute metadata
+is observed in batches and rechecked; conversion errors or drift refuse comparison.
+Raw retained bytes still bind the compiler snapshot and input digest. Missing inputs
+or differing converted objects refuse admission.
 
 The profile refuses actual global scripts, global declaration files, and global or
 string-named module augmentations because their cross-file bindings are not modeled.
