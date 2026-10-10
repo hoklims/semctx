@@ -13,6 +13,11 @@ const cases: { path: string; source: string; selected: boolean; barrel?: string;
   { path: "hidden-barrel.ts", source: "import { make } from './barrel.mjs'; const load = make(import.meta.url); export const hidden = load('./src/main.ts');", selected: false, barrel: "export { createRequire as make } from 'node:module';" },
   { path: "hidden-assignment.mjs", source: "import * as m from 'node:module'; let n; n = m; const r = n.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
   { path: "hidden-assignment.ts", source: "import * as m from 'module'; let n; n = m; const r = n.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-export-default.mjs", source: "import { default as M } from 'node:module'; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-export-string.ts", source: "import { 'default' as M } from 'module'; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-export-destructure.mjs", source: "import * as m from 'node:module'; const { default: M } = m; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-export-module.ts", source: "import * as m from 'node:module'; const { Module: M } = m; const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
+  { path: "hidden-export-quoted.mjs", source: "import * as m from 'node:module'; const { 'createRequire': make } = m; const r = make(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs" },
 ];
 for (const { path, source, selected, barrel, mainPath = "src/main.ts" } of cases) test(`qualified ${path} createRequire source cannot hide its CommonJS dependency`, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-node-loader-"));

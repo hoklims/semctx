@@ -7,13 +7,18 @@ const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/
 
 /** Known Node CommonJS loader bindings, without inventing dependencies loaded at runtime. */
 export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
+  type Origin = "factory" | "namespace" | "other";
+  const nativeExportOrigin = (name: string | undefined): Origin => name === "createRequire" ? "factory"
+    : name === "default" || name === "Module" ? "namespace" : "other";
+  const staticName = (node: ts.Node | undefined): string | undefined => node !== undefined
+    && (ts.isIdentifier(node) || ts.isStringLiteral(node)) ? node.text : undefined;
   const isNodeModule = (node: ts.Node | undefined): boolean => node !== undefined && ts.isStringLiteral(node)
     && ["node:module", "module"].includes(node.text);
   for (const statement of source.statements) {
     if (!ts.isExportDeclaration(statement) || statement.isTypeOnly || !isNodeModule(statement.moduleSpecifier)) continue;
     if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)
       || (ts.isNamedExports(statement.exportClause) && statement.exportClause.elements.some((element) =>
-        !element.isTypeOnly && ["createRequire", "default", "Module"].includes((element.propertyName ?? element.name).text)))) return true;
+        !element.isTypeOnly && nativeExportOrigin(staticName(element.propertyName ?? element.name)) !== "other"))) return true;
   }
   let importsNodeModule = false;
   const findModule = (node: ts.Node): void => {
@@ -31,13 +36,12 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
   host.readFile = (path) => path === source.fileName ? source.text : undefined;
   host.resolveModuleNames = (names) => names.map(() => undefined);
   const checker = ts.createProgram([source.fileName], options, host).getTypeChecker();
-  type Origin = "factory" | "namespace" | "other";
   const origin = (node: ts.Node, seen = new Set<ts.Symbol>()): Origin => {
     if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isAwaitExpression(node)) return origin(node.expression, seen);
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeModule(node.arguments[0])) return "namespace";
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
-      if (origin(node.expression, seen) === "namespace") return property === "createRequire" ? "factory" : property === "default" || property === "Module" ? "namespace" : "other";
+      if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
       return "other";
     }
     if (!ts.isIdentifier(node)) return "other";
@@ -46,14 +50,14 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
     const next = new Set(seen).add(symbol);
     for (const declaration of symbol.declarations ?? []) {
       if (ts.isImportSpecifier(declaration) && !declaration.isTypeOnly && !declaration.parent.parent.isTypeOnly
-        && isNodeModule(declaration.parent.parent.parent.moduleSpecifier)) return (declaration.propertyName ?? declaration.name).text === "createRequire" ? "factory" : (declaration.propertyName ?? declaration.name).text === "Module" ? "namespace" : "other";
+        && isNodeModule(declaration.parent.parent.parent.moduleSpecifier)) return nativeExportOrigin(staticName(declaration.propertyName ?? declaration.name));
       if (ts.isNamespaceImport(declaration) && !declaration.parent.isTypeOnly && isNodeModule(declaration.parent.parent.moduleSpecifier)) return "namespace";
       if (ts.isImportClause(declaration) && !declaration.isTypeOnly && isNodeModule(declaration.parent.moduleSpecifier)) return "namespace";
       if (ts.isVariableDeclaration(declaration) && declaration.initializer) return origin(declaration.initializer, next);
       if (ts.isBindingElement(declaration) && ts.isObjectBindingPattern(declaration.parent)
         && ts.isVariableDeclaration(declaration.parent.parent) && declaration.parent.parent.initializer
         && origin(declaration.parent.parent.initializer, next) === "namespace") {
-        return (declaration.propertyName ?? declaration.name).getText(source) === "createRequire" ? "factory" : "other";
+        return nativeExportOrigin(staticName(declaration.propertyName ?? declaration.name));
       }
     }
     return "other";
