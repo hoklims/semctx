@@ -6,6 +6,15 @@ import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
 import { analyzeRepository, analyzeRepositoryAsync, discoverRepository, extractTypeScript } from "../src";
 
 const roots: string[] = [];
+for (const extension of ["mjs", "ts"]) it(`direct bound default identifier retains its actual ${extension} call coordinate`, () => {
+  const { root } = fixture();
+  const leaf = `alias.${extension}`;
+  writeFileSync(join(root, leaf), "const implementation = value => value + 1; export default implementation;");
+  writeFileSync(join(root, "caller.mjs"), `import run from './${leaf}'; export function caller() { return run(1); }`);
+  const extraction = extractTypeScript([join(root, leaf), join(root, "caller.mjs")], root);
+  expect(extraction.symbols.find(symbol => symbol.relPath === leaf && symbol.name === "implementation")).toMatchObject({ exported: true });
+  expect(extraction.calls.find(call => call.callerSymbolPath === "caller")).toMatchObject({ calleeRelPath: leaf, calleeSymbolPath: "implementation" });
+});
 for (const kind of ["function", "class"] as const) it(`represents anonymous default ${kind} declarations and their call coordinates`, () => {
   const { root } = fixture();
   writeFileSync(join(root, "default.mjs"), kind === "function"

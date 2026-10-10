@@ -78,6 +78,13 @@ scope, including excluded declarations. CommonJS TypeScript `.cts`/`.d.cts` form
 outside the ESM profile even when it contains explicit exports. Legacy v1 behavior is
 unchanged. Existing runtime-companion resolution does not qualify declaration changes.
 
+Default export expression assignments are unsupported, including identifier aliases,
+inline functions, conditionals, calls, class/object expressions and literals. Transparent
+parentheses and TypeScript assertion wrappers cannot hide this boundary. This closed
+profile does not infer an export owner from an expression's apparent shape. Anonymous
+default function/class declarations retain their existing extracted symbols; legacy v1
+extraction behavior is unchanged.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so

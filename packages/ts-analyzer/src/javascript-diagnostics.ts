@@ -234,6 +234,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     `JAVASCRIPT_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`));
   if (path.endsWith(".cjs")) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   const native = inspectNativeModuleBindings(source);
+  if (hasUnsupportedDefaultExpression(source)) reasons.add("JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED");
   if (native.commonJsUnsupported) reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
   if (native.runtimeEvaluationUnsupported) reasons.add("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
   for (const member of native.unmodeledMembers) reasons.add(`JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:${member}`);
@@ -323,9 +324,13 @@ export function inspectSourceParsing(path: string, content: string): string[] {
 
 export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot, source?: ts.SourceFile): string[] {
   const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
+  const retainedText = source === undefined && compilerInputs !== undefined ? system.readFile(path) : undefined;
+  const inspectedSource = source ?? (retainedText === undefined ? undefined : ts.createSourceFile(path, retainedText, ts.ScriptTarget.Latest, true));
+  const defaultReasons = inspectedSource !== undefined && hasUnsupportedDefaultExpression(inspectedSource)
+    ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : [];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
-  if (!configPath) return source !== undefined && compilerInputs !== undefined
-    ? inspectQualifiedModuleScope(source, path) : [];
+  if (!configPath) return [...defaultReasons, ...(source !== undefined && compilerInputs !== undefined
+    ? inspectQualifiedModuleScope(source, path) : [])];
   const contained = (candidate: string): boolean => {
     if (!repositoryRoot) return true;
     const relation = relative(repositoryRoot, candidate).replaceAll("\\", "/");
@@ -343,8 +348,8 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   }, dirname(configPath));
   if (escaped) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];
   const diagnostics = config.error ? [config.error] : parsed?.errors ?? [];
-  const reasons = diagnostics.filter(diagnostic => diagnostic.code !== 18003).map(diagnostic =>
-    `SOURCE_CONFIGURATION_INVALID:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`);
+  const reasons = [...defaultReasons, ...diagnostics.filter(diagnostic => diagnostic.code !== 18003).map(diagnostic =>
+    `SOURCE_CONFIGURATION_INVALID:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`)];
   // The named snapshot profile qualifies ESNext/Bundler, including inherited options. Hashing
   // NodeNext bytes does not authorize analyzing them under overwritten Bundler semantics.
   if (compilerInputs !== undefined && parsed !== undefined) {
@@ -359,6 +364,12 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     reasons.push(...inspectQualifiedModuleScope(source, path));
   }
   return reasons;
+}
+
+function hasUnsupportedDefaultExpression(source: ts.SourceFile): boolean {
+  // Default declarations have extracted owners; expression assignments have no closed
+  // ownership contract. Refuse the entire assignment form rather than infer a target.
+  return source.statements.some(statement => ts.isExportAssignment(statement) && !statement.isExportEquals);
 }
 
 function inspectQualifiedModuleScope(source: ts.SourceFile, path: string): string[] {
