@@ -3,6 +3,7 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { optionalProcessBoundRoot } from "./repository-root";
 import { createSemctxServer } from "./server";
+import { runBoundedCallFromArgv } from "./bounded-call";
 
 export { createSemctxServer } from "./server";
 export { prepareTaskTool, inspectTool, verifyChangeTool } from "./tools";
@@ -23,6 +24,8 @@ export { registerChangeAuthorizationVerifierTools } from "./change-authorization
 
 /** Entry point: serve semctx over stdio, optionally pre-bound by SEMCTX_ROOT. */
 export function main(): void {
+  // A budgeted preflight child answers one request and exits; it never opens the stdio server.
+  if (runBoundedCallFromArgv(process.argv)) return;
   const root = optionalProcessBoundRoot(process.env["SEMCTX_ROOT"]);
   // Inline diffs can exceed the SDK's 10 MiB default. Keep a finite wire-byte bound;
   // larger changes can still be read from Git without putting the diff on the wire.

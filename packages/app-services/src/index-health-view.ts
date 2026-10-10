@@ -68,6 +68,32 @@ export interface IndexHealthReportV2 {
   page: IndexHealthPageV2 | null;
 }
 
+/**
+ * The typed answer of an index-health call that did not finish inside its budget. It carries no
+ * binding, freshness or coverage: none was observed, and an absent observation is never healthy.
+ */
+export interface IndexHealthTimeoutReportV2 {
+  schemaVersion: 2;
+  kind: "index_health";
+  status: "timeout";
+  reason: "HEALTH_BUDGET_EXCEEDED";
+  budget: { budgetMs: number; elapsedMs: number };
+  detail: string;
+  remedy: string;
+}
+
+export function indexHealthTimeout(budgetMs: number, elapsedMs: number): IndexHealthTimeoutReportV2 {
+  return {
+    schemaVersion: 2,
+    kind: "index_health",
+    status: "timeout",
+    reason: "HEALTH_BUDGET_EXCEEDED",
+    budget: { budgetMs, elapsedMs },
+    detail: `index health did not finish within ${budgetMs} ms and was stopped; binding, freshness and coverage are unknown`,
+    remedy: "semctx index-health --summary --json",
+  };
+}
+
 function summary(report: IndexHealthReportV1): IndexHealthReportV2 {
   const outcomeCounts: IndexHealthReportV2["evaluations"]["outcomeCounts"] = {
     PASS: 0, UNKNOWN: 0, INSUFFICIENT_ANALYSIS: 0, POLICY_DENIED: 0,

@@ -6,6 +6,7 @@ import {
   SemctxError,
   SurfaceMapSchema,
   compareIds,
+  type AuthorityInvariantImpact,
   type ChangeImpactAnalysis,
   type ChangeImpactReport,
   type ExposedClaim,
@@ -47,6 +48,8 @@ import {
   parseIndexedControlSnapshot,
   type GitStateEntry,
 } from "./freshness";
+import { evaluateAuthorityInvariants, removedAuthorityDeclarations } from "./authority-invariants";
+import { withFileCoverage } from "./file-coverage";
 import { parsePlaneAIndexSnapshot } from "./index-health";
 import { observeIndexBinding, resolveSource } from "./verify";
 
@@ -417,6 +420,51 @@ function joinSemanticLayer(root: string, core: ChangeImpactCore, facts: Paramete
   return { layer: "joined", claims: joined.claims, gaps, modelHash };
 }
 
+/**
+ * The fingerprint of an authored model whose declarations can be used, or null. A parse error or a
+ * duplicate id makes the model unusable even when the parser recovered the same nodes.
+ */
+function usableModelHash(loaded: ReturnType<typeof loadSemanticModel>): string | null {
+  if (loaded.duplicateIds.length > 0 || loaded.diagnostics.some((diagnostic) => diagnostic.severity === "error")) return null;
+  return fingerprintSemanticModel(loaded.model);
+}
+
+/**
+ * Single-authority invariants exposed by the change; null when the authored model cannot be used.
+ * `modelHash` fingerprints the declarations the scan used, so the caller can prove they still hold
+ * once the analysis is over.
+ */
+function authorityInvariants(
+  root: string,
+  revisions: SideRevisions,
+  changedPaths: ReadonlySet<string>,
+): { impacts: AuthorityInvariantImpact[] | null; gaps: UnresolvedImpact[]; modelHash: string | null } {
+  let loaded: ReturnType<typeof loadSemanticModel>;
+  try {
+    loaded = loadSemanticModel(root);
+  } catch {
+    return { impacts: null, gaps: [], modelHash: null };
+  }
+  const modelHash = usableModelHash(loaded);
+  if (modelHash === null) return { impacts: null, gaps: [], modelHash: null };
+  const evaluated = evaluateAuthorityInvariants(root, loaded.model, revisions, changedPaths);
+  const removed = removedAuthorityDeclarations(root, loaded.model, revisions.old, changedPaths);
+  return { impacts: evaluated.impacts, gaps: [...evaluated.gaps, ...removed], modelHash };
+}
+
+/** The usable authored model's fingerprint as a fresh reader sees it now; null when it is not usable. */
+function currentUsableModelHash(root: string): string | null {
+  try {
+    return usableModelHash(loadSemanticModel(root));
+  } catch {
+    return null;
+  }
+}
+
+function changedPathsOf(files: readonly { path: string; oldPath?: string }[]): Set<string> {
+  return new Set(files.flatMap((file) => (file.oldPath === undefined ? [file.path] : [file.path, file.oldPath])));
+}
+
 function unknownSurfaces(map: SurfaceMap | null): SurfaceImpact[] | null {
   if (map === null) return null;
   return map.surfaces.map((surface) => ({
@@ -571,6 +619,11 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           bounds,
         });
 
+    // Searched inside the mutable-state bracket below: a worktree or index that moves during the
+    // search makes its result unusable, exactly like the index-derived sets. The declarations come
+    // from the mutable authored model on every source, a range included, so they are re-read too.
+    const scanned = authorityInvariants(root, revisions, changedPathsOf(changedFilesFromDiff(diff, untracked)));
+
     // Probed after the analysis, as `verify` does, so the binding describes the index just used.
     const semanticInputHashes: string[] = [];
     const observed = observeIndexBinding(root, store, resolved.identity, (hash) => semanticInputHashes.push(hash));
@@ -585,6 +638,20 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       breaks.push("INDEX_CHANGED_DURING_ANALYSIS");
     }
     const uniqueBreaks = [...new Set(breaks)];
+    const declarationsMoved = scanned.impacts !== null && currentUsableModelHash(root) !== scanned.modelHash;
+    const authority = uniqueBreaks.includes("WORKING_TREE_CHANGED_DURING_ANALYSIS") || declarationsMoved
+      ? {
+          impacts: null,
+          gaps: [{
+            code: "AUTHORITY_SCAN_UNSTABLE",
+            scope: "run" as const,
+            detail: declarationsMoved
+              ? "the authored model changed while authority values were searched; the declarations scanned are no longer current"
+              : "the worktree or Git index changed while authority values were searched; their occurrences are unknown",
+            affects: "claims" as const,
+          }],
+        }
+      : { impacts: scanned.impacts, gaps: scanned.gaps };
     const broken = core === null || uniqueBreaks.length > 0;
 
     const subject: ChangeImpactReport["subject"] = {
@@ -612,17 +679,22 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         : { verdict: observed.freshness.verdict, reasons: [...observed.freshness.reasons] },
     };
 
+    const indexedFiles = new Set(graph.nodes.flatMap((node) => (node.filePath === undefined ? [] : [node.filePath])));
+    const coverage = (files: Parameters<typeof withFileCoverage>[0]) =>
+      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles } });
+
     if (broken || core === null) {
       // Re-indexing cannot bind a staged or range diff while the index reads uncommitted files.
       const remedy = source.kind !== "working-tree" && indexedDirty && uniqueBreaks.includes("INDEX_COORDINATES_NOT_ON_DIFF_SIDE")
         ? "Rebuild the index on a tree whose analysed files are all committed (commit or stash first), then retry."
         : "Re-run `semctx index`, then retry.";
-      const unresolved: UnresolvedImpact[] = [{
+      const covered = coverage(changedFilesFromDiff(diff, untracked));
+      const unresolved: UnresolvedImpact[] = sortUnresolved([{
         code: "INDEX_BINDING_BROKEN",
         scope: "run",
         detail: `the index is not bound to this diff (${uniqueBreaks.join(", ")}); no index-derived reach holds. ${remedy}`,
         affects: "reach",
-      }];
+      }, ...authority.gaps]);
       return {
         schemaVersion: CHANGE_IMPACT_SCHEMA_VERSION,
         kind: "change_impact",
@@ -633,8 +705,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           bounds: { ...bounds },
           semanticLayer: "not_computed",
           limits: ANALYSIS_LIMITS.map((limit) => ({ ...limit })),
+          fileCoverage: covered.summary,
         },
-        changes: { files: changedFilesFromDiff(diff, untracked), units: null },
+        changes: { files: covered.files, units: null },
         directlyAffected: null,
         transitivelyAffected: null,
         possiblyAffected: null,
@@ -649,14 +722,16 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           rationale: ["INDEX_BINDING_BROKEN"],
         },
         unresolved,
+        authorityInvariants: authority.impacts,
       };
     }
 
     const semantic = joinSemanticLayer(root, core, facts);
     subject.inputs.semanticModelHash = semantic.modelHash;
-    const unresolved = sortUnresolved([...core.unresolved, ...semantic.gaps]);
+    const unresolved = sortUnresolved([...core.unresolved, ...semantic.gaps, ...authority.gaps]);
     const exposedClaims = [...core.markerClaims, ...semantic.claims]
       .sort((a, b) => TIER_RANK[a.exposure] - TIER_RANK[b.exposure] || compareIds(a.id, b.id));
+    const covered = coverage(core.files);
     return {
       schemaVersion: CHANGE_IMPACT_SCHEMA_VERSION,
       kind: "change_impact",
@@ -667,8 +742,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         bounds: { ...bounds },
         semanticLayer: semantic.layer,
         limits: ANALYSIS_LIMITS.map((limit) => ({ ...limit })),
+        fileCoverage: covered.summary,
       },
-      changes: { files: core.files, units: core.units },
+      changes: { files: covered.files, units: core.units },
       directlyAffected: core.directlyAffected,
       transitivelyAffected: core.transitivelyAffected,
       possiblyAffected: core.possiblyAffected,
@@ -677,6 +753,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
       surfaces: core.surfaces,
       blastRadius: core.blastRadius,
       unresolved,
+      authorityInvariants: authority.impacts,
     };
   } finally {
     store.close();

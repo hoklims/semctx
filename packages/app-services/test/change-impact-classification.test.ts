@@ -409,7 +409,12 @@ describe("edits that must not read as inert", () => {
 
   it("deleting an empty imported module reaches its importers", () => {
     const report = analyse(() => unlinkSync(join(root, "src/lib/polyfill.ts")));
-    expect(report.changes.files).toContainEqual({ path: "src/lib/polyfill.ts", status: "deleted", hunks: 0 });
+    expect(report.changes.files).toContainEqual({
+      path: "src/lib/polyfill.ts",
+      status: "deleted",
+      hunks: 0,
+      coverage: { status: "analyzed", language: "typescript" },
+    });
     const importer = report.possiblyAffected!.find((target) => target.id === "mod:src/app/uses-polyfill.ts");
     expect(importer?.reason).toBe("IMPORTS_MOVED_OR_DELETED_FILE");
     expect(importer?.via[0]!.from).toBe("file:src/lib/polyfill.ts");

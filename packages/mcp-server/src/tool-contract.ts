@@ -138,6 +138,11 @@ const PUBLIC_INPUT_MAX_NODES = 100_000;
 const PUBLIC_INPUT_MAX_ARRAY_LENGTH = 50_000;
 const PUBLIC_INPUT_MAX_KEY_LENGTH = 1_024;
 const INDEX_HEALTH_RESULT_MAX_BYTES = 255 * 1024;
+/**
+ * Every serialized tool result stays well under the 16 MB a stdio host reads without a JSON-RPC
+ * boundary before it disconnects the server (and fails every later call of the session).
+ */
+export const MCP_RESULT_MAX_BYTES = 8 * 1024 * 1024;
 
 type PublicErrorCode =
   | SemctxErrorCode
@@ -160,6 +165,7 @@ const PUBLIC_ERROR_MESSAGES: Record<PublicErrorCode, string> = {
   INTERNAL_ERROR: "The tool could not complete the request",
   INVALID_ARGUMENTS: "Tool arguments are invalid",
   INVALID_OUTPUT: "Tool output did not match its public contract",
+  RESPONSE_TOO_LARGE: "Tool result exceeds the MCP response byte limit; narrow the request or use the equivalent CLI command",
   INDEX_HEALTH_CURSOR_INVALID: "Index health cursor is invalid for this section; restart pagination without a cursor",
   INDEX_HEALTH_CURSOR_STALE: "Index health changed; restart pagination without a cursor",
   INDEX_HEALTH_RESPONSE_TOO_LARGE: "Index health summary or detail entry exceeds the response byte limit; use CLI index-health --json for the full report",
@@ -277,8 +283,12 @@ function withStructuredContent(
   }
 
   const validatedResult = { ...result, structuredContent };
-  if (name === "semctx_index_health" && Buffer.byteLength(JSON.stringify(validatedResult), "utf8") > INDEX_HEALTH_RESULT_MAX_BYTES) {
+  const resultBytes = Buffer.byteLength(JSON.stringify(validatedResult), "utf8");
+  if (name === "semctx_index_health" && resultBytes > INDEX_HEALTH_RESULT_MAX_BYTES) {
     throw new SemctxError("INDEX_HEALTH_RESPONSE_TOO_LARGE", "Index health MCP result exceeds the response byte limit");
+  }
+  if (resultBytes > MCP_RESULT_MAX_BYTES) {
+    throw new ToolPublicError("RESPONSE_TOO_LARGE", { cause: { tool: name, bytes: resultBytes } });
   }
   return validatedResult;
 }

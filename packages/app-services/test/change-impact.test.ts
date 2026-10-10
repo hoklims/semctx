@@ -391,7 +391,12 @@ describe("runChangeImpact — sources and index coordinates", () => {
     const root = repository();
     writeFileSync(join(root, "packages/protocol/src/extra.ts"), "export const EXTRA = 1;\n");
     const report = analyse(root);
-    expect(report.changes.files).toContainEqual({ path: "packages/protocol/src/extra.ts", status: "untracked", hunks: 0 });
+    expect(report.changes.files).toContainEqual({
+      path: "packages/protocol/src/extra.ts",
+      status: "untracked",
+      hunks: 0,
+      coverage: { status: "not_analyzed", language: "typescript", reason: "UNTRACKED_NOT_DIFFED" },
+    });
     expect(report.unresolved).toContainEqual(expect.objectContaining({ code: "UNTRACKED_PATH_NOT_DIFFED", file: "packages/protocol/src/extra.ts" }));
   });
 

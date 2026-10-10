@@ -77,7 +77,9 @@ Core:
   support [--output <new-file>]    preview a privacy-safe diagnostic report as JSON
   feedback <record|list|show|update|remove|export>
                                    voluntary local finding feedback; export is sanitized JSON
-  status [--json]                  control freshness preflight (FRESH/DIRTY_KNOWN/STALE/UNSEALED)
+  status [--json] [--budget-ms N]  control freshness preflight (FRESH/DIRTY_KNOWN/STALE/UNSEALED),
+                                   one explanation + remedy per reason; with --budget-ms, TIMEOUT
+                                   when it cannot answer within N ms (never "no verdict")
 
 Semantic layer (authored intent, invariants, decisions, evidence, change contracts):
   semantic <init|check|inspect|render|format|slice|handoff|resume>

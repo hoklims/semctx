@@ -6,6 +6,7 @@ import {
   type ControlFreshnessSeal,
   type ControlFreshnessSealV2,
   type ControlFreshnessStatusReport,
+  type ControlStatusExplainedReport,
   type MigrationPlanReport,
   type ObservedDiffHunkV1,
   type QualifiedCoordinateId,
@@ -53,6 +54,7 @@ import {
 } from "./control-evidence";
 import { openReadyRepository } from "./readiness";
 import { inspectSemanticLifecycleWithIdentity } from "./semantic-check";
+import { explainControlStatus } from "./status-explanation";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import {
   CONTROL_ATTESTATION_INDEX_META_KEY,
@@ -371,6 +373,24 @@ export function controlStatusWithSemanticInputs(root: string): {
     if (unavailable !== null) return { status: unavailable, semanticInputHashes };
     throw error;
   }
+}
+
+/**
+ * The public preflight answer: the same verdict and reasons as `controlStatus`, plus one explanation
+ * per reason taken from the embedded seal or from the failure that left the input unsealed.
+ */
+export function controlStatusExplained(root: string): ControlStatusExplainedReport {
+  let status: ControlFreshnessStatusReport;
+  let failure: unknown;
+  try {
+    status = loadObservedControlState(root).freshnessStatus;
+  } catch (error) {
+    const unavailable = unavailableStatus(error);
+    if (unavailable === null) throw error;
+    status = unavailable;
+    failure = error;
+  }
+  return { ...status, explanation: explainControlStatus(status, failure) };
 }
 
 /** Report the authority a change at `requiredAltitude` demands under this repository's current freshness.

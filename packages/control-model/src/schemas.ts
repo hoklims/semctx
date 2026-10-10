@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { MIGRATION_STEP_PROFILES } from "./constants";
-import { classifyControlFreshnessSeal, CONTROL_FRESHNESS_REASON_ORDER } from "./freshness";
+import { classifyControlFreshnessSeal, CONTROL_FRESHNESS_REASON_ORDER, CONTROL_STATUS_BUDGET_EXCEEDED } from "./freshness";
 import { UnresolvedRepositoryLinkSchema } from "./link-resolution";
 import {
   CoordinateCategorySchema,
@@ -109,7 +109,7 @@ export const ControlFreshnessSealSchema = z.object({
 
 export const ControlFreshnessVerdictSchema = z.enum(["FRESH", "DIRTY_KNOWN", "STALE", "UNSEALED"]);
 export const ControlFreshnessReasonSchema = z.enum(CONTROL_FRESHNESS_REASON_ORDER);
-export const ControlFreshnessStatusReportSchema = z.object({
+const ControlFreshnessStatusReportShape = {
   schemaVersion: z.literal(1),
   kind: z.literal("control_freshness_status"),
   basis: z.literal("control_index_snapshot_v1"),
@@ -117,7 +117,12 @@ export const ControlFreshnessStatusReportSchema = z.object({
   canRunHighRiskControl: z.boolean(),
   reasons: z.array(ControlFreshnessReasonSchema),
   freshnessSeal: ControlFreshnessSealSchema.nullable(),
-}).strict().superRefine((value, context) => {
+};
+
+function refineControlFreshnessStatus(
+  value: z.infer<z.ZodObject<typeof ControlFreshnessStatusReportShape>>,
+  context: z.RefinementCtx,
+): void {
   const allowed = value.verdict === "FRESH" || value.verdict === "DIRTY_KNOWN";
   if (value.canRunHighRiskControl !== allowed) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["canRunHighRiskControl"], message: "high-risk control is allowed only for fresh or sealed dirty inputs" });
@@ -181,7 +186,65 @@ export const ControlFreshnessStatusReportSchema = z.object({
       context.addIssue({ code: z.ZodIssueCode.custom, path: ["reasons"], message: "freshness reasons contradict the embedded seal" });
     }
   }
+}
+
+export const ControlFreshnessStatusReportSchema = z.object(ControlFreshnessStatusReportShape)
+  .strict()
+  .superRefine(refineControlFreshnessStatus);
+
+/** One cause behind a status verdict, with the read-only command that addresses it (never run by semctx). */
+export const ControlStatusExplanationSchema = z.object({
+  reason: z.union([ControlFreshnessReasonSchema, z.literal(CONTROL_STATUS_BUDGET_EXCEEDED)]),
+  code: z.string().min(1),
+  detail: z.string().min(1),
+  remedy: z.string().min(1).nullable(),
+}).strict();
+
+/** The public preflight answer of `semctx status` and `semctx_control_status`: the freshness verdict plus its causes. */
+export const ControlStatusExplainedReportSchema = z.object({
+  ...ControlFreshnessStatusReportShape,
+  explanation: z.array(ControlStatusExplanationSchema),
+}).strict().superRefine((value, context) => {
+  refineControlFreshnessStatus(value, context);
+  const explained = new Set(value.explanation.map((entry) => entry.reason));
+  for (const reason of value.reasons) {
+    if (!explained.has(reason)) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["explanation"], message: `reason ${reason} has no explanation` });
+    }
+  }
+  if (value.explanation.some((entry) => !value.reasons.includes(entry.reason as never))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["explanation"], message: "an explanation names a reason the status does not carry" });
+  }
 });
+
+/**
+ * The preflight did not finish inside its budget. Nothing was observed, so nothing is fresh: this
+ * is a typed answer in place of a closed transport or a missing verdict, and it authorizes nothing.
+ */
+export const ControlStatusTimeoutReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  kind: z.literal("control_freshness_status"),
+  basis: z.literal("control_index_snapshot_v1"),
+  verdict: z.literal("TIMEOUT"),
+  canRunHighRiskControl: z.literal(false),
+  reasons: z.tuple([z.literal(CONTROL_STATUS_BUDGET_EXCEEDED)]),
+  freshnessSeal: z.null(),
+  budget: z.object({
+    budgetMs: z.number().int().positive(),
+    elapsedMs: z.number().int().nonnegative(),
+  }).strict(),
+  explanation: z.tuple([z.object({
+    reason: z.literal(CONTROL_STATUS_BUDGET_EXCEEDED),
+    code: z.string().min(1),
+    detail: z.string().min(1),
+    remedy: z.string().min(1).nullable(),
+  }).strict()]),
+}).strict();
+
+export const ControlStatusPreflightReportSchema = z.union([
+  ControlStatusExplainedReportSchema,
+  ControlStatusTimeoutReportSchema,
+]);
 
 export const TraversalDirectionSchema = z.enum(["lift", "lower"]);
 const boundedDepth = z.number().int().min(0).max(100);
