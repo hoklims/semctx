@@ -56,7 +56,8 @@ export interface FileCoverageInput {
   config: SemctxConfig;
   /** Null when the binding is broken: no file can have been joined to the index. */
   bound: { sideOf: (path: string) => "old" | "new"; indexedFiles: ReadonlySet<string>;
-    javascriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }> } | null;
+    javascriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }>;
+    typescriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }> } | null;
 }
 
 /**
@@ -81,8 +82,8 @@ export function coverageOf(file: ChangedFile, input: FileCoverageInput): FileCov
   if (file.status === "mode_only") return notAnalyzed("METADATA_ONLY");
   if (file.status === "unrecognized") return notAnalyzed("UNRECOGNIZED_DIFF_BLOCK");
   if (file.status === "untracked") return notAnalyzed("UNTRACKED_NOT_DIFFED");
-  if (language === "javascript") {
-    const observed = input.bound.javascriptOutcomes?.get(boundPath);
+  if (language === "javascript" || (language === "typescript" && input.config.version === 2)) {
+    const observed = (language === "javascript" ? input.bound.javascriptOutcomes : input.bound.typescriptOutcomes)?.get(boundPath);
     if (observed === undefined) return notAnalyzed("ANALYZER_EVIDENCE_MISSING");
     if (observed.outcome !== "analyzed") return notAnalyzed(`ANALYSIS_${observed.outcome.toUpperCase()}`);
     if (observed.reasons.length > 0) return notAnalyzed("ANALYSIS_PARTIAL");

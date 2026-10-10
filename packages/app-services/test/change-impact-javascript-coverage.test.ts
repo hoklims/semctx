@@ -6,6 +6,27 @@ import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runChangeImpact } from "../src";
 
+test("failed v2 TypeScript facts cannot produce analyzed coverage or change units", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-impact-ts-failed-"));
+  const git = (...args: string[]): void => {
+    const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+  };
+  try {
+    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+    writeFileSync(join(root, "src/value.ts"), "export function broken( {\n");
+    git("init", "-q"); git("add", "."); git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
+    initWorkspace(root, { ...createGlobSelectionConfig(root), include: ["src/**/*.ts"], languages: { typescript: "on" } });
+    indexRepository(root, "2026-10-09T10:00:00.000Z");
+    writeFileSync(join(root, "src/value.ts"), "export function broken( { // changed\n");
+    indexRepository(root, "2026-10-09T10:01:00.000Z");
+    const report = runChangeImpact(root, { kind: "working-tree" });
+    expect(report.analysis.binding.status).toBe("bound");
+    expect(report.changes.files[0]?.coverage).toMatchObject({ status: "not_analyzed", reason: "ANALYSIS_FAILED" });
+    expect(report.changes.units).toEqual([]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 60_000);
+
 for (const [name, before, after, analyzed] of [
   ["esm", "export function value() { return 1; }", "export function value() { return 2; }", true],
   ["commonjs", "export function value() { return 1; } module.exports = value;", "export function value() { return 2; } module.exports = value;", false],

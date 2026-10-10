@@ -225,7 +225,7 @@ function resolveConfiguredModule(specifier: string, containingFile: string, reso
     if (config.error === undefined) {
       // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
       const parsed = ts.parseJsonConfigFileContent(config.config, { ...system, readDirectory: () => [] }, dirname(configPath));
-      options = { ...parsed.options, ...COMPILER_OPTIONS, paths: parsed.options.paths, baseUrl: parsed.options.baseUrl };
+      options = { ...COMPILER_OPTIONS, ...parsed.options };
     }
   }
   return ts.resolveModuleName(
@@ -235,7 +235,7 @@ function resolveConfiguredModule(specifier: string, containingFile: string, reso
     system,
     undefined,
     undefined,
-    resolutionMode,
+    resolutionMode ?? ts.getImpliedNodeFormatForFile(containingFile, undefined, system, options),
   );
 }
 
@@ -394,14 +394,16 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
       let pushedSymbol: string | undefined;
       let pushedScope: string | undefined;
 
-      if (ts.isFunctionDeclaration(node) && node.name) {
-        recordSymbol(node, node.name.text, "function", node.body === undefined);
-        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
-        pushedScope = node.name.text;
-      } else if (ts.isClassDeclaration(node) && node.name) {
-        recordSymbol(node, node.name.text, "class");
-        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
-        pushedScope = node.name.text;
+      if (ts.isFunctionDeclaration(node) && scopeNameOf(node) !== undefined) {
+        const name = scopeNameOf(node)!;
+        recordSymbol(node, name, "function", node.body === undefined);
+        pushedSymbol = symbolScopePath(scopeStack, name);
+        pushedScope = name;
+      } else if (ts.isClassDeclaration(node) && scopeNameOf(node) !== undefined) {
+        const name = scopeNameOf(node)!;
+        recordSymbol(node, name, "class");
+        pushedSymbol = symbolScopePath(scopeStack, name);
+        pushedScope = name;
       } else if (ts.isInterfaceDeclaration(node)) {
         recordSymbol(node, node.name.text, "interface");
       } else if (ts.isTypeAliasDeclaration(node)) {
@@ -468,7 +470,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         if (staticModuleLinksEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
           node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
           const specifier = (node.arguments[0] as ts.StringLiteral).text;
-          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot);
           imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
@@ -974,8 +976,9 @@ function importedNames(node: ts.ImportDeclaration): string[] {
  * the two would put callers and callees in different address spaces.
  */
 function scopeNameOf(node: ts.Node): string | undefined {
-  if (ts.isFunctionDeclaration(node) && node.name !== undefined) return node.name.text;
-  if (ts.isClassDeclaration(node) && node.name !== undefined) return node.name.text;
+  if (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) {
+    return node.name?.text ?? ((ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Default) !== 0 ? "default" : undefined);
+  }
   if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
   if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
   if (

@@ -1,11 +1,36 @@
 import { afterEach, expect, it } from "bun:test";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
 import { analyzeRepository, analyzeRepositoryAsync, discoverRepository, extractTypeScript } from "../src";
 
 const roots: string[] = [];
+for (const kind of ["function", "class"] as const) it(`represents anonymous default ${kind} declarations and their call coordinates`, () => {
+  const { root } = fixture();
+  writeFileSync(join(root, "default.mjs"), kind === "function"
+    ? "export default function () { function nested() { return 1; } return nested(); }"
+    : "export default class { method() { function nested() { return 1; } return nested(); } }");
+  writeFileSync(join(root, "caller.mjs"), kind === "function"
+    ? "import value from './default.mjs'; export function caller() { return value(); }"
+    : "import Value from './default.mjs'; export function caller() { return new Value().method(); }");
+  const extraction = extractTypeScript([join(root, "default.mjs"), join(root, "caller.mjs")], root);
+  expect(extraction.symbols.find(symbol => symbol.relPath === "default.mjs" && symbol.name === "default")).toMatchObject({ kind, exported: true });
+  expect(extraction.symbols.find(symbol => symbol.name === "nested")?.scope).toEqual(kind === "function" ? ["default"] : ["default", "method"]);
+  if (kind === "function") expect(extraction.calls.find(call => call.callerSymbolPath === "caller")).toMatchObject({ calleeRelPath: "default.mjs", calleeSymbolPath: "default" });
+});
+it("uses configured NodeNext require conditions for CommonJS module resolution", () => {
+  const { root } = fixture();
+  mkdirSync(join(root, "node_modules/conditional"), { recursive: true });
+  writeFileSync(join(root, "node_modules/conditional/package.json"), JSON.stringify({ name: "conditional", exports: { import: "./esm.js", require: "./cjs.js" } }));
+  writeFileSync(join(root, "node_modules/conditional/esm.js"), "export function value() { return 1; }");
+  writeFileSync(join(root, "node_modules/conditional/cjs.js"), "export function value() { return 2; }");
+  writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ compilerOptions: { module: "NodeNext", moduleResolution: "NodeNext" } }));
+  writeFileSync(join(root, "consumer.cjs"), "import { value } from 'conditional'; export function consumer() { return value(); } export function load() { return import('conditional'); }");
+  const extraction = extractTypeScript([join(root, "consumer.cjs")], root);
+  expect(extraction.imports[0]?.resolvedRelPath).toBe("node_modules/conditional/cjs.js");
+  expect(extraction.imports[1]?.resolvedRelPath).toBe("node_modules/conditional/esm.js");
+});
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), "semctx-js-")); roots.push(root);

@@ -570,17 +570,22 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const evidence = store.loadEvidence();
     const facts = { graph, claims, evidence };
     const javascriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
+    const typescriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
     const planeSnapshot = parsePlaneAIndexSnapshot(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     for (const entry of planeSnapshot?.sidecar.discoveryLedger ?? []) {
-      if (entry.scope.language !== "javascript" || entry.selectedProducer?.identity !== "@semantic-context/ts-analyzer/javascript") continue;
-      for (const path of entry.scope.selectedPaths) javascriptOutcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });
+      const outcomes = entry.scope.language === "javascript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
+        ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
+          ? typescriptOutcomes : undefined;
+      if (outcomes === undefined) continue;
+      for (const path of entry.scope.selectedPaths) outcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });
     }
-    const eligibleSource = (path: string): boolean => sourceLanguage(path) === "typescript"
+    const eligibleSource = (path: string): boolean => (sourceLanguage(path) === "typescript" && (config.version !== 2
+      || (typescriptOutcomes.get(path)?.outcome === "analyzed" && typescriptOutcomes.get(path)?.reasons.length === 0)))
       || (sourceLanguage(path) === "javascript" && config.version === 2 && config.languages.javascript === "on"
         && javascriptOutcomes.get(path)?.outcome === "analyzed" && javascriptOutcomes.get(path)?.reasons.length === 0);
-    const unsupportedJsFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
-      && sourceLanguage(node.filePath) === "javascript" && !eligibleSource(node.filePath) ? [node.filePath] : []));
-    const impactNodes = graph.nodes.filter((node) => node.filePath === undefined || !unsupportedJsFiles.has(node.filePath));
+    const unsupportedSourceFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
+      && ["javascript", "typescript"].includes(sourceLanguage(node.filePath)) && !eligibleSource(node.filePath) ? [node.filePath] : []));
+    const impactNodes = graph.nodes.filter((node) => node.filePath === undefined || !unsupportedSourceFiles.has(node.filePath));
     const impactNodeIds = new Set(impactNodes.map((node) => node.id));
     const impactGraph = { nodes: impactNodes, edges: graph.edges.filter((edge) => impactNodeIds.has(edge.from) && impactNodeIds.has(edge.to)) };
     const diff = parseUnifiedDiffChanges(diffText);
@@ -634,9 +639,9 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           ...(unchangedSinceIndexing !== undefined ? { unchangedSinceIndexing } : {}),
           bounds,
         });
-    if (core !== null) core.unresolved = sortUnresolved([...core.unresolved, ...[...unsupportedJsFiles].map((path) => ({
-      code: "JAVASCRIPT_ANALYSIS_INCOMPLETE", scope: "file" as const, file: path,
-      detail: "The indexed JavaScript producer is disabled, missing, failed, or partial; no effective impact facts are admitted for this file.", affects: "reach" as const,
+    if (core !== null) core.unresolved = sortUnresolved([...core.unresolved, ...[...unsupportedSourceFiles].map((path) => ({
+      code: sourceLanguage(path) === "javascript" ? "JAVASCRIPT_ANALYSIS_INCOMPLETE" : "TYPESCRIPT_ANALYSIS_INCOMPLETE", scope: "file" as const, file: path,
+      detail: "The indexed source producer is disabled, missing, failed, or partial; no effective impact facts are admitted for this file.", affects: "reach" as const,
     }))]);
 
     // Searched inside the mutable-state bracket below: a worktree or index that moves during the
@@ -701,7 +706,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
 
     const indexedFiles = new Set(graph.nodes.flatMap((node) => (node.filePath === undefined ? [] : [node.filePath])));
     const coverage = (files: Parameters<typeof withFileCoverage>[0]) =>
-      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles, javascriptOutcomes } });
+      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles, javascriptOutcomes, typescriptOutcomes } });
 
     if (broken || core === null) {
       // Re-indexing cannot bind a staged or range diff while the index reads uncommitted files.

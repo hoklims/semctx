@@ -9,6 +9,25 @@ import { __setIndexRepositoryCaptureBarrierForTesting } from "../src/indexing";
 import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
 
 const roots: string[] = [];
+test("manifest optional dependencies are admitted as opaque external boundaries", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "package.json"), JSON.stringify({ name: "fixture", optionalDependencies: { optional: "1.0.0" } }));
+  writeFileSync(join(root, "src/main.ts"), "import { value } from 'optional'; export function main() { return value(); }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("admitted");
+  expect(admission?.limitations.some(reason => reason.includes("optional"))).toBe(true);
+});
+test("an excluded escaped importer returns structured dependency-scope rejection", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "hidden.ts"), "import { privateValue } from '../outside.ts'; export const hidden = privateValue;\n");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const report = runVerify(root, { kind: "working-tree" }).report;
+  expect(report.analysisAdmission?.status).toBe("rejected");
+  expect(report.analysisAdmission?.reasons).toContain("DEPENDENCY_SCOPE_UNREADABLE:hidden.ts");
+  expect(VerifyReportSchema.safeParse(report).success).toBe(true);
+});
 test("reserved profile markers cannot silently downgrade through legacy config stripping", () => {
   const legacy = createDefaultConfig(".");
   expect(SemctxConfigSchema.safeParse(legacy).success).toBe(true);

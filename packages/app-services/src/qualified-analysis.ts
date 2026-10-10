@@ -40,11 +40,11 @@ export function qualifiedAdmission(input: {
   for (const file of consumed.files.filter((entry) => /(?:^|\/)package\.json$/.test(entry.path) || /(?:^|\/)tsconfig[^/]*\.json$/.test(entry.path))) {
     const parsed = ts.parseConfigFileTextToJson(file.path, Buffer.from(file.bytes).toString("utf8"));
     if (parsed.error !== undefined) continue; // The retained configuration inspection reports errors.
-    const manifest = parsed.config as { name?: unknown; dependencies?: Record<string, unknown>; devDependencies?: Record<string, unknown>; peerDependencies?: Record<string, unknown>; compilerOptions?: { paths?: Record<string, unknown> } };
+    const manifest = parsed.config as { name?: unknown; dependencies?: Record<string, unknown>; devDependencies?: Record<string, unknown>; peerDependencies?: Record<string, unknown>; optionalDependencies?: Record<string, unknown>; compilerOptions?: { paths?: Record<string, unknown> } };
     if (manifest === null || typeof manifest !== "object") continue;
     if (file.path.endsWith("package.json") && typeof manifest.name === "string") workspaceNames.add(manifest.name);
     const declared = new Set<string>();
-    for (const [name, version] of Object.entries({ ...manifest.dependencies, ...manifest.devDependencies, ...manifest.peerDependencies })) {
+    for (const [name, version] of Object.entries({ ...manifest.dependencies, ...manifest.devDependencies, ...manifest.peerDependencies, ...manifest.optionalDependencies })) {
       if (typeof version === "string" && !/^(?:workspace:|file:|link:)/.test(version)) declared.add(name);
     }
     if (file.path.endsWith("package.json")) externalPackages.set(dirname(resolve(config.repositoryRoot, file.path)), declared);
@@ -62,7 +62,15 @@ export function qualifiedAdmission(input: {
       directory = dirname(directory);
     }
   };
-  const extraction = extractTypeScript(sourceFiles.map((file) => file.absPath), config.repositoryRoot, compilerInputs);
+  const reasons: string[] = [];
+  let extraction: ReturnType<typeof extractTypeScript> = { modules: [], symbols: [], imports: [], calls: [] };
+  try {
+    extraction = extractTypeScript(sourceFiles.map((file) => file.absPath), config.repositoryRoot, compilerInputs);
+  } catch (error) {
+    if (!(error instanceof Error) || !/^(?:IMPORT|REFERENCE|SOURCE_LINK)_OUTSIDE_REPOSITORY:/.test(error.message)) throw error;
+    // The confinement guard must remain fail-closed while qualification returns its rejection.
+    reasons.push("DEPENDENCY_SCOPE_OUTSIDE_REPOSITORY");
+  }
   for (const entry of extraction.imports) if (entry.resolvedRelPath !== undefined) links.push([entry.fromRelPath, entry.resolvedRelPath]);
   const byId = new Map(input.graph.nodes.map((node) => [node.id, node.filePath]));
   for (const edge of input.graph.edges) {
@@ -70,7 +78,6 @@ export function qualifiedAdmission(input: {
     const from = byId.get(edge.from); const to = byId.get(edge.to);
     if (from !== undefined && to !== undefined) links.push([from, to]);
   }
-  const reasons: string[] = [];
   if (consumed.digest !== input.expectedInputHash) reasons.push("DEPENDENCY_SCOPE_INPUT_CHANGED");
   for (const entry of extraction.imports) {
     if (entry.resolvedRelPath === undefined && !isExternal(entry.moduleSpecifier, entry.fromRelPath)) {

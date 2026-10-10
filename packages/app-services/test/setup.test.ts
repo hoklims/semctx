@@ -36,6 +36,21 @@ const GIT_ENV = {
   GIT_COMMITTER_NAME: "semctx-test",
   GIT_COMMITTER_EMAIL: "semctx-test@example.com",
 };
+it("counts selected JavaScript in setup planning and index progress", () => {
+  const root = freshSample();
+  try {
+    writeFileSync(join(root, "extra.mjs"), "export function extra() { return 1; }");
+    initWorkspace(root, { ...createGlobSelectionConfig(root), include: ["**/*.ts", "**/*.mjs"], languages: { typescript: "on", javascript: "on" } });
+    const plan = planSetupRepository(root);
+    expect(plan.kind).toBe("setup_plan");
+    if (plan.kind !== "setup_plan") throw new Error("unexpected plan");
+    expect(plan.selection.selectedByLanguage.javascript).toBe(1);
+    const phases: SetupPhaseEvent[] = [];
+    const report = asSetup(setupRepository(root, { onPhase: phase => phases.push(phase) }));
+    expect(report.selection.selectedByLanguage.javascript).toBe(1);
+    expect(phases.find(phase => phase.phase === "index" && phase.stage === "start")).toMatchObject({ selectedByLanguage: { javascript: 1 } });
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
 
 function git(cwd: string, ...args: string[]): void {
   const result = Bun.spawnSync(["git", ...args], {
