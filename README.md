@@ -6,8 +6,9 @@ with `@invariant`, and the test files that import the changed code. It ends with
 WARN or BLOCK. BLOCK exits with code 3, so a hook, a CI job or a coding agent can stop on it.
 
 With no markers in your code, it warns when an exported interface or type changes and no test file
-imports it. To make it block, mark the code that matters with `@invariant`, `@tag critical` or
-`@tag security` (see [Declare what must not break](#declare-what-must-not-break)).
+imports it. To make it block, mark the code that matters: `@invariant` on any declaration,
+`@tag security` on a security-sensitive symbol, or `@tag critical` on an exported interface or type
+(see [Declare what must not break](#declare-what-must-not-break)).
 
 Analysis runs on your machine: it makes no network or LLM calls and needs no vector database. The
 same repository state gives the same report, apart from timestamps. semctx only reads your code. It
@@ -141,18 +142,20 @@ semctx verify diff --format json --output report.json   # versioned JSON report
 semctx impact diff --base origin/main                   # what the change can reach, no verdict
 ```
 
-`verify diff` exits 0 on PASS or WARN, 3 on BLOCK and 1 on an error; a usage error exits 2.
+`verify diff` exits 0 on PASS or WARN and 3 on BLOCK. Any other code means the run failed, for
+example on an invalid option, and produced no verdict.
 `--format github` prints workflow annotations. `--base` needs a local ref, because semctx never
 fetches. A pre-commit hook can run `semctx index` and then `semctx verify diff --staged`
 ([example](docs/examples/pre-commit-hook.md)).
 
-Options go after the command (`semctx status --json`). Placed before it, they print the general
-help instead, and so does `semctx <command> --help`. `semctx --help` lists the commands with their
-main options, and the [CLI reference](docs/reference/cli.md) has the rest.
+Write options after the command. In `semctx --json status`, `--json` takes `status` as its value
+and the CLI prints the general help. `semctx --help` lists the commands with their main options
+(`semctx <command> --help` prints the same page), and the [CLI reference](docs/reference/cli.md)
+has the rest.
 
-For a larger change, start with `semctx change open`: it records which invariants the change must
-keep and which evidence it still owes. `semctx change verify` later runs `verify diff` against that
-record and tells you whether the evidence is in place
+For a larger change, start with `semctx change open change.<slug>`: it records which invariants the
+change must keep and which evidence it still owes. `semctx change verify change.<slug>` later runs
+`verify diff` against that record and tells you whether the evidence is in place
 ([walkthrough](docs/examples/semantic-layer-reservation-example.md)).
 
 ## Use it in CI
@@ -225,17 +228,20 @@ Plugins update from the `stable` branch, which moves only when a release is publ
 Other MCP clients can run the server from a source checkout
 ([config snippet](docs/integrations/claude-code.md#mcp-without-the-plugin)). The server registers
 39 schema-declared tools (typed inputs and outputs), listed in
-[`tool-contract.ts`](packages/mcp-server/src/tool-contract.ts). Tools take the repository's absolute
-path as `repositoryRoot`; `SEMCTX_ROOT`, if set, must be absolute.
+[`tool-contract.ts`](packages/mcp-server/src/tool-contract.ts). Tools that read a repository take
+its absolute path as `repositoryRoot`; `semctx_control_verify_authorization`, which checks a capsule
+offline, takes none. `SEMCTX_ROOT`, if set, must be absolute.
 
 ### Reference for agent integrators
 
 You need this only to build or tune an agent workflow; the plugin skills already follow it.
 
-The planning tools only read. They check that the index is fresh, follow code up to the intent
-written in `.semctx/semantic/`, and compare a real diff with a plan. On the CLI they are
-`semctx status` and `semctx control ...`; over MCP, `semctx_control_status`, `semctx_control_trace`,
-`semctx_control_plan` and the other `semctx_control_*` tools.
+The planning tools check that the index is fresh, follow code up to the intent written in
+`.semctx/semantic/`, and compare a real diff with a plan. On the CLI they are `semctx status` and
+`semctx control ...`; over MCP, `semctx_control_status`, `semctx_control_trace`,
+`semctx_control_plan` and the other `semctx_control_*` tools. Most only read. Two write:
+`control target-propose` saves a target architecture artifact under `.semctx/semantic/targets/`, and
+`control handoff` stores a capsule in git-ignored local state.
 
 A `READY` plan grants no execution authority: these tools never edit code, commit, delete or deploy
 ([design](docs/architecture/control-plane-v1.md)).
@@ -269,20 +275,22 @@ checkpoints have no automatic host hook ([details](docs/integrations/claude-code
 
 ## Limits
 
-- A file counts as a test by its name, its directory or a test-runner import. It covers every
-  symbol it imports as a value (`import type` does not count), even if it never runs the changed
-  line. The `testGlobs` config field is not applied.
+- A file counts as a test by its name, its directory or a test-runner import. It covers a symbol
+  when it imports it as a value under its exported name (`import { greet }`), even if it never runs
+  the changed line. Aliased imports (`import { greet as subject }`), namespace imports
+  (`import * as m`) and `import type` do not count. The `testGlobs` config field is not applied.
 - A behaviour change inside any function gives no finding unless a marker covers it.
 - Calls that cannot be resolved statically are left out, and runtime behaviour such as races is out
-  of reach. What semctx could not establish is listed under `Unknowns` in the report.
+  of reach. `Unknowns` lists only a few known gaps, such as untested invariants or partial
+  analysis, so an empty `Unknowns` section does not mean nothing was missed.
 - The default config (v1) ignores `include` and `docsDirs`, matches `exclude` as a plain substring,
   and walks the whole repository except `node_modules`, `dist`, `build` and similar directories.
-  Config v2 applies `include` and `exclude` as globs. Create it with `semctx setup --polyglot`, or
-  convert an existing config with `semctx migrate config`
-  ([configuration](docs/reference/configuration.md)).
+  Config v2 applies `include` and `exclude` as globs. Create it with `semctx setup --polyglot`. An
+  existing v1 config converts through a reviewed plan
+  ([config migration](docs/reference/configuration.md#config-migration-v1-to-v2)).
 - Markers and `.sem` statements must fit on one line. Links from `.sem` files name a file and a
-  symbol, so renaming the symbol or its file can mark them stale. `semctx migrate anchors` rewrites
-  older links that still carry line numbers.
+  symbol, so renaming the symbol or its file can mark them stale. `semctx migrate anchors --apply`
+  rewrites older links that still carry line numbers; without `--apply` it only shows the changes.
 
 ## Current delivery status
 
@@ -295,7 +303,7 @@ releases can still contain breaking changes; the [changelog](CHANGELOG.md) lists
   no test links). Markdown and SQL are only classified as documents and migrations. Other languages
   are skipped.
 - Released: `verify diff`, `impact diff`, the GitHub Action, the Claude Code and Codex plugins, the
-  MCP server, change records and the read-only planning tools.
+  MCP server, change records and the planning tools.
 - Opt-in: config v2 (`setup --polyglot`) and guarded mode on Claude Code.
 - Experimental: the [Oh My Pi](docs/integrations/omp.md) package and `context prepare`
   (`semctx_prepare_task` over MCP). [Grok](docs/integrations/grok.md) can load the Claude Code
@@ -317,7 +325,7 @@ The [documentation index](docs/README.md) lists every guide. Start with
 [getting started](docs/getting-started.md) or [troubleshooting](docs/troubleshooting.md). The
 [architecture overview](docs/architecture/overview.md) and the [design decisions](docs/adr/) split
 semctx into three "planes": A is the facts derived from code plus the diff check, B is the intent
-you write down in `.semctx/semantic/`, and C is the read-only planning tools.
+you write down in `.semctx/semantic/`, and C is the planning tools.
 
 ## Contributing, support, license
 
