@@ -120,6 +120,48 @@ test("untracked authored outputs remain obligations and legacy profiles retain d
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 60_000);
 
+for (const inherited of [false, true]) test(`ignored build configuration cannot fall back to qualified defaults: inherited ${inherited}`, () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-build-configuration-"));
+  try {
+    mkdirSync(join(root, "build"));
+    writeFileSync(join(root, ".gitignore"), ".semctx/\nbuild/**\n");
+    writeFileSync(join(root, "build/main.ts"), "export function main() { return 1; }\n");
+    const git = (...args: string[]) => {
+      const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+      if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+    };
+    git("init", "-q"); git("add", ".gitignore"); git("add", "-f", "build/main.ts");
+    git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
+    const unsupported = '{"compilerOptions":{"module":"NodeNext","moduleResolution":"NodeNext"}}';
+    writeFileSync(join(root, "build/tsconfig.json"), inherited ? '{"extends":"./config-base.json"}' : unsupported);
+    if (inherited) writeFileSync(join(root, "build/config-base.json"), unsupported);
+    writeFileSync(join(root, "build/package.json"), '{"type":"module"}');
+    writeFileSync(join(root, "build/cache.json"), '{"generated":true}');
+    const config = { ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1" as const, analysisProfile: "modelo-suite-static-v1" as const, include: ["build/**/*.ts"] };
+    initWorkspace(root, config);
+    writeFileSync(join(root, "build/main.ts"), "export function main() { return 2; }\n");
+    indexRepository(root, "2026-10-09T10:00:00.000Z");
+    const inputs = captureQualifiedAnalysisInputs(config);
+    const report = runVerify(root, { kind: "working-tree" }).report;
+    const cli = Bun.spawnSync(["bun", join(import.meta.dir, "../../../apps/cli/src/index.ts"), "verify", "diff", "--root", root, "--format", "json", "--fail-on", "none"], { stdout: "pipe", stderr: "pipe" });
+    console.info(JSON.stringify({ inherited, captured: inputs.files.map(file => file.path), admission: report.analysisAdmission?.status, cliExit: cli.exitCode }));
+    expect(inputs.files.some(file => file.path === "build/tsconfig.json")).toBe(true);
+    expect(inputs.files.some(file => file.path === "build/package.json")).toBe(true);
+    expect(inputs.files.some(file => file.path === "build/cache.json")).toBe(false);
+    if (inherited) expect(inputs.files.some(file => file.path === "build/config-base.json")).toBe(true);
+    expect(report.analysisAdmission?.status).toBe("rejected");
+    expect(cli.exitCode).toBe(3);
+    expect(report.analysisAdmission?.reasons.some(reason => reason.endsWith("SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:NodeNext"))).toBe(true);
+    if (inherited) {
+      rmSync(join(root, "build/config-base.json"));
+      indexRepository(root, "2026-10-09T10:01:00.000Z");
+      const missing = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+      expect(missing?.status).toBe("rejected");
+      expect(missing?.reasons.some(reason => reason.includes("SOURCE_CONFIGURATION_INVALID"))).toBe(true);
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 60_000);
+
 test("ignore and attribute controls inside ignored outputs stay sealed", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-build-ignore-controls-"));
   try {

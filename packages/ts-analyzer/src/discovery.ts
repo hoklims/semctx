@@ -154,13 +154,35 @@ export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: 
     throw new SemctxError("IO_ERROR", "qualified discovery could not establish Git source eligibility");
   }
   const authored = new Set(new TextDecoder().decode(result.stdout).split("\0").filter(Boolean).map(normalizePath));
+  // Compiler/manifests are causal inputs even when Git ignores their output directory.
+  // Retain local extends chains as well; absence in the snapshot must not become defaults.
+  const paths: string[] = [];
+  walk(config.repositoryRoot, config.repositoryRoot, paths, true, undefined, true);
+  const available = new Map(paths.map(path => [normalizePath(relative(config.repositoryRoot, path)), path]));
+  const metadata = new Set([...available.keys()].filter(path =>
+    /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(path)));
+  const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
+  for (const relPath of pending) {
+    const absPath = available.get(relPath)!;
+    const parsed = ts.readConfigFile(absPath, path => readFileSync(path, "utf8"));
+    const configValue = parsed.config as { extends?: unknown } | undefined;
+    const extended = configValue?.extends;
+    for (const reference of Array.isArray(extended) ? extended : [extended]) {
+      if (typeof reference !== "string" || !reference.startsWith(".")) continue;
+      const target = resolve(dirname(absPath), reference);
+      const targetPath = normalizePath(relative(config.repositoryRoot, /\.json$/.test(target) ? target : `${target}.json`));
+      if (!available.has(targetPath) || metadata.has(targetPath)) continue;
+      metadata.add(targetPath);
+      pending.push(targetPath);
+    }
+  }
   return (inputPath) => {
     const relPath = normalizePath(inputPath);
     if (isHardExcludedPath(relPath)) return false;
     if (!segments(relPath).some((part) => OUTPUT_SEGMENTS.has(part))) return true;
     // Ignore controls themselves must remain bound, including inside generated directories.
     return /(?:^|\/)\.(?:gitignore|gitattributes)$/.test(relPath)
-      || authored.has(relPath) || isPathSelected(config, relPath);
+      || metadata.has(relPath) || authored.has(relPath) || isPathSelected(config, relPath);
   };
 }
 
