@@ -145,6 +145,10 @@ The global Node builtin resolver `process.getBuiltinModule` also remains outside
 the qualified static profile. Its intermediate namespace-alias witness requires
 an explicit unmodeled-member diagnostic; it does not claim that the resolver or
 the resulting loader was executed or that its runtime dependency was extracted.
+The same resolver refusal is witnessed through a statically quoted default import
+from `node:process` and a destructured `getBuiltinModule` alias in TypeScript.
+These are equivalent syntax routes to the existing unmodeled resolver, not new
+runtime capabilities.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent
