@@ -58,9 +58,29 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
     }
     return "other";
   };
+  const safeNamespaceUse = (node: ts.Node): boolean => {
+    const parent = node.parent;
+    if ((ts.isPropertyAccessExpression(parent) || ts.isElementAccessExpression(parent)) && parent.expression === node) {
+      return ts.isPropertyAccessExpression(parent) || ts.isStringLiteral(parent.argumentExpression);
+    }
+    if ((ts.isParenthesizedExpression(parent) || ts.isAsExpression(parent) || ts.isNonNullExpression(parent) || ts.isAwaitExpression(parent)) && parent.expression === node) return true;
+    if (ts.isTypeOfExpression(parent) || ts.isTypeNode(parent)) return true;
+    if (!ts.isVariableDeclaration(parent) || parent.initializer !== node
+      || (parent.parent.flags & ts.NodeFlags.Const) === 0) return false;
+    return ts.isIdentifier(parent.name) || (ts.isObjectBindingPattern(parent.name) && parent.name.elements.every((element) =>
+      !element.dotDotDotToken && ts.isIdentifier(element.name)
+      && (element.propertyName === undefined || ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))));
+  };
   let found = false;
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)) return; // An unused binding is not a loader use.
+    if (ts.isShorthandPropertyAssignment(node)) {
+      const target = checker.getShorthandAssignmentValueSymbol(node);
+      for (const declaration of target?.declarations ?? []) {
+        const name = (declaration as ts.NamedDeclaration).name;
+        if (name && ts.isIdentifier(name) && origin(name) !== "other") found = true;
+      }
+    }
     if (ts.isExportAssignment(node) && origin(node.expression) === "namespace") found = true;
     if (ts.isVariableStatement(node) && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
       && node.declarationList.declarations.some((declaration) => declaration.initializer && origin(declaration.initializer) === "namespace")) found = true;
@@ -75,6 +95,9 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
       || (ts.isBindingElement(node.parent) && (node.parent.name === node || node.parent.propertyName === node))
       || (ts.isParameter(node.parent) && node.parent.name === node));
     if (!declarationName && origin(node) === "factory") found = true;
+    // A namespace containing createRequire cannot leave the understood immutable binding
+    // routes: assignment, return, container and callback flows have no modeled load edges.
+    if (!declarationName && origin(node) === "namespace" && !safeNamespaceUse(node)) found = true;
     ts.forEachChild(node, visit);
   };
   visit(source);
