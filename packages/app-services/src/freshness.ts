@@ -34,6 +34,7 @@ import {
 } from "@semantic-context/plane-a-internal";
 import packageJson from "../package.json";
 import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
+import { analyzeWorkspaceSync } from "@semantic-context/workspace-analyzer-internal";
 
 export const CONTROL_INDEX_SNAPSHOT_META_KEY = "control_index_snapshot_v1";
 export const PLANE_A_INDEX_SNAPSHOT_META_KEY = "plane_a_index_snapshot_v1";
@@ -222,7 +223,7 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
         }
         if (entry.isDirectory()) { walk(path); continue; }
         // Source bytes, raw manifests/configuration and lockfiles all influence qualification.
-        if (!/\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(entry.name) && !/^(?:\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(entry.name)) continue;
+        if (!/\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(entry.name) && !/^(?:pyproject\.toml|\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(entry.name)) continue;
         if (!canonicalRepositoryRoot(path).startsWith(`${qualifiedRoot}/`)) throw new SemctxError("INVALID_TASK_INPUT", "qualified source lies outside the repository");
         const bytes = readFileSync(path);
         entries.push({ path: relPath, contentHash: hash("qualified-input-bytes", bytes) });
@@ -230,7 +231,11 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
       }
     };
     walk(config.repositoryRoot);
-    return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)) })), files };
+    // Seal only directory membership consumed by workspace projection, using these retained
+    // manifest bytes. Unrelated empty output directories do not affect the qualified identity.
+    const manifestContents = new Map(files.map(file => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
+    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents });
+    return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files };
 }
 
 /** Fingerprint the exact discovered Plane A contents plus the parsed analyzer configuration. */

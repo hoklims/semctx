@@ -22,7 +22,7 @@ import {
   type UnresolvedReferenceBindingReason,
 } from "./unresolved-references";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
-import type { ControlFreshnessReason, ControlFreshnessStatusReport } from "@semantic-context/control-model";
+import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource } from "./verification-state";
 import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
 import { canonicalRepositoryRoot, fingerprintAnalysisInputs } from "./freshness";
@@ -595,7 +595,8 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       claims,
       config,
       diffText: resolved.diffText ?? "",
-      // Qualified analysis requires a current post-image index. Legacy working-tree and staged
+      // Qualified staged/range admission below requires a clean index; dirty snapshots support
+      // working-tree sources only. Legacy working-tree and staged
       // analysis retains old HEAD coordinates; ranges always use the indexed new side.
       nodeRangeSide: source.kind === "range" || isQualified(config) ? "new" : "old",
     });
@@ -619,10 +620,21 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
           (path) => isPathSelected(config, path),
         )
       : gated;
+    const qualifiedPostImageReasons: string[] = [];
+    if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {
+      let indexed: ReturnType<typeof parseIndexedControlSnapshot> = null;
+      try {
+        indexed = parseIndexedControlSnapshot(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY));
+      } catch {
+        // The binding probe separately reports malformed metadata; never infer a clean tree.
+      }
+      if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
+      else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+    }
     const analysisAdmission = isQualified(config) ? qualifiedAdmission({
       config, graph, changedPaths: changedScopePaths, health: indexHealth(root),
       sourceHash: digestCanonical({ inputs: inputBefore, sourceIdentity: resolved.identity }), diff: resolved.diffText ?? "", indexSnapshot: analyzedIndexSnapshotHash,
-      bindingReasons: observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)).breaks,
+      bindingReasons: [...observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)).breaks, ...qualifiedPostImageReasons],
       checkChanged: inputBefore !== fingerprintAnalysisInputs(loadConfig(root), discoverRepository(loadConfig(root)).files),
       buildState: store.getMeta(QUALIFIED_BUILD_META),
       sourceCommits: resolved.identity.kind === "absent" ? [] : [...resolved.identity.commits], baseCommit: resolved.git.mergeBase,

@@ -7,8 +7,85 @@ import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "../src";
 import { __setIndexRepositoryCaptureBarrierForTesting } from "../src/indexing";
 import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
+import { captureQualifiedAnalysisInputs } from "../src/freshness";
 
 const roots: string[] = [];
+for (const kind of ["staged", "range"] as const) test(`round3 dirty qualified index rejects ${kind} post-image and admits its actual working tree`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  git(root, "add", "src/main.ts");
+  if (kind === "range") git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "second");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 3; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, kind === "staged" ? { kind } : { kind, base: "HEAD^" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toContain("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+  expect(runVerify(root, { kind: "working-tree" }).report.analysisAdmission?.status).toBe("admitted");
+});
+test("round3 clean qualified range admits its indexed HEAD and rejects an older destination", () => {
+  const root = selectedRepository();
+  for (const value of [2, 3]) {
+    writeFileSync(join(root, "src/main.ts"), `export function main() { return ${value}; }\n`);
+    git(root, "add", "src/main.ts");
+    git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", `version ${value}`);
+  }
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  expect(runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission?.status).toBe("admitted");
+  const older = runVerify(root, { kind: "range", base: "HEAD^^", head: "HEAD^" }).report.analysisAdmission;
+  expect(older?.status).toBe("rejected");
+  expect(older?.binding.reasons).toContain("ANALYZED_COMMIT_MISMATCH");
+});
+for (const operation of ["add", "remove"] as const) test(`round3 empty workspace directory ${operation} invalidates qualified admission`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "package.json"), '{"name":"root","workspaces":["packages/*"]}');
+  mkdirSync(join(root, "packages"));
+  if (operation === "remove") mkdirSync(join(root, "packages/ghost"));
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  if (operation === "add") mkdirSync(join(root, "packages/ghost"));
+  else rmSync(join(root, "packages/ghost"), { recursive: true });
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.indexFreshness.reasons).toContain("ANALYSIS_INPUT_MISMATCH");
+});
+test("round3 unrelated empty output directories do not change qualified inputs", () => {
+  const root = selectedRepository();
+  const config = createGlobSelectionConfig(root);
+  const before = captureQualifiedAnalysisInputs(config).digest;
+  mkdirSync(join(root, "build/random"), { recursive: true });
+  expect(captureQualifiedAnalysisInputs(config).digest).toBe(before);
+});
+test("round3 local require calls remain admitted ordinary TypeScript", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "src/main.ts"), "const require = (value: number) => value; export function main() { return require(2); }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  expect(runVerify(root, { kind: "working-tree" }).report.analysisAdmission?.status).toBe("admitted");
+});
+for (const ignored of [false, true]) test(`round3 ${ignored ? "ignored output" : "untracked"} pyproject drift invalidates qualified admission`, () => {
+  const root = selectedRepository();
+  const directory = ignored ? "build" : "python";
+  mkdirSync(join(root, directory));
+  if (ignored) writeFileSync(join(root, ".gitignore"), ".semctx/\nbuild/\n");
+  writeFileSync(join(root, directory, "pyproject.toml"), '[project]\nname = "before"\n');
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  writeFileSync(join(root, directory, "pyproject.toml"), '[project]\nname = "after"\n');
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.indexFreshness.reasons).toContain("ANALYSIS_INPUT_MISMATCH");
+});
+for (const [path, content] of [
+  ["src/globals.ts", "const FLAG = 2;"], ["src/globals.d.ts", "declare const FLAG: number;"],
+  ["src/augment.ts", "export {}; declare global { const FLAG: number; }"],
+]) test(`round3 global source mode refuses unmodeled cross-file reads: ${path}`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, path!), content!);
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return FLAG; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons.some(reason => /SOURCE_(?:GLOBAL_SCRIPT|GLOBAL_AUGMENTATION)_UNSUPPORTED/.test(reason))).toBe(true);
+});
 for (const mutation of ["exports.legacy = main;", "Object.assign(exports, { main });"]) test(`round2 ambient TypeScript exports rejects: ${mutation}`, () => {
   const root = selectedRepository();
   writeFileSync(join(root, "src/main.ts"), `export function main() { return 2; } ${mutation}\n`);

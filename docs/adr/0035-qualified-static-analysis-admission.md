@@ -50,6 +50,29 @@ indexed and sealed; `STALE`, `UNSEALED`, incompatible implementation/configurati
 partial obligated analysis refuse admission. Repository coverage may remain partial
 outside the named change closure; the report enumerates both scopes.
 
+A dirty qualified index supports working-tree verification only. Staged and range
+sources require a clean indexed post-image; a range destination must also match the
+indexed commit. `DIRTY_KNOWN` proves retained worktree bytes, not equality with the
+Git index or a committed range destination. Exact dirty staged-post-image matching
+is not implemented and cannot be inferred from stable input observations.
+
+The profile refuses actual global scripts, global declaration files, and global or
+string-named module augmentations because their cross-file bindings are not modeled.
+Explicit import/export boundaries and the `.mjs`/`.mts` modes marked external by the
+current extraction Program remain eligible. That Program does not propagate
+configured `moduleDetection` or infer bare TypeScript/JavaScript module scope solely
+from package `type: "module"` under ESNext/Bundler. Such bare files remain unsupported,
+including those configured with `moduleDetection: "force"`; configuration intent does
+not replace observed compiler scope.
+
+Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
+including ignored manifests outside the reserved internal directories. The input
+identity also binds directory membership consumed by the workspace projection, so
+adding or removing an empty declared workspace invalidates freshness. Reserved
+`.semctx` artifacts and unrelated empty output directories do not supply workspace
+evidence. Workspace projection consumes retained manifest bytes; index reconstruction
+still compares its projection against the final current layout to detect drift.
+
 ## Proof boundary
 
 Every required closure member must also have admitted Plane-A fact-use tuples.

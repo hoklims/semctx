@@ -284,6 +284,7 @@ function composePlaneARuntime(
     repositoryRoot: config.repositoryRoot,
     repositoryId: repositoryIdentity,
     artifacts: provisionalArtifacts,
+    ...(compilerInputs === undefined ? {} : { manifestContents: compilerInputs }),
   });
   const workspaceUnitByPath = workspaceUnitsByPath(
     workspaceProjection,
@@ -313,7 +314,8 @@ function composePlaneARuntime(
   const failedProducerByPath = new Map<string, ProducerIdentity>();
   for (const candidate of discovery.candidates) {
     if (candidate.selectionDecision !== "selected" || candidate.analysisOutcome !== "failed") continue;
-    const producer = candidate.language === "python" ? PYTHON_PRODUCER : TYPESCRIPT_PRODUCER;
+    const producer = candidate.language === "python" ? PYTHON_PRODUCER
+      : candidate.language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
     const scope = scopeForCandidate(
       repositoryIdentity,
       candidate,

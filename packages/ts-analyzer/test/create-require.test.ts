@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import { inspectJavaScriptSource, inspectNativeModuleBindings, hasNodeCreateRequireUse } from "../src/javascript-diagnostics";
+for (const source of ["const require = value => value; require('x'); export {};", "function use(require, path) { return require(path); } export {};", "function require(...values) { return values; } require(1, 2); export {};"]) test(`round3 local require calls remain ordinary JavaScript: ${source}`, () => {
+  expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).not.toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
+});
 for (const source of ["exports.legacy = 1;", "Object.assign(exports, { value: 1 });", "const target = globalThis.exports; target.value = 1;"]) test(`round2 ambient exports have CommonJS origin: ${source}`, () => {
   expect(inspectNativeModuleBindings(ts.createSourceFile("/fixture/main.ts", source, ts.ScriptTarget.Latest, true)).commonJsUnsupported).toBe(true);
 });

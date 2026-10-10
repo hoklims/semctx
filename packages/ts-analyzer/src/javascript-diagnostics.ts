@@ -290,7 +290,6 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
           recordModuleLink(specifier);
         }
       }
-      if (ts.isIdentifier(node.expression) && node.expression.text === "require") reasons.add("JAVASCRIPT_COMMONJS_UNSUPPORTED");
     }
     if (ts.isWithStatement(node)) reasons.add("JAVASCRIPT_DYNAMIC_SCOPE_UNSUPPORTED");
     if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
@@ -312,10 +311,11 @@ export function inspectSourceParsing(path: string, content: string): string[] {
     `SOURCE_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`);
 }
 
-export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot): string[] {
+export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot, source?: ts.SourceFile): string[] {
   const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
-  if (!configPath) return [];
+  if (!configPath) return source !== undefined && compilerInputs !== undefined
+    ? inspectQualifiedModuleScope(source, path) : [];
   const contained = (candidate: string): boolean => {
     if (!repositoryRoot) return true;
     const relation = relative(repositoryRoot, candidate).replaceAll("\\", "/");
@@ -345,5 +345,23 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
       reasons.push(`SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:${ts.ModuleResolutionKind[parsed.options.moduleResolution]}`);
     }
   }
+  if (source !== undefined && compilerInputs !== undefined) {
+    reasons.push(...inspectQualifiedModuleScope(source, path));
+  }
   return reasons;
+}
+
+function inspectQualifiedModuleScope(source: ts.SourceFile, path: string): string[] {
+  const reasons: string[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isModuleDeclaration(node) && (node.flags & ts.NodeFlags.GlobalAugmentation) !== 0) reasons.push("SOURCE_GLOBAL_AUGMENTATION_UNSUPPORTED");
+    if (ts.isModuleDeclaration(node) && ts.isStringLiteral(node.name)) reasons.push("SOURCE_MODULE_AUGMENTATION_UNSUPPORTED");
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  // The current extraction Program does not propagate configured moduleDetection or infer
+  // bare TS/JS module scope from package type under ESNext/Bundler. Qualify its actual modes.
+  const module = ts.isExternalModule(source) || /\.(?:mjs|mts)$/.test(path);
+  if (!module) reasons.push("SOURCE_GLOBAL_SCRIPT_UNSUPPORTED");
+  return [...new Set(reasons)];
 }

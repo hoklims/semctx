@@ -188,7 +188,7 @@ function untrackedPaths(root: string): string[] {
 }
 
 const TS_PATHSPECS = ["*.ts", "*.tsx", "*.mts", "*.cts", "*.js", "*.jsx", "*.mjs", "*.cjs"];
-const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", "/index.ts", "/index.tsx", ".js", ".jsx", ".mjs", ".cjs", "/index.js", "/index.mjs"];
+const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", "/index.ts", "/index.tsx", ".js", ".jsx", ".mjs", ".cjs", "/index.js", "/index.jsx", "/index.mjs"];
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -574,8 +574,8 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const planeSnapshot = parsePlaneAIndexSnapshot(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     for (const entry of planeSnapshot?.sidecar.discoveryLedger ?? []) {
       if (entry.selectionDecision !== "selected") continue;
-      const outcomes = entry.scope.language === "javascript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
-        ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.selectedProducer?.identity === "@semantic-context/ts-analyzer" || (entry.selectedProducer === undefined && entry.analysisOutcome !== "analyzed"))
+      const outcomes = entry.scope.language === "javascript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript")
+        ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer")
           ? typescriptOutcomes : undefined;
       if (outcomes === undefined) continue;
       for (const path of entry.scope.selectedPaths) outcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });

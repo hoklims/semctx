@@ -162,7 +162,7 @@ export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: 
   const paths: string[] = [];
   walk(config.repositoryRoot, config.repositoryRoot, paths, true, undefined, true);
   const available = new Map(paths.map(path => [normalizePath(relative(config.repositoryRoot, path)), path]));
-  const namedMetadata = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
+  const namedMetadata = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|pyproject\.toml|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
   const metadata = new Set([...available.keys()].filter(path => namedMetadata.test(path)));
   const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
   for (const relPath of pending) {

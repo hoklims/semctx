@@ -101,13 +101,11 @@ export function qualifiedAdmission(input: {
     }
     for (const member of native.unmodeledMembers) reasons.push(`DEPENDENCY_SCOPE_NATIVE_MODULE_MEMBER_UNSUPPORTED:${source.relPath}:${member}`);
     for (const diagnostic of inspectSourceParsing(source.relPath, source.content)) reasons.push(`DEPENDENCY_SCOPE_PARSE_FAILED:${source.relPath}:${diagnostic}`);
-    for (const diagnostic of inspectModuleConfiguration(source.absPath, config.repositoryRoot, compilerInputs)) reasons.push(`DEPENDENCY_SCOPE_CONFIGURATION:${source.relPath}:${diagnostic}`);
+    for (const diagnostic of inspectModuleConfiguration(source.absPath, config.repositoryRoot, compilerInputs, ast)) reasons.push(`DEPENDENCY_SCOPE_CONFIGURATION:${source.relPath}:${diagnostic}`);
     const visit = (node: ts.Node): void => {
       if (ts.isCallExpression(node)) {
         const dynamic = node.expression.kind === ts.SyntaxKind.ImportKeyword;
-        const requireCall = ts.isIdentifier(node.expression) && node.expression.text === "require";
-        if (requireCall) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);
-        if ((dynamic || requireCall) && (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!))) reasons.push(`DEPENDENCY_SCOPE_COMPUTED_IMPORT:${source.relPath}`);
+        if (dynamic && (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!))) reasons.push(`DEPENDENCY_SCOPE_COMPUTED_IMPORT:${source.relPath}`);
       }
       if ((ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference))
         || (ts.isExportAssignment(node) && node.isExportEquals)) {
