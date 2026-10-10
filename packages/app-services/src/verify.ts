@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { posix } from "node:path";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import { SemctxError, type VerifyReport } from "@semantic-context/core";
 import { loadConfig } from "@semantic-context/repository-store";
@@ -25,7 +27,7 @@ import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndex
 import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource } from "./verification-state";
 import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
-import { canonicalRepositoryRoot, fingerprintAnalysisInputs } from "./freshness";
+import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, fingerprintAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
 /**
  * `head` names the commit the analysed post-image belongs to. It is optional everywhere and means
@@ -573,6 +575,46 @@ function discloseUnresolvedReferences(
   );
 }
 
+/** Compare retained repository inputs with the actual selected Git post-image. */
+function qualifiedPostImageInputs(root: string, config: Parameters<typeof captureQualifiedAnalysisInputs>[0], source: VerifySource, identity: SourceIdentity): string[] {
+  if (identity.kind !== "commits" || identity.commits.length !== 1) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const format = git(root, ["rev-parse", "--show-object-format"]);
+  const algorithm = format.out.trim();
+  if (format.code !== 0 || (algorithm !== "sha1" && algorithm !== "sha256")) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const inventory = git(root, source.kind === "staged"
+    ? ["ls-files", "--stage", "-z"] : ["ls-tree", "-r", "-z", identity.commits[0]!]);
+  if (inventory.code !== 0) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const blobs = new Map<string, string>();
+  const directories = new Set(["."]);
+  for (const item of inventory.out.split("\0").filter(Boolean)) {
+    const separator = item.indexOf("\t");
+    const fields = item.slice(0, separator).split(" ");
+    if (separator < 0 || fields.length !== 3) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+    if (source.kind === "staged" ? fields[2] !== "0" : fields[1] !== "blob") continue;
+    const path = item.slice(separator + 1);
+    blobs.set(path, source.kind === "staged" ? fields[1]! : fields[2]!);
+    for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
+  }
+  const retained = captureQualifiedAnalysisInputs(config);
+  const reasons: string[] = [];
+  const retainedPaths = new Set(retained.files.map(file => file.path));
+  for (const file of retained.files) {
+    const expected = blobs.get(file.path);
+    if (expected === undefined) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_ABSENT:${file.path}`);
+    else {
+      const actual = createHash(algorithm).update(`blob ${file.bytes.byteLength}\0`).update(file.bytes).digest("hex");
+      if (actual !== expected) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_MISMATCH:${file.path}`);
+    }
+  }
+  for (const path of blobs.keys()) {
+    if (isQualifiedRepositoryInputPath(path) && !retainedPaths.has(path)) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_UNRETAINED:${path}`);
+  }
+  for (const workspace of retained.workspaceRoots) {
+    if (!directories.has(workspace)) reasons.push(`QUALIFIED_POST_IMAGE_WORKSPACE_ABSENT:${workspace}`);
+  }
+  return reasons;
+}
+
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
 export function runVerify(root: string, source: VerifySource): VerifyComputation {
   const store = openReadyRepository(root);
@@ -630,6 +672,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       }
       if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
       else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+      else qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, config, source, resolved.identity));
     }
     const analysisAdmission = isQualified(config) ? qualifiedAdmission({
       config, graph, changedPaths: changedScopePaths, health: indexHealth(root),

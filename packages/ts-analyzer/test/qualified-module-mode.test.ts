@@ -6,6 +6,13 @@ import { inspectModuleConfiguration } from "../src/javascript-diagnostics";
 import { extractionContext } from "../src/ts-symbols";
 
 const root = join(tmpdir(), "semctx-module-snapshot").replaceAll("\\", "/");
+for (const file of ["module.cts", "module.d.cts"]) test(`round4 explicit exports cannot qualify ${file} as ESM`, () => {
+  const path = `${root}/${file}`;
+  const content = "export interface Marker { value: number }";
+  const inputs = new Map([[path, content]]);
+  const source = extractionContext.createProgram([path], inputs).getSourceFile(path)!;
+  expect(inspectModuleConfiguration(path, root, inputs, source)).toContain("SOURCE_COMMONJS_EXTENSION_UNSUPPORTED");
+});
 for (const [file, content, metadata, rejected] of [
   ["global.ts", "const FLAG = 1;", {}, true],
   ["global.d.ts", "declare const FLAG: number;", {}, true],

@@ -209,6 +209,11 @@ function composePlaneARuntime(
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
     if (config.version === 2 && candidate.language === "typescript") {
+      if (/\.d\.(?:ts|mts|cts)$/.test(file.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_DECLARATION_FILE_UNSUPPORTED"]);
+        continue;
+      }
       const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs)];
       if (reasons.length > 0) {
         forcedOutcomes.set(candidate.relPath, "failed");
@@ -422,9 +427,8 @@ function composePlaneARuntime(
         ?? (completed === undefined ? "failed" : "analyzed");
       const analysisReasons = outcome === "analyzed"
         ? perPath.find((item) => item.candidate.relPath === candidate.relPath)?.analysisReasons ?? []
-        : outcome === "failed"
-          ? forcedAnalysisReasons.get(candidate.relPath) ?? ["PRODUCER_FAILED", candidate.reason]
-          : [candidate.reason];
+        : forcedAnalysisReasons.get(candidate.relPath) ?? (outcome === "failed"
+          ? ["PRODUCER_FAILED", candidate.reason] : [candidate.reason]);
       const selectedProducer = completed?.producer ?? failedProducerByPath.get(candidate.relPath);
       return normalizeDiscoveryLedgerEntry({
         candidateIdentity: `${candidate.language}:${candidate.relPath}`,

@@ -55,6 +55,12 @@ sources require a clean indexed post-image; a range destination must also match 
 indexed commit. `DIRTY_KNOWN` proves retained worktree bytes, not equality with the
 Git index or a committed range destination. Exact dirty staged-post-image matching
 is not implemented and cannot be inferred from stable input observations.
+Clean Git status also does not prove post-image membership: ignored retained sources,
+manifests or empty workspace roots may be absent from the candidate. Staged/range
+admission compares retained repository input bytes with Git blobs and consumed
+workspace roots with the selected directory inventory. Missing or differing inputs
+refuse admission; repository clean/smudge transformations are not assumed equivalent
+to the retained compiler bytes.
 
 The profile refuses actual global scripts, global declaration files, and global or
 string-named module augmentations because their cross-file bindings are not modeled.
@@ -64,6 +70,13 @@ configured `moduleDetection` or infer bare TypeScript/JavaScript module scope so
 from package `type: "module"` under ESNext/Bundler. Such bare files remain unsupported,
 including those configured with `moduleDetection: "force"`; configuration intent does
 not replace observed compiler scope.
+
+Repository declaration files (`.d.ts`, `.d.mts`, `.d.cts`) are unsupported in configuration
+v2 until their API and dependency facts are extracted. They remain visible as unsupported
+per-path outcomes and prevent qualified admission when retained in the broad repository
+scope, including excluded declarations. CommonJS TypeScript `.cts`/`.d.cts` format is
+outside the ESM profile even when it contains explicit exports. Legacy v1 behavior is
+unchanged. Existing runtime-companion resolution does not qualify declaration changes.
 
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input

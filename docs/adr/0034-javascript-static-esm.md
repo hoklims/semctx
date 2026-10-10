@@ -18,6 +18,10 @@ regression fixture proves three inbound call hops under an inherited tsconfig an
 an internal paths alias. Runtime `.mjs` sources remain the dependency endpoint when
 a `.d.mts` declaration companion is present. Named local export clauses are read
 through the compiler export table, including alias bindings.
+That runtime redirection does not extract or qualify the companion's API/dependency
+facts. Configuration v2 reports repository declarations as unsupported, and the
+named ESM profile refuses declaration-bearing scope (ADR 0035). The separately
+eligible public mixed fixture contains no declaration companion or CommonJS source.
 
 Named exported non-function variables are recorded in module `staticExports`
 metadata as a JSON string containing their names and declaration kinds. These are

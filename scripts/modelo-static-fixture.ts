@@ -15,6 +15,15 @@ export function put(root: string, path: string, content: string): void {
 
 /** Public, synthetic sources: topology and tool pins are the only consumer-derived inputs. */
 export function createConsumer(root: string): void {
+  writeConsumer(root, "declaration-bearing");
+}
+
+/** Separately eligible public ESM fixture; never rewrite the original declaration witness. */
+export function createEligibleConsumer(root: string): void {
+  writeConsumer(root, "eligible-esm");
+}
+
+function writeConsumer(root: string, domain: "declaration-bearing" | "eligible-esm"): void {
   put(root, ".gitignore", ".semctx/\n**/node_modules/\n**/.turbo/\n**/out/\n");
   put(root, "suite/package.json", JSON.stringify({ name: "public-static-consumer", private: true, type: "module", packageManager: `pnpm@${CONSUMER_VERSIONS.pnpm}`, workspaces: WORKSPACES, scripts: { test: "vitest run", build: "turbo run build" }, devDependencies: { turbo: CONSUMER_VERSIONS.turbo, typescript: CONSUMER_VERSIONS.typescript, vitest: CONSUMER_VERSIONS.vitest } }, null, 2));
   put(root, "suite/pnpm-workspace.yaml", `packages:\n${WORKSPACES.map((pattern) => `  - '${pattern}'`).join("\n")}\n`);
@@ -26,10 +35,10 @@ export function createConsumer(root: string): void {
   put(root, "suite/turbo.json", JSON.stringify({ $schema: "https://turbo.build/schema.json", globalDependencies: ["domains/**"], tasks: { build: { outputs: ["out/**"] } } }));
   put(root, "suite/tooling/check/build.mjs", 'import { readFileSync, mkdirSync, writeFileSync } from "node:fs";\nconst source = readFileSync("../../domains/sample/core/value.mjs", "utf8");\nif (source.includes("+ 9")) throw new Error("synthetic build failure");\nmkdirSync("out", { recursive: true });\nwriteFileSync("out/result.txt", source);\n');
   put(root, LEAF, LEAF_SOURCE);
-  put(root, "suite/domains/sample/core/value.d.mts", "export declare function value(input: number): number;\n");
+  if (domain === "declaration-bearing") put(root, "suite/domains/sample/core/value.d.mts", "export declare function value(input: number): number;\n");
   put(root, BRIDGE, 'import { value } from "../../domains/sample/core/value.mjs";\nexport function bridge(input: number): number { return value(input); }\n');
   put(root, ENTRY, 'import { bridge } from "@public/shared";\nexport function entry(input) { return bridge(input); }\n');
-  put(root, "suite/contracts/api/port.cts", "export function port(input: number) { return input; }\n");
+  put(root, `suite/contracts/api/port.${domain === "declaration-bearing" ? "cts" : "ts"}`, "export function port(input: number) { return input; }\n");
   put(root, "suite/tooling/check/check.mjs", 'import { basename } from "node:path";\nexport function check(path) { return basename(path); }\n');
   put(root, "suite/design-system/ui/component.jsx", "export function Component() { return 'public component'; }\n");
   put(root, "suite/platform/shared/async.mjs", 'export async function load() { return import("../../domains/sample/core/value.mjs"); }\n');

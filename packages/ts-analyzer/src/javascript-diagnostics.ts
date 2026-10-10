@@ -100,14 +100,24 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     }
     if (!ts.isIdentifier(node)) return "other";
     const symbol = checker.getSymbolAtLocation(node);
-    if (node.text === "globalThis" && !symbol?.declarations?.length) {
-      // TS's intrinsic globalThis wins binding in a script AST even when a lexical binding
-      // shadows it. Recover that source-local binding rather than assigning ambient origin.
-      const local = source.statements.filter(ts.isVariableStatement).flatMap(statement => statement.declarationList.declarations)
-        .find(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === "globalThis");
-      if (local !== undefined) return local.initializer === undefined || seen.has(local) ? "other" : origin(local.initializer, new Set(seen).add(local));
+    const syntheticAmbient = symbol === undefined || !symbol.declarations?.length
+      || symbol.declarations.every(declaration => ts.isBinaryExpression(declaration) || ts.isSourceFile(declaration)
+        || ts.isPropertyAccessExpression(declaration) || ts.isElementAccessExpression(declaration));
+    if (syntheticAmbient && ["globalThis", "module", "exports", "require"].includes(node.text)) {
+      // Intrinsic/CommonJS synthetic symbols can hide real lexical declarations. Recover
+      // the nearest binding before classifying the identifier as an ambient primitive.
+      for (let scope: ts.Node | undefined = node.parent; scope !== undefined; scope = scope.parent) {
+        if (ts.isFunctionLike(scope) && scope.parameters.some(parameter => ts.isIdentifier(parameter.name) && parameter.name.text === node.text)) return "other";
+        const statements: readonly ts.Statement[] = ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope) ? scope.statements : [];
+        const local = statements.filter(ts.isVariableStatement).flatMap(statement => statement.declarationList.declarations)
+          .find(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === node.text);
+        if (local !== undefined) return local.initializer === undefined || seen.has(local) ? "other" : origin(local.initializer, new Set(seen).add(local));
+        if (statements.some(statement => (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name?.text === node.text)) return "other";
+      }
     }
-    if (symbol === undefined) {
+    // The JS binder synthesizes ambient require without declarations and CommonJS exports
+    // from assignment/source-file nodes. Those are not real local bindings or shadows.
+    if (syntheticAmbient) {
       if (["globalThis", "global"].includes(node.text)) return "global";
       return globalMemberOrigin(node.text);
     }
@@ -353,6 +363,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
 
 function inspectQualifiedModuleScope(source: ts.SourceFile, path: string): string[] {
   const reasons: string[] = [];
+  if (/\.cts$/.test(path)) reasons.push("SOURCE_COMMONJS_EXTENSION_UNSUPPORTED");
   const visit = (node: ts.Node): void => {
     if (ts.isModuleDeclaration(node) && (node.flags & ts.NodeFlags.GlobalAugmentation) !== 0) reasons.push("SOURCE_GLOBAL_AUGMENTATION_UNSUPPORTED");
     if (ts.isModuleDeclaration(node) && ts.isStringLiteral(node.name)) reasons.push("SOURCE_MODULE_AUGMENTATION_UNSUPPORTED");

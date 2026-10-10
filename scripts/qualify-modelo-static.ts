@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { Database } from "bun:sqlite";
-import { BRIDGE, CONSUMER_VERSIONS, createConsumer, ENTRY, LEAF, LEAF_SOURCE, put } from "./modelo-static-fixture";
+import { BRIDGE, CONSUMER_VERSIONS, createConsumer, createEligibleConsumer, ENTRY, LEAF, LEAF_SOURCE, put } from "./modelo-static-fixture";
 import { assertInterruptedAdmission } from "./modelo-interruption-witness";
 
 type Observation = { command: string[]; code: number; stdout: string; stderr: string };
@@ -33,10 +33,12 @@ function run(command: string[], cwd: string, timeout = 60_000): Observation {
 }
 function git(root: string, args: string[]): void { const result = run(["git", ...args], root); assert.equal(result.code, 0, result.stderr); }
 function semctx(root: string, args: string[], bundle = cli): Observation { return run([process.execPath, bundle, ...args, "--root", root], root); }
-function fixture(name: string, qualified = true, bundle = cli): string {
+function fixture(name: string, qualified = true, bundle = cli, domain: "declaration-bearing" | "eligible-esm" = qualified ? "eligible-esm" : "declaration-bearing"): string {
   const root = join(output, `consumer-${name}`);
   assert(!existsSync(root), `Refusing to overwrite existing consumer ${root}; choose a new --output-dir`);
-  mkdirSync(root, { recursive: true }); createConsumer(root);
+  mkdirSync(root, { recursive: true });
+  if (domain === "declaration-bearing") createConsumer(root); else createEligibleConsumer(root);
+  observations[`${name}:fixture-domain`] = domain;
   git(root, ["init", "-q"]); git(root, ["add", "-A"]); git(root, ["commit", "-qm", "public fixture"]);
   const initialized = semctx(root, ["init"], bundle); assert.equal(initialized.code, 0, initialized.stderr);
   const configPath = join(root, ".semctx/config.json");
@@ -217,6 +219,15 @@ async function mcpVerify(root: string, label = "mixed"): Promise<Record<string, 
     return await request(2, "tools/call", { name: "semctx_verify_change", arguments: { repositoryRoot: root } });
   } finally { clearTimeout(timeout); child.kill(); await child.exited; observations[`${label}:mcp-stderr`] = await stderr; reader.releaseLock(); }
 }
+
+await scenario("original-declaration-bearing-consumer-blocks", () => {
+  const root = fixture("original-declaration-bearing", true, cli, "declaration-bearing");
+  put(root, LEAF, LEAF_SOURCE.replace("+ 1", "+ 7"));
+  observations["original-declaration-bearing:index"] = semctx(root, ["index", "--json"]);
+  const result = verify(root, "original-declaration-bearing");
+  blocked(result);
+  assert(JSON.stringify(report(result).analysisAdmission).includes("DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:suite/domains/sample/core/value.d.mts"));
+});
 
 if (legacyCli) await scenario("legacy-incident", () => {
   const root = fixture("legacy", false, legacyCli);

@@ -90,6 +90,7 @@ export function qualifiedAdmission(input: {
     if (candidate.reason === "READ_FAILED" || candidate.reason.endsWith("OUTSIDE_REPOSITORY")) reasons.push(`DEPENDENCY_SCOPE_UNREADABLE:${candidate.relPath}`);
   }
   for (const source of sourceFiles) {
+    if (/\.d\.(?:ts|mts|cts)$/.test(source.relPath)) reasons.push(`DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:${source.relPath}`);
     const ast = ts.createSourceFile(source.relPath, source.content, ts.ScriptTarget.Latest, true);
     const native = inspectNativeModuleBindings(ast);
     if (native.commonJsUnsupported) reasons.push(`DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:${source.relPath}`);

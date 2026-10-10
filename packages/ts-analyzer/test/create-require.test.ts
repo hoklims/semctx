@@ -1,6 +1,12 @@
 import { expect, test } from "bun:test";
 import ts from "typescript";
 import { inspectJavaScriptSource, inspectNativeModuleBindings, hasNodeCreateRequireUse } from "../src/javascript-diagnostics";
+for (const source of ["module.exports = require('./src/main.ts');", "module.exports = 1;", "exports.value = 1;"]) test(`round4 CommonJS synthetic symbols remain ambient: ${source}`, () => {
+  expect(inspectNativeModuleBindings(ts.createSourceFile("hidden.mjs", source, ts.ScriptTarget.Latest, true)).commonJsUnsupported).toBe(true);
+});
+for (const source of ["const module = { exports: 0 }; module.exports = 1; export {};", "const require = value => value; const module = { exports: 0 }; module.exports = require(1); export {};"]) test(`round4 actual module and require bindings remain ordinary: ${source}`, () => {
+  expect(inspectNativeModuleBindings(ts.createSourceFile("local.mjs", source, ts.ScriptTarget.Latest, true)).commonJsUnsupported).toBe(false);
+});
 for (const source of ["const require = value => value; require('x'); export {};", "function use(require, path) { return require(path); } export {};", "function require(...values) { return values; } require(1, 2); export {};"]) test(`round3 local require calls remain ordinary JavaScript: ${source}`, () => {
   expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).not.toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
 });

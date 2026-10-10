@@ -4,12 +4,60 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createGlobSelectionConfig, createDefaultConfig, SemctxConfigSchema, VerifyReportSchema } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
-import { indexRepository, runVerify } from "../src";
+import { indexHealth, indexRepository, runVerify } from "../src";
 import { __setIndexRepositoryCaptureBarrierForTesting } from "../src/indexing";
 import { __setVerifyAnalysisBarrierForTesting } from "../src/verify";
 import { captureQualifiedAnalysisInputs } from "../src/freshness";
 
 const roots: string[] = [];
+for (const extension of ["d.ts", "d.mts", "d.cts"]) test(`round4 v2 declaration ${extension} is unsupported and never supplies complete facts`, () => {
+  const root = selectedRepository();
+  const path = `src/api.${extension}`;
+  writeFileSync(join(root, ".semctx/config.json"), JSON.stringify({ ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", include: ["src/**/*"], languages: { typescript: "on", javascript: "on" } }));
+  writeFileSync(join(root, path), "export interface Api { value: number }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  expect(indexHealth(root).candidates.find(candidate => candidate.path === path)).toMatchObject({ analysisOutcome: "unsupported", analysisReasons: ["SOURCE_DECLARATION_FILE_UNSUPPORTED"] });
+});
+test("round4 ignored retained sources cannot bind a clean committed post-image", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, ".gitignore"), ".semctx/\nsrc/hidden.ts\n");
+  git(root, "add", ".gitignore");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "ignore configuration");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  git(root, "add", "src/main.ts");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "tracked candidate");
+  writeFileSync(join(root, "src/hidden.ts"), "import { main } from './main'; export function hidden() { return main(); }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const range = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
+  expect(range?.status).toBe("rejected");
+  expect(range?.reasons).toContain("QUALIFIED_POST_IMAGE_INPUT_ABSENT:src/hidden.ts");
+  const staged = runVerify(root, { kind: "staged" }).report.analysisAdmission;
+  expect(staged?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_INPUT_ABSENT:src/hidden.ts");
+});
+test("round4 ignored empty workspace membership cannot bind a committed post-image", () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, "package.json"), '{"name":"root","workspaces":["packages/*"]}');
+  writeFileSync(join(root, ".gitignore"), ".semctx/\npackages/\n");
+  git(root, "add", "package.json", ".gitignore");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "workspace configuration");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  git(root, "add", "src/main.ts");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "tracked candidate");
+  mkdirSync(join(root, "packages/ghost"), { recursive: true });
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_WORKSPACE_ABSENT:packages/ghost");
+});
+for (const path of ["src/module.cts", "src/module.d.cts"]) test(`round4 CommonJS TypeScript extension stays outside ESM qualification: ${path}`, () => {
+  const root = selectedRepository();
+  writeFileSync(join(root, path), "export interface Marker { value: number }\n");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons.some(reason => reason.includes("SOURCE_COMMONJS_EXTENSION_UNSUPPORTED"))).toBe(true);
+});
 for (const kind of ["staged", "range"] as const) test(`round3 dirty qualified index rejects ${kind} post-image and admits its actual working tree`, () => {
   const root = selectedRepository();
   writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");

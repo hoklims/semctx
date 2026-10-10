@@ -35,7 +35,7 @@ unreleased candidate until its own artifacts are qualified.
 | Obligation | Evidence required | Scope and limitation |
 | --- | --- | --- |
 | JavaScript analysis | Actual `.mjs/.js/.jsx` functions, classes, exports, imports and resolved calls | Non-function exports are explicit module metadata; no invented variable call edges |
-| Mixed-language impact | TypeScript to JavaScript and JavaScript to TypeScript paths, transitive callers, inherited aliases and `.d.mts` companions | Resolved static ESM only; arbitrary runtime resolution is not complete |
+| Mixed-language impact | Declaration-free TypeScript to JavaScript and JavaScript to TypeScript paths, transitive callers and inherited aliases | Resolved static ESM only; declarations and CommonJS TypeScript are outside qualification |
 | TypeScript-only closure | Static reexports and literal dynamic imports, including excluded inbound importers | Required links are extracted even when no JavaScript file is present |
 | Effective module configuration | Direct and inherited compiler options are inspected | The profile uses ESNext/Bundler defaults and refuses explicit incompatible module or resolution semantics |
 | Monorepo selection | Exact changed paths plus required dependencies, including excluded importers | A required exclusion, wrong root, empty selection or zero analysis rejects admission |
@@ -52,6 +52,17 @@ The standalone witness uses Bun 1.4.2, pnpm 12.9.1, TypeScript 7.0.2, Vitest 5.0
 and Turbo 2.11.7 with nested `apps/*`, `contracts/*`, `design-system/*`, `domains/*/*`,
 `platform/*` and `tooling/*` workspaces. Semctx's analysis compiler is separately pinned
 to TypeScript 5.9.3. Newer consumer syntax that cannot be parsed remains a failure.
+The original `createConsumer` fixture retains its `.d.mts` companion and `.cts` source
+and is an explicit `original-declaration-bearing-consumer-blocks` witness. Positive
+qualification uses the separately named `createEligibleConsumer` fixture: the same
+tool pins, topology and runtime call chain, with no declarations and an explicit ESM
+`port.ts`. Runtime companion redirection remains distinct from declaration-change
+qualification; v2 declaration files remain visible as unsupported. Selector globs
+can select `.cts`/declarations, but selection cannot admit their unsupported semantics.
+Qualification observations record each fixture domain. Qualified historical/current
+artifact pairs both use `eligible-esm`; the executable path never selects fixture content.
+The original declaration-bearing negative is selected explicitly, and legacy diagnostics
+retain their separately recorded original domain.
 The profile's effective module settings are `module: "ESNext"` and
 `moduleResolution: "Bundler"`. Missing settings take those defaults. Explicit incompatible
 settings, including inherited NodeNext/Node16 or CommonJS, remain outside qualification and
