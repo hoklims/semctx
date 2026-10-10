@@ -17,6 +17,7 @@ test("real JS producer refuses a bind/alias helper without treating ordinary own
   expect(inspectJavaScriptSource("/fixture/main.js", "export function helper() { return 1; } const invoke = helper.call; export function caller() { return invoke(null); }").reasons).toContain("JAVASCRIPT_FUNCTION_HELPER_UNSUPPORTED");
   const own = inspectJavaScriptSource("/fixture/main.js", "export class Own { call() { return 1; } apply() { return 2; } } export function caller() { const own = new Own(); return own.call() + own.apply(); }");
   expect(own.reasons.some(reason => reason.includes("FUNCTION_HELPER_UNSUPPORTED"))).toBe(false);
+  expect(own.reasons).toContain("JAVASCRIPT_CONSTRUCTION_UNSUPPORTED");
 });
 test("intrinsic JSX, plain classes and SDK base aliases preserve their existing semantic domain", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-semantic-positive-"));
@@ -33,7 +34,7 @@ test("semantic Program is shared within the exact retained snapshot and rebuilt 
   const inputs = new Map([[first, "export class Base {} export class Own { call() {} } export function own() { return new Own().call(); }"], [second, "import { Base } from './first'; export class Derived extends Base {}"]]);
   const creation = spyOn(extractionContext, "createProgram");
   try {
-    inspectModuleConfiguration(first, root, inputs);
+    expect(inspectModuleConfiguration(first, root, inputs)).toContain("SOURCE_CONSTRUCTION_UNSUPPORTED");
     expect(inspectModuleConfiguration(second, root, inputs)).toContain("SOURCE_INTERNAL_HERITAGE_UNSUPPORTED");
     expect(creation).toHaveBeenCalledTimes(1);
     inspectModuleConfiguration(first, root, new Map(inputs)); expect(creation).toHaveBeenCalledTimes(2);

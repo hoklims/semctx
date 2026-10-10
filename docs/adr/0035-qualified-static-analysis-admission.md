@@ -140,7 +140,12 @@ and JavaScript domain after transparent parentheses/type wrappers are removed. C
 comma, inline-function and other unnamed call forms receive `SOURCE_DYNAMIC_CALL_UNSUPPORTED`
 for selected producers and broad excluded scope. Identifier/property calls keep their actual
 coordinates; literal `import()` remains a separately guarded module link. This shape check
-does not establish constructor call edges or expand the existing class-construction domain.
+does not establish constructor call edges. Qualified construction now requires a proven
+SDK constructor value origin: internal and uncertain `NewExpression` targets are
+unsupported. Transparent immutable aliases of actual SDK values retain that opaque
+boundary; an annotation, assertion or call-return type alone cannot establish it.
+Ordinary/legacy construction facts and static namespace class-test associations remain
+available, but those associations do not qualify the constructor invocation itself.
 
 Tagged-template invocations have no extracted callee edges and are explicitly unsupported:
 JavaScript producers report `JAVASCRIPT_TAGGED_TEMPLATE_UNSUPPORTED`, while qualified
@@ -194,6 +199,11 @@ accessor invocation dependencies are not extracted. Ordinary data properties, me
 and SDK/external boundaries keep their existing domain; ordinary TypeScript analysis
 without retained inputs is unchanged. Retained filesystem inputs must be regular files:
 symlinks, FIFOs, sockets and devices do not provide captured source bytes.
+
+Triple-slash `reference path` directives are unmodeled compiler-input dependencies and
+are unsupported in selected producers and broad retained scope, whether their targets
+are retained or absent. Missing-target diagnostics remain available. This refusal does
+not fabricate runtime imports, and ordinary TypeScript extraction remains unchanged.
 
 Qualified CLI report publication must not create or replace a potentially retained
 repository input after the final capture. The writer checks the prospective canonical

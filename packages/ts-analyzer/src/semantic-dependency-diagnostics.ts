@@ -12,10 +12,12 @@ const key = (path: string): string => {
 /** Semantic refusal only: never invent dependency edges or read uncaptured repository sources. */
 export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: CompilerInputSnapshot, sourcePath = source.fileName): string[] {
   const reasons = new Set<string>();
+  if (source.referencedFiles.length > 0) reasons.add("SOURCE_REFERENCE_PATH_UNSUPPORTED");
   const sdk = ts as unknown as { isIntrinsicJsxName(name: string): boolean };
   let needsChecker = false;
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
+    if (ts.isNewExpression(node)) needsChecker = true;
     if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) reasons.add("SOURCE_ACCESSOR_UNSUPPORTED");
     if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
     if (ts.isExportDeclaration(node) || (ts.isVariableStatement(node)
@@ -105,6 +107,20 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return (symbol?.getDeclarations() ?? []).some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
       && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "Object" && symbol!.getName() === "constructor");
   };
+  const sdkConstruction = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value) || !(ts.isIdentifier(value) || ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value))) return false;
+    seen.add(value);
+    const origins = declarations(value);
+    if (origins.length > 0 && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))
+      && checker.getTypeAtLocation(value).getConstructSignatures().some(signature => {
+        const declaration = signature.getDeclaration(); return declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile());
+      })) return true;
+    // An annotation or returned SDK type is not the runtime constructor's origin.
+    // Only immutable transparent value aliases can preserve a proven SDK binding.
+    return origins.some(origin => ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
+      && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined && sdkConstruction(origin.initializer, seen));
+  };
   const internalBase = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const base = unwrapStaticExpression(expression);
     if (seen.has(base)) return false;
@@ -117,6 +133,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && declaration.initializer !== undefined && internalBase(declaration.initializer, seen)));
   };
   const visit = (node: ts.Node): void => {
+    if (ts.isNewExpression(node) && !sdkConstruction(node.expression)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
     if (ts.isPropertyAccessExpression(node) && functionHelper(node)) reasons.add("SOURCE_FUNCTION_HELPER_UNSUPPORTED");
     if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && intrinsicConstructor(node)) reasons.add("SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED");
     if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword && (ts.isClassDeclaration(node.parent) || ts.isClassExpression(node.parent))) {
