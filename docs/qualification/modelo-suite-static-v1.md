@@ -127,6 +127,11 @@ The same matrix includes excluded JavaScript and TypeScript namespaces copied by
 assignment before accessing `createRequire`. These reproduce admission in the
 historical loader artifact and must produce the same explicit CommonJS refusal.
 Namespace escape through assignment is not a qualified static dependency path.
+Named `default` imports (including a statically quoted import name), namespace
+destructuring of `Module`, and quoted destructuring of `createRequire` have their
+own JavaScript/TypeScript before/after witnesses. These known static binding
+routes must receive the same loader refusal; this diagnostic coverage does not
+establish completeness for every Node module access or runtime loading pattern.
 
 Repository gates, independently executed negative witnesses and the fresh aggregate auditor
 must all bind the complete candidate. Source, build, local checks, hosted CI and independent

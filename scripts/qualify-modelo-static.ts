@@ -112,6 +112,10 @@ const loaderSources = {
   namespace: { path: "hidden-namespace.ts", source: 'import * as nodeModule from "node:module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   "assignment-js": { path: "hidden-assignment.mjs", source: 'import * as nodeModule from "node:module"; let assigned; assigned = nodeModule; const load = assigned.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   "assignment-ts": { path: "hidden-assignment.ts", source: 'import * as nodeModule from "node:module"; let assigned; assigned = nodeModule; const load = assigned.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "default-named-js": { path: "hidden-default-named.mjs", source: 'import { default as nodeModule } from "node:module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "default-named-ts": { path: "hidden-default-named.ts", source: 'import { "default" as nodeModule } from "module"; const load = nodeModule.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "destructured-module-js": { path: "hidden-destructured-module.mjs", source: 'import * as nodeModule from "node:module"; const { Module: moduleAlias } = nodeModule; const load = moduleAlias.createRequire(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
+  "destructured-factory-ts": { path: "hidden-destructured-factory.ts", source: 'import * as nodeModule from "module"; const { "createRequire": makeLoader } = nodeModule; const load = makeLoader(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
   barrel: { path: "hidden-barrel.ts", source: 'import { make } from "./barrel.mjs"; const load = make(import.meta.url); export const hidden = load("./src/main.mjs");\n', selected: false },
 } as const;
 function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle: string): string {
