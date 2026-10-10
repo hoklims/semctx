@@ -28,8 +28,21 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     unmodeledMembers.add("process.getBuiltinModule");
     return "unmodeled";
   };
+  const processExportOrigin = (name: string | undefined): Origin => {
+    if (name === "default") return "process";
+    if (name === "getBuiltinModule") return unmodeledResolver();
+    return "other";
+  };
   for (const statement of source.statements) {
-    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly || !isNodeModule(statement.moduleSpecifier)) continue;
+    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
+    if (isNodeProcess(statement.moduleSpecifier)) {
+      if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)) unmodeledResolver();
+      else for (const element of statement.exportClause.elements) {
+        if (!element.isTypeOnly && processExportOrigin(staticName(element.propertyName ?? element.name)) === "process") unmodeledResolver();
+      }
+      continue;
+    }
+    if (!isNodeModule(statement.moduleSpecifier)) continue;
     if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)) found = true;
     else for (const element of statement.exportClause.elements) {
       if (element.isTypeOnly) continue;
@@ -39,11 +52,12 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   }
   let importsNodeModule = false;
   const findModule = (node: ts.Node): void => {
-    if (ts.isStringLiteral(node) && ["node:module", "module"].includes(node.text)
+    if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
     if ((ts.isPropertyAccessExpression(node) && node.name.text === "getBuiltinModule")
-      || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")) importsNodeModule = true;
+      || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")
+      || (ts.isBindingElement(node) && staticName(node.propertyName ?? node.name) === "getBuiltinModule")) importsNodeModule = true;
     ts.forEachChild(node, findModule);
   };
   findModule(source);
@@ -59,10 +73,11 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   const origin = (node: ts.Node, seen = new Set<ts.Symbol>()): Origin => {
     if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isAwaitExpression(node)) return origin(node.expression, seen);
     if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeModule(node.arguments[0])) return "namespace";
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && isNodeProcess(node.arguments[0])) return "process";
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       const property = ts.isPropertyAccessExpression(node) ? node.name.text : ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text : undefined;
       if (origin(node.expression, seen) === "namespace") return nativeExportOrigin(property);
-      if (origin(node.expression, seen) === "process" && property === "getBuiltinModule") return unmodeledResolver();
+      if (origin(node.expression, seen) === "process") return processExportOrigin(property);
       return "other";
     }
     if (!ts.isIdentifier(node)) return "other";
@@ -72,7 +87,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     const next = new Set(seen).add(symbol);
     for (const declaration of symbol.declarations ?? []) {
       if (ts.isImportSpecifier(declaration) && !declaration.isTypeOnly && !declaration.parent.parent.isTypeOnly
-        && isNodeProcess(declaration.parent.parent.parent.moduleSpecifier)) return staticName(declaration.propertyName ?? declaration.name) === "getBuiltinModule" ? unmodeledResolver() : "other";
+        && isNodeProcess(declaration.parent.parent.parent.moduleSpecifier)) return processExportOrigin(staticName(declaration.propertyName ?? declaration.name));
       if (ts.isNamespaceImport(declaration) && !declaration.parent.isTypeOnly && isNodeProcess(declaration.parent.parent.moduleSpecifier)) return "process";
       if (ts.isImportClause(declaration) && !declaration.isTypeOnly && isNodeProcess(declaration.parent.moduleSpecifier)) return "process";
       if (ts.isImportSpecifier(declaration) && !declaration.isTypeOnly && !declaration.parent.parent.isTypeOnly
@@ -81,9 +96,11 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       if (ts.isImportClause(declaration) && !declaration.isTypeOnly && isNodeModule(declaration.parent.moduleSpecifier)) return "namespace";
       if (ts.isVariableDeclaration(declaration) && declaration.initializer) return origin(declaration.initializer, next);
       if (ts.isBindingElement(declaration) && ts.isObjectBindingPattern(declaration.parent)
-        && ts.isVariableDeclaration(declaration.parent.parent) && declaration.parent.parent.initializer
-        && origin(declaration.parent.parent.initializer, next) === "namespace") {
-        return nativeExportOrigin(staticName(declaration.propertyName ?? declaration.name));
+        && ts.isVariableDeclaration(declaration.parent.parent) && declaration.parent.parent.initializer) {
+        const container = origin(declaration.parent.parent.initializer, next);
+        const member = staticName(declaration.propertyName ?? declaration.name);
+        if (container === "namespace") return nativeExportOrigin(member);
+        if (container === "process") return processExportOrigin(member);
       }
     }
     return "other";

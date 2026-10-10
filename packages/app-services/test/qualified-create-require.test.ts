@@ -7,6 +7,8 @@ import { initWorkspace } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "../src";
 
 const cases: { path: string; source: string; selected: boolean; barrel?: string; mainPath?: string; unmodeled?: string }[] = [
+  { path: "hidden-process-default.mjs", source: "import { default as p } from 'node:process'; const M = p.getBuiltinModule('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
+  { path: "hidden-process-destructure.ts", source: "const { getBuiltinModule: get } = process; const M = get('module'); const r = M.createRequire(import.meta.url); export const hidden = r('./src/main.mjs');", selected: false, mainPath: "src/main.mjs", unmodeled: "process.getBuiltinModule" },
   { path: "hidden.mjs", source: "import { createRequire } from 'node:module'; const load = createRequire(import.meta.url); export function hidden() { return load('./src/main.ts').main(); }", selected: true },
   { path: "hidden-alias.mjs", source: "import { createRequire as makeLoader } from 'module'; const load = makeLoader(import.meta.url); export const hidden = load('./src/main.ts');", selected: false },
   { path: "hidden-namespace.ts", source: "import * as nodeModule from 'node:module'; const load = nodeModule.createRequire(import.meta.url); export const hidden = load('./src/main.ts');", selected: false },
