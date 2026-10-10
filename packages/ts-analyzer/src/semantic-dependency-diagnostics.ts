@@ -15,6 +15,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const sdk = ts as unknown as { isIntrinsicJsxName(name: string): boolean };
   let needsChecker = false;
   const inspectSyntax = (node: ts.Node): void => {
+    if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
+    if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
     if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
       const tag = node.tagName;
       const name = ts.isIdentifier(tag) ? tag.text : ts.isJsxNamespacedName(tag) ? `${tag.namespace.text}:${tag.name.text}` : undefined;
@@ -43,6 +45,28 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
     return symbol?.getDeclarations() ?? [];
   };
+  const destructuredOrigin = (declaration: ts.Declaration, seen = new Set<ts.Node>()): boolean => {
+    if (seen.has(declaration)) return false;
+    seen.add(declaration);
+    if (ts.isBindingElement(declaration)) return true;
+    if (!ts.isVariableDeclaration(declaration) || declaration.initializer === undefined) return false;
+    const initializer = unwrapStaticExpression(declaration.initializer);
+    return ts.isIdentifier(initializer) && declarations(initializer).some(origin => destructuredOrigin(origin, seen));
+  };
+  const potentiallyCallable = (type: ts.Type): boolean => {
+    if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0) return true;
+    if (type.isUnionOrIntersection()) return type.types.some(potentiallyCallable);
+    return type.getCallSignatures().length > 0 || type.getConstructSignatures().length > 0;
+  };
+  const moduleSymbol = checker.getSymbolAtLocation(bound);
+  if (moduleSymbol !== undefined) for (let exported of checker.getExportsOfModule(moduleSymbol)) {
+    if ((exported.flags & ts.SymbolFlags.Alias) !== 0) exported = checker.getAliasedSymbol(exported);
+    const origins = exported.getDeclarations() ?? [];
+    if (origins.some(origin => internal(origin) && destructuredOrigin(origin))
+      && potentiallyCallable(checker.getTypeOfSymbolAtLocation(exported, origins[0] ?? bound))) {
+      reasons.add("SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED");
+    }
+  }
   const internalCallable = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const receiver = unwrapStaticExpression(expression);
     if (seen.has(receiver)) return false;

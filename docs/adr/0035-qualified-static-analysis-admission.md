@@ -164,6 +164,17 @@ contract. No component, helper or heritage edge is invented. Semantic inspection
 one retained Program per snapshot identity and never reuses it across a new boundary;
 repository source reads remain limited to retained bytes plus the pinned SDK libraries.
 
+Decorator AST nodes are unsupported in qualified scope, including bare, property and
+factory-call forms: extracting the explicit factory call does not model the implicit
+application of the returned decorator. Exported callable or constructible bindings
+originating in destructuring, including local export clauses and identifier aliases,
+are unsupported because extraction does not create their symbol coordinates. Unknown,
+any and possibly callable union bindings receive the same refusal; known noncallable
+local bindings retain their module-metadata boundary. Modeled identifier declarations
+and ordinary TypeScript analysis without retained inputs remain unchanged. These guards
+apply to selected and broad retained sources, and to the JavaScript producer; no new
+decorator edge, destructured symbol or test-coverage fact is invented.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so
