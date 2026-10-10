@@ -29,6 +29,10 @@ for (const source of [
   expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toContain("JAVASCRIPT_COMMONJS_UNSUPPORTED");
 });
 for (const [source, member] of [
+  ["const get = Reflect.get(process, 'getBuiltinModule'); const native = get('module');", "ambient-process"],
+  ["export const nativeProcess = process;", "ambient-process"],
+  ["const key = 'getBuiltinModule'; const native = process[key]('module');", "process.<computed>"],
+  ["export const hidden = process.mainModule.require('./src/main.mjs');", "process.mainModule"],
   ["export const globals = globalThis;", "ambient-global"],
   ["const p = Reflect.get(globalThis, 'process'); const M = p.getBuiltinModule('module');", "ambient-global"],
   ["const M = globalThis.globalThis.process.getBuiltinModule('module');", "process.getBuiltinModule"],
@@ -98,6 +102,9 @@ test("ordinary Node APIs and unrelated factories remain ordinary static JavaScri
     "const globalThis = { global: { process: { getBuiltinModule(value) { return value; } } } }; export const ordinary = globalThis.global.process.getBuiltinModule(1);",
     "export function ordinary(global) { return global.globalThis.process.getBuiltinModule(1); }",
     "export const ordinary = globalThis.console;",
+    "export const ordinary = process.env; export function cwd() { return process.cwd(); } export const args = process.argv;",
+    "const process = { mainModule: { require(value) { return value; } } }; export const ordinary = process.mainModule.require(1);",
+    "const process = { getBuiltinModule(value) { return value; } }; const get = Reflect.get(process, 'getBuiltinModule'); export const ordinary = get(1);",
   ]) expect(inspectJavaScriptSource("/fixture/main.mjs", source).reasons).toEqual([]);
 });
 test("type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim", () => {

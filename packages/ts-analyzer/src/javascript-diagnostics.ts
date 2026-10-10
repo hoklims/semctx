@@ -31,6 +31,10 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   const processExportOrigin = (name: string | undefined): Origin => {
     if (name === "default") return "process";
     if (name === "getBuiltinModule") return unmodeledResolver();
+    if (name === undefined || name === "mainModule") {
+      unmodeledMembers.add(name === undefined ? "process.<computed>" : "process.mainModule");
+      return "unmodeled";
+    }
     return "other";
   };
   const globalMemberOrigin = (name: string | undefined): Origin => name === "process" ? "process"
@@ -57,7 +61,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
     if (ts.isStringLiteral(node) && (isNodeModule(node) || isNodeProcess(node))
       && (ts.isImportDeclaration(node.parent) || (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword))) importsNodeModule = true;
     if (ts.isImportDeclaration(node) && isNodeProcess(node.moduleSpecifier)) importsNodeModule = true;
-    if (ts.isIdentifier(node) && ["globalThis", "global"].includes(node.text)) importsNodeModule = true;
+    if (ts.isIdentifier(node) && ["globalThis", "global", "process"].includes(node.text)) importsNodeModule = true;
     if ((ts.isPropertyAccessExpression(node) && node.name.text === "getBuiltinModule")
       || (ts.isElementAccessExpression(node) && staticName(node.argumentExpression) === "getBuiltinModule")
       || (ts.isBindingElement(node) && staticName(node.propertyName ?? node.name) === "getBuiltinModule")) importsNodeModule = true;
@@ -129,6 +133,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   const markNativeEscape = (kind: Origin): void => {
     if (kind === "factory" || kind === "namespace") found = true;
     if (kind === "global") unmodeledMembers.add("ambient-global");
+    if (kind === "process") unmodeledMembers.add("ambient-process");
   };
   const visit = (node: ts.Node): void => {
     if (ts.isTypeNode(node)) return; // Type queries do not access the native runtime getter.
@@ -166,6 +171,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
       || (ts.isElementAccessExpression(node.parent) && node.parent.expression === node && !ts.isStringLiteral(node.parent.argumentExpression)))) {
       unmodeledMembers.add("ambient-global");
     }
+    if (!declarationName && origin(node) === "process" && !safeNamespaceUse(node)) unmodeledMembers.add("ambient-process");
     ts.forEachChild(node, visit);
   };
   visit(source);

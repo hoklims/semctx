@@ -73,6 +73,13 @@ path in dependency-scope diagnostics). Ordinary member access such as `globalThi
 and locally shadowed names remain distinct. This refusal does not model `Reflect`, invent
 runtime dependency edges or claim complete runtime resolution.
 
+The same static boundary applies to the whole native `process` container: opaque arguments,
+exports and container escapes produce `NATIVE_MODULE_MEMBER_UNSUPPORTED:ambient-process`.
+Computed native members and the legacy `mainModule` loader boundary are explicitly unmodeled
+as `process.<computed>` and `process.mainModule`. Ordinary static members such as `env`,
+`argv` and `cwd`, and locally shadowed objects, remain distinct. No `Reflect` resolution or
+runtime CommonJS dependency edge is inferred from these refusals.
+
 The qualified inventory never classifies a source as generated solely because an ancestor
 is named `build`, `dist`, `coverage`, `.turbo` or `.next`. It retains tracked sources,
 repository-locally nonignored sources and sources selected by the original user configuration.
