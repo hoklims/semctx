@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { dirname, relative, isAbsolute, join } from "node:path";
 import { builtinModules } from "node:module";
-import { resolveTypeScriptModule, retainedCompilerSystem, type CompilerInputSnapshot } from "./ts-symbols";
+import { resolveTypeScriptModule, retainedCompilerSystem, isModeledCallCallee, type CompilerInputSnapshot } from "./ts-symbols";
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 
@@ -294,9 +294,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
   }
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
-      let callee: ts.Expression = node.expression;
-      while (ts.isParenthesizedExpression(callee)) callee = callee.expression;
-      if (!ts.isIdentifier(callee) && !ts.isPropertyAccessExpression(callee) && callee.kind !== ts.SyntaxKind.ImportKeyword) reasons.add("JAVASCRIPT_DYNAMIC_CALL_UNSUPPORTED");
+      if (!isModeledCallCallee(node.expression)) reasons.add("JAVASCRIPT_DYNAMIC_CALL_UNSUPPORTED");
       if (node.expression.kind === ts.SyntaxKind.ImportKeyword) {
         if (node.arguments.length !== 1 || !ts.isStringLiteral(node.arguments[0]!)) reasons.add("JAVASCRIPT_DYNAMIC_IMPORT_UNSUPPORTED");
         else {
@@ -332,6 +330,8 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   const defaultReasons = inspectedSource === undefined ? [] : [
     ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
+    ...(compilerInputs !== undefined && (inspectedSource.flags & ts.NodeFlags.JavaScriptFile) === 0 && hasUnmodeledCallExpression(inspectedSource)
+      ? ["SOURCE_DYNAMIC_CALL_UNSUPPORTED"] : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
   if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectAutomaticJsxRuntime(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined
@@ -376,6 +376,16 @@ function hasUnsupportedDefaultExpression(source: ts.SourceFile): boolean {
   // Default declarations have extracted owners; expression assignments have no closed
   // ownership contract. Refuse the entire assignment form rather than infer a target.
   return source.statements.some(statement => ts.isExportAssignment(statement) && !statement.isExportEquals);
+}
+
+function hasUnmodeledCallExpression(source: ts.SourceFile): boolean {
+  let found = false;
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && !isModeledCallCallee(node.expression)) found = true;
+    if (!found) ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
 }
 
 function inspectAutomaticJsxRuntime(source: ts.SourceFile, options: ts.CompilerOptions): string[] {

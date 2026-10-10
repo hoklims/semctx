@@ -135,6 +135,13 @@ file-level caller or callee coordinates. Module-level callers and opaque externa
 remain distinct. This checks coherence of extracted local coordinates, not completeness
 of all possible calls; legacy and manually selected v2 analysis retain their behavior.
 
+Qualified TypeScript also refuses `CallExpression` callees outside the shared extractor
+and JavaScript domain after transparent parentheses/type wrappers are removed. Conditional,
+comma, inline-function and other unnamed call forms receive `SOURCE_DYNAMIC_CALL_UNSUPPORTED`
+for selected producers and broad excluded scope. Identifier/property calls keep their actual
+coordinates; literal `import()` remains a separately guarded module link. This shape check
+does not establish constructor call edges or expand the existing class-construction domain.
+
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,
 including ignored manifests outside the reserved internal directories. The input
 identity also binds directory membership consumed by the workspace projection, so

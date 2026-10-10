@@ -205,6 +205,19 @@ function nameOfCallee(expr: ts.Expression): string | undefined {
   return undefined;
 }
 
+/** Transparent expression wrappers shared by semantic extraction and eligibility guards. */
+export function unwrapStaticExpression(expression: ts.Expression): ts.Expression {
+  while (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
+    || ts.isNonNullExpression(expression) || ts.isSatisfiesExpression(expression)) expression = expression.expression;
+  return expression;
+}
+
+/** CallExpression domain: named callees, or import() handled separately as a module link. */
+export function isModeledCallCallee(expression: ts.Expression): boolean {
+  const callee = unwrapStaticExpression(expression);
+  return nameOfCallee(callee) !== undefined || callee.kind === ts.SyntaxKind.ImportKeyword;
+}
+
 /** Internal resolver shared with discovery confinement; intentionally absent from the package root. */
 export function resolveTypeScriptModule(
   specifier: string,
@@ -498,11 +511,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
         }
-        let callee: ts.Expression = node.expression;
-        if (staticModuleLinksEnabled) {
-          while (ts.isParenthesizedExpression(callee) || ts.isAsExpression(callee) || ts.isTypeAssertionExpression(callee)
-            || ts.isNonNullExpression(callee) || ts.isSatisfiesExpression(callee)) callee = callee.expression;
-        }
+        const callee = staticModuleLinksEnabled ? unwrapStaticExpression(node.expression) : node.expression;
         const calleeName = nameOfCallee(callee);
         if (calleeName !== undefined) {
           const resolved = resolveCallTarget(checker, callee, relOf, javascriptEnabled, snapshot);
@@ -1016,11 +1025,7 @@ function valueImportBindings(node: ts.ImportDeclaration): ts.Identifier[] {
 /** Called member references keyed by their actual lexical receiver binding, never its spelling. */
 function namespaceCallReferences(source: ts.SourceFile, checker: ts.TypeChecker): Map<ts.Symbol, ts.Expression[]> {
   const references = new Map<ts.Symbol, ts.Expression[]>();
-  const unwrap = (expression: ts.Expression): ts.Expression => {
-    while (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
-      || ts.isNonNullExpression(expression) || ts.isSatisfiesExpression(expression)) expression = expression.expression;
-    return expression;
-  };
+  const unwrap = unwrapStaticExpression;
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
       const member = unwrap(node.expression);
