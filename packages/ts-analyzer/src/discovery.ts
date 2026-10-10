@@ -159,8 +159,8 @@ export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: 
   const paths: string[] = [];
   walk(config.repositoryRoot, config.repositoryRoot, paths, true, undefined, true);
   const available = new Map(paths.map(path => [normalizePath(relative(config.repositoryRoot, path)), path]));
-  const metadata = new Set([...available.keys()].filter(path =>
-    /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(path)));
+  const namedMetadata = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
+  const metadata = new Set([...available.keys()].filter(path => namedMetadata.test(path)));
   const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
   for (const relPath of pending) {
     const absPath = available.get(relPath)!;
@@ -182,7 +182,7 @@ export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: 
     if (!segments(relPath).some((part) => OUTPUT_SEGMENTS.has(part))) return true;
     // Ignore controls themselves must remain bound, including inside generated directories.
     return /(?:^|\/)\.(?:gitignore|gitattributes)$/.test(relPath)
-      || metadata.has(relPath) || authored.has(relPath) || isPathSelected(config, relPath);
+      || namedMetadata.test(relPath) || metadata.has(relPath) || authored.has(relPath) || isPathSelected(config, relPath);
   };
 }
 

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createDefaultConfig, createGlobSelectionConfig } from "@semantic-context/core";
@@ -119,6 +119,21 @@ test("untracked authored outputs remain obligations and legacy profiles retain d
     }
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 60_000);
+
+test("ignored compiler configuration symlinks are explicitly refused", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-build-config-link-"));
+  try {
+    mkdirSync(join(root, "build"));
+    writeFileSync(join(root, ".gitignore"), ".semctx/\nbuild/**\n");
+    writeFileSync(join(root, "build/main.ts"), "export function main() { return 1; }\n");
+    writeFileSync(join(root, "compiler-base.json"), '{"compilerOptions":{"module":"NodeNext","moduleResolution":"NodeNext"}}');
+    const result = Bun.spawnSync(["git", "init", "-q"], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+    symlinkSync(join(root, "compiler-base.json"), join(root, "build/tsconfig.json"), "file");
+    const config = { ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1" as const, analysisProfile: "modelo-suite-static-v1" as const, include: ["build/**/*.ts"] };
+    expect(() => captureQualifiedAnalysisInputs(config)).toThrow(expect.objectContaining({ code: "INVALID_TASK_INPUT" }));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
 
 for (const inherited of [false, true]) test(`ignored build configuration cannot fall back to qualified defaults: inherited ${inherited}`, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-build-configuration-"));
