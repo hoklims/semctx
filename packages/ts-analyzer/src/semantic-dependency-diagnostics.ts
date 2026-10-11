@@ -22,7 +22,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   if (source.referencedFiles.length > 0) reasons.add("SOURCE_REFERENCE_PATH_UNSUPPORTED");
   const sdk = ts as unknown as { isIntrinsicJsxName(name: string): boolean };
   let needsChecker = false;
-  const processModule = (name: string): boolean => ["child_process", "node:child_process"].includes(name);
+  const executionModule = (name: string): string | undefined => ["child_process", "node:child_process"].includes(name) ? "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+    : ["vm", "node:vm"].includes(name) ? "SOURCE_RUNTIME_EVALUATION_UNSUPPORTED" : undefined;
   const assignment = (node: ts.Node): node is ts.BinaryExpression => ts.isBinaryExpression(node)
     && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment;
   const numericUnary = (node: ts.Node): node is ts.PrefixUnaryExpression | ts.PostfixUnaryExpression => (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
@@ -44,7 +45,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return false;
   };
   const inspectSyntax = (node: ts.Node): void => {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier) && processModule(node.moduleSpecifier.text)) needsChecker = true;
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier) && executionModule(node.moduleSpecifier.text) !== undefined) needsChecker = true;
     if (ts.isCallExpression(node)) needsChecker = true;
     if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Using) !== 0) reasons.add("SOURCE_DISPOSAL_UNSUPPORTED");
     if (ts.isElementAccessExpression(node) || ts.isComputedPropertyName(node)) needsChecker = true;
@@ -243,7 +244,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     });
   };
   const iteratorKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator"]);
-  const protocolKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator", "hasInstance", "toPrimitive", "match", "matchAll", "replace", "search", "split"]);
+  const protocolKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator", "hasInstance", "toPrimitive", "match", "matchAll", "replace", "search", "split", "species"]);
   const propertyName = (name: ts.PropertyName | ts.BindingName): string | undefined => ts.isComputedPropertyName(name) ? constantString(name.expression)
     : ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name) ? name.text : undefined;
   const sdkCallableMember = (expression: ts.Expression, name: string | undefined): boolean => {
@@ -524,35 +525,71 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       || (ts.isMethodDeclaration(origin) && origin.body !== undefined) || (ts.isVariableDeclaration(origin) && origin.initializer !== undefined
         && (ts.isArrowFunction(origin.initializer) || ts.isFunctionExpression(origin.initializer)))));
   };
-  const builtinProcessValue = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+  const builtinExecutionValue = (expression: ts.Expression, seen = new Set<ts.Node>()): string | undefined => {
     const value = unwrapStaticExpression(expression);
-    if (seen.has(value)) return false;
+    if (seen.has(value)) return undefined;
     seen.add(value);
-    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return builtinProcessValue(value.expression, seen);
-    if (ts.isAwaitExpression(value)) return builtinProcessValue(value.expression, seen);
+    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return builtinExecutionValue(value.expression, seen);
+    if (ts.isAwaitExpression(value)) return builtinExecutionValue(value.expression, seen);
     if (ts.isCallExpression(value) && value.expression.kind === ts.SyntaxKind.ImportKeyword && value.arguments[0] !== undefined
-      && ts.isStringLiteralLike(value.arguments[0])) return processModule(value.arguments[0].text);
+      && ts.isStringLiteralLike(value.arguments[0])) return executionModule(value.arguments[0].text);
     const origins = checker.getSymbolAtLocation(value)?.getDeclarations() ?? [];
-    return origins.some(origin => {
+    for (const origin of origins) {
       if (ts.isImportSpecifier(origin) || ts.isNamespaceImport(origin) || ts.isImportClause(origin)) {
-        if ((ts.isImportSpecifier(origin) && origin.isTypeOnly) || (ts.isImportClause(origin) && origin.isTypeOnly)) return false;
+        if ((ts.isImportSpecifier(origin) && origin.isTypeOnly) || (ts.isImportClause(origin) && origin.isTypeOnly)) continue;
         let statement: ts.Node | undefined = origin;
         while (statement !== undefined && !ts.isImportDeclaration(statement)) statement = statement.parent;
-        return statement !== undefined && ts.isImportDeclaration(statement) && statement.importClause?.isTypeOnly !== true
-          && ts.isStringLiteral(statement.moduleSpecifier) && processModule(statement.moduleSpecifier.text);
+        if (statement !== undefined && ts.isImportDeclaration(statement) && statement.importClause?.isTypeOnly !== true
+          && ts.isStringLiteral(statement.moduleSpecifier)) {
+          const kind = executionModule(statement.moduleSpecifier.text); if (kind !== undefined) return kind;
+        }
       }
       if (ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
-        && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) return builtinProcessValue(origin.initializer, seen);
-      return ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent) && ts.isVariableDeclaration(origin.parent.parent)
+        && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) {
+        const kind = builtinExecutionValue(origin.initializer, seen); if (kind !== undefined) return kind;
+      }
+      if (ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent) && ts.isVariableDeclaration(origin.parent.parent)
         && origin.parent.parent.initializer !== undefined && ts.isVariableDeclarationList(origin.parent.parent.parent)
-        && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0 && builtinProcessValue(origin.parent.parent.initializer, seen);
-    });
+        && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0) {
+        const kind = builtinExecutionValue(origin.parent.parent.initializer, seen); if (kind !== undefined) return kind;
+      }
+    }
+    return undefined;
   };
   const inspectBuiltinProcessUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
     if (ts.isIdentifier(node) && (ts.isImportSpecifier(node.parent) || ts.isNamespaceImport(node.parent) || ts.isImportClause(node.parent)
       || ts.isBindingElement(node.parent) || (ts.isVariableDeclaration(node.parent) && node.parent.name === node)
       || (ts.isPropertyAccessExpression(node.parent) && node.parent.name === node))) return;
-    if (builtinProcessValue(node)) reasons.add("SOURCE_PROCESS_LAUNCH_UNSUPPORTED");
+    const kind = builtinExecutionValue(node); if (kind !== undefined) reasons.add(kind);
+  };
+  const inspectDefaultSort = (node: ts.CallExpression): void => {
+    const callee = unwrapStaticExpression(node.expression); const symbol = sdkValue(callee);
+    if (symbol?.getName() !== "sort" || !symbol.getDeclarations()?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "Array")) return;
+    const comparator = node.arguments[0] === undefined ? undefined : actualValue(node.arguments[0]);
+    if (comparator !== undefined && !((checker.getTypeAtLocation(comparator).flags & ts.TypeFlags.Undefined) !== 0 && primitiveValue(comparator))) return;
+    const receiver = ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee) ? unwrapStaticExpression(callee.expression) : undefined;
+    if (receiver === undefined || !ts.isArrayLiteralExpression(receiver) || !receiver.elements.every(element => ts.isExpression(element) && primitiveValue(element))) {
+      reasons.add("SOURCE_SORT_COERCION_UNSUPPORTED");
+    }
+  };
+  const inspectCombinatorUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
+    if (ts.isIdentifier(node) && ((ts.isPropertyAccessExpression(node.parent) && node.parent.name === node)
+      || (ts.isVariableDeclaration(node.parent) && node.parent.name === node) || ts.isBindingElement(node.parent))) return;
+    const symbol = sdkValue(node);
+    if (!["all", "allSettled", "race", "any"].includes(symbol?.getName() ?? "") || !symbol?.getDeclarations()?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "PromiseConstructor")) return;
+    let usage: ts.Expression = node;
+    while (ts.isParenthesizedExpression(usage.parent) || ts.isAsExpression(usage.parent) || ts.isTypeAssertionExpression(usage.parent)
+      || ts.isNonNullExpression(usage.parent) || ts.isSatisfiesExpression(usage.parent)) usage = usage.parent;
+    const parent = usage.parent;
+    if (ts.isVariableDeclaration(parent) && parent.initializer === usage && ts.isIdentifier(parent.name)
+      && ts.isVariableDeclarationList(parent.parent) && (parent.parent.flags & ts.NodeFlags.Const) !== 0) return;
+    const argument = ts.isCallExpression(parent) && parent.expression === usage ? parent.arguments[0] : undefined;
+    const array = argument === undefined ? undefined : unwrapStaticExpression(argument);
+    if (array === undefined || !ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && safeAwaitValue(element))) {
+      reasons.add("SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED");
+    }
   };
   const inlineOwned = (callback: ts.ArrowFunction | ts.FunctionExpression): boolean => {
     const proof = ownership.get(inputs);
@@ -915,6 +952,22 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       || ts.isFunctionDeclaration(declaration)) && internal(declaration)) || (ts.isVariableDeclaration(declaration)
       && declaration.initializer !== undefined && internalBase(declaration.initializer, seen)));
   };
+  const sdkGlobalOrigins = (origins: readonly ts.Declaration[]): boolean => origins.length > 0
+    && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))
+    && origins.some(origin => ts.isVariableDeclaration(origin));
+  const sdkGlobalAssignment = (expression: ts.Expression): boolean => {
+    const target = unwrapStaticExpression(expression);
+    if (ts.isArrayLiteralExpression(target)) return target.elements.some(element =>
+      ts.isSpreadElement(element) ? sdkGlobalAssignment(element.expression) : ts.isExpression(element) && sdkGlobalAssignment(element));
+    if (ts.isObjectLiteralExpression(target)) return target.properties.some(property => {
+      if (ts.isPropertyAssignment(property)) return sdkGlobalAssignment(property.initializer);
+      if (ts.isSpreadAssignment(property)) return sdkGlobalAssignment(property.expression);
+      if (ts.isShorthandPropertyAssignment(property)) return sdkGlobalOrigins(checker.getShorthandAssignmentValueSymbol(property)?.getDeclarations() ?? []);
+      return false;
+    });
+    if (assignment(target)) return sdkGlobalAssignment(target.left);
+    return sdkGlobalOrigins(declarations(target));
+  };
   const runtimeProperty = (node: ts.Node): boolean => {
     if (node.getSourceFile().isDeclarationFile) return false;
     for (let owner: ts.Node | undefined = node; owner !== undefined; owner = owner.parent) {
@@ -925,7 +978,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const visit = (node: ts.Node): void => {
     if (ts.isTypeNode(node) || ts.isInterfaceDeclaration(node)) return;
     if (ts.isCallExpression(node) || ts.isNewExpression(node)) inspectSdkCallbacks(node);
-    if (ts.isCallExpression(node)) inspectOpaqueCallbacks(node);
+    if (ts.isCallExpression(node)) { inspectOpaqueCallbacks(node); inspectDefaultSort(node); }
     if (ts.isFunctionDeclaration(node) && node.body === undefined && (node.name === undefined || !declarations(node.name).some(origin =>
       ts.isFunctionDeclaration(origin) && origin.body !== undefined && internal(origin)
       && !ts.getModifiers(origin)?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)))) reasons.add("SOURCE_AMBIENT_FUNCTION_UNSUPPORTED");
@@ -935,6 +988,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && staticMemberName(unwrapStaticExpression(node.left)) === "then" && !primitiveValue(node.right)) reasons.add("SOURCE_THENABLE_MUTATION_UNSUPPORTED");
     if (assignment(node)) {
       const target = unwrapStaticExpression(node.left);
+      if (sdkGlobalAssignment(target)) reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED");
       if (ts.isElementAccessExpression(target) && iteratorKey(target.argumentExpression)) reasons.add("SOURCE_ITERATOR_MUTATION_UNSUPPORTED");
       else if (ts.isElementAccessExpression(target) && protocolKey(target.argumentExpression)) reasons.add("SOURCE_PROTOCOL_MUTATION_UNSUPPORTED");
       if (sdkCallableProperty(target) && !primitiveValue(node.right)) reasons.add("SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED");
@@ -958,6 +1012,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       inspectPromiseResolveUse(node);
       inspectSerializerUse(node);
+      inspectCombinatorUse(node);
     }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectMutationUse(node);
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && proxyFactory(node)) reasons.add("SOURCE_PROXY_UNSUPPORTED");

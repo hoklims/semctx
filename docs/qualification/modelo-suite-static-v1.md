@@ -99,6 +99,12 @@ built-in import provenance; local homonyms, unused/type-only declarations and th
 guarded `fs`/`path` data helpers keep their domains. Internal higher-order parameter calls
 with missing coordinates remain refused by the existing change/closure guard rather than
 being presented as resolved function-pointer invocations.
+Species overrides, SDK-global binding replacements and unproven default-sort coercion
+refuse qualification. Default sorting is limited to fresh primitive-element literals,
+and Promise combinators independently prove every element's safe assimilation rather
+than trusting a const container. Actual built-in VM runtime bindings are unsupported
+evaluation boundaries. These checks preserve ordinary local/Node data helpers and the
+four fixture outputs, without adding hidden invocation or module edges.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.

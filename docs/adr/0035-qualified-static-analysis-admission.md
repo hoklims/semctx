@@ -330,6 +330,20 @@ still compares its projection against the final current layout to detect drift.
 
 ## Proof boundary
 
+`Symbol.species` is a callable protocol key: overrides through the existing SDK mutator
+routes refuse without inventing constructor edges. Comparator-free actual SDK sorting
+requires a fresh literal receiver with proven primitive elements; const containers and
+element annotations do not establish immutability. Actual SDK global-binding replacements
+invalidate native authority and refuse, while local bindings stay distinct. Promise
+combinator inputs must be fresh literal arrays whose individual values satisfy the existing
+safe-assimilation proof; internal/unknown thenables and mutable container/helper escapes
+are unsupported. Literal primitive/native promise values retain their boundary.
+The exact built-in `vm` / `node:vm` runtime bindings share captured import/alias provenance
+with process launchers and are unsupported code evaluation, including value escapes.
+Type-only/unused imports and own homonyms remain distinct; no Node declarations, implicit
+invocation edges or global SDK policy rewrite is added. The existing explicit
+`Symbol.toPrimitive` write refusal already covers the reported `String(value)` case.
+
 Runtime values actually imported from the built-in `child_process` / `node:child_process`
 module are outside qualification: an opaque launcher can execute retained repository code
 without a module link. Import bindings, immutable aliases, namespace members and helper/
