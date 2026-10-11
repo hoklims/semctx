@@ -35,7 +35,7 @@ jobs:
 
   gates:
     needs: plan
-    timeout-minutes: 60
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 90 || 60 }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}

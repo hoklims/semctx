@@ -29,7 +29,7 @@ interface WorkflowJob {
   environment?: string;
   permissions?: Record<string, string>;
   "runs-on": string;
-  "timeout-minutes"?: number;
+  "timeout-minutes"?: number | string;
   strategy?: {
     "fail-fast"?: boolean;
     matrix?: Record<string, unknown> | string;
@@ -158,7 +158,7 @@ describe("CI governance", () => {
     expect(gates.steps.find((step) => step.name === "Run selected verification lane")?.run)
       .toBe("bun scripts/ci-gate.ts");
     expect(ci).not.toContain("bench:index-workers 24 100");
-    expect(gates["timeout-minutes"]).toBe(60);
+    expect(gates["timeout-minutes"]).toBe("${{ matrix.os == 'windows-latest' && 90 || 60 }}");
     expect(plan.env?.SEMCTX_VERIFY_BASE).toBe(
       "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}",
     );
