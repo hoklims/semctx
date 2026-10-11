@@ -370,7 +370,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
     ...(compilerInputs !== undefined ? inspectSemanticDependencies(inspectedSource, compilerInputs, path) : []),
   ];
   const configPath = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
-  if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectAutomaticJsxRuntime(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined
+  if (!configPath) return [...defaultReasons, ...(compilerInputs !== undefined && inspectedSource !== undefined ? inspectJsxRuntimeBoundary(inspectedSource, {}) : []), ...(source !== undefined && compilerInputs !== undefined
     ? inspectQualifiedModuleScope(source, path) : [])];
   const contained = (candidate: string): boolean => {
     if (!repositoryRoot) return true;
@@ -394,7 +394,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   // The named snapshot profile qualifies ESNext/Bundler, including inherited options. Hashing
   // NodeNext bytes does not authorize analyzing them under overwritten Bundler semantics.
   if (compilerInputs !== undefined && parsed !== undefined) {
-    if (inspectedSource !== undefined) reasons.push(...inspectAutomaticJsxRuntime(inspectedSource, parsed.options));
+    if (inspectedSource !== undefined) reasons.push(...inspectJsxRuntimeBoundary(inspectedSource, parsed.options));
     if (inspectedSource !== undefined) reasons.push(...inspectImportedRuntimeHelpers(inspectedSource, parsed.options));
     if (parsed.options.module !== undefined && parsed.options.module !== ts.ModuleKind.ESNext) {
       reasons.push(`SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:${ts.ModuleKind[parsed.options.module]}`);
@@ -440,17 +440,30 @@ function inspectUnmodeledInvocations(source: ts.SourceFile): string[] {
   return [...reasons].sort();
 }
 
-function inspectAutomaticJsxRuntime(source: ts.SourceFile, options: ts.CompilerOptions): string[] {
-  let jsx = false;
+function inspectJsxRuntimeBoundary(source: ts.SourceFile, options: ts.CompilerOptions): string[] {
+  const jsxSpans = new Set<string>();
   const visit = (node: ts.Node): void => {
-    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node) || ts.isJsxFragment(node)) jsx = true;
-    if (!jsx) ts.forEachChild(node, visit);
+    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node) || ts.isJsxFragment(node)) jsxSpans.add(`${node.pos}:${node.end}`);
+    ts.forEachChild(node, visit);
   };
   visit(source);
   // Use the pinned SDK's semantic pragma/configuration interpretation, including classic
   // overrides and the last repeated pragma. Preserve extraction does not model this import.
   const sdk = ts as unknown as { getJSXImplicitImportBase(options: ts.CompilerOptions, source: ts.SourceFile): string | undefined };
-  return jsx && sdk.getJSXImplicitImportBase(options, source) !== undefined ? ["SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED"] : [];
+  if (jsxSpans.size === 0) return [];
+  if (sdk.getJSXImplicitImportBase(options, source) !== undefined) return ["SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED"];
+  let classicFactory = false;
+  ts.transpileModule(source.text, { fileName: source.fileName, compilerOptions: options, transformers: { after: [() => node => {
+    const inspectEmit = (emitted: ts.Node): void => {
+      // The pinned emitter gives each synthesized JSX factory call the original JSX
+      // range. This follows actual options/pragmas without guessing a factory name.
+      if (ts.isCallExpression(emitted) && (emitted.flags & ts.NodeFlags.Synthesized) !== 0
+        && jsxSpans.has(`${emitted.pos}:${emitted.end}`)) classicFactory = true;
+      ts.forEachChild(emitted, inspectEmit);
+    };
+    inspectEmit(node); return node;
+  }] } });
+  return classicFactory ? ["SOURCE_CLASSIC_JSX_RUNTIME_UNSUPPORTED"] : [];
 }
 
 function hasSemanticJSDocImport(source: ts.SourceFile): boolean {

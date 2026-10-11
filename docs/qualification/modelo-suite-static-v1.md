@@ -85,6 +85,12 @@ value-symbol or test edges and preserve the four fixture outputs.
 The shared JavaScript diagnostic API reports the generator refusal even without this
 profile or a supplied snapshot. Its ordinary diagnostics become more conservative while
 ordinary extraction retains generator facts.
+Classic JSX configurations that actually emit an unmodeled element/fragment factory call
+are unsupported, as observed by the pinned SDK transform on retained options/source. The
+guard uses synthesized call ranges rather than factory names. Preserve/JSX-free sources
+remain eligible under this boundary, and automatic-runtime refusals keep their existing
+reason. JavaScript diagnostics report the configuration reason when supplied retained
+compiler inputs; ordinary no-snapshot diagnostics and extraction retain their behavior.
 Opaque callable arguments are unsupported unless existing facts prove ownership of every
 retained callable reference in that exact inline callback. This private proof adds no edges
 and requires the actual graph and raw inputs to match the indexed freshness seal; stale

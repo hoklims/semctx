@@ -130,6 +130,14 @@ semantic file pragmas introduce an implicit JSX runtime import. This includes au
 JSX modes and `jsxImportSource`; extraction still preserves JSX without modeling that
 runtime dependency. JSX-free files remain eligible under those options. Classic pragma
 overrides follow the pinned SDK semantics, including repeated pragma precedence.
+Retained classic JSX emission is also unsupported when the pinned emitter synthesizes a
+factory invocation at an original JSX element/fragment range. The guard uses the actual
+retained options and SDK transform, including factory/fragment settings, without choosing
+names such as `h` or `React` and without manufacturing call edges. Preserve emission and
+JSX-free sources keep their domain. A classic override can therefore refuse even though
+the separate automatic-runtime import guard is absent. The configuration guard runs when
+retained compiler inputs are supplied, including JavaScript diagnostics in that form;
+ordinary calls without retained inputs and existing extraction facts remain unchanged.
 
 For this named profile, already extracted calls whose named endpoint belongs to a
 modeled local module require exactly one grouped symbol coordinate. A missing or
