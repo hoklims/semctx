@@ -3,8 +3,8 @@ English · [Français](README.fr.md)
 # semctx
 
 semctx reads the Git diff of a TypeScript repository and shows which exported contracts, declared
-rules and tests the change touches. It ends with one verdict, PASS, WARN or BLOCK. BLOCK exits with
-code 3, so a Git hook, a CI job or a coding agent can stop the change.
+rules and tests the change touches. It ends with one verdict, PASS, WARN or BLOCK. By default BLOCK
+exits with code 3, so a Git hook, a CI job or a coding agent can stop the change.
 
 [![npm](https://img.shields.io/npm/v/semctx)](https://www.npmjs.com/package/semctx)
 [![CI](https://github.com/hoklims/semctx/actions/workflows/ci.yml/badge.svg)](https://github.com/hoklims/semctx/actions/workflows/ci.yml)
@@ -131,7 +131,8 @@ flow checks a committed branch against `main`, which is also what the GitHub Act
 
 `setup` writes `.semctx/config.json` and six `.sem` templates in `.semctx/semantic/` (comments only
 until you write something), updates `.gitignore` and builds the local index. The config and the
-templates are meant to be committed, which step 2 does. Re-running `setup` is harmless.
+templates are meant to be committed, which step 2 does. Re-running `setup` is harmless on a clean,
+committed tree. It re-indexes, so never run it on uncommitted edits you are about to verify.
 
 On a small repository `setup` ends with `OK ready (analysis partial)` and a WARN line on stderr.
 That is normal; `semctx index-health` lists the reasons.
@@ -350,7 +351,8 @@ The demo's WARN, printed with `semctx verify diff --format github`:
 Run `bunx semctx@latest install` from the repository you want to check. It installs or updates the
 semctx plugin for each detected host (Claude Code or Codex must already be installed), then runs
 `setup`. `--dry-run` previews the plan, `--host codex|claude|all` picks the hosts, and
-`--skip-setup` installs for the machine only. Re-running it is harmless.
+`--skip-setup` installs for the machine only. Re-running it is harmless on a clean, committed tree;
+because it runs `setup`, which re-indexes, add `--skip-setup` when you have uncommitted edits.
 
 The plugins give the agent the semctx MCP tools and skills, for example `semctx_verify_change` to
 check its own diff before it says it is done. The plugin hooks run on Node, so Node must be on your

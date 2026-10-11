@@ -692,8 +692,8 @@
   <section class="station" id="touches" aria-labelledby="h-touches">
     <p class="label stn">01 · <span class="en" lang="en">What it touches</span><span class="fr" lang="fr">Ce qu’il touche</span></p>
     <h2 id="h-touches"><span class="en" lang="en">It maps your diff to the code it touches.</span><span class="fr" lang="fr">Il relie votre diff au code qu’il touche.</span></h2>
-    <p class="intro en" lang="en">semctx keeps a local index of your TypeScript. For every changed line it finds the declaration the line belongs to, the contracts and rules attached to it, and the test files that import it.</p>
-    <p class="intro fr" lang="fr">semctx tient un index local de votre TypeScript. Pour chaque ligne modifiée, il retrouve la déclaration qui la contient, les contrats et les règles qui s’y rattachent, et les fichiers de test qui l’importent.</p>
+    <p class="intro en" lang="en">semctx keeps a local index of your TypeScript. For every changed line it finds the declaration the line belongs to and the contracts and rules attached to it. For every changed file it lists the test files that import any of its symbols.</p>
+    <p class="intro fr" lang="fr">semctx tient un index local de votre TypeScript. Pour chaque ligne modifiée, il retrouve la déclaration qui la contient et les contrats et règles qui s’y rattachent. Pour chaque fichier modifié, il liste les fichiers de test qui importent l’un de ses symboles.</p>
     <ol class="yard">
       <li class="blk">
         <div class="bl"><span class="label"><span class="en" lang="en">Symbols</span><span class="fr" lang="fr">Symboles</span></span></div>
@@ -727,8 +727,8 @@
   <section class="station" id="rules" aria-labelledby="h-rules">
     <p class="label stn">02 · <span class="en" lang="en">Your rules</span><span class="fr" lang="fr">Vos règles</span></p>
     <h2 id="h-rules"><span class="en" lang="en">You decide what must not break.</span><span class="fr" lang="fr">Vous décidez de ce qui ne doit pas casser.</span></h2>
-    <p class="intro en" lang="en">Write the rule as a JSDoc marker right above the code. If that code changes and no test imports it, the verdict is BLOCK and the exit code is 3. semctx never guesses what is critical.</p>
-    <p class="intro fr" lang="fr">Écrivez la règle sous forme de marqueur JSDoc, juste au-dessus du code. Si ce code change et qu’aucun test ne l’importe, le verdict est BLOCK et le code de sortie vaut 3. semctx ne devine jamais ce qui est critique.</p>
+    <p class="intro en" lang="en">Write the rule as a JSDoc marker right above the code, commit it and run <code>semctx index</code>. From then on, if that code changes and no test imports it, the verdict is BLOCK and, by default, the exit code is 3. semctx never guesses what is critical.</p>
+    <p class="intro fr" lang="fr">Écrivez la règle sous forme de marqueur JSDoc, juste au-dessus du code, commitez-la et lancez <code>semctx index</code>. Dès lors, si ce code change et qu’aucun test ne l’importe, le verdict est BLOCK et, par défaut, le code de sortie vaut 3. semctx ne devine jamais ce qui est critique.</p>
     <figure class="rule-fig">
       <div class="code-card">
         <div class="cc-head">examples/consumer-typescript-repo/src/index.ts</div>
@@ -905,8 +905,8 @@ bunx semctx@0.4.2 install --dry-run
 bunx semctx@0.4.2 install</pre>
         <p class="en" lang="en">Claude Code or Codex must already be installed. The command installs or updates the semctx plugin for each one it finds, then runs setup in this repository. With neither, it stops without changing anything and exits 1.</p>
         <p class="fr" lang="fr">Claude Code ou Codex doit déjà être installé. La commande installe ou met à jour le plugin semctx pour chaque hôte trouvé, puis lance setup dans ce dépôt. Sans aucun des deux, elle s’arrête sans rien modifier et sort en 1.</p>
-        <p class="en" lang="en">Running it again is harmless. Afterwards, open a new Codex task or run <code>/reload-plugins</code> in Claude Code.</p>
-        <p class="fr" lang="fr">La relancer est sans risque. Ensuite, ouvrez une nouvelle tâche Codex ou lancez <code>/reload-plugins</code> dans Claude Code.</p>
+        <p class="en" lang="en">Running it again is harmless on a clean, committed tree; it runs setup, which re-indexes, so add <code>--skip-setup</code> when you have uncommitted edits. Afterwards, open a new Codex task or run <code>/reload-plugins</code> in Claude Code.</p>
+        <p class="fr" lang="fr">La relancer est sans risque sur une copie propre et commitée ; comme elle lance setup, qui réindexe, ajoutez <code>--skip-setup</code> si vous avez des modifications non commitées. Ensuite, ouvrez une nouvelle tâche Codex ou lancez <code>/reload-plugins</code> dans Claude Code.</p>
       </div>
       <div class="dep">
         <div class="bl"><span class="label"><span class="en" lang="en">In CI, on GitHub Actions</span><span class="fr" lang="fr">En CI, sur GitHub Actions</span></span><button class="copy" type="button" data-copy="- uses: actions/checkout@v4&#10;  with:&#10;    fetch-depth: 0&#10;- uses: hoklims/semctx/packages/github-action@v0.4.2&#10;  with:&#10;    base: ${{ github.event.pull_request.base.sha }}&#10;    head: ${{ github.sha }}&#10;    fail-on: block"><span class="sr en" lang="en">Copy the workflow steps</span><span class="sr fr" lang="fr">Copier les étapes du workflow</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>

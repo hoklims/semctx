@@ -4,7 +4,7 @@
 
 semctx lit le diff Git d’un dépôt TypeScript et montre quels contrats exportés, quelles règles
 déclarées et quels tests le changement touche. Il conclut par un seul verdict : PASS, WARN ou BLOCK.
-BLOCK sort avec le code 3, ce qui permet à un hook Git, à un job de CI ou à un agent de code
+Par défaut, BLOCK sort avec le code 3, ce qui permet à un hook Git, à un job de CI ou à un agent de code
 d’arrêter le changement.
 
 [![npm](https://img.shields.io/npm/v/semctx)](https://www.npmjs.com/package/semctx)
@@ -139,7 +139,8 @@ comme le fait l’action GitHub.
 `setup` écrit `.semctx/config.json` et six modèles `.sem` dans `.semctx/semantic/` (ils ne
 contiennent que des commentaires tant que vous n’y écrivez rien), met à jour `.gitignore` et
 construit l’index local. La config et les modèles sont faits pour être commités, ce que fait
-l’étape 2. Vous pouvez relancer `setup` sans risque.
+l’étape 2. Vous pouvez relancer `setup` sans risque sur une copie propre et commitée. Il réindexe :
+ne le lancez donc jamais sur des modifications non commitées que vous allez vérifier.
 
 Sur un petit dépôt, `setup` se termine par `OK ready (analysis partial)` et une ligne WARN sur
 stderr. C’est normal ; `semctx index-health` en donne les raisons.
@@ -353,7 +354,9 @@ Le WARN de la démo, affiché avec `semctx verify diff --format github` :
 Lancez `bunx semctx@latest install` depuis le dépôt que vous voulez vérifier. La commande installe
 ou met à jour le plugin semctx pour chaque hôte détecté (Claude Code ou Codex doit déjà être
 installé), puis lance `setup`. `--dry-run` montre le plan, `--host codex|claude|all` choisit les
-hôtes, et `--skip-setup` installe pour la machine seulement. Vous pouvez la relancer sans risque.
+hôtes, et `--skip-setup` installe pour la machine seulement. Vous pouvez la relancer sans risque sur
+une copie propre et commitée ; comme elle lance `setup`, qui réindexe, ajoutez `--skip-setup` si
+vous avez des modifications non commitées.
 
 Les plugins donnent à l’agent les outils MCP et les skills semctx, par exemple
 `semctx_verify_change`, qui lui permet de vérifier son propre diff avant d’annoncer qu’il a fini.
