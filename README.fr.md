@@ -401,7 +401,9 @@ comme une liste de points à revérifier.
   config v2 (`semctx setup --polyglot`), se limite aux modules, classes, fonctions, imports et
   marqueurs, sans appels ni liens vers les tests
   ([versions prises en charge](docs/reference/configuration.md#language-modes)). Markdown et SQL
-  sont seulement classés comme documents et migrations, et les autres langages sont ignorés.
+  sont seulement classés comme documents et migrations. Les fichiers d’autres langages sont ignorés,
+  sauf si la config v2 les sélectionne : un fichier sélectionné qu’aucun analyseur ne prend en
+  charge fait répondre BLOCK à `verify diff`, avec `analysis_scope_incomplete`, dès qu’il change.
 - Les liens des fichiers `.sem` désignent un fichier et un symbole : renommer l’un ou l’autre peut
   les rendre obsolètes. `semctx migrate anchors --apply` réécrit les anciens liens qui portent
   encore des numéros de ligne.

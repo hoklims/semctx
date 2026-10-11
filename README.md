@@ -404,7 +404,9 @@ of what to re-check.
 - Languages: TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) by default. Python through 3.12 is opt-in
   with config v2 (`semctx setup --polyglot`) and limited to modules, classes, functions, imports and
   markers, with no calls and no test links. Markdown and SQL files are only classified as documents
-  and migrations, and other languages are skipped.
+  and migrations. Files in other languages are skipped unless config v2 selects them: a selected
+  file that no analyzer supports makes `verify diff` BLOCK with `analysis_scope_incomplete` when it
+  changes.
 - Links from `.sem` files name a file and a symbol, so renaming either can mark them stale.
   `semctx migrate anchors --apply` rewrites older links that still carry line numbers.
 - It does not search code or pick the files an agent should read. Grep and embedding search do that
