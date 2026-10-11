@@ -75,7 +75,7 @@ Findings
 | `changed files`, `impacted nodes` | Files in the diff, then the files and declarations whose lines it touches. |
 | `Impacted contracts` | Exported interfaces and type aliases the change edits. |
 | `[statically_verified]` | How semctx knows: read from the code's structure. `tested` means a test file imports it; `inferred` means it rests on a marker comment. |
-| `Recommended tests` | Test files linked to the changed code. The demo has none. |
+| `Recommended tests` | Test files that import any symbol declared in a changed file, touched or not. The demo has none. |
 | `? Could not confirm index binding` | The index was built before the edit. Expected when you check uncommitted work. |
 | `[WARN ] contract_changed_without_test` | The rule that fired, and the symbol it fired on. |
 
@@ -239,7 +239,8 @@ export function greet(name: string): string {
 }
 ```
 
-Now change the body of `greet` while no test imports it:
+Commit the marker and run `semctx index`: rules come from the index, and a working-tree check reads
+the index built before your edit. Then change the body of `greet` while no test imports it:
 
 ```diff
 -  return `Hello, ${name}!`;

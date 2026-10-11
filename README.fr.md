@@ -78,7 +78,7 @@ Findings
 | `changed files`, `impacted nodes` | Les fichiers du diff, puis les fichiers et déclarations dont il touche des lignes. |
 | `Impacted contracts` | Les interfaces et alias de type exportés que le changement modifie. |
 | `[statically_verified]` | Comment semctx le sait : lu dans la structure du code. `tested` signifie qu’un fichier de test l’importe ; `inferred`, que l’information repose sur un commentaire marqueur. |
-| `Recommended tests` | Les fichiers de test liés au code modifié. La démo n’en a aucun. |
+| `Recommended tests` | Les fichiers de test qui importent un symbole déclaré dans un fichier modifié, touché ou non. La démo n’en a aucun. |
 | `? Could not confirm index binding` | L’index a été construit avant la modification. C’est attendu quand vous vérifiez du travail non commité. |
 | `[WARN ] contract_changed_without_test` | La règle qui s’est déclenchée, et le symbole concerné. |
 
@@ -251,7 +251,9 @@ export function greet(name: string): string {
 }
 ```
 
-Modifiez maintenant le corps de `greet`, alors qu’aucun test ne l’importe :
+Commitez le marqueur et lancez `semctx index` : les règles viennent de l’index, et une vérification
+de la copie de travail lit l’index construit avant votre modification. Modifiez ensuite le corps
+de `greet`, alors qu’aucun test ne l’importe :
 
 ```diff
 -  return `Hello, ${name}!`;
