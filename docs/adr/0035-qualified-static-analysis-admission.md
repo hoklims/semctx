@@ -330,6 +330,19 @@ still compares its projection against the final current layout to detect drift.
 
 ## Proof boundary
 
+Opaque data arguments require actual primitive provenance or recursively proven direct
+literal data without callable/uncertain members. A const object/container initializer
+does not prove immutability or absence of callbacks; nested callable members are unsupported.
+Actual SDK `JSON.stringify` uses the same closed data domain to refuse unmodeled `toJSON`
+hooks, including aliased/helper escapes, while own APIs remain distinct. No callback or
+serialization edges are invented and the four public fixture outputs remain unchanged.
+
+Named qualified working-tree verification refuses relevant untracked inputs present in
+the retained inventory. Git diff does not describe their additions, so merely adding paths
+to expected coverage cannot establish their effects. The reason names each untracked
+retained path; ignored/hard-excluded artifacts and the separately sealed raw control config
+do not become obligations through this guard. Ordinary/v1 diff semantics stay unchanged.
+
 Qualified identity separately binds the exact `.semctx/config.json` bytes, including an
 explicit absent state. Equivalent JSON rewrites invalidate the input seal; malformed
 configuration still refuses normal loading. These control bytes do not become retained

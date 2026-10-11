@@ -640,16 +640,50 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     inspectReturns(body);
     return count > 0 && valid;
   };
+  const literalData = (expression: ts.Expression): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (primitiveValue(value)) return true;
+    if (ts.isArrayLiteralExpression(value)) return value.elements.every(element => ts.isExpression(element) && !ts.isSpreadElement(element) && literalData(element));
+    if (!ts.isObjectLiteralExpression(value)) return false;
+    return value.properties.every(property => {
+      if (ts.isShorthandPropertyAssignment(property)) return property.objectAssignmentInitializer === undefined && primitiveValue(property.name);
+      if (!ts.isPropertyAssignment(property)) return false;
+      const name = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name) || ts.isNumericLiteral(property.name) ? property.name.text : undefined;
+      return name !== undefined && name !== "__proto__" && literalData(property.initializer);
+    });
+  };
   const inspectOpaqueCallbacks = (node: ts.CallExpression): void => {
     if (!opaqueCallee(node.expression)) return;
     for (const argument of node.arguments) {
       const value = unwrapStaticExpression(argument);
       const actual = actualValue(value);
-      if (primitiveValue(value) || runtimePrimitiveValue(value) || returnedPrimitiveValue(value) || sdkOrigin(value)
-        || (ts.isObjectLiteralExpression(actual) && !potentiallyCallable(checker.getTypeAtLocation(actual)))) continue;
+      const sdkData = sdkOrigin(value) && (potentiallyCallable(checker.getTypeAtLocation(actual))
+        || (checker.getTypeAtLocation(actual).flags & (ts.TypeFlags.StringLike | ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike | ts.TypeFlags.BooleanLike | ts.TypeFlags.ESSymbolLike)) !== 0);
+      if (literalData(value) || runtimePrimitiveValue(value) || returnedPrimitiveValue(value) || sdkData) continue;
       if ((ts.isArrowFunction(value) || ts.isFunctionExpression(value)) && inlineOwned(value)) continue;
       reasons.add("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED");
     }
+  };
+  const sdkSerializer = (expression: ts.Expression): boolean => {
+    const value = actualValue(expression);
+    if ((ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) && staticMemberName(value) === "stringify"
+      && sdkValue(actualValue(value.expression))?.getName() === "JSON") return true;
+    const symbol = sdkValue(value);
+    return symbol?.getName() === "stringify" && symbol.getDeclarations()?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && declaration.parent.name.text === "JSON") === true;
+  };
+  const inspectSerializerUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
+    if (!sdkSerializer(node)) return;
+    if (ts.isIdentifier(node) && ((ts.isPropertyAccessExpression(node.parent) && node.parent.name === node)
+      || (ts.isVariableDeclaration(node.parent) && node.parent.name === node) || ts.isBindingElement(node.parent))) return;
+    let usage: ts.Expression = node;
+    while (ts.isParenthesizedExpression(usage.parent) || ts.isAsExpression(usage.parent) || ts.isTypeAssertionExpression(usage.parent)
+      || ts.isNonNullExpression(usage.parent) || ts.isSatisfiesExpression(usage.parent)) usage = usage.parent;
+    const parent = usage.parent;
+    if (ts.isVariableDeclaration(parent) && parent.initializer === usage && ts.isIdentifier(parent.name)
+      && ts.isVariableDeclarationList(parent.parent) && (parent.parent.flags & ts.NodeFlags.Const) !== 0) return;
+    if (ts.isCallExpression(parent) && parent.expression === usage && (parent.arguments[0] === undefined || literalData(parent.arguments[0]))) return;
+    reasons.add("SOURCE_SERIALIZATION_UNSUPPORTED");
   };
   const serviceWorkerLoader = (expression: ts.Expression): boolean => {
     const value = unwrapStaticExpression(expression);
@@ -841,7 +875,10 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && sdkValue(node)?.getName() === "importScripts") reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectDescriptorUse(node);
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectReflectSetUse(node);
-    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectPromiseResolveUse(node);
+    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+      inspectPromiseResolveUse(node);
+      inspectSerializerUse(node);
+    }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectMutationUse(node);
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && proxyFactory(node)) reasons.add("SOURCE_PROXY_UNSUPPORTED");
     if (ts.isAwaitExpression(node) && !safeAwaitValue(node.expression)) reasons.add("SOURCE_AWAIT_UNSUPPORTED");

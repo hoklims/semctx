@@ -82,6 +82,12 @@ and requires the actual graph and raw inputs to match the indexed freshness seal
 graphs, value escapes, unrelated edges and empty or uncertain references do not qualify.
 Primitive data guards must dominate the use in the same execution scope and reference the
 same unchanged binding. An annotation, assertion or guard in another function is not proof.
+Nested opaque data is limited to recursively proven direct literals without callable or
+uncertain members; mutable container aliases are unsupported. Actual SDK serialization
+refuses unproven `toJSON` inputs and helper escapes without adding implicit invocation edges.
+Qualified working-tree changes with relevant retained untracked inputs refuse explicitly:
+Git diff omits their additions. Track those inputs and rebuild before qualifying; ordinary
+analysis and ignored/control report artifacts keep their existing behavior.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.
