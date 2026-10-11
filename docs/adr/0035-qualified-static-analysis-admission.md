@@ -337,6 +337,18 @@ namespace. Receiver identity and captured SDK variable declarations establish th
 boundary, including JavaScript's merged descriptor declarations; local homonyms remain
 distinct. These shared semantic diagnostics add no invocation edges and may also report
 the refusal through the JavaScript diagnostic API outside named qualification.
+Actual SDK WebAssembly `instantiate` and `Instance` construction refuse as instantiation
+boundaries: native module-start execution can call an imported internal helper without
+an extracted invocation edge. Compile/validate data operations remain distinct.
+Actual SDK `ParentNode.append` with a captured SDK `Document.createElement("script")`
+argument also refuses. Receiver provenance and default-library declaration identity
+establish the boundary; a type annotation, local lookalike or bare operation name does
+not. Standalone inert script creation and ordinary DOM/local controls remain eligible.
+The insertion boundary conservatively refuses empty/disconnected script instances too.
+Native Bun observed the WebAssembly callback, and isolated Chrome observed the appended
+script's output changing after a hidden-script-only edit. Those observations establish
+these specific runtime effects, not complete browser/runtime modeling or private
+consumer execution. Shared JavaScript diagnostics may also report these refusals.
 Actual SDK Worklet `addModule` loaders are unsupported without a module link.
 Retained configurations that actually emit imported runtime helpers are unsupported:
 the pinned SDK emitter observes helper metadata and the emitted `tslib` dependency,
@@ -413,11 +425,16 @@ serialization edges are invented and the four public fixture outputs remain unch
 Named qualified working-tree verification refuses relevant untracked inputs present in
 the retained inventory. Git diff does not describe their additions, so merely adding paths
 to expected coverage cannot establish their effects. The reason names each untracked
-retained path; ignored/hard-excluded artifacts and the separately sealed raw control config
-do not become obligations through this guard. Ordinary/v1 diff semantics stay unchanged.
-Enumeration uses the retained inventory's repository `.gitignore` authority, rather than
-Git's standard host/local exclusions. `.git/info/exclude` and `core.excludesFile` therefore
-cannot hide retained untracked inputs from this refusal.
+retained path; actually excluded generated/hard-excluded artifacts and the separately
+sealed raw control config do not become obligations through this guard. Ordinary/v1 diff
+semantics stay unchanged. The check compares actual retained paths with Git's tracked
+index inventory, without recursively enumerating ignored trees. Repository `.gitignore`,
+`.git/info/exclude` and `core.excludesFile` cannot hide an authored file that capture
+actually retained. The existing binding classification is invalid with the named
+untracked-input reason, even when the indexed bytes have not drifted. A force-tracked
+ignored source remains in the supported tracked domain. The old outside-output
+`ignored.ts` fixture is now an explicit negative; the separate positive uses a generated
+output path genuinely omitted by capture, preserving both source domains visibly.
 
 Runtime object/class definitions of potentially callable hooks at actual SDK protocol
 symbol keys are unsupported as well as later mutations. Methods and unknown/nonprimitive

@@ -108,8 +108,12 @@ refuses unproven `toJSON` inputs and helper escapes without adding implicit invo
 Qualified working-tree changes with relevant retained untracked inputs refuse explicitly:
 Git diff omits their additions. Track those inputs and rebuild before qualifying; ordinary
 analysis and ignored/control report artifacts keep their existing behavior.
-The untracked query uses the same repository `.gitignore` authority as retained capture;
-`.git/info/exclude` and `core.excludesFile` cannot conceal retained inputs from this refusal.
+The check compares the actual retained input paths with Git's tracked index inventory.
+Repository `.gitignore`, `.git/info/exclude` and `core.excludesFile` cannot conceal a
+retained authored input from this refusal. Actual capture exclusions, including ignored
+generated output directories, remain separate. No recursive ignored-tree enumeration is
+needed. The existing binding policy marks such an untracked input invalid with its exact
+reason; tracking it and rebuilding restores the supported tracked-input domain.
 Object/class definitions of potentially callable hooks at actual SDK protocol symbol keys
 also refuse qualification. Erased type members, proven primitive data, string keys and
 local symbol homonyms remain distinct; no implicit invocation edges are manufactured.
@@ -140,6 +144,16 @@ SDK global binding is unsupported even when that binding is a noncallable namesp
 Captured SDK declarations and receiver identity distinguish it from local homonyms.
 The shared JavaScript semantic diagnostic API can also report these refusals; ordinary
 extraction receives no synthesized invocation facts.
+Captured SDK WebAssembly `instantiate` and `Instance` construction are unsupported
+instantiation boundaries: a module start function may invoke imported internal code.
+Compile/validate data operations keep their existing domain. Captured SDK
+`ParentNode.append` with an actual SDK-created `script` argument is also unsupported;
+the pinned `Document.createElement` origin and receiver proof distinguish ordinary
+objects and type annotations. Standalone script creation and ordinary inert DOM/local
+controls remain distinct. The insertion refusal is conservative even for an individual
+empty or disconnected script. These are the observed instantiation/insertion routes,
+not a claim of complete browser or WebAssembly runtime modeling. Shared JavaScript
+diagnostics can report the same refusals without adding invocation or module edges.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.
