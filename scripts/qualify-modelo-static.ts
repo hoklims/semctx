@@ -425,6 +425,9 @@ for (const variant of Object.keys(loaderSources) as (keyof typeof loaderSources)
 }
 await scenario("mixed-transitive-analysis", async () => {
   const root = fixture("mixed");
+  const turboCache = join(output, "mixed-turbo-cache");
+  assert(!existsSync(turboCache), `Refusing to reuse existing Turbo cache ${turboCache}`);
+  observations["mixed:turbo-cache-dir"] = turboCache;
   const install = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "install", "--ignore-scripts"], join(root, "suite"), 180_000);
   observations["consumer:install"] = install; assert.equal(install.code, 0, install.stderr);
   for (const tool of ["pnpm", "turbo", "tsc", "vitest"] as const) {
@@ -437,13 +440,13 @@ await scenario("mixed-transitive-analysis", async () => {
   const test = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "vitest", "run"], join(root, "suite"));
   observations["consumer:tests"] = test; assert.equal(test.code, 0, test.stderr); assert(/1 passed/.test(test.stdout));
   for (const attempt of ["miss", "hit"] as const) {
-    const build = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "turbo", "run", "build", "--filter=@public/apps-web", "--output-logs=full"], join(root, "suite"));
+    const build = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "turbo", "run", "build", "--filter=@public/apps-web", "--output-logs=full", "--cache-dir", turboCache], join(root, "suite"));
     observations[`consumer:turbo-${attempt}`] = build; assert.equal(build.code, 0, build.stderr); assert(build.stdout.includes(`cache ${attempt}`));
   }
   put(root, LEAF, leafSource(root).replace("+ 1", "+ 9"));
   const failedTest = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "vitest", "run"], join(root, "suite"));
   observations["consumer:failed-test"] = failedTest; assert.notEqual(failedTest.code, 0); assert(failedTest.stdout.includes("1 failed"));
-  const failedBuild = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "turbo", "run", "build", "--filter=@public/apps-web", "--output-logs=full"], join(root, "suite"));
+  const failedBuild = run([process.execPath, "x", `pnpm@${CONSUMER_VERSIONS.pnpm}`, "exec", "turbo", "run", "build", "--filter=@public/apps-web", "--output-logs=full", "--cache-dir", turboCache], join(root, "suite"));
   observations["consumer:failed-build"] = failedBuild; assert.notEqual(failedBuild.code, 0); assert((failedBuild.stdout + failedBuild.stderr).includes("synthetic build failure"));
   put(root, LEAF, leafSource(root));
   git(root, ["add", "suite/pnpm-lock.yaml"]); git(root, ["commit", "-qm", "lock synthetic consumer dependencies"]);
