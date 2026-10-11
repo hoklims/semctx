@@ -146,12 +146,17 @@ ledger construction. Unmodeled object-literal callable members cannot reuse same
 file-level caller or callee coordinates. Module-level callers and opaque external/declaration boundaries
 remain distinct. This checks coherence of extracted local coordinates, not completeness
 of all possible calls; legacy and manually selected v2 analysis retain their behavior.
-The same private integrity seam rejects extracted test-import bindings into modeled local
-modules when their canonical target has no unique symbol. Plain constants remain module
-metadata, but a test binding to such an unmodeled value cannot claim `tested_by`/`covers`;
-the importing test path fails explicitly instead of silently losing the association.
-No value symbols or approximate test edges are manufactured, and ordinary analysis is
-unchanged.
+The same private integrity seam rejects actually used runtime import bindings into modeled
+local modules when their canonical target has no unique modeled symbol, in production
+and test files. Namespace constant/enum reads retain their actual declaration origin;
+an unmodeled value cannot borrow a same-named function's `tested_by`/`covers` association.
+Plain constants remain module metadata. The importing path fails explicitly instead of
+silently losing the dependency. Unused bindings, erased type-only uses and lexical
+shadows do not prove runtime use. Optional private extraction DTO metadata is validated
+at worker transport and preserved during merging; it adds no public graph schema fields.
+No value symbols or approximate test edges are manufactured. Ordinary/no-snapshot
+extraction and legacy admission retain their policy; modeled direct namespace test
+associations remain supported, without a claim of complete transitive recommendations.
 
 Retained generator declarations/expressions/methods are outside this named qualification
 domain. A cached generator's `.next()` can execute its body without an extracted consumer

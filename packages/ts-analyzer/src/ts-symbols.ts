@@ -69,7 +69,7 @@ export interface ExtractedImport {
   resolvedRelPath?: string;
   names: string[];
   /** Canonical value-binding owners, independent of the structurally imported module. */
-  bindingTargets?: { relPath: string; symbolPath: string }[];
+  bindingTargets?: { relPath: string; symbolPath: string; runtimeUsed?: boolean; unmodeledReason?: string }[];
   line: number;
 }
 
@@ -380,7 +380,8 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
     const exportedDeclarations = new Set<ts.Declaration>();
-    const namespaceReferences = staticModuleLinksEnabled ? namespaceMemberReferences(sf, checker) : undefined;
+    const namespaceReferences = staticModuleLinksEnabled ? namespaceMemberReferences(sf, checker, snapshot !== undefined) : undefined;
+    const runtimeReferences = snapshot === undefined ? undefined : runtimeReferenceSymbols(sf, checker);
     if (staticModuleLinksEnabled) {
       const moduleSymbol = checker.getSymbolAtLocation(sf);
       if (moduleSymbol !== undefined) {
@@ -485,7 +486,11 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         const references: { expression: ts.Expression; targetSymbol?: ts.Symbol }[] = [...valueImportBindings(node).map(expression => ({ expression })), ...(namespaceSymbol === undefined ? [] : namespaceReferences?.get(namespaceSymbol) ?? [])];
         const bindingTargets = staticModuleLinksEnabled ? references.flatMap(binding => {
           const target = resolveCallTarget(checker, binding.expression, relOf, javascriptEnabled, snapshot, binding.targetSymbol);
-          return target?.relPath !== undefined && target.symbolPath !== undefined ? [{ relPath: target.relPath, symbolPath: target.symbolPath }] : [];
+          return target?.relPath !== undefined && target.symbolPath !== undefined ? [{ relPath: target.relPath, symbolPath: target.symbolPath,
+            ...(runtimeReferences !== undefined && ts.isIdentifier(binding.expression) && binding.targetSymbol === undefined
+              && !runtimeReferences.has(checker.getSymbolAtLocation(binding.expression)!) ? { runtimeUsed: false } : {}),
+            ...(target.unmodeledReason === undefined ? {} : { unmodeledReason: target.unmodeledReason }),
+          }] : [];
         }) : undefined;
         imports.push({
           fromRelPath: relPath,
@@ -945,7 +950,9 @@ function isExtractionWorkerResponse(
       && stringArray(item["names"])
       && (item["bindingTargets"] === undefined || (Array.isArray(item["bindingTargets"])
         && item["bindingTargets"].every(target => isRecord(target) && inRepository(target["relPath"])
-          && typeof target["symbolPath"] === "string")))
+          && typeof target["symbolPath"] === "string"
+          && (target["runtimeUsed"] === undefined || typeof target["runtimeUsed"] === "boolean")
+          && optionalString(target["unmodeledReason"]))))
       && line(item["line"]))
     && dto["calls"].every((item) => isRecord(item)
       && owned(item["callerRelPath"])
@@ -1025,8 +1032,30 @@ function valueImportBindings(node: ts.ImportDeclaration): ts.Identifier[] {
   return bindings;
 }
 
-/** Static modeled member references keyed by their actual lexical receiver binding, never its spelling. */
-function namespaceMemberReferences(source: ts.SourceFile, checker: ts.TypeChecker): Map<ts.Symbol, { expression: ts.Expression; targetSymbol?: ts.Symbol }[]> {
+/** Runtime lexical uses; declaration/type/shadow occurrences never prove a value read. */
+function runtimeReferenceSymbols(source: ts.SourceFile, checker: ts.TypeChecker): Set<ts.Symbol> {
+  const symbols = new Set<ts.Symbol>();
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)
+      || (ts.canHaveModifiers(node) && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword))) return;
+    if (ts.isTypeNode(node)) {
+      if (ts.isExpressionWithTypeArguments(node) && ts.isHeritageClause(node.parent) && node.parent.token === ts.SyntaxKind.ExtendsKeyword
+        && (ts.isClassDeclaration(node.parent.parent) || ts.isClassExpression(node.parent.parent))) visit(node.expression);
+      return;
+    }
+    if (ts.isExportDeclaration(node) && node.isTypeOnly || ts.isExportSpecifier(node) && node.isTypeOnly) return;
+    if (ts.isIdentifier(node)) {
+      const symbol = ts.isShorthandPropertyAssignment(node.parent) ? checker.getShorthandAssignmentValueSymbol(node.parent)
+        : ts.isExportSpecifier(node.parent) ? checker.getExportSpecifierLocalTargetSymbol(node.parent) : checker.getSymbolAtLocation(node);
+      if (symbol !== undefined) symbols.add(symbol);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source); return symbols;
+}
+
+/** Static member references keyed by their actual lexical receiver binding, never its spelling. */
+function namespaceMemberReferences(source: ts.SourceFile, checker: ts.TypeChecker, retainUnmodeled = false): Map<ts.Symbol, { expression: ts.Expression; targetSymbol?: ts.Symbol }[]> {
   const references = new Map<ts.Symbol, { expression: ts.Expression; targetSymbol?: ts.Symbol }[]>();
   const unwrap = unwrapStaticExpression;
   const add = (binding: ts.Symbol | undefined, expression: ts.Expression, target: ts.Symbol | undefined): void => {
@@ -1034,7 +1063,9 @@ function namespaceMemberReferences(source: ts.SourceFile, checker: ts.TypeChecke
     const declaration = target?.getDeclarations()?.[0];
     const modeled = declaration !== undefined && (ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration)
       || (ts.isVariableDeclaration(declaration) && declaration.initializer !== undefined && isFunctionLike(declaration.initializer)));
-    if (binding === undefined || !modeled) return;
+    const unmodeledValue = retainUnmodeled && declaration !== undefined
+      && (ts.isVariableDeclaration(declaration) || ts.isEnumDeclaration(declaration) || ts.isEnumMember(declaration));
+    if (binding === undefined || (!modeled && !unmodeledValue)) return;
     const targets = references.get(binding) ?? [];
     targets.push({ expression, targetSymbol: target }); references.set(binding, targets);
   };
@@ -1133,8 +1164,9 @@ function resolveCallTarget(
   return {
     relPath: relOf(sf.fileName),
     symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName),
-    ...(snapshot !== undefined && ts.isObjectLiteralExpression(decl.parent)
-      ? { unmodeledReason: "OBJECT_LITERAL_MEMBER" } : {}),
+    ...(snapshot !== undefined && ts.isObjectLiteralExpression(decl.parent) ? { unmodeledReason: "OBJECT_LITERAL_MEMBER" }
+      : snapshot !== undefined && (ts.isEnumDeclaration(decl) || ts.isEnumMember(decl)) ? { unmodeledReason: "ENUM_VALUE" }
+      : snapshot !== undefined && ts.isVariableDeclaration(decl) && (decl.initializer === undefined || !isFunctionLike(decl.initializer)) ? { unmodeledReason: "VALUE_DECLARATION" } : {}),
   };
 }
 

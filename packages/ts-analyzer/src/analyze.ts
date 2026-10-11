@@ -299,22 +299,25 @@ export function assembleRepository(
 
   // tested_by / covers via test-file imports resolving to symbols.
   for (const imp of extraction.imports) {
+    if (checkLocalCalls) for (const binding of imp.bindingTargets ?? []) {
+      if (binding.runtimeUsed === false || !modeledModules.has(binding.relPath)) continue;
+      const matches = byQualified.get(binding.relPath)?.get(binding.symbolPath)?.length ?? 0;
+      if (matches === 1 && binding.unmodeledReason === undefined) continue;
+      const prefix = roleByRel.get(imp.fromRelPath) === "test" ? "QUALIFIED_TEST_BINDING" : "QUALIFIED_IMPORT_BINDING";
+      const kind = matches === 0 ? "MISSING" : matches > 1 ? "AMBIGUOUS" : "UNMODELED";
+      const reason = `${prefix}_${kind}:${binding.relPath}:${binding.symbolPath}${kind === "UNMODELED" ? `:${binding.unmodeledReason}` : ""}`;
+      const reasons = callReasons.get(imp.fromRelPath) ?? [];
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(imp.fromRelPath, reasons);
+    }
     if (roleByRel.get(imp.fromRelPath) !== "test") continue;
     const testNodeId = nodeIdByRel.get(imp.fromRelPath);
     if (testNodeId === undefined) continue;
     if (imp.bindingTargets !== undefined) {
       for (const binding of imp.bindingTargets) {
+        if (binding.unmodeledReason !== undefined) continue;
         const target = unique(byQualified.get(binding.relPath)?.get(binding.symbolPath));
-        if (target === undefined) {
-          if (checkLocalCalls && modeledModules.has(binding.relPath)) {
-            const matches = byQualified.get(binding.relPath)?.get(binding.symbolPath)?.length ?? 0;
-            const reason = `QUALIFIED_TEST_BINDING_${matches === 0 ? "MISSING" : "AMBIGUOUS"}:${binding.relPath}:${binding.symbolPath}`;
-            const reasons = callReasons.get(imp.fromRelPath) ?? [];
-            if (!reasons.includes(reason)) reasons.push(reason);
-            callReasons.set(imp.fromRelPath, reasons);
-          }
-          continue;
-        }
+        if (target === undefined) continue;
         const ev = SYMBOL_EDGE_EVIDENCE(imp.fromRelPath, imp.line, "test");
         builder.edge("tested_by", target.id, testNodeId, ev);
         builder.edge("covers", testNodeId, target.id, ev);

@@ -78,10 +78,15 @@ Observations bind each domain's initial leaf and two Node helper hashes to its G
 historical receipts keep their original domain and source identity.
 Generators are unsupported in retained qualified source: initialization facts do not prove
 later cached resumption dependencies. Ordinary extraction still exposes their existing
-symbols and calls. Test-import targets in modeled local modules must have one exact
-symbol coordinate; missing/ambiguous targets, including plain exported constants, fail the
-test path rather than silently dropping its association. These limits add no invocation,
-value-symbol or test edges and preserve the four fixture outputs.
+symbols and calls. Actually used runtime import targets in modeled local modules must
+have one exact modeled symbol coordinate, in production and test files. Namespace value
+reads retain their actual declaration origin: missing/ambiguous targets and unmodeled
+constants or enums fail the importing path rather than silently dropping a dependency
+or borrowing a same-named function's test association. Unused and erased type-only
+bindings remain distinct. Private extraction/worker metadata carries these checks;
+the public graph schema gains no fields, value symbols or approximate edges. Direct
+modeled namespace test associations remain supported; this does not establish complete
+transitive test recommendations. These limits preserve the four fixture outputs.
 The shared JavaScript diagnostic API reports the generator refusal even without this
 profile or a supplied snapshot. Its ordinary diagnostics become more conservative while
 ordinary extraction retains generator facts.

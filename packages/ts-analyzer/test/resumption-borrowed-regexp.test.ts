@@ -66,7 +66,7 @@ test("test binding coordinate for an exported primitive exists while its symbol 
     for (const [path, content] of inputs) writeFileSync(path, content);
     const facts = extractTypeScript([...inputs.keys()], root, inputs);
     console.info(JSON.stringify({ imports: facts.imports, symbols: facts.symbols }));
-    expect(facts.imports[0]?.bindingTargets).toContainEqual({ relPath: "dep.ts", symbolPath: "SECURITY_MODE" });
+    expect(facts.imports[0]?.bindingTargets).toContainEqual({ relPath: "dep.ts", symbolPath: "SECURITY_MODE", unmodeledReason: "VALUE_DECLARATION" });
     expect(facts.symbols.some(symbol => symbol.name === "SECURITY_MODE")).toBe(false);
     initializeGit(root);
     const base = { ...createGlobSelectionConfig(root), include: ["**/*.ts"] };
