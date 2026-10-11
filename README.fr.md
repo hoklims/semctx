@@ -86,8 +86,9 @@ Findings
 seuls les interfaces et alias de type exportés comptent comme des contrats. Les deux autres
 modifications ne produisent aucun constat non plus. L’une reformule un commentaire, l’autre glisse
 un off-by-one dans une fonction de remise non exportée ; la section [Limites](#limites) explique
-pourquoi semctx laisse passer ce bug. Le rapport complet de la démo est
-[publié en ligne](https://hoklims.github.io/semctx/demo/).
+pourquoi semctx laisse passer ce bug. Un
+[résumé public des preuves de la démo](https://hoklims.github.io/semctx/demo/) est publié en
+ligne ; il montre des compteurs et des verdicts, pas cette sortie brute.
 
 ## Comment ça marche
 
@@ -193,8 +194,9 @@ Le code de sortie dépend de `--fail-on` :
 | BLOCK | 3 | 3 | 0 |
 
 Une exécution qui s’arrête avant le verdict, par exemple sans commit ou avec une valeur d’option
-invalide, sort avec le code 1. Une commande ou sous-commande inconnue sort avec le code 2, et
-`--dry-run` sort toujours avec 0.
+invalide, sort avec le code 1. Une commande ou sous-commande inconnue sort avec le code 2.
+`--dry-run` sort avec 0 quand il parvient à résoudre la plage et la config, et échoue comme
+n’importe quelle exécution sinon.
 
 Voici les règles que `setup` écrit dans `.semctx/config.json`, plus une vérification intégrée :
 
@@ -233,8 +235,10 @@ un test quand son nom se termine par `.test.ts` ou `.spec.ts` (ou leurs variante
 
 ## Dites à semctx ce qui ne doit pas casser
 
-Sans marqueur dans votre code, les règles ne peuvent lever qu’un WARN, et seulement pour les
-interfaces et alias de type exportés. Pour que semctx bloque, écrivez la règle dans une balise
+Sans marqueur dans votre code, les règles configurables ne peuvent lever qu’un WARN, et seulement
+pour les interfaces et alias de type exportés. Les vérifications intégrées bloquent quand même :
+`index_binding_stale` quand l’index n’est plus à jour et, avec la config v2,
+`analysis_scope_incomplete`. Pour que semctx bloque sur vos propres règles, écrivez la règle dans une balise
 JSDoc d’une ligne, juste au-dessus du code qu’elle protège, comme dans
 [`examples/consumer-typescript-repo`](examples/consumer-typescript-repo/src/index.ts) :
 

@@ -82,8 +82,9 @@ Findings
 `computeCartTotal` changed as well, but exported functions raise nothing by default: only exported
 interfaces and type aliases count as contracts. The other two edits get no finding either. One
 rewords a comment, the other slips an off-by-one into an unexported discount helper;
-[Limits](#limits) explains why semctx misses that bug. The full demo report is
-[published online](https://hoklims.github.io/semctx/demo/).
+[Limits](#limits) explains why semctx misses that bug. A
+[public summary of the demo's evidence](https://hoklims.github.io/semctx/demo/) is published
+online; it shows counts and verdicts, not this raw output.
 
 ## How it works
 
@@ -184,7 +185,8 @@ The exit code depends on `--fail-on`:
 | BLOCK | 3 | 3 | 0 |
 
 A run that stops before a verdict, for example with no commit or an invalid option value, exits 1.
-An unknown command or subcommand exits 2, and `--dry-run` always exits 0.
+An unknown command or subcommand exits 2. `--dry-run` exits 0 when it can resolve the range and
+config, and fails like any other run otherwise.
 
 These are the rules `setup` writes to `.semctx/config.json`, plus one built-in check:
 
@@ -222,8 +224,10 @@ Type-only imports do not count either. A file is a test when its name ends in `.
 
 ## Tell semctx what must not break
 
-Without markers in your code, the rules can only raise a WARN, and only for exported interfaces and
-type aliases. To make semctx block, write the rule in a one-line JSDoc tag on the code it protects,
+Without markers in your code, the configurable rules can only raise a WARN, and only for exported
+interfaces and type aliases. The built-in checks still block: `index_binding_stale` when the index
+is out of date, and, with config v2, `analysis_scope_incomplete`. To make semctx block on your own
+rules, write the rule in a one-line JSDoc tag on the code it protects,
 as in [`examples/consumer-typescript-repo`](examples/consumer-typescript-repo/src/index.ts):
 
 ```ts
