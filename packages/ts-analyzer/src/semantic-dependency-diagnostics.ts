@@ -1011,16 +1011,27 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return (ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee))
       && sdkOrigin(callee.expression) && sdkMemberOf(callee, "Document", "createElement");
   };
+  // DOM insertion algorithms reach HTML script post-connection preparation.
+  // Coordinates select inserted nodes, never reference/replaced nodes or position strings.
+  const sdkNodeInsertions = [
+    ["Node", "appendChild", 0], ["Node", "insertBefore", 0], ["Node", "replaceChild", 0],
+    ["ParentNode", "append", "all"], ["ParentNode", "prepend", "all"], ["ParentNode", "replaceChildren", "all"],
+    ["ChildNode", "before", "all"], ["ChildNode", "after", "all"], ["ChildNode", "replaceWith", "all"],
+    ["Element", "insertAdjacentElement", 1], ["Range", "insertNode", 0],
+  ] as const;
   const inspectRuntimeCode = (node: ts.CallExpression | ts.NewExpression): void => {
-    if (sdkOrigin(node.expression) && ((ts.isCallExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "instantiate"))
+    if (sdkOrigin(node.expression) && ((ts.isCallExpression(node) && ["instantiate", "instantiateStreaming"].some(member => sdkMemberOf(node.expression, "WebAssembly", member)))
       || (ts.isNewExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "Instance")))) {
       reasons.add("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
     }
     if (!ts.isCallExpression(node)) return;
     const callee = actualValue(node.expression);
-    if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)
-      && sdkMemberOf(callee, "ParentNode", "append") && node.arguments.some(sdkScriptElement)) {
-      reasons.add("SOURCE_SCRIPT_INSERTION_UNSUPPORTED");
+    if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)) {
+      const insertion = sdkNodeInsertions.find(([owner, member]) => sdkMemberOf(callee, owner, member));
+      if (insertion !== undefined) {
+        const inserted = insertion[2] === "all" ? node.arguments : node.arguments.slice(insertion[2], insertion[2] + 1);
+        if (inserted.some(sdkScriptElement)) reasons.add("SOURCE_SCRIPT_INSERTION_UNSUPPORTED");
+      }
     }
   };
   const visit = (node: ts.Node): void => {
