@@ -216,6 +216,8 @@ test("round2 unretained generated reference returns structured rejected admissio
 test("manifest optional dependencies are admitted as opaque external boundaries", () => {
   const root = selectedRepository();
   writeFileSync(join(root, "package.json"), JSON.stringify({ name: "fixture", optionalDependencies: { optional: "1.0.0" } }));
+  git(root, "add", "package.json");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "track optional dependency fixture");
   writeFileSync(join(root, "src/main.ts"), "import { value } from 'optional'; export function main() { return value(); }\n");
   indexRepository(root, "2026-10-09T10:01:00.000Z");
   const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;

@@ -88,6 +88,11 @@ refuses unproven `toJSON` inputs and helper escapes without adding implicit invo
 Qualified working-tree changes with relevant retained untracked inputs refuse explicitly:
 Git diff omits their additions. Track those inputs and rebuild before qualifying; ordinary
 analysis and ignored/control report artifacts keep their existing behavior.
+SDK prototype replacements and accessor/protocol installation through plural descriptors
+or `Object.create` are unsupported, including aliases/helper escapes. Actual SDK well-known
+RegExp symbol hooks are refused as unmodeled protocol mutations; own APIs, string properties
+and directly proven ordinary data descriptors keep their distinct boundary. These checks
+add no invocation edges and do not change the four public fixture outputs.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.

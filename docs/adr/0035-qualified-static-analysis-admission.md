@@ -330,6 +330,15 @@ still compares its projection against the final current layout to detect drift.
 
 ## Proof boundary
 
+Actual SDK `Object.setPrototypeOf` / `Reflect.setPrototypeOf` references are unsupported
+prototype mutations, including retained aliases and helper escapes. SDK `Object.create`
+and `Object.defineProperties` use the descriptor boundary: accessor/protocol installations,
+unknown descriptor maps or prototype values refuse; directly proven data descriptors stay
+distinct. The loaded SDK symbols `match`, `matchAll`, `replace`, `search` and `split` join the
+well-known callable protocol-key refusals. Own-name APIs and string properties are not
+classified as native hooks. No implicit invocation edges, new libraries or fixture changes
+are introduced; ordinary/v1 extraction remains unchanged.
+
 Opaque data arguments require actual primitive provenance or recursively proven direct
 literal data without callable/uncertain members. A const object/container initializer
 does not prove immutability or absence of callbacks; nested callable members are unsupported.

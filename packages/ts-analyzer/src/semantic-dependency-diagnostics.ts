@@ -241,7 +241,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     });
   };
   const iteratorKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator"]);
-  const protocolKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator", "hasInstance", "toPrimitive"]);
+  const protocolKey = (expression: ts.Expression): boolean => sdkProtocolKey(expression, ["iterator", "asyncIterator", "hasInstance", "toPrimitive", "match", "matchAll", "replace", "search", "split"]);
   const propertyName = (name: ts.PropertyName | ts.BindingName): string | undefined => ts.isComputedPropertyName(name) ? constantString(name.expression)
     : ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name) ? name.text : undefined;
   const sdkCallableMember = (expression: ts.Expression, name: string | undefined): boolean => {
@@ -402,6 +402,50 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       const name = propertyName(property.name);
       return name !== undefined && ["value", "writable", "enumerable", "configurable"].includes(name);
     });
+  };
+  const sdkMetaOperation = (expression: ts.Expression, names: readonly string[], owners: readonly string[]): boolean => {
+    const value = actualValue(expression);
+    if ((ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) && names.includes(staticMemberName(value) ?? "")
+      && owners.includes(sdkValue(actualValue(value.expression))?.getName() ?? "")) return true;
+    const symbol = sdkValue(value);
+    return names.includes(symbol?.getName() ?? "") && symbol?.getDeclarations()?.some(declaration => {
+      if (!program.isSourceFileDefaultLibrary(declaration.getSourceFile())) return false;
+      const parent = declaration.parent;
+      return (ts.isInterfaceDeclaration(parent) && owners.some(owner => parent.name.text === `${owner}Constructor`))
+        || (ts.isModuleBlock(parent) && ts.isModuleDeclaration(parent.parent) && owners.includes(parent.parent.name.getText()));
+    }) === true;
+  };
+  const inspectMetaObjectUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
+    if (ts.isIdentifier(node) && ((ts.isPropertyAccessExpression(node.parent) && node.parent.name === node)
+      || (ts.isVariableDeclaration(node.parent) && node.parent.name === node) || ts.isBindingElement(node.parent))) return;
+    if (sdkMetaOperation(node, ["setPrototypeOf"], ["Object", "Reflect"])) { reasons.add("SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED"); return; }
+    if (!sdkMetaOperation(node, ["defineProperties", "create"], ["Object"])) return;
+    let usage: ts.Expression = node;
+    while (ts.isParenthesizedExpression(usage.parent) || ts.isAsExpression(usage.parent) || ts.isTypeAssertionExpression(usage.parent)
+      || ts.isNonNullExpression(usage.parent) || ts.isSatisfiesExpression(usage.parent)) usage = usage.parent;
+    const parent = usage.parent;
+    if (ts.isVariableDeclaration(parent) && parent.initializer === usage && ts.isIdentifier(parent.name)
+      && ts.isVariableDeclarationList(parent.parent) && (parent.parent.flags & ts.NodeFlags.Const) !== 0) return;
+    if (!ts.isCallExpression(parent) || parent.expression !== usage) { reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED"); return; }
+    const create = sdkMetaOperation(node, ["create"], ["Object"]);
+    if (create && (parent.arguments[0] === undefined || !literalData(parent.arguments[0]))) reasons.add("SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED");
+    const map = parent.arguments[1];
+    if (map === undefined && create) return;
+    const descriptors = map === undefined ? undefined : unwrapStaticExpression(map);
+    if (descriptors === undefined || !ts.isObjectLiteralExpression(descriptors)) { reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED"); return; }
+    for (const entry of descriptors.properties) {
+      if (!ts.isPropertyAssignment(entry)) { reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED"); continue; }
+      if (ts.isComputedPropertyName(entry.name) && protocolKey(entry.name.expression)) reasons.add("SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED");
+      const name = propertyName(entry.name);
+      const knownKey = name !== undefined || (ts.isComputedPropertyName(entry.name) && propertyKey(entry.name.expression));
+      if (!knownKey || name === "__proto__" || !dataDescriptor(entry.initializer)) reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED");
+      const descriptor = unwrapStaticExpression(entry.initializer);
+      if (name !== undefined && ts.isObjectLiteralExpression(descriptor)) {
+        const value = descriptor.properties.find(property => !ts.isSpreadAssignment(property) && propertyName(property.name) === "value");
+        if (sdkCallableMember(parent.arguments[0]!, name) && value !== undefined
+          && (!ts.isPropertyAssignment(value) || !primitiveValue(value.initializer))) reasons.add("SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED");
+      }
+    }
   };
   const inspectDescriptorUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
     const parent = node.parent;
@@ -874,7 +918,10 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && workletLoader(node)) reasons.add("SOURCE_WORKLET_LOADER_UNSUPPORTED");
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && sdkValue(node)?.getName() === "importScripts") reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectDescriptorUse(node);
-    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectReflectSetUse(node);
+    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+      inspectReflectSetUse(node);
+      inspectMetaObjectUse(node);
+    }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       inspectPromiseResolveUse(node);
       inspectSerializerUse(node);
