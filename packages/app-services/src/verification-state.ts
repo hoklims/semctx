@@ -123,9 +123,9 @@ function objectPayload(root: string, objectId: string): Uint8Array {
   return git(root, ["cat-file", "blob", objectId]);
 }
 
-function hashObject(root: string, path: string, payload: Uint8Array): string {
+function hashObject(root: string, path: string, payload: Uint8Array, attributeSource?: string): string {
   const objectId = new TextDecoder().decode(
-    git(root, ["hash-object", `--path=${path}`, "--stdin"], payload),
+    git(root, [...(attributeSource === undefined ? [] : [`--attr-source=${attributeSource}`]), "hash-object", `--path=${path}`, "--stdin"], payload),
   ).trim();
   if (!/^[0-9a-f]{40,64}$/.test(objectId)) {
     throw new SemctxError("GIT_ERROR", "cannot capture verification source state: invalid object id", {
@@ -160,6 +160,8 @@ interface AttributeSnapshot {
   ident: string;
   workingTreeEncoding: string;
   explicitTransformer: boolean;
+  /** Full selected conversion context, present only in the qualified retained helper. */
+  conversionMetadata?: string;
 }
 
 function attributeSnapshotIsSafe(snapshot: AttributeSnapshot): boolean {
@@ -167,14 +169,39 @@ function attributeSnapshotIsSafe(snapshot: AttributeSnapshot): boolean {
     && snapshot.ident === "unspecified" && snapshot.workingTreeEncoding === "unspecified";
 }
 
+/** Internal qualified post-image seam: convert retained bytes, never re-read their sources. */
+export function retainedGitBlobObjectIds(root: string, headCommit: string, files: readonly { path: string; bytes: Uint8Array }[]): Map<string, string> {
+  const paths = files.map(file => file.path);
+  const before = checkAttrBatch(root, paths, headCommit);
+  const format = gitObjectFormat(headCommit);
+  const identities = new Map<string, string>();
+  for (const file of files) {
+    identities.set(file.path, !file.bytes.includes(0x0d) && attributeSnapshotIsSafe(before.get(file.path)!)
+      ? localBlobObjectId(format, file.bytes) : hashObject(root, file.path, file.bytes, headCommit));
+  }
+  const barrier = verificationAttributeBarrierForTesting;
+  verificationAttributeBarrierForTesting = undefined;
+  barrier?.();
+  const after = checkAttrBatch(root, paths, headCommit);
+  for (const path of paths) {
+    const initial = before.get(path)!; const final = after.get(path)!;
+    if (initial.filter !== final.filter || initial.ident !== final.ident
+      || initial.workingTreeEncoding !== final.workingTreeEncoding || initial.explicitTransformer !== final.explicitTransformer
+      || initial.conversionMetadata !== final.conversionMetadata) {
+      throw new SemctxError("GIT_ERROR", "cannot compare retained post-image: attribute metadata changed during capture", { path });
+    }
+  }
+  return identities;
+}
+
 /** Batch-resolve `filter`/`ident`/`working-tree-encoding` for candidate paths in one `git
  *  check-attr --stdin` call. Every requested path must yield a complete triple; anything else
  *  (malformed output, duplicates, missing records) refuses rather than admitting raw hashing. */
-function checkAttrBatch(root: string, paths: readonly string[]): Map<string, AttributeSnapshot> {
+function checkAttrBatch(root: string, paths: readonly string[], attributeSource?: string): Map<string, AttributeSnapshot> {
   if (paths.length === 0) return new Map();
   const stdin = new TextEncoder().encode(paths.map((path) => `${path}\0`).join(""));
   const raw = new TextDecoder().decode(
-    git(root, ["check-attr", "--stdin", "-z", ...VERIFICATION_ATTRIBUTES], stdin),
+    git(root, [...(attributeSource === undefined ? [] : [`--attr-source=${attributeSource}`]), "check-attr", "--stdin", "-z", ...VERIFICATION_ATTRIBUTES], stdin),
   );
   if (!raw.endsWith("\0")) {
     throw new SemctxError("GIT_ERROR", "cannot capture verification source state: unterminated check-attr output");
@@ -210,7 +237,7 @@ function checkAttrBatch(root: string, paths: readonly string[]): Map<string, Att
   const result = new Map<string, AttributeSnapshot>();
   // Named check-attr output conflates sentinel states with literal values such as filter=unset.
   // --all omits truly unspecified attributes, so explicit transformer values stay on Git's path.
-  const allRaw = new TextDecoder().decode(git(root, ["check-attr", "--stdin", "-z", "--all"], stdin));
+  const allRaw = new TextDecoder().decode(git(root, [...(attributeSource === undefined ? [] : [`--attr-source=${attributeSource}`]), "check-attr", "--stdin", "-z", "--all"], stdin));
   if (allRaw.length > 0 && !allRaw.endsWith("\0")) {
     throw new SemctxError("GIT_ERROR", "cannot capture verification source state: unterminated check-attr output");
   }
@@ -220,6 +247,7 @@ function checkAttrBatch(root: string, paths: readonly string[]): Map<string, Att
   }
   const explicitTransformers = new Set<string>();
   const allKeys = new Set<string>();
+  const conversionMetadata = new Map<string, [string, string][]>();
   for (let index = 0; index < allFields.length; index += 3) {
     const path = allFields[index]!;
     const attribute = allFields[index + 1]!;
@@ -229,6 +257,11 @@ function checkAttrBatch(root: string, paths: readonly string[]): Map<string, Att
       throw new SemctxError("GIT_ERROR", "cannot capture verification source state: invalid all-attributes record");
     }
     allKeys.add(key);
+    if (attributeSource !== undefined) {
+      const attributes = conversionMetadata.get(path) ?? [];
+      attributes.push([attribute, value]);
+      conversionMetadata.set(path, attributes);
+    }
     if ((VERIFICATION_ATTRIBUTES as readonly string[]).includes(attribute)) {
       if (values.get(key) !== value) {
         throw new SemctxError("GIT_ERROR", "cannot capture verification source state: attribute metadata changed during capture", { path });
@@ -247,7 +280,9 @@ function checkAttrBatch(root: string, paths: readonly string[]): Map<string, Att
         { path },
       );
     }
-    result.set(path, { filter, ident, workingTreeEncoding, explicitTransformer: explicitTransformers.has(path) });
+    result.set(path, { filter, ident, workingTreeEncoding, explicitTransformer: explicitTransformers.has(path),
+      ...(attributeSource === undefined ? {} : { conversionMetadata: JSON.stringify((conversionMetadata.get(path) ?? []).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)) }),
+    });
   }
   return result;
 }

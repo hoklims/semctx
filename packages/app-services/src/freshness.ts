@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from "node:fs";
 import { basename, dirname, relative, resolve } from "node:path";
 import {
   compareIds,
@@ -27,11 +27,14 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
 } from "@semantic-context/plane-a-internal";
 import packageJson from "../package.json";
+import { QUALIFIED_ANALYZER_IDENTITY } from "./analyzer-identity-generated";
+import { analyzeWorkspaceSync } from "@semantic-context/workspace-analyzer-internal";
 
 export const CONTROL_INDEX_SNAPSHOT_META_KEY = "control_index_snapshot_v1";
 export const PLANE_A_INDEX_SNAPSHOT_META_KEY = "plane_a_index_snapshot_v1";
@@ -197,8 +200,57 @@ export function fingerprintSemanticModel(model: SemanticModel): Sha256Hash {
   return hash("semantic-model", serializeControlReport(normalized));
 }
 
+/** Retained raw inputs: consumers must analyze these bytes, not re-read a mutable filesystem. */
+export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
+  digest: Sha256Hash; files: { path: string; bytes: Uint8Array }[]; workspaceRoots: readonly string[];
+} {
+    const entries: { path: string; contentHash: string }[] = [];
+    const files: { path: string; bytes: Uint8Array }[] = [];
+    const eligible = createQualifiedPathEligibility(config);
+    const qualifiedRoot = canonicalRepositoryRoot(config.repositoryRoot);
+    const walk = (dir: string): void => {
+      if (dir !== config.repositoryRoot && existsSync(resolve(dir, ".git"))) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope contains a nested Git repository", { path: relative(config.repositoryRoot, dir) });
+      }
+      for (const entry of readdirSync(dir, { withFileTypes: true }).sort((left, right) => compareIds(left.name, right.name))) {
+        const path = resolve(dir, entry.name);
+        const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
+        if (isHardExcludedPath(relPath)) continue;
+        const stat = lstatSync(path);
+        if (!entry.isDirectory() && !eligible(relPath)) continue;
+        if (stat.isSymbolicLink()) {
+          throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope cannot read a symbolic link", { path: relative(config.repositoryRoot, path) });
+        }
+        if (entry.isDirectory()) { walk(path); continue; }
+        // Source bytes, raw manifests/configuration and lockfiles all influence qualification.
+        if (!isQualifiedRepositoryInputPath(relPath)) continue;
+        if (!stat.isFile()) throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope requires a regular file", { path: relPath });
+        if (!canonicalRepositoryRoot(path).startsWith(`${qualifiedRoot}/`)) throw new SemctxError("INVALID_TASK_INPUT", "qualified source lies outside the repository");
+        const bytes = readFileSync(path);
+        entries.push({ path: relPath, contentHash: hash("qualified-input-bytes", bytes) });
+        files.push({ path: relPath, bytes });
+      }
+    };
+    walk(config.repositoryRoot);
+    // Seal only directory membership consumed by workspace projection, using these retained
+    // manifest bytes. Unrelated empty output directories do not affect the qualified identity.
+    const manifestContents = new Map(files.map(file => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
+    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents });
+    const workspaceRoots = [...new Set([...workspaceLayout.nodes, ...workspaceLayout.candidates].map(entry => entry.root))].sort(compareIds);
+    return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files, workspaceRoots };
+}
+
+/** Repository-owned inputs sealed by the named profile; shared with Git post-image checks. */
+export function isQualifiedRepositoryInputPath(path: string): boolean {
+  if (isHardExcludedPath(path)) return false;
+  const name = path.slice(path.lastIndexOf("/") + 1);
+  return /\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(name)
+    || /^(?:pyproject\.toml|\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(name);
+}
+
 /** Fingerprint the exact discovered Plane A contents plus the parsed analyzer configuration. */
 export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly DiscoveredFile[]): Sha256Hash {
+  if (config.version === 2 && config.analysisProfile === "modelo-suite-static-v1") return captureQualifiedAnalysisInputs(config).digest;
   const manifest = {
     config,
     files: files

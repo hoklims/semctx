@@ -80,6 +80,13 @@ const AUTHORITY_REGISTRATIONS: readonly AuthorityRegistration[] = [
     factKinds: TYPESCRIPT_FACT_KINDS,
   },
   {
+    // Static ESM fact use only. Capability/completeness gates separately reject partial sources.
+    configVersions: [2],
+    language: "javascript",
+    dialectVersion: "5.9.3",
+    factKinds: TYPESCRIPT_FACT_KINDS,
+  },
+  {
     configVersions: [2],
     language: "python",
     dialectVersion: "<=3.12",

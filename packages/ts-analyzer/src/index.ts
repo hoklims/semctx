@@ -1,13 +1,17 @@
 /** Public surface of @semantic-context/ts-analyzer. */
-export { analyzeRepository, analyzeRepositoryAsync, assembleRepository } from "./analyze";
+export { analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons } from "./analyze";
 export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
+export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration, hasNodeCreateRequireUse, inspectNativeModuleBindings } from "./javascript-diagnostics";
 
 export {
+  DISCOVERY_CANDIDATE_REASONS,
   discoverFiles,
   discoverRepository,
   countTypeScriptFiles,
   isPathSelected,
   sourceLanguage,
+  createQualifiedPathEligibility,
+  isHardExcludedPath,
 } from "./discovery";
 export type {
   DiscoveredFile,
@@ -22,6 +26,7 @@ export {
   extractTypeScriptParallel,
   resolveWorkerCount,
   TYPESCRIPT_DIALECT_VERSION,
+  typeScriptLibraryDirectory,
 } from "./ts-symbols";
 export type {
   TsExtraction,
@@ -31,6 +36,7 @@ export type {
   IndexWorkerSelection,
   ParallelTsExtraction,
   TypeScriptParallelism,
+  CompilerInputSnapshot,
 } from "./ts-symbols";
 
 export {

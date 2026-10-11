@@ -46,8 +46,11 @@ import {
   type IndexWorkerSelection,
   type TsExtraction,
   type TypeScriptParallelism,
+  type CompilerInputSnapshot,
+  retainedCompilerSystem,
 } from "./ts-symbols";
 import { groupSymbols } from "./symbol-grouping";
+import { inspectJavaScriptSource } from "./javascript-diagnostics";
 import {
   degradeDivergentMarkerNodes,
   detectMarkerDivergence,
@@ -68,10 +71,20 @@ export interface AsyncAnalysisResult {
   parallelism: TypeScriptParallelism;
 }
 
+const qualifiedCallReasons = new WeakMap<AnalysisResult, ReadonlyMap<string, readonly string[]>>();
+/** Private integration seam; reasons never alter legacy serialized analysis shapes. */
+export function getQualifiedCallIntegrityReasons(analysis: AnalysisResult): ReadonlyMap<string, readonly string[]> {
+  return qualifiedCallReasons.get(analysis) ?? new Map();
+}
+
 type GraphBuilder = DeterministicGraphAssembler;
 
 const TYPESCRIPT_PRODUCER: ProducerIdentity = {
   identity: "@semantic-context/ts-analyzer",
+  version: "0.1.0",
+};
+const JAVASCRIPT_PRODUCER: ProducerIdentity = {
+  identity: "@semantic-context/ts-analyzer/javascript",
   version: "0.1.0",
 };
 
@@ -85,30 +98,35 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
   { filePath: relPath, startLine: line, sourceKind: kind },
 ];
 
-export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[]): AnalysisResult {
+export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], compilerInputs?: CompilerInputSnapshot): AnalysisResult {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
+  assertSnapshotInputs(tsFiles, compilerInputs, config);
   const extraction = extractTypeScript(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
+    compilerInputs,
   );
-  return assembleRepository(config, files, extraction);
+  return assembleRepository(config, files, extraction, compilerInputs);
 }
 
 export async function analyzeRepositoryAsync(
   config: SemctxConfig,
   discoveredFiles?: readonly DiscoveredFile[],
   workers: IndexWorkerSelection = "auto",
+  compilerInputs?: CompilerInputSnapshot,
 ): Promise<AsyncAnalysisResult> {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
+  assertSnapshotInputs(tsFiles, compilerInputs, config);
   const result = await extractTypeScriptParallel(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
     workers,
+    compilerInputs,
   );
   return {
-    analysis: assembleRepository(config, files, result.extraction),
+    analysis: assembleRepository(config, files, result.extraction, compilerInputs),
     parallelism: result.parallelism,
   };
 }
@@ -118,6 +136,7 @@ export function assembleRepository(
   config: SemctxConfig,
   files: readonly DiscoveredFile[],
   extraction: TsExtraction,
+  compilerInputs?: CompilerInputSnapshot,
 ): AnalysisResult {
   const tsFiles = files.filter(isTypeScriptSource);
   const analyzedFiles = files.filter((file) =>
@@ -142,11 +161,13 @@ export function assembleRepository(
     const isTest = file.role === "test";
     const id = isTest ? testId(file.relPath) : moduleId(file.relPath);
     nodeIdByRel.set(file.relPath, id);
+    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs) : undefined;
     builder.node({
       id,
       kind: isTest ? "test" : "module",
       name: basename(file.relPath),
       filePath: file.relPath,
+      ...(javascriptFacts ? { metadata: { staticExports: JSON.stringify(javascriptFacts.staticExports), staticModuleLinks: JSON.stringify(javascriptFacts.staticModuleLinks) } } : {}),
       evidence: [{ filePath: file.relPath, sourceKind: isTest ? "test" : "code" }],
     });
     builder.edge("belongs_to", id, repoNodeId, [{ filePath: file.relPath, sourceKind: "code" }]);
@@ -229,7 +250,35 @@ export function assembleRepository(
   // Call edges between resolved symbols (best-effort static). Both endpoints are matched on the
   // exact scope-qualified coordinate; anything that resolves to more than one node is dropped —
   // an approximate call edge is worse than a missing one.
+  const callReasons = new Map<string, string[]>();
+  const checkLocalCalls = config.version === 2 && config.selectionMode === "qualified-static-v1" && config.analysisProfile === "modelo-suite-static-v1";
+  const modeledModules = new Set(extraction.modules);
+  const checkCoordinate = (callerPath: string, role: "CALLER" | "CALLEE", path: string | undefined, coordinate: string | undefined): void => {
+    if (!checkLocalCalls || path === undefined || coordinate === undefined || !modeledModules.has(path)) return;
+    const matches = byQualified.get(path)?.get(coordinate)?.length ?? 0;
+    if (matches === 1) return;
+    const reason = `QUALIFIED_CALL_COORDINATE_${role}_${matches === 0 ? "MISSING" : "AMBIGUOUS"}:${path}:${coordinate}`;
+    const reasons = callReasons.get(callerPath) ?? [];
+    if (!reasons.includes(reason)) reasons.push(reason);
+    callReasons.set(callerPath, reasons);
+  };
   for (const call of extraction.calls) {
+    if (checkLocalCalls && call.callerUnmodeledReason !== undefined && modeledModules.has(call.callerRelPath)) {
+      const reasons = callReasons.get(call.callerRelPath) ?? [];
+      const reason = `QUALIFIED_CALL_COORDINATE_CALLER_UNMODELED:${call.callerRelPath}:${call.callerUnmodeledReason}`;
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(call.callerRelPath, reasons);
+      continue;
+    }
+    if (checkLocalCalls && call.calleeUnmodeledReason !== undefined && call.calleeRelPath !== undefined && modeledModules.has(call.calleeRelPath)) {
+      const reasons = callReasons.get(call.callerRelPath) ?? [];
+      const reason = `QUALIFIED_CALL_COORDINATE_CALLEE_UNMODELED:${call.calleeRelPath}:${call.calleeUnmodeledReason}`;
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(call.callerRelPath, reasons);
+      continue;
+    }
+    checkCoordinate(call.callerRelPath, "CALLER", call.callerRelPath, call.callerSymbolPath);
+    checkCoordinate(call.callerRelPath, "CALLEE", call.calleeRelPath, call.calleeSymbolPath);
     if (call.calleeRelPath === undefined || call.calleeSymbolPath === undefined) continue;
     const callee = unique(byQualified.get(call.calleeRelPath)?.get(call.calleeSymbolPath));
     if (callee === undefined) continue;
@@ -250,8 +299,19 @@ export function assembleRepository(
   // tested_by / covers via test-file imports resolving to symbols.
   for (const imp of extraction.imports) {
     if (roleByRel.get(imp.fromRelPath) !== "test") continue;
-    if (imp.resolvedRelPath === undefined) continue;
     const testNodeId = nodeIdByRel.get(imp.fromRelPath);
+    if (testNodeId === undefined) continue;
+    if (imp.bindingTargets !== undefined) {
+      for (const binding of imp.bindingTargets) {
+        const target = unique(byQualified.get(binding.relPath)?.get(binding.symbolPath));
+        if (target === undefined) continue;
+        const ev = SYMBOL_EDGE_EVIDENCE(imp.fromRelPath, imp.line, "test");
+        builder.edge("tested_by", target.id, testNodeId, ev);
+        builder.edge("covers", testNodeId, target.id, ev);
+      }
+      continue;
+    }
+    if (imp.resolvedRelPath === undefined) continue;
     const perModule = byImportableName.get(imp.resolvedRelPath);
     if (testNodeId === undefined || perModule === undefined) continue;
     for (const name of imp.names) {
@@ -279,9 +339,10 @@ export function assembleRepository(
   degradeDivergentMarkerNodes(builder.nodes.values(), markerDivergences);
 
   const analysis = builder.build();
+  if (checkLocalCalls) qualifiedCallReasons.set(analysis, callReasons);
   return attachPlaneASidecar(
     analysis,
-    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId),
+    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId, compilerInputs),
   );
 }
 
@@ -308,7 +369,18 @@ function unique(nodes: readonly RepositoryNode[] | undefined): RepositoryNode | 
 
 function isTypeScriptSource(file: DiscoveredFile): boolean {
   return (file.role === "source" || file.role === "test")
-    && (file.language === undefined || file.language === "typescript");
+    && (file.language === undefined || file.language === "typescript" || file.language === "javascript");
+}
+
+function assertSnapshotInputs(files: readonly DiscoveredFile[], compilerInputs: CompilerInputSnapshot | undefined, config: SemctxConfig): void {
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  if (compilerInputs === undefined) return;
+  const system = retainedCompilerSystem(compilerInputs);
+  for (const file of files) {
+    if (system.readFile(file.absPath) !== file.content) throw new Error(`SOURCE_SNAPSHOT_MISMATCH: ${file.relPath}`);
+  }
 }
 
 function buildTypeScriptSidecar(
@@ -316,6 +388,7 @@ function buildTypeScriptSidecar(
   files: readonly DiscoveredFile[],
   builder: DeterministicGraphAssembler,
   repositoryIdentity: string,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneASidecarV1 {
   const selectedPaths = files.map((file) => file.relPath).sort();
   const sourceInputs = files
@@ -389,6 +462,12 @@ function buildTypeScriptSidecar(
     const languageFiles = files.filter((file) =>
       (file.language ?? sourceLanguage(file.relPath)) === language);
     const languagePaths = languageFiles.map((file) => file.relPath).sort();
+    const javascriptDiagnostics = language === "javascript"
+      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs))
+      : [];
+    const analysisReasons = [...new Set(javascriptDiagnostics.flatMap(result => result.reasons))].sort();
+    const parsingFailed = javascriptDiagnostics.some(result => result.parseFailed);
+    const producer = language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
     const languageSourceDigest = digestCanonical(sourceInputs.filter((input) =>
       languagePaths.includes(input.relPath)));
     const languageScope: ArtifactScope = {
@@ -397,7 +476,7 @@ function buildTypeScriptSidecar(
       selectedPathSetDigest: digestCanonical(languagePaths),
       selectedPaths: languagePaths,
       language,
-      ...(language === "typescript"
+      ...(language === "typescript" || language === "javascript"
         ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
         : {}),
     };
@@ -406,29 +485,29 @@ function buildTypeScriptSidecar(
       profileId: `${language}:${factKind}:${languageScope.selectedPathSetDigest}:${factSchemaDigest}`,
       factKind,
       scope: languageScope,
-      producer: TYPESCRIPT_PRODUCER,
+      producer,
       producerConfigurationDigest,
       factSchemaDigest,
       evidenceContract: "source-lines-v1",
-      resolutionSemantics: language === "typescript"
+      resolutionSemantics: language === "javascript" ? "javascript-static-esm-v1" : language === "typescript"
         ? "typescript-static-v1"
         : "structural-source-v1",
       soundnessClaim: "best-effort-static",
-      completenessClaim: "producer-declared",
+      completenessClaim: analysisReasons.length > 0 ? "partial" : "producer-declared",
       negativeEvidenceEligible: false,
-      label: "structural",
+      label: analysisReasons.length > 0 ? "partial" : "structural",
     }));
     const batch: FactBatchV1 = {
       schemaVersion: 1,
       batchId: digestCanonical({
         scope: languageScope,
-        producer: TYPESCRIPT_PRODUCER,
+        producer,
         producerConfigurationDigest,
         factSchemaDigest,
         facts: languageFacts,
       }),
       scope: languageScope,
-      producer: TYPESCRIPT_PRODUCER,
+      producer,
       producerConfigurationDigest,
       factSchemaDigest,
       sourceDigest: languageSourceDigest,
@@ -443,10 +522,10 @@ function buildTypeScriptSidecar(
       candidateIdentity: `${language}:${languageScope.selectedPathSetDigest}`,
       scope: languageScope,
       selectionDecision: "selected",
-      analysisOutcome: "analyzed",
+      analysisOutcome: parsingFailed ? "failed" : "analyzed",
       selectionReasons: [],
-      analysisReasons: [],
-      selectedProducer: TYPESCRIPT_PRODUCER,
+      analysisReasons: parsingFailed ? ["PRODUCER_FAILED", ...analysisReasons] : analysisReasons,
+      selectedProducer: producer,
     });
   }
   return {
@@ -465,7 +544,7 @@ function buildTypeScriptSidecar(
         factSchemaDigest,
       }),
       status: "completed",
-      producer: TYPESCRIPT_PRODUCER,
+      producer: batch.producer,
       scope: batch.scope,
       factBatchId: batch.batchId,
     })),

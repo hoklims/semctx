@@ -66,6 +66,7 @@ function summaryFor(report) {
 /** Pure decision function — testable without any GitHub environment. */
 export function renderAction(report, failOn) {
   const shouldFail =
+    report.analysisAdmission?.status === "rejected" ||
     (report.verdict === "BLOCK" && (failOn === "block" || failOn === "warn")) ||
     (report.verdict === "WARN" && failOn === "warn");
   return {

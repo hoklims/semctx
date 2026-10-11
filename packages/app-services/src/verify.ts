@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { posix } from "node:path";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import { SemctxError, type VerifyReport } from "@semantic-context/core";
 import { loadConfig } from "@semantic-context/repository-store";
@@ -22,8 +23,10 @@ import {
   type UnresolvedReferenceBindingReason,
 } from "./unresolved-references";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
-import type { ControlFreshnessReason, ControlFreshnessStatusReport } from "@semantic-context/control-model";
-import { fingerprintVerificationSource } from "./verification-state";
+import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
+import { fingerprintVerificationSource, retainedGitBlobObjectIds } from "./verification-state";
+import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META } from "./qualified-analysis";
+import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
 /**
  * `head` names the commit the analysed post-image belongs to. It is optional everywhere and means
@@ -571,11 +574,75 @@ function discloseUnresolvedReferences(
   );
 }
 
+/** Compare retained repository inputs with the actual selected Git post-image. */
+function qualifiedPostImageInputs(root: string, retained: ReturnType<typeof captureQualifiedAnalysisInputs>, source: VerifySource, identity: SourceIdentity): string[] {
+  if (identity.kind !== "commits" || identity.commits.length !== 1) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const format = git(root, ["rev-parse", "--show-object-format"]);
+  const algorithm = format.out.trim();
+  if (format.code !== 0 || (algorithm !== "sha1" && algorithm !== "sha256")) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const inventory = git(root, source.kind === "staged"
+    ? ["ls-files", "--stage", "-z"] : ["ls-tree", "-r", "-z", identity.commits[0]!]);
+  if (inventory.code !== 0) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const blobs = new Map<string, string>();
+  const directories = new Set(["."]);
+  for (const item of inventory.out.split("\0").filter(Boolean)) {
+    const separator = item.indexOf("\t");
+    const fields = item.slice(0, separator).split(" ");
+    if (separator < 0 || fields.length !== 3) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+    if (source.kind === "staged" ? fields[2] !== "0" : fields[1] !== "blob") continue;
+    const path = item.slice(separator + 1);
+    blobs.set(path, source.kind === "staged" ? fields[1]! : fields[2]!);
+    for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
+  }
+  const objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files);
+  const reasons: string[] = [];
+  const retainedPaths = new Set(retained.files.map(file => file.path));
+  for (const file of retained.files) {
+    const expected = blobs.get(file.path);
+    if (expected === undefined) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_ABSENT:${file.path}`);
+    else {
+      const actual = objectIds.get(file.path);
+      if (actual !== expected) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_MISMATCH:${file.path}`);
+    }
+  }
+  for (const path of blobs.keys()) {
+    if (isQualifiedRepositoryInputPath(path) && !retainedPaths.has(path)) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_UNRETAINED:${path}`);
+  }
+  for (const workspace of retained.workspaceRoots) {
+    if (!directories.has(workspace)) reasons.push(`QUALIFIED_POST_IMAGE_WORKSPACE_ABSENT:${workspace}`);
+  }
+  return reasons;
+}
+
+/** The qualified closure requires materialized relevant tracked inputs; ordinary analysis is unchanged. */
+function qualifiedCheckoutReasons(root: string): string[] {
+  const reasons: string[] = [];
+  const sparse = git(root, ["config", "--bool", "core.sparseCheckout"]);
+  if (sparse.code === 0 && sparse.out.trim() === "true") reasons.push("QUALIFIED_SPARSE_CHECKOUT_UNSUPPORTED");
+  else if (sparse.code !== 0 && sparse.code !== 1) reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE");
+  const flags = git(root, ["ls-files", "-v", "-z"]);
+  if (flags.code !== 0) return [...reasons, "QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"];
+  for (const record of flags.out.split("\0").filter(Boolean)) {
+    if (!/^[A-Za-z] /.test(record)) { reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"); continue; }
+    const path = record.slice(2);
+    if (/^[Ss] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_SKIP_WORKTREE_UNSUPPORTED:${path}`);
+    if (/^[a-z] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_ASSUME_UNCHANGED_UNSUPPORTED:${path}`);
+  }
+  return reasons;
+}
+
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
 export function runVerify(root: string, source: VerifySource): VerifyComputation {
   const store = openReadyRepository(root);
   try {
     const config = loadConfig(root);
+    if (isQualified(config)) {
+      const worktree = git(root, ["rev-parse", "--show-toplevel"]);
+      if (worktree.code !== 0 || canonicalRepositoryRoot(worktree.out.trim()) !== canonicalRepositoryRoot(root)) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified analysis root must be the exact Git worktree root");
+      }
+    }
+    const inputBefore = isQualified(config) ? captureQualifiedAnalysisInputs(config).digest : null;
     const resolved = resolveSource(root, source, false);
     const graph = store.loadGraph();
     const claims = store.loadClaims();
@@ -586,9 +653,10 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       claims,
       config,
       diffText: resolved.diffText ?? "",
-      // Working-tree and staged indexes describe the old HEAD snapshot. A commit range is
-      // analysed against its indexed head, so its graph ranges use the diff's new coordinates.
-      nodeRangeSide: source.kind === "range" ? "new" : "old",
+      // Qualified staged/range admission below requires a clean index; dirty snapshots support
+      // working-tree sources only. Legacy working-tree and staged
+      // analysis retains old HEAD coordinates; ranges always use the indexed new side.
+      nodeRangeSide: source.kind === "range" || isQualified(config) ? "new" : "old",
     });
     const afterAnalysis = verifyAnalysisBarrierForTesting;
     verifyAnalysisBarrierForTesting = undefined;
@@ -601,7 +669,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       store,
       applyIndexBindingGate(root, store, baseResult, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)),
     );
-    const result = config.version === 2
+    let result = config.version === 2
       ? applyAnalysisHealthPreflight(
           gated,
           changedScopePaths,
@@ -610,12 +678,52 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
           (path) => isPathSelected(config, path),
         )
       : gated;
+    const inputAfter = isQualified(config) ? captureQualifiedAnalysisInputs(loadConfig(root)) : null;
+    const qualifiedPostImageReasons: string[] = isQualified(config) ? qualifiedCheckoutReasons(root) : [];
+    if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {
+      let indexed: ReturnType<typeof parseIndexedControlSnapshot> = null;
+      try {
+        indexed = parseIndexedControlSnapshot(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY));
+      } catch {
+        // The binding probe separately reports malformed metadata; never infer a clean tree.
+      }
+      if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
+      else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+      else qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, inputAfter!, source, resolved.identity));
+    }
+    const analysisAdmission = isQualified(config) ? qualifiedAdmission({
+      config, graph, changedPaths: changedScopePaths, health: indexHealth(root),
+      sourceHash: digestCanonical({ inputs: inputBefore, sourceIdentity: resolved.identity }), diff: resolved.diffText ?? "", indexSnapshot: analyzedIndexSnapshotHash,
+      bindingReasons: [...observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)).breaks, ...qualifiedPostImageReasons],
+      checkChanged: inputBefore !== inputAfter!.digest,
+      buildState: store.getMeta(QUALIFIED_BUILD_META),
+      sourceCommits: resolved.identity.kind === "absent" ? [] : [...resolved.identity.commits], baseCommit: resolved.git.mergeBase,
+      expectedInputHash: inputBefore!,
+      consumedInputs: inputAfter!,
+    }) : undefined;
     const coChanges = resolved.includeCoChanges && resolved.coChangeHead !== null
       ? historicalCoChanges(root, result.changedFiles, resolved.coChangeHead)
       : [];
+    if (analysisAdmission !== undefined) {
+      const finalSource = resolveSource(root, source, false);
+      if (inputBefore !== captureQualifiedAnalysisInputs(loadConfig(root)).digest
+        || finalSource.diffText !== resolved.diffText
+        || digestCanonical(finalSource.identity) !== digestCanonical(resolved.identity)
+        || digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null) !== analyzedIndexSnapshotHash
+        || store.getMeta(QUALIFIED_BUILD_META) !== "complete") {
+        analysisAdmission.status = "rejected";
+        analysisAdmission.checkFreshness = { status: "changed", reasons: ["CHECK_INPUT_CHANGED"] };
+        analysisAdmission.reasons = [...new Set([...analysisAdmission.reasons, "CHECK_INPUT_CHANGED"])];
+      }
+    }
+    if (analysisAdmission?.status === "rejected") {
+      result = { ...result, verdict: "BLOCK", findings: [...result.findings, {
+        rule: "analysis_scope_incomplete", severity: "block", message: `Qualified analysis rejected: ${analysisAdmission.reasons.join(", ")}`, nodeIds: [],
+      }] };
+    }
     return {
       result,
-      report: buildVerifyReport(result, resolved.git, config.blockingRules, coChanges),
+      report: { ...buildVerifyReport(result, resolved.git, config.blockingRules, coChanges), ...(analysisAdmission === undefined ? {} : { analysisAdmission }) },
       git: resolved.git,
       coChanges,
       analyzedSourceHash: resolved.analyzedSourceHash ?? null,

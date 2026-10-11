@@ -154,6 +154,7 @@ function outlinesFor(
   diff: ParsedDiffChanges,
   sideOf: (path: string) => "old" | "new",
   revisions: SideRevisions,
+  eligible: (path: string) => boolean,
 ): { bound: Map<string, ImpactFileOutline>; other: Map<string, ImpactFileOutline> } {
   const bound = new Map<string, ImpactFileOutline>();
   const other = new Map<string, ImpactFileOutline>();
@@ -165,7 +166,7 @@ function outlinesFor(
       { side: "new" as const, path: file.filePath, revision: revisions.new },
     ];
     for (const { side, path, revision } of sides) {
-      if (sourceLanguage(path) !== "typescript") continue;
+      if (!eligible(path)) continue;
       const text = readSide(root, revision, path);
       if (text === undefined) continue;
       (side === rangeSide ? bound : other).set(path, outlineTopLevel(text, path));
@@ -186,8 +187,8 @@ function untrackedPaths(root: string): string[] {
     .sort(compareIds);
 }
 
-const TS_PATHSPECS = ["*.ts", "*.tsx", "*.mts", "*.cts"];
-const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", "/index.ts", "/index.tsx"];
+const TS_PATHSPECS = ["*.ts", "*.tsx", "*.mts", "*.cts", "*.js", "*.jsx", "*.mjs", "*.cjs"];
+const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs", ".cjs", "/index.ts", "/index.tsx", "/index.js", "/index.jsx", "/index.mjs"];
 
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -219,10 +220,11 @@ function scanModuleLinks(
   revision: string | null,
   graph: RepositoryGraph,
   packages: readonly ImpactPackage[],
+  eligible: (path: string) => boolean,
 ): { links: UnindexedModuleLink[]; unread: string[]; whole: WholeModuleRead[] } | undefined {
   const indexed = new Set(
     graph.nodes
-      .filter((node) => (node.kind === "module" || node.kind === "test") && node.filePath !== undefined)
+      .filter((node) => (node.kind === "module" || node.kind === "test") && node.filePath !== undefined && eligible(node.filePath))
       .map((node) => node.filePath!),
   );
   const patterns = [
@@ -260,7 +262,7 @@ function scanModuleLinks(
   const unread: string[] = [];
   const gitBlind: string[] = [];
   for (const path of [...indexed].sort(compareIds)) {
-    if (universe.has(path) || sourceLanguage(path) !== "typescript") continue;
+    if (universe.has(path) || !eligible(path)) continue;
     const text = readSide(root, null, path);
     if (text === undefined) unread.push(path);
     else {
@@ -278,6 +280,22 @@ function scanModuleLinks(
   };
   const links: UnindexedModuleLink[] = [];
   const whole: WholeModuleRead[] = [];
+  const nodePaths = new Map(graph.nodes.map(node => [node.id, node.filePath]));
+  const importTargets = new Map<string, Set<string>>();
+  for (const edge of graph.edges) {
+    if (edge.kind !== "imports") continue;
+    const from = nodePaths.get(edge.from); const to = nodePaths.get(edge.to);
+    if (from === undefined || to === undefined || !indexed.has(to)) continue;
+    let specifiers: unknown = typeof edge.metadata["specifier"] === "string" ? [edge.metadata["specifier"]] : [];
+    if (typeof edge.metadata["specifiers"] === "string") {
+      try { specifiers = JSON.parse(edge.metadata["specifiers"]); } catch { continue; }
+    }
+    if (!Array.isArray(specifiers) || !specifiers.every(specifier => typeof specifier === "string")) continue;
+    for (const specifier of specifiers) {
+      const key = JSON.stringify([from, specifier]); const targets = importTargets.get(key) ?? new Set<string>();
+      targets.add(to); importTargets.set(key, targets);
+    }
+  }
   for (const path of [...candidates, ...gitBlind]) {
     const text = texts.get(path);
     if (text === undefined) continue;
@@ -286,9 +304,13 @@ function scanModuleLinks(
         if (link.kind !== "import") links.push({ from: path, kind: link.kind, line: link.line, target: { nonLiteral: true } });
         continue;
       }
+      const resolved = link.kind === "import" ? importTargets.get(JSON.stringify([path, link.specifier])) : undefined;
+      const resolvedTarget = resolved?.size === 1 ? [...resolved][0] : undefined;
+      if (resolvedTarget !== undefined && link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: resolvedTarget } });
       if (link.specifier.startsWith(".")) {
-        const target = resolveRelativeSpecifier(path, link.specifier, indexed);
-        if (target !== undefined && link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
+        const target = resolved === undefined ? resolveRelativeSpecifier(path, link.specifier, indexed)
+          : resolvedTarget;
+        if (target !== undefined && link.whole === true && resolved === undefined) whole.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
         // A relative import already has its edge; only the edgeless kinds are needed here.
         if (link.kind === "import") continue;
         if (target !== undefined) links.push({ from: path, kind: link.kind, line: link.line, target: { path: target } });
@@ -297,7 +319,7 @@ function scanModuleLinks(
       const identity = packageOf(link.specifier);
       if (identity === undefined) continue;
       links.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
-      if (link.whole === true) whole.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
+      if (link.whole === true && resolved === undefined) whole.push({ from: path, kind: link.kind, line: link.line, target: { package: identity } });
     }
   }
   return { links, unread, whole };
@@ -567,6 +589,29 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const claims = store.loadClaims();
     const evidence = store.loadEvidence();
     const facts = { graph, claims, evidence };
+    const javascriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
+    const typescriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
+    const planeSnapshot = parsePlaneAIndexSnapshot(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
+    for (const entry of planeSnapshot?.sidecar.discoveryLedger ?? []) {
+      if (entry.selectionDecision !== "selected") continue;
+      const outcomes = entry.scope.language === "javascript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript")
+        ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer")
+          ? typescriptOutcomes : undefined;
+      if (outcomes === undefined) continue;
+      for (const path of entry.scope.selectedPaths) outcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });
+    }
+    const eligibleSource = (path: string): boolean => (sourceLanguage(path) === "typescript" && (config.version !== 2
+      || (typescriptOutcomes.get(path)?.outcome === "analyzed" && typescriptOutcomes.get(path)?.reasons.length === 0)))
+      || (sourceLanguage(path) === "javascript" && config.version === 2 && config.languages.javascript === "on"
+        && javascriptOutcomes.get(path)?.outcome === "analyzed" && javascriptOutcomes.get(path)?.reasons.length === 0);
+    const unsupportedSourceFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
+      && ["javascript", "typescript"].includes(sourceLanguage(node.filePath)) && !eligibleSource(node.filePath) ? [node.filePath] : []));
+    for (const path of [...typescriptOutcomes.keys(), ...javascriptOutcomes.keys()]) {
+      if (!eligibleSource(path)) unsupportedSourceFiles.add(path);
+    }
+    const impactNodes = graph.nodes.filter((node) => node.filePath === undefined || !unsupportedSourceFiles.has(node.filePath));
+    const impactNodeIds = new Set(impactNodes.map((node) => node.id));
+    const impactGraph = { nodes: impactNodes, edges: graph.edges.filter((edge) => impactNodeIds.has(edge.from) && impactNodeIds.has(edge.to)) };
     const diff = parseUnifiedDiffChanges(diffText);
 
     const breaks: string[] = [];
@@ -601,23 +646,27 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const packages = workspacePackages(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     // Unchanged files read the same on disk as at indexing (clean then, or dirty and untouched since).
     const scanRevision = indexedDirty && source.kind === "working-tree" ? null : committedSide === "old" ? revisions.old : revisions.new;
-    const scan = breaks.length > 0 ? undefined : scanModuleLinks(root, scanRevision, graph, packages);
+    const scan = breaks.length > 0 ? undefined : scanModuleLinks(root, scanRevision, impactGraph, packages, eligibleSource);
     const core = breaks.length > 0
       ? null
       : computeChangeImpact({
-          index: new GraphIndex(graph),
+          index: new GraphIndex(impactGraph),
           diff,
           rangeSide: sideOf,
-          outlines: outlinesFor(root, diff, sideOf, revisions),
+          outlines: outlinesFor(root, diff, sideOf, revisions, eligibleSource),
           untrackedPaths: untracked,
           packages,
           surfaces: surfaceInput?.map ?? null,
           isPathSelected: (path) => isPathSelected(config, path),
-          hasCallEdges: (path) => sourceLanguage(path) === "typescript",
+          hasCallEdges: eligibleSource,
           ...(scan !== undefined ? { moduleLinks: scan.links, moduleLinksUnread: scan.unread, wholeModuleReads: scan.whole } : {}),
           ...(unchangedSinceIndexing !== undefined ? { unchangedSinceIndexing } : {}),
           bounds,
         });
+    if (core !== null) core.unresolved = sortUnresolved([...core.unresolved, ...[...unsupportedSourceFiles].map((path) => ({
+      code: sourceLanguage(path) === "javascript" ? "JAVASCRIPT_ANALYSIS_INCOMPLETE" : "TYPESCRIPT_ANALYSIS_INCOMPLETE", scope: "file" as const, file: path,
+      detail: "The indexed source producer is disabled, missing, failed, or partial; no effective impact facts are admitted for this file.", affects: "reach" as const,
+    }))]);
 
     // Searched inside the mutable-state bracket below: a worktree or index that moves during the
     // search makes its result unusable, exactly like the index-derived sets. The declarations come
@@ -681,7 +730,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
 
     const indexedFiles = new Set(graph.nodes.flatMap((node) => (node.filePath === undefined ? [] : [node.filePath])));
     const coverage = (files: Parameters<typeof withFileCoverage>[0]) =>
-      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles } });
+      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles, javascriptOutcomes, typescriptOutcomes } });
 
     if (broken || core === null) {
       // Re-indexing cannot bind a staged or range diff while the index reads uncommitted files.

@@ -43,6 +43,7 @@ import {
 import {
   analyzeRepository,
   analyzeRepositoryAsync,
+  getQualifiedCallIntegrityReasons,
   degradeDivergentPlaneAFacts,
   detectMarkerDivergence,
   type AnalysisResult,
@@ -50,9 +51,13 @@ import {
   type DiscoveryCandidate,
   type DiscoveryResult,
   TYPESCRIPT_DIALECT_VERSION,
+  inspectJavaScriptSource,
+  inspectSourceParsing,
+  inspectModuleConfiguration,
   type IndexWorkerSelection,
   type MarkerDeclaration,
   type TypeScriptParallelism,
+  type CompilerInputSnapshot,
 } from "@semantic-context/ts-analyzer";
 import {
   analyzeWorkspaceSync,
@@ -67,6 +72,11 @@ const TYPESCRIPT_PRODUCER: ProducerIdentity = {
 
 const PYTHON_PRODUCER: ProducerIdentity = {
   identity: "@semantic-context/python-analyzer",
+  version: "0.1.0",
+};
+
+const JAVASCRIPT_PRODUCER: ProducerIdentity = {
+  identity: "@semantic-context/ts-analyzer/javascript",
   version: "0.1.0",
 };
 
@@ -110,19 +120,27 @@ interface PythonFacts {
 export function analyzePlaneARuntime(
   config: SemctxConfig,
   discovery: DiscoveryResult,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneARuntimeResult {
-  const legacyAnalysis = analyzeRepository(config, discovery.files);
-  return composePlaneARuntime(config, discovery, legacyAnalysis);
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  const legacyAnalysis = analyzeRepository(config, discovery.files, compilerInputs);
+  return composePlaneARuntime(config, discovery, legacyAnalysis, compilerInputs);
 }
 
 export async function analyzePlaneARuntimeAsync(
   config: SemctxConfig,
   discovery: DiscoveryResult,
   workers: IndexWorkerSelection,
+  compilerInputs?: CompilerInputSnapshot,
 ): Promise<AsyncPlaneARuntimeResult> {
-  const result = await analyzeRepositoryAsync(config, discovery.files, workers);
+  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+    throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
+  }
+  const result = await analyzeRepositoryAsync(config, discovery.files, workers, compilerInputs);
   return {
-    ...composePlaneARuntime(config, discovery, result.analysis),
+    ...composePlaneARuntime(config, discovery, result.analysis, compilerInputs),
     parallelism: result.parallelism,
   };
 }
@@ -131,6 +149,7 @@ function composePlaneARuntime(
   config: SemctxConfig,
   discovery: DiscoveryResult,
   legacyAnalysis: AnalysisResult,
+  compilerInputs?: CompilerInputSnapshot,
 ): PlaneARuntimeResult {
   const legacySidecar = getPlaneASidecar(legacyAnalysis);
   if (legacySidecar === undefined) {
@@ -187,9 +206,46 @@ function composePlaneARuntime(
   }
 
   const perPath: PerPathAnalysis[] = [];
+  const localCallReasons = getQualifiedCallIntegrityReasons(legacyAnalysis);
   for (const candidate of selectedAnalyzable) {
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
+    if (config.version === 2 && candidate.language === "typescript") {
+      if (config.selectionMode === "qualified-static-v1" && config.analysisProfile === "modelo-suite-static-v1" && file.role === "migration") {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_MIGRATION_SOURCE_UNSUPPORTED"]);
+        continue;
+      }
+      if (/\.d\.(?:ts|mts|cts)$/.test(file.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_DECLARATION_FILE_UNSUPPORTED"]);
+        continue;
+      }
+      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs)];
+      if (reasons.length > 0) {
+        forcedOutcomes.set(candidate.relPath, "failed");
+        forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
+        continue;
+      }
+    }
+    if (candidate.language === "javascript") {
+      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs);
+      const reasons = [...diagnostics.reasons, ...(localCallReasons.get(candidate.relPath) ?? [])];
+      if (diagnostics.parseFailed) {
+        forcedOutcomes.set(candidate.relPath, "failed");
+        forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...diagnostics.reasons]);
+        continue;
+      }
+      perPath.push({
+        candidate, file, producer: JAVASCRIPT_PRODUCER,
+        facts: legacyFactsByPath.get(candidate.relPath) ?? [],
+        analysisReasons: reasons,
+        completenessClaim: reasons.length === 0 ? "producer-declared" : "partial",
+        negativeEvidenceEligible: false,
+        resolutionSemantics: "javascript-static-esm-v1",
+      });
+      continue;
+    }
     if (candidate.language === "python") {
       if (config.version === 1) continue;
       if (forcedOutcomes.has(candidate.relPath)) {
@@ -221,8 +277,8 @@ function composePlaneARuntime(
         file,
         producer: TYPESCRIPT_PRODUCER,
         facts: legacyFactsByPath.get(candidate.relPath) ?? [],
-        analysisReasons: [],
-        completenessClaim: "producer-declared",
+        analysisReasons: localCallReasons.get(candidate.relPath) ?? [],
+        completenessClaim: (localCallReasons.get(candidate.relPath)?.length ?? 0) === 0 ? "producer-declared" : "partial",
         negativeEvidenceEligible: false,
         resolutionSemantics: candidate.language === "typescript"
           ? "typescript-static-v1"
@@ -241,6 +297,7 @@ function composePlaneARuntime(
     repositoryRoot: config.repositoryRoot,
     repositoryId: repositoryIdentity,
     artifacts: provisionalArtifacts,
+    ...(compilerInputs === undefined ? {} : { manifestContents: compilerInputs }),
   });
   const workspaceUnitByPath = workspaceUnitsByPath(
     workspaceProjection,
@@ -270,7 +327,8 @@ function composePlaneARuntime(
   const failedProducerByPath = new Map<string, ProducerIdentity>();
   for (const candidate of discovery.candidates) {
     if (candidate.selectionDecision !== "selected" || candidate.analysisOutcome !== "failed") continue;
-    const producer = candidate.language === "python" ? PYTHON_PRODUCER : TYPESCRIPT_PRODUCER;
+    const producer = candidate.language === "python" ? PYTHON_PRODUCER
+      : candidate.language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
     const scope = scopeForCandidate(
       repositoryIdentity,
       candidate,
@@ -377,9 +435,8 @@ function composePlaneARuntime(
         ?? (completed === undefined ? "failed" : "analyzed");
       const analysisReasons = outcome === "analyzed"
         ? perPath.find((item) => item.candidate.relPath === candidate.relPath)?.analysisReasons ?? []
-        : outcome === "failed"
-          ? forcedAnalysisReasons.get(candidate.relPath) ?? ["PRODUCER_FAILED", candidate.reason]
-          : [candidate.reason];
+        : forcedAnalysisReasons.get(candidate.relPath) ?? (outcome === "failed"
+          ? ["PRODUCER_FAILED", candidate.reason] : [candidate.reason]);
       const selectedProducer = completed?.producer ?? failedProducerByPath.get(candidate.relPath);
       return normalizeDiscoveryLedgerEntry({
         candidateIdentity: `${candidate.language}:${candidate.relPath}`,
@@ -729,7 +786,7 @@ function scopeForCandidate(
     selectedPaths,
     ...(workspaceUnitId === undefined ? {} : { workspaceUnitId }),
     language: candidate.language,
-    ...(candidate.language === "typescript"
+    ...(candidate.language === "typescript" || candidate.language === "javascript"
       ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
       : {}),
     ...(candidate.language === "python" ? { dialectVersion: "<=3.12" } : {}),

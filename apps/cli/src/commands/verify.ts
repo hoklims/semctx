@@ -1,11 +1,14 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { replaceLocalReportFile } from "../report-output";
+import { writeFileNoFollow } from "@semantic-context/repository-store";
+import { typeScriptLibraryDirectory } from "@semantic-context/ts-analyzer";
 import type { VerifyReport } from "@semantic-context/core";
 import type { VerifyResult, VerifyReportGitMeta, CoChange } from "@semantic-context/context-engine";
 import {
   captureRecordableVerificationGitState,
+  canonicalRepositoryRoot,
   evaluatePreCommitHook,
   evaluatePrePushHook,
   parsePrePushRefs,
@@ -162,7 +165,50 @@ function renderText(
   else fail("blocking violations present");
 }
 
+/** Validate prospective qualified publication without performing filesystem writes. */
+export function assertQualifiedReportOutput(root: string, path: string): boolean {
+    // Classify prospective paths as well as existing inputs; canonicalize the nearest
+    // existing ancestor so aliases above the checkout cannot bypass this boundary.
+    let ancestor = resolve(path); const missing: string[] = [];
+    while (!existsSync(ancestor) && dirname(ancestor) !== ancestor) {
+      missing.unshift(basename(ancestor)); ancestor = dirname(ancestor);
+    }
+    const output = resolve(canonicalRepositoryRoot(ancestor), ...missing);
+    const canonicalRoot = canonicalRepositoryRoot(root);
+    const under = (directory: string, target = output): boolean => {
+      const relPath = relative(directory, target).replaceAll("\\", "/");
+      return relPath !== ".." && !relPath.startsWith("../") && !isAbsolute(relPath);
+    };
+    const dependencyRoot = resolve(root, "node_modules");
+    if (under(canonicalRepositoryRoot(typeScriptLibraryDirectory()))) {
+      throw new SemctxError("INVALID_TASK_INPUT", "qualified report output cannot change SDK inputs", { path });
+    }
+    if (existsSync(dependencyRoot) && under(canonicalRepositoryRoot(dependencyRoot))) {
+      throw new SemctxError("INVALID_TASK_INPUT", "qualified report output cannot change dependency inputs", { path });
+    }
+    for (const args of [["rev-parse", "--absolute-git-dir"], ["rev-parse", "--path-format=absolute", "--git-common-dir"]]) {
+      const result = Bun.spawnSync(["git", "-C", canonicalRoot, ...args], { stdout: "pipe", stderr: "pipe" });
+      if (result.exitCode !== 0) throw new SemctxError("INVALID_TASK_INPUT", "cannot establish qualified output Git control boundary", { path });
+      if (under(canonicalRepositoryRoot(new TextDecoder().decode(result.stdout).trim()))) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified report output cannot change Git control inputs", { path });
+      }
+    }
+    if (under(canonicalRoot) || under(resolve(root), resolve(path))) {
+      const relPaths = [under(canonicalRoot) ? relative(canonicalRoot, output) : undefined,
+        under(resolve(root), resolve(path)) ? relative(resolve(root), resolve(path)) : undefined].filter((value): value is string => value !== undefined);
+      if (relPaths.some(value => !value.replaceAll("\\", "/").startsWith(".semctx/reports/"))) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified report output cannot change repository inputs; use .semctx/reports or a location outside the repository", { path });
+      }
+      return true;
+    }
+    return false;
+}
+
 function writeReportAtomic(root: string, path: string, report: VerifyReport): void {
+  if (report.analysisAdmission !== undefined && assertQualifiedReportOutput(root, path)) {
+    writeFileNoFollow(root, path, `${JSON.stringify(report, null, 2)}\n`);
+    return;
+  }
   replaceLocalReportFile(path, `${JSON.stringify(report, null, 2)}\n`, root);
 }
 
@@ -230,7 +276,7 @@ export function runVerifyDiff(root: string, args: ParsedArgs): number {
 
   if (recordedPath !== undefined && format === "text") info(c.dim(`recorded verification state -> ${recordedPath}`));
 
-  return exitCode(report.verdict, failOn);
+  return report.analysisAdmission?.status === "rejected" ? 3 : exitCode(report.verdict, failOn);
 }
 
 /**

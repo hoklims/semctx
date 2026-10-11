@@ -71,7 +71,8 @@ the order they are decided (an open code set):
 
 | `reason` | meaning |
 | --- | --- |
-| `LANGUAGE_UNSUPPORTED` | no semctx producer reads this language (`csharp`, `rust`, `yaml`, `toml`, `json`, `powershell`, `msbuild`, `javascript`, … or `unknown`); only TypeScript, Python, Markdown and SQL are analysed |
+| `LANGUAGE_UNSUPPORTED` | no enabled semctx producer reads this language (`csharp`, `rust`, `yaml`, `toml`, `json`, `powershell`, `msbuild`, … or `unknown`); JavaScript additionally requires configuration v2 and explicit language registration |
+| `LANGUAGE_DISABLED`, `ANALYZER_EVIDENCE_MISSING`, `ANALYSIS_FAILED`, `ANALYSIS_PARTIAL` | JavaScript was disabled, has no bound producer ledger, failed parsing, or produced explicit partial diagnostics; an indexed node alone does not establish effective analysis |
 | `OUTSIDE_SELECTION` | a supported language outside the configured analysis selection |
 | `INDEX_BINDING_BROKEN` | the binding is broken, so no file was joined to the index |
 | `BINARY_CONTENT`, `METADATA_ONLY`, `UNRECOGNIZED_DIFF_BLOCK` | the diff carries no analysable text for the file |

@@ -8,6 +8,7 @@ import {
   __setVerificationAttributeBarrierForTesting,
   captureRecordableVerificationGitState,
   captureVerificationGitState,
+  retainedGitBlobObjectIds,
 } from "../src/verification-state";
 
 const roots: string[] = [];
@@ -99,6 +100,31 @@ afterEach(() => {
 });
 
 describe("local blob object id derivation", () => {
+  for (const conversion of ["crlf", "encoding", "filter", "identity"] as const) it(`retained post-image ${conversion} uses selected attributes and retained payload, never live content`, () => {
+    const root = repository(); const name = "input.dat";
+    const bytes = conversion === "encoding" ? Buffer.from("retained content\n", "utf16le") : Buffer.from(conversion === "crlf" ? "retained content\r\n" : "retained content\n");
+    const attributes = conversion === "encoding" ? `${name} working-tree-encoding=UTF-16LE\n` : conversion === "crlf" ? `${name} text eol=crlf\n` : conversion === "filter" ? `${name} filter=upper\n` : "";
+    if (conversion === "filter") git(root, "config", "filter.upper.clean", configureCleanFilter(root, "retained-upper", "let chunks=[];process.stdin.on('data',c=>chunks.push(c));process.stdin.on('end',()=>process.stdout.write(Buffer.concat(chunks).toString('utf8').toUpperCase()));"));
+    writeFileSync(join(root, ".gitattributes"), attributes); writeFileSync(join(root, name), bytes);
+    git(root, "add", "."); git(root, "commit", "-qm", "selected input");
+    const head = git(root, "rev-parse", "HEAD"); const expected = git(root, "rev-parse", `HEAD:${name}`);
+    writeFileSync(join(root, name), "different live source\n"); writeFileSync(join(root, ".gitattributes"), `${name} -text -filter -working-tree-encoding\n`);
+    expect(retainedGitBlobObjectIds(root, head, [{ path: name, bytes }]).get(name)).toBe(expected);
+  });
+  it("retained post-image refuses attribute context drift between observations", () => {
+    const root = repository(); const name = "input.dat";
+    const head = git(root, "rev-parse", "HEAD");
+    __setVerificationAttributeBarrierForTesting(() => writeFileSync(join(root, ".git/info/attributes"), `${name} ident\n`));
+    expect(() => retainedGitBlobObjectIds(root, head, [{ path: name, bytes: Buffer.from("retained\n") }])).toThrow("attribute metadata changed");
+  });
+  for (const override of ["-text", "eol=crlf"]) it(`retained post-image refuses text/eol conversion drift: ${override}`, () => {
+    const root = repository(); const name = "input.dat";
+    writeFileSync(join(root, ".gitattributes"), `${name} text eol=lf\n`);
+    git(root, "add", ".gitattributes"); git(root, "commit", "-qm", "selected attributes");
+    const head = git(root, "rev-parse", "HEAD");
+    __setVerificationAttributeBarrierForTesting(() => writeFileSync(join(root, ".git/info/attributes"), `${name} ${override}\n`));
+    expect(() => retainedGitBlobObjectIds(root, head, [{ path: name, bytes: Buffer.from("retained\r\n") }])).toThrow("attribute metadata changed");
+  });
   it("matches the real Git oracle in a SHA-256 repository", () => {
     const root = repository("sha256");
     const name = "espace été.txt";

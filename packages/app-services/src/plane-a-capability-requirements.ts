@@ -103,6 +103,15 @@ interface CapabilityRegistration {
 
 const REGISTRATIONS: readonly CapabilityRegistration[] = [
   {
+    configVersions: [2],
+    language: "javascript",
+    dialectVersion: "5.9.3",
+    producer: { identity: "@semantic-context/ts-analyzer/javascript", version: "0.1.0" },
+    factKinds: TYPESCRIPT_FACT_KINDS,
+    resolutionSemantics: "javascript-static-esm-v1",
+    completenessClaims: ["producer-declared"],
+  },
+  {
     configVersions: [1, 2],
     language: "typescript",
     dialectVersion: "5.9.3",

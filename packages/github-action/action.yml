@@ -28,7 +28,7 @@ inputs:
   report-path:
     description: "Path (relative to working-directory) for the JSON report artifact."
     required: false
-    default: "semctx-report.json"
+    default: ".semctx/reports/verify.json"
   upload-report:
     description: "If 'true', upload the JSON report as a workflow artifact."
     required: false
@@ -117,9 +117,30 @@ runs:
         fi
         bun "$SEMCTX_CLI" index --root "$SEMCTX_TARGET"
         # Always produce the report (fail-on none); the adapter owns the job exit code.
+        # Exit 3 is a qualified refusal only when this invocation wrote a valid rejected report.
+        report_identity="$(node -e '
+          const fs = require("node:fs");
+          try { const stat = fs.lstatSync(process.argv[1], { bigint: true }); process.stdout.write(`${stat.dev}:${stat.ino}`); }
+          catch (error) { if (error.code !== "ENOENT") throw error; process.stdout.write("missing"); }
+        ' "$report")"
+        verify_status=0
         bun "$SEMCTX_CLI" verify diff --root "$SEMCTX_TARGET" \
           --base "$SEMCTX_BASE" --head "$SEMCTX_HEAD" \
-          --format json --output "$report" --fail-on none
+          --format json --output "$report" --fail-on none || verify_status=$?
+        if [ "$verify_status" -ne 0 ]; then
+          [ "$verify_status" -eq 3 ] || exit "$verify_status"
+          node --input-type=module -e '
+            import { lstatSync, readFileSync } from "node:fs";
+            import { pathToFileURL } from "node:url";
+            try {
+              const stat = lstatSync(process.argv[1], { bigint: true });
+              if (`${stat.dev}:${stat.ino}` === process.argv[3]) process.exit(3);
+              const { VerifyReportSchema } = await import(pathToFileURL(process.argv[2]).href);
+              const parsed = VerifyReportSchema.safeParse(JSON.parse(readFileSync(process.argv[1], "utf8")));
+              if (!parsed.success || parsed.data.analysisAdmission?.status !== "rejected") process.exit(3);
+            } catch { process.exit(3); }
+          ' "$report" "$GITHUB_ACTION_PATH/dist/verify-report.mjs" "$report_identity"
+        fi
 
     - name: Annotate, summarise, enforce
       id: adapter
