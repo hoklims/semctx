@@ -210,8 +210,8 @@ file's analysis is only partial.
 
 ### What counts as a covering test
 
-semctx never runs your tests. It checks imports. A test covers a symbol when a test file imports it
-by name, directly from the file that declares it:
+semctx never runs your tests. In the default TypeScript-only flow, it checks direct imports
+under the symbol's declared name:
 
 | Import in a test file, with `greet` declared in `src/index.ts` | Covers `greet` |
 | --- | --- |
@@ -219,6 +219,12 @@ by name, directly from the file that declares it:
 | `import { greet as subject } from "../src/index";` | no, aliased |
 | `import * as m from "../src/index";` | no, namespace import |
 | `import { greet } from "../src/barrel";` where `src/barrel.ts` re-exports it | no, re-export |
+
+The opt-in config v2 `qualified-static-v1` profile also follows canonical renamed imports,
+modeled namespace members and re-exports to their original declarations. These are static test
+associations; unknown or unsupported targets do not establish coverage. See the
+[qualified profile](docs/qualification/modelo-suite-static-v1.md) and its
+[admission contract](docs/adr/0035-qualified-static-analysis-admission.md).
 
 Type-only imports do not count either. A file is a test when its name ends in `.test.ts` or
 `.spec.ts` (or the `.tsx`, `.mts`, `.cts` variants), when it sits in a `test/`, `tests/` or
