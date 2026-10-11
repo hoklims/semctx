@@ -3,622 +3,1058 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="semctx is a deterministic, local-first change-impact analyzer. It makes statically detected risks visible and can guard commits when explicitly enabled.">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="semctx reads the Git diff of a TypeScript repository, finds the code it touches, checks the rules you declared and answers PASS, WARN or BLOCK. Local analysis, no network call, no LLM.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="semctx">
-<meta property="og:description" content="semctx is a deterministic, local-first change-impact analyzer. It makes statically detected risks visible and can guard commits when explicitly enabled.">
+<meta property="og:description" content="A diff goes in. A verdict comes out. Local change-impact analysis for TypeScript.">
 <meta property="og:url" content="https://hoklims.github.io/semctx/">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://hoklims.github.io/semctx/">
-<title>semctx</title>
+<title>semctx · a diff goes in, a verdict comes out</title>
+<script>
+  (function () {
+    var d = document.documentElement, l = null;
+    d.className += " js";
+    try {
+      var q = /[?&]lang=(en|fr)\b/.exec(location.search);
+      if (q) l = q[1];
+      else if (location.hash === "#fr" || location.hash === "#en") l = location.hash.slice(1);
+      else l = localStorage.getItem("semctx-lang");
+    } catch (e) {}
+    if (l !== "en" && l !== "fr") l = /^fr\b/i.test(navigator.language || "") ? "fr" : "en";
+    d.lang = l;
+    if (l === "fr") document.title = "semctx · un diff entre, un verdict sort";
+  })();
+</script>
 <style>
-  /* ══════════ tokens — a single committed night palette ══════════ */
+  /* Macrostructure: one route down the page, a section per station. Colour is reserved for verdicts. */
+
+  /* Tokens. Colour is reserved for verdicts: lamps, verdict words, the lit route, the node that caused a finding. */
   :root {
+    color-scheme: light;
+    --canvas: #F6F7F8;
+    --surface: #FFFFFF;
+    --inset: #F5F6F7;
+    --ink: #141518;
+    --muted: #5A5E66;
+    --hairline: #D9DBDF;
+    --track: #8E939B;
+    --diff-mark: #EDEFF2;
+    --diff-bar: #141518;
+    --housing: #141518;
+    --housing-line: #141518;
+    --post: #141518;
+    --lens-pass-off: #173F33;
+    --lens-warn-off: #4A3A17;
+    --lens-block-off: #4B2622;
+    --pass: #00A374;
+    --pass-text: #007A55;
+    --pass-tint: #E3F5EE;
+    --warn: #F0A000;
+    --warn-route: #B87400;
+    --warn-text: #8F5600;
+    --warn-tint: #FDF2DC;
+    --block: #E5372B;
+    --block-text: #C0362C;
+    --block-tint: #FCE9E7;
+
+    /* System condensed faces only: the page loads no remote font. */
+    --display: "Bahnschrift", "DIN Alternate", "Avenir Next Condensed", "Roboto Condensed", "sans-serif-condensed", "Ubuntu Condensed", "DejaVu Sans Condensed", "Liberation Sans Narrow", "Arial Narrow", ui-sans-serif, sans-serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --pad: 88px;
+    --spine: 32px;
+    --d: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --canvas: #0B0D10;
+      --surface: #12151A;
+      --inset: #161A20;
+      --ink: #ECEEF0;
+      --muted: #9BA1AA;
+      --hairline: #2B3038;
+      --track: #5B616B;
+      --diff-mark: #1D232B;
+      --diff-bar: #ECEEF0;
+      --housing: #1E2228;
+      --housing-line: #454B54;
+      --post: #454B54;
+      --lens-pass-off: #12322A;
+      --lens-warn-off: #3A2E12;
+      --lens-block-off: #3A1C19;
+      --pass: #2FD39A;
+      --pass-text: #2FD39A;
+      --pass-tint: #0E2A21;
+      --warn: #FFB224;
+      --warn-route: #FFB224;
+      --warn-text: #FFB224;
+      --warn-tint: #2D2208;
+      --block: #FF6B5E;
+      --block-text: #FF6B5E;
+      --block-tint: #33140F;
+    }
+  }
+  :root[data-theme="dark"] {
     color-scheme: dark;
-    --ground:   oklch(0.155 0.018 155);
-    --deeper:   oklch(0.118 0.016 155);
-    --surface:  oklch(0.205 0.020 155);
-    --raised:   oklch(0.245 0.022 155);
-    --ink:      oklch(0.965 0.008 128);
-    --body:     oklch(0.815 0.012 128);
-    --muted:    oklch(0.645 0.014 155);
-    --faint:    oklch(0.500 0.016 155);
-    --rule:     oklch(0.295 0.018 155);
-    --hair:     oklch(0.235 0.018 155);
-
-    --pass:     oklch(0.80 0.16 148);
-    --warn:     oklch(0.82 0.15 80);
-    --block:    oklch(0.70 0.18 25);
-    --pass-dim: oklch(0.42 0.09 148);
-    --warn-dim: oklch(0.44 0.09 80);
-    --block-dim:oklch(0.40 0.10 25);
-
-    --add-bg:   oklch(0.28 0.06 148);
-    --add-fg:   oklch(0.88 0.11 148);
-    --del-bg:   oklch(0.27 0.06 25);
-    --del-fg:   oklch(0.86 0.10 25);
-
-    --sans: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
-    --display: "Familjen Grotesk", "Helvetica Neue", system-ui, sans-serif;
-    --mono: "Spline Sans Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+    --canvas: #0B0D10;
+    --surface: #12151A;
+    --inset: #161A20;
+    --ink: #ECEEF0;
+    --muted: #9BA1AA;
+    --hairline: #2B3038;
+    --track: #5B616B;
+    --diff-mark: #1D232B;
+    --diff-bar: #ECEEF0;
+    --housing: #1E2228;
+    --housing-line: #454B54;
+    --post: #454B54;
+    --lens-pass-off: #12322A;
+    --lens-warn-off: #3A2E12;
+    --lens-block-off: #3A1C19;
+    --pass: #2FD39A;
+    --pass-text: #2FD39A;
+    --pass-tint: #0E2A21;
+    --warn: #FFB224;
+    --warn-route: #FFB224;
+    --warn-text: #FFB224;
+    --warn-tint: #2D2208;
+    --block: #FF6B5E;
+    --block-text: #FF6B5E;
+    --block-tint: #33140F;
   }
 
-  @property --halo { syntax: "<percentage>"; initial-value: 42%; inherits: false; }
-
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.038em; text-wrap: balance; }
+  /* Base */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 24px; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font: 17px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  html[lang="fr"] .en, html:not([lang="fr"]) .fr { display: none !important; }
+  a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--track); transition: text-decoration-color 150ms ease; }
+  a:hover { text-decoration-color: var(--ink); }
+  :focus-visible { outline: 6px double var(--ink); outline-offset: 2px; }
   p { margin: 0; }
-  ul { margin: 0; padding: 0; list-style: none; }
-  a { color: var(--pass); text-decoration: none; }
-  a:focus-visible, button:focus-visible { outline: 2px solid var(--pass); outline-offset: 4px; }
-  code, .mono { font-family: var(--mono); }
-  .tnum { font-variant-numeric: tabular-nums; }
-
-  .grain { position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.045; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
-  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
-  .meta { font-family: var(--mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .lede { font-size: 18px; line-height: 1.6; color: var(--body); }
-
-  /* ══════════ masthead ══════════ */
-  .masthead { position: relative; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 26px 0; }
-  .wordmark { font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.05em; }
-  .brand { display: flex; align-items: baseline; gap: 14px; }
-  .nav { display: flex; align-items: center; gap: 26px; font-size: 15px; color: var(--muted); }
-  .chip { font-family: var(--mono); font-size: 13px; color: var(--ground); background: var(--pass); padding: 10px 18px; }
-  .nav a:not(.chip) { color: var(--muted); }
-  .nav a:not(.chip):hover { color: var(--ink); }
-  a.plain { color: inherit; }
-  a.plain:hover { color: var(--pass); }
-  .meta a, .receipt-ref a, footer a, .foot.cmd a { color: inherit; }
-  .meta a:hover, .receipt-ref a:hover, footer a:hover, .foot.cmd a:hover { color: var(--pass); text-decoration: underline; text-underline-offset: 3px; }
-  .chip:hover { filter: brightness(1.08); }
-
-  /* ══════════ hero ══════════ */
-  .hero { position: relative; min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 80px; overflow: hidden; }
-  .hero::before {
-    content: ""; position: absolute; inset: -30% -10% auto -10%; height: 130%; pointer-events: none; z-index: 0;
-    background: radial-gradient(58% 46% at 22% var(--halo), oklch(0.42 0.10 148 / 0.34), transparent 68%);
-    animation: breathe 14s ease-in-out infinite alternate;
+  code, pre { font-family: var(--mono); }
+  p code, li code, figcaption code, td code, th code {
+    font-size: 0.86em;
+    padding: 1px 5px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    white-space: nowrap;
   }
-  @keyframes breathe { from { --halo: 38%; } to { --halo: 56%; } }
-  .hero-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 32px; }
-  .kicker { display: inline-flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
-  .kicker .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
-  .hero h1 { font-weight: 700; font-size: clamp(46px, 8.6vw, 124px); line-height: 0.94; letter-spacing: -0.055em; max-width: 15ch; }
-  .hero h1 em { font-style: normal; color: var(--pass); }
-  .hero-sub { font-size: clamp(18px, 1.9vw, 23px); line-height: 1.5; color: var(--body); max-width: 52ch; }
-  .hero-cta { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; padding-top: 6px; }
-  .cta { display: inline-flex; align-items: center; gap: 11px; background: var(--pass); color: var(--deeper); font-family: var(--mono); font-size: 15px; font-weight: 500; padding: 18px 28px; }
-  .cta:hover { filter: brightness(1.08); }
-  .cta .caret { display: inline-block; width: 8px; height: 16px; background: var(--deeper); animation: blink 1.15s steps(1) infinite; }
-  .cta-aside { font-size: 14.5px; color: var(--muted); max-width: 22ch; line-height: 1.45; }
-  .claims { display: flex; gap: 10px 22px; flex-wrap: wrap; font-size: 14px; color: var(--muted); padding-top: 4px; }
-  .claims i { font-style: normal; color: var(--rule); }
-  .scroll-hint { display: flex; align-items: center; gap: 12px; margin-top: 56px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); }
-  .scroll-hint .bar { width: 46px; height: 1px; background: var(--rule); position: relative; overflow: hidden; }
-  .scroll-hint .bar::after { content: ""; position: absolute; inset: 0; background: var(--pass); transform-origin: left; animation: crawl 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
-  @keyframes crawl { 0% { transform: scaleX(0); } 55% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
-  @keyframes blink { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
+  .sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .label {
+    font: 500 11px/1.4 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .skip { position: absolute; left: 16px; top: -64px; z-index: 10; padding: 10px 14px; background: var(--ink); color: var(--canvas); font: 500 13px var(--mono); text-decoration: none; }
+  .skip:focus { top: 8px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 
-  /* ══════════ THE SCENE — scroll-driven ══════════ */
-  .stage { position: relative; height: 460vh; view-timeline-name: --scene; view-timeline-axis: block; }
-  .pin { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; overflow: hidden; }
-  .pin-grid { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 60px; align-items: center; }
+  /* Masthead: a timetable strip */
+  .mast { border-bottom: 1px solid var(--hairline); }
+  .mast-row { display: flex; align-items: stretch; min-height: 44px; }
+  .mast-row > * { display: flex; align-items: center; }
+  .word {
+    font: 600 23px/1 var(--display);
+    font-stretch: 87.5%;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    padding-right: 16px;
+  }
+  .ver { padding: 0 16px; border-left: 1px solid var(--hairline); font: 12px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+  .ver a { margin-left: 0.3em; }
+  .mast-nav { margin-left: auto; }
+  .mast-nav a, .lang button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 44px;
+    padding: 0 16px;
+    border-left: 1px solid var(--hairline);
+    font: 500 11.5px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .mast-nav a:hover { text-decoration: underline; text-decoration-color: var(--ink); }
+  .lang { border-right: 1px solid var(--hairline); }
+  html:not(.js) .lang { display: none; }
+  .lang button { min-width: 48px; margin: 0; background: transparent; color: var(--muted); border-top: 0; border-right: 0; border-bottom: 0; cursor: pointer; }
+  .lang button:hover { color: var(--ink); }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--canvas); }
 
-  .act-copy { position: relative; min-height: 400px; }
-  .act { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; align-content: center; justify-content: center; }
-  .act h2 { font-size: clamp(28px, 3.6vw, 50px); line-height: 1.04; letter-spacing: -0.042em; max-width: 15ch; }
-  .act p { font-size: 17.5px; line-height: 1.6; color: var(--body); max-width: 46ch; }
-  .act .tagline { font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
+  /* The spine: one route down the page, a station per section, a buffer stop at the end */
+  .line { padding-left: var(--pad); }
+  .station { position: relative; padding-top: 112px; }
+  .station::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--spine) - var(--pad) - 1px);
+    width: 2px;
+    background: var(--track);
+  }
+  .hero { padding-top: 64px; }
+  .hero::before { top: 72px; }
+  .stn { position: relative; margin: 0 0 18px; }
+  .stn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(var(--spine) - var(--pad) - 7px);
+    width: 14px;
+    height: 14px;
+    margin-top: -7px;
+    background: var(--canvas);
+    border: 2px solid var(--ink);
+  }
+  .stop::before { bottom: auto; height: 121px; }
+  .stop .stn::before { width: 30px; height: 6px; margin-top: -3px; left: calc(var(--spine) - var(--pad) - 15px); background: var(--ink); border: 0; }
 
-  .console { border: 1px solid var(--rule); background: var(--surface); display: flex; flex-direction: column; box-shadow: 0 40px 90px -50px oklch(0 0 0 / 0.9); }
-  .console-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--hair); font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
-  .console-head .where { letter-spacing: 0.14em; text-transform: uppercase; }
-  .diff { padding: 18px 20px 6px; font-family: var(--mono); font-size: 12.5px; line-height: 2.0; white-space: pre; overflow-x: auto; color: var(--body); }
-  .diff .sym { color: var(--ink); }
-  .diff .del { background: var(--del-bg); color: var(--del-fg); display: inline-block; min-width: 100%; }
-  .diff .add { background: var(--add-bg); color: var(--add-fg); display: inline-block; min-width: 100%; }
-  .diff .marker-line { display: block; overflow: hidden; white-space: nowrap; color: var(--warn); }
+  h1, h2 { font-family: var(--display); font-weight: 600; font-stretch: 87.5%; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(46px, 6.3vw, 78px); line-height: 0.95; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(30px, 3.4vw, 46px); line-height: 1.02; letter-spacing: -0.015em; max-width: 24ch; margin-bottom: 20px; }
+  .intro { max-width: 62ch; margin-bottom: 40px; }
+  .muted { color: var(--muted); }
 
-  .graph { display: block; width: 100%; height: auto; padding: 4px 0 0; }
-  .verdict-slot { position: relative; height: 92px; border-top: 1px solid var(--hair); background: var(--deeper); }
-  .verdict { position: absolute; inset: 0; display: flex; align-items: center; gap: 15px; padding: 0 20px; }
-  .v-lines { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  /* Hero */
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 32px 56px; align-items: end; }
+  .hero h1 { margin-bottom: 24px; }
+  .lede { font-size: 19px; line-height: 1.5; max-width: 34em; }
+  .start { display: grid; gap: 12px; min-width: 0; }
+  .try { border: 1px solid var(--ink); background: var(--surface); min-width: 0; }
+  .cmd { display: flex; align-items: stretch; border: 1px solid var(--ink); background: var(--surface); min-width: 0; }
+  .try .cmd { border: 0; }
+  .cmd code { flex: 1; min-width: 0; padding: 13px 16px; font: 15px/1.35 var(--mono); white-space: normal; overflow-wrap: anywhere; }
+  .cmd code::before { content: "$ "; color: var(--muted); }
+  .try-step { padding: 7px 16px; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--inset); font: 13px/1.4 var(--mono); color: var(--muted); }
+  .note { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .note a { color: var(--ink); }
+  .hero-links { display: flex; flex-wrap: wrap; gap: 4px 24px; font: 500 11.5px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .hero-links a { display: inline-flex; align-items: center; min-height: 44px; }
 
-  .tag { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.11em; color: var(--deeper); padding: 6px 12px; }
-  .tag.pass { background: var(--pass); }
-  .tag.block { background: var(--block); }
-  .verdict .rule-id { font-family: var(--mono); font-size: 12.5px; color: var(--body); }
-  .verdict .exit { font-family: var(--mono); font-size: 12.5px; }
+  .copy {
+    display: none;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid var(--hairline);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  html.js .copy { display: grid; }
+  .copy:hover { background: var(--inset); }
+  .copy:active { background: var(--diff-mark); }
+  .copy svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .copy[data-done] .i-copy, .copy:not([data-done]) .i-done { display: none; }
 
-  .stage-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--hair); z-index: 5; }
-  .stage-progress::after { content: ""; display: block; height: 100%; background: linear-gradient(90deg, var(--pass), var(--warn) 62%, var(--block)); transform-origin: left; transform: scaleX(0); }
+  .hero-fig { margin: 56px 0 0; }
+  .hero-wide { display: block; width: 100%; max-width: 940px; height: auto; }
+  .hero-tall { display: none; }
+  .hero-fig .readout { max-width: 940px; margin-top: 24px; }
+  figcaption { margin-top: 12px; max-width: 72ch; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  figcaption a { color: var(--ink); }
 
-  /* scene keyframes */
-  @keyframes fade-in   { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes fade-out  { from { opacity: 1; } to { opacity: 0; } }
-  @keyframes lift-in   { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-  @keyframes lift-out  { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-18px); } }
-  @keyframes stroke-in { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
-  @keyframes node-in   { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: none; } }
-  @keyframes type-in   { from { width: 0; } to { width: var(--cols); } }
-  @keyframes bar       { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  /* single-animation windows: two animations on one property let the later one's
-     backwards fill overwrite the earlier one's state, which showed every act at once */
-  @keyframes act-window-1 { 0%, 2% { opacity: 0; transform: translateY(20px); } 8%, 26% { opacity: 1; transform: none; } 32%, 100% { opacity: 0; transform: translateY(-16px); } }
-  @keyframes act-window-2 { 0%, 30% { opacity: 0; transform: translateY(20px); } 37%, 56% { opacity: 1; transform: none; } 62%, 100% { opacity: 0; transform: translateY(-16px); } }
-  @keyframes pass-window  { 0%, 52% { opacity: 0; } 57%, 74% { opacity: 1; } 79%, 100% { opacity: 0; } }
+  /* Schematic vocabulary (inline SVG) */
+  .t { font-family: var(--mono); font-size: 13px; fill: var(--ink); }
+  .t.s { font-size: 11.5px; }
+  .t.mu { fill: var(--muted); }
+  .t.b { font-weight: 600; }
+  .t.v { font-size: 26px; font-weight: 700; }
+  .t.v.sm { font-size: 24px; }
+  .vw { fill: var(--warn-text); }
+  .vb { fill: var(--block-text); }
+  .card { fill: var(--surface); stroke: var(--hairline); }
+  .hair { fill: none; stroke: var(--hairline); }
+  .dm { fill: var(--diff-mark); }
+  .db { fill: var(--diff-bar); }
+  .idle, .lit { fill: none; stroke-linecap: butt; stroke-linejoin: miter; }
+  .idle { stroke: var(--track); stroke-width: 2; }
+  .lit { stroke-width: 3; }
+  .lit-w { stroke: var(--warn-route); }
+  .lit-b { stroke: var(--block); }
+  .node-w { fill: var(--warn-tint); stroke: var(--warn-route); stroke-width: 1.5; transition: stroke-width 150ms ease; }
+  .node-b { fill: var(--block-tint); stroke: var(--block); stroke-width: 1.5; }
+  .housing { fill: var(--housing); stroke: var(--housing-line); stroke-width: 1.5; }
+  .post { fill: var(--housing); stroke: var(--housing-line); stroke-width: 1; }
+  .base { fill: none; stroke: var(--post); stroke-width: 2; }
+  .off-b { fill: var(--lens-block-off); }
+  .off-w { fill: var(--lens-warn-off); }
+  .off-p { fill: var(--lens-pass-off); }
+  .on-b { fill: var(--block); }
+  .on-w { fill: var(--warn); }
+  .on-p { fill: var(--pass); }
+  .halo-b, .halo-w, .halo-p { fill: none; stroke-width: 2; stroke-opacity: 0.45; }
+  .halo-b { stroke: var(--block); }
+  .halo-w { stroke: var(--warn); }
+  .halo-p { stroke: var(--pass); }
 
+  /* Readout: the command as a header row, verbatim output below. Long lines wrap with a hanging indent. */
+  .readout { border: 1px solid var(--hairline); background: var(--inset); min-width: 0; }
+  .ro-head { display: flex; justify-content: space-between; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--hairline); font: 13px/1.5 var(--mono); }
+  .ro-head .pr { color: var(--muted); }
+  .ro-cmd { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+  .ro-exit { color: var(--muted); white-space: nowrap; }
+  .ro-body { margin: 0; padding: 14px 0; overflow-x: auto; white-space: normal; font: 13px/1.6 var(--mono); }
+  .ln { display: block; white-space: pre-wrap; overflow-wrap: anywhere; padding: 0 16px 0 calc(16px + 4ch); text-indent: -4ch; transition: background-color 150ms ease; }
+  .ln.h { font-weight: 600; }
+  .ln.err { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--hairline); color: var(--muted); }
+  .ln.err .tag { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 1ch; }
+  .ln.gap { display: flex; align-items: center; gap: 5px; height: 1.6em; padding-left: calc(16px + 2ch); text-indent: 0; }
+  .ln.gap i { display: block; width: 3px; height: 3px; background: var(--muted); }
+  .k-w { color: var(--warn-text); font-weight: 700; }
+  .k-b { color: var(--block-text); font-weight: 700; }
+  .hero-fig:has(.node:hover) .ln-find, .hero-fig:has(.ln-find:hover) .ln-find { background-color: var(--warn-tint); }
+  .hero-fig:has(.ln-find:hover) .node-w { stroke-width: 3; }
+
+  /* 01 · what it touches: blocks on one track */
+  .yard { list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.7fr) minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; }
+  .yard::before { content: ""; position: absolute; top: 20px; left: calc(var(--spine) - var(--pad)); right: 0; height: 2px; background: var(--track); }
+  .blk { position: relative; z-index: 1; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--hairline); }
+  .bl { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; padding: 0 16px; border-bottom: 1px solid var(--hairline); }
+  .blk > p { flex: 1; padding: 16px; font-size: 15.5px; line-height: 1.5; }
+  .out { margin: 0; padding: 12px 16px; border-top: 1px solid var(--hairline); background: var(--inset); font: 12.5px/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .blk.cause { border-color: var(--warn-route); }
+  .blk.cause .bl { background: var(--warn-tint); border-bottom-color: var(--warn-route); }
+  .blk.cause .bl .label { color: var(--warn-text); }
+  .verdict-tag { font: 700 12px/1 var(--mono); letter-spacing: 0.04em; color: var(--warn-text); }
+
+  /* 02 · your rules. The signal lines up with the changed line: offset = sub-header + padding + 2.5 lines - route height. */
+  .rule-fig {
+    --lh: 22px;
+    --sub: 32px;
+    --pad-y: 10px;
+    --route: 45.5px;
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 350px;
+    align-items: start;
+  }
+  .rule-fig > .code-card { grid-column: 1; }
+  .rule-fig > .diff-card { grid-column: 1; border-top: 0; }
+  .rule-sig { grid-column: 2; grid-row: 2; display: block; width: 350px; max-width: 100%; height: auto; margin-top: calc(var(--sub) + var(--pad-y) + 2.5 * var(--lh) - var(--route)); }
+  .code-card { min-width: 0; border: 1px solid var(--hairline); background: var(--surface); }
+  .cc-head { display: flex; align-items: center; min-height: 40px; padding: 8px 16px; border-bottom: 1px solid var(--hairline); font: 600 13px/1.4 var(--mono); overflow-wrap: anywhere; }
+  .cc-sub { display: flex; align-items: center; height: var(--sub); padding: 0 16px; border-bottom: 1px solid var(--hairline); }
+  .cc-body { margin: 0; padding: var(--pad-y) 0; white-space: normal; font: 13px/var(--lh) var(--mono); }
+  .cl { display: block; min-height: var(--lh); white-space: pre-wrap; overflow-wrap: anywhere; padding: 0 16px 0 5.5ch; text-indent: -5.5ch; }
+  .cl i { display: inline-block; width: 5.5ch; padding-right: 1.5ch; text-indent: 0; text-align: right; font-style: normal; color: var(--muted); user-select: none; }
+  .cl.gap { display: flex; align-items: center; gap: 5px; height: var(--lh); padding-left: 6.5ch; text-indent: 0; }
+  .cl.gap b { display: block; width: 3px; height: 3px; background: var(--muted); }
+  .cl.mark b { font-weight: 700; }
+  .cl.del { color: var(--muted); }
+  .cl.add { font-weight: 600; background: linear-gradient(var(--diff-bar), var(--diff-bar)) 0 0 / 2px 100% no-repeat, var(--diff-mark); }
+  .rule-fig .readout, .rule-fig figcaption { grid-column: 1 / -1; }
+  .rule-fig .readout { margin-top: 24px; }
+  .facts { list-style: none; margin: 40px 0 0; padding: 0; max-width: 72ch; }
+  .facts li { padding: 14px 0 14px 28px; border-top: 1px solid var(--hairline); position: relative; font-size: 16px; }
+  .facts li::before { content: ""; position: absolute; left: 0; top: 24px; width: 12px; height: 2px; background: var(--ink); }
+
+  /* 03 · three verdicts */
+  .verdicts { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .chart { list-style: none; margin: 0; padding: 0; border: 1px solid var(--hairline); background: var(--surface); }
+  .asp { display: grid; grid-template-columns: 28px 120px minmax(0, 1fr); gap: 0 24px; padding: 22px 24px; border-top: 1px solid var(--hairline); }
+  .asp:first-child { border-top: 0; }
+  .mini { width: 28px; height: 96px; display: block; }
+  .mini .halo-b, .mini .halo-w, .mini .halo-p { stroke-width: 1.5; }
+  .vword { display: block; font: 600 32px/1 var(--display); font-stretch: 87.5%; letter-spacing: -0.01em; }
+  .vword.b { color: var(--block-text); }
+  .vword.w { color: var(--warn-text); }
+  .vword.p { color: var(--pass-text); }
+  .exit { display: block; margin-top: 10px; font: 13px/1.4 var(--mono); color: var(--muted); }
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .rules span { display: block; font-size: 15.5px; line-height: 1.45; }
+  .rules > li > code { display: block; margin-top: 3px; padding: 0; border: 0; background: none; white-space: normal; font: 12px/1.4 var(--mono); color: var(--muted); }
+  .asp > p { font-size: 15.5px; align-self: center; }
+  .exits { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--hairline); font: 14px/1.3 var(--mono); }
+  .exits caption { caption-side: top; text-align: left; padding: 0 0 12px; }
+  .exits th, .exits td { padding: 12px 10px; border-top: 1px solid var(--hairline); text-align: center; }
+  .exits thead th { border-top: 0; font-weight: 500; font-size: 12.5px; vertical-align: bottom; }
+  .exits thead th small { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .exits tbody th { text-align: left; font-weight: 700; padding-left: 16px; }
+  .exits td { color: var(--muted); }
+  .exits td.nz { color: var(--ink); font-weight: 700; }
+  .exits-note { margin-top: 14px; font-size: 14.5px; color: var(--muted); }
+
+  /* 05 and 07 · turnouts off the spine */
+  .ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .plat { position: relative; }
+  .plat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: calc(var(--spine) - var(--pad));
+    width: calc(var(--d) * 1.4142);
+    height: 2px;
+    background: var(--track);
+    transform-origin: 0 50%;
+    transform: rotate(45deg);
+  }
+  .plat::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--d) - 1px);
+    left: calc(var(--spine) - var(--pad) + var(--d));
+    width: calc(var(--pad) - var(--spine) - var(--d));
+    height: 2px;
+    background: var(--track);
+  }
+  .sign { display: grid; grid-template-columns: 168px minmax(0, 1.25fr) minmax(0, 1fr); border: 1px solid var(--hairline); background: var(--surface); }
+  .sign > * { padding: 16px 20px; min-width: 0; }
+  .pn { font: 600 22px/1.1 var(--display); font-stretch: 87.5%; letter-spacing: -0.005em; border-right: 1px solid var(--hairline); }
+  .pc { border-right: 1px solid var(--hairline); }
+  .pc > code { display: block; padding: 0; border: 0; background: none; white-space: normal; font: 600 13.5px/1.5 var(--mono); overflow-wrap: anywhere; }
+  .pc .via { display: block; margin: 4px 0; font: 12px/1.5 var(--mono); color: var(--muted); }
+  .pc .sample { display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--hairline); font: 12px/1.55 var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+  .pw { font-size: 15px; line-height: 1.5; }
+  .pw a { white-space: nowrap; }
+  .sign.alert { border-color: var(--block); }
+  .after { margin-top: 20px; max-width: 74ch; font-size: 15px; color: var(--muted); }
+
+  /* 06 · run it */
+  .reqs { max-width: 64ch; margin: 0 0 32px; color: var(--muted); }
+  .run-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .run-cli { grid-row: span 2; }
+  .dep { min-width: 0; border: 1px solid var(--hairline); background: var(--surface); }
+  .dep .bl { padding-right: 0; }
+  .dep .bl .copy { align-self: stretch; }
+  .code {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: var(--inset);
+    border-bottom: 1px solid var(--hairline);
+    font: 13.5px/1.7 var(--mono);
+    white-space: pre;
+  }
+  .code.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .code .c { color: var(--muted); }
+  .dep > p, .dep > ul { padding: 16px; font-size: 15.5px; line-height: 1.5; }
+  .dep > p + p { padding-top: 0; }
+  .dep > ul { margin: 0; list-style: none; display: grid; gap: 10px; }
+  .dep > ul li { padding-left: 20px; position: relative; }
+  .dep > ul li::before { content: ""; position: absolute; left: 0; top: 11px; width: 10px; height: 2px; background: var(--ink); }
+
+  /* 08 · limits, then the buffer stop */
+  .limits { list-style: none; margin: 0; padding: 0; max-width: 74ch; counter-reset: lim; }
+  .limits li { display: grid; grid-template-columns: 44px minmax(0, 1fr); padding: 16px 0; border-top: 1px solid var(--hairline); }
+  .limits li::before { counter-increment: lim; content: counter(lim, decimal-leading-zero); padding-top: 4px; font: 12px/1.4 var(--mono); color: var(--muted); }
+  .own { margin-top: 40px; max-width: 74ch; }
+  .own .readout { margin: 12px 0; }
+  .close { margin-top: 64px; max-width: 560px; display: grid; gap: 12px; }
+
+  .foot { margin-top: 96px; border-top: 1px solid var(--hairline); }
+  .foot p { padding: 18px 0 40px; font: 12.5px/1.8 var(--mono); color: var(--muted); }
+  .foot a { color: var(--ink); }
+
+  /* Motion: propagation only. Route segments draw, then the lamp switches on, then the verdict lines appear. */
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes on { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    .boot .draw { stroke-dasharray: 1; animation: draw 360ms var(--ease) both; animation-delay: calc(120ms + var(--i, 0) * 80ms); }
+    .boot .lamp { animation: on 250ms ease-out both; animation-delay: 760ms; }
+    .boot .ln.reveal { animation: rise 320ms var(--ease) both; animation-delay: calc(1000ms + var(--i, 0) * 80ms); }
+  }
   @supports (animation-timeline: view()) {
-    .scene { animation-timeline: --scene; animation-fill-mode: both; animation-timing-function: linear; }
-
-    .act-1        { animation-name: act-window-1; animation-range: contain 0% contain 100%; }
-    .act-2        { animation-name: act-window-2; animation-range: contain 0% contain 100%; }
-    .act-3        { animation-name: lift-in;      animation-range: contain 62% contain 70%; }
-
-    .diff-line-1  { animation-name: fade-in;   animation-range: contain 2% contain 7%; }
-    .diff-line-2  { animation-name: fade-in;   animation-range: contain 6% contain 11%; }
-    .diff-line-3  { animation-name: fade-in;   animation-range: contain 9% contain 14%; }
-
-    .ring-1       { animation-name: fade-in;   animation-range: contain 15% contain 20%; }
-    .ring-2       { animation-name: fade-in;   animation-range: contain 18% contain 24%; }
-    .edge-1       { animation-name: stroke-in; animation-range: contain 22% contain 32%; }
-    .edge-2       { animation-name: stroke-in; animation-range: contain 25% contain 35%; }
-    .edge-3       { animation-name: fade-in;   animation-range: contain 40% contain 47%; }
-    .node-1       { animation-name: node-in;   animation-range: contain 30% contain 36%; }
-    .node-2       { animation-name: node-in;   animation-range: contain 33% contain 39%; }
-    .node-3       { animation-name: node-in;   animation-range: contain 45% contain 51%; }
-    .src-label    { animation-name: fade-in;   animation-range: contain 16% contain 22%; }
-
-    .verdict-pass { animation-name: pass-window; animation-range: contain 0% contain 100%; }
-    .marker-typed { animation-name: type-in;   animation-range: contain 63% contain 74%; }
-    .verdict-block{ animation-name: fade-in;   animation-range: contain 78% contain 83%; }
-
-    .stage-progress::after { animation: bar linear both; animation-timeline: --scene; animation-range: contain 0% contain 100%; }
-
-    .reveal { animation: lift-in linear both; animation-timeline: view(); animation-range: entry 8% cover 26%; }
+    @media (prefers-reduced-motion: no-preference) {
+      .scene { view-timeline: --scene block; }
+      .scene .draw { stroke-dasharray: 1; animation: draw linear both; animation-timeline: --scene; animation-range: cover 8% cover 24%; }
+      .scene .draw.s1 { animation-range: cover 16% cover 32%; }
+      .scene .lamp { animation: on linear both; animation-timeline: --scene; animation-range: cover 32% cover 38%; }
+    }
   }
-
   @supports not (animation-timeline: view()) {
-    .stage { height: auto; }
-    .pin { position: static; height: auto; padding: 90px 0; }
-    .act-copy { min-height: 0; }
-    .act { position: static; }
-    .act-1, .act-2 { display: none; }
-    .verdict-pass { display: none; }
-    .stage-progress { display: none; }
-    .marker-typed { width: var(--cols); }
-    /* Without scroll-driven animation the scenes would keep their inline start state (hidden diff
-       lines, undrawn edges, invisible verdict); show the final state, as reduced motion does. */
     .scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
     .graph line, .graph path { stroke-dashoffset: 0 !important; }
   }
-
   @media (prefers-reduced-motion: reduce) {
-    .stage { height: auto; }
-    .pin { position: static; height: auto; padding: 90px 0; }
-    .act-copy { min-height: 0; }
-    .act { position: static; }
-    .act-1, .act-2, .verdict-pass, .stage-progress { display: none; }
-    .marker-typed { width: var(--cols); }
-    .scene, .reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
-    .hero::before, .cta .caret, .scroll-hint .bar::after { animation: none !important; }
-    [stroke-dashoffset] { stroke-dashoffset: 0 !important; }
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   }
 
-  /* ══════════ constraints — the thesis ══════════ */
-  .band { padding: 132px 0; }
-  .band-tight { padding: 96px 0; }
-  .band-dark { background: var(--deeper); }
-  .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 56px; flex-wrap: wrap; border-bottom: 1px solid var(--hair); padding-bottom: 26px; margin-bottom: 48px; }
-  .section-head h2 { font-size: clamp(30px, 4.2vw, 50px); line-height: 1.05; max-width: 17ch; }
-  .section-head .lede { max-width: 42ch; flex: 1 1 320px; }
-
-  .thesis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
-  .thesis-line { font-family: var(--display); font-weight: 500; font-size: clamp(26px, 3.1vw, 40px); line-height: 1.16; letter-spacing: -0.03em; max-width: 20ch; }
-  .thesis-line b { font-weight: 700; color: var(--pass); }
-  .thesis-body { display: flex; flex-direction: column; gap: 22px; }
-  .thesis-body p { font-size: 17px; line-height: 1.62; color: var(--body); max-width: 54ch; }
-
-  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--hair); border: 1px solid var(--hair); margin-top: 52px; }
-  .rule-cell { background: var(--ground); padding: 30px 28px; display: flex; flex-direction: column; gap: 14px; }
-  .rule-cell .tier { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; }
-  .rule-cell .id { font-family: var(--mono); font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
-  .rule-cell p { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
-  .rule-cell .arms { font-family: var(--mono); font-size: 12px; color: var(--body); border-top: 1px solid var(--hair); padding-top: 13px; margin-top: auto; }
-
-  /* ══════════ ledger / limits ══════════ */
-  .ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 52px; }
-  .ledger-col { display: flex; flex-direction: column; gap: 16px; }
-  .ledger-col li { font-size: 17px; line-height: 1.5; border-top: 1px solid var(--hair); padding-top: 13px; }
-  .ledger-col.no li { color: var(--body); }
-  .ledger ul { display: flex; flex-direction: column; gap: 13px; }
-
-  .receipt { margin-top: 56px; border: 1px solid var(--rule); background: var(--surface); padding: 44px 46px; display: flex; gap: 52px; align-items: flex-start; flex-wrap: wrap; }
-  .receipt-body { flex: 1 1 460px; display: flex; flex-direction: column; gap: 18px; }
-  .receipt h3 { font-size: clamp(21px, 2.3vw, 29px); line-height: 1.3; letter-spacing: -0.026em; font-weight: 500; max-width: 40ch; }
-  .receipt h3 em { font-style: italic; color: var(--warn); }
-  .receipt p { font-size: 17px; line-height: 1.6; color: var(--body); max-width: 62ch; }
-  .receipt-ref { flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--muted); border-left: 1px solid var(--rule); padding-left: 24px; }
-  .receipt-ref .quote { color: var(--ink); }
-
-  .caveats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; margin-top: 52px; }
-  .caveat { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--hair); padding-top: 16px; }
-  .caveat h3 { font-size: 17px; letter-spacing: -0.02em; }
-  .caveat p { font-size: 15px; line-height: 1.55; color: var(--muted); }
-
-  /* ══════════ surfaces ══════════ */
-  .surfaces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
-  .surface-card { border: 1px solid var(--hair); background: var(--surface); padding: 30px 28px; display: flex; flex-direction: column; gap: 16px; }
-  .surface-card h3 { font-size: 21px; letter-spacing: -0.024em; }
-  .surface-card p { font-size: 15px; line-height: 1.55; color: var(--body); }
-  .surface-card svg { color: var(--pass); }
-  .surface-card .foot { margin-top: auto; border-top: 1px solid var(--hair); padding-top: 15px; font-size: 14px; line-height: 1.55; color: var(--muted); }
-  .surface-card .foot.cmd { font-family: var(--mono); font-size: 12.5px; color: var(--body); overflow-wrap: anywhere; }
-  .aside-note { font-size: 16.5px; line-height: 1.6; color: var(--body); max-width: 72ch; border-left: 1px solid var(--pass-dim); padding-left: 24px; margin-top: 44px; }
-
-  /* ══════════ start ══════════ */
-  .start { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
-  .start h2 { font-weight: 700; font-size: clamp(34px, 5vw, 62px); line-height: 1.02; letter-spacing: -0.05em; }
-  .start h2 em { font-style: normal; color: var(--pass); }
-  .shell { background: var(--deeper); border: 1px solid var(--hair); padding: 26px 28px; font-family: var(--mono); font-size: 13.5px; line-height: 2.0; white-space: pre; overflow-x: auto; color: var(--body); }
-  .shell .c { color: var(--faint); }
-  .shell .p { color: var(--pass); }
-  .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 22px; }
-  .fact { display: flex; flex-direction: column; gap: 5px; }
-  .fact p { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
-  .fact strong { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
-
-  footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 44px; flex-wrap: wrap; padding: 34px 0 60px; border-top: 1px solid var(--hair); font-family: var(--mono); font-size: 12.5px; color: var(--muted); line-height: 1.75; }
-
-  /* ══════════ responsive ══════════ */
-  @media (max-width: 1080px) {
-    .rules, .caveats, .surfaces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .pin-grid { gap: 40px; }
-  }
-  @media (max-width: 900px) {
-    .wrap, .pin-grid { padding: 0 22px; }
-    .stage { height: auto; }
-    .pin { position: static; height: auto; padding: 88px 0; }
-    .pin-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
-    .act-copy { min-height: 0; }
-    .act { position: static; }
-    .act-1, .act-2 { display: none; }
-    .verdict-pass { display: none; }
-    .stage-progress { display: none; }
-    .marker-typed { width: var(--cols); }
-    .scene { animation: none !important; opacity: 1 !important; transform: none !important; }
-    .graph line, .graph path { stroke-dashoffset: 0 !important; }
-    .thesis, .start, .ledger { grid-template-columns: minmax(0, 1fr); gap: 36px; }
-    .band { padding: 96px 0; }
-    .receipt { padding: 30px 26px; gap: 26px; }
-    .receipt-ref { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 18px; }
+  /* Layout steps */
+  @media (max-width: 1024px) {
+    :root { --pad: 56px; --spine: 20px; }
+    .wrap { padding: 0 24px; }
+    .hero-top { grid-template-columns: minmax(0, 1fr); }
+    .start { max-width: 560px; }
+    .yard { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .yard::before { display: none; }
+    .blk::before { content: ""; position: absolute; top: 19px; right: 100%; width: calc(var(--pad) - var(--spine) + 1px); height: 2px; background: var(--track); }
+    .rule-fig { grid-template-columns: minmax(0, 1fr); }
+    .rule-sig { grid-column: 1; grid-row: auto; margin-top: 24px; }
+    .verdicts, .run-grid { grid-template-columns: minmax(0, 1fr); }
+    .run-cli { grid-row: auto; }
+    .sign { grid-template-columns: 140px minmax(0, 1fr); }
+    .pw { grid-column: 2; border-top: 1px solid var(--hairline); }
+    .pc { border-right: 0; }
   }
   @media (max-width: 640px) {
+    :root { --pad: 26px; --spine: 7px; --d: 8px; }
     body { font-size: 16px; }
-    .rules, .caveats, .surfaces, .facts { grid-template-columns: minmax(0, 1fr); }
-    .nav span { display: none; }
-    .cta, .chip { width: 100%; justify-content: center; }
-    .hero { min-height: 0; padding: 30px 0 60px; }
-    .band { padding: 76px 0; }
-    .section-head { gap: 18px; margin-bottom: 34px; }
-    .diff, .shell { font-size: 11.5px; }
+    .wrap { padding: 0 16px; }
+    .mast-row { flex-wrap: wrap; }
+    .mast-nav { order: 3; width: 100%; margin-left: 0; border-top: 1px solid var(--hairline); }
+    .mast-nav a:first-child { border-left: 0; padding-left: 0; }
+    .lang { margin-left: auto; }
+    .station { padding-top: 80px; }
+    .hero { padding-top: 40px; }
+    .hero::before { top: 48px; }
+    .stop::before { height: 89px; }
+    .lede { font-size: 17.5px; }
+    .hero-fig { margin-top: 40px; }
+    .hero-wide { display: none; }
+    .hero-tall { display: block; width: 100%; max-width: 400px; height: auto; }
+    .cmd code { font-size: 13px; padding: 13px 10px 13px 12px; }
+    .try-step { padding: 7px 12px; }
+    .ro-body, .cc-body { font-size: 12.5px; }
+    .ro-head { padding: 10px 12px; }
+    .ln { padding-right: 12px; padding-left: calc(12px + 4ch); }
+    .ln.gap { padding-left: calc(12px + 2ch); }
+    .cl { padding-right: 12px; }
+    .asp { grid-template-columns: 28px minmax(0, 1fr); gap: 0 18px; padding: 20px 16px; }
+    .asp .rules, .asp > p { grid-column: 1 / -1; margin-top: 16px; }
+    .sign { grid-template-columns: minmax(0, 1fr); }
+    .pn, .pc { border-right: 0; }
+    .pc, .pw { border-top: 1px solid var(--hairline); }
+    .pw { grid-column: auto; }
+    .sign > * { padding: 14px 16px; }
+    .exits th, .exits td { padding: 10px 6px; }
+    .exits tbody th { padding-left: 10px; }
+    .limits li { grid-template-columns: 36px minmax(0, 1fr); }
   }
 </style>
 </head>
 <body>
-<div class="grain"></div>
+<a class="skip" href="#main"><span class="en" lang="en">Skip to content</span><span class="fr" lang="fr">Aller au contenu</span></a>
 
-<div class="wrap">
-  <header class="masthead">
-    <div class="brand">
-      <a class="wordmark plain" href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">semctx</a>
-      <span class="meta">0.4.2 · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a></span>
-    </div>
-    <nav class="nav">
-      <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md" target="_blank" rel="noopener noreferrer">Docs</a>
-      <a href="./demo/">Demo</a>
-      <a href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a class="chip" href="#start">bunx semctx@0.4.2 install</a>
+<header class="mast">
+  <div class="wrap mast-row">
+    <a class="word" href="https://github.com/hoklims/semctx">semctx</a>
+    <span class="ver">0.4.2 ·<a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a></span>
+    <nav class="mast-nav" aria-label="Site" data-label-en="Site" data-label-fr="Site">
+      <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a>
+      <a href="./demo/"><span class="en" lang="en">Demo</span><span class="fr" lang="fr">Démo</span></a>
+      <a href="https://github.com/hoklims/semctx">GitHub</a>
     </nav>
-  </header>
-</div>
-
-<!-- ══════════ HERO ══════════ -->
-<section class="hero">
-  <div class="wrap hero-inner">
-    <span class="kicker"><span class="pip"></span>Your agent said done. The tests went green.</span>
-    <h1>Write the rule once.<br>Make the risk <em>visible</em>.</h1>
-    <p class="hero-sub">One sentence in a comment tells semctx what must never break. Semctx reports statically detected risk deterministically and locally; guarded mode can stop a commit when you explicitly enable it.</p>
-    <div class="hero-cta">
-      <a class="cta" href="#start"><span>$</span><span>bunx semctx@0.4.2 install</span><span class="caret"></span></a>
-      <span class="cta-aside">Detects Claude Code and Codex. Safe to run twice.</span>
+    <div class="lang" role="group" aria-label="Language" data-label-en="Language" data-label-fr="Langue">
+      <button type="button" data-set-lang="en" aria-pressed="true" lang="en">EN</button>
+      <button type="button" data-set-lang="fr" aria-pressed="false" lang="fr">FR</button>
     </div>
-    <div class="claims">
-      <span>No LLM</span><i>·</i>
-      <span>No network during analysis</span><i>·</i>
-      <span>No vector database</span><i>·</i>
-      <span>Never uploads your code</span>
-    </div>
-    <div class="scroll-hint"><span class="bar"></span>Watch one change get judged</div>
   </div>
-</section>
+</header>
 
-<!-- ══════════ THE SCENE ══════════ -->
-<section class="stage">
-  <div class="pin">
-    <div class="stage-progress"></div>
-    <div class="pin-grid">
+<main id="main" class="wrap">
+<div class="line">
 
-      <div class="act-copy">
-        <div class="act act-1 scene">
-          <span class="tagline" style="color: var(--muted);">Act one · the change</span>
-          <h2>An interface loses a null.</h2>
-          <p>Two characters. Every caller that handled the empty case is now wrong, and the type checker will not tell you which ones mattered.</p>
-        </div>
-        <div class="act act-2 scene">
-          <span class="tagline" style="color: var(--warn);">Act two · the blast radius</span>
-          <h2>It maps who was counting on it.</h2>
-          <p>Static analysis against the repository graph — the files that import the contract, and the tests statically linked to it. Here, there are none.</p>
-        </div>
-        <div class="act act-3 scene">
-          <span class="tagline" style="color: var(--block);">Act three · the constraint</span>
-          <h2>You wrote one sentence. The verdict inverts.</h2>
-          <p>Same diff, same tests, opposite outcome. The commit stops at <span class="mono" style="color: var(--block);">exit 3</span> — because you, not a model, said this rule matters.</p>
-        </div>
+  <!-- 00 · What it is -->
+  <section class="station hero" aria-labelledby="h-hero">
+    <p class="label stn"><span class="en" lang="en">Change-impact analysis for TypeScript</span><span class="fr" lang="fr">Analyse d’impact des changements pour TypeScript</span></p>
+    <div class="hero-top">
+      <div>
+        <h1 id="h-hero"><span class="en" lang="en">A diff goes in.<br>A verdict comes out.</span><span class="fr" lang="fr">Un diff entre.<br>Un verdict sort.</span></h1>
+        <p class="lede en" lang="en">semctx reads the Git diff of a TypeScript repository, finds the code it touches and checks the rules you declared. It answers with one verdict: PASS, WARN or BLOCK. The analysis runs on your machine, with no network call and no LLM.</p>
+        <p class="lede fr" lang="fr">semctx lit le diff Git d’un dépôt TypeScript, retrouve le code touché et vérifie les règles que vous avez déclarées. Il répond par un seul verdict&nbsp;: PASS, WARN ou BLOCK. L’analyse tourne sur votre machine, sans appel réseau ni LLM.</p>
       </div>
-
-      <div class="console">
-        <div class="console-head">
-          <span>src/ports/reservation-repository.ts</span>
-          <span class="where">one changed hunk</span>
-        </div>
-
-        <div class="diff"><span class="scene diff-line-1" style="opacity: 0;">  export interface <span class="sym">ReservationRepositoryPort</span> {</span>
-<span class="scene diff-line-2 del" style="opacity: 0;">-   getSlot(id: string): Slot | null</span>
-<span class="scene diff-line-3 add" style="opacity: 0;">+   getSlot(id: string): Slot</span>
-<span class="scene diff-line-3" style="opacity: 0;">  }</span>
-<span class="marker-line scene marker-typed" style="--cols: 60ch; width: 0;">  /** @invariant never-overbook: never double-book a slot */</span></div>
-
-        <svg class="graph" viewBox="0 0 616 226" role="img" aria-label="The changed interface, the two files that import it, and a missing test.">
-          <circle class="scene ring-1" cx="70" cy="112" r="17" fill="none" stroke="var(--pass)" stroke-width="1" opacity="0"/>
-          <circle class="scene ring-2" cx="70" cy="112" r="33" fill="none" stroke="var(--pass-dim)" stroke-width="1" stroke-dasharray="2 5" opacity="0"/>
-          <circle cx="70" cy="112" r="4.5" fill="var(--warn)"/>
-          <text class="scene src-label mono" x="6" y="170" font-size="10.5" fill="var(--ink)" opacity="0">ReservationRepositoryPort</text>
-          <text class="scene src-label mono" x="6" y="185" font-size="10.5" fill="var(--muted)" opacity="0">the changed hunk</text>
-
-          <path class="scene edge-1" style="--len: 300;" d="M108 112 C 190 112, 210 46, 306 46" fill="none" stroke="var(--rule)" stroke-width="1.15" stroke-dasharray="300" stroke-dashoffset="300"/>
-          <path class="scene edge-2" style="--len: 300;" d="M108 112 L 306 112" fill="none" stroke="var(--rule)" stroke-width="1.15" stroke-dasharray="300" stroke-dashoffset="300"/>
-          <path class="scene edge-3" d="M108 112 C 190 112, 210 178, 306 178" fill="none" stroke="var(--warn-dim)" stroke-width="1.15" stroke-dasharray="4 5" opacity="0"/>
-
-          <g class="scene node-1" style="transform-box: fill-box; transform-origin: center;" opacity="0">
-            <circle cx="306" cy="46" r="3.6" fill="var(--muted)"/>
-            <text class="mono" x="322" y="43" font-size="12" fill="var(--ink)">checkout.ts</text>
-            <text class="mono" x="322" y="59" font-size="10.5" fill="var(--muted)">imports it</text>
-          </g>
-          <g class="scene node-2" style="transform-box: fill-box; transform-origin: center;" opacity="0">
-            <circle cx="306" cy="112" r="3.6" fill="var(--muted)"/>
-            <text class="mono" x="322" y="109" font-size="12" fill="var(--ink)">confirm-reservation.ts</text>
-            <text class="mono" x="322" y="125" font-size="10.5" fill="var(--muted)">imports it</text>
-          </g>
-          <g class="scene node-3" style="transform-box: fill-box; transform-origin: center;" opacity="0">
-            <circle cx="306" cy="178" r="4" fill="none" stroke="var(--warn)" stroke-width="1.2" stroke-dasharray="2 3"/>
-            <text class="mono" x="322" y="175" font-size="12" fill="var(--warn)">no test links this contract</text>
-            <text class="mono" x="322" y="191" font-size="10.5" fill="var(--muted)">Recommended tests: none</text>
-          </g>
-        </svg>
-
-        <div class="verdict-slot">
-          <div class="verdict verdict-pass scene" style="opacity: 0;">
-            <span class="tag pass">PASS</span>
-            <span class="v-lines">
-              <span class="rule-id">no blocking violations</span>
-              <span class="exit meta">0.66s · exit 0 · nothing stopped</span>
-            </span>
+      <div class="start">
+        <p class="label"><span class="en" lang="en">Try it in your repository</span><span class="fr" lang="fr">Essayez-le dans votre dépôt</span></p>
+        <div class="try">
+          <div class="cmd">
+            <code>bunx semctx@0.4.2 setup</code>
+            <button class="copy" type="button" data-copy="bunx semctx@0.4.2 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
           </div>
-          <div class="verdict verdict-block scene" style="opacity: 0;">
-            <span class="tag block">BLOCK</span>
-            <span class="v-lines">
-              <span class="rule-id">invariant_touched_without_test</span>
-              <span class="exit meta" style="color: var(--block);">0.66s · exit 3 · commit refused</span>
-            </span>
+          <p class="try-step"><span class="en" lang="en"># edit some code</span><span class="fr" lang="fr"># modifiez du code</span></p>
+          <div class="cmd">
+            <code>bunx semctx@0.4.2 verify diff</code>
+            <button class="copy" type="button" data-copy="bunx semctx@0.4.2 verify diff"><span class="sr en" lang="en">Copy the verify command</span><span class="sr fr" lang="fr">Copier la commande verify</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
           </div>
         </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ THE THESIS ══════════ -->
-<section class="band band-dark">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <h2>Constraints you write. Enforcement you don't.</h2>
-      <p class="lede">semctx never guesses what matters in your codebase. You say it, in one line of English, and it becomes a machine-checkable rule for everyone who touches that code afterwards.</p>
-    </div>
-
-    <div class="thesis">
-      <p class="thesis-line reveal">A sentence in a comment is the <b>entire configuration</b>. No schema. No dashboard. Nothing inferred by a model.</p>
-      <div class="thesis-body reveal">
-        <p>Contracts, invariants and capabilities come from explicit, machine-readable markers — never LLM inference. That is what makes the verdict deterministic and traceable: the same repository state produces the same answer, byte for byte, on any machine.</p>
-        <p>Markers are optional. Without them semctx still reports impacted symbols, exported contracts and statically linked tests. What a marker buys you is the right to stop a commit — and it is deliberately you who grants it, symbol by symbol.</p>
-        <p>That asymmetry is the design: an analyzer that cannot invent importance, and an author who can declare it in seconds.</p>
+        <p class="note en" lang="en">Needs Bun 1.4.0 or newer and a Git repository with at least one commit. Run setup on a clean tree, then edit and verify without re-indexing in between. For a branch, CI or a coding agent, see <a href="#run">three ways to start</a>.</p>
+        <p class="note fr" lang="fr">Il faut Bun 1.4.0 ou plus récent et un dépôt Git avec au moins un commit. Lancez setup sur un arbre propre, puis modifiez et vérifiez sans réindexer entre les deux. Pour une branche, la CI ou un agent de code, voir <a href="#run">trois façons de commencer</a>.</p>
+        <p class="hero-links"><a href="./demo/"><span class="en" lang="en">See the demo</span><span class="fr" lang="fr">Voir la démo</span></a><a href="https://github.com/hoklims/semctx/blob/main/docs/README.md"><span class="en" lang="en">Read the docs</span><span class="fr" lang="fr">Lire la doc</span></a></p>
       </div>
     </div>
 
-    <div class="rules reveal">
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
-        <span class="id">invariant_touched_without_test</span>
-        <p>Invariant-constrained code changed with no eligible statically linked test.</p>
-        <span class="arms">armed by <span style="color: var(--block);">@invariant</span></span>
+    <figure class="hero-fig boot">
+      <p class="sr en" lang="en">Diagram: the changed files src/cart.ts, src/greeting.ts and src/pricing.ts run as lines into one signal. The added line discountCents in the exported interface CartTotal lights its route through a CartTotal node, and the signal shows WARN, its middle lamp.</p>
+      <p class="sr fr" lang="fr">Schéma&nbsp;: les fichiers modifiés src/cart.ts, src/greeting.ts et src/pricing.ts forment des voies qui rejoignent un signal. La ligne ajoutée discountCents dans l’interface exportée CartTotal allume sa voie à travers un nœud CartTotal, et le signal affiche WARN, son feu du milieu.</p>
+      <svg class="graph hero-wide" viewBox="0 0 852 274" aria-hidden="true" focusable="false">
+        <rect class="card" x="0.5" y="0.5" width="340" height="256"/>
+        <text class="t b" x="16" y="25">src/cart.ts</text>
+        <path class="hair" d="M1 40.5H340"/>
+        <text class="t mu" x="16" y="64">@@ -1,8 +1,9 @@</text>
+        <text class="t" x="16" y="85" xml:space="preserve"> export interface CartTotal {</text>
+        <text class="t" x="16" y="106" xml:space="preserve">   subtotalCents: number;</text>
+        <text class="t" x="16" y="127" xml:space="preserve">   taxCents: number;</text>
+        <rect class="dm" x="1" y="133" width="339" height="21"/>
+        <rect class="db" x="1" y="133" width="2" height="21"/>
+        <text class="t b" x="16" y="148" xml:space="preserve">+  discountCents: number;</text>
+        <text class="t" x="16" y="169" xml:space="preserve"> }</text>
+        <path class="hair" d="M1 184.5H340"/>
+        <text class="t mu" x="16" y="207">src/greeting.ts</text>
+        <path class="hair" d="M1 220.5H340"/>
+        <text class="t mu" x="16" y="243">src/pricing.ts</text>
+        <path class="idle draw" pathLength="1" style="--i:0" d="M341 238H470L506 202"/>
+        <path class="idle draw" pathLength="1" style="--i:1" d="M341 202H560L618.5 143.5"/>
+        <path class="lit lit-w draw" pathLength="1" style="--i:2" d="M341 143.5H381"/>
+        <g class="node">
+          <rect class="node-w" x="380.75" y="126.25" width="159.5" height="34.5"/>
+          <text class="t b" x="396" y="148">CartTotal</text>
+        </g>
+        <text class="t s mu" x="380" y="182">[statically_verified]</text>
+        <path class="lit lit-w draw" pathLength="1" style="--i:3" d="M540 143.5H700"/>
+        <rect class="housing" x="700.75" y="35.75" width="54.5" height="215.5" rx="27.25"/>
+        <circle class="off-b" cx="728" cy="80.5" r="17"/>
+        <circle class="off-w" cx="728" cy="143.5" r="17"/>
+        <circle class="off-p" cx="728" cy="206.5" r="17"/>
+        <text class="t v mu" x="772" y="153">WARN</text>
+        <g class="reveal lamp">
+          <circle class="on-w" cx="728" cy="143.5" r="17"/>
+          <circle class="halo-w" cx="728" cy="143.5" r="23"/>
+          <text class="t v vw" x="772" y="153">WARN</text>
+        </g>
+        <rect class="post" x="725" y="251.5" width="6" height="18"/>
+        <path class="base" d="M708 270.5H748"/>
+        <text class="t mu" x="772" y="85">BLOCK</text>
+        <text class="t mu" x="772" y="211">PASS</text>
+      </svg>
+      <svg class="graph hero-tall" viewBox="0 0 328 712" aria-hidden="true" focusable="false">
+        <rect class="card" x="40.5" y="0.5" width="287" height="256"/>
+        <text class="t b" x="54" y="25">src/cart.ts</text>
+        <path class="hair" d="M41 40.5H327"/>
+        <text class="t mu" x="54" y="64">@@ -1,8 +1,9 @@</text>
+        <text class="t" x="54" y="85" xml:space="preserve"> export interface CartTotal {</text>
+        <text class="t" x="54" y="106" xml:space="preserve">   subtotalCents: number;</text>
+        <text class="t" x="54" y="127" xml:space="preserve">   taxCents: number;</text>
+        <rect class="dm" x="41" y="133" width="286" height="21"/>
+        <rect class="db" x="41" y="133" width="2" height="21"/>
+        <text class="t b" x="54" y="148" xml:space="preserve">+  discountCents: number;</text>
+        <text class="t" x="54" y="169" xml:space="preserve"> }</text>
+        <path class="hair" d="M41 184.5H327"/>
+        <text class="t mu" x="54" y="207">src/greeting.ts</text>
+        <path class="hair" d="M41 220.5H327"/>
+        <text class="t mu" x="54" y="243">src/pricing.ts</text>
+        <path class="idle draw" pathLength="1" style="--i:0" d="M40 238H33V270L21 282"/>
+        <path class="idle draw" pathLength="1" style="--i:1" d="M40 202H21V296L8.5 308.5"/>
+        <path class="lit lit-w draw" pathLength="1" style="--i:2" d="M40 143.5H8.5V320L56.5 368V393"/>
+        <g class="node">
+          <rect class="node-w" x="32.75" y="392.75" width="159.5" height="34.5"/>
+          <text class="t b" x="48" y="414.5">CartTotal</text>
+        </g>
+        <text class="t s mu" x="68" y="448">[statically_verified]</text>
+        <path class="lit lit-w draw" pathLength="1" style="--i:3" d="M56.5 427V471"/>
+        <rect class="housing" x="29.25" y="470.75" width="54.5" height="215.5" rx="27.25"/>
+        <circle class="off-b" cx="56.5" cy="515.5" r="17"/>
+        <circle class="off-w" cx="56.5" cy="578.5" r="17"/>
+        <circle class="off-p" cx="56.5" cy="641.5" r="17"/>
+        <text class="t v mu" x="100" y="588">WARN</text>
+        <g class="reveal lamp">
+          <circle class="on-w" cx="56.5" cy="578.5" r="17"/>
+          <circle class="halo-w" cx="56.5" cy="578.5" r="23"/>
+          <text class="t v vw" x="100" y="588">WARN</text>
+        </g>
+        <rect class="post" x="53.5" y="686.5" width="6" height="18"/>
+        <path class="base" d="M36.5 705.5H76.5"/>
+        <text class="t mu" x="100" y="520">BLOCK</text>
+        <text class="t mu" x="100" y="646">PASS</text>
+      </svg>
+      <div class="readout">
+        <div class="ro-head"><span class="ro-cmd" id="ro-hero"><span class="pr">$ </span>semctx verify diff</span><span class="ro-exit">exit 0</span></div>
+        <pre class="ro-body" role="group" tabindex="0" aria-labelledby="ro-hero"><span class="ln h reveal" style="--i:0">Verdict: <span class="k-w">WARN</span></span><span class="ln">  range         : working tree</span><span class="ln">  changed files : 3</span><span class="ln">  impacted nodes: 7</span><span class="ln"> </span><span class="ln h">Impacted contracts</span><span class="ln">  Exported interface "CartTotal" is a public, compiler-enforced contract. [statically_verified]</span><span class="ln"> </span><span class="ln h">Recommended tests</span><span class="ln">  none</span><span class="ln"> </span><span class="ln h">Unknowns</span><span class="ln">  ? Could not confirm index binding (STALE: ANALYSIS_INPUT_MISMATCH, WORKING_DIFF_MISMATCH); impact is reported without a freshness proof.</span><span class="ln"> </span><span class="ln h">Findings</span><span class="ln ln-find reveal" style="--i:1">  <span class="k-w">[WARN ]</span> contract_changed_without_test: exported contract changed without a covering test: CartTotal</span><span class="ln err"><span class="tag">stderr</span>WARN non-blocking warnings present</span></pre>
       </div>
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
-        <span class="id">critical_contract_changed_without_test</span>
-        <p>A critical exported contract changed with no eligible statically linked test.</p>
-        <span class="arms">armed by <span style="color: var(--block);">@tag critical</span></span>
+      <figcaption>
+        <span class="en" lang="en">Real output of <code>semctx verify diff</code> on the repository of the <a href="./demo/">first-use demo</a>, run as above: setup on a clean commit, three edits, then verify. One edit adds a required field to the exported interface <code>CartTotal</code>. No test imports it, so the verdict is WARN. The line under Unknowns is expected for uncommitted edits: the index describes your last commit, not your edits.</span>
+        <span class="fr" lang="fr">Sortie réelle de <code>semctx verify diff</code> sur le dépôt de la <a href="./demo/">démo de premier usage</a>, lancée comme ci-dessus&nbsp;: setup sur un commit propre, trois modifications, puis vérification. L’une ajoute un champ obligatoire à l’interface exportée <code>CartTotal</code>. Aucun test ne l’importe, d’où le verdict WARN. La ligne sous Unknowns est normale pour des modifications non commitées&nbsp;: l’index décrit votre dernier commit, pas vos modifications.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 01 · What it touches -->
+  <section class="station" id="touches" aria-labelledby="h-touches">
+    <p class="label stn">01 · <span class="en" lang="en">What it touches</span><span class="fr" lang="fr">Ce qu’il touche</span></p>
+    <h2 id="h-touches"><span class="en" lang="en">It maps your diff to the code it touches.</span><span class="fr" lang="fr">Il relie votre diff au code qu’il touche.</span></h2>
+    <p class="intro en" lang="en">semctx keeps a local index of your TypeScript. For every changed line it finds the declaration the line belongs to and the contracts and rules attached to it. For every changed file it lists the test files that import any of its symbols.</p>
+    <p class="intro fr" lang="fr">semctx tient un index local de votre TypeScript. Pour chaque ligne modifiée, il retrouve la déclaration qui la contient et les contrats et règles qui s’y rattachent. Pour chaque fichier modifié, il liste les fichiers de test qui importent l’un de ses symboles.</p>
+    <ol class="yard">
+      <li class="blk">
+        <div class="bl"><span class="label"><span class="en" lang="en">Symbols</span><span class="fr" lang="fr">Symboles</span></span></div>
+        <p class="en" lang="en">The functions, classes, interfaces, types and enums your changed lines land in, plus the modules that hold them.</p>
+        <p class="fr" lang="fr">Les fonctions, classes, interfaces, types et enums où tombent vos lignes modifiées, plus les modules qui les contiennent.</p>
+        <pre class="out">impacted nodes: 7</pre>
+      </li>
+      <li class="blk cause">
+        <div class="bl"><span class="label"><span class="en" lang="en">Exported contracts</span><span class="fr" lang="fr">Contrats exportés</span></span><span class="verdict-tag">WARN</span></div>
+        <p class="en" lang="en">Exported interfaces and type aliases that other code compiles against. In this diff, <code>CartTotal</code> changed and nothing tests it.</p>
+        <p class="fr" lang="fr">Les interfaces et alias de type exportés sur lesquels compile le reste du code. Dans ce diff, <code>CartTotal</code> a changé et rien ne le teste.</p>
+        <pre class="out">Exported interface "CartTotal" is a public, compiler-enforced contract. [statically_verified]</pre>
+      </li>
+      <li class="blk">
+        <div class="bl"><span class="label"><span class="en" lang="en">@invariant rules</span><span class="fr" lang="fr">Règles @invariant</span></span></div>
+        <p class="en" lang="en">The rules you write in a JSDoc marker, like the one below. This diff touches none; <a href="#rules">section 02</a> shows this one at work.</p>
+        <p class="fr" lang="fr">Les règles que vous écrivez dans un marqueur JSDoc, comme celui ci-dessous. Ce diff n’en touche aucune&nbsp;; la <a href="#rules">section 02</a> montre celle-ci à l’œuvre.</p>
+        <pre class="out">@invariant greeting-non-empty</pre>
+      </li>
+      <li class="blk">
+        <div class="bl"><span class="label"><span class="en" lang="en">Linked test files</span><span class="fr" lang="fr">Fichiers de test liés</span></span></div>
+        <p class="en" lang="en">Test files that import any symbol from a changed file. semctx lists them so you know what to run. It never runs them itself.</p>
+        <p class="fr" lang="fr">Les fichiers de test qui importent un symbole d’un fichier modifié. semctx les liste pour que vous sachiez quoi lancer. Il ne les exécute jamais lui-même.</p>
+        <pre class="out">Recommended tests
+  none</pre>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 02 · Your rules -->
+  <section class="station" id="rules" aria-labelledby="h-rules">
+    <p class="label stn">02 · <span class="en" lang="en">Your rules</span><span class="fr" lang="fr">Vos règles</span></p>
+    <h2 id="h-rules"><span class="en" lang="en">You decide what must not break.</span><span class="fr" lang="fr">Vous décidez de ce qui ne doit pas casser.</span></h2>
+    <p class="intro en" lang="en">Write the rule as a JSDoc marker right above the code, commit it and run <code>semctx index</code>. From then on, if that code changes and no test imports it, the verdict is BLOCK and, by default, the exit code is 3. semctx never guesses what is critical.</p>
+    <p class="intro fr" lang="fr">Écrivez la règle sous forme de marqueur JSDoc, juste au-dessus du code, commitez-la et lancez <code>semctx index</code>. Dès lors, si ce code change et qu’aucun test ne l’importe, le verdict est BLOCK et, par défaut, le code de sortie vaut 3. semctx ne devine jamais ce qui est critique.</p>
+    <figure class="rule-fig">
+      <div class="code-card">
+        <div class="cc-head">examples/consumer-typescript-repo/src/index.ts</div>
+        <pre class="cc-body" role="group" tabindex="0" aria-label="src/index.ts"><span class="cl"><i>1</i>/**</span><span class="cl gap" aria-hidden="true"><b></b><b></b><b></b></span><span class="cl"><i>5</i> * @capability greeting</span><span class="cl mark"><i>6</i> * <b>@invariant greeting-non-empty</b>: a greeting must never be an empty string</span><span class="cl"><i>7</i> */</span><span class="cl"><i>8</i>export function greet(name: string): string {</span><span class="cl"><i>9</i>  return `Hello, ${name}!`;</span><span class="cl"><i>10</i>}</span></pre>
       </div>
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--block);">Strict → BLOCK</span>
-        <span class="id">security_surface_without_verification</span>
-        <p>A security surface changed without an explicit verification.</p>
-        <span class="arms">armed by <span style="color: var(--block);">@tag security</span></span>
+      <div class="code-card diff-card">
+        <div class="cc-sub label">git diff -U0 -- src/index.ts</div>
+        <pre class="cc-body" role="group" tabindex="0" aria-label="git diff -U0"><span class="cl"><i></i><span class="muted">@@ -9 +9 @@ export function greet(name: string): string {</span></span><span class="cl del"><i></i>-  return `Hello, ${name}!`;</span><span class="cl add"><i></i>+  return name.length &gt; 0 ? `Hello, ${name}!` : "";</span></pre>
       </div>
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--warn);">Advisory → WARN</span>
-        <span class="id">contract_changed_without_test</span>
-        <p>Any exported interface or type changed with no linked test. This one needs no marker at all.</p>
-        <span class="arms">on by default</span>
+      <svg class="graph scene rule-sig" viewBox="0 0 350 240" aria-hidden="true" focusable="false">
+        <path class="lit lit-b draw" pathLength="1" d="M0 45.5H25"/>
+        <rect class="node-b" x="24.75" y="28.25" width="99.5" height="34.5"/>
+        <text class="t b" x="40" y="50">greet</text>
+        <text class="t s mu" x="24" y="82">greeting-non-empty</text>
+        <path class="lit lit-b draw s1" pathLength="1" d="M124 45.5H197"/>
+        <rect class="housing" x="196.75" y="0.75" width="54.5" height="215.5" rx="27.25"/>
+        <circle class="off-b" cx="224" cy="45.5" r="17"/>
+        <circle class="off-w" cx="224" cy="108.5" r="17"/>
+        <circle class="off-p" cx="224" cy="171.5" r="17"/>
+        <text class="t v sm mu" x="268" y="54">BLOCK</text>
+        <g class="reveal lamp">
+          <circle class="on-b" cx="224" cy="45.5" r="17"/>
+          <circle class="halo-b" cx="224" cy="45.5" r="23"/>
+          <text class="t v sm vb" x="268" y="54">BLOCK</text>
+        </g>
+        <rect class="post" x="221" y="216.25" width="6" height="18"/>
+        <path class="base" d="M204 235H244"/>
+        <text class="t mu" x="268" y="113">WARN</text>
+        <text class="t mu" x="268" y="176">PASS</text>
+      </svg>
+      <div class="readout">
+        <div class="ro-head"><span class="ro-cmd" id="ro-rule"><span class="pr">$ </span>semctx verify diff --base main</span><span class="ro-exit">exit 3</span></div>
+        <pre class="ro-body" role="group" tabindex="0" aria-labelledby="ro-rule"><span class="ln h">Verdict: <span class="k-b">BLOCK</span></span><span class="ln gap"><i></i><i></i><i></i><span class="sr en" lang="en">lines omitted</span><span class="sr fr" lang="fr">lignes omises</span></span><span class="ln h">Impacted invariants</span><span class="ln">  ! a greeting must never be an empty string [inferred]</span><span class="ln gap"><i></i><i></i><i></i><span class="sr en" lang="en">lines omitted</span><span class="sr fr" lang="fr">lignes omises</span></span><span class="ln h">Findings</span><span class="ln">  <span class="k-b">[BLOCK]</span> invariant_touched_without_test: invariant-constrained code changed without a covering test: greet</span></pre>
       </div>
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--warn);">Advisory → WARN</span>
-        <span class="id">contradiction_unresolved</span>
-        <p>The change leans on a source that a later decision contradicts.</p>
-        <span class="arms">on by default</span>
-      </div>
-      <div class="rule-cell">
-        <span class="tier" style="color: var(--muted);">That is the whole set</span>
-        <span class="id">five rules · two tiers</span>
-        <p>There is no score, no threshold, no confidence percentage. A verdict is the union of rules that fired, and each one names itself.</p>
-        <span class="arms tnum"><span style="color: var(--pass);">PASS</span> → 0 &nbsp; <span style="color: var(--warn);">WARN</span> → 0 &nbsp; <span style="color: var(--block);">BLOCK</span> → 3</span>
+      <figcaption>
+        <span class="en" lang="en">Excerpt; the dots mark omitted lines. These are the lines semctx 0.4.2 prints for this edit of <code>examples/consumer-typescript-repo</code>, committed on a branch. To clear the BLOCK, add a test file that imports <code>greet</code> from <code>src/index.ts</code>, commit, run <code>semctx index</code>, then verify again.</span>
+        <span class="fr" lang="fr">Extrait&nbsp;; les points marquent les lignes omises. Ce sont les lignes que semctx 0.4.2 affiche pour cette modification de <code>examples/consumer-typescript-repo</code>, commitée sur une branche. Pour lever le BLOCK, ajoutez un fichier de test qui importe <code>greet</code> depuis <code>src/index.ts</code>, commitez, lancez <code>semctx index</code>, puis vérifiez à nouveau.</span>
+      </figcaption>
+    </figure>
+    <ul class="facts">
+      <li><span class="en" lang="en">Markers work above a function, a constant holding an arrow function, a class, an interface, a type alias or an enum. On a method, a property or a plain constant they are ignored, so to guard a method, mark its class.</span><span class="fr" lang="fr">Les marqueurs fonctionnent au-dessus d’une fonction, d’une constante qui contient une fonction fléchée, d’une classe, d’une interface, d’un alias de type ou d’un enum. Sur une méthode, une propriété ou une simple constante, ils sont ignorés&nbsp;: pour protéger une méthode, marquez sa classe.</span></li>
+      <li><span class="en" lang="en">A test covers a symbol when a test file imports it by name, directly from the file that declares it. Aliased, namespace, type-only and barrel imports do not count.</span><span class="fr" lang="fr">Un test couvre un symbole quand un fichier de test l’importe par son nom, directement depuis le fichier qui le déclare. Les imports renommés, par espace de noms, de type seul ou via un barrel ne comptent pas.</span></li>
+      <li><span class="en" lang="en"><code>@tag security</code> on a function, class, interface, type alias or enum (methods and plain constants are ignored), or <code>@tag critical</code> on an exported interface or type, also turns a missing test into BLOCK.</span><span class="fr" lang="fr"><code>@tag security</code> sur une fonction, une classe, une interface, un alias de type ou un enum (les méthodes et les simples constantes sont ignorées), ou <code>@tag critical</code> sur une interface ou un type exporté, transforme aussi un test manquant en BLOCK.</span></li>
+    </ul>
+  </section>
+
+  <!-- 03 · Three verdicts -->
+  <section class="station" id="verdicts" aria-labelledby="h-verdicts">
+    <p class="label stn">03 · <span class="en" lang="en">Three verdicts</span><span class="fr" lang="fr">Trois verdicts</span></p>
+    <h2 id="h-verdicts"><span class="en" lang="en">Three verdicts, one exit code to gate on.</span><span class="fr" lang="fr">Trois verdicts, un code de sortie pour trancher.</span></h2>
+    <p class="intro en" lang="en">The verdict is the most severe finding in the report. A hook, a CI job or a coding agent can stop on the exit code alone; to tell PASS from WARN, read the verdict line or <code>--format json</code>. The lamps keep their order: BLOCK on top, WARN in the middle, PASS at the bottom.</p>
+    <p class="intro fr" lang="fr">Le verdict reprend le constat le plus grave du rapport. Un hook, une CI ou un agent de code peut s’arrêter sur le seul code de sortie&nbsp;; pour distinguer PASS de WARN, lisez la ligne du verdict ou <code>--format json</code>. Les feux gardent leur ordre&nbsp;: BLOCK en haut, WARN au milieu, PASS en bas.</p>
+    <div class="verdicts">
+      <ol class="chart">
+        <li class="asp">
+          <svg class="mini" viewBox="0 0 28 96" aria-hidden="true" focusable="false"><rect class="housing" x="0.75" y="0.75" width="26.5" height="94.5" rx="13.25"/><circle class="on-b" cx="14" cy="16" r="8"/><circle class="halo-b" cx="14" cy="16" r="11.5"/><circle class="off-w" cx="14" cy="48" r="8"/><circle class="off-p" cx="14" cy="80" r="8"/></svg>
+          <div><strong class="vword b">BLOCK</strong><span class="exit">exit 3</span></div>
+          <ul class="rules">
+            <li><span class="en" lang="en">Code under an <code>@invariant</code> changed and no test covers it.</span><span class="fr" lang="fr">Du code sous un <code>@invariant</code> a changé et aucun test ne le couvre.</span><code>invariant_<wbr>touched_<wbr>without_<wbr>test</code></li>
+            <li><span class="en" lang="en">An exported interface or type tagged <code>@tag critical</code> or <code>@tag security</code> changed and no test covers it.</span><span class="fr" lang="fr">Une interface ou un type exporté marqué <code>@tag critical</code> ou <code>@tag security</code> a changé et aucun test ne le couvre.</span><code>critical_<wbr>contract_<wbr>changed_<wbr>without_<wbr>test</code></li>
+            <li><span class="en" lang="en">A <code>@tag security</code> symbol changed and no test covers it.</span><span class="fr" lang="fr">Un symbole <code>@tag security</code> a changé et aucun test ne le couvre.</span><code>security_<wbr>surface_<wbr>without_<wbr>verification</code></li>
+            <li><span class="en" lang="en">Built in: the index does not describe the code under review (see <a href="#index">section 06</a>).</span><span class="fr" lang="fr">Intégré&nbsp;: l’index ne décrit pas le code examiné (voir la <a href="#index">section 06</a>).</span><code>index_<wbr>binding_<wbr>stale</code></li>
+          </ul>
+        </li>
+        <li class="asp">
+          <svg class="mini" viewBox="0 0 28 96" aria-hidden="true" focusable="false"><rect class="housing" x="0.75" y="0.75" width="26.5" height="94.5" rx="13.25"/><circle class="off-b" cx="14" cy="16" r="8"/><circle class="on-w" cx="14" cy="48" r="8"/><circle class="halo-w" cx="14" cy="48" r="11.5"/><circle class="off-p" cx="14" cy="80" r="8"/></svg>
+          <div><strong class="vword w">WARN</strong><span class="exit">exit 0</span></div>
+          <ul class="rules">
+            <li><span class="en" lang="en">Another exported interface or type alias changed and no test covers it.</span><span class="fr" lang="fr">Une autre interface ou un autre alias de type exporté a changé et aucun test ne le couvre.</span><code>contract_<wbr>changed_<wbr>without_<wbr>test</code></li>
+            <li><span class="en" lang="en">The change touches a document marked contradicted or deprecated.</span><span class="fr" lang="fr">Le changement touche un document marqué contredit ou obsolète.</span><code>contradiction_<wbr>unresolved</code></li>
+          </ul>
+        </li>
+        <li class="asp">
+          <svg class="mini" viewBox="0 0 28 96" aria-hidden="true" focusable="false"><rect class="housing" x="0.75" y="0.75" width="26.5" height="94.5" rx="13.25"/><circle class="off-b" cx="14" cy="16" r="8"/><circle class="off-w" cx="14" cy="48" r="8"/><circle class="on-p" cx="14" cy="80" r="8"/><circle class="halo-p" cx="14" cy="80" r="11.5"/></svg>
+          <div><strong class="vword p">PASS</strong><span class="exit">exit 0</span></div>
+          <p class="en" lang="en">No rule fired. A PASS covers only what the rules check; it does not prove the code is correct.</p>
+          <p class="fr" lang="fr">Aucune règle ne s’est déclenchée. Un PASS ne couvre que ce que vérifient les règles&nbsp;; il ne prouve pas que le code est correct.</p>
+        </li>
+      </ol>
+      <div>
+        <table class="exits">
+          <caption class="label"><span class="en" lang="en">Exit code by <code>--fail-on</code></span><span class="fr" lang="fr">Code de sortie selon <code>--fail-on</code></span></caption>
+          <thead>
+            <tr><td></td><th scope="col">block<small><span class="en" lang="en">default</span><span class="fr" lang="fr">défaut</span></small></th><th scope="col">warn</th><th scope="col">none</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">BLOCK</th><td class="nz">3</td><td class="nz">3</td><td>0</td></tr>
+            <tr><th scope="row">WARN</th><td>0</td><td class="nz">3</td><td>0</td></tr>
+            <tr><th scope="row">PASS</th><td>0</td><td>0</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <p class="exits-note en" lang="en"><code>--fail-on warn</code> also fails on WARN, <code>--fail-on none</code> never fails. An error, such as a repository with no commit yet, exits 1.</p>
+        <p class="exits-note fr" lang="fr"><code>--fail-on warn</code> échoue aussi sur WARN, <code>--fail-on none</code> n’échoue jamais. Une erreur, comme un dépôt encore sans commit, sort en 1.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ══════════ SURFACES ══════════ -->
-<section class="band">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <h2>Three places, one engine.</h2>
-      <p class="lede">The CLI and the agent tools are thin transports over the same analysis. Same rules, same reason codes, same verdict.</p>
-    </div>
+  <!-- 04 · Where it runs -->
+  <section class="station" id="where" aria-labelledby="h-where">
+    <p class="label stn">04 · <span class="en" lang="en">Where it runs</span><span class="fr" lang="fr">Où il tourne</span></p>
+    <h2 id="h-where"><span class="en" lang="en">The same verdict in a terminal, a pull request or an agent.</span><span class="fr" lang="fr">Le même verdict dans un terminal, une pull request ou un agent.</span></h2>
+    <ol class="ladder">
+      <li class="plat">
+        <div class="sign">
+          <p class="pn">CLI</p>
+          <div class="pc"><code>semctx verify diff</code></div>
+          <p class="pw"><span class="en" lang="en">Human text, a versioned JSON report (<code>--format json</code>) or GitHub annotations (<code>--format github</code>). <a href="https://github.com/hoklims/semctx/blob/main/docs/reference/cli.md">CLI reference</a></span><span class="fr" lang="fr">Texte lisible, rapport JSON versionné (<code>--format json</code>) ou annotations GitHub (<code>--format github</code>). <a href="https://github.com/hoklims/semctx/blob/main/docs/reference/cli.md">Référence CLI</a></span></p>
+        </div>
+      </li>
+      <li class="plat">
+        <div class="sign">
+          <p class="pn">GitHub Actions</p>
+          <div class="pc"><code>uses: hoklims/semctx/packages/github-action@v0.4.2</code><span class="sample">::warning title=semctx%3A contract_changed_without_test,file=src/cart.ts,line=1::exported contract changed without a covering test: CartTotal</span></div>
+          <p class="pw"><span class="en" lang="en">Indexes the checked-out commit, checks the pull request range, annotates each finding at the declaration it concerns and fails the job on BLOCK. No secrets, no PR comments. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/github-actions.md">Guide</a></span><span class="fr" lang="fr">Indexe le commit extrait, vérifie la plage de la pull request, annote chaque constat sur la déclaration concernée et fait échouer le job sur BLOCK. Sans secret, sans commentaire de PR. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/github-actions.md">Guide</a></span></p>
+        </div>
+      </li>
+      <li class="plat">
+        <div class="sign">
+          <p class="pn">Claude Code</p>
+          <div class="pc"><code>bunx semctx@0.4.2 install</code><span class="sample">semctx guarded mode: no verification on record.</span></div>
+          <p class="pw"><span class="en" lang="en">A plugin with MCP tools and skills. Optional guarded mode: <code>git commit</code> and <code>git push</code> wait until a non-BLOCK verdict is recorded for that exact content. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code-guarded-mode.md">Guarded mode</a></span><span class="fr" lang="fr">Un plugin avec outils MCP et skills. Mode protégé en option&nbsp;: <code>git commit</code> et <code>git push</code> attendent qu’un verdict autre que BLOCK soit enregistré pour ce contenu exact. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code-guarded-mode.md">Mode protégé</a></span></p>
+        </div>
+      </li>
+      <li class="plat">
+        <div class="sign">
+          <p class="pn">Codex</p>
+          <div class="pc"><code>bunx semctx@0.4.2 install --host codex</code></div>
+          <p class="pw"><span class="en" lang="en">The same MCP tools and skills. Codex has no guarded mode. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/codex-control-plane.md">Guide</a></span><span class="fr" lang="fr">Les mêmes outils MCP et skills. Codex n’a pas de mode protégé. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/codex-control-plane.md">Guide</a></span></p>
+        </div>
+      </li>
+      <li class="plat">
+        <div class="sign">
+          <p class="pn">MCP</p>
+          <div class="pc"><code>semctx_verify_change</code></div>
+          <p class="pw"><span class="en" lang="en">Other MCP clients can run the server from a source checkout. An agent then checks its own diff before it says it is done. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code.md#mcp-without-the-plugin">Setup</a></span><span class="fr" lang="fr">Les autres clients MCP peuvent lancer le serveur depuis une copie du dépôt. Un agent vérifie alors son propre diff avant de dire qu’il a fini. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code.md#mcp-without-the-plugin">Configuration</a></span></p>
+        </div>
+      </li>
+    </ol>
+  </section>
 
-    <div class="surfaces reveal">
-      <div class="surface-card">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4 6l5 6-5 6"/><path d="M12 18h8"/></svg>
-        <h3>In your terminal</h3>
-        <p>Working tree, staged commit, or a range against a real merge-base. Text, JSON or GitHub output. An optional pre-commit hook stops the commit only on BLOCK.</p>
-        <p class="foot cmd">semctx verify diff --base origin/main</p>
-      </div>
-      <div class="surface-card">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><rect x="3" y="4" width="18" height="14"/><path d="M8 21h8"/><path d="M12 18v3"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
-        <h3>Inside your agent</h3>
-        <p>Plugins for Claude Code and Codex expose the same tools over MCP, so the agent verifies its own diff. Guarded mode holds <code style="font-size: 0.9em;">git commit</code> until the change is verified.</p>
-        <p class="foot">A cooperative soft gate — not a sandbox, not a boundary against a hostile agent. The repo says so first.</p>
-      </div>
-      <div class="surface-card">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M6 3v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v3a6 6 0 01-6 6H9"/></svg>
-        <h3>On every pull request</h3>
-        <p>A composite Action posts annotations and a job summary. WARN never fails the check; BLOCK does. No PR comments, no secrets, <code style="font-size: 0.9em;">contents: read</code> only.</p>
-        <p class="foot cmd"><a href="https://github.com/hoklims/semctx/tree/v0.4.2/packages/github-action" target="_blank" rel="noopener noreferrer">hoklims/semctx/packages/github-action@v0.4.2</a></p>
-      </div>
-    </div>
-
-    <p class="aside-note reveal">Planning and reconciliation tools report <code style="font-size: 0.9em;">executionAuthority: "none"</code> and never edit, commit, delete or deploy. Installation and setup commands do write the host and repository state they describe. A verdict is a verdict, never a permission.</p>
-  </div>
-</section>
-
-<!-- ══════════ LIMITS ══════════ -->
-<section class="band band-dark">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <h2>We ship the list of things it cannot do.</h2>
-    </div>
-
-    <div class="ledger reveal">
-      <div class="ledger-col yes">
-        <span class="eyebrow" style="color: var(--pass);">What it does</span>
-        <ul>
-          <li>Maps a diff to the symbols, contracts, invariants and tests it touches.</li>
-          <li>Gives a PASS / WARN / BLOCK verdict you can read the reasoning of.</li>
-          <li>Runs locally, from coding agents, and in CI.</li>
-          <li>States what it cannot prove, as <code style="font-size: 0.9em;">Unknowns</code>, instead of staying quiet.</li>
+  <!-- 05 · Run it -->
+  <section class="station" id="run" aria-labelledby="h-run">
+    <p class="label stn">05 · <span class="en" lang="en">Run it</span><span class="fr" lang="fr">Lancez-le</span></p>
+    <h2 id="h-run"><span class="en" lang="en">Three ways to start.</span><span class="fr" lang="fr">Trois façons de commencer.</span></h2>
+    <p class="reqs en" lang="en">The CLI and the plugins need Bun 1.4.0 or newer, and the plugin hooks also need Node. The GitHub Action installs Bun itself. Every path needs a Git repository with at least one commit.</p>
+    <p class="reqs fr" lang="fr">La CLI et les plugins demandent Bun 1.4.0 ou plus récent, et les hooks des plugins demandent aussi Node. L’action GitHub installe Bun elle-même. Dans tous les cas, il faut un dépôt Git avec au moins un commit.</p>
+    <div class="run-grid">
+      <div class="dep run-cli">
+        <div class="bl"><span class="label"><span class="en" lang="en">CLI, on a branch</span><span class="fr" lang="fr">CLI, sur une branche</span></span></div>
+        <pre class="code wrap" role="group" tabindex="0" aria-label="CLI"><span class="c en" lang="en"># start from a clean, committed tree</span><span class="c fr" lang="fr"># partez d’un arbre propre, déjà commité</span>
+bunx semctx@0.4.2 setup
+git switch -c try-semctx
+<span class="c en" lang="en"># edit your code, then commit</span><span class="c fr" lang="fr"># modifiez le code, puis commitez</span>
+git add -A &amp;&amp; git commit -m "my change"
+bunx semctx@0.4.2 index
+bunx semctx@0.4.2 verify diff --base main</pre>
+        <ul class="en" lang="en">
+          <li>This checks the whole branch against its merge base, new files and new tests included.</li>
+          <li>Replace <code>main</code> with your default branch. It must exist locally: semctx never fetches.</li>
+          <li>Run <code>index</code> again after every commit, pull or branch switch (<a href="#index">section 06</a>).</li>
+          <li>The first <code>setup</code> often ends with <code>OK ready (analysis partial)</code>. On a small repository that is normal.</li>
+        </ul>
+        <ul class="fr" lang="fr">
+          <li>Cela vérifie toute la branche depuis sa merge base, nouveaux fichiers et nouveaux tests compris.</li>
+          <li>Remplacez <code>main</code> par votre branche par défaut. Elle doit exister en local&nbsp;: semctx ne fait jamais de fetch.</li>
+          <li>Relancez <code>index</code> après chaque commit, pull ou changement de branche (<a href="#index">section 06</a>).</li>
+          <li>Le premier <code>setup</code> se termine souvent par <code>OK ready (analysis partial)</code>. Sur un petit dépôt, c’est normal.</li>
         </ul>
       </div>
-      <div class="ledger-col no">
-        <span class="eyebrow" style="color: var(--block);">What it does not</span>
-        <ul>
-          <li>Replace search engines or semantic retrieval. Use grep or embeddings for that.</li>
-          <li>Claim full repository understanding.</li>
-          <li>Require an LLM.</li>
-          <li>Upload your code, comment on PRs, or need a secret by default.</li>
-        </ul>
+      <div class="dep">
+        <div class="bl"><span class="label"><span class="en" lang="en">With Claude Code or Codex</span><span class="fr" lang="fr">Avec Claude Code ou Codex</span></span><button class="copy" type="button" data-copy="bunx semctx@0.4.2 install"><span class="sr en" lang="en">Copy the install command</span><span class="sr fr" lang="fr">Copier la commande d’installation</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
+        <pre class="code wrap" role="group" tabindex="0" aria-label="install"><span class="c en" lang="en"># preview, change nothing</span><span class="c fr" lang="fr"># aperçu, rien n’est modifié</span>
+bunx semctx@0.4.2 install --dry-run
+bunx semctx@0.4.2 install</pre>
+        <p class="en" lang="en">Claude Code or Codex must already be installed. The command installs or updates the semctx plugin for each one it finds, then runs setup in this repository. With neither, it stops without changing anything and exits 1.</p>
+        <p class="fr" lang="fr">Claude Code ou Codex doit déjà être installé. La commande installe ou met à jour le plugin semctx pour chaque hôte trouvé, puis lance setup dans ce dépôt. Sans aucun des deux, elle s’arrête sans rien modifier et sort en 1.</p>
+        <p class="en" lang="en">Running it again is harmless on a clean, committed tree; it runs setup, which re-indexes, so add <code>--skip-setup</code> when you have uncommitted edits. Afterwards, open a new Codex task or run <code>/reload-plugins</code> in Claude Code.</p>
+        <p class="fr" lang="fr">La relancer est sans risque sur une copie propre et commitée ; comme elle lance setup, qui réindexe, ajoutez <code>--skip-setup</code> si vous avez des modifications non commitées. Ensuite, ouvrez une nouvelle tâche Codex ou lancez <code>/reload-plugins</code> dans Claude Code.</p>
+      </div>
+      <div class="dep">
+        <div class="bl"><span class="label"><span class="en" lang="en">In CI, on GitHub Actions</span><span class="fr" lang="fr">En CI, sur GitHub Actions</span></span><button class="copy" type="button" data-copy="- uses: actions/checkout@v4&#10;  with:&#10;    fetch-depth: 0&#10;- uses: hoklims/semctx/packages/github-action@v0.4.2&#10;  with:&#10;    base: ${{ github.event.pull_request.base.sha }}&#10;    head: ${{ github.sha }}&#10;    fail-on: block"><span class="sr en" lang="en">Copy the workflow steps</span><span class="sr fr" lang="fr">Copier les étapes du workflow</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
+        <pre class="code" role="group" tabindex="0" aria-label="GitHub Actions">- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+- uses: hoklims/semctx/packages/github-action@v0.4.2
+  with:
+    base: ${{ github.event.pull_request.base.sha }}
+    head: ${{ github.sha }}
+    fail-on: block</pre>
+        <p class="en" lang="en"><code>fetch-depth: 0</code> keeps the merge base local, since semctx never fetches. BLOCK fails the job; WARN fails it only with <code>fail-on: warn</code>. Pin a release tag. <a href="https://github.com/hoklims/semctx/blob/main/examples/github-actions/semctx.yml">Full workflow</a></p>
+        <p class="fr" lang="fr"><code>fetch-depth: 0</code> garde la merge base en local, car semctx ne fait jamais de fetch. BLOCK fait échouer le job&nbsp;; WARN seulement avec <code>fail-on: warn</code>. Épinglez un tag de version. <a href="https://github.com/hoklims/semctx/blob/main/examples/github-actions/semctx.yml">Workflow complet</a></p>
       </div>
     </div>
+  </section>
 
-    <div class="receipt reveal">
-      <div class="receipt-body">
-        <span class="eyebrow" style="color: var(--warn);">We published a benchmark we lost</span>
-        <h3>semctx used to also answer <em>"which files matter for this task?"</em>. We tested it on 16 real commits against a plain text search. It lost on every measure.</h3>
-        <p>The reason was structural: it read names, never file contents. So we removed the feature instead of tuning it, and left the losing numbers in the repository. That is the standard the rest of this page is written to.</p>
-      </div>
-      <div class="receipt-ref">
-        <a href="https://github.com/hoklims/semctx/tree/main/benchmarks/change-impact-eval" target="_blank" rel="noopener noreferrer">benchmarks/<br>&nbsp;&nbsp;change-impact-eval</a>
-        <a href="https://github.com/hoklims/semctx/blob/main/docs/adr/0005-context-retrieval-pipeline-rejected.md" target="_blank" rel="noopener noreferrer" style="padding-top: 6px;">ADR 0005</a>
-        <span class="quote">"withdrawn, not tuned"</span>
-      </div>
-    </div>
-
-    <div class="caveats reveal">
-      <div class="caveat">
-        <h3>Static, not dynamic</h3>
-        <p>It reasons about the diff without building or running the code. It selects what to re-test; it does not tell you the code still works.</p>
-      </div>
-      <div class="caveat">
-        <h3>Selection, not coverage</h3>
-        <p>Recommended tests come from imports inside test files. They are candidates — never executed, never measured coverage.</p>
-      </div>
-      <div class="caveat">
-        <h3>TypeScript first</h3>
-        <p>TypeScript gets full semantic analysis. Python is an opt-in syntax vertical through 3.12 — it does not infer calls or coverage.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ START ══════════ -->
-<section class="band band-tight" id="start">
-  <div class="wrap start reveal">
-    <div>
-      <h2>Point it at a repo.<br>It will tell you what it <em>can't</em> see.</h2>
-      <p class="lede" style="margin-top: 24px; max-width: 40ch;">Two commands. Existing config and authored files are preserved, and a non-Git directory is never initialised by accident.</p>
-    </div>
-
-    <div>
-      <div class="shell"><span class="c"># no Bun yet? this installs it</span>
-<span class="p">$</span> curl -fsSL https://bun.sh/install | bash
-
-<span class="c"># preview everything first, change nothing</span>
-<span class="p">$</span> bunx semctx@0.4.2 install --dry-run
-
-<span class="c"># then install the detected hosts and set up the repo</span>
-<span class="p">$</span> bunx semctx@0.4.2 install</div>
-
-      <div class="facts">
-        <div class="fact">
-          <span class="eyebrow">bunx, not npx</span>
-          <p>Publication and host delivery are gated separately. Semctx 0.4.2 requires Bun 1.4.0 or newer.</p>
+  <!-- 06 · Keep the index current -->
+  <section class="station" id="index" aria-labelledby="h-index">
+    <p class="label stn">06 · <span class="en" lang="en">Keep the index current</span><span class="fr" lang="fr">Gardez l’index à jour</span></p>
+    <h2 id="h-index"><span class="en" lang="en">Re-index after every commit.</span><span class="fr" lang="fr">Réindexez après chaque commit.</span></h2>
+    <p class="intro en" lang="en">semctx reads your diff through a local index of your code, so the index has to describe the commit you start from. Three situations cover it.</p>
+    <p class="intro fr" lang="fr">semctx lit votre diff à travers un index local de votre code&nbsp;: l’index doit donc décrire le commit dont vous partez. Trois situations couvrent l’essentiel.</p>
+    <ol class="ladder">
+      <li class="plat">
+        <div class="sign">
+          <p class="pn"><span class="en" lang="en">Uncommitted edits</span><span class="fr" lang="fr">Modifications non commitées</span></p>
+          <div class="pc"><code>semctx setup</code><span class="via en" lang="en"># edit, no re-index</span><span class="via fr" lang="fr"># modifiez, sans réindexer</span><code>semctx verify diff</code><span class="sample">? Could not confirm index binding (STALE: ANALYSIS_INPUT_MISMATCH, WORKING_DIFF_MISMATCH); impact is reported without a freshness proof.</span></div>
+          <p class="pw"><span class="en" lang="en">The verdict stands, with this note under Unknowns. Do not re-index in between: the index would hold your edited line numbers while the diff counts from your last commit, and a finding can disappear.</span><span class="fr" lang="fr">Le verdict tient, avec cette note sous Unknowns. Ne réindexez pas entre les deux&nbsp;: l’index prendrait vos numéros de ligne modifiés alors que le diff compte depuis votre dernier commit, et un constat peut disparaître.</span></p>
         </div>
-        <div class="fact">
-          <span class="eyebrow">What it costs you</span>
-          <p>Performance depends on repository shape and hardware. v0.4.2 makes no adoption, efficacy or human-time claim.</p>
+      </li>
+      <li class="plat">
+        <div class="sign alert">
+          <p class="pn"><span class="en" lang="en">After a commit, pull or branch switch</span><span class="fr" lang="fr">Après un commit, un pull ou un changement de branche</span></p>
+          <div class="pc"><code>semctx index</code><span class="sample"><span class="k-b">[BLOCK]</span> index_binding_stale</span></div>
+          <p class="pw"><span class="en" lang="en">Run it before the next check. Until you do, <code>verify diff</code> returns BLOCK with <code>index_binding_stale</code>, even for a harmless change.</span><span class="fr" lang="fr">Lancez-le avant la vérification suivante. Tant que vous ne le faites pas, <code>verify diff</code> rend BLOCK avec <code>index_binding_stale</code>, même pour un changement anodin.</span></p>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </li>
+      <li class="plat">
+        <div class="sign">
+          <p class="pn"><span class="en" lang="en">A branch or a pull request</span><span class="fr" lang="fr">Une branche ou une pull request</span></p>
+          <div class="pc"><code>git commit</code><code>semctx index</code><code>semctx verify diff --base main</code></div>
+          <p class="pw"><span class="en" lang="en">The most complete check: new files and new tests count, and no freshness note appears. The GitHub Action runs this flow for you.</span><span class="fr" lang="fr">La vérification la plus complète&nbsp;: les nouveaux fichiers et les nouveaux tests comptent, et aucune note de fraîcheur n’apparaît. L’action GitHub suit ce chemin pour vous.</span></p>
+        </div>
+      </li>
+    </ol>
+    <p class="after en" lang="en">With <code>setup --polyglot</code> (config v2), use the branch flow for files the config selects: an uncommitted check after editing one returns BLOCK. Commit the change, run <code>semctx index</code>, then verify with <code>--base</code>; never re-index uncommitted edits.</p>
+    <p class="after fr" lang="fr">Avec <code>setup --polyglot</code> (config v2), passez par la branche pour les fichiers que la config sélectionne&nbsp;: une vérification non commitée après la modification de l’un d’eux rend BLOCK. Commitez la modification, lancez <code>semctx index</code>, puis vérifiez avec <code>--base</code>&nbsp;; ne réindexez jamais des modifications non commitées.</p>
+  </section>
 
-<div class="wrap">
-  <footer>
-    <span>semctx <a href="https://github.com/hoklims/semctx/releases/tag/v0.4.2" target="_blank" rel="noopener noreferrer">0.4.2</a> · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a> · <a href="https://github.com/hoklims/semctx" target="_blank" rel="noopener noreferrer">github.com/hoklims/semctx</a><br>Every claim on this page is checked against the repository that makes it.</span>
-    <span>Analysis outputs are a pure function of repository state<br>plus one injected timestamp.</span>
-  </footer>
+  <!-- 07 · Limits, the buffer stop -->
+  <section class="station stop" id="limits" aria-labelledby="h-limits">
+    <p class="label stn">07 · <span class="en" lang="en">Limits</span><span class="fr" lang="fr">Limites</span></p>
+    <h2 id="h-limits"><span class="en" lang="en">What it can’t see.</span><span class="fr" lang="fr">Ce qu’il ne voit pas.</span></h2>
+    <ol class="limits">
+      <li><span class="en" lang="en">It reads your code. It never builds it or runs your tests, so treat the report as a list of what to re-check.</span><span class="fr" lang="fr">Il lit votre code. Il ne le compile jamais et ne lance pas vos tests&nbsp;: traitez le rapport comme une liste de choses à revérifier.</span></li>
+      <li><span class="en" lang="en">Without a marker, a behaviour change inside a function gives no finding. In the demo, an off-by-one in a discount helper goes unreported.</span><span class="fr" lang="fr">Sans marqueur, un changement de comportement dans une fonction ne donne aucun constat. Dans la démo, une erreur d’un dans un calcul de remise passe inaperçue.</span></li>
+      <li><span class="en" lang="en">It sees what <code>git diff</code> sees. Untracked files are ignored, and uncommitted checks skip symbols declared in brand-new files. Commit them and use <code>--base</code> to include them.</span><span class="fr" lang="fr">Il voit ce que voit <code>git diff</code>. Les fichiers non suivis sont ignorés, et les vérifications non commitées sautent les symboles déclarés dans des fichiers tout nouveaux. Commitez-les et utilisez <code>--base</code> pour les inclure.</span></li>
+      <li><span class="en" lang="en">Calls it cannot resolve statically are left out, and runtime behaviour such as races is out of reach.</span><span class="fr" lang="fr">Les appels qu’il ne peut pas résoudre statiquement sont laissés de côté, et le comportement à l’exécution, comme les situations de concurrence, reste hors de portée.</span></li>
+      <li><span class="en" lang="en">It analyses TypeScript, except declaration files (<code>.d.ts</code>), which yield no symbols. Markdown and SQL files only count as documents and migrations, limited Python support needs <code>setup --polyglot</code>, and other languages are skipped unless config v2 selects them, in which case changing such a file blocks.</span><span class="fr" lang="fr">Il analyse le TypeScript, sauf les fichiers de déclaration (<code>.d.ts</code>), qui ne produisent aucun symbole. Les fichiers Markdown et SQL ne comptent que comme documents et migrations, la prise en charge limitée de Python demande <code>setup --polyglot</code>, et les autres langages sont ignorés, sauf si la config v2 les sélectionne : modifier un tel fichier bloque alors.</span></li>
+    </ol>
+    <div class="own">
+      <p class="en" lang="en">semctx says the same on its first run, on stderr:</p>
+      <p class="fr" lang="fr">semctx le dit aussi à sa première exécution, sur stderr&nbsp;:</p>
+      <div class="readout">
+        <div class="ro-head"><span class="ro-cmd" id="ro-setup"><span class="pr">$ </span>semctx setup</span><span class="ro-exit">exit 0</span></div>
+        <pre class="ro-body" role="group" tabindex="0" aria-labelledby="ro-setup"><span class="ln">WARN setup succeeded, but incomplete analysis cannot justify negative conclusions; run 'semctx index-health --json' for the exact gates and reasons.</span></pre>
+      </div>
+      <p class="en muted" lang="en">In plain words: an empty report does not prove that nothing was affected.</p>
+      <p class="fr muted" lang="fr">Autrement dit&nbsp;: un rapport vide ne prouve pas que rien n’a été touché.</p>
+    </div>
+    <div class="close">
+      <p class="label"><span class="en" lang="en">Try it</span><span class="fr" lang="fr">Essayez-le</span></p>
+      <div class="cmd">
+        <code>bunx semctx@0.4.2 setup</code>
+        <button class="copy" type="button" data-copy="bunx semctx@0.4.2 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
+      </div>
+      <p class="note en" lang="en">Then edit, and run <code>bunx semctx@0.4.2 verify diff</code>. Other paths: <a href="#run">three ways to start</a>.</p>
+      <p class="note fr" lang="fr">Puis modifiez, et lancez <code>bunx semctx@0.4.2 verify diff</code>. Autres chemins&nbsp;: <a href="#run">trois façons de commencer</a>.</p>
+    </div>
+  </section>
+
 </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>semctx 0.4.2 · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a> · <a href="https://github.com/hoklims/semctx/releases/tag/v0.4.2"><span class="en" lang="en">Release</span><span class="fr" lang="fr">Version</span></a> · <a href="https://github.com/hoklims/semctx">GitHub</a> · <a href="./demo/"><span class="en" lang="en">Demo</span><span class="fr" lang="fr">Démo</span></a> · <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a></p>
+  </div>
+</footer>
+
+<p class="sr" id="live" aria-live="polite"></p>
+
+<script>
+  (function () {
+    var d = document.documentElement;
+    var titles = { en: "semctx · a diff goes in, a verdict comes out", fr: "semctx · un diff entre, un verdict sort" };
+    var live = document.getElementById("live");
+    function each(selector, fn) { Array.prototype.forEach.call(document.querySelectorAll(selector), fn); }
+    function apply(l) {
+      d.lang = l;
+      document.title = titles[l];
+      each("[data-set-lang]", function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === l)); });
+      each("[data-label-" + l + "]", function (el) { el.setAttribute("aria-label", el.getAttribute("data-label-" + l)); });
+    }
+    // Keep the address in step with the choice, so a reload or a shared link shows the same language.
+    function remember(l) {
+      try { localStorage.setItem("semctx-lang", l); } catch (e) {}
+      try {
+        var u = new URL(location.href);
+        u.searchParams.set("lang", l);
+        if (u.hash === "#fr" || u.hash === "#en") u.hash = "";
+        history.replaceState(null, "", u.pathname + u.search + u.hash);
+      } catch (e) {}
+    }
+    apply(d.lang === "fr" ? "fr" : "en");
+    each("[data-set-lang]", function (b) {
+      b.addEventListener("click", function () {
+        var l = b.getAttribute("data-set-lang");
+        apply(l);
+        remember(l);
+      });
+    });
+    function fallbackCopy(text) {
+      var area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "absolute";
+      area.style.left = "-9999px";
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(area);
+      return ok ? Promise.resolve() : Promise.reject();
+    }
+    each("[data-copy]", function (b) {
+      b.addEventListener("click", function () {
+        var text = b.getAttribute("data-copy");
+        var write = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : fallbackCopy(text);
+        write.catch(function () { return fallbackCopy(text); }).then(function () {
+          b.setAttribute("data-done", "");
+          live.textContent = d.lang === "fr" ? "Copié dans le presse-papiers" : "Copied to the clipboard";
+          setTimeout(function () { b.removeAttribute("data-done"); live.textContent = ""; }, 1800);
+        }, function () {});
+      });
+    });
+  })();
+</script>
 </body>
 </html>
