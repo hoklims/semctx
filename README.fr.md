@@ -43,7 +43,7 @@ modifications de la démo. L’une d’elles ajoute un champ obligatoire à une 
    taxCents: number;
 +  discountCents: number;
  }
- 
+
 -export function computeCartTotal(subtotalCents: number, taxCents: number): CartTotal {
 -  return { subtotalCents, taxCents };
 +export function computeCartTotal(subtotalCents: number, taxCents: number, discountCents: number): CartTotal {
