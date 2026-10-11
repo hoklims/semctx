@@ -228,6 +228,17 @@ Actual SDK `Reflect.apply`/`Reflect.construct` and their aliases/escapes are uns
 reflective invocations. Iteration via `for...of` (including await) or iterable spread
 requires a proven intrinsic array/string or SDK collection value; internal or uncertain
 iterator origins are refused without inventing invocation edges. Ordinary facts remain unchanged.
+The same iteration refusal covers array binding/assignment, array-binding parameters and
+delegated `yield*`. `await` refuses internal or uncertain thenable origins; primitive
+values, actual native promises and genuine async-function results retain their supported
+boundary. Type annotations or assertions alone do not prove that boundary. `instanceof`
+requires an actual SDK constructor origin; internal or uncertain `Symbol.hasInstance`
+invocations are unsupported. No protocol invocation edges are added.
+
+Retained named `tsconfig*.json` files whose options are not actually consumed are
+unsupported. Conventional `tsconfig.json` reads and their SDK-parsed `extends` read set
+are recognized across the retained sources; project references and inventory/hash
+membership alone do not establish consumption. There is no guessed named-config selector.
 This binds the publication operation only; it does not guarantee arbitrary future edits.
 
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,

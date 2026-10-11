@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { dirname, relative, isAbsolute, join } from "node:path";
+import { dirname, relative, isAbsolute, join, resolve } from "node:path";
 import { builtinModules } from "node:module";
 import { resolveTypeScriptModule, retainedCompilerSystem, isModeledCallCallee, type CompilerInputSnapshot } from "./ts-symbols";
 import { inspectSemanticDependencies } from "./semantic-dependency-diagnostics";
@@ -334,11 +334,35 @@ export function inspectSourceParsing(path: string, content: string): string[] {
     `SOURCE_PARSE_ERROR:${diagnostic.code}:${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`);
 }
 
+const namedConfigurationReasons = new WeakMap<CompilerInputSnapshot, string[]>();
+function inspectUnconsumedNamedConfigurations(inputs: CompilerInputSnapshot): string[] {
+  const cached = namedConfigurationReasons.get(inputs); if (cached !== undefined) return cached;
+  const normalize = (path: string): string => {
+    const normalized = resolve(path).replaceAll("\\", "/");
+    return ts.sys.useCaseSensitiveFileNames ? normalized : normalized.toLowerCase();
+  };
+  const named = [...inputs.keys()].filter(path => /(?:^|[\\/])tsconfig[^\\/]+\.json$/.test(path));
+  if (named.length === 0) { namedConfigurationReasons.set(inputs, []); return []; }
+  const system = retainedCompilerSystem(inputs); const consumed = new Set<string>(); const configs = new Set<string>();
+  for (const path of inputs.keys()) if (/\.[cm]?[jt]sx?$/.test(path)) {
+    const config = ts.findConfigFile(dirname(path), candidate => system.fileExists(candidate));
+    if (config !== undefined) configs.add(config);
+  }
+  const readFile = (path: string): string | undefined => { consumed.add(normalize(path)); return system.readFile(path); };
+  for (const path of configs) {
+    const config = ts.readConfigFile(path, readFile);
+    if (config.error === undefined) ts.parseJsonConfigFileContent(config.config, { ...system, readFile, readDirectory: () => [] }, dirname(path));
+  }
+  const reasons = named.some(path => !consumed.has(normalize(path))) ? ["SOURCE_NAMED_CONFIGURATION_UNSUPPORTED"] : [];
+  namedConfigurationReasons.set(inputs, reasons); return reasons;
+}
+
 export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot, source?: ts.SourceFile): string[] {
   const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
   const retainedText = source === undefined && compilerInputs !== undefined ? system.readFile(path) : undefined;
   const inspectedSource = source ?? (retainedText === undefined ? undefined : ts.createSourceFile(path, retainedText, ts.ScriptTarget.Latest, true));
   const defaultReasons = inspectedSource === undefined ? [] : [
+    ...(compilerInputs !== undefined ? inspectUnconsumedNamedConfigurations(compilerInputs) : []),
     ...(hasUnsupportedDefaultExpression(inspectedSource) ? ["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"] : []),
     ...(hasSemanticJSDocImport(inspectedSource) ? ["SOURCE_JSDOC_IMPORT_UNSUPPORTED"] : []),
     ...(compilerInputs !== undefined ? inspectUnmodeledInvocations(inspectedSource) : []),

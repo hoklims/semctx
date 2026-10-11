@@ -19,6 +19,9 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
     if (ts.isNewExpression(node)) needsChecker = true;
     if (ts.isForOfStatement(node) || ts.isSpreadElement(node)) needsChecker = true;
+    if (ts.isAwaitExpression(node) || (ts.isYieldExpression(node) && node.asteriskToken !== undefined)
+      || (ts.isBinaryExpression(node) && [ts.SyntaxKind.InstanceOfKeyword, ts.SyntaxKind.EqualsToken].includes(node.operatorToken.kind))) needsChecker = true;
+    if (ts.isParameter(node) && ts.isArrayBindingPattern(node.name)) needsChecker = true;
     if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["Reflect", "construct"].includes(node.text)) needsChecker = true;
     if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["setTimeout", "setInterval"].includes(node.text)) needsChecker = true;
     if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) reasons.add("SOURCE_ACCESSOR_UNSUPPORTED");
@@ -158,6 +161,60 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return declarations(value).some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
       && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && intrinsicIterable(declaration.initializer, seen));
   };
+  const literalArray = (expression: ts.Expression, seen = new Set<ts.Node>()): ts.ArrayLiteralExpression | undefined => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return undefined;
+    seen.add(value);
+    if (ts.isArrayLiteralExpression(value)) return value;
+    for (const declaration of declarations(value)) if (ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+      && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined) {
+      const array = literalArray(declaration.initializer, seen); if (array !== undefined) return array;
+    }
+    return undefined;
+  };
+  const bindingValue = (pattern: ts.ArrayBindingPattern): ts.Expression | undefined => {
+    const parent = pattern.parent;
+    if (ts.isVariableDeclaration(parent)) return parent.initializer;
+    if (!ts.isBindingElement(parent) || !ts.isArrayBindingPattern(parent.parent) || parent.dotDotDotToken !== undefined) return undefined;
+    const outer = bindingValue(parent.parent);
+    const array = outer === undefined ? undefined : literalArray(outer);
+    const index = parent.parent.elements.indexOf(parent);
+    if (array === undefined || array.elements.slice(0, index + 1).some(element => ts.isSpreadElement(element))) return undefined;
+    const item = array.elements[index];
+    return item === undefined || ts.isOmittedExpression(item) ? undefined : item;
+  };
+  const asyncValue = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    const isAsync = (node: ts.Node): boolean => ts.canHaveModifiers(node)
+      && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
+    if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) return isAsync(value);
+    return declarations(value).some(declaration => ((ts.isFunctionDeclaration(declaration) || ts.isMethodDeclaration(declaration)) && isAsync(declaration))
+      || (ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+        && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && asyncValue(declaration.initializer, seen)));
+  };
+  const safeAwaitValue = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    if (ts.isNumericLiteral(value) || ts.isBigIntLiteral(value) || ts.isVoidExpression(value)
+      || [ts.SyntaxKind.NullKeyword, ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(value.kind)
+      || intrinsicIterable(value)) return true;
+    if (ts.isNewExpression(value) && sdkValue(value.expression)?.getName() === "Promise") return true;
+    if (ts.isCallExpression(value)) {
+      const callee = unwrapStaticExpression(value.expression);
+      if (callee.kind === ts.SyntaxKind.ImportKeyword && value.arguments.length === 1 && ts.isStringLiteralLike(value.arguments[0]!)) return true;
+      if (asyncValue(callee)) return true;
+      if (ts.isPropertyAccessExpression(callee) && sdkValue(callee.expression)?.getName() === "Promise"
+        && sdkValue(callee) !== undefined) {
+        if (callee.name.text === "reject") return true;
+        if (callee.name.text === "resolve") return value.arguments[0] === undefined || safeAwaitValue(value.arguments[0], seen);
+      }
+    }
+    return declarations(value).some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+      && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && safeAwaitValue(declaration.initializer, seen));
+  };
   const timerNames = new Set(["setTimeout", "setInterval"]);
   const sdkTimer = (symbol: ts.Symbol | undefined): boolean => symbol !== undefined && timerNames.has(symbol.getName())
     && (symbol.getDeclarations()?.length ?? 0) > 0 && symbol.getDeclarations()!.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()));
@@ -218,6 +275,15 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   };
   const visit = (node: ts.Node): void => {
     if (ts.isTypeNode(node)) return;
+    if (ts.isAwaitExpression(node) && !safeAwaitValue(node.expression)) reasons.add("SOURCE_AWAIT_UNSUPPORTED");
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword
+      && !sdkConstruction(sdkValue(node.right))) reasons.add("SOURCE_INSTANCEOF_UNSUPPORTED");
+    if (ts.isArrayBindingPattern(node)) {
+      const value = bindingValue(node);
+      if (value === undefined || !intrinsicIterable(value)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
+    }
+    if ((ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isArrayLiteralExpression(node.left) && !intrinsicIterable(node.right))
+      || (ts.isYieldExpression(node) && node.asteriskToken !== undefined && (node.expression === undefined || !intrinsicIterable(node.expression)))) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node))
       && reflectedInvocation(node)) reasons.add("SOURCE_REFLECT_INVOCATION_UNSUPPORTED");
     if ((ts.isForOfStatement(node) || ts.isSpreadElement(node)) && !intrinsicIterable(node.expression)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
