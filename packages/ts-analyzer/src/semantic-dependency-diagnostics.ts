@@ -995,9 +995,37 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     }
     return true;
   };
+  const sdkMemberOf = (expression: ts.Expression, owner: string, member: string): boolean => {
+    const symbol = sdkValue(actualValue(expression));
+    return symbol?.getName() === member && symbol.getDeclarations()?.some(origin => {
+      for (let parent: ts.Node | undefined = origin.parent; parent !== undefined; parent = parent.parent) {
+        if ((ts.isInterfaceDeclaration(parent) || ts.isModuleDeclaration(parent)) && parent.name.text === owner) return true;
+      }
+      return false;
+    }) === true;
+  };
+  const sdkScriptElement = (expression: ts.Expression): boolean => {
+    const value = actualValue(expression);
+    if (!ts.isCallExpression(value) || value.arguments[0] === undefined || constantString(value.arguments[0]) !== "script") return false;
+    const callee = actualValue(value.expression);
+    return (ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee))
+      && sdkOrigin(callee.expression) && sdkMemberOf(callee, "Document", "createElement");
+  };
+  const inspectRuntimeCode = (node: ts.CallExpression | ts.NewExpression): void => {
+    if (sdkOrigin(node.expression) && ((ts.isCallExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "instantiate"))
+      || (ts.isNewExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "Instance")))) {
+      reasons.add("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
+    }
+    if (!ts.isCallExpression(node)) return;
+    const callee = actualValue(node.expression);
+    if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)
+      && sdkMemberOf(callee, "ParentNode", "append") && node.arguments.some(sdkScriptElement)) {
+      reasons.add("SOURCE_SCRIPT_INSERTION_UNSUPPORTED");
+    }
+  };
   const visit = (node: ts.Node): void => {
     if (ts.isTypeNode(node) || ts.isInterfaceDeclaration(node)) return;
-    if (ts.isCallExpression(node) || ts.isNewExpression(node)) inspectSdkCallbacks(node);
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) { inspectSdkCallbacks(node); inspectRuntimeCode(node); }
     if (ts.isCallExpression(node)) { inspectOpaqueCallbacks(node); inspectDefaultSort(node); }
     if (ts.isFunctionDeclaration(node) && node.body === undefined && (node.name === undefined || !declarations(node.name).some(origin =>
       ts.isFunctionDeclaration(origin) && origin.body !== undefined && internal(origin)
