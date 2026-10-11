@@ -99,6 +99,10 @@ built-in import provenance; local homonyms, unused/type-only declarations and th
 guarded `fs`/`path` data helpers keep their domains. Internal higher-order parameter calls
 with missing coordinates remain refused by the existing change/closure guard rather than
 being presented as resolved function-pointer invocations.
+Explicit runtime re-exports from the existing execution built-ins (`child_process` and
+`vm`, including `node:` forms) are also unsupported, even when their consumer reaches
+them through a repository barrel. Type-only re-exports remain distinct. This refuses the
+unmodeled execution boundary without resolving new Node declarations or creating edges.
 Species overrides, SDK-global binding replacements and unproven default-sort coercion
 refuse qualification. Default sorting is limited to fresh primitive-element literals,
 and Promise combinators independently prove every element's safe assimilation rather

@@ -352,6 +352,12 @@ catalogue. Unused/type-only imports, real local homonyms and unrelated primitive
 helpers remain distinct. No launch edge is manufactured. Internal calls through an
 unmodeled callable parameter already fail the existing exact call-coordinate guard when
 their file is in the effective change/closure; no function-pointer propagation is added.
+Explicit runtime re-exports from `child_process` / `node:child_process` and `vm` /
+`node:vm` are conservatively unsupported at the retained exporting source. This preserves
+the same execution boundary when raw import declarations in a consumer point at a barrel.
+Whole-declaration and per-specifier type-only re-exports remain distinct, as do ordinary
+Node data modules and local exports. No new barrel resolver, Node provider or invocation
+edge is introduced.
 
 Actual SDK `Object.setPrototypeOf` / `Reflect.setPrototypeOf` references are unsupported
 prototype mutations, including retained aliases and helper escapes. SDK `Object.create`

@@ -46,6 +46,10 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   };
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier) && executionModule(node.moduleSpecifier.text) !== undefined) needsChecker = true;
+    if (ts.isExportDeclaration(node) && !node.isTypeOnly && node.moduleSpecifier !== undefined && ts.isStringLiteral(node.moduleSpecifier)
+      && !(node.exportClause !== undefined && ts.isNamedExports(node.exportClause) && node.exportClause.elements.every(element => element.isTypeOnly))) {
+      const kind = executionModule(node.moduleSpecifier.text); if (kind !== undefined) reasons.add(kind);
+    }
     if (ts.isCallExpression(node)) needsChecker = true;
     if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Using) !== 0) reasons.add("SOURCE_DISPOSAL_UNSUPPORTED");
     if (ts.isElementAccessExpression(node) || ts.isComputedPropertyName(node)) needsChecker = true;
