@@ -28,6 +28,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment;
   const numericUnary = (node: ts.Node): node is ts.PrefixUnaryExpression | ts.PostfixUnaryExpression => (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
     && [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken, ts.SyntaxKind.TildeToken, ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator);
+  const propertyMembership = (node: ts.Node): node is ts.BinaryExpression => ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.InKeyword;
   const coercingBinary = (node: ts.Node): node is ts.BinaryExpression => ts.isBinaryExpression(node) && [
     ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken, ts.SyntaxKind.AsteriskToken, ts.SyntaxKind.SlashToken, ts.SyntaxKind.PercentToken, ts.SyntaxKind.AsteriskAsteriskToken,
     ts.SyntaxKind.LessThanLessThanToken, ts.SyntaxKind.GreaterThanGreaterThanToken, ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken,
@@ -53,7 +54,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isCallExpression(node)) needsChecker = true;
     if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Using) !== 0) reasons.add("SOURCE_DISPOSAL_UNSUPPORTED");
     if (ts.isElementAccessExpression(node) || ts.isComputedPropertyName(node)) needsChecker = true;
-    if (ts.isTemplateExpression(node) || coercingBinary(node) || numericUnary(node)
+    if (ts.isTemplateExpression(node) || coercingBinary(node) || numericUnary(node) || propertyMembership(node)
       || (ts.isReturnStatement(node) && asyncOwner(node))
       || (ts.isArrowFunction(node) && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword))) needsChecker = true;
     if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && node.text === "register") needsChecker = true;
@@ -470,6 +471,9 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isCallExpression(container) && container.expression === usage && container.arguments[2] !== undefined && dataDescriptor(container.arguments[2])) {
       if (container.arguments[1] !== undefined && (protocolKey(container.arguments[1]) || constantString(container.arguments[1]) === "then")) {
         reasons.add("SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED"); return;
+      }
+      if (container.arguments[0] !== undefined && container.arguments[1] !== undefined && sdkGlobalMember(container.arguments[0], constantString(container.arguments[1]))) {
+        reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"); return;
       }
       if (container.arguments[0] !== undefined && container.arguments[1] !== undefined && sdkCallableMember(container.arguments[0], constantString(container.arguments[1]))) {
         reasons.add("SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"); return;
@@ -961,6 +965,16 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const sdkGlobalOrigins = (origins: readonly ts.Declaration[]): boolean => origins.length > 0
     && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))
     && origins.some(origin => ts.isVariableDeclaration(origin));
+  const sdkGlobalMember = (expression: ts.Expression, name: string | undefined): boolean => {
+    const receiver = actualValue(expression);
+    const origins = declarations(receiver);
+    // JavaScript descriptor inference adds identifier/call declarations to these SDK symbols.
+    const global = ts.isIdentifier(receiver) && receiver.text === "globalThis" && checker.getSymbolAtLocation(receiver) !== undefined
+      && origins.every(origin => ts.isIdentifier(origin) && origin.text === "globalThis");
+    return name !== undefined && (global || sdkOrigin(receiver))
+      && sdkGlobalOrigins((checker.getPropertyOfType(checker.getTypeAtLocation(receiver), name)?.getDeclarations() ?? [])
+        .filter(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile())));
+  };
   const sdkGlobalAssignment = (expression: ts.Expression): boolean => {
     const target = unwrapStaticExpression(expression);
     if (ts.isArrayLiteralExpression(target)) return target.elements.some(element =>
@@ -1007,6 +1021,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     }
     if ((coercingBinary(node)
       && (!primitiveValue(node.left) || !primitiveValue(node.right)))
+      || (propertyMembership(node) && !propertyKey(node.left))
       || (numericUnary(node) && !primitiveValue(node.operand))
       || (ts.isTemplateExpression(node) && node.templateSpans.some(span => !primitiveValue(span.expression)))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
     if ((ts.isReturnStatement(node) && node.expression !== undefined && asyncOwner(node) && !safeAwaitValue(node.expression))

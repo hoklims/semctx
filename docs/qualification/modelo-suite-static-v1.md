@@ -134,6 +134,12 @@ and Promise combinators independently prove every element's safe assimilation ra
 than trusting a const container. Actual built-in VM runtime bindings are unsupported
 evaluation boundaries. These checks preserve ordinary local/Node data helpers and the
 four fixture outputs, without adding hidden invocation or module edges.
+Property membership (`in`) requires a proven primitive/property-symbol left operand;
+an ordinary right-hand object remains permitted. Descriptor replacement of an actual
+SDK global binding is unsupported even when that binding is a noncallable namespace.
+Captured SDK declarations and receiver identity distinguish it from local homonyms.
+The shared JavaScript semantic diagnostic API can also report these refusals; ordinary
+extraction receives no synthesized invocation facts.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.

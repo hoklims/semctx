@@ -330,6 +330,13 @@ unknown patch; callable/protocol writes and uncertain sources on SDK targets ref
 Ordinary data patches and actual own APIs keep their boundary. Numeric unary,
 arithmetic/bitwise/relational and loose-comparison coercions require primitive value
 proof; strict identity, logical truthiness, `typeof` and `void` are distinct.
+The `in` operator requires a proven primitive/property-symbol left key; its ordinary
+right-hand object is not itself a coercion refusal. Actual SDK global bindings cannot
+be replaced through data descriptors merely because the binding is a noncallable
+namespace. Receiver identity and captured SDK variable declarations establish this
+boundary, including JavaScript's merged descriptor declarations; local homonyms remain
+distinct. These shared semantic diagnostics add no invocation edges and may also report
+the refusal through the JavaScript diagnostic API outside named qualification.
 Actual SDK Worklet `addModule` loaders are unsupported without a module link.
 Retained configurations that actually emit imported runtime helpers are unsupported:
 the pinned SDK emitter observes helper metadata and the emitted `tslib` dependency,
