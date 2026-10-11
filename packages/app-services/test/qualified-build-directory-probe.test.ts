@@ -185,7 +185,7 @@ for (const inherited of [false, true]) test(`ignored build configuration cannot 
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 60_000);
 
-test("ignore and attribute controls inside ignored outputs stay sealed", () => {
+for (const tracked of [false, true]) test(tracked ? "ignore and attribute controls inside ignored outputs stay sealed" : "untracked ignore and attribute controls inside ignored outputs refuse qualification", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-build-ignore-controls-"));
   try {
     mkdirSync(join(root, "src")); mkdirSync(join(root, "build"));
@@ -199,11 +199,28 @@ test("ignore and attribute controls inside ignored outputs stay sealed", () => {
     git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
     writeFileSync(join(root, "build/.gitignore"), "*.ts\n");
     writeFileSync(join(root, "build/.gitattributes"), "*.ts text\n");
+    if (tracked) {
+      git("add", "-f", "build/.gitignore", "build/.gitattributes");
+      git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "tracked ignored controls");
+    }
     const config = { ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1" as const, analysisProfile: "modelo-suite-static-v1" as const, include: ["src/**/*.ts"] };
     initWorkspace(root, config);
     writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
     indexRepository(root, "2026-10-09T10:00:00.000Z");
-    expect(runVerify(root, { kind: "working-tree" }).report.analysisAdmission?.status).toBe("admitted");
+    const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+    if (!tracked) {
+      expect(admission?.status).toBe("rejected");
+      expect(admission?.binding).toEqual({ status: "invalid", reasons: [
+        "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:build/.gitattributes",
+        "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:build/.gitignore",
+      ] });
+      expect(admission?.indexFreshness.verdict).toBe("DIRTY_KNOWN");
+      const inputs = captureQualifiedAnalysisInputs(config);
+      for (const path of ["build/.gitignore", "build/.gitattributes"]) expect(inputs.files.some(file => file.path === path)).toBe(true);
+      return;
+    }
+    expect(admission?.status).toBe("admitted");
+    expect(admission?.binding.status).toBe("valid");
     for (const path of ["build/.gitignore", "build/.gitattributes"]) {
       const before = captureQualifiedAnalysisInputs(config);
       expect(before.files.some(file => file.path === path)).toBe(true);
