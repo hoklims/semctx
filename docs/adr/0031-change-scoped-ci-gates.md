@@ -68,6 +68,11 @@ three-OS gate because `README.fr.md` and `docs/assets/` were unclassified.
   lane's other commands unchanged and `bun test --shard=i/N` over its slice. Bun sorts the
   discovered files and assigns each to exactly one shard, so the shard set of one OS covers the
   same files as the unsharded command. `semctx-required` still requires every selected job.
+- Shards balance by recorded duration (`--timings=scripts/ci-test-timings.json`, seeded from the
+  Windows lane of run 38115625061). Round-robin by file count left the slowest Windows shard at
+  767 s against 454 s when balanced by time. A file missing from the record counts as the median
+  duration, so a stale record only unbalances the runners; it never drops a file. Refresh it
+  with `bun test --timings=scripts/ci-test-timings.json --update-timings packages apps plugins scripts`.
 - Files stay serial inside a runner. In-runner parallelism (`bun test --parallel`) was rejected:
   on Windows several guard tests already take 13–15 s of a 30 s budget and an MCP test 36 s of
   60 s, and a local four-worker run timed out four tests. Sharding keeps each test's host and

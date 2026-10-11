@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { commandsForLane, runCiGate } from "../ci-gate";
 import type { CiLane } from "../ci-plan";
+import { TEST_TIMINGS } from "../verify-pr";
 
 const lane = (
   profile: CiLane["profile"], os: CiLane["os"], targets = "", smoke: CiLane["smoke"] = "false", shard = "",
@@ -44,10 +45,19 @@ describe("CI gate runner", () => {
       ]);
     expect(commandsForLane(lane("focused", "macos-15", "plugins", "false", "2/2"), "base", () => true).map((command) => command.argv))
       .toEqual([
-        ["bun", "test", "--timeout", "60000", "--shard=2/2", "plugins"],
+        ["bun", "test", "--timeout", "60000", "--shard=2/2", "--timings=scripts/ci-test-timings.json", "plugins"],
         ["bun", "run", "plugin:check"],
         ["python", "scripts/verify-index-routing.py"],
       ]);
+  });
+
+  test("shard balancing reads recorded durations keyed by the files the suite discovers", async () => {
+    const timings = await Bun.file(TEST_TIMINGS).json() as { version: number; files: Record<string, number> };
+    expect(timings.version).toBe(1);
+    const recorded = Object.keys(timings.files);
+    expect(recorded.length).toBeGreaterThan(100);
+    expect(recorded.every((path) => /^(packages|apps|plugins|scripts)\/[^\\]+\.test\.ts$/.test(path))).toBe(true);
+    expect(Object.values(timings.files).every((ms) => Number.isInteger(ms) && ms >= 0)).toBe(true);
   });
 
   test("refuses malformed shards, a shard count other than the host's, and a sharded contract lane", () => {

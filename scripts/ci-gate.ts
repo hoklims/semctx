@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { FOCUSED_TEST_TARGETS, ROUTING_TESTS, TEST_SHARDS, type CiLane } from "./ci-plan";
-import { isTestShard } from "./verify-pr";
+import { isTestShard, TEST_TIMINGS } from "./verify-pr";
 
 export interface CiCommand {
   label: string;
@@ -46,7 +46,7 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
   }
   const commands: CiCommand[] = [
     { label: "affected cross-platform tests", argv: ["bun", "test", "--timeout", "60000",
-      ...(lane.shard === "" ? [] : [`--shard=${lane.shard}`]), ...targets] },
+      ...(lane.shard === "" ? [] : [`--shard=${lane.shard}`, `--timings=${TEST_TIMINGS}`]), ...targets] },
   ];
   if (targets.includes("plugins")) {
     commands.push({ label: "plugin runtime parity", argv: ["bun", "run", "plugin:check"] });

@@ -77,7 +77,10 @@ describe("argument parsing and command construction", () => {
     const whole = verificationSteps({ base: "origin/main", skipDiff: true });
     const sharded = verificationSteps(options);
     expect(sharded.slice(0, -1)).toEqual(whole.slice(0, -1));
-    expect(sharded.at(-1)).toEqual({ label: "tests (shard 2/4)", argv: ["bun", "run", "test", "--shard=2/4"] });
+    expect(sharded.at(-1)).toEqual({
+      label: "tests (shard 2/4)",
+      argv: ["bun", "run", "test", "--shard=2/4", "--timings=scripts/ci-test-timings.json"],
+    });
   });
 
   test("keeps a base containing spaces in one argv element", () => {

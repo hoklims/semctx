@@ -5,6 +5,9 @@ export interface VerifyOptions {
   testShard?: string;
 }
 
+/** Recorded per-file durations that let `--shard` balance runners by time instead of file count. */
+export const TEST_TIMINGS = "scripts/ci-test-timings.json";
+
 export function isTestShard(value: string): boolean {
   const match = /^([1-9]\d*)\/([1-9]\d*)$/.exec(value);
   return match !== null && Number(match[1]) <= Number(match[2]);
@@ -97,7 +100,10 @@ export function verificationSteps(options: VerifyOptions): VerificationStep[] {
     { label: "plugin parity", argv: ["bun", "run", "plugin:check"] },
     options.testShard === undefined
       ? { label: "tests", argv: ["bun", "run", "test"] }
-      : { label: `tests (shard ${options.testShard})`, argv: ["bun", "run", "test", `--shard=${options.testShard}`] },
+      : {
+          label: `tests (shard ${options.testShard})`,
+          argv: ["bun", "run", "test", `--shard=${options.testShard}`, `--timings=${TEST_TIMINGS}`],
+        },
   ];
 }
 
