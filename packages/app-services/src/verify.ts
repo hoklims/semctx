@@ -683,11 +683,11 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
     if (isQualified(config) && source.kind === "working-tree") {
       // Git diff omits these inputs. Do not claim whole-change qualification from
       // expected paths alone without an actual diff/effect model for their addition.
-      const untracked = git(root, ["ls-files", "--others", "--exclude-per-directory=.gitignore", "-z"]);
-      if (untracked.code !== 0) qualifiedPostImageReasons.push("QUALIFIED_WORKING_TREE_UNTRACKED_INPUT_UNBOUND");
+      const tracked = git(root, ["ls-files", "--cached", "-z"]);
+      if (tracked.code !== 0) qualifiedPostImageReasons.push("QUALIFIED_WORKING_TREE_UNTRACKED_INPUT_UNBOUND");
       else {
-        const retained = new Set(inputAfter!.files.map(file => file.path));
-        for (const path of untracked.out.split("\0").filter(path => retained.has(path)).sort()) {
+        const trackedPaths = new Set(tracked.out.split("\0"));
+        for (const path of inputAfter!.files.map(file => file.path).filter(path => !trackedPaths.has(path)).sort()) {
           qualifiedPostImageReasons.push(`QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:${path}`);
         }
       }

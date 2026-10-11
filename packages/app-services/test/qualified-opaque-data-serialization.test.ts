@@ -33,21 +33,24 @@ for (const extension of ["ts", "js"]) for (const selected of [true, false]) for 
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 180_000);
 
-for (const [name, qualified, extra, expected] of [["qualified untracked", true, true, "rejected"], ["qualified tracked-only", true, false, "admitted"], ["ordinary untracked", false, true, undefined]] as const) test(name, () => {
+for (const [name, qualified, extra, expected] of [["qualified untracked", true, true, "rejected"], ["qualified tracked-only with ignored output", true, false, "admitted"], ["qualified ignored authored source", true, false, "rejected"], ["ordinary untracked", false, true, undefined]] as const) test(name, () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-untracked-obligation-"));
   try {
-    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ".semctx/\nnode_modules/\nignored.ts\n");
+    const ignoredOutput = name === "qualified tracked-only with ignored output";
+    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ignoredOutput ? ".semctx/\nnode_modules/\nbuild/\n" : ".semctx/\nnode_modules/\nignored.ts\n");
     writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\n");
     git(root, "init", "-q"); git(root, "add", "."); git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
     initWorkspace(root, { ...createGlobSelectionConfig(root), ...(qualified ? { selectionMode: "qualified-static-v1" as const, analysisProfile: "modelo-suite-static-v1" as const } : {}), include: ["src/**/*"] });
     writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
     if (extra) writeFileSync(join(root, "src/new.ts"), "export function extra() { return 1; }\n");
-    writeFileSync(join(root, "ignored.ts"), "export function ignored() { return 1; }\n");
+    if (ignoredOutput) mkdirSync(join(root, "build"));
+    writeFileSync(join(root, ignoredOutput ? "build/ignored.ts" : "ignored.ts"), "export function ignored() { return 1; }\n");
     mkdirSync(join(root, ".semctx/reports")); writeFileSync(join(root, ".semctx/reports/ignored.json"), "{}");
     indexRepository(root, "2026-10-11T10:00:00.000Z");
     const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
     console.info(JSON.stringify({ name, admission }));
     expect(admission?.status).toBe(expected);
     if (qualified && extra) expect(admission?.reasons).toContain("QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:src/new.ts");
+    if (name === "qualified ignored authored source") expect(admission?.binding).toEqual({ status: "invalid", reasons: ["QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:ignored.ts"] });
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 180_000);
