@@ -5,6 +5,7 @@ import {
   type SetupRepositoryReport,
   type SetupRefusedReport,
   type SetupResult,
+  type SetupScopeReport,
 } from "@semantic-context/app-services";
 
 export { SETUP_POLYGLOT_V1_REFUSE_REASON_CODE };
@@ -16,6 +17,7 @@ export const SETUP_POLYGLOT_INPUT_DESCRIPTION =
   + " / verdict SETUP_REFUSED) — migrate .semctx/config.json to v2 explicitly; it does not silently ignore or overwrite";
 
 export interface SetupPreflightReport {
+  scope?: SetupScopeReport;
   schemaVersion: 1;
   kind: "setup_preflight";
   repositoryRoot: string;
@@ -92,6 +94,7 @@ export function setupTool(
     return {
       schemaVersion: 1,
       kind: "setup_preflight",
+      ...(plan.scope === undefined ? {} : { scope: plan.scope }),
       repositoryRoot: root,
       initialized: plan.alreadyInitialized,
       confirmRequired: true,

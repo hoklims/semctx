@@ -108,6 +108,16 @@ workspace conflict exits non-zero with `kind: "setup_conflict"`; a policy refusa
 `--polyglot` against config v1 keeps the existing `setup_refused` contract. With `--preset`, the
 plan also includes `presetPlan.files` and folds every non-skipped host file into `plannedChanges`.
 
+Setup plan, completed setup and MCP preflight reports include optional `scope` version 1:
+observed TypeScript/Python source-family candidates, actual selected files, excluded/unavailable
+counts, roots and discovery reasons. Text output shows excluded roots and exact proposed includes.
+This projects existing discovery, adds no scan, and does not interpret workspace manifests or
+establish semantic coverage or task readiness. Excluded files were not read. Root rows, sample
+paths and proposals are capped at 20, 3 per root and 20 respectively; paths exceed neither 240
+UTF-8 bytes nor the display safety limit. Total/omitted counts disclose withheld output.
+`proposedIncludes` requires an explicit edit to `.semctx/config.json`; setup never applies it.
+Existing excludes, language modes and readiness gates remain authoritative.
+
 The plugin MCP `semctx_setup` keeps the synchronous single-program analyzer because its public
 input contract has no worker-selection field. The CLI is the supported setup surface for explicit
 worker selection.

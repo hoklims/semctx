@@ -47,7 +47,7 @@ import {
   SemanticNodeSchema,
 } from "@semantic-context/semantic-model";
 import { TargetArchitectureArtifactV1Schema } from "@semantic-context/semantic-engine";
-import { SETUP_POLYGLOT_V1_REFUSE_REASON_CODE } from "@semantic-context/app-services";
+import { isExactSetupScopeInclude, isSetupScopeDisplayPath, SETUP_POLYGLOT_V1_REFUSE_REASON_CODE, SETUP_SCOPE_LIMITS } from "@semantic-context/app-services";
 import { ControlExplorerOutputSchema } from "./control-explorer";
 import { HandoffCapsuleSchema } from "@semantic-context/semantic-engine";
 import { mcpSchema } from "./schema-boundary";
@@ -779,6 +779,41 @@ const ChangeAuthorizationVerificationReportSchema = z.object({
   }
 });
 
+const SetupScopeCountSchema = z.number().int().nonnegative();
+const SetupScopePathSchema = z.string().min(1).max(SETUP_SCOPE_LIMITS.pathBytes)
+  .refine(isSetupScopeDisplayPath, "Bounded UTF-8 display path");
+const SetupScopeCountsSchema = z.object({
+  observed: SetupScopeCountSchema,
+  selected: SetupScopeCountSchema,
+  excluded: SetupScopeCountSchema,
+  unavailable: SetupScopeCountSchema,
+}).strict();
+const SetupScopeReasonCountsSchema = z.array(z.object({
+  reason: z.enum(["LEGACY_UNSUPPORTED_EXTENSION", "INCLUDE_MISS", "EXCLUDE_MATCH", "LANGUAGE_DISABLED", "LANGUAGE_UNSUPPORTED", "READ_FAILED", "IMPORT_OUTSIDE_REPOSITORY", "REFERENCE_OUTSIDE_REPOSITORY", "SOURCE_LINK_OUTSIDE_REPOSITORY", "SELECTED"]),
+  count: z.number().int().positive(),
+}).strict()).max(10);
+const SetupScopeSchema = z.object({
+  schemaVersion: z.literal(1),
+  basis: z.literal("observed-discovery"),
+  sourceFamilies: z.tuple([z.literal("typescript"), z.literal("python")]),
+  counts: SetupScopeCountsSchema,
+  reasonCounts: SetupScopeReasonCountsSchema,
+  roots: z.array(z.object({
+    root: SetupScopePathSchema,
+    counts: SetupScopeCountsSchema,
+    reasonCounts: SetupScopeReasonCountsSchema,
+    samplePaths: z.array(SetupScopePathSchema).max(SETUP_SCOPE_LIMITS.samplesPerRoot),
+    samplePathsOmitted: SetupScopeCountSchema,
+  }).strict()).max(SETUP_SCOPE_LIMITS.roots),
+  rootsTotal: SetupScopeCountSchema,
+  rootsOmitted: SetupScopeCountSchema,
+  proposedIncludes: z.array(SetupScopePathSchema.refine(isExactSetupScopeInclude, "Exact relative include path")).max(SETUP_SCOPE_LIMITS.proposedIncludes),
+  proposedIncludesTotal: SetupScopeCountSchema,
+  proposedIncludesOmitted: SetupScopeCountSchema,
+  unproposableIncludeMisses: SetupScopeCountSchema,
+  applyRequired: z.literal(true),
+}).strict();
+
 const IndexHealthTimeoutReportV2Schema = z.object({
   schemaVersion: described(z.literal(2), "Bounded index-health report schema version."),
   kind: z.literal("index_health"),
@@ -810,6 +845,7 @@ export const TOOL_OUTPUT_SCHEMAS = {
     z.object({
       schemaVersion: described(z.literal(1), "Setup preflight schema version."),
       kind: described(z.literal("setup_preflight"), "Dry preflight when confirm is not true."),
+      scope: described(SetupScopeSchema.optional(), "Observed TS/Python selection only; explicit config edit required for proposed includes."),
       repositoryRoot: described(z.string(), "Absolute repository root."),
       initialized: described(z.boolean(), "Whether .semctx/ already exists."),
       confirmRequired: described(z.literal(true), "Caller must re-invoke with confirm:true to write."),
@@ -852,6 +888,7 @@ export const TOOL_OUTPUT_SCHEMAS = {
     z.object({
       schemaVersion: described(z.literal(1), "Setup report schema version."),
       kind: described(z.literal("setup"), "Full setup report after confirm:true."),
+      scope: described(SetupScopeSchema.optional(), "Observed TS/Python selection only; does not establish semantic coverage or readiness."),
       repositoryRoot: described(z.string(), "Absolute repository root."),
       configWritten: described(z.boolean(), "Whether a fresh config was written."),
       semctxDir: described(
