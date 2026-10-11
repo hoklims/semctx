@@ -1,64 +1,54 @@
+English · [Français](README.fr.md)
+
 # semctx
 
-semctx reads a Git diff of a TypeScript repository and reports what the change touches: the
-symbols it edits, the exported interfaces and types other code depends on, the rules you declared
-with `@invariant`, and the test files that import the changed code. It ends with a verdict: PASS,
-WARN or BLOCK. BLOCK exits with code 3, so a hook, a CI job or a coding agent can stop on it.
+semctx reads the Git diff of a TypeScript repository and shows which exported contracts, declared
+rules and tests the change touches. It ends with one verdict, PASS, WARN or BLOCK. BLOCK exits with
+code 3, so a Git hook, a CI job or a coding agent can stop the change.
 
-With no markers in your code, it warns when an exported interface or type changes and no test file
-imports it. To make it block, mark the code that matters: `@invariant` on any declaration,
-`@tag security` on a security-sensitive symbol, or `@tag critical` on an exported interface or type
-(see [Declare what must not break](#declare-what-must-not-break)).
+[![npm](https://img.shields.io/npm/v/semctx)](https://www.npmjs.com/package/semctx)
+[![CI](https://github.com/hoklims/semctx/actions/workflows/ci.yml/badge.svg)](https://github.com/hoklims/semctx/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-Analysis runs on your machine: it makes no network or LLM calls and needs no vector database. The
-same repository state gives the same report, apart from timestamps. semctx only reads your code. It
-never builds it or runs your tests, so treat the report as a list of what to re-check. It works from
-the command line, in GitHub Actions, in Claude Code and Codex, and over MCP.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/hero-dark.svg">
+  <img alt="A diff goes in, a verdict comes out. In src/cart.ts, the added field discountCents belongs to CartTotal, an exported interface that no test covers, so its route lights amber and the signal shows WARN. The changes to src/greeting.ts and src/pricing.ts light nothing." src="docs/assets/readme/hero-light.svg">
+</picture>
 
-Despite the name, semctx does not search code or pick the files an agent should read: grep and
-embedding search do that better ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md)).
-
-## Quick start
-
-You need [Bun](https://bun.sh) 1.4.0 or newer and a Git repository with at least one commit.
+Analysis runs on your machine. It reads your files and your local Git history, and calls no LLM and
+no network service. To try it on your own code, start from a clean working tree in a repository
+with at least one commit ([Bun](https://bun.sh) 1.4.0 or newer):
 
 ```sh
-bunx semctx@latest setup         # write the config, build the local index, check the setup
+bunx semctx@latest setup          # once: config and local index
 # ...edit some code...
-bunx semctx@latest index         # refresh the index after your edits
-bunx semctx@latest verify diff   # verdict for your uncommitted changes
+bunx semctx@latest verify diff    # verdict for your uncommitted edits
 ```
 
-To drop the `bunx semctx@latest` prefix, install the CLI once with `bun add -g semctx@latest`. The
-rest of this README writes plain `semctx`.
-
-`setup` writes `.semctx/config.json` and six `.sem` templates in `.semctx/semantic/`, for goals,
-invariants, decisions, assumptions, evidence and unknowns. They hold only comments until you write
-something down, so you can ignore them at first. Commit the config and the templates. The SQLite
-index stays local and git-ignored, and rerunning `setup` is harmless.
-
-The first run usually prints `OK ready (analysis partial)`, even on a small repository. That is
-expected: the analyzer does not claim it found every reference to your code, so an empty report
-never proves that nothing was affected. `semctx index-health` lists the reasons.
-
-Rerun `semctx index` after you edit. If you skip it, `verify diff` still reports, with a note under
-`Unknowns` that the index is not fresh. After a commit, pull or branch switch you must rerun it:
-until you do, `verify diff` returns BLOCK with `index_binding_stale`.
+The [quick start](#quick-start) shows the branch check that CI runs.
 
 ## What a verdict looks like
 
-The [demo script](docs/contributing/first-use-demo.md) creates a small repository with no tests,
-commits it, then makes three edits. One adds a required field to an exported interface:
+The [first-use demo](docs/contributing/first-use-demo.md) uses a small repository with no tests.
+Take it at its first commit, run `semctx setup`, then make the demo's three edits. One of them adds
+a required field to an exported interface in `src/cart.ts`:
 
 ```diff
+@@ -1,8 +1,9 @@
  export interface CartTotal {
    subtotalCents: number;
    taxCents: number;
 +  discountCents: number;
  }
+ 
+-export function computeCartTotal(subtotalCents: number, taxCents: number): CartTotal {
+-  return { subtotalCents, taxCents };
++export function computeCartTotal(subtotalCents: number, taxCents: number, discountCents: number): CartTotal {
++  return { subtotalCents, taxCents, discountCents };
+ }
 ```
 
-After `semctx index`, `semctx verify diff` prints this and exits 0:
+`semctx verify diff` prints this and exits 0:
 
 ```text
 Verdict: WARN
@@ -72,25 +62,169 @@ Impacted contracts
 Recommended tests
   none
 
+Unknowns
+  ? Could not confirm index binding (STALE: ANALYSIS_INPUT_MISMATCH, WORKING_DIFF_MISMATCH); impact is reported without a freshness proof.
+
 Findings
   [WARN ] contract_changed_without_test: exported contract changed without a covering test: CartTotal
 ```
 
-`impacted nodes` counts the files and declarations whose lines the diff touches. The label in
-brackets says how semctx knows a fact: `statically_verified` is read from the code's structure,
-`tested` means a test file imports the code, and `inferred` rests only on a marker comment.
+| In the report | What it tells you |
+| --- | --- |
+| `Verdict: WARN` | The answer. WARN is advisory, so the exit code is 0. |
+| `changed files`, `impacted nodes` | Files in the diff, then the files and declarations whose lines it touches. |
+| `Impacted contracts` | Exported interfaces and type aliases the change edits. |
+| `[statically_verified]` | How semctx knows: read from the code's structure. `tested` means a test file imports it; `inferred` means it rests on a marker comment. |
+| `Recommended tests` | Test files linked to the changed code. The demo has none. |
+| `? Could not confirm index binding` | The index was built before the edit. Expected when you check uncommitted work. |
+| `[WARN ] contract_changed_without_test` | The rule that fired, and the symbol it fired on. |
 
-WARN is advisory, hence exit 0. `CartTotal` is exported, so semctx treats it as a public contract
-and asks for a covering test, which in semctx means a test file that imports it. The demo has none.
+`computeCartTotal` changed as well, but exported functions raise nothing by default: only exported
+interfaces and type aliases count as contracts. The other two edits get no finding either. One
+rewords a comment, the other slips an off-by-one into an unexported discount helper;
+[Limits](#limits) explains why semctx misses that bug. The full demo report is
+[published online](https://hoklims.github.io/semctx/demo/).
 
-The other two edits, a reworded comment and an off-by-one in an unexported discount helper, get no
-finding. The second is a real bug that semctx misses: the helper is not exported and carries no
-marker. The demo report is also [published online](https://hoklims.github.io/semctx/demo/).
+## How it works
 
-## Declare what must not break
+```mermaid
+flowchart LR
+  diff["Your Git diff<br/>working tree, --staged or --base"] --> map["What it touches<br/>symbols, exported contracts, linked test files"]
+  map --> rules["Rules<br/>built-in + @invariant, @tag critical, @tag security"]
+  rules --> verdict{"Verdict"}
+  verdict -- "exit 0" --> pass["PASS"]
+  verdict -- "exit 0" --> warn["WARN"]
+  verdict -- "exit 3" --> block["BLOCK"]
+```
 
-To make semctx stop a change, state the rule in a one-line JSDoc tag on the code it protects, as in
-[`examples/consumer-typescript-repo`](examples/consumer-typescript-repo/src/index.ts):
+`semctx index` reads your code with the TypeScript compiler API and stores a graph of symbols,
+imports, tests and markers in a local, git-ignored index. `verify diff` maps the changed lines onto
+that graph, applies the rules, and the most severe finding sets the verdict. The exit codes above
+are the defaults (`--fail-on block`).
+
+## Quick start
+
+You need [Bun](https://bun.sh) 1.4.0 or newer and a Git repository with at least one commit. This
+flow checks a committed branch against `main`, which is also what the GitHub Action does.
+
+1. Set up once, from a clean working tree (commit or stash first):
+
+   ```sh
+   bunx semctx@latest setup
+   ```
+
+2. Make your change on a branch and commit it:
+
+   ```sh
+   git switch -c try-semctx
+   # ...edit code...
+   git add -A && git commit -m "my change"
+   ```
+
+3. Index that commit, then check the branch against `main`:
+
+   ```sh
+   bunx semctx@latest index
+   bunx semctx@latest verify diff --base main
+   ```
+
+`setup` writes `.semctx/config.json` and six `.sem` templates in `.semctx/semantic/` (comments only
+until you write something), updates `.gitignore` and builds the local index. The config and the
+templates are meant to be committed, which step 2 does. Re-running `setup` is harmless.
+
+On a small repository `setup` ends with `OK ready (analysis partial)` and a WARN line on stderr.
+That is normal; `semctx index-health` lists the reasons.
+
+<details>
+<summary>What <code>setup</code> printed on the demo repository (excerpt)</summary>
+
+```text
+  ok config    written
+  ok semantic  6 file(s) scaffolded (.semctx/semantic/, versioned)
+  ·· index     analyzing 3 selected file(s) (typescript:3)…
+  ok index     9 nodes, 9 edges, 1 claims
+  ok check     model consistent
+  !! analysis  partial
+
+TypeScript analysis: 1 worker(s), single
+OK ready (analysis partial)
+```
+
+And on stderr:
+
+```text
+WARN setup succeeded, but incomplete analysis cannot justify negative conclusions; run 'semctx index-health --json' for the exact gates and reasons.
+```
+
+</details>
+
+> [!IMPORTANT]
+> The index has to describe committed code. Run `semctx index` again after every commit, pull or
+> branch switch, otherwise `verify diff` answers BLOCK with `index_binding_stale`. For uncommitted
+> work, index a clean tree, edit, then verify without re-indexing in between: re-indexing an edited
+> tree can hide a finding.
+
+`--base` needs a ref that exists locally, because semctx never fetches. Use your default branch name
+if it is not `main`. To drop the `bunx semctx@latest` prefix, install the CLI once with
+`bun add -g semctx@latest`. The rest of this README writes plain `semctx`.
+
+## The three verdicts
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/verdicts-dark.svg">
+  <img alt="Three traffic lights. PASS: exit 0. WARN: exit 0, or 3 with --fail-on warn; fired by contract_changed_without_test or contradiction_unresolved. BLOCK: exit 3; fired by invariant_touched_without_test or index_binding_stale, among others." src="docs/assets/readme/verdicts-light.svg">
+</picture>
+
+The exit code depends on `--fail-on`:
+
+| Verdict | default (`--fail-on block`) | `--fail-on warn` | `--fail-on none` |
+| --- | :---: | :---: | :---: |
+| PASS | 0 | 0 | 0 |
+| WARN | 0 | 3 | 0 |
+| BLOCK | 3 | 3 | 0 |
+
+A run that stops before a verdict, for example with no commit or an invalid option value, exits 1.
+An unknown command or subcommand exits 2, and `--dry-run` always exits 0.
+
+These are the rules `setup` writes to `.semctx/config.json`, plus one built-in check:
+
+| Rule | Verdict | Fires when |
+| --- | --- | --- |
+| `invariant_touched_without_test` | BLOCK | code under an `@invariant` changes with no covering test |
+| `critical_contract_changed_without_test` | BLOCK | an exported interface or type alias tagged `@tag critical` or `@tag security` changes with no covering test |
+| `security_surface_without_verification` | BLOCK | a symbol tagged `@tag security` changes with no covering test |
+| `contract_changed_without_test` | WARN | any other exported interface or type alias changes with no covering test |
+| `contradiction_unresolved` | WARN | the change touches a document marked contradicted or deprecated |
+| `index_binding_stale` | BLOCK, always | the index is missing or was built for a different commit, as after a commit, pull or branch switch (run `semctx index`) |
+
+To relax a rule, set its `severity` to `warn` or remove it
+([blocking rules](docs/reference/configuration.md#blocking-rules-and-severity-tiers)). The GitHub
+Action applies such a change only through [`config-path`](#github-actions).
+`index_binding_stale` cannot be configured. Neither can `analysis_scope_incomplete`, which exists
+only with config v2: it blocks when a changed file in scope cannot be analysed, and warns when that
+file's analysis is only partial.
+
+### What counts as a covering test
+
+semctx never runs your tests. It checks imports. A test covers a symbol when a test file imports it
+by name, directly from the file that declares it:
+
+| Import in a test file, with `greet` declared in `src/index.ts` | Covers `greet` |
+| --- | --- |
+| `import { greet } from "../src/index";` | yes |
+| `import { greet as subject } from "../src/index";` | no, aliased |
+| `import * as m from "../src/index";` | no, namespace import |
+| `import { greet } from "../src/barrel";` where `src/barrel.ts` re-exports it | no, re-export |
+
+Type-only imports do not count either. A file is a test when its name ends in `.test.ts` or
+`.spec.ts` (or the `.tsx`, `.mts`, `.cts` variants), when it sits in a `test/`, `tests/` or
+`__tests__` folder, or when it imports `vitest`, `bun:test` or `node:test`.
+
+## Tell semctx what must not break
+
+Without markers in your code, the rules can only raise a WARN, and only for exported interfaces and
+type aliases. To make semctx block, write the rule in a one-line JSDoc tag on the code it protects,
+as in [`examples/consumer-typescript-repo`](examples/consumer-typescript-repo/src/index.ts):
 
 ```ts
 /**
@@ -101,68 +235,67 @@ export function greet(name: string): string {
 }
 ```
 
-Change the body of `greet` while no test file imports it, and `verify diff` exits with 3:
+Now change the body of `greet` while no test imports it:
+
+```diff
+-  return `Hello, ${name}!`;
++  return name.length > 0 ? `Hello, ${name}!` : "";
+```
+
+`verify diff` exits 3, and the report contains (excerpt):
 
 ```text
-[BLOCK] invariant_touched_without_test: invariant-constrained code changed without a covering test: greet
+Impacted invariants
+  ! a greeting must never be an empty string [inferred]
+
+Findings
+  [BLOCK] invariant_touched_without_test: invariant-constrained code changed without a covering test: greet
 ```
 
-Add a test file that imports `greet`, run `semctx index` again, and the finding clears. See
-[Limits](#limits) for what counts as a test.
+This edit really breaks the rule: it returns an empty string for an empty name. semctx cannot see
+that. It sees that guarded code changed with no test behind it, and stops the change until a test
+exists. To clear the finding, add one that imports `greet` from the file that declares it:
 
-`semctx index` builds a graph of symbols, imports, calls, tests and markers with the TypeScript
-compiler API. `verify diff` maps the changed lines onto it and applies these default rules from
-`.semctx/config.json`; the most severe finding sets the verdict.
+```ts
+// test/greet.test.ts
+import { expect, test } from "bun:test";
+import { greet } from "../src/index";
 
-| Rule | Default | Fires when |
-| --- | --- | --- |
-| `invariant_touched_without_test` | BLOCK | code under an `@invariant` changes with no covering test |
-| `critical_contract_changed_without_test` | BLOCK | an exported interface or type tagged `@tag critical` or `@tag security` changes with no covering test |
-| `security_surface_without_verification` | BLOCK | a symbol tagged `@tag security` changes with no covering test |
-| `contract_changed_without_test` | WARN | any other exported interface or type changes with no covering test |
-| `contradiction_unresolved` | WARN | the change touches a Markdown doc marked deprecated or declaring `contradicts`, or a marker id written with two different statements |
-
-semctx only uses markers you write; it never adds them. `@capability` and `@contract` only describe
-code: for the rules above, only exported interfaces and types count as contracts.
-
-To relax a rule, set its `severity` to `warn` or remove it
-([blocking rules](docs/reference/configuration.md#blocking-rules-and-severity-tiers)). Two checks
-cannot be configured. `index_binding_stale` always blocks. With config v2 (see [Limits](#limits)),
-`analysis_scope_incomplete` blocks when a changed file in scope has no usable analysis, and warns
-when the analysis is only partial.
-
-## Use it from the command line
-
-```sh
-semctx verify diff                                      # uncommitted changes against HEAD
-semctx verify diff --base origin/main                   # your branch, from its merge-base
-semctx verify diff --staged                             # what the next commit contains
-semctx verify diff --fail-on warn                       # exit 3 on WARN as well
-semctx verify diff --format json --output report.json   # versioned JSON report
-semctx impact diff --base origin/main                   # what the change can reach, no verdict
+test("a greeting is never empty", () => {
+  expect(greet("")).not.toBe("");
+});
 ```
 
-`verify diff` exits 0 on PASS or WARN and 3 on BLOCK. Any other code means the run failed, for
-example on an invalid option, and produced no verdict.
-`--format github` prints workflow annotations. `--base` needs a local ref, because semctx never
-fetches. A pre-commit hook can run `semctx index` and then `semctx verify diff --staged`
-([example](docs/examples/pre-commit-hook.md)).
+Commit the code and the test, run `semctx index`, then `semctx verify diff --base main`. The finding
+clears and `test/greet.test.ts` appears under `Recommended tests`. Run that test yourself: here it
+fails, and that failure is what tells you the rule is broken.
 
-Write options after the command. In `semctx --json status`, `--json` takes `status` as its value
-and the CLI prints the general help. `semctx --help` lists the commands with their main options
-(`semctx <command> --help` prints the same page), and the [CLI reference](docs/reference/cli.md)
-has the rest.
+Markers go directly above the declaration they guard:
 
-For a larger change, start with `semctx change open change.<slug>`: it records which invariants the
-change must keep and which evidence it still owes. `semctx change verify change.<slug>` later runs
-`verify diff` against that record and tells you whether the evidence is in place
-([walkthrough](docs/examples/semantic-layer-reservation-example.md)).
+| Declaration | Marker recognised |
+| --- | --- |
+| function, or `const`/`let` holding an arrow function or function expression | yes |
+| class, interface, type alias, enum | yes |
+| method, class property, plain constant | no, silently ignored; mark the class to guard its methods |
 
-## Use it in CI
+`@tag security` on a symbol, or `@tag critical` on an exported interface or type alias, arms the two
+other BLOCK rules. `@tag critical` on a function arms nothing. semctx only uses markers you write
+and never adds any. A marker must fit on one line.
+
+## Where it runs
+
+| Surface | Start with | What you get | Guide |
+| --- | --- | --- | --- |
+| CLI | `semctx verify diff` | The verdict as text, GitHub annotations (`--format github`) or a versioned JSON report (`--format json`) | [CLI reference](docs/reference/cli.md) |
+| GitHub Actions | `uses: hoklims/semctx/packages/github-action@v0.4.2` | An annotation at each symbol a finding names, a job summary and a `verdict` output; BLOCK fails the job | [GitHub Actions](docs/integrations/github-actions.md) |
+| Claude Code | `bunx semctx@latest install` | The semctx MCP tools and skills, plus an optional guarded mode that holds `git commit` until the diff is verified | [Claude Code](docs/integrations/claude-code.md) |
+| Codex | `bunx semctx@latest install --host codex` | The same MCP tools and skills | [Codex](docs/integrations/codex-control-plane.md) |
+| Any MCP client | tool `semctx_verify_change` | The same diff check over MCP, next to the server's other typed tools | [MCP setup](docs/integrations/claude-code.md#mcp-without-the-plugin) |
+
+### GitHub Actions
 
 Copy [`examples/github-actions/semctx.yml`](examples/github-actions/semctx.yml) to
-`.github/workflows/`, or let `semctx setup --preset github-claude` write it (with a short
-`.claude/semctx.md` note for Claude Code):
+`.github/workflows/`, or let `semctx setup --preset github-claude` write it:
 
 ```yaml
 name: Semctx
@@ -185,19 +318,52 @@ jobs:
           fail-on: block
 ```
 
-The action installs Bun itself, indexes the checkout, runs `verify diff`, and writes annotations on
-the affected declarations, a job summary and step outputs such as `verdict`. BLOCK fails the job;
-WARN fails it only with `fail-on: warn`. It needs no secrets and posts no PR comments. It never
-loads `bunfig.toml` or `.env` from the pull request, so a PR cannot run code on the runner that way.
+The action installs Bun itself, indexes the checked-out commit and verifies the pull request range.
+WARN fails the job only with `fail-on: warn`. It needs no secrets and posts no PR comments, and it
+never loads `bunfig.toml` or `.env` from the pull request, so a PR cannot run code on the runner
+that way. Pin a release tag, because `main` and `stable` move.
 
-Pin a release tag, because `main` and `stable` move ([guide](docs/integrations/github-actions.md)).
+The action starts from the default config, not the one committed in `.semctx/`. To apply your own
+rules, keep a copy outside `.semctx/` and pass it as `config-path`
+([custom config](docs/integrations/github-actions.md#monorepos-and-custom-config)).
 
-## Use it from Claude Code or Codex
+<details>
+<summary>What the annotations look like</summary>
+
+The demo's WARN, printed with `semctx verify diff --format github`:
+
+```text
+::warning title=semctx%3A contract_changed_without_test,file=src/cart.ts,line=1::exported contract changed without a covering test: CartTotal
+::notice::semctx verdict WARN — 0 block, 1 warn (range working tree)
+```
+
+</details>
+
+### Claude Code and Codex
 
 Run `bunx semctx@latest install` from the repository you want to check. It installs or updates the
 semctx plugin for each detected host (Claude Code or Codex must already be installed), then runs
-`setup`. Rerunning it is harmless. `--dry-run` prints the plan, and `--host codex|claude|all`
-limits it to certain hosts.
+`setup`. `--dry-run` previews the plan, `--host codex|claude|all` picks the hosts, and
+`--skip-setup` installs for the machine only. Re-running it is harmless.
+
+The plugins give the agent the semctx MCP tools and skills, for example `semctx_verify_change` to
+check its own diff before it says it is done. The plugin hooks run on Node, so Node must be on your
+`PATH` too.
+
+By default the plugins only report. On Claude Code, a `.semctx/guard.json` containing
+`{"enabled": true}` turns on [guarded mode](docs/integrations/claude-code-guarded-mode.md):
+`git commit` and `git push` are refused until `semctx verify diff --record` has recorded a non-BLOCK
+verdict for exactly that content. With nothing recorded, the hook answers
+`semctx guarded mode: no verification on record.` Set `SEMCTX_GUARD=off` to turn the mode off.
+
+Codex has no guarded mode. When the Codex agent runs semctx from the shell, it calls a global
+`semctx`, so install one with `bun add -g semctx@latest`.
+
+Plugins update from the `stable` branch, which moves only when a release is published to npm.
+`semctx plugin-status` shows the version you have.
+
+<details>
+<summary>Tested host versions</summary>
 
 <!-- semctx:compatibility:start -->
 Semctx **0.4.2** requires **Bun >=1.4.0**.
@@ -209,30 +375,120 @@ Installation does not reload an active session: open a new Codex task, or run
 `/reload-plugins` in Claude Code (restart if reload fails).
 <!-- semctx:compatibility:end -->
 
-The plugins give the agent the semctx MCP tools and skills, for example `semctx_verify_change` to
-check its own diff before it says it is done. The plugin hooks run on Node, so Node must be on your
-`PATH` too. See the [Claude Code](docs/integrations/claude-code.md) and
-[Codex](docs/integrations/codex-control-plane.md) guides.
+</details>
 
-By default the plugins only report. On Claude Code, a `.semctx/guard.json` containing
-`{"enabled": true}` turns on [guarded mode](docs/integrations/claude-code-guarded-mode.md):
-`git commit` and `git push` are refused until `semctx verify diff --record` has recorded a
-non-BLOCK verdict for exactly that content. `SEMCTX_GUARD=off` turns it off.
-
-Codex has no guarded mode. When the Codex agent runs semctx from the shell instead of through MCP,
-it calls a global `semctx`, so install one with `bun add -g semctx@latest`.
-
-Plugins update from the `stable` branch, which moves only when a release is published to npm.
-`semctx plugin-status` shows the version you have.
+### Other MCP clients
 
 Other MCP clients can run the server from a source checkout
 ([config snippet](docs/integrations/claude-code.md#mcp-without-the-plugin)). The server registers
 39 schema-declared tools (typed inputs and outputs), listed in
 [`tool-contract.ts`](packages/mcp-server/src/tool-contract.ts). Tools that read a repository take
-its absolute path as `repositoryRoot`; `semctx_control_verify_authorization`, which checks a capsule
-offline, takes none. `SEMCTX_ROOT`, if set, must be absolute.
+its absolute path as `repositoryRoot`. `SEMCTX_ROOT`, if set, must be absolute.
 
-### Reference for agent integrators
+## Limits
+
+semctx reads your code. It never builds it and never runs your tests, so treat a report as a list
+of what to re-check.
+
+- A behaviour change inside a function gives no finding unless a marker covers it. In the demo, the
+  off-by-one in `src/pricing.ts` is a real bug and gets no finding, because nothing marks that code.
+- An empty report does not prove that nothing was affected. When the index reports
+  `analysis partial`, as it does on the demo, semctx does not claim it found every reference to your
+  code. Calls that cannot be resolved statically are left out, runtime behaviour such as races is
+  out of reach, and `Unknowns` lists only a few known gaps.
+- It sees what `git diff` sees. Untracked files are ignored until you `git add` them (`git add -N`
+  is enough). Working-tree and `--staged` checks also skip symbols declared in a brand-new file:
+  commit, index and use `--base` to check those.
+- `verify diff --from-file <patch>` always returns BLOCK with `index_binding_stale`, because a patch
+  file does not record which commit it came from. Verify changes in the repository itself.
+- Languages: TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) by default. Python through 3.12 is opt-in
+  with config v2 (`semctx setup --polyglot`) and limited to modules, classes, functions, imports and
+  markers, with no calls and no test links. Markdown and SQL files are only classified as documents
+  and migrations, and other languages are skipped.
+- Links from `.sem` files name a file and a symbol, so renaming either can mark them stale.
+  `semctx migrate anchors --apply` rewrites older links that still carry line numbers.
+- It does not search code or pick the files an agent should read. Grep and embedding search do that
+  better ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md)).
+
+## Current delivery status
+
+semctx is pre-1.0 (0.4.x). The CLI, both plugins and the GitHub Action share one version and ship
+together from one release tag. Pin an exact version when you need reproducible results. Minor
+releases can still contain breaking changes; the [changelog](CHANGELOG.md) lists them.
+
+| Status | What |
+| --- | --- |
+| Released | `verify diff`, `impact diff`, the GitHub Action, the Claude Code and Codex plugins, the MCP server, change records and the planning tools |
+| Opt-in | config v2 (`setup --polyglot`) and guarded mode on Claude Code |
+| Experimental | the [Oh My Pi](docs/integrations/omp.md) package and `context prepare` (`semctx_prepare_task` over MCP); [Grok](docs/integrations/grok.md) can load the Claude Code plugin but is outside the tested host baseline |
+| Partial | agent checkpoints, of which only `before_completion` is automated ([reference](#for-agent-integrators), [#28](https://github.com/hoklims/semctx/issues/28)) |
+| Withdrawn | the task-to-files retriever, which lost to plain BM25 search ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md), [results](benchmarks/change-impact-eval/RESULTS.md)); `context prepare` is what is left of it |
+| Not built | anything that applies a plan for you |
+| Not measured | accuracy: the [public replay corpus](docs/pilot/public-corpus-2026-09-08.json) has 30 real changes, none with a known expected result yet, so none is scored |
+
+Planned work is in the [roadmap](ROADMAP.md).
+
+## Reference
+
+<details>
+<summary>CLI cheat sheet</summary>
+
+```sh
+semctx verify diff                                      # uncommitted changes against HEAD
+semctx verify diff --staged                             # what the next commit contains
+semctx verify diff --base main                          # your branch, from its merge-base
+semctx verify diff --fail-on warn                       # exit 3 on WARN as well
+semctx verify diff --format json --output report.json   # versioned JSON report
+semctx verify diff --dry-run                            # resolved range and config, no analysis
+semctx impact diff --base main                          # what the change can reach, no verdict
+semctx index                                            # rebuild the index for the current commit
+semctx status                                           # is the index still fresh?
+semctx index-health                                     # why the analysis is partial
+```
+
+Write options after the command: in `semctx --json status`, `--json` swallows `status` and the CLI
+prints the general help. `semctx --help` lists every command with its main options, and the
+[CLI reference](docs/reference/cli.md) has the rest.
+
+A pre-commit hook can run `semctx verify diff --staged` against an index built at the current clean
+HEAD ([example](docs/examples/pre-commit-hook.md)). Re-index after each commit, pull or checkout,
+outside the pre-commit hook. On Claude Code with guarded mode, `semctx verify hook pre-commit` is the
+project-managed alternative.
+
+For a larger change, `semctx change open change.<slug> --preserves <invariant-ids>` records which
+invariants the change must keep, and `--requires <evidence-ids>` the evidence it still owes.
+`semctx change verify change.<slug>` later runs `verify diff` against that record. A record opened
+without either flag checks nothing beyond `verify diff`
+([walkthrough](docs/examples/semantic-layer-reservation-example.md)).
+
+</details>
+
+<details>
+<summary>Configuration</summary>
+
+`.semctx/config.json` holds the file selection and the rules. Commit it, together with
+`.semctx/semantic/`, where you can write goals, invariants, decisions, assumptions, evidence and
+unknowns in plain `.sem` files. The index itself stays local and git-ignored.
+
+- Rules: each one maps a condition to a severity, `block` or `warn`. To make WARN fail, use
+  `--fail-on warn` (`fail-on: warn` in the GitHub Action) rather than editing the rules
+  ([blocking rules](docs/reference/configuration.md#blocking-rules-and-severity-tiers)).
+- Version 1, the default, analyses every `.ts`, `.tsx`, `.mts`, `.cts`, `.md`, `.mdx` and `.sql`
+  file outside `node_modules`, `.git`, `.semctx`, `dist`, `build`, `coverage`, `.turbo` and `.next`.
+  It does not apply its `include` and `testGlobs` fields, and it matches `exclude` as a plain
+  substring.
+- Version 2 (`semctx setup --polyglot`) applies `include` and `exclude` as globs and adds Python. An
+  existing v1 config converts through a reviewed plan
+  ([config migration](docs/reference/configuration.md#config-migration-v1-to-v2)).
+
+The [configuration reference](docs/reference/configuration.md) documents every field.
+
+</details>
+
+## For agent integrators
+
+<details>
+<summary>Planning tools, agent checkpoints and the lifecycle hook</summary>
 
 You need this only to build or tune an agent workflow; the plugin skills already follow it.
 
@@ -241,7 +497,9 @@ The planning tools check that the index is fresh, follow code up to the intent w
 `semctx control ...`; over MCP, `semctx_control_status`, `semctx_control_trace`,
 `semctx_control_plan` and the other `semctx_control_*` tools. Most only read. Two write:
 `control target-propose` saves a target architecture artifact under `.semctx/semantic/targets/`, and
-`control handoff` stores a capsule in git-ignored local state.
+`control handoff` stores a handoff capsule in git-ignored local state. One MCP tool reads no
+repository and takes no `repositoryRoot`: `semctx_control_verify_authorization`, which checks a
+sealed change-authorization capsule offline ([design](docs/architecture/change-authorization-v1.md)).
 
 A `READY` plan grants no execution authority: these tools never edit code, commit, delete or deploy
 ([design](docs/architecture/control-plane-v1.md)).
@@ -273,61 +531,18 @@ turn it off.
 The hook sees MCP calls only, so a step run through the shell CLI shows as missing. The other three
 checkpoints have no automatic host hook ([details](docs/integrations/claude-code.md#lifecycle-foundation)).
 
-## Limits
+</details>
 
-- A file counts as a test by its name, its directory or a test-runner import. It covers a symbol
-  when it imports it as a value under its exported name (`import { greet }`), even if it never runs
-  the changed line. Aliased imports (`import { greet as subject }`), namespace imports
-  (`import * as m`) and `import type` do not count. The `testGlobs` config field is not applied.
-- A behaviour change inside any function gives no finding unless a marker covers it.
-- Calls that cannot be resolved statically are left out, and runtime behaviour such as races is out
-  of reach. `Unknowns` lists only a few known gaps, such as untested invariants or partial
-  analysis, so an empty `Unknowns` section does not mean nothing was missed.
-- The default config (v1) ignores `include` and `docsDirs`, matches `exclude` as a plain substring,
-  and walks the whole repository except `node_modules`, `dist`, `build` and similar directories.
-  Config v2 applies `include` and `exclude` as globs. Create it with `semctx setup --polyglot`. An
-  existing v1 config converts through a reviewed plan
-  ([config migration](docs/reference/configuration.md#config-migration-v1-to-v2)).
-- Markers and `.sem` statements must fit on one line. Links from `.sem` files name a file and a
-  symbol, so renaming the symbol or its file can mark them stale. `semctx migrate anchors --apply`
-  rewrites older links that still carry line numbers; without `--apply` it only shows the changes.
-
-## Current delivery status
-
-semctx is pre-1.0 (0.4.x). The CLI, both plugins and the GitHub Action share one version and ship
-together from one release tag. Pin an exact version when you need reproducible results. Minor
-releases can still contain breaking changes; the [changelog](CHANGELOG.md) lists them.
-
-- Languages: TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) is the baseline. Python through 3.12 is
-  opt-in with config v2 and limited to modules, classes, functions, imports and markers (no calls,
-  no test links). Markdown and SQL are only classified as documents and migrations. Other languages
-  are skipped.
-- Released: `verify diff`, `impact diff`, the GitHub Action, the Claude Code and Codex plugins, the
-  MCP server, change records and the planning tools.
-- Opt-in: config v2 (`setup --polyglot`) and guarded mode on Claude Code.
-- Experimental: the [Oh My Pi](docs/integrations/omp.md) package and `context prepare`
-  (`semctx_prepare_task` over MCP). [Grok](docs/integrations/grok.md) can load the Claude Code
-  plugin but is outside the tested host baseline.
-- Withdrawn: the task-to-files retriever, which lost to plain BM25 search
-  ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md),
-  [results](benchmarks/change-impact-eval/RESULTS.md)). `context prepare` is what is left of it.
-- Partial: agent checkpoints, of which only `before_completion` is automated
-  ([reference](#reference-for-agent-integrators), [#28](https://github.com/hoklims/semctx/issues/28)).
-- Not built: anything that applies a plan for you.
-- Not measured: accuracy. The [public replay corpus](docs/pilot/public-corpus-2026-09-08.json) has
-  30 real changes, but none has a known expected result yet, so none is scored.
-
-Planned work is in the [roadmap](ROADMAP.md).
-
-## Documentation
+## Documentation and help
 
 The [documentation index](docs/README.md) lists every guide. Start with
-[getting started](docs/getting-started.md) or [troubleshooting](docs/troubleshooting.md). The
-[architecture overview](docs/architecture/overview.md) and the [design decisions](docs/adr/) split
-semctx into three "planes": A is the facts derived from code plus the diff check, B is the intent
-you write down in `.semctx/semantic/`, and C is the planning tools.
+[getting started](docs/getting-started.md) or [troubleshooting](docs/troubleshooting.md); the
+[architecture overview](docs/architecture/overview.md) and the [design decisions](docs/adr/) explain
+how the pieces fit.
 
-## Contributing, support, license
+To run the demo from a checkout: `bun install --frozen-lockfile`, then
+`bun scripts/first-use-demo.ts --cli apps/cli/src/index.ts --out demo-evidence` (a new directory),
+then open `demo-evidence/report.md`.
 
 Contributors start with the [first contributor check](docs/contributing/first-check.md) and
 [CONTRIBUTING.md](CONTRIBUTING.md). Questions and bug reports go through [SUPPORT.md](SUPPORT.md),

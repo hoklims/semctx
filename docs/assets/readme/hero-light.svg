@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="346" viewBox="0 0 860 346" role="img" aria-labelledby="t d">
+<title id="t">semctx: a diff goes in, a verdict comes out</title>
+<desc id="d">A diff of three files runs into a signal with three lamps, BLOCK, WARN and PASS. In src/cart.ts the added line discountCents belongs to CartTotal, an exported interface that no test covers, so its line lights amber and the signal shows WARN. The changes to src/greeting.ts and src/pricing.ts stay grey and light nothing.</desc>
+<style>
+.m{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:20px;fill:#141518}
+.l{font-size:18px}
+.mu{fill:#5A5E66}
+.b{font-weight:600}
+.w{fill:#8F5600;font-weight:700;font-size:28px}
+.p{white-space:pre}
+.hl{stroke:#D9DBDF;stroke-width:1;fill:none}
+.idle{fill:none;stroke:#8E939B;stroke-width:2}
+.lit{fill:none;stroke:#B87400;stroke-width:3}
+</style>
+<!-- diff card: the three files of the first-use demo, with the one line that raises a finding -->
+<rect x="24.5" y="24.5" width="384" height="298" fill="#FFFFFF" stroke="#D9DBDF"/>
+<text class="m b" x="42" y="56">src/cart.ts</text>
+<path class="hl" d="M24 70.5H409"/>
+<text class="m p" x="42" y="98" xml:space="preserve"> export interface CartTotal {</text>
+<text class="m p" x="42" y="128" xml:space="preserve">   subtotalCents: number;</text>
+<text class="m p" x="42" y="158" xml:space="preserve">   taxCents: number;</text>
+<rect x="25" y="167" width="383" height="30" fill="#FDF2DC"/>
+<rect x="25" y="167" width="4" height="30" fill="#B87400"/>
+<text class="m p b" x="42" y="189" xml:space="preserve">+  discountCents: number;</text>
+<text class="m p" x="42" y="218" xml:space="preserve"> }</text>
+<path class="hl" d="M24 234.5H409"/>
+<text class="m mu" x="42" y="263">src/greeting.ts</text>
+<path class="hl" d="M24 276.5H409"/>
+<text class="m mu" x="42" y="305">src/pricing.ts</text>
+<!-- routes: the two other files feed the verdict but light nothing -->
+<path class="idle" d="M409 298H524L566 256"/>
+<path class="idle" d="M409 256H604L678 182"/>
+<path class="lit" d="M409 182H441M588 182H696"/>
+<!-- the declaration the changed line belongs to, and why it matters -->
+<text class="m l mu" x="440" y="124">exported interface</text>
+<text class="m l mu" x="440" y="148">no covering test</text>
+<rect x="440.75" y="162.75" width="147.5" height="38.5" fill="#FDF2DC" stroke="#B87400" stroke-width="1.5"/>
+<text class="m b" x="459" y="189">CartTotal</text>
+<!-- signal head: BLOCK / WARN / PASS, one lamp lit -->
+<rect x="696" y="86" width="56" height="192" rx="28" fill="#141518"/>
+<circle cx="724" cy="119" r="19" fill="#4B2622"/>
+<circle cx="724" cy="182" r="19" fill="#F0A000"/>
+<circle cx="724" cy="182" r="25" fill="none" stroke="#F0A000" stroke-opacity=".45" stroke-width="2"/>
+<circle cx="724" cy="245" r="19" fill="#173F33"/>
+<rect x="721" y="278" width="6" height="20" fill="#141518"/>
+<path d="M704 299H744" stroke="#141518" stroke-width="2"/>
+<text class="m l mu" x="772" y="125">BLOCK</text>
+<text class="m w" x="772" y="192">WARN</text>
+<text class="m l mu" x="772" y="251">PASS</text>
+</svg>

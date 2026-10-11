@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="176" viewBox="0 0 960 176" role="img" aria-labelledby="t d">
+<title id="t">The three semctx verdicts</title>
+<desc id="d">Three signal heads, one lamp lit on each. PASS, bottom lamp, exit code 0. WARN, middle lamp, exit code 0, or 3 with --fail-on warn; raised by contract_changed_without_test or contradiction_unresolved. BLOCK, top lamp, exit code 3; raised by invariant_touched_without_test or index_binding_stale.</desc>
+<style>
+.m{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:13px;fill:#ECEEF0}
+.v{font-size:22px;font-weight:700}
+.s{font-size:11.5px}
+.mu{fill:#9BA1AA}
+.c{fill:#12151A;stroke:#2B3038}
+.h{fill:#1E2228;stroke:#454B54}
+</style>
+<!-- PASS -->
+<rect class="c" x="24.5" y="16.5" width="288" height="144"/>
+<rect class="h" x="44" y="32" width="32" height="112" rx="16"/>
+<circle cx="60" cy="56" r="9" fill="#3A1C19"/>
+<circle cx="60" cy="88" r="9" fill="#3A2E12"/>
+<circle cx="60" cy="120" r="9" fill="#2FD39A"/>
+<circle cx="60" cy="120" r="13" fill="none" stroke="#2FD39A" stroke-opacity=".5" stroke-width="1.5"/>
+<text class="m v" x="96" y="58" style="fill:#2FD39A">PASS</text>
+<text class="m" x="96" y="84">exit 0</text>
+<path d="M96 122H112" stroke="#9BA1AA" stroke-width="1.5"/>
+<!-- WARN -->
+<rect class="c" x="336.5" y="16.5" width="288" height="144"/>
+<rect class="h" x="356" y="32" width="32" height="112" rx="16"/>
+<circle cx="372" cy="56" r="9" fill="#3A1C19"/>
+<circle cx="372" cy="88" r="9" fill="#FFB224"/>
+<circle cx="372" cy="88" r="13" fill="none" stroke="#FFB224" stroke-opacity=".5" stroke-width="1.5"/>
+<circle cx="372" cy="120" r="9" fill="#12322A"/>
+<text class="m v" x="408" y="58" style="fill:#FFB224">WARN</text>
+<text class="m" x="408" y="84">exit 0</text>
+<text class="m s mu" x="408" y="104">--fail-on warn → exit 3</text>
+<text class="m s" x="408" y="126">contract_changed_without_test</text>
+<text class="m s" x="408" y="144">contradiction_unresolved</text>
+<!-- BLOCK -->
+<rect class="c" x="648.5" y="16.5" width="287" height="144"/>
+<rect class="h" x="668" y="32" width="32" height="112" rx="16"/>
+<circle cx="684" cy="56" r="9" fill="#FF6B5E"/>
+<circle cx="684" cy="56" r="13" fill="none" stroke="#FF6B5E" stroke-opacity=".5" stroke-width="1.5"/>
+<circle cx="684" cy="88" r="9" fill="#3A2E12"/>
+<circle cx="684" cy="120" r="9" fill="#12322A"/>
+<text class="m v" x="720" y="58" style="fill:#FF6B5E">BLOCK</text>
+<text class="m" x="720" y="84">exit 3</text>
+<text class="m s" x="720" y="126">invariant_touched_without_test</text>
+<text class="m s" x="720" y="144">index_binding_stale</text>
+</svg>
