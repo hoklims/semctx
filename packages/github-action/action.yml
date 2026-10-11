@@ -28,7 +28,7 @@ inputs:
   report-path:
     description: "Path (relative to working-directory) for the JSON report artifact."
     required: false
-    default: ".semctx/verify.json"
+    default: ".semctx/reports/verify.json"
   upload-report:
     description: "If 'true', upload the JSON report as a workflow artifact."
     required: false

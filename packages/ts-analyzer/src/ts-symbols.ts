@@ -7,6 +7,8 @@ import { parseMarkers, type ParsedMarker } from "./markers";
 
 /** Exact TypeScript runtime version bound into Plane A capability scopes. */
 export const TYPESCRIPT_DIALECT_VERSION = ts.version;
+/** The exact SDK library directory used by retained compiler hosts. */
+export function typeScriptLibraryDirectory(): string { return dirname(ts.getDefaultLibFilePath(COMPILER_OPTIONS)); }
 export type CompilerInputSnapshot = ReadonlyMap<string, string>;
 const snapshotSystems = new WeakMap<CompilerInputSnapshot, ts.System>();
 
@@ -21,7 +23,7 @@ function snapshotSystem(snapshot: CompilerInputSnapshot): ts.System {
       if (posix.dirname(directory) === directory) break;
     }
   }
-  const libraryRoot = canonicalTypeScriptFileKey(dirname(ts.getDefaultLibFilePath(COMPILER_OPTIONS)));
+  const libraryRoot = canonicalTypeScriptFileKey(typeScriptLibraryDirectory());
   const library = (path: string): boolean => canonicalTypeScriptFileKey(path).startsWith(`${libraryRoot}/`);
   const system: ts.System = {
     ...ts.sys,

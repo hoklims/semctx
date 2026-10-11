@@ -49,10 +49,10 @@ jobs:
 | `fail-on` | `block` | fail the job on `block`, `warn`, or `none` |
 | `working-directory` | `.` | repository directory to analyse; must stay inside the job workspace |
 | `config-path` | `""` | optional `config.json` to use instead of the generated default |
-| `report-path` | `.semctx/verify.json` | where the JSON report is written (in `working-directory`) |
+| `report-path` | `.semctx/reports/verify.json` | where the JSON report is written (in `working-directory`) |
 | `upload-report` | `false` | upload the JSON report as a workflow artifact |
 
-For qualified analysis, report output must remain under `.semctx` or outside the analysed
+For qualified analysis, report output must remain under `.semctx/reports` or outside the analysed
 repository. A custom output that could create or replace a retained repository input is
 refused before publication; the adapter still receives valid qualified-refusal reports.
 

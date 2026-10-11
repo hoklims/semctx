@@ -26,6 +26,7 @@ export {
   extractTypeScriptParallel,
   resolveWorkerCount,
   TYPESCRIPT_DIALECT_VERSION,
+  typeScriptLibraryDirectory,
 } from "./ts-symbols";
 export type {
   TsExtraction,

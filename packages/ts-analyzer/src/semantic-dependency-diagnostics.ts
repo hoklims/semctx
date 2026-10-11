@@ -18,6 +18,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   const inspectSyntax = (node: ts.Node): void => {
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
     if (ts.isNewExpression(node)) needsChecker = true;
+    if (ts.isForOfStatement(node) || ts.isSpreadElement(node)) needsChecker = true;
+    if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["Reflect", "construct"].includes(node.text)) needsChecker = true;
     if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["setTimeout", "setInterval"].includes(node.text)) needsChecker = true;
     if (ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) reasons.add("SOURCE_ACCESSOR_UNSUPPORTED");
     if (ts.isVariableDeclaration(node) && !ts.isIdentifier(node.name)) needsChecker = true;
@@ -124,12 +126,38 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) {
       const symbol = sdkValue(origin.initializer, seen); if (symbol !== undefined) return symbol;
     }
+    for (const origin of origins) if (ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent)
+      && ts.isVariableDeclaration(origin.parent.parent) && origin.parent.parent.initializer !== undefined
+      && ts.isVariableDeclarationList(origin.parent.parent.parent) && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0
+      && sdkValue(origin.parent.parent.initializer, seen) !== undefined) {
+      const member = origin.propertyName ?? origin.name;
+      if (ts.isIdentifier(member) || ts.isStringLiteral(member)) {
+        const symbol = checker.getPropertyOfType(checker.getTypeAtLocation(origin.parent.parent.initializer), member.text);
+        if ((symbol?.getDeclarations()?.length ?? 0) > 0 && symbol!.getDeclarations()!.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()))) return symbol;
+      }
+    }
     return undefined;
   };
   const sdkConstruction = (symbol: ts.Symbol | undefined): boolean => symbol !== undefined
     && checker.getTypeOfSymbolAtLocation(symbol, symbol.getDeclarations()![0]!).getConstructSignatures().some(signature => {
       const declaration = signature.getDeclaration(); return declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile());
     });
+  const reflectedInvocation = (expression: ts.Expression): boolean => {
+    const symbol = sdkValue(expression);
+    return symbol !== undefined && ["apply", "construct"].includes(symbol.getName())
+      && (symbol.getDeclarations() ?? []).some(declaration => ts.isModuleBlock(declaration.parent)
+        && ts.isModuleDeclaration(declaration.parent.parent) && declaration.parent.parent.name.getText() === "Reflect"
+        && program.isSourceFileDefaultLibrary(declaration.getSourceFile()));
+  };
+  const intrinsicIterable = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    if (ts.isArrayLiteralExpression(value) || ts.isStringLiteralLike(value) || ts.isTemplateExpression(value)) return true;
+    if (ts.isNewExpression(value) && ["Array", "Map", "Set"].includes(sdkValue(value.expression)?.getName() ?? "")) return true;
+    return declarations(value).some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+      && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && intrinsicIterable(declaration.initializer, seen));
+  };
   const timerNames = new Set(["setTimeout", "setInterval"]);
   const sdkTimer = (symbol: ts.Symbol | undefined): boolean => symbol !== undefined && timerNames.has(symbol.getName())
     && (symbol.getDeclarations()?.length ?? 0) > 0 && symbol.getDeclarations()!.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()));
@@ -189,6 +217,10 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && declaration.initializer !== undefined && internalBase(declaration.initializer, seen)));
   };
   const visit = (node: ts.Node): void => {
+    if (ts.isTypeNode(node)) return;
+    if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node))
+      && reflectedInvocation(node)) reasons.add("SOURCE_REFLECT_INVOCATION_UNSUPPORTED");
+    if ((ts.isForOfStatement(node) || ts.isSpreadElement(node)) && !intrinsicIterable(node.expression)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
     if (ts.isNewExpression(node)) {
       const origin = sdkValue(node.expression);
       if (!sdkConstruction(origin)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");

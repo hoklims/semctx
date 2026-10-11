@@ -218,9 +218,16 @@ not fabricate runtime imports, and ordinary TypeScript extraction remains unchan
 Qualified CLI report publication must not create or replace a potentially retained
 repository input after the final capture. The writer checks the prospective canonical
 path, including nonexistent destinations and aliases above the checkout. Use an output
-under the hard-excluded `.semctx` directory or outside the repository; ordinary report
+only under the dedicated `.semctx/reports` subtree or outside the repository; ordinary report
 publication and atomic symlink safeguards remain unchanged. The Action defaults to
-`.semctx/verify.json`, preserving the qualified-rejection report and adapter hand-off.
+`.semctx/reports/verify.json`, preserving the qualified-rejection report and adapter hand-off.
+Workspace and Git control paths remain protected even when Git metadata lives outside
+the checkout. Reports cannot replace configuration, database or verification state.
+
+Actual SDK `Reflect.apply`/`Reflect.construct` and their aliases/escapes are unsupported
+reflective invocations. Iteration via `for...of` (including await) or iterable spread
+requires a proven intrinsic array/string or SDK collection value; internal or uncertain
+iterator origins are refused without inventing invocation edges. Ordinary facts remain unchanged.
 This binds the publication operation only; it does not guarantee arbitrary future edits.
 
 Qualified inputs retain `package.json` and `pyproject.toml` workspace manifest bytes,

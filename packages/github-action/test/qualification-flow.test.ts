@@ -9,7 +9,7 @@ import { replaceLocalReportFile } from "../../../apps/cli/src/report-output";
 
 test("Action default report remains outside qualified inputs and reaches the adapter", () => {
   const parsed = Bun.YAML.parse(readFileSync(join(import.meta.dir, "../action.yml"), "utf8")) as { inputs: { "report-path": { default: string } }; runs: { steps: { id?: string; env?: Record<string, string>; run?: string }[] } };
-  expect(parsed.inputs["report-path"].default).toBe(".semctx/verify.json");
+  expect(parsed.inputs["report-path"].default).toBe(".semctx/reports/verify.json");
   expect(parsed.runs.steps.find(step => step.id === "verify")?.env?.SEMCTX_REPORT).toBe("${{ inputs.report-path }}");
   expect(parsed.runs.steps.find(step => step.id === "adapter")?.env?.INPUT_REPORT_PATH).toBe("${{ inputs.report-path }}");
 });
@@ -30,11 +30,12 @@ test("Action delegates a fresh qualified rejection to the adapter and preserves 
     const parsed = Bun.YAML.parse(readFileSync(join(import.meta.dir, "../action.yml"), "utf8")) as { runs: { steps: { id?: string; run?: string }[] } };
     const script = parsed.runs.steps.find(step => step.id === "verify")!.run!;
     const bash = process.platform === "win32" && existsSync("C:/Program Files/Git/bin/bash.exe") ? "C:/Program Files/Git/bin/bash.exe" : "bash";
-    const output = join(root, ".semctx/verify.json");
+    const output = join(root, ".semctx/reports/verify.json");
+    mkdirSync(join(root, ".semctx/reports"));
     for (const [code, mode, expected] of [[3, "valid", 0], [1, "valid", 1], [2, "valid", 2], [3, "invalid", 3], [3, "missing", 3]] as const) {
       writeFileSync(output, JSON.stringify(report)); // A prior valid artifact must not substitute for this invocation.
       const stub = "bun() { if [ \"$2\" = verify ]; then case \"$FIXTURE_MODE\" in valid) cp \"$FIXTURE_REPORT\" \"$report.new\"; mv -f -- \"$report.new\" \"$report\" ;; invalid) printf '{}' > \"$report.new\"; mv -f -- \"$report.new\" \"$report\" ;; esac; return \"$FIXTURE_CODE\"; fi; return 0; }\n";
-      const result = Bun.spawnSync([bash, "--noprofile", "--norc", "-c", stub + script], { cwd: root, stdout: "pipe", stderr: "pipe", env: { ...process.env, SEMCTX_CLI: "fixture-cli", SEMCTX_TARGET: root.replaceAll("\\", "/"), SEMCTX_CONFIG: "", SEMCTX_REPORT: ".semctx/verify.json", SEMCTX_BASE: "HEAD^", SEMCTX_HEAD: "HEAD", GITHUB_ACTION_PATH: join(import.meta.dir, "..").replaceAll("\\", "/"), FIXTURE_REPORT: fixture.replaceAll("\\", "/"), FIXTURE_CODE: String(code), FIXTURE_MODE: mode } });
+      const result = Bun.spawnSync([bash, "--noprofile", "--norc", "-c", stub + script], { cwd: root, stdout: "pipe", stderr: "pipe", env: { ...process.env, SEMCTX_CLI: "fixture-cli", SEMCTX_TARGET: root.replaceAll("\\", "/"), SEMCTX_CONFIG: "", SEMCTX_REPORT: ".semctx/reports/verify.json", SEMCTX_BASE: "HEAD^", SEMCTX_HEAD: "HEAD", GITHUB_ACTION_PATH: join(import.meta.dir, "..").replaceAll("\\", "/"), FIXTURE_REPORT: fixture.replaceAll("\\", "/"), FIXTURE_CODE: String(code), FIXTURE_MODE: mode } });
       expect(result.exitCode).toBe(expected);
       if (expected === 0) {
         const outputs = join(root, "outputs"); const summary = join(root, "summary");
