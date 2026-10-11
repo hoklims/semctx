@@ -41,7 +41,6 @@ test("real intrinsic values and native promise origins preserve their boundaries
   for (const content of [
     "export function start() { const [value] = [1]; return value; }",
     "const values = [[1]]; export function start() { const [[value]] = values; return value; }",
-    "export function* start() { yield* 'abc'; }",
     "export async function start() { return await 1; }",
     "const ready = Promise.resolve(1); export async function start() { return await ready; }",
     "export async function start() { return await new Promise(resolve => resolve(1)); }",
@@ -54,6 +53,11 @@ test("real intrinsic values and native promise origins preserve their boundaries
     expect(reasons).not.toContain("SOURCE_AWAIT_UNSUPPORTED");
     expect(reasons).not.toContain("SOURCE_INSTANCEOF_UNSUPPORTED");
   }
+});
+
+test("the formerly eligible intrinsic delegated generator is explicitly outside resumption qualification", () => {
+  const content = "export function* start() { yield* 'abc'; }";
+  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, content]]))).toContain("SOURCE_ITERATION_UNSUPPORTED");
 });
 
 test("native promise value eligibility does not model its executor invocation", () => {

@@ -62,6 +62,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isFunctionDeclaration(node) && node.body === undefined) needsChecker = true;
     if ((ts.isIdentifier(node) || ts.isStringLiteral(node)) && ["Proxy", "revocable"].includes(node.text)) needsChecker = true;
     if (ts.isDecorator(node)) reasons.add("SOURCE_DECORATOR_UNSUPPORTED");
+    if ((ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node) || ts.isMethodDeclaration(node))
+      && node.asteriskToken !== undefined) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
     if (ts.isNewExpression(node)) needsChecker = true;
     if (ts.isForOfStatement(node) || ts.isSpreadElement(node)) needsChecker = true;
     if (ts.isAwaitExpression(node) || (ts.isYieldExpression(node) && node.asteriskToken !== undefined)

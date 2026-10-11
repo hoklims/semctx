@@ -305,7 +305,16 @@ export function assembleRepository(
     if (imp.bindingTargets !== undefined) {
       for (const binding of imp.bindingTargets) {
         const target = unique(byQualified.get(binding.relPath)?.get(binding.symbolPath));
-        if (target === undefined) continue;
+        if (target === undefined) {
+          if (checkLocalCalls && modeledModules.has(binding.relPath)) {
+            const matches = byQualified.get(binding.relPath)?.get(binding.symbolPath)?.length ?? 0;
+            const reason = `QUALIFIED_TEST_BINDING_${matches === 0 ? "MISSING" : "AMBIGUOUS"}:${binding.relPath}:${binding.symbolPath}`;
+            const reasons = callReasons.get(imp.fromRelPath) ?? [];
+            if (!reasons.includes(reason)) reasons.push(reason);
+            callReasons.set(imp.fromRelPath, reasons);
+          }
+          continue;
+        }
         const ev = SYMBOL_EDGE_EVIDENCE(imp.fromRelPath, imp.line, "test");
         builder.edge("tested_by", target.id, testNodeId, ev);
         builder.edge("covers", testNodeId, target.id, ev);

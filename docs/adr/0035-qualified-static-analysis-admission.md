@@ -138,6 +138,21 @@ ledger construction. Unmodeled object-literal callable members cannot reuse same
 file-level caller or callee coordinates. Module-level callers and opaque external/declaration boundaries
 remain distinct. This checks coherence of extracted local coordinates, not completeness
 of all possible calls; legacy and manually selected v2 analysis retain their behavior.
+The same private integrity seam rejects extracted test-import bindings into modeled local
+modules when their canonical target has no unique symbol. Plain constants remain module
+metadata, but a test binding to such an unmodeled value cannot claim `tested_by`/`covers`;
+the importing test path fails explicitly instead of silently losing the association.
+No value symbols or approximate test edges are manufactured, and ordinary analysis is
+unchanged.
+
+Retained generator declarations/expressions/methods are outside this named qualification
+domain. A cached generator's `.next()` can execute its body without an extracted consumer
+resumption edge, even if initialization and yielded values are statically known. The
+existing iteration refusal covers this limit; ordinary extraction retains generator facts.
+The former intrinsic delegated-generator positive remains a visible unsupported witness.
+The shared JavaScript diagnostic API also reports this generator refusal without a named
+configuration or supplied snapshot. Ordinary JavaScript diagnostics therefore become more
+conservative; the ordinary extractor still returns the existing generator symbols/calls.
 
 Qualified TypeScript also refuses `CallExpression` callees outside the shared extractor
 and JavaScript domain after transparent parentheses/type wrappers are removed. Conditional,

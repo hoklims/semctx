@@ -76,6 +76,15 @@ The original declaration-bearing negative is selected explicitly, and legacy dia
 retain their separately recorded original domain.
 Observations bind each domain's initial leaf and two Node helper hashes to its Git inputs;
 historical receipts keep their original domain and source identity.
+Generators are unsupported in retained qualified source: initialization facts do not prove
+later cached resumption dependencies. Ordinary extraction still exposes their existing
+symbols and calls. Test-import targets in modeled local modules must have one exact
+symbol coordinate; missing/ambiguous targets, including plain exported constants, fail the
+test path rather than silently dropping its association. These limits add no invocation,
+value-symbol or test edges and preserve the four fixture outputs.
+The shared JavaScript diagnostic API reports the generator refusal even without this
+profile or a supplied snapshot. Its ordinary diagnostics become more conservative while
+ordinary extraction retains generator facts.
 Opaque callable arguments are unsupported unless existing facts prove ownership of every
 retained callable reference in that exact inline callback. This private proof adds no edges
 and requires the actual graph and raw inputs to match the indexed freshness seal; stale
