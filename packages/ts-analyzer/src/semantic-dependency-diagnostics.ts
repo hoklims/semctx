@@ -22,6 +22,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   if (source.referencedFiles.length > 0) reasons.add("SOURCE_REFERENCE_PATH_UNSUPPORTED");
   const sdk = ts as unknown as { isIntrinsicJsxName(name: string): boolean };
   let needsChecker = false;
+  const processModule = (name: string): boolean => ["child_process", "node:child_process"].includes(name);
   const assignment = (node: ts.Node): node is ts.BinaryExpression => ts.isBinaryExpression(node)
     && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment;
   const numericUnary = (node: ts.Node): node is ts.PrefixUnaryExpression | ts.PostfixUnaryExpression => (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
@@ -43,6 +44,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return false;
   };
   const inspectSyntax = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier) && processModule(node.moduleSpecifier.text)) needsChecker = true;
     if (ts.isCallExpression(node)) needsChecker = true;
     if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Using) !== 0) reasons.add("SOURCE_DISPOSAL_UNSUPPORTED");
     if (ts.isElementAccessExpression(node) || ts.isComputedPropertyName(node)) needsChecker = true;
@@ -522,6 +524,36 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       || (ts.isMethodDeclaration(origin) && origin.body !== undefined) || (ts.isVariableDeclaration(origin) && origin.initializer !== undefined
         && (ts.isArrowFunction(origin.initializer) || ts.isFunctionExpression(origin.initializer)))));
   };
+  const builtinProcessValue = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = unwrapStaticExpression(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return builtinProcessValue(value.expression, seen);
+    if (ts.isAwaitExpression(value)) return builtinProcessValue(value.expression, seen);
+    if (ts.isCallExpression(value) && value.expression.kind === ts.SyntaxKind.ImportKeyword && value.arguments[0] !== undefined
+      && ts.isStringLiteralLike(value.arguments[0])) return processModule(value.arguments[0].text);
+    const origins = checker.getSymbolAtLocation(value)?.getDeclarations() ?? [];
+    return origins.some(origin => {
+      if (ts.isImportSpecifier(origin) || ts.isNamespaceImport(origin) || ts.isImportClause(origin)) {
+        if ((ts.isImportSpecifier(origin) && origin.isTypeOnly) || (ts.isImportClause(origin) && origin.isTypeOnly)) return false;
+        let statement: ts.Node | undefined = origin;
+        while (statement !== undefined && !ts.isImportDeclaration(statement)) statement = statement.parent;
+        return statement !== undefined && ts.isImportDeclaration(statement) && statement.importClause?.isTypeOnly !== true
+          && ts.isStringLiteral(statement.moduleSpecifier) && processModule(statement.moduleSpecifier.text);
+      }
+      if (ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
+        && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) return builtinProcessValue(origin.initializer, seen);
+      return ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent) && ts.isVariableDeclaration(origin.parent.parent)
+        && origin.parent.parent.initializer !== undefined && ts.isVariableDeclarationList(origin.parent.parent.parent)
+        && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0 && builtinProcessValue(origin.parent.parent.initializer, seen);
+    });
+  };
+  const inspectBuiltinProcessUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
+    if (ts.isIdentifier(node) && (ts.isImportSpecifier(node.parent) || ts.isNamespaceImport(node.parent) || ts.isImportClause(node.parent)
+      || ts.isBindingElement(node.parent) || (ts.isVariableDeclaration(node.parent) && node.parent.name === node)
+      || (ts.isPropertyAccessExpression(node.parent) && node.parent.name === node))) return;
+    if (builtinProcessValue(node)) reasons.add("SOURCE_PROCESS_LAUNCH_UNSUPPORTED");
+  };
   const inlineOwned = (callback: ts.ArrowFunction | ts.FunctionExpression): boolean => {
     const proof = ownership.get(inputs);
     if (proof === undefined) return false;
@@ -921,6 +953,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       inspectReflectSetUse(node);
       inspectMetaObjectUse(node);
+      inspectBuiltinProcessUse(node);
     }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
       inspectPromiseResolveUse(node);

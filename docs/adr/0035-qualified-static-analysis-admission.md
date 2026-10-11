@@ -330,6 +330,15 @@ still compares its projection against the final current layout to detect drift.
 
 ## Proof boundary
 
+Runtime values actually imported from the built-in `child_process` / `node:child_process`
+module are outside qualification: an opaque launcher can execute retained repository code
+without a module link. Import bindings, immutable aliases, namespace members and helper/
+container escapes use captured AST provenance, not a new Node declaration provider or API
+catalogue. Unused/type-only imports, real local homonyms and unrelated primitive Node
+helpers remain distinct. No launch edge is manufactured. Internal calls through an
+unmodeled callable parameter already fail the existing exact call-coordinate guard when
+their file is in the effective change/closure; no function-pointer propagation is added.
+
 Actual SDK `Object.setPrototypeOf` / `Reflect.setPrototypeOf` references are unsupported
 prototype mutations, including retained aliases and helper escapes. SDK `Object.create`
 and `Object.defineProperties` use the descriptor boundary: accessor/protocol installations,

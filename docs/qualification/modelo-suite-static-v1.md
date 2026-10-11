@@ -93,6 +93,12 @@ or `Object.create` are unsupported, including aliases/helper escapes. Actual SDK
 RegExp symbol hooks are refused as unmodeled protocol mutations; own APIs, string properties
 and directly proven ordinary data descriptors keep their distinct boundary. These checks
 add no invocation edges and do not change the four public fixture outputs.
+Runtime `child_process` built-in values are unsupported code-launch boundaries without a
+retained module link, including aliases, members and helper escapes. This uses actual
+built-in import provenance; local homonyms, unused/type-only declarations and the existing
+guarded `fs`/`path` data helpers keep their domains. Internal higher-order parameter calls
+with missing coordinates remain refused by the existing change/closure guard rather than
+being presented as resolved function-pointer invocations.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.
