@@ -197,7 +197,7 @@ These are the rules `setup` writes to `.semctx/config.json`, plus one built-in c
 | `security_surface_without_verification` | BLOCK | a symbol tagged `@tag security` changes with no covering test |
 | `contract_changed_without_test` | WARN | any other exported interface or type alias changes with no covering test |
 | `contradiction_unresolved` | WARN | the change touches a document marked contradicted or deprecated |
-| `index_binding_stale` | BLOCK, always | the index is missing or was built for a different commit, as after a commit, pull or branch switch (run `semctx index`) |
+| `index_binding_stale` | BLOCK, always | the index was built for a different commit, as after a commit, pull or branch switch (run `semctx index`). With no index at all, the run stops before a verdict and exits 1 |
 
 To relax a rule, set its `severity` to `warn` or remove it
 ([blocking rules](docs/reference/configuration.md#blocking-rules-and-severity-tiers)). The GitHub
@@ -224,8 +224,9 @@ Type-only imports do not count either. A file is a test when its name ends in `.
 
 ## Tell semctx what must not break
 
-Without markers in your code, the configurable rules can only raise a WARN, and only for exported
-interfaces and type aliases. The built-in checks still block: `index_binding_stale` when the index
+Without markers in your code, the symbol rules can only raise a WARN, and only for exported
+interfaces and type aliases; a changed document marked contradicted or deprecated can also raise a
+WARN. The built-in checks still block: `index_binding_stale` when the index
 is out of date, and, with config v2, `analysis_scope_incomplete`. To make semctx block on your own
 rules, write the rule in a one-line JSDoc tag on the code it protects,
 as in [`examples/consumer-typescript-repo`](examples/consumer-typescript-repo/src/index.ts):

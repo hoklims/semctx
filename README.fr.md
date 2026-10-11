@@ -207,7 +207,7 @@ Voici les règles que `setup` écrit dans `.semctx/config.json`, plus une vérif
 | `security_surface_without_verification` | BLOCK | un symbole marqué `@tag security` change sans test qui le couvre |
 | `contract_changed_without_test` | WARN | toute autre interface ou tout autre alias de type exporté change sans test qui le couvre |
 | `contradiction_unresolved` | WARN | le changement touche un document marqué comme contredit ou obsolète |
-| `index_binding_stale` | BLOCK, toujours | l’index est absent ou a été construit pour un autre commit, comme après un commit, un pull ou un changement de branche (lancez `semctx index`) |
+| `index_binding_stale` | BLOCK, toujours | l’index a été construit pour un autre commit, comme après un commit, un pull ou un changement de branche (lancez `semctx index`). Sans aucun index, l’exécution s’arrête avant le verdict et sort avec le code 1 |
 
 Pour assouplir une règle, passez sa `severity` à `warn` ou supprimez-la
 ([règles bloquantes](docs/reference/configuration.md#blocking-rules-and-severity-tiers), en
@@ -235,8 +235,9 @@ un test quand son nom se termine par `.test.ts` ou `.spec.ts` (ou leurs variante
 
 ## Dites à semctx ce qui ne doit pas casser
 
-Sans marqueur dans votre code, les règles configurables ne peuvent lever qu’un WARN, et seulement
-pour les interfaces et alias de type exportés. Les vérifications intégrées bloquent quand même :
+Sans marqueur dans votre code, les règles sur les symboles ne peuvent lever qu’un WARN, et seulement
+pour les interfaces et alias de type exportés ; un document modifié marqué contredit ou obsolète
+peut aussi lever un WARN. Les vérifications intégrées bloquent quand même :
 `index_binding_stale` quand l’index n’est plus à jour et, avec la config v2,
 `analysis_scope_incomplete`. Pour que semctx bloque sur vos propres règles, écrivez la règle dans une balise
 JSDoc d’une ligne, juste au-dessus du code qu’elle protège, comme dans
