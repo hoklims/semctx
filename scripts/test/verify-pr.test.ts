@@ -66,6 +66,18 @@ describe("argument parsing and command construction", () => {
     expect(() => parseVerifyArgs(["--wat"], {})).toThrow("unknown argument: --wat");
     expect(() => parseVerifyArgs(["--base"], {})).toThrow("--base requires a non-empty ref");
     expect(() => parseVerifyArgs(["--base", ""], {})).toThrow("--base requires a non-empty ref");
+    for (const shard of [[], ["0/2"], ["3/2"], ["1/0"], ["one/2"], ["1/2/3"]]) {
+      expect(() => parseVerifyArgs(["--test-shard", ...shard], {})).toThrow("--test-shard requires index/count");
+    }
+  });
+
+  test("a test shard narrows only the test step and keeps every other check", () => {
+    const options = parseVerifyArgs(["--skip-diff", "--test-shard", "2/4"], {});
+    expect(options).toEqual({ base: "origin/main", skipDiff: true, testShard: "2/4" });
+    const whole = verificationSteps({ base: "origin/main", skipDiff: true });
+    const sharded = verificationSteps(options);
+    expect(sharded.slice(0, -1)).toEqual(whole.slice(0, -1));
+    expect(sharded.at(-1)).toEqual({ label: "tests (shard 2/4)", argv: ["bun", "run", "test", "--shard=2/4"] });
   });
 
   test("keeps a base containing spaces in one argv element", () => {

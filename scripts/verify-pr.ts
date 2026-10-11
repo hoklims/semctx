@@ -1,6 +1,13 @@
 export interface VerifyOptions {
   base: string;
   skipDiff: boolean;
+  /** `index/count` slice of the test files, run by one CI runner; absent runs every file. */
+  testShard?: string;
+}
+
+export function isTestShard(value: string): boolean {
+  const match = /^([1-9]\d*)\/([1-9]\d*)$/.exec(value);
+  return match !== null && Number(match[1]) <= Number(match[2]);
 }
 
 export interface VerificationStep {
@@ -20,11 +27,21 @@ export function parseVerifyArgs(
 ): VerifyOptions {
   let base = env.SEMCTX_VERIFY_BASE || "origin/main";
   let skipDiff = false;
+  let testShard: string | undefined;
 
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (argument === "--skip-diff") {
       skipDiff = true;
+      continue;
+    }
+    if (argument === "--test-shard") {
+      const value = args[index + 1];
+      if (value === undefined || !isTestShard(value)) {
+        throw new Error("--test-shard requires index/count with 1 <= index <= count");
+      }
+      testShard = value;
+      index += 1;
       continue;
     }
     if (argument === "--base") {
@@ -39,7 +56,7 @@ export function parseVerifyArgs(
     throw new Error(`unknown argument: ${argument ?? ""}`);
   }
 
-  return { base, skipDiff };
+  return testShard === undefined ? { base, skipDiff } : { base, skipDiff, testShard };
 }
 
 export function verificationSteps(options: VerifyOptions): VerificationStep[] {
@@ -78,7 +95,9 @@ export function verificationSteps(options: VerifyOptions): VerificationStep[] {
       argv: ["python", "scripts/verify-index-routing.py"],
     },
     { label: "plugin parity", argv: ["bun", "run", "plugin:check"] },
-    { label: "tests", argv: ["bun", "run", "test"] },
+    options.testShard === undefined
+      ? { label: "tests", argv: ["bun", "run", "test"] }
+      : { label: `tests (shard ${options.testShard})`, argv: ["bun", "run", "test", `--shard=${options.testShard}`] },
   ];
 }
 
