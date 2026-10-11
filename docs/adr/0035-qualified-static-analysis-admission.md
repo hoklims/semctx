@@ -337,10 +337,10 @@ namespace. Receiver identity and captured SDK variable declarations establish th
 boundary, including JavaScript's merged descriptor declarations; local homonyms remain
 distinct. These shared semantic diagnostics add no invocation edges and may also report
 the refusal through the JavaScript diagnostic API outside named qualification.
-Actual SDK WebAssembly `instantiate` and `Instance` construction refuse as instantiation
+Actual SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction refuse as instantiation
 boundaries: native module-start execution can call an imported internal helper without
 an extracted invocation edge. Compile/validate data operations remain distinct.
-Actual SDK `ParentNode.append` with a captured SDK `Document.createElement("script")`
+Actual SDK node insertion with a captured SDK `Document.createElement("script")`
 argument also refuses. Receiver provenance and default-library declaration identity
 establish the boundary; a type annotation, local lookalike or bare operation name does
 not. Standalone inert script creation and ordinary DOM/local controls remain eligible.
@@ -349,6 +349,14 @@ Native Bun observed the WebAssembly callback, and isolated Chrome observed the a
 script's output changing after a hidden-script-only edit. Those observations establish
 these specific runtime effects, not complete browser/runtime modeling or private
 consumer execution. Shared JavaScript diagnostics may also report these refusals.
+Insertion arguments are selected by actual default-library owner/member identity:
+`Node.appendChild/insertBefore/replaceChild` argument 0; every argument of
+`ParentNode.append/prepend/replaceChildren` and `ChildNode.before/after/replaceWith`;
+`Element.insertAdjacentElement` argument 1; `Range.insertNode` argument 0.
+Reference/replaced nodes and position strings are not insertion candidates.
+On the captured `strict: false` checker, SDK `onclick` has one call signature and its
+replacement already refuses through the existing callable-mutation guard. No generalized
+nullable callback-property rule or complete browser invocation model follows from that case.
 Actual SDK Worklet `addModule` loaders are unsupported without a module link.
 Retained configurations that actually emit imported runtime helpers are unsupported:
 the pinned SDK emitter observes helper metadata and the emitted `tslib` dependency,

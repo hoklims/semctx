@@ -44,7 +44,7 @@ unreleased candidate until its own artifacts are qualified.
 | Parsing and unresolved constructs | File outcome and diagnostic, with nonpositive admission | CommonJS, computed loading/evaluation and missing/deleted post-images require another profile |
 | CLI, MCP, plugin and Action | Actual structured outputs and process results | A qualified rejection returns nonzero even in advisory consumption |
 | Tests | Executed tests on the exact input with retained outcomes | Static test edges and recommendations do not establish execution |
-| Turbo cache | Miss, hit and invalidation observed on representative tasks | The synthetic task graph qualifies only that task graph |
+| Turbo cache | Miss, hit and invalidation observed on representative tasks with one fresh cache outside the fixture repository | The synthetic task graph qualifies only that task graph |
 | Failure propagation | Injected failed task produces an observed nonzero enclosing command | Static code analysis does not establish pipeline propagation |
 | Pipeline | Actual required pipeline execution on the exact candidate | Synthetic consumer observations do not establish the private production pipeline |
 
@@ -114,6 +114,9 @@ retained authored input from this refusal. Actual capture exclusions, including 
 generated output directories, remain separate. No recursive ignored-tree enumeration is
 needed. The existing binding policy marks such an untracked input invalid with its exact
 reason; tracking it and rebuilding restores the supported tracked-input domain.
+Retained ignore/attribute controls beneath ignored outputs follow this same membership
+rule. The tracked positive fixture still checks both control digests, stale rejection
+after edits, and recovery after reindexing; identical untracked controls refuse admission.
 Object/class definitions of potentially callable hooks at actual SDK protocol symbol keys
 also refuse qualification. Erased type members, proven primitive data, string keys and
 local symbol homonyms remain distinct; no implicit invocation edges are manufactured.
@@ -144,16 +147,23 @@ SDK global binding is unsupported even when that binding is a noncallable namesp
 Captured SDK declarations and receiver identity distinguish it from local homonyms.
 The shared JavaScript semantic diagnostic API can also report these refusals; ordinary
 extraction receives no synthesized invocation facts.
-Captured SDK WebAssembly `instantiate` and `Instance` construction are unsupported
+Captured SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction are unsupported
 instantiation boundaries: a module start function may invoke imported internal code.
 Compile/validate data operations keep their existing domain. Captured SDK
-`ParentNode.append` with an actual SDK-created `script` argument is also unsupported;
+node insertion with an actual SDK-created `script` argument is also unsupported;
 the pinned `Document.createElement` origin and receiver proof distinguish ordinary
 objects and type annotations. Standalone script creation and ordinary inert DOM/local
 controls remain distinct. The insertion refusal is conservative even for an individual
 empty or disconnected script. These are the observed instantiation/insertion routes,
 not a claim of complete browser or WebAssembly runtime modeling. Shared JavaScript
 diagnostics can report the same refusals without adding invocation or module edges.
+The SDK insertion coordinates are `Node.appendChild/insertBefore/replaceChild` argument 0,
+all arguments of `ParentNode.append/prepend/replaceChildren` and
+`ChildNode.before/after/replaceWith`, `Element.insertAdjacentElement` argument 1, and
+`Range.insertNode` argument 0. Reference/replaced nodes and position strings are separate.
+The captured checker uses `strict: false`; its actual SDK `onclick` property has one
+call signature and replacement is already refused by the existing callable-mutation guard.
+That counterexample does not establish behavior for other compiler configurations.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.
@@ -203,7 +213,9 @@ as `IGNORED_GENERATED_OUTPUT`; broad dependency discovery preserves that origina
 Named TypeScript configurations, package manifests and lockfiles remain retained even when
 Git ignores them beneath an output directory. Repository-local relative `extends` references
 are retained as configuration inputs; missing or unsupported configuration references remain
-explicit refusals. Unrelated ignored cache JSON stays outside the source inventory.
+explicit refusals. A retained untracked cache JSON is not exempt from the membership check.
+The qualification harness uses the same fresh external Turbo cache for miss, hit and
+failing-build observations, keeping those artifacts outside its repository input inventory.
 Metadata under `.git` and `.semctx`, and installed dependencies under `node_modules`, remain
 outside the qualified source inventory. These boundaries do not establish runtime completeness.
 
