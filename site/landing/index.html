@@ -771,7 +771,7 @@
     <ul class="facts">
       <li><span class="en" lang="en">Markers work above a function, a constant holding an arrow function, a class, an interface, a type alias or an enum. On a method, a property or a plain constant they are ignored, so to guard a method, mark its class.</span><span class="fr" lang="fr">Les marqueurs fonctionnent au-dessus d’une fonction, d’une constante qui contient une fonction fléchée, d’une classe, d’une interface, d’un alias de type ou d’un enum. Sur une méthode, une propriété ou une simple constante, ils sont ignorés&nbsp;: pour protéger une méthode, marquez sa classe.</span></li>
       <li><span class="en" lang="en">A test covers a symbol when a test file imports it by name, directly from the file that declares it. Aliased, namespace, type-only and barrel imports do not count.</span><span class="fr" lang="fr">Un test couvre un symbole quand un fichier de test l’importe par son nom, directement depuis le fichier qui le déclare. Les imports renommés, par espace de noms, de type seul ou via un barrel ne comptent pas.</span></li>
-      <li><span class="en" lang="en"><code>@tag security</code> on any symbol, or <code>@tag critical</code> on an exported interface or type, also turns a missing test into BLOCK.</span><span class="fr" lang="fr"><code>@tag security</code> sur n’importe quel symbole, ou <code>@tag critical</code> sur une interface ou un type exporté, transforme aussi un test manquant en BLOCK.</span></li>
+      <li><span class="en" lang="en"><code>@tag security</code> on a function, class, interface, type alias or enum (methods and plain constants are ignored), or <code>@tag critical</code> on an exported interface or type, also turns a missing test into BLOCK.</span><span class="fr" lang="fr"><code>@tag security</code> sur une fonction, une classe, une interface, un alias de type ou un enum (les méthodes et les simples constantes sont ignorées), ou <code>@tag critical</code> sur une interface ou un type exporté, transforme aussi un test manquant en BLOCK.</span></li>
     </ul>
   </section>
 
@@ -953,8 +953,8 @@ bunx semctx@0.4.2 install</pre>
         </div>
       </li>
     </ol>
-    <p class="after en" lang="en">With <code>setup --polyglot</code> (config v2), use the branch flow: an uncommitted check after an edit returns BLOCK until you re-index.</p>
-    <p class="after fr" lang="fr">Avec <code>setup --polyglot</code> (config v2), passez par la branche&nbsp;: une vérification non commitée après une modification rend BLOCK tant que vous ne réindexez pas.</p>
+    <p class="after en" lang="en">With <code>setup --polyglot</code> (config v2), use the branch flow: an uncommitted check after an edit returns BLOCK. Commit the change, run <code>semctx index</code>, then verify with <code>--base</code>; never re-index uncommitted edits.</p>
+    <p class="after fr" lang="fr">Avec <code>setup --polyglot</code> (config v2), passez par la branche&nbsp;: une vérification non commitée après une modification rend BLOCK. Commitez la modification, lancez <code>semctx index</code>, puis vérifiez avec <code>--base</code>&nbsp;; ne réindexez jamais des modifications non commitées.</p>
   </section>
 
   <!-- 07 · Limits, the buffer stop -->

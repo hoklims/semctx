@@ -196,8 +196,9 @@ Le code de sortie dépend de `--fail-on` :
 
 Une exécution qui s’arrête avant le verdict, par exemple sans commit ou avec une valeur d’option
 invalide, sort avec le code 1. Une commande ou sous-commande inconnue sort avec le code 2.
-`--dry-run` sort avec 0 quand il parvient à résoudre la plage et la config, et échoue comme
-n’importe quelle exécution sinon.
+`--dry-run` résout seulement la plage Git et les options : il sort avec 0 quand cela réussit,
+échoue comme n’importe quelle exécution sinon, et ne charge pas la config. Un dry run réussi ne dit
+donc rien de `.semctx/config.json`.
 
 Voici les règles que `setup` écrit dans `.semctx/config.json`, plus une vérification intégrée :
 
@@ -299,7 +300,7 @@ Les marqueurs se placent juste au-dessus de la déclaration qu’ils protègent�
 | classe, interface, alias de type, enum | oui |
 | méthode, propriété de classe, constante simple | non, ignoré sans avertissement ; marquez la classe pour protéger ses méthodes |
 
-`@tag security` sur un symbole, ou `@tag critical` sur une interface ou un alias de type exporté,
+`@tag security` sur une déclaration reconnue par le tableau, ou `@tag critical` sur une interface ou un alias de type exporté,
 active les deux autres règles BLOCK. `@tag critical` sur une fonction n’active rien. semctx
 n’utilise que les marqueurs que vous écrivez et n’en ajoute jamais lui-même. Un marqueur doit tenir
 sur une seule ligne.
@@ -407,7 +408,9 @@ comme une liste de points à revérifier.
 - `verify diff --from-file <patch>` renvoie toujours BLOCK avec `index_binding_stale`, car un
   fichier de patch n’indique pas de quel commit il vient. Vérifiez les changements directement dans
   le dépôt.
-- Langages : TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) par défaut. Python, en option avec la
+- Langages : TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) par défaut ; les fichiers de déclaration
+  (`.d.ts`) sont ignorés, si bien qu’une déclaration publique modifiée dans l’un d’eux ne lève rien.
+  Python, en option avec la
   config v2 (`semctx setup --polyglot`), se limite aux modules, classes, fonctions, imports et
   marqueurs, sans appels ni liens vers les tests
   ([versions prises en charge](docs/reference/configuration.md#language-modes)). Markdown et SQL
@@ -451,7 +454,7 @@ semctx verify diff --staged                             # ce que contiendra le p
 semctx verify diff --base main                          # votre branche, depuis sa merge-base
 semctx verify diff --fail-on warn                       # code 3 aussi sur WARN
 semctx verify diff --format json --output report.json   # rapport JSON versionné
-semctx verify diff --dry-run                            # plage et config résolues, sans analyse
+semctx verify diff --dry-run                            # plage Git et options résolues, sans analyse
 semctx impact diff --base main                          # ce que le changement peut atteindre, sans verdict
 semctx index                                            # reconstruit l'index pour le commit courant
 semctx status                                           # l'index est-il encore à jour ?
@@ -490,7 +493,8 @@ par Git.
   ([règles bloquantes](docs/reference/configuration.md#blocking-rules-and-severity-tiers)).
 - La version 1 de la config, celle par défaut, analyse tous les fichiers `.ts`, `.tsx`, `.mts`,
   `.cts`, `.md`, `.mdx` et `.sql` hors de `node_modules`, `.git`, `.semctx`, `dist`, `build`,
-  `coverage`, `.turbo` et `.next`. Elle n’applique pas ses champs `include` et `testGlobs`, et
+  `coverage`, `.turbo` et `.next`, sauf que les fichiers de déclaration TypeScript (`.d.ts`) ne
+  produisent aucun symbole. Elle n’applique pas ses champs `include` et `testGlobs`, et
   traite `exclude` comme une simple sous-chaîne.
 - La version 2 (`semctx setup --polyglot`) applique `include` et `exclude` comme des globs et
   ajoute Python. Une config v1 existante se convertit via un plan que vous relisez

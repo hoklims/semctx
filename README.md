@@ -186,8 +186,9 @@ The exit code depends on `--fail-on`:
 | BLOCK | 3 | 3 | 0 |
 
 A run that stops before a verdict, for example with no commit or an invalid option value, exits 1.
-An unknown command or subcommand exits 2. `--dry-run` exits 0 when it can resolve the range and
-config, and fails like any other run otherwise.
+An unknown command or subcommand exits 2. `--dry-run` only resolves the Git range and the options:
+it exits 0 when that works, fails like any other run otherwise, and does not load the config, so a
+successful dry run says nothing about `.semctx/config.json`.
 
 These are the rules `setup` writes to `.semctx/config.json`, plus one built-in check:
 
@@ -285,7 +286,7 @@ Markers go directly above the declaration they guard:
 | class, interface, type alias, enum | yes |
 | method, class property, plain constant | no, silently ignored; mark the class to guard its methods |
 
-`@tag security` on a symbol, or `@tag critical` on an exported interface or type alias, arms the two
+`@tag security` on a declaration the table recognises, or `@tag critical` on an exported interface or type alias, arms the two
 other BLOCK rules. `@tag critical` on a function arms nothing. semctx only uses markers you write
 and never adds any. A marker must fit on one line.
 
@@ -409,7 +410,8 @@ of what to re-check.
   commit, index and use `--base` to check those.
 - `verify diff --from-file <patch>` always returns BLOCK with `index_binding_stale`, because a patch
   file does not record which commit it came from. Verify changes in the repository itself.
-- Languages: TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) by default. Python through 3.12 is opt-in
+- Languages: TypeScript (`.ts`, `.tsx`, `.mts`, `.cts`) by default; declaration files (`.d.ts`)
+  are skipped, so a changed public declaration there raises nothing. Python through 3.12 is opt-in
   with config v2 (`semctx setup --polyglot`) and limited to modules, classes, functions, imports and
   markers, with no calls and no test links. Markdown and SQL files are only classified as documents
   and migrations. Files in other languages are skipped unless config v2 selects them: a selected
@@ -449,7 +451,7 @@ semctx verify diff --staged                             # what the next commit c
 semctx verify diff --base main                          # your branch, from its merge-base
 semctx verify diff --fail-on warn                       # exit 3 on WARN as well
 semctx verify diff --format json --output report.json   # versioned JSON report
-semctx verify diff --dry-run                            # resolved range and config, no analysis
+semctx verify diff --dry-run                            # resolved Git range and options, no analysis
 semctx impact diff --base main                          # what the change can reach, no verdict
 semctx index                                            # rebuild the index for the current commit
 semctx status                                           # is the index still fresh?
@@ -484,7 +486,8 @@ unknowns in plain `.sem` files. The index itself stays local and git-ignored.
   `--fail-on warn` (`fail-on: warn` in the GitHub Action) rather than editing the rules
   ([blocking rules](docs/reference/configuration.md#blocking-rules-and-severity-tiers)).
 - Version 1, the default, analyses every `.ts`, `.tsx`, `.mts`, `.cts`, `.md`, `.mdx` and `.sql`
-  file outside `node_modules`, `.git`, `.semctx`, `dist`, `build`, `coverage`, `.turbo` and `.next`.
+  file outside `node_modules`, `.git`, `.semctx`, `dist`, `build`, `coverage`, `.turbo` and `.next`,
+  except that TypeScript declaration files (`.d.ts`) yield no symbols.
   It does not apply its `include` and `testGlobs` fields, and it matches `exclude` as a plain
   substring.
 - Version 2 (`semctx setup --polyglot`) applies `include` and `exclude` as globs and adds Python. An
