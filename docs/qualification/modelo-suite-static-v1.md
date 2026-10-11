@@ -88,6 +88,11 @@ refuses unproven `toJSON` inputs and helper escapes without adding implicit invo
 Qualified working-tree changes with relevant retained untracked inputs refuse explicitly:
 Git diff omits their additions. Track those inputs and rebuild before qualifying; ordinary
 analysis and ignored/control report artifacts keep their existing behavior.
+The untracked query uses the same repository `.gitignore` authority as retained capture;
+`.git/info/exclude` and `core.excludesFile` cannot conceal retained inputs from this refusal.
+Object/class definitions of potentially callable hooks at actual SDK protocol symbol keys
+also refuse qualification. Erased type members, proven primitive data, string keys and
+local symbol homonyms remain distinct; no implicit invocation edges are manufactured.
 SDK prototype replacements and accessor/protocol installation through plural descriptors
 or `Object.create` are unsupported, including aliases/helper escapes. Actual SDK well-known
 RegExp symbol hooks are refused as unmodeled protocol mutations; own APIs, string properties

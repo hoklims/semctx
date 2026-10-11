@@ -380,6 +380,14 @@ the retained inventory. Git diff does not describe their additions, so merely ad
 to expected coverage cannot establish their effects. The reason names each untracked
 retained path; ignored/hard-excluded artifacts and the separately sealed raw control config
 do not become obligations through this guard. Ordinary/v1 diff semantics stay unchanged.
+Enumeration uses the retained inventory's repository `.gitignore` authority, rather than
+Git's standard host/local exclusions. `.git/info/exclude` and `core.excludesFile` therefore
+cannot hide retained untracked inputs from this refusal.
+
+Runtime object/class definitions of potentially callable hooks at actual SDK protocol
+symbol keys are unsupported as well as later mutations. Methods and unknown/nonprimitive
+initializers have no modeled implicit invocation edge; erased declarations, primitive
+data definitions, string keys and locally shadowed symbols remain distinct.
 
 Qualified identity separately binds the exact `.semctx/config.json` bytes, including an
 explicit absent state. Equivalent JSON rewrites invalidate the input seal; malformed

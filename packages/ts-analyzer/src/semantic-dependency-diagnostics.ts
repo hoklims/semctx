@@ -988,6 +988,12 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && !ts.getModifiers(origin)?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)))) reasons.add("SOURCE_AMBIENT_FUNCTION_UNSUPPORTED");
     if (runtimeProperty(node) && ((ts.isElementAccessExpression(node) && !propertyKey(node.argumentExpression))
       || (ts.isComputedPropertyName(node) && !propertyKey(node.expression)))) reasons.add("SOURCE_PROPERTY_KEY_UNSUPPORTED");
+    if (ts.isComputedPropertyName(node) && runtimeProperty(node) && protocolKey(node.expression)
+      && (ts.isMethodDeclaration(node.parent)
+        || (ts.isPropertyAssignment(node.parent) && !primitiveValue(node.parent.initializer))
+        || (ts.isPropertyDeclaration(node.parent) && node.parent.initializer !== undefined && !primitiveValue(node.parent.initializer)))) {
+      reasons.add("SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED");
+    }
     if (assignment(node)
       && staticMemberName(unwrapStaticExpression(node.left)) === "then" && !primitiveValue(node.right)) reasons.add("SOURCE_THENABLE_MUTATION_UNSUPPORTED");
     if (assignment(node)) {
