@@ -307,7 +307,15 @@ function walk(
       continue;
     }
     if (stat.isDirectory()) {
-      if (isNestedGitWorktree(abs, root)) continue;
+      let nestedWorktree: boolean;
+      try {
+        nestedWorktree = isNestedGitWorktree(abs, root);
+      } catch (error) {
+        // Probing `<dir>/.git` needs search permission on the directory itself.
+        if (excludedSubtree?.(normalizePath(relative(root, abs)), false) === true) continue;
+        throw error;
+      }
+      if (nestedWorktree) continue;
       walk(abs, root, acc, strict, refusedLinks, qualified, excludedSubtree);
     } else if (stat.isFile()) {
       acc.push(abs);
