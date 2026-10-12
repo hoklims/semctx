@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { SemctxError, TaskFrameInputSchema, TaskModeSchema } from "@semantic-context/core";
 import type { TaskFrameInput, TaskMode } from "@semantic-context/core";
-import { openStore } from "@semantic-context/repository-store";
+import { withStore } from "../store";
 import { parseTaskDocument, defaultTaskExtractor, extractionContext } from "@semantic-context/context-engine";
 import type { ParsedArgs } from "../args";
 import { flagString, flagBool } from "../args";
@@ -46,12 +46,13 @@ export function runTaskCreate(root: string, args: ParsedArgs): number {
     else warn(`ignoring invalid --mode "${modeOverride}"`);
   }
 
-  const store = openStore(root);
-  const graph = store.loadGraph();
-  if (graph.nodes.length === 0) warn("repository not indexed; run 'semctx index' first for capability/invariant matching");
-  const taskFrame = defaultTaskExtractor.extract(input, extractionContext(graph, nowIso()));
-  store.saveTaskFrame(taskFrame);
-  store.close();
+  const taskFrame = withStore(root, (store) => {
+    const graph = store.loadGraph();
+    if (graph.nodes.length === 0) warn("repository not indexed; run 'semctx index' first for capability/invariant matching");
+    const taskFrame = defaultTaskExtractor.extract(input, extractionContext(graph, nowIso()));
+    store.saveTaskFrame(taskFrame);
+    return taskFrame;
+  });
 
   if (flagBool(args, "json")) {
     json(taskFrame);

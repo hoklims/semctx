@@ -100,6 +100,7 @@ interface WalCheckpointRow {
 }
 
 const openStoreCounts = new Map<string, number>();
+const WRITER_BUSY_TIMEOUT_MS = 1_000;
 
 export interface RepositoryIndexSnapshot {
   graph: RepositoryGraph;
@@ -214,7 +215,9 @@ export class SqliteRepositoryStore implements RepositoryStore {
     assertUnlinkedDatabase(dbPath);
     const db = new Database(dbPath, { create: true });
     try {
+      db.exec(`PRAGMA busy_timeout = ${WRITER_BUSY_TIMEOUT_MS};`);
       db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = OFF;");
+      db.fileControl(constants.SQLITE_FCNTL_PERSIST_WAL, 0);
       db.exec(SCHEMA_SQL);
       const databasePath = realpathSync(dbPath);
       const store = new SqliteRepositoryStore(db, databasePath);

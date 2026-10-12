@@ -128,6 +128,24 @@ Create `.semctx/` (SQLite db + config) and install the non-destructive `.gitigno
 authored `.semctx/semantic/` files versioned while excluding local runtime state. Never touches
 application code.
 
+The main repository store, shared by CLI and MCP, sets a 1,000 ms SQLite
+[`busy_timeout`](https://www.sqlite.org/pragma.html#pragma_busy_timeout) on each writer before
+initialization. This bounds lock waiting for each SQLite operation, including the closing
+checkpoint; it is not a deadline for the whole command. CLI commands close their writer in
+`finally`, before emitting a success result. Context preparation also closes it when provider
+retrieval fails. If both the operation and cleanup fail, the original failure retains the cleanup
+error as suppressed evidence.
+
+Persistent WAL is disabled as soon as WAL mode is selected, so a failed writer initialization
+also closes a quiescent database without leaving sidecars that prevent an immutable read.
+
+Once competing connections release their locks within that budget, closing the last managed
+writer checkpoints the database, leaves WAL mode and removes the `-wal`/`-shm` sidecars. A
+connection that remains active can still prevent cleanup: closing reports `STORE_ERROR`, and
+immutable readers continue to refuse active sidecars. After that connection closes, a subsequent
+writer can finish cleanup. Semctx never deletes active WAL files manually. This does not change
+the store schema or make abrupt process termination equivalent to `finally` cleanup.
+
 | option | description |
 | --- | --- |
 | `--polyglot` | explicitly create config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes |

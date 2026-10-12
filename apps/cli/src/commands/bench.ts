@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
-import { openStore } from "@semantic-context/repository-store";
+import { withStore } from "../store";
 import { runBench, type BenchCase } from "@semantic-context/eval";
 import type { ParsedArgs } from "../args";
 import { flagString, flagBool } from "../args";
@@ -37,15 +37,15 @@ function loadSuite(root: string, args: ParsedArgs): BenchCase[] {
 export function runBenchCmd(root: string, args: ParsedArgs): number {
   const cases = loadSuite(root, args);
 
-  const store = openStore(root);
-  if (!store.isIndexed()) {
-    store.close();
-    throw new SemctxError("REPO_NOT_INDEXED", "repository is not indexed; run 'semctx index' first");
-  }
-  const graph = store.loadGraph();
-  const evidence = store.loadEvidence();
-  const claims = store.loadClaims();
-  store.close();
+  const { graph, evidence, claims } = withStore(root, (store) => {
+    if (!store.isIndexed()) {
+      throw new SemctxError("REPO_NOT_INDEXED", "repository is not indexed; run 'semctx index' first");
+    }
+    const graph = store.loadGraph();
+    const evidence = store.loadEvidence();
+    const claims = store.loadClaims();
+    return { graph, evidence, claims };
+  });
 
   const thresholdRaw = flagString(args, "threshold");
   const threshold = thresholdRaw !== undefined && Number.isFinite(Number(thresholdRaw)) ? Number(thresholdRaw) : 1;
