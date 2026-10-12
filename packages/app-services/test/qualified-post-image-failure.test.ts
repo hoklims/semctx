@@ -1,5 +1,5 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createGlobSelectionConfig, VerifyReportSchema } from "@semantic-context/core";
@@ -9,7 +9,6 @@ import { __setVerificationAttributeBarrierForTesting } from "../src/verification
 import { __setVerifyControlBarrierForTesting } from "../src/verify";
 
 const roots: string[] = [];
-const CLI = join(import.meta.dir, "../../../apps/cli/src/index.ts");
 
 function git(root: string, ...args: string[]): string {
   const result = Bun.spawnSync(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -34,10 +33,24 @@ function repository(removal = false): string {
   return root;
 }
 
-function failingConversion(root: string): void {
-  git(root, "status", "--porcelain");
-  git(root, "config", "filter.broken.clean", "false");
-  git(root, "config", "filter.broken.required", "true");
+function failSelectedConversion(): { attempts: () => number; restore: () => void } {
+  const previous = Bun.spawnSync;
+  const native = previous.bind(Bun);
+  let attempts = 0;
+  Bun.spawnSync = ((command: string[], options: Parameters<typeof Bun.spawnSync>[1]) => {
+    if (command[0] === "git" && command.some(arg => arg.startsWith("--attr-source=")) && command.includes("hash-object")) {
+      attempts++;
+      return native(["git", "-c", "filter.broken.clean=false", "-c", "filter.broken.required=true", ...command.slice(1)], options);
+    }
+    return native(command, options);
+  }) as typeof Bun.spawnSync;
+  return { attempts: () => attempts, restore: () => { Bun.spawnSync = previous; } };
+}
+
+function invalidateAddedStatCache(root: string): void {
+  const path = join(root, "src/added.ts");
+  const stat = statSync(path);
+  utimesSync(path, stat.atime, new Date(stat.mtimeMs + 2_000));
 }
 
 function observed(root: string): { report: ReturnType<typeof runVerify>["report"] | undefined; failure: unknown } {
@@ -97,8 +110,14 @@ process.exit(runVerifyDiff(root,parseArgs(["verify","diff","--base","HEAD^","--f
 }, 60_000);
 
 test("failed selected conversion returns rejected BLOCK and CLI exit 3 under advisory none", () => {
-  const root = repository(); failingConversion(root);
-  const { report, failure } = observed(root);
+  const root = repository();
+  invalidateAddedStatCache(root);
+  let conversion: ReturnType<typeof failSelectedConversion> | undefined;
+  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(); });
+  let observation: ReturnType<typeof observed>;
+  try { observation = observed(root); } finally { conversion?.restore(); }
+  const { report, failure } = observation;
+  expect(conversion?.attempts()).toBe(1);
   console.info(JSON.stringify({ failure, report }));
   expect(failure).toBeUndefined();
   expect(VerifyReportSchema.safeParse(report).success).toBe(true);
@@ -108,7 +127,23 @@ test("failed selected conversion returns rejected BLOCK and CLI exit 3 under adv
   expect(report?.analysisAdmission?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_CONVERSION_FAILED");
   expect(report?.analysisAdmission?.indexFreshness.verdict).toBe("FRESH");
   expect(report?.analysisAdmission?.changeCoverage.analyzed).toEqual(["src/added.ts"]);
-  const cli = Bun.spawnSync([process.execPath, CLI, "verify", "diff", "--root", root, "--base", "HEAD^", "--format", "json", "--fail-on", "none"], { stdout: "pipe", stderr: "pipe" });
+  const entry = join(root, ".git/conversion-cli.ts");
+  const module = (path: string): string => JSON.stringify(join(import.meta.dir, path).replaceAll("\\", "/"));
+  writeFileSync(entry, `import {__setVerifyControlBarrierForTesting} from ${module("../src/verify.ts")};
+import {runVerifyDiff} from ${module("../../../apps/cli/src/commands/verify.ts")};
+import {parseArgs} from ${module("../../../apps/cli/src/args.ts")};
+${failSelectedConversion.toString()}
+const root=process.argv[2]!;
+let conversion: ReturnType<typeof failSelectedConversion> | undefined;
+__setVerifyControlBarrierForTesting(()=>{conversion=failSelectedConversion();});
+let code: number;
+try { code=runVerifyDiff(root,parseArgs(["verify","diff","--base","HEAD^","--format","json","--fail-on","none"])); }
+finally { conversion?.restore(); }
+if(conversion?.attempts()!==1) throw Error("selected conversion was not exercised exactly once");
+process.exit(code);
+`);
+  invalidateAddedStatCache(root);
+  const cli = Bun.spawnSync([process.execPath, entry, root], { stdout: "pipe", stderr: "pipe" });
   expect(cli.exitCode).toBe(3);
   const cliReport: unknown = JSON.parse(new TextDecoder().decode(cli.stdout));
   expect(VerifyReportSchema.safeParse(cliReport).success).toBe(true);
@@ -116,8 +151,13 @@ test("failed selected conversion returns rejected BLOCK and CLI exit 3 under adv
 }, 60_000);
 
 test("explicit unsupported base recovery is not preempted by selected conversion", () => {
-  const root = repository(true); failingConversion(root);
-  const { report, failure } = observed(root);
+  const root = repository(true);
+  let conversion: ReturnType<typeof failSelectedConversion> | undefined;
+  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(); });
+  let observation: ReturnType<typeof observed>;
+  try { observation = observed(root); } finally { conversion?.restore(); }
+  const { report, failure } = observation;
+  expect(conversion?.attempts()).toBe(0);
   expect(failure).toBeUndefined();
   expect(VerifyReportSchema.safeParse(report).success).toBe(true);
   expect(report?.verdict).toBe("BLOCK");
