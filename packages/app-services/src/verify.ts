@@ -1053,7 +1053,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
         consumedHash: inputAfter!.digest, expectedHash: inputBefore!, bindingValid: qualifiedHealth!.binding.status === "valid",
         buildComplete: store.getMeta(QUALIFIED_BUILD_META) === "complete", checkChanged: inputBefore !== inputAfter!.digest }),
     }) : undefined;
-    if (analysisAdmission !== undefined && source.kind === "working-tree" && diffRemovesBaseLines(resolved.diffText ?? "")) {
+    if (analysisAdmission?.status === "admitted" && source.kind === "working-tree" && diffRemovesBaseLines(resolved.diffText ?? "")) {
       const oldCaptureReasons: string[] = [];
       result = applyQualifiedWorkingTreeGuards(root, config, result, headIndex, resolved, oldCaptureReasons, analysisAdmission.changeCoverage.expected);
       if (oldCaptureReasons.length > 0) {
