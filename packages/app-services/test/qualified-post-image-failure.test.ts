@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, spyOn, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -35,7 +35,7 @@ function repository(removal = false): string {
 }
 
 function failingConversion(root: string): void {
-  writeFileSync(join(root, ".gitattributes"), "src/*.ts -filter\n");
+  git(root, "status", "--porcelain");
   git(root, "config", "filter.broken.clean", "false");
   git(root, "config", "filter.broken.required", "true");
 }
@@ -75,7 +75,26 @@ test("attribute drift during retained comparison returns structured invalid bind
   expect(report?.analysisAdmission?.binding.status).toBe("invalid");
   expect(report?.analysisAdmission?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND");
   expect(report?.analysisAdmission?.indexFreshness.verdict).toBe("FRESH");
-});
+  expect(report?.analysisAdmission?.changeCoverage.analyzed).toEqual(["src/added.ts"]);
+  rmSync(join(root, ".git/info/attributes"));
+  const entry = join(root, ".git/attribute-cli.ts");
+  const module = (path: string): string => JSON.stringify(join(import.meta.dir, path).replaceAll("\\", "/"));
+  writeFileSync(entry, `import {writeFileSync} from "node:fs";
+import {join} from "node:path";
+import {__setVerifyControlBarrierForTesting} from ${module("../src/verify.ts")};
+import {__setVerificationAttributeBarrierForTesting} from ${module("../src/verification-state.ts")};
+import {runVerifyDiff} from ${module("../../../apps/cli/src/commands/verify.ts")};
+import {parseArgs} from ${module("../../../apps/cli/src/args.ts")};
+const root=process.argv[2]!;
+__setVerifyControlBarrierForTesting(()=>__setVerificationAttributeBarrierForTesting(()=>writeFileSync(join(root,".git/info/attributes"),"src/*.ts ident\\n")));
+process.exit(runVerifyDiff(root,parseArgs(["verify","diff","--base","HEAD^","--format","json","--fail-on","none"])));
+`);
+  const cli = Bun.spawnSync([process.execPath, entry, root], { stdout: "pipe", stderr: "pipe" });
+  expect(cli.exitCode).toBe(3);
+  const cliReport: unknown = JSON.parse(new TextDecoder().decode(cli.stdout));
+  expect(VerifyReportSchema.safeParse(cliReport).success).toBe(true);
+  expect(cliReport).toMatchObject({ verdict: "BLOCK", analysisAdmission: { status: "rejected", binding: { status: "invalid", reasons: ["QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND"] } } });
+}, 60_000);
 
 test("failed selected conversion returns rejected BLOCK and CLI exit 3 under advisory none", () => {
   const root = repository(); failingConversion(root);
@@ -87,7 +106,8 @@ test("failed selected conversion returns rejected BLOCK and CLI exit 3 under adv
   expect(report?.analysisAdmission?.status).toBe("rejected");
   expect(report?.analysisAdmission?.binding.status).toBe("invalid");
   expect(report?.analysisAdmission?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_CONVERSION_FAILED");
-  expect(report?.analysisAdmission?.indexFreshness.verdict).toBe("DIRTY_KNOWN");
+  expect(report?.analysisAdmission?.indexFreshness.verdict).toBe("FRESH");
+  expect(report?.analysisAdmission?.changeCoverage.analyzed).toEqual(["src/added.ts"]);
   const cli = Bun.spawnSync([process.execPath, CLI, "verify", "diff", "--root", root, "--base", "HEAD^", "--format", "json", "--fail-on", "none"], { stdout: "pipe", stderr: "pipe" });
   expect(cli.exitCode).toBe(3);
   const cliReport: unknown = JSON.parse(new TextDecoder().decode(cli.stdout));
@@ -104,4 +124,19 @@ test("explicit unsupported base recovery is not preempted by selected conversion
   expect(report?.analysisAdmission?.status).toBe("rejected");
   expect(report?.analysisAdmission?.binding.reasons).toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
   expect(report?.analysisAdmission?.binding.reasons).not.toContain("QUALIFIED_POST_IMAGE_CONVERSION_FAILED");
+});
+
+
+test("Git below the selected attribute prerequisite stays an operational diagnostic", () => {
+  const root = repository();
+  const original = Bun.spawnSync.bind(Bun);
+  const spawn = spyOn(Bun, "spawnSync").mockImplementation(((command: string[], options: Parameters<typeof Bun.spawnSync>[1]) => {
+    if (command[0] === "git" && command[1] === "--version") return { exitCode: 0, stdout: Buffer.from("git version 2.40.0\n"), stderr: Buffer.alloc(0) };
+    return original(command, options);
+  }) as typeof Bun.spawnSync);
+  try {
+    const { report, failure } = observed(root);
+    expect(report).toBeUndefined();
+    expect(failure).toMatchObject({ code: "UNSUPPORTED", message: "qualified staged/range verification requires Git >= 2.41 (--attr-source)" });
+  } finally { spawn.mockRestore(); }
 });
