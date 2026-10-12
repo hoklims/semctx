@@ -357,6 +357,17 @@ Reference/replaced nodes and position strings are not insertion candidates.
 On the captured `strict: false` checker, SDK `onclick` has one call signature and its
 replacement already refuses through the existing callable-mutation guard. No generalized
 nullable callback-property rule or complete browser invocation model follows from that case.
+Actual SDK Date construction requires primitive provenance for the first seven arguments;
+a separately proven intrinsic Date copy remains eligible under this boundary. SDK origin
+cannot be supplied by a local value's annotation. Zero-argument construction and ordinary
+Date calls remain distinct; unknown coercion refuses without inventing an invocation edge.
+Actual imported cluster/node:cluster fork and setupPrimary runtime bindings are unsupported
+process launchers. Existing module-origin traversal preserves child_process/vm boundaries;
+inert cluster imports, isPrimary reads, type-only uses and local homonyms remain distinct.
+The setupPrimary refusal is conservative even without a subsequent fork.
+Actual SDK Document.write/writeln also refuse runtime script execution boundaries. Member
+declaration and receiver origin remain required; ordinary HTML/text arguments are refused
+conservatively too. Neither HTML parsing nor hidden-module dependency extraction is added.
 Actual SDK Worklet `addModule` loaders are unsupported without a module link.
 Retained configurations that actually emit imported runtime helpers are unsupported:
 the pinned SDK emitter observes helper metadata and the emitted `tslib` dependency,

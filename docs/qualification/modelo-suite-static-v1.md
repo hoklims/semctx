@@ -164,6 +164,17 @@ all arguments of `ParentNode.append/prepend/replaceChildren` and
 The captured checker uses `strict: false`; its actual SDK `onclick` property has one
 call signature and replacement is already refused by the existing callable-mutation guard.
 That counterexample does not establish behavior for other compiler configurations.
+Actual SDK `Date` construction requires primitive provenance for the first seven
+arguments, with a separately proven intrinsic Date-copy path. An annotation does not
+establish SDK origin. Zero-argument construction and ordinary `Date(...)` calls remain
+distinct. Unknown constructor coercion refuses without adding an invocation edge.
+Actual `cluster`/`node:cluster` `fork` and `setupPrimary` runtime bindings are unsupported
+process-launch boundaries, including the existing alias/destructuring forms. The setup
+boundary is conservative even when no fork follows. Inert imports, `isPrimary`, type-only
+uses and local homonyms retain their separate domain.
+Actual SDK `Document.write` and `writeln` refuse as runtime script boundaries, with
+captured member and receiver origin. This is conservative for ordinary HTML/text too;
+no HTML parsing, hidden-module extraction or complete browser model is claimed.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.

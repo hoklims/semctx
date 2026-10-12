@@ -55,6 +55,9 @@ jobs:
 For qualified analysis, report output must remain under `.semctx/reports` or outside the analysed
 repository. A custom output that could create or replace a retained repository input is
 refused before publication; the adapter still receives valid qualified-refusal reports.
+The default reserved report directory is also created safely for ordinary v1 analysis.
+Its writer checks repository ancestors before creating missing parents and replaces the
+report atomically. Custom ordinary outputs keep their existing parent-directory policy.
 
 ## Outputs
 
