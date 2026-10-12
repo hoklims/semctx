@@ -27,13 +27,25 @@ export function assertMcpPositiveReport(result: { isError?: unknown; structuredC
   return positiveReport(result.structuredContent, expected);
 }
 
-export function assertQualifiedBlock(result: Observation, expected: RefusalExpectation = {}): void {
-  assert.equal(result.code, 3, "Qualified refusal must use CLI exit 3, not an infrastructure error");
-  const rejected = VerifyReportSchema.parse(JSON.parse(result.stdout));
+function qualifiedBlock(value: unknown, expected: RefusalExpectation): VerifyReport {
+  const rejected = VerifyReportSchema.parse(value);
   assert.equal(rejected.verdict, "BLOCK", "Refusal must be represented by BLOCK");
   assert.equal(rejected.analysisAdmission?.status, "rejected", "Qualified refusal must retain explicit admission evidence");
   if (expected.binding !== undefined) assert.equal(rejected.analysisAdmission.binding.status, expected.binding, "Refusal must establish the claimed binding");
   if (expected.indexFreshness !== undefined) assert(expected.indexFreshness.includes(rejected.analysisAdmission.indexFreshness.verdict), "Refusal must establish the claimed index freshness");
+  return rejected;
+}
+
+export function assertQualifiedBlock(result: Observation, expected: RefusalExpectation = {}): void {
+  assert.equal(result.code, 3, "Qualified refusal must use CLI exit 3, not an infrastructure error");
+  qualifiedBlock(JSON.parse(result.stdout), expected);
+}
+
+export function assertMcpQualifiedBlock(result: { content?: unknown; isError?: unknown; structuredContent?: unknown }, expected: RefusalExpectation = {}): VerifyReport {
+  assert(result.isError === undefined || result.isError === false, "Qualified MCP refusal must not be a tool error or malformed error flag");
+  assert(Array.isArray(result.content) && result.content.every(item => item !== null && typeof item === "object"
+    && (item as Record<string, unknown>).type === "text" && typeof (item as Record<string, unknown>).text === "string"), "Qualified MCP verification must retain its text content envelope");
+  return qualifiedBlock(result.structuredContent, expected);
 }
 
 export function assertOperationalError(result: Observation, code: "CONFIG_NOT_FOUND" | "CONFIG_INVALID" | "REPO_NOT_INDEXED", message: string): void {

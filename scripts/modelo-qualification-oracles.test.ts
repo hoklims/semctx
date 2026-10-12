@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { AnalysisAdmission, VerifyReport } from "@semantic-context/core";
-import { assertQualifiedBlock, assertOperationalError, assertPositiveReport, assertMcpPositiveReport, assertLegacyQualifiedConfigRefusal } from "./modelo-qualification-oracles";
+import { assertQualifiedBlock, assertOperationalError, assertPositiveReport, assertMcpPositiveReport, assertLegacyQualifiedConfigRefusal, assertMcpQualifiedBlock } from "./modelo-qualification-oracles";
 
 for (const [name, code, stdout] of [
   ["crash with empty output", 1, ""],
@@ -172,4 +172,34 @@ test("legacy absent-index verification rejects wrong exit crash admission or roo
     { ...verify, stdout: JSON.stringify(positive()) }, { ...verify, stdout: "{}" },
     { ...verify, stdout: JSON.stringify({ root: "/another-consumer" }) },
   ]) expect(() => assertLegacyQualifiedConfigRefusal(index, corrupted, root)).toThrow();
+});
+
+test("MCP qualified rejection requires a non-error complete tool envelope", () => {
+  const envelope = { content: [{ type: "text", text: JSON.stringify(rejection()) }], structuredContent: rejection() };
+  expect(() => assertMcpQualifiedBlock(envelope)).not.toThrow();
+  for (const malformed of [
+    { ...envelope, isError: true }, { ...envelope, isError: "false" },
+    { ...envelope, content: undefined }, { ...envelope, content: "BLOCK" },
+  ]) expect(() => assertMcpQualifiedBlock(malformed)).toThrow();
+});
+
+test("MCP qualified rejection requires the full shared verify report schema", () => {
+  const value = rejection();
+  const { summary: _summary, ...missingSummary } = value;
+  const { identity: _identity, ...missingIdentity } = value.analysisAdmission;
+  const { changeCoverage: _coverage, ...missingCoverage } = value.analysisAdmission;
+  const { repositoryCoverage: _repository, ...missingRepository } = value.analysisAdmission;
+  for (const structuredContent of [
+    { verdict: "BLOCK", analysisAdmission: { status: "rejected" } }, missingSummary,
+    { ...value, analysisAdmission: missingIdentity }, { ...value, analysisAdmission: missingCoverage }, { ...value, analysisAdmission: missingRepository },
+    { ...value, analysisAdmission: { ...value.analysisAdmission, reasons: "stale" } },
+    { ...value, verdict: "PASS" },
+  ]) expect(() => assertMcpQualifiedBlock({ content: [], structuredContent })).toThrow();
+});
+
+test("MCP stale refusal retains the claimed freshness and complete BLOCK control", () => {
+  const value = rejection(); value.analysisAdmission.indexFreshness = { verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] };
+  const envelope = { content: [], structuredContent: value };
+  expect(() => assertMcpQualifiedBlock(envelope, { indexFreshness: ["STALE", "UNSEALED"] })).not.toThrow();
+  expect(() => assertMcpQualifiedBlock(envelope, { indexFreshness: ["FRESH", "DIRTY_KNOWN"] })).toThrow();
 });

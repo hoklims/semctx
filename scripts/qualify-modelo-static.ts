@@ -6,7 +6,8 @@ import { Database } from "bun:sqlite";
 import { VerifyReportSchema, type VerifyReport } from "@semantic-context/core";
 import { BRIDGE, CONSUMER_VERSIONS, createConsumer, createEligibleConsumer, createPrimitiveSafeConsumer, createDataProvenConsumer, ENTRY, LEAF, LEAF_SOURCE, PRIMITIVE_SAFE_LEAF_SOURCE, put } from "./modelo-static-fixture";
 import { assertInterruptedAdmission } from "./modelo-interruption-witness";
-import { assertQualifiedBlock as blocked, assertOperationalError, assertPositiveReport, assertMcpPositiveReport, assertLegacyQualifiedConfigRefusal } from "./modelo-qualification-oracles";
+import { verifyMcpWitness } from "./modelo-mcp-witness";
+import { assertQualifiedBlock as blocked, assertOperationalError, assertPositiveReport, assertMcpPositiveReport, assertLegacyQualifiedConfigRefusal, assertMcpQualifiedBlock } from "./modelo-qualification-oracles";
 import { validateQualificationInputs } from "./modelo-artifact-identity";
 
 type Observation = { command: string[]; code: number; stdout: string; stderr: string };
@@ -198,32 +199,12 @@ function reachable(edges: ReturnType<typeof graph>["edges"], start: string, targ
   return seen.has(target);
 }
 async function mcpVerify(root: string, label = "mixed"): Promise<Record<string, unknown>> {
-  const child = Bun.spawn([process.execPath, mcp], { cwd: root, env: { ...gitEnv, SEMCTX_ROOT: root }, stdin: "pipe", stdout: "pipe", stderr: "pipe" });
-  const reader = child.stdout.getReader();
-  let pending = "";
-  const decoder = new TextDecoder();
-  const stderr = new Response(child.stderr).text();
-  async function request(id: number, method: string, params: unknown): Promise<Record<string, unknown>> {
-    await child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, method, params })}\n`); await child.stdin.flush();
-    while (true) {
-      const lineEnd = pending.indexOf("\n");
-      if (lineEnd >= 0) {
-        const line = pending.slice(0, lineEnd); pending = pending.slice(lineEnd + 1);
-        if (!line.trim()) continue;
-        const response = JSON.parse(line) as { id?: number; result?: Record<string, unknown>; error?: unknown };
-        if (response.id !== id) continue;
-        assert(!response.error, JSON.stringify(response.error)); assert(response.result); return response.result;
-      }
-      const next = await reader.read(); assert(!next.done, "MCP process ended before responding"); pending += decoder.decode(next.value, { stream: true });
-    }
-  }
-  const timeout = setTimeout(() => child.kill(), 30_000);
-  try {
-    const initialize = await request(1, "initialize", { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "public-consumer-qualification", version: "1" } });
-    observations[`${label}:mcp-initialize`] = initialize;
-    await child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`); await child.stdin.flush();
-    return await request(2, "tools/call", { name: "semctx_verify_change", arguments: { repositoryRoot: root } });
-  } finally { clearTimeout(timeout); child.kill(); await child.exited; observations[`${label}:mcp-stderr`] = await stderr; reader.releaseLock(); }
+  const witness = await verifyMcpWitness({ bundle: mcp, cwd: root, repositoryRoot: root, env: { ...gitEnv, SEMCTX_ROOT: root } });
+  observations[`${label}:mcp-process`] = witness;
+  observations[`${label}:mcp-initialize`] = witness.initialize;
+  observations[`${label}:mcp-stderr`] = witness.stderr;
+  assert.equal(witness.failure, null, `MCP protocol witness failed: ${JSON.stringify(witness.failure)}`);
+  assert(witness.result); return witness.result;
 }
 
 await scenario("original-declaration-bearing-consumer-blocks", () => {
@@ -450,9 +431,7 @@ await scenario("mixed-transitive-analysis", async () => {
   blocked(verify(root, "mixed-before-refresh"));
   blocked(verify(root, "mixed-plugin-before-refresh", pluginCli));
   const rejectedMcp = await mcpVerify(root, "mixed-before-refresh"); observations["mixed-before-refresh:mcp"] = rejectedMcp;
-  const rejectedStructured = rejectedMcp.structuredContent as Report | undefined;
-  assert(rejectedStructured); assert.equal(rejectedStructured.verdict, "BLOCK");
-  assert.equal((rejectedStructured.analysisAdmission as { status: string }).status, "rejected");
+  assertMcpQualifiedBlock(rejectedMcp, { indexFreshness: ["STALE", "UNSEALED"] });
   assert.equal(index(root, "mixed-refreshed").code, 0);
   const extracted = graph(root); observations["mixed:graph"] = extracted;
   const value = extracted.nodes.find((node) => node.file_path === LEAF && node.name === "value");
