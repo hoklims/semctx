@@ -17,6 +17,10 @@ inputs:
     description: "Fail the job on this verdict or worse: block | warn | none."
     required: false
     default: "block"
+  require-qualified:
+    description: "Require admitted modelo-suite-static-v1 analysis; set this from trusted workflow policy, not repository config."
+    required: false
+    default: "false"
   working-directory:
     description: "Directory of the repository to analyse."
     required: false
@@ -148,6 +152,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       env:
         INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REQUIRE_QUALIFIED: ${{ inputs.require-qualified }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
       run: node "$GITHUB_ACTION_PATH/src/adapter.mjs" "$INPUT_REPORT_PATH"
 

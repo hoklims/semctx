@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createGlobSelectionConfig } from "@semantic-context/core";
-import { initWorkspace } from "@semantic-context/repository-store";
+import { createDefaultConfig, createGlobSelectionConfig } from "@semantic-context/core";
+import { initWorkspace, toDiskConfig } from "@semantic-context/repository-store";
 import { indexRepository, runVerify } from "@semantic-context/app-services";
 import { replaceLocalReportFile } from "../../../apps/cli/src/report-output";
 
@@ -50,6 +50,33 @@ test("ordinary Action default report is created and reaches the real adapter", (
     }
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 60_000);
+
+test("trusted Action qualification requirement rejects a repository-owned config downgrade", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-action-downgrade-"));
+  try {
+    mkdirSync(join(root,"src"));writeFileSync(join(root,".gitignore"),".semctx/\n");
+    writeFileSync(join(root,"src/main.ts"),"export function main(){return 1;}\n");
+    const policy = join(root,"ci-policy.json");
+    writeFileSync(policy,JSON.stringify(toDiskConfig({...createGlobSelectionConfig(root),selectionMode:"qualified-static-v1",analysisProfile:"modelo-suite-static-v1",include:["src/**/*"]})));
+    const git = (...args: string[]) => { const result=Bun.spawnSync(["git",...args],{cwd:root,stdout:"pipe",stderr:"pipe"});expect(result.exitCode).toBe(0); };
+    git("init","-q");git("add",".");git("-c","user.name=Fixture","-c","user.email=fixture@example.invalid","commit","-qm","qualified policy");
+    writeFileSync(policy,JSON.stringify(toDiskConfig(createDefaultConfig(root))));
+    git("add","ci-policy.json");git("-c","user.name=Fixture","-c","user.email=fixture@example.invalid","commit","-qm","downgraded policy");
+    const parsed=Bun.YAML.parse(readFileSync(join(import.meta.dir,"../action.yml"),"utf8")) as {runs:{steps:{id?:string;run?:string}[]}};
+    const script=parsed.runs.steps.find(step=>step.id==="verify")!.run!;
+    const bash=process.platform==="win32"&&existsSync("C:/Program Files/Git/bin/bash.exe")?"C:/Program Files/Git/bin/bash.exe":"bash";
+    const step=Bun.spawnSync([bash,"--noprofile","--norc","-c",'bun() { "$SEMCTX_TEST_BUN" "$@"; }\n'+script],{cwd:join(import.meta.dir,"../../.."),stdout:"pipe",stderr:"pipe",env:{...process.env,SEMCTX_TEST_BUN:process.execPath.replaceAll("\\","/"),SEMCTX_CLI:join(import.meta.dir,"../../../apps/cli/src/index.ts").replaceAll("\\","/"),SEMCTX_TARGET:root.replaceAll("\\","/"),SEMCTX_CONFIG:"ci-policy.json",SEMCTX_REPORT:".semctx/reports/verify.json",SEMCTX_BASE:"HEAD^",SEMCTX_HEAD:"HEAD",GITHUB_ACTION_PATH:join(import.meta.dir,"..").replaceAll("\\","/")}});
+    expect(step.exitCode).toBe(0);
+    const report=join(root,".semctx/reports/verify.json");const value=JSON.parse(readFileSync(report,"utf8")) as {analysisAdmission?:unknown;verdict:string};
+    expect(value.analysisAdmission).toBeUndefined();
+    const adapter=Bun.spawnSync(["node",join(import.meta.dir,"../src/adapter.mjs"),report],{stdout:"pipe",stderr:"pipe",env:{...process.env,INPUT_FAIL_ON:"none",INPUT_REQUIRE_QUALIFIED:"true"}});
+    console.info(JSON.stringify({stepExit:step.exitCode,reportVerdict:value.verdict,admission:value.analysisAdmission??null,adapterExit:adapter.exitCode}));
+    expect(adapter.exitCode).toBe(1);
+    const ordinary=Bun.spawnSync(["node",join(import.meta.dir,"../src/adapter.mjs"),report],{stdout:"pipe",stderr:"pipe",env:{...process.env,INPUT_FAIL_ON:"none",INPUT_REQUIRE_QUALIFIED:"false"}});
+    expect(ordinary.exitCode).toBe(0);
+    expect(JSON.parse(readFileSync(report,"utf8")).analysisAdmission).toBeUndefined();
+  } finally {rmSync(root,{recursive:true,force:true});}
+},60_000);
 
 test("Action delegates a fresh qualified rejection to the adapter and preserves operational errors", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-action-qualified-"));
