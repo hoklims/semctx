@@ -12,7 +12,10 @@ afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: 
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), "semctx-compatibility-"));
   roots.push(root);
-  for (const file of [...COMPATIBILITY_DOCS, "apps/cli/package.json", ".github/workflows/ci.yml", ".github/workflows/release.yml"]) {
+  const packages = JSON.parse(readFileSync(join(repo, "package.json"), "utf8")) as { workspaces: string[] };
+  const workspaceManifests = packages.workspaces.flatMap((workspace) =>
+    [...new Bun.Glob(`${workspace}/package.json`).scanSync({ cwd: repo, onlyFiles: true })]);
+  for (const file of [...COMPATIBILITY_DOCS, "package.json", "bun.lock", ...workspaceManifests, ".github/workflows/ci.yml", ".github/workflows/release.yml"]) {
     mkdirSync(dirname(join(root, file)), { recursive: true });
     copyFileSync(join(repo, file), join(root, file));
   }
@@ -38,6 +41,15 @@ describe("compatibility declaration gate", () => {
       expect(checkCompatibility(root).some((error) => error.startsWith(`${file}:`))).toBe(true);
     });
   }
+  test("rejects stale workspace versions in the lockfile", () => {
+    const root = fixture();
+    const lockPath = join(root, "bun.lock");
+    const lock = Bun.JSONC.parse(readFileSync(lockPath, "utf8")) as { workspaces: Record<string, { version?: string }> };
+    const packageVersion = (JSON.parse(readFileSync(join(root, "apps/cli/package.json"), "utf8")) as { version: string }).version;
+    lock.workspaces["apps/cli"]!.version = `${packageVersion}-stale`;
+    writeFileSync(lockPath, JSON.stringify(lock));
+    expect(checkCompatibility(root)).toContain("apps/cli/package.json: version differs from bun.lock workspace metadata; regenerate bun.lock");
+  });
   test("rejects the historical Bun 1.3 typo outside the generated section", () => {
     const root = fixture();
     replace(root, "apps/cli/README.md", "≥ 1.4.0", "≥ 1.3");

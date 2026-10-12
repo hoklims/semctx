@@ -43,6 +43,19 @@ export function checkCompatibility(root: string): string[] {
   const pkg = JSON.parse(readFileSync(resolve(root, "apps/cli/package.json"), "utf8")) as {
     version: string; engines: { bun: string };
   };
+  const lock = Bun.JSONC.parse(readFileSync(resolve(root, "bun.lock"), "utf8")) as {
+    workspaces: Record<string, { version?: string }>;
+  };
+  const workspacePatterns = (JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as { workspaces: string[] }).workspaces;
+  for (const pattern of workspacePatterns) {
+    for (const file of [...new Bun.Glob(`${pattern}/package.json`).scanSync({ cwd: root, onlyFiles: true })].sort()) {
+      const workspace = file.replaceAll("\\", "/").slice(0, -"/package.json".length);
+      const workspacePackage = JSON.parse(readFileSync(resolve(root, file), "utf8")) as { version?: string };
+      if (workspacePackage.version !== lock.workspaces[workspace]?.version) {
+        errors.push(`${workspace}/package.json: version differs from bun.lock workspace metadata; regenerate bun.lock`);
+      }
+    }
+  }
   const expected = compatibilityBlock(pkg.version, pkg.engines.bun);
   for (const file of COMPATIBILITY_DOCS) {
     const text = readFileSync(resolve(root, file), "utf8").replaceAll("\r\n", "\n");
