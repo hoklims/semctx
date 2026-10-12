@@ -207,6 +207,9 @@ Actual SDK array `toLocaleString` requires captured literal primitive elements. 
 locales are primitive or a direct literal array of primitives; supplied options are
 primitive or a direct literal data record whose values are primitive. Unproven arguments
 refuse conservatively. Complete Intl option semantics are outside this qualification.
+Actual SDK Math calls require primitive provenance for arguments consumed by numeric
+parameters in the loaded SDK signature, including rest arguments. Zero-argument calls,
+ignored extra arguments and ordinary local homonyms retain their separate boundaries.
 Tests using resolved literal dynamic imports without canonical test-binding proof refuse
 qualified admission. Their ordinary module-link facts remain visible, and non-test literal
 dynamic imports retain their existing closure policy. No coarse test edge is fabricated.
