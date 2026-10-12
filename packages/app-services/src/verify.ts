@@ -24,7 +24,7 @@ import {
 } from "./unresolved-references";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
 import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
-import { fingerprintVerificationSource, retainedGitBlobObjectIds } from "./verification-state";
+import { fingerprintVerificationSource, retainedGitBlobObjectIds, retainedWorkingTreeFilterPaths } from "./verification-state";
 import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META, bindOpaqueCallbackGraph } from "./qualified-analysis";
 import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
@@ -690,6 +690,13 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
         for (const path of inputAfter!.files.map(file => file.path).filter(path => !trackedPaths.has(path)).sort()) {
           qualifiedPostImageReasons.push(`QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:${path}`);
         }
+      }
+      try {
+        for (const path of retainedWorkingTreeFilterPaths(root, inputAfter!.files.map(file => file.path))) {
+          qualifiedPostImageReasons.push(`QUALIFIED_WORKING_TREE_FILTER_UNSUPPORTED:${path}`);
+        }
+      } catch {
+        qualifiedPostImageReasons.push("QUALIFIED_WORKING_TREE_FILTER_UNBOUND");
       }
     }
     if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {

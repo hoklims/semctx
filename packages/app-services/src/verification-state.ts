@@ -197,7 +197,7 @@ export function retainedGitBlobObjectIds(root: string, headCommit: string, files
 /** Batch-resolve `filter`/`ident`/`working-tree-encoding` for candidate paths in one `git
  *  check-attr --stdin` call. Every requested path must yield a complete triple; anything else
  *  (malformed output, duplicates, missing records) refuses rather than admitting raw hashing. */
-function checkAttrBatch(root: string, paths: readonly string[], attributeSource?: string): Map<string, AttributeSnapshot> {
+function checkAttrBatch(root: string, paths: readonly string[], attributeSource?: string, presentFilters?: Map<string, string>): Map<string, AttributeSnapshot> {
   if (paths.length === 0) return new Map();
   const stdin = new TextEncoder().encode(paths.map((path) => `${path}\0`).join(""));
   const raw = new TextDecoder().decode(
@@ -257,6 +257,7 @@ function checkAttrBatch(root: string, paths: readonly string[], attributeSource?
       throw new SemctxError("GIT_ERROR", "cannot capture verification source state: invalid all-attributes record");
     }
     allKeys.add(key);
+    if (attribute === "filter") presentFilters?.set(path, value);
     if (attributeSource !== undefined) {
       const attributes = conversionMetadata.get(path) ?? [];
       attributes.push([attribute, value]);
@@ -285,6 +286,24 @@ function checkAttrBatch(root: string, paths: readonly string[], attributeSource?
     });
   }
   return result;
+}
+
+/** Private qualified working-tree boundary: inspect conversion authority, never run a driver. */
+export function retainedWorkingTreeFilterPaths(root: string, paths: readonly string[]): string[] {
+  const filters = new Map<string, string>();
+  checkAttrBatch(root, paths, undefined, filters);
+  const configured = new Map<string, boolean>();
+  for (const name of new Set(filters.values())) {
+    let active = false;
+    for (const kind of ["clean", "process"]) {
+      const result = Bun.spawnSync(["git", "config", "--null", "--get-all", `filter.${name}.${kind}`], { cwd: root, stdout: "pipe", stderr: "pipe" });
+      if (result.exitCode !== 0 && result.exitCode !== 1) throw new SemctxError("GIT_ERROR", "cannot establish working-tree filter configuration");
+      if (result.exitCode === 0 && new TextDecoder().decode(result.stdout).split("\0").some(value => value.length > 0)) active = true;
+    }
+    configured.set(name, active);
+  }
+  // Configured reserved names can be indistinguishable from Git's set/unset sentinels.
+  return [...filters].filter(([, name]) => configured.get(name)).map(([path]) => path).sort();
 }
 
 type VerificationAttributeBarrier = () => void;
