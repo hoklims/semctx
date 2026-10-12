@@ -56,6 +56,8 @@ export interface VerifyFinding {
   severity: "warn" | "block";
   message: string;
   nodeIds: string[];
+  /** File-only base anchors for recovered guards; not current declaration coordinates. */
+  locations?: VerifyReportLocation[];
 }
 
 export interface VerifyResult {
@@ -776,8 +778,10 @@ export function analyzeLostGuards(args: {
     findings.push({
       rule: rule.when,
       severity: rule.severity,
-      message: `${describeCondition(rule.when, nodes, 0)} (removed, moved or no longer guarded by this change)`,
+      message: `${describeCondition(rule.when, nodes, 0)} (base guard removed, moved or no longer guarded by this change)`,
       nodeIds: nodes.map((n) => n.id),
+      locations: [...new Set(nodes.flatMap((node) => node.filePath === undefined ? [] : [node.filePath]))]
+        .sort(compareIds).map((file) => ({ file })),
     });
   }
   return { findings, unknowns: [...new Set(unknowns)] };
@@ -888,7 +892,7 @@ export function buildVerifyReport(
     severity: f.severity,
     message: f.message,
     nodeIds: f.nodeIds,
-    locations: locationsFor(f.nodeIds),
+    locations: f.locations ?? locationsFor(f.nodeIds),
   }));
 
   const claim = (c: Claim) => ({ statement: c.statement, kind: c.kind, verificationStatus: c.verificationStatus });
