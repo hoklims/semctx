@@ -83,20 +83,22 @@ function isWithin(root: string, candidate: string): boolean {
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !slash(rel).startsWith("../"));
 }
 
-function declarationAt(directory: string): WorkspaceDeclaration | undefined {
+function pnpmDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
   const pnpm = readText(join(directory, "pnpm-workspace.yaml"));
-  if (pnpm !== undefined) {
-    let parsed: unknown;
-    try {
-      parsed = Bun.YAML.parse(pnpm);
-    } catch {
-      return undefined;
-    }
-    const patterns = typeof parsed === "object" && parsed !== null
-      ? stringList((parsed as Record<string, unknown>).packages)
-      : undefined;
-    return patterns === undefined ? undefined : { root: directory, patterns };
+  if (pnpm === undefined) return undefined;
+  let parsed: unknown;
+  try {
+    parsed = Bun.YAML.parse(pnpm);
+  } catch {
+    return undefined;
   }
+  const patterns = typeof parsed === "object" && parsed !== null
+    ? stringList((parsed as Record<string, unknown>).packages)
+    : undefined;
+  return patterns === undefined ? undefined : { root: directory, patterns };
+}
+
+function packageDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
   const workspaces = readJsonRecord(join(directory, "package.json"))?.workspaces;
   const patterns = stringList(workspaces)
     ?? (typeof workspaces === "object" && workspaces !== null
@@ -105,21 +107,32 @@ function declarationAt(directory: string): WorkspaceDeclaration | undefined {
   return patterns === undefined ? undefined : { root: directory, patterns };
 }
 
-/** Nearest workspace declaration at or above `start`, without crossing `boundary` or a `.git` marker. */
+/** First declaration at or above `start`, without crossing `boundary` or a `.git` marker. */
+function searchUpward(
+  start: string,
+  boundary: string | undefined,
+  declarationAt: (directory: string) => WorkspaceDeclaration | undefined,
+): WorkspaceDeclaration | undefined {
+  for (let directory = start; ;) {
+    if (boundary !== undefined && !isWithin(boundary, directory)) return undefined;
+    const found = declarationAt(directory);
+    if (found !== undefined) return found;
+    if (directory === boundary || existsSync(join(directory, ".git"))) return undefined;
+    const parent = canonical(dirname(directory));
+    if (parent === directory) return undefined;
+    directory = parent;
+  }
+}
+
+/**
+ * The governing workspace declaration: an enclosing `pnpm-workspace.yaml` wins over any nearer
+ * `package.json` `workspaces` field, as pnpm ignores the latter; otherwise the nearest one.
+ */
 function findDeclaration(resolver: WorkspaceLinkResolver, start: string, boundary: string | undefined): WorkspaceDeclaration | undefined {
   const key = `${boundary ?? ""}\0${start}`;
   const cached = resolver.declarations.get(key);
   if (cached !== undefined) return cached ?? undefined;
-  let found: WorkspaceDeclaration | undefined;
-  let directory = start;
-  for (;;) {
-    if (boundary !== undefined && !isWithin(boundary, directory)) break;
-    found = declarationAt(directory);
-    if (found !== undefined || directory === boundary || existsSync(join(directory, ".git"))) break;
-    const parent = canonical(dirname(directory));
-    if (parent === directory) break;
-    directory = parent;
-  }
+  const found = searchUpward(start, boundary, pnpmDeclarationAt) ?? searchUpward(start, boundary, packageDeclarationAt);
   resolver.declarations.set(key, found ?? null);
   return found;
 }
@@ -146,7 +159,8 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
     }
   }
   const byName = new Map<string, string | null>();
-  for (const directory of [...directories].sort()) {
+  // The workspace root is itself a workspace package that members can depend on.
+  for (const directory of [declaration.root, ...[...directories].sort()]) {
     const name = readJsonRecord(join(directory, "package.json"))?.name;
     if (typeof name !== "string") continue;
     byName.set(name, byName.has(name) ? null : directory);

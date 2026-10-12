@@ -153,11 +153,12 @@ through the package manager's installed link. When a checkout lacks that link, s
 link pnpm, Bun or Yarn would create, from repository manifests only:
 
 - the dependent directory is the workspace root or a declared member (`pnpm-workspace.yaml`
-  `packages`, otherwise `package.json` `workspaces`, including `!` exclusions); a pattern
+  `packages`, otherwise `package.json` `workspaces`, including `!` exclusions); an enclosing
+  `pnpm-workspace.yaml` governs even a member that declares its own `workspaces`, and a pattern
   reaching outside the workspace root adds no member;
 - it declares the package with a `workspace:` range (`workspace:*`, `workspace:^1.0.0`,
   `workspace:>=1.0.0`, …), not an alias or a path;
-- exactly one member's `package.json` carries that name.
+- exactly one workspace package, the root or a member, carries that name.
 
 An installed package keeps precedence, whether it sits in the dependent's own `node_modules` or is
 hoisted above it, even when it lacks the requested file. The declaration is searched upward

@@ -195,3 +195,29 @@ test("each analysis pass observes the current workspace members", () => {
   rmSync(join(root, "tooling", "config-copy"), { recursive: true, force: true });
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
 });
+
+test("a member may depend on the workspace root package", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "package.json": JSON.stringify({ name: "@fixture/root-config", private: true, exports: { "./tsconfig/root.json": "./tsconfig/root.json" } }),
+    "tsconfig/root.json": JSON.stringify({ compilerOptions: { strict: true } }),
+    "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/registry-api", devDependencies: { "@fixture/root-config": "workspace:*" } }),
+    "domains/registry/api/tsconfig.json": JSON.stringify({ extends: "@fixture/root-config/tsconfig/root.json" }),
+  });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  // A member repeating the root package name makes it ambiguous.
+  write(root, { "tooling/root-copy/package.json": JSON.stringify({ name: "@fixture/root-config" }) });
+  expect(failsToResolve(root, source)).toBe(true);
+});
+
+test("an enclosing pnpm workspace governs a member that declares package workspaces", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "domains/registry/api/package.json": JSON.stringify({
+      name: "@fixture/registry-api",
+      workspaces: ["nested/*"],
+      devDependencies: { "@fixture/config": "workspace:*" },
+    }),
+  });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
