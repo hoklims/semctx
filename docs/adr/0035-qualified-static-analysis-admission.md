@@ -368,6 +368,19 @@ The setupPrimary refusal is conservative even without a subsequent fork.
 Actual SDK Document.write/writeln also refuse runtime script execution boundaries. Member
 declaration and receiver origin remain required; ordinary HTML/text arguments are refused
 conservatively too. Neither HTML parsing nor hidden-module dependency extraction is added.
+Plain argument data does not establish callee identity. Property/element invocations on
+an unresolved ambient receiver refuse without a captured runtime lexical origin, actual
+SDK origin or explicit supported imported boundary. Ordinary native process members and
+bare framework-call ownership retain their existing policy. Synthetic JavaScript binder
+declarations introduced by an assignment are not a runtime lexical binding.
+An actual uncomputed object-literal __proto__ setter requires the existing closed-data
+proof for its initializer; null/direct closed data remain separate. Callable or uncertain
+prototypes refuse without modeling inherited invocation. Computed properties, methods
+and shorthand named __proto__ do not use that setter syntax.
+Callable invocation/escape from import.meta refuses unmodeled runtime effects while
+ordinary metadata reads and supported primitive aliases remain distinct. The Vite glob
+case has direct/static admission observations and a documented transform, but no native
+Vite build observation in this qualification. It is not labeled as CommonJS.
 Actual SDK Worklet `addModule` loaders are unsupported without a module link.
 Retained configurations that actually emit imported runtime helpers are unsupported:
 the pinned SDK emitter observes helper metadata and the emitted `tslib` dependency,

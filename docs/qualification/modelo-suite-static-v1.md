@@ -175,6 +175,17 @@ uses and local homonyms retain their separate domain.
 Actual SDK `Document.write` and `writeln` refuse as runtime script boundaries, with
 captured member and receiver origin. This is conservative for ordinary HTML/text too;
 no HTML parsing, hidden-module extraction or complete browser model is claimed.
+Property/element invocations on an ambient receiver without a captured runtime lexical
+origin, an actual SDK origin or an explicit supported external import refuse even when
+their arguments are plain data. The existing ordinary native `process` members remain
+distinct. Bare framework calls retain their existing ownership policy.
+Object-literal prototype setters require the existing closed-data proof for their
+initializer. Null/direct closed data remain distinct; an uncertain or callable prototype
+refuses. Computed `__proto__` properties, methods and shorthand are ordinary own properties.
+Invocation or callable escape of `import.meta` members is unsupported when its runtime
+effect is unmodeled. Metadata reads and supported primitive aliases remain distinct.
+The observed `import.meta.glob` admission hole is a static loader refusal, supported by
+the bundler's documented transform; no native Vite build was observed in this qualification.
 Unknown/internal coercion in addition or template interpolation, async thenable return
 assimilation, actual SDK Proxy traps and ServiceWorkerContainer registration are outside
 qualification. A type annotation/assertion cannot prove a primitive/native value origin.
