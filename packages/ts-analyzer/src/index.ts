@@ -14,6 +14,7 @@ export {
   sourceLanguage,
   createQualifiedPathEligibility,
   isHardExcludedPath,
+  createDiscoveryPathExclusion,
 } from "./discovery";
 export type {
   DiscoveredFile,

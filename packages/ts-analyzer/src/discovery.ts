@@ -144,6 +144,23 @@ export function isHardExcludedPath(inputPath: string): boolean {
 }
 
 /**
+ * The paths this configuration's discovery walk and excludes leave out, shared with workspace
+ * discovery so that a manifest under an excluded directory never claims a workspace identity
+ * (ADR 0010). A directory is also tested with a trailing separator, so a `dir/**` exclude prunes
+ * the directory itself. Include globs select files rather than directories and are not applied.
+ */
+export function createDiscoveryPathExclusion(config: SemctxConfig): (inputPath: string) => boolean {
+  if (config.version === 1) return (inputPath) => isExcludedLegacy(normalizePath(inputPath), config);
+  const walked = config.analysisProfile === "modelo-suite-static-v1" ? HARD_IGNORED_SEGMENTS : IGNORED_SEGMENTS;
+  return (inputPath) => {
+    const relPath = normalizePath(inputPath);
+    return segments(relPath).some((part) => walked.has(part))
+      || matchesAny(relPath, config.exclude)
+      || matchesAny(`${relPath}/`, config.exclude);
+  };
+}
+
+/**
  * Output basenames are only hints, never evidence that an authored source is generated.
  * Use repository-local ignore files only: host-global and shared Git excludes cannot silently
  * change this profile's source scope. The caller retains these ignore files in its input seal.

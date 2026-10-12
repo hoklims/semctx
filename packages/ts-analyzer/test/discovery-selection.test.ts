@@ -7,6 +7,7 @@ import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
 import {
   discoverFiles,
   countTypeScriptFiles,
+  createDiscoveryPathExclusion,
   discoverRepository,
   isPathSelected,
 } from "@semantic-context/ts-analyzer";
@@ -49,6 +50,36 @@ function globConfig(root: string, overrides: Partial<SemctxConfig> = {}): Semctx
 
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
+
+describe("discovery path exclusion shared with workspace discovery", () => {
+  it("applies the legacy v1 ignored segments and substring excludes to directories and manifests", () => {
+    const excluded = createDiscoveryPathExclusion({ ...createDefaultConfig("/repo"), exclude: ["intake"] });
+    expect(excluded("intake")).toBe(true);
+    expect(excluded("intake/copy")).toBe(true);
+    expect(excluded("intake/copy/package.json")).toBe(true);
+    expect(excluded("packages/core/dist")).toBe(true);
+    expect(excluded("packages/core")).toBe(false);
+    expect(excluded("packages/core/package.json")).toBe(false);
+  });
+
+  it("applies v2 exclude globs to a directory itself and to its contents", () => {
+    const excluded = createDiscoveryPathExclusion(globConfig("/repo", { exclude: ["intake/**"] }));
+    expect(excluded("intake")).toBe(true);
+    expect(excluded("intake/copy/package.json")).toBe(true);
+    expect(excluded("packages/core/build")).toBe(true);
+    expect(excluded("packages/core")).toBe(false);
+    expect(excluded("services/package.json")).toBe(false);
+  });
+
+  it("keeps output directories for the qualified profile, whose walk retains them", () => {
+    const excluded = createDiscoveryPathExclusion(globConfig("/repo", {
+      exclude: [],
+      analysisProfile: "modelo-suite-static-v1",
+    } as Partial<SemctxConfig>));
+    expect(excluded("packages/core/dist")).toBe(false);
+    expect(excluded("packages/core/node_modules")).toBe(true);
+  });
 });
 
 describe("versioned source selection", () => {

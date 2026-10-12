@@ -5,6 +5,7 @@ import { loadConfig, openStore, SCHEMA_VERSION } from "@semantic-context/reposit
 import { SealedAttestationIndexV1Schema, type ControlFreshnessSeal } from "@semantic-context/control-model";
 import { loadSemanticModel } from "@semantic-context/semantic-engine";
 import {
+  createDiscoveryPathExclusion,
   discoverRepository,
   sourceLanguage,
   type AnalysisResult,
@@ -277,6 +278,7 @@ function completeRepositoryIndex(
     repositoryRoot: configAfter.repositoryRoot,
     repositoryId: indexed.workspaceProjection.repositoryId,
     artifacts: workspaceArtifacts(indexed.analysis),
+    excludePath: createDiscoveryPathExclusion(configAfter),
   });
   const workspaceProjectionDigestAfter = digestCanonical(workspaceProjectionAfter);
   const semanticAfter = loadSemanticModel(root);

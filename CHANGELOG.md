@@ -9,6 +9,11 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Fixed
+
+- Workspace discovery honors configured exclusions. A manifest copy under an excluded directory
+  no longer claims a workspace identity and blocks every evaluation with `AMBIGUOUS_LAYOUT`.
+
 ## [0.4.3] - 2026-10-12
 
 ### Added

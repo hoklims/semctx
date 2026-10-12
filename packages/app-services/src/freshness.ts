@@ -27,7 +27,7 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
-import { createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
+import { createDiscoveryPathExclusion, createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -243,7 +243,7 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
     // Seal only directory membership consumed by workspace projection, using these retained
     // manifest bytes. Unrelated empty output directories do not affect the qualified identity.
     const manifestContents = new Map(files.map(file => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
-    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents });
+    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents, excludePath: createDiscoveryPathExclusion(config) });
     const workspaceRoots = [...new Set([...workspaceLayout.nodes, ...workspaceLayout.candidates].map(entry => entry.root))].sort(compareIds);
     const rawConfiguration = configurationInput.state === "present" ? { state: "present", contentHash: hash("qualified-input-bytes", configurationInput.bytes) } : configurationInput;
     return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, rawConfiguration, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files, workspaceRoots, configurationInput };

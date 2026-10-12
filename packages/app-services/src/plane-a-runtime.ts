@@ -50,6 +50,7 @@ import {
   type DiscoveredFile,
   type DiscoveryCandidate,
   type DiscoveryResult,
+  createDiscoveryPathExclusion,
   TYPESCRIPT_DIALECT_VERSION,
   inspectJavaScriptSource,
   inspectSourceParsing,
@@ -297,6 +298,7 @@ function composePlaneARuntime(
     repositoryRoot: config.repositoryRoot,
     repositoryId: repositoryIdentity,
     artifacts: provisionalArtifacts,
+    excludePath: createDiscoveryPathExclusion(config),
     ...(compilerInputs === undefined ? {} : { manifestContents: compilerInputs }),
   });
   const workspaceUnitByPath = workspaceUnitsByPath(
