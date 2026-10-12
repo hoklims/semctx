@@ -803,12 +803,17 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       const external = module !== undefined && !module.startsWith(".") && !module.startsWith("/") && !/^[A-Za-z]:/.test(module);
       if (callerOwned && !external && sdkValue(callee) === undefined) {
         const members = declarations(callee);
-        const target = members.length === 1 && ts.isPropertyAssignment(members[0]!) && internal(members[0]!)
-          ? members[0]!.initializer : callee;
-        const root = ownership.get(inputs)?.root ?? dirname(bound.fileName);
-        const coordinate = retainedCallableCoordinate(checker, target, root, inputs);
-        if (coordinate?.relPath === undefined || coordinate.symbolPath === undefined || coordinate.unmodeledReason !== undefined
-          || !retained.has(key(resolve(root, coordinate.relPath)))) reasons.add("SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED");
+        // Real retained members keep the existing post-extraction coordinate refusal.
+        // Erased or synthetic assignment members have no declaration to extract.
+        const declaredMember = members.length > 0 && members.every(origin => internal(origin)
+          && (ts.isPropertyAssignment(origin) || ts.isShorthandPropertyAssignment(origin) || ts.isMethodDeclaration(origin)
+            || ts.isPropertyDeclaration(origin) || ts.isPropertySignature(origin) || ts.isMethodSignature(origin)));
+        if (!declaredMember) {
+          const root = ownership.get(inputs)?.root ?? dirname(bound.fileName);
+          const coordinate = retainedCallableCoordinate(checker, callee, root, inputs);
+          if (coordinate?.relPath === undefined || coordinate.symbolPath === undefined || coordinate.unmodeledReason !== undefined
+            || !retained.has(key(resolve(root, coordinate.relPath)))) reasons.add("SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED");
+        }
       }
       let root = actualValue(callee.expression);
       const members = [staticMemberName(callee)];
