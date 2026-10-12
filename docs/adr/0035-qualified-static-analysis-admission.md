@@ -48,7 +48,12 @@ Binding, index freshness, repository coverage, change coverage, check freshness 
 control freshness are separate fields. `DIRTY_KNOWN` means the exact dirty source was
 indexed and sealed; `STALE`, `UNSEALED`, incompatible implementation/configuration or
 partial obligated analysis refuse admission. Repository coverage may remain partial
-outside the named change closure; the report enumerates both scopes.
+outside the named change closure; the report enumerates both scopes. An admitted report must
+include every `changedFiles` path in `changeCoverage.expected`; dependency closure can add
+expected paths, so equality is not required. Complete repository coverage cannot contain an
+explicit failed, missing or unsupported outcome, or an analyzed record with reasons. Excluded
+records may coexist with complete selected coverage. These checks reject represented
+contradictions; they do not prove completeness of paths absent from every recorded inventory.
 
 A dirty qualified index supports working-tree verification only. Staged and range
 sources require a clean indexed post-image; a range destination must also match the
@@ -57,10 +62,25 @@ currently unsupported and reject with `QUALIFIED_BASE_RECOVERY_UNSUPPORTED`, a b
 `analysis_scope_incomplete` finding and a named unknown. This includes ordinary body-line
 replacements, not only deleted or stripped guards. Raw base blobs alone do not establish
 Git source eligibility, retained compiler inputs or capability admission for that base.
-No temporary Git marker or head configuration substitutes for those inputs. Pure additions
+No head configuration alone substitutes for those committed-range base inputs. Pure additions
 that remove no base lines keep their existing admission path.
 
-This is a conservative compatibility restriction until immutable base eligibility and
+Qualified refreshed working-tree diffs that remove base lines separately capture immutable
+resolved HEAD raw blobs and full safe inventory in a disposable private repository. They analyze
+retained old inputs under the exact current raw/parsed Semctx policy and pinned current SDK/compiler,
+then compare guards with the refreshed head graph. This is current-policy structural comparison,
+not historical configuration, SDK or old admission replay. Old obligated sources and their actual
+dependency/evidence closure must pass binding, producer, capability and authority checks; broad
+old loader/configuration/parse checks remain in force. An unavailable, unsafe, unbound or unsupported
+capture rejects with `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED`, a blocking scope finding
+and named details. Technical capture failure is not mislabeled as a universal semantic diagnosis.
+Recovered guards retain configured severities; surviving current covering-test evidence remains
+structural, not observed test execution. Incomplete negative evidence stays advisory. No legacy
+base analysis can grant qualified absence or PASS. Full HEAD copying and selected analysis happen
+per removing working-tree diff; no overall latency, memory ceiling or speed gain is qualified.
+Staged/range support is unchanged by this working-tree path.
+
+The committed-range restriction remains until its own immutable base eligibility and
 compiler-input capture are implemented. Consumers must not retry with legacy configuration
 or relabel the rejection as admitted. Verify refreshed working-tree changes before committing
 and retain the explicit committed-range refusal in CI; a supported committed range requires
@@ -426,6 +446,12 @@ ordinary metadata reads and supported primitive aliases remain distinct. The Vit
 case has direct/static admission observations and a documented transform, but no native
 Vite build observation in this qualification. It is not labeled as CommonJS.
 Actual SDK String and Number conversion requires existing primitive provenance for the first argument.
+The same String/Number, numeric Math, array join and locale-string obligations use effective
+SDK target, receiver and argument coordinates through actual `Function.call`, `Function.apply`
+and invoked immutable const-bound aliases. Apply argument lists must be finite direct literals
+(or absent/null) for this proof; unknown/spread lists cannot establish primitive coordinates.
+Creating an unused bound function is not a coercion invocation and is not refused for that alone.
+Local call/apply/bind homonyms retain their own domain. No hidden invocation edge is invented.
 SDK array join requires a fresh direct literal receiver with proven primitive elements and
 a primitive separator when supplied. Const array initializers and container aliases do not
 prove the current elements after possible mutation. Ordinary toString hooks are unmodeled invocation;

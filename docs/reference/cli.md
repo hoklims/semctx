@@ -355,17 +355,29 @@ survives indexing, persistence and a fresh read instead of scrolling past once.
 The base must exist locally — semctx never fetches implicitly. In CI, check out with
 `fetch-depth: 0`.
 
-When a range removes lines, files or paths, verification also reads the merge-base's raw Git blobs
-and checks guards missing at the head. It does not run checkout filters or materialize Git links.
+Outside qualified selection, a range removing lines, files or paths also reads the merge-base's
+raw Git blobs and checks guards missing at the head. It does not run checkout filters or materialize Git links.
 Selected base symlinks or gitlinks are refused with `GIT_ERROR`, rather than interpreted as source.
 The current configuration controls this additional analysis: excluded changed base paths remain
 unobserved and produce a warning plus an explicit unknown, not recovered guards. A selected changed
 base path with failed, disabled or unsupported analysis blocks with `analysis_scope_incomplete`.
 Config v2 also discloses incomplete negative test/guard evidence from the base analysis. These
-warnings do not establish faithful recovery of excluded or incomplete base scope.
+warnings do not establish faithful recovery of excluded or incomplete base scope. Recovered
+base-guard findings identify their base provenance with file-only locations; they do not present
+an old line as an observed head declaration or fabricate deleted symbols into `changedSymbols`.
 
-The opt-in `qualified-static-v1` profile cannot yet recover admitted base inputs. Any committed
-range removing base lines, files or paths therefore returns an explicit `BLOCK` report with
+For qualified refreshed working-tree removals, verification captures full safe immutable HEAD
+inventory and retained old source under the exact current Semctx policy and pinned current
+SDK/compiler, then compares guards with the refreshed head. This is not historical policy/SDK
+admission replay. Old bound analyzed obligations and capability/authority checks are required;
+unsafe, unavailable, unbound or unsupported capture returns rejected `BLOCK` and invalid binding
+with `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED` details. Successful comparison preserves
+configured rule severities and structural current-test evidence, not runtime test execution or
+complete negative evidence. Full HEAD capture/selected analysis per removing diff has no qualified
+overall latency or memory ceiling.
+
+The opt-in `qualified-static-v1` profile cannot yet recover admitted committed-range base inputs.
+Any committed range removing base lines, files or paths therefore returns an explicit `BLOCK` report with
 `QUALIFIED_BASE_RECOVERY_UNSUPPORTED` in rejected admission, rather than attempting the scratch
 analysis or throwing an internal snapshot error. Ordinary body replacements are included. CLI
 exits 3 even with `--fail-on none`; pure additions keep their existing admission path. Refreshed
@@ -376,6 +388,11 @@ compatibility restriction until immutable base eligibility and compiler inputs a
 `range`, `changedFiles`, `changedSymbols`, `impactedContracts`, `impactedInvariants`,
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,
 `locations`), `summary { blockCount, warnCount }`. Additive-only within a major `schemaVersion`.
+Qualified admission remains an additive version-1 field. An admitted report's `changedFiles`
+are a subset of `analysisAdmission.changeCoverage.expected`; static closure can add obligations.
+Complete repository coverage refuses explicitly failed/missing/unsupported outcomes or analyzed
+records with reasons, while excluded records can coexist with complete selected coverage.
+These schema checks detect represented contradictions, not paths missing from every inventory.
 
 ## `impact diff`
 

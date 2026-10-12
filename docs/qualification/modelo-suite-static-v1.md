@@ -34,6 +34,17 @@ not captured yet; raw blobs do not establish that base's admission. Pure additio
 no base lines keep the existing path. Use refreshed working-tree verification before committing,
 but do not present it as a qualified committed-range result or disable the profile to bypass CI.
 This temporary restriction reduces supported range workflows without claiming a performance gain.
+Refreshed working-tree removals use a separate immutable resolved-HEAD capture: full safe raw
+inventory and retained old inputs are analyzed under the exact current raw/parsed Semctx policy
+and pinned current SDK/compiler, not historical policy or SDK admission. Actual old obligations
+and dependency/evidence closure need bound analyzed sources and passed factual capability/authority
+gates; broad old loader/configuration/parse checks remain required. Unavailable, unsafe, unbound
+or unsupported capture returns rejected `BLOCK` with invalid binding and
+`QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED` details. Recovered invariant/security/contract
+findings keep their configured severities, not a blanket new BLOCK severity for every old guard.
+Current covering-test evidence is structural; incomplete negative evidence remains advisory.
+Full HEAD capture and selected analysis run per removing diff, without a qualified overall
+resource/latency ceiling. This working-tree result does not qualify a committed removal range.
 Supported staged/range post-image comparison requires the already-declared Git >= 2.41 for
 `--attr-source`; an older Git returns an operational `UNSUPPORTED` diagnostic before conversion,
 not a qualified report. In retained post-image comparison, attribute observation failure or
@@ -56,6 +67,7 @@ unreleased candidate until its own artifacts are qualified.
 | Effective module configuration | Direct and inherited compiler options are inspected | The profile uses ESNext/Bundler defaults and refuses explicit incompatible module or resolution semantics |
 | Monorepo selection | Exact changed paths plus required dependencies, including excluded importers | A required exclusion, wrong root, empty selection or zero analysis rejects admission |
 | Source identity | Exact Git endpoints, diff, raw source/configuration input digest, analyzer and index identities | Selected and excluded/untracked source/configuration drift invalidates qualification |
+| Report scope | Admitted changed files are included in expected obligations; represented complete repository outcomes are analyzed without reasons or excluded | Closure may add expected paths; validation does not prove absent inventory or runtime completeness |
 | Reconstruction | Sources actually consumed; completed snapshot plus explicit build state | Interrupted rebuilding and partial/failed required analysis refuse admission |
 | Parsing and unresolved constructs | File outcome and diagnostic, with nonpositive admission | CommonJS, computed loading/evaluation and missing/deleted post-images require another profile |
 | CLI, MCP, plugin and Action | Actual structured outputs and process results | A qualified rejection returns nonzero even in advisory consumption |
@@ -227,6 +239,10 @@ effect is unmodeled. Metadata reads and supported primitive aliases remain disti
 The observed `import.meta.glob` admission hole is a static loader refusal, supported by
 the bundler's documented transform; no native Vite build was observed in this qualification.
 Actual SDK `String` and `Number` conversion requires primitive provenance for their first argument.
+The String/Number, numeric Math, array join and locale-string checks also use the effective target,
+receiver and argument coordinates of actual SDK call/apply and invoked immutable const-bound
+aliases. Finite direct apply lists (or absent/null lists) remain distinct from unknown/spread
+arguments. Unused bind creation is not itself a conversion refusal; local homonyms remain separate.
 Actual SDK array `join` requires a fresh direct literal array of proven primitive elements
 and a proven primitive separator when supplied. Const containers and their aliases do not
 prove current element provenance after mutation. Unknown ordinary conversion hooks refuse;
@@ -333,10 +349,18 @@ never acquire the candidate identity. This manifest is input evidence, not a sig
 or independent proof that its recorded generation actually ran. Retain the raw generation
 logs beside it. The harness validates inputs before scenarios and again at completion.
 
-A qualified refusal must be a schema-valid `BLOCK` report with rejected admission and
-CLI exit 3. Crashes, empty output and malformed reports do not count as refusal. Named
-operational errors for an uninitialized root or legacy unsupported configuration remain
-separate from structured admission reports.
+A qualified refusal must be a full schema-valid `BLOCK` report with rejected admission and
+CLI exit 3. MCP witnesses additionally require a non-error tool response carrying the actual
+verification report envelope, not `isError: true` with a partial or malformed BLOCK-shaped object.
+The qualification harness's MCP exchange has a 30-second ceiling, an 8 MiB stdout-byte cap and
+64 KiB retained stderr while draining the stream. Teardown has a separate 2-second polite grace
+and 5-second bounds for forced-exit/read/cancel waits, for a declared 57-second helper worst case.
+Unobserved direct-child exit or unfinished/failed owned-stream completion refuses the witness.
+Cancellation is recorded separately from natural pipe closure. Only the direct spawned child's
+exit is claimed; this is not a process-tree sandbox or observed Unix termination efficacy.
+Crashes, protocol/process bounds, empty output and malformed reports do not count as semantic
+refusal. Named operational errors for an uninitialized root or legacy unsupported configuration
+remain separate from structured admission reports.
 
 The harness preserves actual command output and numeric exit codes. Its baseline reproduces
 the incident with `PASS` despite an unanalysed changed `.mjs` and stale index. The corrected
