@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { FOCUSED_TEST_TARGETS, ROUTING_TESTS, type CiLane } from "./ci-plan";
+import { FOCUSED_TEST_TARGETS, ROUTING_TESTS, TEST_SHARDS, type CiLane } from "./ci-plan";
+import { isTestShard, TEST_TIMINGS } from "./verify-pr";
 
 export interface CiCommand {
   label: string;
@@ -8,8 +9,12 @@ export interface CiCommand {
 }
 
 export function commandsForLane(lane: CiLane, base: string, targetExists: (path: string) => boolean): CiCommand[] {
+  if (lane.shard !== "" && !(isTestShard(lane.shard)
+    && Number(lane.shard.split("/")[1]) === TEST_SHARDS[lane.os])) {
+    throw new Error("invalid test shard");
+  }
   if (lane.profile === "contract") {
-    if (lane.os !== "ubuntu-latest" || lane.targets !== "" || lane.smoke !== "false") {
+    if (lane.os !== "ubuntu-latest" || lane.targets !== "" || lane.smoke !== "false" || lane.shard !== "") {
       throw new Error("invalid contract lane");
     }
     return [
@@ -23,7 +28,10 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
   if (lane.profile === "full") {
     if (lane.targets !== "") throw new Error("full lane cannot specify focused targets");
     return [
-      { label: "canonical full gate", argv: ["bun", "run", "verify:pr"] },
+      lane.shard === ""
+        ? { label: "canonical full gate", argv: ["bun", "run", "verify:pr"] }
+        : { label: `canonical full gate (test shard ${lane.shard})`,
+          argv: ["bun", "run", "verify:pr", "--", "--test-shard", lane.shard] },
       ...(lane.smoke === "true"
         ? [{ label: "small worker equivalence smoke", argv: ["bun", "run", "bench:index-workers", "4", "2"] }]
         : []),
@@ -37,7 +45,8 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
     throw new Error("focused lane has an unknown or missing test target");
   }
   const commands: CiCommand[] = [
-    { label: "affected cross-platform tests", argv: ["bun", "test", "--timeout", "60000", ...targets] },
+    { label: "affected cross-platform tests", argv: ["bun", "test", "--timeout", "60000",
+      ...(lane.shard === "" ? [] : [`--shard=${lane.shard}`, `--timings=${TEST_TIMINGS}`]), ...targets] },
   ];
   if (targets.includes("plugins")) {
     commands.push({ label: "plugin runtime parity", argv: ["bun", "run", "plugin:check"] });
@@ -89,7 +98,9 @@ if (import.meta.main) {
     if (profile !== "contract" && profile !== "full" && profile !== "focused") throw new Error("unknown CI profile");
     if (os !== "ubuntu-latest" && os !== "windows-latest" && os !== "macos-15") throw new Error("unknown CI OS");
     if (smoke !== "true" && smoke !== "false") throw new Error("invalid CI smoke flag");
-    const lane: CiLane = { profile, os, targets: process.env.SEMCTX_CI_TARGETS ?? "", smoke };
+    const lane: CiLane = {
+      profile, os, targets: process.env.SEMCTX_CI_TARGETS ?? "", smoke, shard: process.env.SEMCTX_CI_SHARD ?? "",
+    };
     process.exitCode = await runCiGate(lane, process.env.SEMCTX_VERIFY_BASE || "origin/main");
   } catch (error) {
     console.error(`[ci-gate] ERROR ${error instanceof Error ? error.message : String(error)}`);
