@@ -85,7 +85,9 @@ test("captured Date and Document aliases preserve their actual SDK boundary", ()
   }
   const path = "/fixture/main.ts";
   const source = "const doc:Document={write(_value:string){}} as unknown as Document;export function run(){doc.write('ordinary HTML/text');}";
-  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toEqual([]);
+  const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
+  expect(reasons).toEqual(["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]);
+  expect(reasons).not.toContain("SOURCE_DOCUMENT_WRITE_UNSUPPORTED");
 });
 
 test("cluster module origin survives only the existing captured binding aliases", () => {
