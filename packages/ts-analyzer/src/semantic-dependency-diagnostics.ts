@@ -416,6 +416,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         }
         const name = propertyName(property.name);
         const value = ts.isPropertyAssignment(property) ? property.initializer : ts.isShorthandPropertyAssignment(property) ? property.name : undefined;
+        if (sdkGlobalMember(target, name)) reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED");
         if ((ts.isComputedPropertyName(property.name) && protocolKey(property.name.expression))
           || (name === "then" && (value === undefined || !primitiveValue(value)))
           || (name !== undefined && sdkCallableMember(target, name) && (value === undefined || !primitiveValue(value)))
@@ -483,6 +484,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       if (!ts.isPropertyAssignment(entry)) { reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED"); continue; }
       if (ts.isComputedPropertyName(entry.name) && protocolKey(entry.name.expression)) reasons.add("SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED");
       const name = propertyName(entry.name);
+      if (!create && parent.arguments[0] !== undefined && sdkGlobalMember(parent.arguments[0], name)) reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED");
       const knownKey = name !== undefined || (ts.isComputedPropertyName(entry.name) && propertyKey(entry.name.expression));
       if (!knownKey || name === "__proto__" || !dataDescriptor(entry.initializer)) reasons.add("SOURCE_DESCRIPTOR_UNSUPPORTED");
       const descriptor = unwrapStaticExpression(entry.initializer);
@@ -540,6 +542,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       reasons.add("SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"); return;
     }
     const target = actualValue(container.arguments[0]); const name = container.arguments[1]; const value = container.arguments[2];
+    if (sdkGlobalMember(target, constantString(name))) reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED");
     if (protocolKey(name) || (constantString(name) === "then" && (value === undefined || !primitiveValue(value)))) reasons.add("SOURCE_PROTOCOL_MUTATION_UNSUPPORTED");
     else if (sdkCallableMember(target, constantString(name)) && (value === undefined || !primitiveValue(value))) reasons.add("SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED");
   };
@@ -984,6 +987,9 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     const isAsync = (node: ts.Node): boolean => ts.canHaveModifiers(node)
       && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
     if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) return isAsync(value);
+    const symbol = checker.getSymbolAtLocation(value);
+    const binding = symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0 ? checker.getAliasedSymbol(symbol) : symbol;
+    if (binding === undefined || declarations(value).some(declaration => bindingWritten(binding, declaration.getSourceFile()))) return false;
     return declarations(value).some(declaration => ((ts.isFunctionDeclaration(declaration) || ts.isMethodDeclaration(declaration)) && isAsync(declaration))
       || (ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
         && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && asyncValue(declaration.initializer, seen)));
@@ -1284,6 +1290,12 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node))
       && reflectedInvocation(node)) reasons.add("SOURCE_REFLECT_INVOCATION_UNSUPPORTED");
     if ((ts.isForOfStatement(node) || ts.isSpreadElement(node)) && !intrinsicIterable(node.expression)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
+    if (ts.isForOfStatement(node) && node.awaitModifier !== undefined) {
+      const iterable = unwrapStaticExpression(node.expression);
+      const safeItems = ts.isArrayLiteralExpression(iterable)
+        && iterable.elements.every(element => ts.isOmittedExpression(element) || (!ts.isSpreadElement(element) && safeAwaitValue(element)));
+      if (!safeItems && !primitiveValue(iterable)) reasons.add("SOURCE_AWAIT_UNSUPPORTED");
+    }
     if (ts.isNewExpression(node)) {
       const origin = sdkConstructorValue(node.expression);
       if (origin === undefined) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
