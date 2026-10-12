@@ -64,9 +64,10 @@ threshold is applied to duration or memory.
 
 Under ADR 0031, selected worker/indexing CI lanes run this unchanged protocol with dimensions
 4 by 2. Each successful smoke writes the complete JSON to the ignored `.semctx/multicore-index.json`
-as well as the logs, and uploads it as `multicore-index-<os>-<run_attempt>` using the run's default artifact
-retention. The upload fails if the report is missing. Lanes without a selected smoke produce no
-benchmark artifact. Attempt-specific names retain earlier reports when a job is rerun; the full
+as well as the logs, and uploads it as `multicore-index-<os>-<run_attempt>-<job_index>` using the run's
+default artifact retention. The matrix job index keeps reports from test shards distinct. The upload
+fails if the report is missing. Lanes without a selected smoke produce no benchmark artifact.
+Attempt-specific names retain earlier reports when a job is rerun; the full
 24-by-100 investigation remains available on demand.
 
 ## Known limits

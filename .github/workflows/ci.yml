@@ -67,7 +67,7 @@ jobs:
         if: matrix.smoke == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: multicore-index-${{ matrix.os }}-${{ github.run_attempt }}
+          name: multicore-index-${{ matrix.os }}-${{ github.run_attempt }}-${{ strategy.job-index }}
           path: .semctx/multicore-index.json
           include-hidden-files: true
           if-no-files-found: error
