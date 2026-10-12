@@ -142,6 +142,16 @@ function normalizePattern(pattern: string): string {
   return pattern.replace(/^(?:\.\/)+/, "").replace(/\/+$/, "");
 }
 
+/** Like discovery, a nested Git worktree or repository below the workspace root holds no member. */
+function insideNestedRepository(root: string, memberPath: string): boolean {
+  let directory = root;
+  for (const segment of memberPath.split("/")) {
+    directory = join(directory, segment);
+    if (existsSync(join(directory, ".git"))) return true;
+  }
+  return false;
+}
+
 function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclaration): WorkspaceMembers {
   const cached = resolver.members.get(declaration.root);
   if (cached !== undefined) return cached;
@@ -154,7 +164,7 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
       const memberPath = slash(relative(declaration.root, member));
       // A traversal pattern such as `../outside/*` cannot add a member outside the workspace.
       if (memberPath === "" || !isWithin(declaration.root, member) || memberPath.split("/").includes("node_modules")) continue;
-      if (excluded.some(glob => glob.match(memberPath))) continue;
+      if (excluded.some(glob => glob.match(memberPath)) || insideNestedRepository(declaration.root, memberPath)) continue;
       directories.add(member);
     }
   }
@@ -172,18 +182,38 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
 
 const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"] as const;
 
-/** Names declared through a `workspace:` range; aliases (`workspace:name@range`) and paths are excluded. */
-function workspaceDependencies(directory: string): ReadonlySet<string> {
+/** Ranges declared through `workspace:`, by name; aliases (`workspace:name@range`) and paths are excluded. */
+function workspaceDependencies(directory: string): ReadonlyMap<string, string> {
   const manifest = readJsonRecord(join(directory, "package.json"));
-  const names = new Set<string>();
+  const ranges = new Map<string, string>();
   for (const field of DEPENDENCY_FIELDS) {
     const dependencies = manifest?.[field];
     if (typeof dependencies !== "object" || dependencies === null) continue;
     for (const [name, specifier] of Object.entries(dependencies)) {
-      if (typeof specifier === "string" && /^workspace:[^@/\\]*$/.test(specifier)) names.add(name);
+      const match = typeof specifier === "string" ? /^workspace:([^@/\\]*)$/.exec(specifier) : null;
+      if (match?.[1] !== undefined) ranges.set(name, match[1].trim());
     }
   }
-  return names;
+  return ranges;
+}
+
+const COMPARATOR = /^(?:[<>]=?|=|\^|~)?v?(?:0|[1-9]\d*|[xX*])(?:\.(?:0|[1-9]\d*|[xX*])){0,2}(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+
+/** A conservative semver range grammar; a range outside it is not linked. */
+function isSemverRange(range: string): boolean {
+  return range.split("||").every((set) => {
+    const parts = set.trim().split(/\s+/).filter(part => part.length > 0);
+    if (parts.length === 3 && parts[1] === "-") return COMPARATOR.test(parts[0]!) && COMPARATOR.test(parts[2]!);
+    return parts.length > 0 && parts.every(part => COMPARATOR.test(part));
+  });
+}
+
+/** pnpm links a `workspace:` dependency only when the member's version satisfies its range. */
+function satisfiesWorkspaceRange(member: string, range: string): boolean {
+  if (range === "" || range === "*" || range === "^" || range === "~") return true;
+  const version = readJsonRecord(join(member, "package.json"))?.version;
+  return typeof version === "string" && /^\d+\.\d+\.\d+(?:[-+].*)?$/.test(version)
+    && isSemverRange(range) && Bun.semver.satisfies(version, range);
 }
 
 /** Whether Node resolution from `directory` reaches an installed `name`, locally or hoisted. */
@@ -204,9 +234,11 @@ function linksAt(resolver: WorkspaceLinkResolver, directory: string, boundary: s
   if (declaration !== undefined) {
     const members = membersOf(resolver, declaration);
     const isMember = directory === declaration.root || members.directories.has(directory);
-    for (const name of isMember ? [...dependencies].sort() : []) {
+    const names = isMember ? [...dependencies.keys()].sort() : [];
+    for (const name of names) {
       const member = members.byName.get(name);
       if (member === undefined || member === null || installedFrom(directory, name)) continue;
+      if (!satisfiesWorkspaceRange(member, dependencies.get(name)!)) continue;
       if (boundary !== undefined && !isWithin(boundary, member)) continue;
       links.set(name, member);
     }
@@ -231,16 +263,18 @@ export function workspaceLinkedSystem(
   /** Map one path through a workspace link, or `undefined` when no link applies. */
   const linked = (path: string): string | undefined => {
     const normalized = slash(path);
-    const marker = normalized.indexOf("/node_modules/");
-    if (marker <= 0) return undefined;
-    const directory = canonical(normalized.slice(0, marker));
-    const segments = normalized.slice(marker + "/node_modules/".length).split("/");
-    const nameLength = segments[0]?.startsWith("@") ? 2 : 1;
-    if (segments.length < nameLength || segments.slice(0, nameLength).some(segment => segment.length === 0)) return undefined;
-    const member = linksAt(resolver, directory, confinedBoundary).get(segments.slice(0, nameLength).join("/"));
-    if (member === undefined) return undefined;
-    const rest = segments.slice(nameLength);
-    return rest.length === 0 ? member : `${member}/${rest.join("/")}`;
+    // Any `node_modules` segment may be the linking one, e.g. when the repository itself sits below
+    // an ancestor named `node_modules`: the first directory that declares the name decides.
+    for (let marker = normalized.indexOf("/node_modules/"); marker > 0; marker = normalized.indexOf("/node_modules/", marker + 1)) {
+      const segments = normalized.slice(marker + "/node_modules/".length).split("/");
+      const nameLength = segments[0]?.startsWith("@") ? 2 : 1;
+      if (segments.length < nameLength || segments.slice(0, nameLength).some(segment => segment.length === 0)) continue;
+      const member = linksAt(resolver, canonical(normalized.slice(0, marker)), confinedBoundary).get(segments.slice(0, nameLength).join("/"));
+      if (member === undefined) continue;
+      const rest = segments.slice(nameLength);
+      return rest.length === 0 ? member : `${member}/${rest.join("/")}`;
+    }
+    return undefined;
   };
 
   const installed = (path: string): boolean => system.fileExists(path) || (system.directoryExists?.(path) ?? false);

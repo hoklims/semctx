@@ -154,10 +154,10 @@ link pnpm, Bun or Yarn would create, from repository manifests only:
 
 - the dependent directory is the workspace root or a declared member (`pnpm-workspace.yaml`
   `packages`, otherwise `package.json` `workspaces`, including `!` exclusions); an enclosing
-  `pnpm-workspace.yaml` governs even a member that declares its own `workspaces`, and a pattern
-  reaching outside the workspace root adds no member;
-- it declares the package with a `workspace:` range (`workspace:*`, `workspace:^1.0.0`,
-  `workspace:>=1.0.0`, …), not an alias or a path;
+  `pnpm-workspace.yaml` governs even a member that declares its own `workspaces`; a pattern
+  reaching outside the workspace root or into a nested Git worktree or repository adds no member;
+- it declares the package with a `workspace:` range (`workspace:*`, `workspace:^`, or a semver
+  range such as `workspace:^1.0.0` that the member's `version` satisfies), not an alias or a path;
 - exactly one workspace package, the root or a member, carries that name.
 
 An installed package keeps precedence, whether it sits in the dependent's own `node_modules` or is

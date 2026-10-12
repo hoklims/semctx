@@ -29,6 +29,7 @@ function write(root: string, files: Record<string, string>): void {
 const CONFIG_MEMBER = {
   "tooling/config/package.json": JSON.stringify({
     name: "@fixture/config",
+    version: "1.0.0",
     exports: { "./tsconfig/node.json": "./tsconfig/node.json", "./tsconfig/base.json": "./tsconfig/base.json" },
   }),
   "tooling/config/tsconfig/base.json": JSON.stringify({
@@ -220,4 +221,34 @@ test("an enclosing pnpm workspace governs a member that declares package workspa
     }),
   });
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
+
+test("a workspace range the member version does not satisfy receives no link", () => {
+  for (const [range, linked] of [["workspace:^1.0.0", true], ["workspace:^2.0.0", false], ["workspace:not a range", false]] as const) {
+    const { root, source } = workspace(range);
+    expect(failsToResolve(root, source)).toBe(!linked);
+  }
+});
+
+test("a nested Git worktree is not a workspace member", () => {
+  const { root, source } = workspace();
+  write(root, { "tooling/config/.git": "gitdir: ../../.git/worktrees/config\n" });
+  expect(failsToResolve(root, source)).toBe(true);
+});
+
+test("a repository below an ancestor node_modules directory still links its members", () => {
+  const parent = temporaryRoot("semctx-workspace-ancestor-");
+  const base = `${parent}/node_modules/repo`;
+  write(base, {
+    "package.json": JSON.stringify({ name: "fixture-root", private: true }),
+    "pnpm-workspace.yaml": "packages:\n  - \"tooling/*\"\n  - \"domains/*/*\"\n",
+    ...CONFIG_MEMBER,
+    "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/registry-api", devDependencies: { "@fixture/config": "workspace:*" } }),
+    "domains/registry/api/tsconfig.json": JSON.stringify({ extends: "@fixture/config/tsconfig/node.json" }),
+    "domains/registry/api/src/registry.ts": "export const registry = 1;\n",
+  });
+  mkdirSync(join(base, ".git"));
+  const source = `${base}/domains/registry/api/src/registry.ts`;
+  expect(configurationFailures(inspectModuleConfiguration(source, base))).toEqual([]);
+  expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${base}/tooling/config/tsconfig/shared.ts`);
 });
