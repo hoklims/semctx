@@ -535,14 +535,14 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       || (ts.isMethodDeclaration(origin) && origin.body !== undefined) || (ts.isVariableDeclaration(origin) && origin.initializer !== undefined
         && (ts.isArrowFunction(origin.initializer) || ts.isFunctionExpression(origin.initializer)))));
   };
-  const builtinExecutionValue = (expression: ts.Expression, seen = new Set<ts.Node>()): string | undefined => {
+  const builtinModuleValue = (expression: ts.Expression, seen = new Set<ts.Node>()): string | undefined => {
     const value = unwrapStaticExpression(expression);
     if (seen.has(value)) return undefined;
     seen.add(value);
-    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return builtinExecutionValue(value.expression, seen);
-    if (ts.isAwaitExpression(value)) return builtinExecutionValue(value.expression, seen);
+    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return builtinModuleValue(value.expression, seen);
+    if (ts.isAwaitExpression(value)) return builtinModuleValue(value.expression, seen);
     if (ts.isCallExpression(value) && value.expression.kind === ts.SyntaxKind.ImportKeyword && value.arguments[0] !== undefined
-      && ts.isStringLiteralLike(value.arguments[0])) return executionModule(value.arguments[0].text);
+      && ts.isStringLiteralLike(value.arguments[0])) return value.arguments[0].text;
     const origins = checker.getSymbolAtLocation(value)?.getDeclarations() ?? [];
     for (const origin of origins) {
       if (ts.isImportSpecifier(origin) || ts.isNamespaceImport(origin) || ts.isImportClause(origin)) {
@@ -551,26 +551,39 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         while (statement !== undefined && !ts.isImportDeclaration(statement)) statement = statement.parent;
         if (statement !== undefined && ts.isImportDeclaration(statement) && statement.importClause?.isTypeOnly !== true
           && ts.isStringLiteral(statement.moduleSpecifier)) {
-          const kind = executionModule(statement.moduleSpecifier.text); if (kind !== undefined) return kind;
+          return statement.moduleSpecifier.text;
         }
       }
       if (ts.isVariableDeclaration(origin) && ts.isVariableDeclarationList(origin.parent)
         && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) {
-        const kind = builtinExecutionValue(origin.initializer, seen); if (kind !== undefined) return kind;
+        const module = builtinModuleValue(origin.initializer, seen); if (module !== undefined) return module;
       }
       if (ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent) && ts.isVariableDeclaration(origin.parent.parent)
         && origin.parent.parent.initializer !== undefined && ts.isVariableDeclarationList(origin.parent.parent.parent)
         && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0) {
-        const kind = builtinExecutionValue(origin.parent.parent.initializer, seen); if (kind !== undefined) return kind;
+        const module = builtinModuleValue(origin.parent.parent.initializer, seen); if (module !== undefined) return module;
       }
     }
     return undefined;
+  };
+  const clusterLauncherValue = (expression: ts.Expression): boolean => {
+    const value = actualValue(expression);
+    const names = ["fork", "setupPrimary"];
+    if (names.includes(staticMemberName(value) ?? "")) return true;
+    return (checker.getSymbolAtLocation(value)?.getDeclarations() ?? []).some(origin => {
+      const member = ts.isImportSpecifier(origin) ? origin.propertyName ?? origin.name
+        : ts.isBindingElement(origin) ? origin.propertyName ?? origin.name : undefined;
+      return member !== undefined && (ts.isIdentifier(member) || ts.isStringLiteral(member)) && names.includes(member.text);
+    });
   };
   const inspectBuiltinProcessUse = (node: ts.Identifier | ts.PropertyAccessExpression | ts.ElementAccessExpression): void => {
     if (ts.isIdentifier(node) && (ts.isImportSpecifier(node.parent) || ts.isNamespaceImport(node.parent) || ts.isImportClause(node.parent)
       || ts.isBindingElement(node.parent) || (ts.isVariableDeclaration(node.parent) && node.parent.name === node)
       || (ts.isPropertyAccessExpression(node.parent) && node.parent.name === node))) return;
-    const kind = builtinExecutionValue(node); if (kind !== undefined) reasons.add(kind);
+    const module = builtinModuleValue(node);
+    const kind = executionModule(module ?? "");
+    if (kind !== undefined) reasons.add(kind);
+    else if (["cluster", "node:cluster"].includes(module ?? "") && clusterLauncherValue(node)) reasons.add("SOURCE_PROCESS_LAUNCH_UNSUPPORTED");
   };
   const inspectDefaultSort = (node: ts.CallExpression): void => {
     const callee = unwrapStaticExpression(node.expression); const symbol = sdkValue(callee);
@@ -1027,6 +1040,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (!ts.isCallExpression(node)) return;
     const callee = actualValue(node.expression);
     if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)) {
+      if (["write", "writeln"].some(member => sdkMemberOf(callee, "Document", member))) reasons.add("SOURCE_DOCUMENT_WRITE_UNSUPPORTED");
       const insertion = sdkNodeInsertions.find(([owner, member]) => sdkMemberOf(callee, owner, member));
       if (insertion !== undefined) {
         const inserted = insertion[2] === "all" ? node.arguments : node.arguments.slice(insertion[2], insertion[2] + 1);
@@ -1097,6 +1111,13 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isNewExpression(node)) {
       const origin = sdkValue(node.expression);
       if (!sdkConstruction(origin)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
+      else if (origin!.getName() === "Date" && sdkOrigin(node.expression)) {
+        const argumentsToCoerce = node.arguments?.slice(0, 7) ?? [];
+        const first = argumentsToCoerce[0] === undefined ? undefined : actualValue(argumentsToCoerce[0]);
+        const copiedDate = argumentsToCoerce.length === 1 && first !== undefined && ts.isNewExpression(first)
+          && sdkOrigin(first.expression) && sdkValue(first.expression)?.getName() === "Date" && sdkConstruction(sdkValue(first.expression));
+        if (!copiedDate && argumentsToCoerce.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+      }
       else if (["Worker", "SharedWorker"].includes(origin!.getName())) reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
       else if (origin!.getName() === "Proxy") reasons.add("SOURCE_PROXY_UNSUPPORTED");
     }
