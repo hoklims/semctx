@@ -41,7 +41,7 @@ function fixture(): string {
     "packages/mcp-server/src/tool-contract.ts",
     `const TOOL_NAMES = [\n${Array.from({ length: toolCount }, (_, index) => `  "tool-${index}",`).join("\n")}\n] as const;\n`,
   );
-  write(root, "CHANGELOG.md", `## [${version}] - 2026-10-06\n\n## [0.3.8] - 2026-10-01\n`);
+  write(root, "CHANGELOG.md", `## [${version}] - 2026-10-12\n\n## [0.3.8] - 2026-10-01\n`);
   write(root, "ROADMAP.md", `Source baseline: **v${version}**\n`);
   write(root, "docs/README.md", "# Docs\n");
   write(root, "docs/troubleshooting.md", "# Troubleshooting\n");
@@ -99,6 +99,35 @@ afterEach(() => {
 });
 
 describe("documentation integrity", () => {
+  test("derives the current release date from its valid changelog heading", () => {
+    expect(checkDocumentation(fixture())).toEqual([]);
+  });
+
+  test.each([
+    "2026-02-30", "2026-13-01", "2026-00-12", "2026-10-00", "2026-10-32", "2026-1-12", "not-a-date",
+  ])("rejects an invalid changelog release date: %s", (date) => {
+    const root = fixture();
+    write(root, "CHANGELOG.md", `## [${version}] - ${date}\n\n## [0.3.8] - 2026-10-01\n`);
+    expect(checkDocumentation(root).some((problem) =>
+      problem.file === "CHANGELOG.md" && problem.message.includes("valid YYYY-MM-DD calendar date")
+    )).toBe(true);
+  });
+
+  test("requires exactly one current release as the first dated changelog entry", () => {
+    for (const changelog of [
+      `## [${version}] - 2026-10-12\n\n## [${version}] - 2026-10-06\n`,
+      `## [0.3.8] - 2026-10-01\n\n## [${version}] - 2026-10-12\n`,
+      `<!-- ## [${version}] - 2026-10-12 -->\n\n## [0.3.8] - 2026-10-01\n`,
+      `\`\`\`md\n## [${version}] - 2026-10-12\n\`\`\`\n\n## [0.3.8] - 2026-10-01\n`,
+    ]) {
+      const root = fixture();
+      write(root, "CHANGELOG.md", changelog);
+      expect(checkDocumentation(root).some((problem) =>
+        problem.file === "CHANGELOG.md" && problem.message.includes("exactly one first dated release heading")
+      )).toBe(true);
+    }
+  });
+
   test("accepts one coherent current release fixture", () => {
     expect(checkDocumentation(fixture())).toEqual([]);
   });

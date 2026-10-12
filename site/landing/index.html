@@ -550,7 +550,7 @@
 <header class="mast">
   <div class="wrap mast-row">
     <a class="word" href="https://github.com/hoklims/semctx">semctx</a>
-    <span class="ver">0.4.2 ·<a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a></span>
+    <span class="ver">0.4.3 ·<a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a></span>
     <nav class="mast-nav" aria-label="Site" data-label-en="Site" data-label-fr="Site">
       <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a>
       <a href="./demo/"><span class="en" lang="en">Demo</span><span class="fr" lang="fr">Démo</span></a>
@@ -579,13 +579,13 @@
         <p class="label"><span class="en" lang="en">Try it in your repository</span><span class="fr" lang="fr">Essayez-le dans votre dépôt</span></p>
         <div class="try">
           <div class="cmd">
-            <code>bunx semctx@0.4.2 setup</code>
-            <button class="copy" type="button" data-copy="bunx semctx@0.4.2 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
+            <code>bunx semctx@0.4.3 setup</code>
+            <button class="copy" type="button" data-copy="bunx semctx@0.4.3 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
           </div>
           <p class="try-step"><span class="en" lang="en"># edit some code</span><span class="fr" lang="fr"># modifiez du code</span></p>
           <div class="cmd">
-            <code>bunx semctx@0.4.2 verify diff</code>
-            <button class="copy" type="button" data-copy="bunx semctx@0.4.2 verify diff"><span class="sr en" lang="en">Copy the verify command</span><span class="sr fr" lang="fr">Copier la commande verify</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
+            <code>bunx semctx@0.4.3 verify diff</code>
+            <button class="copy" type="button" data-copy="bunx semctx@0.4.3 verify diff"><span class="sr en" lang="en">Copy the verify command</span><span class="sr fr" lang="fr">Copier la commande verify</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
           </div>
         </div>
         <p class="note en" lang="en">Needs Bun 1.4.0 or newer and a Git repository with at least one commit. Run setup on a clean tree, then edit and verify without re-indexing in between. For a branch, CI or a coding agent, see <a href="#run">three ways to start</a>.</p>
@@ -764,8 +764,8 @@
         <pre class="ro-body" role="group" tabindex="0" aria-labelledby="ro-rule"><span class="ln h">Verdict: <span class="k-b">BLOCK</span></span><span class="ln gap"><i></i><i></i><i></i><span class="sr en" lang="en">lines omitted</span><span class="sr fr" lang="fr">lignes omises</span></span><span class="ln h">Impacted invariants</span><span class="ln">  ! a greeting must never be an empty string [inferred]</span><span class="ln gap"><i></i><i></i><i></i><span class="sr en" lang="en">lines omitted</span><span class="sr fr" lang="fr">lignes omises</span></span><span class="ln h">Findings</span><span class="ln">  <span class="k-b">[BLOCK]</span> invariant_touched_without_test: invariant-constrained code changed without a covering test: greet</span></pre>
       </div>
       <figcaption>
-        <span class="en" lang="en">Excerpt; the dots mark omitted lines. These are the lines semctx 0.4.2 prints for this edit of <code>examples/consumer-typescript-repo</code>, committed on a branch. To clear the BLOCK, add a test file that imports <code>greet</code> from <code>src/index.ts</code>, commit, run <code>semctx index</code>, then verify again.</span>
-        <span class="fr" lang="fr">Extrait&nbsp;; les points marquent les lignes omises. Ce sont les lignes que semctx 0.4.2 affiche pour cette modification de <code>examples/consumer-typescript-repo</code>, commitée sur une branche. Pour lever le BLOCK, ajoutez un fichier de test qui importe <code>greet</code> depuis <code>src/index.ts</code>, commitez, lancez <code>semctx index</code>, puis vérifiez à nouveau.</span>
+        <span class="en" lang="en">Excerpt; the dots mark omitted lines. Historical observation: these are the lines semctx 0.4.2 prints for this edit of <code>examples/consumer-typescript-repo</code>, committed on a branch. To clear the BLOCK, add a test file that imports <code>greet</code> from <code>src/index.ts</code>, commit, run <code>semctx index</code>, then verify again.</span>
+        <span class="fr" lang="fr">Extrait&nbsp;; les points marquent les lignes omises. Observation historique : ce sont les lignes que semctx 0.4.2 affiche pour cette modification de <code>examples/consumer-typescript-repo</code>, commitée sur une branche. Pour lever le BLOCK, ajoutez un fichier de test qui importe <code>greet</code> depuis <code>src/index.ts</code>, commitez, lancez <code>semctx index</code>, puis vérifiez à nouveau.</span>
       </figcaption>
     </figure>
     <ul class="facts">
@@ -842,21 +842,21 @@
       <li class="plat">
         <div class="sign">
           <p class="pn">GitHub Actions</p>
-          <div class="pc"><code>uses: hoklims/semctx/packages/github-action@v0.4.2</code><span class="sample">::warning title=semctx%3A contract_changed_without_test,file=src/cart.ts,line=1::exported contract changed without a covering test: CartTotal</span></div>
+          <div class="pc"><code>uses: hoklims/semctx/packages/github-action@v0.4.3</code><span class="sample">::warning title=semctx%3A contract_changed_without_test,file=src/cart.ts,line=1::exported contract changed without a covering test: CartTotal</span></div>
           <p class="pw"><span class="en" lang="en">Indexes the checked-out commit, checks the pull request range, annotates each finding at the declaration it concerns and fails the job on BLOCK. No secrets, no PR comments. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/github-actions.md">Guide</a></span><span class="fr" lang="fr">Indexe le commit extrait, vérifie la plage de la pull request, annote chaque constat sur la déclaration concernée et fait échouer le job sur BLOCK. Sans secret, sans commentaire de PR. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/github-actions.md">Guide</a></span></p>
         </div>
       </li>
       <li class="plat">
         <div class="sign">
           <p class="pn">Claude Code</p>
-          <div class="pc"><code>bunx semctx@0.4.2 install</code><span class="sample">semctx guarded mode: no verification on record.</span></div>
+          <div class="pc"><code>bunx semctx@0.4.3 install</code><span class="sample">semctx guarded mode: no verification on record.</span></div>
           <p class="pw"><span class="en" lang="en">A plugin with MCP tools and skills. Optional guarded mode: <code>git commit</code> and <code>git push</code> wait until a non-BLOCK verdict is recorded for that exact content. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code-guarded-mode.md">Guarded mode</a></span><span class="fr" lang="fr">Un plugin avec outils MCP et skills. Mode protégé en option&nbsp;: <code>git commit</code> et <code>git push</code> attendent qu’un verdict autre que BLOCK soit enregistré pour ce contenu exact. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/claude-code-guarded-mode.md">Mode protégé</a></span></p>
         </div>
       </li>
       <li class="plat">
         <div class="sign">
           <p class="pn">Codex</p>
-          <div class="pc"><code>bunx semctx@0.4.2 install --host codex</code></div>
+          <div class="pc"><code>bunx semctx@0.4.3 install --host codex</code></div>
           <p class="pw"><span class="en" lang="en">The same MCP tools and skills. Codex has no guarded mode. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/codex-control-plane.md">Guide</a></span><span class="fr" lang="fr">Les mêmes outils MCP et skills. Codex n’a pas de mode protégé. <a href="https://github.com/hoklims/semctx/blob/main/docs/integrations/codex-control-plane.md">Guide</a></span></p>
         </div>
       </li>
@@ -880,12 +880,12 @@
       <div class="dep run-cli">
         <div class="bl"><span class="label"><span class="en" lang="en">CLI, on a branch</span><span class="fr" lang="fr">CLI, sur une branche</span></span></div>
         <pre class="code wrap" role="group" tabindex="0" aria-label="CLI"><span class="c en" lang="en"># start from a clean, committed tree</span><span class="c fr" lang="fr"># partez d’un arbre propre, déjà commité</span>
-bunx semctx@0.4.2 setup
+bunx semctx@0.4.3 setup
 git switch -c try-semctx
 <span class="c en" lang="en"># edit your code, then commit</span><span class="c fr" lang="fr"># modifiez le code, puis commitez</span>
 git add -A &amp;&amp; git commit -m "my change"
-bunx semctx@0.4.2 index
-bunx semctx@0.4.2 verify diff --base main</pre>
+bunx semctx@0.4.3 index
+bunx semctx@0.4.3 verify diff --base main</pre>
         <ul class="en" lang="en">
           <li>This checks the whole branch against its merge base, new files and new tests included.</li>
           <li>Replace <code>main</code> with your default branch. It must exist locally: semctx never fetches.</li>
@@ -900,21 +900,21 @@ bunx semctx@0.4.2 verify diff --base main</pre>
         </ul>
       </div>
       <div class="dep">
-        <div class="bl"><span class="label"><span class="en" lang="en">With Claude Code or Codex</span><span class="fr" lang="fr">Avec Claude Code ou Codex</span></span><button class="copy" type="button" data-copy="bunx semctx@0.4.2 install"><span class="sr en" lang="en">Copy the install command</span><span class="sr fr" lang="fr">Copier la commande d’installation</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
+        <div class="bl"><span class="label"><span class="en" lang="en">With Claude Code or Codex</span><span class="fr" lang="fr">Avec Claude Code ou Codex</span></span><button class="copy" type="button" data-copy="bunx semctx@0.4.3 install"><span class="sr en" lang="en">Copy the install command</span><span class="sr fr" lang="fr">Copier la commande d’installation</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
         <pre class="code wrap" role="group" tabindex="0" aria-label="install"><span class="c en" lang="en"># preview, change nothing</span><span class="c fr" lang="fr"># aperçu, rien n’est modifié</span>
-bunx semctx@0.4.2 install --dry-run
-bunx semctx@0.4.2 install</pre>
+bunx semctx@0.4.3 install --dry-run
+bunx semctx@0.4.3 install</pre>
         <p class="en" lang="en">Claude Code or Codex must already be installed. The command installs or updates the semctx plugin for each one it finds, then runs setup in this repository. With neither, it stops without changing anything and exits 1.</p>
         <p class="fr" lang="fr">Claude Code ou Codex doit déjà être installé. La commande installe ou met à jour le plugin semctx pour chaque hôte trouvé, puis lance setup dans ce dépôt. Sans aucun des deux, elle s’arrête sans rien modifier et sort en 1.</p>
         <p class="en" lang="en">Running it again is harmless on a clean, committed tree; it runs setup, which re-indexes, so add <code>--skip-setup</code> when you have uncommitted edits. Afterwards, open a new Codex task or run <code>/reload-plugins</code> in Claude Code.</p>
         <p class="fr" lang="fr">La relancer est sans risque sur une copie propre et commitée ; comme elle lance setup, qui réindexe, ajoutez <code>--skip-setup</code> si vous avez des modifications non commitées. Ensuite, ouvrez une nouvelle tâche Codex ou lancez <code>/reload-plugins</code> dans Claude Code.</p>
       </div>
       <div class="dep">
-        <div class="bl"><span class="label"><span class="en" lang="en">In CI, on GitHub Actions</span><span class="fr" lang="fr">En CI, sur GitHub Actions</span></span><button class="copy" type="button" data-copy="- uses: actions/checkout@v4&#10;  with:&#10;    fetch-depth: 0&#10;- uses: hoklims/semctx/packages/github-action@v0.4.2&#10;  with:&#10;    base: ${{ github.event.pull_request.base.sha }}&#10;    head: ${{ github.sha }}&#10;    fail-on: block"><span class="sr en" lang="en">Copy the workflow steps</span><span class="sr fr" lang="fr">Copier les étapes du workflow</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
+        <div class="bl"><span class="label"><span class="en" lang="en">In CI, on GitHub Actions</span><span class="fr" lang="fr">En CI, sur GitHub Actions</span></span><button class="copy" type="button" data-copy="- uses: actions/checkout@v4&#10;  with:&#10;    fetch-depth: 0&#10;- uses: hoklims/semctx/packages/github-action@v0.4.3&#10;  with:&#10;    base: ${{ github.event.pull_request.base.sha }}&#10;    head: ${{ github.sha }}&#10;    fail-on: block"><span class="sr en" lang="en">Copy the workflow steps</span><span class="sr fr" lang="fr">Copier les étapes du workflow</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button></div>
         <pre class="code" role="group" tabindex="0" aria-label="GitHub Actions">- uses: actions/checkout@v4
   with:
     fetch-depth: 0
-- uses: hoklims/semctx/packages/github-action@v0.4.2
+- uses: hoklims/semctx/packages/github-action@v0.4.3
   with:
     base: ${{ github.event.pull_request.base.sha }}
     head: ${{ github.sha }}
@@ -982,11 +982,11 @@ bunx semctx@0.4.2 install</pre>
     <div class="close">
       <p class="label"><span class="en" lang="en">Try it</span><span class="fr" lang="fr">Essayez-le</span></p>
       <div class="cmd">
-        <code>bunx semctx@0.4.2 setup</code>
-        <button class="copy" type="button" data-copy="bunx semctx@0.4.2 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
+        <code>bunx semctx@0.4.3 setup</code>
+        <button class="copy" type="button" data-copy="bunx semctx@0.4.3 setup"><span class="sr en" lang="en">Copy the setup command</span><span class="sr fr" lang="fr">Copier la commande setup</span><svg class="i-copy" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 5.5h8v8h-8zM2.5 10.5v-8h8"/></svg><svg class="i-done" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5l3.5 3.5 7.5-8"/></svg></button>
       </div>
-      <p class="note en" lang="en">Then edit, and run <code>bunx semctx@0.4.2 verify diff</code>. Other paths: <a href="#run">three ways to start</a>.</p>
-      <p class="note fr" lang="fr">Puis modifiez, et lancez <code>bunx semctx@0.4.2 verify diff</code>. Autres chemins&nbsp;: <a href="#run">trois façons de commencer</a>.</p>
+      <p class="note en" lang="en">Then edit, and run <code>bunx semctx@0.4.3 verify diff</code>. Other paths: <a href="#run">three ways to start</a>.</p>
+      <p class="note fr" lang="fr">Puis modifiez, et lancez <code>bunx semctx@0.4.3 verify diff</code>. Autres chemins&nbsp;: <a href="#run">trois façons de commencer</a>.</p>
     </div>
   </section>
 
@@ -995,7 +995,7 @@ bunx semctx@0.4.2 install</pre>
 
 <footer class="foot">
   <div class="wrap">
-    <p>semctx 0.4.2 · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a> · <a href="https://github.com/hoklims/semctx/releases/tag/v0.4.2"><span class="en" lang="en">Release</span><span class="fr" lang="fr">Version</span></a> · <a href="https://github.com/hoklims/semctx">GitHub</a> · <a href="./demo/"><span class="en" lang="en">Demo</span><span class="fr" lang="fr">Démo</span></a> · <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a></p>
+    <p>semctx 0.4.3 · <a href="https://github.com/hoklims/semctx/blob/main/LICENSE">Apache-2.0</a> · <a href="https://github.com/hoklims/semctx/releases/tag/v0.4.3"><span class="en" lang="en">Release</span><span class="fr" lang="fr">Version</span></a> · <a href="https://github.com/hoklims/semctx">GitHub</a> · <a href="./demo/"><span class="en" lang="en">Demo</span><span class="fr" lang="fr">Démo</span></a> · <a href="https://github.com/hoklims/semctx/blob/main/docs/README.md">Docs</a></p>
   </div>
 </footer>
 

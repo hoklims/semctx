@@ -301,7 +301,7 @@ and never adds any. A marker must fit on one line.
 | Surface | Start with | What you get | Guide |
 | --- | --- | --- | --- |
 | CLI | `semctx verify diff` | The verdict as text, GitHub annotations (`--format github`) or a versioned JSON report (`--format json`) | [CLI reference](docs/reference/cli.md) |
-| GitHub Actions | `uses: hoklims/semctx/packages/github-action@v0.4.2` | An annotation at each symbol a finding names, a job summary and a `verdict` output; BLOCK fails the job | [GitHub Actions](docs/integrations/github-actions.md) |
+| GitHub Actions | `uses: hoklims/semctx/packages/github-action@v0.4.3` | An annotation at each symbol a finding names, a job summary and a `verdict` output; BLOCK fails the job | [GitHub Actions](docs/integrations/github-actions.md) |
 | Claude Code | `bunx semctx@latest install` | The semctx MCP tools and skills, plus an optional guarded mode that holds `git commit` until the diff is verified | [Claude Code](docs/integrations/claude-code.md) |
 | Codex | `bunx semctx@latest install --host codex` | The same MCP tools and skills | [Codex](docs/integrations/codex-control-plane.md) |
 | Any MCP client | tool `semctx_verify_change` | The same diff check over MCP, next to the server's other typed tools | [MCP setup](docs/integrations/claude-code.md#mcp-without-the-plugin) |
@@ -325,7 +325,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # semctx needs the merge base and never fetches
-      - uses: hoklims/semctx/packages/github-action@v0.4.2
+      - uses: hoklims/semctx/packages/github-action@v0.4.3
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.sha }}
