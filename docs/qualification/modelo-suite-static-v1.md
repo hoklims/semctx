@@ -222,9 +222,10 @@ ignored extra arguments and ordinary local homonyms retain their separate bounda
 Actual SDK callback dictionaries require closed literal-data proof when their direct members
 declare callable types in the loaded default libraries. Internal callbacks and unproven
 arguments refuse; ordinary data dictionaries and local homonyms retain their tested domain.
-Writes to actual SDK Location.href refuse JavaScript URL schemes after parser whitespace/case
-normalization and unknown URL values. Proven inert URLs and local homonyms stay distinct;
-no browser code-execution or module-link edge is invented for these navigation effects.
+Writes to actual SDK Location.href require constant HTTP/HTTPS or relative URLs after parser
+whitespace/case normalization. Other schemes and unknown URL values refuse; proven inert
+URLs and local homonyms stay distinct. No browser code-execution or module-link edge is
+invented for these navigation effects.
 Tests using resolved literal dynamic imports without canonical test-binding proof refuse
 qualified admission. Their ordinary module-link facts remain visible, and non-test literal
 dynamic imports retain their existing closure policy. No coarse test edge is fabricated.
