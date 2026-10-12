@@ -68,13 +68,14 @@ test("round4 ignored retained sources cannot bind a clean committed post-image",
   writeFileSync(join(root, ".gitignore"), ".semctx/\nsrc/hidden.ts\n");
   git(root, "add", ".gitignore");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "ignore configuration");
-  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\nexport function added() { return 2; }\n");
   git(root, "add", "src/main.ts");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "tracked candidate");
   writeFileSync(join(root, "src/hidden.ts"), "import { main } from './main'; export function hidden() { return main(); }\n");
   indexRepository(root, "2026-10-09T10:01:00.000Z");
   const range = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
   expect(range?.status).toBe("rejected");
+  expect(range?.reasons).not.toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
   expect(range?.reasons).toContain("QUALIFIED_POST_IMAGE_INPUT_ABSENT:src/hidden.ts");
   const staged = runVerify(root, { kind: "staged" }).report.analysisAdmission;
   expect(staged?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_INPUT_ABSENT:src/hidden.ts");
@@ -85,13 +86,14 @@ test("round4 ignored empty workspace membership cannot bind a committed post-ima
   writeFileSync(join(root, ".gitignore"), ".semctx/\npackages/\n");
   git(root, "add", "package.json", ".gitignore");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "workspace configuration");
-  writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\nexport function added() { return 2; }\n");
   git(root, "add", "src/main.ts");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "tracked candidate");
   mkdirSync(join(root, "packages/ghost"), { recursive: true });
   indexRepository(root, "2026-10-09T10:01:00.000Z");
   const admission = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
   expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).not.toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
   expect(admission?.binding.reasons).toContain("QUALIFIED_POST_IMAGE_WORKSPACE_ABSENT:packages/ghost");
 });
 for (const path of ["src/module.cts", "src/module.d.cts"]) test(`round4 CommonJS TypeScript extension stays outside ESM qualification: ${path}`, () => {
