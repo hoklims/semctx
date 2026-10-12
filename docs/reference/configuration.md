@@ -136,10 +136,10 @@ Version 2 selection has these rules:
 4. Treat an empty `include` array as an explicit empty selection.
 5. Record candidates in deterministic normalized-path order.
 6. Never follow symbolic links. Built-in ignored directory segments still apply.
-7. Fail with `IO_ERROR` on a directory that cannot be read, unless an `exclude` glob of the form
-   `<prefix>/**` has a `<prefix>` matching it: every path below it is excluded, so discovery skips
-   it (for example `**/.pnpm-store/**` for a package store owned by another user). The
-   `modelo-suite-static-v1` profile keeps failing closed.
+7. Fail with `IO_ERROR` on a directory that cannot be read or searched, unless an `exclude` glob
+   of the form `<prefix>/**` has a `<prefix>` matching it: every path below it is excluded, so
+   discovery skips it (for example `**/.pnpm-store/**` for a package store owned by another user).
+   The `modelo-suite-static-v1` profile keeps failing closed.
 
 `include` and `exclude` use Bun glob syntax in v2. They are not interpreted with the legacy
 substring matcher. Changing them intentionally changes the selected path set and its bound
@@ -153,14 +153,18 @@ through the package manager's installed link. When a checkout lacks that link, s
 link pnpm, Bun or Yarn would create, from repository manifests only:
 
 - the dependent directory is the workspace root or a declared member (`pnpm-workspace.yaml`
-  `packages`, otherwise `package.json` `workspaces`, including `!` exclusions);
-- it declares the package with a plain `workspace:` range (`workspace:*`, `workspace:^1.0.0`, …);
+  `packages`, otherwise `package.json` `workspaces`, including `!` exclusions); a pattern
+  reaching outside the workspace root adds no member;
+- it declares the package with a `workspace:` range (`workspace:*`, `workspace:^1.0.0`,
+  `workspace:>=1.0.0`, …), not an alias or a path;
 - exactly one member's `package.json` carries that name.
 
-An installed path keeps precedence. The declaration is searched upward without crossing the
-analyzed repository root or a `.git` marker, and a member outside the repository is never linked.
-Otherwise the configuration error is still reported, for example
-`SOURCE_CONFIGURATION_INVALID:6053`. Analysis of retained compiler snapshots
+An installed package keeps precedence, whether it sits in the dependent's own `node_modules` or is
+hoisted above it, even when it lacks the requested file. The declaration is searched upward
+without crossing the analyzed repository root or a `.git` marker, and a member outside the
+repository is never linked. Members are derived once per analysis pass, so a later pass observes
+added, removed or renamed members. Otherwise the configuration error is still reported, for
+example `SOURCE_CONFIGURATION_INVALID:6053`. Analysis of retained compiler snapshots
 (`modelo-suite-static-v1`) is unchanged and still reads only the inputs it captured.
 
 Setup's optional `scope.proposedIncludes` contains at most 20 exact observed TypeScript/Python
