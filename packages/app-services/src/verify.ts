@@ -1070,6 +1070,7 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       const finalSource = resolveSource(root, source, false);
       if (inputBefore !== captureQualifiedAnalysisInputs(loadConfig(root)).digest
         || finalSource.diffText !== resolved.diffText
+        || finalSource.git.mergeBase !== resolved.git.mergeBase
         || digestCanonical(finalSource.identity) !== digestCanonical(resolved.identity)
         || digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null) !== analyzedIndexSnapshotHash
         || store.getMeta(QUALIFIED_BUILD_META) !== "complete") {
