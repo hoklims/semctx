@@ -659,7 +659,7 @@ interface CommitTreeAnalysis {
 function analyzeCommitTree(root: string, commit: string, config: SemctxConfig,
   retained?: { diffText: string; currentObligations: readonly string[] },
 ): CommitTreeAnalysis {
-  const scratch = mkdtempSync(join(tmpdir(), "semctx-base-"));
+  const scratch = canonicalRepositoryRoot(mkdtempSync(join(tmpdir(), "semctx-base-")));
   try {
     const listed = Bun.spawnSync(["git", "ls-tree", "-r", "-z", commit], {
       cwd: root, stdout: "pipe", stderr: "pipe",
