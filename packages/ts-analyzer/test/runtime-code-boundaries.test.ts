@@ -35,7 +35,9 @@ test("inert SDK operations and ordinary local lookalikes retain admission", () =
 test("a local value annotated as the WASM SDK does not acquire runtime provenance", () => {
   const path = "/fixture/main.ts";
   const source = "const wasm:typeof WebAssembly={instantiate(){return 1;}} as unknown as typeof WebAssembly;export function run(){return wasm.instantiate(null as unknown as BufferSource,{});}";
-  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toEqual([]);
+  const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
+  expect(reasons).toEqual(["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]);
+  expect(reasons).not.toContain("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
 });
 
 test("typed SDK aliases preserve the actual runtime boundary", () => {

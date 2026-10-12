@@ -34,12 +34,19 @@ test("SDK aliases retain actual instantiation and insertion provenance", () => {
   }
 });
 
+test("an SDK-shaped local streaming method lacks a retained callee coordinate, not WASM runtime provenance", () => {
+  const path = "/fixture/main.ts";
+  const source = "const wasm:typeof WebAssembly={instantiateStreaming(){return 1;}} as unknown as typeof WebAssembly;export function run(){return wasm.instantiateStreaming(null as any,{});}";
+  const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
+  expect(reasons).toEqual(["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]);
+  expect(reasons).not.toContain("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
+});
+
 test("inert SDK data and actual local values preserve their domain", () => {
   for (const source of [
     "const button=document.createElement('button');button.onclick=null;export function run(){return 1;}",
     "const button=document.createElement('button');button.onclick=1 as any;export function run(){return 1;}",
     "function helper(){return 1;}const button:{onclick:null|(()=>number)}={onclick:null};button.onclick=helper;export function run(){return button.onclick!();}",
-    "const wasm:typeof WebAssembly={instantiateStreaming(){return 1;}} as unknown as typeof WebAssembly;export function run(){return wasm.instantiateStreaming(null as any,{});}",
     "export function run(){const script=document.createElement('script');script.src='./hidden.js';return 1;}",
     "export function run(){const div=document.createElement('div');document.head.appendChild(div);}",
     "export function run(){document.head.prepend('plain data');}",
@@ -55,7 +62,8 @@ test("a typed local DOM lookalike does not acquire SDK script insertion origin",
   const path = "/fixture/main.ts";
   const source = "const dom:Document={createElement(){return {src:''};},head:{appendChild(){return 1;}}} as unknown as Document;export function run(){const script=dom.createElement('script');dom.head.appendChild(script);}";
   const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
-  expect(reasons).toEqual(["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"]);
+  expect(reasons).toEqual(["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED", "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]);
+  expect(reasons).not.toContain("SOURCE_SCRIPT_INSERTION_UNSUPPORTED");
 });
 
 test("insertion coordinates distinguish inserted arguments from reference nodes", () => {

@@ -61,3 +61,14 @@ test("SDK-shaped local member refusal does not invent a run-to-hidden call endpo
   console.info(JSON.stringify({ name: "no invented local member edge", calls: facts.calls }));
   expect(facts.calls.some(call => call.callerSymbolPath === "run" && call.calleeRelPath === "hidden.ts" && call.calleeSymbolPath === "hidden")).toBe(false);
 });
+
+test("SDK-shaped hidden method and property implementations cannot disappear behind library coordinates", () => {
+  const path = "/fixture/main.ts"; const hidden = "/fixture/hidden.ts";
+  for (const member of ["parseInt(){return hidden();}", "parseInt:hidden"]) {
+    const source = `import {hidden} from './hidden';const env:typeof globalThis={${member}} as unknown as typeof globalThis;export function run(){return env.parseInt('1');}`;
+    const snapshot = new Map([[path, source], [hidden, "export function hidden(){return 1;}"]]);
+    expect(inspectModuleConfiguration(path, "/fixture", snapshot)).toEqual(["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]);
+    const facts = extractTypeScript([path, hidden], "/fixture", snapshot);
+    expect(facts.calls.some(call => call.callerSymbolPath === "run" && call.calleeRelPath === "hidden.ts" && call.calleeSymbolPath === "hidden")).toBe(false);
+  }
+});
