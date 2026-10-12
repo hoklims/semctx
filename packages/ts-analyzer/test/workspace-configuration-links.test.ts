@@ -156,6 +156,10 @@ test("a traversal pattern cannot add a member outside the workspace root", () =>
 test("a ./ prefixed workspace pattern names the same members", () => {
   const { root, source } = workspace("workspace:*", { "pnpm-workspace.yaml": "packages:\n  - \"./tooling/*\"\n  - \"./domains/*/*\"\n" });
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  const excluded = workspace("workspace:*", {
+    "pnpm-workspace.yaml": "packages:\n  - \"./tooling/*\"\n  - \"./domains/*/*\"\n  - \"!./tooling/config\"\n",
+  });
+  expect(failsToResolve(excluded.root, excluded.source)).toBe(true);
 });
 
 test("a comparator workspace range is a workspace link", () => {
