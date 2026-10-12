@@ -325,6 +325,8 @@ intact. Re-run `semctx index` to repair a broken binding.
 Refs are resolved to object ids once, before any hunk is measured, and every subsequent `merge-base`
 and `diff` uses those ids: a branch moved while the analysis runs cannot re-attribute the hunks to
 another commit. A `--head` that Git cannot resolve is an error, never a silently dropped anchor.
+Qualified final input checks also reobserve the effective merge-base; a changed base coordinate
+rejects admission even when the resolved head and diff text remain unchanged.
 
 A diff semctx did not compute carries no provenance of its own, and no flag can supply one.
 `--from-file`, and diff text handed to the MCP `semctx_verify_change` / `semctx_change_verify`
@@ -366,15 +368,17 @@ warnings do not establish faithful recovery of excluded or incomplete base scope
 base-guard findings identify their base provenance with file-only locations; they do not present
 an old line as an observed head declaration or fabricate deleted symbols into `changedSymbols`.
 
-For qualified refreshed working-tree removals, verification captures full safe immutable HEAD
-inventory and retained old source under the exact current Semctx policy and pinned current
-SDK/compiler, then compares guards with the refreshed head. This is not historical policy/SDK
-admission replay. Old bound analyzed obligations and capability/authority checks are required;
+For qualified refreshed working-tree removals, verification attempts old HEAD guard capture only
+when current analysis is admitted. A current rejection remains BLOCK with its own reasons and
+observed binding state, without supplemental old capture. Otherwise-admitted removals capture
+full safe immutable HEAD inventory and retained old source under the exact current Semctx policy
+and pinned current SDK/compiler, then compare guards with the refreshed head. This is not
+historical policy/SDK admission replay. Old bound analyzed obligations and capability/authority checks are required;
 unsafe, unavailable, unbound or unsupported capture returns rejected `BLOCK` and invalid binding
 with `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED` details. Successful comparison preserves
 configured rule severities and structural current-test evidence, not runtime test execution or
-complete negative evidence. Full HEAD capture/selected analysis per removing diff has no qualified
-overall latency or memory ceiling.
+complete negative evidence. Full HEAD capture/selected analysis per otherwise-admitted removing
+diff has no qualified overall latency or memory ceiling.
 
 The opt-in `qualified-static-v1` profile cannot yet recover admitted committed-range base inputs.
 Any committed range removing base lines, files or paths therefore returns an explicit `BLOCK` report with

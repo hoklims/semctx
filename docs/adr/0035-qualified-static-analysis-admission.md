@@ -41,8 +41,9 @@ manifests, lockfiles and JSON/YAML configuration. It includes the generated anal
 implementation digest; rebuilding a seal without consuming sources cannot restore it.
 Reconstruction marks the old index incomplete before analysis and completes that state
 atomically with the new snapshot. An interrupted rebuild cannot authorize the old graph.
-Working-tree results use refreshed post-image symbol ranges. A final observation rejects
-source, Git diff/commit or snapshot changes during analysis.
+Working-tree results use refreshed post-image symbol ranges. A final qualified observation
+rejects retained-input, diff, resolved source/head, effective range merge-base or indexed
+snapshot changes during analysis.
 
 Binding, index freshness, repository coverage, change coverage, check freshness and
 control freshness are separate fields. `DIRTY_KNOWN` means the exact dirty source was
@@ -65,11 +66,13 @@ Git source eligibility, retained compiler inputs or capability admission for tha
 No head configuration alone substitutes for those committed-range base inputs. Pure additions
 that remove no base lines keep their existing admission path.
 
-Qualified refreshed working-tree diffs that remove base lines separately capture immutable
-resolved HEAD raw blobs and full safe inventory in a disposable private repository. They analyze
-retained old inputs under the exact current raw/parsed Semctx policy and pinned current SDK/compiler,
-then compare guards with the refreshed head graph. This is current-policy structural comparison,
-not historical configuration, SDK or old admission replay. Old obligated sources and their actual
+For refreshed working-tree diffs removing base lines, immutable HEAD guard capture runs only
+after current analysis is admitted. A current rejection remains rejected BLOCK with its own
+reasons and observed binding state, without this supplemental old capture. Otherwise-admitted
+removals capture resolved HEAD raw blobs and full safe inventory in a disposable private repository.
+They analyze retained old inputs under the exact current raw/parsed Semctx policy and pinned
+current SDK/compiler, then compare guards with the refreshed head graph. This is current-policy
+structural comparison, not historical configuration, SDK or old admission replay. Old obligated sources and their actual
 dependency/evidence closure must pass binding, producer, capability and authority checks; broad
 old loader/configuration/parse checks remain in force. An unavailable, unsafe, unbound or unsupported
 capture rejects with `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED`, a blocking scope finding
@@ -77,7 +80,8 @@ and named details. Technical capture failure is not mislabeled as a universal se
 Recovered guards retain configured severities; surviving current covering-test evidence remains
 structural, not observed test execution. Incomplete negative evidence stays advisory. No legacy
 base analysis can grant qualified absence or PASS. Full HEAD copying and selected analysis happen
-per removing working-tree diff; no overall latency, memory ceiling or speed gain is qualified.
+per otherwise-admitted removing working-tree diff; no overall latency, memory ceiling or speed gain
+is qualified.
 Staged/range support is unchanged by this working-tree path.
 
 The committed-range restriction remains until its own immutable base eligibility and
@@ -395,8 +399,9 @@ the refusal through the JavaScript diagnostic API outside named qualification.
 Actual SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction refuse as instantiation
 boundaries: native module-start execution can call an imported internal helper without
 an extracted invocation edge. Compile/validate data operations remain distinct.
-Actual SDK node insertion with a captured SDK `Document.createElement("script")`
-argument also refuses. Receiver provenance and default-library declaration identity
+Actual SDK node insertion with a captured SDK `Document.createElement` argument whose
+constant tag spelling is `script` or an ASCII-case variant such as `SCRIPT` also refuses.
+Receiver provenance and default-library declaration identity
 establish the boundary; a type annotation, local lookalike or bare operation name does
 not. Standalone inert script creation and ordinary DOM/local controls remain eligible.
 The insertion boundary conservatively refuses empty/disconnected script instances too.
@@ -419,7 +424,9 @@ Date calls remain distinct; unknown coercion refuses without inventing an invoca
 Actual imported cluster/node:cluster fork and setupPrimary runtime bindings are unsupported
 process launchers. Existing module-origin traversal preserves child_process/vm boundaries;
 inert cluster imports, isPrimary reads, type-only uses and local homonyms remain distinct.
-The setupPrimary refusal is conservative even without a subsequent fork.
+The setupPrimary refusal is conservative even without a subsequent fork. Runtime named reexports
+of fork/setupPrimary from cluster/node:cluster, including aliases through
+repository barrels, retain this refusal; type-only exports remain distinct.
 Actual SDK Document.write/writeln also refuse runtime script execution boundaries. Member
 declaration and receiver origin remain required; ordinary HTML/text arguments are refused
 conservatively too. Neither HTML parsing nor hidden-module dependency extraction is added.
@@ -428,9 +435,17 @@ an unresolved ambient receiver refuse without a captured runtime lexical origin,
 SDK origin or explicit supported imported boundary. Ordinary native process members and
 bare framework-call ownership retain their existing policy. Synthetic JavaScript binder
 declarations introduced by an assignment are not a runtime lexical binding.
-For a retained locally initialized receiver, the called member itself needs an actual
-retained callable target. An erased or unresolved member cannot borrow the receiver's
-identity. Known own methods and callable initializer aliases retain their separate proof.
+For a retained locally initialized receiver, the called member needs an actual retained callable
+target. A bounded exception preserves the string-member boundary when an actual dominating
+`typeof value !== "string"` throw guard proves the same unwritten receiver binding and the member
+has the loaded SDK String declaration origin. This removes only the local unresolved-callee
+refusal; callback and prototype checks remain, and no callable coordinate is fabricated.
+Annotations, casts or a guard for another primitive kind do not establish this exception.
+Otherwise, an erased or unresolved member cannot borrow the receiver's identity. An erased
+SDK-shaped annotation is not runtime callee authority: absent or erased local member origin
+without an actual retained coordinate receives `SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED`, not a
+fabricated WebAssembly or script origin. Known own methods and callable initializer aliases
+retain their separate proof.
 Caller-supplied parameters keep their existing opaque data-argument policy; no universal
 call-target completeness is inferred from this local-container refusal.
 The early producer refusal applies to absent, erased or synthetic-assignment-only member

@@ -34,8 +34,10 @@ not captured yet; raw blobs do not establish that base's admission. Pure additio
 no base lines keep the existing path. Use refreshed working-tree verification before committing,
 but do not present it as a qualified committed-range result or disable the profile to bypass CI.
 This temporary restriction reduces supported range workflows without claiming a performance gain.
-Refreshed working-tree removals use a separate immutable resolved-HEAD capture: full safe raw
-inventory and retained old inputs are analyzed under the exact current raw/parsed Semctx policy
+Refreshed working-tree removals attempt immutable HEAD guard capture only after current analysis
+is admitted. A current rejected report keeps its own reasons and observed binding state and remains
+BLOCK without supplemental old capture. Otherwise-admitted removals require full safe raw resolved-HEAD
+inventory and retained old inputs analyzed under the exact current raw/parsed Semctx policy
 and pinned current SDK/compiler, not historical policy or SDK admission. Actual old obligations
 and dependency/evidence closure need bound analyzed sources and passed factual capability/authority
 gates; broad old loader/configuration/parse checks remain required. Unavailable, unsafe, unbound
@@ -43,8 +45,9 @@ or unsupported capture returns rejected `BLOCK` with invalid binding and
 `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED` details. Recovered invariant/security/contract
 findings keep their configured severities, not a blanket new BLOCK severity for every old guard.
 Current covering-test evidence is structural; incomplete negative evidence remains advisory.
-Full HEAD capture and selected analysis run per removing diff, without a qualified overall
-resource/latency ceiling. This working-tree result does not qualify a committed removal range.
+Full HEAD capture and selected analysis run per otherwise-admitted removing diff, without a
+qualified overall resource/latency ceiling. This working-tree result does not qualify a committed
+removal range.
 Supported staged/range post-image comparison requires the already-declared Git >= 2.41 for
 `--attr-source`; an older Git returns an operational `UNSUPPORTED` diagnostic before conversion,
 not a qualified report. In retained post-image comparison, attribute observation failure or
@@ -195,9 +198,9 @@ extraction receives no synthesized invocation facts.
 Captured SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction are unsupported
 instantiation boundaries: a module start function may invoke imported internal code.
 Compile/validate data operations keep their existing domain. Captured SDK
-node insertion with an actual SDK-created `script` argument is also unsupported;
-the pinned `Document.createElement` origin and receiver proof distinguish ordinary
-objects and type annotations. Standalone script creation and ordinary inert DOM/local
+node insertion with an actual SDK-created constant `script` tag argument is also unsupported,
+including ASCII-case variants such as `SCRIPT`. The pinned `Document.createElement` origin and
+receiver proof distinguish ordinary objects and type annotations. Standalone script creation and ordinary inert DOM/local
 controls remain distinct. The insertion refusal is conservative even for an individual
 empty or disconnected script. These are the observed instantiation/insertion routes,
 not a claim of complete browser or WebAssembly runtime modeling. Shared JavaScript
@@ -216,7 +219,9 @@ distinct. Unknown constructor coercion refuses without adding an invocation edge
 Actual `cluster`/`node:cluster` `fork` and `setupPrimary` runtime bindings are unsupported
 process-launch boundaries, including the existing alias/destructuring forms. The setup
 boundary is conservative even when no fork follows. Inert imports, `isPrimary`, type-only
-uses and local homonyms retain their separate domain.
+uses and local homonyms retain their separate domain. Runtime named reexports of fork/setupPrimary
+from cluster/node:cluster, including aliases through repository barrels, retain
+that refusal; type-only exports remain distinct.
 Actual SDK `Document.write` and `writeln` refuse as runtime script boundaries, with
 captured member and receiver origin. This is conservative for ordinary HTML/text too;
 no HTML parsing, hidden-module extraction or complete browser model is claimed.
@@ -224,8 +229,16 @@ Property/element invocations on an ambient receiver without a captured runtime l
 origin, an actual SDK origin or an explicit supported external import refuse even when
 their arguments are plain data. The existing ordinary native `process` members remain
 distinct. Bare framework calls retain their existing ownership policy.
-A retained local container does not prove its invoked member: erased or unresolved
-members require an actual retained callable target before the same data exemptions apply.
+A retained local container does not prove its invoked member. An actual dominating
+`typeof value !== "string"` throw guard on the same unwritten receiver binding, together with
+loaded SDK String member origin, preserves a bounded string-member boundary without inventing
+callable coordinates. This exception removes only the local unresolved-callee refusal; callback
+and prototype checks remain. It does not qualify every String method. Annotations, casts or
+other primitive-kind guards alone do not establish the exception.
+Otherwise, erased or unresolved members require an actual retained callable target before data
+exemptions apply. An erased SDK-shaped annotation or local SDK lookalike is not runtime callee
+authority. Absent or erased local member origin without an actual retained coordinate receives
+`SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED`, not an invented WebAssembly/script origin.
 Known own methods and callable initializer aliases retain their existing proof. Caller
 parameters keep their existing opaque boundary; this is not universal callable resolution.
 Members with real captured literal/type declarations continue to the qualified coordinate
@@ -350,8 +363,11 @@ or independent proof that its recorded generation actually ran. Retain the raw g
 logs beside it. The harness validates inputs before scenarios and again at completion.
 
 A qualified refusal must be a full schema-valid `BLOCK` report with rejected admission and
-CLI exit 3. MCP witnesses additionally require a non-error tool response carrying the actual
-verification report envelope, not `isError: true` with a partial or malformed BLOCK-shaped object.
+CLI exit 3. Positive and negative MCP witnesses require the actual non-error text verification
+envelope and a full schema-valid structured report, not `isError: true` with a report-shaped object.
+Positive qualification also requires admitted analysis and a nonBLOCK result. A recorded protocol
+or transport failure invalidates the witness even if a valid-looking report was received; normal
+stdout closure after the final reply is not itself an early-close failure.
 The qualification harness's MCP exchange has a 30-second ceiling, an 8 MiB stdout-byte cap and
 64 KiB retained stderr while draining the stream. Teardown has a separate 2-second polite grace
 and 5-second bounds for forced-exit/read/cancel waits, for a declared 57-second helper worst case.
