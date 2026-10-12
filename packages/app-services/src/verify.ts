@@ -1,7 +1,7 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { digestCanonical } from "@semantic-context/plane-a-internal";
+import { dirname, isAbsolute, join } from "node:path";
+import { digestCanonical, getPlaneASidecar, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
 import { SemctxError, type SemctxConfig, type VerifyReport } from "@semantic-context/core";
 import { loadConfig } from "@semantic-context/repository-store";
 import { discoverRepository, isPathSelected } from "@semantic-context/ts-analyzer";
@@ -576,24 +576,68 @@ function discloseUnresolvedReferences(
   );
 }
 
-/**
- * Analyse the tree of `commit` without touching the repository's worktree, index or store: the tree
- * is read into a private Git index and checked out under a throwaway directory.
- */
-function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): GraphIndex {
+interface CommitTreeAnalysis {
+  index: GraphIndex;
+  sidecar: PlaneASidecarV1;
+}
+
+/** Read committed blob bytes without Git checkout filters, links or changes to the live index. */
+function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): CommitTreeAnalysis {
   const scratch = mkdtempSync(join(tmpdir(), "semctx-base-"));
   try {
-    const tree = join(scratch, "tree");
-    const env = { ...process.env, GIT_INDEX_FILE: join(scratch, "index") };
-    for (const args of [["read-tree", commit], ["checkout-index", "-a", "-f", `--prefix=${tree}/`]]) {
-      const proc = Bun.spawnSync(["git", ...args], { cwd: root, env, stdout: "pipe", stderr: "pipe" });
-      if (proc.exitCode !== 0) {
-        throw new SemctxError("GIT_ERROR", `cannot read the base tree ${commit.slice(0, 12)}`, {
-          stderr: new TextDecoder().decode(proc.stderr).trim(),
-        });
-      }
+    const listed = Bun.spawnSync(["git", "ls-tree", "-r", "-z", commit], {
+      cwd: root, stdout: "pipe", stderr: "pipe",
+    });
+    if (listed.exitCode !== 0) {
+      throw new SemctxError("GIT_ERROR", `cannot read the base tree ${commit.slice(0, 12)}`, {
+        stderr: new TextDecoder().decode(listed.stderr).trim(),
+      });
     }
-    return new GraphIndex(analyzeAndBuildClaims({ ...config, repositoryRoot: tree }).analysis.graph);
+    const entries: Array<{ path: string; oid: string }> = [];
+    for (const record of new TextDecoder().decode(listed.stdout).split("\0")) {
+      if (record === "") continue;
+      const match = /^(\d{6}) (blob|commit) ([0-9a-f]{40,64})\t([\s\S]+)$/.exec(record);
+      if (match === null) throw new SemctxError("GIT_ERROR", "invalid base tree entry");
+      const [, mode, , oid, path] = match;
+      if (path === undefined || isAbsolute(path) || path.includes(":") || path.includes("\\")
+        || path.split("/").some((part) => part === "" || part === "." || part === "..")) {
+        throw new SemctxError("GIT_ERROR", "unsafe base tree path", { path });
+      }
+      if (mode !== "100644" && mode !== "100755") {
+        if (isPathSelected(config, path)) {
+          throw new SemctxError("GIT_ERROR", "selected base tree links and gitlinks are unsupported", { path, mode });
+        }
+        continue;
+      }
+      entries.push({ path, oid: oid! });
+    }
+    const blobs = Bun.spawnSync(["git", "cat-file", "--batch"], {
+      cwd: root,
+      stdin: new TextEncoder().encode(entries.map((entry) => `${entry.oid}\n`).join("")),
+      stdout: "pipe", stderr: "pipe",
+    });
+    if (blobs.exitCode !== 0) throw new SemctxError("GIT_ERROR", "cannot read base tree blobs");
+    let offset = 0;
+    for (const entry of entries) {
+      const newline = blobs.stdout.indexOf(10, offset);
+      const header = newline < 0 ? "" : new TextDecoder().decode(blobs.stdout.subarray(offset, newline));
+      const match = /^([0-9a-f]{40,64}) blob (\d+)$/.exec(header);
+      const size = match === null ? NaN : Number(match[2]);
+      offset = newline + 1;
+      if (match?.[1] !== entry.oid || !Number.isSafeInteger(size) || size < 0
+        || offset + size >= blobs.stdout.byteLength || blobs.stdout[offset + size] !== 10) {
+        throw new SemctxError("GIT_ERROR", "invalid base blob response", { path: entry.path });
+      }
+      const destination = join(scratch, entry.path);
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(destination, blobs.stdout.subarray(offset, offset + size));
+      offset += size + 1;
+    }
+    if (offset !== blobs.stdout.byteLength) throw new SemctxError("GIT_ERROR", "unexpected base blob response");
+    const analysis = analyzeAndBuildClaims({ ...config, repositoryRoot: scratch }).analysis;
+    const sidecar = getPlaneASidecar(analysis);
+    if (sidecar === undefined) throw new SemctxError("GIT_ERROR", "base analysis has no discovery ledger");
+    return { index: new GraphIndex(analysis.graph), sidecar };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -612,19 +656,44 @@ function applyLostGuards(
   diffText: string,
 ): VerifyResult {
   if (!diffRemovesBaseLines(diffText)) return result;
-  const lost = analyzeLostGuards({
-    baseIndex: analyzeCommitTree(root, mergeBase, config),
-    headIndex,
-    config,
-    diffText,
-  });
-  if (lost.findings.length === 0) return result;
+  const base = analyzeCommitTree(root, mergeBase, config);
+  const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText });
+  const changed = new Set(parseUnifiedDiffScopePaths(diffText));
+  const failed: string[] = [];
+  const excluded: string[] = [];
+  const partial: string[] = [];
+  for (const entry of base.sidecar.discoveryLedger) {
+    const paths = entry.scope.selectedPaths.filter((path) => changed.has(path));
+    if (paths.length === 0) continue;
+    if (entry.selectionDecision === "excluded") {
+      if (!entry.analysisReasons.includes("LEGACY_UNSUPPORTED_EXTENSION")) excluded.push(...paths);
+    } else if (entry.analysisOutcome !== "analyzed") {
+      failed.push(...paths);
+    } else if (config.version === 2) {
+      const profiles = base.sidecar.capabilityProfiles.filter((profile) =>
+        digestCanonical(profile.scope) === digestCanonical(entry.scope));
+      if (entry.analysisReasons.length > 0 || profiles.length === 0
+        || profiles.some((profile) => !profile.negativeEvidenceEligible)) partial.push(...paths);
+    }
+  }
   const findings = [...result.findings, ...lost.findings];
+  const unknowns = [...result.unknowns, ...lost.unknowns];
+  for (const [paths, severity, detail] of [
+    [failed, "block", "selected base scope lacks an admissible analyzer"],
+    [excluded, "warn", "base scope was excluded by the current configuration; removed guards were not checked"],
+    [partial, "warn", "base analysis has no complete negative test/guard evidence"],
+  ] as const) {
+    if (paths.length === 0) continue;
+    const named = [...new Set(paths)].sort().join(", ");
+    findings.push({ rule: "analysis_scope_incomplete", severity, message: `${detail}: ${named}`, nodeIds: [] });
+    unknowns.push(`${detail}: ${named}.`);
+  }
   return {
     ...result,
     findings,
-    unknowns: [...new Set([...result.unknowns, ...lost.unknowns])],
-    verdict: findings.some((f) => f.severity === "block") ? "BLOCK" : "WARN",
+    unknowns: [...new Set(unknowns)],
+    verdict: findings.some((f) => f.severity === "block") ? "BLOCK"
+      : findings.some((f) => f.severity === "warn") ? "WARN" : "PASS",
   };
 }
 

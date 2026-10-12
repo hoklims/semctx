@@ -337,6 +337,15 @@ survives indexing, persistence and a fresh read instead of scrolling past once.
 The base must exist locally — semctx never fetches implicitly. In CI, check out with
 `fetch-depth: 0`.
 
+When a range removes lines, files or paths, verification also reads the merge-base's raw Git blobs
+and checks guards missing at the head. It does not run checkout filters or materialize Git links.
+Selected base symlinks or gitlinks are refused with `GIT_ERROR`, rather than interpreted as source.
+The current configuration controls this additional analysis: excluded changed base paths remain
+unobserved and produce a warning plus an explicit unknown, not recovered guards. A selected changed
+base path with failed, disabled or unsupported analysis blocks with `analysis_scope_incomplete`.
+Config v2 also discloses incomplete negative test/guard evidence from the base analysis. These
+warnings do not establish faithful recovery of excluded or incomplete base scope.
+
 **JSON report** (`--format json`, `schemaVersion 1`): `verdict`, `base`, `head`, `mergeBase`,
 `range`, `changedFiles`, `changedSymbols`, `impactedContracts`, `impactedInvariants`,
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,

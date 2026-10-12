@@ -698,9 +698,9 @@ export interface LostGuardsResult {
  * Guards a change takes away, recovered from the graph of the commit it starts from.
  *
  * A committed range is indexed at its head, so whatever the change deletes, strips or moves is
- * absent from that graph and the head-side analysis cannot see it. This walks the same hunks on the
- * base graph (old coordinates) and reports a node only when a rule flag it carried at the base is
- * gone at the head: the node no longer exists, or lost its invariant, its exported contract or its
+ * absent from that graph and the head-side analysis cannot see it. This compares guarded nodes in
+ * changed base files against the head and reports a node only when a rule flag it carried at the base
+ * is gone at the head: the node no longer exists, or lost its invariant, its exported contract or its
  * security tag. A flag that survives is the head-side analysis's business, which keeps the two
  * from reporting the same node. Tests are judged at the head when the node survives, so a change
  * that strips a guard and adds a covering test in the same range is not refused.
@@ -713,21 +713,16 @@ export function analyzeLostGuards(args: {
 }): LostGuardsResult {
   const { baseIndex, headIndex } = args;
   const parsed = parseUnifiedDiffChanges(args.diffText);
-  interface BaseFile { whole: boolean; hunks: DiffHunk[]; movedTo?: string }
-  const baseFiles = new Map<string, BaseFile>();
+  const baseFiles = new Map<string, { movedTo?: string }>();
   for (const f of parsed.files) {
     if (f.status === "added") continue;
-    baseFiles.set(f.oldPath ?? f.filePath, {
-      whole: f.wholeFile || f.status === "renamed",
-      hunks: f.hunks,
-      ...(f.status === "renamed" ? { movedTo: f.filePath } : {}),
-    });
+    baseFiles.set(f.oldPath ?? f.filePath, f.status === "renamed" ? { movedTo: f.filePath } : {});
   }
   for (const u of parsed.unscoped) {
     if (u.reason === "rename_only" && u.paths.length === 2) {
-      baseFiles.set(u.paths[0]!, { whole: true, hunks: [], movedTo: u.paths[1]! });
+      baseFiles.set(u.paths[0]!, { movedTo: u.paths[1]! });
     } else if (u.reason === "empty_deleted") {
-      for (const path of u.paths) baseFiles.set(path, { whole: true, hunks: [] });
+      for (const path of u.paths) baseFiles.set(path, {});
     }
   }
 
@@ -748,12 +743,6 @@ export function analyzeLostGuards(args: {
   for (const node of impactedCandidates(baseIndex)) {
     const file = node.filePath === undefined ? undefined : baseFiles.get(node.filePath);
     if (file === undefined) continue;
-    const range = nodeLineRange(node);
-    const touched = file.whole
-      || range === undefined
-      || file.hunks.length === 0
-      || file.hunks.some((h) => hunkTouchesRange(h, range, "old"));
-    if (!touched) continue;
     const survivor = counterpart(node);
     const before = ruleFlags(baseIndex, node);
     const kept = survivor === undefined ? NO_FLAGS : ruleFlags(headIndex, survivor);

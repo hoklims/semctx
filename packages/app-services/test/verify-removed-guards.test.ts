@@ -111,6 +111,27 @@ describe("a pull request that removes a guard", () => {
     expect(result.unknowns.join("\n")).not.toContain("No changes detected");
   });
 
+  it("blocks stripping only the invariant marker without changing the declaration", () => {
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", MONEY.replace(" * @invariant money-never-negative: amounts must never be negative\n", "")));
+    expect(rulesOf(result)).toContain("invariant_touched_without_test");
+    expect(result.verdict).toBe("BLOCK");
+  });
+
+  it("blocks stripping only a security marker without changing the declaration", () => {
+    const root = repository();
+    write(root, "src/money.ts", MONEY.replace("@invariant money-never-negative: amounts must never be negative", "@tag security"));
+    git(root, "add", "src/money.ts");
+    git(root, "commit", "-q", "-m", "security base");
+    git(root, "checkout", "-q", "-b", "pr");
+    write(root, "src/money.ts", MONEY.replace(" * @invariant money-never-negative: amounts must never be negative\n", ""));
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "remove security");
+    indexRepository(root, "2026-10-11T10:00:00.000Z");
+    const result = runVerify(root, { kind: "range", base: "main" }).result;
+    expect(rulesOf(result)).toContain("security_surface_without_verification");
+    expect(result.verdict).toBe("BLOCK");
+  });
+
   it("blocks stripping the @invariant marker while changing the body", () => {
     const result = verifyPullRequest((root) =>
       write(root, "src/money.ts", "export function clamp(x: number): number {\n  return x;\n}\n"));

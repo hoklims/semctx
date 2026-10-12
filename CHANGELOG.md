@@ -17,7 +17,10 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   the same edit in the working tree was refused. The guards are now recovered from the merge-base
   and reported with the existing rules, noted "removed, moved or no longer guarded by this change".
   A range that removes no lines is unaffected; one that does analyses the base tree once more.
-  A stripped guard is not reported when the same range adds a covering test.
+  A stripped guard is not reported when the same range adds a covering test. Marker-only removals
+  are checked even when the declaration body is unchanged. Base recovery reads raw committed blobs
+  without checkout filters; selected Git links are refused. Failed selected base analysis blocks,
+  and excluded or incomplete base scope stays explicitly unknown rather than silently passing.
 - A diff made only of renames, binary or mode-only changes no longer reports "No changes detected";
   it names the paths whose contents were not compared.
 - The `VerifyComputation` characterization test no longer depends on the developer's global Git
