@@ -115,4 +115,30 @@ describe("range base-tree source safety", () => {
       expect((error as SemctxError).details).toEqual(expect.objectContaining({ path: "src/link.ts", mode: "120000" }));
     }
   });
+
+  (process.platform === "win32" ? it : it.skip)("refuses case-aliased base paths before materialization on Windows", () => {
+    const { root } = repository("export const helper = 1;\n");
+    git(root, "config", "core.ignorecase", "false");
+    const upperPayload = join(root, ".git", "upper-payload");
+    const lowerPayload = join(root, ".git", "lower-payload");
+    writeFileSync(upperPayload, MONEY);
+    writeFileSync(lowerPayload, "export function clamp(x: number) { return x; }\n");
+    const upper = git(root, "hash-object", "-w", upperPayload);
+    const lower = git(root, "hash-object", "-w", lowerPayload);
+    git(root, "update-index", "--add", "--cacheinfo", `100644,${upper},src/ALIAS.ts`);
+    git(root, "update-index", "--add", "--cacheinfo", `100644,${lower},src/alias.ts`);
+    git(root, "commit", "-q", "-m", "base aliases");
+    const base = git(root, "rev-parse", "HEAD");
+    expect(git(root, "ls-tree", "--name-only", "-r", base)).toContain("src/ALIAS.ts");
+    expect(git(root, "ls-tree", "--name-only", "-r", base)).toContain("src/alias.ts");
+    git(root, "update-index", "--force-remove", "src/ALIAS.ts", "src/alias.ts");
+    git(root, "commit", "-q", "-m", "remove aliases");
+    indexRepository(root, "2026-10-12T00:00:00.000Z");
+
+    let refusal: unknown;
+    try { runVerify(root, { kind: "range", base }); }
+    catch (error) { refusal = error; }
+    expect(refusal).toBeInstanceOf(SemctxError);
+    expect((refusal as SemctxError).code).toBe("GIT_ERROR");
+  });
 });
