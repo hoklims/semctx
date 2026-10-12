@@ -3,13 +3,14 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { Database } from "bun:sqlite";
+import { VerifyReportSchema, type VerifyReport } from "@semantic-context/core";
 import { BRIDGE, CONSUMER_VERSIONS, createConsumer, createEligibleConsumer, createPrimitiveSafeConsumer, createDataProvenConsumer, ENTRY, LEAF, LEAF_SOURCE, PRIMITIVE_SAFE_LEAF_SOURCE, put } from "./modelo-static-fixture";
 import { assertInterruptedAdmission } from "./modelo-interruption-witness";
-import { assertQualifiedBlock as blocked, assertOperationalError } from "./modelo-qualification-oracles";
+import { assertQualifiedBlock as blocked, assertOperationalError, assertPositiveReport, assertMcpPositiveReport, assertLegacyQualifiedConfigRefusal } from "./modelo-qualification-oracles";
 import { validateQualificationInputs } from "./modelo-artifact-identity";
 
 type Observation = { command: string[]; code: number; stdout: string; stderr: string };
-type Report = { verdict?: string; analysisAdmission?: unknown; impactedSymbols?: unknown; [key: string]: unknown };
+type Report = VerifyReport;
 function option(name: string, fallback: string): string { const position = process.argv.indexOf(name); return resolve(position < 0 ? fallback : process.argv[position + 1]!); }
 const sourceRoot = option("--source-root", resolve(import.meta.dir, ".."));
 const cli = option("--cli", join(sourceRoot, "apps/cli/dist/index.js"));
@@ -88,7 +89,7 @@ function typescriptAuditFixture(name: string, variant: "reexport" | "literal-imp
   assert.equal(refreshed.code, 0, refreshed.stderr);
   return root;
 }
-function report(result: Observation): Report { return JSON.parse(result.stdout) as Report; }
+function report(result: Observation): Report { return VerifyReportSchema.parse(JSON.parse(result.stdout)); }
 type DirectoryAdmission = {
   status: string;
   indexFreshness: { verdict: string };
@@ -259,7 +260,7 @@ if (legacyCli) await scenario("legacy-incident", () => {
   const health = semctx(root, ["index-health", "--json"], legacyCli); observations["legacy:health"] = health;
   assert.equal((JSON.parse(health.stdout) as { freshness: { verdict: string } }).freshness.verdict, "STALE");
   const result = verify(root, "legacy", legacyCli);
-  assert.equal(report(result).verdict, "PASS", "Legacy witness must reproduce the false positive, not merely predict it");
+  assertPositiveReport(result, { verdict: "PASS" });
   assert(!graph(root).nodes.some((node) => node.file_path === LEAF && node.name === "value"));
 });
 if (legacyCli) await scenario("legacy-refuses-qualified-config", () => {
@@ -267,8 +268,8 @@ if (legacyCli) await scenario("legacy-refuses-qualified-config", () => {
   put(root, LEAF, leafSource(root).replace("+ 1", "+ 7"));
   const legacyIndex = semctx(root, ["index", "--json"], legacyCli);
   observations["legacy-qualified-policy:index"] = legacyIndex;
-  assert.notEqual(legacyIndex.code, 0, "Legacy indexing must refuse the unsupported qualified selection mode");
-  assertOperationalError(verify(root, "legacy-qualified-policy", legacyCli), "CONFIG_INVALID", "config.json failed schema validation");
+  const legacyVerify = verify(root, "legacy-qualified-policy", legacyCli);
+  assertLegacyQualifiedConfigRefusal(legacyIndex, legacyVerify, root);
 });
 if (legacyCli) await scenario("legacy-before-matrix", () => {
   const root = fixture("legacy-before-matrix", false, legacyCli);
@@ -321,8 +322,7 @@ for (const variant of ["reexport", "literal-import", "inherited-nodenext"] as co
     const label = `audit-before-${variant}`;
     const root = typescriptAuditFixture(label, variant, regressionCli);
     const result = verify(root, label, regressionCli);
-    const before = report(result);
-    assert.equal(result.code, 0, "The actual pre-fix package must reproduce the admitted result");
+    const before = assertPositiveReport(result, { qualified: true });
     assert.equal((before.analysisAdmission as { status: string }).status, "admitted");
     observations[`${label}:health`] = semctx(root, ["index-health", "--json"], regressionCli);
   });
@@ -350,8 +350,7 @@ for (const hidden of directoryPaths) {
       const label = `directory-before-${directory}-${selected ? "selected" : "excluded"}`;
       const root = directoryFixture(label, hidden, selected, directoryRegressionCli);
       const result = verify(root, label, directoryRegressionCli);
-      const admission = report(result).analysisAdmission as DirectoryAdmission;
-      assert.equal(result.code, 0, "Actual package 52 must reproduce false admission"); assert.equal(admission.status, "admitted");
+      const admission = assertPositiveReport(result, { qualified: true }).analysisAdmission as DirectoryAdmission;
       assert(!admission.changeCoverage.expected.includes(hidden), "Before-fix closure must omit the tracked importer");
       const health = directoryHealth(root, label, directoryRegressionCli);
       assert(!health.candidates.some((candidate) => candidate.path === hidden), "Before-fix discovery must omit the tracked importer");
@@ -379,7 +378,7 @@ for (const hidden of directoryPaths) {
         assert(obligation); assert.equal(obligation.status, "excluded"); assert(obligation.reasons.length > 0);
         assert.equal(candidate.selectionDecision, "excluded");
       } else {
-        assert.equal(result.code, 0); assert.equal(admission.status, "admitted");
+        assertPositiveReport(result, { qualified: true });
         for (const path of ["src/main.ts", hidden]) assert(admission.changeCoverage.analyzed.includes(path), `Selected source ${path} must actually be analyzed`);
         assert.equal(health.freshness.verdict, "DIRTY_KNOWN");
         for (const path of ["src/main.ts", hidden]) assert(health.candidates.some((candidate) => candidate.path === path && candidate.selectionDecision === "selected" && candidate.analysisOutcome === "analyzed"), `Fresh persisted discovery must retain analyzed source ${path}`);
@@ -390,7 +389,7 @@ for (const hidden of directoryPaths) {
   await scenario(`directory-after-${directory}-inventory-drift`, () => {
     const label = `directory-after-${directory}-inventory-drift`;
     const root = directoryFixture(label, hidden, true, cli);
-    const before = verify(root, `${label}-fresh`); assert.equal(before.code, 0);
+    const before = verify(root, `${label}-fresh`); assertPositiveReport(before, { qualified: true });
     put(root, hidden, readFileSync(join(root, hidden), "utf8") + "// actual post-index drift\n");
     const drift = verify(root, label); assert.equal(drift.code, 3); blocked(drift);
     assert.equal((report(drift).analysisAdmission as DirectoryAdmission).indexFreshness.verdict, "STALE", "Tracked output-path drift must invalidate the input snapshot");
@@ -400,8 +399,8 @@ for (const hidden of directoryPaths) {
 for (const variant of Object.keys(loaderSources) as (keyof typeof loaderSources)[]) {
   if (loaderRegressionCli) await scenario(`loader-before-${variant}`, () => {
     const label = `loader-before-${variant}`; const root = loaderFixture(label, variant, loaderRegressionCli);
-    const result = verify(root, label, loaderRegressionCli); const admission = report(result).analysisAdmission as DirectoryAdmission;
-    assert.equal(result.code, 0); assert.equal(admission.status, "admitted"); assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict));
+    const result = verify(root, label, loaderRegressionCli); const admission = assertPositiveReport(result, { qualified: true }).analysisAdmission as DirectoryAdmission;
+    assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict));
   });
   await scenario(`loader-after-${variant}`, () => {
     const label = `loader-after-${variant}`; const root = loaderFixture(label, variant, cli);
@@ -463,7 +462,7 @@ await scenario("mixed-transitive-analysis", async () => {
   assert(reachable(extracted.edges.filter((edge) => edge.kind === "calls"), value.id, entry.id), "JS -> TS -> JS call graph must reach the transitive consumer");
   assert(extracted.edges.some((edge) => edge.kind === "imports"), "Imports must actually be extracted");
   const result = verify(root, "mixed-refreshed");
-  const verified = report(result);
+  const verified = assertPositiveReport(result, { qualified: true });
   const admission = verified.analysisAdmission as { status: string; changeCoverage: { expected: string[]; analyzed: string[] } } | undefined;
   assert(admission, "Qualified results must include explicit admission evidence");
   assert.equal(admission.status, "admitted");
@@ -476,12 +475,13 @@ await scenario("mixed-transitive-analysis", async () => {
   assert(impacted.directlyAffected.some((node) => node.id === bridge.id), "Impact must classify the direct TS consumer");
   assert(impacted.transitivelyAffected.some((node) => node.id === entry.id), "Impact must classify the transitive JS consumer");
   const plugin = verify(root, "mixed-plugin", pluginCli);
-  assert.equal(report(plugin).verdict, verified.verdict);
-  assert.deepEqual(report(plugin).analysisAdmission, verified.analysisAdmission);
+  const pluginReport = assertPositiveReport(plugin, { qualified: true });
+  assert.equal(pluginReport.verdict, verified.verdict);
+  assert.deepEqual(pluginReport.analysisAdmission, verified.analysisAdmission);
     const response = await mcpVerify(root);
     observations["mixed:mcp"] = response;
-    const structured = response.structuredContent as Report | undefined;
-    assert(structured); assert.equal(structured.verdict, verified.verdict); assert.deepEqual(structured.analysisAdmission, verified.analysisAdmission);
+    const structured = assertMcpPositiveReport(response, { qualified: true });
+    assert.equal(structured.verdict, verified.verdict); assert.deepEqual(structured.analysisAdmission, verified.analysisAdmission);
 });
 
 for (const mutation of ["add", "edit", "delete", "rename"] as const) await scenario(`stale-${mutation}`, () => {

@@ -1,11 +1,31 @@
 import assert from "node:assert/strict";
-import { VerifyReportSchema, type AnalysisAdmission } from "@semantic-context/core";
+import { VerifyReportSchema, type AnalysisAdmission, type VerifyReport } from "@semantic-context/core";
 
 export type Observation = { code: number; stdout: string; stderr: string };
 export type RefusalExpectation = {
   binding?: AnalysisAdmission["binding"]["status"];
   indexFreshness?: AnalysisAdmission["indexFreshness"]["verdict"][];
 };
+
+type PositiveExpectation = { qualified?: boolean; verdict?: VerifyReport["verdict"] };
+
+function positiveReport(value: unknown, expected: PositiveExpectation): VerifyReport {
+  const verified = VerifyReportSchema.parse(value);
+  assert.notEqual(verified.verdict, "BLOCK", "Positive verification must not block");
+  if (expected.verdict !== undefined) assert.equal(verified.verdict, expected.verdict, "Positive verification must establish the claimed verdict");
+  if (expected.qualified) assert.equal(verified.analysisAdmission?.status, "admitted", "Qualified positive verification must retain admitted analysis evidence");
+  return verified;
+}
+
+export function assertPositiveReport(result: Observation, expected: PositiveExpectation = {}): VerifyReport {
+  assert.equal(result.code, 0, "Positive verification must use numeric CLI exit 0");
+  return positiveReport(JSON.parse(result.stdout), expected);
+}
+
+export function assertMcpPositiveReport(result: { isError?: unknown; structuredContent?: unknown }, expected: PositiveExpectation = {}): VerifyReport {
+  assert.notEqual(result.isError, true, "Positive MCP verification must not be an error");
+  return positiveReport(result.structuredContent, expected);
+}
 
 export function assertQualifiedBlock(result: Observation, expected: RefusalExpectation = {}): void {
   assert.equal(result.code, 3, "Qualified refusal must use CLI exit 3, not an infrastructure error");
@@ -16,11 +36,21 @@ export function assertQualifiedBlock(result: Observation, expected: RefusalExpec
   if (expected.indexFreshness !== undefined) assert(expected.indexFreshness.includes(rejected.analysisAdmission.indexFreshness.verdict), "Refusal must establish the claimed index freshness");
 }
 
-export function assertOperationalError(result: Observation, code: "CONFIG_NOT_FOUND" | "CONFIG_INVALID", message: string): void {
+export function assertOperationalError(result: Observation, code: "CONFIG_NOT_FOUND" | "CONFIG_INVALID" | "REPO_NOT_INDEXED", message: string): void {
   assert.equal(result.code, 1, "Expected operational error must use CLI exit 1");
   if (result.stdout.trim()) {
     const details = JSON.parse(result.stdout) as Record<string, unknown>;
     assert(details !== null && typeof details === "object" && !("verdict" in details) && !("analysisAdmission" in details), "Operational details are not an admission report");
   }
   assert(result.stderr.includes(`[${code}]`) && result.stderr.includes(message), `Expected deliberate ${code}: ${message}`);
+}
+
+export function assertLegacyQualifiedConfigRefusal(index: Observation, verify: Observation, root: string): void {
+  assertOperationalError(index, "CONFIG_INVALID", "config.json failed schema validation");
+  const details = JSON.parse(index.stdout) as { issues?: { code?: unknown; path?: unknown; expected?: unknown; received?: unknown }[] };
+  assert(Array.isArray(details.issues) && details.issues.some(issue => issue.code === "invalid_literal"
+    && Array.isArray(issue.path) && issue.path.length === 1 && issue.path[0] === "selectionMode"
+    && issue.expected === "globs-v1" && issue.received === "qualified-static-v1"), "Legacy indexing must reject the exact unsupported qualified selection mode");
+  assertOperationalError(verify, "REPO_NOT_INDEXED", "repository index is absent");
+  assert.equal((JSON.parse(verify.stdout) as { root?: unknown }).root, root, "Legacy absent-index verification must retain the requested root");
 }

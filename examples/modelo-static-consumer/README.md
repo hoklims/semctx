@@ -5,12 +5,37 @@ workspace patterns and declared tool versions reproduce the qualification
 consumer topology. `scripts/modelo-static-fixture.ts` generates each repository
 under a new output directory, so no live pull request or checkout is modified.
 
-Run the harness against **built** artifacts from the frozen candidate, and retain
-a built baseline artifact from before the correction:
+Before running the harness:
+
+1. Freeze a clean candidate and record `git rev-parse HEAD` and
+   `git rev-parse HEAD^{tree}`. Use the repository's pinned Bun 1.4.0.
+2. From the repository root, build the CLI with `bun scripts/build-cli-package.ts`.
+   Run `bun pm pack` from `apps/cli`, then install that tarball in a disposable
+   wrapper. Generate the plugins with `bun scripts/build-plugin-runtime.ts` from
+   the repository root. Retain the exact commands, numeric exits and raw generation
+   logs outside the candidate checkout.
+3. Independently write an input manifest matching `QualificationInputManifestSchema`
+   in `scripts/modelo-artifact-identity.ts`. Record the candidate commit/tree, Bun
+   version and executable SHA-256, compiler install root/version and every compiler
+   file's relative path/SHA-256. Record every consumed payload's root, entrypoint
+   roles and complete file inventory/hashes; `artifactFiles(root)` computes the
+   inventory. Installed candidate CLI payloads need the recorded generation
+   commit/tree, command, exit 0 and complete output hashes. Committed plugin payloads
+   use their `releaseGitDirectory` and must match the candidate's Git objects;
+   uncommitted plugin payloads need recorded generation provenance instead.
+   Historical payloads retain their original bytes and `sourceIdentity: "UNKNOWN"`;
+   do not assign them candidate generation provenance. Keep the manifest and raw
+   generation logs together. The manifest records evidence, not a signature or proof
+   that generation ran.
+
+Run against those **built** artifacts, retaining the baseline artifacts from before
+the corrections. Supply the manifest as a mandatory input; the harness validates it
+before scenarios and again at completion:
 
 ```sh
 bun scripts/qualify-modelo-static.ts \
   --source-root /path/to/candidate \
+  --artifact-manifest /path/to/independently-generated-input-manifest.json \
   --cli /path/to/candidate/apps/cli/dist/index.js \
   --mcp /path/to/candidate/plugins/claude-code/dist/semctx-mcp.js \
   --plugin-cli /path/to/candidate/plugins/claude-code/dist/semctx.js \
