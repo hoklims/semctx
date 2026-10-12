@@ -380,6 +380,28 @@ describe("hidden bytes and attribute drift", () => {
     expect(state.repositoryStateHash).toBe(state.headTreeHash);
   }, 20_000);
 
+  it("reobserves the attributes that let a CRLF blob keep its indexed object", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    __setVerificationAttributeBarrierForTesting(() => {
+      writeFileSync(join(root, ".git", "info", "attributes"), `${name} ident\n`);
+    });
+
+    let error: unknown;
+    try {
+      captureVerificationGitState(root);
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(SemctxError);
+    expect((error as SemctxError).message).toContain("attribute metadata changed during capture");
+  }, 20_000);
+
   it("still detects a skip-worktree edit of a CRLF blob under core.autocrlf=true", () => {
     const root = repository();
     const name = "fixture.csv";

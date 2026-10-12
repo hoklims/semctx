@@ -516,6 +516,8 @@ function captureContentState(
         && payload.includes(0x0d) && attributeSnapshotIsSafe(initialSnapshots.get(path)!)
         && localBlobObjectId(objectFormat, payload) === indexEntry.objectId) {
         objectId = indexEntry.objectId;
+        // This shortcut relies on the initial attribute snapshot: reobserve it like the fast path.
+        fastResolvedPaths.push(path);
       }
     }
     if (
