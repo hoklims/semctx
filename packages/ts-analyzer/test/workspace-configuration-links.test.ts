@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { inspectModuleConfiguration } from "../src/javascript-diagnostics";
@@ -10,6 +10,14 @@ const roots: string[] = [];
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
+
+/** A canonical temporary root: macOS reaches tmpdir through the `/var` → `/private/var` link,
+ *  which would otherwise put every realpath'd configuration outside the analyzed root. */
+function temporaryRoot(prefix: string): string {
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), prefix))).replaceAll("\\", "/");
+  roots.push(root);
+  return root;
+}
 
 function write(root: string, files: Record<string, string>): void {
   for (const [path, content] of Object.entries(files)) {
@@ -34,8 +42,7 @@ const CONFIG_MEMBER = {
 function workspace(dependency = "workspace:*", declaration: Record<string, string> = {
   "pnpm-workspace.yaml": "packages:\n  - \"tooling/*\"\n  - \"domains/*/*\"\n",
 }): { root: string; source: string } {
-  const root = mkdtempSync(join(tmpdir(), "semctx-workspace-links-")).replaceAll("\\", "/");
-  roots.push(root);
+  const root = temporaryRoot("semctx-workspace-links-");
   mkdirSync(join(root, ".git"));
   write(root, {
     "package.json": JSON.stringify({ name: "fixture-root", private: true }),
@@ -110,8 +117,7 @@ test("an installed dependency keeps precedence over the workspace link", () => {
 });
 
 test("a workspace declared above the repository boundary receives no link", () => {
-  const parent = mkdtempSync(join(tmpdir(), "semctx-workspace-boundary-")).replaceAll("\\", "/");
-  roots.push(parent);
+  const parent = temporaryRoot("semctx-workspace-boundary-");
   write(parent, {
     "pnpm-workspace.yaml": "packages:\n  - \"repo/tooling/*\"\n  - \"repo/domains/*/*\"\n",
     ...Object.fromEntries(Object.entries(CONFIG_MEMBER).map(([path, content]) => [`repo/${path}`, content])),
