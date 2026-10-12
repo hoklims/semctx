@@ -117,6 +117,12 @@ reason; tracking it and rebuilding restores the supported tracked-input domain.
 Retained ignore/attribute controls beneath ignored outputs follow this same membership
 rule. The tracked positive fixture still checks both control digests, stale rejection
 after edits, and recovery after reindexing; identical untracked controls refuse admission.
+Working-tree qualification also refuses effective Git clean/process filters on retained
+inputs: check-in conversion can hide a raw byte change from the Git diff used for scope.
+The driver is inspected without executing a new filter command. Ordinary verification,
+text/eol normalization without a filter and a filter name without a configured driver
+remain distinct. Ambiguous sentinel-like names with a configured driver are conservatively
+unsupported; this refusal does not replace the staged/range attribute-conversion contract.
 Object/class definitions of potentially callable hooks at actual SDK protocol symbol keys
 also refuse qualification. Erased type members, proven primitive data, string keys and
 local symbol homonyms remain distinct; no implicit invocation edges are manufactured.

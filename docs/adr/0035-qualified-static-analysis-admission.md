@@ -64,6 +64,13 @@ the selected commit's attributes before object-identity comparison. Attribute me
 is observed in batches and rechecked; conversion errors or drift refuse comparison.
 Raw retained bytes still bind the compiler snapshot and input digest. Missing inputs
 or differing converted objects refuse admission.
+Working-tree scope cannot rely on a Git diff that hides retained raw changes through an
+effective clean/process filter. Such retained inputs refuse with a precise invalid-binding
+reason. Batched attribute capture and read-only driver configuration establish this check;
+no new filter execution is introduced. Ordinary mode, filter-free text/eol normalization
+and an unconfigured filter name remain distinct. Configured sentinel-like names can be
+ambiguous with Git's attribute states and are conservatively unsupported. Staged/range
+comparison keeps its existing selected-attribute conversion and reobservation contract.
 
 Qualified verification refuses sparse checkout and relevant tracked inputs marked
 `skip-worktree` or `assume-unchanged`: these flags can hide an unmaterialized importer
