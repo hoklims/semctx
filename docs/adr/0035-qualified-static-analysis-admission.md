@@ -52,7 +52,20 @@ outside the named change closure; the report enumerates both scopes.
 
 A dirty qualified index supports working-tree verification only. Staged and range
 sources require a clean indexed post-image; a range destination must also match the
-indexed commit. `DIRTY_KNOWN` proves retained worktree bytes, not equality with the
+indexed commit. Qualified committed ranges that remove base lines, files or paths are
+currently unsupported and reject with `QUALIFIED_BASE_RECOVERY_UNSUPPORTED`, a blocking
+`analysis_scope_incomplete` finding and a named unknown. This includes ordinary body-line
+replacements, not only deleted or stripped guards. Raw base blobs alone do not establish
+Git source eligibility, retained compiler inputs or capability admission for that base.
+No temporary Git marker or head configuration substitutes for those inputs. Pure additions
+that remove no base lines keep their existing admission path.
+
+This is a conservative compatibility restriction until immutable base eligibility and
+compiler-input capture are implemented. Consumers must not retry with legacy configuration
+or relabel the rejection as admitted. Verify refreshed working-tree changes before committing
+and retain the explicit committed-range refusal in CI; a supported committed range requires
+a separately delivered base-capture implementation. Rejection produces the ordinary qualified
+report and nonzero transport status, not an internal snapshot/discovery exception. `DIRTY_KNOWN` proves retained worktree bytes, not equality with the
 Git index or a committed range destination. Exact dirty staged-post-image matching
 is not implemented and cannot be inferred from stable input observations.
 Clean Git status also does not prove post-image membership: ignored retained sources,

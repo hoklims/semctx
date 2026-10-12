@@ -364,6 +364,14 @@ base path with failed, disabled or unsupported analysis blocks with `analysis_sc
 Config v2 also discloses incomplete negative test/guard evidence from the base analysis. These
 warnings do not establish faithful recovery of excluded or incomplete base scope.
 
+The opt-in `qualified-static-v1` profile cannot yet recover admitted base inputs. Any committed
+range removing base lines, files or paths therefore returns an explicit `BLOCK` report with
+`QUALIFIED_BASE_RECOVERY_UNSUPPORTED` in rejected admission, rather than attempting the scratch
+analysis or throwing an internal snapshot error. Ordinary body replacements are included. CLI
+exits 3 even with `--fail-on none`; pure additions keep their existing admission path. Refreshed
+working-tree verification remains available, but does not qualify the committed range. This is a
+compatibility restriction until immutable base eligibility and compiler inputs are captured.
+
 **JSON report** (`--format json`, `schemaVersion 1`): `verdict`, `base`, `head`, `mergeBase`,
 `range`, `changedFiles`, `changedSymbols`, `impactedContracts`, `impactedInvariants`,
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,

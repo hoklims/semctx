@@ -722,6 +722,20 @@ function applyLostGuards(
   diffText: string,
 ): VerifyResult {
   if (!diffRemovesBaseLines(diffText)) return result;
+  if (isQualified(config)) {
+    const paths = parseUnifiedDiffScopePaths(diffText).join(", ");
+    return {
+      ...result,
+      verdict: "BLOCK",
+      findings: [...result.findings, {
+        rule: "analysis_scope_incomplete", severity: "block", nodeIds: [],
+        message: `Qualified committed ranges removing base lines are unsupported: ${paths}`,
+      }],
+      unknowns: [...new Set([...result.unknowns,
+        `Qualified base guards were not recovered for: ${paths}. Immutable base source eligibility and compiler inputs are not captured; use refreshed working-tree verification before committing.`,
+      ])],
+    };
+  }
   const base = analyzeCommitTree(root, mergeBase, config);
   const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText });
   const changed = new Set(parseUnifiedDiffScopePaths(diffText));
@@ -816,6 +830,9 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       : gated;
     const inputAfter = isQualified(config) ? captureQualifiedAnalysisInputs(loadConfig(root)) : null;
     const qualifiedPostImageReasons: string[] = isQualified(config) ? qualifiedCheckoutReasons(root) : [];
+    if (isQualified(config) && source.kind === "range" && diffRemovesBaseLines(resolved.diffText ?? "")) {
+      qualifiedPostImageReasons.push("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
+    }
     if (isQualified(config) && source.kind === "working-tree") {
       // Git diff omits these inputs. Do not claim whole-change qualification from
       // expected paths alone without an actual diff/effect model for their addition.

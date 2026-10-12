@@ -26,6 +26,14 @@ configuration is never broadened automatically. Rebuild the index after editing 
 Consumers must inspect `analysisAdmission.profile`, `analysisAdmission.status`, binding,
 index freshness, check freshness, change coverage and the actual exit status. A legacy report
 without this admission is not qualified. An older runtime rejects the new selection mode.
+Qualified committed ranges that remove base lines, files or paths reject with
+`QUALIFIED_BASE_RECOVERY_UNSUPPORTED`. Ordinary body replacements count as removals too.
+The report is `BLOCK`, admission is rejected, CLI exits 3 even under `--fail-on none`, and
+the Action fails. Immutable merge-base source eligibility and retained compiler inputs are
+not captured yet; raw blobs do not establish that base's admission. Pure additions removing
+no base lines keep the existing path. Use refreshed working-tree verification before committing,
+but do not present it as a qualified committed-range result or disable the profile to bypass CI.
+This temporary restriction reduces supported range workflows without claiming a performance gain.
 The analyzer digest identifies the implementation and actual compiler bytes independently
 of the package version. A source build carrying an existing release version is still a new
 unreleased candidate until its own artifacts are qualified.

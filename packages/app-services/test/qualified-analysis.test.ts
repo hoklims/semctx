@@ -24,13 +24,29 @@ test("qualified staged attributes and CRLF remain explicitly refused before post
   expect(admission?.reasons).toContain("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
   expect(admission?.reasons).toContain("UNSUPPORTED_CHANGED_OBLIGATION:.gitattributes");
 });
-test("qualified clean range compares CRLF retained inputs after Git conversion", () => {
+test("qualified CRLF body replacement remains refused without captured base inputs", () => {
   const root = selectedRepository();
   git(root, "config", "core.autocrlf", "false");
   writeFileSync(join(root, ".gitattributes"), "src/*.ts text eol=crlf\n");
   git(root, "add", ".gitattributes");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF configuration");
   writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\r\n");
+  writeFileSync(join(root, "src/consumer.ts"), "import { main } from './main'; export function consume() { return main(); }\r\n");
+  git(root, "add", ".");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF candidate");
+  indexRepository(root, "2026-10-10T10:01:00.000Z");
+  const result = runVerify(root, { kind: "range", base: "HEAD^" });
+  expect(result.report.analysisAdmission?.status).toBe("rejected");
+  expect(result.report.analysisAdmission?.reasons).toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
+  expect(result.result.verdict).toBe("BLOCK");
+});
+test("qualified clean range compares CRLF retained inputs after Git conversion", () => {
+  const root = selectedRepository();
+  git(root, "config", "core.autocrlf", "false");
+  writeFileSync(join(root, ".gitattributes"), "src/*.ts text eol=crlf\n");
+  git(root, "add", ".gitattributes");
+  git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF configuration");
+  writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\r\nexport function added() { return 2; }\r\n");
   writeFileSync(join(root, "src/consumer.ts"), "import { main } from './main'; export function consume() { return main(); }\r\n");
   git(root, "add", ".");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "CRLF candidate");
@@ -99,11 +115,24 @@ for (const kind of ["staged", "range"] as const) test(`round3 dirty qualified in
   expect(admission?.reasons).toContain("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
   expect(runVerify(root, { kind: "working-tree" }).report.analysisAdmission?.status).toBe("admitted");
 });
-test("round3 clean qualified range admits its indexed HEAD and rejects an older destination", () => {
+test("qualified indexed HEAD body replacements remain refused without captured base inputs", () => {
   const root = selectedRepository();
   for (const value of [2, 3]) {
     writeFileSync(join(root, "src/main.ts"), `export function main() { return ${value}; }\n`);
     git(root, "add", "src/main.ts");
+    git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", `version ${value}`);
+  }
+  indexRepository(root, "2026-10-09T10:01:00.000Z");
+  const result = runVerify(root, { kind: "range", base: "HEAD^" });
+  expect(result.report.analysisAdmission?.status).toBe("rejected");
+  expect(result.report.analysisAdmission?.reasons).toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
+  expect(result.result.verdict).toBe("BLOCK");
+});
+test("round3 clean qualified range admits its indexed HEAD and rejects an older destination", () => {
+  const root = selectedRepository();
+  for (const value of [2, 3]) {
+    writeFileSync(join(root, `src/added${value}.ts`), `export function added${value}() { return ${value}; }\n`);
+    git(root, "add", `src/added${value}.ts`);
     git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", `version ${value}`);
   }
   indexRepository(root, "2026-10-09T10:01:00.000Z");
