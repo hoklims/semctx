@@ -365,7 +365,8 @@ describe("script entrypoint boundary", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
-  }, 60_000);
+  // This bounds 27 serial fresh processes, not performance acceptance (ADR 0026).
+  }, 180_000);
 
   test("importing the script as a module runs no benchmark and produces no output", async () => {
     const scriptUrl = pathToFileURL(SCRIPT_PATH).href;
