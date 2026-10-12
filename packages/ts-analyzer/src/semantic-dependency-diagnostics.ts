@@ -54,6 +54,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (ts.isExportDeclaration(node) && !node.isTypeOnly && node.moduleSpecifier !== undefined && ts.isStringLiteral(node.moduleSpecifier)
       && !(node.exportClause !== undefined && ts.isNamedExports(node.exportClause) && node.exportClause.elements.every(element => element.isTypeOnly))) {
       const kind = executionModule(node.moduleSpecifier.text); if (kind !== undefined) reasons.add(kind);
+      if (["cluster", "node:cluster"].includes(node.moduleSpecifier.text)
+        && node.exportClause !== undefined && ts.isNamedExports(node.exportClause)
+        && node.exportClause.elements.some(element => !element.isTypeOnly && ["fork", "setupPrimary"].includes((element.propertyName ?? element.name).text))) {
+        reasons.add("SOURCE_PROCESS_LAUNCH_UNSUPPORTED");
+      }
     }
     if (ts.isCallExpression(node)) needsChecker = true;
     if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Using) !== 0) reasons.add("SOURCE_DISPOSAL_UNSUPPORTED");
@@ -1121,7 +1126,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
   };
   const sdkScriptElement = (expression: ts.Expression): boolean => {
     const value = actualValue(expression);
-    if (!ts.isCallExpression(value) || value.arguments[0] === undefined || constantString(value.arguments[0]) !== "script") return false;
+    if (!ts.isCallExpression(value) || value.arguments[0] === undefined || constantString(value.arguments[0])?.toLowerCase() !== "script") return false;
     const callee = actualValue(value.expression);
     return (ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee))
       && sdkOrigin(callee.expression) && sdkMemberOf(callee, "Document", "createElement");

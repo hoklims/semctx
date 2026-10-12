@@ -10,6 +10,26 @@ for (const [name, source, reason] of [
   expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toContain(reason);
 });
 
+for (const extension of ["ts", "mjs"]) for (const tag of ["SCRIPT", "ScRiPt"]) test(`HTML script tag ${tag} ${extension} retains script insertion refusal`, () => {
+  const path = `/fixture/main.${extension}`;
+  const source = `export function run(){const script=document.createElement('${tag}');script.src='./hidden.js';document.head.append(script);}`;
+  const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
+  console.info(JSON.stringify({ extension, tag, reasons }));
+  expect(reasons).toContain("SOURCE_SCRIPT_INSERTION_UNSUPPORTED");
+});
+
+for (const extension of ["ts", "mjs"]) test(`HTML tag case controls ${extension} preserve inert and local origins`, () => {
+  for (const source of [
+    "export function run(){const script=document.createElement('SCRIPT');script.src='./hidden.js';return 1;}",
+    "export function run(){const div=document.createElement('div');document.head.append(div);}",
+    "export function run(){const div=document.createElement('DIV');document.head.append(div);}",
+    "const document={createElement(tag){return {src:tag};},head:{append(value){return value;}}};export function run(){const script=document.createElement('SCRIPT');script.src='./hidden.js';document.head.append(script);}",
+  ]) {
+    const path = `/fixture/main.${extension}`;
+    expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toEqual([]);
+  }
+});
+
 test("native wasm instantiation invokes an imported helper through its start function", async () => {
   let calls = 0;
   const bytes = new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,2,12,1,3,101,110,118,4,104,111,111,107,0,0,8,1,0]);
