@@ -33,18 +33,24 @@ function repository(removal = false): string {
   return root;
 }
 
-function failSelectedConversion(): { attempts: () => number; restore: () => void } {
+function failSelectedConversion(root: string): { attempts: () => number; failure: () => { exitCode: number; stderr: string } | undefined; restore: () => void } {
   const previous = Bun.spawnSync;
   const native = previous.bind(Bun);
+  const head = native(["git", "rev-parse", "HEAD"], { cwd: root, stdout: "pipe", stderr: "pipe" });
+  if (head.exitCode !== 0) throw Error(new TextDecoder().decode(head.stderr));
+  const attributeSource = `--attr-source=${new TextDecoder().decode(head.stdout).trim()}`;
   let attempts = 0;
+  let failure: { exitCode: number; stderr: string } | undefined;
   Bun.spawnSync = ((command: string[], options: Parameters<typeof Bun.spawnSync>[1]) => {
-    if (command[0] === "git" && command.some(arg => arg.startsWith("--attr-source=")) && command.includes("hash-object")) {
+    if (command[0] === "git" && command[1] === attributeSource && command[2] === "hash-object") {
       attempts++;
-      return native(["git", "-c", "filter.broken.clean=false", "-c", "filter.broken.required=true", ...command.slice(1)], options);
+      const result = native(["git", "-c", "filter.broken.clean=false", "-c", "filter.broken.required=true", ...command.slice(1)], options);
+      failure = { exitCode: result.exitCode, stderr: new TextDecoder().decode(result.stderr) };
+      return result;
     }
     return native(command, options);
   }) as typeof Bun.spawnSync;
-  return { attempts: () => attempts, restore: () => { Bun.spawnSync = previous; } };
+  return { attempts: () => attempts, failure: () => failure, restore: () => { Bun.spawnSync = previous; } };
 }
 
 function invalidateAddedStatCache(root: string): void {
@@ -109,15 +115,17 @@ process.exit(runVerifyDiff(root,parseArgs(["verify","diff","--base","HEAD^","--f
   expect(cliReport).toMatchObject({ verdict: "BLOCK", analysisAdmission: { status: "rejected", binding: { status: "invalid", reasons: ["QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND"] } } });
 }, 60_000);
 
-test("failed selected conversion returns rejected BLOCK and CLI exit 3 under advisory none", () => {
+test("native conversion fault injection returns rejected BLOCK and CLI exit 3 under advisory none", () => {
   const root = repository();
   invalidateAddedStatCache(root);
   let conversion: ReturnType<typeof failSelectedConversion> | undefined;
-  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(); });
+  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(root); });
   let observation: ReturnType<typeof observed>;
   try { observation = observed(root); } finally { conversion?.restore(); }
   const { report, failure } = observation;
   expect(conversion?.attempts()).toBe(1);
+  expect(conversion?.failure()?.exitCode).toBeGreaterThan(0);
+  expect(conversion?.failure()?.stderr).toContain("clean filter 'broken' failed");
   console.info(JSON.stringify({ failure, report }));
   expect(failure).toBeUndefined();
   expect(VerifyReportSchema.safeParse(report).success).toBe(true);
@@ -135,11 +143,12 @@ import {parseArgs} from ${module("../../../apps/cli/src/args.ts")};
 ${failSelectedConversion.toString()}
 const root=process.argv[2]!;
 let conversion: ReturnType<typeof failSelectedConversion> | undefined;
-__setVerifyControlBarrierForTesting(()=>{conversion=failSelectedConversion();});
+__setVerifyControlBarrierForTesting(()=>{conversion=failSelectedConversion(root);});
 let code: number;
 try { code=runVerifyDiff(root,parseArgs(["verify","diff","--base","HEAD^","--format","json","--fail-on","none"])); }
 finally { conversion?.restore(); }
 if(conversion?.attempts()!==1) throw Error("selected conversion was not exercised exactly once");
+if(!(conversion.failure()!.exitCode>0) || !conversion.failure()?.stderr.includes("clean filter 'broken' failed")) throw Error("native selected clean conversion did not fail");
 process.exit(code);
 `);
   invalidateAddedStatCache(root);
@@ -153,7 +162,7 @@ process.exit(code);
 test("explicit unsupported base recovery is not preempted by selected conversion", () => {
   const root = repository(true);
   let conversion: ReturnType<typeof failSelectedConversion> | undefined;
-  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(); });
+  __setVerifyControlBarrierForTesting(() => { conversion = failSelectedConversion(root); });
   let observation: ReturnType<typeof observed>;
   try { observation = observed(root); } finally { conversion?.restore(); }
   const { report, failure } = observation;
