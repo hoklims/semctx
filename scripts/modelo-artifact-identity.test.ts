@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { validateQualificationInputs, artifactFiles } from "./modelo-artifact-identity";
@@ -24,28 +24,34 @@ function inputs() {
   writeFileSync(join(root, "payload/semctx-index-worker.js"), "worker");
   git(root, "init", "-q"); git(root, "add", ".");
   git(root, "-c", "user.name=Fixture", "-c", "user.email=f@example.test", "commit", "-qm", "fixture");
+  const payloadRoot = mkdtempSync(join(tmpdir(), "consumed-artifacts-")); roots.push(payloadRoot);
+  cpSync(join(root, "payload"), payloadRoot, { recursive: true });
   const manifest = {
     schemaVersion: 1, source: { commit: git(root, "rev-parse", "HEAD"), tree: git(root, "rev-parse", "HEAD^{tree}") },
     runtime: { version: Bun.version, sha256: sha(readFileSync(process.execPath)) },
     compiler: { root: join(root, "compiler"), version: "test-compiler", files: artifactFiles(join(root, "compiler")) },
-    payloads: [{ root: join(root, "payload"), source: "candidate", sourceIdentity: git(root, "rev-parse", "HEAD"), releaseGitDirectory: "payload", entries: { "plugin-cli": "semctx.js" },
+    payloads: [{ root: payloadRoot, source: "candidate", sourceIdentity: git(root, "rev-parse", "HEAD"), releaseGitDirectory: "payload", entries: { "plugin-cli": "semctx.js" },
       files: ["semctx-index-worker.js", "semctx-shared.js", "semctx.js"].map(path => ({ path, sha256: sha(readFileSync(join(root, "payload", path))) })) }],
   };
-  return { sourceRoot: root, manifest, entries: { "plugin-cli": join(root, "payload/semctx.js") } };
+  return { sourceRoot: root, payloadRoot, manifest, entries: { "plugin-cli": join(payloadRoot, "semctx.js") } };
 }
 test("candidate complete declared payload and frozen source validate", () => {
   expect(() => validateQualificationInputs(inputs())).not.toThrow();
 });
 test("unchanged entry does not conceal a shared-chunk substitution", () => {
-  const input = inputs(); writeFileSync(join(input.sourceRoot, "payload/semctx-shared.js"), "wrong shared");
-  expect(() => validateQualificationInputs(input)).toThrow();
+  const input = inputs(); writeFileSync(join(input.payloadRoot, "semctx-shared.js"), "wrong shared");
+  expect(git(input.sourceRoot, "status", "--porcelain", "--untracked-files=all")).toBe("");
+  expect(() => validateQualificationInputs(input)).toThrow(`${input.payloadRoot}: complete artifact inventory/bytes differ`);
 });
-test("missing and unexpected payload dependencies refuse", () => {
-  const input = inputs(); rmSync(join(input.sourceRoot, "payload/semctx-index-worker.js"));
-  expect(() => validateQualificationInputs(input)).toThrow();
-  writeFileSync(join(input.sourceRoot, "payload/semctx-index-worker.js"), "worker");
-  writeFileSync(join(input.sourceRoot, "payload/unexpected.js"), "extra");
-  expect(() => validateQualificationInputs(input)).toThrow();
+test("missing payload dependencies refuse", () => {
+  const input = inputs(); rmSync(join(input.payloadRoot, "semctx-index-worker.js"));
+  expect(git(input.sourceRoot, "status", "--porcelain", "--untracked-files=all")).toBe("");
+  expect(() => validateQualificationInputs(input)).toThrow(`${input.payloadRoot}: complete artifact inventory/bytes differ`);
+});
+test("unexpected payload dependencies refuse", () => {
+  const input = inputs(); writeFileSync(join(input.payloadRoot, "unexpected.js"), "extra");
+  expect(git(input.sourceRoot, "status", "--porcelain", "--untracked-files=all")).toBe("");
+  expect(() => validateQualificationInputs(input)).toThrow(`${input.payloadRoot}: complete artifact inventory/bytes differ`);
 });
 test("unavailable, mismatched and dirty candidate source refuse", () => {
   const input = inputs(); input.manifest.source.commit = "0".repeat(40);
