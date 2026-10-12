@@ -210,6 +210,12 @@ refuse conservatively. Complete Intl option semantics are outside this qualifica
 Actual SDK Math calls require primitive provenance for arguments consumed by numeric
 parameters in the loaded SDK signature, including rest arguments. Zero-argument calls,
 ignored extra arguments and ordinary local homonyms retain their separate boundaries.
+Actual SDK callback dictionaries require closed literal-data proof when their direct members
+declare callable types in the loaded default libraries. Internal callbacks and unproven
+arguments refuse; ordinary data dictionaries and local homonyms retain their tested domain.
+Writes to actual SDK Location.href refuse JavaScript URL schemes after parser whitespace/case
+normalization and unknown URL values. Proven inert URLs and local homonyms stay distinct;
+no browser code-execution or module-link edge is invented for these navigation effects.
 Tests using resolved literal dynamic imports without canonical test-binding proof refuse
 qualified admission. Their ordinary module-link facts remain visible, and non-test literal
 dynamic imports retain their existing closure policy. No coarse test edge is fabricated.
