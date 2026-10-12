@@ -1161,9 +1161,69 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && (parent.parent.flags & ts.NodeFlags.Const) !== 0 && ts.isIdentifier(parent.name)) return;
     reasons.add("SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED");
   };
+  type SdkInvocation = { callee: ts.Expression; receiver: ts.Expression | undefined; arguments: readonly ts.Expression[] | undefined };
+  const sdkInvocation = (node: ts.CallExpression | ts.NewExpression): SdkInvocation => {
+    const callee = actualValue(node.expression);
+    const receiver = ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee) ? callee.expression : undefined;
+    const direct = { callee, receiver, arguments: node.arguments ?? [] };
+    if (!ts.isCallExpression(node)) return direct;
+    const helperCallee = ts.isCallExpression(callee) ? actualValue(callee.expression) : callee;
+    if (!(ts.isPropertyAccessExpression(helperCallee) || ts.isElementAccessExpression(helperCallee))) return direct;
+    const name = staticMemberName(helperCallee);
+    const target = actualValue(helperCallee.expression);
+    if (!["call", "apply", "bind"].includes(name ?? "") || !sdkOrigin(target)) return direct;
+    const helper = checker.getPropertyOfType(callableType(target), name!);
+    if (!helper?.getDeclarations()?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+      && ts.isInterfaceDeclaration(declaration.parent) && ["Function", "CallableFunction", "NewableFunction"].includes(declaration.parent.name.text))) return direct;
+    if (ts.isCallExpression(callee)) return name === "bind"
+      ? { callee: target, receiver: callee.arguments[0], arguments: [...callee.arguments.slice(1), ...node.arguments] } : direct;
+    if (name === "bind") return direct;
+    if (name === "call") return { callee: target, receiver: node.arguments[0], arguments: node.arguments.slice(1) };
+    const list = node.arguments[1] === undefined ? undefined : unwrapStaticExpression(node.arguments[1]);
+    const argumentsToConsume = list === undefined || list.kind === ts.SyntaxKind.NullKeyword ? []
+      : ts.isArrayLiteralExpression(list) && !list.elements.some(ts.isSpreadElement) ? list.elements : undefined;
+    return { callee: target, receiver: node.arguments[0], arguments: argumentsToConsume };
+  };
+  const inspectSdkCoercion = (invocation: SdkInvocation): void => {
+    const { callee, receiver, arguments: args } = invocation;
+    if (!sdkOrigin(callee)) return;
+    if (["String", "Number"].includes(sdkValue(callee)?.getName() ?? "")
+      && (args === undefined || (args[0] !== undefined && !primitiveValue(args[0])))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+    if (sdkMemberOf(callee, "Math", sdkValue(callee)?.getName() ?? "")) {
+      for (const signature of callableType(callee).getCallSignatures()) {
+        const declaration = signature.getDeclaration();
+        if (declaration === undefined || !program.isSourceFileDefaultLibrary(declaration.getSourceFile())) continue;
+        for (const [index, parameter] of signature.getParameters().entries()) {
+          const rest = parameter.getDeclarations()?.some(origin => ts.isParameter(origin) && origin.dotDotDotToken !== undefined) === true;
+          const type = checker.getTypeOfSymbolAtLocation(parameter, declaration);
+          const numeric = rest ? type.getNumberIndexType() : type;
+          if (numeric === undefined || (numeric.flags & ts.TypeFlags.NumberLike) === 0) continue;
+          const consumed = rest ? args?.slice(index) : args?.slice(index, index + 1);
+          if (consumed === undefined || consumed.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+        }
+      }
+    }
+    if (sdkMemberOf(callee, "Array", "join")) {
+      const array = receiver === undefined ? undefined : unwrapStaticExpression(receiver);
+      if (array === undefined || !ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
+        || args === undefined || (args[0] !== undefined && !primitiveValue(args[0]))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+    }
+    if (sdkMemberOf(callee, "Array", "toLocaleString")) {
+      const array = receiver === undefined ? undefined : unwrapStaticExpression(receiver);
+      const locales = args?.[0]; const options = args?.[1];
+      const localeValue = locales === undefined ? undefined : unwrapStaticExpression(locales);
+      const optionValue = options === undefined ? undefined : unwrapStaticExpression(options);
+      const safeLocales = locales === undefined || primitiveValue(locales) || (localeValue !== undefined && ts.isArrayLiteralExpression(localeValue)
+        && localeValue.elements.every(element => ts.isExpression(element) && primitiveValue(element)));
+      const safeOptions = options === undefined || primitiveValue(options) || (optionValue !== undefined && ts.isObjectLiteralExpression(optionValue)
+        && literalData(optionValue) && optionValue.properties.every(property => ts.isPropertyAssignment(property) ? primitiveValue(property.initializer)
+          : ts.isShorthandPropertyAssignment(property) && primitiveValue(property.name)));
+      if (array === undefined || !ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
+        || args === undefined || !safeLocales || !safeOptions) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+    }
+  };
   const inspectRuntimeCode = (node: ts.CallExpression | ts.NewExpression): void => {
-    if (sdkOrigin(node.expression) && ["String", "Number"].includes(sdkValue(actualValue(node.expression))?.getName() ?? "")
-      && node.arguments?.[0] !== undefined && !primitiveValue(node.arguments[0])) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+    inspectSdkCoercion(sdkInvocation(node));
     if (sdkOrigin(node.expression) && ((ts.isCallExpression(node) && ["instantiate", "instantiateStreaming"].some(member => sdkMemberOf(node.expression, "WebAssembly", member)))
       || (ts.isNewExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "Instance")))) {
       reasons.add("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
@@ -1171,37 +1231,6 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (!ts.isCallExpression(node)) return;
     const callee = actualValue(node.expression);
     if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)) {
-      if (sdkMemberOf(callee, "Math", sdkValue(callee)?.getName() ?? "")) {
-        const signature = checker.getResolvedSignature(node); const declaration = signature?.getDeclaration();
-        if (signature !== undefined && declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile())) {
-          for (const [index, parameter] of signature.getParameters().entries()) {
-            const rest = parameter.getDeclarations()?.some(origin => ts.isParameter(origin) && origin.dotDotDotToken !== undefined) === true;
-            const type = checker.getTypeOfSymbolAtLocation(parameter, declaration);
-            const numeric = rest ? type.getNumberIndexType() : type;
-            if (numeric === undefined || (numeric.flags & ts.TypeFlags.NumberLike) === 0) continue;
-            const consumed = rest ? node.arguments.slice(index) : node.arguments.slice(index, index + 1);
-            if (consumed.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
-          }
-        }
-      }
-      if (sdkMemberOf(callee, "Array", "join")) {
-        const array = unwrapStaticExpression(callee.expression);
-        if (!ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
-          || (node.arguments[0] !== undefined && !primitiveValue(node.arguments[0]))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
-      }
-      if (sdkMemberOf(callee, "Array", "toLocaleString")) {
-        const array = unwrapStaticExpression(callee.expression);
-        const locales = node.arguments[0]; const options = node.arguments[1];
-        const localeValue = locales === undefined ? undefined : unwrapStaticExpression(locales);
-        const optionValue = options === undefined ? undefined : unwrapStaticExpression(options);
-        const safeLocales = locales === undefined || primitiveValue(locales) || (localeValue !== undefined && ts.isArrayLiteralExpression(localeValue)
-          && localeValue.elements.every(element => ts.isExpression(element) && primitiveValue(element)));
-        const safeOptions = options === undefined || primitiveValue(options) || (optionValue !== undefined && ts.isObjectLiteralExpression(optionValue)
-          && literalData(optionValue) && optionValue.properties.every(property => ts.isPropertyAssignment(property) ? primitiveValue(property.initializer)
-            : ts.isShorthandPropertyAssignment(property) && primitiveValue(property.name)));
-        if (!ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
-          || !safeLocales || !safeOptions) reasons.add("SOURCE_COERCION_UNSUPPORTED");
-      }
       if (["write", "writeln"].some(member => sdkMemberOf(callee, "Document", member))) reasons.add("SOURCE_DOCUMENT_WRITE_UNSUPPORTED");
       const insertion = sdkNodeInsertions.find(([owner, member]) => sdkMemberOf(callee, owner, member));
       if (insertion !== undefined) {
