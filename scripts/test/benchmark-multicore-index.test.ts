@@ -20,6 +20,7 @@ import { parallelismMismatch } from "../benchmark-multicore-index/parallelism";
 import { buildSamplePlan, WORKER_COUNTS, type SamplePlanEntry } from "../benchmark-multicore-index/plan";
 import { observeCpuTime, observePeakRssBytes } from "../benchmark-multicore-index/resource-usage";
 import { summarizeDurations, summarizePeakRss } from "../benchmark-multicore-index/summary";
+import { spawnCiCommand } from "../ci-gate";
 
 const SCRIPT_PATH = resolve(import.meta.dir, "..", "benchmark-multicore-index.ts");
 
@@ -58,6 +59,35 @@ describe("buildSamplePlan", () => {
 });
 
 describe("parallel path evidence", () => {
+  test.each([2, 4])("requires exactly %s requested workers and no fallback for safe modules", (workers) => {
+    const expected = { requestedWorkers: workers, usedWorkers: workers, mode: "parallel", reason: null };
+    expect(parallelismMismatch("disconnected-modules", expected)).toBeNull();
+    expect(parallelismMismatch("disconnected-modules", { ...expected, usedWorkers: 1 })).not.toBeNull();
+    expect(parallelismMismatch("disconnected-modules", { ...expected, reason: "unexpected fallback" })).not.toBeNull();
+  });
+
+  test.each([
+    ["global-script-fallback", "global script: /fixture/hostile.ts"],
+    ["module-augmentation-fallback", "global or module augmentation: /fixture/hostile.ts"],
+  ] as const)("%s refuses a parallel mode, wrong count, missing or wrong fallback reason", (corpus, reason) => {
+    for (const requestedWorkers of [2, 4]) {
+      const expected = { requestedWorkers, usedWorkers: 1, mode: "preflight-fallback", reason };
+      expect(parallelismMismatch(corpus, expected)).toBeNull();
+      expect(parallelismMismatch(corpus, { ...expected, mode: "parallel", usedWorkers: requestedWorkers }))
+        .not.toBeNull();
+      expect(parallelismMismatch(corpus, { ...expected, usedWorkers: 2 })).not.toBeNull();
+      expect(parallelismMismatch(corpus, { ...expected, reason: null })).not.toBeNull();
+      expect(parallelismMismatch(corpus, { ...expected, reason: "other reason" })).not.toBeNull();
+    }
+  });
+
+  test.each(["disconnected-modules", "global-script-fallback", "module-augmentation-fallback"] as const)(
+    "%s requires a single path when one worker is requested", (corpus) => {
+      const expected = { requestedWorkers: 1, usedWorkers: 1, mode: "single", reason: null };
+      expect(parallelismMismatch(corpus, expected)).toBeNull();
+      expect(parallelismMismatch(corpus, { ...expected, mode: "parallel" })).not.toBeNull();
+    },
+  );
   test("accepts the requested parallel path and rejects a false single-worker fallback", () => {
     expect(parallelismMismatch("disconnected-modules", {
       requestedWorkers: 4, usedWorkers: 4, mode: "parallel", reason: null,
@@ -291,6 +321,52 @@ describe("captureImplementationIdentity", () => {
 });
 
 describe("script entrypoint boundary", () => {
+  test("CI capture retains all 27 real subprocess samples, expected paths and ten fingerprints", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-benchmark-ci-capture-"));
+    try {
+      const code = await spawnCiCommand([process.execPath, SCRIPT_PATH, "4", "2"], root, "report.json");
+      expect(code).toBe(0);
+      const report = JSON.parse(readFileSync(join(root, "report.json"), "utf8")) as {
+        schemaVersion: number;
+        corpora: {
+          id: string;
+          equivalence: { equivalent: boolean };
+          samples: { requestedWorkers: number; usedWorkers: number; mode: string; reason: string | null;
+            fingerprint: Record<string, string> }[];
+        }[];
+      };
+      expect(report.schemaVersion).toBe(2);
+      expect(report.corpora.map((corpus) => corpus.id))
+        .toEqual(["disconnected-modules", "global-script-fallback", "module-augmentation-fallback"]);
+      for (const corpus of report.corpora) {
+        expect(corpus.equivalence).toEqual({ equivalent: true });
+        expect(corpus.samples.map((sample) => sample.requestedWorkers)).toEqual([1, 2, 4, 4, 1, 2, 2, 4, 1]);
+        const baseline = corpus.samples[0];
+        if (baseline === undefined) throw new Error(`no samples for ${corpus.id}`);
+        for (const sample of corpus.samples) {
+          expect(Object.keys(sample.fingerprint)).toHaveLength(10);
+          expect(sample.fingerprint).toEqual(baseline.fingerprint);
+          if (sample.requestedWorkers === 1) {
+            expect(sample.mode).toBe("single");
+            expect(sample.usedWorkers).toBe(1);
+            expect(sample.reason).toBeNull();
+          } else if (corpus.id === "disconnected-modules") {
+            expect(sample.mode).toBe("parallel");
+            expect(sample.usedWorkers).toBe(sample.requestedWorkers);
+            expect(sample.reason).toBeNull();
+          } else {
+            expect(sample.mode).toBe("preflight-fallback");
+            expect(sample.usedWorkers).toBe(1);
+            expect(sample.reason).toStartWith(corpus.id === "global-script-fallback"
+              ? "global script: " : "global or module augmentation: ");
+          }
+        }
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   test("importing the script as a module runs no benchmark and produces no output", async () => {
     const scriptUrl = pathToFileURL(SCRIPT_PATH).href;
     const child = Bun.spawnSync(

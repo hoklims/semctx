@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { planForPaths } from "../ci-plan";
 import { HOST_CLI_SPECIFICATION } from "../prove-stable-delivery";
 import { verificationSteps } from "../verify-pr";
 
@@ -203,6 +204,38 @@ describe("CI governance", () => {
       ci.replace("if: always()", "if: success()"),
     ]) {
       expect(() => assertRequired(mutant)).toThrow();
+    }
+  });
+
+  test("archives each selected smoke report with a unique valid artifact name", () => {
+    const gates = job(ciWorkflow, "gates");
+    const upload = gates.steps.find((step) => step.uses?.startsWith("actions/upload-artifact@"));
+    expect(upload?.if).toBe("matrix.smoke == 'true'");
+    expect(upload?.with?.path).toBe(".semctx/multicore-index.json");
+    expect(upload?.with?.["include-hidden-files"]).toBe(true);
+    expect(upload?.with?.["if-no-files-found"]).toBe("error");
+    expect(gates.steps.indexOf(upload!)).toBeGreaterThan(
+      gates.steps.findIndex((step) => step.run === "bun scripts/ci-gate.ts"),
+    );
+    for (const paths of [["scripts/test/benchmark-multicore-index.test.ts"], ["package.json"]]) {
+      const plan = planForPaths(paths, () => true);
+      for (const attempt of [1, 2]) {
+        const names = plan.matrix.include.flatMap((lane, index) => {
+          if (lane.smoke !== "true") return [];
+          const values: Record<string, string> = {
+            "matrix.os": lane.os, "matrix.shard": lane.shard,
+            "github.run_attempt": String(attempt), "strategy.job-index": String(index),
+          };
+          return [String(upload?.with?.name).replace(/\$\{\{\s*([\w.-]+)\s*\}\}/g, (_match, key: string) => {
+            const value = values[key];
+            if (value === undefined) throw new Error(`unsupported artifact-name expression: ${key}`);
+            return value;
+          })];
+        });
+        expect(names.length).toBeGreaterThan(3);
+        expect(new Set(names).size).toBe(names.length);
+        expect(names.every((name) => /^[\w.-]+$/.test(name))).toBe(true);
+      }
     }
   });
 
