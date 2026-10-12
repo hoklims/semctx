@@ -165,6 +165,7 @@ describe("CI governance", () => {
     expect(gates.env?.SEMCTX_VERIFY_BASE).toBe(
       "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}",
     );
+    expect(gates.env?.SEMCTX_CI_SHARD).toBe("${{ matrix.shard }}");
   });
 
   test("pins third-party actions and exposes one stable required check", () => {

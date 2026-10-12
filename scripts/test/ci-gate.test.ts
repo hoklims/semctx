@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { commandsForLane, runCiGate } from "../ci-gate";
 import type { CiLane } from "../ci-plan";
+import { TEST_TIMINGS } from "../verify-pr";
 
-const lane = (profile: CiLane["profile"], os: CiLane["os"], targets = "", smoke: CiLane["smoke"] = "false"): CiLane =>
-  ({ profile, os, targets, smoke });
+const lane = (
+  profile: CiLane["profile"], os: CiLane["os"], targets = "", smoke: CiLane["smoke"] = "false", shard = "",
+): CiLane => ({ profile, os, targets, smoke, shard });
 
 describe("CI gate runner", () => {
   test("contract lane runs diff, compatibility, documentation, static quality and routing regressions", () => {
@@ -33,6 +35,38 @@ describe("CI gate runner", () => {
         ["python", "scripts/verify-index-routing.py"],
       ]);
     expect(() => commandsForLane(lane("focused", "ubuntu-latest", "plugins"), "base", () => true)).toThrow();
+  });
+
+  test("a test shard narrows only the test files of the canonical gate or the focused suite", () => {
+    expect(commandsForLane(lane("full", "windows-latest", "", "true", "3/4"), "base", () => true).map((command) => command.argv))
+      .toEqual([
+        ["bun", "run", "verify:pr", "--", "--test-shard", "3/4"],
+        ["bun", "run", "bench:index-workers", "4", "2"],
+      ]);
+    expect(commandsForLane(lane("focused", "macos-15", "plugins", "false", "2/2"), "base", () => true).map((command) => command.argv))
+      .toEqual([
+        ["bun", "test", "--timeout", "60000", "--shard=2/2", "--timings=scripts/ci-test-timings.json", "plugins"],
+        ["bun", "run", "plugin:check"],
+        ["python", "scripts/verify-index-routing.py"],
+      ]);
+  });
+
+  test("shard balancing reads recorded durations keyed by the files the suite discovers", async () => {
+    const timings = await Bun.file(TEST_TIMINGS).json() as { version: number; files: Record<string, number> };
+    expect(timings.version).toBe(1);
+    const recorded = Object.keys(timings.files);
+    expect(recorded.length).toBeGreaterThan(100);
+    expect(recorded.every((path) => /^(packages|apps|plugins|scripts)\/[^\\]+\.test\.ts$/.test(path))).toBe(true);
+    expect(Object.values(timings.files).every((ms) => Number.isInteger(ms) && ms >= 0)).toBe(true);
+  });
+
+  test("refuses malformed shards, a shard count other than the host's, and a sharded contract lane", () => {
+    for (const shard of ["0/4", "5/4", "1/3", "a/4", "1/4/4", " 1/4", "1/04"]) {
+      expect(() => commandsForLane(lane("full", "windows-latest", "", "false", shard), "base", () => true))
+        .toThrow("invalid test shard");
+    }
+    expect(() => commandsForLane(lane("contract", "ubuntu-latest", "", "false", "1/2"), "base", () => true))
+      .toThrow("invalid contract lane");
   });
 
   test("propagates a failed command without running later commands", async () => {

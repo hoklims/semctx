@@ -52,3 +52,34 @@ unknown paths, absent bases and missing test roots. Governance tests reject a mi
 dependency, a skipped-gate acceptance and a disabled always-run aggregate. The release gate is
 independent and unchanged. These tests establish routing behavior, not unexecuted runtime or
 release efficacy. Measure the first candidate CI against PR #200 before claiming a speedup.
+
+## Amendment — suite sharding and documentation figures (2026-10-11)
+
+On 2026-10-11 the Windows full lane spent 1 812 s of its 34 minutes in one serial `bun test` run
+(Ubuntu 652 s, macOS 617 s), and PR #321, which adds about fifty test files, exceeded the
+60-minute job limit on Windows. Its pushes were cancelled before any run finished. PR #323, which
+only touched the READMEs, their SVG figures and the landing page, still selected the full
+three-OS gate because `README.fr.md` and `docs/assets/` were unclassified.
+
+- `README.fr.md`, and SVG files under `docs/assets/`, are documentation. Other non-Markdown files
+  under `docs/` (for example the pilot JSON data) remain unclassified and select the full gate.
+- Every lane that runs the product suite (full lanes and affected focused lanes) is split by test
+  file across a fixed number of runners per OS: Ubuntu 2, Windows 4, macOS 2. Each shard runs the
+  lane's other commands unchanged and `bun test --shard=i/N` over its slice. Bun sorts the
+  discovered files and assigns each to exactly one shard, so the shard set of one OS covers the
+  same files as the unsharded command. `semctx-required` still requires every selected job.
+- Shards balance by recorded duration (`--timings=scripts/ci-test-timings.json`, seeded from the
+  Windows lane of run 38115625061). Round-robin by file count left the slowest Windows shard at
+  767 s against 454 s when balanced by time. A file missing from the record counts as the median
+  duration, so a stale record only unbalances the runners; it never drops a file. Refresh it
+  with `bun test --timings=scripts/ci-test-timings.json --update-timings packages apps plugins scripts`.
+- Files stay serial inside a runner. In-runner parallelism (`bun test --parallel`) was rejected:
+  on Windows several guard tests already take 13–15 s of a 30 s budget and an MCP test 36 s of
+  60 s, and a local four-worker run timed out four tests. Sharding keeps each test's host and
+  timing margin as before.
+- Routing-only focused lanes and the contract lane are not sharded.
+
+The local `verify:pr` and the release gate still run every test file in one process. A
+`--test-shard i/N` option narrows only their test step and is used only by CI lanes. Routing tests
+pin complete shard sets for every planned suite lane, and the gate refuses a malformed shard or a
+count other than its host's. The speedup is measured on the first candidate CI run, not assumed.
