@@ -96,7 +96,7 @@ test("retained authored output imports a force-tracked covering test without tou
   expect(observed.result.findings.map(finding => finding.rule)).not.toContain("invariant_touched_without_test");
 }, 60_000);
 
-test("marker removal covered by a new committed head test remains admitted", () => {
+test("marker removal covered by a new current covering test remains admitted", () => {
   const root = repository('/** @invariant fixed: stays fixed */\nexport function value() { return 1; }\n');
   mkdirSync(join(root, "test"));
   writeFileSync(join(root, "test/value.test.ts"), 'import { expect, test } from "bun:test";\nimport { value } from "../src/value";\ntest("value", () => expect(value()).toBe(1));\n');
