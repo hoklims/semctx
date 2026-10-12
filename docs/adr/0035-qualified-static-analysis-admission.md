@@ -424,9 +424,10 @@ signatures and ignored extra arguments remain distinct; local homonyms do not us
 Actual SDK parameters whose direct dictionary members declare callable types in the loaded
 default libraries require the existing closed literal-data proof for their supplied argument.
 Internal callbacks and unproven dictionaries refuse; this does not model their invocation edges.
-Writes to actual SDK Location.href require a proven constant inert URL. JavaScript schemes
-after URL-parser whitespace and case normalization, and unknown values, refuse because their
-code/module execution is unmodeled. Proven inert URLs and local homonyms retain their domain.
+Writes to actual SDK Location.href require a proven constant inert URL. After URL-parser
+whitespace and case normalization, only HTTP/HTTPS and relative URLs have that proof.
+Other schemes, including JavaScript/data/VBScript/blob, and unknown values refuse because
+their code/module execution is unmodeled. Proven inert URLs and local homonyms retain their domain.
 Qualified tests with a resolved literal dynamic import and no canonical binding proof
 refuse through a private retained-source/AST source-line-specifier check. Ordinary/legacy
 module facts and non-test literal-import closure remain unchanged; no new metadata field

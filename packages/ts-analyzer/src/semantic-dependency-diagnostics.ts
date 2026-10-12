@@ -1209,10 +1209,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
           && ts.isInterfaceDeclaration(origin.parent) && origin.parent.name.text === "Location")) {
           const url = constantString(node.right);
           // URL parsing strips leading C0/space and ASCII tabs/newlines before reading the scheme.
-          const scheme = url?.replace(/[\t\n\r]/g, "");
+          const normalized = url?.replace(/[\t\n\r]/g, "");
           let first = 0;
-          while (scheme !== undefined && first < scheme.length && scheme.charCodeAt(first) <= 0x20) first++;
-          if (scheme === undefined || scheme.slice(first).toLowerCase().startsWith("javascript:")) {
+          while (normalized !== undefined && first < normalized.length && normalized.charCodeAt(first) <= 0x20) first++;
+          const scheme = normalized?.slice(first).match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+          if (normalized === undefined || (scheme !== undefined && scheme !== "http" && scheme !== "https")) {
             reasons.add("SOURCE_SCRIPT_NAVIGATION_UNSUPPORTED");
           }
         }

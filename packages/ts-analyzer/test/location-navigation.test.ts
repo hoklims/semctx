@@ -10,9 +10,12 @@ for (const extension of ["ts", "mjs"]) test(`SDK Location href ${extension} cann
 });
 
 test("SDK navigation follows URL scheme case and control normalization", () => {
-  for (const url of ["JaVaScRiPt:import('./hidden.js')", " \u0000 javascript:import('./hidden.js')", "java\tscri\npt:import('./hidden.js')"]) {
+  for (const source of [
+    "export function run(){location.href=\"JaVaScRiPt:import('./hidden.js')\";}",
+    "export function run(){location.href=\" \\u0000 javascript:import('./hidden.js')\";}",
+    "export function run(){location.href=\"java\\tscri\\npt:import('./hidden.js')\";}",
+  ]) {
     const path = "/fixture/main.ts";
-    const source = `export function run(){location.href=${JSON.stringify(url)};}`;
     expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toContain("SOURCE_SCRIPT_NAVIGATION_UNSUPPORTED");
   }
 });
@@ -32,6 +35,9 @@ test("actual SDK navigation aliases and unknown targets require an inert proof",
 test("inert SDK href strings and real local location homonyms remain distinct", () => {
   for (const source of [
     "export function run(){location.href='https://example.invalid/path';}",
+    "export function run(){location.href='HTTP://example.invalid/path';}",
+    "export function run(){location.href='//example.invalid/path';}",
+    "export function run(){location.href='next.html?value=data:opaque';}",
     "export function run(){location.href='#section';}",
     "export function run(){location.href='./next.html';}",
     "const target=window.location;export function run(){target.href='/next.html';}",
@@ -41,5 +47,20 @@ test("inert SDK href strings and real local location homonyms remain distinct", 
   ]) {
     const path = "/fixture/main.ts";
     expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toEqual([]);
+  }
+});
+
+for (const extension of ["ts", "mjs"]) test(`SDK Location href ${extension} refuses executable and unsupported URL schemes`, () => {
+  for (const source of [
+    "export function run(){location.href=\"data:text/html,<script>import(\\\"./hidden.js\\\")</script>\";}",
+    "export function run(){location.href=\"vbscript:Execute(\\\"hidden\\\")\";}",
+    "export function run(){location.href=\"DaTa:text/html,hidden\";}",
+    "export function run(){location.href=\" \\u0000 da\\tta:text/html,hidden\";}",
+    "export function run(){location.href=\"vbscri\\npt:hidden\";}",
+    "export function run(){location.href=\"custom:opaque\";}",
+    "export function run(){location.href=\"blob:https://example.invalid/opaque\";}",
+  ]) {
+    const path = `/fixture/main.${extension}`;
+    expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toContain("SOURCE_SCRIPT_NAVIGATION_UNSUPPORTED");
   }
 });
