@@ -514,6 +514,34 @@ export function hunkTouchesRange(
   return start <= range.end && end >= range.start;
 }
 
+/**
+ * What makes a node subject to each blocking rule. One definition serves the head-side analysis and
+ * the recovery of guards a change removes, so the two cannot disagree about what a guard is.
+ * A contract is *critical* (strict tier) only when its author tagged it `critical`/`security`:
+ * marker-driven and opt-in, never inferred.
+ */
+interface RuleFlags {
+  invariant: boolean;
+  critical: boolean;
+  contract: boolean;
+  security: boolean;
+}
+
+function ruleFlags(index: GraphIndex, n: RepositoryNode): RuleFlags {
+  const exportedContract = (n.kind === "interface" || n.kind === "type") && n.exported === true;
+  const critical = exportedContract && (n.tags.includes("critical") || n.tags.includes("security"));
+  return {
+    invariant: index.outEdges(n.id, ["constrained_by"]).length > 0,
+    critical,
+    contract: exportedContract && !critical,
+    security:
+      n.tags.includes("security")
+      || index.outEdges(n.id, ["related_to"]).some((e) => index.node(e.to)?.tags.includes("security")),
+  };
+}
+
+const NO_FLAGS: RuleFlags = { invariant: false, critical: false, contract: false, security: false };
+
 function isTested(index: GraphIndex, nodeId: string): boolean {
   return index.outEdges(nodeId, ["tested_by"]).length > 0;
 }
@@ -600,22 +628,12 @@ export function analyzeDiff(args: {
     .sort((a, b) => compareIds(a.id, b.id));
 
   // Condition evaluators.
-  const invariantConstrainedUntested = impactedNodes.filter(
-    (n) => index.outEdges(n.id, ["constrained_by"]).length > 0 && !isTested(index, n.id),
-  );
-  const isExportedContract = (n: RepositoryNode): boolean =>
-    (n.kind === "interface" || n.kind === "type") && n.exported === true;
-  // A contract is *critical* (strict tier → BLOCK) only when its author tagged it so, via a
-  // `critical`/`security` tag. Marker-driven and opt-in — never inferred.
-  const isCriticalContract = (n: RepositoryNode): boolean =>
-    isExportedContract(n) && (n.tags.includes("critical") || n.tags.includes("security"));
-  const criticalContractsUntested = impactedNodes.filter((n) => isCriticalContract(n) && !isTested(index, n.id));
-  const contractsUntested = impactedNodes.filter(
-    (n) => isExportedContract(n) && !isCriticalContract(n) && !isTested(index, n.id),
-  );
-  const securityUntested = impactedNodes.filter(
-    (n) => (n.tags.includes("security") || index.outEdges(n.id, ["related_to"]).some((e) => index.node(e.to)?.tags.includes("security"))) && !isTested(index, n.id),
-  );
+  const untestedWith = (flag: keyof RuleFlags): RepositoryNode[] =>
+    impactedNodes.filter((n) => ruleFlags(index, n)[flag] && !isTested(index, n.id));
+  const invariantConstrainedUntested = untestedWith("invariant");
+  const criticalContractsUntested = untestedWith("critical");
+  const contractsUntested = untestedWith("contract");
+  const securityUntested = untestedWith("security");
 
   const conditionNodes: Record<BlockingCondition, RepositoryNode[]> = {
     invariant_touched_without_test: invariantConstrainedUntested,
@@ -641,7 +659,7 @@ export function analyzeDiff(args: {
     });
   }
 
-  const unknowns = buildDiffUnknowns(impactedInvariants, invariantConstrainedUntested, changedFiles, index);
+  const unknowns = buildDiffUnknowns(impactedInvariants, invariantConstrainedUntested, changedFiles, parseUnifiedDiffScopePaths(args.diffText), index);
 
   const verdict: VerdictLevel = findings.some((f) => f.severity === "block")
     ? "BLOCK"
@@ -664,11 +682,111 @@ export function analyzeDiff(args: {
   };
 }
 
-function impactedCandidates(index: GraphIndex, changedFiles: readonly string[]): RepositoryNode[] {
-  const fileSet = new Set(changedFiles);
+/** True when the diff can take something away from the base: removed lines, a deletion or a rename. */
+export function diffRemovesBaseLines(diffText: string): boolean {
+  const parsed = parseUnifiedDiffChanges(diffText);
+  return parsed.files.some((f) => f.status === "deleted" || f.status === "renamed" || f.hunks.some((h) => h.oldLines > 0))
+    || parsed.unscoped.some((u) => u.reason === "rename_only" || u.reason === "empty_deleted");
+}
+
+export interface LostGuardsResult {
+  findings: VerifyFinding[];
+  unknowns: string[];
+}
+
+/**
+ * Guards a change takes away, recovered from the graph of the commit it starts from.
+ *
+ * A committed range is indexed at its head, so whatever the change deletes, strips or moves is
+ * absent from that graph and the head-side analysis cannot see it. This compares guarded nodes in
+ * changed base files against the head and reports a node only when a rule flag it carried at the base
+ * is gone at the head: the node no longer exists, or lost its invariant, its exported contract or its
+ * security tag. A flag that survives is the head-side analysis's business, which keeps the two
+ * from reporting the same node. Tests are judged at the head when the node survives, so a change
+ * that strips a guard and adds a covering test in the same range is not refused.
+ */
+export function analyzeLostGuards(args: {
+  baseIndex: GraphIndex;
+  headIndex: GraphIndex;
+  config: SemctxConfig;
+  diffText: string;
+}): LostGuardsResult {
+  const { baseIndex, headIndex } = args;
+  const parsed = parseUnifiedDiffChanges(args.diffText);
+  const baseFiles = new Map<string, { movedTo?: string }>();
+  for (const f of parsed.files) {
+    if (f.status === "added") continue;
+    baseFiles.set(f.oldPath ?? f.filePath, f.status === "renamed" ? { movedTo: f.filePath } : {});
+  }
+  for (const u of parsed.unscoped) {
+    if (u.reason === "rename_only" && u.paths.length === 2) {
+      baseFiles.set(u.paths[0]!, { movedTo: u.paths[1]! });
+    } else if (u.reason === "empty_deleted") {
+      for (const path of u.paths) baseFiles.set(path, {});
+    }
+  }
+
+  const counterpart = (node: RepositoryNode): RepositoryNode | undefined => {
+    const same = headIndex.node(node.id);
+    if (same !== undefined) return same;
+    const movedTo = node.filePath === undefined ? undefined : baseFiles.get(node.filePath)?.movedTo;
+    if (movedTo === undefined) return undefined;
+    const moved = headIndex.nodesOfKind(node.kind).filter((n) => n.filePath === movedTo && n.name === node.name);
+    return moved.length === 1 ? moved[0] : undefined;
+  };
+
+  const lost: Partial<Record<BlockingCondition, RepositoryNode[]>> = {};
+  const unknowns: string[] = [];
+  const note = (rule: BlockingCondition, node: RepositoryNode): void => {
+    (lost[rule] ??= []).push(node);
+  };
+  for (const node of impactedCandidates(baseIndex)) {
+    const file = node.filePath === undefined ? undefined : baseFiles.get(node.filePath);
+    if (file === undefined) continue;
+    const survivor = counterpart(node);
+    const before = ruleFlags(baseIndex, node);
+    const kept = survivor === undefined ? NO_FLAGS : ruleFlags(headIndex, survivor);
+    // An invariant or security tag travels with the code, but an exported contract is an address:
+    // importers of the old path break whether or not the declaration survives elsewhere.
+    const moved = survivor !== undefined && survivor.id !== node.id;
+    const after: RuleFlags = moved ? { ...kept, critical: false, contract: false } : kept;
+    const tested = survivor === undefined ? isTested(baseIndex, node.id) : isTested(headIndex, survivor.id);
+    if (tested) continue;
+    if (before.invariant && !after.invariant) {
+      note("invariant_touched_without_test", node);
+      const names = baseIndex.outEdges(node.id, ["constrained_by"]).map((e) => baseIndex.node(e.to)?.name).filter(Boolean);
+      unknowns.push(`"${node.name}" was constrained by [${names.join(", ")}] and no longer is; the guard was removed without a test.`);
+    }
+    if (before.critical && !after.critical) note("critical_contract_changed_without_test", node);
+    if (before.contract && !after.contract) note("contract_changed_without_test", node);
+    if (before.security && !after.security) note("security_surface_without_verification", node);
+  }
+
+  const findings: VerifyFinding[] = [];
+  for (const rule of args.config.blockingRules) {
+    const nodes = lost[rule.when] ?? [];
+    if (nodes.length === 0) continue;
+    findings.push({
+      rule: rule.when,
+      severity: rule.severity,
+      message: `${describeCondition(rule.when, nodes, 0)} (removed, moved or no longer guarded by this change)`,
+      nodeIds: nodes.map((n) => n.id),
+    });
+  }
+  return { findings, unknowns: [...new Set(unknowns)] };
+}
+
+
+/** Nodes a diff can touch, restricted to `changedFiles` when given. */
+function impactedCandidates(index: GraphIndex, changedFiles?: readonly string[]): RepositoryNode[] {
+  const fileSet = changedFiles === undefined ? undefined : new Set(changedFiles);
   const kinds: RepositoryNode["kind"][] = ["function", "class", "interface", "type", "enum", "module", "test", "document", "migration"];
   const out: RepositoryNode[] = [];
-  for (const kind of kinds) for (const node of index.nodesOfKind(kind)) if (node.filePath !== undefined && fileSet.has(node.filePath)) out.push(node);
+  for (const kind of kinds) {
+    for (const node of index.nodesOfKind(kind)) {
+      if (node.filePath !== undefined && (fileSet === undefined || fileSet.has(node.filePath))) out.push(node);
+    }
+  }
   return out;
 }
 
@@ -696,10 +814,17 @@ function buildDiffUnknowns(
   impactedInvariants: readonly Claim[],
   untested: readonly RepositoryNode[],
   changedFiles: readonly string[],
+  scopePaths: readonly string[],
   index: GraphIndex,
 ): string[] {
   const unknowns: string[] = [];
-  if (changedFiles.length === 0) unknowns.push("No changes detected in the diff.");
+  if (changedFiles.length === 0) {
+    unknowns.push(
+      scopePaths.length === 0
+        ? "No changes detected in the diff."
+        : `The diff names paths with no content hunks (rename, binary or mode-only change); their contents were not compared:${scopePaths.join(", ")}.`,
+    );
+  }
   for (const inv of impactedInvariants) {
     if (inv.verificationStatus !== "tested") unknowns.push(`Impacted invariant is not test-backed: ${inv.statement}`);
   }

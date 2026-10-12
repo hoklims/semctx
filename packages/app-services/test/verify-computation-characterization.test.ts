@@ -25,6 +25,9 @@ import { CONTROL_INDEX_SNAPSHOT_META_KEY, captureGitState, captureGitStateEntrie
 const FIXTURE = join(REPO_ROOT, "examples", "change-impact-replay");
 const GIT_ENV = {
   ...process.env,
+  // Commit ids are pinned below, so the developer's own git config (e.g. commit.gpgsign) must not leak in.
+  GIT_CONFIG_GLOBAL: "/dev/null",
+  GIT_CONFIG_NOSYSTEM: "1",
   GIT_AUTHOR_NAME: "Semctx Test",
   GIT_AUTHOR_EMAIL: "semctx@example.test",
   GIT_COMMITTER_NAME: "Semctx Test",

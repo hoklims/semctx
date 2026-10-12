@@ -1,12 +1,15 @@
-import { readFileSync } from "node:fs";
-import { posix } from "node:path";
-import { digestCanonical } from "@semantic-context/plane-a-internal";
-import { SemctxError, type VerifyReport } from "@semantic-context/core";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, isAbsolute, join, posix } from "node:path";
+import { digestCanonical, getPlaneASidecar, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
+import { SemctxError, type SemctxConfig, type VerifyReport } from "@semantic-context/core";
 import { loadConfig } from "@semantic-context/repository-store";
 import { discoverRepository, isPathSelected } from "@semantic-context/ts-analyzer";
 import {
   GraphIndex,
   analyzeDiff,
+  analyzeLostGuards,
+  diffRemovesBaseLines,
   buildVerifyReport,
   computeCoChanges,
   parseUnifiedDiffScopePaths,
@@ -15,6 +18,7 @@ import {
   type VerifyReportGitMeta,
   type VerifyResult,
 } from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims } from "./indexing";
 import { openReadyRepository } from "./readiness";
 import { indexHealth, type IndexHealthReportV1 } from "./index-health";
 import { controlStatusWithSemanticInputs } from "./control";
@@ -631,6 +635,134 @@ function qualifiedCheckoutReasons(root: string): string[] {
   return reasons;
 }
 
+interface CommitTreeAnalysis {
+  index: GraphIndex;
+  sidecar: PlaneASidecarV1;
+}
+
+/** Read committed blob bytes without Git checkout filters, links or changes to the live index. */
+function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): CommitTreeAnalysis {
+  const scratch = mkdtempSync(join(tmpdir(), "semctx-base-"));
+  try {
+    const listed = Bun.spawnSync(["git", "ls-tree", "-r", "-z", commit], {
+      cwd: root, stdout: "pipe", stderr: "pipe",
+    });
+    if (listed.exitCode !== 0) {
+      throw new SemctxError("GIT_ERROR", `cannot read the base tree ${commit.slice(0, 12)}`, {
+        stderr: new TextDecoder().decode(listed.stderr).trim(),
+      });
+    }
+    const entries: Array<{ path: string; oid: string }> = [];
+    const destinations = new Set<string>();
+    for (const record of new TextDecoder("utf-8", { fatal: true }).decode(listed.stdout).split("\0")) {
+      if (record === "") continue;
+      const match = /^(\d{6}) (blob|commit) ([0-9a-f]{40,64})\t([\s\S]+)$/.exec(record);
+      if (match === null) throw new SemctxError("GIT_ERROR", "invalid base tree entry");
+      const [, mode, , oid, path] = match;
+      if (path === undefined || isAbsolute(path) || path.includes(":") || path.includes("\\")
+        || path.split("/").some((part) => part === "" || part === "." || part === ".." || part.toLowerCase() === ".git")) {
+        throw new SemctxError("GIT_ERROR", "unsafe base tree path", { path });
+      }
+      if (mode !== "100644" && mode !== "100755") {
+        if (isPathSelected(config, path)) {
+          throw new SemctxError("GIT_ERROR", "selected base tree links and gitlinks are unsupported", { path, mode });
+        }
+        continue;
+      }
+      const destinationKey = process.platform === "win32" ? path.toLowerCase() : path;
+      if (destinations.has(destinationKey)
+        || (process.platform === "win32" && path.split("/").some((part) => /[. ]$/.test(part)))) {
+        throw new SemctxError("GIT_ERROR", "base tree paths alias on this filesystem", { path });
+      }
+      destinations.add(destinationKey);
+      entries.push({ path, oid: oid! });
+    }
+    const blobs = Bun.spawnSync(["git", "cat-file", "--batch"], {
+      cwd: root,
+      stdin: new TextEncoder().encode(entries.map((entry) => `${entry.oid}\n`).join("")),
+      stdout: "pipe", stderr: "pipe",
+    });
+    if (blobs.exitCode !== 0) throw new SemctxError("GIT_ERROR", "cannot read base tree blobs");
+    let offset = 0;
+    for (const entry of entries) {
+      const newline = blobs.stdout.indexOf(10, offset);
+      const header = newline < 0 ? "" : new TextDecoder().decode(blobs.stdout.subarray(offset, newline));
+      const match = /^([0-9a-f]{40,64}) blob (\d+)$/.exec(header);
+      const size = match === null ? NaN : Number(match[2]);
+      offset = newline + 1;
+      if (match?.[1] !== entry.oid || !Number.isSafeInteger(size) || size < 0
+        || offset + size >= blobs.stdout.byteLength || blobs.stdout[offset + size] !== 10) {
+        throw new SemctxError("GIT_ERROR", "invalid base blob response", { path: entry.path });
+      }
+      const destination = join(scratch, entry.path);
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(destination, blobs.stdout.subarray(offset, offset + size));
+      offset += size + 1;
+    }
+    if (offset !== blobs.stdout.byteLength) throw new SemctxError("GIT_ERROR", "unexpected base blob response");
+    const analysis = analyzeAndBuildClaims({ ...config, repositoryRoot: scratch }).analysis;
+    const sidecar = getPlaneASidecar(analysis);
+    if (sidecar === undefined) throw new SemctxError("GIT_ERROR", "base analysis has no discovery ledger");
+    return { index: new GraphIndex(analysis.graph), sidecar };
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+/**
+ * A committed range is indexed at its head, so a guard the change deletes, strips or moves is not in
+ * the graph the head-side analysis reads. Recover those from the merge-base and add them as findings.
+ */
+function applyLostGuards(
+  root: string,
+  config: SemctxConfig,
+  result: VerifyResult,
+  headIndex: GraphIndex,
+  mergeBase: string,
+  diffText: string,
+): VerifyResult {
+  if (!diffRemovesBaseLines(diffText)) return result;
+  const base = analyzeCommitTree(root, mergeBase, config);
+  const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText });
+  const changed = new Set(parseUnifiedDiffScopePaths(diffText));
+  const failed: string[] = [];
+  const excluded: string[] = [];
+  const partial: string[] = [];
+  for (const entry of base.sidecar.discoveryLedger) {
+    const paths = entry.scope.selectedPaths.filter((path) => changed.has(path));
+    if (paths.length === 0) continue;
+    if (entry.selectionDecision === "excluded") {
+      if (!entry.selectionReasons.includes("LEGACY_UNSUPPORTED_EXTENSION")) excluded.push(...paths);
+    } else if (entry.analysisOutcome !== "analyzed") {
+      failed.push(...paths);
+    } else if (config.version === 2) {
+      const profiles = base.sidecar.capabilityProfiles.filter((profile) =>
+        digestCanonical(profile.scope) === digestCanonical(entry.scope));
+      if (entry.analysisReasons.length > 0 || profiles.length === 0
+        || profiles.some((profile) => !profile.negativeEvidenceEligible)) partial.push(...paths);
+    }
+  }
+  const findings = [...result.findings, ...lost.findings];
+  const unknowns = [...result.unknowns, ...lost.unknowns];
+  for (const [paths, severity, detail] of [
+    [failed, "block", "selected base scope lacks an admissible analyzer"],
+    [excluded, "warn", "base scope was excluded by the current configuration; removed guards were not checked"],
+    [partial, "warn", "base analysis has no complete negative test/guard evidence"],
+  ] as const) {
+    if (paths.length === 0) continue;
+    const named = [...new Set(paths)].sort().join(", ");
+    findings.push({ rule: "analysis_scope_incomplete", severity, message: `${detail}: ${named}`, nodeIds: [] });
+    unknowns.push(`${detail}: ${named}.`);
+  }
+  return {
+    ...result,
+    findings,
+    unknowns: [...new Set(unknowns)],
+    verdict: findings.some((f) => f.severity === "block") ? "BLOCK"
+      : findings.some((f) => f.severity === "warn") ? "WARN" : "PASS",
+  };
+}
+
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
 export function runVerify(root: string, source: VerifySource): VerifyComputation {
   const store = openReadyRepository(root);
@@ -648,8 +780,9 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
     const claims = store.loadClaims();
     const analyzedRepositoryFactsHash = fingerprintRepositoryFacts({ graph, claims, evidence: store.loadEvidence() });
     const analyzedIndexSnapshotHash = digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null);
-    const baseResult = analyzeDiff({
-      index: new GraphIndex(graph),
+    const headIndex = new GraphIndex(graph);
+    const headResult = analyzeDiff({
+      index: headIndex,
       claims,
       config,
       diffText: resolved.diffText ?? "",
@@ -658,6 +791,9 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       // analysis retains old HEAD coordinates; ranges always use the indexed new side.
       nodeRangeSide: source.kind === "range" || isQualified(config) ? "new" : "old",
     });
+    const baseResult = source.kind === "range" && resolved.git.mergeBase !== null
+      ? applyLostGuards(root, config, headResult, headIndex, resolved.git.mergeBase, resolved.diffText ?? "")
+      : headResult;
     const afterAnalysis = verifyAnalysisBarrierForTesting;
     verifyAnalysisBarrierForTesting = undefined;
     afterAnalysis?.();

@@ -21,6 +21,8 @@ export type { BuildPackOptions } from "./context-pack-builder";
 
 export {
   analyzeDiff,
+  analyzeLostGuards,
+  diffRemovesBaseLines,
   parseUnifiedDiff,
   parseUnifiedDiffChanges,
   parseUnifiedDiffScopePaths,
