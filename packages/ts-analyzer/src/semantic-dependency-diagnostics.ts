@@ -746,6 +746,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     };
     const inspectWrites = (node: ts.Node): void => {
       if ((assignment(node) && writesBinding(node.left))
+        || ((ts.isForOfStatement(node) || ts.isForInStatement(node)) && !ts.isVariableDeclarationList(node.initializer) && writesBinding(node.initializer))
         || ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
           && [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator)
           && checker.getSymbolAtLocation(unwrapStaticExpression(node.operand)) === symbol)) written = true;
@@ -836,7 +837,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         && (ts.isVariableDeclaration(origin) || (ts.isBindingElement(origin) && ts.isVariableDeclaration(origin.parent.parent))));
       const module = builtinModuleValue(receiver);
       const external = module !== undefined && !module.startsWith(".") && !module.startsWith("/") && !/^[A-Za-z]:/.test(module);
-      if (callerOwned && !external && sdkValue(callee) === undefined) {
+      if (callerOwned && !external && !sdkOrigin(callee)) {
         const members = declarations(callee);
         // Real retained members keep the existing post-extraction coordinate refusal.
         // Erased or synthetic assignment members have no declaration to extract.
