@@ -60,7 +60,34 @@ function runAdapter(rep: unknown, failOn: string, requireQualified = "false"): {
   };
 }
 
+function admittedReport(): Report {
+  const digest = `sha256:${"0".repeat(64)}`;
+  const file = { path: "src/a.ts", status: "analyzed" as const, reasons: [] };
+  return { ...PASS, changedFiles: [...PASS.changedFiles], analysisAdmission: {
+    schemaVersion: 1, profile: "modelo-suite-static-v1", status: "admitted",
+    identity: { source: digest, sourceCommits: ["0".repeat(40)], baseCommit: null, diff: digest, config: digest, analyzer: digest, indexSnapshot: digest },
+    binding: { status: "valid", reasons: [] }, indexFreshness: { verdict: "FRESH", reasons: [] }, controlFreshness: { verdict: "FRESH", reasons: [] }, checkFreshness: { status: "current", reasons: [] },
+    repositoryCoverage: { status: "complete", files: [file] },
+    changeCoverage: { expected: [file.path], analyzed: [file.path], files: [file] }, reasons: [], limitations: [], proofObligations: [],
+  } };
+}
+
 describe("github-action adapter", () => {
+  it("rejects admitted changed files outside coverage before emitting Action outputs", () => {
+    expect(runAdapter(admittedReport(), "none", "true").code).toBe(0);
+    const uncovered = admittedReport(); uncovered.changedFiles.push("src/unreviewed.ts");
+    const failed = admittedReport();
+    failed.analysisAdmission!.repositoryCoverage.files.push({ path: "src/failed.ts", status: "failed", reasons: ["PRODUCER_FAILED"] });
+    for (const contradictory of [uncovered, failed]) {
+      const result = runAdapter(contradictory, "none", "true");
+      expect(result.code).toBe(2);
+      expect(result.err).toContain("adapter: unusable verify report");
+      expect(result.out).toBe("");
+      expect(result.outputs).toBe("");
+      expect(result.summary).toBe("");
+    }
+  });
+
   it("trusted require-qualified refuses an ordinary PASS report without admission", () => {
     const result = runAdapter(PASS, "none", "true");
     expect(result.code).toBe(1);

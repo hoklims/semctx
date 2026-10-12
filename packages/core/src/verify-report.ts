@@ -35,6 +35,12 @@ export const AnalysisAdmissionSchema = z.object({
   limitations: z.array(z.string()),
   proofObligations: z.array(z.object({ id: z.string(), status: z.literal("not_observed"), observation: z.string() }).strict()),
 }).strict().superRefine((value, context) => {
+  if (value.repositoryCoverage.status === "complete"
+    && value.repositoryCoverage.files.some((file) =>
+      !["analyzed", "excluded"].includes(file.status)
+      || (file.status === "analyzed" && file.reasons.length > 0))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["repositoryCoverage"], message: "complete repository coverage cannot carry incomplete file outcomes" });
+  }
   if (value.status !== "admitted") return;
   const expected = value.changeCoverage.expected;
   const actual = value.changeCoverage.files;
@@ -210,5 +216,9 @@ export const VerifyReportSchema = z.object({
 }).passthrough().superRefine((value, context) => {
   if (value.analysisAdmission?.status === "rejected" && value.verdict !== "BLOCK") {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["verdict"], message: "rejected qualified analysis must produce BLOCK" });
+  }
+  if (value.analysisAdmission?.status === "admitted"
+    && value.changedFiles.some((path) => !value.analysisAdmission!.changeCoverage.expected.includes(path))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["changedFiles"], message: "admitted analysis must cover every reported changed file" });
   }
 });

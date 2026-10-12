@@ -31,3 +31,13 @@ test("public MCP output rejects stale, empty or unsupported positive admission a
   const rejected = report(); rejected.analysisAdmission!.status = "rejected";
   expect(schema.safeParse(rejected).success).toBe(false);
 });
+test("public MCP output rejects uncovered admitted changes and complete failed repository scope", () => {
+  const schema = TOOL_OUTPUT_SCHEMAS.semctx_verify_change;
+  const valid = report();
+  expect(schema.safeParse(valid).success).toBe(true);
+  const uncovered = report(); uncovered.changedFiles.push("src/unreviewed.ts");
+  expect(schema.safeParse(uncovered).success).toBe(false);
+  const failed = report(); failed.analysisAdmission!.repositoryCoverage.status = "complete";
+  failed.analysisAdmission!.repositoryCoverage.files.push({ path: "src/unrelated.ts", status: "failed", reasons: ["PRODUCER_FAILED"] });
+  expect(schema.safeParse(failed).success).toBe(false);
+});
