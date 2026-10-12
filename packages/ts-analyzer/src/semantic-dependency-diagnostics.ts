@@ -320,6 +320,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     return declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile())
       && signature.getParameters().some(parameter => callbackType(checker.getTypeOfSymbolAtLocation(parameter, declaration)));
   });
+  const sdkCallbackDictionary = (type: ts.Type, declaration: ts.SignatureDeclaration): boolean => type.isUnionOrIntersection()
+    ? type.types.some(part => sdkCallbackDictionary(part, declaration))
+    : (type.flags & ts.TypeFlags.Object) !== 0 && !callbackType(type) && type.getProperties().some(member => (member.getDeclarations()?.length ?? 0) > 0
+      && member.getDeclarations()!.every(origin => ts.isPropertySignature(origin) && program.isSourceFileDefaultLibrary(origin.getSourceFile()))
+      && callbackType(checker.getTypeOfSymbolAtLocation(member, declaration)));
   const inspectSdkCallbacks = (node: ts.CallExpression | ts.NewExpression): void => {
     const callee = actualValue(node.expression);
     if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && ["call", "apply", "bind"].includes(staticMemberName(callee) ?? "")) {
@@ -343,6 +348,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       if (declaration === undefined || !program.isSourceFileDefaultLibrary(declaration.getSourceFile())) continue;
       for (const [index, parameter] of signature.getParameters().entries()) {
         const argument = node.arguments?.[index]; if (argument === undefined) continue;
+        if (sdkOrigin(callee) && sdkCallbackDictionary(checker.getTypeOfSymbolAtLocation(parameter, declaration), declaration)
+          && !literalData(argument)) reasons.add("SOURCE_SDK_CALLBACK_UNSUPPORTED");
         if (iterableParameter(parameter, declaration) && !intrinsicIterable(argument)) reasons.add("SOURCE_SDK_ITERATION_UNSUPPORTED");
         if (callbackType(checker.getTypeOfSymbolAtLocation(parameter, declaration)) && (!sdkOrigin(callee)
           || (!primitiveValue(actualValue(argument)) && !(sdkOrigin(argument) && callbackType(callableType(argument)))))) reasons.add("SOURCE_SDK_CALLBACK_UNSUPPORTED");
