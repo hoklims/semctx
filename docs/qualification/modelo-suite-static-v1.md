@@ -183,6 +183,9 @@ A retained local container does not prove its invoked member: erased or unresolv
 members require an actual retained callable target before the same data exemptions apply.
 Known own methods and callable initializer aliases retain their existing proof. Caller
 parameters keep their existing opaque boundary; this is not universal callable resolution.
+Members with real captured literal/type declarations continue to the qualified coordinate
+check after extraction. The early origin refusal targets absent, erased or synthetic-only
+members; a declared member still cannot qualify when its required graph coordinate is missing.
 Object-literal prototype setters require the existing closed-data proof for their
 initializer. Null/direct closed data remain distinct; an uncertain or callable prototype
 refuses. Computed `__proto__` properties, methods and shorthand are ordinary own properties.

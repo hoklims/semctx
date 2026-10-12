@@ -378,6 +378,10 @@ retained callable target. An erased or unresolved member cannot borrow the recei
 identity. Known own methods and callable initializer aliases retain their separate proof.
 Caller-supplied parameters keep their existing opaque data-argument policy; no universal
 call-target completeness is inferred from this local-container refusal.
+The early producer refusal applies to absent, erased or synthetic-assignment-only member
+identity. Real captured literal/type member declarations proceed to the existing qualified
+coordinate check. Missing callable graph coordinates still refuse there with their precise
+coordinate reason, rather than being hidden by an earlier producer diagnostic.
 An actual uncomputed object-literal __proto__ setter requires the existing closed-data
 proof for its initializer; null/direct closed data remain separate. Callable or uncertain
 prototypes refuse without modeling inherited invocation. Computed properties, methods
