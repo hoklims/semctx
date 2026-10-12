@@ -64,15 +64,19 @@ function summaryFor(report) {
 }
 
 /** Pure decision function — testable without any GitHub environment. */
-export function renderAction(report, failOn) {
+export function renderAction(report, failOn, requireQualified = false) {
+  const missingRequiredAdmission = requireQualified && report.analysisAdmission?.profile !== "modelo-suite-static-v1";
+  const actionReport = missingRequiredAdmission ? { ...report, verdict: "BLOCK" } : report;
   const shouldFail =
+    missingRequiredAdmission ||
+    report.analysisAdmission?.status === "rejected" ||
     (report.verdict === "BLOCK" && (failOn === "block" || failOn === "warn")) ||
     (report.verdict === "WARN" && failOn === "warn");
   return {
-    annotations: annotationsFor(report),
-    summary: summaryFor(report),
+    annotations: [...annotationsFor(report), ...(missingRequiredAdmission ? ["::error title=semctx%3A qualification_required::Trusted Action policy requires modelo-suite-static-v1 admission; no matching admission is present."] : [])],
+    summary: summaryFor(actionReport) + (missingRequiredAdmission ? "\n**Action policy BLOCK:** required modelo-suite-static-v1 admission is absent. The producer report is unchanged.\n" : ""),
     outputs: {
-      verdict: report.verdict,
+      verdict: actionReport.verdict,
       "block-count": String(report.summary?.blockCount ?? 0),
       "warn-count": String(report.summary?.warnCount ?? 0),
       "changed-symbol-count": String((report.changedSymbols ?? []).length),
@@ -102,6 +106,7 @@ function main() {
     process.exit(2);
   }
   const failOn = (process.env.INPUT_FAIL_ON || "block").trim();
+  const requireQualified = (process.env.INPUT_REQUIRE_QUALIFIED ?? "false").trim();
   let report;
   try {
     report = JSON.parse(readFileSync(reportPath, "utf8"));
@@ -119,7 +124,11 @@ function main() {
     process.stderr.write(`adapter: unknown fail-on policy: ${failOn}\n`);
     process.exit(2);
   }
-  const { annotations, summary, outputs, exitCode } = renderAction(report, failOn);
+  if (!["true", "false"].includes(requireQualified)) {
+    process.stderr.write("adapter: unknown require-qualified policy (expected true or false)\n");
+    process.exit(2);
+  }
+  const { annotations, summary, outputs, exitCode } = renderAction(report, failOn, requireQualified === "true");
   for (const line of annotations) process.stdout.write(line + "\n");
   writeSummary(summary);
   setOutputs(outputs, reportPath);

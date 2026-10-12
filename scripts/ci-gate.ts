@@ -1,12 +1,34 @@
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { closeSync, existsSync, mkdirSync, openSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { FOCUSED_TEST_TARGETS, ROUTING_TESTS, TEST_SHARDS, type CiLane } from "./ci-plan";
 import { isTestShard, TEST_TIMINGS } from "./verify-pr";
 
 export interface CiCommand {
   label: string;
   argv: string[];
+  stdoutFile?: string;
 }
+
+export async function spawnCiCommand(argv: string[], cwd: string, stdoutFile?: string): Promise<number> {
+  const outputPath = stdoutFile === undefined ? undefined : resolve(cwd, stdoutFile);
+  if (outputPath !== undefined) mkdirSync(dirname(outputPath), { recursive: true });
+  const descriptor = outputPath === undefined ? undefined : openSync(outputPath, "w");
+  let exitCode: number;
+  try {
+    const child = Bun.spawn(argv, { cwd, stdin: "inherit", stdout: descriptor ?? "inherit", stderr: "inherit" });
+    exitCode = await child.exited;
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+  }
+  if (outputPath !== undefined) process.stdout.write(await Bun.file(outputPath).text());
+  return exitCode;
+}
+
+const WORKER_SMOKE: CiCommand = {
+  label: "small worker equivalence smoke",
+  argv: ["bun", "run", "bench:index-workers", "4", "2"],
+  stdoutFile: ".semctx/multicore-index.json",
+};
 
 export function commandsForLane(lane: CiLane, base: string, targetExists: (path: string) => boolean): CiCommand[] {
   if (lane.shard !== "" && !(isTestShard(lane.shard)
@@ -33,7 +55,7 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
         : { label: `canonical full gate (test shard ${lane.shard})`,
           argv: ["bun", "run", "verify:pr", "--", "--test-shard", lane.shard] },
       ...(lane.smoke === "true"
-        ? [{ label: "small worker equivalence smoke", argv: ["bun", "run", "bench:index-workers", "4", "2"] }]
+        ? [WORKER_SMOKE]
         : []),
     ];
   }
@@ -53,7 +75,7 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
     commands.push({ label: "plugin Python routing regressions", argv: ["python", "scripts/verify-index-routing.py"] });
   }
   if (lane.smoke === "true") {
-    commands.push({ label: "small worker equivalence smoke", argv: ["bun", "run", "bench:index-workers", "4", "2"] });
+    commands.push(WORKER_SMOKE);
   }
   return commands;
 }
@@ -63,23 +85,20 @@ export async function runCiGate(
   base: string,
   dependencies: {
     cwd?: string;
-    run?: (argv: string[], cwd: string) => Promise<number>;
+    run?: (argv: string[], cwd: string, stdoutFile?: string) => Promise<number>;
     log?: (message: string) => void;
     targetExists?: (path: string) => boolean;
   } = {},
 ): Promise<number> {
   const cwd = dependencies.cwd ?? process.cwd();
   const log = dependencies.log ?? console.log;
-  const run = dependencies.run ?? (async (argv, directory) => {
-    const child = Bun.spawn(argv, { cwd: directory, stdin: "inherit", stdout: "inherit", stderr: "inherit" });
-    return await child.exited;
-  });
+  const run = dependencies.run ?? spawnCiCommand;
   const commands = commandsForLane(lane, base,
     dependencies.targetExists ?? ((path) => existsSync(resolve(cwd, path))));
   for (const command of commands) {
     const started = performance.now();
     log(`[ci-gate] START ${command.label}`);
-    const exitCode = await run(command.argv, cwd);
+    const exitCode = await run(command.argv, cwd, command.stdoutFile);
     const seconds = ((performance.now() - started) / 1000).toFixed(1);
     if (exitCode !== 0) {
       log(`[ci-gate] FAIL  ${command.label} (exit ${exitCode}, ${seconds}s)`);

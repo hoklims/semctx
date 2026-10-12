@@ -21,8 +21,9 @@ import { GraphIndex } from "./graph-index";
 import { classifyQuestion, policyFor } from "./authority-policies";
 import { detectContradictions } from "./contradiction";
 import { evaluateClaim, type PriorityContext } from "./priority-engine";
+import cliPackage from "../../../apps/cli/package.json";
 
-const GENERATOR = "semctx@0.4.2";
+const GENERATOR = `semctx@${cliPackage.version}`;
 
 const CODE_KINDS: ReadonlySet<NodeKind> = new Set<NodeKind>(["function", "class", "interface", "type", "enum"]);
 const REACHABILITY_EDGES: readonly EdgeKind[] = [

@@ -1,6 +1,6 @@
 {
   "name": "@semantic-context/mcp-server",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -24,13 +24,13 @@
     "@semantic-context/control-engine": "workspace:*",
     "@semantic-context/change-authorization-verifier": "workspace:*",
     "@semantic-context/app-services": "workspace:*",
-    "@modelcontextprotocol/server": "2.2.0",
+    "@modelcontextprotocol/server": "2.3.1",
     "zod": "^3.23.8",
     "zod-to-json-schema": "3.25.2",
     "zod-v4": "npm:zod@4.2.0"
   },
   "devDependencies": {
     "@semantic-context/test-fixtures": "workspace:*",
-    "@modelcontextprotocol/client": "2.2.0"
+    "@modelcontextprotocol/client": "2.3.1"
   }
 }

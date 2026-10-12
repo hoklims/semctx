@@ -220,8 +220,8 @@ peut pas être analysé, et avertit quand l’analyse de ce fichier n’est que 
 
 ### Comment semctx relie un test au code
 
-semctx n’exécute jamais vos tests. Il regarde les imports. Un test couvre un symbole quand un
-fichier de test l’importe par son nom, directement depuis le fichier qui le déclare :
+semctx n’exécute jamais vos tests. Dans le parcours TypeScript seul par défaut, il regarde les
+imports directs qui conservent le nom déclaré du symbole :
 
 | Import dans un fichier de test, avec `greet` déclaré dans `src/index.ts` | Couvre `greet` |
 | --- | --- |
@@ -229,6 +229,12 @@ fichier de test l’importe par son nom, directement depuis le fichier qui le d�
 | `import { greet as subject } from "../src/index";` | non, import renommé |
 | `import * as m from "../src/index";` | non, import d’espace de noms |
 | `import { greet } from "../src/barrel";` où `src/barrel.ts` le réexporte | non, réexport |
+
+Le profil optionnel `qualified-static-v1`, en config v2, suit aussi les imports renommés, les
+membres d’espaces de noms modélisés et les réexports jusqu’à leur déclaration d’origine. Ces
+liens restent statiques ; une cible inconnue ou non prise en charge ne prouve pas la couverture.
+Voir le [profil qualifié](docs/qualification/modelo-suite-static-v1.md) et son
+[contrat d’admission](docs/adr/0035-qualified-static-analysis-admission.md), en anglais.
 
 Les imports de type seul (`import type`) ne comptent pas non plus. Un fichier est considéré comme
 un test quand son nom se termine par `.test.ts` ou `.spec.ts` (ou leurs variantes `.tsx`, `.mts`,

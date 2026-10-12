@@ -219,6 +219,7 @@ export {
   controlRepositoryIdentity,
   evaluateControlFreshness,
   fingerprintAnalysisInputs,
+  isQualifiedRepositoryInputPath,
   fingerprintRepositoryFacts,
   fingerprintRepositoryGraph,
   fingerprintSemanticModel,

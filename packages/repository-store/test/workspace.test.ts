@@ -42,7 +42,7 @@ describe("disk config projection types (#243)", () => {
 
     expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV2, "repositoryRoot">>();
     expectTypeOf(policy.version).toEqualTypeOf<2>();
-    expectTypeOf(policy.selectionMode).toEqualTypeOf<"globs-v1">();
+    expectTypeOf(policy.selectionMode).toEqualTypeOf<SemctxConfigV2["selectionMode"]>();
     expectTypeOf(policy.languages).toEqualTypeOf<SemctxConfigV2["languages"]>();
     expectTypeOf(policy).not.toHaveProperty("repositoryRoot");
   });
@@ -60,7 +60,7 @@ describe("disk config projection types (#243)", () => {
       expectTypeOf(policy).not.toHaveProperty("repositoryRoot");
       if (policy.version === 2) {
         expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV2, "repositoryRoot">>();
-        expectTypeOf(policy.selectionMode).toEqualTypeOf<"globs-v1">();
+        expectTypeOf(policy.selectionMode).toEqualTypeOf<SemctxConfigV2["selectionMode"]>();
         expectTypeOf(policy.languages).toEqualTypeOf<SemctxConfigV2["languages"]>();
       } else {
         expectTypeOf(policy).toEqualTypeOf<Omit<SemctxConfigV1, "repositoryRoot">>();

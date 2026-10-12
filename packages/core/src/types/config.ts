@@ -80,7 +80,9 @@ export type LanguageAnalysisMode = "on" | "off";
  */
 export interface SemctxConfigV2 extends SemctxConfigBase {
   version: 2;
-  selectionMode: "globs-v1";
+  /** Opt-in fail-closed static-analysis admission contract. */
+  analysisProfile?: "modelo-suite-static-v1";
+  selectionMode: "globs-v1" | "qualified-static-v1";
   /** Language analysis is explicit. A selected language absent from this registry is unsupported. */
   languages: Record<string, LanguageAnalysisMode>;
 }

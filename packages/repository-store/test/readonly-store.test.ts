@@ -240,6 +240,34 @@ describe("SqliteRepositoryReader", () => {
     expect(existsSync(`${dbFile}-shm`)).toBe(false);
     expect(() => SqliteRepositoryReader.openExisting(dbFile).close()).not.toThrow();
   });
+
+  it("leaves the existing database readable when writer initialization fails", () => {
+    const directory = temporaryDirectory();
+    const dbFile = join(directory, "index.db");
+    const writer = SqliteRepositoryStore.open(dbFile);
+    writer.setMeta("initialization_probe", "preserved");
+    writer.close();
+    const db = new Database(dbFile);
+    db.exec(`
+      CREATE TRIGGER reject_schema_version
+      BEFORE INSERT ON meta
+      WHEN NEW.key = 'schema_version'
+      BEGIN
+        SELECT RAISE(ABORT, 'schema version rejected');
+      END;
+    `);
+    db.close();
+
+    expect(() => SqliteRepositoryStore.open(dbFile)).toThrow("schema version rejected");
+    expect(existsSync(`${dbFile}-wal`)).toBe(false);
+    expect(existsSync(`${dbFile}-shm`)).toBe(false);
+    const reader = SqliteRepositoryReader.openExisting(dbFile);
+    try {
+      expect(reader.getMeta("initialization_probe")).toBe("preserved");
+    } finally {
+      reader.close();
+    }
+  });
 });
 
 function temporaryDirectory(): string {

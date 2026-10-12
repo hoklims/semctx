@@ -1,6 +1,6 @@
 import { SemctxError } from "@semantic-context/core";
 import { checkSemanticState } from "@semantic-context/app-services";
-import { openStore } from "@semantic-context/repository-store";
+import { withStore } from "../store";
 import {
   initSemanticScaffold,
   loadModelWithWorking,
@@ -36,15 +36,12 @@ Usage: semctx semantic <subcommand> [options]
 `;
 
 function loadFacts(root: string): { facts: RepositoryFacts | undefined; indexed: boolean } {
-  const store = openStore(root);
-  const indexed = store.isIndexed();
-  if (!indexed) {
-    store.close();
-    return { facts: undefined, indexed: false };
-  }
-  const facts: RepositoryFacts = { graph: store.loadGraph(), claims: store.loadClaims(), evidence: store.loadEvidence() };
-  store.close();
-  return { facts, indexed };
+  return withStore(root, (store) => {
+    const indexed = store.isIndexed();
+    if (!indexed) return { facts: undefined, indexed: false };
+    const facts: RepositoryFacts = { graph: store.loadGraph(), claims: store.loadClaims(), evidence: store.loadEvidence() };
+    return { facts, indexed };
+  });
 }
 
 export function runSemantic(root: string, args: ParsedArgs): number {

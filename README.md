@@ -210,8 +210,8 @@ file's analysis is only partial.
 
 ### What counts as a covering test
 
-semctx never runs your tests. It checks imports. A test covers a symbol when a test file imports it
-by name, directly from the file that declares it:
+semctx never runs your tests. In the default TypeScript-only flow, it checks direct imports
+under the symbol's declared name:
 
 | Import in a test file, with `greet` declared in `src/index.ts` | Covers `greet` |
 | --- | --- |
@@ -219,6 +219,12 @@ by name, directly from the file that declares it:
 | `import { greet as subject } from "../src/index";` | no, aliased |
 | `import * as m from "../src/index";` | no, namespace import |
 | `import { greet } from "../src/barrel";` where `src/barrel.ts` re-exports it | no, re-export |
+
+The opt-in config v2 `qualified-static-v1` profile also follows canonical renamed imports,
+modeled namespace members and re-exports to their original declarations. These are static test
+associations; unknown or unsupported targets do not establish coverage. See the
+[qualified profile](docs/qualification/modelo-suite-static-v1.md) and its
+[admission contract](docs/adr/0035-qualified-static-analysis-admission.md).
 
 Type-only imports do not count either. A file is a test when its name ends in `.test.ts` or
 `.spec.ts` (or the `.tsx`, `.mts`, `.cts` variants), when it sits in a `test/`, `tests/` or
@@ -295,7 +301,7 @@ and never adds any. A marker must fit on one line.
 | Surface | Start with | What you get | Guide |
 | --- | --- | --- | --- |
 | CLI | `semctx verify diff` | The verdict as text, GitHub annotations (`--format github`) or a versioned JSON report (`--format json`) | [CLI reference](docs/reference/cli.md) |
-| GitHub Actions | `uses: hoklims/semctx/packages/github-action@v0.4.2` | An annotation at each symbol a finding names, a job summary and a `verdict` output; BLOCK fails the job | [GitHub Actions](docs/integrations/github-actions.md) |
+| GitHub Actions | `uses: hoklims/semctx/packages/github-action@v0.4.3` | An annotation at each symbol a finding names, a job summary and a `verdict` output; BLOCK fails the job | [GitHub Actions](docs/integrations/github-actions.md) |
 | Claude Code | `bunx semctx@latest install` | The semctx MCP tools and skills, plus an optional guarded mode that holds `git commit` until the diff is verified | [Claude Code](docs/integrations/claude-code.md) |
 | Codex | `bunx semctx@latest install --host codex` | The same MCP tools and skills | [Codex](docs/integrations/codex-control-plane.md) |
 | Any MCP client | tool `semctx_verify_change` | The same diff check over MCP, next to the server's other typed tools | [MCP setup](docs/integrations/claude-code.md#mcp-without-the-plugin) |
@@ -319,7 +325,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # semctx needs the merge base and never fetches
-      - uses: hoklims/semctx/packages/github-action@v0.4.2
+      - uses: hoklims/semctx/packages/github-action@v0.4.3
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.sha }}
@@ -375,7 +381,7 @@ Plugins update from the `stable` branch, which moves only when a release is publ
 <summary>Tested host versions</summary>
 
 <!-- semctx:compatibility:start -->
-Semctx **0.4.2** requires **Bun >=1.4.0**.
+Semctx **0.4.3** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.

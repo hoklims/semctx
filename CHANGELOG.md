@@ -9,6 +9,24 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-10-12
+
+### Added
+
+- Observed setup scope and bounded include proposals, without automatic configuration changes.
+- Opt-in qualified JavaScript ESM analysis with retained-input, analyzed-scope and Git identity
+  requirements; unsupported implicit execution remains an explicit refusal.
+
+### Fixed
+
+- Committed-range verification recovers guards removed, moved or stripped from its base tree.
+  Base blobs are read without checkout filters; unsafe paths and incomplete selected base
+  analysis refuse. Previously passing guard removals can now report WARN or BLOCK.
+- SQLite writer contention is bounded and CLI commands reliably release repository stores.
+- Multicore CI reports are archived separately for each OS, shard and workflow attempt.
+- Pre-commit examples keep indexing outside the hook and launch Bun from a trusted installation.
+- MCP SDK, lint tools and GitHub Actions receive maintenance updates with regenerated bundles.
+
 ## [0.4.2] - 2026-10-06
 
 ### Fixed

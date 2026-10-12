@@ -21,6 +21,8 @@ export type { BuildPackOptions } from "./context-pack-builder";
 
 export {
   analyzeDiff,
+  analyzeLostGuards,
+  diffRemovesBaseLines,
   parseUnifiedDiff,
   parseUnifiedDiffChanges,
   parseUnifiedDiffScopePaths,
@@ -94,3 +96,5 @@ export {
   computeConfidence,
   WEIGHTS,
 } from "./scoring";
+export { evaluateAnalysisAdmission } from "./analysis-admission";
+export type { AdmissionCandidate } from "./analysis-admission";

@@ -128,6 +128,24 @@ Create `.semctx/` (SQLite db + config) and install the non-destructive `.gitigno
 authored `.semctx/semantic/` files versioned while excluding local runtime state. Never touches
 application code.
 
+The main repository store, shared by CLI and MCP, sets a 1,000 ms SQLite
+[`busy_timeout`](https://www.sqlite.org/pragma.html#pragma_busy_timeout) on each writer before
+initialization. This bounds lock waiting for each SQLite operation, including the closing
+checkpoint; it is not a deadline for the whole command. CLI commands close their writer in
+`finally`, before emitting a success result. Context preparation also closes it when provider
+retrieval fails. If both the operation and cleanup fail, the original failure retains the cleanup
+error as suppressed evidence.
+
+Persistent WAL is disabled as soon as WAL mode is selected, so a failed writer initialization
+also closes a quiescent database without leaving sidecars that prevent an immutable read.
+
+Once competing connections release their locks within that budget, closing the last managed
+writer checkpoints the database, leaves WAL mode and removes the `-wal`/`-shm` sidecars. A
+connection that remains active can still prevent cleanup: closing reports `STORE_ERROR`, and
+immutable readers continue to refuse active sidecars. After that connection closes, a subsequent
+writer can finish cleanup. Semctx never deletes active WAL files manually. This does not change
+the store schema or make abrupt process termination equivalent to `finally` cleanup.
+
 | option | description |
 | --- | --- |
 | `--polyglot` | explicitly create config v2 with `globs-v1` selection and TypeScript/Python/Markdown/SQL modes |
@@ -307,6 +325,8 @@ intact. Re-run `semctx index` to repair a broken binding.
 Refs are resolved to object ids once, before any hunk is measured, and every subsequent `merge-base`
 and `diff` uses those ids: a branch moved while the analysis runs cannot re-attribute the hunks to
 another commit. A `--head` that Git cannot resolve is an error, never a silently dropped anchor.
+Qualified final input checks also reobserve the effective merge-base; a changed base coordinate
+rejects admission even when the resolved head and diff text remain unchanged.
 
 A diff semctx did not compute carries no provenance of its own, and no flag can supply one.
 `--from-file`, and diff text handed to the MCP `semctx_verify_change` / `semctx_change_verify`
@@ -337,10 +357,46 @@ survives indexing, persistence and a fresh read instead of scrolling past once.
 The base must exist locally — semctx never fetches implicitly. In CI, check out with
 `fetch-depth: 0`.
 
+Outside qualified selection, a range removing lines, files or paths also reads the merge-base's
+raw Git blobs and checks guards missing at the head. It does not run checkout filters or materialize Git links.
+Selected base symlinks or gitlinks are refused with `GIT_ERROR`, rather than interpreted as source.
+The current configuration controls this additional analysis: excluded changed base paths remain
+unobserved and produce a warning plus an explicit unknown, not recovered guards. A selected changed
+base path with failed, disabled or unsupported analysis blocks with `analysis_scope_incomplete`.
+Config v2 also discloses incomplete negative test/guard evidence from the base analysis. These
+warnings do not establish faithful recovery of excluded or incomplete base scope. Recovered
+base-guard findings identify their base provenance with file-only locations; they do not present
+an old line as an observed head declaration or fabricate deleted symbols into `changedSymbols`.
+
+For qualified refreshed working-tree removals, verification attempts old HEAD guard capture only
+when current analysis is admitted. A current rejection remains BLOCK with its own reasons and
+observed binding state, without supplemental old capture. Otherwise-admitted removals capture
+full safe immutable HEAD inventory and retained old source under the exact current Semctx policy
+and pinned current SDK/compiler, then compare guards with the refreshed head. This is not
+historical policy/SDK admission replay. Old bound analyzed obligations and capability/authority checks are required;
+unsafe, unavailable, unbound or unsupported capture returns rejected `BLOCK` and invalid binding
+with `QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED` details. Successful comparison preserves
+configured rule severities and structural current-test evidence, not runtime test execution or
+complete negative evidence. Full HEAD capture/selected analysis per otherwise-admitted removing
+diff has no qualified overall latency or memory ceiling.
+
+The opt-in `qualified-static-v1` profile cannot yet recover admitted committed-range base inputs.
+Any committed range removing base lines, files or paths therefore returns an explicit `BLOCK` report with
+`QUALIFIED_BASE_RECOVERY_UNSUPPORTED` in rejected admission, rather than attempting the scratch
+analysis or throwing an internal snapshot error. Ordinary body replacements are included. CLI
+exits 3 even with `--fail-on none`; pure additions keep their existing admission path. Refreshed
+working-tree verification remains available, but does not qualify the committed range. This is a
+compatibility restriction until immutable base eligibility and compiler inputs are captured.
+
 **JSON report** (`--format json`, `schemaVersion 1`): `verdict`, `base`, `head`, `mergeBase`,
 `range`, `changedFiles`, `changedSymbols`, `impactedContracts`, `impactedInvariants`,
 `recommendedTests`, `contradictions`, `unknowns`, `findings` (each with `tier`, `severity`,
 `locations`), `summary { blockCount, warnCount }`. Additive-only within a major `schemaVersion`.
+Qualified admission remains an additive version-1 field. An admitted report's `changedFiles`
+are a subset of `analysisAdmission.changeCoverage.expected`; static closure can add obligations.
+Complete repository coverage refuses explicitly failed/missing/unsupported outcomes or analyzed
+records with reasons, while excluded records can coexist with complete selected coverage.
+These schema checks detect represented contradictions, not paths missing from every inventory.
 
 ## `impact diff`
 

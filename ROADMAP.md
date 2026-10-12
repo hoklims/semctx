@@ -1,6 +1,6 @@
 # Semctx roadmap
 
-> Revised 2026-10-06. Source baseline: **v0.4.2** (candidate). Publication and host delivery are gated separately.
+> Revised 2026-10-12. Source baseline: **v0.4.3** (candidate). Publication and host delivery are gated separately.
 > Future versions are outcome targets, not available features or promised dates.
 
 ## Understand the risk of a change before running the checks
@@ -32,8 +32,12 @@ without deciding any proof. The release briefs for [0.3.0](docs/releases/v0.3.0.
 budgets, Mac/lobby performance and independent human outcomes remain open; publication does not
 complete the whole 0.3 roadmap.
 
-Version 0.4.1 remains the current public release. The 0.4.2 candidate fixes Codex installation metadata, native cache selection and Windows launchers;
-it is not public until the release workflow, registry read-back and fresh-host delivery complete.
+The current npm release and `latest` channel are **0.4.2**, with registry `gitHead`
+`745bac21925dd96c936e99ad62dd6b6b266525b0` observed on 2026-10-12. Its patch fixes Codex
+installation metadata, native cache selection and Windows launchers. This registry observation
+establishes npm publication, not that a host installed it or an active session loaded it.
+The source candidate is **0.4.3**; it is not public until its own release workflow, registry
+read-back and fresh-host delivery complete.
 
 TypeScript is the semantic baseline. Python support is bounded through Python 3.12; Markdown and
 SQL provide structural facts, not equivalent semantic analysis. Suggested tests are inferred from

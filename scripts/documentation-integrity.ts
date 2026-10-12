@@ -30,8 +30,6 @@ const CURRENT_ACTION_FILES = [
   "plugins/semctx-control/dist/semctx.js",
 ] as const;
 
-const RELEASE_DATE = "2026-10-06";
-
 const CANONICAL_PAGES_PUBLISH_RUN = [
   "gh auth setup-git",
   'git -C published config user.name "github-actions[bot]"',
@@ -241,6 +239,42 @@ function checkInternalLinks(root: string, files: string[]): DocumentationProblem
   return problems;
 }
 
+interface ChangelogRelease {
+  version: string;
+  date: string;
+}
+
+function parseChangelogReleases(text: string, problems: DocumentationProblem[]): ChangelogRelease[] {
+  // Preserve offsets while excluding comments and fenced examples from release authority.
+  let fence: { marker: string; length: number } | undefined;
+  const visible = visibleMarkdown(text).split(/(?<=\n)/).map((line) => {
+    const opening = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fence !== undefined) {
+      const closing = new RegExp(`^ {0,3}${fence.marker}{${fence.length},}\\s*$`).test(line);
+      if (closing) fence = undefined;
+      return line.replace(/[^\n]/g, " ");
+    }
+    if (opening !== null) {
+      fence = { marker: opening[1]![0]!, length: opening[1]!.length };
+      return line.replace(/[^\n]/g, " ");
+    }
+    return line;
+  }).join("");
+  const releases: ChangelogRelease[] = [];
+  for (const heading of visible.matchAll(/^## \[([^\]]+)\](.*)$/gm)) {
+    if (heading[1] === "Unreleased") continue;
+    const parsed = /^## \[((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\] - (\d{4}-\d{2}-\d{2})\s*$/.exec(heading[0]);
+    const date = parsed?.[2];
+    const timestamp = date === undefined ? NaN : Date.parse(`${date}T00:00:00.000Z`);
+    if (parsed === null || !Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== date) {
+      add(problems, "CHANGELOG.md", text, heading.index, "release heading must contain a semantic version and valid YYYY-MM-DD calendar date");
+      continue;
+    }
+    releases.push({ version: parsed[1]!, date: date! });
+  }
+  return releases;
+}
+
 function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptions): DocumentationProblem[] {
   const problems: DocumentationProblem[] = [];
   const version = cliPackage.version;
@@ -293,9 +327,9 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
   }
 
   const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
-  const expectedHeading = `## [${version}] - ${RELEASE_DATE}`;
-  if (!changelog.includes(expectedHeading)) {
-    add(problems, "CHANGELOG.md", changelog, 0, `current release heading must be ${expectedHeading}`);
+  const releases = parseChangelogReleases(changelog, problems);
+  if (releases[0]?.version !== version || releases.filter((release) => release.version === version).length !== 1) {
+    add(problems, "CHANGELOG.md", changelog, 0, `changelog must contain exactly one first dated release heading for ${version}`);
   }
 
   const roadmap = readFileSync(resolve(root, "ROADMAP.md"), "utf8");
@@ -341,10 +375,7 @@ function checkCurrentReleaseTruth(root: string, options: DocumentationCheckOptio
     };
     const supportedPhase = evidence.phase === "candidate" || evidence.phase === "release";
     const requiredPhase = options.requireReleaseEvidence ? "release" : "candidate or release";
-    const releasedVersions = Array.from(
-      changelog.matchAll(/^## \[(\d+\.\d+\.\d+)\] -/gm),
-      (match) => match[1]!,
-    );
+    const releasedVersions = releases.map((release) => release.version);
     const currentReleaseIndex = releasedVersions.indexOf(version);
     const previousPublishedVersion = currentReleaseIndex >= 0 ? releasedVersions[currentReleaseIndex + 1] : undefined;
     const candidateVersionMatches = evidence.phase === "candidate"

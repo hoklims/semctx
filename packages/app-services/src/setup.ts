@@ -320,7 +320,7 @@ export function planSetupRepository(
   }
   const discovery = discoverRepository(config);
   const selectedByLanguage = Object.fromEntries(
-    ["typescript", "python", "markdown", "sql"].map((language) => [
+    ["typescript", "javascript", "python", "markdown", "sql"].map((language) => [
       language,
       discovery.files.filter((file) => (file.language ?? sourceLanguage(file.relPath)) === language).length,
     ]),
@@ -441,7 +441,7 @@ function prepareSetupRepository(
   const fileCount = countTypeScriptFiles(config);
   const selectedCount = discovery.files.length;
   const selectedByLanguage = Object.fromEntries(
-    ["typescript", "python", "markdown", "sql"].map((language) => [
+    ["typescript", "javascript", "python", "markdown", "sql"].map((language) => [
       language,
       discovery.files.filter(
         (file) => (file.language ?? sourceLanguage(file.relPath)) === language,

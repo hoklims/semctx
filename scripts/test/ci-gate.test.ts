@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { commandsForLane, runCiGate } from "../ci-gate";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { commandsForLane, runCiGate, spawnCiCommand } from "../ci-gate";
 import type { CiLane } from "../ci-plan";
 import { TEST_TIMINGS } from "../verify-pr";
 
@@ -8,6 +11,57 @@ const lane = (
 ): CiLane => ({ profile, os, targets, smoke, shard });
 
 describe("CI gate runner", () => {
+  test("captures a worker report in a fresh cwd whose nested output directory does not exist", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-ci-fresh-report-"));
+    const stdoutFile = ".semctx/multicore-index.json";
+    const report = '{"schemaVersion":2,"childExecuted":true}\n';
+    try {
+      const outcome = await spawnCiCommand([
+        process.execPath, "--eval", 'console.log(JSON.stringify({schemaVersion:2,childExecuted:true}));',
+      ], root, stdoutFile).then(
+        (exitCode) => ({ exitCode }),
+        (error: unknown) => ({ error: error instanceof Error ? error.message : String(error) }),
+      );
+      expect(outcome).toEqual({ exitCode: 0 });
+      expect(readFileSync(join(root, stdoutFile), "utf8")).toBe(report);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("captures complete subprocess stdout without stderr or gate logs, replacing a previous report", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-ci-report-"));
+    const report = '{"schemaVersion":2,"payload":"' + "x".repeat(100_000) + '"}\n';
+    try {
+      writeFileSync(join(root, "report.json"), "stale report".repeat(20_000));
+      const code = await spawnCiCommand([
+        process.execPath, "--eval",
+        'console.log(JSON.stringify({schemaVersion:2,payload:"x".repeat(100_000)})); console.error("stderr stays in logs");',
+      ], root, "report.json");
+      expect(code).toBe(0);
+      expect(readFileSync(join(root, "report.json"), "utf8")).toBe(report);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("report capture preserves a subprocess failure and refuses an unwritable destination", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-ci-report-failure-"));
+    try {
+      expect(await spawnCiCommand([process.execPath, "--eval", "process.exit(19)"], root, "report.json"))
+        .toBe(19);
+      expect(readFileSync(join(root, "report.json"), "utf8")).toBe("");
+      writeFileSync(join(root, "blocked"), "not a directory");
+      expect(spawnCiCommand([process.execPath, "--eval", "process.exit(0)"], root, "blocked/report.json"))
+        .rejects.toThrow();
+      expect(spawnCiCommand([process.execPath, "--eval", "process.exit(0)"], root, "."))
+        .rejects.toThrow();
+      expect(spawnCiCommand([join(root, "missing-executable")], root, "report.json"))
+        .rejects.toThrow();
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
   test("contract lane runs diff, compatibility, documentation, static quality and routing regressions", () => {
     const commands = commandsForLane(lane("contract", "ubuntu-latest"), "base-sha", () => true);
     expect(commands.map((command) => command.label)).toEqual([
@@ -78,4 +132,19 @@ describe("CI gate runner", () => {
     expect(code).toBe(19);
     expect(observed).toHaveLength(2);
   });
+
+  test.each(["ubuntu-latest", "windows-latest", "macos-15"] as const)(
+    "%s smoke captures only the benchmark and propagates its exit status", async (os) => {
+      const captures: (string | undefined)[] = [];
+      const code = await runCiGate(lane("full", os, "", "true"), "base", {
+        cwd: "unused", log: () => undefined,
+        run: async (_argv, _cwd, stdoutFile) => {
+          captures.push(stdoutFile);
+          return stdoutFile === undefined ? 0 : 19;
+        },
+      });
+      expect(captures).toEqual([undefined, ".semctx/multicore-index.json"]);
+      expect(code).toBe(19);
+    },
+  );
 });
