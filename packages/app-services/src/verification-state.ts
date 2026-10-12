@@ -169,26 +169,34 @@ function attributeSnapshotIsSafe(snapshot: AttributeSnapshot): boolean {
     && snapshot.ident === "unspecified" && snapshot.workingTreeEncoding === "unspecified";
 }
 
+function retainedPostImageOperation<T>(reason: string, observe: () => T): T {
+  try { return observe(); }
+  catch (error) {
+    if (!(error instanceof SemctxError) || error.code !== "GIT_ERROR") throw error;
+    throw new SemctxError(error.code, error.message, { ...error.details, qualifiedPostImageReason: reason });
+  }
+}
+
 /** Internal qualified post-image seam: convert retained bytes, never re-read their sources. */
 export function retainedGitBlobObjectIds(root: string, headCommit: string, files: readonly { path: string; bytes: Uint8Array }[]): Map<string, string> {
   const paths = files.map(file => file.path);
-  const before = checkAttrBatch(root, paths, headCommit);
+  const before = retainedPostImageOperation("QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND", () => checkAttrBatch(root, paths, headCommit));
   const format = gitObjectFormat(headCommit);
   const identities = new Map<string, string>();
   for (const file of files) {
     identities.set(file.path, !file.bytes.includes(0x0d) && attributeSnapshotIsSafe(before.get(file.path)!)
-      ? localBlobObjectId(format, file.bytes) : hashObject(root, file.path, file.bytes, headCommit));
+      ? localBlobObjectId(format, file.bytes) : retainedPostImageOperation("QUALIFIED_POST_IMAGE_CONVERSION_FAILED", () => hashObject(root, file.path, file.bytes, headCommit)));
   }
   const barrier = verificationAttributeBarrierForTesting;
   verificationAttributeBarrierForTesting = undefined;
   barrier?.();
-  const after = checkAttrBatch(root, paths, headCommit);
+  const after = retainedPostImageOperation("QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND", () => checkAttrBatch(root, paths, headCommit));
   for (const path of paths) {
     const initial = before.get(path)!; const final = after.get(path)!;
     if (initial.filter !== final.filter || initial.ident !== final.ident
       || initial.workingTreeEncoding !== final.workingTreeEncoding || initial.explicitTransformer !== final.explicitTransformer
       || initial.conversionMetadata !== final.conversionMetadata) {
-      throw new SemctxError("GIT_ERROR", "cannot compare retained post-image: attribute metadata changed during capture", { path });
+      throw new SemctxError("GIT_ERROR", "cannot compare retained post-image: attribute metadata changed during capture", { path, qualifiedPostImageReason: "QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND" });
     }
   }
   return identities;

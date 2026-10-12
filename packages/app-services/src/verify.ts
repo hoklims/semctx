@@ -598,7 +598,20 @@ function qualifiedPostImageInputs(root: string, retained: ReturnType<typeof capt
     blobs.set(path, source.kind === "staged" ? fields[1]! : fields[2]!);
     for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
   }
-  const objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files);
+  const version = git(root, ["--version"]);
+  const components = /^git version (\d+)\.(\d+)(?:\.|$)/.exec(version.out.trim());
+  if (version.code !== 0 || components === null) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  if (Number(components[1]) < 2 || (Number(components[1]) === 2 && Number(components[2]) < 41)) {
+    throw new SemctxError("UNSUPPORTED", "qualified staged/range verification requires Git >= 2.41 (--attr-source)", { version: version.out.trim() });
+  }
+  let objectIds: Map<string, string>;
+  try { objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files); }
+  catch (error) {
+    if (!(error instanceof SemctxError) || error.code !== "GIT_ERROR") throw error;
+    const reason = error.details["qualifiedPostImageReason"];
+    if (reason !== "QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND" && reason !== "QUALIFIED_POST_IMAGE_CONVERSION_FAILED") throw error;
+    return [reason];
+  }
   const reasons: string[] = [];
   const retainedPaths = new Set(retained.files.map(file => file.path));
   for (const file of retained.files) {
@@ -861,7 +874,9 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
       }
       if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
       else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
-      else qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, inputAfter!, source, resolved.identity));
+      else if (!qualifiedPostImageReasons.includes("QUALIFIED_BASE_RECOVERY_UNSUPPORTED")) {
+        qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, inputAfter!, source, resolved.identity));
+      }
     }
     const qualifiedBinding = isQualified(config) ? observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)) : undefined;
     const qualifiedHealth = isQualified(config) ? indexHealth(root) : undefined;
