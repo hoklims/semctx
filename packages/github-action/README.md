@@ -1,5 +1,10 @@
 # Semctx GitHub Action
 
+The report step hands a qualified CLI rejection (exit 3) to the adapter only after
+this invocation produced a valid rejected report. The adapter emits annotations,
+summary and outputs, then enforces qualified refusal even with `fail-on: none`.
+Operational failures remain failures. Qualified staged/range verification requires Git >= 2.41.
+
 Run `semctx verify diff` on a pull request: map the diff to affected symbols, exported
 contracts, declared invariants and relevant tests, and gate the PR on a **PASS / WARN / BLOCK**
 verdict. `WARN` never fails the check by default; `BLOCK` does. **No PR comments, no secrets, no
@@ -44,8 +49,22 @@ jobs:
 | `fail-on` | `block` | fail the job on `block`, `warn`, or `none` |
 | `working-directory` | `.` | repository directory to analyse; must stay inside the job workspace |
 | `config-path` | `""` | optional `config.json` to use instead of the generated default |
-| `report-path` | `semctx-report.json` | where the JSON report is written (in `working-directory`) |
+| `report-path` | `.semctx/reports/verify.json` | where the JSON report is written (in `working-directory`) |
+| `require-qualified` | `false` | require admitted `modelo-suite-static-v1` evidence from trusted workflow policy |
 | `upload-report` | `false` | upload the JSON report as a workflow artifact |
+
+For qualified analysis, report output must remain under `.semctx/reports` or outside the analysed
+repository. A custom output that could create or replace a retained repository input is
+refused before publication; the adapter still receives valid qualified-refusal reports.
+The default reserved report directory is also created safely for ordinary v1 analysis.
+Its writer checks repository ancestors before creating missing parents and replaces the
+report atomically. Custom ordinary outputs keep their existing parent-directory policy.
+Set `require-qualified: true` in a trusted workflow when qualification is mandatory.
+A repository-controlled configuration file alone cannot enforce that expectation: a
+downgrade to ordinary mode produces no admission. With this input, a missing matching
+admission causes an Action policy BLOCK and exit 1 even with `fail-on: none`; the producer
+report stays unchanged. The input accepts only `true` or `false`. Ordinary default use
+remains available, and an actual qualified rejection always blocks independently.
 
 ## Outputs
 

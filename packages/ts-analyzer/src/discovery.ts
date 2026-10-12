@@ -1,12 +1,12 @@
-import { lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { normalizePath, SemctxError } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
 import ts from "typescript";
-import { resolveTypeScriptModule } from "./ts-symbols";
+import { canonicalFilesystemPath as canonicalPath, resolveTypeScriptModule } from "./ts-symbols";
 
 export type FileRole = "source" | "test" | "document" | "migration" | "other";
-export type SourceLanguage = "typescript" | "python" | "markdown" | "sql" | "unknown";
+export type SourceLanguage = "typescript" | "javascript" | "python" | "markdown" | "sql" | "unknown";
 
 export interface DiscoveredFile {
   absPath: string;
@@ -21,6 +21,20 @@ export interface DiscoveredFile {
   language?: Exclude<SourceLanguage, "unknown">;
 }
 
+export const DISCOVERY_CANDIDATE_REASONS = [
+  "LEGACY_UNSUPPORTED_EXTENSION",
+  "INCLUDE_MISS",
+  "EXCLUDE_MATCH",
+  "IGNORED_GENERATED_OUTPUT",
+  "LANGUAGE_DISABLED",
+  "LANGUAGE_UNSUPPORTED",
+  "READ_FAILED",
+  "IMPORT_OUTSIDE_REPOSITORY",
+  "REFERENCE_OUTSIDE_REPOSITORY",
+  "SOURCE_LINK_OUTSIDE_REPOSITORY",
+  "SELECTED",
+] as const;
+
 export interface DiscoveryCandidate {
   relPath: string;
   language: SourceLanguage;
@@ -30,17 +44,7 @@ export interface DiscoveryCandidate {
    * by the Plane-A producer ledger after analysis.
    */
   analysisOutcome?: "not_applicable" | "disabled" | "unsupported" | "failed";
-  reason:
-    | "LEGACY_UNSUPPORTED_EXTENSION"
-    | "INCLUDE_MISS"
-    | "EXCLUDE_MATCH"
-    | "LANGUAGE_DISABLED"
-    | "LANGUAGE_UNSUPPORTED"
-    | "READ_FAILED"
-    | "IMPORT_OUTSIDE_REPOSITORY"
-    | "REFERENCE_OUTSIDE_REPOSITORY"
-    | "SOURCE_LINK_OUTSIDE_REPOSITORY"
-    | "SELECTED";
+  reason: (typeof DISCOVERY_CANDIDATE_REASONS)[number];
 }
 
 export interface DiscoveryResult {
@@ -58,11 +62,14 @@ const IGNORED_SEGMENTS = new Set([
   ".turbo",
   ".next",
 ]);
+const HARD_IGNORED_SEGMENTS = new Set(["node_modules", ".git", ".semctx"]);
+const OUTPUT_SEGMENTS = new Set(["dist", "build", "coverage", ".turbo", ".next"]);
 
-const TEST_FILENAME_RE = /\.(test|spec)\.(ts|tsx|mts|cts)$/;
+const TEST_FILENAME_RE = /\.(test|spec)\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const TEST_DIR_SEGMENTS = new Set(["test", "tests", "__tests__"]);
 const TEST_IMPORT_RE = /from\s+["'](vitest|bun:test|node:test)["']/;
 const TS_FILE_RE = /\.(ts|tsx|mts|cts)$/;
+const JS_FILE_RE = /\.(js|jsx|mjs|cjs)$/;
 const PYTHON_FILE_RE = /\.py$/;
 const MARKDOWN_RE = /\.mdx?$/;
 const SQL_RE = /\.sql$/;
@@ -96,7 +103,7 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
     return isTest ? "test" : "source";
   }
 
-  if (TS_FILE_RE.test(relPath)) {
+  if (TS_FILE_RE.test(relPath) || JS_FILE_RE.test(relPath)) {
     const isTest =
       TEST_FILENAME_RE.test(relPath) ||
       parts.some((p) => TEST_DIR_SEGMENTS.has(p)) ||
@@ -108,6 +115,7 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
 
 export function sourceLanguage(relPath: string): SourceLanguage {
   if (TS_FILE_RE.test(relPath)) return "typescript";
+  if (JS_FILE_RE.test(relPath)) return "javascript";
   if (PYTHON_FILE_RE.test(relPath)) return "python";
   if (MARKDOWN_RE.test(relPath)) return "markdown";
   if (SQL_RE.test(relPath)) return "sql";
@@ -128,6 +136,57 @@ export function isPathSelected(config: SemctxConfig, inputPath: string): boolean
   return config.include.length > 0
     && matchesAny(relPath, config.include)
     && !matchesAny(relPath, config.exclude);
+}
+
+/** Metadata and installed dependencies are outside the qualified repository source boundary. */
+export function isHardExcludedPath(inputPath: string): boolean {
+  return segments(normalizePath(inputPath)).some((part) => HARD_IGNORED_SEGMENTS.has(part));
+}
+
+/**
+ * Output basenames are only hints, never evidence that an authored source is generated.
+ * Use repository-local ignore files only: host-global and shared Git excludes cannot silently
+ * change this profile's source scope. The caller retains these ignore files in its input seal.
+ * Keep the original selector when broadening discovery for inbound dependency closure.
+ */
+export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: string) => boolean {
+  const result = Bun.spawnSync(["git", "ls-files", "-z", "--cached", "--others", "--exclude-per-directory=.gitignore"], {
+    cwd: config.repositoryRoot, stdout: "pipe", stderr: "pipe",
+  });
+  if (result.exitCode !== 0) {
+    throw new SemctxError("IO_ERROR", "qualified discovery could not establish Git source eligibility");
+  }
+  const authored = new Set(new TextDecoder().decode(result.stdout).split("\0").filter(Boolean).map(normalizePath));
+  // Compiler/manifests are causal inputs even when Git ignores their output directory.
+  // Retain local extends chains as well; absence in the snapshot must not become defaults.
+  const paths: string[] = [];
+  walk(config.repositoryRoot, config.repositoryRoot, paths, true, undefined, true);
+  const available = new Map(paths.map(path => [normalizePath(relative(config.repositoryRoot, path)), path]));
+  const namedMetadata = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|pyproject\.toml|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
+  const metadata = new Set([...available.keys()].filter(path => namedMetadata.test(path)));
+  const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
+  for (const relPath of pending) {
+    const absPath = available.get(relPath)!;
+    const parsed = ts.readConfigFile(absPath, path => readFileSync(path, "utf8"));
+    const configValue = parsed.config as { extends?: unknown } | undefined;
+    const extended = configValue?.extends;
+    for (const reference of Array.isArray(extended) ? extended : [extended]) {
+      if (typeof reference !== "string" || !reference.startsWith(".")) continue;
+      const target = resolve(dirname(absPath), reference);
+      const targetPath = normalizePath(relative(config.repositoryRoot, /\.json$/.test(target) ? target : `${target}.json`));
+      if (!available.has(targetPath) || metadata.has(targetPath)) continue;
+      metadata.add(targetPath);
+      pending.push(targetPath);
+    }
+  }
+  return (inputPath) => {
+    const relPath = normalizePath(inputPath);
+    if (isHardExcludedPath(relPath)) return false;
+    if (!segments(relPath).some((part) => OUTPUT_SEGMENTS.has(part))) return true;
+    // Ignore controls themselves must remain bound, including inside generated directories.
+    return /(?:^|\/)\.(?:gitignore|gitattributes)$/.test(relPath)
+      || namedMetadata.test(relPath) || metadata.has(relPath) || authored.has(relPath) || isPathSelected(config, relPath);
+  };
 }
 
 function enabledLanguage(
@@ -157,14 +216,6 @@ function isContained(root: string, candidate: string): boolean {
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`));
 }
 
-function canonicalPath(path: string): string {
-  try {
-    return realpathSync.native(path);
-  } catch {
-    return resolve(path);
-  }
-}
-
 function escapedDependencyReason(
   absPath: string,
   root: string,
@@ -188,7 +239,7 @@ function escapedDependencyReason(
   return undefined;
 }
 
-function walk(dir: string, root: string, acc: string[], strict = false, refusedLinks?: string[]): void {
+function walk(dir: string, root: string, acc: string[], strict = false, refusedLinks?: string[], qualified = false): void {
   let entries: string[];
   try {
     entries = readdirSync(dir).sort();
@@ -202,7 +253,7 @@ function walk(dir: string, root: string, acc: string[], strict = false, refusedL
     return;
   }
   for (const entry of entries) {
-    if (IGNORED_SEGMENTS.has(entry)) continue;
+    if ((qualified ? HARD_IGNORED_SEGMENTS : IGNORED_SEGMENTS).has(entry)) continue;
     const abs = join(dir, entry);
     let stat;
     try {
@@ -226,7 +277,7 @@ function walk(dir: string, root: string, acc: string[], strict = false, refusedL
     }
     if (stat.isDirectory()) {
       if (isNestedGitWorktree(abs, root)) continue;
-      walk(abs, root, acc, strict, refusedLinks);
+      walk(abs, root, acc, strict, refusedLinks, qualified);
     } else if (stat.isFile()) {
       acc.push(abs);
     }
@@ -349,7 +400,7 @@ function discoverLegacyRepository(config: Extract<SemctxConfig, { version: 1 }>)
  * Version 1 preserves the historical selected file set. Version 2 applies normalized include
  * globs first, then lets excludes win. Producer execution finalizes enabled selected candidates.
  */
-export function discoverRepository(config: SemctxConfig): DiscoveryResult {
+export function discoverRepository(config: SemctxConfig, eligibilityConfig: SemctxConfig = config): DiscoveryResult {
   if (config.version === 1) {
     return discoverLegacyRepository(config);
   }
@@ -357,13 +408,19 @@ export function discoverRepository(config: SemctxConfig): DiscoveryResult {
   const root = config.repositoryRoot;
   const absPaths: string[] = [];
   const refusedLinks: string[] = [];
-  walk(root, root, absPaths, true, refusedLinks);
+  const qualified = eligibilityConfig.version === 2 && eligibilityConfig.analysisProfile === "modelo-suite-static-v1";
+  const eligible = qualified ? createQualifiedPathEligibility(eligibilityConfig) : undefined;
+  walk(root, root, absPaths, true, refusedLinks, qualified);
   const files: DiscoveredFile[] = [];
   const candidates: DiscoveryCandidate[] = [];
 
   for (const absPath of absPaths.sort()) {
     const relPath = normalizePath(relative(root, absPath));
     const language = sourceLanguage(relPath);
+    if (eligible !== undefined && !eligible(relPath)) {
+      candidates.push({ relPath, language, selectionDecision: "excluded", analysisOutcome: "not_applicable", reason: "IGNORED_GENERATED_OUTPUT" });
+      continue;
+    }
     const included = config.include.length > 0 && matchesAny(relPath, config.include);
     const excluded = matchesAny(relPath, config.exclude);
     if (!included || excluded) {
@@ -412,7 +469,7 @@ export function discoverRepository(config: SemctxConfig): DiscoveryResult {
       });
       continue;
     }
-    const boundaryFailure = language === "typescript"
+    const boundaryFailure = language === "typescript" || language === "javascript"
       ? escapedDependencyReason(absPath, root, content)
       : undefined;
     if (boundaryFailure !== undefined) {

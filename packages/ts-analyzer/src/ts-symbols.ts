@@ -7,6 +7,42 @@ import { parseMarkers, type ParsedMarker } from "./markers";
 
 /** Exact TypeScript runtime version bound into Plane A capability scopes. */
 export const TYPESCRIPT_DIALECT_VERSION = ts.version;
+/** The exact SDK library directory used by retained compiler hosts. */
+export function typeScriptLibraryDirectory(): string { return dirname(ts.getDefaultLibFilePath(COMPILER_OPTIONS)); }
+export type CompilerInputSnapshot = ReadonlyMap<string, string>;
+const snapshotSystems = new WeakMap<CompilerInputSnapshot, ts.System>();
+
+function snapshotSystem(snapshot: CompilerInputSnapshot): ts.System {
+  const cached = snapshotSystems.get(snapshot);
+  if (cached) return cached;
+  const retained = new Map([...snapshot].map(([path, content]) => [canonicalTypeScriptFileKey(path), content]));
+  const directories = new Set<string>();
+  for (const path of retained.keys()) {
+    for (let directory = posix.dirname(path); ; directory = posix.dirname(directory)) {
+      directories.add(directory);
+      directories.add(canonicalTypeScriptFileKey(directory));
+      if (posix.dirname(directory) === directory) break;
+    }
+  }
+  const libraryRoot = canonicalTypeScriptFileKey(typeScriptLibraryDirectory());
+  const library = (path: string): boolean => canonicalTypeScriptFileKey(path).startsWith(`${libraryRoot}/`);
+  const system: ts.System = {
+    ...ts.sys,
+    readFile: path => retained.get(canonicalTypeScriptFileKey(path)) ?? (library(path) ? ts.sys.readFile(path) : undefined),
+    fileExists: path => retained.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.fileExists(path)),
+    directoryExists: path => {
+      return directories.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.directoryExists(path));
+    },
+    readDirectory: () => [],
+  };
+  snapshotSystems.set(snapshot, system);
+  return system;
+}
+
+/** Internal read seam for diagnostics over the same retained compiler inputs. */
+export function retainedCompilerSystem(snapshot: CompilerInputSnapshot): ts.System {
+  return snapshotSystem(snapshot);
+}
 
 export interface ExtractedSymbol {
   name: string;
@@ -32,6 +68,8 @@ export interface ExtractedImport {
   moduleSpecifier: string;
   resolvedRelPath?: string;
   names: string[];
+  /** Canonical value-binding owners, independent of the structurally imported module. */
+  bindingTargets?: { relPath: string; symbolPath: string; runtimeUsed?: boolean; unmodeledReason?: string }[];
   line: number;
 }
 
@@ -44,10 +82,13 @@ export interface ExtractedCall {
    * helper's calls to whichever same-named symbol the index happened to hold.
    */
   callerSymbolPath?: string;
+  callerUnmodeledReason?: string;
   calleeName: string;
   calleeRelPath?: string;
   /** Scope-qualified path of the resolved declaration, for the same reason as `callerSymbolPath`. */
   calleeSymbolPath?: string;
+  /** Retained semantic endpoints whose declaration has no extracted owner coordinate. */
+  calleeUnmodeledReason?: string;
   line: number;
 }
 
@@ -113,7 +154,8 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
   target: ts.ScriptTarget.ES2022,
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.Bundler,
-  allowJs: false,
+  allowJs: true,
+  jsx: ts.JsxEmit.Preserve,
   skipLibCheck: true,
   noEmit: true,
   strict: false,
@@ -121,11 +163,21 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
 
 /** Internal semantic context; intentionally not exported from the package root. */
 export const extractionContext = {
-  createProgram(this: void, rootAbsPaths: string[]): ts.Program {
+  createProgram(this: void, rootAbsPaths: string[], snapshot?: CompilerInputSnapshot): ts.Program {
     const host = ts.createCompilerHost(COMPILER_OPTIONS);
+    const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
+    if (snapshot !== undefined) {
+      host.readFile = path => system.readFile(path);
+      host.fileExists = path => system.fileExists(path);
+      host.directoryExists = path => system.directoryExists!(path);
+    }
     // Match tsc's semantic parsing: retain type-error JSDoc, avoid prose ASTs in dependencies.
     // Semctx reads its JSDoc/markers from source text, independently of these compiler nodes.
     host.jsDocParsingMode = ts.JSDocParsingMode.ParseForTypeErrors;
+    if (snapshot !== undefined || rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+      host.resolveModuleNames = (names, containingFile) => names.map(name =>
+        resolveConfiguredModule(name, containingFile, undefined, system)?.resolvedModule);
+    }
     return ts.createProgram(rootAbsPaths, COMPILER_OPTIONS, host);
   },
 };
@@ -156,22 +208,62 @@ function nameOfCallee(expr: ts.Expression): string | undefined {
   return undefined;
 }
 
+/** Transparent expression wrappers shared by semantic extraction and eligibility guards. */
+export function unwrapStaticExpression(expression: ts.Expression): ts.Expression {
+  while (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
+    || ts.isNonNullExpression(expression) || ts.isSatisfiesExpression(expression)) expression = expression.expression;
+  return expression;
+}
+
+/** CallExpression domain: named callees, or import() handled separately as a module link. */
+export function isModeledCallCallee(expression: ts.Expression): boolean {
+  const callee = unwrapStaticExpression(expression);
+  return nameOfCallee(callee) !== undefined || callee.kind === ts.SyntaxKind.ImportKeyword;
+}
+
 /** Internal resolver shared with discovery confinement; intentionally absent from the package root. */
 export function resolveTypeScriptModule(
   specifier: string,
   containingFile: string,
   resolutionMode?: ts.ResolutionMode,
+  configured = /\.(mjs|cjs|js|jsx)$/.test(containingFile),
+  snapshot?: CompilerInputSnapshot,
 ): string | undefined {
-  const resolved = ts.resolveModuleName(
+  const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
+  const resolved = configured
+    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system)
+    : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, system, undefined, undefined, resolutionMode);
+  // A declaration companion describes the runtime module; dependency edges target the actual
+  // source when it exists, rather than silently ending at the skipped .d.mts/.d.cts artifact.
+  const declarationPath = resolved.resolvedModule?.resolvedFileName;
+  if (configured && declarationPath !== undefined && /\.d\.(mts|cts|ts)$/.test(declarationPath)) {
+    const runtimePath = declarationPath.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
+      extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
+    if (system.fileExists(runtimePath)) return runtimePath;
+  }
+  return declarationPath;
+}
+
+function resolveConfiguredModule(specifier: string, containingFile: string, resolutionMode?: ts.ResolutionMode, system: ts.System = ts.sys): ts.ResolvedModuleWithFailedLookupLocations {
+  const configPath = ts.findConfigFile(dirname(containingFile), path => system.fileExists(path));
+  let options = COMPILER_OPTIONS;
+  if (configPath !== undefined) {
+    const config = ts.readConfigFile(configPath, path => system.readFile(path));
+    if (config.error === undefined) {
+      // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
+      const parsed = ts.parseJsonConfigFileContent(config.config, { ...system, readDirectory: () => [] }, dirname(configPath));
+      options = { ...COMPILER_OPTIONS, ...parsed.options };
+    }
+  }
+  return ts.resolveModuleName(
     specifier,
     containingFile,
-    COMPILER_OPTIONS,
-    ts.sys,
+    options,
+    system,
     undefined,
     undefined,
-    resolutionMode,
+    resolutionMode ?? ts.getImpliedNodeFormatForFile(containingFile, undefined, system, options),
   );
-  return resolved.resolvedModule?.resolvedFileName;
 }
 
 function canonicalTypeScriptFileKey(filePath: string): string {
@@ -193,7 +285,8 @@ function isContainedTypeScriptPath(repoRoot: string, filePath: string): boolean 
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`) && !isAbsolute(rel));
 }
 
-function canonicalFilesystemPath(filePath: string): string {
+/** Internal confinement helper shared with discovery; not part of the package root API. */
+export function canonicalFilesystemPath(filePath: string): string {
   const absolute = resolve(filePath);
   let ancestor = absolute;
   for (;;) {
@@ -215,7 +308,7 @@ function canonicalFilesystemPath(filePath: string): string {
  * Bare package imports, configured type packages and the standard library remain delegated to the
  * normal compiler host so the analyzer keeps the same TypeChecker environment for admitted input.
  */
-function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRoot: string): void {
+function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRoot: string, snapshot?: CompilerInputSnapshot): void {
   const canonicalRoot = canonicalFilesystemPath(repoRoot);
   const pending = [...rootAbsPaths];
   const visited = new Set<string>();
@@ -228,7 +321,8 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
     const key = canonicalTypeScriptFileKey(canonical);
     if (visited.has(key)) continue;
     visited.add(key);
-    const source = readFileSync(path, "utf8");
+    const source = snapshot === undefined ? readFileSync(path, "utf8") : snapshotSystem(snapshot).readFile(path);
+    if (source === undefined) throw new Error(`SOURCE_SNAPSHOT_MISSING: ${normalizePath(relative(repoRoot, path))}`);
     const preprocessed = ts.preProcessFile(source, true, true);
     for (const imported of preprocessed.importedFiles) {
       if (!imported.fileName.startsWith(".")) continue;
@@ -236,7 +330,7 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
       if (!isContainedTypeScriptPath(canonicalRoot, canonicalFilesystemPath(lexical))) {
         throw new Error(`IMPORT_OUTSIDE_REPOSITORY: ${imported.fileName}`);
       }
-      const resolved = resolveTypeScriptModule(imported.fileName, path);
+      const resolved = resolveTypeScriptModule(imported.fileName, path, undefined, snapshot !== undefined || /\.(mjs|cjs|js|jsx)$/.test(path), snapshot);
       if (resolved === undefined) continue;
       const resolvedCanonical = canonicalFilesystemPath(resolved);
       if (!isContainedTypeScriptPath(canonicalRoot, resolvedCanonical)) {
@@ -253,17 +347,24 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
       if (!isContainedTypeScriptPath(canonicalRoot, referencedCanonical)) {
         throw new Error(`REFERENCE_OUTSIDE_REPOSITORY: ${referenced.fileName}`);
       }
-      if (existsSync(lexical)) pending.push(lexical);
+      // A retained analysis cannot enqueue or read a reference omitted from its snapshot.
+      // Qualified admission reports that missing dependency as a structured scope rejection.
+      if (snapshot === undefined ? existsSync(lexical) : snapshotSystem(snapshot).fileExists(lexical)) pending.push(lexical);
     }
   }
 }
 
 /** Extract modules, symbols, imports and best-effort resolved calls from source/test files. */
-export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsExtraction {
-  assertConfinedTypeScriptSources(rootAbsPaths, repoRoot);
-  const program = extractionContext.createProgram(rootAbsPaths);
+export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, suppliedSnapshot?: CompilerInputSnapshot): TsExtraction {
+  const snapshot = suppliedSnapshot === undefined ? undefined : new Map(suppliedSnapshot);
+  assertConfinedTypeScriptSources(rootAbsPaths, repoRoot, snapshot);
+  const program = extractionContext.createProgram(rootAbsPaths, snapshot);
   const checker = program.getTypeChecker();
   const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
+  const javascriptEnabled = rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path));
+  // A retained qualified snapshot needs complete static module links even in a TS-only graph.
+  // Keep the historical no-snapshot TS extraction unchanged for legacy callers.
+  const staticModuleLinksEnabled = javascriptEnabled || snapshot !== undefined;
 
   const modules: string[] = [];
   const symbols: ExtractedSymbol[] = [];
@@ -278,6 +379,18 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
     if (!rootSet.has(canonicalTypeScriptFileKey(sf.fileName))) continue;
     const relPath = relOf(sf.fileName);
     modules.push(relPath);
+    const exportedDeclarations = new Set<ts.Declaration>();
+    const namespaceReferences = staticModuleLinksEnabled ? namespaceMemberReferences(sf, checker, snapshot !== undefined) : undefined;
+    const runtimeReferences = snapshot === undefined ? undefined : runtimeReferenceSymbols(sf, checker);
+    if (staticModuleLinksEnabled) {
+      const moduleSymbol = checker.getSymbolAtLocation(sf);
+      if (moduleSymbol !== undefined) {
+        for (let symbol of checker.getExportsOfModule(moduleSymbol)) {
+          if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+          for (const declaration of symbol.getDeclarations() ?? []) exportedDeclarations.add(declaration);
+        }
+      }
+    }
 
     // Scope-qualified paths of the enclosing extracted symbols, innermost last. Distinct from
     // `scopeStack`, which only tracks what can *contain*: a method is a scope but is not itself an
@@ -301,7 +414,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         scope: [...scopeStack],
         startLine: lineOf(sf, node.getStart()),
         endLine: lineOf(sf, node.getEnd()),
-        exported: isExported(node),
+        exported: isExported(node) || exportedDeclarations.has(node as ts.Declaration),
         ...(signatureOnly ? { signatureOnly: true } : {}),
         ...(jsdoc !== undefined ? { jsdoc } : {}),
         markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
@@ -312,14 +425,16 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
       let pushedSymbol: string | undefined;
       let pushedScope: string | undefined;
 
-      if (ts.isFunctionDeclaration(node) && node.name) {
-        recordSymbol(node, node.name.text, "function", node.body === undefined);
-        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
-        pushedScope = node.name.text;
-      } else if (ts.isClassDeclaration(node) && node.name) {
-        recordSymbol(node, node.name.text, "class");
-        pushedSymbol = symbolScopePath(scopeStack, node.name.text);
-        pushedScope = node.name.text;
+      if (ts.isFunctionDeclaration(node) && scopeNameOf(node) !== undefined) {
+        const name = scopeNameOf(node)!;
+        recordSymbol(node, name, "function", node.body === undefined);
+        pushedSymbol = symbolScopePath(scopeStack, name);
+        pushedScope = name;
+      } else if (ts.isClassDeclaration(node) && scopeNameOf(node) !== undefined) {
+        const name = scopeNameOf(node)!;
+        recordSymbol(node, name, "class");
+        pushedSymbol = symbolScopePath(scopeStack, name);
+        pushedScope = name;
       } else if (ts.isInterfaceDeclaration(node)) {
         recordSymbol(node, node.name.text, "interface");
       } else if (ts.isTypeAliasDeclaration(node)) {
@@ -347,7 +462,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
               scope: [...scopeStack],
               startLine: lineOf(sf, node.getStart()),
               endLine: lineOf(sf, decl.getEnd()),
-              exported,
+              exported: exported || exportedDeclarations.has(decl),
               ...(jsdoc !== undefined ? { jsdoc } : {}),
               markers: jsdoc !== undefined ? parseMarkers(jsdoc) : [],
             });
@@ -363,27 +478,61 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string): TsE
         return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName);
-        const names = importedNames(node);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
+        const names = importedNames(node, staticModuleLinksEnabled);
+        const namespace = node.importClause?.namedBindings;
+        const namespaceSymbol = node.importClause?.isTypeOnly !== true && namespace !== undefined && ts.isNamespaceImport(namespace)
+          ? checker.getSymbolAtLocation(namespace.name) : undefined;
+        const references: { expression: ts.Expression; targetSymbol?: ts.Symbol }[] = [...valueImportBindings(node).map(expression => ({ expression })), ...(namespaceSymbol === undefined ? [] : namespaceReferences?.get(namespaceSymbol) ?? [])];
+        const bindingTargets = staticModuleLinksEnabled ? references.flatMap(binding => {
+          const target = resolveCallTarget(checker, binding.expression, relOf, javascriptEnabled, snapshot, binding.targetSymbol);
+          return target?.relPath !== undefined && target.symbolPath !== undefined ? [{ relPath: target.relPath, symbolPath: target.symbolPath,
+            ...(runtimeReferences !== undefined && ts.isIdentifier(binding.expression) && binding.targetSymbol === undefined
+              && !runtimeReferences.has(checker.getSymbolAtLocation(binding.expression)!) ? { runtimeUsed: false } : {}),
+            ...(target.unmodeledReason === undefined ? {} : { unmodeledReason: target.unmodeledReason }),
+          }] : [];
+        }) : undefined;
         imports.push({
           fromRelPath: relPath,
           moduleSpecifier: specifier,
           ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
           names,
+          ...(bindingTargets === undefined ? {} : { bindingTargets }),
+          line: lineOf(sf, node.getStart()),
+        });
+      } else if (staticModuleLinksEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+        const specifier = node.moduleSpecifier.text;
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
+        imports.push({
+          fromRelPath: relPath,
+          moduleSpecifier: specifier,
+          ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
+          names: [],
           line: lineOf(sf, node.getStart()),
         });
       } else if (ts.isCallExpression(node)) {
-        const calleeName = nameOfCallee(node.expression);
+        if (staticModuleLinksEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+          node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
+          const specifier = (node.arguments[0] as ts.StringLiteral).text;
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot);
+          imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
+            ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
+            names: [], line: lineOf(sf, node.getStart()) });
+        }
+        const callee = staticModuleLinksEnabled ? unwrapStaticExpression(node.expression) : node.expression;
+        const calleeName = nameOfCallee(callee);
         if (calleeName !== undefined) {
-          const resolved = resolveCallTarget(checker, node.expression, relOf);
+          const resolved = resolveCallTarget(checker, callee, relOf, javascriptEnabled, snapshot);
           calls.push({
             callerRelPath: relPath,
+            ...(snapshot !== undefined && hasObjectLiteralMemberAncestor(node) ? { callerUnmodeledReason: "OBJECT_LITERAL_MEMBER" } : {}),
             ...(symbolPathStack.length > 0
               ? { callerSymbolPath: symbolPathStack[symbolPathStack.length - 1] }
               : {}),
             calleeName,
             ...(resolved?.relPath !== undefined ? { calleeRelPath: resolved.relPath } : {}),
             ...(resolved?.symbolPath !== undefined ? { calleeSymbolPath: resolved.symbolPath } : {}),
+            ...(resolved?.unmodeledReason !== undefined ? { calleeUnmodeledReason: resolved.unmodeledReason } : {}),
             line: lineOf(sf, node.getStart()),
           });
         }
@@ -411,9 +560,19 @@ export async function extractTypeScriptParallel(
   rootAbsPaths: string[],
   repoRoot: string,
   requested: IndexWorkerSelection = "auto",
+  snapshot?: CompilerInputSnapshot,
 ): Promise<ParallelTsExtraction> {
+  if (snapshot !== undefined) {
+    return { extraction: extractTypeScript(rootAbsPaths, repoRoot, snapshot), parallelism: { requested, used: 1, mode: "preflight-fallback", reason: "retained compiler input snapshot requires one semantic Program" } };
+  }
   assertConfinedTypeScriptSources(rootAbsPaths, repoRoot);
   const workerLimit = resolveWorkerCount(requested, rootAbsPaths.length);
+  if (workerLimit > 1 && rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+    return {
+      extraction: extractTypeScript(rootAbsPaths, repoRoot),
+      parallelism: { requested, used: 1, mode: "preflight-fallback", reason: "mixed JavaScript/TypeScript extraction requires one semantic Program" },
+    };
+  }
   if (workerLimit <= 1 || rootAbsPaths.length <= 1) {
     return {
       extraction: extractTypeScript(rootAbsPaths, repoRoot),
@@ -789,6 +948,11 @@ function isExtractionWorkerResponse(
       && typeof item["moduleSpecifier"] === "string"
       && (item["resolvedRelPath"] === undefined || inRepository(item["resolvedRelPath"]))
       && stringArray(item["names"])
+      && (item["bindingTargets"] === undefined || (Array.isArray(item["bindingTargets"])
+        && item["bindingTargets"].every(target => isRecord(target) && inRepository(target["relPath"])
+          && typeof target["symbolPath"] === "string"
+          && (target["runtimeUsed"] === undefined || typeof target["runtimeUsed"] === "boolean")
+          && optionalString(target["unmodeledReason"]))))
       && line(item["line"]))
     && dto["calls"].every((item) => isRecord(item)
       && owned(item["callerRelPath"])
@@ -796,6 +960,8 @@ function isExtractionWorkerResponse(
       && typeof item["calleeName"] === "string"
       && (item["calleeRelPath"] === undefined || inRepository(item["calleeRelPath"]))
       && optionalString(item["calleeSymbolPath"])
+      && optionalString(item["calleeUnmodeledReason"])
+      && optionalString(item["callerUnmodeledReason"])
       && line(item["line"]));
 }
 
@@ -836,12 +1002,12 @@ function isFunctionLike(node: ts.Node): boolean {
  * `import { type X }`) execute nothing, so they must NOT create tested_by coverage.
  * Structural `imports` edges do not use these names, so they are unaffected.
  */
-function importedNames(node: ts.ImportDeclaration): string[] {
+function importedNames(node: ts.ImportDeclaration, canonical = false): string[] {
   const clause = node.importClause;
   if (clause === undefined) return [];
   if (clause.isTypeOnly) return [];
   const names: string[] = [];
-  if (clause.name) names.push(clause.name.text);
+  if (clause.name) names.push(canonical ? "default" : clause.name.text);
   const bindings = clause.namedBindings;
   if (bindings) {
     if (ts.isNamespaceImport(bindings)) {
@@ -849,11 +1015,80 @@ function importedNames(node: ts.ImportDeclaration): string[] {
     } else {
       for (const element of bindings.elements) {
         if (element.isTypeOnly) continue;
-        names.push(element.name.text);
+        names.push(canonical ? (element.propertyName ?? element.name).text : element.name.text);
       }
     }
   }
   return names;
+}
+
+function valueImportBindings(node: ts.ImportDeclaration): ts.Identifier[] {
+  const clause = node.importClause;
+  if (clause === undefined || clause.isTypeOnly) return [];
+  const bindings: ts.Identifier[] = clause.name === undefined ? [] : [clause.name];
+  if (clause.namedBindings !== undefined && ts.isNamedImports(clause.namedBindings)) {
+    for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) bindings.push(element.name);
+  }
+  return bindings;
+}
+
+/** Runtime lexical uses; declaration/type/shadow occurrences never prove a value read. */
+function runtimeReferenceSymbols(source: ts.SourceFile, checker: ts.TypeChecker): Set<ts.Symbol> {
+  const symbols = new Set<ts.Symbol>();
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)
+      || (ts.canHaveModifiers(node) && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword))) return;
+    if (ts.isTypeNode(node)) {
+      if (ts.isExpressionWithTypeArguments(node) && ts.isHeritageClause(node.parent) && node.parent.token === ts.SyntaxKind.ExtendsKeyword
+        && (ts.isClassDeclaration(node.parent.parent) || ts.isClassExpression(node.parent.parent))) visit(node.expression);
+      return;
+    }
+    if (ts.isExportDeclaration(node) && node.isTypeOnly || ts.isExportSpecifier(node) && node.isTypeOnly) return;
+    if (ts.isIdentifier(node)) {
+      const symbol = ts.isShorthandPropertyAssignment(node.parent) ? checker.getShorthandAssignmentValueSymbol(node.parent)
+        : ts.isExportSpecifier(node.parent) ? checker.getExportSpecifierLocalTargetSymbol(node.parent) : checker.getSymbolAtLocation(node);
+      if (symbol !== undefined) symbols.add(symbol);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source); return symbols;
+}
+
+/** Static member references keyed by their actual lexical receiver binding, never its spelling. */
+function namespaceMemberReferences(source: ts.SourceFile, checker: ts.TypeChecker, retainUnmodeled = false): Map<ts.Symbol, { expression: ts.Expression; targetSymbol?: ts.Symbol }[]> {
+  const references = new Map<ts.Symbol, { expression: ts.Expression; targetSymbol?: ts.Symbol }[]>();
+  const unwrap = unwrapStaticExpression;
+  const add = (binding: ts.Symbol | undefined, expression: ts.Expression, target: ts.Symbol | undefined): void => {
+    if (target !== undefined && (target.flags & ts.SymbolFlags.Alias) !== 0) target = checker.getAliasedSymbol(target);
+    const declaration = target?.getDeclarations()?.[0];
+    const modeled = declaration !== undefined && (ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration)
+      || (ts.isVariableDeclaration(declaration) && declaration.initializer !== undefined && isFunctionLike(declaration.initializer)));
+    const unmodeledValue = retainUnmodeled && declaration !== undefined
+      && (ts.isVariableDeclaration(declaration) || ts.isEnumDeclaration(declaration) || ts.isEnumMember(declaration));
+    if (binding === undefined || (!modeled && !unmodeledValue)) return;
+    const targets = references.get(binding) ?? [];
+    targets.push({ expression, targetSymbol: target }); references.set(binding, targets);
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isTypeNode(node)) return;
+    if (ts.isPropertyAccessExpression(node) || (ts.isElementAccessExpression(node) && ts.isStringLiteralLike(node.argumentExpression))) {
+      const member = node;
+      let receiver = unwrap(member.expression);
+      while (ts.isPropertyAccessExpression(receiver) || ts.isElementAccessExpression(receiver)) receiver = unwrap(receiver.expression);
+      add(checker.getSymbolAtLocation(receiver), member, checker.getSymbolAtLocation(member));
+    } else if (ts.isBindingElement(node) && node.dotDotDotToken === undefined && ts.isIdentifier(node.name)
+      && ts.isObjectBindingPattern(node.parent) && ts.isVariableDeclaration(node.parent.parent) && node.parent.parent.initializer !== undefined) {
+      const receiver = unwrap(node.parent.parent.initializer);
+      const binding = checker.getSymbolAtLocation(receiver);
+      if (binding?.getDeclarations()?.some(declaration => ts.isNamespaceImport(declaration))) {
+        const property = node.propertyName ?? node.name;
+        if (ts.isIdentifier(property) || ts.isStringLiteralLike(property)) add(binding, node.name, checker.getPropertyOfType(checker.getTypeAtLocation(receiver), property.text));
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return references;
 }
 
 /**
@@ -864,8 +1099,9 @@ function importedNames(node: ts.ImportDeclaration): string[] {
  * the two would put callers and callees in different address spaces.
  */
 function scopeNameOf(node: ts.Node): string | undefined {
-  if (ts.isFunctionDeclaration(node) && node.name !== undefined) return node.name.text;
-  if (ts.isClassDeclaration(node) && node.name !== undefined) return node.name.text;
+  if (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) {
+    return node.name?.text ?? ((ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Default) !== 0 ? "default" : undefined);
+  }
   if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
   if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text;
   if (
@@ -880,21 +1116,32 @@ function scopeNameOf(node: ts.Node): string | undefined {
 }
 
 /** Enclosing scope names of a declaration, outermost first, excluding the declaration itself. */
-function enclosingScopeOf(node: ts.Node): string[] {
+function enclosingScopeOf(node: ts.Node, retainInterfaceOwners = false): string[] {
   const scope: string[] = [];
   for (let current: ts.Node | undefined = node.parent; current !== undefined; current = current.parent) {
-    const name = scopeNameOf(current);
+    const name = retainInterfaceOwners && ts.isInterfaceDeclaration(current) ? current.name.text : scopeNameOf(current);
     if (name !== undefined) scope.unshift(name);
   }
   return scope;
+}
+
+/** Private proof coordinate: the same declaration domain and scope used by extraction. */
+export function retainedFunctionOwnerCoordinate(declaration: ts.FunctionDeclaration, root: string): { relPath: string; symbolPath: string } | undefined {
+  const name = scopeNameOf(declaration);
+  if (declaration.body === undefined || name === undefined) return undefined;
+  return { relPath: relative(root, declaration.getSourceFile().fileName).replaceAll("\\", "/"),
+    symbolPath: symbolScopePath(enclosingScopeOf(declaration, true), name) };
 }
 
 function resolveCallTarget(
   checker: ts.TypeChecker,
   expr: ts.Expression,
   relOf: (abs: string) => string,
-): { relPath?: string; symbolPath?: string } | undefined {
-  let symbol = checker.getSymbolAtLocation(expr);
+  javascriptEnabled = false,
+  snapshot?: CompilerInputSnapshot,
+  targetSymbol?: ts.Symbol,
+): { relPath?: string; symbolPath?: string; unmodeledReason?: string } | undefined {
+  let symbol = targetSymbol ?? checker.getSymbolAtLocation(expr);
   if (symbol === undefined) return undefined;
   // Follow import aliases to the real declaration (imported functions call across files).
   if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
@@ -905,9 +1152,49 @@ function resolveCallTarget(
   const decl = declarations[0];
   if (decl === undefined) return undefined;
   const sf = decl.getSourceFile();
-  if (sf.isDeclarationFile) return { symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()) };
+  const symbolName = javascriptEnabled || snapshot !== undefined ? scopeNameOf(decl) ?? symbol.getName() : symbol.getName();
+  if (sf.isDeclarationFile) {
+    if (javascriptEnabled && /\.d\.(mts|cts|ts)$/.test(sf.fileName)) {
+      const runtimePath = sf.fileName.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
+        extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
+      if (snapshot === undefined ? existsSync(runtimePath) : snapshotSystem(snapshot).fileExists(runtimePath)) return { relPath: relOf(runtimePath), symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName) };
+    }
+    return { symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName) };
+  }
   return {
     relPath: relOf(sf.fileName),
-    symbolPath: symbolScopePath(enclosingScopeOf(decl), symbol.getName()),
+    symbolPath: symbolScopePath(enclosingScopeOf(decl, snapshot !== undefined), symbolName),
+    ...(snapshot !== undefined && ts.isObjectLiteralExpression(decl.parent) ? { unmodeledReason: "OBJECT_LITERAL_MEMBER" }
+      : snapshot !== undefined && (ts.isEnumDeclaration(decl) || ts.isEnumMember(decl)) ? { unmodeledReason: "ENUM_VALUE" }
+      : snapshot !== undefined && ts.isVariableDeclaration(decl) && (decl.initializer === undefined || !isFunctionLike(decl.initializer)) ? { unmodeledReason: "VALUE_DECLARATION" } : {}),
   };
+}
+
+/** Private semantic-policy seam: reuse the extractor's canonical declaration coordinate. */
+export function retainedCallableCoordinate(checker: ts.TypeChecker, expression: ts.Expression, root: string, snapshot: CompilerInputSnapshot): ReturnType<typeof resolveCallTarget> {
+  let receiver = unwrapStaticExpression(expression);
+  while (ts.isPropertyAccessExpression(receiver) || ts.isElementAccessExpression(receiver)) receiver = unwrapStaticExpression(receiver.expression);
+  if (checker.getSymbolAtLocation(receiver)?.getDeclarations()?.some(origin => (ts.isImportSpecifier(origin) && origin.isTypeOnly)
+    || (ts.isImportClause(origin) && origin.isTypeOnly) || (ts.isNamespaceImport(origin) && origin.parent.isTypeOnly))) return undefined;
+  let symbol = checker.getSymbolAtLocation(expression);
+  if (symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+  if (!symbol?.getDeclarations()?.some(declaration => (ts.isFunctionDeclaration(declaration) && declaration.body !== undefined)
+    || ts.isClassDeclaration(declaration) || (ts.isMethodDeclaration(declaration) && ts.isClassLike(declaration.parent))
+    || (ts.isVariableDeclaration(declaration) && ts.isIdentifier(declaration.name) && declaration.initializer !== undefined
+      && (ts.isArrowFunction(declaration.initializer) || ts.isFunctionExpression(declaration.initializer))))) return undefined;
+  return resolveCallTarget(checker, expression, abs => normalizePath(relative(root, abs)), true, snapshot);
+}
+
+function hasObjectLiteralMemberAncestor(node: ts.Node): boolean {
+  for (let parent = node.parent; parent !== undefined; parent = parent.parent) {
+    if (parent.parent !== undefined && ts.isObjectLiteralExpression(parent.parent)
+      && (ts.isMethodDeclaration(parent) || ts.isGetAccessorDeclaration(parent) || ts.isSetAccessorDeclaration(parent))) return true;
+    if (isFunctionLike(parent)) {
+      let owner = parent.parent;
+      while (owner !== undefined && (ts.isParenthesizedExpression(owner) || ts.isAsExpression(owner)
+        || ts.isTypeAssertionExpression(owner) || ts.isNonNullExpression(owner) || ts.isSatisfiesExpression(owner))) owner = owner.parent;
+      if (owner !== undefined && ts.isPropertyAssignment(owner) && ts.isObjectLiteralExpression(owner.parent)) return true;
+    }
+  }
+  return false;
 }

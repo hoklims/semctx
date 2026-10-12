@@ -1,4 +1,5 @@
 import { SemctxError, attachSuppressedError, type Claim, type SemctxConfig } from "@semantic-context/core";
+import { resolve } from "node:path";
 import { buildClaims, GraphIndex, parseObservedDiffHunks } from "@semantic-context/context-engine";
 import { loadConfig, openStore, SCHEMA_VERSION } from "@semantic-context/repository-store";
 import { SealedAttestationIndexV1Schema, type ControlFreshnessSeal } from "@semantic-context/control-model";
@@ -28,6 +29,7 @@ import {
   captureTrackedWorkingDiff,
   controlRepositoryIdentity,
   fingerprintAnalysisInputs,
+  captureQualifiedAnalysisInputs,
   fingerprintRepositoryFacts,
   fingerprintSemanticModel,
   type IndexedControlSnapshot,
@@ -39,6 +41,7 @@ import {
 import { CONTROL_ATTESTATION_INDEX_META_KEY } from "./control-queries";
 import { inspectSemanticLifecycle } from "./semantic-check";
 import { analyzePlaneARuntime, analyzePlaneARuntimeAsync } from "./plane-a-runtime";
+import { isQualified, QUALIFIED_BUILD_META } from "./qualified-analysis";
 import {
   createPlaneAIndexSnapshot,
 } from "./index-health";
@@ -74,6 +77,7 @@ interface PreparedRepositoryIndex {
   discoveryBefore?: DiscoveryResult;
   analysisInputHash: string;
   discoveryLedgerDigest: string;
+  compilerInputs?: ReadonlyMap<string, string>;
   lifecycleBefore: ReturnType<typeof inspectSemanticLifecycle>;
   semanticModelHash: string;
 }
@@ -116,8 +120,9 @@ function discoveryForFiles(files: readonly DiscoveredFile[]): DiscoveryResult {
 function analyzeAndBuildClaimsInternal(
   config: SemctxConfig,
   discovery: DiscoveryResult,
+  compilerInputs?: ReadonlyMap<string, string>,
 ): InternalRepositoryAnalysis {
-  const runtime = analyzePlaneARuntime(config, discovery);
+  const runtime = analyzePlaneARuntime(config, discovery, compilerInputs);
   return {
     analysis: runtime.analysis,
     claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
@@ -154,7 +159,7 @@ function workspaceArtifacts(analysis: AnalysisResult): WorkspaceArtifact[] {
 /** Rebuild and persist Plane A. Store lifetime is owned by the application service. */
 export function indexRepository(root: string, indexedAt: string): RepositoryIndex {
   const prepared = prepareRepositoryIndex(root, indexedAt);
-  const indexed = analyzeAndBuildClaimsInternal(prepared.configBefore, prepared.discoveryBefore!);
+  const indexed = analyzeAndBuildClaimsInternal(prepared.configBefore, prepared.discoveryBefore!, prepared.compilerInputs);
   prepared.discoveryBefore = undefined;
   return completeRepositoryIndex(root, indexedAt, prepared, indexed);
 }
@@ -165,7 +170,7 @@ export async function indexRepositoryAsync(
   workers: IndexWorkerSelection = "auto",
 ): Promise<RepositoryIndex> {
   const prepared = prepareRepositoryIndex(root, indexedAt);
-  const runtime = await analyzePlaneARuntimeAsync(prepared.configBefore, prepared.discoveryBefore!, workers);
+  const runtime = await analyzePlaneARuntimeAsync(prepared.configBefore, prepared.discoveryBefore!, workers, prepared.compilerInputs);
   const indexed: InternalRepositoryAnalysis = {
     analysis: runtime.analysis,
     claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
@@ -185,6 +190,10 @@ function prepareRepositoryIndex(root: string, indexedAt: string): PreparedReposi
   }
   const repositoryRoot = canonicalRepositoryRoot(root);
   const configBefore = loadConfig(root);
+  if (isQualified(configBefore)) {
+    const buildStore = openStore(root);
+    try { buildStore.setMeta(QUALIFIED_BUILD_META, "incomplete"); } finally { buildStore.close(); }
+  }
   const gitBefore = captureGitState(root);
   const repositoryIdentity = controlRepositoryIdentity(root);
   const trackedDiffBefore = captureTrackedWorkingDiff(root);
@@ -193,7 +202,12 @@ function prepareRepositoryIndex(root: string, indexedAt: string): PreparedReposi
     diffBytes: trackedDiffBefore,
   });
   const discoveryBefore: DiscoveryResult = discoverRepository(configBefore);
-  const analysisInputHash = fingerprintAnalysisInputs(configBefore, discoveryBefore.files);
+  const qualifiedInputs = isQualified(configBefore) ? captureQualifiedAnalysisInputs(configBefore) : undefined;
+  const compilerInputs = qualifiedInputs === undefined ? undefined : new Map(qualifiedInputs.files.map((file) => [resolve(repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
+  if (compilerInputs !== undefined && discoveryBefore.files.some((file) => compilerInputs.get(resolve(file.absPath)) !== file.content)) {
+    throw new SemctxError("INVALID_TASK_INPUT", "source discovery changed before the qualified compiler input capture");
+  }
+  const analysisInputHash = qualifiedInputs?.digest ?? fingerprintAnalysisInputs(configBefore, discoveryBefore.files);
   const discoveryLedgerDigest = digestCanonical(discoveryBefore.candidates);
   const semanticBefore = loadSemanticModel(root);
   const lifecycleBefore = inspectSemanticLifecycle(root, semanticBefore.model.changes);
@@ -221,6 +235,7 @@ function prepareRepositoryIndex(root: string, indexedAt: string): PreparedReposi
     discoveryBefore,
     analysisInputHash,
     discoveryLedgerDigest,
+    compilerInputs,
     lifecycleBefore,
     semanticModelHash,
   };
@@ -356,6 +371,7 @@ function completeRepositoryIndex(
         [UNRESOLVED_REFERENCE_INDEX_META_KEY]: JSON.stringify(unresolvedReferenceIndex),
         [CONTROL_OBSERVED_HUNK_INDEX_META_KEY]: JSON.stringify(observedIndex),
         [CONTROL_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(snapshot),
+        ...(isQualified(configAfter) ? { [QUALIFIED_BUILD_META]: "complete" } : {}),
       },
     });
     const result = {

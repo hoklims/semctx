@@ -1,0 +1,30 @@
+import { expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createGlobSelectionConfig } from "@semantic-context/core";
+import { initWorkspace } from "@semantic-context/repository-store";
+import { indexRepository, runVerify } from "../src";
+
+for (const extension of ["ts", "js"]) for (const [name, content] of [
+  ["plural iterator descriptor", "function* helper() { yield 7; } const values = [1]; Object.defineProperties(values, { [Symbol.iterator]: { value: helper } }); export function run() { return [...values]; }"],
+  ["create getter descriptor", "function helper() { return 7; } const box = Object.create({}, { value: { get: helper } }); export function run() { return box.value; }"],
+  ["RegExp hook", "function helper() { return 7; } const matcher = {}; matcher[Symbol.match] = helper; export function run() { return 'x'.match(matcher); }"],
+] as const) test(`qualified ${name} ${extension}`, () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-descriptor-hook-"));
+  try {
+    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+    writeFileSync(join(root, "src/main.ts"), "export function main() { return 1; }\n");
+    writeFileSync(join(root, `src/subject.${extension}`), content);
+    for (const args of [["init", "-q"], ["add", "."], ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture"]]) {
+      const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" }); if (result.exitCode !== 0) throw new Error(new TextDecoder().decode(result.stderr));
+    }
+    initWorkspace(root, { ...createGlobSelectionConfig(root), selectionMode: "qualified-static-v1", analysisProfile: "modelo-suite-static-v1", include: ["src/**/*"], languages: { typescript: "on", javascript: "on" } });
+    writeFileSync(join(root, "src/main.ts"), "export function main() { return 2; }\n");
+    indexRepository(root, "2026-10-11T10:00:00.000Z");
+    const admission = runVerify(root, { kind: "working-tree" }).report.analysisAdmission;
+    console.info(JSON.stringify({ name, extension, admission }));
+    expect(admission?.status).toBe("rejected");
+    expect(admission?.reasons.some(reason => reason.includes("DESCRIPTOR_UNSUPPORTED") || reason.includes("PROTOCOL_MUTATION_UNSUPPORTED"))).toBe(true);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 180_000);

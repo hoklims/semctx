@@ -25,8 +25,8 @@ function requirement(input: {
 }
 
 describe("consumer-owned Plane A capability requirements", () => {
-  it("registers the exact closed TS, Python, Markdown, and SQL policy surface", () => {
-    expect(REGISTERED_PLANE_A_CAPABILITY_COUNT).toBe(100);
+  it("registers the exact closed TS, JavaScript ESM, Python, Markdown, and SQL policy surface", () => {
+    expect(REGISTERED_PLANE_A_CAPABILITY_COUNT).toBe(122);
     expect(TYPESCRIPT_DIALECT_VERSION).toBe("5.9.3");
     expect(requirement({
       configVersion: 2,

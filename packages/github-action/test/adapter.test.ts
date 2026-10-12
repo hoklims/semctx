@@ -40,7 +40,7 @@ const WARN = report("WARN", [
 ]);
 const PASS = report("PASS", []);
 
-function runAdapter(rep: unknown, failOn: string): { code: number; out: string; err: string; outputs: string; summary: string } {
+function runAdapter(rep: unknown, failOn: string, requireQualified = "false"): { code: number; out: string; err: string; outputs: string; summary: string } {
   const dir = mkdtempSync(join(tmpdir(), "semctx-action-"));
   const reportPath = join(dir, "report.json");
   const outFile = join(dir, "gh_output");
@@ -49,7 +49,7 @@ function runAdapter(rep: unknown, failOn: string): { code: number; out: string; 
   const p = Bun.spawnSync(["node", ADAPTER, reportPath], {
     stdout: "pipe",
     stderr: "pipe",
-    env: { ...process.env, INPUT_FAIL_ON: failOn, GITHUB_OUTPUT: outFile, GITHUB_STEP_SUMMARY: sumFile },
+    env: { ...process.env, INPUT_FAIL_ON: failOn, INPUT_REQUIRE_QUALIFIED: requireQualified, GITHUB_OUTPUT: outFile, GITHUB_STEP_SUMMARY: sumFile },
   });
   return {
     code: p.exitCode ?? 1,
@@ -61,6 +61,45 @@ function runAdapter(rep: unknown, failOn: string): { code: number; out: string; 
 }
 
 describe("github-action adapter", () => {
+  it("trusted require-qualified refuses an ordinary PASS report without admission", () => {
+    const result = runAdapter(PASS, "none", "true");
+    expect(result.code).toBe(1);
+    expect(result.outputs).toContain("verdict=BLOCK");
+    expect(result.summary).toContain("Action policy BLOCK");
+    expect(result.out).toContain("qualification_required");
+    expect(PASS.verdict).toBe("PASS");
+  });
+  it("ordinary policy stays optional and malformed requirements fail closed", () => {
+    expect(runAdapter(PASS,"none","false").code).toBe(0);
+    const result=runAdapter(PASS,"none","yes\n::warning::untrusted-policy");
+    expect(result.code).toBe(2);expect(result.err).toContain("unknown require-qualified policy");
+    expect(result.err).not.toContain("::warning");
+    expect(result.outputs).toBe("");
+  });
+  it("trusted requirement accepts an admitted named profile and refuses malformed profiles", () => {
+    const digest=`sha256:${"0".repeat(64)}`;
+    const qualified:Report={...PASS,analysisAdmission:{
+      schemaVersion:1,profile:"modelo-suite-static-v1",status:"admitted",
+      identity:{source:digest,sourceCommits:["0".repeat(40)],baseCommit:null,diff:digest,config:digest,analyzer:digest,indexSnapshot:digest},
+      binding:{status:"valid",reasons:[]},indexFreshness:{verdict:"FRESH",reasons:[]},controlFreshness:{verdict:"FRESH",reasons:[]},checkFreshness:{status:"current",reasons:[]},
+      repositoryCoverage:{status:"complete",files:[{path:"src/a.ts",status:"analyzed",reasons:[]}]},
+      changeCoverage:{expected:["src/a.ts"],analyzed:["src/a.ts"],files:[{path:"src/a.ts",status:"analyzed",reasons:[]}]},reasons:[],limitations:[],proofObligations:[],
+    }};
+    expect(runAdapter(qualified,"none","true").code).toBe(0);
+    expect(runAdapter({...qualified,analysisAdmission:{...qualified.analysisAdmission,profile:"unknown"}},"none","true").code).toBe(2);
+  });
+  it("refuses qualified rejection even with advisory none policy", () => {
+    const digest = `sha256:${"0".repeat(64)}`;
+    const qualified: Report = { ...BLOCK, analysisAdmission: {
+      schemaVersion: 1, profile: "modelo-suite-static-v1", status: "rejected",
+      identity: { source: digest, sourceCommits: ["0".repeat(40)], baseCommit: null, diff: digest, config: digest, analyzer: digest, indexSnapshot: digest },
+      binding: { status: "valid", reasons: [] }, indexFreshness: { verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] },
+      controlFreshness: { verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] }, checkFreshness: { status: "current", reasons: [] },
+      repositoryCoverage: { status: "partial", files: [] }, changeCoverage: { expected: ["src/a.ts"], analyzed: [], files: [{ path: "src/a.ts", status: "missing", reasons: ["NO_CURRENT_ANALYZED_SOURCE"] }] },
+      reasons: ["INDEX_NOT_FRESH"], limitations: ["Static analysis only."], proofObligations: [],
+    } };
+    expect(runAdapter(qualified, "none").code).toBe(1);
+  });
   it("emits annotations, summary and outputs for a BLOCK report", () => {
     const r = runAdapter(BLOCK, "block");
     expect(r.out).toMatch(/^::error /m);
@@ -154,7 +193,7 @@ describe("github-action adapter", () => {
   it("action.yml declares the required inputs and outputs", () => {
     const yml = readFileSync(ACTION_YML, "utf8");
     expect(yml).toContain('bun-version: "1.4.0"');
-    for (const input of ["base:", "head:", "fail-on:", "working-directory:", "config-path:", "report-path:", "upload-report:"]) {
+    for (const input of ["base:", "head:", "fail-on:", "require-qualified:", "working-directory:", "config-path:", "report-path:", "upload-report:"]) {
       expect(yml).toContain(input);
     }
     for (const output of ["verdict:", "block-count:", "warn-count:", "changed-symbol-count:", "recommended-test-count:", "report-path:"]) {
@@ -167,6 +206,7 @@ describe("github-action adapter", () => {
     // script by the ${{ }} template engine (GitHub Actions injection).
     expect(yml).toContain("SEMCTX_BASE: ${{ inputs.base }}");
     expect(yml).toContain("INPUT_REPORT_PATH: ${{ inputs.report-path }}");
+    expect(yml).toContain("INPUT_REQUIRE_QUALIFIED: ${{ inputs.require-qualified }}");
     expect(yml).not.toContain("--base \"${{ inputs.base }}\"");
     expect(yml).not.toContain("--head \"${{ inputs.head }}\"");
     expect(yml).not.toContain("adapter.mjs\" \"${{ inputs.report-path }}\"");

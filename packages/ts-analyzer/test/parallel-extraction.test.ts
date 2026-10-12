@@ -32,6 +32,55 @@ afterEach(() => {
 });
 
 describe("parallel TypeScript extraction", () => {
+  test("private runtime-use and origin metadata survive validated worker transport and merge", async () => {
+    const { root, paths } = fixture({
+      "a/dep.ts": "export const FLAG=true;", "a/run.ts": "import {FLAG} from './dep';export function run(){return FLAG;}",
+      "b/dep.ts": "export const FLAG=true;", "b/run.ts": "import {FLAG} from './dep';export function run(){return 1;}",
+    });
+    const snapshot = new Map(paths.map(path => [path, Bun.file(path)]));
+    const inputs = new Map(await Promise.all([...snapshot].map(async ([path, file]) => [path, await file.text()] as const)));
+    __setExtractionWorkerFactoryForTesting(() => {
+      let onmessage: ((event: { data: unknown }) => void) | null = null;
+      return {
+        onerror: null,
+        get onmessage() { return onmessage; }, set onmessage(value: ((event: { data: unknown }) => void) | null) { onmessage = value; },
+        postMessage(request: { jobId: string; emitAbsPaths: string[] }) {
+          const extraction = extractTypeScript(request.emitAbsPaths, root, inputs);
+          queueMicrotask(() => onmessage?.({ data: structuredClone({ schemaVersion: 1, jobId: request.jobId, ok: true, extraction }) }));
+        },
+        terminate() {},
+      } as unknown as Worker;
+    });
+    const result = await extractTypeScriptParallel(paths, root, 2);
+    expect(result.parallelism.used).toBe(2);
+    expect(result.extraction).toEqual(extractTypeScript(paths, root, inputs));
+    expect(result.extraction.imports.find(imp => imp.fromRelPath === "a/run.ts")?.bindingTargets?.[0]?.unmodeledReason).toBe("VALUE_DECLARATION");
+    expect(result.extraction.imports.find(imp => imp.fromRelPath === "b/run.ts")?.bindingTargets?.[0]?.runtimeUsed).toBe(false);
+  });
+
+  for (const field of ["runtimeUsed", "unmodeledReason"] as const) test(`worker rejects malformed private import-target ${field}`, async () => {
+    const { root, paths } = fixture({ "a.ts": "export function a(){return 1;}", "b.ts": "export function b(){return 1;}" });
+    __setExtractionWorkerFactoryForTesting(() => {
+      let onmessage: ((event: { data: unknown }) => void) | null = null;
+      return {
+        onerror: null,
+        get onmessage() { return onmessage; }, set onmessage(value: ((event: { data: unknown }) => void) | null) { onmessage = value; },
+        postMessage(request: { jobId: string; emitAbsPaths: string[] }) {
+          const owned = relative(root, request.emitAbsPaths[0]!).replaceAll("\\", "/");
+          const target = { relPath: owned, symbolPath: "a", [field]: field === "runtimeUsed" ? "yes" : 42 };
+          queueMicrotask(() => onmessage?.({ data: { schemaVersion: 1, jobId: request.jobId, ok: true, extraction: {
+            modules: [owned], symbols: [], calls: [], imports: [{ fromRelPath: owned, moduleSpecifier: "./a", names: ["a"], bindingTargets: [target], line: 1 }],
+          } } }));
+        }, terminate() {},
+      } as unknown as Worker;
+    });
+    let thrown: unknown;
+    try { await extractTypeScriptParallel(paths, root, 2); }
+    catch (error) { thrown = error; }
+    expect(thrown).toBeInstanceOf(Error);
+    expect((thrown as Error).message).toMatch(/malformed extraction DTO/);
+  });
+
   test("workers 1 and 2 return byte-identical structured extraction with shared declarations", async () => {
     const { root, paths } = fixture({
       "globals.d.ts": "declare interface SharedShape { value: string }\n",

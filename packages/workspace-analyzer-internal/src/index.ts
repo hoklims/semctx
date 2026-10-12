@@ -68,6 +68,8 @@ export interface AnalyzeWorkspaceInput {
   readonly repositoryRoot: string;
   readonly repositoryId?: string;
   readonly artifacts?: readonly WorkspaceArtifact[];
+  /** Optional retained manifest bytes keyed by resolved absolute path; never fall back to live bytes. */
+  readonly manifestContents?: ReadonlyMap<string, string>;
 }
 
 export interface ProjectWorkspaceCandidatesInput {
@@ -111,7 +113,7 @@ export async function analyzeWorkspace(input: AnalyzeWorkspaceInput): Promise<Wo
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    await inspectRepository(repositoryRoot, diagnostics);
+    await inspectRepository(repositoryRoot, diagnostics, input.manifestContents);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -183,7 +185,7 @@ export function analyzeWorkspaceSync(input: AnalyzeWorkspaceInput): WorkspacePro
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    inspectRepositorySync(repositoryRoot, diagnostics);
+    inspectRepositorySync(repositoryRoot, diagnostics, input.manifestContents);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -413,6 +415,7 @@ export function projectWorkspaceCandidates(
 async function inspectRepository(
   repositoryRoot: string,
   diagnostics: WorkspaceDiagnostic[],
+  manifestContents?: ReadonlyMap<string, string>,
 ): Promise<{
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -431,7 +434,7 @@ async function inspectRepository(
     const entries = (await readdir(absolute, { withFileTypes: true }))
       .sort((left, right) => compareText(left.name, right.name));
     for (const entry of entries) {
-      if (entry.name === ".git" || entry.name === "node_modules") continue;
+      if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
@@ -455,6 +458,7 @@ async function inspectRepository(
     for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
       const manifestAbsolute = resolve(absolute, manifestName);
+      if (manifestContents !== undefined && !manifestContents.has(manifestAbsolute)) continue;
       let source: string;
       try {
         const stat = await lstat(manifestAbsolute);
@@ -472,7 +476,7 @@ async function inspectRepository(
           });
           continue;
         }
-        source = await readFile(manifestAbsolute, "utf8");
+        source = manifestContents === undefined ? await readFile(manifestAbsolute, "utf8") : manifestContents.get(manifestAbsolute)!;
       } catch (error) {
         if (isMissing(error)) continue;
         throw error;
@@ -499,6 +503,7 @@ async function inspectRepository(
 function inspectRepositorySync(
   repositoryRoot: string,
   diagnostics: WorkspaceDiagnostic[],
+  manifestContents?: ReadonlyMap<string, string>,
 ): {
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -517,7 +522,7 @@ function inspectRepositorySync(
     const entries = readdirSync(absolute, { withFileTypes: true })
       .sort((left, right) => compareText(left.name, right.name));
     for (const entry of entries) {
-      if (entry.name === ".git" || entry.name === "node_modules") continue;
+      if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
@@ -541,6 +546,7 @@ function inspectRepositorySync(
     for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
       const manifestAbsolute = resolve(absolute, manifestName);
+      if (manifestContents !== undefined && !manifestContents.has(manifestAbsolute)) continue;
       let source: string;
       try {
         const stat = lstatSync(manifestAbsolute);
@@ -558,7 +564,7 @@ function inspectRepositorySync(
           });
           continue;
         }
-        source = readFileSync(manifestAbsolute, "utf8");
+        source = manifestContents === undefined ? readFileSync(manifestAbsolute, "utf8") : manifestContents.get(manifestAbsolute)!;
       } catch (error) {
         if (isMissing(error)) continue;
         throw error;

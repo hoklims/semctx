@@ -12,6 +12,23 @@ import {
 } from "../src/index";
 
 const fixtureRoots: string[] = [];
+it("round3 reserved semctx manifests do not affect sync or async workspace projection", async () => {
+  const root = await fixture();
+  const before = analyzeWorkspaceSync({ repositoryRoot: root });
+  await json(root, ".semctx/package.json", { name: "internal-artifact" });
+  await text(root, ".semctx/pyproject.toml", '[project]\nname = "internal-python"\n');
+  expect(analyzeWorkspaceSync({ repositoryRoot: root })).toEqual(before);
+  expect(await analyzeWorkspace({ repositoryRoot: root })).toEqual(before);
+});
+it("round3 retained workspace manifest bytes survive live ABA input changes", async () => {
+  const root = await fixture();
+  await json(root, "package.json", { name: "original" });
+  const before = analyzeWorkspaceSync({ repositoryRoot: root });
+  const manifestContents = new Map([[join(root, "package.json"), '{"name":"original"}']]);
+  await json(root, "package.json", { name: "transient" });
+  expect(analyzeWorkspaceSync({ repositoryRoot: root, manifestContents })).toEqual(before);
+  expect(await analyzeWorkspace({ repositoryRoot: root, manifestContents })).toEqual(before);
+});
 const itOnPosix = process.platform === "win32" ? it.skip : it;
 const itOnWindows = process.platform === "win32" ? it : it.skip;
 
