@@ -199,10 +199,14 @@ Invocation or callable escape of `import.meta` members is unsupported when its r
 effect is unmodeled. Metadata reads and supported primitive aliases remain distinct.
 The observed `import.meta.glob` admission hole is a static loader refusal, supported by
 the bundler's documented transform; no native Vite build was observed in this qualification.
-Actual SDK `String` conversion requires primitive provenance for its first argument.
+Actual SDK `String` and `Number` conversion requires primitive provenance for their first argument.
 Actual SDK array `join` requires a captured literal array of proven primitive elements
 and a proven primitive separator when supplied. Unknown ordinary conversion hooks refuse;
 local homonyms and primitive controls remain distinct. No implicit invocation edge is added.
+Actual SDK array `toLocaleString` requires captured literal primitive elements. Supplied
+locales are primitive or a direct literal array of primitives; supplied options are
+primitive or a direct literal data record whose values are primitive. Unproven arguments
+refuse conservatively. Complete Intl option semantics are outside this qualification.
 Tests using resolved literal dynamic imports without canonical test-binding proof refuse
 qualified admission. Their ordinary module-link facts remain visible, and non-test literal
 dynamic imports retain their existing closure policy. No coarse test edge is fabricated.

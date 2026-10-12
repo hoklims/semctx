@@ -397,10 +397,14 @@ Callable invocation/escape from import.meta refuses unmodeled runtime effects wh
 ordinary metadata reads and supported primitive aliases remain distinct. The Vite glob
 case has direct/static admission observations and a documented transform, but no native
 Vite build observation in this qualification. It is not labeled as CommonJS.
-Actual SDK String conversion requires existing primitive provenance for the first argument.
+Actual SDK String and Number conversion requires existing primitive provenance for the first argument.
 SDK array join requires a captured literal receiver with proven primitive elements and
 a primitive separator when supplied. Ordinary toString hooks are unmodeled invocation;
 unknown inputs conservatively refuse, while primitive/local controls retain their domain.
+SDK array toLocaleString also requires captured literal primitive elements. Supplied
+locales must be primitive or a direct literal array of primitives; options must be
+primitive or a direct literal data record with primitive values. Unproven values refuse
+conservatively; this does not establish complete Intl option semantics or an implicit edge.
 Qualified tests with a resolved literal dynamic import and no canonical binding proof
 refuse through a private retained-source/AST source-line-specifier check. Ordinary/legacy
 module facts and non-test literal-import closure remain unchanged; no new metadata field
