@@ -5,6 +5,8 @@ import { resolve, join } from "node:path";
 import { Database } from "bun:sqlite";
 import { BRIDGE, CONSUMER_VERSIONS, createConsumer, createEligibleConsumer, createPrimitiveSafeConsumer, createDataProvenConsumer, ENTRY, LEAF, LEAF_SOURCE, PRIMITIVE_SAFE_LEAF_SOURCE, put } from "./modelo-static-fixture";
 import { assertInterruptedAdmission } from "./modelo-interruption-witness";
+import { assertQualifiedBlock as blocked, assertOperationalError } from "./modelo-qualification-oracles";
+import { validateQualificationInputs } from "./modelo-artifact-identity";
 
 type Observation = { command: string[]; code: number; stdout: string; stderr: string };
 type Report = { verdict?: string; analysisAdmission?: unknown; impactedSymbols?: unknown; [key: string]: unknown };
@@ -23,7 +25,11 @@ const directoryWitnessesOnly = process.argv.includes("--directory-witnesses-only
 const interruptionWitnessOnly = process.argv.includes("--interruption-witness-only");
 const loaderWitnessesOnly = process.argv.includes("--loader-witnesses-only");
 assert([auditWitnessesOnly, directoryWitnessesOnly, interruptionWitnessOnly, loaderWitnessesOnly].filter(Boolean).length <= 1, "Choose one focused witness scope");
-const observations: Record<string, unknown> = {};
+const artifactEntries = { cli, mcp, "plugin-cli": pluginCli, ...(legacyCli ? { "legacy-cli": legacyCli } : {}), ...(regressionCli ? { "regression-cli": regressionCli } : {}), ...(directoryRegressionCli ? { "directory-regression-cli": directoryRegressionCli } : {}), ...(loaderRegressionCli ? { "loader-regression-cli": loaderRegressionCli } : {}) };
+assert(process.argv.includes("--artifact-manifest"), "Supply independently generated --artifact-manifest for the exact frozen candidate and complete payloads");
+const artifactManifest = JSON.parse(readFileSync(option("--artifact-manifest", ""), "utf8")) as unknown;
+const qualifiedInputs = validateQualificationInputs({ sourceRoot, manifest: artifactManifest, entries: artifactEntries });
+const observations: Record<string, unknown> = { "qualified-inputs": qualifiedInputs };
 type FixtureDomain = "declaration-bearing" | "eligible-esm" | "primitive-safe-esm" | "data-proven-esm";
 const fixtureSources = new Map<string, string>();
 function leafSource(root: string): string { return fixtureSources.get(root) ?? LEAF_SOURCE; }
@@ -169,16 +175,6 @@ function loaderFixture(name: string, variant: keyof typeof loaderSources, bundle
   }
   return root;
 }
-function blocked(result: Observation): void {
-  assert.notEqual(result.code, 0, "A gate must receive a nonzero exit when admission is refused");
-  if (result.stdout.trim().startsWith("{")) {
-    const rejected = report(result);
-    if (rejected.verdict !== undefined) {
-      assert.equal(rejected.verdict, "BLOCK", "Refusal must be represented by BLOCK");
-      assert.equal((rejected.analysisAdmission as { status?: string } | undefined)?.status, "rejected", "Qualified refusal must retain explicit admission evidence");
-    }
-  }
-}
 async function scenario(name: string, action: () => void | Promise<void>): Promise<void> {
   if (auditWitnessesOnly && !name.startsWith("audit-")) return;
   if (directoryWitnessesOnly && !name.startsWith("directory-")) return;
@@ -234,7 +230,7 @@ await scenario("original-declaration-bearing-consumer-blocks", () => {
   put(root, LEAF, leafSource(root).replace("+ 1", "+ 7"));
   observations["original-declaration-bearing:index"] = semctx(root, ["index", "--json"]);
   const result = verify(root, "original-declaration-bearing");
-  blocked(result);
+  blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
   assert(JSON.stringify(report(result).analysisAdmission).includes("DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:suite/domains/sample/core/value.d.mts"));
 });
 await scenario("eligible-esm-unknown-coercion-blocks", () => {
@@ -242,7 +238,7 @@ await scenario("eligible-esm-unknown-coercion-blocks", () => {
   put(root, LEAF, leafSource(root).replace("+ 1", "+ 7"));
   observations["eligible-esm-unknown-coercion-blocks:index"] = semctx(root, ["index", "--json"]);
   const result = verify(root, "eligible-esm-unknown-coercion-blocks");
-  blocked(result);
+  blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
   assert(JSON.stringify(report(result).analysisAdmission).includes("COERCION_UNSUPPORTED"));
 });
 
@@ -252,7 +248,7 @@ await scenario("primitive-safe-esm-opaque-data-blocks", () => {
   put(root, LEAF, leafSource(root).replace("+ 1", "+ 7"));
   observations["primitive-safe-esm-opaque-data-blocks:index"] = semctx(root, ["index", "--json"]);
   const result = verify(root, "primitive-safe-esm-opaque-data-blocks");
-  blocked(result);
+  blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
   assert(JSON.stringify(report(result).analysisAdmission).includes("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"));
 });
 
@@ -272,7 +268,7 @@ if (legacyCli) await scenario("legacy-refuses-qualified-config", () => {
   const legacyIndex = semctx(root, ["index", "--json"], legacyCli);
   observations["legacy-qualified-policy:index"] = legacyIndex;
   assert.notEqual(legacyIndex.code, 0, "Legacy indexing must refuse the unsupported qualified selection mode");
-  blocked(verify(root, "legacy-qualified-policy", legacyCli));
+  assertOperationalError(verify(root, "legacy-qualified-policy", legacyCli), "CONFIG_INVALID", "config.json failed schema validation");
 });
 if (legacyCli) await scenario("legacy-before-matrix", () => {
   const root = fixture("legacy-before-matrix", false, legacyCli);
@@ -333,7 +329,7 @@ for (const variant of ["reexport", "literal-import", "inherited-nodenext"] as co
   await scenario(`audit-after-${variant}`, () => {
     const label = `audit-after-${variant}`;
     const root = typescriptAuditFixture(label, variant, cli);
-    const result = verify(root, label); blocked(result);
+    const result = verify(root, label); blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
     const admission = report(result).analysisAdmission as { changeCoverage: { expected: string[]; files: { path: string; status: string; reasons: string[] }[] } };
     if (variant === "inherited-nodenext") {
       const serialized = JSON.stringify(admission);
@@ -378,7 +374,7 @@ for (const hidden of directoryPaths) {
       assert(candidate, "Tracked directory importer must persist in discovery");
       const stored = graph(root); observations[`${label}:graph`] = stored;
       if (!selected) {
-        assert.equal(result.code, 3, "Excluded required importer must refuse with the actual CLI admission exit"); blocked(result);
+        blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
         const obligation = admission.changeCoverage.files.find((file) => file.path === hidden);
         assert(obligation); assert.equal(obligation.status, "excluded"); assert(obligation.reasons.length > 0);
         assert.equal(candidate.selectionDecision, "excluded");
@@ -409,7 +405,7 @@ for (const variant of Object.keys(loaderSources) as (keyof typeof loaderSources)
   });
   await scenario(`loader-after-${variant}`, () => {
     const label = `loader-after-${variant}`; const root = loaderFixture(label, variant, cli);
-    const result = verify(root, label); blocked(result); assert.equal(result.code, 3);
+    const result = verify(root, label); blocked(result, { binding: "valid", indexFreshness: ["FRESH", "DIRTY_KNOWN"] });
     const admission = report(result).analysisAdmission as DirectoryAdmission;
     assert(["FRESH", "DIRTY_KNOWN"].includes(admission.indexFreshness.verdict), "The loader refusal must not rely on stale indexing");
     const loader = loaderSources[variant];
@@ -494,7 +490,7 @@ for (const mutation of ["add", "edit", "delete", "rename"] as const) await scena
   if (mutation === "edit") put(root, LEAF, leafSource(root).replace("+ 1", "+ 3"));
   if (mutation === "delete") rmSync(join(root, LEAF));
   if (mutation === "rename") { renameSync(join(root, LEAF), join(root, LEAF.replace("value.mjs", "renamed.mjs"))); git(root, ["add", "-A"]); }
-  blocked(verify(root, mutation));
+  blocked(verify(root, mutation), { indexFreshness: ["STALE", "UNSEALED"] });
 });
 for (const broken of ["parse", "dynamic", "commonjs", "empty-selection", "partial-language"] as const) await scenario(broken, () => {
   const root = fixture(broken);
@@ -509,9 +505,9 @@ for (const broken of ["parse", "dynamic", "commonjs", "empty-selection", "partia
   }
   index(root, broken); blocked(verify(root, broken));
 });
-await scenario("wrong-root", () => {
+await scenario("wrong-root-config-not-found", () => {
   const root = fixture("wrong-root"); assert.equal(index(root, "wrong-root").code, 0); put(root, LEAF, leafSource(root).replace("+ 1", "+ 6"));
-  blocked(verify(join(root, "suite/apps/web"), "wrong-root"));
+  assertOperationalError(verify(join(root, "suite/apps/web"), "wrong-root"), "CONFIG_NOT_FOUND", "repository is not initialized");
 });
 await scenario("interrupted-index", async () => {
   const root = fixture("interrupted"); assert.equal(index(root, "interrupted-before").code, 0);
@@ -583,11 +579,8 @@ await scenario("interrupted-index", async () => {
   observations["interrupted:verify-fail-on-none"] = failOnNone;
   assertInterruptedAdmission(failOnNone);
 });
-await scenario(loaderWitnessesOnly ? "loader-artifact-identities" : directoryWitnessesOnly ? "directory-artifact-identities" : "artifact-identities", () => {
-  const artifacts = interruptionWitnessOnly ? [cli] : loaderWitnessesOnly ? [cli, ...(loaderRegressionCli ? [loaderRegressionCli] : [])] : directoryWitnessesOnly ? [cli, ...(directoryRegressionCli ? [directoryRegressionCli] : [])] : [cli, mcp, pluginCli, ...(regressionCli ? [regressionCli] : []), ...(directoryRegressionCli ? [directoryRegressionCli] : []), ...(loaderRegressionCli ? [loaderRegressionCli] : [])];
-  observations["artifacts"] = [...new Set(artifacts)].map((path) => ({ path, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
-  observations["source-commit"] = run(["git", "rev-parse", "HEAD"], sourceRoot);
-  observations["source-status"] = run(["git", "status", "--porcelain"], sourceRoot);
+await scenario(loaderWitnessesOnly ? "loader-artifact-identities" : directoryWitnessesOnly ? "directory-artifact-identities" : auditWitnessesOnly ? "audit-artifact-identities" : "artifact-identities", () => {
+  observations["qualified-inputs-final"] = validateQualificationInputs({ sourceRoot, manifest: artifactManifest, entries: artifactEntries });
 });
 observations["runtime-obligations"] = { testExecution: observations["consumer:tests"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", turboCache: observations["consumer:turbo-hit"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", failurePropagation: observations["consumer:failed-build"] ? "SEE_RAW_OBSERVATION" : "NOT_OBSERVED", pipeline: "SYNTHETIC_ONLY_REAL_CONSUMER_NOT_QUALIFIED", consumerToolPins: observations["consumer:install"] ? "SEE_RAW_OBSERVATION" : "DECLARED_ONLY" };
 const focused = auditWitnessesOnly || directoryWitnessesOnly || interruptionWitnessOnly || loaderWitnessesOnly;

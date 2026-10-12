@@ -291,6 +291,7 @@ with the repository's pinned Bun 1.4.0, then run the public harness with explici
 
 ```sh
 bun scripts/qualify-modelo-static.ts --source-root <candidate> \
+  --artifact-manifest <independently-generated-input-manifest.json> \
   --cli <disposable-install>/node_modules/semctx/dist/index.js \
   --mcp <candidate>/plugins/claude-code/dist/semctx-mcp.js \
   --plugin-cli <candidate>/plugins/claude-code/dist/semctx.js \
@@ -300,6 +301,23 @@ bun scripts/qualify-modelo-static.ts --source-root <candidate> \
   --loader-regression-cli <pre-loader-correction>/apps/cli/dist/index.js \
   --output-dir <new-disposable-evidence-directory>
 ```
+
+The input manifest uses `QualificationInputManifestSchema` in
+`scripts/modelo-artifact-identity.ts`. Produce it independently after freezing a clean
+candidate and recording pinned-Bun generation. It binds the candidate commit/tree,
+Bun executable, complete compiler install and every consumed payload file, including
+shared chunks, workers and TypeScript libraries. Committed release payloads also match
+the complete candidate Git-object inventory. Installed candidate CLI payloads carry the
+independently recorded generation command, successful exit and complete output hashes.
+Historical payloads retain `sourceIdentity: "UNKNOWN"` and their original bytes; they
+never acquire the candidate identity. This manifest is input evidence, not a signature
+or independent proof that its recorded generation actually ran. Retain the raw generation
+logs beside it. The harness validates inputs before scenarios and again at completion.
+
+A qualified refusal must be a schema-valid `BLOCK` report with rejected admission and
+CLI exit 3. Crashes, empty output and malformed reports do not count as refusal. Named
+operational errors for an uninitialized root or legacy unsupported configuration remain
+separate from structured admission reports.
 
 The harness preserves actual command output and numeric exit codes. Its baseline reproduces
 the incident with `PASS` despite an unanalysed changed `.mjs` and stale index. The corrected
