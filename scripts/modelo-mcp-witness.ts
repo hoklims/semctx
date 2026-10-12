@@ -103,7 +103,11 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
     await within(stderrDrain, limits.teardownMs);
     if (!outcome.teardown.stderrClosed) outcome.teardown.stderrCancelled = await within(stderrReader.cancel().catch(() => undefined), limits.teardownMs) !== TIMEOUT;
     outcome.exitCode = child.exitCode; outcome.signalCode = child.signalCode;
-    if (!outcome.teardown.childExited) outcome.failure = { code: "MCP_TEARDOWN_INCOMPLETE", message: "MCP direct child exit was not observed inside teardown bound" };
+    if (!outcome.teardown.childExited
+      || (!outcome.teardown.stdoutClosed && !outcome.teardown.stdoutCancelled)
+      || (!outcome.teardown.stderrClosed && !outcome.teardown.stderrCancelled)) {
+      outcome.failure = { code: "MCP_TEARDOWN_INCOMPLETE", message: "MCP direct child exit or owned stream completion was not observed inside teardown bound" };
+    }
   }
   return outcome;
 }

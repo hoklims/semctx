@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, test, spyOn } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -74,4 +74,30 @@ test("ordinary initialize and verification tool exchange remains complete", asyn
   expect(result.failure).toBeNull();
   expect(result.initialize?.serverInfo).toEqual({ name: "owned", version: "1" });
   expect(result.result?.structuredContent).toEqual({ verdict: "BLOCK" });
+});
+
+for (const stream of ["stdout", "stderr"] as const) test(`unfinished owned ${stream} teardown cannot report success`, async () => {
+  const { root, bundle } = fixture(String.raw`let buffer='';process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{
+    buffer+=chunk;let end;while((end=buffer.indexOf('\n'))>=0){const request=JSON.parse(buffer.slice(0,end));buffer=buffer.slice(end+1);
+    if(request.id)process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:request.id,result:{content:[]}})+'\n');}});`);
+  const getReader = Reflect.get(ReadableStream.prototype, "getReader") as typeof ReadableStream.prototype.getReader;
+  let readerIndex = 0;
+  const stalledIndex = stream === "stdout" ? 0 : 1;
+  const acquire = function (this: ReadableStream<Uint8Array>, options?: Parameters<typeof getReader>[0]): ReadableStreamDefaultReader<Uint8Array> {
+    const reader = Reflect.apply(getReader, this, options === undefined ? [] : [options]) as ReadableStreamDefaultReader<Uint8Array>;
+    if (readerIndex++ !== stalledIndex) return reader;
+    const stalled = Object.create(reader) as ReadableStreamDefaultReader<Uint8Array>;
+    stalled.read = async () => { const next = await reader.read(); return next.done ? new Promise<Awaited<ReturnType<typeof reader.read>>>(() => {}) : next; };
+    stalled.cancel = () => new Promise<void>(() => {});
+    return stalled;
+  };
+  const intercept = spyOn(ReadableStream.prototype, "getReader").mockImplementation(acquire as unknown as typeof ReadableStream.prototype.getReader);
+  try {
+    const result = await verifyMcpWitness({ bundle, cwd: root, repositoryRoot: root, env: process.env, limits: { ...limits, teardownMs: 40 } });
+    expect(result.teardown.childExited).toBe(true);
+    expect(alive(result.pid)).toBe(false);
+    expect(result.teardown[`${stream}Closed`]).toBe(false);
+    expect(result.teardown[`${stream}Cancelled`]).toBe(false);
+    expect(result.failure?.code).toBe("MCP_TEARDOWN_INCOMPLETE");
+  } finally { intercept.mockRestore(); }
 });
