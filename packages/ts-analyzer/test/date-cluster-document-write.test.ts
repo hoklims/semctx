@@ -99,3 +99,22 @@ test("cluster module origin survives only the existing captured binding aliases"
     expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toContain("SOURCE_PROCESS_LAUNCH_UNSUPPORTED");
   }
 });
+
+for (const extension of ["ts", "mjs"]) for (const source of [
+  "const value=new Date(1);export function run(){return new Date(value);}",
+  "const Native=Date;const value=new Native(1);const alias=value;export function run(){return new Native(alias);}",
+  "const value=new globalThis.Date(1);export function run(){return new globalThis.Date(value);}",
+]) test(`intrinsic Date copy ${extension} does not invoke an SDK callback dictionary: ${source}`, () => {
+  const path = `/fixture/main.${extension}`;
+  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toEqual([]);
+});
+
+for (const [name, source] of [
+  ["typed local Date constructor", "function helper(){return 1;}const env:typeof globalThis={Date:class{valueOf(){return helper();}}} as unknown as typeof globalThis;const value=new env.Date();export function run(){return new Date(value as any);}"],
+  ["typed local Date value", "function helper(){return 1;}const value:Date={getVarDate:helper,valueOf:helper} as unknown as Date;export function run(){return new Date(value);}"],
+  ["coercing Date callback object", "function helper(){return 1;}const value={getVarDate:helper,valueOf:helper};export function run(){return new Date(value as any);}"],
+  ["numeric Date argument with Date object", "const value=new Date(1);export function run(){return new Date(value as any,1);}"],
+] as const) test(`${name} cannot use intrinsic Date copy semantics`, () => {
+  const path = "/fixture/main.ts";
+  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).toContain("SOURCE_COERCION_UNSUPPORTED");
+});
