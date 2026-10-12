@@ -373,6 +373,11 @@ an unresolved ambient receiver refuse without a captured runtime lexical origin,
 SDK origin or explicit supported imported boundary. Ordinary native process members and
 bare framework-call ownership retain their existing policy. Synthetic JavaScript binder
 declarations introduced by an assignment are not a runtime lexical binding.
+For a retained locally initialized receiver, the called member itself needs an actual
+retained callable target. An erased or unresolved member cannot borrow the receiver's
+identity. Known own methods and callable initializer aliases retain their separate proof.
+Caller-supplied parameters keep their existing opaque data-argument policy; no universal
+call-target completeness is inferred from this local-container refusal.
 An actual uncomputed object-literal __proto__ setter requires the existing closed-data
 proof for its initializer; null/direct closed data remain separate. Callable or uncertain
 prototypes refuse without modeling inherited invocation. Computed properties, methods

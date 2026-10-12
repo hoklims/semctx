@@ -179,6 +179,10 @@ Property/element invocations on an ambient receiver without a captured runtime l
 origin, an actual SDK origin or an explicit supported external import refuse even when
 their arguments are plain data. The existing ordinary native `process` members remain
 distinct. Bare framework calls retain their existing ownership policy.
+A retained local container does not prove its invoked member: erased or unresolved
+members require an actual retained callable target before the same data exemptions apply.
+Known own methods and callable initializer aliases retain their existing proof. Caller
+parameters keep their existing opaque boundary; this is not universal callable resolution.
 Object-literal prototype setters require the existing closed-data proof for their
 initializer. Null/direct closed data remain distinct; an uncertain or callable prototype
 refuses. Computed `__proto__` properties, methods and shorthand are ordinary own properties.
