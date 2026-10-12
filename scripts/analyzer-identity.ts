@@ -23,7 +23,11 @@ export function analyzerIdentity(root: string): { schemaVersion: 1; digest: stri
     paths.push(`packages/${entry.name}/package.json`, ...sources(root, `packages/${entry.name}/src`));
   }
   paths.push("apps/cli/package.json", ...sources(root, "apps/cli/src"));
-  const files = [...new Set(paths)].sort().map((path) => ({ path, digest: hash(readFileSync(join(root, path))) }));
+  const files = [...new Set(paths)].sort().map((path) => {
+    const bytes = readFileSync(join(root, path));
+    if (bytes.includes("\r\n")) throw new Error(`Noncanonical CRLF analyzer input: ${path}; use the LF checkout required by .gitattributes before generating.`);
+    return { path, digest: hash(bytes) };
+  });
   const compilerEntry = Bun.resolveSync("typescript", root);
   const compilerLibrary = dirname(compilerEntry);
   const compilerFiles = ["../package.json", ...readdirSync(compilerLibrary).filter((name) => /^lib.*\.d\.ts$/.test(name))].sort();
