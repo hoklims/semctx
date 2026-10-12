@@ -1,7 +1,8 @@
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, posix } from "node:path";
-import { digestCanonical, getPlaneASidecar, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
+import { dirname, isAbsolute, join, posix, resolve } from "node:path";
+import { canonicalSourceText, digestCanonical, getPlaneASidecar, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
 import { SemctxError, type SemctxConfig, type VerifyReport } from "@semantic-context/core";
 import { loadConfig } from "@semantic-context/repository-store";
 import { discoverRepository, isPathSelected } from "@semantic-context/ts-analyzer";
@@ -10,6 +11,7 @@ import {
   analyzeDiff,
   analyzeLostGuards,
   diffRemovesBaseLines,
+  parseUnifiedDiffChanges,
   buildVerifyReport,
   computeCoChanges,
   parseUnifiedDiffScopePaths,
@@ -18,9 +20,9 @@ import {
   type VerifyReportGitMeta,
   type VerifyResult,
 } from "@semantic-context/context-engine";
-import { analyzeAndBuildClaims } from "./indexing";
+import { analyzeAndBuildClaims, analyzeRetainedRepository } from "./indexing";
 import { openReadyRepository } from "./readiness";
-import { indexHealth, type IndexHealthReportV1 } from "./index-health";
+import { evaluateCapturedPlaneA, indexHealth, type IndexHealthReportV1 } from "./index-health";
 import { controlStatusWithSemanticInputs } from "./control";
 import {
   readUnresolvedReferenceBinding,
@@ -29,7 +31,7 @@ import {
 import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
 import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
 import { fingerprintVerificationSource, retainedGitBlobObjectIds, retainedWorkingTreeFilterPaths } from "./verification-state";
-import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META, bindOpaqueCallbackGraph } from "./qualified-analysis";
+import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META, bindOpaqueCallbackGraph, inspectRetainedQualifiedScope } from "./qualified-analysis";
 import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
 
 /**
@@ -654,7 +656,9 @@ interface CommitTreeAnalysis {
 }
 
 /** Read committed blob bytes without Git checkout filters, links or changes to the live index. */
-function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): CommitTreeAnalysis {
+function analyzeCommitTree(root: string, commit: string, config: SemctxConfig,
+  retained?: { diffText: string; currentObligations: readonly string[] },
+): CommitTreeAnalysis {
   const scratch = mkdtempSync(join(tmpdir(), "semctx-base-"));
   try {
     const listed = Bun.spawnSync(["git", "ls-tree", "-r", "-z", commit], {
@@ -665,7 +669,9 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
         stderr: new TextDecoder().decode(listed.stderr).trim(),
       });
     }
-    const entries: Array<{ path: string; oid: string }> = [];
+    const entries: Array<{ path: string; oid: string; mode: string }> = [];
+    const blobId = (bytes: Uint8Array, oid: string): string => createHash(oid.length === 64 ? "sha256" : "sha1")
+      .update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
     const destinations = new Set<string>();
     for (const record of new TextDecoder("utf-8", { fatal: true }).decode(listed.stdout).split("\0")) {
       if (record === "") continue;
@@ -677,7 +683,7 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
         throw new SemctxError("GIT_ERROR", "unsafe base tree path", { path });
       }
       if (mode !== "100644" && mode !== "100755") {
-        if (isPathSelected(config, path)) {
+        if (retained || isPathSelected(config, path)) {
           throw new SemctxError("GIT_ERROR", "selected base tree links and gitlinks are unsupported", { path, mode });
         }
         continue;
@@ -688,7 +694,7 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
         throw new SemctxError("GIT_ERROR", "base tree paths alias on this filesystem", { path });
       }
       destinations.add(destinationKey);
-      entries.push({ path, oid: oid! });
+      entries.push({ path, oid: oid!, mode: mode! });
     }
     const blobs = Bun.spawnSync(["git", "cat-file", "--batch"], {
       cwd: root,
@@ -707,16 +713,143 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
         || offset + size >= blobs.stdout.byteLength || blobs.stdout[offset + size] !== 10) {
         throw new SemctxError("GIT_ERROR", "invalid base blob response", { path: entry.path });
       }
+      const bytes = blobs.stdout.subarray(offset, offset + size);
+      if (blobId(bytes, entry.oid) !== entry.oid) throw new SemctxError("GIT_ERROR", "base blob bytes do not match immutable object", { path: entry.path });
       const destination = join(scratch, entry.path);
       mkdirSync(dirname(destination), { recursive: true });
-      writeFileSync(destination, blobs.stdout.subarray(offset, offset + size));
+      writeFileSync(destination, bytes);
       offset += size + 1;
     }
     if (offset !== blobs.stdout.byteLength) throw new SemctxError("GIT_ERROR", "unexpected base blob response");
-    const analysis = analyzeAndBuildClaims({ ...config, repositoryRoot: scratch }).analysis;
-    const sidecar = getPlaneASidecar(analysis);
-    if (sidecar === undefined) throw new SemctxError("GIT_ERROR", "base analysis has no discovery ledger");
-    return { index: new GraphIndex(analysis.graph), sidecar };
+    const scratchConfig = { ...config, repositoryRoot: scratch };
+    if (!retained) {
+      const analysis = analyzeAndBuildClaims(scratchConfig).analysis;
+      const sidecar = getPlaneASidecar(analysis);
+      if (sidecar === undefined) throw new SemctxError("GIT_ERROR", "base analysis has no discovery ledger");
+      return { index: new GraphIndex(analysis.graph), sidecar };
+    }
+    // The private index marks immutable HEAD inventory as tracked, including ignored output paths.
+    // No checkout/filter runs, and neither the live repository nor its index is modified.
+    if (Object.keys(process.env).some((name) => /^(?:GIT_DIR|GIT_WORK_TREE|GIT_INDEX_FILE|GIT_COMMON_DIR|GIT_OBJECT_DIRECTORY|GIT_ALTERNATE_OBJECT_DIRECTORIES|GIT_CONFIG|GIT_CONFIG_SYSTEM|GIT_CONFIG_GLOBAL|GIT_CONFIG_COUNT|GIT_CONFIG_PARAMETERS|GIT_CONFIG_KEY_\d+|GIT_CONFIG_VALUE_\d+)$/i.test(name))) {
+      throw new SemctxError("GIT_ERROR", "qualified base capture has overriding Git environment");
+    }
+    const scratchGit = (args: string[], stdin?: Uint8Array): void => {
+      const result = Bun.spawnSync(["git", "-c", "core.autocrlf=false", "-c", "core.fsmonitor=false", ...args], {
+        cwd: scratch, stdin, stdout: "pipe", stderr: "pipe",
+        env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null" },
+      });
+      if (result.exitCode !== 0) throw new SemctxError("GIT_ERROR", "qualified base private index failed");
+    };
+    scratchGit(["init", "-q", "--template=", `--object-format=${entries[0]?.oid.length === 64 ? "sha256" : "sha1"}`]);
+    scratchGit(["config", "core.fsmonitor", "false"]);
+    scratchGit(["config", "core.worktree", scratch]);
+    scratchGit(["config", "core.bare", "false"]);
+    scratchGit(["update-index", "--info-only", "-z", "--index-info"], new TextEncoder().encode(
+      entries.map((entry) => `${entry.mode} ${entry.oid}\t${entry.path}\0`).join(""),
+    ));
+    const current = captureQualifiedAnalysisInputs(config);
+    // An ignored current policy is still the explicit paired authority. Do not keep HEAD policy.
+    rmSync(join(scratch, ".semctx/config.json"), { force: true });
+    if (current.configurationInput.state === "present") {
+      mkdirSync(join(scratch, ".semctx"), { recursive: true });
+      writeFileSync(join(scratch, ".semctx/config.json"), current.configurationInput.bytes);
+    }
+    const before = captureQualifiedAnalysisInputs(scratchConfig);
+    if (digestCanonical(before.configurationInput) !== digestCanonical(current.configurationInput)) {
+      throw new SemctxError("GIT_ERROR", "qualified base did not capture the exact current raw policy");
+    }
+    const assertManifestBinding = (): void => {
+      for (const entry of entries) {
+        if (entry.path === ".semctx/config.json") continue;
+        if (blobId(readFileSync(join(scratch, entry.path)), entry.oid) !== entry.oid) {
+          throw new SemctxError("GIT_ERROR", "qualified base materialization differs from immutable HEAD", { path: entry.path });
+        }
+      }
+    };
+    assertManifestBinding();
+    const entryByPath = new Map(entries.map(entry => [entry.path, entry]));
+    for (const file of before.files) {
+      const entry = entryByPath.get(file.path);
+      if (entry === undefined || blobId(file.bytes, entry.oid) !== entry.oid) {
+        throw new SemctxError("GIT_ERROR", `qualified base consumed an unbound HEAD input: ${file.path}`);
+      }
+    }
+    const compilerInputs = new Map(before.files.map((file) => [resolve(scratch, file.path), Buffer.from(file.bytes).toString("utf8")]));
+    const discovery = discoverRepository(scratchConfig);
+    if (discovery.files.some((file) => compilerInputs.get(resolve(file.absPath)) !== file.content)) {
+      throw new SemctxError("GIT_ERROR", "qualified base discovery is not bound to retained inputs");
+    }
+    const captured = analyzeRetainedRepository(scratchConfig, discovery, compilerInputs);
+    assertManifestBinding();
+    if (before.digest !== captureQualifiedAnalysisInputs(scratchConfig).digest
+      || current.digest !== captureQualifiedAnalysisInputs(config).digest) {
+      throw new SemctxError("GIT_ERROR", "qualified base retained inputs or current authority changed");
+    }
+    const graph = captured.analysis.graph;
+    const scope = inspectRetainedQualifiedScope({ config: scratchConfig, graph, consumedInputs: before,
+      expectedInputHash: before.digest, checkChanged: false, retainedCompilerInputs: compilerInputs });
+    const inventory = new Set(entries.map(entry => entry.path));
+    const parsed = parseUnifiedDiffChanges(retained.diffText);
+    const obligated = new Set(parsed.files.filter(file => file.status !== "added").map(file => file.oldPath ?? file.filePath));
+    for (const block of parsed.unscoped) for (const path of block.paths) obligated.add(path);
+    // Add current dependency obligations that existed in HEAD. Head-only additions have no old image.
+    for (const path of retained.currentObligations) if (inventory.has(path)) obligated.add(path);
+    const links: [string, string][] = [...scope.links];
+    const byId = new Map(graph.nodes.map(node => [node.id, node]));
+    const provenancePaths = (nodeId: string): string[] => {
+      const node = byId.get(nodeId);
+      return node === undefined ? [] : [...new Set([
+        ...(node.filePath === undefined ? [] : [node.filePath]), ...node.evidence.map(evidence => evidence.filePath),
+      ])];
+    };
+    for (const edge of graph.edges) {
+      if (!["constrained_by", "tested_by", "covers", "verifies", "documents", "declares", "related_to"].includes(edge.kind)) continue;
+      const paths = [...new Set([...provenancePaths(edge.from), ...provenancePaths(edge.to), ...edge.evidence.map(evidence => evidence.filePath)])];
+      for (const from of paths) for (const to of paths) if (from !== to) links.push([from, to]);
+    }
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      for (const [from, to] of links) {
+        if (!obligated.has(from) && !obligated.has(to)) continue;
+        for (const path of [from, to]) if (!obligated.has(path)) { obligated.add(path); expanded = true; }
+      }
+    }
+    // Missing old links cannot prove an unsupported broad importer is irrelevant.
+    // Preserve the existing qualified broad scope guard; only factual ledger use is scoped below.
+    if (scope.reasons.length > 0) throw new SemctxError("GIT_ERROR", scope.reasons.join(", "));
+    const evaluations = evaluateCapturedPlaneA(captured.sidecar, captured.workspaceProjection,
+      config.version, digestCanonical(scratchConfig));
+    for (const path of [...obligated].sort()) {
+      const candidate = discovery.candidates.filter(candidate => candidate.relPath === path);
+      const ledger = captured.sidecar.discoveryLedger.filter(entry => entry.scope.selectedPaths.length === 1 && entry.scope.selectedPaths[0] === path);
+      if (candidate.length !== 1 || ledger.length !== 1 || candidate[0]!.selectionDecision !== "selected"
+        || ledger[0]!.selectionDecision !== "selected" || ledger[0]!.analysisOutcome !== "analyzed"
+        || ledger[0]!.analysisReasons.length > 0) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation is not analyzed: ${path}; ${ledger.flatMap(entry => [...entry.selectionReasons, ...entry.analysisReasons]).join(", ")}`);
+      }
+      const file = discovery.files.find(file => file.relPath === path);
+      const entry = ledger[0]!;
+      const expectedSource = file === undefined ? null : digestCanonical({ relPath: file.relPath, role: file.role,
+        language: file.language ?? null, content: canonicalSourceText(file.content) });
+      if (entry.scope.sourceStateDigest !== expectedSource || captured.sidecar.producerConfigurationDigest !== digestCanonical(scratchConfig)) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation has an unbound source/policy: ${path}`);
+      }
+      const decisions = evaluations.decisions.filter(decision => decision.candidateIdentity === entry.candidateIdentity);
+      // UNSEALED is honest for this ephemeral repository. Immutable raw-manifest/capture checks above
+      // supply temporal authority, independently of current-store seals and negative completeness.
+      if (decisions.length === 0 || decisions.some(decision => decision.decisionKind === "pre_subject"
+        || [decision.gates.discoveryAndScope, decision.gates.bindingAndIntegrity,
+          decision.gates.capabilityMatch, decision.gates.taskRelativeAuthority].some(gate => gate !== "passed"))) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation has no admissible factual producer: ${path}; ${decisions.flatMap(decision => decision.reasons.map(reason => reason.code)).join(", ")}`);
+      }
+    }
+    assertManifestBinding();
+    if (before.digest !== captureQualifiedAnalysisInputs(scratchConfig).digest
+      || current.digest !== captureQualifiedAnalysisInputs(config).digest) {
+      throw new SemctxError("GIT_ERROR", "qualified base inputs changed during obligated-scope evaluation");
+    }
+    return { index: new GraphIndex(captured.analysis.graph), sidecar: captured.sidecar };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -788,6 +921,33 @@ function applyLostGuards(
     verdict: findings.some((f) => f.severity === "block") ? "BLOCK"
       : findings.some((f) => f.severity === "warn") ? "WARN" : "PASS",
   };
+}
+
+/** Paired structural comparison under current policy/compiler, not historical policy admission. */
+function applyQualifiedWorkingTreeGuards(
+  root: string, config: SemctxConfig, result: VerifyResult, headIndex: GraphIndex,
+  source: ResolvedVerifySource, captureReasons: string[], currentObligations: readonly string[],
+): VerifyResult {
+  const paths = parseUnifiedDiffScopePaths(source.diffText ?? "");
+  try {
+    if (source.identity.kind !== "commits" || source.identity.commits.length !== 1) {
+      throw new SemctxError("GIT_ERROR", "qualified base capture requires one resolved HEAD");
+    }
+    const base = analyzeCommitTree(root, source.identity.commits[0]!, config, { diffText: source.diffText ?? "", currentObligations });
+    const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText: source.diffText ?? "" });
+    const findings = [...result.findings, ...lost.findings];
+    return { ...result, findings, unknowns: [...new Set([...result.unknowns, ...lost.unknowns])],
+      verdict: findings.some((finding) => finding.severity === "block") ? "BLOCK"
+        : findings.some((finding) => finding.severity === "warn") ? "WARN" : "PASS" };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    captureReasons.push(`QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:${paths.join(", ")}:${detail}`);
+    return { ...result, verdict: "BLOCK", findings: [...result.findings, {
+      rule: "analysis_scope_incomplete", severity: "block", nodeIds: [],
+      locations: paths.map((file) => ({ file })),
+      message: `Qualified immutable HEAD guards could not be recovered: ${detail}; ${paths.join(", ")}`,
+    }], unknowns: [...result.unknowns, "Immutable HEAD structural capture was unavailable; no historical policy or runtime execution is claimed."] };
+  }
 }
 
 /** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
@@ -893,6 +1053,16 @@ export function runVerify(root: string, source: VerifySource): VerifyComputation
         consumedHash: inputAfter!.digest, expectedHash: inputBefore!, bindingValid: qualifiedHealth!.binding.status === "valid",
         buildComplete: store.getMeta(QUALIFIED_BUILD_META) === "complete", checkChanged: inputBefore !== inputAfter!.digest }),
     }) : undefined;
+    if (analysisAdmission !== undefined && source.kind === "working-tree" && diffRemovesBaseLines(resolved.diffText ?? "")) {
+      const oldCaptureReasons: string[] = [];
+      result = applyQualifiedWorkingTreeGuards(root, config, result, headIndex, resolved, oldCaptureReasons, analysisAdmission.changeCoverage.expected);
+      if (oldCaptureReasons.length > 0) {
+        analysisAdmission.status = "rejected";
+        analysisAdmission.reasons.push(...oldCaptureReasons);
+        analysisAdmission.binding.status = "invalid";
+        analysisAdmission.binding.reasons.push(...oldCaptureReasons);
+      }
+    }
     const coChanges = resolved.includeCoChanges && resolved.coChangeHead !== null
       ? historicalCoChanges(root, result.changedFiles, resolved.coChangeHead)
       : [];

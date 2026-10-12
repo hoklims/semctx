@@ -117,6 +117,15 @@ function discoveryForFiles(files: readonly DiscoveredFile[]): DiscoveryResult {
   };
 }
 
+/** Private caller-owned retained snapshot; does not persist or qualify historical policy. */
+export function analyzeRetainedRepository(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+  compilerInputs: ReadonlyMap<string, string>,
+): InternalRepositoryAnalysis {
+  return analyzeAndBuildClaimsInternal(config, discovery, compilerInputs);
+}
+
 function analyzeAndBuildClaimsInternal(
   config: SemctxConfig,
   discovery: DiscoveryResult,

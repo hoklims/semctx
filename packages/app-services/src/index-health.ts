@@ -640,10 +640,10 @@ function pathWithinRoot(path: string, root: string): boolean {
   return root === "." || path === root || path.startsWith(`${root}/`);
 }
 
-function evaluateSnapshot(
-  snapshot: PersistedPlaneAIndexSnapshotV1,
+function evaluatePlaneAArtifacts(
+  snapshot: Pick<PersistedPlaneAIndexSnapshotV1, "sidecar" | "workspace">,
   bindingAttestation: "valid" | "invalid",
-  freshness: ControlFreshnessStatusReport,
+  currentFreshness: ControlFreshnessStatusReport["verdict"],
   configVersion: 1 | 2,
   producerConfigurationDigest: string,
 ): PlaneAEvaluationReport {
@@ -732,7 +732,7 @@ function evaluateSnapshot(
         completedResults: scopedResults,
         factBatches: scopedBatches,
         bindingAttestation,
-        currentFreshness: freshness.verdict,
+        currentFreshness,
         capabilityProfiles: scopedProfiles,
         requiredCapability,
         taskRelativeAuthority: {
@@ -742,6 +742,21 @@ function evaluateSnapshot(
     }
   }
   return aggregatePlaneAEvaluations(decisions);
+}
+
+/** Private in-memory capture evaluation. Store freshness is not an old-image authority. */
+export function evaluateCapturedPlaneA(
+  sidecar: PlaneASidecarV1, workspace: WorkspaceProjection, configVersion: 1 | 2,
+  producerConfigurationDigest: string,
+): PlaneAEvaluationReport {
+  return evaluatePlaneAArtifacts({ sidecar, workspace }, "valid", "UNSEALED", configVersion, producerConfigurationDigest);
+}
+
+function evaluateSnapshot(
+  snapshot: PersistedPlaneAIndexSnapshotV1, bindingAttestation: "valid" | "invalid",
+  freshness: ControlFreshnessStatusReport, configVersion: 1 | 2, producerConfigurationDigest: string,
+): PlaneAEvaluationReport {
+  return evaluatePlaneAArtifacts(snapshot, bindingAttestation, freshness.verdict, configVersion, producerConfigurationDigest);
 }
 
 function emptyWorkspace(): WorkspaceProjection {

@@ -45,6 +45,47 @@ export function qualifiedAdmission(input: {
     const group = evaluationsByCandidate.get(decision.candidateIdentity) ?? [];
     evaluationsByCandidate.set(decision.candidateIdentity, [...group, decision]);
   }
+  const { links, reasons, unresolvedImports, externalModuleSpecifiers } = inspectRetainedQualifiedScope(input);
+  const admission = evaluateAnalysisAdmission({
+    changedPaths: input.changedPaths, links, candidates: health.candidates.map((candidate) => {
+      const evaluations = evaluationsByCandidate.get(candidate.candidateIdentity) ?? [];
+      return { ...candidate, admissible: evaluations.length > 0 && evaluations.every((decision) => decision.decisionKind !== "pre_subject"
+        && [decision.gates.discoveryAndScope, decision.gates.bindingAndIntegrity, decision.gates.currentFreshness, decision.gates.capabilityMatch, decision.gates.taskRelativeAuthority].every((gate) => gate === "passed")) };
+    }),
+    current: discoverRepository(config).candidates.map((candidate) => ({ path: candidate.relPath, selectionDecision: candidate.selectionDecision, reason: candidate.reason })),
+    unresolvedImports,
+    scopeReasons: reasons, bindingReasons: input.bindingReasons, bindingStatus: health.binding.status,
+    canRunHighRiskControl: health.freshness.canRunHighRiskControl, freshnessReasons: health.freshness.reasons,
+    buildComplete: input.buildState === "complete", checkChanged: input.checkChanged, repositoryCoverageStatus: health.coverage.status,
+  });
+  return {
+    schemaVersion: 1, profile: "modelo-suite-static-v1", ...admission,
+    identity: { source: input.sourceHash, sourceCommits: input.sourceCommits, baseCommit: input.baseCommit, diff: digestCanonical(input.diff), config: digestCanonical(config), analyzer: QUALIFIED_ANALYZER_IDENTITY, indexSnapshot: input.indexSnapshot },
+    binding: { status: input.bindingReasons.length > 0 ? "invalid" : health.binding.status, reasons: input.bindingReasons },
+    indexFreshness: { verdict: health.freshness.verdict, reasons: health.freshness.reasons },
+    controlFreshness: { verdict: health.freshness.verdict, reasons: health.freshness.reasons },
+    checkFreshness: { status: input.checkChanged ? "changed" : "current", reasons: input.checkChanged ? ["CHECK_INPUT_CHANGED"] : [] },
+    limitations: ["Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.", "Deleted source post-images and unknown configurations require separate qualification.", "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+      `Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): ${externalModuleSpecifiers.join(", ") || "none"}. Their runtime behavior and APIs are not qualified.`,
+    ],
+    proofObligations: [
+      { id: "tests-execution", status: "not_observed", observation: "Run required tests and retain exact candidate exit status." },
+      { id: "turbo-cache", status: "not_observed", observation: "Observe cache miss/hit and invalidation with representative tasks." },
+      { id: "failure-propagation", status: "not_observed", observation: "Inject a failing task and observe nonzero pipeline exit." },
+      { id: "pipeline-execution", status: "not_observed", observation: "Execute the actual required pipeline on the exact candidate." },
+    ],
+  };
+}
+
+/** Private retained-input scope projection, shared by current admission and immutable old capture. */
+export function inspectRetainedQualifiedScope(input: {
+  config: SemctxConfig; graph: RepositoryGraph; expectedInputHash: string;
+  consumedInputs: ReturnType<typeof captureQualifiedAnalysisInputs>;
+  opaqueGraphBinding?: OpaqueGraphBinding; checkChanged: boolean;
+  retainedCompilerInputs?: ReadonlyMap<string, string>;
+}): { links: [string, string][]; reasons: string[];
+  unresolvedImports: { path: string; specifier: string }[]; externalModuleSpecifiers: string[] } {
+  const { config } = input;
   // Re-discover outside configured selectors: an excluded importer must not vanish from closure.
   const broad = discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", include: ["**/*"], exclude: [], languages: {
     typescript: "on", javascript: "on", python: "on", markdown: "on", sql: "on",
@@ -52,7 +93,8 @@ export function qualifiedAdmission(input: {
   const links: [string, string][] = [];
   const consumed = input.consumedInputs;
   const sourceFiles = consumed.files.filter((file) => /\.[cm]?[jt]sx?$/.test(file.path)).map((file) => ({ relPath: file.path, absPath: resolve(config.repositoryRoot, file.path), content: Buffer.from(file.bytes).toString("utf8") }));
-  const compilerInputs = new Map(consumed.files.map((file) => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
+  // Retain the Map identity consumed and owned by immutable capture analysis.
+  const compilerInputs = input.retainedCompilerInputs ?? new Map(consumed.files.map((file) => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
   const token = input.opaqueGraphBinding;
   if (token !== undefined && ownershipBindings.has(token) && token.graphDigest === digestCanonical(input.graph)
     && token.inputHash === consumed.digest && token.inputHash === input.expectedInputHash && !input.checkChanged) {
@@ -145,33 +187,9 @@ export function qualifiedAdmission(input: {
     };
     visit(ast);
   }
-  const admission = evaluateAnalysisAdmission({
-    changedPaths: input.changedPaths, links, candidates: health.candidates.map((candidate) => {
-      const evaluations = evaluationsByCandidate.get(candidate.candidateIdentity) ?? [];
-      return { ...candidate, admissible: evaluations.length > 0 && evaluations.every((decision) => decision.decisionKind !== "pre_subject"
-        && [decision.gates.discoveryAndScope, decision.gates.bindingAndIntegrity, decision.gates.currentFreshness, decision.gates.capabilityMatch, decision.gates.taskRelativeAuthority].every((gate) => gate === "passed")) };
-    }),
-    current: discoverRepository(config).candidates.map((candidate) => ({ path: candidate.relPath, selectionDecision: candidate.selectionDecision, reason: candidate.reason })),
-    unresolvedImports: extraction.imports.filter((entry) => entry.resolvedRelPath === undefined && !isExternal(entry.moduleSpecifier, entry.fromRelPath)).map((entry) => ({ path: entry.fromRelPath, specifier: entry.moduleSpecifier })),
-    scopeReasons: reasons, bindingReasons: input.bindingReasons, bindingStatus: health.binding.status,
-    canRunHighRiskControl: health.freshness.canRunHighRiskControl, freshnessReasons: health.freshness.reasons,
-    buildComplete: input.buildState === "complete", checkChanged: input.checkChanged, repositoryCoverageStatus: health.coverage.status,
-  });
-  return {
-    schemaVersion: 1, profile: "modelo-suite-static-v1", ...admission,
-    identity: { source: input.sourceHash, sourceCommits: input.sourceCommits, baseCommit: input.baseCommit, diff: digestCanonical(input.diff), config: digestCanonical(config), analyzer: QUALIFIED_ANALYZER_IDENTITY, indexSnapshot: input.indexSnapshot },
-    binding: { status: input.bindingReasons.length > 0 ? "invalid" : health.binding.status, reasons: input.bindingReasons },
-    indexFreshness: { verdict: health.freshness.verdict, reasons: health.freshness.reasons },
-    controlFreshness: { verdict: health.freshness.verdict, reasons: health.freshness.reasons },
-    checkFreshness: { status: input.checkChanged ? "changed" : "current", reasons: input.checkChanged ? ["CHECK_INPUT_CHANGED"] : [] },
-    limitations: ["Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.", "Deleted source post-images and unknown configurations require separate qualification.", "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
-      `Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): ${[...new Set(extraction.imports.filter((entry) => isExternal(entry.moduleSpecifier, entry.fromRelPath)).map((entry) => entry.moduleSpecifier))].sort().join(", ") || "none"}. Their runtime behavior and APIs are not qualified.`,
-    ],
-    proofObligations: [
-      { id: "tests-execution", status: "not_observed", observation: "Run required tests and retain exact candidate exit status." },
-      { id: "turbo-cache", status: "not_observed", observation: "Observe cache miss/hit and invalidation with representative tasks." },
-      { id: "failure-propagation", status: "not_observed", observation: "Inject a failing task and observe nonzero pipeline exit." },
-      { id: "pipeline-execution", status: "not_observed", observation: "Execute the actual required pipeline on the exact candidate." },
-    ],
-  };
+  return { links, reasons,
+    externalModuleSpecifiers: [...new Set(extraction.imports.filter(entry => isExternal(entry.moduleSpecifier, entry.fromRelPath)).map(entry => entry.moduleSpecifier))].sort(),
+    unresolvedImports: extraction.imports
+      .filter((entry) => entry.resolvedRelPath === undefined && !isExternal(entry.moduleSpecifier, entry.fromRelPath))
+      .map((entry) => ({ path: entry.fromRelPath, specifier: entry.moduleSpecifier })) };
 }
