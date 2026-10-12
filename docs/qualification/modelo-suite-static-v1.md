@@ -208,10 +208,11 @@ effect is unmodeled. Metadata reads and supported primitive aliases remain disti
 The observed `import.meta.glob` admission hole is a static loader refusal, supported by
 the bundler's documented transform; no native Vite build was observed in this qualification.
 Actual SDK `String` and `Number` conversion requires primitive provenance for their first argument.
-Actual SDK array `join` requires a captured literal array of proven primitive elements
-and a proven primitive separator when supplied. Unknown ordinary conversion hooks refuse;
+Actual SDK array `join` requires a fresh direct literal array of proven primitive elements
+and a proven primitive separator when supplied. Const containers and their aliases do not
+prove current element provenance after mutation. Unknown ordinary conversion hooks refuse;
 local homonyms and primitive controls remain distinct. No implicit invocation edge is added.
-Actual SDK array `toLocaleString` requires captured literal primitive elements. Supplied
+Actual SDK array `toLocaleString` requires fresh direct literal primitive elements. Supplied
 locales are primitive or a direct literal array of primitives; supplied options are
 primitive or a direct literal data record whose values are primitive. Unproven arguments
 refuse conservatively. Complete Intl option semantics are outside this qualification.

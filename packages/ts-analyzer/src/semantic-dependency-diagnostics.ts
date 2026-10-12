@@ -1154,12 +1154,12 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         }
       }
       if (sdkMemberOf(callee, "Array", "join")) {
-        const array = literalArray(callee.expression);
-        if (array === undefined || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
+        const array = unwrapStaticExpression(callee.expression);
+        if (!ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
           || (node.arguments[0] !== undefined && !primitiveValue(node.arguments[0]))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
       }
       if (sdkMemberOf(callee, "Array", "toLocaleString")) {
-        const array = literalArray(callee.expression);
+        const array = unwrapStaticExpression(callee.expression);
         const locales = node.arguments[0]; const options = node.arguments[1];
         const localeValue = locales === undefined ? undefined : unwrapStaticExpression(locales);
         const optionValue = options === undefined ? undefined : unwrapStaticExpression(options);
@@ -1168,7 +1168,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         const safeOptions = options === undefined || primitiveValue(options) || (optionValue !== undefined && ts.isObjectLiteralExpression(optionValue)
           && literalData(optionValue) && optionValue.properties.every(property => ts.isPropertyAssignment(property) ? primitiveValue(property.initializer)
             : ts.isShorthandPropertyAssignment(property) && primitiveValue(property.name)));
-        if (array === undefined || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
+        if (!ts.isArrayLiteralExpression(array) || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
           || !safeLocales || !safeOptions) reasons.add("SOURCE_COERCION_UNSUPPORTED");
       }
       if (["write", "writeln"].some(member => sdkMemberOf(callee, "Document", member))) reasons.add("SOURCE_DOCUMENT_WRITE_UNSUPPORTED");
