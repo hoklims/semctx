@@ -1202,6 +1202,21 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && staticMemberName(unwrapStaticExpression(node.left)) === "then" && !primitiveValue(node.right)) reasons.add("SOURCE_THENABLE_MUTATION_UNSUPPORTED");
     if (assignment(node)) {
       const target = unwrapStaticExpression(node.left);
+      if ((ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target))
+        && staticMemberName(target) === "href" && sdkOrigin(target.expression)) {
+        const member = checker.getPropertyOfType(checker.getTypeAtLocation(actualValue(target.expression)), "href");
+        if (member?.getDeclarations()?.some(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile())
+          && ts.isInterfaceDeclaration(origin.parent) && origin.parent.name.text === "Location")) {
+          const url = constantString(node.right);
+          // URL parsing strips leading C0/space and ASCII tabs/newlines before reading the scheme.
+          const scheme = url?.replace(/[\t\n\r]/g, "");
+          let first = 0;
+          while (scheme !== undefined && first < scheme.length && scheme.charCodeAt(first) <= 0x20) first++;
+          if (scheme === undefined || scheme.slice(first).toLowerCase().startsWith("javascript:")) {
+            reasons.add("SOURCE_SCRIPT_NAVIGATION_UNSUPPORTED");
+          }
+        }
+      }
       if (sdkGlobalAssignment(target)) reasons.add("SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED");
       if (ts.isElementAccessExpression(target) && iteratorKey(target.argumentExpression)) reasons.add("SOURCE_ITERATOR_MUTATION_UNSUPPORTED");
       else if (ts.isElementAccessExpression(target) && protocolKey(target.argumentExpression)) reasons.add("SOURCE_PROTOCOL_MUTATION_UNSUPPORTED");
