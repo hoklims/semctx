@@ -32,6 +32,26 @@ function refreshed(root: string) {
   expect(observed.report.analysisAdmission?.checkFreshness.status).toBe("current");
   return observed;
 }
+function expectCurrentScopeRejection(observed: ReturnType<typeof runVerify>, excludedPath: string, reasons: string[]) {
+  const admission = observed.report.analysisAdmission;
+  expect(VerifyReportSchema.safeParse(observed.report).success).toBe(true);
+  expect(observed.result.verdict).toBe("BLOCK");
+  expect(observed.report.verdict).toBe("BLOCK");
+  expect(admission?.status).toBe("rejected");
+  expect(admission?.reasons).toEqual(reasons);
+  expect(admission?.binding).toEqual({ status: "valid", reasons: [] });
+  expect(admission?.changeCoverage).toEqual({
+    expected: [excludedPath, "src/value.ts"],
+    analyzed: ["src/value.ts"],
+    files: [
+      { path: excludedPath, status: "excluded", reasons: ["INCLUDE_MISS", "INCLUDE_MISS"] },
+      { path: "src/value.ts", status: "analyzed", reasons: [] },
+    ],
+  });
+  expect(admission?.indexFreshness).toEqual({ verdict: "DIRTY_KNOWN", reasons: ["WORKING_TREE_DIRTY"] });
+  expect(admission?.controlFreshness).toEqual({ verdict: "DIRTY_KNOWN", reasons: ["WORKING_TREE_DIRTY"] });
+  expect(admission?.checkFreshness).toEqual({ status: "current", reasons: [] });
+}
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
 for (const [kind, rule, before, after] of [
@@ -112,7 +132,7 @@ for (const [kind, source, configFiles] of [
   ["parse", 'export function value( { return 1; }\n', []],
   ["module", 'const value = require("node:fs");\nexport { value };\n', []],
   ["inherited compiler policy", 'export function value() { return 1; }\n', [["tsconfig.json", '{"extends":"./base-config.json"}'], ["base-config.json", '{"compilerOptions":{"module":"CommonJS"}}']]],
-] as const) test(`unsupported old ${kind} cannot authorize a clean replacement`, () => {
+] as const) test(kind === "inherited compiler policy" ? "changed inherited compiler policy rejects current scope before old capture" : `unsupported old ${kind} cannot authorize a clean replacement`, () => {
   const root = repository(source);
   for (const [path, content] of configFiles) writeFileSync(join(root, path), content);
   if (configFiles.length > 0) { git(root, "add", "."); git(root, "commit", "-q", "-m", "old compiler policy"); }
@@ -120,13 +140,20 @@ for (const [kind, source, configFiles] of [
   if (configFiles.length > 0) writeFileSync(join(root, "base-config.json"), '{"compilerOptions":{"module":"ESNext"}}');
   indexRepository(root, "2026-10-12T00:00:00.000Z");
   const observed = runVerify(root, { kind: "working-tree" });
-  expect(VerifyReportSchema.safeParse(observed.report).success).toBe(true);
-  expect(observed.result.verdict).toBe("BLOCK");
-  expect(observed.report.analysisAdmission?.reasons.some(reason => reason.startsWith("QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:"))).toBe(true);
-  expect(observed.report.findings.some(finding => finding.severity === "block" && finding.locations.some(location => location.file === "src/value.ts"))).toBe(true);
+  if (kind === "inherited compiler policy") {
+    expectCurrentScopeRejection(observed, "base-config.json", [
+      "ANALYSIS_SCOPE_INCOMPLETE:base-config.json:excluded",
+      "UNSUPPORTED_CHANGED_OBLIGATION:base-config.json",
+    ]);
+  } else {
+    expect(VerifyReportSchema.safeParse(observed.report).success).toBe(true);
+    expect(observed.result.verdict).toBe("BLOCK");
+    expect(observed.report.analysisAdmission?.reasons.some(reason => reason.startsWith("QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:"))).toBe(true);
+    expect(observed.report.findings.some(finding => finding.severity === "block" && finding.locations.some(location => location.file === "src/value.ts"))).toBe(true);
+  }
 }, 60_000);
 
-test("excluded old importer cannot disappear from retained dependency closure", () => {
+test("changed excluded static importer rejects current scope before old capture", () => {
   const root = repository('export function value() { return 1; }\n');
   mkdirSync(join(root, "other"));
   writeFileSync(join(root, "other/importer.ts"), 'import { value } from "../src/value";\nexport const copy = value();\n');
@@ -134,8 +161,7 @@ test("excluded old importer cannot disappear from retained dependency closure", 
   writeFileSync(join(root, "src/value.ts"), 'export function value() { return 2; }\n');
   writeFileSync(join(root, "other/importer.ts"), 'export const copy = 0;\n');
   const observed = refreshed(root);
-  expect(observed.result.verdict).toBe("BLOCK");
-  expect(observed.report.analysisAdmission?.reasons.some(reason => reason.includes("QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED") && reason.includes("other/importer.ts"))).toBe(true);
+  expectCurrentScopeRejection(observed, "other/importer.ts", ["ANALYSIS_SCOPE_INCOMPLETE:other/importer.ts:excluded"]);
 }, 60_000);
 
 for (const fault of ["missing input", "raw byte mismatch", "gitlink", "unsafe path", "scratch drift"] as const) {
@@ -224,7 +250,7 @@ process.exit(runVerifyDiff(process.argv[2]!,parseArgs(["verify","diff","--format
   expect(report.analysisAdmission.reasons.some((reason: string) => reason.startsWith("QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:"))).toBe(true);
 }, 60_000);
 
-test("unsupported excluded old loader cannot hide its guard dependency from closure", () => {
+test("changed excluded computed loader rejects current scope before old capture", () => {
   const root = repository('export function value() { return 1; }\n');
   mkdirSync(join(root, "other"));
   writeFileSync(join(root, "other/importer.ts"), 'const path = "../src/value";\nexport async function run() { return import(path); }\n');
@@ -232,8 +258,7 @@ test("unsupported excluded old loader cannot hide its guard dependency from clos
   writeFileSync(join(root, "src/value.ts"), 'export function value() { return 2; }\n');
   writeFileSync(join(root, "other/importer.ts"), 'export const safe = 0;\n');
   const observed = refreshed(root);
-  expect(observed.result.verdict).toBe("BLOCK");
-  expect(observed.report.analysisAdmission?.reasons.some(reason => reason.includes("QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED") && reason.includes("other/importer.ts"))).toBe(true);
+  expectCurrentScopeRejection(observed, "other/importer.ts", ["ANALYSIS_SCOPE_INCOMPLETE:other/importer.ts:excluded"]);
 }, 60_000);
 
 test("ignored force-tracked old output dependency has an explicit eligibility decision", () => {
