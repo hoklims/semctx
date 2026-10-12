@@ -110,7 +110,7 @@ const SETUP_NODE =
 const UPLOAD_ARTIFACT =
   "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1";
 const DOWNLOAD_ARTIFACT =
-  "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1";
+  "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2";
 
 describe("CI governance", () => {
   test("uses safe triggers, least privilege, and PR-only cancellation", () => {
