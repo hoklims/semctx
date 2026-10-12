@@ -594,13 +594,14 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
       });
     }
     const entries: Array<{ path: string; oid: string }> = [];
-    for (const record of new TextDecoder().decode(listed.stdout).split("\0")) {
+    const destinations = new Set<string>();
+    for (const record of new TextDecoder("utf-8", { fatal: true }).decode(listed.stdout).split("\0")) {
       if (record === "") continue;
       const match = /^(\d{6}) (blob|commit) ([0-9a-f]{40,64})\t([\s\S]+)$/.exec(record);
       if (match === null) throw new SemctxError("GIT_ERROR", "invalid base tree entry");
       const [, mode, , oid, path] = match;
       if (path === undefined || isAbsolute(path) || path.includes(":") || path.includes("\\")
-        || path.split("/").some((part) => part === "" || part === "." || part === "..")) {
+        || path.split("/").some((part) => part === "" || part === "." || part === ".." || part.toLowerCase() === ".git")) {
         throw new SemctxError("GIT_ERROR", "unsafe base tree path", { path });
       }
       if (mode !== "100644" && mode !== "100755") {
@@ -609,6 +610,12 @@ function analyzeCommitTree(root: string, commit: string, config: SemctxConfig): 
         }
         continue;
       }
+      const destinationKey = process.platform === "win32" ? path.toLowerCase() : path;
+      if (destinations.has(destinationKey)
+        || (process.platform === "win32" && path.split("/").some((part) => /[. ]$/.test(part)))) {
+        throw new SemctxError("GIT_ERROR", "base tree paths alias on this filesystem", { path });
+      }
+      destinations.add(destinationKey);
       entries.push({ path, oid: oid! });
     }
     const blobs = Bun.spawnSync(["git", "cat-file", "--batch"], {
@@ -666,7 +673,7 @@ function applyLostGuards(
     const paths = entry.scope.selectedPaths.filter((path) => changed.has(path));
     if (paths.length === 0) continue;
     if (entry.selectionDecision === "excluded") {
-      if (!entry.analysisReasons.includes("LEGACY_UNSUPPORTED_EXTENSION")) excluded.push(...paths);
+      if (!entry.selectionReasons.includes("LEGACY_UNSUPPORTED_EXTENSION")) excluded.push(...paths);
     } else if (entry.analysisOutcome !== "analyzed") {
       failed.push(...paths);
     } else if (config.version === 2) {
