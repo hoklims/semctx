@@ -5,12 +5,14 @@ import { resolveTypeScriptModule, retainedCompilerSystem, isModeledCallCallee, t
 import { inspectSemanticDependencies } from "./semantic-dependency-diagnostics";
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
+const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
+/** Internal shared policy; not exported by the package entrypoint. */
+export function isOrdinaryNativeProcessMember(name: string): boolean { return ordinaryProcessMembers.has(name); }
 
 /** Closed native-module eligibility, without inventing dependencies loaded at runtime. */
 export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUnsupported: boolean; unmodeledMembers: string[]; runtimeEvaluationUnsupported?: true } {
   type Origin = "factory" | "namespace" | "global" | "browser-global" | "module-meta" | "process" | "evaluation" | "ordinary" | "unmodeled" | "other";
   const unmodeledMembers = new Set<string>();
-  const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
   let found = false;
   let runtimeEvaluationUnsupported = false;
   const result = () => ({ commonJsUnsupported: found, unmodeledMembers: [...unmodeledMembers].sort(),
@@ -37,7 +39,7 @@ export function inspectNativeModuleBindings(source: ts.SourceFile): { commonJsUn
   const processExportOrigin = (name: string | undefined): Origin => {
     if (name === "default") return "process";
     if (name === "getBuiltinModule") return unmodeledResolver();
-    if (name !== undefined && ordinaryProcessMembers.has(name)) return "ordinary";
+    if (name !== undefined && isOrdinaryNativeProcessMember(name)) return "ordinary";
     unmodeledMembers.add(name === undefined ? "process.<computed>" : `process.${name}`);
     return "unmodeled";
   };
