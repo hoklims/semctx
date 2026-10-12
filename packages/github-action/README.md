@@ -50,6 +50,7 @@ jobs:
 | `working-directory` | `.` | repository directory to analyse; must stay inside the job workspace |
 | `config-path` | `""` | optional `config.json` to use instead of the generated default |
 | `report-path` | `.semctx/reports/verify.json` | where the JSON report is written (in `working-directory`) |
+| `require-qualified` | `false` | require admitted `modelo-suite-static-v1` evidence from trusted workflow policy |
 | `upload-report` | `false` | upload the JSON report as a workflow artifact |
 
 For qualified analysis, report output must remain under `.semctx/reports` or outside the analysed
@@ -58,6 +59,12 @@ refused before publication; the adapter still receives valid qualified-refusal r
 The default reserved report directory is also created safely for ordinary v1 analysis.
 Its writer checks repository ancestors before creating missing parents and replaces the
 report atomically. Custom ordinary outputs keep their existing parent-directory policy.
+Set `require-qualified: true` in a trusted workflow when qualification is mandatory.
+A repository-controlled configuration file alone cannot enforce that expectation: a
+downgrade to ordinary mode produces no admission. With this input, a missing matching
+admission causes an Action policy BLOCK and exit 1 even with `fail-on: none`; the producer
+report stays unchanged. The input accepts only `true` or `false`. Ordinary default use
+remains available, and an actual qualified rejection always blocks independently.
 
 ## Outputs
 
