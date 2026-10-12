@@ -76,7 +76,7 @@ test("ordinary initialize and verification tool exchange remains complete", asyn
   expect(result.result?.structuredContent).toEqual({ verdict: "BLOCK" });
 });
 
-for (const stream of ["stdout", "stderr"] as const) test(`unfinished owned ${stream} teardown cannot report success`, async () => {
+for (const stream of ["stdout", "stderr"] as const) for (const cancellation of ["pending", "rejected"] as const) test(`unfinished owned ${stream} teardown with ${cancellation} cancellation cannot report success`, async () => {
   const { root, bundle } = fixture(String.raw`let buffer='';process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{
     buffer+=chunk;let end;while((end=buffer.indexOf('\n'))>=0){const request=JSON.parse(buffer.slice(0,end));buffer=buffer.slice(end+1);
     if(request.id)process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:request.id,result:{content:[]}})+'\n');}});`);
@@ -88,7 +88,7 @@ for (const stream of ["stdout", "stderr"] as const) test(`unfinished owned ${str
     if (readerIndex++ !== stalledIndex) return reader;
     const stalled = Object.create(reader) as ReadableStreamDefaultReader<Uint8Array>;
     stalled.read = async () => { const next = await reader.read(); return next.done ? new Promise<Awaited<ReturnType<typeof reader.read>>>(() => {}) : next; };
-    stalled.cancel = () => new Promise<void>(() => {});
+    stalled.cancel = () => cancellation === "pending" ? new Promise<void>(() => {}) : Promise.reject(new Error("controlled owned cancel rejection"));
     return stalled;
   };
   const intercept = spyOn(ReadableStream.prototype, "getReader").mockImplementation(acquire as unknown as typeof ReadableStream.prototype.getReader);

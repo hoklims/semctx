@@ -99,9 +99,9 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
       outcome.teardown.childExited = await within(child.exited, limits.teardownMs) !== TIMEOUT;
     } else outcome.teardown.childExited = true;
     await within(stdoutDrain, limits.teardownMs);
-    if (!outcome.teardown.stdoutClosed) outcome.teardown.stdoutCancelled = await within(stdoutReader.cancel().catch(() => undefined), limits.teardownMs) !== TIMEOUT;
+    if (!outcome.teardown.stdoutClosed) outcome.teardown.stdoutCancelled = await within(stdoutReader.cancel().then(() => true, () => false), limits.teardownMs) === true;
     await within(stderrDrain, limits.teardownMs);
-    if (!outcome.teardown.stderrClosed) outcome.teardown.stderrCancelled = await within(stderrReader.cancel().catch(() => undefined), limits.teardownMs) !== TIMEOUT;
+    if (!outcome.teardown.stderrClosed) outcome.teardown.stderrCancelled = await within(stderrReader.cancel().then(() => true, () => false), limits.teardownMs) === true;
     outcome.exitCode = child.exitCode; outcome.signalCode = child.signalCode;
     if (!outcome.teardown.childExited
       || (!outcome.teardown.stdoutClosed && !outcome.teardown.stdoutCancelled)
