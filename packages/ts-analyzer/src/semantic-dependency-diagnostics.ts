@@ -1133,6 +1133,19 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (!ts.isCallExpression(node)) return;
     const callee = actualValue(node.expression);
     if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)) {
+      if (sdkMemberOf(callee, "Math", sdkValue(callee)?.getName() ?? "")) {
+        const signature = checker.getResolvedSignature(node); const declaration = signature?.getDeclaration();
+        if (signature !== undefined && declaration !== undefined && program.isSourceFileDefaultLibrary(declaration.getSourceFile())) {
+          for (const [index, parameter] of signature.getParameters().entries()) {
+            const rest = parameter.getDeclarations()?.some(origin => ts.isParameter(origin) && origin.dotDotDotToken !== undefined) === true;
+            const type = checker.getTypeOfSymbolAtLocation(parameter, declaration);
+            const numeric = rest ? type.getNumberIndexType() : type;
+            if (numeric === undefined || (numeric.flags & ts.TypeFlags.NumberLike) === 0) continue;
+            const consumed = rest ? node.arguments.slice(index) : node.arguments.slice(index, index + 1);
+            if (consumed.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+          }
+        }
+      }
       if (sdkMemberOf(callee, "Array", "join")) {
         const array = literalArray(callee.expression);
         if (array === undefined || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
