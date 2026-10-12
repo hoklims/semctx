@@ -704,6 +704,7 @@ export interface LostGuardsResult {
  * not preserve the old guard. Exported contracts and security tags retain their rule predicates.
  * Surviving guards are the head-side analysis's business. Tests are judged at the head when the node
  * survives, so a change that strips a guard and adds a covering test in the same range is not refused.
+ * A deleted node keeps its former test exemption only when a covering test still exists at the head.
  */
 export function analyzeLostGuards(args: {
   baseIndex: GraphIndex;
@@ -750,7 +751,9 @@ export function analyzeLostGuards(args: {
     // importers of the old path break whether or not the declaration survives elsewhere.
     const moved = survivor !== undefined && survivor.id !== node.id;
     const after: RuleFlags = moved ? { ...kept, critical: false, contract: false } : kept;
-    const tested = survivor === undefined ? isTested(baseIndex, node.id) : isTested(headIndex, survivor.id);
+    const tested = survivor === undefined
+      ? baseIndex.outEdges(node.id, ["tested_by"]).some((edge) => headIndex.node(edge.to)?.kind === "test")
+      : isTested(headIndex, survivor.id);
     if (tested) continue;
     const keptInvariants = new Set(survivor === undefined
       ? [] : headIndex.outEdges(survivor.id, ["constrained_by"]).map((e) => e.to));
