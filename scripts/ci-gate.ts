@@ -1,5 +1,5 @@
-import { closeSync, existsSync, openSync } from "node:fs";
-import { resolve } from "node:path";
+import { closeSync, existsSync, mkdirSync, openSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { FOCUSED_TEST_TARGETS, ROUTING_TESTS, TEST_SHARDS, type CiLane } from "./ci-plan";
 import { isTestShard, TEST_TIMINGS } from "./verify-pr";
 
@@ -11,6 +11,7 @@ export interface CiCommand {
 
 export async function spawnCiCommand(argv: string[], cwd: string, stdoutFile?: string): Promise<number> {
   const outputPath = stdoutFile === undefined ? undefined : resolve(cwd, stdoutFile);
+  if (outputPath !== undefined) mkdirSync(dirname(outputPath), { recursive: true });
   const descriptor = outputPath === undefined ? undefined : openSync(outputPath, "w");
   let exitCode: number;
   try {

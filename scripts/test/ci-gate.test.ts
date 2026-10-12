@@ -11,6 +11,24 @@ const lane = (
 ): CiLane => ({ profile, os, targets, smoke, shard });
 
 describe("CI gate runner", () => {
+  test("captures a worker report in a fresh cwd whose nested output directory does not exist", async () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-ci-fresh-report-"));
+    const stdoutFile = ".semctx/multicore-index.json";
+    const report = '{"schemaVersion":2,"childExecuted":true}\n';
+    try {
+      const outcome = await spawnCiCommand([
+        process.execPath, "--eval", 'console.log(JSON.stringify({schemaVersion:2,childExecuted:true}));',
+      ], root, stdoutFile).then(
+        (exitCode) => ({ exitCode }),
+        (error: unknown) => ({ error: error instanceof Error ? error.message : String(error) }),
+      );
+      expect(outcome).toEqual({ exitCode: 0 });
+      expect(readFileSync(join(root, stdoutFile), "utf8")).toBe(report);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("captures complete subprocess stdout without stderr or gate logs, replacing a previous report", async () => {
     const root = mkdtempSync(join(tmpdir(), "semctx-ci-report-"));
     const report = '{"schemaVersion":2,"payload":"' + "x".repeat(100_000) + '"}\n';
@@ -33,6 +51,9 @@ describe("CI gate runner", () => {
       expect(await spawnCiCommand([process.execPath, "--eval", "process.exit(19)"], root, "report.json"))
         .toBe(19);
       expect(readFileSync(join(root, "report.json"), "utf8")).toBe("");
+      writeFileSync(join(root, "blocked"), "not a directory");
+      expect(spawnCiCommand([process.execPath, "--eval", "process.exit(0)"], root, "blocked/report.json"))
+        .rejects.toThrow();
       expect(spawnCiCommand([process.execPath, "--eval", "process.exit(0)"], root, "."))
         .rejects.toThrow();
       expect(spawnCiCommand([join(root, "missing-executable")], root, "report.json"))
