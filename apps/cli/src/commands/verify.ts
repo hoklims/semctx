@@ -205,7 +205,8 @@ export function assertQualifiedReportOutput(root: string, path: string): boolean
 }
 
 function writeReportAtomic(root: string, path: string, report: VerifyReport): void {
-  if (report.analysisAdmission !== undefined && assertQualifiedReportOutput(root, path)) {
+  const reservedReport = relative(resolve(root), resolve(path)).replaceAll("\\", "/").startsWith(".semctx/reports/");
+  if (report.analysisAdmission !== undefined ? assertQualifiedReportOutput(root, path) : reservedReport) {
     writeFileNoFollow(root, path, `${JSON.stringify(report, null, 2)}\n`);
     return;
   }

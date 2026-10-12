@@ -14,6 +14,43 @@ test("Action default report remains outside qualified inputs and reaches the ada
   expect(parsed.runs.steps.find(step => step.id === "adapter")?.env?.INPUT_REPORT_PATH).toBe("${{ inputs.report-path }}");
 });
 
+test("ordinary Action default report is created and reaches the real adapter", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-action-ordinary-"));
+  try {
+    mkdirSync(join(root, "src")); writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+    writeFileSync(join(root, "src/main.ts"), "export function main(){return 1;}\n");
+    const git = (...args: string[]) => {
+      const child = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+      expect(child.exitCode, new TextDecoder().decode(child.stderr)).toBe(0);
+    };
+    git("init", "-q"); git("add", "."); git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "base");
+    writeFileSync(join(root, "src/main.ts"), "export function main(){return 2;}\n");
+    git("add", "."); git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "change");
+    const parsed = Bun.YAML.parse(readFileSync(join(import.meta.dir, "../action.yml"), "utf8")) as { inputs: { "report-path": { default: string } }; runs: { steps: { id?: string; run?: string }[] } };
+    const script = parsed.runs.steps.find(step => step.id === "verify")!.run!;
+    const report = join(root, parsed.inputs["report-path"].default);
+    expect(existsSync(join(root, ".semctx/reports"))).toBe(false);
+    const bash = process.platform === "win32" && existsSync("C:/Program Files/Git/bin/bash.exe") ? "C:/Program Files/Git/bin/bash.exe" : "bash";
+    for (const reportPath of [parsed.inputs["report-path"].default, report.replaceAll("\\", "/")]) {
+    const step = Bun.spawnSync([bash, "--noprofile", "--norc", "-c", 'bun() { "$SEMCTX_TEST_BUN" "$@"; }\n' + script], {
+      cwd: join(import.meta.dir, "../../.."), stdout: "pipe", stderr: "pipe", env: {
+        ...process.env, SEMCTX_TEST_BUN: process.execPath.replaceAll("\\", "/"), SEMCTX_CLI: join(import.meta.dir, "../../../apps/cli/src/index.ts").replaceAll("\\", "/"),
+        SEMCTX_TARGET: root.replaceAll("\\", "/"), SEMCTX_CONFIG: "", SEMCTX_REPORT: reportPath,
+        SEMCTX_BASE: "HEAD^", SEMCTX_HEAD: "HEAD", GITHUB_ACTION_PATH: join(import.meta.dir, "..").replaceAll("\\", "/"),
+      },
+    });
+    console.info(JSON.stringify({ exitCode: step.exitCode, stderr: new TextDecoder().decode(step.stderr) }));
+    expect(step.exitCode).toBe(0);
+    const content = JSON.parse(readFileSync(report, "utf8")) as { analysisAdmission?: unknown; verdict: string };
+    expect(content.analysisAdmission).toBeUndefined();
+    const outputs = join(root, "outputs"); const summary = join(root, "summary");
+    const adapter = Bun.spawnSync(["node", join(import.meta.dir, "../src/adapter.mjs"), report], { stdout: "pipe", stderr: "pipe", env: { ...process.env, INPUT_FAIL_ON: "none", GITHUB_OUTPUT: outputs, GITHUB_STEP_SUMMARY: summary } });
+    expect(adapter.exitCode).toBe(0);
+    expect(readFileSync(outputs, "utf8")).toContain(`verdict=${content.verdict}`);
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 60_000);
+
 test("Action delegates a fresh qualified rejection to the adapter and preserves operational errors", () => {
   const root = mkdtempSync(join(tmpdir(), "semctx-action-qualified-"));
   try {
