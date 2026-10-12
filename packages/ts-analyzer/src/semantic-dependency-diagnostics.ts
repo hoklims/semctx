@@ -760,7 +760,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     inspectWrites(source);
     return written;
   };
-  const runtimePrimitiveValue = (expression: ts.Expression): boolean => {
+  const runtimePrimitiveValue = (expression: ts.Expression, requiredKind?: string): boolean => {
     const value = unwrapStaticExpression(expression);
     if (!ts.isIdentifier(value)) return false;
     const symbol = checker.getSymbolAtLocation(value);
@@ -786,6 +786,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         const left = unwrapStaticExpression(condition.left); const right = unwrapStaticExpression(condition.right);
         if (ts.isTypeOfExpression(left) && ts.isStringLiteral(right)
           && ["string", "number", "bigint", "boolean", "symbol", "undefined"].includes(right.text)
+          && (requiredKind === undefined || right.text === requiredKind)
           && checker.getSymbolAtLocation(unwrapStaticExpression(left.expression)) === symbol
           && (ts.isParameter(origin) || statement.pos > origin.end)) return true;
       }
@@ -842,7 +843,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
         && (ts.isVariableDeclaration(origin) || (ts.isBindingElement(origin) && ts.isVariableDeclaration(origin.parent.parent))));
       const module = builtinModuleValue(receiver);
       const external = module !== undefined && !module.startsWith(".") && !module.startsWith("/") && !/^[A-Za-z]:/.test(module);
-      if (callerOwned && !external && !sdkOrigin(callee)) {
+      if (callerOwned && !external && !sdkOrigin(callee)
+        && !(runtimePrimitiveValue(receiver, "string") && sdkMemberOf(callee, "String", staticMemberName(callee) ?? ""))) {
         const members = declarations(callee);
         // Real retained members keep the existing post-extraction coordinate refusal.
         // Erased or synthetic assignment members have no declaration to extract.
