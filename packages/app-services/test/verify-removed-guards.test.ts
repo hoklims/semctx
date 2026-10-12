@@ -50,11 +50,11 @@ function write(root: string, path: string, content: string): void {
 }
 
 /** `main` holds a guarded function, an exported interface and an unguarded helper, all untested. */
-function repository(): string {
+function repository(money = MONEY): string {
   const root = mkdtempSync(join(tmpdir(), "semctx-removed-guards-"));
   roots.push(root);
   write(root, ".gitignore", ".semctx/\n");
-  write(root, "src/money.ts", MONEY);
+  write(root, "src/money.ts", money);
   write(root, "src/cart.ts", CART);
   write(root, "src/helper.ts", HELPER);
   git(root, "init", "-q", "-b", "main");
@@ -65,8 +65,8 @@ function repository(): string {
 }
 
 /** Commit `edit` on a PR branch, index its head, and verify the range against `main`. */
-function verifyPullRequest(edit: (root: string) => void) {
-  const root = repository();
+function verifyPullRequest(edit: (root: string) => void, money = MONEY) {
+  const root = repository(money);
   git(root, "checkout", "-q", "-b", "pr");
   edit(root);
   git(root, "add", "-A");
@@ -117,6 +117,29 @@ describe("a pull request that removes a guard", () => {
     expect(result.verdict).toBe("BLOCK");
   });
 
+  it("blocks replacing only the invariant identity without changing the declaration", () => {
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", MONEY.replace(
+      "money-never-negative: amounts must never be negative",
+      "money-finite: amounts must be finite",
+    )));
+    expect(rulesOf(result)).toContain("invariant_touched_without_test");
+    expect(result.verdict).toBe("BLOCK");
+    expect(result.unknowns.join("\n")).toContain("money-never-negative");
+    expect(result.unknowns.join("\n")).not.toContain("[money-finite]");
+  });
+
+  it("blocks losing one invariant even when another original identity survives", () => {
+    const twoGuards = MONEY.replace(" */", " * @invariant money-finite: amounts must be finite\n */");
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", twoGuards.replace(
+      " * @invariant money-never-negative: amounts must never be negative\n",
+      "",
+    )), twoGuards);
+    expect(rulesOf(result)).toContain("invariant_touched_without_test");
+    expect(result.verdict).toBe("BLOCK");
+    expect(result.unknowns.join("\n")).toContain("[money-never-negative]");
+    expect(result.unknowns.join("\n")).not.toContain("[money-never-negative, money-finite]");
+  });
+
   it("blocks stripping only a security marker without changing the declaration", () => {
     const root = repository();
     write(root, "src/money.ts", MONEY.replace("@invariant money-never-negative: amounts must never be negative", "@tag security"));
@@ -132,6 +155,14 @@ describe("a pull request that removes a guard", () => {
     expect(result.verdict).toBe("BLOCK");
   });
 
+  it("keeps security distinct from a replacement critical tag", () => {
+    const security = MONEY.replace("@invariant money-never-negative: amounts must never be negative", "@tag security");
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", security.replace("@tag security", "@tag critical")), security);
+    expect(rulesOf(result)).toContain("security_surface_without_verification");
+    expect(rulesOf(result)).not.toContain("invariant_touched_without_test");
+    expect(result.verdict).toBe("BLOCK");
+  });
+
   it("blocks stripping the @invariant marker while changing the body", () => {
     const result = verifyPullRequest((root) =>
       write(root, "src/money.ts", "export function clamp(x: number): number {\n  return x;\n}\n"));
@@ -144,6 +175,40 @@ describe("a pull request that must keep passing", () => {
   it("still blocks a body change under a surviving @invariant", () => {
     const result = verifyPullRequest((root) => write(root, "src/money.ts", MONEY.replace("? 0 : x", "? 1 : x")));
     expect(result.verdict).toBe("BLOCK");
+  });
+
+  it("preserves an unchanged invariant when an unrelated marker is added", () => {
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", MONEY.replace(
+      " */",
+      " * @tag accounting\n */",
+    )));
+    expect(result.findings).toEqual([]);
+    expect(result.verdict).toBe("PASS");
+  });
+
+  it("preserves the same canonical invariant identity across a statement-only edit", () => {
+    const result = verifyPullRequest((root) => write(root, "src/money.ts", MONEY.replace(
+      "amounts must never be negative",
+      "amounts remain nonnegative",
+    )));
+    expect(result.findings).toEqual([]);
+    expect(result.verdict).toBe("PASS");
+  });
+
+  it("passes an invariant identity replacement when the same PR adds a covering test", () => {
+    const result = verifyPullRequest((root) => {
+      write(root, "src/money.ts", MONEY.replace(
+        "money-never-negative: amounts must never be negative",
+        "money-finite: amounts must be finite",
+      ));
+      write(
+        root,
+        "test/money.test.ts",
+        'import { expect, test } from "bun:test";\nimport { clamp } from "../src/money";\ntest("clamp", () => expect(clamp(-1)).toBe(0));\n',
+      );
+    });
+    expect(result.findings).toEqual([]);
+    expect(result.verdict).toBe("PASS");
   });
 
   it("passes deleting an unguarded function that is not an exported contract", () => {

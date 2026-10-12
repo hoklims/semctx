@@ -699,11 +699,11 @@ export interface LostGuardsResult {
  *
  * A committed range is indexed at its head, so whatever the change deletes, strips or moves is
  * absent from that graph and the head-side analysis cannot see it. This compares guarded nodes in
- * changed base files against the head and reports a node only when a rule flag it carried at the base
- * is gone at the head: the node no longer exists, or lost its invariant, its exported contract or its
- * security tag. A flag that survives is the head-side analysis's business, which keeps the two
- * from reporting the same node. Tests are judged at the head when the node survives, so a change
- * that strips a guard and adds a covering test in the same range is not refused.
+ * changed base files against the head and reports a node when a canonical invariant identity or a
+ * rule flag it carried at the base is gone at the head. Replacing one invariant with another does
+ * not preserve the old guard. Exported contracts and security tags retain their rule predicates.
+ * Surviving guards are the head-side analysis's business. Tests are judged at the head when the node
+ * survives, so a change that strips a guard and adds a covering test in the same range is not refused.
  */
 export function analyzeLostGuards(args: {
   baseIndex: GraphIndex;
@@ -752,9 +752,13 @@ export function analyzeLostGuards(args: {
     const after: RuleFlags = moved ? { ...kept, critical: false, contract: false } : kept;
     const tested = survivor === undefined ? isTested(baseIndex, node.id) : isTested(headIndex, survivor.id);
     if (tested) continue;
-    if (before.invariant && !after.invariant) {
+    const keptInvariants = new Set(survivor === undefined
+      ? [] : headIndex.outEdges(survivor.id, ["constrained_by"]).map((e) => e.to));
+    const removedInvariants = baseIndex.outEdges(node.id, ["constrained_by"])
+      .filter((e) => !keptInvariants.has(e.to)).sort((a, b) => compareIds(a.to, b.to));
+    if (removedInvariants.length > 0) {
       note("invariant_touched_without_test", node);
-      const names = baseIndex.outEdges(node.id, ["constrained_by"]).map((e) => baseIndex.node(e.to)?.name).filter(Boolean);
+      const names = removedInvariants.map((e) => baseIndex.node(e.to)?.name ?? e.to);
       unknowns.push(`"${node.name}" was constrained by [${names.join(", ")}] and no longer is; the guard was removed without a test.`);
     }
     if (before.critical && !after.critical) note("critical_contract_changed_without_test", node);

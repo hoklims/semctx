@@ -67,6 +67,19 @@ for (const extension of ["ts", "mjs"] as const) describe(`qualified ${extension}
     expect(VerifyReportSchema.safeParse(report).success).toBe(true);
   }, 60_000);
 
+  it("keeps invariant identity replacement explicitly outside qualified base recovery", () => {
+    const { path, observed, failure } = range(extension, (root, path) => writeFileSync(
+      join(root, path),
+      GUARDED.replace("fixed-value: the value stays positive", "finite-value: the value stays finite"),
+    ));
+    expect(failure).toBeUndefined();
+    expect(observed?.result.verdict).toBe("BLOCK");
+    expect(observed?.report.analysisAdmission?.status).toBe("rejected");
+    expect(observed?.report.analysisAdmission?.reasons).toContain("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
+    expect(observed?.result.findings).toEqual(expect.arrayContaining([expect.objectContaining({ rule: "analysis_scope_incomplete", severity: "block" })]));
+    expect(observed?.result.unknowns.join("\n")).toContain(path);
+  }, 60_000);
+
   it("keeps a clean pure addition eligible without base recovery", () => {
     const { observed, failure } = range(extension, (root) => writeFileSync(join(root, `src/added.${extension}`), "export function added() { return 3; }\n"));
     expect(failure).toBeUndefined();
