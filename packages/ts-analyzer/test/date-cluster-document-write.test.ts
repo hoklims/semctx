@@ -56,7 +56,9 @@ test("ordinary local Document lookalikes and unrelated SDK data calls remain dis
 test("a typed local constructor does not acquire SDK Date runtime origin", () => {
   const path = "/fixture/main.ts";
   const source = "const env:typeof globalThis={Date:class{constructor(_value:unknown){}}} as unknown as typeof globalThis;function helper(){return 1;}const value={valueOf:helper};export function run(){return new env.Date(value as any);}";
-  expect(inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]))).not.toContain("SOURCE_COERCION_UNSUPPORTED");
+  const reasons = inspectModuleConfiguration(path, "/fixture", new Map([[path, source]]));
+  expect(reasons).not.toContain("SOURCE_COERCION_UNSUPPORTED");
+  expect(reasons).toContain("SOURCE_CONSTRUCTION_UNSUPPORTED");
 });
 
 test("a typed local Date lookalike cannot confer intrinsic copy slots", () => {

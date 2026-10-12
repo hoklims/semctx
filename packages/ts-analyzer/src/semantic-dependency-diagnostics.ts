@@ -279,12 +279,32 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && (origin.parent.flags & ts.NodeFlags.Const) !== 0 && origin.initializer !== undefined) return actualValue(origin.initializer, seen);
     return value;
   };
+  const sdkRuntimeBinding = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+    const value = actualValue(expression);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) {
+      return sdkRuntimeBinding(value.expression, seen) && sdkValue(value) !== undefined;
+    }
+    const origins = declarations(value);
+    if (origins.length > 0 && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile()))) return true;
+    if (ts.isIdentifier(value) && value.text === "globalThis" && origins.length === 0 && checker.getSymbolAtLocation(value) !== undefined) return true;
+    return sdkValue(value) !== undefined && origins.some(origin => ts.isBindingElement(origin) && ts.isObjectBindingPattern(origin.parent)
+      && ts.isVariableDeclaration(origin.parent.parent) && origin.parent.parent.initializer !== undefined
+      && ts.isVariableDeclarationList(origin.parent.parent.parent) && (origin.parent.parent.parent.flags & ts.NodeFlags.Const) !== 0
+      && sdkRuntimeBinding(origin.parent.parent.initializer, seen));
+  };
+  const sdkConstructorValue = (expression: ts.Expression): ts.Symbol | undefined => {
+    const symbol = sdkValue(expression);
+    // Library member types alone cannot establish the runtime receiver's identity.
+    return sdkConstruction(symbol) && sdkRuntimeBinding(expression) ? symbol : undefined;
+  };
   const sdkOrigin = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const value = actualValue(expression);
     if (seen.has(value)) return false;
     seen.add(value);
     if (ts.isArrayLiteralExpression(value) || ts.isStringLiteralLike(value)) return true;
-    if (ts.isNewExpression(value)) return sdkConstruction(sdkValue(actualValue(value.expression)));
+    if (ts.isNewExpression(value)) return sdkConstructorValue(value.expression) !== undefined;
     if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) return sdkOrigin(value.expression, seen) && sdkValue(value) !== undefined;
     const origins = declarations(value);
     return (origins.length > 0 && origins.every(origin => program.isSourceFileDefaultLibrary(origin.getSourceFile())))
@@ -926,7 +946,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (seen.has(value)) return false;
     seen.add(value);
     if (ts.isArrayLiteralExpression(value) || ts.isStringLiteralLike(value) || ts.isTemplateExpression(value)) return true;
-    if (ts.isNewExpression(value) && ["Array", "Map", "Set"].includes(sdkValue(value.expression)?.getName() ?? "")) return true;
+    if (ts.isNewExpression(value) && ["Array", "Map", "Set"].includes(sdkConstructorValue(value.expression)?.getName() ?? "")) return true;
     return declarations(value).some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
       && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && intrinsicIterable(declaration.initializer, seen));
   };
@@ -971,7 +991,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     // Iterable objects remain mutable even behind a const binding; an initializer is
     // not proof that a then override or prototype cannot participate in assimilation.
     if (primitiveValue(value)) return true;
-    if (ts.isNewExpression(value) && sdkValue(value.expression)?.getName() === "Promise") return true;
+    if (ts.isNewExpression(value) && sdkConstructorValue(value.expression)?.getName() === "Promise") return true;
     if (ts.isCallExpression(value)) {
       const callee = unwrapStaticExpression(value.expression);
       if (callee.kind === ts.SyntaxKind.ImportKeyword && value.arguments.length === 1 && ts.isStringLiteralLike(value.arguments[0]!)) return true;
@@ -1249,7 +1269,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if ((ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && proxyFactory(node)) reasons.add("SOURCE_PROXY_UNSUPPORTED");
     if (ts.isAwaitExpression(node) && !safeAwaitValue(node.expression)) reasons.add("SOURCE_AWAIT_UNSUPPORTED");
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword
-      && !sdkConstruction(sdkValue(node.right))) reasons.add("SOURCE_INSTANCEOF_UNSUPPORTED");
+      && sdkConstructorValue(node.right) === undefined) reasons.add("SOURCE_INSTANCEOF_UNSUPPORTED");
     if (ts.isArrayBindingPattern(node)) {
       const value = bindingValue(node);
       if (value === undefined || !intrinsicIterable(value)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
@@ -1260,17 +1280,17 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       && reflectedInvocation(node)) reasons.add("SOURCE_REFLECT_INVOCATION_UNSUPPORTED");
     if ((ts.isForOfStatement(node) || ts.isSpreadElement(node)) && !intrinsicIterable(node.expression)) reasons.add("SOURCE_ITERATION_UNSUPPORTED");
     if (ts.isNewExpression(node)) {
-      const origin = sdkValue(node.expression);
-      if (!sdkConstruction(origin)) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
-      else if (origin!.getName() === "Date" && sdkOrigin(node.expression)) {
+      const origin = sdkConstructorValue(node.expression);
+      if (origin === undefined) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
+      else if (origin.getName() === "Date") {
         const argumentsToCoerce = node.arguments?.slice(0, 7) ?? [];
         const first = argumentsToCoerce[0] === undefined ? undefined : actualValue(argumentsToCoerce[0]);
         const copiedDate = argumentsToCoerce.length === 1 && first !== undefined && ts.isNewExpression(first)
-          && sdkOrigin(first.expression) && sdkValue(first.expression)?.getName() === "Date" && sdkConstruction(sdkValue(first.expression));
+          && sdkConstructorValue(first.expression)?.getName() === "Date";
         if (!copiedDate && argumentsToCoerce.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
       }
-      else if (["Worker", "SharedWorker"].includes(origin!.getName())) reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
-      else if (origin!.getName() === "Proxy") reasons.add("SOURCE_PROXY_UNSUPPORTED");
+      else if (["Worker", "SharedWorker"].includes(origin.getName())) reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
+      else if (origin.getName() === "Proxy") reasons.add("SOURCE_PROXY_UNSUPPORTED");
     }
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) inspectTimerUse(node);
     if (ts.isPropertyAccessExpression(node) && functionHelper(node)) reasons.add("SOURCE_FUNCTION_HELPER_UNSUPPORTED");
