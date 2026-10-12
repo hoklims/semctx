@@ -4,6 +4,7 @@ import { dirname, isAbsolute, posix, relative, resolve } from "node:path";
 import { compareIds, normalizePath, symbolScopePath } from "@semantic-context/core";
 import type { NodeKind } from "@semantic-context/core";
 import { parseMarkers, type ParsedMarker } from "./markers";
+import { workspaceLinkedSystem } from "./workspace-links";
 
 /** Exact TypeScript runtime version bound into Plane A capability scopes. */
 export const TYPESCRIPT_DIALECT_VERSION = ts.version;
@@ -251,7 +252,9 @@ function resolveConfiguredModule(specifier: string, containingFile: string, reso
     const config = ts.readConfigFile(configPath, path => system.readFile(path));
     if (config.error === undefined) {
       // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
-      const parsed = ts.parseJsonConfigFileContent(config.config, { ...system, readDirectory: () => [] }, dirname(configPath));
+      // A live checkout may lack the installed link to a workspace member's shared configuration.
+      const configurationSystem = system === ts.sys ? workspaceLinkedSystem(system) : system;
+      const parsed = ts.parseJsonConfigFileContent(config.config, { ...configurationSystem, readDirectory: () => [] }, dirname(configPath));
       options = { ...COMPILER_OPTIONS, ...parsed.options };
     }
   }
