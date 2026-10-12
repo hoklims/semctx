@@ -57,7 +57,9 @@ The walker never follows symbolic links and always skips directories whose path 
 each configured `exclude` value has all `*` characters removed and the remaining text is matched
 with `relativePath.includes(...)`. This means, for example, that `vendor` excludes any discovered
 file whose relative path contains `vendor`; other glob syntax has no special meaning. An empty or
-all-`*` value matches every path.
+all-`*` value matches every path. A directory that discovery cannot read fails with `IO_ERROR`,
+unless an `exclude` value is contained in its path followed by `/`: every file below it is then
+excluded, so discovery skips it.
 
 After exclusion, discovery admits only TypeScript-family files (`.ts`, `.tsx`, `.mts`, `.cts`),
 Markdown (`.md`, `.mdx`), and SQL (`.sql`). TypeScript-family files feed the current TypeScript
@@ -134,10 +136,32 @@ Version 2 selection has these rules:
 4. Treat an empty `include` array as an explicit empty selection.
 5. Record candidates in deterministic normalized-path order.
 6. Never follow symbolic links. Built-in ignored directory segments still apply.
+7. Fail with `IO_ERROR` on a directory that cannot be read, unless an `exclude` glob of the form
+   `<prefix>/**` has a `<prefix>` matching it: every path below it is excluded, so discovery skips
+   it (for example `**/.pnpm-store/**` for a package store owned by another user). The
+   `modelo-suite-static-v1` profile keeps failing closed.
 
 `include` and `exclude` use Bun glob syntax in v2. They are not interpreted with the legacy
 substring matcher. Changing them intentionally changes the selected path set and its bound
 analysis-input identity.
+
+### Workspace configuration inheritance
+
+TypeScript and JavaScript analysis read the nearest `tsconfig.json`, including what it `extends`.
+A package specifier such as `"extends": "@scope/config/tsconfig/base.json"` normally resolves
+through the package manager's installed link. When a checkout lacks that link, semctx follows the
+link pnpm, Bun or Yarn would create, from repository manifests only:
+
+- the dependent directory is the workspace root or a declared member (`pnpm-workspace.yaml`
+  `packages`, otherwise `package.json` `workspaces`, including `!` exclusions);
+- it declares the package with a plain `workspace:` range (`workspace:*`, `workspace:^1.0.0`, …);
+- exactly one member's `package.json` carries that name.
+
+An installed path keeps precedence. The declaration is searched upward without crossing the
+analyzed repository root or a `.git` marker, and a member outside the repository is never linked.
+Otherwise the configuration error is still reported, for example
+`SOURCE_CONFIGURATION_INVALID:6053`. Analysis of retained compiler snapshots
+(`modelo-suite-static-v1`) is unchanged and still reads only the inputs it captured.
 
 Setup's optional `scope.proposedIncludes` contains at most 20 exact observed TypeScript/Python
 paths missed by v2 includes while their language is enabled. Add only the desired entries to
