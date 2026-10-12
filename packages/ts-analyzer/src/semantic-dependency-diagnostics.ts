@@ -299,6 +299,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     // Library member types alone cannot establish the runtime receiver's identity.
     return sdkConstruction(symbol) && sdkRuntimeBinding(expression) ? symbol : undefined;
   };
+  const intrinsicDateCopy = (node: ts.CallExpression | ts.NewExpression): boolean => {
+    if (!ts.isNewExpression(node) || sdkConstructorValue(node.expression)?.getName() !== "Date" || node.arguments?.length !== 1) return false;
+    const value = actualValue(node.arguments[0]!);
+    return ts.isNewExpression(value) && sdkConstructorValue(value.expression)?.getName() === "Date";
+  };
   const sdkOrigin = (expression: ts.Expression, seen = new Set<ts.Node>()): boolean => {
     const value = actualValue(expression);
     if (seen.has(value)) return false;
@@ -369,7 +374,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       for (const [index, parameter] of signature.getParameters().entries()) {
         const argument = node.arguments?.[index]; if (argument === undefined) continue;
         if (sdkOrigin(callee) && sdkCallbackDictionary(checker.getTypeOfSymbolAtLocation(parameter, declaration), declaration)
-          && !literalData(argument)) reasons.add("SOURCE_SDK_CALLBACK_UNSUPPORTED");
+          && !(index === 0 && intrinsicDateCopy(node)) && !literalData(argument)) reasons.add("SOURCE_SDK_CALLBACK_UNSUPPORTED");
         if (iterableParameter(parameter, declaration) && !intrinsicIterable(argument)) reasons.add("SOURCE_SDK_ITERATION_UNSUPPORTED");
         if (callbackType(checker.getTypeOfSymbolAtLocation(parameter, declaration)) && (!sdkOrigin(callee)
           || (!primitiveValue(actualValue(argument)) && !(sdkOrigin(argument) && callbackType(callableType(argument)))))) reasons.add("SOURCE_SDK_CALLBACK_UNSUPPORTED");
@@ -1284,10 +1289,7 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
       if (origin === undefined) reasons.add("SOURCE_CONSTRUCTION_UNSUPPORTED");
       else if (origin.getName() === "Date") {
         const argumentsToCoerce = node.arguments?.slice(0, 7) ?? [];
-        const first = argumentsToCoerce[0] === undefined ? undefined : actualValue(argumentsToCoerce[0]);
-        const copiedDate = argumentsToCoerce.length === 1 && first !== undefined && ts.isNewExpression(first)
-          && sdkConstructorValue(first.expression)?.getName() === "Date";
-        if (!copiedDate && argumentsToCoerce.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+        if (!intrinsicDateCopy(node) && argumentsToCoerce.some(argument => !primitiveValue(argument))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
       }
       else if (["Worker", "SharedWorker"].includes(origin.getName())) reasons.add("SOURCE_WORKER_LOADER_UNSUPPORTED");
       else if (origin.getName() === "Proxy") reasons.add("SOURCE_PROXY_UNSUPPORTED");
