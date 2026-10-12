@@ -83,6 +83,7 @@ function isWithin(root: string, candidate: string): boolean {
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !slash(rel).startsWith("../"));
 }
 
+/** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
 function pnpmDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
   const pnpm = readText(join(directory, "pnpm-workspace.yaml"));
   if (pnpm === undefined) return undefined;
@@ -90,12 +91,12 @@ function pnpmDeclarationAt(directory: string): WorkspaceDeclaration | undefined 
   try {
     parsed = Bun.YAML.parse(pnpm);
   } catch {
-    return undefined;
+    return { root: directory, patterns: [] };
   }
   const patterns = typeof parsed === "object" && parsed !== null
     ? stringList((parsed as Record<string, unknown>).packages)
     : undefined;
-  return patterns === undefined ? undefined : { root: directory, patterns };
+  return { root: directory, patterns: patterns ?? [] };
 }
 
 function packageDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
@@ -180,7 +181,8 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
   return members;
 }
 
-const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"] as const;
+// A peer dependency is installed only conditionally (e.g. pnpm `autoInstallPeers: false`): no link.
+const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 
 /** Ranges declared through `workspace:`, by name; aliases (`workspace:name@range`) and paths are excluded. */
 function workspaceDependencies(directory: string): ReadonlyMap<string, string> {

@@ -270,3 +270,27 @@ test("a repository below an ancestor node_modules directory still links its memb
   expect(configurationFailures(inspectModuleConfiguration(source, base))).toEqual([]);
   expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${base}/tooling/config/tsconfig/shared.ts`);
 });
+
+test("a pnpm workspace file without usable packages patterns links no member", () => {
+  for (const pnpm of ["autoInstallPeers: false\n", "packages: \"tooling/*\"\n", "packages: [\n"]) {
+    const { root, source } = workspace("workspace:*", {
+      "pnpm-workspace.yaml": pnpm,
+      "package.json": JSON.stringify({ name: "fixture-root", private: true, workspaces: ["tooling/*", "domains/*/*"] }),
+    });
+    expect(failsToResolve(root, source)).toBe(true);
+  }
+});
+
+test("a peer-only workspace dependency receives no link", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/registry-api", peerDependencies: { "@fixture/config": "workspace:*" } }),
+  });
+  expect(failsToResolve(root, source)).toBe(true);
+  write(root, {
+    "domains/registry/api/package.json": JSON.stringify({
+      name: "@fixture/registry-api", peerDependencies: { "@fixture/config": "workspace:*" }, devDependencies: { "@fixture/config": "workspace:*" },
+    }),
+  });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
