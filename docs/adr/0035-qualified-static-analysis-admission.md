@@ -73,10 +73,16 @@ manifests or empty workspace roots may be absent from the candidate. Staged/rang
 admission compares retained repository inputs with Git blobs and consumed
 workspace roots with the selected directory inventory. Git >= 2.41 is required for
 qualified staged/range verification: retained payloads are converted through Git using
-the selected commit's attributes before object-identity comparison. Attribute metadata
-is observed in batches and rechecked; conversion errors or drift refuse comparison.
-Raw retained bytes still bind the compiler snapshot and input digest. Missing inputs
-or differing converted objects refuse admission.
+the selected commit's attributes before object-identity comparison. An older Git produces
+an operational `UNSUPPORTED` diagnostic before conversion, not a qualified admission report.
+Attribute metadata is observed in batches and rechecked. At this retained post-image seam,
+failed attribute observation or metadata drift returns `QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND`;
+failed selected-attribute conversion returns `QUALIFIED_POST_IMAGE_CONVERSION_FAILED`.
+Both produce invalid binding, rejected admission and a structured `BLOCK` report. An already
+known `QUALIFIED_BASE_RECOVERY_UNSUPPORTED` refusal does not attempt this comparison.
+Unrelated Git status/freshness or I/O errors remain operational failures; these reasons do not
+catch every Git error. Raw retained bytes still bind the compiler snapshot and input digest.
+Missing inputs or differing converted objects refuse admission.
 Working-tree scope cannot rely on a Git diff that hides retained raw changes through an
 effective clean/process filter. Such retained inputs refuse with a precise invalid-binding
 reason. Batched attribute capture and read-only driver configuration establish this check;
@@ -294,13 +300,19 @@ Workspace and Git control paths remain protected even when Git metadata lives ou
 the checkout. Reports cannot replace configuration, database or verification state.
 
 Actual SDK `Reflect.apply`/`Reflect.construct` and their aliases/escapes are unsupported
-reflective invocations. Iteration via `for...of` (including await) or iterable spread
-requires a proven intrinsic array/string or SDK collection value; internal or uncertain
-iterator origins are refused without inventing invocation edges. Ordinary facts remain unchanged.
-The same iteration refusal covers array binding/assignment, array-binding parameters and
-delegated `yield*`. `await` refuses internal or uncertain thenable origins; primitive
-values, actual native promises and genuine async-function results retain their supported
-boundary. Type annotations or assertions alone do not prove that boundary. `instanceof`
+reflective invocations. Iteration via ordinary `for...of` or iterable spread requires a
+proven intrinsic array/string or SDK collection value; internal or uncertain iterator origins
+are refused without inventing invocation edges. `for await...of` over a synchronous array
+additionally requires a fresh direct literal whose non-hole elements each satisfy the existing
+safe-await value proof: primitive values, actual native promises or supported async results.
+Mutable const array containers and spreads do not establish that element provenance. Proven
+primitive strings retain their boundary; this does not admit arbitrary async iterators.
+Ordinary facts remain unchanged. The same iteration refusal covers array binding/assignment,
+array-binding parameters and delegated `yield*`. `await` refuses internal or uncertain thenable
+origins; primitive values, actual native promises and genuine async-function results retain their
+supported boundary. The actual async callee binding, including resolved aliases, must not have
+been reassigned; a declared async origin alone is insufficient. Type annotations or assertions
+alone do not prove that boundary. `instanceof`
 requires an actual SDK constructor origin; internal or uncertain `Symbol.hasInstance`
 invocations are unsupported. No protocol invocation edges are added.
 Unknown or internal primitive coercion at addition/concatenation and template interpolation
@@ -353,9 +365,12 @@ proof; strict identity, logical truthiness, `typeof` and `void` are distinct.
 The `in` operator requires a proven primitive/property-symbol left key; its ordinary
 right-hand object is not itself a coercion refusal. Actual SDK global bindings cannot
 be replaced through data descriptors merely because the binding is a noncallable
-namespace. Receiver identity and captured SDK variable declarations establish this
-boundary, including JavaScript's merged descriptor declarations; local homonyms remain
-distinct. These shared semantic diagnostics add no invocation edges and may also report
+namespace. The same `SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED` rule applies to actual SDK-global
+replacement through `Object.defineProperties`, `Reflect.set` and `Object.assign`, not only a
+singular descriptor. Receiver identity and captured SDK variable declarations establish this
+boundary, including JavaScript's merged descriptor declarations; local homonyms and ordinary
+data targets remain distinct. This is a bounded set of mutator routes, not a complete global
+mutation model. These shared semantic diagnostics add no invocation edges and may also report
 the refusal through the JavaScript diagnostic API outside named qualification.
 Actual SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction refuse as instantiation
 boundaries: native module-start execution can call an imported internal helper without

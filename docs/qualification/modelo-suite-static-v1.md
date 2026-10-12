@@ -34,6 +34,14 @@ not captured yet; raw blobs do not establish that base's admission. Pure additio
 no base lines keep the existing path. Use refreshed working-tree verification before committing,
 but do not present it as a qualified committed-range result or disable the profile to bypass CI.
 This temporary restriction reduces supported range workflows without claiming a performance gain.
+Supported staged/range post-image comparison requires the already-declared Git >= 2.41 for
+`--attr-source`; an older Git returns an operational `UNSUPPORTED` diagnostic before conversion,
+not a qualified report. In retained post-image comparison, attribute observation failure or
+metadata drift produces `QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND`, and selected conversion
+failure produces `QUALIFIED_POST_IMAGE_CONVERSION_FAILED`. Both return invalid binding,
+rejected admission and a structured `BLOCK` report. An already-known unsupported base-removal
+range skips that unnecessary comparison. Unrelated Git status/freshness and I/O failures are
+not reclassified as these admission reasons.
 The analyzer digest identifies the implementation and actual compiler bytes independently
 of the package version. A source build carrying an existing release version is still a new
 unreleased candidate until its own artifacts are qualified.
@@ -158,7 +166,18 @@ four fixture outputs, without adding hidden invocation or module edges.
 Property membership (`in`) requires a proven primitive/property-symbol left operand;
 an ordinary right-hand object remains permitted. Descriptor replacement of an actual
 SDK global binding is unsupported even when that binding is a noncallable namespace.
-Captured SDK declarations and receiver identity distinguish it from local homonyms.
+`Object.defineProperties`, `Reflect.set` and `Object.assign` apply the same
+`SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED` rule as a singular descriptor for these actual
+SDK-global replacements. Captured SDK declarations and receiver identity distinguish them
+from local homonyms and ordinary data targets. These bounded routes do not establish a
+complete global mutation model.
+Awaiting an async result requires the actual callee binding, including resolved aliases, to
+remain unreassigned. A declared async function that has been replaced does not prove native
+promise origin. `for await...of` over a synchronous array requires a fresh direct literal
+whose non-hole elements each satisfy the existing safe-await proof: primitive values, actual
+native promises or supported async results. Mutable const arrays and spreads refuse this
+assimilation proof; proven primitive strings retain their boundary. Ordinary synchronous
+iteration remains distinct, and this does not qualify arbitrary async iterators.
 The shared JavaScript semantic diagnostic API can also report these refusals; ordinary
 extraction receives no synthesized invocation facts.
 Captured SDK WebAssembly `instantiate`, `instantiateStreaming` and `Instance` construction are unsupported
