@@ -54,6 +54,7 @@ import {
   inspectJavaScriptSource,
   inspectSourceParsing,
   inspectModuleConfiguration,
+  createWorkspaceLinkResolver,
   type IndexWorkerSelection,
   type MarkerDeclaration,
   type TypeScriptParallelism,
@@ -207,6 +208,7 @@ function composePlaneARuntime(
 
   const perPath: PerPathAnalysis[] = [];
   const localCallReasons = getQualifiedCallIntegrityReasons(legacyAnalysis);
+  const workspaceLinks = createWorkspaceLinkResolver();
   for (const candidate of selectedAnalyzable) {
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
@@ -221,7 +223,7 @@ function composePlaneARuntime(
         forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_DECLARATION_FILE_UNSUPPORTED"]);
         continue;
       }
-      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs)];
+      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs, undefined, workspaceLinks)];
       if (reasons.length > 0) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
@@ -229,7 +231,7 @@ function composePlaneARuntime(
       }
     }
     if (candidate.language === "javascript") {
-      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs);
+      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks);
       const reasons = [...diagnostics.reasons, ...(localCallReasons.get(candidate.relPath) ?? [])];
       if (diagnostics.parseFailed) {
         forcedOutcomes.set(candidate.relPath, "failed");

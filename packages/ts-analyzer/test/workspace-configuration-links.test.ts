@@ -132,3 +132,62 @@ test("a workspace declared above the repository boundary receives no link", () =
   // Module resolution has no analyzed root: the `.git` marker is its boundary.
   expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBeUndefined();
 });
+
+function failsToResolve(root: string, source: string, code = "6053"): boolean {
+  return configurationFailures(inspectModuleConfiguration(source, root)).some(reason => reason.startsWith(`SOURCE_CONFIGURATION_INVALID:${code}`));
+}
+
+test("a traversal pattern cannot add a member outside the workspace root", () => {
+  const parent = temporaryRoot("semctx-workspace-traversal-");
+  write(parent, {
+    ...Object.fromEntries(Object.entries(CONFIG_MEMBER).map(([path, content]) => [path.replace("tooling/", "outside/"), content])),
+    "repo/pnpm-workspace.yaml": "packages:\n  - \"domains/*/*\"\n  - \"../outside/*\"\n",
+    "repo/domains/registry/api/package.json": JSON.stringify({ name: "@fixture/registry-api", devDependencies: { "@fixture/config": "workspace:*" } }),
+    "repo/domains/registry/api/tsconfig.json": JSON.stringify({ extends: "@fixture/config/tsconfig/node.json" }),
+    "repo/domains/registry/api/src/registry.ts": "export const registry = 1;\n",
+  });
+  mkdirSync(join(parent, "repo", ".git"));
+  const root = `${parent}/repo`;
+  const source = `${root}/domains/registry/api/src/registry.ts`;
+  expect(failsToResolve(root, source)).toBe(true);
+  expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBeUndefined();
+});
+
+test("a ./ prefixed workspace pattern names the same members", () => {
+  const { root, source } = workspace("workspace:*", { "pnpm-workspace.yaml": "packages:\n  - \"./tooling/*\"\n  - \"./domains/*/*\"\n" });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
+
+test("a comparator workspace range is a workspace link", () => {
+  const { root, source } = workspace("workspace:>=0.0.0");
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
+
+test("an installed package directory never falls back to the workspace member", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "domains/registry/api/node_modules/@fixture/config/package.json": JSON.stringify({ name: "@fixture/config" }),
+  });
+  expect(failsToResolve(root, source)).toBe(true);
+});
+
+test("a hoisted installed package keeps precedence over the workspace link", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "node_modules/@fixture/config/package.json": JSON.stringify({
+      name: "@fixture/config", exports: { "./tsconfig/node.json": "./tsconfig/node.json" },
+    }),
+    "node_modules/@fixture/config/tsconfig/node.json": JSON.stringify({ compilerOptions: { module: "NotAModule" } }),
+  });
+  expect(failsToResolve(root, source, "6046")).toBe(true);
+});
+
+test("each analysis pass observes the current workspace members", () => {
+  const { root, source } = workspace();
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  const duplicate = Object.fromEntries(Object.entries(CONFIG_MEMBER).map(([path, content]) => [path.replace("tooling/config/", "tooling/config-copy/"), content]));
+  write(root, duplicate);
+  expect(failsToResolve(root, source)).toBe(true);
+  rmSync(join(root, "tooling", "config-copy"), { recursive: true, force: true });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});

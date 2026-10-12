@@ -3,7 +3,7 @@ import { dirname, relative, isAbsolute, join, resolve } from "node:path";
 import { builtinModules } from "node:module";
 import { resolveTypeScriptModule, retainedCompilerSystem, isModeledCallCallee, type CompilerInputSnapshot } from "./ts-symbols";
 import { inspectSemanticDependencies } from "./semantic-dependency-diagnostics";
-import { workspaceLinkedSystem } from "./workspace-links";
+import { workspaceLinkedSystem, type WorkspaceLinkResolver } from "./workspace-links";
 
 const BUILTIN_MODULES = new Set(builtinModules.map(name => name.replace(/^node:/, "")));
 const ordinaryProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
@@ -233,7 +233,7 @@ export function hasNodeCreateRequireUse(source: ts.SourceFile): boolean {
 }
 
 /** Diagnostic-only constructs never acquire a complete ESM capability by extension recognition. */
-export function inspectJavaScriptSource(path: string, content: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot): {
+export function inspectJavaScriptSource(path: string, content: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot, workspaceLinks?: WorkspaceLinkResolver): {
   parseFailed: boolean;
   reasons: string[];
   staticExports: { name: string; declarationKind: string }[];
@@ -280,7 +280,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     }
   };
   const recordModuleLink = (specifier: string): void => {
-    const resolved = resolveTypeScriptModule(specifier, path, undefined, true, compilerInputs);
+    const resolved = resolveTypeScriptModule(specifier, path, undefined, true, compilerInputs, workspaceLinks);
     const external = BUILTIN_MODULES.has(specifier.replace(/^node:/, "")) || (resolved !== undefined && /[/\\]node_modules[/\\]/.test(resolved)) || (resolved === undefined && !specifier.startsWith(".") && isDeclaredExternal(specifier));
     staticModuleLinks.push({ specifier, resolution: external ? "external" : resolved !== undefined ? "resolved" : "unresolved" });
     if (resolved === undefined && !external) reasons.add(`JAVASCRIPT_IMPORT_UNRESOLVED:${specifier}`);
@@ -325,7 +325,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     ts.forEachChild(node, visit);
   };
   visit(source);
-  for (const reason of inspectModuleConfiguration(path, repositoryRoot, compilerInputs)) reasons.add(reason);
+  for (const reason of inspectModuleConfiguration(path, repositoryRoot, compilerInputs, undefined, workspaceLinks)) reasons.add(reason);
   return { parseFailed: diagnostics.length > 0, reasons: [...reasons].sort(), staticExports: staticExports.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0), staticModuleLinks };
 }
 
@@ -360,7 +360,13 @@ function inspectUnconsumedNamedConfigurations(inputs: CompilerInputSnapshot): st
   namedConfigurationReasons.set(inputs, reasons); return reasons;
 }
 
-export function inspectModuleConfiguration(path: string, repositoryRoot?: string, compilerInputs?: CompilerInputSnapshot, source?: ts.SourceFile): string[] {
+export function inspectModuleConfiguration(
+  path: string,
+  repositoryRoot?: string,
+  compilerInputs?: CompilerInputSnapshot,
+  source?: ts.SourceFile,
+  workspaceLinks?: WorkspaceLinkResolver,
+): string[] {
   const system = compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs);
   const retainedText = source === undefined && compilerInputs !== undefined ? system.readFile(path) : undefined;
   const inspectedSource = source ?? (retainedText === undefined ? undefined : ts.createSourceFile(path, retainedText, ts.ScriptTarget.Latest, true));
@@ -384,7 +390,7 @@ export function inspectModuleConfiguration(path: string, repositoryRoot?: string
   const config = ts.readConfigFile(configPath, candidate => system.readFile(candidate));
   // Live checkouts may lack the installed link to a workspace member's shared configuration;
   // retained snapshots keep exactly the inputs they captured.
-  const configurationSystem = compilerInputs === undefined ? workspaceLinkedSystem(system, repositoryRoot) : system;
+  const configurationSystem = compilerInputs === undefined ? workspaceLinkedSystem(system, repositoryRoot, workspaceLinks) : system;
   let escaped = false;
   const parsed = config.error ? undefined : ts.parseJsonConfigFileContent(config.config, { ...configurationSystem,
     readDirectory: () => [],
