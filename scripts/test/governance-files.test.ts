@@ -106,11 +106,11 @@ const SETUP_PYTHON =
 const SETUP_BUN =
   "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0";
 const SETUP_NODE =
-  "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0";
+  "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0";
 const UPLOAD_ARTIFACT =
-  "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1";
+  "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2";
 const DOWNLOAD_ARTIFACT =
-  "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1";
+  "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2";
 
 describe("CI governance", () => {
   test("uses safe triggers, least privilege, and PR-only cancellation", () => {
