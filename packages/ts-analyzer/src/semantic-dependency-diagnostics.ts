@@ -1124,6 +1124,8 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     reasons.add("SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED");
   };
   const inspectRuntimeCode = (node: ts.CallExpression | ts.NewExpression): void => {
+    if (sdkOrigin(node.expression) && sdkValue(actualValue(node.expression))?.getName() === "String"
+      && node.arguments?.[0] !== undefined && !primitiveValue(node.arguments[0])) reasons.add("SOURCE_COERCION_UNSUPPORTED");
     if (sdkOrigin(node.expression) && ((ts.isCallExpression(node) && ["instantiate", "instantiateStreaming"].some(member => sdkMemberOf(node.expression, "WebAssembly", member)))
       || (ts.isNewExpression(node) && sdkMemberOf(node.expression, "WebAssembly", "Instance")))) {
       reasons.add("SOURCE_WASM_INSTANTIATION_UNSUPPORTED");
@@ -1131,6 +1133,11 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (!ts.isCallExpression(node)) return;
     const callee = actualValue(node.expression);
     if ((ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) && sdkOrigin(callee.expression)) {
+      if (sdkMemberOf(callee, "Array", "join")) {
+        const array = literalArray(callee.expression);
+        if (array === undefined || !array.elements.every(element => ts.isExpression(element) && primitiveValue(element))
+          || (node.arguments[0] !== undefined && !primitiveValue(node.arguments[0]))) reasons.add("SOURCE_COERCION_UNSUPPORTED");
+      }
       if (["write", "writeln"].some(member => sdkMemberOf(callee, "Document", member))) reasons.add("SOURCE_DOCUMENT_WRITE_UNSUPPORTED");
       const insertion = sdkNodeInsertions.find(([owner, member]) => sdkMemberOf(callee, owner, member));
       if (insertion !== undefined) {

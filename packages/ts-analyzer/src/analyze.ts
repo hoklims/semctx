@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import ts from "typescript";
 import { basename } from "node:path";
 import {
   repositoryId,
@@ -253,6 +254,18 @@ export function assembleRepository(
   // an approximate call edge is worse than a missing one.
   const callReasons = new Map<string, string[]>();
   const checkLocalCalls = config.version === 2 && config.selectionMode === "qualified-static-v1" && config.analysisProfile === "modelo-suite-static-v1";
+  const dynamicTestImports = new Set<string>();
+  if (checkLocalCalls && compilerInputs !== undefined) for (const file of tsFiles.filter(file => file.role === "test")) {
+    const text = compilerInputs.get(file.absPath);
+    if (text === undefined) continue;
+    const source = ts.createSourceFile(file.absPath, text, ts.ScriptTarget.Latest, true);
+    const visit = (node: ts.Node): void => {
+      if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && node.arguments.length === 1
+        && ts.isStringLiteral(node.arguments[0]!)) dynamicTestImports.add(`${file.relPath}:${source.getLineAndCharacterOfPosition(node.getStart()).line + 1}:${node.arguments[0]!.text}`);
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
   const modeledModules = new Set(extraction.modules);
   const checkCoordinate = (callerPath: string, role: "CALLER" | "CALLEE", path: string | undefined, coordinate: string | undefined): void => {
     if (!checkLocalCalls || path === undefined || coordinate === undefined || !modeledModules.has(path)) return;
@@ -299,6 +312,13 @@ export function assembleRepository(
 
   // tested_by / covers via test-file imports resolving to symbols.
   for (const imp of extraction.imports) {
+    if (checkLocalCalls && imp.resolvedRelPath !== undefined && imp.bindingTargets === undefined
+      && dynamicTestImports.has(`${imp.fromRelPath}:${imp.line}:${imp.moduleSpecifier}`)) {
+      const reason = `QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:${imp.resolvedRelPath}`;
+      const reasons = callReasons.get(imp.fromRelPath) ?? [];
+      if (!reasons.includes(reason)) reasons.push(reason);
+      callReasons.set(imp.fromRelPath, reasons);
+    }
     if (checkLocalCalls) for (const binding of imp.bindingTargets ?? []) {
       if (binding.runtimeUsed === false || !modeledModules.has(binding.relPath)) continue;
       const matches = byQualified.get(binding.relPath)?.get(binding.symbolPath)?.length ?? 0;
