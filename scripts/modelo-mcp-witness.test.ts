@@ -101,3 +101,49 @@ for (const stream of ["stdout", "stderr"] as const) for (const cancellation of [
     expect(result.failure?.code).toBe("MCP_TEARDOWN_INCOMPLETE");
   } finally { intercept.mockRestore(); }
 });
+
+test("valid final MCP response cannot hide trailing malformed protocol data", async () => {
+  const result = await witness(String.raw`let pending=''; process.stdin.setEncoding('utf8'); process.stdin.on('data',chunk=>{
+    pending+=chunk; let end; while((end=pending.indexOf('\n'))>=0){const request=JSON.parse(pending.slice(0,end));pending=pending.slice(end+1);if(!request.id)continue;
+    const result=request.method==='initialize'?{protocolVersion:'2025-03-26',capabilities:{tools:{}},serverInfo:{name:'owned',version:'1'}}:{content:[],structuredContent:{verdict:'BLOCK'}};
+    process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:request.id,result})+'\n'+(request.method==='tools/call'?'malformed trailing data\n':''));}
+  });`);
+  expect(result.result).not.toBeNull();
+  expect(result.failure?.code).toBe("MCP_PROTOCOL_INVALID");
+});
+
+for (const stream of ["stdout", "stderr"] as const) test(`owned ${stream} read rejection after replies cannot report success`, async () => {
+  const { root, bundle } = fixture(String.raw`let buffer='';process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{
+    buffer+=chunk;let end;while((end=buffer.indexOf('\n'))>=0){const request=JSON.parse(buffer.slice(0,end));buffer=buffer.slice(end+1);
+    if(request.id)process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:request.id,result:{content:[]}})+'\n');}});`);
+  const getReader = Reflect.get(ReadableStream.prototype, "getReader") as typeof ReadableStream.prototype.getReader;
+  let readerIndex = 0;
+  const faultyIndex = stream === "stdout" ? 0 : 1;
+  const acquire = function (this: ReadableStream<Uint8Array>, options?: Parameters<typeof getReader>[0]): ReadableStreamDefaultReader<Uint8Array> {
+    const reader = Reflect.apply(getReader, this, options === undefined ? [] : [options]) as ReadableStreamDefaultReader<Uint8Array>;
+    if (readerIndex++ !== faultyIndex) return reader;
+    const faulty = Object.create(reader) as ReadableStreamDefaultReader<Uint8Array>;
+    faulty.read = async () => { const next = await reader.read(); if (next.done) throw new Error("controlled owned read rejection"); return next; };
+    faulty.cancel = async () => { await reader.cancel(); };
+    return faulty;
+  };
+  const intercept = spyOn(ReadableStream.prototype, "getReader").mockImplementation(acquire as unknown as typeof ReadableStream.prototype.getReader);
+  try {
+    const result = await verifyMcpWitness({ bundle, cwd: root, repositoryRoot: root, env: process.env, limits });
+    expect(result.result).not.toBeNull();
+    expect(result.teardown.childExited).toBe(true);
+    expect(alive(result.pid)).toBe(false);
+    expect(result.teardown[`${stream}Cancelled`]).toBe(true);
+    expect(result.failure?.code).toBe("MCP_TRANSPORT_FAILED");
+  } finally { intercept.mockRestore(); }
+});
+
+test("ordinary final reply followed by child EOF remains successful", async () => {
+  const result = await witness(String.raw`let pending=''; process.stdin.setEncoding('utf8'); process.stdin.on('data',chunk=>{
+    pending+=chunk; let end; while((end=pending.indexOf('\n'))>=0){const request=JSON.parse(pending.slice(0,end));pending=pending.slice(end+1);if(!request.id)continue;
+    process.stdout.write(JSON.stringify({jsonrpc:'2.0',id:request.id,result:{content:[]}})+'\n');
+    if(request.method==='tools/call')process.exit(0);}
+  });`);
+  expect(result.result).not.toBeNull();
+  expect(result.failure).toBeNull();
+});

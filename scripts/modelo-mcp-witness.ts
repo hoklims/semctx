@@ -37,8 +37,13 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
     teardown: { forced: false, childExited: false, stdoutClosed: false, stderrClosed: false, stdoutCancelled: false, stderrCancelled: false },
   };
   let terminal: ProtocolFailure | null = null;
+  let finalReplyReceived = false;
   const waiting: { current: { id: number; resolve: (value: Record<string, unknown>) => void; reject: (cause: ProtocolFailure) => void } | null } = { current: null };
-  function fail(cause: ProtocolFailure): void { terminal ??= cause; waiting.current?.reject(cause); waiting.current = null; }
+  function fail(cause: ProtocolFailure): void {
+    terminal ??= cause;
+    outcome.failure ??= { code: cause.code, message: cause.message };
+    waiting.current?.reject(cause); waiting.current = null;
+  }
   const stderrDrain = (async () => {
     const decoder = new TextDecoder();
     while (true) {
@@ -52,7 +57,11 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
     const decoder = new TextDecoder(); let pending = "";
     while (true) {
       const next = await stdoutReader.read();
-      if (next.done) { outcome.teardown.stdoutClosed = true; fail(new ProtocolFailure("MCP_STDOUT_CLOSED", "MCP process ended before responding")); break; }
+      if (next.done) {
+        outcome.teardown.stdoutClosed = true;
+        if (!finalReplyReceived) fail(new ProtocolFailure("MCP_STDOUT_CLOSED", "MCP process ended before responding"));
+        break;
+      }
       outcome.stdoutBytes += next.value.length;
       if (outcome.stdoutBytes > limits.stdoutMaxBytes) { fail(new ProtocolFailure("MCP_STDOUT_LIMIT", `MCP stdout exceeded ${limits.stdoutMaxBytes} bytes`)); break; }
       pending += decoder.decode(next.value, { stream: true });
@@ -64,7 +73,9 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
         if (!record(response) || response.jsonrpc !== "2.0") { fail(new ProtocolFailure("MCP_PROTOCOL_INVALID", "MCP response lacks the JSON-RPC envelope")); return; }
         if (waiting.current === null || response.id !== waiting.current.id) continue;
         if (response.error !== undefined || !record(response.result)) { fail(new ProtocolFailure("MCP_PROTOCOL_INVALID", "MCP request returned an error or malformed result")); return; }
-        const current = waiting.current; waiting.current = null; current?.resolve(response.result);
+        const current = waiting.current; waiting.current = null;
+        if (current.id === 2) finalReplyReceived = true;
+        current.resolve(response.result);
       }
     }
   })().catch((cause: unknown) => { fail(new ProtocolFailure("MCP_TRANSPORT_FAILED", String(cause))); });
@@ -82,15 +93,16 @@ export async function verifyMcpWitness(input: { bundle: string; cwd: string; rep
     outcome.result = await request(2, "tools/call", { name: "semctx_verify_change", arguments: { repositoryRoot: input.repositoryRoot } });
   })().catch((cause: unknown) => {
     const failure = cause instanceof ProtocolFailure ? cause : new ProtocolFailure("MCP_TRANSPORT_FAILED", String(cause));
-    outcome.failure = { code: failure.code, message: failure.message };
+    outcome.failure ??= { code: failure.code, message: failure.message };
   });
   try {
     if (await within(exchange, limits.exchangeDeadlineMs) === TIMEOUT) {
       const failure = new ProtocolFailure("MCP_EXCHANGE_DEADLINE", `MCP exchange exceeded ${limits.exchangeDeadlineMs}ms`);
-      fail(failure); outcome.failure = { code: failure.code, message: failure.message };
+      fail(failure);
     }
   } finally {
-    fail(new ProtocolFailure("MCP_TRANSPORT_FAILED", "MCP exchange finished"));
+    waiting.current?.reject(new ProtocolFailure("MCP_TRANSPORT_FAILED", "MCP exchange finished"));
+    waiting.current = null;
     try { void Promise.resolve(child.stdin.end()).catch(() => undefined); } catch { /* closed child input */ }
     try { child.kill(); } catch { /* already exited */ }
     if (await within(child.exited, limits.terminateGraceMs) === TIMEOUT) {

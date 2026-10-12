@@ -22,8 +22,15 @@ export function assertPositiveReport(result: Observation, expected: PositiveExpe
   return positiveReport(JSON.parse(result.stdout), expected);
 }
 
-export function assertMcpPositiveReport(result: { isError?: unknown; structuredContent?: unknown }, expected: PositiveExpectation = {}): VerifyReport {
-  assert.notEqual(result.isError, true, "Positive MCP verification must not be an error");
+type McpReportEnvelope = { content?: unknown; isError?: unknown; structuredContent?: unknown };
+function assertMcpReportEnvelope(result: McpReportEnvelope): void {
+  assert(result.isError === undefined || result.isError === false, "MCP verification must not be a tool error or malformed error flag");
+  assert(Array.isArray(result.content) && result.content.every(item => item !== null && typeof item === "object"
+    && (item as Record<string, unknown>).type === "text" && typeof (item as Record<string, unknown>).text === "string"), "MCP verification must retain its text content envelope");
+}
+
+export function assertMcpPositiveReport(result: McpReportEnvelope, expected: PositiveExpectation = {}): VerifyReport {
+  assertMcpReportEnvelope(result);
   return positiveReport(result.structuredContent, expected);
 }
 
@@ -41,10 +48,8 @@ export function assertQualifiedBlock(result: Observation, expected: RefusalExpec
   qualifiedBlock(JSON.parse(result.stdout), expected);
 }
 
-export function assertMcpQualifiedBlock(result: { content?: unknown; isError?: unknown; structuredContent?: unknown }, expected: RefusalExpectation = {}): VerifyReport {
-  assert(result.isError === undefined || result.isError === false, "Qualified MCP refusal must not be a tool error or malformed error flag");
-  assert(Array.isArray(result.content) && result.content.every(item => item !== null && typeof item === "object"
-    && (item as Record<string, unknown>).type === "text" && typeof (item as Record<string, unknown>).text === "string"), "Qualified MCP verification must retain its text content envelope");
+export function assertMcpQualifiedBlock(result: McpReportEnvelope, expected: RefusalExpectation = {}): VerifyReport {
+  assertMcpReportEnvelope(result);
   return qualifiedBlock(result.structuredContent, expected);
 }
 

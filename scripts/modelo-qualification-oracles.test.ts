@@ -96,7 +96,7 @@ for (const freshness of ["indexFreshness", "controlFreshness"] as const) {
     const value = positive();
     value.analysisAdmission[freshness] = { verdict: "STALE", reasons: ["SOURCE_CHANGED"] };
     expect(() => assertPositiveReport(observation(value, 0), { qualified: true })).toThrow();
-    expect(() => assertMcpPositiveReport({ structuredContent: value }, { qualified: true })).toThrow();
+    expect(() => assertMcpPositiveReport({ content: [], structuredContent: value }, { qualified: true })).toThrow();
   });
 }
 
@@ -105,7 +105,7 @@ test("positive admission requires valid binding and current check", () => {
   const changedCheck = positive(); changedCheck.analysisAdmission.checkFreshness.status = "changed";
   for (const value of [invalidBinding, changedCheck]) {
     expect(() => assertPositiveReport(observation(value, 0), { qualified: true })).toThrow();
-    expect(() => assertMcpPositiveReport({ structuredContent: value }, { qualified: true })).toThrow();
+    expect(() => assertMcpPositiveReport({ content: [], structuredContent: value }, { qualified: true })).toThrow();
   }
 });
 
@@ -116,13 +116,13 @@ test("qualified positives cannot substitute a legacy PASS or rejected admission"
 });
 
 test("MCP positives reject errors even with matching structured fields", () => {
-  expect(() => assertMcpPositiveReport({ isError: true, structuredContent: positive() }, { qualified: true })).toThrow();
+  expect(() => assertMcpPositiveReport({ content: [], isError: true, structuredContent: positive() }, { qualified: true })).toThrow();
 });
 
 test("MCP positives require a complete structured report", () => {
   const { summary: _summary, ...malformed } = positive();
   for (const structuredContent of [undefined, malformed]) {
-    expect(() => assertMcpPositiveReport({ structuredContent }, { qualified: true })).toThrow();
+    expect(() => assertMcpPositiveReport({ content: [], structuredContent }, { qualified: true })).toThrow();
   }
 });
 
@@ -130,7 +130,7 @@ test("schema-valid current positive CLI plugin and MCP controls remain admitted"
   const value = positive();
   const cli = assertPositiveReport(observation(value, 0), { qualified: true });
   const plugin = assertPositiveReport(observation(value, 0), { qualified: true });
-  const mcp = assertMcpPositiveReport({ isError: false, structuredContent: value }, { qualified: true });
+  const mcp = assertMcpPositiveReport({ content: [{ type: "text", text: JSON.stringify(value) }], isError: false, structuredContent: value }, { qualified: true });
   expect(cli).toEqual(value); expect(plugin).toEqual(cli); expect(mcp).toEqual(cli);
 });
 
@@ -202,4 +202,18 @@ test("MCP stale refusal retains the claimed freshness and complete BLOCK control
   const envelope = { content: [], structuredContent: value };
   expect(() => assertMcpQualifiedBlock(envelope, { indexFreshness: ["STALE", "UNSEALED"] })).not.toThrow();
   expect(() => assertMcpQualifiedBlock(envelope, { indexFreshness: ["FRESH", "DIRTY_KNOWN"] })).toThrow();
+});
+
+test("positive MCP proof requires an absent or false error flag", () => {
+  const envelope = { content: [{ type: "text", text: JSON.stringify(positive()) }], structuredContent: positive() };
+  expect(() => assertMcpPositiveReport(envelope, { qualified: true })).not.toThrow();
+  for (const isError of ["true", "false", 0, 1, null]) {
+    expect(() => assertMcpPositiveReport({ ...envelope, isError }, { qualified: true })).toThrow();
+  }
+});
+
+test("positive MCP proof requires its actual text content envelope", () => {
+  for (const content of [undefined, "PASS", [null], [{ type: "text" }], [{ type: "text", text: 1 }], [{ type: "other", text: "PASS" }]]) {
+    expect(() => assertMcpPositiveReport({ content, structuredContent: positive() }, { qualified: true })).toThrow();
+  }
 });
