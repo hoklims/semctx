@@ -9,6 +9,8 @@ export interface CiLane {
   profile: CiProfile;
   targets: string;
   smoke: "true" | "false";
+  /** `index/count` slice of the lane's test files, or "" for a lane that runs them all. */
+  shard: string;
 }
 
 export interface CiPlan {
@@ -35,7 +37,7 @@ const ROUTING_PATHS = new Set([
 ]);
 
 const ROOT_DOCUMENTS = new Set([
-  "README.md", "CONTRIBUTING.md", "CHANGELOG.md", "SECURITY.md", "ROADMAP.md",
+  "README.md", "README.fr.md", "CONTRIBUTING.md", "CHANGELOG.md", "SECURITY.md", "ROADMAP.md",
   ".github/pull_request_template.md",
 ]);
 
@@ -53,8 +55,21 @@ export const FOCUSED_TEST_TARGETS = new Set([
   ...ROUTING_TESTS,
 ]);
 
+// Test files stay serial inside a runner, as in the canonical gate, so per-test timing margins are
+// those of one host. Suite lanes are split by file across this many runners per OS instead.
+export const TEST_SHARDS: Readonly<Record<CiOs, number>> = {
+  "ubuntu-latest": 2,
+  "windows-latest": 4,
+  "macos-15": 2,
+};
+
 function lane(os: CiOs, profile: CiProfile, targets = "", smoke = false): CiLane {
-  return { os, profile, targets, smoke: smoke ? "true" : "false" };
+  return { os, profile, targets, smoke: smoke ? "true" : "false", shard: "" };
+}
+
+function sharded(suite: CiLane): CiLane[] {
+  const count = TEST_SHARDS[suite.os];
+  return Array.from({ length: count }, (_, index) => ({ ...suite, shard: `${index + 1}/${count}` }));
 }
 
 const CONTRACT = lane("ubuntu-latest", "contract");
@@ -64,8 +79,8 @@ function fallback(reason: string): CiPlan {
   return {
     mode: "fallback",
     reason,
-    matrix: { include: [CONTRACT, lane("ubuntu-latest", "full", "", true),
-      ...CROSS_OS.map((os) => lane(os, "full", "", true))] },
+    matrix: { include: [CONTRACT, ...sharded(lane("ubuntu-latest", "full", "", true)),
+      ...CROSS_OS.flatMap((os) => sharded(lane(os, "full", "", true)))] },
   };
 }
 
@@ -85,7 +100,8 @@ function isWorkerPath(path: string): boolean {
 }
 
 function isDocumentationPath(path: string): boolean {
-  return ROOT_DOCUMENTS.has(path) || (path.startsWith("docs/") && path.endsWith(".md"));
+  return ROOT_DOCUMENTS.has(path) || (path.startsWith("docs/") && path.endsWith(".md"))
+    || (path.startsWith("docs/assets/") && path.endsWith(".svg"));
 }
 
 export function planForPaths(paths: readonly string[], targetExists: (path: string) => boolean): CiPlan {
@@ -144,11 +160,12 @@ export function planForPaths(paths: readonly string[], targetExists: (path: stri
     if (!targetExists(target)) return fallback("missing test target");
   }
   const focusedTargets = [...targets].sort().join(",");
-  const matrix = [CONTRACT, lane("ubuntu-latest", "full", "", smoke)];
+  const matrix = [CONTRACT, ...sharded(lane("ubuntu-latest", "full", "", smoke))];
   if (focusedTargets.length > 0) {
-    matrix.push(...CROSS_OS.map((os) => lane(os, "focused", focusedTargets, smoke)));
+    matrix.push(...CROSS_OS.flatMap((os) => sharded(lane(os, "focused", focusedTargets, smoke))));
   } else if (smoke) {
-    matrix.push(...CROSS_OS.map((os) => lane(os, "focused", "scripts/test/benchmark-multicore-index.test.ts", true)));
+    matrix.push(...CROSS_OS.flatMap((os) =>
+      sharded(lane(os, "focused", "scripts/test/benchmark-multicore-index.test.ts", true))));
   }
   return { mode: "affected", reason: "source or integration change", matrix: { include: matrix } };
 }
