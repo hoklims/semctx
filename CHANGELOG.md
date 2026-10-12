@@ -9,22 +9,23 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-10-12
+
+### Added
+
+- Observed setup scope and bounded include proposals, without automatic configuration changes.
+- Opt-in qualified JavaScript ESM analysis with retained-input, analyzed-scope and Git identity
+  requirements; unsupported implicit execution remains an explicit refusal.
+
 ### Fixed
 
-- `verify diff --base` (and any committed range) no longer passes a change that removes a guard.
-  The range is indexed at its head, so a deleted file or exported interface, a stripped
-  `@invariant`/`@tag` marker, or a renamed file was absent from the graph and raised nothing, while
-  the same edit in the working tree was refused. The guards are now recovered from the merge-base
-  and reported with the existing rules, noted "removed, moved or no longer guarded by this change".
-  A range that removes no lines is unaffected; one that does analyses the base tree once more.
-  A stripped guard is not reported when the same range adds a covering test. Marker-only removals
-  are checked even when the declaration body is unchanged. Base recovery reads raw committed blobs
-  without checkout filters; selected Git links are refused. Failed selected base analysis blocks,
-  and excluded or incomplete base scope stays explicitly unknown rather than silently passing.
-- A diff made only of renames, binary or mode-only changes no longer reports "No changes detected";
-  it names the paths whose contents were not compared.
-- The `VerifyComputation` characterization test no longer depends on the developer's global Git
-  configuration (it failed under `commit.gpgsign=true`).
+- Committed-range verification recovers guards removed, moved or stripped from its base tree.
+  Base blobs are read without checkout filters; unsafe paths and incomplete selected base
+  analysis refuse. Previously passing guard removals can now report WARN or BLOCK.
+- SQLite writer contention is bounded and CLI commands reliably release repository stores.
+- Multicore CI reports are archived separately for each OS, shard and workflow attempt.
+- Pre-commit examples keep indexing outside the hook and launch Bun from a trusted installation.
+- MCP SDK, lint tools and GitHub Actions receive maintenance updates with regenerated bundles.
 
 ## [0.4.2] - 2026-10-06
 

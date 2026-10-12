@@ -381,7 +381,7 @@ Plugins update from the `stable` branch, which moves only when a release is publ
 <summary>Tested host versions</summary>
 
 <!-- semctx:compatibility:start -->
-Semctx **0.4.2** requires **Bun >=1.4.0**.
+Semctx **0.4.3** requires **Bun >=1.4.0**.
 The supported, tested host baseline is **Codex 0.147.0** and
 **Claude Code 2.1.229**. Other host versions are **unknown** until tested;
 these pins do not claim the earliest historically compatible versions.
