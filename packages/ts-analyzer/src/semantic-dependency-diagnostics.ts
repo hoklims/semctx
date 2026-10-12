@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { relative, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import type { RepositoryGraph, RepositoryNode } from "@semantic-context/core";
 import { isBuiltin } from "node:module";
 import { extractionContext, unwrapStaticExpression, retainedCallableCoordinate, retainedFunctionOwnerCoordinate, isModeledCallCallee, type CompilerInputSnapshot } from "./ts-symbols";
@@ -796,6 +796,20 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     if (!opaqueCallee(node.expression)) return;
     const callee = actualValue(node.expression);
     if (ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee)) {
+      const receiver = unwrapStaticExpression(callee.expression);
+      const callerOwned = declarations(receiver).some(origin => internal(origin)
+        && (ts.isVariableDeclaration(origin) || (ts.isBindingElement(origin) && ts.isVariableDeclaration(origin.parent.parent))));
+      const module = builtinModuleValue(receiver);
+      const external = module !== undefined && !module.startsWith(".") && !module.startsWith("/") && !/^[A-Za-z]:/.test(module);
+      if (callerOwned && !external && sdkValue(callee) === undefined) {
+        const members = declarations(callee);
+        const target = members.length === 1 && ts.isPropertyAssignment(members[0]!) && internal(members[0]!)
+          ? members[0]!.initializer : callee;
+        const root = ownership.get(inputs)?.root ?? dirname(bound.fileName);
+        const coordinate = retainedCallableCoordinate(checker, target, root, inputs);
+        if (coordinate?.relPath === undefined || coordinate.symbolPath === undefined || coordinate.unmodeledReason !== undefined
+          || !retained.has(key(resolve(root, coordinate.relPath)))) reasons.add("SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED");
+      }
       let root = actualValue(callee.expression);
       const members = [staticMemberName(callee)];
       const seen = new Set<ts.Node>();
