@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: hoklims/semctx/packages/github-action@v0.4.4
+      - uses: hoklims/semctx/packages/github-action@v0.4.5
         with:
           base: \${{ github.event.pull_request.base.sha }}
           head: \${{ github.sha }}

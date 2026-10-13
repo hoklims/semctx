@@ -9,6 +9,20 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-10-13
+
+### Fixed
+
+- Release-source verification has a 60-minute budget instead of 30 minutes. The immutable
+  v0.4.4 tag exhausted its verification budget before publication; npm publication, two-host
+  delivery and stable promotion did not run. Other release gates, ordering and OIDC permissions
+  are unchanged.
+- This corrective release carries the workspace scope, shared TypeScript configuration,
+  freshness and Windows cleanup fixes from PRs #339, #340 and #341, together with the opt-in
+  authorization reuse policy from PR #344. Exact timestamp ordering preserves assertion and
+  provider validity bounds across production and independent replay. Caller-owned storage and
+  atomic consumption remain the caller's responsibility. PRs #349 and #350 are outside this release.
+
 ## [0.4.4] - 2026-10-13
 
 ### Fixed
