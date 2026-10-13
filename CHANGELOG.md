@@ -9,6 +9,11 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Fixed
+
+- On Windows, the installer's deferred Codex cleanup no longer flashes a console window every
+  five seconds while it polls `codex plugin list` for up to twelve hours.
+
 ## [0.4.3] - 2026-10-12
 
 ### Added

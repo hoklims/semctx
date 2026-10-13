@@ -341,7 +341,7 @@ function defaultRun(command: readonly string[], cwd: string, budget?: NativeInst
   }
 }
 
-const DEFERRED_CODEX_CLEANUP_SCRIPT = String.raw`
+export const DEFERRED_CODEX_CLEANUP_SCRIPT = String.raw`
 const { lstatSync } = await import("node:fs");
 const { dirname, extname, join } = await import("node:path");
 const root = process.argv[1];
@@ -381,7 +381,7 @@ const run = (command) => {
   if (remaining <= 0) return { exitCode: 1, stdout: new Uint8Array() };
   try {
     const result = Bun.spawnSync(command, {
-      cwd: root, stdin: "ignore", stdout: "pipe", stderr: "pipe",
+      cwd: root, stdin: "ignore", stdout: "pipe", stderr: "pipe", windowsHide: true,
       timeout: Math.min(remaining, command.includes("list") ? ${PLUGIN_DELIVERY_QUERY_TIMEOUT_MS} : ${NATIVE_MUTATION_TIMEOUT_MS}),
       maxBuffer: ${PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES / 2},
     });
@@ -541,6 +541,7 @@ const selectedVersion = () => {
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
+    windowsHide: true,
     timeout: ${PLUGIN_DELIVERY_QUERY_TIMEOUT_MS},
     maxBuffer: ${PLUGIN_DELIVERY_MAX_HOST_OUTPUT_BYTES / 2},
   });
