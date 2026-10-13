@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { runInNewContext } from "node:vm";
 import { evaluateChangeAuthorizationV1 } from "@semantic-context/control-engine";
 import { evaluateChangeAuthorizationReuseV1 } from "../src/index";
 import { verifyChangeAuthorizationCapsuleV1 } from "../src/verify";
@@ -25,10 +26,38 @@ function fixture() {
 
 describe("evaluateChangeAuthorizationReuseV1", () => {
   it.each([
+    ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.0008Z"],
+    ["2026-08-01T12:00:00.000900+0200", "2026-08-01T05:00:00.00089999999999999999-0500"],
+  ])("rejects a clock before sealing at full fractional precision: %s / %s", (evaluatedAt, verifiedAt) => {
+    const { request, policy, state } = fixture();
+    const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput({ evaluatedAt }));
+    const current = { ...request, capsule, verifiedAt };
+    expect(() => evaluateChangeAuthorizationReuseV1(current, { ...policy, maxAgeMs: 0 }, state))
+      .toThrow("change authorization verification request failed its public schema");
+    expect(() => verifyChangeAuthorizationCapsuleV1(current))
+      .toThrow("change authorization verification request failed its public schema");
+    expect(state.consumedCapsuleIds).toEqual([]);
+  });
+
+  it("snapshots dense ordinary consumption arrays from another realm", () => {
+    const { request, policy, state } = fixture();
+    request.verifiedAt = request.capsule.evaluatedAt;
+    const consumedCapsuleIds = runInNewContext('["previous"]') as string[];
+    const report = evaluateChangeAuthorizationReuseV1(request, policy, { ...state, consumedCapsuleIds });
+    expect(report.result).toBe("ACCEPTED");
+    expect(report.nextState.consumedCapsuleIds).toEqual(["previous", request.capsule.capsuleId]);
+    expect(consumedCapsuleIds).toEqual(["previous"]);
+    const consumed = runInNewContext("JSON.parse(input)", { input: JSON.stringify([request.capsule.capsuleId]) }) as string[];
+    expect(evaluateChangeAuthorizationReuseV1(request, policy, { ...state, consumedCapsuleIds: consumed }).reasonCode)
+      .toBe("CAPSULE_ALREADY_CONSUMED");
+  });
+
+  it.each([
     ["2026-08-01T10:00:00.000Z", "2026-08-01T10:00:01.0009Z", 1000, "CAPSULE_EXPIRED"],
     ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.0009000Z", 1000, "CAPSULE_REUSABLE"],
     ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.0008Z", 1000, "CAPSULE_REUSABLE"],
     ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.00091Z", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T10:00:00Z", "2026-08-01T10:00:00.00099999999999999999Z", 1, "CAPSULE_REUSABLE"],
     ["2026-08-01T10:00:00.00010000000000000000Z", "2026-08-01T10:00:01.00010000000000000001Z", 1000, "CAPSULE_EXPIRED"],
     ["2026-08-01T12:00:00.0009+02:00", "2026-08-01T05:00:01.000900-05:00", 1000, "CAPSULE_REUSABLE"],
     ["2026-08-01T12:00:00.0009+02:00", "2026-08-01T05:00:01.00091-05:00", 1000, "CAPSULE_EXPIRED"],

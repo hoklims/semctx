@@ -82,7 +82,12 @@ function canonicalizeJcs(value: unknown): unknown {
     return Object.is(value, -0) ? 0 : value;
   }
   if (Array.isArray(value)) {
-    if (Object.getPrototypeOf(value) !== Array.prototype) {
+    const prototype = Object.getPrototypeOf(value) as unknown;
+    const constructor = prototype === null ? undefined : Object.getOwnPropertyDescriptor(prototype, "constructor");
+    if (!Array.isArray(prototype) || constructor === undefined || !("value" in constructor)
+      || typeof constructor.value !== "function"
+      || Function.prototype.toString.call(constructor.value) !== Function.prototype.toString.call(Array)
+      || Object.getOwnPropertyDescriptor(constructor.value, "prototype")?.value !== prototype) {
       throw new Error("JCS can encode only plain JSON arrays");
     }
     const ownKeys = Reflect.ownKeys(value);
@@ -101,7 +106,11 @@ function canonicalizeJcs(value: unknown): unknown {
         throw new Error("JCS cannot encode an array accessor or non-enumerable element");
       }
     }
-    return value.map(canonicalizeJcs);
+    const result: unknown[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      result.push(canonicalizeJcs(Object.getOwnPropertyDescriptor(value, index)!.value));
+    }
+    return result;
   }
   if (typeof value === "object") {
     const prototype = Object.getPrototypeOf(value) as object | null;
