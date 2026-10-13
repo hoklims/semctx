@@ -32,6 +32,7 @@ import {
   type ControlHandoffRecordV2,
   type Sha256Hash,
 } from "@semantic-context/control-model";
+import { compareTimestampAgeV1 } from "./schemas";
 
 const VERDICT_RANK: Readonly<Record<ChangeAuthorizationVerdictV1, number>> = {
   DENY: 0,
@@ -197,7 +198,7 @@ function evaluatePolicyRule(
       collectedReasons.add("REQUIRED_EVIDENCE_MODALITY_INSUFFICIENT");
       continue;
     }
-    if (Date.parse(assertion.observedAt) > Date.parse(evaluatedAt) || Date.parse(evaluatedAt) > Date.parse(assertion.expiresAt)) {
+    if (compareTimestampAgeV1(assertion.observedAt, evaluatedAt) > 0 || compareTimestampAgeV1(evaluatedAt, assertion.expiresAt) > 0) {
       collectedReasons.add("REQUIRED_EVIDENCE_EXPIRED");
       continue;
     }
@@ -213,7 +214,7 @@ function evaluatePolicyRule(
       collectedReasons.add("PROVIDER_CAPABILITY_DEGRADED");
       continue;
     }
-    if (Date.parse(provider.observedAt) > Date.parse(evaluatedAt) || Date.parse(evaluatedAt) > Date.parse(provider.expiresAt)) {
+    if (compareTimestampAgeV1(provider.observedAt, evaluatedAt) > 0 || compareTimestampAgeV1(evaluatedAt, provider.expiresAt) > 0) {
       collectedReasons.add("SOURCE_SEAL_STALE");
       continue;
     }

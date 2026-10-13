@@ -3,7 +3,7 @@ import { runInNewContext } from "node:vm";
 import { evaluateChangeAuthorizationV1 } from "@semantic-context/control-engine";
 import { evaluateChangeAuthorizationReuseV1 } from "../src/index";
 import { verifyChangeAuthorizationCapsuleV1 } from "../src/verify";
-import { baseEvaluationInput, passingAssertionInput, record } from "./fixtures";
+import { baseEvaluationInput, passingAssertionInput, provider, record } from "./fixtures";
 
 function fixture() {
   const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput());
@@ -25,6 +25,34 @@ function fixture() {
 }
 
 describe("evaluateChangeAuthorizationReuseV1", () => {
+  for (const source of ["assertion", "provider"] as const) {
+    it.each([
+      ["expiresAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.000Z", "2026-08-01T10:00:00.0007Z", true],
+      ["expiresAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.000Z", "2026-08-01T12:00:00.0008000+0200", true],
+      ["expiresAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.000Z", "2026-08-01T10:00:00.0009Z", false],
+      ["observedAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.0008Z", "2026-08-01T12:00:00.000800+02:00", true],
+      ["observedAt", "2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.0008Z", false],
+    ] as const)(`preserves full fractional ${source} validity at %s=%s`, (field, timestamp, evaluatedAt, verifiedAt, reusable) => {
+      const { request, policy, state } = fixture();
+      const overrides = { [field]: timestamp };
+      const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput({
+        evaluatedAt,
+        ...(source === "assertion" ? { assertions: [passingAssertionInput(overrides)] } : { providers: [provider(overrides)] }),
+      }));
+      expect(capsule.verdict).toBe("ALLOW");
+      const report = evaluateChangeAuthorizationReuseV1({ ...request, capsule, verifiedAt }, policy, state);
+      expect(report.verification.semantic.currentVerdict).toBe(reusable ? "ALLOW" : "REQUIRE_EVIDENCE");
+      expect(report.reasonCode).toBe(reusable ? "CAPSULE_REUSABLE" : "CAPSULE_VERIFICATION_NOT_PASSED");
+      expect(report.result).toBe(reusable ? "ACCEPTED" : "REFUSED");
+      expect(report.nextState.consumedCapsuleIds).toEqual(reusable ? [capsule.capsuleId] : []);
+      expect(state.consumedCapsuleIds).toEqual([]);
+      if (!reusable) {
+        expect(report.verification.result).not.toBe("PASSED");
+        expect(report.verification.semantic.currentReasonCodes).toContain(source === "assertion" ? "REQUIRED_EVIDENCE_EXPIRED" : "SOURCE_SEAL_STALE");
+      }
+    });
+  }
+
   it.each([
     ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.0008Z"],
     ["2026-08-01T12:00:00.000900+0200", "2026-08-01T05:00:00.00089999999999999999-0500"],
