@@ -160,8 +160,8 @@ interface AttributeSnapshot {
   ident: string;
   workingTreeEncoding: string;
   explicitTransformer: boolean;
-  /** Full selected conversion context, present only in the qualified retained helper. */
-  conversionMetadata?: string;
+  /** Text/eol context, extended to all selected attributes in the qualified retained helper. */
+  conversionMetadata: string;
 }
 
 function attributeSnapshotIsSafe(snapshot: AttributeSnapshot): boolean {
@@ -266,7 +266,7 @@ function checkAttrBatch(root: string, paths: readonly string[], attributeSource?
     }
     allKeys.add(key);
     if (attribute === "filter") presentFilters?.set(path, value);
-    if (attributeSource !== undefined) {
+    if (attributeSource !== undefined || attribute === "text" || attribute === "eol") {
       const attributes = conversionMetadata.get(path) ?? [];
       attributes.push([attribute, value]);
       conversionMetadata.set(path, attributes);
@@ -290,7 +290,7 @@ function checkAttrBatch(root: string, paths: readonly string[], attributeSource?
       );
     }
     result.set(path, { filter, ident, workingTreeEncoding, explicitTransformer: explicitTransformers.has(path),
-      ...(attributeSource === undefined ? {} : { conversionMetadata: JSON.stringify((conversionMetadata.get(path) ?? []).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)) }),
+      conversionMetadata: JSON.stringify((conversionMetadata.get(path) ?? []).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)),
     });
   }
   return result;
@@ -545,7 +545,8 @@ function captureContentState(
       const after = reobserved.get(path)!;
       if (before.filter !== after.filter || before.ident !== after.ident
         || before.workingTreeEncoding !== after.workingTreeEncoding
-        || before.explicitTransformer !== after.explicitTransformer) {
+        || before.explicitTransformer !== after.explicitTransformer
+        || before.conversionMetadata !== after.conversionMetadata) {
         throw new SemctxError(
           "GIT_ERROR",
           "cannot capture verification source state: attribute metadata changed during capture",

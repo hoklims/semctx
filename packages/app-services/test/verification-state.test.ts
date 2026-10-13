@@ -431,6 +431,33 @@ describe("hidden bytes and attribute drift", () => {
     expect((error as SemctxError).message).toContain("attribute metadata changed during capture");
   }, 20_000);
 
+  for (const conversion of ["text", "eol=lf", "eol=crlf"]) it(`refuses mid-capture CRLF conversion drift: ${conversion}`, () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "raw crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    expect(git(root, "diff", "--name-only")).toBe("");
+    let barrierReached = false;
+    __setVerificationAttributeBarrierForTesting(() => {
+      barrierReached = true;
+      writeFileSync(join(root, ".git", "info", "attributes"), `${name} ${conversion}\n`);
+    });
+
+    let error: unknown;
+    try {
+      captureVerificationGitState(root);
+    } catch (caught) {
+      error = caught;
+    }
+    expect(barrierReached).toBe(true);
+    expect(error).toBeInstanceOf(SemctxError);
+    expect((error as SemctxError).code).toBe("GIT_ERROR");
+    expect((error as SemctxError).message).toContain("attribute metadata changed during capture");
+  }, 20_000);
+
   it("still detects a skip-worktree edit of a CRLF blob under core.autocrlf=true", () => {
     const root = repository();
     const name = "fixture.csv";
