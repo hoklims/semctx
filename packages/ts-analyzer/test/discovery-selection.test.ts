@@ -65,7 +65,16 @@ describe("discovery path exclusion shared with workspace discovery", () => {
     symlinkSync(outside, join(root, "packages/external"), process.platform === "win32" ? "junction" : "dir");
     for (const exclude of [["packages/external/**"], ["packages/*"], ["packages/external"], []]) {
       const config = globConfig(root, { include: ["**/*.ts"], exclude });
-      expect(discoverRepository(config).files.map((file) => file.relPath)).not.toContain("packages/external/secret.ts");
+      const discovery = discoverRepository(config);
+      expect(discovery.files.map((file) => file.relPath)).not.toContain("packages/external/secret.ts");
+      const link = discovery.candidates.find(candidate => candidate.relPath === "packages/external");
+      if (exclude[0] === "packages/external/**") {
+        expect(link).toBeUndefined();
+        expect(countTypeScriptFiles(config)).toBe(1);
+      } else {
+        expect(link?.reason).toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+        expect(() => countTypeScriptFiles(config)).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
       const input = { repositoryRoot: root, excludePath: createDiscoveryPathExclusion(config) };
       const sync = analyzeWorkspaceSync(input);
       expect(await analyzeWorkspace(input)).toEqual(sync);

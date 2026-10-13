@@ -325,6 +325,7 @@ function walk(
     // Containment: never follow symlinks — they could point outside the repository root
     // and leak external file content into the graph/pack (CWE-59).
     if (stat.isSymbolicLink()) {
+      if (excludedSubtree?.(normalizePath(relative(root, abs)), false) === true) continue;
       if (refusedLinks !== undefined && !isContained(canonicalPath(root), canonicalPath(abs))) {
         refusedLinks.push(abs);
       }
