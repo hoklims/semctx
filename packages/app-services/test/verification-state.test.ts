@@ -1,9 +1,10 @@
 import { afterEach, spyOn, describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SemctxError } from "@semantic-context/core";
+import { evaluatePreCommitHook } from "../src/verification-hook";
 import {
   __setVerificationAttributeBarrierForTesting,
   captureRecordableVerificationGitState,
@@ -347,6 +348,126 @@ describe("hidden bytes and attribute drift", () => {
     git(root, "commit", "-q", "-m", "hidden fixture");
     git(root, "update-index", "--skip-worktree", name);
     writeFileSync(join(root, name), "mutated\n");
+
+    let error: unknown;
+    try {
+      captureRecordableVerificationGitState(root);
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(SemctxError);
+    expect((error as SemctxError).code).toBe("INVALID_TASK_INPUT");
+    expect((error as SemctxError).details.hiddenTrackedPaths).toEqual([name]);
+  }, 20_000);
+
+  it("records a CRLF blob that core.autocrlf=true leaves byte-identical as the indexed object", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    expect(git(root, "status", "--porcelain")).toBe("");
+
+    let state: ReturnType<typeof captureRecordableVerificationGitState> | undefined;
+    expect(() => {
+      state = captureRecordableVerificationGitState(root);
+    }).not.toThrow();
+    if (state === undefined) throw new Error("expected a recordable verification state");
+
+    const objectId = git(root, "rev-parse", `HEAD:${name}`);
+    expect(state.repositoryStateHash).toBe(expectedRepositoryStateHash([{ path: name, mode: "100644", objectId }]));
+    expect(state.repositoryStateHash).toBe(state.headTreeHash);
+  }, 20_000);
+
+  it("preserves an unstaged CRLF conversion after a text attribute is staged", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    const bytes = "a,b\r\nc,d\r\n";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), bytes);
+    git(root, "add", name);
+    git(root, "commit", "-q", "-m", "raw crlf blob");
+    writeFileSync(join(root, ".gitattributes"), `${name} text\n`);
+    git(root, "add", ".gitattributes");
+    // Force Git to inspect unchanged bytes after attributes change, rather than
+    // reusing an identical cached index stat on fast filesystems.
+    const priorTime = new Date(1_000_000_000_000);
+    utimesSync(join(root, name), priorTime, priorTime);
+
+    expect(readFileSync(join(root, name), "utf8")).toBe(bytes);
+    expect(git(root, "show", `:${name}`)).toBe(bytes.trim());
+    expect(git(root, "diff", "--name-only")).toBe(name);
+    expect(realHashObject(root, name, readFileSync(join(root, name)))).not.toBe(git(root, "rev-parse", `:${name}`));
+
+    const state = captureRecordableVerificationGitState(root);
+    expect(state.repositoryStateHash).not.toBe(state.indexStateHash);
+    const outcome = evaluatePreCommitHook(root, "2026-10-13T00:00:00.000Z");
+    expect(outcome.kind).toBe("refused");
+    if (outcome.kind !== "refused") throw new Error("expected a partial-index refusal");
+    expect(outcome.reason).toBe("PARTIAL_INDEX");
+  }, 20_000);
+
+  it("reobserves the attributes that let a CRLF blob keep its indexed object", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    __setVerificationAttributeBarrierForTesting(() => {
+      writeFileSync(join(root, ".git", "info", "attributes"), `${name} ident\n`);
+    });
+
+    let error: unknown;
+    try {
+      captureVerificationGitState(root);
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(SemctxError);
+    expect((error as SemctxError).message).toContain("attribute metadata changed during capture");
+  }, 20_000);
+
+  for (const conversion of ["text", "eol=lf", "eol=crlf"]) it(`refuses mid-capture CRLF conversion drift: ${conversion}`, () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "raw crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    expect(git(root, "diff", "--name-only")).toBe("");
+    let barrierReached = false;
+    __setVerificationAttributeBarrierForTesting(() => {
+      barrierReached = true;
+      writeFileSync(join(root, ".git", "info", "attributes"), `${name} ${conversion}\n`);
+    });
+
+    let error: unknown;
+    try {
+      captureVerificationGitState(root);
+    } catch (caught) {
+      error = caught;
+    }
+    expect(barrierReached).toBe(true);
+    expect(error).toBeInstanceOf(SemctxError);
+    expect((error as SemctxError).code).toBe("GIT_ERROR");
+    expect((error as SemctxError).message).toContain("attribute metadata changed during capture");
+  }, 20_000);
+
+  it("still detects a skip-worktree edit of a CRLF blob under core.autocrlf=true", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), "a,b\r\nc,d\r\n");
+    git(root, "add", ".");
+    git(root, "commit", "-q", "-m", "crlf blob");
+    git(root, "config", "core.autocrlf", "true");
+    git(root, "update-index", "--skip-worktree", name);
+    writeFileSync(join(root, name), "a,b\r\nc,mutated\r\n");
 
     let error: unknown;
     try {

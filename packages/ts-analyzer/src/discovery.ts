@@ -1,4 +1,4 @@
-import { lstatSync, readFileSync, readdirSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { normalizePath, SemctxError } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
@@ -126,6 +126,31 @@ function matchesAny(relPath: string, patterns: readonly string[]): boolean {
   return patterns.some((pattern) => new Bun.Glob(pattern.replaceAll("\\", "/")).match(relPath));
 }
 
+/**
+ * Whether configuration excludes every path below `relPath` (and `relPath` itself when
+ * `includingSelf`). Discovery may then skip that path when it cannot be read, e.g. a package
+ * store owned by another user, without losing any selectable source.
+ */
+function legacyExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
+  // Legacy excludes match path substrings: one contained in `dir/` is contained in every descendant.
+  return (relPath, includingSelf) => relPath.length > 0 && isExcludedLegacy(`${relPath}/`, config)
+    && (!includingSelf || isExcludedLegacy(relPath, config));
+}
+
+function globExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
+  // A matching `<prefix>/**` covers descendants of the prefix, including deeper directories.
+  const patterns = config.exclude.map((pattern) => pattern.replaceAll("\\", "/"));
+  const globallyExcluded = patterns.includes("**");
+  const subtrees = patterns
+    .filter((pattern) => pattern.endsWith("/**") && pattern.length > 3)
+    .map((pattern) => new Bun.Glob(pattern.slice(0, -3)));
+  return (relPath, includingSelf) => {
+    const parts = segments(relPath);
+    return (globallyExcluded || parts.length > 0 && parts.some((_, index) => subtrees.some((glob) => glob.match(parts.slice(0, index + 1).join("/")))))
+      && (!includingSelf || matchesAny(relPath, config.exclude));
+  };
+}
+
 /** Pure path-selection predicate shared by discovery and changed-file preflights. */
 export function isPathSelected(config: SemctxConfig, inputPath: string): boolean {
   const relPath = normalizePath(inputPath);
@@ -141,6 +166,25 @@ export function isPathSelected(config: SemctxConfig, inputPath: string): boolean
 /** Metadata and installed dependencies are outside the qualified repository source boundary. */
 export function isHardExcludedPath(inputPath: string): boolean {
   return segments(normalizePath(inputPath)).some((part) => HARD_IGNORED_SEGMENTS.has(part));
+}
+
+/**
+ * The paths this configuration's discovery walk and excludes leave out, shared with workspace
+ * discovery so that a manifest under an excluded directory never claims a workspace identity
+ * (ADR 0010). Only recursive subtree globs can prune directories: matching a directory's name
+ * does not exclude its descendants in v2. Include globs select files and are not applied.
+ */
+export function createDiscoveryPathExclusion(config: SemctxConfig): (inputPath: string, kind?: "file" | "directory") => boolean {
+  if (config.version === 1) return (inputPath) => isExcludedLegacy(normalizePath(inputPath), config);
+  const walked = config.analysisProfile === "modelo-suite-static-v1" ? HARD_IGNORED_SEGMENTS : IGNORED_SEGMENTS;
+  const subtreeExcludes = config.exclude.filter((pattern) => /(?:^|\/)\*\*$/.test(pattern.replaceAll("\\", "/")));
+  return (inputPath, kind = "file") => {
+    const relPath = normalizePath(inputPath);
+    return segments(relPath).some((part) => walked.has(part))
+      || (kind === "directory"
+        ? matchesAny(`${relPath}/`, subtreeExcludes)
+        : matchesAny(relPath, config.exclude));
+  };
 }
 
 /**
@@ -227,7 +271,7 @@ function escapedDependencyReason(
     if (!imported.fileName.startsWith(".")) continue;
     const lexical = resolve(dirname(absPath), imported.fileName);
     if (!isContained(canonicalRoot, canonicalPath(lexical))) return "IMPORT_OUTSIDE_REPOSITORY";
-    const resolved = resolveTypeScriptModule(imported.fileName, absPath);
+    const resolved = resolveTypeScriptModule(imported.fileName, absPath, undefined, undefined, undefined, undefined, root);
     if (resolved !== undefined && !isContained(canonicalRoot, canonicalPath(resolved))) {
       return "IMPORT_OUTSIDE_REPOSITORY";
     }
@@ -239,11 +283,21 @@ function escapedDependencyReason(
   return undefined;
 }
 
-function walk(dir: string, root: string, acc: string[], strict = false, refusedLinks?: string[], qualified = false): void {
+function walk(
+  dir: string,
+  root: string,
+  acc: string[],
+  strict = false,
+  refusedLinks?: string[],
+  qualified = false,
+  excludedSubtree?: (relPath: string, includingSelf: boolean) => boolean,
+): void {
   let entries: string[];
   try {
     entries = readdirSync(dir).sort();
   } catch (error) {
+    // Configuration excludes every path below this directory, so no selected source is lost.
+    if (excludedSubtree?.(normalizePath(relative(root, dir)), false) === true) return;
     if (strict) {
       throw new SemctxError("IO_ERROR", "repository discovery could not read a directory", {
         path: normalizePath(relative(root, dir)) || ".",
@@ -259,6 +313,7 @@ function walk(dir: string, root: string, acc: string[], strict = false, refusedL
     try {
       stat = lstatSync(abs);
     } catch (error) {
+      if (excludedSubtree?.(normalizePath(relative(root, abs)), true) === true) continue;
       if (strict) {
         throw new SemctxError("IO_ERROR", "repository discovery could not inspect a candidate", {
           path: normalizePath(relative(root, abs)),
@@ -267,17 +322,32 @@ function walk(dir: string, root: string, acc: string[], strict = false, refusedL
       }
       continue;
     }
-    // Containment: never follow symlinks — they could point outside the repository root
-    // and leak external file content into the graph/pack (CWE-59).
+    // Never traverse links or read their target bytes. Metadata can distinguish an
+    // excluded directory from a selected file without importing external content.
     if (stat.isSymbolicLink()) {
+      const relPath = normalizePath(relative(root, abs));
+      if (excludedSubtree?.(relPath, true) === true) continue;
+      if (excludedSubtree?.(relPath, false) === true) {
+        try {
+          if (statSync(abs).isDirectory()) continue;
+        } catch { /* An unobservable link kind cannot justify subtree exclusion. */ }
+      }
       if (refusedLinks !== undefined && !isContained(canonicalPath(root), canonicalPath(abs))) {
         refusedLinks.push(abs);
       }
       continue;
     }
     if (stat.isDirectory()) {
-      if (isNestedGitWorktree(abs, root)) continue;
-      walk(abs, root, acc, strict, refusedLinks, qualified);
+      let nestedWorktree: boolean;
+      try {
+        nestedWorktree = isNestedGitWorktree(abs, root);
+      } catch (error) {
+        // Probing `<dir>/.git` needs search permission on the directory itself.
+        if (excludedSubtree?.(normalizePath(relative(root, abs)), false) === true) continue;
+        throw error;
+      }
+      if (nestedWorktree) continue;
+      walk(abs, root, acc, strict, refusedLinks, qualified, excludedSubtree);
     } else if (stat.isFile()) {
       acc.push(abs);
     }
@@ -305,7 +375,7 @@ export function countTypeScriptFiles(config: SemctxConfig): number {
   const root = config.repositoryRoot;
   const absPaths: string[] = [];
   const refusedLinks: string[] = [];
-  walk(root, root, absPaths, true, refusedLinks);
+  walk(root, root, absPaths, true, refusedLinks, false, legacyExcludedSubtree(config));
   if (refusedLinks.length > 0) {
     throw new SemctxError("IO_ERROR", "repository discovery refused a source link outside the repository", {
       path: normalizePath(relative(root, refusedLinks[0]!)),
@@ -342,7 +412,7 @@ function discoverLegacyRepository(config: Extract<SemctxConfig, { version: 1 }>)
   const root = config.repositoryRoot;
   const absPaths: string[] = [];
   const refusedLinks: string[] = [];
-  walk(root, root, absPaths, true, refusedLinks);
+  walk(root, root, absPaths, true, refusedLinks, false, legacyExcludedSubtree(config));
   const files: DiscoveredFile[] = [];
   const candidates: DiscoveryCandidate[] = [];
 
@@ -410,7 +480,7 @@ export function discoverRepository(config: SemctxConfig, eligibilityConfig: Semc
   const refusedLinks: string[] = [];
   const qualified = eligibilityConfig.version === 2 && eligibilityConfig.analysisProfile === "modelo-suite-static-v1";
   const eligible = qualified ? createQualifiedPathEligibility(eligibilityConfig) : undefined;
-  walk(root, root, absPaths, true, refusedLinks, qualified);
+  walk(root, root, absPaths, true, refusedLinks, qualified, qualified ? undefined : globExcludedSubtree(config));
   const files: DiscoveredFile[] = [];
   const candidates: DiscoveryCandidate[] = [];
 

@@ -369,6 +369,10 @@ The following rules are normative:
   exactly one claimant is so declared, it keeps the identity and only the other roots are rejected
   as `AMBIGUOUS_LAYOUT`. Otherwise every claimant is rejected. (Amended 2026-10-10: a standalone
   manifest repeating a declared member's name no longer revokes the member.)
+- Workspace discovery applies the path exclusions of the configuration's candidate discovery: it
+  neither walks an excluded directory nor reads an excluded manifest, so a path outside the analyzed
+  scope cannot claim, contest, or revoke a workspace identity. Ambiguity inside the remaining scope
+  is unchanged. (Amended 2026-10-12.)
 - The admitted workspace graph is acyclic.
 - Containment traversal may be used only for containment and scope. It must not imply imports,
   references, refinement, dependency, proof, capability, or authority.
@@ -390,6 +394,7 @@ The following rules are normative:
 | 8 | An artifact has no admitted workspace. | No synthetic package; retain repository scope and legacy `belongs_to` behavior. |
 | 9 | Candidate parent links form a cycle. | Reject the candidate graph as `AMBIGUOUS_LAYOUT`. |
 | 10 | One identity at disjoint roots, exactly one of them a declared workspace member. | Admit the declared member; reject the other roots as `AMBIGUOUS_LAYOUT`. With zero or several declared claimants, reject all of them. |
+| 11 | A manifest repeating a workspace identity lies under a path the configuration excludes. | Ignore it; the in-scope claimant keeps the identity. A repeat inside the remaining scope stays `AMBIGUOUS_LAYOUT`. |
 
 ## Compatibility and migration
 

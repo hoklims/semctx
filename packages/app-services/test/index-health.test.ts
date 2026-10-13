@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createGlobSelectionConfig, type SemctxConfigV2 } from "@semantic-context/core";
+import { createDefaultConfig, createGlobSelectionConfig, type SemctxConfigV2 } from "@semantic-context/core";
 import type { RepositoryGraph } from "@semantic-context/core";
 import { digestCanonical } from "@semantic-context/plane-a-internal";
 import { initWorkspace, openStore } from "@semantic-context/repository-store";
@@ -334,6 +334,38 @@ describe("IndexHealth persistence and verification preflight", () => {
       expect.objectContaining({ kind: "package", identity: "health-fixture" }),
     ]));
     expect(report.reasonSummary).toContain("NEGATIVE_COMPLETENESS_MISSING");
+  });
+
+  it("keeps a manifest copy under a configured exclude out of the indexed workspace", () => {
+    const indexWith = (exclude: readonly string[]) => {
+      const root = mkdtempSync(join(tmpdir(), "semctx-index-health-"));
+      roots.push(root);
+      const manifest = JSON.stringify({ name: "health-fixture" }, null, 2) + "\n";
+      for (const base of [root, join(root, "intake", "copy")]) {
+        mkdirSync(join(base, "src"), { recursive: true });
+        writeFileSync(join(base, "package.json"), manifest);
+        writeFileSync(join(base, "src", "service.ts"), "export const service = 1;\n");
+      }
+      writeFileSync(join(root, ".gitignore"), ".semctx/\nintake/\n");
+      git(root, "init", "-q");
+      git(root, "add", ".");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-q", "-m", "fixture");
+      const config = createDefaultConfig(root);
+      initWorkspace(root, { ...config, exclude: [...config.exclude, ...exclude] });
+      indexRepository(root, "2026-07-28T10:00:00.000Z");
+      return indexHealth(root);
+    };
+
+    expect(indexWith([]).workspace?.diagnostics).toEqual([
+      expect.objectContaining({ code: "AMBIGUOUS_LAYOUT", roots: [".", "intake/copy"] }),
+    ]);
+
+    const report = indexWith(["intake"]);
+    expect(report.freshness).toMatchObject({ verdict: "FRESH" });
+    expect(report.workspace?.diagnostics).toEqual([]);
+    expect(report.workspace?.nodes).toEqual([
+      expect.objectContaining({ kind: "package", root: ".", identity: "health-fixture" }),
+    ]);
   });
 
   it("fails closed when the atomically persisted sidecar binding is tampered", () => {
