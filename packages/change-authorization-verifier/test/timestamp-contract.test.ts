@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { evaluateChangeAuthorizationV1 } from "@semantic-context/control-engine";
 import { ChangeAuthorizationVerificationRequestV1Schema } from "../src/schemas";
 import { verifyChangeAuthorizationCapsuleV1 } from "../src/verify";
-import { baseEvaluationInput } from "./fixtures";
+import { baseEvaluationInput, passingAssertionInput, provider } from "./fixtures";
 
 /**
  * One strict timestamp contract, shared with control-model (`ChangeAuthorizationTimestampV1Schema`)
@@ -18,6 +18,29 @@ const IMPOSSIBLE_TIMESTAMPS = [
 ] as const;
 
 describe("verifiedAt is calendar-validated, not merely shape-validated", () => {
+  for (const source of ["assertion", "provider"] as const) {
+    it.each([
+      ["expiresAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.0009Z"],
+      ["observedAt", "2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.0008Z"],
+    ] as const)(`preserves genuine producer and independent replay parity for fractional ${source} %s`, (field, timestamp, evaluatedAt) => {
+      const overrides = { [field]: timestamp };
+      const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput({
+        evaluatedAt,
+        ...(source === "assertion" ? { assertions: [passingAssertionInput(overrides)] } : { providers: [provider(overrides)] }),
+      }));
+      const report = verifyChangeAuthorizationCapsuleV1({
+        schemaVersion: 1,
+        capsule,
+        expectedAuthorityDescriptorDigest: capsule.authorityDescriptor.descriptorDigest,
+        verifiedAt: evaluatedAt,
+      });
+      expect(report.integrity.result).toBe("VALID");
+      expect(report.integrity.reasons).not.toContain("POLICY_EVALUATION_REDERIVATION_MISMATCH");
+      expect(capsule.verdict).toBe("REQUIRE_EVIDENCE");
+      expect(report.semantic.currentVerdict).toBe(capsule.verdict);
+    });
+  }
+
   for (const impossible of IMPOSSIBLE_TIMESTAMPS) {
     it(`rejects ${impossible} as an envelope error, never an evaluated instant`, () => {
       const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput());

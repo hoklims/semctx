@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { compareChangeAuthorizationTimestampAgeV1 } from "./change-authorization-timestamp";
 import {
   ControlHandoffRecordV2Schema,
   ControlHandoffReconciliationReasonCodeV2Schema,
@@ -103,7 +104,7 @@ export const ChangeAuthorizationProviderV1Schema = z.object({
   trustRootId: NonEmptyIdSchema,
 }).strict().superRefine((value, context) => {
   requireCanonicalStrings(value.capabilities, context, ["capabilities"]);
-  if (Date.parse(value.observedAt) > Date.parse(value.expiresAt)) {
+  if (compareChangeAuthorizationTimestampAgeV1(value.observedAt, value.expiresAt) > 0) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["expiresAt"], message: "expiry precedes observation" });
   }
 });
@@ -166,7 +167,7 @@ export const ChangeAuthorizationAssertionV1Schema = z.object({
   }
   requireCanonicalStrings(value.dependsOnAssertionHashes, context, ["dependsOnAssertionHashes"]);
   requireCanonicalStrings(value.contradicts, context, ["contradicts"]);
-  if (Date.parse(value.observedAt) > Date.parse(value.expiresAt)) {
+  if (compareChangeAuthorizationTimestampAgeV1(value.observedAt, value.expiresAt) > 0) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["expiresAt"], message: "expiry precedes observation" });
   }
   const assertionJcsSafe = isChangeAuthorizationJcsSafeV1(value);

@@ -1,5 +1,6 @@
 import {
   canonicalizeChangeAuthorizationValueV1,
+  compareChangeAuthorizationTimestampAgeV1,
   ChangeAuthorizationCapsuleV1Schema,
   Sha256HashSchema,
   type Sha256Hash,
@@ -9,7 +10,6 @@ import type {
   ChangeAuthorizationVerificationRequestV1,
 } from "./types";
 import { verifyChangeAuthorizationCapsuleV1 } from "./verify";
-import { compareTimestampAgeV1 } from "./schemas";
 
 export interface ChangeAuthorizationReusePolicyV1 {
   maxAgeMs: number;
@@ -71,7 +71,7 @@ export function evaluateChangeAuthorizationReuseV1(
   if (verification.result !== "PASSED" || !capsule.success) {
     return report("CAPSULE_VERIFICATION_NOT_PASSED");
   }
-  if (compareTimestampAgeV1(request.verifiedAt, capsule.data.evaluatedAt, policy.maxAgeMs) > 0) {
+  if (compareChangeAuthorizationTimestampAgeV1(request.verifiedAt, capsule.data.evaluatedAt, policy.maxAgeMs) > 0) {
     return report("CAPSULE_EXPIRED");
   }
   if (state.consumedCapsuleIds.includes(capsule.data.capsuleId)) {

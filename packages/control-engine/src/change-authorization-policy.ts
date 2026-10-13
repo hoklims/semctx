@@ -14,6 +14,7 @@ import {
   canonicalizeEvidenceRefs,
   canonicalizeChangeAuthorizationReasons,
   compareCodeUnits,
+  compareChangeAuthorizationTimestampAgeV1,
   computeChangeAuthorizationAssertionV1Hash,
   computeChangeAuthorizationAuthorityDescriptorV1Hash,
   computeChangeAuthorizationCapsuleV1Hash,
@@ -908,14 +909,14 @@ function evaluateRule(
       reasons.add("REQUIRED_EVIDENCE_MODALITY_INSUFFICIENT");
       continue;
     }
-    if (Date.parse(assertion.observedAt) > Date.parse(evaluatedAt) || Date.parse(evaluatedAt) > Date.parse(assertion.expiresAt)) {
+    if (compareChangeAuthorizationTimestampAgeV1(assertion.observedAt, evaluatedAt) > 0 || compareChangeAuthorizationTimestampAgeV1(evaluatedAt, assertion.expiresAt) > 0) {
       reasons.add("REQUIRED_EVIDENCE_EXPIRED");
       continue;
     }
     if (provider.status === "UNTRUSTED") { reasons.add("PROVIDER_CAPABILITY_UNTRUSTED"); continue; }
     if (provider.status === "UNAVAILABLE") { reasons.add("PROVIDER_CAPABILITY_MISSING"); continue; }
     if (provider.status === "DEGRADED") { reasons.add("PROVIDER_CAPABILITY_DEGRADED"); continue; }
-    if (Date.parse(provider.observedAt) > Date.parse(evaluatedAt) || Date.parse(evaluatedAt) > Date.parse(provider.expiresAt)) {
+    if (compareChangeAuthorizationTimestampAgeV1(provider.observedAt, evaluatedAt) > 0 || compareChangeAuthorizationTimestampAgeV1(evaluatedAt, provider.expiresAt) > 0) {
       reasons.add("SOURCE_SEAL_STALE");
       continue;
     }

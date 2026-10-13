@@ -39,8 +39,10 @@ describe("evaluateChangeAuthorizationReuseV1", () => {
         evaluatedAt,
         ...(source === "assertion" ? { assertions: [passingAssertionInput(overrides)] } : { providers: [provider(overrides)] }),
       }));
-      expect(capsule.verdict).toBe("ALLOW");
+      expect(capsule.verdict).toBe(field === "observedAt" && !reusable ? "REQUIRE_EVIDENCE" : "ALLOW");
       const report = evaluateChangeAuthorizationReuseV1({ ...request, capsule, verifiedAt }, policy, state);
+      expect(report.verification.integrity.result).toBe("VALID");
+      expect(report.verification.integrity.reasons).not.toContain("POLICY_EVALUATION_REDERIVATION_MISMATCH");
       expect(report.verification.semantic.currentVerdict).toBe(reusable ? "ALLOW" : "REQUIRE_EVIDENCE");
       expect(report.reasonCode).toBe(reusable ? "CAPSULE_REUSABLE" : "CAPSULE_VERIFICATION_NOT_PASSED");
       expect(report.result).toBe(reusable ? "ACCEPTED" : "REFUSED");

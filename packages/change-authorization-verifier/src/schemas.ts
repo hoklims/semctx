@@ -5,6 +5,7 @@
  */
 import {
   canonicalizeChangeAuthorizationReasons,
+  compareChangeAuthorizationTimestampAgeV1,
   ChangeAuthorizationCapsuleV1Schema,
   ChangeAuthorizationReasonCodeV1Schema,
   ChangeAuthorizationTimestampV1Schema,
@@ -69,22 +70,6 @@ function isTimestampV1(value: unknown): value is string {
   return ChangeAuthorizationTimestampV1Schema.safeParse(value).success;
 }
 
-/** Compares validated instants against an integer millisecond age without rounding fractions. */
-export function compareTimestampAgeV1(verifiedAt: string, evaluatedAt: string, maxAgeMs = 0): number {
-  // Some runtimes round long fractions during parsing; truncate explicitly first.
-  const wholeMilliseconds = (timestamp: string): number => Date.parse(timestamp.replace(/(\.\d{3})\d+/, "$1"));
-  const age = wholeMilliseconds(verifiedAt) - wholeMilliseconds(evaluatedAt);
-  if (age !== maxAgeMs) return age < maxAgeMs ? -1 : 1;
-  const remainder = (timestamp: string): string =>
-    (/\.(\d+)(?:Z|[+-]\d{2}:?\d{2})$/.exec(timestamp)?.[1] ?? "").slice(3);
-  const verifiedRemainder = remainder(verifiedAt);
-  const evaluatedRemainder = remainder(evaluatedAt);
-  const width = verifiedRemainder.length > evaluatedRemainder.length ? verifiedRemainder.length : evaluatedRemainder.length;
-  const left = verifiedRemainder.padEnd(width, "0");
-  const right = evaluatedRemainder.padEnd(width, "0");
-  return left === right ? 0 : left < right ? -1 : 1;
-}
-
 function isSha256Hash(value: unknown): value is Sha256Hash {
   return Sha256HashSchema.safeParse(value).success;
 }
@@ -119,7 +104,7 @@ export const ChangeAuthorizationVerificationRequestV1Schema = {
     }
     if (!isTimestampV1(value.verifiedAt)) return fail("verifiedAt must be an ISO-8601 timestamp with an explicit offset");
     const capsule = ChangeAuthorizationCapsuleV1Schema.safeParse(value.capsule);
-    if (capsule.success && compareTimestampAgeV1(value.verifiedAt, capsule.data.evaluatedAt) < 0) {
+    if (capsule.success && compareChangeAuthorizationTimestampAgeV1(value.verifiedAt, capsule.data.evaluatedAt) < 0) {
       return fail("verifiedAt must not precede capsule.evaluatedAt");
     }
     return ok({
@@ -208,7 +193,7 @@ export const ChangeAuthorizationVerificationReportV1Schema = {
     }
     if (
       semantic.recordedEvaluatedAt !== null
-      && compareTimestampAgeV1(semantic.currentEvaluatedAt, semantic.recordedEvaluatedAt) < 0
+      && compareChangeAuthorizationTimestampAgeV1(semantic.currentEvaluatedAt, semantic.recordedEvaluatedAt) < 0
     ) {
       return fail("semantic.currentEvaluatedAt must not precede semantic.recordedEvaluatedAt");
     }
