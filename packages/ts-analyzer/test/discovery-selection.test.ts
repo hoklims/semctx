@@ -54,6 +54,26 @@ afterEach(() => {
 });
 
 describe("discovery path exclusion shared with workspace discovery", () => {
+  it("omits recursively excluded workspace links without following their targets", async () => {
+    const root = realpathSync.native(fixture());
+    const outside = mkdtempSync(join(tmpdir(), "semctx-excluded-workspace-link-"));
+    roots.push(outside);
+    mkdirSync(join(root, "packages"));
+    writeFileSync(join(root, "package.json"), '{"name":"repo","workspaces":["packages/*"]}\n');
+    writeFileSync(join(outside, "package.json"), '{"name":"outside"}\n');
+    writeFileSync(join(outside, "secret.ts"), "export const secret = true;\n");
+    symlinkSync(outside, join(root, "packages/external"), process.platform === "win32" ? "junction" : "dir");
+    for (const exclude of [["packages/external/**"], ["packages/*"], ["packages/external"], []]) {
+      const config = globConfig(root, { include: ["**/*.ts"], exclude });
+      expect(discoverRepository(config).files.map((file) => file.relPath)).not.toContain("packages/external/secret.ts");
+      const input = { repositoryRoot: root, excludePath: createDiscoveryPathExclusion(config) };
+      const sync = analyzeWorkspaceSync(input);
+      expect(await analyzeWorkspace(input)).toEqual(sync);
+      expect(sync.nodes.map((node) => node.root)).toEqual(["."]);
+      expect(sync.diagnostics.length > 0).toBe(exclude.length === 0);
+    }
+  });
+
   it.each([
     ["intake", "intake/copy", true, true],
     ["packages/*", "packages/core", true, true],
@@ -304,6 +324,48 @@ describe("versioned source selection", () => {
         expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
       }
       expect(() => discoverRepository(createDefaultConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  it.each(["directory", "marker", "candidate"] as const)("recognizes ancestor recursive excludes for an unreadable nested %s", (failure) => {
+    const root = fixture();
+    mkdirSync(join(root, "vendor/private"), { recursive: true });
+    writeFileSync(join(root, "vendor/private/source.ts"), "export const privateSource = true;\n");
+    const originalRead = fs.readdirSync;
+    const originalStat = fs.lstatSync;
+    const denied = join(root, "vendor/private", ...(failure === "marker" ? [".git"] : []));
+    const readProbe = spyOn(fs, "readdirSync").mockImplementation(((path, options) => {
+      if (failure === "directory" && String(path) === denied) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return originalRead(path, options as never);
+    }) as typeof fs.readdirSync);
+    const statProbe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (failure !== "directory" && String(path) === denied) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return originalStat(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      const config = globConfig(root, { exclude: ["vendor/**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) expect(() => discover(config)).not.toThrow();
+      for (const exclude of [[], ["vendor"], ["vendor/*"], ["vendor-other/**"]]) {
+        expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
+    } finally {
+      statProbe.mockRestore();
+      readProbe.mockRestore();
+    }
+  });
+
+  it("cannot skip an uninspectable recursive-exclude prefix whose own path could be selected", () => {
+    const root = fixture();
+    const original = fs.lstatSync;
+    const probe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, "vendor")) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return original(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      expect(() => discoverRepository(globConfig(root, { include: ["**"], exclude: ["vendor/**"] })))
+        .toThrow(expect.objectContaining({ code: "IO_ERROR" }));
     } finally {
       probe.mockRestore();
     }

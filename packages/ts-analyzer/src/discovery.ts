@@ -138,12 +138,15 @@ function legacyExcludedSubtree(config: SemctxConfig): (relPath: string, includin
 }
 
 function globExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
-  // Only `<prefix>/**` excludes cover a whole subtree: a directory matching `<prefix>` excludes all below it.
+  // A matching `<prefix>/**` covers descendants of the prefix, including deeper directories.
   const subtrees = config.exclude.map((pattern) => pattern.replaceAll("\\", "/"))
     .filter((pattern) => pattern.endsWith("/**") && pattern.length > 3)
     .map((pattern) => new Bun.Glob(pattern.slice(0, -3)));
-  return (relPath, includingSelf) => relPath.length > 0 && subtrees.some((glob) => glob.match(relPath))
-    && (!includingSelf || matchesAny(relPath, config.exclude));
+  return (relPath, includingSelf) => {
+    const parts = segments(relPath);
+    return parts.length > 0 && parts.some((_, index) => subtrees.some((glob) => glob.match(parts.slice(0, index + 1).join("/"))))
+      && (!includingSelf || matchesAny(relPath, config.exclude));
+  };
 }
 
 /** Pure path-selection predicate shared by discovery and changed-file preflights. */

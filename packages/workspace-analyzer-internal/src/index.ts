@@ -443,6 +443,8 @@ async function inspectRepository(
     for (const entry of entries) {
       if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
+      // Apply recursive directory exclusions to links before retaining an unsafe workspace root.
+      if (entry.isSymbolicLink() && excludePath?.(child, "directory") === true) continue;
       if (excludePath?.(child, entry.isDirectory() ? "directory" : "file") === true) continue;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
@@ -534,6 +536,8 @@ function inspectRepositorySync(
     for (const entry of entries) {
       if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
+      // Apply recursive directory exclusions to links before retaining an unsafe workspace root.
+      if (entry.isSymbolicLink() && excludePath?.(child, "directory") === true) continue;
       if (excludePath?.(child, entry.isDirectory() ? "directory" : "file") === true) continue;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
