@@ -7,3 +7,5 @@ export {
   serializeChangeAuthorizationVerificationReportV1,
 } from "./canonical";
 export { verifyChangeAuthorizationCapsuleV1 } from "./verify";
+
+export * from "./reuse";

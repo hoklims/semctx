@@ -47,7 +47,8 @@ import {
 } from "./change-authorization-canonical";
 
 const NonEmptyIdSchema = z.string().min(1);
-export const ChangeAuthorizationTimestampV1Schema = z.string().datetime({ offset: true });
+export const ChangeAuthorizationTimestampV1Schema = z.string().datetime({ offset: true })
+  .refine((value) => Number.isFinite(Date.parse(value)), "timestamp must identify a finite instant");
 
 export const ChangeAuthorizationModalityV1Schema = z.enum(CHANGE_AUTHORIZATION_MODALITIES);
 export const ChangeAuthorizationConclusionV1Schema = z.enum(CHANGE_AUTHORIZATION_CONCLUSIONS);

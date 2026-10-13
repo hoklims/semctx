@@ -525,11 +525,13 @@ describe("RFC 8785 (JCS) canonicalization", () => {
   });
 
   it("rejects non-JSON objects, sparse arrays, symbols, accessors, and hidden properties", () => {
+    class ExecutableArray extends Array<number> {}
+    const inheritedExecutable = new ExecutableArray(1, 2);
     const sparse = new Array(1);
     const symbolValue = { a: 1, [Symbol("hidden")]: 2 };
     const accessor = Object.defineProperty({}, "value", { enumerable: true, get: () => 1 });
     const hidden = Object.defineProperty({}, "value", { enumerable: false, value: 1 });
-    for (const hostile of [new Date(0), new Map(), /x/, sparse, symbolValue, accessor, hidden]) {
+    for (const hostile of [new Date(0), new Map(), /x/, inheritedExecutable, sparse, symbolValue, accessor, hidden]) {
       expect(changeAuthorization.isChangeAuthorizationJcsSafeV1(hostile)).toBe(false);
       expect(() => changeAuthorization.serializeChangeAuthorizationJcsV1(hostile)).toThrow();
     }

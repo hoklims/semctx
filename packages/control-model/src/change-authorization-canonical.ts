@@ -82,6 +82,9 @@ function canonicalizeJcs(value: unknown): unknown {
     return Object.is(value, -0) ? 0 : value;
   }
   if (Array.isArray(value)) {
+    if (Object.getPrototypeOf(value) !== Array.prototype) {
+      throw new Error("JCS can encode only plain JSON arrays");
+    }
     const ownKeys = Reflect.ownKeys(value);
     for (let index = 0; index < value.length; index += 1) {
       if (!Object.prototype.hasOwnProperty.call(value, index)) {

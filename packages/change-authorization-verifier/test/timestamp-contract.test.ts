@@ -11,6 +11,10 @@ import { baseEvaluationInput } from "./fixtures";
 const IMPOSSIBLE_TIMESTAMPS = [
   "2026-02-30T12:00:00Z",
   "2026-01-01T24:00:00Z",
+  "2026-08-01T10:00:00.000+24:00",
+  "2026-08-01T10:00:00.000+99:00",
+  "2026-08-01T10:00:00.000+01:99",
+  "2026-08-01T10:00:00.000+2400",
 ] as const;
 
 describe("verifiedAt is calendar-validated, not merely shape-validated", () => {
