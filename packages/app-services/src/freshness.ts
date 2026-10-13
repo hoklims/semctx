@@ -261,12 +261,12 @@ export function isQualifiedRepositoryInputPath(path: string): boolean {
 export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly DiscoveredFile[]): Sha256Hash {
   if (config.version === 2 && config.analysisProfile === "modelo-suite-static-v1") return captureQualifiedAnalysisInputs(config).digest;
   const workspaceLinks = createWorkspaceLinkResolver();
-  // Ordinary v2 JavaScript uses live inherited configuration. Reuse the same confined
+  // Ordinary v2 TS and JS use live inherited configuration. Reuse the same confined
   // resolver reads, including failed link attempts, so removing a dependency invalidates it.
-  // Legacy and TS-only fingerprints keep their historical inputs; qualified snapshots seal
+  // Legacy TS does not inspect live configuration; qualified snapshots seal
   // their own retained bytes above and never consume this live-input seam.
   if (config.version === 2) for (const file of files) {
-    if (/\.[cm]?jsx?$/.test(file.absPath)) {
+    if (/\.[cm]?[jt]sx?$/.test(file.absPath)) {
       inspectModuleConfiguration(file.absPath, config.repositoryRoot, undefined, undefined, workspaceLinks);
     }
   }

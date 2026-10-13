@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type ts from "typescript";
 
@@ -52,7 +52,7 @@ function canonical(path: string): string {
 function readText(path: string, resolver: WorkspaceLinkResolver): string | undefined {
   let text: string | undefined;
   try {
-    text = readFileSync(path, "utf8");
+    text = confinedSyntheticTarget(canonical(dirname(path)), path, undefined) ? readFileSync(path, "utf8") : undefined;
   } catch {
     text = undefined;
   }
@@ -86,6 +86,21 @@ function stringList(value: unknown): string[] | undefined {
 function isWithin(root: string, candidate: string): boolean {
   const rel = relative(root, candidate);
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !slash(rel).startsWith("../"));
+}
+
+/** Synthetic links never follow filesystem links, including an ancestor junction. */
+function confinedSyntheticTarget(member: string, candidate: string, boundary: string | undefined): boolean {
+  const target = canonical(candidate);
+  if (!isWithin(member, target) || (boundary !== undefined && !isWithin(boundary, target))) return false;
+  try {
+    for (let directory = target; ; directory = canonical(dirname(directory))) {
+      if (lstatSync(directory).isSymbolicLink()) return false;
+      if (directory === boundary || canonical(dirname(directory)) === directory) break;
+    }
+    return boundary === undefined || isWithin(canonical(realpathSync.native(boundary)), canonical(realpathSync.native(target)));
+  } catch {
+    return false;
+  }
 }
 
 /** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
@@ -219,9 +234,12 @@ function isSemverRange(range: string): boolean {
 /** pnpm links a `workspace:` dependency only when the member's version satisfies its range. */
 function satisfiesWorkspaceRange(member: string, range: string, resolver: WorkspaceLinkResolver): boolean {
   if (range === "" || range === "*" || range === "^" || range === "~") return true;
+  // Comparator whitespace is valid semver syntax; keep aliases and other unsupported
+  // grammar excluded by the same conservative range check after normalization.
+  const normalizedRange = range.replace(/([<>]=?|[=^~])\s+(?=v?(?:\d|[xX*]))/g, "$1");
   const version = readJsonRecord(join(member, "package.json"), resolver)?.version;
   return typeof version === "string" && /^\d+\.\d+\.\d+(?:[-+].*)?$/.test(version)
-    && isSemverRange(range) && Bun.semver.satisfies(version, range);
+    && isSemverRange(normalizedRange) && Bun.semver.satisfies(version, normalizedRange);
 }
 
 /** Whether Node resolution from `directory` reaches an installed `name`, locally or hoisted. */
@@ -280,27 +298,47 @@ export function workspaceLinkedSystem(
       const member = linksAt(resolver, canonical(normalized.slice(0, marker)), confinedBoundary).get(segments.slice(0, nameLength).join("/"));
       if (member === undefined) continue;
       const rest = segments.slice(nameLength);
-      return rest.length === 0 ? member : `${member}/${rest.join("/")}`;
+      const target = rest.length === 0 ? member : `${member}/${rest.join("/")}`;
+      if (confinedSyntheticTarget(member, target, confinedBoundary)) return target;
+      resolver.inputs.set(canonical(target), undefined);
+      return undefined;
     }
     return undefined;
   };
 
-  const installed = (path: string): boolean => system.fileExists(path) || (system.directoryExists?.(path) ?? false);
+  // TypeScript resolves relative extends from the member's physical configuration path.
+  // Those subsequent direct reads must retain the synthetic link's confinement too.
+  const allowedDirect = (path: string): boolean => {
+    const normalized = canonical(path);
+    if (![...resolver.links.values()].some(links => links.size > 0)) return true;
+    const root = confinedBoundary ?? [...resolver.declarations.values()].find(declaration => declaration !== null)?.root;
+    if (root === undefined) return false;
+    // Existing installed resolution and virtual node_modules probes keep their own path.
+    // Physical configurations reached through a synthetic link stay within its repository.
+    if (slash(relative(root, normalized)).split("/").includes("node_modules")) return true;
+    if (confinedSyntheticTarget(root, normalized, root)) return true;
+    resolver.inputs.set(normalized, undefined);
+    return false;
+  };
+  const installed = (path: string): boolean => allowedDirect(path) && (system.fileExists(path) || (system.directoryExists?.(path) ?? false));
 
   return {
     ...system,
     fileExists: path => {
+      if (!allowedDirect(path)) return false;
       if (system.fileExists(path)) return true;
       const target = linked(path);
       return target !== undefined && system.fileExists(target);
     },
     readFile: (path, encoding) => {
+      if (!allowedDirect(path)) { resolver.inputs.set(canonical(path), undefined); return undefined; }
       const target = system.fileExists(path) ? path : linked(path);
       const content = target === undefined ? undefined : system.readFile(target, encoding);
       resolver.inputs.set(canonical(target ?? path), content);
       return content;
     },
     directoryExists: path => {
+      if (!allowedDirect(path)) return false;
       if (system.directoryExists?.(path) ?? false) return true;
       const normalized = slash(path);
       if (normalized.endsWith("/node_modules")) {
@@ -310,6 +348,7 @@ export function workspaceLinkedSystem(
       return target !== undefined && (system.directoryExists?.(target) ?? false);
     },
     realpath: path => {
+      if (!allowedDirect(path)) return path;
       const target = installed(path) ? undefined : linked(path);
       const resolved = target ?? path;
       return system.realpath === undefined ? resolved : system.realpath(resolved);
