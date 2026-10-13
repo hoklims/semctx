@@ -1,4 +1,4 @@
-import { lstatSync, readFileSync, readdirSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { normalizePath, SemctxError } from "@semantic-context/core";
 import type { SemctxConfig } from "@semantic-context/core";
@@ -322,10 +322,16 @@ function walk(
       }
       continue;
     }
-    // Containment: never follow symlinks — they could point outside the repository root
-    // and leak external file content into the graph/pack (CWE-59).
+    // Never traverse links or read their target bytes. Metadata can distinguish an
+    // excluded directory from a selected file without importing external content.
     if (stat.isSymbolicLink()) {
-      if (excludedSubtree?.(normalizePath(relative(root, abs)), false) === true) continue;
+      const relPath = normalizePath(relative(root, abs));
+      if (excludedSubtree?.(relPath, true) === true) continue;
+      if (excludedSubtree?.(relPath, false) === true) {
+        try {
+          if (statSync(abs).isDirectory()) continue;
+        } catch { /* An unobservable link kind cannot justify subtree exclusion. */ }
+      }
       if (refusedLinks !== undefined && !isContained(canonicalPath(root), canonicalPath(abs))) {
         refusedLinks.push(abs);
       }

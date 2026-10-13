@@ -54,6 +54,37 @@ afterEach(() => {
 });
 
 describe("discovery path exclusion shared with workspace discovery", () => {
+  it("preserves selected file-link failures under a recursive-prefix exclusion", () => {
+    const root = realpathSync.native(fixture());
+    const outside = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-selected-file-link-")));
+    roots.push(outside);
+    writeFileSync(join(outside, "secret.ts"), "export const secret = true;\n");
+    const link = join(root, "src/linked.ts");
+    symlinkSync(join(outside, "secret.ts"), link, "file");
+    const config = globConfig(root, { include: ["**/*.ts"], exclude: ["src/linked.ts/**"] });
+    expect(isPathSelected(config, "src/linked.ts")).toBe(true);
+    expect(discoverRepository(config).candidates.find(candidate => candidate.relPath === "src/linked.ts")?.reason)
+      .toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+    expect(() => countTypeScriptFiles(config)).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+
+    rmSync(link);
+    symlinkSync(outside, link, process.platform === "win32" ? "junction" : "dir");
+    expect(discoverRepository(config).candidates.some(candidate => candidate.relPath === "src/linked.ts")).toBe(false);
+    expect(countTypeScriptFiles(config)).toBe(1);
+
+    const originalStat = fs.statSync;
+    const probe = spyOn(fs, "statSync").mockImplementation(((path, options) => {
+      if (String(path) === link) throw Object.assign(new Error("link target unavailable"), { code: "EACCES" });
+      return originalStat(path, options);
+    }) as typeof fs.statSync);
+    try {
+      expect(discoverRepository(config).candidates.find(candidate => candidate.relPath === "src/linked.ts")?.reason)
+        .toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
   it("omits recursively excluded workspace links without following their targets", async () => {
     const root = realpathSync.native(fixture());
     const outside = mkdtempSync(join(tmpdir(), "semctx-excluded-workspace-link-"));
