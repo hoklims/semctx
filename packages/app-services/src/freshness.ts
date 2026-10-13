@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from "node:fs";
-import { basename, dirname, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import {
   compareIds,
   SemctxError,
@@ -27,7 +27,7 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
-import { createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
+import { createDiscoveryPathExclusion, createQualifiedPathEligibility, createWorkspaceLinkResolver, inspectModuleConfiguration, isHardExcludedPath } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -243,7 +243,7 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
     // Seal only directory membership consumed by workspace projection, using these retained
     // manifest bytes. Unrelated empty output directories do not affect the qualified identity.
     const manifestContents = new Map(files.map(file => [resolve(config.repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
-    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents });
+    const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents, excludePath: createDiscoveryPathExclusion(config) });
     const workspaceRoots = [...new Set([...workspaceLayout.nodes, ...workspaceLayout.candidates].map(entry => entry.root))].sort(compareIds);
     const rawConfiguration = configurationInput.state === "present" ? { state: "present", contentHash: hash("qualified-input-bytes", configurationInput.bytes) } : configurationInput;
     return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, rawConfiguration, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files, workspaceRoots, configurationInput };
@@ -260,8 +260,33 @@ export function isQualifiedRepositoryInputPath(path: string): boolean {
 /** Fingerprint the exact discovered Plane A contents plus the parsed analyzer configuration. */
 export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly DiscoveredFile[]): Sha256Hash {
   if (config.version === 2 && config.analysisProfile === "modelo-suite-static-v1") return captureQualifiedAnalysisInputs(config).digest;
+  const workspaceLinks = createWorkspaceLinkResolver();
+  const configurationDiagnostics: { path: string; reasons: string[] }[] = [];
+  // Ordinary v2 TS and JS use live inherited configuration. Reuse the same confined
+  // resolver reads, including failed link attempts, so removing a dependency invalidates it.
+  // Legacy TS does not inspect live configuration; qualified snapshots seal
+  // their own retained bytes above and never consume this live-input seam.
+  if (config.version === 2) for (const file of files) {
+    if (/\.[cm]?[jt]sx?$/.test(file.absPath)) {
+      const reasons = inspectModuleConfiguration(file.absPath, config.repositoryRoot, undefined, undefined, workspaceLinks);
+      // Rejection can precede every confined read (for example a parent tsconfig).
+      // Bind its state without reading or hashing the rejected external input.
+      if (reasons.length > 0) configurationDiagnostics.push({
+        path: file.relPath.replaceAll("\\", "/"), reasons: [...new Set(reasons)].sort(compareIds),
+      });
+    }
+  }
+  const configurationInputs = [...workspaceLinks.inputs].flatMap(([path, content]) => {
+    const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
+    if (isAbsolute(relPath) || relPath === ".." || relPath.startsWith("../")) return [];
+    return [{ path: relPath, contentHash: content === undefined ? null : hash("analysis-input-content", canonicalSourceText(content)) }];
+  }).sort((a, b) => compareIds(a.path, b.path));
   const manifest = {
     config,
+    ...(configurationInputs.length === 0 ? {} : { configurationInputs }),
+    ...(configurationDiagnostics.length === 0 ? {} : {
+      configurationDiagnostics: configurationDiagnostics.sort((a, b) => compareIds(a.path, b.path)),
+    }),
     files: files
       .map((file) => ({
         path: file.relPath.replace(/\\/g, "/"),

@@ -15,7 +15,7 @@
     },
     "apps/cli": {
       "name": "semctx",
-      "version": "0.4.3",
+      "version": "0.4.4",
       "bin": {
         "semctx": "./dist/index.js",
       },
@@ -37,7 +37,7 @@
     },
     "packages/app-services": {
       "name": "@semantic-context/app-services",
-      "version": "0.4.3",
+      "version": "0.4.4",
       "dependencies": {
         "@semantic-context/context-engine": "workspace:*",
         "@semantic-context/control-engine": "workspace:*",
@@ -124,11 +124,11 @@
     },
     "packages/github-action": {
       "name": "@semantic-context/github-action",
-      "version": "0.4.3",
+      "version": "0.4.4",
     },
     "packages/mcp-server": {
       "name": "@semantic-context/mcp-server",
-      "version": "0.4.3",
+      "version": "0.4.4",
       "bin": {
         "semctx-mcp": "./src/index.ts",
       },
@@ -506,7 +506,6 @@
     "@modelcontextprotocol/client/zod": ["zod@4.2.0", "", {}, "sha512-Bd5fw9wlIhtqCCxotZgdTOMwGm1a0u75wARVEY9HMs1X17trvA/lMi4+MGK5EUfYkXVTbX8UDiDKW4OgzHVUZw=="],
 
     "@modelcontextprotocol/core/zod": ["zod@4.2.0", "", {}, "sha512-Bd5fw9wlIhtqCCxotZgdTOMwGm1a0u75wARVEY9HMs1X17trvA/lMi4+MGK5EUfYkXVTbX8UDiDKW4OgzHVUZw=="],
-
 
     "@modelcontextprotocol/server/zod": ["zod@4.2.0", "", {}, "sha512-Bd5fw9wlIhtqCCxotZgdTOMwGm1a0u75wARVEY9HMs1X17trvA/lMi4+MGK5EUfYkXVTbX8UDiDKW4OgzHVUZw=="],
 

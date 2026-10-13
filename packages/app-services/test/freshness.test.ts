@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Claim, EvidenceRecord, RepositoryGraph } from "@semantic-context/core";
+import type { Claim, EvidenceRecord, RepositoryGraph, SemctxConfig } from "@semantic-context/core";
 import { ControlFreshnessStatusReportSchema } from "@semantic-context/control-model";
 import type { ControlFreshnessSeal, ControlFreshnessStatusReport, Sha256Hash } from "@semantic-context/control-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
-import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { discoverFiles, inspectModuleConfiguration, type DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { resolveTypeScriptModule } from "../../ts-analyzer/src/ts-symbols";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -15,6 +16,7 @@ import { initWorkspace } from "@semantic-context/repository-store";
 import { newChangeContract, writeActiveChange, writeChangeFile } from "@semantic-context/semantic-engine";
 import { sampleConfig } from "@semantic-context/test-fixtures";
 import { parseIndexedControlSnapshot } from "../src/freshness";
+import { analyzePlaneARuntime } from "../src/plane-a-runtime";
 import * as appServices from "../src";
 import { buildControlFreshnessSeal, captureGitState, controlStatus, fingerprintAnalysisInputs, indexRepository, type IndexedControlSnapshot } from "../src";
 
@@ -230,6 +232,172 @@ describe("control freshness seal", () => {
 
     expect(fingerprintAnalysisInputs(config, discovered("export const a = 1;\n")))
       .not.toBe(fingerprintAnalysisInputs(config, discovered("export const a = 2;\n")));
+  });
+
+  it("invalidates ordinary v2 freshness when a workspace configuration link changes", () => {
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-workspace-freshness-"))).replaceAll("\\", "/");
+    const write = (path: string, content: string) => {
+      const target = join(root, path);
+      mkdirSync(join(target, ".."), { recursive: true });
+      writeFileSync(target, content);
+    };
+    try {
+      mkdirSync(join(root, ".git"));
+      write("pnpm-workspace.yaml", 'packages:\n  - "tooling/*"\n  - "domains/*/*"\n');
+      write("package.json", JSON.stringify({ name: "root", private: true }));
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      const inherited = JSON.stringify({ compilerOptions: { allowJs: true, module: "ESNext", moduleResolution: "Bundler", paths: { "#shared": ["./shared.ts"] } } }, null, 2) + "\n";
+      write("tooling/config/base.json", inherited);
+      write("tooling/config/shared.ts", "export const shared = 1;\n");
+      write("domains/registry/api/tsconfig.json", JSON.stringify({ extends: "@fixture/config/base.json" }));
+      const dependency = (range: string) => JSON.stringify({ name: "api", devDependencies: { "@fixture/config": range } }, null, 2) + "\n";
+      write("domains/registry/api/package.json", dependency("workspace:*"));
+      write("domains/registry/api/src/registry.js", 'import { shared } from "#shared"; export const registry = shared;\n');
+      write("domains/registry/api/src/registry.ts", 'export const registry = 1;\n');
+      const config = { ...sampleConfig(), repositoryRoot: root, version: 2 as const, selectionMode: "globs-v1" as const,
+        include: ["**/*.js", "**/*.ts"], exclude: [], languages: { typescript: "on" as const, javascript: "on" as const, python: "off" as const, markdown: "off" as const, sql: "off" as const } };
+      const source = `${root}/domains/registry/api/src/registry.js`;
+      const files = discoverFiles(config);
+      const before = fingerprintAnalysisInputs(config, files);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyFiles = discoverFiles(legacyConfig);
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, legacyFiles);
+      const typescriptFiles = files.filter(file => file.relPath.endsWith(".ts"));
+      const typescriptBefore = fingerprintAnalysisInputs(config, typescriptFiles);
+      const typescriptOutcome = (runtimeConfig: SemctxConfig = config, runtimeFiles = typescriptFiles) => analyzePlaneARuntime(runtimeConfig, {
+        files: runtimeFiles,
+        candidates: runtimeFiles.map(file => ({ relPath: file.relPath, language: "typescript" as const, selectionDecision: "selected" as const, reason: "SELECTED" })),
+      }).discoveryLedger.find(entry => entry.candidateIdentity === "typescript:domains/registry/api/src/registry.ts")?.analysisOutcome;
+      expect(typescriptOutcome()).toBe("analyzed");
+      expect(typescriptOutcome(legacyConfig, legacyFiles)).toBe("analyzed");
+      expect(resolveTypeScriptModule("#shared", source)).toBe(`${root}/tooling/config/shared.ts`);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      write("domains/registry/api/package.json", dependency("workspace:*").replaceAll("\n", "\r\n"));
+      write("tooling/config/base.json", inherited.replaceAll("\n", "\r\n"));
+      expect(fingerprintAnalysisInputs(config, files)).toBe(before);
+      write("tooling/config/base.json", inherited.replace("shared.ts", "other.ts"));
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("tooling/config/base.json", inherited);
+      write("pnpm-workspace.yaml", 'packages:\n  - "domains/*/*"\n');
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("pnpm-workspace.yaml", 'packages:\n  - "tooling/*"\n  - "domains/*/*"\n');
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/renamed", version: "1.0.0" }));
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      write("domains/registry/api/package.json", dependency("^1.0.0"));
+      expect(resolveTypeScriptModule("#shared", source)).toBeUndefined();
+      expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      expect(fingerprintAnalysisInputs(legacyConfig, legacyFiles)).toBe(legacyBefore);
+      expect(typescriptOutcome()).toBe("failed");
+      expect(typescriptOutcome(legacyConfig, legacyFiles)).toBe("analyzed");
+      expect(fingerprintAnalysisInputs(config, typescriptFiles)).not.toBe(typescriptBefore);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("invalidates indexed v2 freshness when an installed configuration changes or disappears", () => {
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-installed-freshness-"))).replaceAll("\\", "/");
+    const write = (path: string, content: string) => {
+      const target = join(root, path);
+      mkdirSync(join(target, ".."), { recursive: true });
+      writeFileSync(target, content);
+    };
+    try {
+      write(".gitignore", ".semctx/\nnode_modules/\n");
+      write("package.json", JSON.stringify({ name: "fixture", devDependencies: { "@fixture/config": "1.0.0" } }));
+      write("tsconfig.json", JSON.stringify({ extends: "./node_modules/@fixture/config/base.json" }));
+      write("node_modules/@fixture/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      const inherited = JSON.stringify({ compilerOptions: { module: "ESNext", moduleResolution: "Bundler", paths: { "#shared": ["../../../src/shared.ts"] } } }, null, 2) + "\n";
+      write("node_modules/@fixture/config/base.json", inherited);
+      write("src/shared.ts", "export const shared = 1;\n");
+      write("src/other.ts", "export const shared = 2;\n");
+      write("src/main.ts", 'import { shared } from "#shared"; export const main = shared;\n');
+      git(root, "init", "-q");
+      git(root, "add", ".");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-q", "-m", "fixture");
+      const config = initWorkspace(root, { version: 2, selectionMode: "globs-v1", include: ["src/**/*.ts"], exclude: [],
+        languages: { typescript: "on", javascript: "off", python: "off", markdown: "off", sql: "off" } });
+      const files = discoverFiles(config);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const source = `${root}/src/main.ts`;
+      expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${root}/src/shared.ts`);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      indexRepository(root, "2026-10-13T00:00:00.000Z");
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      const before = fingerprintAnalysisInputs(config, files);
+      write("node_modules/@fixture/config/base.json", inherited.replaceAll("\n", "\r\n"));
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      write("node_modules/@fixture/config/base.json", inherited.replace("shared.ts", "other.ts"));
+      expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${root}/src/other.ts`);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+      write("node_modules/@fixture/config/base.json", inherited);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      rmSync(join(root, "node_modules/@fixture/config/base.json"));
+      expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      write("node_modules/@fixture/config/base.json", inherited);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("invalidates indexed v2 freshness when parent configuration starts rejecting unchanged sources", () => {
+    const parent = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-parent-config-freshness-"))).replaceAll("\\", "/");
+    const root = join(parent, "repository");
+    const parentConfig = join(parent, "tsconfig.json");
+    try {
+      mkdirSync(join(root, "src"), { recursive: true });
+      writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+      writeFileSync(join(root, "src/main.ts"), "export const main = 1;\n");
+      writeFileSync(join(root, "src/other.js"), "export const other = 2;\n");
+      git(root, "init", "-q");
+      git(root, "add", ".");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-q", "-m", "fixture");
+      const config = initWorkspace(root, { version: 2, selectionMode: "globs-v1", include: ["src/**/*.ts", "src/**/*.js"], exclude: [],
+        languages: { typescript: "on", javascript: "on", python: "off", markdown: "off", sql: "off" } });
+      const files = discoverFiles(config);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const source = join(root, "src/main.ts");
+      const outcome = () => analyzePlaneARuntime(config, {
+        files,
+        candidates: files.map(file => ({ relPath: file.relPath, language: file.relPath.endsWith(".ts") ? "typescript" as const : "javascript" as const,
+          selectionDecision: "selected" as const, reason: "SELECTED" })),
+      }).discoveryLedger;
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      expect(outcome().every(entry => entry.analysisOutcome === "analyzed")).toBe(true);
+      indexRepository(root, "2026-10-13T00:00:00.000Z");
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      const before = fingerprintAnalysisInputs(config, files);
+      const gitBefore = captureGitState(root);
+
+      writeFileSync(parentConfig, JSON.stringify({ compilerOptions: { strict: true } }));
+      expect(inspectModuleConfiguration(source, root)).toEqual(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]);
+      expect(outcome().find(entry => entry.candidateIdentity === "typescript:src/main.ts")?.analysisOutcome).toBe("failed");
+      expect(inspectModuleConfiguration(join(root, "src/other.js"), root)).toEqual(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]);
+      expect(captureGitState(root)).toEqual(gitBefore);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      const rejected = fingerprintAnalysisInputs(config, files);
+      expect(rejected).not.toBe(before);
+      expect(fingerprintAnalysisInputs(config, [...files].reverse())).toBe(rejected);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+
+      // Outside bytes are never consumed: only the rejection state affects freshness.
+      writeFileSync(parentConfig, "not valid JSON");
+      expect(fingerprintAnalysisInputs(config, files)).toBe(rejected);
+      rmSync(parentConfig);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      expect(fingerprintAnalysisInputs(config, files)).toBe(before);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+    } finally {
+      rmSync(parent, { recursive: true, force: true });
+    }
   });
 
   it("changes for graph, semantic, and working-diff inputs", () => {

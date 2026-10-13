@@ -20,6 +20,7 @@ import packageJson from "../package.json";
 import {
   executeInstall,
   DEFERRED_CODEX_CACHE_CLEANUP_SCRIPT,
+  DEFERRED_CODEX_CLEANUP_SCRIPT,
   resolveInstallHostCommand,
   resolveCodexCacheEntry,
   resolveCodexHome,
@@ -3556,6 +3557,24 @@ process.stdout.write(JSON.stringify({ installed: [{
     expect(existsSync(retired)).toBe(false);
     expect(existsSync(join(entry("0.1.17"), "dist", "semctx.js"))).toBe(true);
   });
+});
+
+/**
+ * A detached process has no console, so Windows gives every console program it starts a new,
+ * visible console window unless the spawn hides it. The deferred scripts poll Codex every five
+ * seconds for up to twelve hours; one unhidden spawn flashes a window for that whole period.
+ */
+describe("deferred installer scripts", () => {
+  for (const [name, script] of [
+    ["Codex marketplace cleanup", DEFERRED_CODEX_CLEANUP_SCRIPT],
+    ["obsolete Codex cache janitor", DEFERRED_CODEX_CACHE_CLEANUP_SCRIPT],
+  ] as const) {
+    test(`${name} hides the console window of every child it spawns`, () => {
+      const spawns = [...script.matchAll(/Bun\.spawn(?:Sync)?\(([\s\S]*?)\}\);/g)];
+      expect(spawns.length).toBeGreaterThan(0);
+      for (const spawn of spawns) expect(spawn[1]).toContain("windowsHide: true");
+    });
+  }
 });
 
 describe("Claude inventory JSON boundary", () => {

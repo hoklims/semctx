@@ -70,6 +70,12 @@ export interface AnalyzeWorkspaceInput {
   readonly artifacts?: readonly WorkspaceArtifact[];
   /** Optional retained manifest bytes keyed by resolved absolute path; never fall back to live bytes. */
   readonly manifestContents?: ReadonlyMap<string, string>;
+  /**
+   * The repository-relative paths the caller's discovery excludes. The walk does not enter an
+   * excluded directory and does not read an excluded manifest, so neither can claim a workspace
+   * identity. Callers pass the rule their candidate discovery applies.
+   */
+  readonly excludePath?: (relativePath: string, kind?: "file" | "directory") => boolean;
 }
 
 export interface ProjectWorkspaceCandidatesInput {
@@ -113,7 +119,7 @@ export async function analyzeWorkspace(input: AnalyzeWorkspaceInput): Promise<Wo
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    await inspectRepository(repositoryRoot, diagnostics, input.manifestContents);
+    await inspectRepository(repositoryRoot, diagnostics, input.manifestContents, input.excludePath);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -185,7 +191,7 @@ export function analyzeWorkspaceSync(input: AnalyzeWorkspaceInput): WorkspacePro
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    inspectRepositorySync(repositoryRoot, diagnostics, input.manifestContents);
+    inspectRepositorySync(repositoryRoot, diagnostics, input.manifestContents, input.excludePath);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -416,6 +422,7 @@ async function inspectRepository(
   repositoryRoot: string,
   diagnostics: WorkspaceDiagnostic[],
   manifestContents?: ReadonlyMap<string, string>,
+  excludePath?: (relativePath: string, kind?: "file" | "directory") => boolean,
 ): Promise<{
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -436,6 +443,9 @@ async function inspectRepository(
     for (const entry of entries) {
       if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
+      // Apply recursive directory exclusions to links before retaining an unsafe workspace root.
+      if (entry.isSymbolicLink() && excludePath?.(child, "directory") === true) continue;
+      if (excludePath?.(child, entry.isDirectory() ? "directory" : "file") === true) continue;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
         continue;
@@ -457,6 +467,7 @@ async function inspectRepository(
       : resolve(repositoryRoot, ...directory.root.split("/"));
     for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
+      if (excludePath?.(manifestPath, "file") === true) continue;
       const manifestAbsolute = resolve(absolute, manifestName);
       if (manifestContents !== undefined && !manifestContents.has(manifestAbsolute)) continue;
       let source: string;
@@ -504,6 +515,7 @@ function inspectRepositorySync(
   repositoryRoot: string,
   diagnostics: WorkspaceDiagnostic[],
   manifestContents?: ReadonlyMap<string, string>,
+  excludePath?: (relativePath: string, kind?: "file" | "directory") => boolean,
 ): {
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -524,6 +536,9 @@ function inspectRepositorySync(
     for (const entry of entries) {
       if (entry.name === ".git" || entry.name === "node_modules" || entry.name === ".semctx") continue;
       const child = current === ROOT ? entry.name : `${current}/${entry.name}`;
+      // Apply recursive directory exclusions to links before retaining an unsafe workspace root.
+      if (entry.isSymbolicLink() && excludePath?.(child, "directory") === true) continue;
+      if (excludePath?.(child, entry.isDirectory() ? "directory" : "file") === true) continue;
       if (entry.isSymbolicLink()) {
         directories.push({ root: child, safe: false });
         continue;
@@ -545,6 +560,7 @@ function inspectRepositorySync(
       : resolve(repositoryRoot, ...directory.root.split("/"));
     for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
+      if (excludePath?.(manifestPath, "file") === true) continue;
       const manifestAbsolute = resolve(absolute, manifestName);
       if (manifestContents !== undefined && !manifestContents.has(manifestAbsolute)) continue;
       let source: string;

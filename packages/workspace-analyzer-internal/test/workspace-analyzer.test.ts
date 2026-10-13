@@ -145,6 +145,57 @@ describe("ADR-C08 workspace detection", () => {
     ]);
   });
 
+  it("11: an excluded directory neither enters the walk nor claims an identity", async () => {
+    const root = await fixture();
+    await json(root, "package.json", { name: "repo", workspaces: ["packages/*"] });
+    await json(root, "packages/core/package.json", { name: "@repo/core" });
+    // A local copy of the whole repository, kept outside the analyzed scope.
+    await json(root, "intake/copy/package.json", { name: "repo", workspaces: ["packages/*"] });
+    await json(root, "intake/copy/packages/core/package.json", { name: "@repo/core" });
+
+    const unscoped = analyzeWorkspaceSync({ repositoryRoot: root });
+    expect(unscoped.nodes.map((node) => node.root)).not.toContain("packages/core");
+    expect(unscoped.diagnostics.map((diagnostic) => diagnostic.code)).toContain("AMBIGUOUS_LAYOUT");
+
+    const excludePath = (path: string) => path === "intake" || path.startsWith("intake/");
+    const asynchronous = await analyzeWorkspace({ repositoryRoot: root, excludePath });
+    const synchronous = analyzeWorkspaceSync({ repositoryRoot: root, excludePath });
+
+    expect(JSON.stringify(synchronous)).toBe(JSON.stringify(asynchronous));
+    expect(asynchronous.nodes.map(({ root: nodeRoot, identity }) => ({ root: nodeRoot, identity }))).toEqual([
+      { root: ".", identity: "repo" },
+      { root: "packages/core", identity: "@repo/core" },
+    ]);
+    expect(asynchronous.candidates.filter((candidate) => candidate.root.startsWith("intake"))).toEqual([]);
+    expect(asynchronous.diagnostics).toEqual([]);
+  });
+
+  it("11: an excluded manifest is not read even when its directory is walked", async () => {
+    const root = await fixture();
+    await json(root, "package.json", { name: "repo" });
+    await json(root, "tools/package.json", { name: "tools" });
+
+    const excludePath = (path: string) => path === "tools/package.json";
+    for (const projection of [await analyzeWorkspace({ repositoryRoot: root, excludePath }), analyzeWorkspaceSync({ repositoryRoot: root, excludePath })]) {
+      expect(projection.nodes.map((node) => node.root)).toEqual(["."]);
+    }
+  });
+
+  it("11: an identity repeated inside the remaining scope stays ambiguous", async () => {
+    const root = await fixture();
+    await json(root, "package.json", { name: "repo", workspaces: ["packages/*"] });
+    await json(root, "packages/a/package.json", { name: "dup" });
+    await json(root, "packages/b/package.json", { name: "dup" });
+    await json(root, "intake/package.json", { name: "unrelated" });
+
+    const projection = analyzeWorkspaceSync({ repositoryRoot: root, excludePath: (path) => path === "intake" });
+
+    expect(projection.nodes.map((node) => node.root)).toEqual(["."]);
+    expect(projection.diagnostics).toEqual([
+      expect.objectContaining({ code: "AMBIGUOUS_LAYOUT", roots: ["packages/a", "packages/b"] }),
+    ]);
+  });
+
   it("4: assigns nested units and artifacts to their nearest admitted ancestor", async () => {
     const root = await fixture();
     await json(root, "package.json", { name: "repo" });

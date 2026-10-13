@@ -1,12 +1,14 @@
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
 import * as fs from "node:fs";
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
+import { analyzeWorkspace, analyzeWorkspaceSync } from "@semantic-context/workspace-analyzer-internal";
 import {
   discoverFiles,
   countTypeScriptFiles,
+  createDiscoveryPathExclusion,
   discoverRepository,
   isPathSelected,
 } from "@semantic-context/ts-analyzer";
@@ -49,6 +51,121 @@ function globConfig(root: string, overrides: Partial<SemctxConfig> = {}): Semctx
 
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
+
+describe("discovery path exclusion shared with workspace discovery", () => {
+  it("preserves selected file-link failures under a recursive-prefix exclusion", () => {
+    const root = realpathSync.native(fixture());
+    const outside = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-selected-file-link-")));
+    roots.push(outside);
+    writeFileSync(join(outside, "secret.ts"), "export const secret = true;\n");
+    const link = join(root, "src/linked.ts");
+    symlinkSync(join(outside, "secret.ts"), link, "file");
+    const config = globConfig(root, { include: ["**/*.ts"], exclude: ["src/linked.ts/**"] });
+    expect(isPathSelected(config, "src/linked.ts")).toBe(true);
+    expect(discoverRepository(config).candidates.find(candidate => candidate.relPath === "src/linked.ts")?.reason)
+      .toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+    expect(() => countTypeScriptFiles(config)).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+
+    rmSync(link);
+    symlinkSync(outside, link, process.platform === "win32" ? "junction" : "dir");
+    expect(discoverRepository(config).candidates.some(candidate => candidate.relPath === "src/linked.ts")).toBe(false);
+    expect(countTypeScriptFiles(config)).toBe(1);
+
+    const originalStat = fs.statSync;
+    const probe = spyOn(fs, "statSync").mockImplementation(((path, options) => {
+      if (String(path) === link) throw Object.assign(new Error("link target unavailable"), { code: "EACCES" });
+      return originalStat(path, options);
+    }) as typeof fs.statSync);
+    try {
+      expect(discoverRepository(config).candidates.find(candidate => candidate.relPath === "src/linked.ts")?.reason)
+        .toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  it("omits recursively excluded workspace links without following their targets", async () => {
+    const root = realpathSync.native(fixture());
+    const outside = mkdtempSync(join(tmpdir(), "semctx-excluded-workspace-link-"));
+    roots.push(outside);
+    mkdirSync(join(root, "packages"));
+    writeFileSync(join(root, "package.json"), '{"name":"repo","workspaces":["packages/*"]}\n');
+    writeFileSync(join(outside, "package.json"), '{"name":"outside"}\n');
+    writeFileSync(join(outside, "secret.ts"), "export const secret = true;\n");
+    symlinkSync(outside, join(root, "packages/external"), process.platform === "win32" ? "junction" : "dir");
+    for (const exclude of [["packages/external/**"], ["packages/*"], ["packages/external"], []]) {
+      const config = globConfig(root, { include: ["**/*.ts"], exclude });
+      const discovery = discoverRepository(config);
+      expect(discovery.files.map((file) => file.relPath)).not.toContain("packages/external/secret.ts");
+      const link = discovery.candidates.find(candidate => candidate.relPath === "packages/external");
+      if (exclude[0] === "packages/external/**") {
+        expect(link).toBeUndefined();
+        expect(countTypeScriptFiles(config)).toBe(1);
+      } else {
+        expect(link?.reason).toBe("SOURCE_LINK_OUTSIDE_REPOSITORY");
+        expect(() => countTypeScriptFiles(config)).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
+      const input = { repositoryRoot: root, excludePath: createDiscoveryPathExclusion(config) };
+      const sync = analyzeWorkspaceSync(input);
+      expect(await analyzeWorkspace(input)).toEqual(sync);
+      expect(sync.nodes.map((node) => node.root)).toEqual(["."]);
+      expect(sync.diagnostics.length > 0).toBe(exclude.length === 0);
+    }
+  });
+
+  it.each([
+    ["intake", "intake/copy", true, true],
+    ["packages/*", "packages/core", true, true],
+    ["packages/*/src", "packages/core", true, true],
+    ["packages/*/package.json", "packages/core", true, false],
+    ["packages/*/src/*.ts", "packages/core", false, true],
+    ["intake/**", "intake/copy", false, false],
+    ["packages/*/**", "packages/core", false, false],
+    ["**", "packages/core", false, false],
+  ] as const)("keeps file-glob scope aligned for %s in sync and async workspace discovery", async (exclude, workspaceRoot, sourceSelected, manifestSelected) => {
+    const root = realpathSync.native(fixture());
+    mkdirSync(join(root, workspaceRoot, "src"), { recursive: true });
+    writeFileSync(join(root, workspaceRoot, "package.json"), '{"name":"scope-regression"}\n');
+    writeFileSync(join(root, workspaceRoot, "src/main.ts"), "export const scoped = true;\n");
+    const config = globConfig(root, { include: [`${workspaceRoot}/src/**/*.ts`], exclude: [exclude] });
+    const source = `${workspaceRoot}/src/main.ts`;
+    expect(isPathSelected(config, source)).toBe(sourceSelected);
+    expect(discoverRepository(config).files.map((file) => file.relPath).includes(source)).toBe(sourceSelected);
+    const input = { repositoryRoot: root, excludePath: createDiscoveryPathExclusion(config) };
+    const sync = analyzeWorkspaceSync(input);
+    const asyncProjection = await analyzeWorkspace(input);
+    expect(sync.nodes.some((node) => node.root === workspaceRoot)).toBe(manifestSelected);
+    expect(asyncProjection).toEqual(sync);
+  });
+
+  it("applies the legacy v1 ignored segments and substring excludes to directories and manifests", () => {
+    const excluded = createDiscoveryPathExclusion({ ...createDefaultConfig("/repo"), exclude: ["intake"] });
+    expect(excluded("intake")).toBe(true);
+    expect(excluded("intake/copy")).toBe(true);
+    expect(excluded("intake/copy/package.json")).toBe(true);
+    expect(excluded("packages/core/dist")).toBe(true);
+    expect(excluded("packages/core")).toBe(false);
+    expect(excluded("packages/core/package.json")).toBe(false);
+  });
+
+  it("applies v2 exclude globs to a directory itself and to its contents", () => {
+    const excluded = createDiscoveryPathExclusion(globConfig("/repo", { exclude: ["intake/**"] }));
+    expect(excluded("intake", "directory")).toBe(true);
+    expect(excluded("intake/copy/package.json", "file")).toBe(true);
+    expect(excluded("packages/core/build")).toBe(true);
+    expect(excluded("packages/core")).toBe(false);
+    expect(excluded("services/package.json")).toBe(false);
+  });
+
+  it("keeps output directories for the qualified profile, whose walk retains them", () => {
+    const excluded = createDiscoveryPathExclusion(globConfig("/repo", {
+      exclude: [],
+      analysisProfile: "modelo-suite-static-v1",
+    } as Partial<SemctxConfig>));
+    expect(excluded("packages/core/dist")).toBe(false);
+    expect(excluded("packages/core/node_modules")).toBe(true);
+  });
 });
 
 describe("versioned source selection", () => {
@@ -216,6 +333,118 @@ describe("versioned source selection", () => {
       }
     } finally {
       probe.mockRestore();
+    }
+  });
+
+  it("skips an unreadable directory only when configuration excludes its whole subtree", () => {
+    const root = fixture();
+    mkdirSync(join(root, ".pnpm-store", "v10"), { recursive: true });
+    writeFileSync(join(root, ".pnpm-store", "v10", "index.ts"), "export const stored = 1;\n");
+    const original = fs.readdirSync;
+    const probe = spyOn(fs, "readdirSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, ".pnpm-store") || String(path) === join(root, "vendor")) {
+        throw Object.assign(new Error("directory access denied"), { code: "EACCES" });
+      }
+      return original(path, options as never);
+    }) as typeof fs.readdirSync);
+    try {
+      const excluded = globConfig(root, { exclude: ["services/**/ignored.py", "vendor/**", "**/.pnpm-store/**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) {
+        expect(() => discover(excluded)).not.toThrow();
+      }
+      expect(discoverRepository(excluded).files.map((file) => file.relPath).sort())
+        .toEqual(["services/api/main.py", "src/legacy.ts", "équipe/outil.py"].sort());
+      const legacy = { ...createDefaultConfig(root), exclude: [...createDefaultConfig(root).exclude, ".pnpm-store", "vendor/"] };
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) {
+        expect(() => discover(legacy)).not.toThrow();
+      }
+      // A file-level exclude (even one naming the directory), a sibling prefix or no exclude does
+      // not cover the subtree.
+      for (const exclude of [["vendor", "**/.pnpm-store/**"], ["vendor/*.py", "**/.pnpm-store/**"], ["vendor-other/**", "**/.pnpm-store/**"], ["vendor/**"]]) {
+        expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
+      expect(() => discoverRepository(createDefaultConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  it.each(["directory", "marker", "candidate"] as const)("recognizes ancestor recursive excludes for an unreadable nested %s", (failure) => {
+    const root = fixture();
+    mkdirSync(join(root, "vendor/private"), { recursive: true });
+    writeFileSync(join(root, "vendor/private/source.ts"), "export const privateSource = true;\n");
+    const originalRead = fs.readdirSync;
+    const originalStat = fs.lstatSync;
+    const denied = join(root, "vendor/private", ...(failure === "marker" ? [".git"] : []));
+    const readProbe = spyOn(fs, "readdirSync").mockImplementation(((path, options) => {
+      if (failure === "directory" && String(path) === denied) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return originalRead(path, options as never);
+    }) as typeof fs.readdirSync);
+    const statProbe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (failure !== "directory" && String(path) === denied) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return originalStat(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      const config = globConfig(root, { exclude: ["vendor/**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) expect(() => discover(config)).not.toThrow();
+      const globallyExcluded = globConfig(root, { exclude: ["**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) expect(() => discover(globallyExcluded)).not.toThrow();
+      expect(discoverRepository(globallyExcluded).files).toEqual([]);
+      for (const exclude of [[], ["vendor"], ["vendor/*"], ["vendor-other/**"]]) {
+        expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
+    } finally {
+      statProbe.mockRestore();
+      readProbe.mockRestore();
+    }
+  });
+
+  it("cannot skip an uninspectable recursive-exclude prefix whose own path could be selected", () => {
+    const root = fixture();
+    const original = fs.lstatSync;
+    const probe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, "vendor")) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+      return original(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      expect(() => discoverRepository(globConfig(root, { include: ["**"], exclude: ["vendor/**"] })))
+        .toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  it("skips an excluded directory whose Git marker cannot be probed", () => {
+    const root = fixture();
+    mkdirSync(join(root, ".pnpm-store", "v10"), { recursive: true });
+    const original = fs.lstatSync;
+    const probe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, ".pnpm-store", ".git")) {
+        throw Object.assign(new Error("search permission denied"), { code: "EACCES" });
+      }
+      return original(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      expect(() => discoverRepository(globConfig(root, { exclude: ["**/.pnpm-store/**"] }))).not.toThrow();
+      expect(() => discoverRepository({ ...createDefaultConfig(root), exclude: [".pnpm-store"] })).not.toThrow();
+      expect(() => discoverRepository(globConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  itOnPosix("skips a real permission-denied directory only when its subtree is excluded", () => {
+    if (process.getuid?.() === 0) return; // root bypasses directory permissions
+    const root = fixture();
+    const store = join(root, ".pnpm-store");
+    mkdirSync(join(store, "v10"), { recursive: true });
+    writeFileSync(join(store, "v10", "index.ts"), "export const stored = 1;\n");
+    fs.chmodSync(store, 0o000);
+    try {
+      expect(() => discoverRepository(globConfig(root, { exclude: ["**/.pnpm-store/**"] }))).not.toThrow();
+      expect(() => discoverRepository(globConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      fs.chmodSync(store, 0o755);
     }
   });
 
