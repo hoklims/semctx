@@ -387,7 +387,11 @@ export function inspectModuleConfiguration(
     return relation !== ".." && !relation.startsWith("../") && !isAbsolute(relation);
   };
   if (!contained(configPath)) return ["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"];
-  const config = ts.readConfigFile(configPath, candidate => system.readFile(candidate));
+  const config = ts.readConfigFile(configPath, candidate => {
+    const content = system.readFile(candidate);
+    if (compilerInputs === undefined) workspaceLinks?.inputs.set(resolve(candidate).replaceAll("\\", "/"), content);
+    return content;
+  });
   // Live checkouts may lack the installed link to a workspace member's shared configuration;
   // retained snapshots keep exactly the inputs they captured.
   const configurationSystem = compilerInputs === undefined ? workspaceLinkedSystem(system, repositoryRoot, workspaceLinks) : system;

@@ -30,13 +30,15 @@ interface WorkspaceMembers {
  * resolutions of that pass; never keep it across passes, which may observe a changed workspace.
  */
 export interface WorkspaceLinkResolver {
+  /** Causal reads for freshness only; missing reads are not positive analysis evidence. */
+  readonly inputs: Map<string, string | undefined>;
   readonly declarations: Map<string, WorkspaceDeclaration | null>;
   readonly members: Map<string, WorkspaceMembers>;
   readonly links: Map<string, ReadonlyMap<string, string>>;
 }
 
 export function createWorkspaceLinkResolver(): WorkspaceLinkResolver {
-  return { declarations: new Map(), members: new Map(), links: new Map() };
+  return { inputs: new Map(), declarations: new Map(), members: new Map(), links: new Map() };
 }
 
 function slash(path: string): string {
@@ -47,16 +49,19 @@ function canonical(path: string): string {
   return slash(resolve(path));
 }
 
-function readText(path: string): string | undefined {
+function readText(path: string, resolver: WorkspaceLinkResolver): string | undefined {
+  let text: string | undefined;
   try {
-    return readFileSync(path, "utf8");
+    text = readFileSync(path, "utf8");
   } catch {
-    return undefined;
+    text = undefined;
   }
+  resolver.inputs.set(canonical(path), text);
+  return text;
 }
 
-function readJsonRecord(path: string): Record<string, unknown> | undefined {
-  const text = readText(path);
+function readJsonRecord(path: string, resolver: WorkspaceLinkResolver): Record<string, unknown> | undefined {
+  const text = readText(path, resolver);
   if (text === undefined) return undefined;
   try {
     const value: unknown = JSON.parse(text);
@@ -84,8 +89,8 @@ function isWithin(root: string, candidate: string): boolean {
 }
 
 /** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
-function pnpmDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
-  const pnpm = readText(join(directory, "pnpm-workspace.yaml"));
+function pnpmDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): WorkspaceDeclaration | undefined {
+  const pnpm = readText(join(directory, "pnpm-workspace.yaml"), resolver);
   if (pnpm === undefined) return undefined;
   let parsed: unknown;
   try {
@@ -99,8 +104,8 @@ function pnpmDeclarationAt(directory: string): WorkspaceDeclaration | undefined 
   return { root: directory, patterns: patterns ?? [] };
 }
 
-function packageDeclarationAt(directory: string): WorkspaceDeclaration | undefined {
-  const workspaces = readJsonRecord(join(directory, "package.json"))?.workspaces;
+function packageDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): WorkspaceDeclaration | undefined {
+  const workspaces = readJsonRecord(join(directory, "package.json"), resolver)?.workspaces;
   const patterns = stringList(workspaces)
     ?? (typeof workspaces === "object" && workspaces !== null
       ? stringList((workspaces as Record<string, unknown>).packages)
@@ -133,7 +138,8 @@ function findDeclaration(resolver: WorkspaceLinkResolver, start: string, boundar
   const key = `${boundary ?? ""}\0${start}`;
   const cached = resolver.declarations.get(key);
   if (cached !== undefined) return cached ?? undefined;
-  const found = searchUpward(start, boundary, pnpmDeclarationAt) ?? searchUpward(start, boundary, packageDeclarationAt);
+  const found = searchUpward(start, boundary, directory => pnpmDeclarationAt(directory, resolver))
+    ?? searchUpward(start, boundary, directory => packageDeclarationAt(directory, resolver));
   resolver.declarations.set(key, found ?? null);
   return found;
 }
@@ -172,7 +178,7 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
   const byName = new Map<string, string | null>();
   // The workspace root is itself a workspace package that members can depend on.
   for (const directory of [declaration.root, ...[...directories].sort()]) {
-    const name = readJsonRecord(join(directory, "package.json"))?.name;
+    const name = readJsonRecord(join(directory, "package.json"), resolver)?.name;
     if (typeof name !== "string") continue;
     byName.set(name, byName.has(name) ? null : directory);
   }
@@ -185,8 +191,8 @@ function membersOf(resolver: WorkspaceLinkResolver, declaration: WorkspaceDeclar
 const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 
 /** Ranges declared through `workspace:`, by name; aliases (`workspace:name@range`) and paths are excluded. */
-function workspaceDependencies(directory: string): ReadonlyMap<string, string> {
-  const manifest = readJsonRecord(join(directory, "package.json"));
+function workspaceDependencies(directory: string, resolver: WorkspaceLinkResolver): ReadonlyMap<string, string> {
+  const manifest = readJsonRecord(join(directory, "package.json"), resolver);
   const ranges = new Map<string, string>();
   for (const field of DEPENDENCY_FIELDS) {
     const dependencies = manifest?.[field];
@@ -211,9 +217,9 @@ function isSemverRange(range: string): boolean {
 }
 
 /** pnpm links a `workspace:` dependency only when the member's version satisfies its range. */
-function satisfiesWorkspaceRange(member: string, range: string): boolean {
+function satisfiesWorkspaceRange(member: string, range: string, resolver: WorkspaceLinkResolver): boolean {
   if (range === "" || range === "*" || range === "^" || range === "~") return true;
-  const version = readJsonRecord(join(member, "package.json"))?.version;
+  const version = readJsonRecord(join(member, "package.json"), resolver)?.version;
   return typeof version === "string" && /^\d+\.\d+\.\d+(?:[-+].*)?$/.test(version)
     && isSemverRange(range) && Bun.semver.satisfies(version, range);
 }
@@ -231,7 +237,7 @@ function linksAt(resolver: WorkspaceLinkResolver, directory: string, boundary: s
   const cached = resolver.links.get(key);
   if (cached !== undefined) return cached;
   const links = new Map<string, string>();
-  const dependencies = workspaceDependencies(directory);
+  const dependencies = workspaceDependencies(directory, resolver);
   const declaration = dependencies.size === 0 ? undefined : findDeclaration(resolver, directory, boundary);
   if (declaration !== undefined) {
     const members = membersOf(resolver, declaration);
@@ -240,7 +246,7 @@ function linksAt(resolver: WorkspaceLinkResolver, directory: string, boundary: s
     for (const name of names) {
       const member = members.byName.get(name);
       if (member === undefined || member === null || installedFrom(directory, name)) continue;
-      if (!satisfiesWorkspaceRange(member, dependencies.get(name)!)) continue;
+      if (!satisfiesWorkspaceRange(member, dependencies.get(name)!, resolver)) continue;
       if (boundary !== undefined && !isWithin(boundary, member)) continue;
       links.set(name, member);
     }
@@ -289,9 +295,10 @@ export function workspaceLinkedSystem(
       return target !== undefined && system.fileExists(target);
     },
     readFile: (path, encoding) => {
-      if (system.fileExists(path)) return system.readFile(path, encoding);
-      const target = linked(path);
-      return target === undefined ? undefined : system.readFile(target, encoding);
+      const target = system.fileExists(path) ? path : linked(path);
+      const content = target === undefined ? undefined : system.readFile(target, encoding);
+      resolver.inputs.set(canonical(target ?? path), content);
+      return content;
     },
     directoryExists: path => {
       if (system.directoryExists?.(path) ?? false) return true;
