@@ -347,6 +347,59 @@ describe("control freshness seal", () => {
     }
   });
 
+  it("invalidates indexed v2 freshness when parent configuration starts rejecting unchanged sources", () => {
+    const parent = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-parent-config-freshness-"))).replaceAll("\\", "/");
+    const root = join(parent, "repository");
+    const parentConfig = join(parent, "tsconfig.json");
+    try {
+      mkdirSync(join(root, "src"), { recursive: true });
+      writeFileSync(join(root, ".gitignore"), ".semctx/\n");
+      writeFileSync(join(root, "src/main.ts"), "export const main = 1;\n");
+      writeFileSync(join(root, "src/other.js"), "export const other = 2;\n");
+      git(root, "init", "-q");
+      git(root, "add", ".");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-q", "-m", "fixture");
+      const config = initWorkspace(root, { version: 2, selectionMode: "globs-v1", include: ["src/**/*.ts", "src/**/*.js"], exclude: [],
+        languages: { typescript: "on", javascript: "on", python: "off", markdown: "off", sql: "off" } });
+      const files = discoverFiles(config);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const source = join(root, "src/main.ts");
+      const outcome = () => analyzePlaneARuntime(config, {
+        files,
+        candidates: files.map(file => ({ relPath: file.relPath, language: file.relPath.endsWith(".ts") ? "typescript" as const : "javascript" as const,
+          selectionDecision: "selected" as const, reason: "SELECTED" })),
+      }).discoveryLedger;
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      expect(outcome().every(entry => entry.analysisOutcome === "analyzed")).toBe(true);
+      indexRepository(root, "2026-10-13T00:00:00.000Z");
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      const before = fingerprintAnalysisInputs(config, files);
+      const gitBefore = captureGitState(root);
+
+      writeFileSync(parentConfig, JSON.stringify({ compilerOptions: { strict: true } }));
+      expect(inspectModuleConfiguration(source, root)).toEqual(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]);
+      expect(outcome().find(entry => entry.candidateIdentity === "typescript:src/main.ts")?.analysisOutcome).toBe("failed");
+      expect(inspectModuleConfiguration(join(root, "src/other.js"), root)).toEqual(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]);
+      expect(captureGitState(root)).toEqual(gitBefore);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      const rejected = fingerprintAnalysisInputs(config, files);
+      expect(rejected).not.toBe(before);
+      expect(fingerprintAnalysisInputs(config, [...files].reverse())).toBe(rejected);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+
+      // Outside bytes are never consumed: only the rejection state affects freshness.
+      writeFileSync(parentConfig, "not valid JSON");
+      expect(fingerprintAnalysisInputs(config, files)).toBe(rejected);
+      rmSync(parentConfig);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      expect(fingerprintAnalysisInputs(config, files)).toBe(before);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+    } finally {
+      rmSync(parent, { recursive: true, force: true });
+    }
+  });
+
   it("changes for graph, semantic, and working-diff inputs", () => {
     const original = buildControlFreshnessSeal(base);
     const graphChanged = buildControlFreshnessSeal({
