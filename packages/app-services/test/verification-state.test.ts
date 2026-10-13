@@ -1,6 +1,6 @@
 import { afterEach, spyOn, describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SemctxError } from "@semantic-context/core";
@@ -391,6 +391,10 @@ describe("hidden bytes and attribute drift", () => {
     git(root, "commit", "-q", "-m", "raw crlf blob");
     writeFileSync(join(root, ".gitattributes"), `${name} text\n`);
     git(root, "add", ".gitattributes");
+    // Force Git to inspect unchanged bytes after attributes change, rather than
+    // reusing an identical cached index stat on fast filesystems.
+    const priorTime = new Date(1_000_000_000_000);
+    utimesSync(join(root, name), priorTime, priorTime);
 
     expect(readFileSync(join(root, name), "utf8")).toBe(bytes);
     expect(git(root, "show", `:${name}`)).toBe(bytes.trim());
