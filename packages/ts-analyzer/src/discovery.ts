@@ -139,12 +139,14 @@ function legacyExcludedSubtree(config: SemctxConfig): (relPath: string, includin
 
 function globExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
   // A matching `<prefix>/**` covers descendants of the prefix, including deeper directories.
-  const subtrees = config.exclude.map((pattern) => pattern.replaceAll("\\", "/"))
+  const patterns = config.exclude.map((pattern) => pattern.replaceAll("\\", "/"));
+  const globallyExcluded = patterns.includes("**");
+  const subtrees = patterns
     .filter((pattern) => pattern.endsWith("/**") && pattern.length > 3)
     .map((pattern) => new Bun.Glob(pattern.slice(0, -3)));
   return (relPath, includingSelf) => {
     const parts = segments(relPath);
-    return parts.length > 0 && parts.some((_, index) => subtrees.some((glob) => glob.match(parts.slice(0, index + 1).join("/"))))
+    return (globallyExcluded || parts.length > 0 && parts.some((_, index) => subtrees.some((glob) => glob.match(parts.slice(0, index + 1).join("/")))))
       && (!includingSelf || matchesAny(relPath, config.exclude));
   };
 }

@@ -347,6 +347,9 @@ describe("versioned source selection", () => {
     try {
       const config = globConfig(root, { exclude: ["vendor/**"] });
       for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) expect(() => discover(config)).not.toThrow();
+      const globallyExcluded = globConfig(root, { exclude: ["**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) expect(() => discover(globallyExcluded)).not.toThrow();
+      expect(discoverRepository(globallyExcluded).files).toEqual([]);
       for (const exclude of [[], ["vendor"], ["vendor/*"], ["vendor-other/**"]]) {
         expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
       }
