@@ -575,3 +575,68 @@ test("an unreadable present pnpm declaration cannot fall back to package workspa
     probe.mockRestore();
   }
 });
+
+for (const inherited of [false, true]) for (const mapping of ["baseUrl", "paths"] as const) {
+  test(`configured ${mapping} resolution refuses external sources (${inherited ? "linked" : "direct"} config)`, () => {
+    const { root } = workspace();
+    const outside = temporaryRoot("semctx-workspace-outside-module-");
+    const specifier = mapping === "paths" ? "#external" : "external";
+    const source = `${root}/domains/registry/api/src/source.js`;
+    const content = `import { external } from "${specifier}"; export const value = external;\n`;
+    write(outside, { "external.ts": "export const external = 1;\n" });
+    write(root, { "domains/registry/api/src/source.js": content });
+    const configPath = inherited ? "tooling/config/tsconfig/node.json" : "domains/registry/api/tsconfig.json";
+    const options = (targetRoot: string) => ({ module: "ESNext", moduleResolution: "Bundler",
+      ...(mapping === "baseUrl" ? { baseUrl: targetRoot } : { paths: { "#external": [`${targetRoot}/external.ts`] } }) });
+    write(root, { [configPath]: JSON.stringify({ compilerOptions: options(outside) }) });
+    const resolver = createWorkspaceLinkResolver();
+    expect(resolveTypeScriptModule(specifier, source, undefined, true, undefined, resolver, root)).toBeUndefined();
+    expect(inspectJavaScriptSource(source, content, root).staticModuleLinks.find(link => link.specifier === specifier)?.resolution).toBe("unresolved");
+    expect(extractTypeScript([source], root).imports.find(link => link.moduleSpecifier === specifier)?.resolvedRelPath).toBeUndefined();
+    write(root, { "internal/external.ts": "export const external = 0;\n", [configPath]: JSON.stringify({ compilerOptions: options(`${root}/internal`) }) });
+    expect(resolveTypeScriptModule(specifier, source, undefined, true, undefined, undefined, root)).toBe(`${root}/internal/external.ts`);
+  });
+}
+
+test("configured source resolution does not synthesize uninstalled source-package links", () => {
+  const { root, source } = workspace();
+  write(root, {
+    "tooling/source/package.json": JSON.stringify({ name: "@fixture/source", types: "index.ts" }),
+    "tooling/source/index.ts": "export const source = 1;\n",
+    "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/api", devDependencies: { "@fixture/config": "workspace:*", "@fixture/source": "workspace:*" } }),
+  });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  expect(resolveTypeScriptModule("@fixture/source", source, undefined, true, undefined, undefined, root)).toBeUndefined();
+});
+
+test.skipIf(!canCreateFileSymlink())("configured source resolution refuses canonical escapes through in-root paths", () => {
+  for (const directoryLink of [false, true]) {
+    const { root, source } = workspace();
+    const outside = temporaryRoot("semctx-workspace-outside-source-link-");
+    write(outside, { "external.ts": "export const external = 1;\n" });
+    write(root, { "tooling/config/tsconfig/node.json": JSON.stringify({ compilerOptions: { paths: { "#external": [`${root}/internal/external.ts`] } } }) });
+    if (directoryLink) symlinkSync(outside, join(root, "internal"), process.platform === "win32" ? "junction" : "dir");
+    else {
+      mkdirSync(join(root, "internal"));
+      symlinkSync(join(outside, "external.ts"), join(root, "internal/external.ts"), "file");
+    }
+    expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, undefined, root)).toBeUndefined();
+  }
+});
+
+test.skipIf(!canCreateFileSymlink())("configured runtime companions cannot escape the repository through a sibling symlink", () => {
+  const { root } = workspace();
+  const outside = temporaryRoot("semctx-workspace-runtime-companion-");
+  const source = `${root}/domains/registry/api/src/source.js`;
+  const runtime = `${root}/domains/registry/api/src/companion.js`;
+  write(root, {
+    "domains/registry/api/src/source.js": 'import { value } from "./companion"; export const result = value;\n',
+    "domains/registry/api/src/companion.d.ts": "export declare const value: number;\n",
+  });
+  write(outside, { "companion.js": "export const value = 1;\n" });
+  symlinkSync(join(outside, "companion.js"), runtime, "file");
+  expect(resolveTypeScriptModule("./companion", source, undefined, true, undefined, undefined, root)).toBeUndefined();
+  rmSync(runtime);
+  write(root, { "domains/registry/api/src/companion.js": "export const value = 0;\n" });
+  expect(resolveTypeScriptModule("./companion", source, undefined, true, undefined, undefined, root)).toBe(runtime);
+});

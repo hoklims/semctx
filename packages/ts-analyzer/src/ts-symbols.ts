@@ -243,7 +243,20 @@ export function resolveTypeScriptModule(
   if (configured && declarationPath !== undefined && /\.d\.(mts|cts|ts)$/.test(declarationPath)) {
     const runtimePath = declarationPath.replace(/\.d\.(mts|cts|ts)$/, (_, extension: string) =>
       extension === "mts" ? ".mjs" : extension === "cts" ? ".cjs" : ".js");
-    if (system.fileExists(runtimePath)) return runtimePath;
+    if (system.fileExists(runtimePath)) {
+      if (snapshot === undefined && repositoryRoot !== undefined) {
+        try {
+          if (!isContainedTypeScriptPath(canonicalFilesystemPath(repositoryRoot), canonicalFilesystemPath(runtimePath))) {
+            workspaceLinks?.inputs.set(resolve(runtimePath).replaceAll("\\", "/"), undefined);
+            return undefined;
+          }
+        } catch {
+          workspaceLinks?.inputs.set(resolve(runtimePath).replaceAll("\\", "/"), undefined);
+          return undefined;
+        }
+      }
+      return runtimePath;
+    }
   }
   return declarationPath;
 }
@@ -270,14 +283,35 @@ function resolveConfiguredModule(
       options = { ...COMPILER_OPTIONS, ...parsed.options };
     }
   }
+  // Final source resolution must obey the same root without admitting new synthetic
+  // source-package links: only configuration inheritance uses those virtual paths.
+  const liveRoot = system === ts.sys && repositoryRoot !== undefined
+    ? { lexical: resolve(repositoryRoot), canonical: canonicalFilesystemPath(repositoryRoot) } : undefined;
+  const admitted = (path: string): boolean => {
+    if (liveRoot === undefined) return true;
+    try {
+      if (isContainedTypeScriptPath(liveRoot.lexical, resolve(path))
+        && isContainedTypeScriptPath(liveRoot.canonical, canonicalFilesystemPath(path))) return true;
+    } catch { /* Unobservable module inputs are not admitted. */ }
+    workspaceLinks.inputs.set(resolve(path).replaceAll("\\", "/"), undefined);
+    return false;
+  };
+  const resolutionSystem: ts.System = liveRoot !== undefined ? {
+    ...configurationSystem,
+    fileExists: path => admitted(path) && system.fileExists(path) && configurationSystem.fileExists(path),
+    readFile: (path, encoding) => admitted(path) && system.fileExists(path) ? configurationSystem.readFile(path, encoding) : undefined,
+    directoryExists: path => admitted(path) && (system.directoryExists?.(path) ?? false) && (configurationSystem.directoryExists?.(path) ?? false),
+    realpath: path => admitted(path) && (system.fileExists(path) || (system.directoryExists?.(path) ?? false))
+      ? configurationSystem.realpath?.(path) ?? path : path,
+  } : system;
   return ts.resolveModuleName(
     specifier,
     containingFile,
     options,
-    system,
+    resolutionSystem,
     undefined,
     undefined,
-    resolutionMode ?? ts.getImpliedNodeFormatForFile(containingFile, undefined, system, options),
+    resolutionMode ?? ts.getImpliedNodeFormatForFile(containingFile, undefined, resolutionSystem, options),
   );
 }
 
