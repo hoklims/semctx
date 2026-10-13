@@ -10,6 +10,9 @@ capsule age and consumption identity. It is separate from the offline replay def
 `evaluateChangeAuthorizationReuseV1(request, policy, state)` is exported by
 `@semantic-context/change-authorization-verifier`. Inputs must be plain JSON data; the existing
 JCS validator snapshots them before evaluation and rejects accessors or executable properties.
+Dense ordinary arrays from another JavaScript realm are copied without invoking their methods.
+Object prototypes must be the library realm's `Object.prototype`, or `null`; complete foreign-realm
+object trees remain outside the current input contract.
 
 - `request` is the existing `ChangeAuthorizationVerificationRequestV1`. Its mandatory
   `verifiedAt` is the explicit clock, with a valid calendar date and timezone offset; it must
