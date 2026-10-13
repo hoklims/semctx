@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
+import { analyzeWorkspace, analyzeWorkspaceSync } from "@semantic-context/workspace-analyzer-internal";
 import {
   discoverFiles,
   countTypeScriptFiles,
@@ -53,6 +54,31 @@ afterEach(() => {
 });
 
 describe("discovery path exclusion shared with workspace discovery", () => {
+  it.each([
+    ["intake", "intake/copy", true, true],
+    ["packages/*", "packages/core", true, true],
+    ["packages/*/src", "packages/core", true, true],
+    ["packages/*/package.json", "packages/core", true, false],
+    ["packages/*/src/*.ts", "packages/core", false, true],
+    ["intake/**", "intake/copy", false, false],
+    ["packages/*/**", "packages/core", false, false],
+    ["**", "packages/core", false, false],
+  ] as const)("keeps file-glob scope aligned for %s in sync and async workspace discovery", async (exclude, workspaceRoot, sourceSelected, manifestSelected) => {
+    const root = fixture();
+    mkdirSync(join(root, workspaceRoot, "src"), { recursive: true });
+    writeFileSync(join(root, workspaceRoot, "package.json"), '{"name":"scope-regression"}\n');
+    writeFileSync(join(root, workspaceRoot, "src/main.ts"), "export const scoped = true;\n");
+    const config = globConfig(root, { include: [`${workspaceRoot}/src/**/*.ts`], exclude: [exclude] });
+    const source = `${workspaceRoot}/src/main.ts`;
+    expect(isPathSelected(config, source)).toBe(sourceSelected);
+    expect(discoverRepository(config).files.map((file) => file.relPath).includes(source)).toBe(sourceSelected);
+    const input = { repositoryRoot: root, excludePath: createDiscoveryPathExclusion(config) };
+    const sync = analyzeWorkspaceSync(input);
+    const asyncProjection = await analyzeWorkspace(input);
+    expect(sync.nodes.some((node) => node.root === workspaceRoot)).toBe(manifestSelected);
+    expect(asyncProjection).toEqual(sync);
+  });
+
   it("applies the legacy v1 ignored segments and substring excludes to directories and manifests", () => {
     const excluded = createDiscoveryPathExclusion({ ...createDefaultConfig("/repo"), exclude: ["intake"] });
     expect(excluded("intake")).toBe(true);
@@ -65,8 +91,8 @@ describe("discovery path exclusion shared with workspace discovery", () => {
 
   it("applies v2 exclude globs to a directory itself and to its contents", () => {
     const excluded = createDiscoveryPathExclusion(globConfig("/repo", { exclude: ["intake/**"] }));
-    expect(excluded("intake")).toBe(true);
-    expect(excluded("intake/copy/package.json")).toBe(true);
+    expect(excluded("intake", "directory")).toBe(true);
+    expect(excluded("intake/copy/package.json", "file")).toBe(true);
     expect(excluded("packages/core/build")).toBe(true);
     expect(excluded("packages/core")).toBe(false);
     expect(excluded("services/package.json")).toBe(false);
