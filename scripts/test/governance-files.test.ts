@@ -392,7 +392,7 @@ describe("release governance", () => {
     expect(publish.environment).toBe("npm");
     expect(publish.needs).toBe("verify");
     expect(promote.needs).toBe("deliver");
-    expect(verify["timeout-minutes"]).toBe(30);
+    expect(verify["timeout-minutes"]).toBe(60);
     expect(publish["timeout-minutes"]).toBe(10);
     expect(promote["timeout-minutes"]).toBe(10);
   });
