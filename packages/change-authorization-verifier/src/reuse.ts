@@ -70,13 +70,28 @@ export function evaluateChangeAuthorizationReuseV1(
   if (verification.result !== "PASSED" || !capsule.success) {
     return report("CAPSULE_VERIFICATION_NOT_PASSED");
   }
-  if (Date.parse(request.verifiedAt) - Date.parse(capsule.data.evaluatedAt) > policy.maxAgeMs) {
+  if (exceedsMaximumAge(request.verifiedAt, capsule.data.evaluatedAt, policy.maxAgeMs)) {
     return report("CAPSULE_EXPIRED");
   }
   if (state.consumedCapsuleIds.includes(capsule.data.capsuleId)) {
     return report("CAPSULE_ALREADY_CONSUMED");
   }
   return report("CAPSULE_REUSABLE");
+}
+
+function exceedsMaximumAge(verifiedAt: string, evaluatedAt: string, maxAgeMs: number): boolean {
+  const wholeMilliseconds = Date.parse(verifiedAt) - Date.parse(evaluatedAt);
+  if (wholeMilliseconds !== maxAgeMs) {
+    return wholeMilliseconds > maxAgeMs;
+  }
+  // Date.parse truncates after three fractional digits. At the integer age
+  // boundary, compare the remaining decimal digits without numeric rounding.
+  const remainder = (timestamp: string): string =>
+    (/\.(\d+)(?:Z|[+-]\d{2}:?\d{2})$/.exec(timestamp)?.[1] ?? "").slice(3);
+  const verifiedRemainder = remainder(verifiedAt);
+  const evaluatedRemainder = remainder(evaluatedAt);
+  const width = Math.max(verifiedRemainder.length, evaluatedRemainder.length);
+  return verifiedRemainder.padEnd(width, "0") > evaluatedRemainder.padEnd(width, "0");
 }
 
 function isNonEmptyString(value: unknown): value is string {

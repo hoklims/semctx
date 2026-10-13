@@ -24,6 +24,33 @@ function fixture() {
 }
 
 describe("evaluateChangeAuthorizationReuseV1", () => {
+  it.each([
+    ["2026-08-01T10:00:00.000Z", "2026-08-01T10:00:01.0009Z", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.0009000Z", 1000, "CAPSULE_REUSABLE"],
+    ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.0008Z", 1000, "CAPSULE_REUSABLE"],
+    ["2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:01.00091Z", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T10:00:00.00010000000000000000Z", "2026-08-01T10:00:01.00010000000000000001Z", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T12:00:00.0009+02:00", "2026-08-01T05:00:01.000900-05:00", 1000, "CAPSULE_REUSABLE"],
+    ["2026-08-01T12:00:00.0009+02:00", "2026-08-01T05:00:01.00091-05:00", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T12:00:00.0009+0200", "2026-08-01T05:00:01.000900-0500", 1000, "CAPSULE_REUSABLE"],
+    ["2026-08-01T12:00:00.0009+0200", "2026-08-01T05:00:01.00091-0500", 1000, "CAPSULE_EXPIRED"],
+    ["2026-08-01T10:00:00Z", "2026-08-01T12:00:00.000000+02:00", 0, "CAPSULE_REUSABLE"],
+    ["2026-08-01T10:00:00Z", "2026-08-01T12:00:00.0000001+02:00", 0, "CAPSULE_EXPIRED"],
+    ["2026-08-01T10:00:00.9999Z", "2026-08-01T10:00:01.0000Z", 1, "CAPSULE_REUSABLE"],
+  ] as const)("preserves fractional age precision from %s to %s at %i ms", (evaluatedAt, verifiedAt, maxAgeMs, reasonCode) => {
+    const { request, policy, state } = fixture();
+    const capsule = evaluateChangeAuthorizationV1(baseEvaluationInput({ evaluatedAt }));
+    const current = { ...request, capsule, verifiedAt };
+    const report = evaluateChangeAuthorizationReuseV1(current, { ...policy, maxAgeMs }, state);
+    expect(report.verification.result).toBe("PASSED");
+    expect(report.reasonCode).toBe(reasonCode);
+    expect(report.result).toBe(reasonCode === "CAPSULE_REUSABLE" ? "ACCEPTED" : "REFUSED");
+    expect(report.nextState.consumedCapsuleIds).toEqual(reasonCode === "CAPSULE_REUSABLE" ? [capsule.capsuleId] : []);
+    expect(state.consumedCapsuleIds).toEqual([]);
+    expect(report.executionAuthority).toBe("none");
+    expect(verifyChangeAuthorizationCapsuleV1(current).result).toBe("PASSED");
+  });
+
   it("refuses a capsule older than the explicit maximum even when offline verification passes", () => {
     const { request, policy, state } = fixture();
     const report = evaluateChangeAuthorizationReuseV1(request, policy, state);
