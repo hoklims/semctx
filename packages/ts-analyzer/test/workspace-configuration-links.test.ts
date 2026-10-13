@@ -1,11 +1,12 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
 import * as fs from "node:fs";
+import ts from "typescript";
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { inspectJavaScriptSource, inspectModuleConfiguration } from "../src/javascript-diagnostics";
 import { extractTypeScript, resolveTypeScriptModule } from "../src/ts-symbols";
-import { createWorkspaceLinkResolver } from "../src/workspace-links";
+import { createWorkspaceLinkResolver, workspaceLinkedSystem } from "../src/workspace-links";
 
 const roots: string[] = [];
 
@@ -639,4 +640,80 @@ test.skipIf(!canCreateFileSymlink())("configured runtime companions cannot escap
   rmSync(runtime);
   write(root, { "domains/registry/api/src/companion.js": "export const value = 0;\n" });
   expect(resolveTypeScriptModule("./companion", source, undefined, true, undefined, undefined, root)).toBe(runtime);
+});
+
+test("POSIX root node_modules markers do not prevent cached root or later workspace mapping", () => {
+  const root = temporaryRoot("semctx-root-marker-mapping-");
+  const target = `${root}/base.json`;
+  const content = '{"compilerOptions":{"strict":true}}';
+  write(root, { "base.json": content });
+  const canonical = (path: string) => resolve(path).replaceAll("\\", "/");
+  for (const firstMarker of [true, false]) {
+    const resolver = createWorkspaceLinkResolver();
+    const filesystemRoot = canonical("/");
+    const consumer = "/node_modules/semctx-root-marker/consumer";
+    resolver.declarations.set("fixture", { root: filesystemRoot, patterns: [] });
+    resolver.links.set(`\0${filesystemRoot}`, firstMarker ? new Map([["@fixture/config", root]]) : new Map());
+    resolver.links.set(`\0${canonical(consumer)}`, new Map([["@fixture/config", root]]));
+    const system: ts.System = { ...ts.sys, fileExists: path => path === target,
+      directoryExists: path => path === root, readFile: path => path === target ? content : undefined };
+    const path = firstMarker ? "/node_modules/@fixture/config/base.json" : `${consumer}/node_modules/@fixture/config/base.json`;
+    expect(workspaceLinkedSystem(system, undefined, resolver).readFile(path)).toBe(content);
+  }
+});
+
+test("unobservable installed package presence cannot authorize a synthetic fallback", () => {
+  const { root, source } = workspace();
+  const installed = `${root}/domains/registry/api/node_modules/@fixture/config`;
+  mkdirSync(installed, { recursive: true });
+  const original = fs.statSync;
+  const probe = spyOn(fs, "statSync").mockImplementation(((path, options) => {
+    if (String(path).replaceAll("\\", "/") === installed) throw Object.assign(new Error("installed package access denied"), { code: "EACCES" });
+    return original(path, options);
+  }) as typeof fs.statSync);
+  try {
+    const resolver = createWorkspaceLinkResolver();
+    expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+    expect([...resolver.links.values()].some(links => links.has("@fixture/config"))).toBe(false);
+  } finally { probe.mockRestore(); }
+});
+
+test.skipIf(!canCreateFileSymlink())("ordinary in-root inherited aliases have the same admission before and after another workspace link", () => {
+  const { root, source } = workspace();
+  const ordinary = `${root}/domains/ordinary/api/src/source.ts`;
+  write(root, {
+    "domains/ordinary/api/package.json": JSON.stringify({ name: "ordinary" }),
+    "domains/ordinary/api/tsconfig.json": JSON.stringify({ extends: "./alias.json" }),
+    "domains/ordinary/api/src/source.ts": "export const ordinary = 1;\n",
+    "internal/base.json": JSON.stringify({ compilerOptions: { module: "ESNext" } }),
+  });
+  symlinkSync(join(root, "internal/base.json"), join(root, "domains/ordinary/api/alias.json"), "file");
+  expect(configurationFailures(inspectModuleConfiguration(ordinary, root))).toEqual([]);
+  const resolver = createWorkspaceLinkResolver();
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))).toEqual([]);
+  expect(configurationFailures(inspectModuleConfiguration(ordinary, root, undefined, undefined, resolver))).toEqual([]);
+});
+
+for (const directInheritance of [false, true]) test.skipIf(!canCreateFileSymlink())(`nested Git markers refuse ${directInheritance ? "direct inherited" : "synthetic"} member configuration targets`, () => {
+  for (const marker of ["directory", "file", "dangling"] as const) {
+    const { root, source } = workspace();
+    const payload = JSON.stringify({ compilerOptions: { strict: true } });
+    write(root, {
+      "tooling/config/package.json": JSON.stringify({ name: "@fixture/config" }),
+      "tooling/config/embedded/base.json": payload,
+      ...(directInheritance ? { "tooling/config/tsconfig/node.json": JSON.stringify({ extends: "../embedded/base.json" }) }
+        : { "domains/registry/api/tsconfig.json": JSON.stringify({ extends: "@fixture/config/embedded/base.json" }) }),
+    });
+    const gitMarker = join(root, "tooling/config/embedded/.git");
+    if (marker === "directory") mkdirSync(gitMarker);
+    else if (marker === "file") writeFileSync(gitMarker, "gitdir: missing\n");
+    else symlinkSync(join(root, "missing-git-marker"), gitMarker, "file");
+    const resolver = createWorkspaceLinkResolver();
+    expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+    expect([...resolver.inputs.values()]).not.toContain(payload);
+    rmSync(gitMarker, { recursive: marker === "directory" });
+    expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  }
 });

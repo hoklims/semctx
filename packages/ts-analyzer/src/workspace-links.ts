@@ -71,11 +71,12 @@ function readJsonRecord(path: string, resolver: WorkspaceLinkResolver): Record<s
   }
 }
 
-function isDirectory(path: string): boolean {
+function isDirectory(path: string): boolean | undefined {
   try {
     return statSync(path).isDirectory();
-  } catch {
-    return false;
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    return code === "ENOENT" || code === "ENOTDIR" ? false : undefined;
   }
 }
 
@@ -104,30 +105,16 @@ function confinedSyntheticTarget(member: string, candidate: string, boundary: st
   if (!isWithin(member, target) || (boundary !== undefined && !isWithin(boundary, target))) return false;
   try {
     for (let directory = target; ; directory = canonical(dirname(directory))) {
-      if (lstatSync(directory).isSymbolicLink()) return false;
+      const entry = lstatSync(directory);
+      if (entry.isSymbolicLink()) return false;
+      if (entry.isDirectory() && directory !== member && isWithin(member, directory)
+        && hasFilesystemEntry(join(directory, ".git"))) return false;
       if (directory === boundary || canonical(dirname(directory)) === directory) break;
     }
     return boundary === undefined || isWithin(canonical(realpathSync.native(boundary)), canonical(realpathSync.native(target)));
   } catch {
     return false;
   }
-}
-
-/** Installed package links keep precedence when both the package and read target stay in root. */
-function confinedInstalledTarget(root: string, candidate: string): boolean {
-  const parts = slash(relative(root, candidate)).split("/");
-  if (!isWithin(root, candidate)) return false;
-  for (let marker = parts.indexOf("node_modules"); marker >= 0; marker = parts.indexOf("node_modules", marker + 1)) {
-    const name = parts[marker + 1];
-    if (name === undefined || name.length === 0) continue;
-    const nameLength = name.startsWith("@") ? 2 : 1;
-    const packageRoot = join(root, ...parts.slice(0, marker + 1 + nameLength));
-    try {
-      if (isDirectory(packageRoot) && isWithin(root, canonical(realpathSync.native(packageRoot)))
-        && isWithin(root, canonical(realpathSync.native(candidate)))) return true;
-    } catch { /* Missing and escaped installed inputs are not admitted. */ }
-  }
-  return false;
 }
 
 /** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
@@ -194,6 +181,7 @@ function normalizePattern(pattern: string): string {
 
 /** Like discovery, a nested Git worktree or repository below the workspace root holds no member. */
 function insideNestedRepository(root: string, memberPath: string): boolean {
+  if (memberPath === "") return false;
   let directory = root;
   for (const segment of memberPath.split("/")) {
     directory = join(directory, segment);
@@ -273,7 +261,8 @@ function satisfiesWorkspaceRange(member: string, range: string, resolver: Worksp
 /** Whether Node resolution from `directory` reaches an installed `name`, locally or hoisted. */
 function installedFrom(directory: string, name: string): boolean {
   for (let current = directory; ; current = canonical(dirname(current))) {
-    if (isDirectory(join(current, "node_modules", name))) return true;
+    // Unknown installed presence is not proof that a synthetic fallback is available.
+    if (isDirectory(join(current, "node_modules", name)) !== false) return true;
     if (canonical(dirname(current)) === current) return false;
   }
 }
@@ -324,11 +313,11 @@ export function workspaceLinkedSystem(
     const normalized = slash(path);
     // Any `node_modules` segment may be the linking one, e.g. when the repository itself sits below
     // an ancestor named `node_modules`: the first directory that declares the name decides.
-    for (let marker = normalized.indexOf("/node_modules/"); marker > 0; marker = normalized.indexOf("/node_modules/", marker + 1)) {
+    for (let marker = normalized.indexOf("/node_modules/"); marker >= 0; marker = normalized.indexOf("/node_modules/", marker + 1)) {
       const segments = normalized.slice(marker + "/node_modules/".length).split("/");
       const nameLength = segments[0]?.startsWith("@") ? 2 : 1;
       if (segments.length < nameLength || segments.slice(0, nameLength).some(segment => segment.length === 0)) continue;
-      const member = linksAt(resolver, canonical(normalized.slice(0, marker)), confinedBoundary).get(segments.slice(0, nameLength).join("/"));
+      const member = linksAt(resolver, canonical(normalized.slice(0, marker) || "/"), confinedBoundary).get(segments.slice(0, nameLength).join("/"));
       if (member === undefined) continue;
       const rest = segments.slice(nameLength);
       const target = rest.length === 0 ? member : `${member}/${rest.join("/")}`;
@@ -341,7 +330,7 @@ export function workspaceLinkedSystem(
 
   // TypeScript resolves relative extends from the member's physical configuration path.
   // Those subsequent direct reads must retain the synthetic link's confinement too.
-  const allowedDirect = (path: string, reading = false): boolean => {
+  const allowedDirect = (path: string): boolean => {
     const normalized = canonical(path);
     const root = confinedBoundary ?? [...resolver.declarations.values()].find(declaration => declaration !== null)?.root;
     // Apply the repository boundary before either existing reads or virtual probes.
@@ -349,24 +338,20 @@ export function workspaceLinkedSystem(
       resolver.inputs.set(normalized, undefined);
       return false;
     }
-    if (![...resolver.links.values()].some(links => links.size > 0)
-      || (reading && slash(path).endsWith("/tsconfig.json") && system.fileExists(path))) {
-      if (!reading || root === undefined) return true;
-      // Initial configurations can have ordinary in-root aliases, but their real bytes
-      // must be confined before a read even when no workspace link has been observed.
-      try {
-        if (isWithin(canonical(realpathSync.native(root)), canonical(realpathSync.native(normalized)))) return true;
-      } catch { /* An unreadable initial input is not admitted. */ }
-      resolver.inputs.set(normalized, undefined);
-      return false;
-    }
-    if (root === undefined) return false;
+    if (root === undefined) return true;
     // Missing node_modules paths may be virtual workspace probes. Existing physical
     // configurations, including installed ones, retain precedence but must be confined.
     if (slash(relative(root, normalized)).split("/").includes("node_modules")
       && !system.fileExists(path) && !(system.directoryExists?.(path) ?? false)) return true;
-    if (confinedInstalledTarget(root, normalized)) return true;
-    if (confinedSyntheticTarget(root, normalized, root)) return true;
+    // Ordinary physical aliases have the same canonical/Git boundary in every pass.
+    // Strict no-link target admission remains at the synthetic mapping seam above.
+    try {
+      const actualRoot = canonical(realpathSync.native(root));
+      const actualTarget = canonical(realpathSync.native(normalized));
+      if (isWithin(actualRoot, actualTarget)
+        && (!isWithin(root, dirname(normalized)) || !insideNestedRepository(root, slash(relative(root, dirname(normalized)))))
+        && (!isWithin(actualRoot, dirname(actualTarget)) || !insideNestedRepository(actualRoot, slash(relative(actualRoot, dirname(actualTarget)))))) return true;
+    } catch { /* An unobservable physical input is not admitted. */ }
     resolver.inputs.set(normalized, undefined);
     return false;
   };
@@ -385,7 +370,7 @@ export function workspaceLinkedSystem(
       return target !== undefined && system.fileExists(target);
     },
     readFile: (path, encoding) => {
-      if (!allowedDirect(path, true)) { resolver.inputs.set(canonical(path), undefined); return undefined; }
+      if (!allowedDirect(path)) { resolver.inputs.set(canonical(path), undefined); return undefined; }
       const target = system.fileExists(path) ? path : linked(path);
       const content = target === undefined ? undefined : system.readFile(target, encoding);
       resolver.inputs.set(canonical(target ?? path), content);
@@ -402,7 +387,7 @@ export function workspaceLinkedSystem(
       return target !== undefined && (system.directoryExists?.(target) ?? false);
     },
     realpath: path => {
-      if (!allowedDirect(path, true)) return path;
+      if (!allowedDirect(path)) return path;
       const target = installed(path) ? undefined : linked(path);
       const resolved = target ?? path;
       return system.realpath === undefined ? resolved : system.realpath(resolved);
