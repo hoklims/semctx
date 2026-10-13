@@ -297,6 +297,56 @@ describe("control freshness seal", () => {
     }
   });
 
+  it("invalidates indexed v2 freshness when an installed configuration changes or disappears", () => {
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-installed-freshness-"))).replaceAll("\\", "/");
+    const write = (path: string, content: string) => {
+      const target = join(root, path);
+      mkdirSync(join(target, ".."), { recursive: true });
+      writeFileSync(target, content);
+    };
+    try {
+      write(".gitignore", ".semctx/\nnode_modules/\n");
+      write("package.json", JSON.stringify({ name: "fixture", devDependencies: { "@fixture/config": "1.0.0" } }));
+      write("tsconfig.json", JSON.stringify({ extends: "./node_modules/@fixture/config/base.json" }));
+      write("node_modules/@fixture/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      const inherited = JSON.stringify({ compilerOptions: { module: "ESNext", moduleResolution: "Bundler", paths: { "#shared": ["../../../src/shared.ts"] } } }, null, 2) + "\n";
+      write("node_modules/@fixture/config/base.json", inherited);
+      write("src/shared.ts", "export const shared = 1;\n");
+      write("src/other.ts", "export const shared = 2;\n");
+      write("src/main.ts", 'import { shared } from "#shared"; export const main = shared;\n');
+      git(root, "init", "-q");
+      git(root, "add", ".");
+      git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-q", "-m", "fixture");
+      const config = initWorkspace(root, { version: 2, selectionMode: "globs-v1", include: ["src/**/*.ts"], exclude: [],
+        languages: { typescript: "on", javascript: "off", python: "off", markdown: "off", sql: "off" } });
+      const files = discoverFiles(config);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const source = `${root}/src/main.ts`;
+      expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${root}/src/shared.ts`);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      indexRepository(root, "2026-10-13T00:00:00.000Z");
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      const before = fingerprintAnalysisInputs(config, files);
+      write("node_modules/@fixture/config/base.json", inherited.replaceAll("\n", "\r\n"));
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      write("node_modules/@fixture/config/base.json", inherited.replace("shared.ts", "other.ts"));
+      expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${root}/src/other.ts`);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+      write("node_modules/@fixture/config/base.json", inherited);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+      rmSync(join(root, "node_modules/@fixture/config/base.json"));
+      expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+      expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
+      write("node_modules/@fixture/config/base.json", inherited);
+      expect(controlStatus(root).verdict).toBe("FRESH");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("changes for graph, semantic, and working-diff inputs", () => {
     const original = buildControlFreshnessSeal(base);
     const graphChanged = buildControlFreshnessSeal({

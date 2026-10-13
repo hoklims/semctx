@@ -277,7 +277,7 @@ export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly 
   }).sort((a, b) => compareIds(a.path, b.path));
   const manifest = {
     config,
-    ...(workspaceLinks.links.size === 0 ? {} : { configurationInputs }),
+    ...(configurationInputs.length === 0 ? {} : { configurationInputs }),
     files: files
       .map((file) => ({
         path: file.relPath.replace(/\\/g, "/"),
