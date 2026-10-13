@@ -22,12 +22,15 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
   through the link a `workspace:` dependency would create. Previously every source governed by
   such a configuration failed with `SOURCE_CONFIGURATION_INVALID:6053`. Installed paths keep
   precedence and retained compiler snapshots are unchanged.
-- Ordinary v2 JavaScript freshness binds the workspace manifests and inherited configuration
+- Synthetic workspace configuration links reject file and ancestor symlink escapes, including
+  relative inherited paths, and accept whitespace in valid semver comparators.
+- Ordinary v2 TypeScript and JavaScript freshness bind the workspace manifests and inherited configuration
   consumed by that resolution, including failed links, while preserving LF/CRLF equivalence.
 - `index --record` no longer reports a blob committed with CRLF bytes as hidden when
   `core.autocrlf=true` leaves those bytes unconverted in the working tree.
 - Discovery skips an unreadable directory whose whole subtree is excluded, such as a package
-  store owned by another user, instead of failing with `IO_ERROR`. Other unreadable directories
+  store owned by another user, instead of failing with `IO_ERROR`. Recursive exclusions also cover
+  nested unreadable paths and workspace links. Other unreadable directories
   still fail closed.
 - On Windows, the installer's deferred Codex cleanup no longer flashes a console window every
   five seconds while it polls `codex plugin list` for up to twelve hours.
