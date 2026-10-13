@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
 import * as fs from "node:fs";
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createDefaultConfig, type SemctxConfig } from "@semantic-context/core";
@@ -64,7 +64,7 @@ describe("discovery path exclusion shared with workspace discovery", () => {
     ["packages/*/**", "packages/core", false, false],
     ["**", "packages/core", false, false],
   ] as const)("keeps file-glob scope aligned for %s in sync and async workspace discovery", async (exclude, workspaceRoot, sourceSelected, manifestSelected) => {
-    const root = fixture();
+    const root = realpathSync.native(fixture());
     mkdirSync(join(root, workspaceRoot, "src"), { recursive: true });
     writeFileSync(join(root, workspaceRoot, "package.json"), '{"name":"scope-regression"}\n');
     writeFileSync(join(root, workspaceRoot, "src/main.ts"), "export const scoped = true;\n");
