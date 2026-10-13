@@ -88,10 +88,10 @@ function isWithin(root: string, candidate: string): boolean {
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !slash(rel).startsWith("../"));
 }
 
-/** A Git boundary is the marker itself, even when its symlink target is missing. */
-function hasGitMarker(directory: string): boolean {
+/** Presence is the entry itself, even for dangling links; only ENOENT proves absence. */
+function hasFilesystemEntry(path: string): boolean {
   try {
-    lstatSync(join(directory, ".git"));
+    lstatSync(path);
     return true;
   } catch (error) {
     return (error as NodeJS.ErrnoException).code !== "ENOENT";
@@ -132,8 +132,9 @@ function confinedInstalledTarget(root: string, candidate: string): boolean {
 
 /** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
 function pnpmDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): WorkspaceDeclaration | undefined {
-  const pnpm = readText(join(directory, "pnpm-workspace.yaml"), resolver);
-  if (pnpm === undefined) return undefined;
+  const path = join(directory, "pnpm-workspace.yaml");
+  const pnpm = readText(path, resolver);
+  if (pnpm === undefined) return hasFilesystemEntry(path) ? { root: directory, patterns: [] } : undefined;
   let parsed: unknown;
   try {
     parsed = Bun.YAML.parse(pnpm);
@@ -165,7 +166,7 @@ function searchUpward(
     if (boundary !== undefined && !isWithin(boundary, directory)) return undefined;
     const found = declarationAt(directory);
     if (found !== undefined) return found;
-    if (directory === boundary || hasGitMarker(directory)) return undefined;
+    if (directory === boundary || hasFilesystemEntry(join(directory, ".git"))) return undefined;
     const parent = canonical(dirname(directory));
     if (parent === directory) return undefined;
     directory = parent;
@@ -196,7 +197,7 @@ function insideNestedRepository(root: string, memberPath: string): boolean {
   let directory = root;
   for (const segment of memberPath.split("/")) {
     directory = join(directory, segment);
-    if (hasGitMarker(directory)) return true;
+    if (hasFilesystemEntry(join(directory, ".git"))) return true;
   }
   return false;
 }

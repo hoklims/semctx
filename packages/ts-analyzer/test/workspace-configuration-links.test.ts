@@ -1,4 +1,5 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, spyOn, test } from "bun:test";
+import * as fs from "node:fs";
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -536,4 +537,41 @@ test.skipIf(!canCreateFileSymlink())("a canonical in-root initial config alias r
   symlinkSync(join(root, "tsconfig.json"), join(root, "src/tsconfig.json"), "file");
   expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, undefined, root)).toBe(`${root}/safe.ts`);
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
+
+test.skipIf(!canCreateFileSymlink())("a present unadmitted pnpm declaration cannot fall back to package workspaces", () => {
+  for (const dangling of [false, true]) {
+    const { root, source } = workspace();
+    const governing = 'packages:\n  - "domains/*/*"\n';
+    write(root, { "package.json": JSON.stringify({ name: "root", private: true, workspaces: ["tooling/*", "domains/*/*"] }) });
+    if (!dangling) write(root, { "governing.yaml": governing });
+    rmSync(join(root, "pnpm-workspace.yaml"));
+    symlinkSync(join(root, "governing.yaml"), join(root, "pnpm-workspace.yaml"), "file");
+    const resolver = createWorkspaceLinkResolver();
+    expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+    expect([...resolver.inputs.values()]).not.toContain(governing);
+    expect(resolver.inputs.has(`${root}/pnpm-workspace.yaml`)).toBe(true);
+    expect(resolver.inputs.get(`${root}/pnpm-workspace.yaml`)).toBeUndefined();
+    // Only actual absence restores the normal package.json workspace fallback.
+    rmSync(join(root, "pnpm-workspace.yaml"));
+    expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  }
+});
+
+test("an unreadable present pnpm declaration cannot fall back to package workspaces", () => {
+  const { root, source } = workspace();
+  write(root, { "package.json": JSON.stringify({ name: "root", private: true, workspaces: ["tooling/*", "domains/*/*"] }) });
+  const originalRead = fs.readFileSync;
+  const probe = spyOn(fs, "readFileSync").mockImplementation(((path, options) => {
+    if (String(path).replaceAll("\\", "/") === `${root}/pnpm-workspace.yaml`) {
+      throw Object.assign(new Error("workspace declaration access denied"), { code: "EACCES" });
+    }
+    return originalRead(path, options);
+  }) as typeof fs.readFileSync);
+  try {
+    expect(failsToResolve(root, source)).toBe(true);
+  } finally {
+    probe.mockRestore();
+  }
 });
