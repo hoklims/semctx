@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from "node:fs";
-import { basename, dirname, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import {
   compareIds,
   SemctxError,
@@ -27,7 +27,7 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
-import { createDiscoveryPathExclusion, createQualifiedPathEligibility, isHardExcludedPath } from "@semantic-context/ts-analyzer";
+import { createDiscoveryPathExclusion, createQualifiedPathEligibility, createWorkspaceLinkResolver, inspectModuleConfiguration, isHardExcludedPath } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -260,8 +260,24 @@ export function isQualifiedRepositoryInputPath(path: string): boolean {
 /** Fingerprint the exact discovered Plane A contents plus the parsed analyzer configuration. */
 export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly DiscoveredFile[]): Sha256Hash {
   if (config.version === 2 && config.analysisProfile === "modelo-suite-static-v1") return captureQualifiedAnalysisInputs(config).digest;
+  const workspaceLinks = createWorkspaceLinkResolver();
+  // Ordinary v2 JavaScript uses live inherited configuration. Reuse the same confined
+  // resolver reads, including failed link attempts, so removing a dependency invalidates it.
+  // Legacy and TS-only fingerprints keep their historical inputs; qualified snapshots seal
+  // their own retained bytes above and never consume this live-input seam.
+  if (config.version === 2) for (const file of files) {
+    if (/\.[cm]?jsx?$/.test(file.absPath)) {
+      inspectModuleConfiguration(file.absPath, config.repositoryRoot, undefined, undefined, workspaceLinks);
+    }
+  }
+  const configurationInputs = [...workspaceLinks.inputs].flatMap(([path, content]) => {
+    const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
+    if (isAbsolute(relPath) || relPath === ".." || relPath.startsWith("../")) return [];
+    return [{ path: relPath, contentHash: content === undefined ? null : hash("analysis-input-content", canonicalSourceText(content)) }];
+  }).sort((a, b) => compareIds(a.path, b.path));
   const manifest = {
     config,
+    ...(workspaceLinks.links.size === 0 ? {} : { configurationInputs }),
     files: files
       .map((file) => ({
         path: file.relPath.replace(/\\/g, "/"),

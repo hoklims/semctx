@@ -509,6 +509,16 @@ function captureContentState(
       fastResolvedPaths.push(path);
     } else {
       objectId = hashObject(root, path, payload);
+      // `hash-object --path` ignores the index, so it normalizes the line endings of a blob that
+      // was committed with CR bytes even though Git keeps those bytes unconverted for that path
+      // (core.autocrlf / text=auto). Bytes identical to the indexed blob hide no edit.
+      if (stat?.isFile() && indexEntry !== undefined && indexEntry.mode === mode && objectId !== indexEntry.objectId
+        && payload.includes(0x0d) && attributeSnapshotIsSafe(initialSnapshots.get(path)!)
+        && localBlobObjectId(objectFormat, payload) === indexEntry.objectId) {
+        objectId = indexEntry.objectId;
+        // This shortcut relies on the initial attribute snapshot: reobserve it like the fast path.
+        fastResolvedPaths.push(path);
+      }
     }
     if (
       stat !== undefined

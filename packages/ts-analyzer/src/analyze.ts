@@ -52,6 +52,7 @@ import {
 } from "./ts-symbols";
 import { groupSymbols } from "./symbol-grouping";
 import { inspectJavaScriptSource } from "./javascript-diagnostics";
+import { createWorkspaceLinkResolver } from "./workspace-links";
 import { registerOpaqueCallbackOwnership } from "./semantic-dependency-diagnostics";
 import {
   degradeDivergentMarkerNodes,
@@ -140,6 +141,7 @@ export function assembleRepository(
   extraction: TsExtraction,
   compilerInputs?: CompilerInputSnapshot,
 ): AnalysisResult {
+  const workspaceLinks = createWorkspaceLinkResolver();
   const tsFiles = files.filter(isTypeScriptSource);
   const analyzedFiles = files.filter((file) =>
     isTypeScriptSource(file) || file.role === "document" || file.role === "migration");
@@ -163,7 +165,7 @@ export function assembleRepository(
     const isTest = file.role === "test";
     const id = isTest ? testId(file.relPath) : moduleId(file.relPath);
     nodeIdByRel.set(file.relPath, id);
-    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs) : undefined;
+    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks) : undefined;
     builder.node({
       id,
       kind: isTest ? "test" : "module",
@@ -424,6 +426,7 @@ function buildTypeScriptSidecar(
   repositoryIdentity: string,
   compilerInputs?: CompilerInputSnapshot,
 ): PlaneASidecarV1 {
+  const workspaceLinks = createWorkspaceLinkResolver();
   const selectedPaths = files.map((file) => file.relPath).sort();
   const sourceInputs = files
     .map((file) => ({
@@ -497,7 +500,7 @@ function buildTypeScriptSidecar(
       (file.language ?? sourceLanguage(file.relPath)) === language);
     const languagePaths = languageFiles.map((file) => file.relPath).sort();
     const javascriptDiagnostics = language === "javascript"
-      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs))
+      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks))
       : [];
     const analysisReasons = [...new Set(javascriptDiagnostics.flatMap(result => result.reasons))].sort();
     const parsingFailed = javascriptDiagnostics.some(result => result.parseFailed);

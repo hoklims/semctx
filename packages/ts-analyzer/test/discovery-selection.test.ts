@@ -276,6 +276,73 @@ describe("versioned source selection", () => {
     }
   });
 
+  it("skips an unreadable directory only when configuration excludes its whole subtree", () => {
+    const root = fixture();
+    mkdirSync(join(root, ".pnpm-store", "v10"), { recursive: true });
+    writeFileSync(join(root, ".pnpm-store", "v10", "index.ts"), "export const stored = 1;\n");
+    const original = fs.readdirSync;
+    const probe = spyOn(fs, "readdirSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, ".pnpm-store") || String(path) === join(root, "vendor")) {
+        throw Object.assign(new Error("directory access denied"), { code: "EACCES" });
+      }
+      return original(path, options as never);
+    }) as typeof fs.readdirSync);
+    try {
+      const excluded = globConfig(root, { exclude: ["services/**/ignored.py", "vendor/**", "**/.pnpm-store/**"] });
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) {
+        expect(() => discover(excluded)).not.toThrow();
+      }
+      expect(discoverRepository(excluded).files.map((file) => file.relPath).sort())
+        .toEqual(["services/api/main.py", "src/legacy.ts", "équipe/outil.py"].sort());
+      const legacy = { ...createDefaultConfig(root), exclude: [...createDefaultConfig(root).exclude, ".pnpm-store", "vendor/"] };
+      for (const discover of [discoverFiles, discoverRepository, countTypeScriptFiles]) {
+        expect(() => discover(legacy)).not.toThrow();
+      }
+      // A file-level exclude (even one naming the directory), a sibling prefix or no exclude does
+      // not cover the subtree.
+      for (const exclude of [["vendor", "**/.pnpm-store/**"], ["vendor/*.py", "**/.pnpm-store/**"], ["vendor-other/**", "**/.pnpm-store/**"], ["vendor/**"]]) {
+        expect(() => discoverRepository(globConfig(root, { exclude }))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+      }
+      expect(() => discoverRepository(createDefaultConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  it("skips an excluded directory whose Git marker cannot be probed", () => {
+    const root = fixture();
+    mkdirSync(join(root, ".pnpm-store", "v10"), { recursive: true });
+    const original = fs.lstatSync;
+    const probe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      if (String(path) === join(root, ".pnpm-store", ".git")) {
+        throw Object.assign(new Error("search permission denied"), { code: "EACCES" });
+      }
+      return original(path, options);
+    }) as typeof fs.lstatSync);
+    try {
+      expect(() => discoverRepository(globConfig(root, { exclude: ["**/.pnpm-store/**"] }))).not.toThrow();
+      expect(() => discoverRepository({ ...createDefaultConfig(root), exclude: [".pnpm-store"] })).not.toThrow();
+      expect(() => discoverRepository(globConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
+  itOnPosix("skips a real permission-denied directory only when its subtree is excluded", () => {
+    if (process.getuid?.() === 0) return; // root bypasses directory permissions
+    const root = fixture();
+    const store = join(root, ".pnpm-store");
+    mkdirSync(join(store, "v10"), { recursive: true });
+    writeFileSync(join(store, "v10", "index.ts"), "export const stored = 1;\n");
+    fs.chmodSync(store, 0o000);
+    try {
+      expect(() => discoverRepository(globConfig(root, { exclude: ["**/.pnpm-store/**"] }))).not.toThrow();
+      expect(() => discoverRepository(globConfig(root))).toThrow(expect.objectContaining({ code: "IO_ERROR" }));
+    } finally {
+      fs.chmodSync(store, 0o755);
+    }
+  });
+
   it("records unreadable selected files as READ_FAILED instead of silently dropping them", () => {
     const root = fixture();
     const unreadable = join(root, "src", "legacy.ts");

@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Claim, EvidenceRecord, RepositoryGraph } from "@semantic-context/core";
 import { ControlFreshnessStatusReportSchema } from "@semantic-context/control-model";
 import type { ControlFreshnessSeal, ControlFreshnessStatusReport, Sha256Hash } from "@semantic-context/control-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
-import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { discoverFiles, inspectModuleConfiguration, type DiscoveredFile } from "@semantic-context/ts-analyzer";
+import { resolveTypeScriptModule } from "../../ts-analyzer/src/ts-symbols";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -230,6 +231,59 @@ describe("control freshness seal", () => {
 
     expect(fingerprintAnalysisInputs(config, discovered("export const a = 1;\n")))
       .not.toBe(fingerprintAnalysisInputs(config, discovered("export const a = 2;\n")));
+  });
+
+  it("invalidates ordinary v2 freshness when a workspace configuration link changes", () => {
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), "semctx-workspace-freshness-"))).replaceAll("\\", "/");
+    const write = (path: string, content: string) => {
+      const target = join(root, path);
+      mkdirSync(join(target, ".."), { recursive: true });
+      writeFileSync(target, content);
+    };
+    try {
+      mkdirSync(join(root, ".git"));
+      write("pnpm-workspace.yaml", 'packages:\n  - "tooling/*"\n  - "domains/*/*"\n');
+      write("package.json", JSON.stringify({ name: "root", private: true }));
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      const inherited = JSON.stringify({ compilerOptions: { allowJs: true, module: "ESNext", moduleResolution: "Bundler", paths: { "#shared": ["./shared.ts"] } } }, null, 2) + "\n";
+      write("tooling/config/base.json", inherited);
+      write("tooling/config/shared.ts", "export const shared = 1;\n");
+      write("domains/registry/api/tsconfig.json", JSON.stringify({ extends: "@fixture/config/base.json" }));
+      const dependency = (range: string) => JSON.stringify({ name: "api", devDependencies: { "@fixture/config": range } }, null, 2) + "\n";
+      write("domains/registry/api/package.json", dependency("workspace:*"));
+      write("domains/registry/api/src/registry.js", 'import { shared } from "#shared"; export const registry = shared;\n');
+      const config = { ...sampleConfig(), repositoryRoot: root, version: 2 as const, selectionMode: "globs-v1" as const,
+        include: ["**/*.js", "**/*.ts"], exclude: [], languages: { typescript: "on" as const, javascript: "on" as const, python: "off" as const, markdown: "off" as const, sql: "off" as const } };
+      const source = `${root}/domains/registry/api/src/registry.js`;
+      const files = discoverFiles(config);
+      const before = fingerprintAnalysisInputs(config, files);
+      const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const typescriptFiles = files.filter(file => file.relPath.endsWith(".ts"));
+      const typescriptBefore = fingerprintAnalysisInputs(config, typescriptFiles);
+      expect(resolveTypeScriptModule("#shared", source)).toBe(`${root}/tooling/config/shared.ts`);
+      expect(inspectModuleConfiguration(source, root)).toEqual([]);
+      write("domains/registry/api/package.json", dependency("workspace:*").replaceAll("\n", "\r\n"));
+      write("tooling/config/base.json", inherited.replaceAll("\n", "\r\n"));
+      expect(fingerprintAnalysisInputs(config, files)).toBe(before);
+      write("tooling/config/base.json", inherited.replace("shared.ts", "other.ts"));
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("tooling/config/base.json", inherited);
+      write("pnpm-workspace.yaml", 'packages:\n  - "domains/*/*"\n');
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("pnpm-workspace.yaml", 'packages:\n  - "tooling/*"\n  - "domains/*/*"\n');
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/renamed", version: "1.0.0" }));
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      write("tooling/config/package.json", JSON.stringify({ name: "@fixture/config", version: "1.0.0" }));
+      write("domains/registry/api/package.json", dependency("^1.0.0"));
+      expect(resolveTypeScriptModule("#shared", source)).toBeUndefined();
+      expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+      expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+      expect(fingerprintAnalysisInputs(config, typescriptFiles)).toBe(typescriptBefore);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it("changes for graph, semantic, and working-diff inputs", () => {

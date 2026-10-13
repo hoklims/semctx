@@ -4,6 +4,7 @@ import { dirname, isAbsolute, posix, relative, resolve } from "node:path";
 import { compareIds, normalizePath, symbolScopePath } from "@semantic-context/core";
 import type { NodeKind } from "@semantic-context/core";
 import { parseMarkers, type ParsedMarker } from "./markers";
+import { createWorkspaceLinkResolver, workspaceLinkedSystem, type WorkspaceLinkResolver } from "./workspace-links";
 
 /** Exact TypeScript runtime version bound into Plane A capability scopes. */
 export const TYPESCRIPT_DIALECT_VERSION = ts.version;
@@ -175,8 +176,9 @@ export const extractionContext = {
     // Semctx reads its JSDoc/markers from source text, independently of these compiler nodes.
     host.jsDocParsingMode = ts.JSDocParsingMode.ParseForTypeErrors;
     if (snapshot !== undefined || rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
+      const workspaceLinks = createWorkspaceLinkResolver();
       host.resolveModuleNames = (names, containingFile) => names.map(name =>
-        resolveConfiguredModule(name, containingFile, undefined, system)?.resolvedModule);
+        resolveConfiguredModule(name, containingFile, undefined, system, workspaceLinks)?.resolvedModule);
     }
     return ts.createProgram(rootAbsPaths, COMPILER_OPTIONS, host);
   },
@@ -228,10 +230,11 @@ export function resolveTypeScriptModule(
   resolutionMode?: ts.ResolutionMode,
   configured = /\.(mjs|cjs|js|jsx)$/.test(containingFile),
   snapshot?: CompilerInputSnapshot,
+  workspaceLinks?: WorkspaceLinkResolver,
 ): string | undefined {
   const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
   const resolved = configured
-    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system)
+    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system, workspaceLinks)
     : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, system, undefined, undefined, resolutionMode);
   // A declaration companion describes the runtime module; dependency edges target the actual
   // source when it exists, rather than silently ending at the skipped .d.mts/.d.cts artifact.
@@ -244,14 +247,22 @@ export function resolveTypeScriptModule(
   return declarationPath;
 }
 
-function resolveConfiguredModule(specifier: string, containingFile: string, resolutionMode?: ts.ResolutionMode, system: ts.System = ts.sys): ts.ResolvedModuleWithFailedLookupLocations {
+function resolveConfiguredModule(
+  specifier: string,
+  containingFile: string,
+  resolutionMode?: ts.ResolutionMode,
+  system: ts.System = ts.sys,
+  workspaceLinks: WorkspaceLinkResolver = createWorkspaceLinkResolver(),
+): ts.ResolvedModuleWithFailedLookupLocations {
   const configPath = ts.findConfigFile(dirname(containingFile), path => system.fileExists(path));
   let options = COMPILER_OPTIONS;
   if (configPath !== undefined) {
     const config = ts.readConfigFile(configPath, path => system.readFile(path));
     if (config.error === undefined) {
       // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
-      const parsed = ts.parseJsonConfigFileContent(config.config, { ...system, readDirectory: () => [] }, dirname(configPath));
+      // A live checkout may lack the installed link to a workspace member's shared configuration.
+      const configurationSystem = system === ts.sys ? workspaceLinkedSystem(system, undefined, workspaceLinks) : system;
+      const parsed = ts.parseJsonConfigFileContent(config.config, { ...configurationSystem, readDirectory: () => [] }, dirname(configPath));
       options = { ...COMPILER_OPTIONS, ...parsed.options };
     }
   }
@@ -359,6 +370,8 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
   const snapshot = suppliedSnapshot === undefined ? undefined : new Map(suppliedSnapshot);
   assertConfinedTypeScriptSources(rootAbsPaths, repoRoot, snapshot);
   const program = extractionContext.createProgram(rootAbsPaths, snapshot);
+  // One analysis pass shares the derived workspace links of its configured resolutions.
+  const workspaceLinks = createWorkspaceLinkResolver();
   const checker = program.getTypeChecker();
   const rootSet = new Set(rootAbsPaths.map(canonicalTypeScriptFileKey));
   const javascriptEnabled = rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path));
@@ -478,7 +491,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
         const names = importedNames(node, staticModuleLinksEnabled);
         const namespace = node.importClause?.namedBindings;
         const namespaceSymbol = node.importClause?.isTypeOnly !== true && namespace !== undefined && ts.isNamespaceImport(namespace)
@@ -502,7 +515,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         });
       } else if (staticModuleLinksEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
         imports.push({
           fromRelPath: relPath,
           moduleSpecifier: specifier,
@@ -514,7 +527,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         if (staticModuleLinksEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
           node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
           const specifier = (node.arguments[0] as ts.StringLiteral).text;
-          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot);
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
           imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
