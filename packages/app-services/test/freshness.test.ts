@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Claim, EvidenceRecord, RepositoryGraph } from "@semantic-context/core";
+import type { Claim, EvidenceRecord, RepositoryGraph, SemctxConfig } from "@semantic-context/core";
 import { ControlFreshnessStatusReportSchema } from "@semantic-context/control-model";
 import type { ControlFreshnessSeal, ControlFreshnessStatusReport, Sha256Hash } from "@semantic-context/control-model";
 import type { SemanticModel } from "@semantic-context/semantic-model";
@@ -16,6 +16,7 @@ import { initWorkspace } from "@semantic-context/repository-store";
 import { newChangeContract, writeActiveChange, writeChangeFile } from "@semantic-context/semantic-engine";
 import { sampleConfig } from "@semantic-context/test-fixtures";
 import { parseIndexedControlSnapshot } from "../src/freshness";
+import { analyzePlaneARuntime } from "../src/plane-a-runtime";
 import * as appServices from "../src";
 import { buildControlFreshnessSeal, captureGitState, controlStatus, fingerprintAnalysisInputs, indexRepository, type IndexedControlSnapshot } from "../src";
 
@@ -252,15 +253,23 @@ describe("control freshness seal", () => {
       const dependency = (range: string) => JSON.stringify({ name: "api", devDependencies: { "@fixture/config": range } }, null, 2) + "\n";
       write("domains/registry/api/package.json", dependency("workspace:*"));
       write("domains/registry/api/src/registry.js", 'import { shared } from "#shared"; export const registry = shared;\n');
+      write("domains/registry/api/src/registry.ts", 'export const registry = 1;\n');
       const config = { ...sampleConfig(), repositoryRoot: root, version: 2 as const, selectionMode: "globs-v1" as const,
         include: ["**/*.js", "**/*.ts"], exclude: [], languages: { typescript: "on" as const, javascript: "on" as const, python: "off" as const, markdown: "off" as const, sql: "off" as const } };
       const source = `${root}/domains/registry/api/src/registry.js`;
       const files = discoverFiles(config);
       const before = fingerprintAnalysisInputs(config, files);
       const legacyConfig = { ...sampleConfig(), repositoryRoot: root };
-      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, files);
+      const legacyFiles = discoverFiles(legacyConfig);
+      const legacyBefore = fingerprintAnalysisInputs(legacyConfig, legacyFiles);
       const typescriptFiles = files.filter(file => file.relPath.endsWith(".ts"));
       const typescriptBefore = fingerprintAnalysisInputs(config, typescriptFiles);
+      const typescriptOutcome = (runtimeConfig: SemctxConfig = config, runtimeFiles = typescriptFiles) => analyzePlaneARuntime(runtimeConfig, {
+        files: runtimeFiles,
+        candidates: runtimeFiles.map(file => ({ relPath: file.relPath, language: "typescript" as const, selectionDecision: "selected" as const, reason: "SELECTED" })),
+      }).discoveryLedger.find(entry => entry.candidateIdentity === "typescript:domains/registry/api/src/registry.ts")?.analysisOutcome;
+      expect(typescriptOutcome()).toBe("analyzed");
+      expect(typescriptOutcome(legacyConfig, legacyFiles)).toBe("analyzed");
       expect(resolveTypeScriptModule("#shared", source)).toBe(`${root}/tooling/config/shared.ts`);
       expect(inspectModuleConfiguration(source, root)).toEqual([]);
       write("domains/registry/api/package.json", dependency("workspace:*").replaceAll("\n", "\r\n"));
@@ -279,8 +288,10 @@ describe("control freshness seal", () => {
       expect(resolveTypeScriptModule("#shared", source)).toBeUndefined();
       expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
       expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
-      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
-      expect(fingerprintAnalysisInputs(config, typescriptFiles)).toBe(typescriptBefore);
+      expect(fingerprintAnalysisInputs(legacyConfig, legacyFiles)).toBe(legacyBefore);
+      expect(typescriptOutcome()).toBe("failed");
+      expect(typescriptOutcome(legacyConfig, legacyFiles)).toBe("analyzed");
+      expect(fingerprintAnalysisInputs(config, typescriptFiles)).not.toBe(typescriptBefore);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

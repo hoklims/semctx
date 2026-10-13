@@ -1,9 +1,10 @@
 import { afterEach, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { inspectModuleConfiguration } from "../src/javascript-diagnostics";
 import { resolveTypeScriptModule } from "../src/ts-symbols";
+import { createWorkspaceLinkResolver } from "../src/workspace-links";
 
 const roots: string[] = [];
 
@@ -242,7 +243,7 @@ test("an enclosing pnpm workspace governs a member that declares package workspa
 });
 
 test("a workspace range the member version does not satisfy receives no link", () => {
-  for (const [range, linked] of [["workspace:^1.0.0", true], ["workspace:^2.0.0", false], ["workspace:not a range", false]] as const) {
+  for (const [range, linked] of [["workspace:^1.0.0", true], ["workspace:>= 1.0.0", true], ["workspace:>= 2.0.0", false], ["workspace:^2.0.0", false], ["workspace:not a range", false]] as const) {
     const { root, source } = workspace(range);
     expect(failsToResolve(root, source)).toBe(!linked);
   }
@@ -292,5 +293,62 @@ test("a peer-only workspace dependency receives no link", () => {
       name: "@fixture/registry-api", peerDependencies: { "@fixture/config": "workspace:*" }, devDependencies: { "@fixture/config": "workspace:*" },
     }),
   });
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});
+
+function canCreateFileSymlink(): boolean {
+  if (process.platform !== "win32") return true;
+  const root = temporaryRoot("semctx-workspace-symlink-capability-");
+  write(root, { "target.json": "{}" });
+  try {
+    symlinkSync(join(root, "target.json"), join(root, "link.json"), "file");
+    return true;
+  } catch (error) {
+    if (["EPERM", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")) return false;
+    throw error;
+  }
+}
+
+test.skipIf(!canCreateFileSymlink())("a symlinked workspace configuration cannot read outside the repository", () => {
+  const { root, source } = workspace();
+  const outside = temporaryRoot("semctx-workspace-external-config-");
+  write(outside, { "base.json": JSON.stringify({ compilerOptions: { module: "ESNext" } }) });
+  rmSync(join(root, "tooling/config/tsconfig/base.json"));
+  symlinkSync(join(outside, "base.json"), join(root, "tooling/config/tsconfig/base.json"), "file");
+  const resolver = createWorkspaceLinkResolver();
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+    .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+  expect([...resolver.inputs.values()].some(content => content?.includes('"module":"ESNext"'))).toBe(false);
+});
+
+test("a linked ancestor of workspace configuration cannot read outside the repository", () => {
+  const { root, source } = workspace();
+  const outside = temporaryRoot("semctx-workspace-external-directory-");
+  write(outside, { "node.json": JSON.stringify({ compilerOptions: { module: "ESNext" } }) });
+  rmSync(join(root, "tooling/config/tsconfig"), { recursive: true });
+  symlinkSync(outside, join(root, "tooling/config/tsconfig"), process.platform === "win32" ? "junction" : "dir");
+  const resolver = createWorkspaceLinkResolver();
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+    .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+  expect([...resolver.inputs.values()].some(content => content?.includes('"module":"ESNext"'))).toBe(false);
+});
+
+test.skipIf(!canCreateFileSymlink())("relative inherited workspace configuration refuses a sibling symlink", () => {
+  const { root, source } = workspace();
+  const outside = temporaryRoot("semctx-workspace-external-sibling-");
+  const external = JSON.stringify({ compilerOptions: { module: "ESNext" } });
+  write(outside, { "escape.json": external });
+  write(root, { "tooling/config/tsconfig/node.json": JSON.stringify({ extends: "../../sibling/escape.json" }) });
+  mkdirSync(join(root, "tooling/sibling"));
+  const target = `${root}/tooling/sibling/escape.json`;
+  symlinkSync(join(outside, "escape.json"), target, "file");
+  const resolver = createWorkspaceLinkResolver();
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+    .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+  expect([...resolver.inputs.values()]).not.toContain(external);
+  expect(resolver.inputs.has(target)).toBe(true);
+  expect(resolver.inputs.get(target)).toBeUndefined();
+  rmSync(target);
+  write(root, { "tooling/sibling/escape.json": external });
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
 });
