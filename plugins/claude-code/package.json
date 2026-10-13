@@ -1,6 +1,6 @@
 {
   "name": "semctx",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "omp": {
     "extensions": ["./omp/semctx-guard.ts"]

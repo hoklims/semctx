@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: hoklims/semctx/packages/github-action@v0.4.3
+      - uses: hoklims/semctx/packages/github-action@v0.4.4
         with:
           base: \${{ github.event.pull_request.base.sha }}
           head: \${{ github.sha }}
@@ -167,7 +167,7 @@ const run = (command) => {
   if (remaining <= 0) return { exitCode: 1, stdout: new Uint8Array() };
   try {
     const result = Bun.spawnSync(command, {
-      cwd: root, stdin: "ignore", stdout: "pipe", stderr: "pipe",
+      cwd: root, stdin: "ignore", stdout: "pipe", stderr: "pipe", windowsHide: true,
       timeout: Math.min(remaining, command.includes("list") ? ${He} : ${Wo}),
       maxBuffer: ${Y/2},
     });
@@ -284,6 +284,7 @@ const selectedVersion = () => {
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
+    windowsHide: true,
     timeout: ${He},
     maxBuffer: ${Y/2},
   });
