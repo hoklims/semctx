@@ -103,6 +103,23 @@ function confinedSyntheticTarget(member: string, candidate: string, boundary: st
   }
 }
 
+/** Installed package links keep precedence when both the package and read target stay in root. */
+function confinedInstalledTarget(root: string, candidate: string): boolean {
+  const parts = slash(relative(root, candidate)).split("/");
+  if (!isWithin(root, candidate)) return false;
+  for (let marker = parts.indexOf("node_modules"); marker >= 0; marker = parts.indexOf("node_modules", marker + 1)) {
+    const name = parts[marker + 1];
+    if (name === undefined || name.length === 0) continue;
+    const nameLength = name.startsWith("@") ? 2 : 1;
+    const packageRoot = join(root, ...parts.slice(0, marker + 1 + nameLength));
+    try {
+      if (isDirectory(packageRoot) && isWithin(root, canonical(realpathSync.native(packageRoot)))
+        && isWithin(root, canonical(realpathSync.native(candidate)))) return true;
+    } catch { /* Missing and escaped installed inputs are not admitted. */ }
+  }
+  return false;
+}
+
 /** An existing `pnpm-workspace.yaml` is the declaration; without usable `packages` it declares no member. */
 function pnpmDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): WorkspaceDeclaration | undefined {
   const pnpm = readText(join(directory, "pnpm-workspace.yaml"), resolver);
@@ -313,9 +330,11 @@ export function workspaceLinkedSystem(
     if (![...resolver.links.values()].some(links => links.size > 0)) return true;
     const root = confinedBoundary ?? [...resolver.declarations.values()].find(declaration => declaration !== null)?.root;
     if (root === undefined) return false;
-    // Existing installed resolution and virtual node_modules probes keep their own path.
-    // Physical configurations reached through a synthetic link stay within its repository.
-    if (slash(relative(root, normalized)).split("/").includes("node_modules")) return true;
+    // Missing node_modules paths may be virtual workspace probes. Existing physical
+    // configurations, including installed ones, retain precedence but must be confined.
+    if (slash(relative(root, normalized)).split("/").includes("node_modules")
+      && !system.fileExists(path) && !(system.directoryExists?.(path) ?? false)) return true;
+    if (confinedInstalledTarget(root, normalized)) return true;
     if (confinedSyntheticTarget(root, normalized, root)) return true;
     resolver.inputs.set(normalized, undefined);
     return false;

@@ -352,3 +352,62 @@ test.skipIf(!canCreateFileSymlink())("relative inherited workspace configuration
   write(root, { "tooling/sibling/escape.json": external });
   expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
 });
+
+test.skipIf(!canCreateFileSymlink())("physical inherited node_modules configuration refuses external symlinks", () => {
+  for (const suffix of ["node_modules/escape.json", "node_modules/installed/escape.json"]) {
+    const { root, source } = workspace();
+    const outside = temporaryRoot("semctx-workspace-external-node-modules-");
+    const external = JSON.stringify({ compilerOptions: { module: "ESNext" } });
+    write(outside, { "escape.json": external });
+    write(root, { "tooling/config/tsconfig/node.json": JSON.stringify({ extends: `../../${suffix}` }) });
+    const target = `${root}/tooling/${suffix}`;
+    mkdirSync(join(target, ".."), { recursive: true });
+    symlinkSync(join(outside, "escape.json"), target, "file");
+    const resolver = createWorkspaceLinkResolver();
+    expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+    expect([...resolver.inputs.values()]).not.toContain(external);
+    expect(resolver.inputs.has(target)).toBe(true);
+    expect(resolver.inputs.get(target)).toBeUndefined();
+    rmSync(target);
+    write(root, { [`tooling/${suffix}`]: external });
+    expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  }
+});
+
+test("linked configuration preserves local and hoisted installed package precedence", () => {
+  for (const installedRoot of ["tooling/config/node_modules", "node_modules"]) {
+    const { root, source } = workspace();
+    write(root, {
+      "tooling/config/package.json": JSON.stringify({ name: "@fixture/config", devDependencies: { "@fixture/installed": "workspace:*" } }),
+      "tooling/config/tsconfig/node.json": JSON.stringify({ extends: "@fixture/installed/base.json" }),
+      "tooling/installed/package.json": JSON.stringify({ name: "@fixture/installed" }),
+      "tooling/installed/base.json": JSON.stringify({ compilerOptions: { module: "ESNext" } }),
+      [`${installedRoot}/@fixture/installed/package.json`]: JSON.stringify({ name: "@fixture/installed" }),
+      [`${installedRoot}/@fixture/installed/base.json`]: JSON.stringify({ compilerOptions: { module: "NotAModule" } }),
+    });
+    expect(configurationFailures(inspectModuleConfiguration(source, root))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:6046"))).toBe(true);
+  }
+});
+
+test("linked configuration preserves in-root installed package links after synthetic resolution", () => {
+  for (const installedRoot of ["tooling/config/node_modules", "node_modules"]) {
+    const { root, source } = workspace();
+    write(root, {
+      "tooling/config/package.json": JSON.stringify({ name: "@fixture/config", devDependencies: { "@fixture/installed": "workspace:*" } }),
+      "tooling/config/tsconfig/node.json": JSON.stringify({ extends: "@fixture/installed/base.json" }),
+      "tooling/installed/package.json": JSON.stringify({ name: "@fixture/installed" }),
+      "tooling/installed/base.json": JSON.stringify({ compilerOptions: { module: "ESNext" } }),
+      "vendor/installed/package.json": JSON.stringify({ name: "@fixture/installed" }),
+      "vendor/installed/base.json": JSON.stringify({ compilerOptions: { module: "NotAModule" } }),
+    });
+    mkdirSync(join(root, installedRoot, "@fixture"), { recursive: true });
+    symlinkSync(join(root, "vendor/installed"), join(root, installedRoot, "@fixture/installed"), process.platform === "win32" ? "junction" : "dir");
+    const resolver = createWorkspaceLinkResolver();
+    expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+      .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:6046"))).toBe(true);
+    expect([...resolver.links.values()].some(links => links.has("@fixture/config"))).toBe(true);
+    expect([...resolver.links.values()].some(links => links.has("@fixture/installed"))).toBe(false);
+  }
+});
