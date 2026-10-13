@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SemctxError } from "@semantic-context/core";
+import { evaluatePreCommitHook } from "../src/verification-hook";
 import {
   __setVerificationAttributeBarrierForTesting,
   captureRecordableVerificationGitState,
@@ -378,6 +379,30 @@ describe("hidden bytes and attribute drift", () => {
     const objectId = git(root, "rev-parse", `HEAD:${name}`);
     expect(state.repositoryStateHash).toBe(expectedRepositoryStateHash([{ path: name, mode: "100644", objectId }]));
     expect(state.repositoryStateHash).toBe(state.headTreeHash);
+  }, 20_000);
+
+  it("preserves an unstaged CRLF conversion after a text attribute is staged", () => {
+    const root = repository();
+    const name = "fixture.csv";
+    const bytes = "a,b\r\nc,d\r\n";
+    git(root, "config", "core.autocrlf", "false");
+    writeFileSync(join(root, name), bytes);
+    git(root, "add", name);
+    git(root, "commit", "-q", "-m", "raw crlf blob");
+    writeFileSync(join(root, ".gitattributes"), `${name} text\n`);
+    git(root, "add", ".gitattributes");
+
+    expect(readFileSync(join(root, name), "utf8")).toBe(bytes);
+    expect(git(root, "show", `:${name}`)).toBe(bytes.trim());
+    expect(git(root, "diff", "--name-only")).toBe(name);
+    expect(realHashObject(root, name, readFileSync(join(root, name)))).not.toBe(git(root, "rev-parse", `:${name}`));
+
+    const state = captureRecordableVerificationGitState(root);
+    expect(state.repositoryStateHash).not.toBe(state.indexStateHash);
+    const outcome = evaluatePreCommitHook(root, "2026-10-13T00:00:00.000Z");
+    expect(outcome.kind).toBe("refused");
+    if (outcome.kind !== "refused") throw new Error("expected a partial-index refusal");
+    expect(outcome.reason).toBe("PARTIAL_INDEX");
   }, 20_000);
 
   it("reobserves the attributes that let a CRLF blob keep its indexed object", () => {
