@@ -26,7 +26,7 @@ export function runIndex(root: string, args: ParsedArgs): number {
   if (flagBool(args, "record")) {
     return renderIndexRecovery(recoverIndexEvidence(root, nowIso()), args);
   }
-  return renderIndex(indexRepository(root, nowIso()), args);
+  return renderIndex(root, indexRepository(root, nowIso()), args);
 }
 
 export async function runIndexAsync(root: string, args: ParsedArgs): Promise<number> {
@@ -34,7 +34,7 @@ export async function runIndexAsync(root: string, args: ParsedArgs): Promise<num
   if (flagBool(args, "record")) {
     return renderIndexRecovery(await recoverIndexEvidenceAsync(root, nowIso(), workers), args);
   }
-  return renderIndex(await indexRepositoryAsync(root, nowIso(), workers), args);
+  return renderIndex(root, await indexRepositoryAsync(root, nowIso(), workers), args);
 }
 
 function indexJsonPayload({ analysis, claims, freshnessSeal, parallelism }: RepositoryIndex): Record<string, unknown> {
@@ -77,7 +77,22 @@ function printIndexSummary({ analysis, claims, freshnessSeal, parallelism }: Rep
   }
 }
 
-function renderIndex(index: RepositoryIndex, args: ParsedArgs): number {
+function localDefaultBranchBase(root: string): string {
+  const options = { cwd: root, stdout: "pipe", stderr: "pipe", timeout: 1000 } as const;
+  try {
+    const result = Bun.spawnSync(["git", "for-each-ref", "--format=%(symref)", "refs/remotes/*/HEAD"], options);
+    if (result.exitCode !== 0) return "<ref>";
+    const branches = [...new Set(new TextDecoder().decode(result.stdout).split("\n").filter(Boolean))];
+    const base = branches.length === 1 ? branches[0] : undefined;
+    if (base === undefined || !/^refs\/remotes\/[A-Za-z0-9._/-]+$/.test(base)) return "<ref>";
+    const commit = Bun.spawnSync(["git", "rev-parse", "--verify", "--quiet", "--end-of-options", `${base}^{commit}`], options);
+    return commit.exitCode === 0 ? base : "<ref>";
+  } catch {
+    return "<ref>";
+  }
+}
+
+function renderIndex(root: string, index: RepositoryIndex, args: ParsedArgs): number {
   if (index.staleEvidenceBaseline) {
     warn("The stale verification baseline was preserved. Run semctx index --record to rebuild, verify and record current evidence.");
   }
@@ -87,7 +102,7 @@ function renderIndex(index: RepositoryIndex, args: ParsedArgs): number {
   }
   printIndexSummary(index);
   info("");
-  info(c.dim("Next: semctx verify diff --base origin/main"));
+  info(c.dim(`Next: semctx verify diff --base ${localDefaultBranchBase(root)}`));
   return 0;
 }
 

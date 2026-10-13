@@ -93,11 +93,64 @@ afterEach(() => {
 });
 
 describe("shipped discovery catalogue (CLI, real git)", () => {
-  test("index directs users to change verification", () => {
-    const result = expectSemctxOk(repository(), ["index"]);
-    expect(result.stdout).toContain("Next: semctx verify diff --base origin/main");
+  test("index recommendation stays generic without a remote", () => {
+    const root = repository();
+    const remotes = Bun.spawnSync(["git", "remote"], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    expect(remotes.exitCode).toBe(0);
+    expect(new TextDecoder().decode(remotes.stdout)).toBe("");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base <ref>");
+    expect(result.stdout).not.toContain("origin/main");
     expect(result.stdout).not.toContain("Next: semctx task");
     expect(result.stdout).not.toContain("context prepare");
+  });
+
+  test("index recommendation uses an available alternate remote default branch", () => {
+    const root = repository();
+    git(root, "remote", "add", "upstream", "https://example.invalid/repository");
+    git(root, "update-ref", "refs/remotes/upstream/trunk", "HEAD");
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/trunk");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base refs/remotes/upstream/trunk");
+    expectSemctxOk(root, ["verify", "diff", "--base", "refs/remotes/upstream/trunk"]);
+  });
+
+  test("index recommendation stays generic when the default branch was not fetched", () => {
+    const root = repository();
+    git(root, "remote", "add", "upstream", "https://example.invalid/repository");
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/trunk");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base <ref>");
+    expect(result.stdout).not.toContain("--base refs/remotes/upstream/trunk");
+  });
+
+  test("index recommendation keeps shell-sensitive default branch names out of the command", () => {
+    const root = repository();
+    git(root, "update-ref", "refs/remotes/upstream/trunk$sideEffect", "HEAD");
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/trunk$sideEffect");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base <ref>");
+    expect(result.stdout).not.toContain("trunk$sideEffect");
+  });
+
+  test("index recommendation stays generic when the default ref points to a blob", () => {
+    const root = repository();
+    const blob = Bun.spawnSync(["git", "rev-parse", "HEAD:src/a.ts"], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    expect(blob.exitCode).toBe(0);
+    git(root, "update-ref", "refs/remotes/upstream/trunk", new TextDecoder().decode(blob.stdout).trim());
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/trunk");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base <ref>");
+  });
+
+  test("index recommendation stays generic with ambiguous remote default branches", () => {
+    const root = repository();
+    git(root, "update-ref", "refs/remotes/upstream/trunk", "HEAD");
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/trunk");
+    git(root, "update-ref", "refs/remotes/mirror/production", "HEAD");
+    git(root, "symbolic-ref", "refs/remotes/mirror/HEAD", "refs/remotes/mirror/production");
+    const result = expectSemctxOk(root, ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base <ref>");
   });
 
   test("bench names its experimental ContextPack scope and preserves JSON and failure exits", () => {
