@@ -27,7 +27,7 @@
         "@semantic-context/control-engine": "workspace:*",
         "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
-        "@semantic-context/eval": "workspace:*",
+        "@semantic-context/experimental-context-pack-eval": "workspace:*",
         "@semantic-context/repository-store": "workspace:*",
         "@semantic-context/semantic-dsl": "workspace:*",
         "@semantic-context/semantic-engine": "workspace:*",
@@ -111,7 +111,7 @@
       },
     },
     "packages/eval": {
-      "name": "@semantic-context/eval",
+      "name": "@semantic-context/experimental-context-pack-eval",
       "version": "0.1.0",
       "dependencies": {
         "@semantic-context/context-engine": "workspace:*",
@@ -299,7 +299,7 @@
 
     "@semantic-context/core": ["@semantic-context/core@workspace:packages/core"],
 
-    "@semantic-context/eval": ["@semantic-context/eval@workspace:packages/eval"],
+    "@semantic-context/experimental-context-pack-eval": ["@semantic-context/experimental-context-pack-eval@workspace:packages/eval"],
 
     "@semantic-context/github-action": ["@semantic-context/github-action@workspace:packages/github-action"],
 

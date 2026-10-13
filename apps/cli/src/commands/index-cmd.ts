@@ -87,7 +87,7 @@ function renderIndex(index: RepositoryIndex, args: ParsedArgs): number {
   }
   printIndexSummary(index);
   info("");
-  info(c.dim("Next: semctx task create --from-file <task.md>"));
+  info(c.dim("Next: semctx verify diff --base origin/main"));
   return 0;
 }
 

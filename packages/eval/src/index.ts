@@ -1,4 +1,3 @@
-/** Public surface of @semantic-context/eval. */
 export type {
   BenchExpectations,
   BenchCase,

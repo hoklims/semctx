@@ -47,6 +47,6 @@
     "@semantic-context/control-engine": "workspace:*",
     "@semantic-context/change-authorization-verifier": "workspace:*",
     "@semantic-context/app-services": "workspace:*",
-    "@semantic-context/eval": "workspace:*"
+    "@semantic-context/experimental-context-pack-eval": "workspace:*"
   }
 }

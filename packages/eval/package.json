@@ -1,5 +1,6 @@
 {
-  "name": "@semantic-context/eval",
+  "name": "@semantic-context/experimental-context-pack-eval",
+  "description": "Experimental ContextPack regression scoring (ADR 0005); not an evaluation of code-search effectiveness or verify diff.",
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",

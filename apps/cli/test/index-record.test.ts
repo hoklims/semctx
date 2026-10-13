@@ -92,6 +92,37 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
+describe("shipped discovery catalogue (CLI, real git)", () => {
+  test("index directs users to change verification", () => {
+    const result = expectSemctxOk(repository(), ["index"]);
+    expect(result.stdout).toContain("Next: semctx verify diff --base origin/main");
+    expect(result.stdout).not.toContain("Next: semctx task");
+    expect(result.stdout).not.toContain("context prepare");
+  });
+
+  test("bench names its experimental ContextPack scope and preserves JSON and failure exits", () => {
+    const root = repository();
+    const suitePath = join(root, "semctx-bench.json");
+    writeFileSync(suitePath, JSON.stringify([{ id: "baseline", task: "Change compute", expect: {} }]));
+    const text = expectSemctxOk(root, ["bench"]);
+    expect(text.stdout).toContain("Experimental ContextPack benchmark (ADR 0005)");
+    const passed = expectSemctxOk(root, ["bench", "--json"]);
+    expect(JSON.parse(passed.stdout)).toMatchObject({ threshold: 1, score: 1, passed: true });
+    expect(Object.keys(JSON.parse(passed.stdout)).sort()).toEqual(["cases", "passed", "score", "threshold"]);
+
+    writeFileSync(suitePath, JSON.stringify([{
+      id: "missing-read", task: "Change compute", expect: { requiredReads: ["src/absent.ts"] },
+    }]));
+    const failed = semctx(root, ["bench", "--json"]);
+    expect(failed.code).toBe(1);
+    expect(JSON.parse(failed.stdout).passed).toBe(false);
+    const failedText = semctx(root, ["bench"]);
+    expect(failedText.code).toBe(1);
+    expect(failedText.stdout).toContain("Experimental ContextPack benchmark (ADR 0005)");
+    expect(failedText.stdout).toContain("FAIL");
+  });
+});
+
 describe("semctx index --record (CLI, real git)", () => {
   test("stale-baseline diagnostics share the explicit recovery remedy", () => {
     const root = repository();

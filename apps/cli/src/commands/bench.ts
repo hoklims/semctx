@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { SemctxError } from "@semantic-context/core";
 import { withStore } from "../store";
-import { runBench, type BenchCase } from "@semantic-context/eval";
+import { runBench, type BenchCase } from "@semantic-context/experimental-context-pack-eval";
 import type { ParsedArgs } from "../args";
 import { flagString, flagBool } from "../args";
 import { info, heading, json, c } from "../output";
@@ -57,7 +57,7 @@ export function runBenchCmd(root: string, args: ParsedArgs): number {
     return report.passed ? 0 : 1;
   }
 
-  heading(`Benchmark — ${report.cases.length} case(s), threshold ${report.threshold}`);
+  heading(`Experimental ContextPack benchmark (ADR 0005) — ${report.cases.length} case(s), threshold ${report.threshold}`);
   for (const caseResult of report.cases) {
     const mark = caseResult.passed ? c.green("PASS") : c.red("FAIL");
     info(`  [${mark}] ${caseResult.id}  ${c.dim(`score ${caseResult.score.toFixed(3)}`)}`);

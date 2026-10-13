@@ -44,7 +44,7 @@ evidence proof.semctx.project-config-native-checks
 
 change change.semctx.project-evidence-config
   statement: Deliberately migrate v1 to v2 recursive candidate selection, preserve strict policy, use the CLI source of this checkout for repository dogfooding and current evidence, rebuild and verify the local index, and retain unresolved analysis limits.
-  status: partial
+  status: superseded
   provenance: author
   appliesAtLevel: 1
   serves: goal.semctx.honest-project-evidence

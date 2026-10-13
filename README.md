@@ -438,11 +438,16 @@ releases can still contain breaking changes; the [changelog](CHANGELOG.md) lists
 | --- | --- |
 | Released | `verify diff`, `impact diff`, the GitHub Action, the Claude Code and Codex plugins, the MCP server, change records and the planning tools |
 | Opt-in | config v2 (`setup --polyglot`) and guarded mode on Claude Code |
-| Experimental | the [Oh My Pi](docs/integrations/omp.md) package and `context prepare` (`semctx_prepare_task` over MCP); [Grok](docs/integrations/grok.md) can load the Claude Code plugin but is outside the tested host baseline |
+| Experimental | the [Oh My Pi](docs/integrations/omp.md) package, `context prepare` (`semctx_prepare_task` over MCP), and `bench` (ContextPack regression scoring); [Grok](docs/integrations/grok.md) can load the Claude Code plugin but is outside the tested host baseline |
 | Partial | agent checkpoints, of which only `before_completion` is automated ([reference](#for-agent-integrators), [#28](https://github.com/hoklims/semctx/issues/28)) |
 | Withdrawn | the task-to-files retriever, which lost to plain BM25 search ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md), [results](benchmarks/change-impact-eval/RESULTS.md)); `context prepare` is what is left of it |
 | Not built | anything that applies a plan for you |
 | Not measured | accuracy: the [public replay corpus](docs/pilot/public-corpus-2026-09-08.json) has 30 real changes, none with a known expected result yet, so none is scored |
+
+The private workspace package `@semantic-context/experimental-context-pack-eval` (in
+`packages/eval`, formerly `@semantic-context/eval`) backs `bench`. It scores experimental
+ContextPack regression expectations; it does not evaluate code-search effectiveness or
+`verify diff`. Task frames remain available for task/plan reconciliation.
 
 Planned work is in the [roadmap](ROADMAP.md).
 

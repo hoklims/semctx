@@ -109,7 +109,7 @@ Migration (one-shot, temporary; see 'semctx migrate' for details):
 Experimental (task -> ContextPack retriever; not a code-search replacement, see ADR 0005):
   task create --from-file <file>   create a TaskFrame (also: --text "...", --mode <m>)
   context prepare [<task-id>]      compile a ContextPack (--json to emit JSON)
-  bench [--suite <file>]           measure ContextPack quality against golden expectations
+  bench [--suite <file>]           experimental ContextPack regression benchmark (ADR 0005)
 
 Global options:
   --root <path>   repository root (default: current directory)

@@ -27,6 +27,11 @@ describe("semctx MCP tool metadata", () => {
     ]);
 
     expect(byName.has("semctx_change_close")).toBe(true);
+    const prepareTask = byName.get("semctx_prepare_task");
+    expect(prepareTask?.title).toContain("experimental");
+    expect(prepareTask?.description).toContain("EXPERIMENTAL");
+    expect(prepareTask?.description).toContain("not a code-search replacement (ADR 0005)");
+    expect(prepareTask?.description).toContain("prefer semctx_verify_change");
 
     for (const tool of tools) {
       const schema = tool.inputSchema as { properties?: Record<string, unknown>; required?: string[] };

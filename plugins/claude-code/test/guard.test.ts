@@ -60,6 +60,22 @@ const bashCanRunBun =
 const GUARD_SCRIPT = join(import.meta.dir, "..", "hooks", "semctx-guard.mjs");
 const PLUGIN_VERSION: string = JSON.parse(readFileSync(join(import.meta.dir, "..", ".claude-plugin", "plugin.json"), "utf8")).version;
 
+let inheritedGitConfig: Record<string, string | undefined> = {};
+beforeAll(() => {
+  inheritedGitConfig = {
+    GIT_CONFIG_GLOBAL: process.env.GIT_CONFIG_GLOBAL,
+    GIT_CONFIG_NOSYSTEM: process.env.GIT_CONFIG_NOSYSTEM,
+  };
+  process.env.GIT_CONFIG_GLOBAL = process.platform === "win32" ? "NUL" : "/dev/null";
+  process.env.GIT_CONFIG_NOSYSTEM = "1";
+});
+afterAll(() => {
+  for (const [name, value] of Object.entries(inheritedGitConfig)) {
+    if (value === undefined) delete process.env[name];
+    else process.env[name] = value;
+  }
+});
+
 async function isolatedRecoveryFixture() {
   const root = realpathSync(mkdtempSync(join(tmpdir(), "semctx-guard-recovery-")));
   mkdirSync(join(root, "hooks"));
@@ -619,7 +635,7 @@ describe("guardDecision — diff-hash gate (ADR 0007)", () => {
       // rather than claiming an installed Semctx distribution can run without Bun.
       copyFileSync(process.execPath, native);
       chmodSync(native, 0o755);
-      const nativeVersion = execFileSync(process.execPath, ["--version"], { encoding: "utf8" }).trim();
+      const nativeVersion = execFileSync(native, ["--version"], { encoding: "utf8" }).trim();
       writeFileSync(join(root, ".claude-plugin", "plugin.json"), JSON.stringify({ version: nativeVersion }));
       const command = guard.verifyRecordCommand({ ...env, PATH: bin }, undefined, root);
       expect(command).toContain(`${shellQuote(native)} verify diff --record`);
