@@ -475,3 +475,65 @@ test("legacy TS-only extraction does not consume live workspace configuration", 
   write(root, { "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/api", devDependencies: { "@fixture/config": "^1.0.0" } }) });
   expect(extractTypeScript([source], root)).toEqual(before);
 });
+
+function linkedInitialConfiguration(): { root: string; source: string; content: string; external: string } {
+  const root = temporaryRoot("semctx-workspace-initial-config-");
+  const outside = temporaryRoot("semctx-workspace-initial-config-outside-");
+  const content = 'import { external } from "#external"; export const value = external;\n';
+  const external = JSON.stringify({ compilerOptions: { paths: { "#external": [`${outside}/target.ts`] } } });
+  write(outside, { "config.json": external, "target.ts": "export const external = 1;\n" });
+  write(root, {
+    "tsconfig.json": JSON.stringify({ compilerOptions: { paths: { "#external": ["./safe.ts"] } } }),
+    "safe.ts": "export const external = 0;\n",
+    "src/source.js": content,
+  });
+  symlinkSync(join(outside, "config.json"), join(root, "src/tsconfig.json"), "file");
+  return { root, source: `${root}/src/source.js`, content, external };
+}
+
+test.skipIf(!canCreateFileSymlink())("bounded resolution refuses initial config bytes with an empty link cache", () => {
+  const { root, source, external } = linkedInitialConfiguration();
+  const resolver = createWorkspaceLinkResolver();
+  expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, resolver, root)).toBeUndefined();
+  expect([...resolver.inputs.values()]).not.toContain(external);
+  expect(resolver.inputs.has(`${root}/src/tsconfig.json`)).toBe(true);
+  expect(resolver.inputs.get(`${root}/src/tsconfig.json`)).toBeUndefined();
+});
+
+test.skipIf(!canCreateFileSymlink())("JavaScript diagnostics retain an invalid closest initial config without reading it", () => {
+  const { root, source, content, external } = linkedInitialConfiguration();
+  const resolver = createWorkspaceLinkResolver();
+  const result = inspectJavaScriptSource(source, content, root, undefined, resolver);
+  expect(result.staticModuleLinks.find(link => link.specifier === "#external")?.resolution).toBe("unresolved");
+  expect(result.reasons.some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+  expect([...resolver.inputs.values()]).not.toContain(external);
+});
+
+test.skipIf(!canCreateFileSymlink())("an unsafe closest initial config stays invalid after a real workspace link was resolved", () => {
+  const { root, source } = workspace();
+  const outside = temporaryRoot("semctx-workspace-initial-after-link-");
+  const external = JSON.stringify({ compilerOptions: { paths: { "#external": [`${outside}/target.ts`] } } });
+  write(outside, { "config.json": external, "target.ts": "export const external = 1;\n" });
+  const resolver = createWorkspaceLinkResolver();
+  expect(inspectModuleConfiguration(source, root, undefined, undefined, resolver)).toEqual([]);
+  expect([...resolver.links.values()].some(links => links.size > 0)).toBe(true);
+  write(root, { "domains/registry/api/tsconfig.json": JSON.stringify({ compilerOptions: { paths: { "#external": [`${root}/tooling/config/tsconfig/shared.ts`] } } }) });
+  symlinkSync(join(outside, "config.json"), join(root, "domains/registry/api/src/tsconfig.json"), "file");
+  expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, resolver, root)).toBeUndefined();
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))
+    .some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
+  expect([...resolver.inputs.values()]).not.toContain(external);
+  rmSync(join(root, "domains/registry/api/src/tsconfig.json"));
+  symlinkSync(join(root, "domains/registry/api/tsconfig.json"), join(root, "domains/registry/api/src/tsconfig.json"), "file");
+  expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, resolver, root)).toBe(`${root}/tooling/config/tsconfig/shared.ts`);
+  expect(configurationFailures(inspectModuleConfiguration(source, root, undefined, undefined, resolver))).toEqual([]);
+});
+
+test.skipIf(!canCreateFileSymlink())("a canonical in-root initial config alias remains usable", () => {
+  const { root, source } = linkedInitialConfiguration();
+  write(root, { "tsconfig.json": JSON.stringify({ compilerOptions: { paths: { "#external": [`${root}/safe.ts`] } } }) });
+  rmSync(join(root, "src/tsconfig.json"));
+  symlinkSync(join(root, "tsconfig.json"), join(root, "src/tsconfig.json"), "file");
+  expect(resolveTypeScriptModule("#external", source, undefined, true, undefined, undefined, root)).toBe(`${root}/safe.ts`);
+  expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+});

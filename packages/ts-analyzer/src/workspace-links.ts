@@ -340,7 +340,7 @@ export function workspaceLinkedSystem(
 
   // TypeScript resolves relative extends from the member's physical configuration path.
   // Those subsequent direct reads must retain the synthetic link's confinement too.
-  const allowedDirect = (path: string): boolean => {
+  const allowedDirect = (path: string, reading = false): boolean => {
     const normalized = canonical(path);
     const root = confinedBoundary ?? [...resolver.declarations.values()].find(declaration => declaration !== null)?.root;
     // Apply the repository boundary before either existing reads or virtual probes.
@@ -348,7 +348,17 @@ export function workspaceLinkedSystem(
       resolver.inputs.set(normalized, undefined);
       return false;
     }
-    if (![...resolver.links.values()].some(links => links.size > 0)) return true;
+    if (![...resolver.links.values()].some(links => links.size > 0)
+      || (reading && slash(path).endsWith("/tsconfig.json") && system.fileExists(path))) {
+      if (!reading || root === undefined) return true;
+      // Initial configurations can have ordinary in-root aliases, but their real bytes
+      // must be confined before a read even when no workspace link has been observed.
+      try {
+        if (isWithin(canonical(realpathSync.native(root)), canonical(realpathSync.native(normalized)))) return true;
+      } catch { /* An unreadable initial input is not admitted. */ }
+      resolver.inputs.set(normalized, undefined);
+      return false;
+    }
     if (root === undefined) return false;
     // Missing node_modules paths may be virtual workspace probes. Existing physical
     // configurations, including installed ones, retain precedence but must be confined.
@@ -364,13 +374,17 @@ export function workspaceLinkedSystem(
   return {
     ...system,
     fileExists: path => {
+      // Keep the closest present configuration visible so a refused read becomes an
+      // invalid configuration, rather than falling back to a parent/default config.
+      if (confinedBoundary !== undefined && isWithin(confinedBoundary, canonical(path))
+        && slash(path).endsWith("/tsconfig.json") && system.fileExists(path)) return true;
       if (!allowedDirect(path)) return false;
       if (system.fileExists(path)) return true;
       const target = linked(path);
       return target !== undefined && system.fileExists(target);
     },
     readFile: (path, encoding) => {
-      if (!allowedDirect(path)) { resolver.inputs.set(canonical(path), undefined); return undefined; }
+      if (!allowedDirect(path, true)) { resolver.inputs.set(canonical(path), undefined); return undefined; }
       const target = system.fileExists(path) ? path : linked(path);
       const content = target === undefined ? undefined : system.readFile(target, encoding);
       resolver.inputs.set(canonical(target ?? path), content);
@@ -387,7 +401,7 @@ export function workspaceLinkedSystem(
       return target !== undefined && (system.directoryExists?.(target) ?? false);
     },
     realpath: path => {
-      if (!allowedDirect(path)) return path;
+      if (!allowedDirect(path, true)) return path;
       const target = installed(path) ? undefined : linked(path);
       const resolved = target ?? path;
       return system.realpath === undefined ? resolved : system.realpath(resolved);
