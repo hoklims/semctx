@@ -27,6 +27,23 @@ function genuinePassedReport(): ChangeAuthorizationVerificationReportV1 {
 }
 
 describe("ChangeAuthorizationVerificationReportV1Schema — validates the report, not only its shape", () => {
+  it("rejects a resealed report with submillisecond backward chronology", () => {
+    const report = genuinePassedReport();
+    const forged = reseal(report, {
+      verifiedAt: "2026-08-01T10:00:00.0008Z",
+      semantic: {
+        ...report.semantic,
+        recordedEvaluatedAt: "2026-08-01T10:00:00.0009Z",
+        currentEvaluatedAt: "2026-08-01T10:00:00.0008Z",
+      },
+    });
+    const parsed = ChangeAuthorizationVerificationReportV1Schema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe("semantic.currentEvaluatedAt must not precede semantic.recordedEvaluatedAt");
+    }
+  });
+
   it("accepts a genuine, self-consistent report", () => {
     const report = genuinePassedReport();
     expect(report.result).toBe("PASSED");

@@ -5,6 +5,7 @@
  */
 import {
   canonicalizeChangeAuthorizationReasons,
+  compareChangeAuthorizationTimestampAgeV1,
   ChangeAuthorizationCapsuleV1Schema,
   ChangeAuthorizationReasonCodeV1Schema,
   ChangeAuthorizationTimestampV1Schema,
@@ -103,7 +104,7 @@ export const ChangeAuthorizationVerificationRequestV1Schema = {
     }
     if (!isTimestampV1(value.verifiedAt)) return fail("verifiedAt must be an ISO-8601 timestamp with an explicit offset");
     const capsule = ChangeAuthorizationCapsuleV1Schema.safeParse(value.capsule);
-    if (capsule.success && Date.parse(value.verifiedAt) < Date.parse(capsule.data.evaluatedAt)) {
+    if (capsule.success && compareChangeAuthorizationTimestampAgeV1(value.verifiedAt, capsule.data.evaluatedAt) < 0) {
       return fail("verifiedAt must not precede capsule.evaluatedAt");
     }
     return ok({
@@ -192,7 +193,7 @@ export const ChangeAuthorizationVerificationReportV1Schema = {
     }
     if (
       semantic.recordedEvaluatedAt !== null
-      && Date.parse(semantic.currentEvaluatedAt) < Date.parse(semantic.recordedEvaluatedAt)
+      && compareChangeAuthorizationTimestampAgeV1(semantic.currentEvaluatedAt, semantic.recordedEvaluatedAt) < 0
     ) {
       return fail("semantic.currentEvaluatedAt must not precede semantic.recordedEvaluatedAt");
     }

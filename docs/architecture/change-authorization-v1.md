@@ -344,12 +344,17 @@ declared validity window, but it cannot lift that aggregate ceiling. A historica
 `FAILED`; a historical `REQUIRE_EVIDENCE` remains at most `REQUIRE_EVIDENCE`.
 The exported report schema also binds `recordedEvaluatedAt <= currentEvaluatedAt == verifiedAt`.
 
+A separate opt-in [reuse policy](change-authorization-reuse-v1.md) evaluates capsule age and
+consumption identity against explicit caller-owned state. It leaves offline replay unchanged and
+provides no durable or global consumption guarantee.
+
 ## Deferred (explicitly out of scope for v1)
 
 - Live provider integrations and trust-root registries (`authorityDescriptor.trustRootIds` is a
   caller-supplied snapshot, not a queried registry) — HOK-90.
 - DSSE signing/verification and cross-host attestation transport — Linear HOK-564.
-- Stateful anti-replay (single-use consumption tracking) — Linear HOK-565.
+- Durable consumption-state storage and coordination; the opt-in reuse policy only proposes
+  caller-owned state transitions.
 - Multi-stack VSA export — Linear HOK-566.
 - Any enforcement, blocking, or execution effect. `authorizationEffect` is permanently
   `"advisory_record"` in v1; changing it is a v2 decision gated by the same M3/M4 evidence process

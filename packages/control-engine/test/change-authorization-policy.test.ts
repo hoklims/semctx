@@ -352,6 +352,30 @@ function baseInput(
 }
 
 describe("evaluateChangeAuthorizationV1", () => {
+  for (const source of ["assertion", "provider"] as const) {
+    it.each([
+      ["expiresAt", "2026-08-01T10:00:00.0008Z", "2026-08-01T10:00:00.0009Z", "REQUIRE_EVIDENCE"],
+      ["observedAt", "2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.0008Z", "REQUIRE_EVIDENCE"],
+      ["expiresAt", "2026-08-01T12:00:00.0008000+0200", "2026-08-01T10:00:00.0008Z", "ALLOW"],
+      ["observedAt", "2026-08-01T10:00:00.000800Z", "2026-08-01T12:00:00.0008+02:00", "ALLOW"],
+      ["expiresAt", "2026-08-01T10:00:00.00089999999999999999Z", "2026-08-01T10:00:00.0009Z", "REQUIRE_EVIDENCE"],
+      ["observedAt", "2026-08-01T10:00:00.0009Z", "2026-08-01T10:00:00.00089999999999999999Z", "REQUIRE_EVIDENCE"],
+    ] as const)(`evaluates fractional ${source} %s=%s at %s`, (field, timestamp, evaluatedAt, verdict) => {
+      const overrides = { [field]: timestamp };
+      const capsule = evaluateChangeAuthorizationV1(baseInput({
+        evaluatedAt,
+        ...(source === "assertion" ? { assertions: [passingAssertionInput(overrides)] } : { providers: [provider(overrides)] }),
+      }));
+      expect(capsule.verdict).toBe(verdict);
+      expect(replayChangeAuthorizationV1(capsule, {
+        expectedAuthorityDescriptorDigest: capsule.authorityDescriptor.descriptorDigest,
+      }).result).toBe("VALID");
+      if (verdict === "REQUIRE_EVIDENCE") {
+        expect(capsule.reasonCodes).toContain(source === "assertion" ? "REQUIRED_EVIDENCE_EXPIRED" : "SOURCE_SEAL_STALE");
+      }
+    });
+  }
+
   it("is deterministic: identical sealed input always yields the same capsule hash", () => {
     const input = baseInput();
     const first = evaluateChangeAuthorizationV1(input);

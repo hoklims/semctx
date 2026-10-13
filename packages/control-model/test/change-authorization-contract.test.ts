@@ -525,11 +525,13 @@ describe("RFC 8785 (JCS) canonicalization", () => {
   });
 
   it("rejects non-JSON objects, sparse arrays, symbols, accessors, and hidden properties", () => {
+    class ExecutableArray extends Array<number> {}
+    const inheritedExecutable = new ExecutableArray(1, 2);
     const sparse = new Array(1);
     const symbolValue = { a: 1, [Symbol("hidden")]: 2 };
     const accessor = Object.defineProperty({}, "value", { enumerable: true, get: () => 1 });
     const hidden = Object.defineProperty({}, "value", { enumerable: false, value: 1 });
-    for (const hostile of [new Date(0), new Map(), /x/, sparse, symbolValue, accessor, hidden]) {
+    for (const hostile of [new Date(0), new Map(), /x/, inheritedExecutable, sparse, symbolValue, accessor, hidden]) {
       expect(changeAuthorization.isChangeAuthorizationJcsSafeV1(hostile)).toBe(false);
       expect(() => changeAuthorization.serializeChangeAuthorizationJcsV1(hostile)).toThrow();
     }
@@ -600,6 +602,36 @@ describe("RFC 8785 (JCS) canonicalization", () => {
 });
 
 describe("ChangeAuthorizationCapsuleV1", () => {
+  it.each([
+    ["2026-08-01T10:00:00.0009Z", "2026-08-01T12:00:00.0009000+0200"],
+    ["2026-08-01T10:00:00.00089999999999999999Z", "2026-08-01T10:00:00.0009Z"],
+  ])("accepts inclusive fractional evidence windows from %s to %s", (observedAt, expiresAt) => {
+    expect(controlModel.ChangeAuthorizationProviderV1Schema.safeParse(provider({ observedAt, expiresAt })).success).toBe(true);
+    const input = { ...validCapsule().assertions[0]!, observedAt, expiresAt };
+    expect(controlModel.ChangeAuthorizationAssertionV1Schema.safeParse({
+      ...input, assertionHash: controlModel.computeChangeAuthorizationAssertionV1Hash(input),
+    }).success).toBe(true);
+  });
+
+  it("rejects a provider observation after expiry at submillisecond precision", () => {
+    const parsed = controlModel.ChangeAuthorizationProviderV1Schema.safeParse(provider({
+      observedAt: "2026-08-01T12:00:00.0009+0200",
+      expiresAt: "2026-08-01T10:00:00.0008Z",
+    }));
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) expect(parsed.error.issues.some((issue) => issue.message === "expiry precedes observation")).toBe(true);
+  });
+
+  it("rejects an assertion observation after expiry at submillisecond precision", () => {
+    const valid = validCapsule().assertions[0]!;
+    const input = { ...valid, observedAt: "2026-08-01T10:00:00.0009Z", expiresAt: "2026-08-01T10:00:00.0008Z" };
+    const parsed = controlModel.ChangeAuthorizationAssertionV1Schema.safeParse({
+      ...input, assertionHash: controlModel.computeChangeAuthorizationAssertionV1Hash(input),
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) expect(parsed.error.issues.some((issue) => issue.message === "expiry precedes observation")).toBe(true);
+  });
+
   it("accepts a well-formed capsule and rejects a hash-mismatched one", () => {
     const capsule = validCapsule();
     expect(controlModel.ChangeAuthorizationCapsuleV1Schema.safeParse(capsule).success).toBe(true);

@@ -3,3 +3,4 @@
 export * from "./change-authorization-types";
 export * from "./change-authorization-canonical";
 export * from "./change-authorization-schemas";
+export * from "./change-authorization-timestamp";
