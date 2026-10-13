@@ -2,12 +2,9 @@
   "schemaVersion": 1,
   "kind": "semctx-public-evidence-v1",
   "phase": "candidate",
-  "generatedAt": "2026-10-13T15:53:42.964Z",
+  "generatedAt": "2026-10-13T16:02:49.173Z",
   "evidenceState": "OBSERVED",
-  "releaseCommit": {
-    "value": "29b7e6f66fe93a06ba4ecdf9be61e388d0efb671",
-    "authority": "caller-asserted"
-  },
+  "releaseCommit": null,
   "demo": {
     "status": "COMPLETED",
     "observedAt": "2026-10-13T15:53:31.677Z",
