@@ -280,7 +280,7 @@ export function inspectJavaScriptSource(path: string, content: string, repositor
     }
   };
   const recordModuleLink = (specifier: string): void => {
-    const resolved = resolveTypeScriptModule(specifier, path, undefined, true, compilerInputs, workspaceLinks);
+    const resolved = resolveTypeScriptModule(specifier, path, undefined, true, compilerInputs, workspaceLinks, repositoryRoot);
     const external = BUILTIN_MODULES.has(specifier.replace(/^node:/, "")) || (resolved !== undefined && /[/\\]node_modules[/\\]/.test(resolved)) || (resolved === undefined && !specifier.startsWith(".") && isDeclaredExternal(specifier));
     staticModuleLinks.push({ specifier, resolution: external ? "external" : resolved !== undefined ? "resolved" : "unresolved" });
     if (resolved === undefined && !external) reasons.add(`JAVASCRIPT_IMPORT_UNRESOLVED:${specifier}`);

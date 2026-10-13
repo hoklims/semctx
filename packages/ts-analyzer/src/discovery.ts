@@ -269,7 +269,7 @@ function escapedDependencyReason(
     if (!imported.fileName.startsWith(".")) continue;
     const lexical = resolve(dirname(absPath), imported.fileName);
     if (!isContained(canonicalRoot, canonicalPath(lexical))) return "IMPORT_OUTSIDE_REPOSITORY";
-    const resolved = resolveTypeScriptModule(imported.fileName, absPath);
+    const resolved = resolveTypeScriptModule(imported.fileName, absPath, undefined, undefined, undefined, undefined, root);
     if (resolved !== undefined && !isContained(canonicalRoot, canonicalPath(resolved))) {
       return "IMPORT_OUTSIDE_REPOSITORY";
     }

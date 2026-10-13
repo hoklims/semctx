@@ -164,7 +164,7 @@ const COMPILER_OPTIONS: ts.CompilerOptions = {
 
 /** Internal semantic context; intentionally not exported from the package root. */
 export const extractionContext = {
-  createProgram(this: void, rootAbsPaths: string[], snapshot?: CompilerInputSnapshot): ts.Program {
+  createProgram(this: void, rootAbsPaths: string[], snapshot?: CompilerInputSnapshot, repoRoot?: string): ts.Program {
     const host = ts.createCompilerHost(COMPILER_OPTIONS);
     const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
     if (snapshot !== undefined) {
@@ -178,7 +178,7 @@ export const extractionContext = {
     if (snapshot !== undefined || rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) {
       const workspaceLinks = createWorkspaceLinkResolver();
       host.resolveModuleNames = (names, containingFile) => names.map(name =>
-        resolveConfiguredModule(name, containingFile, undefined, system, workspaceLinks)?.resolvedModule);
+        resolveConfiguredModule(name, containingFile, undefined, system, workspaceLinks, repoRoot)?.resolvedModule);
     }
     return ts.createProgram(rootAbsPaths, COMPILER_OPTIONS, host);
   },
@@ -231,10 +231,11 @@ export function resolveTypeScriptModule(
   configured = /\.(mjs|cjs|js|jsx)$/.test(containingFile),
   snapshot?: CompilerInputSnapshot,
   workspaceLinks?: WorkspaceLinkResolver,
+  repositoryRoot?: string,
 ): string | undefined {
   const system = snapshot === undefined ? ts.sys : snapshotSystem(snapshot);
   const resolved = configured
-    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system, workspaceLinks)
+    ? resolveConfiguredModule(specifier, containingFile, resolutionMode, system, workspaceLinks, repositoryRoot)
     : ts.resolveModuleName(specifier, containingFile, COMPILER_OPTIONS, system, undefined, undefined, resolutionMode);
   // A declaration companion describes the runtime module; dependency edges target the actual
   // source when it exists, rather than silently ending at the skipped .d.mts/.d.cts artifact.
@@ -253,15 +254,18 @@ function resolveConfiguredModule(
   resolutionMode?: ts.ResolutionMode,
   system: ts.System = ts.sys,
   workspaceLinks: WorkspaceLinkResolver = createWorkspaceLinkResolver(),
+  repositoryRoot?: string,
 ): ts.ResolvedModuleWithFailedLookupLocations {
-  const configPath = ts.findConfigFile(dirname(containingFile), path => system.fileExists(path));
+  // Bind the analyzed root before the first live configuration lookup, not after
+  // workspace metadata has already selected an enclosing declaration.
+  const configurationSystem = system === ts.sys ? workspaceLinkedSystem(system, repositoryRoot, workspaceLinks) : system;
+  const configPath = ts.findConfigFile(dirname(containingFile), path => configurationSystem.fileExists(path));
   let options = COMPILER_OPTIONS;
   if (configPath !== undefined) {
-    const config = ts.readConfigFile(configPath, path => system.readFile(path));
+    const config = ts.readConfigFile(configPath, path => configurationSystem.readFile(path));
     if (config.error === undefined) {
       // Module resolution needs inherited options, not a redundant scan of every tsconfig input.
       // A live checkout may lack the installed link to a workspace member's shared configuration.
-      const configurationSystem = system === ts.sys ? workspaceLinkedSystem(system, undefined, workspaceLinks) : system;
       const parsed = ts.parseJsonConfigFileContent(config.config, { ...configurationSystem, readDirectory: () => [] }, dirname(configPath));
       options = { ...COMPILER_OPTIONS, ...parsed.options };
     }
@@ -341,7 +345,7 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
       if (!isContainedTypeScriptPath(canonicalRoot, canonicalFilesystemPath(lexical))) {
         throw new Error(`IMPORT_OUTSIDE_REPOSITORY: ${imported.fileName}`);
       }
-      const resolved = resolveTypeScriptModule(imported.fileName, path, undefined, snapshot !== undefined || /\.(mjs|cjs|js|jsx)$/.test(path), snapshot);
+      const resolved = resolveTypeScriptModule(imported.fileName, path, undefined, snapshot !== undefined || /\.(mjs|cjs|js|jsx)$/.test(path), snapshot, undefined, repoRoot);
       if (resolved === undefined) continue;
       const resolvedCanonical = canonicalFilesystemPath(resolved);
       if (!isContainedTypeScriptPath(canonicalRoot, resolvedCanonical)) {
@@ -369,7 +373,7 @@ function assertConfinedTypeScriptSources(rootAbsPaths: readonly string[], repoRo
 export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, suppliedSnapshot?: CompilerInputSnapshot): TsExtraction {
   const snapshot = suppliedSnapshot === undefined ? undefined : new Map(suppliedSnapshot);
   assertConfinedTypeScriptSources(rootAbsPaths, repoRoot, snapshot);
-  const program = extractionContext.createProgram(rootAbsPaths, snapshot);
+  const program = extractionContext.createProgram(rootAbsPaths, snapshot, repoRoot);
   // One analysis pass shares the derived workspace links of its configured resolutions.
   const workspaceLinks = createWorkspaceLinkResolver();
   const checker = program.getTypeChecker();
@@ -491,7 +495,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         return;
       } else if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks, repoRoot);
         const names = importedNames(node, staticModuleLinksEnabled);
         const namespace = node.importClause?.namedBindings;
         const namespaceSymbol = node.importClause?.isTypeOnly !== true && namespace !== undefined && ts.isNamespaceImport(namespace)
@@ -515,7 +519,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         });
       } else if (staticModuleLinksEnabled && ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         const specifier = node.moduleSpecifier.text;
-        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
+        const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, undefined, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks, repoRoot);
         imports.push({
           fromRelPath: relPath,
           moduleSpecifier: specifier,
@@ -527,7 +531,7 @@ export function extractTypeScript(rootAbsPaths: string[], repoRoot: string, supp
         if (staticModuleLinksEnabled && node.expression.kind === ts.SyntaxKind.ImportKeyword &&
           node.arguments.length === 1 && ts.isStringLiteral(node.arguments[0]!)) {
           const specifier = (node.arguments[0] as ts.StringLiteral).text;
-          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks);
+          const resolvedAbs = resolveTypeScriptModule(specifier, sf.fileName, ts.ModuleKind.ESNext, javascriptEnabled || snapshot !== undefined, snapshot, workspaceLinks, repoRoot);
           imports.push({ fromRelPath: relPath, moduleSpecifier: specifier,
             ...(resolvedAbs !== undefined ? { resolvedRelPath: relOf(resolvedAbs) } : {}),
             names: [], line: lineOf(sf, node.getStart()) });
@@ -771,7 +775,7 @@ function rootModuleComponents(
     for (const usage of literalModuleSpecifiers(source)) {
       const resolutionMode = usage.resolutionMode
         ?? program.getModeForUsageLocation(source, usage.literal);
-      const resolved = resolveTypeScriptModule(usage.literal.text, source.fileName, resolutionMode);
+      const resolved = resolveTypeScriptModule(usage.literal.text, source.fileName, resolutionMode, undefined, undefined, undefined, repositoryKey);
       if (resolved === undefined) continue;
       const target = canonicalTypeScriptFileKey(resolved);
       if (loadedSources.has(target)) union(from, target);

@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type ts from "typescript";
 
@@ -88,6 +88,16 @@ function isWithin(root: string, candidate: string): boolean {
   return rel === "" || (!isAbsolute(rel) && rel !== ".." && !slash(rel).startsWith("../"));
 }
 
+/** A Git boundary is the marker itself, even when its symlink target is missing. */
+function hasGitMarker(directory: string): boolean {
+  try {
+    lstatSync(join(directory, ".git"));
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== "ENOENT";
+  }
+}
+
 /** Synthetic links never follow filesystem links, including an ancestor junction. */
 function confinedSyntheticTarget(member: string, candidate: string, boundary: string | undefined): boolean {
   const target = canonical(candidate);
@@ -155,7 +165,7 @@ function searchUpward(
     if (boundary !== undefined && !isWithin(boundary, directory)) return undefined;
     const found = declarationAt(directory);
     if (found !== undefined) return found;
-    if (directory === boundary || existsSync(join(directory, ".git"))) return undefined;
+    if (directory === boundary || hasGitMarker(directory)) return undefined;
     const parent = canonical(dirname(directory));
     if (parent === directory) return undefined;
     directory = parent;
@@ -186,7 +196,7 @@ function insideNestedRepository(root: string, memberPath: string): boolean {
   let directory = root;
   for (const segment of memberPath.split("/")) {
     directory = join(directory, segment);
-    if (existsSync(join(directory, ".git"))) return true;
+    if (hasGitMarker(directory)) return true;
   }
   return false;
 }
@@ -272,6 +282,11 @@ function linksAt(resolver: WorkspaceLinkResolver, directory: string, boundary: s
   const cached = resolver.links.get(key);
   if (cached !== undefined) return cached;
   const links = new Map<string, string>();
+  if (boundary !== undefined && !isWithin(boundary, directory)) {
+    resolver.inputs.set(canonical(join(directory, "package.json")), undefined);
+    resolver.links.set(key, links);
+    return links;
+  }
   const dependencies = workspaceDependencies(directory, resolver);
   const declaration = dependencies.size === 0 ? undefined : findDeclaration(resolver, directory, boundary);
   if (declaration !== undefined) {
@@ -327,8 +342,13 @@ export function workspaceLinkedSystem(
   // Those subsequent direct reads must retain the synthetic link's confinement too.
   const allowedDirect = (path: string): boolean => {
     const normalized = canonical(path);
-    if (![...resolver.links.values()].some(links => links.size > 0)) return true;
     const root = confinedBoundary ?? [...resolver.declarations.values()].find(declaration => declaration !== null)?.root;
+    // Apply the repository boundary before either existing reads or virtual probes.
+    if (root !== undefined && !isWithin(root, normalized)) {
+      resolver.inputs.set(normalized, undefined);
+      return false;
+    }
+    if (![...resolver.links.values()].some(links => links.size > 0)) return true;
     if (root === undefined) return false;
     // Missing node_modules paths may be virtual workspace probes. Existing physical
     // configurations, including installed ones, retain precedence but must be confined.

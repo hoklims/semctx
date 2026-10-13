@@ -2,8 +2,8 @@ import { afterEach, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { inspectModuleConfiguration } from "../src/javascript-diagnostics";
-import { resolveTypeScriptModule } from "../src/ts-symbols";
+import { inspectJavaScriptSource, inspectModuleConfiguration } from "../src/javascript-diagnostics";
+import { extractTypeScript, resolveTypeScriptModule } from "../src/ts-symbols";
 import { createWorkspaceLinkResolver } from "../src/workspace-links";
 
 const roots: string[] = [];
@@ -410,4 +410,68 @@ test("linked configuration preserves in-root installed package links after synth
     expect([...resolver.links.values()].some(links => links.has("@fixture/config"))).toBe(true);
     expect([...resolver.links.values()].some(links => links.has("@fixture/installed"))).toBe(false);
   }
+});
+
+for (const virtual of [false, true]) {
+  test(`configured module resolution refuses external ${virtual ? "virtual" : "real"} node_modules inputs`, () => {
+    const { root, source } = workspace();
+    const outside = temporaryRoot("semctx-workspace-outside-resolution-");
+    write(outside, {
+      "package.json": JSON.stringify({ name: "external-root", private: true, workspaces: ["consumer", "members/*"] }),
+      "consumer/package.json": JSON.stringify({ name: "external-consumer", devDependencies: { "@fixture/external": "workspace:*" } }),
+      "members/config/package.json": JSON.stringify({ name: "@fixture/external" }),
+      "members/config/base.json": JSON.stringify({ compilerOptions: { paths: { "#external": [`${outside}/target.ts`] } } }),
+      "target.ts": "export const external = 1;\n",
+    });
+    if (!virtual) write(outside, { "consumer/node_modules/@fixture/external/base.json": JSON.stringify({ compilerOptions: { paths: { "#external": [`${outside}/target.ts`] } } }) });
+    write(root, { "tooling/config/tsconfig/node.json": JSON.stringify({ extends: `${outside}/consumer/node_modules/@fixture/external/base.json` }) });
+    expect(resolveTypeScriptModule("#external", source, undefined, true)).toBeUndefined();
+  });
+}
+
+test.skipIf(!canCreateFileSymlink())("a dangling Git marker prevents inheriting an outer workspace", () => {
+  const parent = temporaryRoot("semctx-workspace-dangling-root-");
+  write(parent, {
+    "pnpm-workspace.yaml": 'packages:\n  - "repo/tooling/*"\n  - "repo/domains/*/*"\n',
+    ...Object.fromEntries(Object.entries(CONFIG_MEMBER).map(([path, content]) => [`repo/${path}`, content])),
+    "repo/domains/registry/api/package.json": JSON.stringify({ name: "@fixture/api", devDependencies: { "@fixture/config": "workspace:*" } }),
+    "repo/domains/registry/api/tsconfig.json": JSON.stringify({ extends: "@fixture/config/tsconfig/node.json" }),
+    "repo/domains/registry/api/src/registry.ts": "export const registry = 1;\n",
+  });
+  const root = `${parent}/repo`;
+  symlinkSync(join(parent, "missing-git-marker"), join(root, ".git"), "file");
+  expect(resolveTypeScriptModule("#shared", `${root}/domains/registry/api/src/registry.ts`, undefined, true)).toBeUndefined();
+});
+
+test.skipIf(!canCreateFileSymlink())("a dangling Git marker excludes a nested workspace member", () => {
+  const { root, source } = workspace();
+  symlinkSync(join(root, "missing-git-marker"), join(root, "tooling/config/.git"), "file");
+  expect(failsToResolve(root, source)).toBe(true);
+});
+
+test("JavaScript configuration resolution binds the selected repository before inherited reads", () => {
+  const { root } = workspace();
+  const selectedRoot = `${root}/domains/registry/api`;
+  const source = `${selectedRoot}/src/registry.js`;
+  const content = 'import { shared } from "#shared"; export const registry = shared;\n';
+  write(root, { "domains/registry/api/src/registry.js": content });
+  const resolver = createWorkspaceLinkResolver();
+  const result = inspectJavaScriptSource(source, content, selectedRoot, undefined, resolver);
+  expect(result.staticModuleLinks.find(link => link.specifier === "#shared")?.resolution).toBe("unresolved");
+  expect([...resolver.inputs.values()]).not.toContain(CONFIG_MEMBER["tooling/config/tsconfig/base.json"]);
+  const extraction = extractTypeScript([source], selectedRoot);
+  expect(extraction.imports.find(link => link.moduleSpecifier === "#shared")?.resolvedRelPath).toBeUndefined();
+  expect(inspectJavaScriptSource(source, content, root, undefined, resolver).staticModuleLinks
+    .find(link => link.specifier === "#shared")?.resolution).toBe("resolved");
+  expect(inspectJavaScriptSource(source, content, selectedRoot, undefined, resolver).staticModuleLinks
+    .find(link => link.specifier === "#shared")?.resolution).toBe("unresolved");
+});
+
+test("legacy TS-only extraction does not consume live workspace configuration", () => {
+  const { root, source } = workspace();
+  write(root, { "domains/registry/api/src/registry.ts": 'import { shared } from "#shared"; export const registry = shared;\n' });
+  const before = extractTypeScript([source], root);
+  expect(before.imports.find(link => link.moduleSpecifier === "#shared")?.resolvedRelPath).toBeUndefined();
+  write(root, { "domains/registry/api/package.json": JSON.stringify({ name: "@fixture/api", devDependencies: { "@fixture/config": "^1.0.0" } }) });
+  expect(extractTypeScript([source], root)).toEqual(before);
 });
