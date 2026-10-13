@@ -577,6 +577,44 @@ test("an unreadable present pnpm declaration cannot fall back to package workspa
   }
 });
 
+for (const [kind, content] of [
+  ["malformed JSON", '{"workspaces":["api"],'],
+  ["non-object JSON", "null"],
+  ["invalid workspace field", JSON.stringify({ workspaces: "api" })],
+  ["invalid workspace packages", JSON.stringify({ workspaces: { packages: "api" } })],
+] as const) {
+  test(`a present invalid package declaration cannot fall back to an outer workspace (${kind})`, () => {
+    const { root, source } = workspace("workspace:*", {
+      "package.json": JSON.stringify({ workspaces: ["tooling/*", "domains/*/*"] }),
+      "domains/registry/package.json": content,
+    });
+    expect(failsToResolve(root, source)).toBe(true);
+    write(root, { "domains/registry/package.json": JSON.stringify({ name: "ordinary-parent" }) });
+    expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+    rmSync(join(root, "domains/registry/package.json"));
+    expect(configurationFailures(inspectModuleConfiguration(source, root))).toEqual([]);
+  });
+}
+
+test("a present unreadable package declaration cannot fall back to an outer workspace", () => {
+  const { root, source } = workspace("workspace:*", {
+    "package.json": JSON.stringify({ workspaces: ["tooling/*", "domains/*/*"] }),
+    "domains/registry/package.json": JSON.stringify({ workspaces: ["api"] }),
+  });
+  const originalRead = fs.readFileSync;
+  const probe = spyOn(fs, "readFileSync").mockImplementation(((path, options) => {
+    if (String(path).replaceAll("\\", "/") === `${root}/domains/registry/package.json`) {
+      throw Object.assign(new Error("workspace declaration access denied"), { code: "EACCES" });
+    }
+    return originalRead(path, options);
+  }) as typeof fs.readFileSync);
+  try {
+    expect(failsToResolve(root, source)).toBe(true);
+  } finally {
+    probe.mockRestore();
+  }
+});
+
 for (const inherited of [false, true]) for (const mapping of ["baseUrl", "paths"] as const) {
   test(`configured ${mapping} resolution refuses external sources (${inherited ? "linked" : "direct"} config)`, () => {
     const { root } = workspace();

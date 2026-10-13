@@ -135,12 +135,16 @@ function pnpmDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): 
 }
 
 function packageDeclarationAt(directory: string, resolver: WorkspaceLinkResolver): WorkspaceDeclaration | undefined {
-  const workspaces = readJsonRecord(join(directory, "package.json"), resolver)?.workspaces;
+  const path = join(directory, "package.json");
+  const manifest = readJsonRecord(path, resolver);
+  if (manifest === undefined) return hasFilesystemEntry(path) ? { root: directory, patterns: [] } : undefined;
+  if (!Object.hasOwn(manifest, "workspaces")) return undefined;
+  const workspaces = manifest.workspaces;
   const patterns = stringList(workspaces)
     ?? (typeof workspaces === "object" && workspaces !== null
       ? stringList((workspaces as Record<string, unknown>).packages)
       : undefined);
-  return patterns === undefined ? undefined : { root: directory, patterns };
+  return { root: directory, patterns: patterns ?? [] };
 }
 
 /** First declaration at or above `start`, without crossing `boundary` or a `.git` marker. */
