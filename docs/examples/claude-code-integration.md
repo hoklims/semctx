@@ -2,9 +2,13 @@
 
 semctx ships an MCP server whose primary Plane-A tools are:
 
-- `semctx_prepare_task` — compile a task into a justified ContextPack;
+- `semctx_verify_change` — analyse a diff for impact + a PASS/WARN/BLOCK verdict;
 - `semctx_inspect` — inspect the repository graph around a symbol/capability;
-- `semctx_verify_change` — analyse a diff for impact + a PASS/WARN/BLOCK verdict.
+
+`semctx_prepare_task` compiles a task into an **experimental** ContextPack. It is not a
+code-search replacement or a primary task-to-code retriever
+([accepted ADR 0005](../adr/0005-context-retrieval-pipeline-rejected.md)). Locate code with
+normal repository search, then use `semctx_verify_change` to analyse a known change.
 
 The server is **local-first and deterministic**: no LLM, no network, no CocoIndex. It fails closed
 when a repository is not prepared; run `semctx setup` once before using MCP tools. Read-only calls
@@ -59,13 +63,12 @@ Pass the analysed repository's absolute `repositoryRoot` on every call, except
 
 In a Claude Code session:
 
-- "Prepare context for: fix the overbooking on concurrent confirmation."
-  Claude calls `semctx_prepare_task`; the returned ContextPack tells it which files are
-  authoritative, which invariant is non-negotiable, which tests to run, and which docs
-  are contradictory (non-normative).
+- After locating and editing code: "Verify my change." -> `semctx_verify_change` returns the
+  impacted invariants/contracts, the tests to run, and a PASS/WARN/BLOCK verdict.
 - "Inspect the capability reservation-confirmation." -> `semctx_inspect`.
-- Before finishing: "Verify my change." -> `semctx_verify_change` returns the impacted
-  invariants/contracts, the tests to run, and a PASS/WARN/BLOCK verdict.
+- Optional experiment after code search: "Prepare context for: fix the overbooking on concurrent
+  confirmation." -> `semctx_prepare_task` returns eligible claims, suggested reads and tests,
+  and contradictions from the repository graph. Treat these as experimental context.
 
 ## 4. CLI equivalent
 
@@ -73,10 +76,15 @@ Everything the MCP server does is also available on the CLI:
 
 ```bash
 semctx setup
+semctx verify diff
+semctx inspect capability reservation-confirmation
+```
+
+The experimental ContextPack CLI path remains available for evaluation under ADR 0005:
+
+```bash
 semctx task create --from-file task.md
 semctx context prepare <task-id>
-semctx inspect capability reservation-confirmation
-semctx verify diff
 ```
 
 ## Determinism note

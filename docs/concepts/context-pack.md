@@ -1,8 +1,11 @@
 # ContextPack
 
-The **ContextPack** is the compiled output for a code agent: minimal, structured, and
-entirely justified. It is a pure function of the repository graph + the TaskFrame (plus
-an injected timestamp).
+The **ContextPack** is an **experimental** structured output for a code agent, compiled from
+the repository graph + the TaskFrame (plus an injected timestamp). It is not a code-search
+replacement or a primary task-to-code retriever
+([accepted ADR 0005](../adr/0005-context-retrieval-pipeline-rejected.md)). Locate code through
+normal repository search; use `verify diff` / `semctx_verify_change` for impact analysis of a
+known change.
 
 ## Contents
 

@@ -27,12 +27,6 @@ describe("semctx MCP tool metadata", () => {
     ]);
 
     expect(byName.has("semctx_change_close")).toBe(true);
-    const prepareTask = byName.get("semctx_prepare_task");
-    expect(prepareTask?.title).toContain("experimental");
-    expect(prepareTask?.description).toContain("EXPERIMENTAL");
-    expect(prepareTask?.description).toContain("not a code-search replacement (ADR 0005)");
-    expect(prepareTask?.description).toContain("prefer semctx_verify_change");
-
     for (const tool of tools) {
       const schema = tool.inputSchema as { properties?: Record<string, unknown>; required?: string[] };
       const properties = schema.properties ?? {};
@@ -129,5 +123,19 @@ describe("semctx MCP tool metadata", () => {
       },
     });
     expect(invalidControlResume.isError).toBe(true);
+  });
+
+  test("labels ContextPack preparation experimental and directs agents to change verification", async () => {
+    server = createSemctxServer(process.cwd());
+    client = new Client({ name: "semctx-metadata-test", version: "0.1.0" });
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+    const { tools } = await client.listTools();
+    const prepareTask = tools.find((tool) => tool.name === "semctx_prepare_task");
+    expect(prepareTask?.title).toContain("experimental");
+    expect(prepareTask?.description).toContain("EXPERIMENTAL");
+    expect(prepareTask?.description).toContain("not a code-search replacement (ADR 0005)");
+    expect(prepareTask?.description).toContain("prefer semctx_verify_change");
   });
 });

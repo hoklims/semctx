@@ -6,6 +6,7 @@ import { ensureSemanticGitignore } from "@semantic-context/semantic-engine";
 import type { ParsedArgs } from "../args";
 import { flagBool } from "../args";
 import { info, heading, success, c, json } from "../output";
+import { localDefaultBranchBase } from "./index-cmd";
 
 interface PresetFile {
   /** repo-relative path */
@@ -220,7 +221,7 @@ export function runPreset(
     info(c.dim("Dry run — nothing was written. Re-run without --dry-run to apply."));
   } else {
     success(`preset applied`);
-    info(c.dim("Next: semctx index   then   semctx verify diff --base origin/main"));
+    info(c.dim(`Next: semctx index   then   semctx verify diff --base ${localDefaultBranchBase(root)}`));
   }
   return 0;
 }

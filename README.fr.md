@@ -441,11 +441,16 @@ contenir des changements incompatibles ; le [changelog](CHANGELOG.md) les liste
 | --- | --- |
 | Publié | `verify diff`, `impact diff`, l’action GitHub, les plugins Claude Code et Codex, le serveur MCP, les fiches de changement (change records) et les outils de planification |
 | Optionnel | la config v2 (`setup --polyglot`) et le mode protégé sur Claude Code |
-| Expérimental | le paquet [Oh My Pi](docs/integrations/omp.md) et `context prepare` (`semctx_prepare_task` via MCP) ; [Grok](docs/integrations/grok.md) peut charger le plugin Claude Code, mais ne fait pas partie des hôtes testés |
+| Expérimental | le paquet [Oh My Pi](docs/integrations/omp.md), `context prepare` (`semctx_prepare_task` via MCP) et `bench` (scoring de régression ContextPack) ; [Grok](docs/integrations/grok.md) peut charger le plugin Claude Code, mais ne fait pas partie des hôtes testés |
 | Partiel | les points de contrôle des agents, dont seul `before_completion` est automatisé ([référence](#pour-les-intégrateurs-dagents), [#28](https://github.com/hoklims/semctx/issues/28)) |
 | Retiré | le moteur qui choisissait les fichiers à lire pour une tâche, battu par une simple recherche BM25 ([ADR 0005](docs/adr/0005-context-retrieval-pipeline-rejected.md), [résultats](benchmarks/change-impact-eval/RESULTS.md)) ; `context prepare` est ce qu’il en reste |
 | Pas développé | tout ce qui appliquerait un plan à votre place |
 | Pas mesuré | la précision : le [corpus public de rejeu](docs/pilot/public-corpus-2026-09-08.json) contient 30 changements réels, mais aucun n’a encore de résultat attendu connu, donc aucun n’est noté |
+
+Le paquet privé du workspace `@semantic-context/experimental-context-pack-eval` (dans
+`packages/eval`, anciennement `@semantic-context/eval`) fournit `bench`. Il évalue les attentes
+de régression du ContextPack expérimental, pas l’efficacité de la recherche de code ni
+`verify diff`. Les task frames restent disponibles pour la réconciliation tâche/plan.
 
 Le travail prévu est dans la [roadmap](ROADMAP.md).
 

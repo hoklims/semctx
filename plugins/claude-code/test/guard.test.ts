@@ -68,12 +68,36 @@ beforeAll(() => {
   };
   process.env.GIT_CONFIG_GLOBAL = process.platform === "win32" ? "NUL" : "/dev/null";
   process.env.GIT_CONFIG_NOSYSTEM = "1";
-});
+  execFileSync(process.execPath, ["--version"], { stdio: "pipe", timeout: 10_000 });
+}, 15_000);
 afterAll(() => {
   for (const [name, value] of Object.entries(inheritedGitConfig)) {
     if (value === undefined) delete process.env[name];
     else process.env[name] = value;
   }
+});
+
+describe("guard test Git isolation", () => {
+  it("isolates inherited core.hooksPath and detects the hostile configuration without isolation", () => {
+    const root = mkdtempSync(join(tmpdir(), "semctx-guard-hostile-config-"));
+    try {
+      const repository = createRecoveryRepository(join(root, "repository"));
+      const hooks = join(root, "hostile-hooks");
+      mkdirSync(hooks);
+      writeFileSync(join(hooks, "pre-commit"), "#!/bin/sh\nexit 1\n");
+      chmodSync(join(hooks, "pre-commit"), 0o755);
+      const config = join(root, "global.gitconfig");
+      writeFileSync(config, `[core]\n\thooksPath = ${JSON.stringify(hooks.replaceAll("\\", "/"))}\n`);
+      const probe = `import { commitHookSurfaceClear } from ${JSON.stringify(pathToFileURL(GUARD_SCRIPT).href)}; process.stdout.write(JSON.stringify(commitHookSurfaceClear(${JSON.stringify(repository)})));`;
+      const inspect = (env: NodeJS.ProcessEnv) => execFileSync("node", ["--input-type=module", "-e", probe], {
+        env, encoding: "utf8",
+      });
+      expect(inspect({ ...process.env, GIT_CONFIG_GLOBAL: config })).toBe("false");
+      expect(inspect(process.env)).toBe("true");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 async function isolatedRecoveryFixture() {

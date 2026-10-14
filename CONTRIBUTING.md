@@ -63,7 +63,7 @@ bun run semctx status --json
 bun run semctx index-health --json
 bun run semctx semantic check --json
 bun run semctx verify diff --base upstream/main --format json
-bun run semctx change verify change.semctx.project-evidence-config --base upstream/main --format json
+bun run semctx change verify change.semctx.review-349-followups --base upstream/main --format json
 ```
 
 Fetch `upstream/main` first, or use the actual integration base ref of your checkout. After a

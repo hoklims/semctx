@@ -77,14 +77,17 @@ function printIndexSummary({ analysis, claims, freshnessSeal, parallelism }: Rep
   }
 }
 
-function localDefaultBranchBase(root: string): string {
-  const options = { cwd: root, stdout: "pipe", stderr: "pipe", timeout: 1000 } as const;
+export function localDefaultBranchBase(root: string): string {
+  const env = { ...process.env };
+  delete env.GIT_DIR;
+  delete env.GIT_WORK_TREE;
+  const options = { cwd: root, env, stdout: "pipe", stderr: "pipe", timeout: 1000 } as const;
   try {
-    const result = Bun.spawnSync(["git", "for-each-ref", "--format=%(symref)", "refs/remotes/*/HEAD"], options);
+    const result = Bun.spawnSync(["git", "for-each-ref", "--format=%(symref)", "refs/remotes/**/HEAD"], options);
     if (result.exitCode !== 0) return "<ref>";
     const branches = [...new Set(new TextDecoder().decode(result.stdout).split("\n").filter(Boolean))];
     const base = branches.length === 1 ? branches[0] : undefined;
-    if (base === undefined || !/^refs\/remotes\/[A-Za-z0-9._/-]+$/.test(base)) return "<ref>";
+    if (base === undefined || !/^refs\/remotes\/[\p{L}\p{N}\p{M}._/+#-]+$/u.test(base)) return "<ref>";
     const commit = Bun.spawnSync(["git", "rev-parse", "--verify", "--quiet", "--end-of-options", `${base}^{commit}`], options);
     return commit.exitCode === 0 ? base : "<ref>";
   } catch {

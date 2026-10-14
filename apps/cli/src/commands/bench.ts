@@ -33,7 +33,7 @@ function loadSuite(root: string, args: ParsedArgs): BenchCase[] {
   return cases as BenchCase[];
 }
 
-/** `semctx bench` — measure ContextPack effectiveness against golden expectations. */
+/** `semctx bench` — experimental ContextPack regression scoring (ADR 0005). */
 export function runBenchCmd(root: string, args: ParsedArgs): number {
   const cases = loadSuite(root, args);
 

@@ -14,7 +14,7 @@ import { planPreset, runPreset, validatePreset, type PresetPlan } from "./preset
 import type { ParsedArgs } from "../args";
 import { flagBool, flagString } from "../args";
 import { info, heading, success, warn, fail, json, c, nowIso } from "../output";
-import { parseIndexWorkers } from "./index-cmd";
+import { localDefaultBranchBase, parseIndexWorkers } from "./index-cmd";
 
 /**
  * `semctx setup` — one command that makes a repository ready: config + graph index + semantic
@@ -304,7 +304,7 @@ function renderSetup(report: SetupResult, prepared: PreparedCliSetup): number {
     }
     info(c.dim("Next: open a change and verify it —"));
     info(c.dim("  semctx change open change.my-change --preserves <invariant-ids>"));
-    info(c.dim("  # edit code, then:  semctx change verify change.my-change --base origin/main"));
+    info(c.dim(`  # edit code, then:  semctx change verify change.my-change --base ${localDefaultBranchBase(report.repositoryRoot)}`));
     info(c.dim("Plugin path: MCP semctx_setup { repositoryRoot, confirm: true }"));
   } else if (!report.check.ok) {
     fail("setup completed with model issues — run 'semctx semantic check' for details");

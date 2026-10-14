@@ -43,7 +43,7 @@ evidence proof.semctx.project-config-native-checks
   tag: test
 
 change change.semctx.project-evidence-config
-  statement: Deliberately migrate v1 to v2 recursive candidate selection, preserve strict policy, use the CLI source of this checkout for repository dogfooding and current evidence, rebuild and verify the local index, and retain unresolved analysis limits.
+  statement: This contract recorded the planned v1-to-v2 candidate-selection migration and bounded project dogfooding evidence. It was superseded in PR #349 because that migration-specific intent did not govern subsequent catalogue work; supersession did not assert completed or verified migration. Current review follow-ups and dogfooding checks are carried by change.semctx.review-349-followups; the governing project policy and unresolved analysis limits remain recorded above.
   status: superseded
   provenance: author
   appliesAtLevel: 1
@@ -56,3 +56,22 @@ change change.semctx.project-evidence-config
   unknown: unknown.semctx.project-negative-completeness
   unknown: unknown.semctx.project-analysis-boundaries
   tag: project-evidence
+
+change change.semctx.review-349-followups
+  statement: Resolve issue #359 follow-ups to review #349: share safe local Git base recommendations, preserve experimental ContextPack framing under accepted ADR 0005, record historical contract succession, and strengthen the affected regression tests; the package-identity analysis exception was explicitly authorized by Sebastien.
+  status: active
+  provenance: author
+  serves: goal.semctx.honest-project-evidence
+  preserves: invariant.semctx.project-evidence-honesty
+  requires: proof.semctx.review-349-native-checks
+  tag: issue-359
+
+evidence proof.semctx.review-349-native-checks
+  statement: On 2026-10-14, this checkout's index-record, server-metadata and guard tests passed under Bun 1.4.3 on macOS arm64 (134 passed, 2 platform skips). In a disposable worktree with the same affected source and assertions, the strengthened non-commit-ref test failed when commit verification was removed and passed after restoration; the Git-isolation test failed with isolation removed under hostile global core.hooksPath and passed after restoration; the dedicated experimental metadata test likewise detected removal of the experimental title. These observations are bounded native Bun evidence, not AssertLedger qualification, complete analysis coverage, remote CI or cross-platform proof.
+  status: tested
+  provenance: author
+  appliesAtLevel: 1
+  file: apps/cli/test/index-record.test.ts
+  file: packages/mcp-server/test/server-metadata.test.ts
+  file: plugins/claude-code/test/guard.test.ts
+  tag: test
