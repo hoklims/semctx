@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { sha256HashBytes, type Sha256Hash } from "@semantic-context/control-model";
+import { sha256HashBytes, type QualifiedCoordinateId, type Sha256Hash } from "@semantic-context/control-model";
 import { parseObservedDiffHunks } from "@semantic-context/context-engine";
 import { initSemanticScaffold } from "@semantic-context/semantic-engine";
 import { initWorkspace, openStore } from "@semantic-context/repository-store";
@@ -20,6 +20,8 @@ import {
   indexRepository,
   queryControlGraph,
   queryControlRefinementCoverage,
+  queryControlTraversal,
+  traceControl,
 } from "../src";
 import { CONTROL_OBSERVED_HUNK_INDEX_META_KEY } from "../src/control-evidence";
 import { CONTROL_INDEX_SNAPSHOT_META_KEY } from "../src/freshness";
@@ -109,6 +111,22 @@ afterEach(() => {
 }, SETUP_TIMEOUT_MS);
 
 describe("public indexed L6-to-L0 round trip", () => {
+  it("keeps trace direction and depth bounds aligned with sealed traversal", () => {
+    for (const direction of ["lift", "lower"] as const) {
+      const sourceId: QualifiedCoordinateId = direction === "lift" ? "semantic:proof.semctx.typed-refinement-contract" : GOAL;
+      const targetLevel = direction === "lift" ? 6 as const : 0 as const;
+      for (const maxDepth of [0, 10]) {
+        const query = { sourceId, targetLevel, direction, maxDepth, maxResults: 1 };
+        const trace = traceControl(root, query);
+        expect(trace.terminalStatus).toBe(maxDepth === 0 ? "budget_exhausted" : "success");
+        const { freshnessSeal, ...facts } = trace;
+        const traversal = queryControlTraversal(root, query);
+        expect(traversal.payload).toEqual(facts);
+        expect(freshnessSeal ?? null).toEqual(traversal.freshness.seal);
+      }
+    }
+  }, SETUP_TIMEOUT_MS);
+
   it("refuses coverage after the copied test source changes without rebinding fixture evidence", () => {
     const modelPath = join(root, ".semctx", "semantic", "project", "control-plane.sem");
     const modelBytes = readFileSync(modelPath);

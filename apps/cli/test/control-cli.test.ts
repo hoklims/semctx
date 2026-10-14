@@ -86,6 +86,8 @@ beforeAll(() => {
     provenance: "author",
     openUnknowns: ["unknown.runtime-consumer"],
   }));
+  writeFileSync(join(root, ".semctx/semantic/trace.sem"),
+    "goal goal.trace\n  statement: Synthetic mapped trace goal.\n  status: declared\n  provenance: author\n  appliesAtLevel: 2\n");
   git(root, "add", ".");
   git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
   runIndex(root, parseArgs(["index", "--root", root]));
@@ -349,6 +351,21 @@ describe("semctx control CLI", () => {
     expect(report.sourceId).toBe(sourceId);
     expect(report.budget.limit).toBeGreaterThan(0);
     expect(report.freshnessSeal.kind).toBe("control_freshness_seal");
+  });
+
+  it.each(["lift", "lower"] as const)("keeps fresh trace and traversal facts equal through the CLI in %s direction", (direction) => {
+    const flags = ["semantic:goal.trace", "--to", "2", "--direction", direction, "--max-depth", "3", "--max-results", "5", "--json"];
+    const trace = runCli(root, ["control", "trace", ...flags]);
+    const traversal = runCli(root, ["control", "traversal", ...flags]);
+    expect(trace.code).toBe(0);
+    expect(traversal.code).toBe(0);
+    const { freshnessSeal, ...facts } = JSON.parse(trace.out);
+    const envelope = JSON.parse(traversal.out);
+    expect(facts.terminalStatus).toBe("success");
+    expect(facts.visitedCoordinateIds).toEqual(["semantic:goal.trace"]);
+    expect(envelope.freshness.verdict).toBe("FRESH");
+    expect(facts).toEqual(envelope.payload);
+    expect(freshnessSeal).toEqual(envelope.freshness.seal);
   });
 
   it("rejects an empty qualified id at the CLI boundary", () => {

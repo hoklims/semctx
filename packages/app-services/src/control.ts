@@ -450,6 +450,8 @@ export function traceControl(root: string, command: ControlTraceCommand): Traver
   const state = loadControlState(root);
   assertFreshControlInputs(state.freshnessStatus);
   const bounds = {
+    sourceSeal: state.queryFreshnessSeal.sealHash,
+    indexSeal: state.queryFreshnessSeal.sealHash,
     ...(command.maxDepth !== undefined ? { maxDepth: command.maxDepth } : {}),
     ...(command.maxResults !== undefined ? { maxResults: command.maxResults } : {}),
   };

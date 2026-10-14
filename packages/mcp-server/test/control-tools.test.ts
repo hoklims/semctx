@@ -4,7 +4,7 @@ import { cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync }
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { SAMPLE_REPO } from "@semantic-context/test-fixtures";
-import type { AgentLifecycleCheckpointRequestV1 } from "@semantic-context/control-model";
+import { ControlQueryEnvelopeV1Schema, TraversalReportV2Schema, type AgentLifecycleCheckpointRequestV1 } from "@semantic-context/control-model";
 import { initSemanticScaffold, newChangeContract, writeChangeFile } from "@semantic-context/semantic-engine";
 import { initWorkspace } from "@semantic-context/repository-store";
 import {
@@ -58,6 +58,8 @@ beforeAll(() => {
     provenance: "author",
     openUnknowns: ["unknown.runtime-consumer"],
   }));
+  writeFileSync(join(root, ".semctx/semantic/trace.sem"),
+    "goal goal.trace\n  statement: Synthetic mapped trace goal.\n  status: declared\n  provenance: author\n  appliesAtLevel: 2\n");
   git(root, "add", ".");
   git(root, "-c", "user.name=Semctx Test", "-c", "user.email=semctx@example.test", "commit", "-m", "fixture");
   indexRepository(root, "2026-07-19T00:00:00.000Z");
@@ -118,6 +120,23 @@ describe("Plane C MCP handlers", () => {
     expect(report.sourceId).toBe(sourceId);
     expect(report.freshnessSeal?.sealHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(snapshot(root)).toBe(before);
+  });
+
+  it.each(["lift", "lower"] as const)("keeps fresh trace and traversal facts equal through MCP in %s direction", async (direction) => {
+    await withMcpClient(root, async (client) => {
+      const input = { repositoryRoot: root, sourceId: "semantic:goal.trace", targetLevel: 2, direction, maxDepth: 3, maxResults: 5 };
+      const trace = await client.callTool({ name: "semctx_control_trace", arguments: input });
+      const traversal = await client.callTool({ name: "semctx_control_traversal", arguments: input });
+      expect(trace.isError).not.toBe(true);
+      expect(traversal.isError).not.toBe(true);
+      const { freshnessSeal, ...facts } = TraversalReportV2Schema.parse(trace.structuredContent);
+      const envelope = ControlQueryEnvelopeV1Schema.parse(traversal.structuredContent);
+      expect(facts.terminalStatus).toBe("success");
+      expect(facts.visitedCoordinateIds).toEqual(["semantic:goal.trace"]);
+      expect(envelope.kind).toBe("traversal");
+      expect(envelope.freshness).toMatchObject({ verdict: "FRESH", seal: freshnessSeal });
+      expect(envelope.payload).toEqual(facts);
+    });
   });
 
   it("projects Plane B unknowns into a fail-closed plan", () => {
