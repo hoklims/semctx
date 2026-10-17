@@ -66,7 +66,7 @@
     },
     {
       "path": "catalogue.json",
-      "sha256": "a04f5501c6aa8bd07e9aab7b810a28cd030d8d6175a44182c4a7b5e97b3fa9bd",
+      "sha256": "20d4dd84108e11c85693bb1ab768457b9716871054ec4c84dde756da3f548cef",
       "size_bytes": 170584
     },
     {
@@ -158,7 +158,8 @@
       "Explicit17-path Git delta inspection and baseline dispositions.",
       "README reflects documentary adoption and separate historical arbitration.",
       "Independent review correction: two assembleRepository usage groups describe the actual retained dynamic-test-import refusal path; add one baseline assertion reference and one explicit pending microcase.",
-      "Adopted metadata references the distributed provenance-summary.json name; historical provenance bytes remain unchanged."
+      "Adopted metadata references the distributed provenance-summary.json name; historical provenance bytes remain unchanged.",
+      "Stage3 adoption corrects stale bundle summary counts to111 historical assertion references and27 families; registry entries and native states unchanged."
     ],
     "nativeQualification": false
   }

@@ -1,0 +1,993 @@
+{
+  "schema_version": 1,
+  "author": "/root/qualification383",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "kind": "independent public representative corpus observation proposals",
+  "status": "NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+  "snapshots": {
+    "pathe": {
+      "repository": "unjs/pathe",
+      "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+      "archive_sha256": "35e374b0c8449e3fdc70c3aeaf474ee5c1bb0d03a9a44d70f900bf55f2fc1209",
+      "archive_path": "/private/tmp/semctx-t00-20261017/qualification/pathe.tar.gz",
+      "files": {
+        "src/_internal.ts": {
+          "path": "src/_internal.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_internal.ts",
+          "bytes": 519,
+          "sha256": "48e4af9f176e4960d039e5d56fadcf5f7c9a4234589a5241b103d006ff5b99ab",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_internal.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_internal.ts"
+        },
+        "src/_path.ts": {
+          "path": "src/_path.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_path.ts",
+          "bytes": 9352,
+          "sha256": "fe4f45fcc9203de691b19ea72135770de3159db2584ff103d49082395c9545cf",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_path.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_path.ts"
+        },
+        "src/_glob.ts": {
+          "path": "src/_glob.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_glob.ts",
+          "bytes": 14751,
+          "sha256": "39e04f05926cfe43503eb77ad4bb38ce4cd6f499d256f5d0a28df15f4185fe12",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_glob.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/_glob.ts"
+        },
+        "src/index.ts": {
+          "path": "src/index.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/index.ts",
+          "bytes": 1079,
+          "sha256": "4d797c46a67866a3ea96012dbccbdf5f4eb90caf2e33432690f5cc2dbe411a56",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/index.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/index.ts"
+        },
+        "src/utils.ts": {
+          "path": "src/utils.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/utils.ts",
+          "bytes": 4136,
+          "sha256": "61363d9fb58e3ccd3722a3f802f69608f167e01fe1042e624b9fff8a4a5bef46",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/utils.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/src/utils.ts"
+        },
+        "tsconfig.json": {
+          "path": "tsconfig.json",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/tsconfig.json",
+          "bytes": 433,
+          "sha256": "47b4c0280e48e40f6b94c8531f8ac808b6ca455c351f6188bf8f6a16a6ee1e72",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/tsconfig.json",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/tsconfig.json"
+        },
+        "package.json": {
+          "path": "package.json",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/package.json",
+          "bytes": 1153,
+          "sha256": "98a737e727d439712d855ae69fd63634048aa51d1ac7ee0674acada0693a39cf",
+          "archive_member": "pathe-bc7477a01f0bd60ada017add8142c9f9d69ccdc5/package.json",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/unjs/pathe/blob/bc7477a01f0bd60ada017add8142c9f9d69ccdc5/package.json"
+        }
+      }
+    },
+    "yocto-queue": {
+      "repository": "sindresorhus/yocto-queue",
+      "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+      "archive_sha256": "950ca6b5d09edc628c05bb3c7d149d26749f89223683f397d9f36e197c1fde1d",
+      "archive_path": "/private/tmp/semctx-t00-20261017/qualification/yocto-queue.tar.gz",
+      "files": {
+        "index.js": {
+          "path": "index.js",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/index.js",
+          "bytes": 1587,
+          "sha256": "2eabf3096793c43934ef127fb50238dcba93074fb54f943fc62aeab616769dfc",
+          "archive_member": "yocto-queue-72a8fa96a9d389765cdf2bb9c6daba8302fc375d/index.js",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/sindresorhus/yocto-queue/blob/72a8fa96a9d389765cdf2bb9c6daba8302fc375d/index.js"
+        },
+        "index.d.ts": {
+          "path": "index.d.ts",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/index.d.ts",
+          "bytes": 1991,
+          "sha256": "a760662b79da8ff47d9152d25b5641491b036a3762c3cd94645380c9f97288e7",
+          "archive_member": "yocto-queue-72a8fa96a9d389765cdf2bb9c6daba8302fc375d/index.d.ts",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/sindresorhus/yocto-queue/blob/72a8fa96a9d389765cdf2bb9c6daba8302fc375d/index.d.ts"
+        },
+        "package.json": {
+          "path": "package.json",
+          "local_path": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/package.json",
+          "bytes": 849,
+          "sha256": "d5de75fe154851539d0adeac9731773ac5b93281ec4019c355cb330d20b176a7",
+          "archive_member": "yocto-queue-72a8fa96a9d389765cdf2bb9c6daba8302fc375d/package.json",
+          "text_decoding": "UTF-8; raw bytes retained independently",
+          "source_url": "https://github.com/sindresorhus/yocto-queue/blob/72a8fa96a9d389765cdf2bb9c6daba8302fc375d/package.json"
+        }
+      }
+    }
+  },
+  "case_count": 7,
+  "ordinary_observation_cases": 4,
+  "qualified_reason_projection_cases": 3,
+  "cases": [
+    {
+      "id": "PUBLIC-PATHE-01-ordinary-small-complete-symbol-projection",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196632+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "ordinary",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "pathe",
+        "selected_root_files": [
+          "src/_internal.ts"
+        ],
+        "retained_original_files": [
+          "src/_internal.ts",
+          "package.json",
+          "tsconfig.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "modules_exact": [
+          "src/_internal.ts"
+        ],
+        "symbols_exact": [
+          {
+            "name": "normalizeWindowsPath",
+            "kind": "function",
+            "relPath": "src/_internal.ts",
+            "scope": [],
+            "startLine": 2,
+            "endLine": 24,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports_exact": [],
+        "raw_calls_projection_exact": [
+          {
+            "callerRelPath": "src/_internal.ts",
+            "callerSymbolPath": "normalizeWindowsPath",
+            "calleeName": "includes",
+            "line": 8
+          },
+          {
+            "callerRelPath": "src/_internal.ts",
+            "callerSymbolPath": "normalizeWindowsPath",
+            "calleeName": "replace",
+            "line": 9
+          },
+          {
+            "callerRelPath": "src/_internal.ts",
+            "callerSymbolPath": "normalizeWindowsPath",
+            "calleeName": "toUpperCase",
+            "line": 20
+          },
+          {
+            "callerRelPath": "src/_internal.ts",
+            "callerSymbolPath": "normalizeWindowsPath",
+            "calleeName": "slice",
+            "line": 20
+          }
+        ],
+        "raw_call_endpoint_fields": "UNKNOWN, intentionally not part of this exact four-row projection",
+        "qualified_admission": "UNKNOWN"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 425,
+          "end_line": 442,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L425"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 454,
+          "end_line": 487,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L454"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 573,
+          "end_line": 598,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L573"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 187,
+          "end_line": 210,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L187"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "public_snapshot_source_authority": {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "paths": [
+          "src/_internal.ts",
+          "package.json",
+          "tsconfig.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-PATHE-02-ordinary-cross-file-owners",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196888+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "ordinary",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "pathe",
+        "selected_root_files": [
+          "src/utils.ts",
+          "src/_internal.ts"
+        ],
+        "retained_original_files": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "source_module_set_exact": [
+          "src/_internal.ts",
+          "src/utils.ts"
+        ],
+        "utils_import_projection_exact": [
+          {
+            "moduleSpecifier": "./_path",
+            "resolvedRelPath": "src/_path.ts",
+            "names": [
+              "join"
+            ],
+            "line": 1
+          },
+          {
+            "moduleSpecifier": "./_internal",
+            "resolvedRelPath": "src/_internal.ts",
+            "names": [
+              "normalizeWindowsPath"
+            ],
+            "line": 2
+          }
+        ],
+        "required_retained_call_relations": [
+          {
+            "caller_path": "src/utils.ts",
+            "caller_symbol": "resolveAlias",
+            "callee_path": "src/_internal.ts",
+            "callee_symbol": "normalizeWindowsPath",
+            "line": 57
+          },
+          {
+            "caller_path": "src/utils.ts",
+            "caller_symbol": "reverseResolveAlias",
+            "callee_path": "src/_internal.ts",
+            "callee_symbol": "normalizeWindowsPath",
+            "line": 80
+          },
+          {
+            "caller_path": "src/utils.ts",
+            "caller_symbol": "resolveAlias",
+            "callee_path": "src/utils.ts",
+            "callee_symbol": "normalizeAliases",
+            "line": 58
+          },
+          {
+            "caller_path": "src/utils.ts",
+            "caller_symbol": "reverseResolveAlias",
+            "callee_path": "src/utils.ts",
+            "callee_symbol": "normalizeAliases",
+            "line": 81
+          },
+          {
+            "caller_path": "src/utils.ts",
+            "caller_symbol": "normalizeAliases",
+            "callee_path": "src/utils.ts",
+            "callee_symbol": "_compareAliases",
+            "line": 24
+          }
+        ],
+        "other_calls_symbols_bindingTargets": "UNKNOWN outside named projection",
+        "qualified_admission": "UNKNOWN"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 530,
+          "end_line": 563,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L530"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 573,
+          "end_line": 587,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L573"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1187,
+          "end_line": 1221,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L1187"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "selected_scope_note": "_path/_glob/index retained unchanged as declaration/resolution context; only utils/internal are emitted selected roots. This is an ordinary component query, not qualified closure completeness.",
+      "public_snapshot_source_authority": {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "paths": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-PATHE-03-original-index-qualified-refusal",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196899+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "qualified-reason-projection",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "pathe",
+        "selected_root_files": [
+          "src/index.ts"
+        ],
+        "retained_original_files": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "reasons": {
+          "contains": [
+            "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED",
+            "SOURCE_PROXY_UNSUPPORTED"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "source_triggers": [
+          {
+            "path": "src/index.ts",
+            "line": 38,
+            "trigger": "export default expression posix as NodePath; all assignment-form default exports refused by owned rule"
+          },
+          {
+            "path": "src/index.ts",
+            "line": 24,
+            "trigger": "new actual default SDK Proxy(_path,...)"
+          }
+        ],
+        "qualified_result_if_all_admission_prerequisites_are_supplied": "refused for named reasons; no actual admission run obtained"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 363,
+          "end_line": 381,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L363"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 443,
+          "end_line": 447,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L443"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1336,
+          "end_line": 1344,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1336"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "docs/adr/0035-qualified-static-analysis-admission.md",
+          "line": 3,
+          "end_line": 30,
+          "role": "accepted ADR; named qualified profile and bounded conservative rejection, not authority for invented fine-grained diagnostics",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/docs/adr/0035-qualified-static-analysis-admission.md#L3"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "operation": "inspectModuleConfiguration(indexPath,root,retainedInputs,boundSource) with original config bytes; reason component, no forged Git/index admission binding",
+      "public_snapshot_source_authority": {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "paths": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-PATHE-04-original-utils-qualified-refusal",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196906+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "qualified-reason-projection",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "pathe",
+        "selected_root_files": [
+          "src/utils.ts"
+        ],
+        "retained_original_files": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "reasons": {
+          "contains": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+            "SOURCE_ITERATION_UNSUPPORTED"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "source_triggers": [
+          {
+            "path": "src/utils.ts",
+            "line": 24,
+            "trigger": "actual Array.sort comparator is retained inline callback"
+          },
+          {
+            "path": "src/utils.ts",
+            "line": 99,
+            "trigger": "actual Array.sort comparator is retained inline callback"
+          },
+          {
+            "path": "src/utils.ts",
+            "line": 59,
+            "trigger": "for-of Object.entries(...) is not intrinsicIterable literal/new/default known iterable under baseline rule"
+          },
+          {
+            "path": "src/utils.ts",
+            "line": 85,
+            "trigger": "same for-of source branch"
+          }
+        ],
+        "qualified_result_if_all_admission_prerequisites_are_supplied": "refused for named reasons; other reasons unknown"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 348,
+          "end_line": 387,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L348"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 962,
+          "end_line": 972,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L962"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1329,
+          "end_line": 1331,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1329"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "docs/adr/0035-qualified-static-analysis-admission.md",
+          "line": 3,
+          "end_line": 30,
+          "role": "accepted ADR; named qualified profile and bounded conservative rejection, not authority for invented fine-grained diagnostics",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/docs/adr/0035-qualified-static-analysis-admission.md#L3"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "operation": "inspectSemanticDependencies(bound utils source, original retained inputs, utilsPath). Configuration/component limitations remain explicit.",
+      "public_snapshot_source_authority": {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "paths": [
+          "src/_internal.ts",
+          "src/_path.ts",
+          "src/_glob.ts",
+          "src/index.ts",
+          "src/utils.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-YOCTO-01-ordinary-classes-and-owner-boundaries",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196915+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "ordinary",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "yocto-queue",
+        "selected_root_files": [
+          "index.js"
+        ],
+        "retained_original_files": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "modules_exact": [
+          "index.js"
+        ],
+        "symbols_exact": [
+          {
+            "name": "Node",
+            "kind": "class",
+            "relPath": "index.js",
+            "scope": [],
+            "startLine": 6,
+            "endLine": 13,
+            "exported": false,
+            "markers": []
+          },
+          {
+            "name": "Queue",
+            "kind": "class",
+            "relPath": "index.js",
+            "scope": [],
+            "startLine": 15,
+            "endLine": 90,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports_exact": [],
+        "raw_calls_projection_exact": [
+          {
+            "callerRelPath": "index.js",
+            "callerSymbolPath": "Queue",
+            "calleeName": "clear",
+            "calleeRelPath": "index.js",
+            "calleeSymbolPath": "Queue.clear",
+            "line": 21
+          },
+          {
+            "callerRelPath": "index.js",
+            "callerSymbolPath": "Queue",
+            "calleeName": "dequeue",
+            "calleeRelPath": "index.js",
+            "calleeSymbolPath": "Queue.dequeue",
+            "line": 87
+          }
+        ],
+        "method_symbols_emitted": false,
+        "new_Node_raw_CallExpression_fact_emitted": false,
+        "owner_limit": "Methods/constructors do not acquire extracted symbol owners in baseline. Exact raw-call projection is separate from graph-admitted resolved edges.",
+        "qualified_admission": "UNKNOWN"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 454,
+          "end_line": 501,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L454"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 573,
+          "end_line": 598,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L573"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1152,
+          "end_line": 1178,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L1152"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1187,
+          "end_line": 1221,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L1187"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "public_snapshot_source_authority": {
+        "repository": "sindresorhus/yocto-queue",
+        "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "paths": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-YOCTO-02-original-implementation-qualified-refusal",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196922+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "qualified-reason-projection",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "yocto-queue",
+        "selected_root_files": [
+          "index.js"
+        ],
+        "retained_original_files": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "reasons": {
+          "contains": [
+            "SOURCE_ITERATION_UNSUPPORTED",
+            "SOURCE_ACCESSOR_UNSUPPORTED",
+            "SOURCE_CONSTRUCTION_UNSUPPORTED",
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "source_triggers": [
+          {
+            "path": "index.js",
+            "line": 76,
+            "reason": "SOURCE_ITERATION_UNSUPPORTED",
+            "trigger": "generator method asterisk"
+          },
+          {
+            "path": "index.js",
+            "line": 85,
+            "reason": "SOURCE_ITERATION_UNSUPPORTED",
+            "trigger": "generator method asterisk"
+          },
+          {
+            "path": "index.js",
+            "line": 72,
+            "reason": "SOURCE_ACCESSOR_UNSUPPORTED",
+            "trigger": "get size accessor"
+          },
+          {
+            "path": "index.js",
+            "line": 25,
+            "reason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+            "trigger": "new retained local class Node, not default SDK constructor of same spelling"
+          },
+          {
+            "path": "index.js",
+            "line": 76,
+            "reason": "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED",
+            "trigger": "computed actual default SDK Symbol.iterator method definition"
+          }
+        ],
+        "qualified_result_if_all_admission_prerequisites_are_supplied": "refused for named reasons; other reasons unknown"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 72,
+          "end_line": 88,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L72"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1261,
+          "end_line": 1268,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1261"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1336,
+          "end_line": 1338,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1336"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "docs/adr/0035-qualified-static-analysis-admission.md",
+          "line": 3,
+          "end_line": 30,
+          "role": "accepted ADR; named qualified profile and bounded conservative rejection, not authority for invented fine-grained diagnostics",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/docs/adr/0035-qualified-static-analysis-admission.md#L3"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "operation": "inspectSemanticDependencies(bound index.js source, original retained inputs, indexPath); ordinary JavaScript parse policy is a separate prerequisite.",
+      "public_snapshot_source_authority": {
+        "repository": "sindresorhus/yocto-queue",
+        "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "paths": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    },
+    {
+      "id": "PUBLIC-YOCTO-03-declaration-root-does-not-emit-runtime-module",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:56:35.196926+00:00",
+      "status": "INDEPENDENT_SOURCE_AUTHORED_PROJECTION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "ordinary",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "input": {
+        "snapshot": "yocto-queue",
+        "selected_root_files": [
+          "index.d.ts"
+        ],
+        "retained_original_files": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "source_mutations": null,
+        "baseline_operation": "extractTypeScript(selected roots, disposable repository root, retained map); qualified diagnostic observations are a separate named operation below",
+        "program_options": "Exact baseline ts-symbols.ts154–183: ES2022/ESNext/Bundler/allowJs/JSX Preserve/skipLibCheck/noEmit/strict=false. Do not replace with snapshot tsconfig compiler options.",
+        "sdk_version": "5.9.3",
+        "sdk_static_required_default_closure_count": 63,
+        "sdk_static_required_default_closure": "sdk-and-config-requirements.json",
+        "read_set_observed": false
+      },
+      "expected_observations": {
+        "modules_exact": [],
+        "symbols_exact": [],
+        "imports_exact": [],
+        "calls_exact": [],
+        "declaration_role": "Default Queue<ValueType>, Iterable/IterableIterator and symbol iterator remain declaration context only; no runtime declaration facts emitted from .d.ts root.",
+        "qualified_admission": "UNKNOWN"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 425,
+          "end_line": 429,
+          "role": "implemented historical source read independently; no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L425"
+        }
+      ],
+      "scope_exclusions": [
+        "No complete repository admission or upstream build/typecheck claim.",
+        "No snapshot tests/dev scripts/install run; no reserved/holdout inputs.",
+        "Any fields/reasons outside the named projection remain UNKNOWN, not accepted by default."
+      ],
+      "future_producer_wire_protocol": null,
+      "public_snapshot_source_authority": {
+        "repository": "sindresorhus/yocto-queue",
+        "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "paths": [
+          "index.js",
+          "index.d.ts",
+          "package.json"
+        ],
+        "role": "original immutable public source bytes inspected; source behavior read manually, no snapshot execution"
+      }
+    }
+  ],
+  "manual_raw_coordinate_vectors": [
+    {
+      "snapshot": "pathe",
+      "path": "src/_internal.ts",
+      "symbol": "normalizeWindowsPath",
+      "span": "half-open declaration node from export/class token through final closing brace; trivia excluded",
+      "start_line_1_based": 2,
+      "end_line_1_based": 24,
+      "utf8_byte_start": 44,
+      "utf8_byte_end": 518,
+      "utf16_code_unit_start": 44,
+      "utf16_code_unit_end": 518,
+      "basis": "independently counted original bytes and explicit inspected declaration line boundaries; these are raw coordinate vectors, not invented producer fields"
+    },
+    {
+      "snapshot": "yocto-queue",
+      "path": "index.js",
+      "symbol": "Node",
+      "span": "half-open declaration node from export/class token through final closing brace; trivia excluded",
+      "start_line_1_based": 6,
+      "end_line_1_based": 13,
+      "utf8_byte_start": 496,
+      "utf8_byte_end": 573,
+      "utf16_code_unit_start": 496,
+      "utf16_code_unit_end": 573,
+      "basis": "independently counted original bytes and explicit inspected declaration line boundaries; these are raw coordinate vectors, not invented producer fields"
+    },
+    {
+      "snapshot": "yocto-queue",
+      "path": "index.js",
+      "symbol": "Queue",
+      "span": "half-open declaration node from export/class token through final closing brace; trivia excluded",
+      "start_line_1_based": 15,
+      "end_line_1_based": 90,
+      "utf8_byte_start": 575,
+      "utf8_byte_end": 1586,
+      "utf16_code_unit_start": 575,
+      "utf16_code_unit_end": 1586,
+      "basis": "independently counted original bytes and explicit inspected declaration line boundaries; these are raw coordinate vectors, not invented producer fields"
+    }
+  ],
+  "closure_manifest": "sdk-and-config-requirements.json",
+  "effort_intervals": [
+    {
+      "start_utc": "2026-10-17T14:53:44Z",
+      "end_utc": "2026-10-17T14:57:28.931599+00:00",
+      "wall_seconds": 224.931599,
+      "kind": "conservative active wall interval; no known host sleep",
+      "limit_seconds": 480
+    }
+  ],
+  "gaps": [
+    "No complete fact sets for full pathe source tree or yocto runtime graph; exact finite projections only.",
+    "No full reason sets or admitted cases authored; positive ordinary facts do not imply qualified admission.",
+    "Pathe Node declaration closure unresolved, upstream devTS6/TS7preview not selected or rewritten.",
+    "SDK published/static required closure identified; actual consumed SDK/dependency bytes and capture coherence not observed.",
+    "No native Windows/Linux execution, historical TS observation or Rust candidate proof."
+  ],
+  "reserved_access": false,
+  "tracked_repository_mutation": false,
+  "verification": {
+    "environment": "Darwin arm64; Python standard library only, external scratch",
+    "checks": [
+      "JSON parsing and unique case IDs",
+      "10 copied regular file lengths/SHA256 match archived bytes",
+      "Roots/retained scope references resolve",
+      "Original TS6 dev dependency/types node unchanged",
+      "63-file static SDK closure reference count"
+    ],
+    "semantic_execution": false,
+    "supported_native_targets": [
+      "Windows native",
+      "Linux"
+    ],
+    "targets_exercised": []
+  }
+}

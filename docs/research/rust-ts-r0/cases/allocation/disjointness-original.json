@@ -1,0 +1,430 @@
+{
+  "schema_version": 3,
+  "author": "/root/qualification383",
+  "status": "ZERO_EXACT_PRIMARY_SOURCE_OR_INPUT_MANIFEST_COLLISIONS",
+  "development_file": {
+    "path": "/private/tmp/semctx-t00-development-20261017/development-cases.json",
+    "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203"
+  },
+  "qualification_index": {
+    "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/qualification-input-index.v3.json",
+    "sha256": "8689fabb1885e0811b7eddc480f5ee2ed074cd07683d94052dea8d852356e109"
+  },
+  "qualification_records": 268,
+  "development_records": 10,
+  "development_variants": 17,
+  "comparisons": [
+    {
+      "record_id": "t00Development01InterfileAlias",
+      "variant_id": "t00Development01UniqueAlias",
+      "normalized_input_manifest_sha256": "635fbf2965d0f4e009b416cfdf260ad66db20cbe78a56ca7be79e39e743945fc",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "33aeaedf00936578e31099aaf6314d8caf882327ebe308fcc5ec61fff7569f09",
+        "d7b62f0f8f27aa2056c9e0f3a5a19f18b3c564d47bf535e98928ef96a0d96e23"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development02UniqueCycle",
+      "variant_id": "t00Development02CyclicUniqueOwner",
+      "normalized_input_manifest_sha256": "5f81e27ffdfe04b71d73c92a7e500832acf3822838af4c5b1c0eeadfcb759410",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "9635c35291c8cd7621997cac657ddd86b88c7eac31782141f7db83a5bb10cba8",
+        "005a0836ef6e0e0ddab2457095c98d32e1b70c4e6540f1975198ddb77b3558fe",
+        "4be4ea9657d3c9ddd4d107666815bfc3d834a31694889071738a53ad95ee36b2",
+        "bf5d89a72c5ff6c12e963b364d753b7abb213c9cd928ae263c5bdda2c44fb314"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development03ArrowVersusData",
+      "variant_id": "t00Development03Arrow",
+      "normalized_input_manifest_sha256": "773f0499852417e19f16845e652e337e8a8be34ea77425585b4186b0400fbcd1",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "c2d6341522aa778f7597b9d2f4dec6a38c1deb00b2a7d5da6c5d4525244375d9"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development03ArrowVersusData",
+      "variant_id": "t00Development03Data",
+      "normalized_input_manifest_sha256": "91a14d7be20eb58964359810638db29bc8f4b5f500f6e657031067c6789d28c2",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "7c8d6ad31afc7d4d619fad3e5e052394f2f660b7a7c854998e53cd0558e35a37"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development04ScopedHomonyms",
+      "variant_id": "t00Development04TwoScopes",
+      "normalized_input_manifest_sha256": "25d43a6d30a0d99707af12d7bfa25a6f650e28a98250b304fed9267c924499a4",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "bbb87bf2b76ea3440cbc48efa33d4e68d388ce7769a15096263c015e3b18c310"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development05SdkOriginControl",
+      "variant_id": "t00Development05SdkCallback",
+      "normalized_input_manifest_sha256": "966dc35b2a7413771fc97753ef51aa14d06fe036f88c468bdc4964181b25568f",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "f1861afb3c48aa5a630c7c7663a0df785bf8b544c02bf35a387beffdd1335dd2"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development05SdkOriginControl",
+      "variant_id": "t00Development05OwnMethod",
+      "normalized_input_manifest_sha256": "8ad2c04f7bcee9d3291ebfa363e34f0c7bc723cf9cae22e841fd56f6d7cc8791",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "2407d1c70a2a0c6786617fcff9606724cc756fd462dd384576f8a123e699b8f7"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development06ConfigurationBoundary",
+      "variant_id": "t00Development06EsNext",
+      "normalized_input_manifest_sha256": "9e35e9ce241fcb8b2c9907c97f4b0687400c0ab1a2657749720760ba212fa636",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "f5488f72fa099d97f5851e5b791f2ef5b0a001987c550958411b88d65b86ec20",
+        "862a3cbbf20061cffa0e41e12c83c5f4bbe08cf6144a1c7a3484e65ef9243b90"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development06ConfigurationBoundary",
+      "variant_id": "t00Development06CommonJs",
+      "normalized_input_manifest_sha256": "81c866d2b15aa8a79d09f345a48d880f463f929b8bff70e31ea36f759f769e04",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "f5488f72fa099d97f5851e5b791f2ef5b0a001987c550958411b88d65b86ec20",
+        "25e05e242bfd75a9024eba9e29f95f86cdc408ebaaf440d391c7bf117ac58a0a"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development07ParsingRefusal",
+      "variant_id": "t00Development07Valid",
+      "normalized_input_manifest_sha256": "3da453056d11e4438069fafa97dfe7a854ecb5519527c1c7914e29b918b69a14",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "edb57089ee9388f37b10a7a13c6f6c0d73026dac726e465163de79da28b64d51"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development07ParsingRefusal",
+      "variant_id": "t00Development07Malformed",
+      "normalized_input_manifest_sha256": "22d3e45f89212f5302a570b49ad3089ebc2af6f6a00fce767df81c185165ae50",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "c8a8713bb63abebdd432fc658fc3dc628d842408a088f621344f33f31371e6a7"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development08Coordinates",
+      "variant_id": "t00Development08BomCrLfAstral",
+      "normalized_input_manifest_sha256": "1fdf24784fe02f1355fcc5c235f05480d274599d24bb6d55bf1cfd55e0055ee2",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "53eaa42e11b5ba1df0634e86d2c64351be53e632f1a86abc01a63917a0312ad1"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development08Coordinates",
+      "variant_id": "t00Development08SingleLineControl",
+      "normalized_input_manifest_sha256": "8e373fa81a7de10671bb9e9bc0b37cc571ff87577fa6b5230e4cf72ffad46654",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "820f5f5b83556555dd2eed03fa0bbdd40da465088da09f9e0ac731a9b17019e1"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development09RetainedAndRefusal",
+      "variant_id": "t00Development09RetainedSurvivesLiveChange",
+      "normalized_input_manifest_sha256": "c0f9419ec7e20e1093a588fb9923094c7da367e19c6ff38556cf097c606fc05c",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "f76dbb64b8c83d13c4a9b7ed9d8cddac0acc0bf2ad5574c90b21d603fe88bc79"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development09RetainedAndRefusal",
+      "variant_id": "t00Development09InconsistentDiscovery",
+      "normalized_input_manifest_sha256": "a1fc5ee311b7b6a8ccb8836912ce00e812b9360b1371e522f526bde95f0d3153",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "f76dbb64b8c83d13c4a9b7ed9d8cddac0acc0bf2ad5574c90b21d603fe88bc79"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development10RequestFraming",
+      "variant_id": "t00Development10ValidFrame",
+      "normalized_input_manifest_sha256": "298be745e48d10343fe460d1e880dbd28587e83a201b02e6b096841a1c844dd0",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "713b8002a9eb82d5fbe2573710e1328bf5a202e04b52380eaa20e94971206e6f"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    },
+    {
+      "record_id": "t00Development10RequestFraming",
+      "variant_id": "t00Development10MalformedFrame",
+      "normalized_input_manifest_sha256": "593817d7292497c4535fae5629ced4512fb2d426069a178111a5afc2a2fb234f",
+      "input_manifest_fields": [
+        "configuration",
+        "files",
+        "operation",
+        "profile",
+        "retained_snapshot",
+        "root_identity",
+        "roots",
+        "setup",
+        "shared_sdk_identity"
+      ],
+      "source_file_hashes": [
+        "713b8002a9eb82d5fbe2573710e1328bf5a202e04b52380eaa20e94971206e6f"
+      ],
+      "qualification_primary_source_collisions": [],
+      "exact_input_spec_collision": null,
+      "shared_SDK_dependency_allowed": true,
+      "disjointness_basis": "Each declared development source-file byte hash differs from every indexed qualification primary source across268 records/scenarios; therefore corresponding complete input manifests cannot be identical regardless of schema names, config/profile/root. Exact input spec hash comparison also performed; no result inferred from different case names."
+    }
+  ],
+  "collision_count": 0,
+  "config_profile_root_phase": "Manifests explicitly include operation/configuration/profile/roots/retained_snapshot/setup/shared_sdk_identity. Distinct primary-source bytes independently rule out identical complete manifests; sharing SDK alone is permitted and is not counted as a case collision.",
+  "limits": "Byte/manifest disjointness is not a claim of semantic independence or blinded authorship. No candidate was selected/run; allocation remains fixed before results.",
+  "expectation_freeze": "pending independent review and public custody",
+  "effort_intervals": [
+    {
+      "start_utc": "2026-10-17T15:37:54Z",
+      "end_utc": "2026-10-17T15:43:04.105985+00:00",
+      "wall_seconds": 310.105985,
+      "limit_seconds": 300,
+      "author": "/root/qualification383",
+      "kind": "allocation metadata and exact-final-input disjointness; no runtime"
+    }
+  ],
+  "comparison_version_note": "Final configuration/profile metadata and all17 normalized manifests revalidated; original source bytes/file maps remain identical and zero collisions remain."
+}
