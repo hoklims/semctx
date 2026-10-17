@@ -1,0 +1,1579 @@
+{
+  "schema_version": 1,
+  "author": "/root/qualification383",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "PROPOSED_EXPECTATIONS_NOT_FROZEN_NOT_EXECUTED",
+  "cases": [
+    {
+      "id": "QDYN-01-static-binding-control",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "import {helper} from './target';export function check(){return helper();}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "analyzeRepository(config, supplied discovered source/test records, retained compilerInputs) followed by getQualifiedCallIntegrityReasons(result)",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "integrity_reasons_for_test": {
+          "contains": [],
+          "excludes": [
+            "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "graph_relations_contains": [
+          {
+            "kind": "tested_by",
+            "from": [
+              "src/target.ts",
+              "helper"
+            ],
+            "to": [
+              "src/target.test.ts",
+              "test-node"
+            ]
+          },
+          {
+            "kind": "covers",
+            "from": [
+              "src/target.test.ts",
+              "test-node"
+            ],
+            "to": [
+              "src/target.ts",
+              "helper"
+            ]
+          }
+        ],
+        "static_import_binding_target": [
+          "src/target.ts",
+          "helper"
+        ]
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 361,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 77,
+          "end_line": 81,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L77"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QDYN-02-one-literal-dynamic-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "export async function check(){const dep=await import('./target');return dep.helper();}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "analyzeRepository(config, supplied discovered source/test records, retained compilerInputs) followed by getQualifiedCallIntegrityReasons(result)",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "dynamic_scan_key_exact": [
+          "src/target.test.ts:1:./target"
+        ],
+        "extracted_dynamic_import_projection": {
+          "fromRelPath": "src/target.test.ts",
+          "moduleSpecifier": "./target",
+          "resolvedRelPath": "src/target.ts",
+          "line": 1,
+          "names": [],
+          "bindingTargets": "ABSENT"
+        },
+        "integrity_reasons_for_test": {
+          "contains": [
+            "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "tested_by_or_covers_from_this_dynamic_import_to_helper": false,
+        "qualified_admission_when_full_valid_verification_context_supplied": "refused; exact reason projection above, no fabricated proven test binding"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 361,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 564,
+          "end_line": 571,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L564"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null,
+      "MJS_variant": {
+        "files": {
+          "src/target.mjs": "export function helper(){return 1;}\n",
+          "src/target.test.mjs": "export async function check(){const dep=await import('./target.mjs');return dep.helper();}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n"
+        },
+        "exact_integrity_reason": "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs",
+        "same_scope_and_no_admission_inference": true
+      }
+    },
+    {
+      "id": "QDYN-03-nonliteral-scan-control-scope-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "const name='./target';export async function check(){return import(name);}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "analyzeRepository/getQualifiedCallIntegrityReasons; separately inspectRetainedQualifiedScope on exact captured fixture and its produced graph",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "dynamic_scan_key_exact": [],
+        "integrity_reasons_for_test": {
+          "contains": [],
+          "excludes": [
+            "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "retained_scope_reasons": {
+          "contains": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "qualified_admission_when_full_valid_verification_context_supplied": "refused via computed-import scope reason, not admitted from absent dynamic-binding reason"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 325,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 170,
+          "end_line": 185,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/app-services/src/qualified-analysis.ts#L170"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QDYN-04-two-arguments-scan-control-scope-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "export async function check(){return import('./target',{with:{type:'json'}});}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "same separated analyze/reason and retained-scope operations as QDYN03",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "dynamic_scan_key_exact": [],
+        "integrity_reasons_for_test": {
+          "contains": [],
+          "excludes": [
+            "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "retained_scope_reasons": {
+          "contains": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "qualified_admission_when_full_valid_verification_context_supplied": "refused via computed-import scope reason; exact extra parser/config diagnostics UNKNOWN"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 325,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 170,
+          "end_line": 185,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/app-services/src/qualified-analysis.ts#L170"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QDYN-05-unresolved-literal-target",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "export async function check(){return import('./missing');}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "same separated analyze/reason and retained-scope operations as QDYN03",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "dynamic_scan_key_exact": [
+          "src/target.test.ts:1:./missing"
+        ],
+        "extracted_import_resolvedRelPath": "ABSENT",
+        "integrity_reasons_for_test": {
+          "contains": [],
+          "excludes": [
+            "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/missing.ts"
+          ],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "retained_scope_reasons": {
+          "contains": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:./missing"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "qualified_admission_when_full_valid_verification_context_supplied": "refused via unresolved import; do not manufacture resolved target path"
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 325,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 150,
+          "end_line": 155,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/app-services/src/qualified-analysis.ts#L150"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QDYN-06-defined-bindingTargets-private-consumer-control",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "private-component-predicate",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "export async function check(){return import('./target');}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "Private assembleRepository import-consumer condition evaluated with supplied extraction input; no producer wire selected",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "private_consumer_variants": [
+          {
+            "bindingTargets": [
+              {
+                "relPath": "src/target.ts",
+                "symbolPath": "helper"
+              }
+            ],
+            "integrity_reason_absent": "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts",
+            "tested_by_covers_contains_target_helper_if_unique_graph_coordinate_exists": true
+          },
+          {
+            "bindingTargets": [],
+            "integrity_reason_absent": "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts",
+            "tested_by_covers_contains_target_helper": false
+          }
+        ],
+        "public_extractor_reachability": "NOT_CLAIMED; historical literal dynamic import extractor supplies no bindingTargets. Defined-array condition is a private consumer-predicate control only."
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 316,
+          "end_line": 352,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L316"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 564,
+          "end_line": 571,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L564"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null,
+      "private_predicate_input": {
+        "checkLocalCalls": true,
+        "dynamicScanKeys": [
+          "src/target.test.ts:1:./target"
+        ],
+        "import_record_base": {
+          "fromRelPath": "src/target.test.ts",
+          "moduleSpecifier": "./target",
+          "resolvedRelPath": "src/target.ts",
+          "names": [],
+          "line": 1
+        },
+        "graph_coordinate_precondition": "exactly one helper symbol at src/target.ts:helper and one test node at src/target.test.ts"
+      },
+      "required_boundary_label": "Private-only expectation; cannot count as a public end-to-end dynamic binding success"
+    },
+    {
+      "id": "QDYN-07-missing-retained-test-text-public-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/target.ts": "export function helper(){return 1;}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n",
+          "src/target.test.ts": "export async function check(){return import('./target');}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.test.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "test",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot except the explicit retained_omissions; preserve exact decoded strings for remaining entries; no implicit repository/dependency reads authorized",
+        "operation": "analyzeRepository(config, supplied discovered source/test records, retained compilerInputs) followed by getQualifiedCallIntegrityReasons(result)",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed",
+        "retained_omissions": [
+          "src/target.test.ts"
+        ]
+      },
+      "expected_observations": {
+        "public_analyzeRepository_error_exact": "SOURCE_SNAPSHOT_MISMATCH: src/target.test.ts",
+        "public_scan_or_completed_analysis_obtained": false,
+        "private_scan_if_invoked_out_of_public_contract": {
+          "test_text": "missing",
+          "dynamic_keys_added": [],
+          "public_reachability": "unreachable after assertSnapshotInputs with supplied discovered file and missing retained entry"
+        },
+        "admitted_control": false
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 105,
+          "end_line": 115,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L105"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 258,
+          "end_line": 272,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L258"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/analyze.ts#L411"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null,
+      "input_mutation": "Remove only resolved src/target.test.ts key from retained_map; keep exact discovered test record/content; every other retained path unchanged"
+    },
+    {
+      "id": "QCALL-01-TS-dynamic-callee-versus-named",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/main.ts": "export function main(flag,a,b){return (flag?a:b)();}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/main.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "inspectModuleConfiguration(path,root,retainedInputs,boundTSsource); scoped reason projection",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "variant_expected": [
+          {
+            "label": "conditional-callee",
+            "reasons": {
+              "contains": [
+                "SOURCE_DYNAMIC_CALL_UNSUPPORTED"
+              ],
+              "excludes": [],
+              "exact_set": null,
+              "global_admission_inferred": false
+            }
+          },
+          {
+            "label": "named-control",
+            "replace_file_bytes": "function helper(){return 1;}export function main(){return (helper)();}\n",
+            "reasons": {
+              "contains": [],
+              "excludes": [
+                "SOURCE_DYNAMIC_CALL_UNSUPPORTED"
+              ],
+              "exact_set": null,
+              "global_admission_inferred": false
+            }
+          }
+        ]
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 449,
+          "end_line": 457,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L449"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 207,
+          "end_line": 224,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L207"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QCALL-02-tagged-template-versus-ordinary-call",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/main.ts": "function tag(...parts:any[]){return 1;}export function main(){return tag`x`;}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/main.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "same retained TS configuration reason component as QCALL01",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "variant_expected": [
+          {
+            "label": "tagged",
+            "reasons": {
+              "contains": [
+                "SOURCE_TAGGED_TEMPLATE_UNSUPPORTED"
+              ],
+              "excludes": [],
+              "exact_set": null,
+              "global_admission_inferred": false
+            }
+          },
+          {
+            "label": "ordinary-call-control",
+            "replace_file_bytes": "function tag(...parts:any[]){return 1;}export function main(){return tag(1);}\n",
+            "reasons": {
+              "contains": [],
+              "excludes": [
+                "SOURCE_TAGGED_TEMPLATE_UNSUPPORTED"
+              ],
+              "exact_set": null,
+              "global_admission_inferred": false
+            }
+          }
+        ]
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 449,
+          "end_line": 457,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L449"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QSCOPE-01-import-type-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/main.ts": "export type Type = import('./target').Value;\n",
+          "src/target.ts": "export interface Value {n:number}\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/main.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "inspectRetainedQualifiedScope with capture of listed original files, expectedInputHash equal capture digest, graph from their ordinary analysis",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "retained_scope_reasons": {
+          "contains": [
+            "DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:src/main.ts"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "global_admission_inferred": false
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 165,
+          "end_line": 186,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/app-services/src/qualified-analysis.ts#L165"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QSCOPE-02-external-import-equals-refusal",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_AUTHORED_EXPECTATION_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "public-fact-producer-observation",
+      "input": {
+        "files": {
+          "src/main.ts": "import dep = require('./target');export const value=dep;\n",
+          "src/target.ts": "export const value=1;\n",
+          "package.json": "{\"name\":\"qualified-fixture\",\"type\":\"module\"}\n"
+        },
+        "encoding": "UTF-8 exact supplied strings, LF unless explicitly present",
+        "config": {
+          "constructor": "createGlobSelectionConfig(disposableRoot), preserving all defaults incl migrationsDirs",
+          "overrides": {
+            "version": 2,
+            "selectionMode": "qualified-static-v1",
+            "analysisProfile": "modelo-suite-static-v1",
+            "include": [
+              "src/**/*"
+            ],
+            "languages": {
+              "typescript": "on",
+              "javascript": "on"
+            }
+          }
+        },
+        "discovered_files": [
+          {
+            "relPath": "src/main.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          },
+          {
+            "relPath": "src/target.ts",
+            "absPath_recipe": "resolve(disposableRoot,relPath)",
+            "role": "source",
+            "language": "typescript",
+            "content": "exact files[relPath]"
+          }
+        ],
+        "retained_map": "all listed paths resolved beneath disposableRoot, exact decoded strings; no implicit repository/dependency reads authorized",
+        "operation": "same retained-scope component as QSCOPE01",
+        "sdk": "published TypeScript5.9.3 ES2022.full static required closure63 in existing SDK manifest; consumed readset/capture coherence not yet observed"
+      },
+      "expected_observations": {
+        "retained_scope_reasons": {
+          "contains": [
+            "DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:src/main.ts"
+          ],
+          "excludes": [],
+          "exact_set": null,
+          "global_admission_inferred": false
+        },
+        "global_admission_inferred": false
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 175,
+          "end_line": 184,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/app-services/src/qualified-analysis.ts#L175"
+        }
+      ],
+      "unknowns": [
+        "All unlisted facts/reasons remain UNKNOWN. Absence of one reason does not prove qualified admission.",
+        "No native execution or public Git/index/check admission fixture has been exercised."
+      ],
+      "future_producer_wire_protocol": null
+    },
+    {
+      "id": "QRECEIPT-01-consumer-ownership-authority-guards",
+      "author": "/root/qualification383",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "status": "SOURCE_BACKED_CONSUMER_EXPECTATION_MATRIX_NOT_FROZEN_NOT_EXECUTED",
+      "kind": "minimal receiver-boundary rule expectations, not a producer wire or full service fixture",
+      "input": {
+        "files": {
+          "main.ts": "import { register } from 'opaque'; function helper() { return 1; } export function main() { return register(() => helper()); }",
+          "package.json": "{\"dependencies\":{\"opaque\":\"1.0.0\"}}"
+        },
+        "source_manifest": [
+          {
+            "path": "main.ts",
+            "bytes": 126,
+            "sha256": "94bc6d3321f7e28a06da25e9f284da3a599d2eabf60c4c6da748cb66ae7363b2"
+          },
+          {
+            "path": "package.json",
+            "bytes": 35,
+            "sha256": "5279956b86b3c3326da56de4d620a034570e3de9d02d65d3135fc63d358524cb"
+          }
+        ],
+        "base_observations": {
+          "expected_profile": "modelo-suite-static-v1",
+          "observed_profile": "modelo-suite-static-v1",
+          "expected_selection_mode": "qualified-static-v1",
+          "observed_selection_mode": "qualified-static-v1",
+          "expected_root": "logical-fixture-root",
+          "observed_root": "logical-fixture-root",
+          "source_input_manifest": [
+            {
+              "path": "main.ts",
+              "bytes": 126,
+              "sha256": "94bc6d3321f7e28a06da25e9f284da3a599d2eabf60c4c6da748cb66ae7363b2"
+            },
+            {
+              "path": "package.json",
+              "bytes": 35,
+              "sha256": "5279956b86b3c3326da56de4d620a034570e3de9d02d65d3135fc63d358524cb"
+            }
+          ],
+          "expected_capture_identity": "CAPTURE_A",
+          "observed_capture_identity": "CAPTURE_A",
+          "actual_observed_facts_hash": "FACTS_A",
+          "sealed_facts_hash": "FACTS_A",
+          "indexed_facts_hash": "FACTS_A",
+          "sealed_input_hash": "INPUT_A",
+          "indexed_input_hash": "INPUT_A",
+          "consumed_input_hash": "INPUT_A",
+          "expected_input_hash": "INPUT_A",
+          "binding_valid": true,
+          "build_complete": true,
+          "check_changed": false,
+          "freshness_verdict": "FRESH",
+          "freshness_reasons": [],
+          "receiver_execution_observation": {
+            "matching_request": true,
+            "terminal_success": true,
+            "complete_valid_artifact": true,
+            "artifact_matches_observed_process": true,
+            "input_capture_bound": true,
+            "late_or_cancelled": false
+          },
+          "producer_claimed_ownership_bit": true,
+          "seal_present": true
+        },
+        "fresh_context_per_variant": "Fresh receiver ownership context and retained capture identity; no previous graph registration can discharge a failed guard.",
+        "receipt_custody": "Request/profile/root, process terminal status, artifact/hash and consumed input observations belong to receiver; producer bit may be present but never controls authority.",
+        "digest_values": "FACTS_A/B,INPUT_A/B,CAPTURE_A/B are distinct equality-class fixture labels; exact native receipt fields/digest encoding remain a separate reversible representation task, not a requirement to port fullT02."
+      },
+      "expected_observations": {
+        "variants": [
+          {
+            "id": "fresh-valid",
+            "replace_observations": {},
+            "consumer_owned_context_available": true,
+            "failure_name_or_success_basis": "consumer observed matching successful process/artifact/capture and all freshness/facts conditions",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "dirty-known-only-working-tree",
+            "replace_observations": {
+              "freshness_verdict": "DIRTY_KNOWN",
+              "freshness_reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "consumer_owned_context_available": true,
+            "failure_name_or_success_basis": "same current observed facts/capture; dirty known alone allowed",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "missing-freshness-seal",
+            "replace_observations": {
+              "seal_present": false
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "freshness seal missing/null",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "invalid-binding",
+            "replace_observations": {
+              "binding_valid": false
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "binding invalid",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "incomplete-build",
+            "replace_observations": {
+              "build_complete": false
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "incomplete fact build",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "check-changed",
+            "replace_observations": {
+              "check_changed": true
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "observation changed during check",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "stale",
+            "replace_observations": {
+              "freshness_verdict": "STALE"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "freshness not FRESH or allowed DIRTY_KNOWN",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "dirty-other-reason",
+            "replace_observations": {
+              "freshness_verdict": "DIRTY_KNOWN",
+              "freshness_reasons": [
+                "WORKING_TREE_DIRTY",
+                "OTHER"
+              ]
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "DIRTY_KNOWN contains another reason",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "sealed-facts-mismatch",
+            "replace_observations": {
+              "sealed_facts_hash": "FACTS_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "sealed graph facts disagree with observed facts",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "indexed-facts-mismatch",
+            "replace_observations": {
+              "indexed_facts_hash": "FACTS_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "indexed graph facts disagree with observed facts",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "sealed-input-mismatch",
+            "replace_observations": {
+              "sealed_input_hash": "INPUT_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "sealed input disagrees with consumed input",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "indexed-input-mismatch",
+            "replace_observations": {
+              "indexed_input_hash": "INPUT_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "indexed input disagrees with consumed input",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "expected-input-mismatch",
+            "replace_observations": {
+              "expected_input_hash": "INPUT_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "expected input disagrees with consumed input",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "profile-mismatch",
+            "replace_observations": {
+              "observed_profile": "OTHER"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "received facts belong to another bound profile",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "root-mismatch",
+            "replace_observations": {
+              "observed_root": "other-root"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "received facts belong to another root/capture",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "forged-receipt-provenance",
+            "replace_observations": {
+              "receiver_execution_observation": {
+                "matching_request": false,
+                "terminal_success": true,
+                "complete_valid_artifact": true,
+                "artifact_matches_observed_process": false,
+                "input_capture_bound": false,
+                "late_or_cancelled": false
+              }
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "equal-looking producer claim lacks receiver-observed receipt authority",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "unexpected-failure",
+            "replace_observations": {
+              "receiver_execution_observation": {
+                "matching_request": true,
+                "terminal_success": false,
+                "complete_valid_artifact": false,
+                "artifact_matches_observed_process": true,
+                "input_capture_bound": true,
+                "late_or_cancelled": false
+              }
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "process failure/missing complete artifact cannot authorize ownership",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "cancelled-or-late",
+            "replace_observations": {
+              "receiver_execution_observation": {
+                "matching_request": true,
+                "terminal_success": false,
+                "complete_valid_artifact": false,
+                "artifact_matches_observed_process": true,
+                "input_capture_bound": true,
+                "late_or_cancelled": true
+              }
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "cancelled/late receipt cannot authorize ownership",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "post-receipt-graph-mutation",
+            "replace_observations": {
+              "actual_observed_facts_hash": "FACTS_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "current graph differs from bound received facts",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          },
+          {
+            "id": "post-receipt-capture-mutation",
+            "replace_observations": {
+              "observed_capture_identity": "CAPTURE_B"
+            },
+            "consumer_owned_context_available": false,
+            "failure_name_or_success_basis": "current captured source differs from bound receipt",
+            "producer_claimed_ownership_cannot_override_guard": true,
+            "qualified_admission_inferred": false
+          }
+        ],
+        "opaque_witness_projection": "On P23 inline-helper fixture, eligible observed consumer ownership may discharge only named OPAQUE_CALLBACK reason once actual modeled graph ownership is proved. Each failed guard must keep ownership unavailable; no PASS/admitted result is inferred.",
+        "stable_failure_wire_codes": "UNSELECTED; listed failure names are fixture scenario labels, not invented production diagnostic codes."
+      },
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 16,
+          "end_line": 26,
+          "role": "historical guard invariants; exact WeakSet/WeakMap mechanism is not required to be ported"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/qualified-analysis.ts",
+          "line": 92,
+          "end_line": 100,
+          "role": "historical consumed scope/input/graph/check revalidation invariant"
+        },
+        {
+          "url": "https://github.com/hoklims/semctx/issues/365",
+          "section": "2.1 and4.2",
+          "role": "T00 minimal batch boundary plus native input/capture/provenance requirements; no full service implementation prerequisite"
+        },
+        {
+          "role": "root task authority",
+          "text": "Freeze consumer-observed profile/root/factsHash/freshness/process-artifact-input provenance; producer-supplied ownership bit is not authority. Representation/mechanism remains delegated and unselected."
+        }
+      ],
+      "limits": [
+        "This matrix freezes invariant outcomes independent of Rust private type/receipt mechanism; it does not assert a completed native observer implementation.",
+        "Exact byte hashes/representation for native request, artifact, facts and receipt must be concretized at the chosen minimal producer/consumer boundary before execution.",
+        "P23/N23 alone do not prove these receiver guards."
+      ],
+      "future_producer_wire_protocol": null
+    }
+  ],
+  "case_count": 12,
+  "property_supplements_for_immutable_existing_cases": [
+    {
+      "id": "PROP-native-importmeta-require",
+      "existing_case_id": "V3-SDK-13-05",
+      "input_sha256": "89517bb2a7c335753117245b299103a80e4665fe2fa1ab78bbe78ea2dfc8e2bd",
+      "operation": "inspectNativeModuleBindings on existing main.ts AST; this native predicate uses noLib/noResolve supplied AST, no default SDK loads",
+      "expected_projection": {
+        "commonJsUnsupported": true
+      },
+      "authority": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 32,
+          "end_line": 35,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L32"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 94,
+          "end_line": 101,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L94"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 197,
+          "end_line": 218,
+          "role": "implemented historical source read; not sole architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/javascript-diagnostics.ts#L197"
+        }
+      ],
+      "limit": "This supplements only commonJs flag; helper-specific absence of SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED in original case does not admit it."
+    }
+  ],
+  "existing_assertion_expansions": [
+    {
+      "reference_id": "T00-DEVREF-bb0468e7b0a2",
+      "assertion_path": "packages/ts-analyzer/test/semantic-js-contracts.test.ts",
+      "line": 127,
+      "original_author": "historical test author not audited",
+      "description_author": "/root/qualification383",
+      "variants": [
+        {
+          "path": "module.mjs",
+          "content": "/** @type {import('./types.mjs').Foo} */\nexport const value = 1;",
+          "reason_contains": "JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED"
+        },
+        {
+          "path": "module.mjs",
+          "content": "/** @typedef {import('./types.mjs').Foo} Foo */\nexport const value = 1;",
+          "reason_contains": "JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED"
+        },
+        {
+          "path": "module.mjs",
+          "content": "/** @import { Foo } from './types.mjs' */\nexport const value = 1;",
+          "reason_contains": "JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED"
+        }
+      ],
+      "extra_reasons": "UNKNOWN",
+      "execution": "not_run"
+    },
+    {
+      "reference_id": "T00-DEVREF-492ac13460ee",
+      "assertion_path": "packages/ts-analyzer/test/create-require.test.ts",
+      "line": 201,
+      "original_author": "historical test author not audited",
+      "description_author": "/root/qualification383",
+      "variants": [
+        {
+          "path": "main.ts",
+          "content": "import type { _resolveFilename as Native } from 'node:module'; export type Alias = Native;",
+          "native_projection_exact": {
+            "commonJsUnsupported": false,
+            "unmodeledMembers": []
+          }
+        },
+        {
+          "path": "main.ts",
+          "content": "import type { default as p } from 'node:process'; export type Alias = typeof p.getBuiltinModule; export type { getBuiltinModule } from 'node:process';",
+          "native_projection_exact": {
+            "commonJsUnsupported": false,
+            "unmodeledMembers": []
+          }
+        },
+        {
+          "path": "main.ts",
+          "content": "import type { binding } from 'node:process'; export type Alias = typeof binding;",
+          "native_projection_exact": {
+            "commonJsUnsupported": false,
+            "unmodeledMembers": []
+          }
+        },
+        {
+          "path": "main.ts",
+          "content": "export type Getter = typeof globalThis.process.getBuiltinModule;",
+          "native_projection_exact": {
+            "commonJsUnsupported": false,
+            "unmodeledMembers": []
+          }
+        }
+      ],
+      "operation": "inspectNativeModuleBindings supplied AST only, baseline noLib/noResolve; no SDK/read closure invented",
+      "execution": "not_run"
+    }
+  ],
+  "SDK_and_scope": "Retained/public semantic Program uses pinned5.9.3/default63 declared files; native-binding supplied-AST predicate uses noLib/noResolve and consumes no default SDK. Actual consumed input set not observed.",
+  "E03_representation_note": {
+    "owner_decision": "explicit ambiguity/no guessed endpoint/refuse qualified admission per issue365 comment6235210936",
+    "root_private_code_proposal": "SOURCE_EXPORT_AMBIGUOUS",
+    "status": "representation proposal supplied by root, inputworker checking; no silent amendment of historical baseline or immutable E03case"
+  },
+  "effort_intervals": [
+    {
+      "start_utc": "2026-10-17T15:13:46+00:00",
+      "end_utc": "2026-10-17T15:22:30.066273+00:00",
+      "wall_seconds": 524.066273,
+      "limit_seconds": 600,
+      "kind": "conservative active wall interval no known host sleep",
+      "author": "/root/qualification383"
+    }
+  ],
+  "tracked_mutation": false,
+  "reserved_access": false,
+  "common_materialization_prerequisites": {
+    "applies_to_case_ids": [
+      "QDYN-03-nonliteral-scan-control-scope-refusal",
+      "QDYN-04-two-arguments-scan-control-scope-refusal",
+      "QDYN-05-unresolved-literal-target",
+      "QSCOPE-01-import-type-refusal",
+      "QSCOPE-02-external-import-equals-refusal"
+    ],
+    "purpose": "Exact public retained-scope oracle calls use Git discovery. This is isolated fixture setup, not a new native producer/service runtime prerequisite.",
+    "root": "fresh disposable Git root outside source checkout; materialize exact case input file bytes and declared roles before observation",
+    "git_setup": [
+      {
+        "argv": [
+          "git",
+          "init",
+          "-q"
+        ],
+        "cwd": "disposableRoot"
+      },
+      {
+        "argv": [
+          "git",
+          "-c",
+          "core.autocrlf=false",
+          "-c",
+          "core.safecrlf=false",
+          "add",
+          "--"
+        ],
+        "append_explicit_pathspecs": "sorted exact input.files keys",
+        "cwd": "disposableRoot"
+      },
+      {
+        "argv": [
+          "git",
+          "-c",
+          "user.name=T00 Fixture",
+          "-c",
+          "user.email=fixture@example.invalid",
+          "-c",
+          "commit.gpgsign=false",
+          "commit",
+          "-qm",
+          "frozen fixture"
+        ],
+        "cwd": "disposableRoot"
+      }
+    ],
+    "GIT_CONFIG_GLOBAL": "unset; no global configuration is created or replaced",
+    "bytes": "write exact bytes, preserve LF/CRLF/BOM; do not install or execute snapshot dependency scripts",
+    "native_batch_boundary": "The selected minimal native batch receives explicit captured/discovered inventories and scope. Git is not silently introduced as its analysis runtime; actually required processes remain separately observed."
+  }
+}

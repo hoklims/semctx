@@ -3465,8 +3465,8 @@
   ],
   "bundle_reference_resolution": {
     "input:compiler-api-provenance.full": "Logical original-input ID in manifest.json; 28 MB per-site provenance omitted. Embedded exact source sites stay in obligations.json; static provenance aggregates and important aliases are in provenance-summary.json. Summary is not represented as a substitute for omitted per-site detail.",
-    "case_reference_registry": "110 unique baseline assertion records; inherited references do not prove per-obligation execution.",
-    "family_case_reference_registry": "26 unique source families; not a frozen case denominator.",
+    "case_reference_registry": "111 unique baseline assertion records; inherited references do not prove per-obligation execution.",
+    "family_case_reference_registry": "27 unique source families; not a frozen case denominator.",
     "mechanism-feasibility.json": "Exact documentation survey only, unchanged bytes/hash; no composition selection or native evidence."
   }
 }

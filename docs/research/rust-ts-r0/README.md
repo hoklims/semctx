@@ -31,8 +31,10 @@ Each completed stage is a separate checkpoint:
 The source inventory in [inventory](inventory/README.md) records 240 usage and
 consumer groups, their exact baseline sites, input/rule references and unknown
 native states. Its source census is separate from behavioral case coverage.
-The corpus dependency closures, case expectations and native candidate executions
-remain unqualified. Source archives alone do not supply those proofs.
+The case bundle in [cases](cases/README.md) separates authored expectations from
+execution evidence. Its bounded public-source projections do not claim complete
+upstream project qualification. Actual native input consumption and capture
+coherence still require execution evidence.
 
 [arbitrations.json](arbitrations.json) records the owner's decision to correct
 ambiguous star-export call resolution in Rust. The historical baseline commit
@@ -42,11 +44,20 @@ demonstrated.
 
 ## Independence and effort
 
-Development uses the baseline fixtures and newly authored microcases.
+Development starts with ten separately authored bootstrap cases, containing
+seventeen variants. The 268 qualification records and their supporting vectors
+are excluded from initial implementation inputs. Historical baseline assertion
+references establish source context; they are neither additional executable cases
+nor the sole authority for expected results. Qualification diagnosis and correction
+retain the frozen expectations and count within the approved passes.
+
 Qualification snapshots are separate from the reserved repositories. The reserved
 case author is a distinct agent that must not implement the producer. Its public
 acquisition manifest is identified in the experiment; case contents and expectations
 remain outside the producer checkout until the selected candidate is frozen.
+The public custody receipt commits to 23 cases and 26 variants, including two
+public repository snapshots and one monorepo. Its exclusions remain explicit;
+these counts establish no native proof.
 Failure exposes a reserved set; correction requires a new independently prepared
 set within the remaining approved envelope.
 
