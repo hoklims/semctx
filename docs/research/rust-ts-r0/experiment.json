@@ -1,0 +1,121 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "pullRequest": "https://github.com/hoklims/semctx/pull/386",
+  "recordedDateUtc": "2026-10-17",
+  "stage": 1,
+  "r0Decision": "NOT_RUN",
+  "owner": "SebastienElet",
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "tree": "d3faa654755ce9f7aca24cd63d076045af37c706",
+    "version": "0.4.5",
+    "typescript": "5.9.3"
+  },
+  "initialSubject": {
+    "branch": "rust/365-t00",
+    "commit": "d5ba8fdb3a3b8b8da7ceeb06c16db851d02ad950",
+    "tree": "60c904de8cef825c321b217b0af3f874dc9784c9",
+    "baseBranch": "rust/365-coordination",
+    "baseCommit": "382c084fc39c44e552bdbe159c441c0d08ea49ac"
+  },
+  "approvedEnvelope": {
+    "nativeCompositionsMaximum": 2,
+    "correctionPassesAfterFirstRunPerCompositionMaximum": 2,
+    "cumulativeEffortWorkingDaysMaximum": 5,
+    "preparationAndArbitrationIncluded": true,
+    "parallelAgentEffortIsCumulative": true,
+    "preferEarlyFalsification": true,
+    "extensionRequiresExplicitBudget": true
+  },
+  "execution": {
+    "localHost": "macOS 27.0.1 ARM64",
+    "bun": "1.4.3",
+    "rust": "1.95.0",
+    "cargo": "1.95.0",
+    "python": "3.10.22",
+    "ruff": "0.16.10",
+    "zizmor": "1.30.1",
+    "git": "2.54.0 (Apple Git-157)",
+    "qualityEnvironment": "disposable virtual environment outside checkout",
+    "globalInstallationPerformed": false,
+    "gitConfigGlobalRemovedForVerification": true,
+    "nativeHostProvider": "GitHub Actions",
+    "requiredR0NativeHosts": ["ubuntu-latest", "windows-latest"],
+    "nativeCandidateRuns": []
+  },
+  "tooling": {
+    "pullRequest": 383,
+    "mergeCommit": "d4e73e74709a369ff908041ea370b39a76d9cd3a",
+    "mergedAt": "2026-10-16T18:09:43Z",
+    "sourceArchivePaths": ["tools/gates", "tools/qualification", "rust-toolchain.toml", "clippy.toml"],
+    "gitArchiveSha256": "12b379c97b69374d755ed53f3481db6555d488267f3453c5ce5ef6f913438805",
+    "integration": "external pinned source; no stack restack",
+    "existingScenarioQualificationCoversSemanticPrecision": false
+  },
+  "corpusAcquisitions": {
+    "development": "baseline fixtures and authored microcases; detailed manifest pending stage 3",
+    "qualification": [
+      {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/unjs/pathe/tar.gz/bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "archiveSha256": "35e374b0c8449e3fdc70c3aeaf474ee5c1bb0d03a9a44d70f900bf55f2fc1209"
+      },
+      {
+        "repository": "sindresorhus/yocto-queue",
+        "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "license": "MIT",
+        "licensePath": "license",
+        "archiveUrl": "https://codeload.github.com/sindresorhus/yocto-queue/tar.gz/72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "archiveSha256": "950ca6b5d09edc628c05bb3c7d149d26749f89223683f397d9f36e197c1fde1d"
+      }
+    ],
+    "reserved": {
+      "authorTask": "/root/reserved_corpus",
+      "authorMustNotImplementProducer": true,
+      "publicAcquisitionManifestSha256": "7af9f74b35371207bef3d5ad51674ad4c777325cc41a371375e911c02780f706",
+      "custodyIdentitySha256": "57af2c3698957735621d7f2765ec8174c1c9844f4690f3da19d677aecdacbb64",
+      "repositories": [
+        {
+          "repository": "sindresorhus/p-limit",
+          "commit": "a8a6fbec4e0e866d6d779b10889bb4f5567e70eb",
+          "license": "MIT",
+          "monorepo": false,
+          "archiveUrl": "https://codeload.github.com/sindresorhus/p-limit/tar.gz/a8a6fbec4e0e866d6d779b10889bb4f5567e70eb",
+          "archiveSha256": "74cc734c8ff3b9c1607ad1d9fa79a3f3683508fb39b8b396840348185a771926",
+          "sourceManifestSha256": "38f6cf5025bf30bbab4c8de665b5295548f0d8e0424cf27793a68aeca63614d8"
+        },
+        {
+          "repository": "TanStack/query",
+          "commit": "a636462b853438903567c9907c188a068021c633",
+          "license": "MIT",
+          "monorepo": true,
+          "archiveUrl": "https://codeload.github.com/TanStack/query/tar.gz/a636462b853438903567c9907c188a068021c633",
+          "archiveSha256": "2aad87b53d61abc2a10bf7ad07cd270478f64bd5b790017f0c55bd313ca19d51",
+          "sourceManifestSha256": "7d6dac1c342fef04f925053c35e219f3882fbba4a7b0618b0762ad164967bf08"
+        }
+      ]
+    },
+    "dependencyClosuresVerified": false,
+    "caseExpectationsFrozen": false
+  },
+  "repositoryAccess": {
+    "visibility": "public",
+    "pushPermissionObserved": true,
+    "ciWorkflowObserved": "active",
+    "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
+  },
+  "remainingEvidence": [
+    "closed ordinary and qualified Compiler API obligations inventory",
+    "corpus dependency, configuration and SDK closures",
+    "independently controlled expectations and frozen denominator",
+    "native producer mechanisms and actual process inventory",
+    "optimized candidate artifacts and consumed-input identities",
+    "qualification and reserved-case results",
+    "native Linux and Windows portability results",
+    "arbitrations and final R0 decision"
+  ]
+}
