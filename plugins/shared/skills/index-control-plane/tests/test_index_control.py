@@ -89,6 +89,7 @@ def write_semctx_plugins(
     codex_cached: tuple[str, ...] = (),
 ) -> dict[str, Path]:
     """Lay out each host's semctx plugin the way that host installs it."""
+    home = home.resolve()
     scripts: dict[str, Path] = {}
     claude_cache = home / ".claude" / "plugins" / "cache" / "semctx-stable" / "semctx"
     codex_cache = home / ".codex" / "plugins" / "cache" / "semctx-stable" / "semctx-control"

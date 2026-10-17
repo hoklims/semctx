@@ -1055,7 +1055,8 @@ class ProviderExecutorTests(unittest.TestCase):
             def invalid_runner(argv, cwd, env, timeout):
                 return index_control.CommandResult(0, "{}", "", 0.1)
 
-            result = reconcile_worker.execute_semctx(repo, host="codex", runner=invalid_runner, timeout_seconds=60)
+            with mock.patch.object(index_control, "resolve_semctx_command", return_value=["semctx-fixture"]):
+                result = reconcile_worker.execute_semctx(repo, host="codex", runner=invalid_runner, timeout_seconds=60)
             self.assertEqual(result["status"], "FAILED")
             self.assertIn("INVALID_INDEX_OUTPUT", result["reasons"])
 
@@ -1077,6 +1078,7 @@ class SemctxHostBindingTests(unittest.TestCase):
     @staticmethod
     def _plugins(home: Path) -> dict[str, Path]:
         # Claude installed 0.3.0; Codex runs the newer 0.3.1.
+        home = home.resolve()
         claude = home / ".claude" / "plugins" / "cache" / "semctx-stable" / "semctx" / "0.3.0"
         codex = home / ".codex" / "plugins" / "cache" / "semctx-stable" / "semctx-control" / "0.3.1"
         scripts = {"claude": claude / "dist" / "semctx.js", "codex": codex / "dist" / "semctx.js"}

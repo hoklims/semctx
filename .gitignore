@@ -1,4 +1,5 @@
 node_modules/
+target/
 dist/
 !plugins/claude-code/dist/
 !plugins/claude-code/dist/semctx-mcp.js

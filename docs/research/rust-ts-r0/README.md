@@ -71,12 +71,14 @@ unstable Windows tests from this investigation; such failures remain reported an
 cannot count as successful R0 portability evidence or a green required aggregate.
 
 [#383](https://github.com/hoklims/semctx/pull/383) is merged, but absent from this
-branch's base. Its exact tooling source is available separately without restacking
-the chain. Reuse its native supervision and Cargo test discovery rather than
-copying a process controller. Its existing CLI/MCP scenario qualification does not
+branch's base. Its canonical tooling and integration files are reused at their
+exact Git blobs, listed in [tooling-reuse.json](tooling-reuse.json), without
+restacking the chain or creating another process controller. Its existing CLI/MCP scenario qualification does not
 qualify fact batches or semantic precision. In particular, its `no_product` report
 is not evidence that a producer ran.
 
 New dependencies require exact versions and committed lockfiles; new GitHub
-Actions references require full commit SHAs. No dependencies, workflow changes or
-runtime code are introduced by this preregistration.
+Actions references require full commit SHAs. The initial preregistration changed
+only documents. The subsequent tooling reuse introduces the existing Rust gates,
+qualification tools and CI integration from #383; it does not introduce a native
+TS/JS producer or count as a tested semantic composition.

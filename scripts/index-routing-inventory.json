@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "tests": {
+    "test_benchmark.BenchmarkTests.test_result_paths_reads_structured_and_ccc_sources": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_benchmark.BenchmarkTests.test_summary_reports_latency_accuracy_fallback_and_stale": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_exact_search_limit_is_independent_from_rg_emission_order": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_route_cache_remains_valid_until_source_observation_ttl": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_default_route_is_computed_in_process_without_python_spawn": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_ccc_search_exposes_structured_source_locations": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_ccc_search_relies_on_native_daemon_lifecycle_without_local_lease": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_cold_ccc_search_falls_back_and_starts_one_bounded_warmup": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_ccc_warmup_launch_failure_does_not_break_source_fallback": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_stale_status_wakes_the_reconcile_worker_without_blocking": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_initialize_and_tools_list_expose_the_stable_contract": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_status_returns_the_generation_envelope": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_search_falls_back_to_exact_source_when_ccc_is_not_usable": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_symbols_returns_source_locations_without_starting_a_daemon": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_architecture_loads_exact_artifact_before_acknowledging_consumer": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_architecture_query_index_rejects_a_different_graph_digest": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_intent_uses_semctx_only_when_the_sealed_provider_is_usable": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_status_exposes_the_observation_axis": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_gateway_wake_memo_expires_and_rewakes_a_dead_worker": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_intent_falls_back_to_symbols_when_the_semantic_layer_is_not_authored": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_gateway.GatewayProtocolTests.test_intent_never_serves_an_empty_authored_layer_as_authoritative": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_route_only_marks_provider_usable_for_exact_current_generation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_route_fails_closed_when_consumer_generation_does_not_match": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_route_fails_closed_when_worker_observation_expires": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_expired_observation_is_recoverable_by_live_verification_without_reindex": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_live_verification_refuses_when_source_drifted": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_live_verification_fails_closed_when_git_is_unavailable": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_published_route_cache_contains_expiring_safe_fallback": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_consumer_invalidation_removes_graphify_usability": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.RoutingTests.test_route_command_emits_compact_context": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_each_host_probes_semctx_with_its_own_installed_plugin": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_semctx_plugin_versions_are_ordered_numerically": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_declared_plugin_is_never_replaced_by_another_hosts_binary": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_a_plugin_change_on_either_host_invalidates_only_the_semctx_corpus": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_route_marks_semctx_usable_only_for_hosts_whose_consumer_reads_the_build": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.SemctxHostBindingTests.test_route_ignores_consumer_verdicts_taken_on_another_build_or_source": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.WindowsProcessVisibilityTests.test_all_controller_children_request_no_console_window": {
+      "classification": "windows-only",
+      "reason": "Exercises Windows process flags/pythonw guarded by os.name == nt."
+    },
+    "test_index_control.WindowsProcessVisibilityTests.test_canonical_git_probe_uses_no_console_window": {
+      "classification": "windows-only",
+      "reason": "Exercises Windows process flags/pythonw guarded by os.name == nt."
+    },
+    "test_index_control.WindowsProcessVisibilityTests.test_detached_worker_uses_pythonw_when_available": {
+      "classification": "external-host",
+      "reason": "Asserts that the host-local C:/Python314/pythonw.exe exists; no bundled fixture supplies this installation."
+    },
+    "test_index_control.FingerprintTests.test_dotted_vendor_tree_does_not_admit_graphify": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.FingerprintTests.test_fingerprint_tracks_head_tracked_and_untracked_content": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.FingerprintTests.test_provider_config_hash_changes_without_changing_git_diff": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.StateAndLockTests.test_host_receipts_are_separate_but_lock_is_shared": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.StateAndLockTests.test_lock_excludes_concurrent_refresh_and_reuses_unlocked_metadata": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.StateAndLockTests.test_lock_excludes_a_separate_process": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.StateAndLockTests.test_atomic_json_never_leaves_temporary_file": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.StateAndLockTests.test_history_pruning_keeps_only_the_newest_receipts": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_live_status_reuses_ccc_receipt_without_starting_ccc": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_live_status_reuses_graphify_and_semctx_receipts_without_provider_processes": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_successful_refresh_binds_receipt_to_exact_repository_state": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_refresh_fails_closed_when_repository_changes_during_indexing": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_graphify_only_refresh_fails_closed_when_repository_changes": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_graphify_invalid_detect_output_cannot_be_ready": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_semctx_only_refresh_fails_closed_when_repository_changes": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_semctx_nonzero_exit_cannot_be_ready_even_with_clean_json": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_semctx_contract_exit_three_preserves_stale_verdict": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_semctx_exit_three_rejects_undocumented_verdict": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_ccc_invalid_status_output_cannot_be_ready": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_cached_status_detects_drift_after_a_ready_receipt": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_mark_dirty_invalidates_only_the_current_host_receipt": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_dirty_generation_survives_a_racing_ready_receipt_publication": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.ControllerTests.test_corrupt_dirty_marker_fails_closed": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_index_control.AdapterTests.test_fresh_route_does_not_mutate_the_wake_lease": {
+      "classification": "external-host",
+      "reason": "Compiles C:/Users/Hokli/.codex/hooks/index-control-routing.rs outside the repository with rustc."
+    },
+    "test_index_control.AdapterTests.test_expired_route_burst_launches_only_one_worker_wake": {
+      "classification": "external-host",
+      "reason": "Compiles C:/Users/Hokli/.codex/hooks/index-control-routing.rs outside the repository with rustc."
+    },
+    "test_index_control.AdapterTests.test_missing_route_burst_launches_only_one_worker_wake": {
+      "classification": "external-host",
+      "reason": "Compiles C:/Users/Hokli/.codex/hooks/index-control-routing.rs outside the repository with rustc."
+    },
+    "test_index_control.AdapterTests.test_failed_missing_route_wake_is_retried_after_the_bounded_lease": {
+      "classification": "external-host",
+      "reason": "Compiles C:/Users/Hokli/.codex/hooks/index-control-routing.rs outside the repository with rustc."
+    },
+    "test_index_control.AdapterTests.test_codex_adapter_routes_only_on_user_prompt_submit": {
+      "classification": "external-host",
+      "reason": "Reads private C:/Users/Hokli/.codex/hooks/claude-harness-adapter.ps1."
+    },
+    "test_index_control.AdapterTests.test_codex_lifecycle_adapter_hooks_preserve_shared_console_and_are_trusted": {
+      "classification": "external-host",
+      "reason": "Reads private C:/Users/Hokli/.codex/hooks.json and config.toml trust state; requires Python 3.11 tomllib."
+    },
+    "test_index_control.AdapterTests.test_claude_index_hooks_prefer_pythonw": {
+      "classification": "external-host",
+      "reason": "Reads private C:/Users/Hokli/.claude/hooks/*.sh and installed Python314 path."
+    },
+    "test_index_control.AdapterTests.test_codex_stop_hook_is_registered_and_trusted": {
+      "classification": "external-host",
+      "reason": "Reads private C:/Users/Hokli/.codex/hooks.json and config.toml trust state; requires Python 3.11 tomllib."
+    },
+    "test_index_control.AdapterTests.test_codex_background_refresh_does_not_hold_capture_pipe_open": {
+      "classification": "external-host",
+      "reason": "Executes private C:/Users/Hokli/.codex/hooks/claude-harness-adapter.ps1 with Windows PowerShell."
+    },
+    "test_index_control.AdapterTests.test_codex_adapter_records_missing_dependency_without_blocking": {
+      "classification": "external-host",
+      "reason": "Executes private C:/Users/Hokli/.codex/hooks/claude-harness-adapter.ps1 with Windows PowerShell."
+    },
+    "test_index_control.AdapterTests.test_codex_adapter_treats_non_git_directory_as_unsupported": {
+      "classification": "external-host",
+      "reason": "Executes private C:/Users/Hokli/.codex/hooks/claude-harness-adapter.ps1 with Windows PowerShell."
+    },
+    "test_lsp_benchmark.LspBenchmarkTests.test_anchor_position_selects_the_requested_occurrence": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_lsp_benchmark.LspBenchmarkTests.test_location_paths_accepts_locations_and_location_links": {
+      "classification": "windows-only",
+      "reason": "Constructs Windows drive-letter Path.as_uri fixtures; pathlib requires native Windows paths."
+    },
+    "test_lsp_benchmark.LspBenchmarkTests.test_percentile_uses_nearest_rank": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SourceFingerprintTests.test_provider_corpus_fingerprints_ignore_unrelated_files": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SourceFingerprintTests.test_tracked_generated_index_outputs_do_not_dirty_source_fingerprint": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SourceFingerprintTests.test_policy_change_changes_desired_state_fingerprint": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.EventQueueTests.test_events_are_unique_atomic_and_shared_across_hosts": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_provider_generation_is_carried_forward_when_its_corpus_is_unchanged": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_runtime_policy_allows_environment_idle_ttl_override": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_worker_loop_exits_after_settled_idle_ttl": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_successful_cycle_clears_persisted_cycle_failure_metadata": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_retry_and_debounce_keep_worker_lease_active": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_worker_loop_exits_when_repository_has_no_index_provider": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_code_repository_gets_zero_setup_graphify_provider": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_checkpoint_survives_a_generation_bumped_by_the_control_plane_itself": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_checkpoint_is_revoked_when_the_working_tree_actually_changes": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_unattributed_checkpoint_waits_instead_of_guessing_a_builder": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_observation_age_ignores_worker_heartbeat_without_reobservation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_cycle_exception_does_not_refresh_the_source_observation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_worker_loop_survives_a_transient_cycle_exception": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_coalesces_events_and_runs_cheap_providers_after_quiet_period": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_semctx_waits_for_checkpoint_on_dirty_worktree": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_default_graphify_policy_requires_checkpoint_for_dirty_worktree": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_architecture_jit_does_not_trigger_semctx_seal": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_external_drift_is_found_by_periodic_reconciliation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_session_start_without_source_change_does_not_create_a_generation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_change_during_provider_run_discards_ready_result": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_change_during_second_provider_invalidates_first_provider_snapshot": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_transient_failure_uses_capped_exponential_backoff": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SchedulerTests.test_deterministic_failure_waits_for_a_new_generation": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_graph_coverage_uses_relative_paths_not_basenames": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_initial_coverage_floor_tolerates_legitimate_zero_node_config_files": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_deferred_graphify_publish_keeps_active_artifact_until_commit": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_source_change_during_graphify_does_not_publish_staged_artifact": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_graphify_code_index_is_written_outside_the_repository": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_graphify_invalid_incremental_baseline_forces_full_rebuild": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_graphify_incremental_retains_unchanged_sources": {
+      "classification": "external-provider",
+      "reason": "Runs Graphify with resolve_graphify_python: requires an installed Graphify interpreter/provider outside the repository."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_graphify_keeps_repo_relative_paths_when_all_code_is_nested": {
+      "classification": "external-provider",
+      "reason": "Runs Graphify with resolve_graphify_python: requires an installed Graphify interpreter/provider outside the repository."
+    },
+    "test_reconcile_worker.ProviderExecutorTests.test_semctx_index_requires_machine_valid_receipt": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_semctx_build_uses_the_binary_of_the_host_that_authorized_it": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_version_skew_is_reported_and_never_rebuilt_away": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_operator_record_recovers_negative_verdict_without_rebuild": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_negative_verdict_recovers_on_worker_reconciliation_without_refresh": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_failed_retry_remains_refused_until_a_successful_probe": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_explicit_takeover_rebuilds_with_the_requesting_hosts_binary": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_head_only_change_retakes_verdicts_without_rebuilding": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_reconcile_worker.SemctxHostBindingTests.test_a_real_change_is_rebuilt_by_the_host_that_checkpoints_it": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_scip_json_probe.ScipJsonProbeTests.test_definition_paths_require_definition_role_and_symbol_segment": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    },
+    "test_scip_json_probe.ScipJsonProbeTests.test_run_reports_coverage_and_precision": {
+      "classification": "portable",
+      "reason": "Bundled test uses repository code and isolated fixtures; no installed host or provider required."
+    }
+  }
+}

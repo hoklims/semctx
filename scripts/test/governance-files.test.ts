@@ -19,6 +19,9 @@ interface WorkflowStep {
   if?: string;
   uses?: string;
   run?: string;
+  shell?: string;
+  "continue-on-error"?: boolean | string;
+  "working-directory"?: string;
   with?: Record<string, unknown>;
   env?: Record<string, unknown>;
 }
@@ -26,6 +29,8 @@ interface WorkflowStep {
 interface WorkflowJob {
   name?: string;
   if?: string;
+  "continue-on-error"?: boolean | string;
+  defaults?: Record<string, unknown>;
   needs?: string | string[];
   environment?: string;
   permissions?: Record<string, string>;
@@ -43,6 +48,7 @@ interface Workflow {
   on: Record<string, unknown>;
   permissions: Record<string, string>;
   concurrency?: Record<string, unknown>;
+  defaults?: Record<string, unknown>;
   jobs: Record<string, WorkflowJob>;
 }
 
@@ -100,6 +106,36 @@ const publicIdentityProblems = (source: string): string[] => {
   ].filter((fragment) => !run.includes(fragment));
 };
 
+const unconditionalReleaseStep = (step: WorkflowStep): boolean =>
+  step.if === undefined && step["continue-on-error"] === undefined
+  && step["working-directory"] === undefined
+  && (step.shell === undefined || step.shell === "bash");
+
+const releaseVerificationProblems = (workflow: Workflow): string[] => {
+  const verify = job(workflow, "verify");
+  const directSteps = (command: string): number[] => verify.steps.flatMap((step, index) =>
+    executableShell(step.run ?? "").trim() === command && unconditionalReleaseStep(step) ? [index] : [],
+  );
+  const canonical = directSteps("bun run verify:pr -- --skip-diff");
+  const provision = directSteps("rustup toolchain install 1.95.0 --profile minimal --component rustfmt --component clippy");
+  const build = verify.steps.findIndex((step) => executableShell(step.run ?? "")
+    .split("\n").some((line) => line.trim() === "bun run cli:build"));
+  const upload = verify.steps.findIndex((step) =>
+    step.uses?.startsWith("actions/upload-artifact@") && step.with?.name === "npm-package");
+  const problems = [];
+  if (verify.if !== "github.repository == 'hoklims/semctx'" || verify["continue-on-error"] !== undefined
+    || workflow.defaults !== undefined || verify.defaults !== undefined) {
+    problems.push("release verification job must fail closed");
+  }
+  if (canonical.length !== 1 || provision.length !== 1) {
+    problems.push("unconditional pinned Rust provisioning and canonical verifier required");
+  }
+  if (!(provision[0]! < canonical[0]! && canonical[0]! < build && build < upload)) {
+    problems.push("release verification must precede package build and upload");
+  }
+  return problems;
+};
+
 const CHECKOUT =
   "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1";
 const SETUP_PYTHON =
@@ -139,9 +175,9 @@ describe("CI governance", () => {
     );
 
     expect(plan["runs-on"]).toBe("ubuntu-latest");
-    expect(plan["timeout-minutes"]).toBe(5);
-    expect(plan.steps.find((step) => step.run === "bun scripts/ci-plan.ts")?.name)
-      .toBe("Select required verification lanes");
+    expect(plan["timeout-minutes"]).toBe(10);
+    expect(plan.steps.find((step) => step.name === "Select required verification lanes")?.run)
+      .toContain("semctx-gates ci-plan --root");
     expect(gates.needs).toBe("plan");
     expect(gates.strategy).toEqual({
       "fail-fast": false,
@@ -157,7 +193,7 @@ describe("CI governance", () => {
     expect(bun?.with?.["bun-version"]).toBe("1.4.3");
     expect(ci).toContain("bun install --frozen-lockfile");
     expect(gates.steps.find((step) => step.name === "Run selected verification lane")?.run)
-      .toBe("bun scripts/ci-gate.ts");
+      .toContain("ci-run --root");
     expect(ci).not.toContain("bench:index-workers 24 100");
     expect(gates["timeout-minutes"]).toBe(60);
     expect(plan.env?.SEMCTX_VERIFY_BASE).toBe(
@@ -176,16 +212,17 @@ describe("CI governance", () => {
     expect(ciWorkflow.jobs["semctx-required"]).toMatchObject({
       name: "semctx-required",
       if: "always()",
-      needs: ["plan", "gates"],
+      needs: ["plan", "gates", "rust-gates"],
       "runs-on": "ubuntu-latest",
-      "timeout-minutes": 5,
+      "timeout-minutes": 10,
     });
     const required = job(ciWorkflow, "semctx-required").steps[0];
     expect(required?.env).toEqual({
       PLAN_RESULT: "${{ needs.plan.result }}",
       GATES_RESULT: "${{ needs.gates.result }}",
+      RUST_RESULT: "${{ needs.rust-gates.result }}",
     });
-    expect(required?.run).toBe('test "$PLAN_RESULT" = "success"\ntest "$GATES_RESULT" = "success"\n');
+    expect(required?.run).toBe('test "$PLAN_RESULT" = "success"\ntest "$GATES_RESULT" = "success"\ntest "$RUST_RESULT" = "success"\n');
     expect(ci).not.toMatch(/uses:\s+\S+@v\d/);
   });
 
@@ -194,14 +231,14 @@ describe("CI governance", () => {
       const workflow = Bun.YAML.parse(source) as Workflow;
       const required = job(workflow, "semctx-required");
       expect(required.if).toBe("always()");
-      expect(required.needs).toEqual(["plan", "gates"]);
-      expect(required.steps[0]?.run).toBe('test "$PLAN_RESULT" = "success"\ntest "$GATES_RESULT" = "success"\n');
+      expect(required.needs).toEqual(["plan", "gates", "rust-gates"]);
+      expect(required.steps[0]?.run).toBe('test "$PLAN_RESULT" = "success"\ntest "$GATES_RESULT" = "success"\ntest "$RUST_RESULT" = "success"\n');
     };
     assertRequired(ci);
     for (const mutant of [
-      ci.replace("needs: [plan, gates]", "needs: [gates]"),
+      ci.replace("needs: [plan, gates, rust-gates]", "needs: [gates, rust-gates]"),
       ci.replace('test "$GATES_RESULT" = "success"', "true"),
-      ci.replace("if: always()", "if: success()"),
+      ci.replace("name: semctx-required\n    if: always()", "name: semctx-required\n    if: success()"),
     ]) {
       expect(() => assertRequired(mutant)).toThrow();
     }
@@ -209,19 +246,23 @@ describe("CI governance", () => {
 
   test("archives each selected smoke report with a unique valid artifact name", () => {
     const gates = job(ciWorkflow, "gates");
-    const upload = gates.steps.find((step) => step.uses?.startsWith("actions/upload-artifact@"));
-    expect(upload?.if).toBe("matrix.smoke == 'true'");
-    expect(upload?.with?.path).toBe(".semctx/multicore-index.json");
-    expect(upload?.with?.["include-hidden-files"]).toBe(true);
+    const upload = gates.steps.find((step) => step.name === "Archive complete worker benchmark report");
+    expect(upload?.if).toBe("matrix.smoke == 'true' && (matrix.shard == '' || startsWith(matrix.shard, '1/'))");
+    expect(upload?.with?.path).toBe("${{ runner.temp }}/worker-report.json");
+    const materialize = gates.steps.find((step) => step.name === "Materialize the observed worker report");
+    expect(materialize?.if).toBe(upload?.if);
+    expect(materialize?.run).toContain('s.action.label === "worker equivalence smoke"');
+    expect(materialize?.run).toContain("JSON.parse(s.outcome.stdout)");
+    expect(gates.steps.indexOf(materialize!)).toBeLessThan(gates.steps.indexOf(upload!));
     expect(upload?.with?.["if-no-files-found"]).toBe("error");
     expect(gates.steps.indexOf(upload!)).toBeGreaterThan(
-      gates.steps.findIndex((step) => step.run === "bun scripts/ci-gate.ts"),
+      gates.steps.findIndex((step) => step.name === "Run selected verification lane"),
     );
     for (const paths of [["scripts/test/benchmark-multicore-index.test.ts"], ["package.json"]]) {
       const plan = planForPaths(paths, () => true);
       for (const attempt of [1, 2]) {
         const names = plan.matrix.include.flatMap((lane, index) => {
-          if (lane.smoke !== "true") return [];
+          if (lane.smoke !== "true" || (lane.shard !== "" && !lane.shard.startsWith("1/"))) return [];
           const values: Record<string, string> = {
             "matrix.os": lane.os, "matrix.shard": lane.shard,
             "github.run_attempt": String(attempt), "strategy.job-index": String(index),
@@ -232,7 +273,7 @@ describe("CI governance", () => {
             return value;
           })];
         });
-        expect(names.length).toBeGreaterThan(3);
+        expect(names.length).toBe(3);
         expect(new Set(names).size).toBe(names.length);
         expect(names.every((name) => /^[\w.-]+$/.test(name))).toBe(true);
       }
@@ -434,7 +475,7 @@ describe("release governance", () => {
     expect(executableShell(prove?.run ?? "")).toContain('test "$verifier_sha" = "$GITHUB_SHA"');
     expect(publishing).toContain("repository-pinned Bun `1.4.3`");
     expect(devcontainer).toContain('bash -s "bun-v1.4.3"');
-    expect(release).toContain("bun run verify:pr -- --skip-diff");
+    expect(releaseVerificationProblems(releaseWorkflow)).toEqual([]);
     expect(release).not.toContain("bun run quality");
     expect(release).not.toContain("bun run plugin:check");
     expect(release).toContain("npm install --global npm@12.0.1");
@@ -451,6 +492,67 @@ describe("release governance", () => {
     expect(release).not.toContain("|| true");
     expect(release).not.toContain("credential.helper=!f()");
     expect(release).not.toMatch(/uses:\s+\S+@v\d/);
+  });
+
+  test.each([
+    "# bun run verify:pr -- --skip-diff",
+    'echo "bun run verify:pr -- --skip-diff"',
+    "bun run verify:pr -- --skip-diff || true",
+    "if false; then bun run verify:pr -- --skip-diff; fi",
+  ])("rejects a disabled release verifier: %s", (run) => {
+    const mutant = structuredClone(releaseWorkflow);
+    const verify = job(mutant, "verify").steps.find(
+      (step) => step.run === "bun run verify:pr -- --skip-diff",
+    );
+    expect(verify).toBeDefined();
+    verify!.run = run;
+    expect(releaseVerificationProblems(mutant)).not.toEqual([]);
+  });
+
+  test.each([
+    { if: "false" },
+    { "continue-on-error": true },
+    { shell: "bash {0} || true" },
+    { "working-directory": "unverified-checkout" },
+  ])("rejects release verifier execution overrides: %j", (override) => {
+    const mutant = structuredClone(releaseWorkflow);
+    const verify = job(mutant, "verify").steps.find(
+      (step) => step.run === "bun run verify:pr -- --skip-diff",
+    );
+    expect(verify).toBeDefined();
+    Object.assign(verify!, override);
+    expect(releaseVerificationProblems(mutant)).not.toEqual([]);
+  });
+
+  test.each(["before Rust provisioning", "after package build", "after package upload"])(
+    "rejects release verification %s",
+    (position) => {
+      const mutant = structuredClone(releaseWorkflow);
+      const steps = job(mutant, "verify").steps;
+      const index = steps.findIndex((step) => step.run === "bun run verify:pr -- --skip-diff");
+      expect(index).toBeGreaterThan(-1);
+      const [verify] = steps.splice(index, 1);
+      const target = position === "before Rust provisioning" ? 0 : steps.length - (position === "after package build" ? 1 : 0);
+      steps.splice(target, 0, verify!);
+      expect(releaseVerificationProblems(mutant)).not.toEqual([]);
+    },
+  );
+
+  test("rejects inherited release execution overrides and a disabled Rust provisioner", () => {
+    const workflowDefault = structuredClone(releaseWorkflow);
+    workflowDefault.defaults = { run: { shell: "bash {0} || true" } };
+    expect(releaseVerificationProblems(workflowDefault)).not.toEqual([]);
+    const jobDefault = structuredClone(releaseWorkflow);
+    job(jobDefault, "verify").defaults = { run: { "working-directory": "other-checkout" } };
+    expect(releaseVerificationProblems(jobDefault)).not.toEqual([]);
+    const ignoredFailure = structuredClone(releaseWorkflow);
+    job(ignoredFailure, "verify")["continue-on-error"] = true;
+    expect(releaseVerificationProblems(ignoredFailure)).not.toEqual([]);
+    const missingRust = structuredClone(releaseWorkflow);
+    const provision = job(missingRust, "verify").steps.find((step) => step.run?.startsWith("rustup toolchain install"));
+    expect(provision).toBeDefined();
+    provision!.if = "false";
+    expect(releaseVerificationProblems(missingRust)).not.toEqual([]);
   });
 
   test("keeps repository code out of the OIDC publisher", () => {

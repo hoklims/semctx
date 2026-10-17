@@ -196,5 +196,11 @@ export async function main(
 }
 
 if (import.meta.main) {
-  process.exitCode = await main();
+  // Keep this path for existing contributor integrations. Policy and execution now live in Rust;
+  // the exported legacy functions remain a differential reference for their contract tests.
+  const child = Bun.spawn([
+    "cargo", "run", "--manifest-path", "tools/gates/Cargo.toml", "--locked", "--release", "--",
+    "verify-pr", ...process.argv.slice(2),
+  ], { stdin: "inherit", stdout: "inherit", stderr: "inherit" });
+  process.exitCode = await child.exited;
 }

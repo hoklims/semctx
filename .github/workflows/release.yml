@@ -52,6 +52,8 @@ jobs:
       - run: npm install --global npm@12.0.1 # zizmor: ignore[adhoc-packages] exact package-builder pin
       - run: python -m pip install --disable-pip-version-check --requirement requirements-quality.txt
       - run: bun install --frozen-lockfile
+      - name: Provision the pinned Rust verification toolchain
+        run: rustup toolchain install 1.95.0 --profile minimal --component rustfmt --component clippy
       - run: bun run verify:pr -- --skip-diff
       - name: Build and checksum the immutable npm package
         shell: bash

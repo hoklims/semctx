@@ -122,6 +122,19 @@ function gatherPrerequisites(): PrerequisiteResult[] {
   });
   const jsDependencies = evaluateJsDependencies({ nodeModulesPresent, checkedPackages, missingPackages, versions });
 
+  const rustPin = /^channel\s*=\s*"(\d+\.\d+\.\d+)"/m.exec(
+    readFileSync(join(REPOSITORY_ROOT, "rust-toolchain.toml"), "utf8"),
+  )?.[1];
+  if (rustPin === undefined) throw new Error("rust-toolchain.toml must declare an exact Rust channel");
+  const rustTools = ["rustc", "cargo"].map(id => {
+    const which = Bun.which(id);
+    const probe = which === null ? null : Bun.spawnSync([which, "--version"], { stdout: "pipe", stderr: "pipe", ...processLimits(10_000) });
+    const result = evaluatePythonTool({ id, label: id, requiredVersion: rustPin, which,
+      queryOk: probe?.exitCode === 0, rawVersion: probe === null ? null : `${probe.stdout.toString()}${probe.stderr.toString()}` });
+    return { ...result, required: `${id} ${rustPin}`, detail: `${result.status === "ok" ? "Matches" : "Does not establish"} the pinned toolchain in rust-toolchain.toml.`,
+      recovery: result.status === "ok" ? null : `Install rustup, then run rustup toolchain install ${rustPin} --profile minimal --component rustfmt --component clippy` };
+  });
+
   const pythonPath = Bun.which("python");
   const pythonProbe = pythonPath === null ? null : Bun.spawnSync([pythonPath, "--version"], { stdout: "pipe", stderr: "pipe", ...processLimits(10_000) });
   const pythonInterpreter = evaluatePythonInterpreter({ which: pythonPath, queryOk: pythonProbe?.exitCode === 0, rawVersion: pythonProbe === null ? null : `${pythonProbe.stdout.toString()}${pythonProbe.stderr.toString()}` });
@@ -131,7 +144,7 @@ function gatherPrerequisites(): PrerequisiteResult[] {
   );
   const pythonTools = Object.keys(pins).map((id) => probePythonTool(id, pins[id] ?? "unknown"));
 
-  return [bun, jsDependencies, pythonInterpreter, ...pythonTools];
+  return [bun, jsDependencies, ...rustTools, pythonInterpreter, ...pythonTools];
 }
 
 // --- Command implementations -------------------------------------------------------------------
