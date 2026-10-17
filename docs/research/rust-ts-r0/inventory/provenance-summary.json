@@ -1,0 +1,1087 @@
+{
+  "schema_version": 1,
+  "status": "discovery_provenance_not_semantic_qualification",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "started_utc": "2026-10-17T08:26:20Z",
+  "finished_utc": "2026-10-17T08:31:05.987Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "bun": "1.4.3",
+    "typescript": "5.9.3",
+    "typescript_declaration": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+    "root_config": "tsconfig.json",
+    "compiler_options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "lib": [
+        "lib.es2023.d.ts"
+      ],
+      "types": [
+        "bun"
+      ],
+      "strict": true,
+      "noImplicitAny": true,
+      "noUncheckedIndexedAccess": true,
+      "noFallthroughCasesInSwitch": true,
+      "noImplicitOverride": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowUnreachableCode": false,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "isolatedModules": true,
+      "verbatimModuleSyntax": true,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "declaration": false,
+      "baseUrl": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline",
+      "paths": {
+        "@semantic-context/core": [
+          "./packages/core/src/index.ts"
+        ],
+        "@semantic-context/plane-a-internal": [
+          "./packages/plane-a-internal/src/index.ts"
+        ],
+        "@semantic-context/python-analyzer": [
+          "./packages/python-analyzer/src/index.ts"
+        ],
+        "@semantic-context/ts-analyzer": [
+          "./packages/ts-analyzer/src/index.ts"
+        ],
+        "@semantic-context/workspace-analyzer-internal": [
+          "./packages/workspace-analyzer-internal/src/index.ts"
+        ],
+        "@semantic-context/repository-store": [
+          "./packages/repository-store/src/index.ts"
+        ],
+        "@semantic-context/context-engine": [
+          "./packages/context-engine/src/index.ts"
+        ],
+        "@semantic-context/cocoindex-adapter": [
+          "./packages/cocoindex-adapter/src/index.ts"
+        ],
+        "@semantic-context/semantic-model": [
+          "./packages/semantic-model/src/index.ts"
+        ],
+        "@semantic-context/semantic-dsl": [
+          "./packages/semantic-dsl/src/index.ts"
+        ],
+        "@semantic-context/semantic-engine": [
+          "./packages/semantic-engine/src/index.ts"
+        ],
+        "@semantic-context/control-model": [
+          "./packages/control-model/src/index.ts"
+        ],
+        "@semantic-context/control-engine": [
+          "./packages/control-engine/src/index.ts"
+        ],
+        "@semantic-context/change-authorization-verifier": [
+          "./packages/change-authorization-verifier/src/index.ts"
+        ],
+        "@semantic-context/app-services": [
+          "./packages/app-services/src/index.ts"
+        ],
+        "@semantic-context/mcp-server": [
+          "./packages/mcp-server/src/index.ts"
+        ],
+        "@semantic-context/test-fixtures": [
+          "./packages/test-fixtures/src/index.ts"
+        ]
+      },
+      "pathsBasePath": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline",
+      "configFilePath": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/tsconfig.json"
+    },
+    "program_files": 395,
+    "program_files_outside_external_baseline": [],
+    "root_files": [
+      "packages/ts-analyzer/src/analyze.ts",
+      "packages/ts-analyzer/src/ts-symbols.ts",
+      "packages/ts-analyzer/src/discovery.ts",
+      "packages/ts-analyzer/src/top-level-outline.ts",
+      "packages/ts-analyzer/src/workspace-links.ts",
+      "packages/ts-analyzer/src/index-worker.ts",
+      "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "packages/app-services/src/qualified-analysis.ts",
+      "packages/ts-analyzer/src/symbol-grouping.ts",
+      "packages/ts-analyzer/src/markers.ts",
+      "packages/ts-analyzer/src/docs.ts",
+      "packages/ts-analyzer/src/migrations.ts",
+      "packages/ts-analyzer/src/index.ts",
+      "packages/app-services/src/index-health.ts",
+      "packages/app-services/src/freshness.ts",
+      "packages/app-services/src/analyzer-identity-generated.ts",
+      "scripts/analyzer-identity.ts",
+      "scripts/pilot/baselines.ts"
+    ]
+  },
+  "installation": {
+    "command": "bun install --frozen-lockfile --ignore-scripts",
+    "lock_sha256": "bd3521077148963ad09287236efb77c161efd73ddd33180359a599562196f5b2",
+    "environment": "isolated external archive; no candidate/node_modules mutation"
+  },
+  "method": "Actual pinned TypeScript Program/checker resolves receiver types, accessed member symbols, declarations and type arguments over exact baseline source. Declaration origins, rather than spelling, assign dispositions. This is source discovery only; no runtime semantic parity, test coverage or Rust mechanism is inferred.",
+  "caveats": [
+    "Declaration provenance identifies the static contract, not the runtime implementation of injected/overridden System or CompilerHost methods.",
+    "Contained type arguments are traced to maximum depth 3 for auxiliary data-container tagging; direct accessed-member declaration provenance is not depth-limited.",
+    "The Program is a discovery Program configured from repository tsconfig, not the baseline analyzer Program. Its loaded libraries do not establish analyzer runtime SDK library closure.",
+    "First attempt was discarded after detecting caller-worktree Bun types; accepted run binds both host currentDirectory and configFilePath to the external archive and rejects any Program file outside it."
+  ],
+  "summary": {
+    "member_candidate_count": 5317,
+    "member_dispositions": {
+      "ecmascript_container_member_over_typescript_data": 274,
+      "ecmascript_library_member": 1264,
+      "noncompiler_mapped_or_indexed_member": 283,
+      "noncompiler_receiver_structural_refinement_member": 1,
+      "other_dependency_member": 114,
+      "owned_baseline_member": 1203,
+      "resolved_noncompiler_dynamic_index": 57,
+      "typescript_declared_member": 2049,
+      "typescript_receiver_index_access": 63,
+      "typescript_receiver_structural_refinement_member": 1,
+      "typescript_receiver_with_local_extension_member": 8
+    },
+    "additional_namespace_index_sites": 2,
+    "refusal_emission_site_candidates": 136,
+    "namespace_site_count": 1337,
+    "namespace_dispositions": {
+      "asserted_typescript_namespace_extension": 2,
+      "typescript_declared_member": 1333,
+      "typescript_namespace_alias_flow": 2
+    },
+    "former_method_candidate_count": 385,
+    "former_method_candidate_dispositions": {
+      "typescript_declared_member": 385
+    },
+    "scoped_diagnostics": 0,
+    "unresolved_member_candidates": 0,
+    "unresolved_namespace_sites": 0
+  },
+  "compiler_host_and_injected_system_alias_flows": [
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/analyze.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/analyze.ts",
+        "line": 416,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "retainedCompilerSystem(compilerInputs)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 14,
+        "column": 7,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "snapshotSystems"
+      },
+      "name": "snapshotSystems",
+      "type": "WeakMap<CompilerInputSnapshot, ts.System>",
+      "initializer_source": "new WeakMap<CompilerInputSnapshot, ts.System>()",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 1
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 17,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "cached"
+      },
+      "name": "cached",
+      "type": "ts.System | undefined",
+      "initializer_source": "snapshotSystems.get(snapshot)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 30,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "type_annotation": "ts.System",
+      "initializer_source": "{\n    ...ts.sys,\n    readFile: path => retained.get(canonicalTypeScriptFileKey(path)) ?? (library(path) ? ts.sys.readFile(path) : undefined),\n    fileExists: path => retained.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.fileExists(path)),\n    directoryExists: path => {\n      return directories.has(canonicalTypeScriptFileKey(path)) || (library(path) && ts.sys.directoryExists(path));\n    },\n    readDirectory: () => [],\n  }",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 168,
+        "column": 11,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "host"
+      },
+      "name": "host",
+      "type": "ts.CompilerHost",
+      "initializer_source": "ts.createCompilerHost(COMPILER_OPTIONS)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 7349,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "CompilerHost",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 169,
+        "column": 11,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "snapshot === undefined ? ts.sys : snapshotSystem(snapshot)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 236,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "snapshot === undefined ? ts.sys : snapshotSystem(snapshot)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 268,
+        "column": 3,
+        "kind": "Parameter",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "type_annotation": "ts.System",
+      "initializer_source": "ts.sys",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 274,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "configurationSystem"
+      },
+      "name": "configurationSystem",
+      "type": "ts.System",
+      "initializer_source": "system === ts.sys ? workspaceLinkedSystem(system, repositoryRoot, workspaceLinks) : system",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 299,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "resolutionSystem"
+      },
+      "name": "resolutionSystem",
+      "type": "ts.System",
+      "type_annotation": "ts.System",
+      "initializer_source": "liveRoot !== undefined ? {\n    ...configurationSystem,\n    fileExists: path => admitted(path) && system.fileExists(path) && configurationSystem.fileExists(path),\n    readFile: (path, encoding) => admitted(path) && system.fileExists(path) ? configurationSystem.readFile(path, encoding) : undefined,\n    directoryExists: path => admitted(path) && (system.directoryExists?.(path) ?? false) && (configurationSystem.directoryExists?.(path) ?? false),\n    realpath: path => admitted(path) && (system.fileExists(path) || (system.directoryExists?.(path) ?? false))\n      ? configurationSystem.realpath?.(path) ?? path : path,\n  } : system",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/workspace-links.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/workspace-links.ts",
+        "line": 309,
+        "column": 3,
+        "kind": "Parameter",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "type_annotation": "ts.System",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 87,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "host"
+      },
+      "name": "host",
+      "type": "ts.CompilerHost",
+      "initializer_source": "ts.createCompilerHost(options)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 7349,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "CompilerHost",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 259,
+        "column": 11,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 349,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "retainedCompilerSystem(inputs)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 370,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "system"
+      },
+      "name": "system",
+      "type": "ts.System",
+      "initializer_source": "compilerInputs === undefined ? ts.sys : retainedCompilerSystem(compilerInputs)",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 391,
+        "column": 9,
+        "kind": "VariableDeclaration",
+        "provenance": "owned_baseline_source",
+        "name": "configurationSystem"
+      },
+      "name": "configurationSystem",
+      "type": "ts.System",
+      "initializer_source": "compilerInputs === undefined ? workspaceLinkedSystem(system, repositoryRoot, workspaceLinks) : system",
+      "typescript_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 8445,
+          "column": 5,
+          "kind": "InterfaceDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "System",
+          "container_depth": 0
+        }
+      ]
+    }
+  ],
+  "asserted_namespace_extension_sites": [
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 471,
+        "column": 7,
+        "end_line": 471,
+        "end_column": 35,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "expression": "sdk.getJSXImplicitImportBase",
+        "kind": "namespace_runtime_reference",
+        "use": "call",
+        "consumer": "inspectJsxRuntimeBoundary",
+        "provenance": "asserted_sdk_namespace_alias"
+      },
+      "receiver_bindings": {
+        "name": "sdk",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "line": 469,
+            "column": 9,
+            "kind": "VariableDeclaration",
+            "provenance": "owned_baseline_source",
+            "name": "sdk",
+            "initializer_source": "ts as unknown as { getJSXImplicitImportBase(options: ts.CompilerOptions, source: ts.SourceFile): string | undefined }"
+          }
+        ]
+      },
+      "member_symbol": {
+        "name": "getJSXImplicitImportBase",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "line": 469,
+            "column": 34,
+            "kind": "MethodSignature",
+            "provenance": "owned_baseline_source",
+            "name": "getJSXImplicitImportBase"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "line": 91,
+        "column": 34,
+        "end_line": 91,
+        "end_column": 56,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "expression": "sdk.isIntrinsicJsxName",
+        "kind": "namespace_runtime_reference",
+        "use": "call",
+        "consumer": "inspectSemanticDependencies > inspectSyntax",
+        "provenance": "asserted_sdk_namespace_alias"
+      },
+      "receiver_bindings": {
+        "name": "sdk",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 24,
+            "column": 9,
+            "kind": "VariableDeclaration",
+            "provenance": "owned_baseline_source",
+            "name": "sdk",
+            "initializer_source": "ts as unknown as { isIntrinsicJsxName(name: string): boolean }"
+          }
+        ]
+      },
+      "member_symbol": {
+        "name": "isIntrinsicJsxName",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 24,
+            "column": 34,
+            "kind": "MethodSignature",
+            "provenance": "owned_baseline_source",
+            "name": "isIntrinsicJsxName"
+          }
+        ]
+      }
+    }
+  ],
+  "local_extension_member_sites": [
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "line": 740,
+        "column": 25,
+        "end_line": 740,
+        "end_column": 113,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/ts-symbols.ts",
+        "expression": "(sf as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics",
+        "consumer": "preflightParallelSafety",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[]; }",
+      "member_symbol": {
+        "name": "parseDiagnostics",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/ts-symbols.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+            "line": 740,
+            "column": 50,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "parseDiagnostics"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 272,
+        "column": 11,
+        "end_line": 272,
+        "end_column": 25,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/top-level-outline.ts",
+        "expression": "withNames.name",
+        "consumer": "expressionExecutes",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.Node & { name?: ts.Node; }",
+      "member_symbol": {
+        "name": "name",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 270,
+            "column": 43,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "name"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 272,
+        "column": 69,
+        "end_line": 272,
+        "end_column": 83,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/top-level-outline.ts",
+        "expression": "withNames.name",
+        "consumer": "expressionExecutes",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.Node & { name?: ts.Node; }",
+      "member_symbol": {
+        "name": "name",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 270,
+            "column": 43,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "name"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 272,
+        "column": 107,
+        "end_line": 272,
+        "end_column": 121,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/top-level-outline.ts",
+        "expression": "withNames.name",
+        "consumer": "expressionExecutes",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.Node & { name?: ts.Node; }",
+      "member_symbol": {
+        "name": "name",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 270,
+            "column": 43,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "name"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 336,
+        "column": 11,
+        "end_line": 336,
+        "end_column": 103,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "expression": "(source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics",
+        "consumer": "inspectSourceParsing",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[]; }",
+      "member_symbol": {
+        "name": "parseDiagnostics",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "line": 336,
+            "column": 40,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "parseDiagnostics"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 494,
+        "column": 23,
+        "end_line": 494,
+        "end_column": 80,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "expression": "(node as ts.Node & { jsDoc?: readonly ts.JSDoc[] }).jsDoc",
+        "consumer": "hasSemanticJSDocImport > visit",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.Node & { jsDoc?: readonly ts.JSDoc[]; }",
+      "member_symbol": {
+        "name": "jsDoc",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/javascript-diagnostics.ts",
+            "line": 494,
+            "column": 44,
+            "kind": "PropertySignature",
+            "provenance": "owned_baseline_source",
+            "name": "jsDoc"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "line": 380,
+        "column": 26,
+        "end_line": 380,
+        "end_column": 49,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "expression": "node.arguments?.[index]",
+        "consumer": "inspectSemanticDependencies > inspectSdkCallbacks",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.NodeArray<ts.Expression> | undefined",
+      "member_symbol": {
+        "name": "index",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 379,
+            "column": 19,
+            "kind": "BindingElement",
+            "provenance": "owned_baseline_source",
+            "name": "index"
+          }
+        ]
+      }
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "line": 988,
+        "column": 18,
+        "end_line": 988,
+        "end_column": 39,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "expression": "array.elements[index]",
+        "consumer": "inspectSemanticDependencies > bindingValue",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.NodeArray<ts.Expression>",
+      "member_symbol": {
+        "name": "index",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 986,
+            "column": 11,
+            "kind": "VariableDeclaration",
+            "provenance": "owned_baseline_source",
+            "name": "index"
+          }
+        ]
+      }
+    }
+  ],
+  "structural_refinement_member_sites": [
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "line": 721,
+        "column": 35,
+        "end_line": 721,
+        "end_column": 46,
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "expression": "parent.name",
+        "consumer": "inspectSemanticDependencies > inlineOwned > visitReference",
+        "kind": "object_member_access_candidate",
+        "provenance": "receiver_type_not_inferred_by_scanner"
+      },
+      "receiver_type": "ts.Node & Record<\"name\", unknown>",
+      "member_symbol": {
+        "name": "name",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": []
+      }
+    }
+  ],
+  "additional_namespace_index_sites": [
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 417,
+        "column": 63,
+        "expression": "ts.ModuleKind[parsed.options.module]",
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/javascript-diagnostics.ts"
+      },
+      "access_kind": "value_read_or_reference",
+      "receiver_source": "ts.ModuleKind",
+      "receiver_type": "typeof ts.ModuleKind",
+      "receiver_flags": 524288,
+      "receiver_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 7151,
+          "column": 5,
+          "kind": "EnumDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "ModuleKind",
+          "container_depth": 0
+        }
+      ],
+      "receiver_bindings": {
+        "name": "ModuleKind",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "line": 7151,
+            "column": 5,
+            "kind": "EnumDeclaration",
+            "provenance": "typescript_compiler_declaration",
+            "name": "ModuleKind"
+          }
+        ]
+      },
+      "member_symbol": {
+        "name": "module",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "line": 7057,
+            "column": 9,
+            "kind": "PropertySignature",
+            "provenance": "typescript_compiler_declaration",
+            "name": "module"
+          }
+        ]
+      },
+      "typescript_namespace_receiver": false,
+      "typescript_receiver": true,
+      "contains_typescript_data": true,
+      "dynamic_element_access": true,
+      "role_tags": [],
+      "disposition": "typescript_declared_member"
+    },
+    {
+      "source": {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "line": 420,
+        "column": 67,
+        "expression": "ts.ModuleResolutionKind[parsed.options.moduleResolution]",
+        "git_object": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/javascript-diagnostics.ts"
+      },
+      "access_kind": "value_read_or_reference",
+      "receiver_source": "ts.ModuleResolutionKind",
+      "receiver_type": "typeof ts.ModuleResolutionKind",
+      "receiver_flags": 524288,
+      "receiver_type_origins": [
+        {
+          "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+          "line": 6952,
+          "column": 5,
+          "kind": "EnumDeclaration",
+          "provenance": "typescript_compiler_declaration",
+          "name": "ModuleResolutionKind",
+          "container_depth": 0
+        }
+      ],
+      "receiver_bindings": {
+        "name": "ModuleResolutionKind",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "line": 6952,
+            "column": 5,
+            "kind": "EnumDeclaration",
+            "provenance": "typescript_compiler_declaration",
+            "name": "ModuleResolutionKind"
+          }
+        ]
+      },
+      "member_symbol": {
+        "name": "moduleResolution",
+        "alias": false,
+        "alias_declarations": [],
+        "declarations": [
+          {
+            "path": "node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "canonical_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/resolved-baseline/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.d.ts",
+            "line": 7058,
+            "column": 9,
+            "kind": "PropertySignature",
+            "provenance": "typescript_compiler_declaration",
+            "name": "moduleResolution"
+          }
+        ]
+      },
+      "typescript_namespace_receiver": false,
+      "typescript_receiver": true,
+      "contains_typescript_data": true,
+      "dynamic_element_access": true,
+      "role_tags": [],
+      "disposition": "typescript_declared_member"
+    }
+  ],
+  "scoped_diagnostics": [],
+  "unresolved_member_candidates": [],
+  "unresolved_namespace_sites": []
+}
