@@ -1,0 +1,3174 @@
+{
+  "initialization": {
+    "capabilities": {
+      "positionEncoding": "utf-16",
+      "textDocumentSync": {
+        "openClose": true,
+        "change": 2,
+        "save": {}
+      },
+      "completionProvider": {
+        "triggerCharacters": [
+          ":",
+          ".",
+          "'",
+          "("
+        ],
+        "resolveProvider": false,
+        "completionItem": {
+          "labelDetailsSupport": false
+        }
+      },
+      "hoverProvider": true,
+      "signatureHelpProvider": {
+        "triggerCharacters": [
+          "(",
+          ",",
+          "<"
+        ]
+      },
+      "declarationProvider": true,
+      "definitionProvider": true,
+      "typeDefinitionProvider": true,
+      "implementationProvider": true,
+      "referencesProvider": true,
+      "documentHighlightProvider": true,
+      "documentSymbolProvider": true,
+      "codeActionProvider": true,
+      "codeLensProvider": {
+        "resolveProvider": true
+      },
+      "workspaceSymbolProvider": true,
+      "documentFormattingProvider": true,
+      "documentRangeFormattingProvider": false,
+      "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+          "=",
+          "<",
+          ">",
+          "{",
+          "(",
+          "|",
+          "+"
+        ]
+      },
+      "renameProvider": {
+        "prepareProvider": true
+      },
+      "foldingRangeProvider": true,
+      "selectionRangeProvider": true,
+      "callHierarchyProvider": true,
+      "semanticTokensProvider": {
+        "legend": {
+          "tokenTypes": [
+            "comment",
+            "decorator",
+            "enumMember",
+            "enum",
+            "function",
+            "interface",
+            "keyword",
+            "macro",
+            "method",
+            "namespace",
+            "number",
+            "operator",
+            "parameter",
+            "property",
+            "string",
+            "struct",
+            "typeParameter",
+            "variable",
+            "type",
+            "label",
+            "angle",
+            "arithmetic",
+            "attributeBracket",
+            "attribute",
+            "bitwise",
+            "boolean",
+            "brace",
+            "bracket",
+            "builtinAttribute",
+            "builtinType",
+            "character",
+            "colon",
+            "comma",
+            "comparison",
+            "constParameter",
+            "const",
+            "deriveHelper",
+            "derive",
+            "dot",
+            "escapeSequence",
+            "formatSpecifier",
+            "generic",
+            "invalidEscapeSequence",
+            "lifetime",
+            "logical",
+            "macroBang",
+            "negation",
+            "parenthesis",
+            "procMacro",
+            "punctuation",
+            "selfKeyword",
+            "selfTypeKeyword",
+            "semicolon",
+            "static",
+            "toolModule",
+            "typeAlias",
+            "union",
+            "unresolvedReference"
+          ],
+          "tokenModifiers": [
+            "async",
+            "documentation",
+            "declaration",
+            "static",
+            "defaultLibrary",
+            "deprecated",
+            "associated",
+            "attribute",
+            "callable",
+            "constant",
+            "consuming",
+            "controlFlow",
+            "crateRoot",
+            "injected",
+            "intraDocLink",
+            "library",
+            "macro",
+            "mutable",
+            "procMacro",
+            "public",
+            "reference",
+            "trait",
+            "unsafe"
+          ]
+        },
+        "range": true,
+        "full": {
+          "delta": true
+        }
+      },
+      "inlayHintProvider": {
+        "resolveProvider": false
+      },
+      "diagnosticProvider": {
+        "identifier": "rust-analyzer",
+        "interFileDependencies": true,
+        "workspaceDiagnostics": false
+      },
+      "workspace": {
+        "workspaceFolders": {
+          "supported": true,
+          "changeNotifications": true
+        },
+        "fileOperations": {
+          "willRename": {
+            "filters": [
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**/*.rs",
+                  "matches": "file"
+                }
+              },
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**",
+                  "matches": "folder"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "experimental": {
+        "externalDocs": true,
+        "hoverRange": true,
+        "joinLines": true,
+        "matchingBrace": true,
+        "moveItem": true,
+        "onEnter": true,
+        "openCargoToml": true,
+        "parentModule": true,
+        "childModules": true,
+        "runnables": {
+          "kinds": [
+            "cargo"
+          ]
+        },
+        "ssr": true,
+        "workspaceSymbolScopeKindFiltering": true
+      }
+    },
+    "serverInfo": {
+      "name": "rust-analyzer",
+      "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+    }
+  },
+  "symbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      "name": "main",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 48,
+            "character": 1
+          }
+        }
+      },
+      "name": "run",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 50,
+            "character": 0
+          },
+          "end": {
+            "line": 54,
+            "character": 1
+          }
+        }
+      },
+      "name": "Counter",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 4
+          },
+          "end": {
+            "line": 52,
+            "character": 16
+          }
+        }
+      },
+      "name": "items",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 53,
+            "character": 4
+          },
+          "end": {
+            "line": 53,
+            "character": 18
+          }
+        }
+      },
+      "name": "methods",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 56,
+            "character": 0
+          },
+          "end": {
+            "line": 71,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Visit<'ast> for Counter",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 4
+          },
+          "end": {
+            "line": 60,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_item",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 62,
+            "character": 4
+          },
+          "end": {
+            "line": 65,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_impl_item_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 67,
+            "character": 4
+          },
+          "end": {
+            "line": 70,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_trait_item_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 73,
+            "character": 0
+          },
+          "end": {
+            "line": 95,
+            "character": 1
+          }
+        }
+      },
+      "name": "symbol",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 97,
+            "character": 0
+          },
+          "end": {
+            "line": 119,
+            "character": 1
+          }
+        }
+      },
+      "name": "attribute_labels",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 121,
+            "character": 0
+          },
+          "end": {
+            "line": 140,
+            "character": 1
+          }
+        }
+      },
+      "name": "source_offset",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 142,
+            "character": 0
+          },
+          "end": {
+            "line": 162,
+            "character": 1
+          }
+        }
+      },
+      "name": "tests",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 146,
+            "character": 4
+          },
+          "end": {
+            "line": 153,
+            "character": 5
+          }
+        }
+      },
+      "name": "translates_scalar_columns_into_utf8_bytes_across_lf_and_crlf",
+      "kind": 12,
+      "tags": [],
+      "containerName": "tests"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 155,
+            "character": 4
+          },
+          "end": {
+            "line": 161,
+            "character": 5
+          }
+        }
+      },
+      "name": "rejects_lines_and_columns_outside_source",
+      "kind": 12,
+      "tags": [],
+      "containerName": "tests"
+    }
+  ],
+  "unknown": [],
+  "hierarchy": [
+    {
+      "name": "run",
+      "kind": 12,
+      "detail": "fn run() -> Result<String, String>",
+      "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 0
+        },
+        "end": {
+          "line": 48,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 16,
+          "character": 3
+        },
+        "end": {
+          "line": 16,
+          "character": 6
+        }
+      }
+    }
+  ],
+  "calls": [
+    {
+      "to": {
+        "name": "collect",
+        "kind": 12,
+        "detail": "pub fn collect<B>(self) -> B\nwhere\n    B: FromIterator<Self::Item>,\n    Self: Sized,",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+        "range": {
+          "start": {
+            "line": 1960,
+            "character": 4
+          },
+          "end": {
+            "line": 2090,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 2076,
+            "character": 7
+          },
+          "end": {
+            "line": 2076,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 17,
+            "character": 39
+          },
+          "end": {
+            "line": 17,
+            "character": 46
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "skip",
+        "kind": 12,
+        "detail": "pub fn skip(self, n: usize) -> Skip<Self>\nwhere\n    Self: Sized,",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+        "range": {
+          "start": {
+            "line": 1353,
+            "character": 4
+          },
+          "end": {
+            "line": 1379,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 1374,
+            "character": 7
+          },
+          "end": {
+            "line": 1374,
+            "character": 11
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 17,
+            "character": 31
+          },
+          "end": {
+            "line": 17,
+            "character": 35
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "args_os",
+        "kind": 12,
+        "detail": "pub fn args_os() -> ArgsOs",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/env.rs",
+        "range": {
+          "start": {
+            "line": 831,
+            "character": 0
+          },
+          "end": {
+            "line": 864,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 862,
+            "character": 7
+          },
+          "end": {
+            "line": 862,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 17,
+            "character": 16
+          },
+          "end": {
+            "line": 17,
+            "character": 28
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "len",
+        "kind": 12,
+        "detail": "pub const fn len(&self) -> usize",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+        "range": {
+          "start": {
+            "line": 3049,
+            "character": 4
+          },
+          "end": {
+            "line": 3071,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 3062,
+            "character": 17
+          },
+          "end": {
+            "line": 3062,
+            "character": 20
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 18,
+            "character": 13
+          },
+          "end": {
+            "line": 18,
+            "character": 16
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "Err",
+        "kind": 22,
+        "detail": "Err(E)",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+        "range": {
+          "start": {
+            "line": 562,
+            "character": 4
+          },
+          "end": {
+            "line": 565,
+            "character": 56
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 565,
+            "character": 4
+          },
+          "end": {
+            "line": 565,
+            "character": 7
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 19,
+            "character": 15
+          },
+          "end": {
+            "line": 19,
+            "character": 18
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "into",
+        "kind": 12,
+        "detail": "fn into(self) -> U",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/convert/mod.rs",
+        "range": {
+          "start": {
+            "line": 772,
+            "character": 4
+          },
+          "end": {
+            "line": 780,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 778,
+            "character": 7
+          },
+          "end": {
+            "line": 778,
+            "character": 11
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 19,
+            "character": 58
+          },
+          "end": {
+            "line": 19,
+            "character": 62
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "map_err",
+        "kind": 12,
+        "detail": "pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\nwhere\n    O: FnOnce(E) -> F + Destruct,",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+        "range": {
+          "start": {
+            "line": 938,
+            "character": 4
+          },
+          "end": {
+            "line": 967,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 959,
+            "character": 17
+          },
+          "end": {
+            "line": 959,
+            "character": 24
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 21,
+            "character": 47
+          },
+          "end": {
+            "line": 21,
+            "character": 54
+          }
+        },
+        {
+          "start": {
+            "line": 23,
+            "character": 40
+          },
+          "end": {
+            "line": 23,
+            "character": 47
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "read_to_string",
+        "kind": 12,
+        "detail": "pub fn read_to_string<P>(path: P) -> io::Result<String>\nwhere\n    P: AsRef<Path>,",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/fs.rs",
+        "range": {
+          "start": {
+            "line": 350,
+            "character": 0
+          },
+          "end": {
+            "line": 391,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 381,
+            "character": 7
+          },
+          "end": {
+            "line": 381,
+            "character": 21
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 21,
+            "character": 17
+          },
+          "end": {
+            "line": 21,
+            "character": 35
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "now",
+        "kind": 12,
+        "detail": "pub fn now() -> Instant",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/time.rs",
+        "range": {
+          "start": {
+            "line": 272,
+            "character": 4
+          },
+          "end": {
+            "line": 286,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 284,
+            "character": 11
+          },
+          "end": {
+            "line": 284,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 22,
+            "character": 18
+          },
+          "end": {
+            "line": 22,
+            "character": 30
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "parse_file",
+        "kind": 12,
+        "detail": "pub fn parse_file(mut content: &str) -> Result<File>",
+        "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 1076,
+            "character": 0
+          },
+          "end": {
+            "line": 1131,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 1107,
+            "character": 7
+          },
+          "end": {
+            "line": 1107,
+            "character": 17
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 23,
+            "character": 15
+          },
+          "end": {
+            "line": 23,
+            "character": 30
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "default",
+        "kind": 12,
+        "detail": "pub fn default() -> Self",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/default.rs",
+        "range": {
+          "start": {
+            "line": 107,
+            "character": 4
+          },
+          "end": {
+            "line": 138,
+            "character": 25
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 138,
+            "character": 7
+          },
+          "end": {
+            "line": 138,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 25,
+            "character": 22
+          },
+          "end": {
+            "line": 25,
+            "character": 38
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "visit_file",
+        "kind": 12,
+        "detail": "pub fn visit_file(&mut self, i: &'ast crate::File)",
+        "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/gen/visit.rs",
+        "range": {
+          "start": {
+            "line": 351,
+            "character": 4
+          },
+          "end": {
+            "line": 355,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 353,
+            "character": 7
+          },
+          "end": {
+            "line": 353,
+            "character": 17
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 26,
+            "character": 12
+          },
+          "end": {
+            "line": 26,
+            "character": 22
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "symbol",
+        "kind": 12,
+        "detail": "fn symbol(item: &Item) -> Option<(&'static str, String, &[Attribute])>",
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 73,
+            "character": 0
+          },
+          "end": {
+            "line": 95,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 73,
+            "character": 3
+          },
+          "end": {
+            "line": 73,
+            "character": 9
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 32,
+            "character": 45
+          },
+          "end": {
+            "line": 32,
+            "character": 51
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "span",
+        "kind": 12,
+        "detail": "fn span(&self) -> Span",
+        "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/spanned.rs",
+        "range": {
+          "start": {
+            "line": 104,
+            "character": 4
+          },
+          "end": {
+            "line": 106,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 104,
+            "character": 7
+          },
+          "end": {
+            "line": 104,
+            "character": 11
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 35,
+            "character": 24
+          },
+          "end": {
+            "line": 35,
+            "character": 28
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "source_offset",
+        "kind": 12,
+        "detail": "fn source_offset(source: &str, line: usize, column: usize) -> Result<usize, String>",
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 121,
+            "character": 0
+          },
+          "end": {
+            "line": 140,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 121,
+            "character": 3
+          },
+          "end": {
+            "line": 121,
+            "character": 16
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 36,
+            "character": 20
+          },
+          "end": {
+            "line": 36,
+            "character": 33
+          }
+        },
+        {
+          "start": {
+            "line": 37,
+            "character": 18
+          },
+          "end": {
+            "line": 37,
+            "character": 31
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "push_str",
+        "kind": 12,
+        "detail": "pub fn push_str(&mut self, string: &str)",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/string.rs",
+        "range": {
+          "start": {
+            "line": 1085,
+            "character": 4
+          },
+          "end": {
+            "line": 1107,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 1105,
+            "character": 11
+          },
+          "end": {
+            "line": 1105,
+            "character": 19
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 38,
+            "character": 15
+          },
+          "end": {
+            "line": 38,
+            "character": 23
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "Ok",
+        "kind": 22,
+        "detail": "Ok(T)",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+        "range": {
+          "start": {
+            "line": 557,
+            "character": 4
+          },
+          "end": {
+            "line": 560,
+            "character": 55
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 560,
+            "character": 4
+          },
+          "end": {
+            "line": 560,
+            "character": 6
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 47,
+            "character": 4
+          },
+          "end": {
+            "line": 47,
+            "character": 6
+          }
+        }
+      ]
+    }
+  ],
+  "definition": [
+    {
+      "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/lib.rs",
+      "range": {
+        "start": {
+          "line": 1107,
+          "character": 7
+        },
+        "end": {
+          "line": 1107,
+          "character": 17
+        }
+      }
+    }
+  ],
+  "editedSymbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 0
+          },
+          "end": {
+            "line": 14,
+            "character": 1
+          }
+        }
+      },
+      "name": "main",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 16,
+            "character": 0
+          },
+          "end": {
+            "line": 48,
+            "character": 1
+          }
+        }
+      },
+      "name": "run",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 50,
+            "character": 0
+          },
+          "end": {
+            "line": 54,
+            "character": 1
+          }
+        }
+      },
+      "name": "Counter",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 4
+          },
+          "end": {
+            "line": 52,
+            "character": 16
+          }
+        }
+      },
+      "name": "items",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 53,
+            "character": 4
+          },
+          "end": {
+            "line": 53,
+            "character": 18
+          }
+        }
+      },
+      "name": "methods",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 56,
+            "character": 0
+          },
+          "end": {
+            "line": 71,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Visit<'ast> for Counter",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 4
+          },
+          "end": {
+            "line": 60,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_item",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 62,
+            "character": 4
+          },
+          "end": {
+            "line": 65,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_impl_item_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 67,
+            "character": 4
+          },
+          "end": {
+            "line": 70,
+            "character": 5
+          }
+        }
+      },
+      "name": "visit_trait_item_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Visit<'ast> for Counter"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 73,
+            "character": 0
+          },
+          "end": {
+            "line": 95,
+            "character": 1
+          }
+        }
+      },
+      "name": "symbol",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 97,
+            "character": 0
+          },
+          "end": {
+            "line": 119,
+            "character": 1
+          }
+        }
+      },
+      "name": "attribute_labels",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 121,
+            "character": 0
+          },
+          "end": {
+            "line": 140,
+            "character": 1
+          }
+        }
+      },
+      "name": "source_offset",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 142,
+            "character": 0
+          },
+          "end": {
+            "line": 162,
+            "character": 1
+          }
+        }
+      },
+      "name": "tests",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 146,
+            "character": 4
+          },
+          "end": {
+            "line": 153,
+            "character": 5
+          }
+        }
+      },
+      "name": "translates_scalar_columns_into_utf8_bytes_across_lf_and_crlf",
+      "kind": 12,
+      "tags": [],
+      "containerName": "tests"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "range": {
+          "start": {
+            "line": 155,
+            "character": 4
+          },
+          "end": {
+            "line": 161,
+            "character": 5
+          }
+        }
+      },
+      "name": "rejects_lines_and_columns_outside_source",
+      "kind": 12,
+      "tags": [],
+      "containerName": "tests"
+    }
+  ],
+  "timingsMs": {
+    "initialize": 0.6964579224586487,
+    "ready": 2715.6242090277374,
+    "workspace/symbol": 4.061667015776038,
+    "textDocument/prepareCallHierarchy": 0.2762500662356615,
+    "callHierarchy/outgoingCalls": 257.7104999218136,
+    "textDocument/definition": 0.22566597908735275,
+    "documentSymbolAfterEdit": 4.927207948639989,
+    "shutdown": 0.12974999845027924
+  },
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "positionEncoding": "utf-16",
+          "textDocumentSync": {
+            "openClose": true,
+            "change": 2,
+            "save": {}
+          },
+          "completionProvider": {
+            "triggerCharacters": [
+              ":",
+              ".",
+              "'",
+              "("
+            ],
+            "resolveProvider": false,
+            "completionItem": {
+              "labelDetailsSupport": false
+            }
+          },
+          "hoverProvider": true,
+          "signatureHelpProvider": {
+            "triggerCharacters": [
+              "(",
+              ",",
+              "<"
+            ]
+          },
+          "declarationProvider": true,
+          "definitionProvider": true,
+          "typeDefinitionProvider": true,
+          "implementationProvider": true,
+          "referencesProvider": true,
+          "documentHighlightProvider": true,
+          "documentSymbolProvider": true,
+          "codeActionProvider": true,
+          "codeLensProvider": {
+            "resolveProvider": true
+          },
+          "workspaceSymbolProvider": true,
+          "documentFormattingProvider": true,
+          "documentRangeFormattingProvider": false,
+          "documentOnTypeFormattingProvider": {
+            "firstTriggerCharacter": ".",
+            "moreTriggerCharacter": [
+              "=",
+              "<",
+              ">",
+              "{",
+              "(",
+              "|",
+              "+"
+            ]
+          },
+          "renameProvider": {
+            "prepareProvider": true
+          },
+          "foldingRangeProvider": true,
+          "selectionRangeProvider": true,
+          "callHierarchyProvider": true,
+          "semanticTokensProvider": {
+            "legend": {
+              "tokenTypes": [
+                "comment",
+                "decorator",
+                "enumMember",
+                "enum",
+                "function",
+                "interface",
+                "keyword",
+                "macro",
+                "method",
+                "namespace",
+                "number",
+                "operator",
+                "parameter",
+                "property",
+                "string",
+                "struct",
+                "typeParameter",
+                "variable",
+                "type",
+                "label",
+                "angle",
+                "arithmetic",
+                "attributeBracket",
+                "attribute",
+                "bitwise",
+                "boolean",
+                "brace",
+                "bracket",
+                "builtinAttribute",
+                "builtinType",
+                "character",
+                "colon",
+                "comma",
+                "comparison",
+                "constParameter",
+                "const",
+                "deriveHelper",
+                "derive",
+                "dot",
+                "escapeSequence",
+                "formatSpecifier",
+                "generic",
+                "invalidEscapeSequence",
+                "lifetime",
+                "logical",
+                "macroBang",
+                "negation",
+                "parenthesis",
+                "procMacro",
+                "punctuation",
+                "selfKeyword",
+                "selfTypeKeyword",
+                "semicolon",
+                "static",
+                "toolModule",
+                "typeAlias",
+                "union",
+                "unresolvedReference"
+              ],
+              "tokenModifiers": [
+                "async",
+                "documentation",
+                "declaration",
+                "static",
+                "defaultLibrary",
+                "deprecated",
+                "associated",
+                "attribute",
+                "callable",
+                "constant",
+                "consuming",
+                "controlFlow",
+                "crateRoot",
+                "injected",
+                "intraDocLink",
+                "library",
+                "macro",
+                "mutable",
+                "procMacro",
+                "public",
+                "reference",
+                "trait",
+                "unsafe"
+              ]
+            },
+            "range": true,
+            "full": {
+              "delta": true
+            }
+          },
+          "inlayHintProvider": {
+            "resolveProvider": false
+          },
+          "diagnosticProvider": {
+            "identifier": "rust-analyzer",
+            "interFileDependencies": true,
+            "workspaceDiagnostics": false
+          },
+          "workspace": {
+            "workspaceFolders": {
+              "supported": true,
+              "changeNotifications": true
+            },
+            "fileOperations": {
+              "willRename": {
+                "filters": [
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**/*.rs",
+                      "matches": "file"
+                    }
+                  },
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**",
+                      "matches": "folder"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "experimental": {
+            "externalDocs": true,
+            "hoverRange": true,
+            "joinLines": true,
+            "matchingBrace": true,
+            "moveItem": true,
+            "onEnter": true,
+            "openCargoToml": true,
+            "parentModule": true,
+            "childModules": true,
+            "runnables": {
+              "kinds": [
+                "cargo"
+              ]
+            },
+            "ssr": true,
+            "workspaceSymbolScopeKindFiltering": true
+          }
+        },
+        "serverInfo": {
+          "name": "rust-analyzer",
+          "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": false,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": true,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 0
+              },
+              "end": {
+                "line": 14,
+                "character": 1
+              }
+            }
+          },
+          "name": "main",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 0
+              },
+              "end": {
+                "line": 48,
+                "character": 1
+              }
+            }
+          },
+          "name": "run",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 50,
+                "character": 0
+              },
+              "end": {
+                "line": 54,
+                "character": 1
+              }
+            }
+          },
+          "name": "Counter",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 4
+              },
+              "end": {
+                "line": 52,
+                "character": 16
+              }
+            }
+          },
+          "name": "items",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 53,
+                "character": 18
+              }
+            }
+          },
+          "name": "methods",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 56,
+                "character": 0
+              },
+              "end": {
+                "line": 71,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Visit<'ast> for Counter",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 4
+              },
+              "end": {
+                "line": 60,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_item",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 62,
+                "character": 4
+              },
+              "end": {
+                "line": 65,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_impl_item_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 67,
+                "character": 4
+              },
+              "end": {
+                "line": 70,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_trait_item_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 73,
+                "character": 0
+              },
+              "end": {
+                "line": 95,
+                "character": 1
+              }
+            }
+          },
+          "name": "symbol",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 0
+              },
+              "end": {
+                "line": 119,
+                "character": 1
+              }
+            }
+          },
+          "name": "attribute_labels",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 121,
+                "character": 0
+              },
+              "end": {
+                "line": 140,
+                "character": 1
+              }
+            }
+          },
+          "name": "source_offset",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 142,
+                "character": 0
+              },
+              "end": {
+                "line": 162,
+                "character": 1
+              }
+            }
+          },
+          "name": "tests",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 146,
+                "character": 4
+              },
+              "end": {
+                "line": 153,
+                "character": 5
+              }
+            }
+          },
+          "name": "translates_scalar_columns_into_utf8_bytes_across_lf_and_crlf",
+          "kind": 12,
+          "tags": [],
+          "containerName": "tests"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 155,
+                "character": 4
+              },
+              "end": {
+                "line": 161,
+                "character": 5
+              }
+            }
+          },
+          "name": "rejects_lines_and_columns_outside_source",
+          "kind": 12,
+          "tags": [],
+          "containerName": "tests"
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "name": "run",
+          "kind": 12,
+          "detail": "fn run() -> Result<String, String>",
+          "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 0
+            },
+            "end": {
+              "line": 48,
+              "character": 1
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 16,
+              "character": 3
+            },
+            "end": {
+              "line": 16,
+              "character": 6
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": [
+        {
+          "to": {
+            "name": "collect",
+            "kind": 12,
+            "detail": "pub fn collect<B>(self) -> B\nwhere\n    B: FromIterator<Self::Item>,\n    Self: Sized,",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+            "range": {
+              "start": {
+                "line": 1960,
+                "character": 4
+              },
+              "end": {
+                "line": 2090,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 2076,
+                "character": 7
+              },
+              "end": {
+                "line": 2076,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 17,
+                "character": 39
+              },
+              "end": {
+                "line": 17,
+                "character": 46
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "skip",
+            "kind": 12,
+            "detail": "pub fn skip(self, n: usize) -> Skip<Self>\nwhere\n    Self: Sized,",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+            "range": {
+              "start": {
+                "line": 1353,
+                "character": 4
+              },
+              "end": {
+                "line": 1379,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1374,
+                "character": 7
+              },
+              "end": {
+                "line": 1374,
+                "character": 11
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 17,
+                "character": 31
+              },
+              "end": {
+                "line": 17,
+                "character": 35
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "args_os",
+            "kind": 12,
+            "detail": "pub fn args_os() -> ArgsOs",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/env.rs",
+            "range": {
+              "start": {
+                "line": 831,
+                "character": 0
+              },
+              "end": {
+                "line": 864,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 862,
+                "character": 7
+              },
+              "end": {
+                "line": 862,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 17,
+                "character": 16
+              },
+              "end": {
+                "line": 17,
+                "character": 28
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "len",
+            "kind": 12,
+            "detail": "pub const fn len(&self) -> usize",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+            "range": {
+              "start": {
+                "line": 3049,
+                "character": 4
+              },
+              "end": {
+                "line": 3071,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 3062,
+                "character": 17
+              },
+              "end": {
+                "line": 3062,
+                "character": 20
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 18,
+                "character": 13
+              },
+              "end": {
+                "line": 18,
+                "character": 16
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "Err",
+            "kind": 22,
+            "detail": "Err(E)",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+            "range": {
+              "start": {
+                "line": 562,
+                "character": 4
+              },
+              "end": {
+                "line": 565,
+                "character": 56
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 565,
+                "character": 4
+              },
+              "end": {
+                "line": 565,
+                "character": 7
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 19,
+                "character": 15
+              },
+              "end": {
+                "line": 19,
+                "character": 18
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "into",
+            "kind": 12,
+            "detail": "fn into(self) -> U",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/convert/mod.rs",
+            "range": {
+              "start": {
+                "line": 772,
+                "character": 4
+              },
+              "end": {
+                "line": 780,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 778,
+                "character": 7
+              },
+              "end": {
+                "line": 778,
+                "character": 11
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 19,
+                "character": 58
+              },
+              "end": {
+                "line": 19,
+                "character": 62
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "map_err",
+            "kind": 12,
+            "detail": "pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\nwhere\n    O: FnOnce(E) -> F + Destruct,",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+            "range": {
+              "start": {
+                "line": 938,
+                "character": 4
+              },
+              "end": {
+                "line": 967,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 959,
+                "character": 17
+              },
+              "end": {
+                "line": 959,
+                "character": 24
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 21,
+                "character": 47
+              },
+              "end": {
+                "line": 21,
+                "character": 54
+              }
+            },
+            {
+              "start": {
+                "line": 23,
+                "character": 40
+              },
+              "end": {
+                "line": 23,
+                "character": 47
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "read_to_string",
+            "kind": 12,
+            "detail": "pub fn read_to_string<P>(path: P) -> io::Result<String>\nwhere\n    P: AsRef<Path>,",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/fs.rs",
+            "range": {
+              "start": {
+                "line": 350,
+                "character": 0
+              },
+              "end": {
+                "line": 391,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 381,
+                "character": 7
+              },
+              "end": {
+                "line": 381,
+                "character": 21
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 21,
+                "character": 17
+              },
+              "end": {
+                "line": 21,
+                "character": 35
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "now",
+            "kind": 12,
+            "detail": "pub fn now() -> Instant",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/time.rs",
+            "range": {
+              "start": {
+                "line": 272,
+                "character": 4
+              },
+              "end": {
+                "line": 286,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 284,
+                "character": 11
+              },
+              "end": {
+                "line": 284,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 22,
+                "character": 18
+              },
+              "end": {
+                "line": 22,
+                "character": 30
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "parse_file",
+            "kind": 12,
+            "detail": "pub fn parse_file(mut content: &str) -> Result<File>",
+            "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 1076,
+                "character": 0
+              },
+              "end": {
+                "line": 1131,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1107,
+                "character": 7
+              },
+              "end": {
+                "line": 1107,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 23,
+                "character": 15
+              },
+              "end": {
+                "line": 23,
+                "character": 30
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "default",
+            "kind": 12,
+            "detail": "pub fn default() -> Self",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/default.rs",
+            "range": {
+              "start": {
+                "line": 107,
+                "character": 4
+              },
+              "end": {
+                "line": 138,
+                "character": 25
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 138,
+                "character": 7
+              },
+              "end": {
+                "line": 138,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 25,
+                "character": 22
+              },
+              "end": {
+                "line": 25,
+                "character": 38
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "visit_file",
+            "kind": 12,
+            "detail": "pub fn visit_file(&mut self, i: &'ast crate::File)",
+            "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/gen/visit.rs",
+            "range": {
+              "start": {
+                "line": 351,
+                "character": 4
+              },
+              "end": {
+                "line": 355,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 353,
+                "character": 7
+              },
+              "end": {
+                "line": 353,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 26,
+                "character": 12
+              },
+              "end": {
+                "line": 26,
+                "character": 22
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "symbol",
+            "kind": 12,
+            "detail": "fn symbol(item: &Item) -> Option<(&'static str, String, &[Attribute])>",
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 73,
+                "character": 0
+              },
+              "end": {
+                "line": 95,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 73,
+                "character": 3
+              },
+              "end": {
+                "line": 73,
+                "character": 9
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 32,
+                "character": 45
+              },
+              "end": {
+                "line": 32,
+                "character": 51
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "span",
+            "kind": 12,
+            "detail": "fn span(&self) -> Span",
+            "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/spanned.rs",
+            "range": {
+              "start": {
+                "line": 104,
+                "character": 4
+              },
+              "end": {
+                "line": 106,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 104,
+                "character": 7
+              },
+              "end": {
+                "line": 104,
+                "character": 11
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 35,
+                "character": 24
+              },
+              "end": {
+                "line": 35,
+                "character": 28
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "source_offset",
+            "kind": 12,
+            "detail": "fn source_offset(source: &str, line: usize, column: usize) -> Result<usize, String>",
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 121,
+                "character": 0
+              },
+              "end": {
+                "line": 140,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 121,
+                "character": 3
+              },
+              "end": {
+                "line": 121,
+                "character": 16
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 36,
+                "character": 20
+              },
+              "end": {
+                "line": 36,
+                "character": 33
+              }
+            },
+            {
+              "start": {
+                "line": 37,
+                "character": 18
+              },
+              "end": {
+                "line": 37,
+                "character": 31
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "push_str",
+            "kind": 12,
+            "detail": "pub fn push_str(&mut self, string: &str)",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/string.rs",
+            "range": {
+              "start": {
+                "line": 1085,
+                "character": 4
+              },
+              "end": {
+                "line": 1107,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1105,
+                "character": 11
+              },
+              "end": {
+                "line": 1105,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 38,
+                "character": 15
+              },
+              "end": {
+                "line": 38,
+                "character": 23
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "Ok",
+            "kind": 22,
+            "detail": "Ok(T)",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/result.rs",
+            "range": {
+              "start": {
+                "line": 557,
+                "character": 4
+              },
+              "end": {
+                "line": 560,
+                "character": 55
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 560,
+                "character": 4
+              },
+              "end": {
+                "line": 560,
+                "character": 6
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 4
+              },
+              "end": {
+                "line": 47,
+                "character": 6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": [
+        {
+          "uri": "file:///Users/sebastien/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syn-3.0.9/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 1107,
+              "character": 7
+            },
+            "end": {
+              "line": 1107,
+              "character": 17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+        "version": 2,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 3,
+                "character": 0
+              },
+              "end": {
+                "line": 14,
+                "character": 1
+              }
+            }
+          },
+          "name": "main",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 0
+              },
+              "end": {
+                "line": 48,
+                "character": 1
+              }
+            }
+          },
+          "name": "run",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 50,
+                "character": 0
+              },
+              "end": {
+                "line": 54,
+                "character": 1
+              }
+            }
+          },
+          "name": "Counter",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 4
+              },
+              "end": {
+                "line": 52,
+                "character": 16
+              }
+            }
+          },
+          "name": "items",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 53,
+                "character": 18
+              }
+            }
+          },
+          "name": "methods",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 56,
+                "character": 0
+              },
+              "end": {
+                "line": 71,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Visit<'ast> for Counter",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 4
+              },
+              "end": {
+                "line": 60,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_item",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 62,
+                "character": 4
+              },
+              "end": {
+                "line": 65,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_impl_item_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 67,
+                "character": 4
+              },
+              "end": {
+                "line": 70,
+                "character": 5
+              }
+            }
+          },
+          "name": "visit_trait_item_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Visit<'ast> for Counter"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 73,
+                "character": 0
+              },
+              "end": {
+                "line": 95,
+                "character": 1
+              }
+            }
+          },
+          "name": "symbol",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 0
+              },
+              "end": {
+                "line": 119,
+                "character": 1
+              }
+            }
+          },
+          "name": "attribute_labels",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 121,
+                "character": 0
+              },
+              "end": {
+                "line": 140,
+                "character": 1
+              }
+            }
+          },
+          "name": "source_offset",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 142,
+                "character": 0
+              },
+              "end": {
+                "line": 162,
+                "character": 1
+              }
+            }
+          },
+          "name": "tests",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 146,
+                "character": 4
+              },
+              "end": {
+                "line": 153,
+                "character": 5
+              }
+            }
+          },
+          "name": "translates_scalar_columns_into_utf8_bytes_across_lf_and_crlf",
+          "kind": 12,
+          "tags": [],
+          "containerName": "tests"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/syn-probe/src/main.rs",
+            "range": {
+              "start": {
+                "line": 155,
+                "character": 4
+              },
+              "end": {
+                "line": 161,
+                "character": 5
+              }
+            }
+          },
+          "name": "rejects_lines_and_columns_outside_source",
+          "kind": 12,
+          "tags": [],
+          "containerName": "tests"
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": null
+    }
+  ],
+  "exitCode": 0
+}

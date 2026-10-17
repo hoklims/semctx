@@ -1,0 +1,23 @@
+{
+  "command": [
+    "python3",
+    "$ROOT/scripts/rust-indexing-lsp.py",
+    "$RUN/tools/rust-analyzer",
+    "$ROOT/docs/research/rust-indexing/edge-cases",
+    "src/lib.rs",
+    "--line",
+    "42",
+    "--character",
+    "8",
+    "--definition-line",
+    "48",
+    "--definition-character",
+    "12"
+  ],
+  "exitCode": 0,
+  "environmentOverrides": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "$RUN/edge-pinned-target"
+  }
+}

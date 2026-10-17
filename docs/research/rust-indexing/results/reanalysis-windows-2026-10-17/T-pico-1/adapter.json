@@ -1,0 +1,11 @@
+{
+  "runtime": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\package\\web-tree-sitter.js",
+  "wasm": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\package\\web-tree-sitter.wasm",
+  "grammar": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\tree-sitter-rust.wasm",
+  "workspace": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\T-pico-1\\workspace",
+  "files": [
+    "src/lib.rs"
+  ],
+  "target": "src/lib.rs",
+  "append": "\npub fn semctx_reindex_probe() -> usize { 17 }\n"
+}

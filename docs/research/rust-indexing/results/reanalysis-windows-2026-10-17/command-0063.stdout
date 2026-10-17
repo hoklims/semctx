@@ -1,0 +1,1152 @@
+{
+  "initialization": {
+    "capabilities": {
+      "positionEncoding": "utf-16",
+      "textDocumentSync": {
+        "openClose": true,
+        "change": 2,
+        "save": {}
+      },
+      "completionProvider": {
+        "triggerCharacters": [
+          ":",
+          ".",
+          "'",
+          "("
+        ],
+        "resolveProvider": false,
+        "completionItem": {
+          "labelDetailsSupport": false
+        }
+      },
+      "hoverProvider": true,
+      "signatureHelpProvider": {
+        "triggerCharacters": [
+          "(",
+          ",",
+          "<"
+        ]
+      },
+      "declarationProvider": true,
+      "definitionProvider": true,
+      "typeDefinitionProvider": true,
+      "implementationProvider": true,
+      "referencesProvider": true,
+      "documentHighlightProvider": true,
+      "documentSymbolProvider": true,
+      "codeActionProvider": true,
+      "codeLensProvider": {
+        "resolveProvider": true
+      },
+      "workspaceSymbolProvider": true,
+      "documentFormattingProvider": true,
+      "documentRangeFormattingProvider": false,
+      "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+          "=",
+          "<",
+          ">",
+          "{",
+          "(",
+          "|",
+          "+"
+        ]
+      },
+      "renameProvider": {
+        "prepareProvider": true
+      },
+      "foldingRangeProvider": true,
+      "selectionRangeProvider": true,
+      "callHierarchyProvider": true,
+      "semanticTokensProvider": {
+        "legend": {
+          "tokenTypes": [
+            "comment",
+            "decorator",
+            "enumMember",
+            "enum",
+            "function",
+            "interface",
+            "keyword",
+            "macro",
+            "method",
+            "namespace",
+            "number",
+            "operator",
+            "parameter",
+            "property",
+            "string",
+            "struct",
+            "typeParameter",
+            "variable",
+            "type",
+            "label",
+            "angle",
+            "arithmetic",
+            "attributeBracket",
+            "attribute",
+            "bitwise",
+            "boolean",
+            "brace",
+            "bracket",
+            "builtinAttribute",
+            "builtinType",
+            "character",
+            "colon",
+            "comma",
+            "comparison",
+            "constParameter",
+            "const",
+            "deriveHelper",
+            "derive",
+            "dot",
+            "escapeSequence",
+            "formatSpecifier",
+            "generic",
+            "invalidEscapeSequence",
+            "lifetime",
+            "logical",
+            "macroBang",
+            "negation",
+            "parenthesis",
+            "procMacro",
+            "punctuation",
+            "selfKeyword",
+            "selfTypeKeyword",
+            "semicolon",
+            "static",
+            "toolModule",
+            "typeAlias",
+            "union",
+            "unresolvedReference"
+          ],
+          "tokenModifiers": [
+            "async",
+            "documentation",
+            "declaration",
+            "static",
+            "defaultLibrary",
+            "deprecated",
+            "associated",
+            "attribute",
+            "callable",
+            "constant",
+            "consuming",
+            "controlFlow",
+            "crateRoot",
+            "injected",
+            "intraDocLink",
+            "library",
+            "macro",
+            "mutable",
+            "procMacro",
+            "public",
+            "reference",
+            "trait",
+            "unsafe"
+          ]
+        },
+        "range": true,
+        "full": {
+          "delta": true
+        }
+      },
+      "inlayHintProvider": {
+        "resolveProvider": false
+      },
+      "diagnosticProvider": {
+        "identifier": "rust-analyzer",
+        "interFileDependencies": true,
+        "workspaceDiagnostics": false
+      },
+      "workspace": {
+        "workspaceFolders": {
+          "supported": true,
+          "changeNotifications": true
+        },
+        "fileOperations": {
+          "willRename": {
+            "filters": [
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**/*.rs",
+                  "matches": "file"
+                }
+              },
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**",
+                  "matches": "folder"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "experimental": {
+        "externalDocs": true,
+        "hoverRange": true,
+        "joinLines": true,
+        "matchingBrace": true,
+        "moveItem": true,
+        "onEnter": true,
+        "openCargoToml": true,
+        "parentModule": true,
+        "childModules": true,
+        "runnables": {
+          "kinds": [
+            "cargo"
+          ]
+        },
+        "ssr": true,
+        "workspaceSymbolScopeKindFiltering": true
+      }
+    },
+    "serverInfo": {
+      "name": "rust-analyzer",
+      "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+    }
+  },
+  "symbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      "name": "main",
+      "kind": 12,
+      "tags": []
+    }
+  ],
+  "unknown": [],
+  "hierarchy": [
+    {
+      "name": "main",
+      "kind": 12,
+      "detail": "fn main()",
+      "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 0
+        },
+        "end": {
+          "line": 13,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 6,
+          "character": 3
+        },
+        "end": {
+          "line": 6,
+          "character": 7
+        }
+      }
+    }
+  ],
+  "calls": [
+    {
+      "to": {
+        "name": "new",
+        "kind": 12,
+        "detail": "pub fn new() -> Self",
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 7,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 5,
+            "character": 11
+          },
+          "end": {
+            "line": 5,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 7,
+            "character": 19
+          },
+          "end": {
+            "line": 7,
+            "character": 34
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "quote",
+        "kind": 12,
+        "detail": "fn quote(&self, amount: Amount) -> Outcome",
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+        "range": {
+          "start": {
+            "line": 11,
+            "character": 4
+          },
+          "end": {
+            "line": 16,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 11,
+            "character": 7
+          },
+          "end": {
+            "line": 11,
+            "character": 12
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 8,
+            "character": 26
+          },
+          "end": {
+            "line": 8,
+            "character": 31
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "Amount",
+        "kind": 23,
+        "detail": "pub struct Amount(pub u32)",
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/model.rs",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 27
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 2,
+            "character": 11
+          },
+          "end": {
+            "line": 2,
+            "character": 17
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 8,
+            "character": 32
+          },
+          "end": {
+            "line": 8,
+            "character": 38
+          }
+        },
+        {
+          "start": {
+            "line": 10,
+            "character": 39
+          },
+          "end": {
+            "line": 10,
+            "character": 45
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "quote",
+        "kind": 12,
+        "detail": "pub fn quote<Q>(provider: &Q, amount: Amount) -> Outcome\nwhere\n    Q: Quote,",
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 19,
+            "character": 7
+          },
+          "end": {
+            "line": 19,
+            "character": 12
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 9,
+            "character": 18
+          },
+          "end": {
+            "line": 9,
+            "character": 32
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "quote_dyn",
+        "kind": 12,
+        "detail": "pub fn quote_dyn(provider: &dyn Quote, amount: Amount) -> Outcome",
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 0
+          },
+          "end": {
+            "line": 25,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 23,
+            "character": 7
+          },
+          "end": {
+            "line": 23,
+            "character": 16
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 10,
+            "character": 18
+          },
+          "end": {
+            "line": 10,
+            "character": 27
+          }
+        }
+      ]
+    }
+  ],
+  "definition": [
+    {
+      "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 7
+        },
+        "end": {
+          "line": 19,
+          "character": 12
+        }
+      }
+    }
+  ],
+  "editedSymbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 1
+          }
+        }
+      },
+      "name": "main",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 15,
+            "character": 45
+          }
+        }
+      },
+      "name": "semctx_reindex_probe",
+      "kind": 12,
+      "tags": []
+    }
+  ],
+  "serverPeakRss": {
+    "peakRssBytes": 601137152,
+    "scope": "direct process peak working set"
+  },
+  "editProof": {
+    "addedSymbol": "semctx_reindex_probe",
+    "beforeSha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+    "afterSha256": "ba52e98eb28f335508f92ec6535246ef1adcc17af4138f2d7c9c18fc14eefb28",
+    "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c"
+  },
+  "timingsMs": {
+    "initialize": 0.8736999880056828,
+    "ready": 4446.548600011738,
+    "documentSymbolBeforeEdit": 0.6466000049840659,
+    "workspace/symbol": 4.51590001466684,
+    "textDocument/prepareCallHierarchy": 0.5139000131748617,
+    "callHierarchy/outgoingCalls": 9.618799987947568,
+    "textDocument/definition": 0.46189999557100236,
+    "changeToDocumentSymbol": 1.9696999806910753,
+    "documentSymbolAfterEdit": 0.6611999997403473,
+    "shutdown": 0.23929998860694468
+  },
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "positionEncoding": "utf-16",
+          "textDocumentSync": {
+            "openClose": true,
+            "change": 2,
+            "save": {}
+          },
+          "completionProvider": {
+            "triggerCharacters": [
+              ":",
+              ".",
+              "'",
+              "("
+            ],
+            "resolveProvider": false,
+            "completionItem": {
+              "labelDetailsSupport": false
+            }
+          },
+          "hoverProvider": true,
+          "signatureHelpProvider": {
+            "triggerCharacters": [
+              "(",
+              ",",
+              "<"
+            ]
+          },
+          "declarationProvider": true,
+          "definitionProvider": true,
+          "typeDefinitionProvider": true,
+          "implementationProvider": true,
+          "referencesProvider": true,
+          "documentHighlightProvider": true,
+          "documentSymbolProvider": true,
+          "codeActionProvider": true,
+          "codeLensProvider": {
+            "resolveProvider": true
+          },
+          "workspaceSymbolProvider": true,
+          "documentFormattingProvider": true,
+          "documentRangeFormattingProvider": false,
+          "documentOnTypeFormattingProvider": {
+            "firstTriggerCharacter": ".",
+            "moreTriggerCharacter": [
+              "=",
+              "<",
+              ">",
+              "{",
+              "(",
+              "|",
+              "+"
+            ]
+          },
+          "renameProvider": {
+            "prepareProvider": true
+          },
+          "foldingRangeProvider": true,
+          "selectionRangeProvider": true,
+          "callHierarchyProvider": true,
+          "semanticTokensProvider": {
+            "legend": {
+              "tokenTypes": [
+                "comment",
+                "decorator",
+                "enumMember",
+                "enum",
+                "function",
+                "interface",
+                "keyword",
+                "macro",
+                "method",
+                "namespace",
+                "number",
+                "operator",
+                "parameter",
+                "property",
+                "string",
+                "struct",
+                "typeParameter",
+                "variable",
+                "type",
+                "label",
+                "angle",
+                "arithmetic",
+                "attributeBracket",
+                "attribute",
+                "bitwise",
+                "boolean",
+                "brace",
+                "bracket",
+                "builtinAttribute",
+                "builtinType",
+                "character",
+                "colon",
+                "comma",
+                "comparison",
+                "constParameter",
+                "const",
+                "deriveHelper",
+                "derive",
+                "dot",
+                "escapeSequence",
+                "formatSpecifier",
+                "generic",
+                "invalidEscapeSequence",
+                "lifetime",
+                "logical",
+                "macroBang",
+                "negation",
+                "parenthesis",
+                "procMacro",
+                "punctuation",
+                "selfKeyword",
+                "selfTypeKeyword",
+                "semicolon",
+                "static",
+                "toolModule",
+                "typeAlias",
+                "union",
+                "unresolvedReference"
+              ],
+              "tokenModifiers": [
+                "async",
+                "documentation",
+                "declaration",
+                "static",
+                "defaultLibrary",
+                "deprecated",
+                "associated",
+                "attribute",
+                "callable",
+                "constant",
+                "consuming",
+                "controlFlow",
+                "crateRoot",
+                "injected",
+                "intraDocLink",
+                "library",
+                "macro",
+                "mutable",
+                "procMacro",
+                "public",
+                "reference",
+                "trait",
+                "unsafe"
+              ]
+            },
+            "range": true,
+            "full": {
+              "delta": true
+            }
+          },
+          "inlayHintProvider": {
+            "resolveProvider": false
+          },
+          "diagnosticProvider": {
+            "identifier": "rust-analyzer",
+            "interFileDependencies": true,
+            "workspaceDiagnostics": false
+          },
+          "workspace": {
+            "workspaceFolders": {
+              "supported": true,
+              "changeNotifications": true
+            },
+            "fileOperations": {
+              "willRename": {
+                "filters": [
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**/*.rs",
+                      "matches": "file"
+                    }
+                  },
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**",
+                      "matches": "folder"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "experimental": {
+            "externalDocs": true,
+            "hoverRange": true,
+            "joinLines": true,
+            "matchingBrace": true,
+            "moveItem": true,
+            "onEnter": true,
+            "openCargoToml": true,
+            "parentModule": true,
+            "childModules": true,
+            "runnables": {
+              "kinds": [
+                "cargo"
+              ]
+            },
+            "ssr": true,
+            "workspaceSymbolScopeKindFiltering": true
+          }
+        },
+        "serverInfo": {
+          "name": "rust-analyzer",
+          "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": false,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": true,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 0
+              },
+              "end": {
+                "line": 13,
+                "character": 1
+              }
+            }
+          },
+          "name": "main",
+          "kind": 12,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "name": "main",
+          "kind": 12,
+          "detail": "fn main()",
+          "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 0
+            },
+            "end": {
+              "line": 13,
+              "character": 1
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 6,
+              "character": 3
+            },
+            "end": {
+              "line": 6,
+              "character": 7
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": [
+        {
+          "to": {
+            "name": "new",
+            "kind": 12,
+            "detail": "pub fn new() -> Self",
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 4
+              },
+              "end": {
+                "line": 7,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 5,
+                "character": 11
+              },
+              "end": {
+                "line": 5,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 7,
+                "character": 19
+              },
+              "end": {
+                "line": 7,
+                "character": 34
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "quote",
+            "kind": 12,
+            "detail": "fn quote(&self, amount: Amount) -> Outcome",
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 16,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 11,
+                "character": 7
+              },
+              "end": {
+                "line": 11,
+                "character": 12
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 8,
+                "character": 26
+              },
+              "end": {
+                "line": 8,
+                "character": 31
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "Amount",
+            "kind": 23,
+            "detail": "pub struct Amount(pub u32)",
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/model.rs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 2,
+                "character": 27
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 2,
+                "character": 11
+              },
+              "end": {
+                "line": 2,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 8,
+                "character": 32
+              },
+              "end": {
+                "line": 8,
+                "character": 38
+              }
+            },
+            {
+              "start": {
+                "line": 10,
+                "character": 39
+              },
+              "end": {
+                "line": 10,
+                "character": 45
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "quote",
+            "kind": 12,
+            "detail": "pub fn quote<Q>(provider: &Q, amount: Amount) -> Outcome\nwhere\n    Q: Quote,",
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 21,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 19,
+                "character": 7
+              },
+              "end": {
+                "line": 19,
+                "character": 12
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 9,
+                "character": 18
+              },
+              "end": {
+                "line": 9,
+                "character": 32
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "quote_dyn",
+            "kind": 12,
+            "detail": "pub fn quote_dyn(provider: &dyn Quote, amount: Amount) -> Outcome",
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+            "range": {
+              "start": {
+                "line": 23,
+                "character": 0
+              },
+              "end": {
+                "line": 25,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 23,
+                "character": 7
+              },
+              "end": {
+                "line": 23,
+                "character": 16
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 10,
+                "character": 18
+              },
+              "end": {
+                "line": 10,
+                "character": 27
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": [
+        {
+          "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/domain/src/operations.rs",
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 7
+            },
+            "end": {
+              "line": 19,
+              "character": 12
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 0
+              },
+              "end": {
+                "line": 13,
+                "character": 1
+              }
+            }
+          },
+          "name": "main",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file:///c:/Users/Hokli/Documents/Codex/2026-10-15/j-ai-un-gros-souci-au/work/review378-382/reindex382-measurements-1f08463/L-fixture-3/workspace/app/src/main.rs",
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 0
+              },
+              "end": {
+                "line": 15,
+                "character": 45
+              }
+            }
+          },
+          "name": "semctx_reindex_probe",
+          "kind": 12,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": null
+    }
+  ],
+  "exitCode": 0
+}

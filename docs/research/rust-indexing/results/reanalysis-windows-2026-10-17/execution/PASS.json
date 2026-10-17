@@ -1,0 +1,28 @@
+{
+  "status": "COMPLETE",
+  "head": "1f08463191369097fe15dda1721324a4c7ab4215",
+  "config_sha256": "88a7466adef45586ab656d02195cb3b4f08e1b481816f6b8da12eec97aeaa67b",
+  "pairs": 24,
+  "states": 48,
+  "repeats": 3,
+  "corpora": 2,
+  "engines": [
+    "T",
+    "Y",
+    "S",
+    "L"
+  ],
+  "execution": {
+    "exit": 0,
+    "timed_out": false,
+    "seconds": 153.18274339998607,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "separate_validation": "PASS",
+  "source_clean": true,
+  "pins": {
+    "count": 3645,
+    "all_match": true
+  }
+}

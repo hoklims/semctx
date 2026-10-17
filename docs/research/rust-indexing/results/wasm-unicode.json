@@ -1,0 +1,1 @@
+{"source":"const S: &str = \"🦀\"; fn café() {}\r\n","index":22,"position":{"row":0,"column":22},"utf16Expected":22,"utf8Expected":24}

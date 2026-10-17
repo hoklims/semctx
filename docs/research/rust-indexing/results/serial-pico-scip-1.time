@@ -1,0 +1,26 @@
+Generating SCIP start...
+rust-analyzer: Loading discovering sysroot
+rust-analyzer: Loading querying project metadata
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: finished
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: finished
+Generating SCIP finished 1.667063625s
+        1.70 real         1.92 user         0.40 sys
+           545095680  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               76712  page reclaims
+                  37  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   1  signals received
+                  34  voluntary context switches
+                2289  involuntary context switches
+         20979311263  instructions retired
+          5041041017  cycles elapsed
+           527729648  peak memory footprint

@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\rust-analyzer.exe",
+    "scip",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\S-pico-2\\workspace",
+    "--output",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\S-pico-2\\after.scip",
+    "--num-threads",
+    "4",
+    "--config-path",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-fix\\scip-config.json"
+  ],
+  "cwd": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\S-pico-2\\workspace"
+}

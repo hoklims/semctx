@@ -1,0 +1,226 @@
+{
+  "engine": "Y",
+  "workspace": "fixture",
+  "sample": 1,
+  "sources": {
+    "app/src/main.rs": {
+      "beforeSha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "afterSha256": "ba52e98eb28f335508f92ec6535246ef1adcc17af4138f2d7c9c18fc14eefb28"
+    },
+    "domain/src/lib.rs": {
+      "beforeSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "afterSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    "domain/src/model.rs": {
+      "beforeSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "afterSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    "domain/src/operations.rs": {
+      "beforeSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "afterSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    "domain/tests/dispatch.rs": {
+      "beforeSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "afterSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0001",
+      "exitCode": 0,
+      "elapsedMs": 17.347199987852946,
+      "stdoutSha256": "494dd836fd71aeb51a81cafbc1193a975eedba604c4a8ecdeabad9c894f3ba89",
+      "stderrSha256": "0659aa3f8260cd0861cfca86bb7c6e2c5dda1da36f7dca3a4e678e088cf47a7a",
+      "argvSha256": "feb892c0aa5affb50dc0d034d813c0c40e3807cedc5953dac490e00150b05939",
+      "directChildPeakRss": {
+        "peakRssBytes": 6086656,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0002",
+      "exitCode": 0,
+      "elapsedMs": 16.772200004197657,
+      "stdoutSha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a",
+      "stderrSha256": "7228a008442cb0ee4df70597764293624a4b439056715e12d77fd13728de8fcd",
+      "argvSha256": "c2a95b1b5dfdb85cf2311751606e960178aa00f025ecafd7634178a3ee42794e",
+      "directChildPeakRss": {
+        "peakRssBytes": 6094848,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0003",
+      "exitCode": 0,
+      "elapsedMs": 17.802000016672537,
+      "stdoutSha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a",
+      "stderrSha256": "d10a52603478a6270c2c5dd22aaadbd0800bf29f990ab46449d11160cd511568",
+      "argvSha256": "eef6a4f53c19dfaef96fa8c933d70e96f5d75cbb0720c49d16a6d7f3d356e692",
+      "directChildPeakRss": {
+        "peakRssBytes": 6082560,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0004",
+      "exitCode": 0,
+      "elapsedMs": 24.50999998836778,
+      "stdoutSha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3",
+      "stderrSha256": "a16f14cec02f36c478830b97120f484919db144a1bc6ba99504c90d3b58eea47",
+      "argvSha256": "95594baab4e04f1a6b327ad01cb9bb4e43da16fbee607daeba21a5eefb2d0472",
+      "directChildPeakRss": {
+        "peakRssBytes": 6365184,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0005",
+      "exitCode": 0,
+      "elapsedMs": 20.664799987571314,
+      "stdoutSha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3",
+      "stderrSha256": "ea64070180b93c2c79a6afaf646737d312238c86440974aec4d74168eda4d5b8",
+      "argvSha256": "f1d5b479efad41089b65ba9b61f4e011dc7d969902354942909aa12993a27c79",
+      "directChildPeakRss": {
+        "peakRssBytes": 6029312,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0006",
+      "exitCode": 0,
+      "elapsedMs": 31.93769999779761,
+      "stdoutSha256": "d19a2955ab3a475a4c6d8d5b18c9b1a286080d697ef3e93877abd961f08ed962",
+      "stderrSha256": "edc9aa4568ac597c978c689425c44ec8ae6eb405431ca6165e4bb4e3c94e61a1",
+      "argvSha256": "feb892c0aa5affb50dc0d034d813c0c40e3807cedc5953dac490e00150b05939",
+      "directChildPeakRss": {
+        "peakRssBytes": 6131712,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0007",
+      "exitCode": 0,
+      "elapsedMs": 15.532499994151294,
+      "stdoutSha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a",
+      "stderrSha256": "fde91f1336e4ac111008b4c86028ee62b0ff7a121dcc43b9f9a24a76b4f1aec8",
+      "argvSha256": "c2a95b1b5dfdb85cf2311751606e960178aa00f025ecafd7634178a3ee42794e",
+      "directChildPeakRss": {
+        "peakRssBytes": 6098944,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0008",
+      "exitCode": 0,
+      "elapsedMs": 14.112599979853258,
+      "stdoutSha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a",
+      "stderrSha256": "8f63875f5abf12a9cf1cb8b8408f291e54814bf507782312c4d94e6598891145",
+      "argvSha256": "eef6a4f53c19dfaef96fa8c933d70e96f5d75cbb0720c49d16a6d7f3d356e692",
+      "directChildPeakRss": {
+        "peakRssBytes": 6086656,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0009",
+      "exitCode": 0,
+      "elapsedMs": 16.92309998907149,
+      "stdoutSha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3",
+      "stderrSha256": "13cff6fbf1c3367b8740b6fc388b9fb70eb2e40d7b8b8b70e012d214467ca022",
+      "argvSha256": "95594baab4e04f1a6b327ad01cb9bb4e43da16fbee607daeba21a5eefb2d0472",
+      "directChildPeakRss": {
+        "peakRssBytes": 6356992,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0010",
+      "exitCode": 0,
+      "elapsedMs": 188.26319999061525,
+      "stdoutSha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3",
+      "stderrSha256": "4276d6258731cb8a8481e79844864687f7fdf691f4b3fbb34c24647f2c5e26dc",
+      "argvSha256": "f1d5b479efad41089b65ba9b61f4e011dc7d969902354942909aa12993a27c79",
+      "directChildPeakRss": {
+        "peakRssBytes": 6025216,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "app/Cargo.toml.snapshot",
+      "capturePath": "app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4"
+    },
+    {
+      "path": "app/src/main.rs",
+      "capturePath": "app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb"
+    },
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8"
+    },
+    {
+      "path": "domain/Cargo.toml.snapshot",
+      "capturePath": "domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07"
+    },
+    {
+      "path": "domain/src/lib.rs",
+      "capturePath": "domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    {
+      "path": "domain/src/model.rs",
+      "capturePath": "domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    {
+      "path": "domain/src/operations.rs",
+      "capturePath": "domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    {
+      "path": "domain/tests/dispatch.rs",
+      "capturePath": "domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    },
+    {
+      "path": "negative/malformed.rs",
+      "capturePath": "negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8"
+    },
+    {
+      "path": "negative/manifest/Cargo.toml.snapshot",
+      "capturePath": "negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a"
+    },
+    {
+      "path": "negative/unresolved.rs",
+      "capturePath": "negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9"
+    }
+  ],
+  "nativeTimingsMs": {
+    "coldFullParse": 1.1271,
+    "editedFullParse": 1.1388
+  }
+}

@@ -1,0 +1,20 @@
+   Compiling semctx-rust-edge-cases v0.1.0 ($ROOT/docs/research/rust-indexing/edge-cases)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.50s
+     Running unittests src/lib.rs ($RUN/edge-target/debug/deps/semctx_rust_edge_cases-f44048472fe6392d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/behavior.rs ($RUN/edge-target/debug/deps/behavior-4c32ee8390e6d025)
+
+running 1 test
+test combines_macro_generated_function_value_and_active_world ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests semctx_rust_edge_cases
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

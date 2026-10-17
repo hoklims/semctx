@@ -1,0 +1,156 @@
+{
+  "engine": "S",
+  "workspace": "fixture",
+  "sample": 1,
+  "sources": {
+    "app/src/main.rs": {
+      "beforeSha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "afterSha256": "ba52e98eb28f335508f92ec6535246ef1adcc17af4138f2d7c9c18fc14eefb28"
+    },
+    "domain/src/lib.rs": {
+      "beforeSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "afterSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    "domain/src/model.rs": {
+      "beforeSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "afterSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    "domain/src/operations.rs": {
+      "beforeSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "afterSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    "domain/tests/dispatch.rs": {
+      "beforeSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "afterSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0011",
+      "exitCode": 0,
+      "elapsedMs": 2620.4927999933716,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e786c23526f182df29d819cdab327bea7cdb2907cb1c33e5d285997e2a8159b0",
+      "argvSha256": "72ab7f7eb2f575ecc2acde429c5979f96c0bded75b008a8b567fdb8e3c97dee4",
+      "directChildPeakRss": {
+        "peakRssBytes": 569069568,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0012",
+      "exitCode": 0,
+      "elapsedMs": 459.1704999911599,
+      "stdoutSha256": "20a2d9d7b4d3648acd5edcf0e2e1d72caaa5e5b9e51dad5fa15a7c58314b2121",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "80b7d9586c6100a0abd61180ebb36ad6de074ec6a4d7cf2124eef750e22479ed",
+      "directChildPeakRss": {
+        "peakRssBytes": 318214144,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0013",
+      "exitCode": 0,
+      "elapsedMs": 2631.3835000037216,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "561ea807df4c3ee51a30a57c96c27fe57ea82c5cc8cacd47cd307cada85c10e4",
+      "argvSha256": "2824fbeb265c95a4f2f7ecef7029eed8cde2ba095f6d2f04a575010abec18e20",
+      "directChildPeakRss": {
+        "peakRssBytes": 563535872,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0014",
+      "exitCode": 0,
+      "elapsedMs": 466.04679999290965,
+      "stdoutSha256": "231ba0b6dd1a3982302bc03f3143072ca1586e62832b7385d79914507a353087",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "b52a9791a5b1920a3ed7fc92f0bb5602a247408989431b28ffceb1f1ba3f2e79",
+      "directChildPeakRss": {
+        "peakRssBytes": 318271488,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "app/Cargo.toml.snapshot",
+      "capturePath": "app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4"
+    },
+    {
+      "path": "app/src/main.rs",
+      "capturePath": "app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb"
+    },
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8"
+    },
+    {
+      "path": "domain/Cargo.toml.snapshot",
+      "capturePath": "domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07"
+    },
+    {
+      "path": "domain/src/lib.rs",
+      "capturePath": "domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    {
+      "path": "domain/src/model.rs",
+      "capturePath": "domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    {
+      "path": "domain/src/operations.rs",
+      "capturePath": "domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    {
+      "path": "domain/tests/dispatch.rs",
+      "capturePath": "domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    },
+    {
+      "path": "negative/malformed.rs",
+      "capturePath": "negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8"
+    },
+    {
+      "path": "negative/manifest/Cargo.toml.snapshot",
+      "capturePath": "negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a"
+    },
+    {
+      "path": "negative/unresolved.rs",
+      "capturePath": "negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9"
+    }
+  ],
+  "scipPathMode": "windows-diagnostic",
+  "scipPathLimitation": "NONCONFORMING_WINDOWS_SCIP_PATHS: diagnostic matching only; native SCIP remains non-portable, without conformance or production admission.",
+  "artifacts": [
+    {
+      "path": "S-fixture-1\\before.scip",
+      "sha256": "2278e069a502f9d0fc11543f1ff319b6831aba1c258ea209e2d8fc4a398a4218"
+    },
+    {
+      "path": "S-fixture-1\\after.scip",
+      "sha256": "bedf5b3b3321c597373bd5ed1fa5a2c5765212eaef8df0bc9f3879fb3eb077ee"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+2026-10-15T11:51:36.909801+02:00  WARN notify error: No path was found. about ["/Users/sebastien/Library/Application Support/rust-analyzer/rust-analyzer.toml"]
+        2.22 real         2.49 user         0.56 sys
+           567476224  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              110639  page reclaims
+                  94  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   1  messages sent
+                   1  messages received
+                   0  signals received
+                  56  voluntary context switches
+                4369  involuntary context switches
+           670477109  instructions retired
+           251449467  cycles elapsed
+            20021776  peak memory footprint

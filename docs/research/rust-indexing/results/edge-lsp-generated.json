@@ -1,0 +1,1805 @@
+{
+  "initialization": {
+    "capabilities": {
+      "positionEncoding": "utf-16",
+      "textDocumentSync": {
+        "openClose": true,
+        "change": 2,
+        "save": {}
+      },
+      "completionProvider": {
+        "triggerCharacters": [
+          ":",
+          ".",
+          "'",
+          "("
+        ],
+        "resolveProvider": false,
+        "completionItem": {
+          "labelDetailsSupport": false
+        }
+      },
+      "hoverProvider": true,
+      "signatureHelpProvider": {
+        "triggerCharacters": [
+          "(",
+          ",",
+          "<"
+        ]
+      },
+      "declarationProvider": true,
+      "definitionProvider": true,
+      "typeDefinitionProvider": true,
+      "implementationProvider": true,
+      "referencesProvider": true,
+      "documentHighlightProvider": true,
+      "documentSymbolProvider": true,
+      "codeActionProvider": true,
+      "codeLensProvider": {
+        "resolveProvider": true
+      },
+      "workspaceSymbolProvider": true,
+      "documentFormattingProvider": true,
+      "documentRangeFormattingProvider": false,
+      "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+          "=",
+          "<",
+          ">",
+          "{",
+          "(",
+          "|",
+          "+"
+        ]
+      },
+      "renameProvider": {
+        "prepareProvider": true
+      },
+      "foldingRangeProvider": true,
+      "selectionRangeProvider": true,
+      "callHierarchyProvider": true,
+      "semanticTokensProvider": {
+        "legend": {
+          "tokenTypes": [
+            "comment",
+            "decorator",
+            "enumMember",
+            "enum",
+            "function",
+            "interface",
+            "keyword",
+            "macro",
+            "method",
+            "namespace",
+            "number",
+            "operator",
+            "parameter",
+            "property",
+            "string",
+            "struct",
+            "typeParameter",
+            "variable",
+            "type",
+            "label",
+            "angle",
+            "arithmetic",
+            "attributeBracket",
+            "attribute",
+            "bitwise",
+            "boolean",
+            "brace",
+            "bracket",
+            "builtinAttribute",
+            "builtinType",
+            "character",
+            "colon",
+            "comma",
+            "comparison",
+            "constParameter",
+            "const",
+            "deriveHelper",
+            "derive",
+            "dot",
+            "escapeSequence",
+            "formatSpecifier",
+            "generic",
+            "invalidEscapeSequence",
+            "lifetime",
+            "logical",
+            "macroBang",
+            "negation",
+            "parenthesis",
+            "procMacro",
+            "punctuation",
+            "selfKeyword",
+            "selfTypeKeyword",
+            "semicolon",
+            "static",
+            "toolModule",
+            "typeAlias",
+            "union",
+            "unresolvedReference"
+          ],
+          "tokenModifiers": [
+            "async",
+            "documentation",
+            "declaration",
+            "static",
+            "defaultLibrary",
+            "deprecated",
+            "associated",
+            "attribute",
+            "callable",
+            "constant",
+            "consuming",
+            "controlFlow",
+            "crateRoot",
+            "injected",
+            "intraDocLink",
+            "library",
+            "macro",
+            "mutable",
+            "procMacro",
+            "public",
+            "reference",
+            "trait",
+            "unsafe"
+          ]
+        },
+        "range": true,
+        "full": {
+          "delta": true
+        }
+      },
+      "inlayHintProvider": {
+        "resolveProvider": false
+      },
+      "diagnosticProvider": {
+        "identifier": "rust-analyzer",
+        "interFileDependencies": true,
+        "workspaceDiagnostics": false
+      },
+      "workspace": {
+        "workspaceFolders": {
+          "supported": true,
+          "changeNotifications": true
+        },
+        "fileOperations": {
+          "willRename": {
+            "filters": [
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**/*.rs",
+                  "matches": "file"
+                }
+              },
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**",
+                  "matches": "folder"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "experimental": {
+        "externalDocs": true,
+        "hoverRange": true,
+        "joinLines": true,
+        "matchingBrace": true,
+        "moveItem": true,
+        "onEnter": true,
+        "openCargoToml": true,
+        "parentModule": true,
+        "childModules": true,
+        "runnables": {
+          "kinds": [
+            "cargo"
+          ]
+        },
+        "ssr": true,
+        "workspaceSymbolScopeKindFiltering": true
+      }
+    },
+    "serverInfo": {
+      "name": "rust-analyzer",
+      "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+    }
+  },
+  "symbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      "name": "define_declarative",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      "name": "configured",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      "name": "configured",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 1
+          }
+        }
+      },
+      "name": "platform",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      "name": "platform",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 1
+          }
+        }
+      },
+      "name": "concrete",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 40,
+            "character": 1
+          }
+        }
+      },
+      "name": "call_function_value",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 50,
+            "character": 1
+          }
+        }
+      },
+      "name": "evaluate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 0
+          },
+          "end": {
+            "line": 53,
+            "character": 16
+          }
+        }
+      },
+      "name": "invalid",
+      "kind": 2,
+      "tags": []
+    }
+  ],
+  "unknown": [],
+  "hierarchy": [
+    {
+      "name": "evaluate",
+      "kind": 12,
+      "detail": "pub fn evaluate() -> u32",
+      "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 0
+        },
+        "end": {
+          "line": 50,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 42,
+          "character": 7
+        },
+        "end": {
+          "line": 42,
+          "character": 15
+        }
+      }
+    }
+  ],
+  "calls": [
+    {
+      "to": {
+        "name": "declarative",
+        "kind": 12,
+        "detail": "pub fn declarative() -> u32",
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 15
+          },
+          "end": {
+            "line": 4,
+            "character": 26
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 4,
+            "character": 15
+          },
+          "end": {
+            "line": 4,
+            "character": 26
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 44,
+            "character": 4
+          },
+          "end": {
+            "line": 44,
+            "character": 15
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "declarative",
+        "kind": 12,
+        "detail": "pub fn declarative() -> u32",
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 19
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 10,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 19
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 44,
+            "character": 4
+          },
+          "end": {
+            "line": 44,
+            "character": 15
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "call_function_value",
+        "kind": 12,
+        "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 40,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 38,
+            "character": 7
+          },
+          "end": {
+            "line": 38,
+            "character": 26
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 47,
+            "character": 10
+          },
+          "end": {
+            "line": 47,
+            "character": 29
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "configured",
+        "kind": 12,
+        "detail": "pub fn configured() -> u32",
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 15,
+            "character": 7
+          },
+          "end": {
+            "line": 15,
+            "character": 17
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 48,
+            "character": 10
+          },
+          "end": {
+            "line": 48,
+            "character": 20
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "platform",
+        "kind": 12,
+        "detail": "pub fn platform() -> u32",
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 25,
+            "character": 7
+          },
+          "end": {
+            "line": 25,
+            "character": 15
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 49,
+            "character": 10
+          },
+          "end": {
+            "line": 49,
+            "character": 18
+          }
+        }
+      ]
+    }
+  ],
+  "definition": [],
+  "editedSymbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 8,
+            "character": 1
+          }
+        }
+      },
+      "name": "define_declarative",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 14,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      "name": "configured",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 1
+          }
+        }
+      },
+      "name": "configured",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 24,
+            "character": 0
+          },
+          "end": {
+            "line": 27,
+            "character": 1
+          }
+        }
+      },
+      "name": "platform",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 29,
+            "character": 0
+          },
+          "end": {
+            "line": 32,
+            "character": 1
+          }
+        }
+      },
+      "name": "platform",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 34,
+            "character": 0
+          },
+          "end": {
+            "line": 36,
+            "character": 1
+          }
+        }
+      },
+      "name": "concrete",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 38,
+            "character": 0
+          },
+          "end": {
+            "line": 40,
+            "character": 1
+          }
+        }
+      },
+      "name": "call_function_value",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 50,
+            "character": 1
+          }
+        }
+      },
+      "name": "evaluate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 0
+          },
+          "end": {
+            "line": 53,
+            "character": 16
+          }
+        }
+      },
+      "name": "invalid",
+      "kind": 2,
+      "tags": []
+    }
+  ],
+  "timingsMs": {
+    "initialize": 0.6964998319745064,
+    "ready": 2261.0812089405954,
+    "workspace/symbol": 1.6800840385258198,
+    "textDocument/prepareCallHierarchy": 0.2897500526160002,
+    "callHierarchy/outgoingCalls": 0.3315419889986515,
+    "textDocument/definition": 0.17324998043477535,
+    "documentSymbolAfterEdit": 0.3729581367224455,
+    "shutdown": 0.09595789015293121
+  },
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "positionEncoding": "utf-16",
+          "textDocumentSync": {
+            "openClose": true,
+            "change": 2,
+            "save": {}
+          },
+          "completionProvider": {
+            "triggerCharacters": [
+              ":",
+              ".",
+              "'",
+              "("
+            ],
+            "resolveProvider": false,
+            "completionItem": {
+              "labelDetailsSupport": false
+            }
+          },
+          "hoverProvider": true,
+          "signatureHelpProvider": {
+            "triggerCharacters": [
+              "(",
+              ",",
+              "<"
+            ]
+          },
+          "declarationProvider": true,
+          "definitionProvider": true,
+          "typeDefinitionProvider": true,
+          "implementationProvider": true,
+          "referencesProvider": true,
+          "documentHighlightProvider": true,
+          "documentSymbolProvider": true,
+          "codeActionProvider": true,
+          "codeLensProvider": {
+            "resolveProvider": true
+          },
+          "workspaceSymbolProvider": true,
+          "documentFormattingProvider": true,
+          "documentRangeFormattingProvider": false,
+          "documentOnTypeFormattingProvider": {
+            "firstTriggerCharacter": ".",
+            "moreTriggerCharacter": [
+              "=",
+              "<",
+              ">",
+              "{",
+              "(",
+              "|",
+              "+"
+            ]
+          },
+          "renameProvider": {
+            "prepareProvider": true
+          },
+          "foldingRangeProvider": true,
+          "selectionRangeProvider": true,
+          "callHierarchyProvider": true,
+          "semanticTokensProvider": {
+            "legend": {
+              "tokenTypes": [
+                "comment",
+                "decorator",
+                "enumMember",
+                "enum",
+                "function",
+                "interface",
+                "keyword",
+                "macro",
+                "method",
+                "namespace",
+                "number",
+                "operator",
+                "parameter",
+                "property",
+                "string",
+                "struct",
+                "typeParameter",
+                "variable",
+                "type",
+                "label",
+                "angle",
+                "arithmetic",
+                "attributeBracket",
+                "attribute",
+                "bitwise",
+                "boolean",
+                "brace",
+                "bracket",
+                "builtinAttribute",
+                "builtinType",
+                "character",
+                "colon",
+                "comma",
+                "comparison",
+                "constParameter",
+                "const",
+                "deriveHelper",
+                "derive",
+                "dot",
+                "escapeSequence",
+                "formatSpecifier",
+                "generic",
+                "invalidEscapeSequence",
+                "lifetime",
+                "logical",
+                "macroBang",
+                "negation",
+                "parenthesis",
+                "procMacro",
+                "punctuation",
+                "selfKeyword",
+                "selfTypeKeyword",
+                "semicolon",
+                "static",
+                "toolModule",
+                "typeAlias",
+                "union",
+                "unresolvedReference"
+              ],
+              "tokenModifiers": [
+                "async",
+                "documentation",
+                "declaration",
+                "static",
+                "defaultLibrary",
+                "deprecated",
+                "associated",
+                "attribute",
+                "callable",
+                "constant",
+                "consuming",
+                "controlFlow",
+                "crateRoot",
+                "injected",
+                "intraDocLink",
+                "library",
+                "macro",
+                "mutable",
+                "procMacro",
+                "public",
+                "reference",
+                "trait",
+                "unsafe"
+              ]
+            },
+            "range": true,
+            "full": {
+              "delta": true
+            }
+          },
+          "inlayHintProvider": {
+            "resolveProvider": false
+          },
+          "diagnosticProvider": {
+            "identifier": "rust-analyzer",
+            "interFileDependencies": true,
+            "workspaceDiagnostics": false
+          },
+          "workspace": {
+            "workspaceFolders": {
+              "supported": true,
+              "changeNotifications": true
+            },
+            "fileOperations": {
+              "willRename": {
+                "filters": [
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**/*.rs",
+                      "matches": "file"
+                    }
+                  },
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**",
+                      "matches": "folder"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "experimental": {
+            "externalDocs": true,
+            "hoverRange": true,
+            "joinLines": true,
+            "matchingBrace": true,
+            "moveItem": true,
+            "onEnter": true,
+            "openCargoToml": true,
+            "parentModule": true,
+            "childModules": true,
+            "runnables": {
+              "kinds": [
+                "cargo"
+              ]
+            },
+            "ssr": true,
+            "workspaceSymbolScopeKindFiltering": true
+          }
+        },
+        "serverInfo": {
+          "name": "rust-analyzer",
+          "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": false,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": true,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 0
+              },
+              "end": {
+                "line": 8,
+                "character": 1
+              }
+            }
+          },
+          "name": "define_declarative",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            }
+          },
+          "name": "configured",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 22,
+                "character": 1
+              }
+            }
+          },
+          "name": "configured",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            }
+          },
+          "name": "platform",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 29,
+                "character": 0
+              },
+              "end": {
+                "line": 32,
+                "character": 1
+              }
+            }
+          },
+          "name": "platform",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 34,
+                "character": 0
+              },
+              "end": {
+                "line": 36,
+                "character": 1
+              }
+            }
+          },
+          "name": "concrete",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            }
+          },
+          "name": "call_function_value",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 42,
+                "character": 0
+              },
+              "end": {
+                "line": 50,
+                "character": 1
+              }
+            }
+          },
+          "name": "evaluate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 0
+              },
+              "end": {
+                "line": 53,
+                "character": 16
+              }
+            }
+          },
+          "name": "invalid",
+          "kind": 2,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "name": "evaluate",
+          "kind": 12,
+          "detail": "pub fn evaluate() -> u32",
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 42,
+              "character": 0
+            },
+            "end": {
+              "line": 50,
+              "character": 1
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 42,
+              "character": 7
+            },
+            "end": {
+              "line": 42,
+              "character": 15
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+        "version": 1,
+        "diagnostics": [
+          {
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 0
+              },
+              "end": {
+                "line": 11,
+                "character": 17
+              }
+            },
+            "severity": 4,
+            "code": "macro-error",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#macro-error"
+            },
+            "source": "rust-analyzer",
+            "message": "proc-macro expansion is disabled"
+          },
+          {
+            "range": {
+              "start": {
+                "line": 12,
+                "character": 9
+              },
+              "end": {
+                "line": 12,
+                "character": 15
+              }
+            },
+            "severity": 1,
+            "code": "macro-error",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#macro-error"
+            },
+            "source": "rust-analyzer",
+            "message": "`OUT_DIR` not set, build scripts may have failed to run"
+          },
+          {
+            "range": {
+              "start": {
+                "line": 12,
+                "character": 17
+              },
+              "end": {
+                "line": 12,
+                "character": 20
+              }
+            },
+            "severity": 1,
+            "code": "macro-error",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#macro-error"
+            },
+            "source": "rust-analyzer",
+            "message": "`OUT_DIR` not set, build scripts may have failed to run"
+          },
+          {
+            "range": {
+              "start": {
+                "line": 12,
+                "character": 22
+              },
+              "end": {
+                "line": 12,
+                "character": 31
+              }
+            },
+            "severity": 1,
+            "code": "macro-error",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#macro-error"
+            },
+            "source": "rust-analyzer",
+            "message": "`OUT_DIR` not set, build scripts may have failed to run"
+          },
+          {
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 22,
+                "character": 1
+              }
+            },
+            "severity": 4,
+            "code": "inactive_code",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#inactive_code"
+            },
+            "source": "rust-analyzer",
+            "message": "code is inactive due to #[cfg] directives: feature = \"alternate\" is disabled",
+            "tags": [
+              1
+            ]
+          },
+          {
+            "range": {
+              "start": {
+                "line": 29,
+                "character": 0
+              },
+              "end": {
+                "line": 32,
+                "character": 1
+              }
+            },
+            "severity": 4,
+            "code": "inactive_code",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#inactive_code"
+            },
+            "source": "rust-analyzer",
+            "message": "code is inactive due to #[cfg] directives: windows is disabled",
+            "tags": [
+              1
+            ]
+          },
+          {
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 0
+              },
+              "end": {
+                "line": 53,
+                "character": 16
+              }
+            },
+            "severity": 4,
+            "code": "inactive_code",
+            "codeDescription": {
+              "href": "https://rust-analyzer.github.io/book/diagnostics.html#inactive_code"
+            },
+            "source": "rust-analyzer",
+            "message": "code is inactive due to #[cfg] directives: feature = \"invalid\" is disabled",
+            "tags": [
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 2,
+                "character": 0
+              },
+              "end": {
+                "line": 8,
+                "character": 1
+              }
+            }
+          },
+          "name": "define_declarative",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            }
+          },
+          "name": "configured",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 22,
+                "character": 1
+              }
+            }
+          },
+          "name": "configured",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            }
+          },
+          "name": "platform",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 29,
+                "character": 0
+              },
+              "end": {
+                "line": 32,
+                "character": 1
+              }
+            }
+          },
+          "name": "platform",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 34,
+                "character": 0
+              },
+              "end": {
+                "line": 36,
+                "character": 1
+              }
+            }
+          },
+          "name": "concrete",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            }
+          },
+          "name": "call_function_value",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 42,
+                "character": 0
+              },
+              "end": {
+                "line": 50,
+                "character": 1
+              }
+            }
+          },
+          "name": "evaluate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 0
+              },
+              "end": {
+                "line": 53,
+                "character": 16
+              }
+            }
+          },
+          "name": "invalid",
+          "kind": 2,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": null
+    }
+  ],
+  "exitCode": 0
+}

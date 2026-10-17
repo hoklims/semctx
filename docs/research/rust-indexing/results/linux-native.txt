@@ -1,0 +1,56 @@
+Linux 2f351d6842ce 7.2.9-orbstack-00391-g2b298d05fbd4 #1 SMP PREEMPT Mon Oct 12 05:39:36 UTC 2026 aarch64 GNU/Linux
+rustc 1.98.1 (48a229cea 2026-09-01)
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling syn v3.0.9
+   Compiling semctx-rust-syn-probe v0.1.0 (/repo/docs/research/rust-indexing/syn-probe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.35s
+     Running unittests src/main.rs (/target/debug/deps/semctx_rust_syn_probe-f0e862f0f480454c)
+
+running 2 tests
+test tests::rejects_lines_and_columns_outside_source ... ok
+test tests::translates_scalar_columns_into_utf8_bytes_across_lf_and_crlf ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (/target/debug/deps/cli-38f85ad71b214410)
+
+running 5 tests
+test rejects_invalid_utf8_before_parsing ... ok
+test rejects_malformed_source_without_partial_summary ... ok
+test rejects_missing_arguments_and_unreadable_sources ... ok
+test reports_symbols_and_preserves_fixture_doc_markers ... ok
+test reports_original_byte_ranges_after_bom_with_unicode_and_crlf ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling indexing-domain v0.1.0 (/repo/docs/research/rust-indexing/fixture/domain)
+   Compiling indexing-app v0.1.0 (/repo/docs/research/rust-indexing/fixture/app)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/main.rs (/target/debug/deps/indexing_app-5a93daa79d7894e2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/target/debug/deps/indexing_domain-98b34a77b4044a63)
+
+running 1 test
+test tests::concrete_quote_accepts_positive_amounts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dispatch.rs (/target/debug/deps/dispatch-51dde07e5b72598b)
+
+running 1 test
+test generic_and_dynamic_dispatch_preserve_amounts_and_reject_zero ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests indexing_domain
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

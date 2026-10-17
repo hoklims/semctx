@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "C:/Python314/python.exe",
+    "-B",
+    "E:\\CodexScratch\\semctx-review-378-382\\scripts\\rust-indexing-reanalysis.py",
+    "--validate",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463"
+  ],
+  "exit": 0
+}

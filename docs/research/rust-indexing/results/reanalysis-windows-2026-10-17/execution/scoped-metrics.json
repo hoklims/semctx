@@ -1,0 +1,488 @@
+{
+  "kind": "SCOPED_NATIVE_MEASUREMENTS_NO_RANKING_NO_MAC_COMPARISON",
+  "rows": [
+    {
+      "engine": "T",
+      "workspace": "fixture",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "coldParse": 3.8765000000000143,
+        "incrementalParse": 0.29819999999999425
+      },
+      "total_pair_child_wall_ms": [
+        300.7563000137452,
+        126.44389999331906,
+        110.02029999508522
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 75788288,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 75255808,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 75853824,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "T",
+      "workspace": "pico",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "coldParse": 8.451099999999997,
+        "incrementalParse": 0.3692000000000064
+      },
+      "total_pair_child_wall_ms": [
+        121.29480001749471,
+        111.16620001848787,
+        109.19700001250021
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 84230144,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 84893696,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 84672512,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "Y",
+      "workspace": "fixture",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "coldFullParse": 1.1547,
+        "editedFullParse": 1.1628
+      },
+      "total_pair_child_wall_ms": [
+        363.86529993615113,
+        409.9630999844521,
+        169.26779999630526
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 6086656,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6094848,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6082560,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6365184,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6029312,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6131712,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6098944,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6086656,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6356992,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6025216,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 6090752,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6090752,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6090752,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6373376,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6025216,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6131712,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6098944,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6086656,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6361088,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6029312,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 6086656,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6090752,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6086656,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6365184,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6033408,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6123520,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6098944,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6082560,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6361088,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 6029312,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "Y",
+      "workspace": "pico",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "coldFullParse": 2.4015,
+        "editedFullParse": 2.4712
+      },
+      "total_pair_child_wall_ms": [
+        52.13779999758117,
+        63.94169997656718,
+        59.45240001892671
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 7811072,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 7794688,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 7843840,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 7831552,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 7811072,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 7794688,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "S",
+      "workspace": "fixture",
+      "samples": 3,
+      "native_timing_median_ms": {},
+      "total_pair_child_wall_ms": [
+        6177.093599981163,
+        5593.351000017719,
+        5389.898600027664
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 569069568,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318214144,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 563535872,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318271488,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 559747072,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318185472,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 567955456,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318320640,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 563642368,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318275584,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 569671680,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318398464,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "S",
+      "workspace": "pico",
+      "samples": 3,
+      "native_timing_median_ms": {},
+      "total_pair_child_wall_ms": [
+        5442.087600007653,
+        5322.781700000633,
+        5325.194700009888
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 564363264,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318414848,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 561893376,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318287872,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 566743040,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318242816,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 568053760,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318140416,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 566820864,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318251008,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 565256192,
+            "scope": "direct process peak working set"
+          },
+          {
+            "peakRssBytes": 318386176,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "L",
+      "workspace": "fixture",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "callHierarchy/outgoingCalls": 9.618799987947568,
+        "changeToDocumentSymbol": 1.9696999806910753,
+        "documentSymbolAfterEdit": 0.6611999997403473,
+        "documentSymbolBeforeEdit": 0.6466000049840659,
+        "initialize": 1.0093000018969178,
+        "ready": 3635.475300019607,
+        "shutdown": 0.23140001576393843,
+        "textDocument/definition": 0.46189999557100236,
+        "textDocument/prepareCallHierarchy": 0.5139000131748617,
+        "workspace/symbol": 4.51590001466684
+      },
+      "total_pair_child_wall_ms": [
+        3987.4688000127207,
+        3214.5547999825794,
+        4754.758099996252
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 30732288,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 30695424,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 30834688,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    },
+    {
+      "engine": "L",
+      "workspace": "pico",
+      "samples": 3,
+      "native_timing_median_ms": {
+        "callHierarchy/outgoingCalls": 266.3642000115942,
+        "changeToDocumentSymbol": 4.730000015115365,
+        "documentSymbolAfterEdit": 3.2276999845635146,
+        "documentSymbolBeforeEdit": 2.7860999980475754,
+        "initialize": 1.6886999947018921,
+        "ready": 3461.3494999939576,
+        "shutdown": 0.2452000044286251,
+        "textDocument/definition": 0.4459999909158796,
+        "textDocument/prepareCallHierarchy": 0.6622000073548406,
+        "workspace/symbol": 3.3720999781508
+      },
+      "total_pair_child_wall_ms": [
+        3447.5920999830123,
+        4055.5123000231106,
+        4860.279300017282
+      ],
+      "direct_child_peaks": [
+        [
+          {
+            "peakRssBytes": 31424512,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 31485952,
+            "scope": "direct process peak working set"
+          }
+        ],
+        [
+          {
+            "peakRssBytes": 31408128,
+            "scope": "direct process peak working set"
+          }
+        ]
+      ]
+    }
+  ],
+  "limitations": [
+    "Research engine reanalysis only; no Semctx product reindex claim or ranking.",
+    "Cold means no previous engine index in fresh scratch; OS caches are not flushed.",
+    "T/Y parse exactly selected files. S/L additionally load the Cargo workspace and configured sysroot.",
+    "T old-tree incremental parse; Y separate full parses; S two full batch processes; L one persistent server per pair.",
+    "PSAPI direct-child peak working set, no descendant aggregation. L also reports its server peak separately.",
+    "Native parse time and process wall time are distinct.",
+    "NONCONFORMING_WINDOWS_SCIP_PATHS: diagnostic matching only; native SCIP remains non-portable, without conformance or production admission."
+  ]
+}

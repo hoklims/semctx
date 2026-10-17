@@ -1,0 +1,26 @@
+[
+  {
+    "path": "src/lib.rs",
+    "exitCode": 0,
+    "stdout": "summary\titems\t13\tmethods\t0\nsymbol\tuse\t_\t0\t42\t\nsymbol\tmacro\tdefine_declarative\t44\t160\t\nsymbol\tmacro\t_\t162\t184\t\nsymbol\tmacro\t_\t185\t206\t\nsymbol\tmacro\t_\t207\t259\t\nsymbol\tfn\tconfigured\t261\t332\tcfg\nsymbol\tfn\tconfigured\t334\t400\tcfg\nsymbol\tfn\tplatform\t402\t449\tcfg\nsymbol\tfn\tplatform\t451\t501\tcfg\nsymbol\tfn\tconcrete\t503\t537\t\nsymbol\tfn\tcall_function_value\t539\t614\t\nsymbol\tfn\tevaluate\t616\t833\t\nsymbol\tmod\tinvalid\t835\t879\tcfg\n",
+    "stderr": "timing\tparse_ns\t703667\n"
+  },
+  {
+    "path": "src/invalid.rs",
+    "exitCode": 0,
+    "stdout": "summary\titems\t8\tmethods\t0\nsymbol\tmod\tleft\t0\t57\t\nsymbol\tmod\tright\t59\t117\t\nsymbol\tuse\t_\t119\t131\t\nsymbol\tuse\t_\t132\t145\t\nsymbol\tfn\tambiguous\t147\t189\t\nsymbol\tfn\tmissing\t191\t240\t\n",
+    "stderr": "timing\tparse_ns\t108208\n"
+  },
+  {
+    "path": "edge-macros/src/lib.rs",
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t28\t\nsymbol\tfn\tdefine_procedural\t30\t160\tproc_macro\n",
+    "stderr": "timing\tparse_ns\t82584\n"
+  },
+  {
+    "path": "build.rs",
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t34\t\nsymbol\tfn\tmain\t36\t265\t\n",
+    "stderr": "timing\tparse_ns\t132292\n"
+  }
+]

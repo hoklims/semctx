@@ -1,0 +1,18 @@
+error[E0425]: cannot find type `MissingDependency` in this scope
+ --> docs/research/rust-indexing/fixture/negative/unresolved.rs:1:24
+  |
+1 | pub fn unresolved() -> MissingDependency {
+  |                        ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0433]: cannot find module or crate `absent_crate` in this scope
+ --> docs/research/rust-indexing/fixture/negative/unresolved.rs:2:5
+  |
+2 |     absent_crate::create()
+  |     ^^^^^^^^^^^^ use of unresolved module or unlinked crate `absent_crate`
+  |
+  = help: you might be missing a crate named `absent_crate`
+
+error: aborting due to 2 previous errors
+
+Some errors have detailed explanations: E0425, E0433.
+For more information about an error, try `rustc --explain E0425`.

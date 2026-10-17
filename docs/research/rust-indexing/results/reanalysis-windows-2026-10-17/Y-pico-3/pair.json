@@ -1,0 +1,71 @@
+{
+  "engine": "Y",
+  "workspace": "pico",
+  "sample": 3,
+  "sources": {
+    "src/lib.rs": {
+      "beforeSha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "afterSha256": "57bff9219714d42aff830f0461a757404db6a0e60fd44d77c80f013991008754"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0065",
+      "exitCode": 0,
+      "elapsedMs": 20.854400005191565,
+      "stdoutSha256": "c930fd88a9ec5cdd2a714ac42ad62de3e02e79883ceee59a61ace4156baf9d80",
+      "stderrSha256": "54cc5c7444aa332c08346039b1b9c38bb7ce1d9ee553e87872b1fe2bdb9259b9",
+      "argvSha256": "c4ee137b55476579634a9d2e9547097e4edb63795aeef0fd9b0e5cc509a660c9",
+      "directChildPeakRss": {
+        "peakRssBytes": 7811072,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0066",
+      "exitCode": 0,
+      "elapsedMs": 38.598000013735145,
+      "stdoutSha256": "206e9028373f21c3e571d42e517f8c4ddffe1aeb1d70f49155a7b81cdab3222c",
+      "stderrSha256": "b00d4e8f1de53fa426c2e0f867548c541606bd023a4e536af2de244fdfda2588",
+      "argvSha256": "c4ee137b55476579634a9d2e9547097e4edb63795aeef0fd9b0e5cc509a660c9",
+      "directChildPeakRss": {
+        "peakRssBytes": 7794688,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc"
+    },
+    {
+      "path": "LICENSE",
+      "capturePath": "LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8"
+    },
+    {
+      "path": "README.md",
+      "capturePath": "README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc"
+    },
+    {
+      "path": "src/lib.rs",
+      "capturePath": "src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865"
+    }
+  ],
+  "nativeTimingsMs": {
+    "coldFullParse": 2.3868,
+    "editedFullParse": 2.3315
+  }
+}

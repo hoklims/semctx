@@ -1,0 +1,2218 @@
+{
+  "workspace": "docs/research/rust-indexing/edge-cases",
+  "environment": {
+    "os": "macOS 27.0.1 arm64",
+    "toolchain": "Rust/Cargo 1.98.1",
+    "installedTargets": [
+      "aarch64-apple-darwin"
+    ],
+    "offline": true,
+    "rustupToolchain": "1.98.1",
+    "defaultConfiguredRerun": "The initial unpinned pilot was replaced by an explicit Rust 1.98.1 offline rerun with rust-src."
+  },
+  "native": {
+    "red": {
+      "command": "cargo test --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml",
+      "exitCode": 101,
+      "log": "edge-tdd-red.log",
+      "observed": "0 != 40"
+    },
+    "default": {
+      "command": "cargo test --locked --offline --workspace --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml",
+      "exitCode": 0,
+      "log": "edge-default-final.log"
+    },
+    "alternate": {
+      "command": "cargo test --locked --offline --workspace --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml --features alternate",
+      "exitCode": 0,
+      "log": "edge-alternate-final.log"
+    },
+    "format": {
+      "command": "cargo fmt --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml --all -- --check",
+      "exitCode": 0,
+      "log": "edge-fmt-final.log"
+    },
+    "invalid": {
+      "command": "cargo check --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml --features invalid",
+      "exitCode": 101,
+      "log": "edge-invalid.log",
+      "errorCodes": [
+        "E0659",
+        "E0425"
+      ]
+    },
+    "windows": {
+      "command": "cargo check --manifest-path docs/research/rust-indexing/edge-cases/Cargo.toml --target x86_64-pc-windows-msvc",
+      "exitCode": 101,
+      "log": "edge-windows-check.log",
+      "errorCodes": [
+        "E0463"
+      ]
+    }
+  },
+  "lsp": {
+    "alternate-configured": {
+      "artifact": "edge-lsp-alternate-configured.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 20,
+              "character": 7
+            },
+            "end": {
+              "line": 20,
+              "character": 17
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 22,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 20,
+                "character": 7
+              },
+              "end": {
+                "line": 20,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ambiguous": {
+      "artifact": "edge-lsp-ambiguous.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 11
+            },
+            "end": {
+              "line": 1,
+              "character": 17
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "shared",
+            "kind": 12,
+            "detail": "pub fn shared() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1,
+                "character": 11
+              },
+              "end": {
+                "line": 1,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 16,
+                "character": 4
+              },
+              "end": {
+                "line": 16,
+                "character": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "declarative": {
+      "artifact": "edge-lsp-declarative.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 15
+            },
+            "end": {
+              "line": 4,
+              "character": 26
+            }
+          }
+        },
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 0
+            },
+            "end": {
+              "line": 10,
+              "character": 19
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "default-configured": {
+      "artifact": "edge-lsp-default-configured.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 7
+            },
+            "end": {
+              "line": 15,
+              "character": 17
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "default-platform": {
+      "artifact": "edge-lsp-default-platform.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 25,
+              "character": 7
+            },
+            "end": {
+              "line": 25,
+              "character": 15
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "function-value-origin": {
+      "artifact": "edge-lsp-function-value-origin.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 34,
+              "character": 7
+            },
+            "end": {
+              "line": 34,
+              "character": 15
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "generated": {
+      "artifact": "edge-lsp-generated.json",
+      "exitCode": 0,
+      "definition": [],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "missing-callee": {
+      "artifact": "edge-lsp-missing-callee.json",
+      "exitCode": 0,
+      "definition": [],
+      "calls": []
+    },
+    "missing": {
+      "artifact": "edge-lsp-missing.json",
+      "exitCode": 0,
+      "definition": [],
+      "calls": [
+        {
+          "to": {
+            "name": "shared",
+            "kind": 12,
+            "detail": "pub fn shared() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1,
+                "character": 11
+              },
+              "end": {
+                "line": 1,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 16,
+                "character": 4
+              },
+              "end": {
+                "line": 16,
+                "character": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pointer-call": {
+      "artifact": "edge-lsp-pointer-call.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 27
+            },
+            "end": {
+              "line": 38,
+              "character": 35
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pointer-callee": {
+      "artifact": "edge-lsp-pointer-callee.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 27
+            },
+            "end": {
+              "line": 38,
+              "character": 35
+            }
+          }
+        }
+      ],
+      "calls": []
+    },
+    "procedural": {
+      "artifact": "edge-lsp-procedural.json",
+      "exitCode": 0,
+      "definition": [],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 24,
+                "character": 0
+              },
+              "end": {
+                "line": 27,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 25,
+                "character": 7
+              },
+              "end": {
+                "line": 25,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "windows-platform": {
+      "artifact": "edge-lsp-windows-platform.json",
+      "exitCode": 0,
+      "definition": [
+        {
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 7
+            },
+            "end": {
+              "line": 30,
+              "character": 15
+            }
+          }
+        }
+      ],
+      "calls": [
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 4,
+                "character": 15
+              },
+              "end": {
+                "line": 4,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "declarative",
+            "kind": 12,
+            "detail": "pub fn declarative() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 19
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 15
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "call_function_value",
+            "kind": 12,
+            "detail": "pub fn call_function_value(callback: fn() -> u32) -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 0
+              },
+              "end": {
+                "line": 40,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 38,
+                "character": 7
+              },
+              "end": {
+                "line": 38,
+                "character": 26
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 47,
+                "character": 10
+              },
+              "end": {
+                "line": 47,
+                "character": 29
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "configured",
+            "kind": 12,
+            "detail": "pub fn configured() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 15,
+                "character": 7
+              },
+              "end": {
+                "line": 15,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 48,
+                "character": 10
+              },
+              "end": {
+                "line": 48,
+                "character": 20
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "platform",
+            "kind": 12,
+            "detail": "pub fn platform() -> u32",
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 29,
+                "character": 0
+              },
+              "end": {
+                "line": 32,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 30,
+                "character": 7
+              },
+              "end": {
+                "line": 30,
+                "character": 15
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 49,
+                "character": 10
+              },
+              "end": {
+                "line": 49,
+                "character": 18
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scip": {
+    "default": {
+      "command": "$RUN/tools/rust-analyzer scip docs/research/rust-indexing/edge-cases --output $RUN/edge-default.scip --num-threads 4",
+      "exitCode": 0,
+      "artifact": "edge-default.json",
+      "stderr": "edge-default.stderr",
+      "documents": [
+        "build.rs",
+        "tests/behavior.rs",
+        "src/lib.rs",
+        "edge-macros/src/lib.rs"
+      ]
+    },
+    "alternate": {
+      "command": "$RUN/tools/rust-analyzer scip docs/research/rust-indexing/edge-cases --config-path $RUN/edge-alternate.config.json --output $RUN/edge-alternate.scip --num-threads 4",
+      "exitCode": 0,
+      "artifact": "edge-alternate.json",
+      "stderr": "edge-alternate.stderr",
+      "documents": [
+        "build.rs",
+        "tests/behavior.rs",
+        "src/lib.rs",
+        "edge-macros/src/lib.rs"
+      ]
+    },
+    "invalid": {
+      "command": "$RUN/tools/rust-analyzer scip docs/research/rust-indexing/edge-cases --config-path $RUN/edge-invalid.config.json --output $RUN/edge-invalid.scip --num-threads 4",
+      "exitCode": 0,
+      "artifact": "edge-invalid.json",
+      "stderr": "edge-invalid.stderr",
+      "documents": [
+        "build.rs",
+        "tests/behavior.rs",
+        "src/lib.rs",
+        "src/invalid.rs",
+        "edge-macros/src/lib.rs"
+      ]
+    },
+    "windows": {
+      "command": "$RUN/tools/rust-analyzer scip docs/research/rust-indexing/edge-cases --config-path $RUN/edge-windows.config.json --output $RUN/edge-windows.scip --num-threads 4",
+      "exitCode": 0,
+      "artifact": "edge-windows.json",
+      "stderr": "edge-windows.stderr",
+      "documents": [
+        "build.rs",
+        "tests/behavior.rs",
+        "src/lib.rs",
+        "edge-macros/src/lib.rs"
+      ]
+    }
+  },
+  "syntax": {
+    "tree": "edge-tree.jsonl",
+    "syn": "edge-syn.json"
+  }
+}

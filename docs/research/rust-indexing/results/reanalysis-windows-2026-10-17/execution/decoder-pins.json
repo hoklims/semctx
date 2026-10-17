@@ -1,0 +1,214 @@
+{
+  "schema": "scip.Index",
+  "protocolTag": "v0.10.0",
+  "files": [
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\aspromise\\index.js",
+      "sha256": "fb1acf6664b54d5d6a0d110e213a1fac0ea8cc1fba3867b93bfe1bc31fdddc10"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\base64\\index.js",
+      "sha256": "c49fe6e858675f444adc5f6f4790f202c9de96d9a573b88b4791db94e6b6aeb9"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\codegen\\index.js",
+      "sha256": "3c513abd3e434ae9e6460fa246e6dfe1c6dbc6f6694eb88597902eb265e8c507"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\eventemitter\\index.js",
+      "sha256": "9f30f0caa6fb0ca2f4de57eb0b00161795e8aa9b76eb7edfede6d7506a588562"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\fetch\\index.js",
+      "sha256": "5e8c1d65ee1857327528c5b3fc807c3647324f3097a6cb9358f9e2c328c143fe"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\fetch\\util\\fs.js",
+      "sha256": "af3674df146c0d16382879fe274df825289dd6bb7658eabcc72127a273ac88df"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\float\\index.js",
+      "sha256": "bacb0a4b2b042bccb8b30186662a6e7fa0027f354be53175095daa40c56d98bb"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\inquire\\index.js",
+      "sha256": "5dd189800ae3de685fc6b6d02dbe2aa276edd386718ca2e9c410ec2dd7814b2d"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\path\\index.js",
+      "sha256": "f5117d8d8747456b3bbff0155320cf7593f4e456614fc6215c16d2d570e9959b"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\pool\\index.js",
+      "sha256": "7b8d9bf0a28ad86b7735fc8550a5982856998b2cfbd017f09090ba0f94619d74"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\@protobufjs\\utf8\\index.js",
+      "sha256": "d039bcabadff40522235eb8023e8d25464ec89ca22746a0d2f56c88908fb18a1"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\long\\umd\\index.js",
+      "sha256": "ea6da8d5fff04abc358b94488dbbb7eeb46e5027cc05303b1761cea94bef7821"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\index.js",
+      "sha256": "33c2ed457283fb463ca5a3228eb35fabbe2ab5f25f25b411e93aed4b7c18e8c0"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\package.json",
+      "sha256": "ebfd588589154daadae73f2839e88a248fdd9ad7477bf17c0042488ba39be81a"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\common.js",
+      "sha256": "577786d95c5cb3e11eb475342735c7cf8c71ecb4456d9f07258d60af8a1bfe9a"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\converter.js",
+      "sha256": "9506c4cba14179a0a4ab9c9f1c263f8ab2e67757a6342b04e15817f4a015bb79"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\decoder.js",
+      "sha256": "1e41ab64da94081d363ae94d6f2d5496105e747afdc7dc075a5671ea5155f835"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\encoder.js",
+      "sha256": "12e8e8bc8a466395d94ccca64b5b0c3f224ae10bf6b51cf6207fc849af47fe75"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\enum.js",
+      "sha256": "c7e4dd1a23d68d57533baa16d359705037a752d72e17baa931cab72d28f1b8a7"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\field.js",
+      "sha256": "d89486db21dda6ecd4654793bb93419b5861542e92857c5008d48ce9beeb416b"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\index-light.js",
+      "sha256": "20aa0db4e86a2e474764f5c6a99e7fd635dd2e63d8e4a90fd9dc8ace314ee0b1"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\index-minimal.js",
+      "sha256": "6b6436025c7c67c5a0a89d68d4e9e8d788bc944509d8ea650afb6748a89a069d"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\index.js",
+      "sha256": "a3303b1b08d3a9f082fd067f501406ad2a1e8bc75c3fcbb9999f5abd9c942607"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\mapfield.js",
+      "sha256": "a639b1a855e22abe42a285ece778a180610ec75dd4c5d4c704a02263bc39c924"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\message.js",
+      "sha256": "358266191c264b791ae7e922729ed07dec57d0dd0a95d627c94c7e51f339f4ed"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\method.js",
+      "sha256": "f26f4c10657fd45f75c8a598ac78ca70435b4cf192bf497245f7a9e2c0f683ed"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\namespace.js",
+      "sha256": "1060ab135374fe9daecc293f436c1b454054c3c5a54620456a308a86e2c2bc8f"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\object.js",
+      "sha256": "a3035cdb4701032bc8b05bb27341a6c8890a3515ceadbd24b22dba630043fd44"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\oneof.js",
+      "sha256": "e9b7d255bc8324a659bf3dcac52bb92fb4f237c6540822290deb5a0dd675e782"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\parse.js",
+      "sha256": "c3ffc0aa975f27ad91dbf838c8afcc905a59d91ccf6be562f2a33a82ae636fbb"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\reader.js",
+      "sha256": "a9eeb03b99bbb743bb368fcd6513814bb978c25d37344bf58d872587baaab7e0"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\reader_buffer.js",
+      "sha256": "b942cc88d4dd75b3ca378ea53c7b7037909cc388e31d35fcdfb76ea5d8c5d096"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\root.js",
+      "sha256": "1f610f79137dff45ce2ec4e0f742ae43f26b296f2518f4ba41e0a497af5ad624"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\roots.js",
+      "sha256": "67afecbc9bdbce1242773b0e67f93fc0ece79febaf547301e3e3586685a9b63c"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\rpc.js",
+      "sha256": "126acd0deef0363d8c1748ca8da5b0cf06312bc88fdc7227f9dd7495ec364f67"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\rpc\\service.js",
+      "sha256": "d276dd024814d7feecf0b5fefd40e8d58d4eb6c781768f3ef3e3a7e06f6cb300"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\service.js",
+      "sha256": "afa5ce8a9d65da8d9fcde30932ac9f98092b076d7f24dc9e2777d2d919c0111a"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\tokenize.js",
+      "sha256": "b99238d57955a2b2163f479fa3728cb13038d286b65aa1cb4578ccd9b5e8a50a"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\type.js",
+      "sha256": "a6874ad8df00af6dbbb75c7d2618d05bb1e44ea47c7613edcc21aee7150a2388"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\types.js",
+      "sha256": "ae3ada6fefddf9927027d7e4505af52a54c4a0f64dedc367742accfdbe5c4a59"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\util.js",
+      "sha256": "c537d61cde04ae9336af285039ac0080a183750df3477da3aaf92aac917ebd80"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\util\\fs.js",
+      "sha256": "f34e619c9c6d507acaa0f057111c5c609ec59f464098a51d2e5ae818c5bd42bb"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\util\\longbits.js",
+      "sha256": "3afff6e35a4c1717b01d2a4bd40bbdb7bf5d00d007d411acdec3aa622cbc803a"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\util\\minimal.js",
+      "sha256": "a30c396af5fc144988e789e051840cbdf029efd264707a128f114f7801b17203"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\util\\patterns.js",
+      "sha256": "800d829ac0870f11e5fefd78df868116489499335e3d628661d73f8236dcb444"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\verifier.js",
+      "sha256": "bd5582bda1670b0c7a6c2947ab959cbba3bbf64022f10fa6667e24022076e26d"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\wrappers.js",
+      "sha256": "deb57c8c9b7849e500221283630729234b4367e3d561434fbed8819c51f996d4"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\writer.js",
+      "sha256": "c3d5b3b1a85310fb790c997709b2a3654f80ab849f09689aaef6600e141963f2"
+    },
+    {
+      "path": "C:\\ProgramData\\nvm\\v22.23.2\\node_modules\\openclaw\\node_modules\\protobufjs\\src\\writer_buffer.js",
+      "sha256": "ccaba96e1ec77260d358330a9475411488b2977d46d03aa3ec47b807a61d91c2"
+    },
+    {
+      "path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\decode-scip.cjs",
+      "sha256": "de31e6a59acbd640efeef4e751d9d09d0686b9461dd0595ea3c97c2c345e9289"
+    },
+    {
+      "path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\scip-010.proto",
+      "sha256": "b38021b65ef90cbbf6af9c829ff75192859ad9b5da05439ef154bea4ceb2bf03"
+    },
+    {
+      "path": "C:\\nvm4w\\nodejs\\node.exe",
+      "sha256": "0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4"
+    }
+  ]
+}

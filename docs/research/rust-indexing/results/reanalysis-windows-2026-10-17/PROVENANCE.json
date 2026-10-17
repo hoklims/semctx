@@ -1,0 +1,39 @@
+{
+  "kind": "A3_MEASUREMENT_IDENTITY_NOT_RELABELLED_TO_PUBLICATION_COMMIT",
+  "measuredHead": "1f08463191369097fe15dda1721324a4c7ab4215",
+  "measuredTree": "1cd1d272b2f5f270fe4c3e26a1ade6d1c5b0e1de",
+  "measuredHarnessSha256": {
+    "scripts/rust-indexing-reanalysis.py": "357ca84992e4fc8d8db0388c2d43bca3c7047579947de6bbd94589143195f02f",
+    "scripts/rust-indexing-reanalysis.mjs": "8c20e92ceeedd457a38674b9bbc024d723bc901c25ce4f8b06963a6ee419a8e4",
+    "scripts/rust-indexing-lsp.py": "0bd2b92569c7c3b1e5211be9685c3a411b85e4367fcd869c10208f6a1528ce8e"
+  },
+  "measuredUnitTestPin": "ee6976e8464c5a41a6c457cd486a1dfdb0aeaeba7c66b3e0e5fbcdcbf0df0f4b",
+  "publicationTestIsMeasuredRuntimeInput": false,
+  "transferRule": "Historical A3 captures retain these original harness and input/tool/profile pins. The current Runner workspace-link and L sysroot preflight, timeout cleanup and bounded output capture changed after A3; compatible read-only validation is not a new execution, current performance proof or current preflight/cleanup/output-bound proof. A3 remains the actual measured subject.",
+  "YBuildSourceHead": "45015888fb6978e7648ca4b6345623209c6b1526",
+  "YBuildTransfer": "Sixteen source bytes matched before A3; original build/READY.json and execution/preparation.json retain their own subjects.",
+  "configSha256": "88a7466adef45586ab656d02195cb3b4f08e1b481816f6b8da12eec97aeaa67b",
+  "resultSha256": "a5ee4c82ac815cd285d90dbdebe408f4af90107e97a9b7b23c9b43bed5702560",
+  "storage": "607 original logical files remain byte-identical: 204 input files are stored as deterministic ZIP members; 403 original files remain physical. No new measurement or A3 subject relabelling.",
+  "capturedInputArchive": {
+    "path": "captured-inputs.zip",
+    "bytes": 439498,
+    "sha256": "75b494bd832d4076b5f1201657039724d943f2877b41ddf35714b001bbd00656",
+    "uncompressedBytes": 408132,
+    "format": "ZIP_STORED",
+    "memberOrder": "lexicographic",
+    "fixedDateTime": [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "publicationUnpackHelper": {
+    "path": "scripts/rust-indexing-unpack.py",
+    "sha256": "faf0c82179076deb82eda4bed52dc890fcb1f8aac5988c8a0c0509705376edad",
+    "measuredRuntimeInput": false
+  }
+}

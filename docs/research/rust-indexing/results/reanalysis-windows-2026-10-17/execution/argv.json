@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "C:/Python314/python.exe",
+    "-B",
+    "E:\\CodexScratch\\semctx-review-378-382\\scripts\\rust-indexing-reanalysis.py",
+    "--config",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurement-preparation-1f08463\\config.json",
+    "--output",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463",
+    "--engines",
+    "T",
+    "Y",
+    "S",
+    "L",
+    "--samples",
+    "3",
+    "--budget-seconds",
+    "600"
+  ],
+  "cwd": "E:\\CodexScratch\\semctx-review-378-382",
+  "subject": {
+    "head": "1f08463191369097fe15dda1721324a4c7ab4215",
+    "tree": "1cd1d272b2f5f270fe4c3e26a1ade6d1c5b0e1de",
+    "previous_head": "adf5db6aa4f5e53c6f973fcb5c2ff98b70cd4690",
+    "root_reported_tests": "44 tests passed on Python 3.11 and 3.14; root accepted source fix",
+    "go": "Explicit root conditional authorization for one new 600-second campaign after exact two-pin preparation",
+    "windowsScipPathContract": "NONCONFORMING_NATIVE_WINDOWS_PATHS_DIAGNOSTIC_ONLY; original native bytes retained, no producer conformance claim"
+  },
+  "config_sha256": "88a7466adef45586ab656d02195cb3b4f08e1b481816f6b8da12eec97aeaa67b",
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "RUSTUP_HOME": "C:/Users/Hokli/scoop/persist/rustup-gnu/.rustup",
+    "CARGO_HOME": "C:/Users/Hokli/scoop/persist/rustup-gnu/.cargo",
+    "RUST_SRC_PATH": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\rust-src\\rust-src-1.98.1\\rust-src\\lib\\rustlib\\src\\rust\\library",
+    "PATH": "C:\\Users\\Hokli\\scoop\\apps\\rustup-gnu\\current\\.cargo\\bin;C:\\Users\\Hokli\\scoop\\apps\\mingw\\current\\bin;C:\\Windows\\System32;C:\\Windows",
+    "PATHEXT": ".COM;.EXE;.BAT;.CMD",
+    "SYSTEMROOT": "C:/Windows",
+    "WINDIR": "C:/Windows",
+    "COMSPEC": "C:/Windows/System32/cmd.exe",
+    "TEMP": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurement-preparation\\temp",
+    "TMP": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurement-preparation\\temp",
+    "USERPROFILE": "C:/Users/Hokli",
+    "APPDATA": "C:/Users/Hokli/AppData/Roaming",
+    "LOCALAPPDATA": "C:/Users/Hokli/AppData/Local",
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "outer_cap_seconds": 660,
+  "automatic_retries": 0
+}

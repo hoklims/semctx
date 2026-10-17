@@ -1,0 +1,62 @@
+{
+  "engine": "T",
+  "workspace": "pico",
+  "sample": 1,
+  "sources": {
+    "src/lib.rs": {
+      "beforeSha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "afterSha256": "57bff9219714d42aff830f0461a757404db6a0e60fd44d77c80f013991008754"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0016",
+      "exitCode": 0,
+      "elapsedMs": 121.29480001749471,
+      "stdoutSha256": "4b6e764bbdedb4f10165bec414f8c3814801a9f048c56b3e8d6c7d33e9ad01ae",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "5fb814f5e6312edb7e34f100e23aa47485242fea827e78fa9865a2984c4de5f6",
+      "directChildPeakRss": {
+        "peakRssBytes": 84230144,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc"
+    },
+    {
+      "path": "LICENSE",
+      "capturePath": "LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8"
+    },
+    {
+      "path": "README.md",
+      "capturePath": "README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc"
+    },
+    {
+      "path": "src/lib.rs",
+      "capturePath": "src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865"
+    }
+  ],
+  "adapterInput": {
+    "path": "T-pico-1/adapter.json",
+    "sha256": "888d3f4d6cf3d30834daad84016ff5161864713087b9d207f4d41afe0b07d756"
+  },
+  "nativeTimingsMs": {
+    "coldParse": 8.509499999999996,
+    "incrementalParse": 0.3692000000000064
+  }
+}

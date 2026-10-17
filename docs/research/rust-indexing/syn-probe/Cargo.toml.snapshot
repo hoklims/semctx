@@ -1,0 +1,11 @@
+[package]
+name = "semctx-rust-syn-probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+proc-macro2 = { version = "=1.0.107", features = ["span-locations"] }
+syn = { version = "=3.0.9", features = ["full", "visit"] }

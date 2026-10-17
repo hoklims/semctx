@@ -1,0 +1,23 @@
+summary	items	22	methods	32
+symbol	use	_	1199	1231	
+symbol	use	_	1232	1262	
+symbol	use	_	1263	1285	
+symbol	enum	Error	1288	1897	doc= A list of possible errors.,derive
+symbol	impl	_	1899	3001	
+symbol	impl	_	3003	3038	
+symbol	enum	PairKind	3041	3201	derive
+symbol	struct	Arguments	3204	3289	doc= An arguments parser.,derive
+symbol	impl	_	3291	23117	
+symbol	fn	error_to_string	23242	23327	inline
+symbol	fn	starts_with_plus_eq	23329	23663	cfg,inline
+symbol	fn	starts_with_short_prefix	23665	24017	cfg,inline
+symbol	fn	index_predicate	24019	24234	cfg,inline
+symbol	fn	index_predicate	24235	24413	cfg,inline
+symbol	fn	index_predicate	24414	24597	cfg,inline
+symbol	fn	ends_with	24599	24822	cfg,inline
+symbol	fn	os_to_str	24824	24943	inline
+symbol	struct	Keys	24946	25085	doc= A keys container.,doc=,doc= Should not be used directly.,doc,derive
+symbol	impl	_	25087	25254	
+symbol	impl	_	25256	25699	
+symbol	fn	validate_shortflag	25701	25994	
+symbol	impl	_	25996	26272	

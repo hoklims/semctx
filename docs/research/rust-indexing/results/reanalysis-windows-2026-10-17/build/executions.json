@@ -1,0 +1,46 @@
+[
+  {
+    "label": "rustc-version",
+    "argv": [
+      "C:\\Users\\Hokli\\scoop\\apps\\rustup-gnu\\current\\.cargo\\bin\\rustc.exe",
+      "-Vv"
+    ],
+    "cwd": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-build\\scratch",
+    "exit": 0,
+    "seconds": 0.9077210999967065,
+    "stdout_sha256": "8b63d892652a4bd91bf0a00adc2f2dd0f2b37f00de60f7b0882236ca60a11810",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cap_seconds": 15
+  },
+  {
+    "label": "cargo-version",
+    "argv": [
+      "C:\\Users\\Hokli\\scoop\\apps\\rustup-gnu\\current\\.cargo\\bin\\cargo.exe",
+      "-Vv"
+    ],
+    "cwd": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-build\\scratch",
+    "exit": 0,
+    "seconds": 0.08258149999892339,
+    "stdout_sha256": "7a63a8a81b4838200de1fba34f6f9c59bed1df7cf5e438705271f707bf59f0ff",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cap_seconds": 15
+  },
+  {
+    "label": "build",
+    "argv": [
+      "C:\\Users\\Hokli\\scoop\\apps\\rustup-gnu\\current\\.cargo\\bin\\cargo.exe",
+      "build",
+      "--release",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-build\\scratch\\syn-probe\\Cargo.toml"
+    ],
+    "cwd": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-build\\scratch",
+    "exit": 0,
+    "seconds": 16.04816690000007,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "820c19b6d6d69558ae5f1d032e07fbab527dc86f1715d7cda8375f223a05ba29",
+    "cap_seconds": 180
+  }
+]

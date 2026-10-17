@@ -1,0 +1,42 @@
+{
+  "kind": "ACTUAL_A3_NATIVE_MEASUREMENTS_AND_EXTERNAL_POSTCONDITION_AUDIT",
+  "head": "1f08463191369097fe15dda1721324a4c7ab4215",
+  "git_clean": true,
+  "config_sha256": "88a7466adef45586ab656d02195cb3b4f08e1b481816f6b8da12eec97aeaa67b",
+  "result_sha256": "a5ee4c82ac815cd285d90dbdebe408f4af90107e97a9b7b23c9b43bed5702560",
+  "pass_sha256": "2ba5eda3e17c199546f4f03f5deff3c7b6a7d21984ac980bdd3cc84bc7be9a08",
+  "separate_validate_stdout": {
+    "status": "VALID",
+    "pairs": 24,
+    "states": 48,
+    "engines": [
+      "T",
+      "Y",
+      "S",
+      "L"
+    ]
+  },
+  "postcondition_sha256": "a3cc33be8244647e528ca1c7453e9e90e0761053e9ad77ca9af17e69bd19eb6f",
+  "digests_sha256": "bfe13a27bf68e9eb9e6b67dcaf3fb0ba4259dc7166f9579f10ec011e8a1b8790",
+  "retained_files": 832,
+  "engine_pairs": 24,
+  "states": 48,
+  "workspace_input_comparisons": 204,
+  "pins": 3645,
+  "automatic_retries": 0,
+  "earlier_source_runs_preserved": true,
+  "new_build_download_versions_run": false,
+  "limitations": [
+    "Research engine reanalysis only; no Semctx product reindex claim or ranking.",
+    "Cold means no previous engine index in fresh scratch; OS caches are not flushed.",
+    "T/Y parse exactly selected files. S/L additionally load the Cargo workspace and configured sysroot.",
+    "T old-tree incremental parse; Y separate full parses; S two full batch processes; L one persistent server per pair.",
+    "PSAPI direct-child peak working set, no descendant aggregation. L also reports its server peak separately.",
+    "Native parse time and process wall time are distinct.",
+    "NONCONFORMING_WINDOWS_SCIP_PATHS: diagnostic matching only; native SCIP remains non-portable, without conformance or production admission.",
+    "Windows native SCIP relative paths are NONCONFORMING to the official protocol; explicit windows-diagnostic matching only, original bytes retained.",
+    "SCIP protobufjs diagnostic decoder ignores unknown fields; no complete decoder or native CLI JSON equivalence guarantee.",
+    "Y binary built against 450 source and transferred via sixteen identical Y/fixture input hashes; actual experiment source is A3.",
+    "Input/runtime hashes cover declared trusted local scope; no full OS DLL/stdlib sandbox or hostile-input guarantee."
+  ]
+}

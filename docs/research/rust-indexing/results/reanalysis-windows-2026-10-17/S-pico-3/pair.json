@@ -1,0 +1,105 @@
+{
+  "engine": "S",
+  "workspace": "pico",
+  "sample": 3,
+  "sources": {
+    "src/lib.rs": {
+      "beforeSha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "afterSha256": "57bff9219714d42aff830f0461a757404db6a0e60fd44d77c80f013991008754"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0067",
+      "exitCode": 0,
+      "elapsedMs": 2243.808800005354,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "0ec6b51cad08a8fa600af19cd9f88d12684714bcfad984b05bab0d11f0ce4e2e",
+      "argvSha256": "6e5464d606db63f3df219f2202812cb89c6b105696b1160c494ae30d53e9ad77",
+      "directChildPeakRss": {
+        "peakRssBytes": 566820864,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0068",
+      "exitCode": 0,
+      "elapsedMs": 429.6271000057459,
+      "stdoutSha256": "b5ed5d13a8bf4b1ad96c1133a5c7835d4b29e499849b6e9b59da62cef3a9bc4d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "1a5b276778716f0a467381465ac704c089f687194cf5d9882c2317ac9e21cd8f",
+      "directChildPeakRss": {
+        "peakRssBytes": 318251008,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0069",
+      "exitCode": 0,
+      "elapsedMs": 2224.7437000041828,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "6043e3ee0e7f7d97d8892fec4a64cb2a595b3c1c2ebec7b31f964d19fba568c6",
+      "argvSha256": "4a7fc448440ce7e4b48d8b06a3985267866e4441a4966c9b808cd7575df0232b",
+      "directChildPeakRss": {
+        "peakRssBytes": 565256192,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0070",
+      "exitCode": 0,
+      "elapsedMs": 427.0150999946054,
+      "stdoutSha256": "a7cc9400f6b9985022df18a39996b963646c9dc91bfb778c526aad7d2d75b497",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "3b33150f9f77c97969d0609566745180e3a88b21f8d3420141c9c28b14d1494e",
+      "directChildPeakRss": {
+        "peakRssBytes": 318386176,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc"
+    },
+    {
+      "path": "LICENSE",
+      "capturePath": "LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8"
+    },
+    {
+      "path": "README.md",
+      "capturePath": "README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc"
+    },
+    {
+      "path": "src/lib.rs",
+      "capturePath": "src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865"
+    }
+  ],
+  "scipPathMode": "windows-diagnostic",
+  "scipPathLimitation": "NONCONFORMING_WINDOWS_SCIP_PATHS: diagnostic matching only; native SCIP remains non-portable, without conformance or production admission.",
+  "artifacts": [
+    {
+      "path": "S-pico-3\\before.scip",
+      "sha256": "2bfbee757ae1ed316c03176e2cb4e3142c3a4aefaf08f7739feb216f59a31ac4"
+    },
+    {
+      "path": "S-pico-3\\after.scip",
+      "sha256": "79dc1cd517086e457a988a10dd3284fea255074e8870c7b1c1ad41b2d1b6a444"
+    }
+  ]
+}

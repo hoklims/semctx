@@ -1,0 +1,105 @@
+{
+  "engine": "S",
+  "workspace": "pico",
+  "sample": 2,
+  "sources": {
+    "src/lib.rs": {
+      "beforeSha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "afterSha256": "57bff9219714d42aff830f0461a757404db6a0e60fd44d77c80f013991008754"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0043",
+      "exitCode": 0,
+      "elapsedMs": 2140.4075999744236,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "99baf3de57534486217883000c6fa9bb5af2902eba74c7183803de23e1851df8",
+      "argvSha256": "a482d2681952e9c4a3be2dc4febe2165dc7616bbf07aa05a6f94139b267273c9",
+      "directChildPeakRss": {
+        "peakRssBytes": 566743040,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0044",
+      "exitCode": 0,
+      "elapsedMs": 456.674600020051,
+      "stdoutSha256": "2c0774a8223d663f28f63432d9065f49dca9687e229a4f4edc83cbb95ab96c12",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "0bf7cd22af7793359a454d117d8506a592023d1c2f4a032ef413bdafedd6086c",
+      "directChildPeakRss": {
+        "peakRssBytes": 318242816,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0045",
+      "exitCode": 0,
+      "elapsedMs": 2289.137399988249,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "b92252da323380b9824918c96953c9ef4809a5577eb18dfa7a418392e928f7dd",
+      "argvSha256": "545c7ef35263142f6e2d725f6267b293535c24ca7b9907efe45fa6046eb3151b",
+      "directChildPeakRss": {
+        "peakRssBytes": 568053760,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    },
+    {
+      "prefix": "command-0046",
+      "exitCode": 0,
+      "elapsedMs": 436.56210001790896,
+      "stdoutSha256": "0f52a0dae08e933301ca178a50fe0b3b569f672f20f51d53aeff04969227926a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "c3605f7af61388682557827ea5b0bc7d32aeff9b5511403a6cbacf1256e97cfb",
+      "directChildPeakRss": {
+        "peakRssBytes": 318140416,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc"
+    },
+    {
+      "path": "LICENSE",
+      "capturePath": "LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8"
+    },
+    {
+      "path": "README.md",
+      "capturePath": "README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc"
+    },
+    {
+      "path": "src/lib.rs",
+      "capturePath": "src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865"
+    }
+  ],
+  "scipPathMode": "windows-diagnostic",
+  "scipPathLimitation": "NONCONFORMING_WINDOWS_SCIP_PATHS: diagnostic matching only; native SCIP remains non-portable, without conformance or production admission.",
+  "artifacts": [
+    {
+      "path": "S-pico-2\\before.scip",
+      "sha256": "e366b037a9fb32cfeb8dd7fec79c0adc722af4ce744ad20b59886ed72285c98c"
+    },
+    {
+      "path": "S-pico-2\\after.scip",
+      "sha256": "af9bc428e644fc657be622e798e8310b02904155ec4b332712eaa40cdc2f4f1f"
+    }
+  ]
+}

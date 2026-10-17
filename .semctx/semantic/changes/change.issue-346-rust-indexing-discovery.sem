@@ -1,0 +1,9 @@
+change change.issue-346-rust-indexing-discovery
+  statement: Compare Rust codebase indexing engines against M01-M22 with reproducible evidence and a proposed integration decision; no Rust producer or rewrite is delivered.
+  status: active
+  provenance: author
+  serves: goal.semctx.reconstructive-control
+  preserves: invariant.semctx.fail-closed-control
+  preserves: invariant.semctx.plane-separation
+  tag: discovery
+  tag: rust

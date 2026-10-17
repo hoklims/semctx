@@ -1,0 +1,5782 @@
+{
+  "initialization": {
+    "capabilities": {
+      "positionEncoding": "utf-16",
+      "textDocumentSync": {
+        "openClose": true,
+        "change": 2,
+        "save": {}
+      },
+      "completionProvider": {
+        "triggerCharacters": [
+          ":",
+          ".",
+          "'",
+          "("
+        ],
+        "resolveProvider": false,
+        "completionItem": {
+          "labelDetailsSupport": false
+        }
+      },
+      "hoverProvider": true,
+      "signatureHelpProvider": {
+        "triggerCharacters": [
+          "(",
+          ",",
+          "<"
+        ]
+      },
+      "declarationProvider": true,
+      "definitionProvider": true,
+      "typeDefinitionProvider": true,
+      "implementationProvider": true,
+      "referencesProvider": true,
+      "documentHighlightProvider": true,
+      "documentSymbolProvider": true,
+      "codeActionProvider": true,
+      "codeLensProvider": {
+        "resolveProvider": true
+      },
+      "workspaceSymbolProvider": true,
+      "documentFormattingProvider": true,
+      "documentRangeFormattingProvider": false,
+      "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+          "=",
+          "<",
+          ">",
+          "{",
+          "(",
+          "|",
+          "+"
+        ]
+      },
+      "renameProvider": {
+        "prepareProvider": true
+      },
+      "foldingRangeProvider": true,
+      "selectionRangeProvider": true,
+      "callHierarchyProvider": true,
+      "semanticTokensProvider": {
+        "legend": {
+          "tokenTypes": [
+            "comment",
+            "decorator",
+            "enumMember",
+            "enum",
+            "function",
+            "interface",
+            "keyword",
+            "macro",
+            "method",
+            "namespace",
+            "number",
+            "operator",
+            "parameter",
+            "property",
+            "string",
+            "struct",
+            "typeParameter",
+            "variable",
+            "type",
+            "label",
+            "angle",
+            "arithmetic",
+            "attributeBracket",
+            "attribute",
+            "bitwise",
+            "boolean",
+            "brace",
+            "bracket",
+            "builtinAttribute",
+            "builtinType",
+            "character",
+            "colon",
+            "comma",
+            "comparison",
+            "constParameter",
+            "const",
+            "deriveHelper",
+            "derive",
+            "dot",
+            "escapeSequence",
+            "formatSpecifier",
+            "generic",
+            "invalidEscapeSequence",
+            "lifetime",
+            "logical",
+            "macroBang",
+            "negation",
+            "parenthesis",
+            "procMacro",
+            "punctuation",
+            "selfKeyword",
+            "selfTypeKeyword",
+            "semicolon",
+            "static",
+            "toolModule",
+            "typeAlias",
+            "union",
+            "unresolvedReference"
+          ],
+          "tokenModifiers": [
+            "async",
+            "documentation",
+            "declaration",
+            "static",
+            "defaultLibrary",
+            "deprecated",
+            "associated",
+            "attribute",
+            "callable",
+            "constant",
+            "consuming",
+            "controlFlow",
+            "crateRoot",
+            "injected",
+            "intraDocLink",
+            "library",
+            "macro",
+            "mutable",
+            "procMacro",
+            "public",
+            "reference",
+            "trait",
+            "unsafe"
+          ]
+        },
+        "range": true,
+        "full": {
+          "delta": true
+        }
+      },
+      "inlayHintProvider": {
+        "resolveProvider": false
+      },
+      "diagnosticProvider": {
+        "identifier": "rust-analyzer",
+        "interFileDependencies": true,
+        "workspaceDiagnostics": false
+      },
+      "workspace": {
+        "workspaceFolders": {
+          "supported": true,
+          "changeNotifications": true
+        },
+        "fileOperations": {
+          "willRename": {
+            "filters": [
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**/*.rs",
+                  "matches": "file"
+                }
+              },
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**",
+                  "matches": "folder"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "experimental": {
+        "externalDocs": true,
+        "hoverRange": true,
+        "joinLines": true,
+        "matchingBrace": true,
+        "moveItem": true,
+        "onEnter": true,
+        "openCargoToml": true,
+        "parentModule": true,
+        "childModules": true,
+        "runnables": {
+          "kinds": [
+            "cargo"
+          ]
+        },
+        "ssr": true,
+        "workspaceSymbolScopeKindFiltering": true
+      }
+    },
+    "serverInfo": {
+      "name": "rust-analyzer",
+      "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+    }
+  },
+  "symbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 40,
+            "character": 0
+          },
+          "end": {
+            "line": 62,
+            "character": 1
+          }
+        }
+      },
+      "name": "Error",
+      "kind": 10,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 43,
+            "character": 4
+          },
+          "end": {
+            "line": 44,
+            "character": 19
+          }
+        }
+      },
+      "name": "NonUtf8Argument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 46,
+            "character": 4
+          },
+          "end": {
+            "line": 47,
+            "character": 19
+          }
+        }
+      },
+      "name": "MissingArgument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 49,
+            "character": 4
+          },
+          "end": {
+            "line": 50,
+            "character": 23
+          }
+        }
+      },
+      "name": "MissingOption",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 4
+          },
+          "end": {
+            "line": 53,
+            "character": 37
+          }
+        }
+      },
+      "name": "OptionWithoutAValue",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 55,
+            "character": 4
+          },
+          "end": {
+            "line": 57,
+            "character": 62
+          }
+        }
+      },
+      "name": "Utf8ArgumentParsingFailed",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 32
+          },
+          "end": {
+            "line": 57,
+            "character": 45
+          }
+        }
+      },
+      "name": "value",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Utf8ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 47
+          },
+          "end": {
+            "line": 57,
+            "character": 60
+          }
+        }
+      },
+      "name": "cause",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Utf8ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 59,
+            "character": 4
+          },
+          "end": {
+            "line": 61,
+            "character": 43
+          }
+        }
+      },
+      "name": "ArgumentParsingFailed",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 61,
+            "character": 28
+          },
+          "end": {
+            "line": 61,
+            "character": 41
+          }
+        }
+      },
+      "name": "cause",
+      "kind": 8,
+      "tags": [],
+      "containerName": "ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 64,
+            "character": 0
+          },
+          "end": {
+            "line": 91,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Display for Error",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 65,
+            "character": 4
+          },
+          "end": {
+            "line": 90,
+            "character": 5
+          }
+        }
+      },
+      "name": "fmt",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Display for Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 93,
+            "character": 0
+          },
+          "end": {
+            "line": 93,
+            "character": 35
+          }
+        }
+      },
+      "name": "impl std::error::Error for Error",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 101,
+            "character": 1
+          }
+        }
+      },
+      "name": "PairKind",
+      "kind": 10,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 98,
+            "character": 4
+          },
+          "end": {
+            "line": 99,
+            "character": 18
+          }
+        }
+      },
+      "name": "SingleArgument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "PairKind"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 100,
+            "character": 4
+          },
+          "end": {
+            "line": 100,
+            "character": 16
+          }
+        }
+      },
+      "name": "TwoArguments",
+      "kind": 22,
+      "tags": [],
+      "containerName": "PairKind"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 104,
+            "character": 0
+          },
+          "end": {
+            "line": 106,
+            "character": 36
+          }
+        }
+      },
+      "name": "Arguments",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 108,
+            "character": 0
+          },
+          "end": {
+            "line": 687,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Arguments",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 109,
+            "character": 4
+          },
+          "end": {
+            "line": 117,
+            "character": 5
+          }
+        }
+      },
+      "name": "from_vec",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 119,
+            "character": 4
+          },
+          "end": {
+            "line": 128,
+            "character": 5
+          }
+        }
+      },
+      "name": "from_env",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 130,
+            "character": 4
+          },
+          "end": {
+            "line": 152,
+            "character": 5
+          }
+        }
+      },
+      "name": "subcommand",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 154,
+            "character": 4
+          },
+          "end": {
+            "line": 166,
+            "character": 5
+          }
+        }
+      },
+      "name": "contains",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 168,
+            "character": 4
+          },
+          "end": {
+            "line": 196,
+            "character": 5
+          }
+        }
+      },
+      "name": "contains_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 198,
+            "character": 4
+          },
+          "end": {
+            "line": 208,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 210,
+            "character": 4
+          },
+          "end": {
+            "line": 240,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 242,
+            "character": 4
+          },
+          "end": {
+            "line": 252,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 254,
+            "character": 4
+          },
+          "end": {
+            "line": 265,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 267,
+            "character": 4
+          },
+          "end": {
+            "line": 295,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_fn_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 297,
+            "character": 4
+          },
+          "end": {
+            "line": 367,
+            "character": 5
+          }
+        }
+      },
+      "name": "find_value",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 369,
+            "character": 4
+          },
+          "end": {
+            "line": 389,
+            "character": 5
+          }
+        }
+      },
+      "name": "find_value",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 391,
+            "character": 4
+          },
+          "end": {
+            "line": 401,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 403,
+            "character": 4
+          },
+          "end": {
+            "line": 433,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 435,
+            "character": 4
+          },
+          "end": {
+            "line": 460,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 462,
+            "character": 4
+          },
+          "end": {
+            "line": 473,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 475,
+            "character": 4
+          },
+          "end": {
+            "line": 503,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_os_str_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 505,
+            "character": 4
+          },
+          "end": {
+            "line": 531,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 533,
+            "character": 4
+          },
+          "end": {
+            "line": 547,
+            "character": 5
+          }
+        }
+      },
+      "name": "index_of",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 549,
+            "character": 4
+          },
+          "end": {
+            "line": 567,
+            "character": 5
+          }
+        }
+      },
+      "name": "index_of2",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 569,
+            "character": 4
+          },
+          "end": {
+            "line": 578,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 580,
+            "character": 4
+          },
+          "end": {
+            "line": 605,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 607,
+            "character": 4
+          },
+          "end": {
+            "line": 618,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 620,
+            "character": 4
+          },
+          "end": {
+            "line": 631,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 633,
+            "character": 4
+          },
+          "end": {
+            "line": 656,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 658,
+            "character": 4
+          },
+          "end": {
+            "line": 677,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 679,
+            "character": 4
+          },
+          "end": {
+            "line": 686,
+            "character": 5
+          }
+        }
+      },
+      "name": "finish",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 689,
+            "character": 0
+          },
+          "end": {
+            "line": 694,
+            "character": 1
+          }
+        }
+      },
+      "name": "error_to_string",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 696,
+            "character": 0
+          },
+          "end": {
+            "line": 708,
+            "character": 1
+          }
+        }
+      },
+      "name": "starts_with_plus_eq",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 710,
+            "character": 0
+          },
+          "end": {
+            "line": 723,
+            "character": 1
+          }
+        }
+      },
+      "name": "starts_with_short_prefix",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 725,
+            "character": 0
+          },
+          "end": {
+            "line": 729,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 730,
+            "character": 0
+          },
+          "end": {
+            "line": 734,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 735,
+            "character": 0
+          },
+          "end": {
+            "line": 739,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 741,
+            "character": 0
+          },
+          "end": {
+            "line": 749,
+            "character": 1
+          }
+        }
+      },
+      "name": "ends_with",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 751,
+            "character": 0
+          },
+          "end": {
+            "line": 754,
+            "character": 1
+          }
+        }
+      },
+      "name": "os_to_str",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 757,
+            "character": 0
+          },
+          "end": {
+            "line": 762,
+            "character": 35
+          }
+        }
+      },
+      "name": "Keys",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 764,
+            "character": 0
+          },
+          "end": {
+            "line": 774,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 765,
+            "character": 4
+          },
+          "end": {
+            "line": 768,
+            "character": 5
+          }
+        }
+      },
+      "name": "first",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 770,
+            "character": 4
+          },
+          "end": {
+            "line": 773,
+            "character": 5
+          }
+        }
+      },
+      "name": "second",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 776,
+            "character": 0
+          },
+          "end": {
+            "line": 788,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl From<[&'static str; 2]> for Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 777,
+            "character": 4
+          },
+          "end": {
+            "line": 787,
+            "character": 5
+          }
+        }
+      },
+      "name": "from",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl From<[&'static str; 2]> for Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 790,
+            "character": 0
+          },
+          "end": {
+            "line": 796,
+            "character": 1
+          }
+        }
+      },
+      "name": "validate_shortflag",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 798,
+            "character": 0
+          },
+          "end": {
+            "line": 807,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl From<&'static str> for Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 799,
+            "character": 4
+          },
+          "end": {
+            "line": 806,
+            "character": 5
+          }
+        }
+      },
+      "name": "from",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl From<&'static str> for Keys"
+    }
+  ],
+  "unknown": [],
+  "hierarchy": [
+    {
+      "name": "from_env",
+      "kind": 12,
+      "detail": "pub fn from_env() -> Self",
+      "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+      "range": {
+        "start": {
+          "line": 119,
+          "character": 4
+        },
+        "end": {
+          "line": 128,
+          "character": 5
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 124,
+          "character": 11
+        },
+        "end": {
+          "line": 124,
+          "character": 19
+        }
+      }
+    }
+  ],
+  "calls": [
+    {
+      "to": {
+        "name": "collect",
+        "kind": 12,
+        "detail": "pub fn collect<B>(self) -> B\nwhere\n    B: FromIterator<Self::Item>,\n    Self: Sized,",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+        "range": {
+          "start": {
+            "line": 1960,
+            "character": 4
+          },
+          "end": {
+            "line": 2090,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 2076,
+            "character": 7
+          },
+          "end": {
+            "line": 2076,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 125,
+            "character": 51
+          },
+          "end": {
+            "line": 125,
+            "character": 58
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "args_os",
+        "kind": 12,
+        "detail": "pub fn args_os() -> ArgsOs",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/env.rs",
+        "range": {
+          "start": {
+            "line": 831,
+            "character": 0
+          },
+          "end": {
+            "line": 864,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 862,
+            "character": 7
+          },
+          "end": {
+            "line": 862,
+            "character": 14
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 125,
+            "character": 31
+          },
+          "end": {
+            "line": 125,
+            "character": 48
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "remove",
+        "kind": 12,
+        "detail": "pub fn remove(&mut self, index: usize) -> T",
+        "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+        "range": {
+          "start": {
+            "line": 2377,
+            "character": 4
+          },
+          "end": {
+            "line": 2416,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 2403,
+            "character": 11
+          },
+          "end": {
+            "line": 2403,
+            "character": 17
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 126,
+            "character": 13
+          },
+          "end": {
+            "line": 126,
+            "character": 19
+          }
+        }
+      ]
+    },
+    {
+      "to": {
+        "name": "Arguments",
+        "kind": 23,
+        "detail": "pub struct Arguments(Vec<OsString, Global>)",
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 104,
+            "character": 0
+          },
+          "end": {
+            "line": 106,
+            "character": 36
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 106,
+            "character": 11
+          },
+          "end": {
+            "line": 106,
+            "character": 20
+          }
+        }
+      },
+      "fromRanges": [
+        {
+          "start": {
+            "line": 127,
+            "character": 8
+          },
+          "end": {
+            "line": 127,
+            "character": 17
+          }
+        }
+      ]
+    }
+  ],
+  "definition": [],
+  "editedSymbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 40,
+            "character": 0
+          },
+          "end": {
+            "line": 62,
+            "character": 1
+          }
+        }
+      },
+      "name": "Error",
+      "kind": 10,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 43,
+            "character": 4
+          },
+          "end": {
+            "line": 44,
+            "character": 19
+          }
+        }
+      },
+      "name": "NonUtf8Argument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 46,
+            "character": 4
+          },
+          "end": {
+            "line": 47,
+            "character": 19
+          }
+        }
+      },
+      "name": "MissingArgument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 49,
+            "character": 4
+          },
+          "end": {
+            "line": 50,
+            "character": 23
+          }
+        }
+      },
+      "name": "MissingOption",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 4
+          },
+          "end": {
+            "line": 53,
+            "character": 37
+          }
+        }
+      },
+      "name": "OptionWithoutAValue",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 55,
+            "character": 4
+          },
+          "end": {
+            "line": 57,
+            "character": 62
+          }
+        }
+      },
+      "name": "Utf8ArgumentParsingFailed",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 32
+          },
+          "end": {
+            "line": 57,
+            "character": 45
+          }
+        }
+      },
+      "name": "value",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Utf8ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 47
+          },
+          "end": {
+            "line": 57,
+            "character": 60
+          }
+        }
+      },
+      "name": "cause",
+      "kind": 8,
+      "tags": [],
+      "containerName": "Utf8ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 59,
+            "character": 4
+          },
+          "end": {
+            "line": 61,
+            "character": 43
+          }
+        }
+      },
+      "name": "ArgumentParsingFailed",
+      "kind": 22,
+      "tags": [],
+      "containerName": "Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 61,
+            "character": 28
+          },
+          "end": {
+            "line": 61,
+            "character": 41
+          }
+        }
+      },
+      "name": "cause",
+      "kind": 8,
+      "tags": [],
+      "containerName": "ArgumentParsingFailed"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 64,
+            "character": 0
+          },
+          "end": {
+            "line": 91,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Display for Error",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 65,
+            "character": 4
+          },
+          "end": {
+            "line": 90,
+            "character": 5
+          }
+        }
+      },
+      "name": "fmt",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Display for Error"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 93,
+            "character": 0
+          },
+          "end": {
+            "line": 93,
+            "character": 35
+          }
+        }
+      },
+      "name": "impl std::error::Error for Error",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 101,
+            "character": 1
+          }
+        }
+      },
+      "name": "PairKind",
+      "kind": 10,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 98,
+            "character": 4
+          },
+          "end": {
+            "line": 99,
+            "character": 18
+          }
+        }
+      },
+      "name": "SingleArgument",
+      "kind": 22,
+      "tags": [],
+      "containerName": "PairKind"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 100,
+            "character": 4
+          },
+          "end": {
+            "line": 100,
+            "character": 16
+          }
+        }
+      },
+      "name": "TwoArguments",
+      "kind": 22,
+      "tags": [],
+      "containerName": "PairKind"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 104,
+            "character": 0
+          },
+          "end": {
+            "line": 106,
+            "character": 36
+          }
+        }
+      },
+      "name": "Arguments",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 108,
+            "character": 0
+          },
+          "end": {
+            "line": 687,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Arguments",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 109,
+            "character": 4
+          },
+          "end": {
+            "line": 117,
+            "character": 5
+          }
+        }
+      },
+      "name": "from_vec",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 119,
+            "character": 4
+          },
+          "end": {
+            "line": 128,
+            "character": 5
+          }
+        }
+      },
+      "name": "from_env",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 130,
+            "character": 4
+          },
+          "end": {
+            "line": 152,
+            "character": 5
+          }
+        }
+      },
+      "name": "subcommand",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 154,
+            "character": 4
+          },
+          "end": {
+            "line": 166,
+            "character": 5
+          }
+        }
+      },
+      "name": "contains",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 168,
+            "character": 4
+          },
+          "end": {
+            "line": 196,
+            "character": 5
+          }
+        }
+      },
+      "name": "contains_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 198,
+            "character": 4
+          },
+          "end": {
+            "line": 208,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 210,
+            "character": 4
+          },
+          "end": {
+            "line": 240,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 242,
+            "character": 4
+          },
+          "end": {
+            "line": 252,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 254,
+            "character": 4
+          },
+          "end": {
+            "line": 265,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 267,
+            "character": 4
+          },
+          "end": {
+            "line": 295,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_fn_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 297,
+            "character": 4
+          },
+          "end": {
+            "line": 367,
+            "character": 5
+          }
+        }
+      },
+      "name": "find_value",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 369,
+            "character": 4
+          },
+          "end": {
+            "line": 389,
+            "character": 5
+          }
+        }
+      },
+      "name": "find_value",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 391,
+            "character": 4
+          },
+          "end": {
+            "line": 401,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 403,
+            "character": 4
+          },
+          "end": {
+            "line": 433,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 435,
+            "character": 4
+          },
+          "end": {
+            "line": 460,
+            "character": 5
+          }
+        }
+      },
+      "name": "value_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 462,
+            "character": 4
+          },
+          "end": {
+            "line": 473,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 475,
+            "character": 4
+          },
+          "end": {
+            "line": 503,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_value_from_os_str_impl",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 505,
+            "character": 4
+          },
+          "end": {
+            "line": 531,
+            "character": 5
+          }
+        }
+      },
+      "name": "values_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 533,
+            "character": 4
+          },
+          "end": {
+            "line": 547,
+            "character": 5
+          }
+        }
+      },
+      "name": "index_of",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 549,
+            "character": 4
+          },
+          "end": {
+            "line": 567,
+            "character": 5
+          }
+        }
+      },
+      "name": "index_of2",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 569,
+            "character": 4
+          },
+          "end": {
+            "line": 578,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 580,
+            "character": 4
+          },
+          "end": {
+            "line": 605,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 607,
+            "character": 4
+          },
+          "end": {
+            "line": 618,
+            "character": 5
+          }
+        }
+      },
+      "name": "free_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 620,
+            "character": 4
+          },
+          "end": {
+            "line": 631,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 633,
+            "character": 4
+          },
+          "end": {
+            "line": 656,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_fn",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 658,
+            "character": 4
+          },
+          "end": {
+            "line": 677,
+            "character": 5
+          }
+        }
+      },
+      "name": "opt_free_from_os_str",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 679,
+            "character": 4
+          },
+          "end": {
+            "line": 686,
+            "character": 5
+          }
+        }
+      },
+      "name": "finish",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Arguments"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 689,
+            "character": 0
+          },
+          "end": {
+            "line": 694,
+            "character": 1
+          }
+        }
+      },
+      "name": "error_to_string",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 696,
+            "character": 0
+          },
+          "end": {
+            "line": 708,
+            "character": 1
+          }
+        }
+      },
+      "name": "starts_with_plus_eq",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 710,
+            "character": 0
+          },
+          "end": {
+            "line": 723,
+            "character": 1
+          }
+        }
+      },
+      "name": "starts_with_short_prefix",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 725,
+            "character": 0
+          },
+          "end": {
+            "line": 729,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 730,
+            "character": 0
+          },
+          "end": {
+            "line": 734,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 735,
+            "character": 0
+          },
+          "end": {
+            "line": 739,
+            "character": 1
+          }
+        }
+      },
+      "name": "index_predicate",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 741,
+            "character": 0
+          },
+          "end": {
+            "line": 749,
+            "character": 1
+          }
+        }
+      },
+      "name": "ends_with",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 751,
+            "character": 0
+          },
+          "end": {
+            "line": 754,
+            "character": 1
+          }
+        }
+      },
+      "name": "os_to_str",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 757,
+            "character": 0
+          },
+          "end": {
+            "line": 762,
+            "character": 35
+          }
+        }
+      },
+      "name": "Keys",
+      "kind": 23,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 764,
+            "character": 0
+          },
+          "end": {
+            "line": 774,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 765,
+            "character": 4
+          },
+          "end": {
+            "line": 768,
+            "character": 5
+          }
+        }
+      },
+      "name": "first",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 770,
+            "character": 4
+          },
+          "end": {
+            "line": 773,
+            "character": 5
+          }
+        }
+      },
+      "name": "second",
+      "kind": 6,
+      "tags": [],
+      "containerName": "impl Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 776,
+            "character": 0
+          },
+          "end": {
+            "line": 788,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl From<[&'static str; 2]> for Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 777,
+            "character": 4
+          },
+          "end": {
+            "line": 787,
+            "character": 5
+          }
+        }
+      },
+      "name": "from",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl From<[&'static str; 2]> for Keys"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 790,
+            "character": 0
+          },
+          "end": {
+            "line": 796,
+            "character": 1
+          }
+        }
+      },
+      "name": "validate_shortflag",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 798,
+            "character": 0
+          },
+          "end": {
+            "line": 807,
+            "character": 1
+          }
+        }
+      },
+      "name": "impl From<&'static str> for Keys",
+      "kind": 19,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "range": {
+          "start": {
+            "line": 799,
+            "character": 4
+          },
+          "end": {
+            "line": 806,
+            "character": 5
+          }
+        }
+      },
+      "name": "from",
+      "kind": 12,
+      "tags": [],
+      "containerName": "impl From<&'static str> for Keys"
+    }
+  ],
+  "timingsMs": {
+    "initialize": 0.7244998123496771,
+    "ready": 1873.8592080771923,
+    "workspace/symbol": 1.2885418254882097,
+    "textDocument/prepareCallHierarchy": 0.39141601882874966,
+    "callHierarchy/outgoingCalls": 190.29149995185435,
+    "textDocument/definition": 0.19391695968806744,
+    "documentSymbolAfterEdit": 3.28995892778039,
+    "shutdown": 0.10695820674300194
+  },
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "positionEncoding": "utf-16",
+          "textDocumentSync": {
+            "openClose": true,
+            "change": 2,
+            "save": {}
+          },
+          "completionProvider": {
+            "triggerCharacters": [
+              ":",
+              ".",
+              "'",
+              "("
+            ],
+            "resolveProvider": false,
+            "completionItem": {
+              "labelDetailsSupport": false
+            }
+          },
+          "hoverProvider": true,
+          "signatureHelpProvider": {
+            "triggerCharacters": [
+              "(",
+              ",",
+              "<"
+            ]
+          },
+          "declarationProvider": true,
+          "definitionProvider": true,
+          "typeDefinitionProvider": true,
+          "implementationProvider": true,
+          "referencesProvider": true,
+          "documentHighlightProvider": true,
+          "documentSymbolProvider": true,
+          "codeActionProvider": true,
+          "codeLensProvider": {
+            "resolveProvider": true
+          },
+          "workspaceSymbolProvider": true,
+          "documentFormattingProvider": true,
+          "documentRangeFormattingProvider": false,
+          "documentOnTypeFormattingProvider": {
+            "firstTriggerCharacter": ".",
+            "moreTriggerCharacter": [
+              "=",
+              "<",
+              ">",
+              "{",
+              "(",
+              "|",
+              "+"
+            ]
+          },
+          "renameProvider": {
+            "prepareProvider": true
+          },
+          "foldingRangeProvider": true,
+          "selectionRangeProvider": true,
+          "callHierarchyProvider": true,
+          "semanticTokensProvider": {
+            "legend": {
+              "tokenTypes": [
+                "comment",
+                "decorator",
+                "enumMember",
+                "enum",
+                "function",
+                "interface",
+                "keyword",
+                "macro",
+                "method",
+                "namespace",
+                "number",
+                "operator",
+                "parameter",
+                "property",
+                "string",
+                "struct",
+                "typeParameter",
+                "variable",
+                "type",
+                "label",
+                "angle",
+                "arithmetic",
+                "attributeBracket",
+                "attribute",
+                "bitwise",
+                "boolean",
+                "brace",
+                "bracket",
+                "builtinAttribute",
+                "builtinType",
+                "character",
+                "colon",
+                "comma",
+                "comparison",
+                "constParameter",
+                "const",
+                "deriveHelper",
+                "derive",
+                "dot",
+                "escapeSequence",
+                "formatSpecifier",
+                "generic",
+                "invalidEscapeSequence",
+                "lifetime",
+                "logical",
+                "macroBang",
+                "negation",
+                "parenthesis",
+                "procMacro",
+                "punctuation",
+                "selfKeyword",
+                "selfTypeKeyword",
+                "semicolon",
+                "static",
+                "toolModule",
+                "typeAlias",
+                "union",
+                "unresolvedReference"
+              ],
+              "tokenModifiers": [
+                "async",
+                "documentation",
+                "declaration",
+                "static",
+                "defaultLibrary",
+                "deprecated",
+                "associated",
+                "attribute",
+                "callable",
+                "constant",
+                "consuming",
+                "controlFlow",
+                "crateRoot",
+                "injected",
+                "intraDocLink",
+                "library",
+                "macro",
+                "mutable",
+                "procMacro",
+                "public",
+                "reference",
+                "trait",
+                "unsafe"
+              ]
+            },
+            "range": true,
+            "full": {
+              "delta": true
+            }
+          },
+          "inlayHintProvider": {
+            "resolveProvider": false
+          },
+          "diagnosticProvider": {
+            "identifier": "rust-analyzer",
+            "interFileDependencies": true,
+            "workspaceDiagnostics": false
+          },
+          "workspace": {
+            "workspaceFolders": {
+              "supported": true,
+              "changeNotifications": true
+            },
+            "fileOperations": {
+              "willRename": {
+                "filters": [
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**/*.rs",
+                      "matches": "file"
+                    }
+                  },
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**",
+                      "matches": "folder"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "experimental": {
+            "externalDocs": true,
+            "hoverRange": true,
+            "joinLines": true,
+            "matchingBrace": true,
+            "moveItem": true,
+            "onEnter": true,
+            "openCargoToml": true,
+            "parentModule": true,
+            "childModules": true,
+            "runnables": {
+              "kinds": [
+                "cargo"
+              ]
+            },
+            "ssr": true,
+            "workspaceSymbolScopeKindFiltering": true
+          }
+        },
+        "serverInfo": {
+          "name": "rust-analyzer",
+          "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": false,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": true,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 40,
+                "character": 0
+              },
+              "end": {
+                "line": 62,
+                "character": 1
+              }
+            }
+          },
+          "name": "Error",
+          "kind": 10,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 43,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 19
+              }
+            }
+          },
+          "name": "NonUtf8Argument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 47,
+                "character": 19
+              }
+            }
+          },
+          "name": "MissingArgument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 49,
+                "character": 4
+              },
+              "end": {
+                "line": 50,
+                "character": 23
+              }
+            }
+          },
+          "name": "MissingOption",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 4
+              },
+              "end": {
+                "line": 53,
+                "character": 37
+              }
+            }
+          },
+          "name": "OptionWithoutAValue",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 62
+              }
+            }
+          },
+          "name": "Utf8ArgumentParsingFailed",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 32
+              },
+              "end": {
+                "line": 57,
+                "character": 45
+              }
+            }
+          },
+          "name": "value",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Utf8ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 47
+              },
+              "end": {
+                "line": 57,
+                "character": 60
+              }
+            }
+          },
+          "name": "cause",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Utf8ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 59,
+                "character": 4
+              },
+              "end": {
+                "line": 61,
+                "character": 43
+              }
+            }
+          },
+          "name": "ArgumentParsingFailed",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 61,
+                "character": 28
+              },
+              "end": {
+                "line": 61,
+                "character": 41
+              }
+            }
+          },
+          "name": "cause",
+          "kind": 8,
+          "tags": [],
+          "containerName": "ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 64,
+                "character": 0
+              },
+              "end": {
+                "line": 91,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Display for Error",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 65,
+                "character": 4
+              },
+              "end": {
+                "line": 90,
+                "character": 5
+              }
+            }
+          },
+          "name": "fmt",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Display for Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 93,
+                "character": 0
+              },
+              "end": {
+                "line": 93,
+                "character": 35
+              }
+            }
+          },
+          "name": "impl std::error::Error for Error",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 96,
+                "character": 0
+              },
+              "end": {
+                "line": 101,
+                "character": 1
+              }
+            }
+          },
+          "name": "PairKind",
+          "kind": 10,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 98,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 18
+              }
+            }
+          },
+          "name": "SingleArgument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "PairKind"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 100,
+                "character": 4
+              },
+              "end": {
+                "line": 100,
+                "character": 16
+              }
+            }
+          },
+          "name": "TwoArguments",
+          "kind": 22,
+          "tags": [],
+          "containerName": "PairKind"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 104,
+                "character": 0
+              },
+              "end": {
+                "line": 106,
+                "character": 36
+              }
+            }
+          },
+          "name": "Arguments",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 108,
+                "character": 0
+              },
+              "end": {
+                "line": 687,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Arguments",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 4
+              },
+              "end": {
+                "line": 117,
+                "character": 5
+              }
+            }
+          },
+          "name": "from_vec",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 119,
+                "character": 4
+              },
+              "end": {
+                "line": 128,
+                "character": 5
+              }
+            }
+          },
+          "name": "from_env",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 130,
+                "character": 4
+              },
+              "end": {
+                "line": 152,
+                "character": 5
+              }
+            }
+          },
+          "name": "subcommand",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 154,
+                "character": 4
+              },
+              "end": {
+                "line": 166,
+                "character": 5
+              }
+            }
+          },
+          "name": "contains",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 168,
+                "character": 4
+              },
+              "end": {
+                "line": 196,
+                "character": 5
+              }
+            }
+          },
+          "name": "contains_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 198,
+                "character": 4
+              },
+              "end": {
+                "line": 208,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 210,
+                "character": 4
+              },
+              "end": {
+                "line": 240,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 242,
+                "character": 4
+              },
+              "end": {
+                "line": 252,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 254,
+                "character": 4
+              },
+              "end": {
+                "line": 265,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 267,
+                "character": 4
+              },
+              "end": {
+                "line": 295,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_fn_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 297,
+                "character": 4
+              },
+              "end": {
+                "line": 367,
+                "character": 5
+              }
+            }
+          },
+          "name": "find_value",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 369,
+                "character": 4
+              },
+              "end": {
+                "line": 389,
+                "character": 5
+              }
+            }
+          },
+          "name": "find_value",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 391,
+                "character": 4
+              },
+              "end": {
+                "line": 401,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 403,
+                "character": 4
+              },
+              "end": {
+                "line": 433,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 435,
+                "character": 4
+              },
+              "end": {
+                "line": 460,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 462,
+                "character": 4
+              },
+              "end": {
+                "line": 473,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 475,
+                "character": 4
+              },
+              "end": {
+                "line": 503,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_os_str_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 505,
+                "character": 4
+              },
+              "end": {
+                "line": 531,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 533,
+                "character": 4
+              },
+              "end": {
+                "line": 547,
+                "character": 5
+              }
+            }
+          },
+          "name": "index_of",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 549,
+                "character": 4
+              },
+              "end": {
+                "line": 567,
+                "character": 5
+              }
+            }
+          },
+          "name": "index_of2",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 569,
+                "character": 4
+              },
+              "end": {
+                "line": 578,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 580,
+                "character": 4
+              },
+              "end": {
+                "line": 605,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 607,
+                "character": 4
+              },
+              "end": {
+                "line": 618,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 620,
+                "character": 4
+              },
+              "end": {
+                "line": 631,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 633,
+                "character": 4
+              },
+              "end": {
+                "line": 656,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 658,
+                "character": 4
+              },
+              "end": {
+                "line": 677,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 679,
+                "character": 4
+              },
+              "end": {
+                "line": 686,
+                "character": 5
+              }
+            }
+          },
+          "name": "finish",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 689,
+                "character": 0
+              },
+              "end": {
+                "line": 694,
+                "character": 1
+              }
+            }
+          },
+          "name": "error_to_string",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 696,
+                "character": 0
+              },
+              "end": {
+                "line": 708,
+                "character": 1
+              }
+            }
+          },
+          "name": "starts_with_plus_eq",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 710,
+                "character": 0
+              },
+              "end": {
+                "line": 723,
+                "character": 1
+              }
+            }
+          },
+          "name": "starts_with_short_prefix",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 725,
+                "character": 0
+              },
+              "end": {
+                "line": 729,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 730,
+                "character": 0
+              },
+              "end": {
+                "line": 734,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 735,
+                "character": 0
+              },
+              "end": {
+                "line": 739,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 741,
+                "character": 0
+              },
+              "end": {
+                "line": 749,
+                "character": 1
+              }
+            }
+          },
+          "name": "ends_with",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 751,
+                "character": 0
+              },
+              "end": {
+                "line": 754,
+                "character": 1
+              }
+            }
+          },
+          "name": "os_to_str",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 757,
+                "character": 0
+              },
+              "end": {
+                "line": 762,
+                "character": 35
+              }
+            }
+          },
+          "name": "Keys",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 764,
+                "character": 0
+              },
+              "end": {
+                "line": 774,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 765,
+                "character": 4
+              },
+              "end": {
+                "line": 768,
+                "character": 5
+              }
+            }
+          },
+          "name": "first",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 770,
+                "character": 4
+              },
+              "end": {
+                "line": 773,
+                "character": 5
+              }
+            }
+          },
+          "name": "second",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 776,
+                "character": 0
+              },
+              "end": {
+                "line": 788,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl From<[&'static str; 2]> for Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 777,
+                "character": 4
+              },
+              "end": {
+                "line": 787,
+                "character": 5
+              }
+            }
+          },
+          "name": "from",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl From<[&'static str; 2]> for Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 790,
+                "character": 0
+              },
+              "end": {
+                "line": 796,
+                "character": 1
+              }
+            }
+          },
+          "name": "validate_shortflag",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 798,
+                "character": 0
+              },
+              "end": {
+                "line": 807,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl From<&'static str> for Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 799,
+                "character": 4
+              },
+              "end": {
+                "line": 806,
+                "character": 5
+              }
+            }
+          },
+          "name": "from",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl From<&'static str> for Keys"
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "name": "from_env",
+          "kind": 12,
+          "detail": "pub fn from_env() -> Self",
+          "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+          "range": {
+            "start": {
+              "line": 119,
+              "character": 4
+            },
+            "end": {
+              "line": 128,
+              "character": 5
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 124,
+              "character": 11
+            },
+            "end": {
+              "line": 124,
+              "character": 19
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": [
+        {
+          "to": {
+            "name": "collect",
+            "kind": 12,
+            "detail": "pub fn collect<B>(self) -> B\nwhere\n    B: FromIterator<Self::Item>,\n    Self: Sized,",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs",
+            "range": {
+              "start": {
+                "line": 1960,
+                "character": 4
+              },
+              "end": {
+                "line": 2090,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 2076,
+                "character": 7
+              },
+              "end": {
+                "line": 2076,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 125,
+                "character": 51
+              },
+              "end": {
+                "line": 125,
+                "character": 58
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "args_os",
+            "kind": 12,
+            "detail": "pub fn args_os() -> ArgsOs",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/env.rs",
+            "range": {
+              "start": {
+                "line": 831,
+                "character": 0
+              },
+              "end": {
+                "line": 864,
+                "character": 1
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 862,
+                "character": 7
+              },
+              "end": {
+                "line": 862,
+                "character": 14
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 125,
+                "character": 31
+              },
+              "end": {
+                "line": 125,
+                "character": 48
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "remove",
+            "kind": 12,
+            "detail": "pub fn remove(&mut self, index: usize) -> T",
+            "uri": "file:///Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/src/rust/library/alloc/src/vec/mod.rs",
+            "range": {
+              "start": {
+                "line": 2377,
+                "character": 4
+              },
+              "end": {
+                "line": 2416,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 2403,
+                "character": 11
+              },
+              "end": {
+                "line": 2403,
+                "character": 17
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 126,
+                "character": 13
+              },
+              "end": {
+                "line": 126,
+                "character": 19
+              }
+            }
+          ]
+        },
+        {
+          "to": {
+            "name": "Arguments",
+            "kind": 23,
+            "detail": "pub struct Arguments(Vec<OsString, Global>)",
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 104,
+                "character": 0
+              },
+              "end": {
+                "line": 106,
+                "character": 36
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 106,
+                "character": 11
+              },
+              "end": {
+                "line": 106,
+                "character": 20
+              }
+            }
+          },
+          "fromRanges": [
+            {
+              "start": {
+                "line": 127,
+                "character": 8
+              },
+              "end": {
+                "line": 127,
+                "character": 17
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+        "version": 2,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 40,
+                "character": 0
+              },
+              "end": {
+                "line": 62,
+                "character": 1
+              }
+            }
+          },
+          "name": "Error",
+          "kind": 10,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 43,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 19
+              }
+            }
+          },
+          "name": "NonUtf8Argument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 47,
+                "character": 19
+              }
+            }
+          },
+          "name": "MissingArgument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 49,
+                "character": 4
+              },
+              "end": {
+                "line": 50,
+                "character": 23
+              }
+            }
+          },
+          "name": "MissingOption",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 52,
+                "character": 4
+              },
+              "end": {
+                "line": 53,
+                "character": 37
+              }
+            }
+          },
+          "name": "OptionWithoutAValue",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 62
+              }
+            }
+          },
+          "name": "Utf8ArgumentParsingFailed",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 32
+              },
+              "end": {
+                "line": 57,
+                "character": 45
+              }
+            }
+          },
+          "name": "value",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Utf8ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 57,
+                "character": 47
+              },
+              "end": {
+                "line": 57,
+                "character": 60
+              }
+            }
+          },
+          "name": "cause",
+          "kind": 8,
+          "tags": [],
+          "containerName": "Utf8ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 59,
+                "character": 4
+              },
+              "end": {
+                "line": 61,
+                "character": 43
+              }
+            }
+          },
+          "name": "ArgumentParsingFailed",
+          "kind": 22,
+          "tags": [],
+          "containerName": "Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 61,
+                "character": 28
+              },
+              "end": {
+                "line": 61,
+                "character": 41
+              }
+            }
+          },
+          "name": "cause",
+          "kind": 8,
+          "tags": [],
+          "containerName": "ArgumentParsingFailed"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 64,
+                "character": 0
+              },
+              "end": {
+                "line": 91,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Display for Error",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 65,
+                "character": 4
+              },
+              "end": {
+                "line": 90,
+                "character": 5
+              }
+            }
+          },
+          "name": "fmt",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Display for Error"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 93,
+                "character": 0
+              },
+              "end": {
+                "line": 93,
+                "character": 35
+              }
+            }
+          },
+          "name": "impl std::error::Error for Error",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 96,
+                "character": 0
+              },
+              "end": {
+                "line": 101,
+                "character": 1
+              }
+            }
+          },
+          "name": "PairKind",
+          "kind": 10,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 98,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 18
+              }
+            }
+          },
+          "name": "SingleArgument",
+          "kind": 22,
+          "tags": [],
+          "containerName": "PairKind"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 100,
+                "character": 4
+              },
+              "end": {
+                "line": 100,
+                "character": 16
+              }
+            }
+          },
+          "name": "TwoArguments",
+          "kind": 22,
+          "tags": [],
+          "containerName": "PairKind"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 104,
+                "character": 0
+              },
+              "end": {
+                "line": 106,
+                "character": 36
+              }
+            }
+          },
+          "name": "Arguments",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 108,
+                "character": 0
+              },
+              "end": {
+                "line": 687,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Arguments",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 4
+              },
+              "end": {
+                "line": 117,
+                "character": 5
+              }
+            }
+          },
+          "name": "from_vec",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 119,
+                "character": 4
+              },
+              "end": {
+                "line": 128,
+                "character": 5
+              }
+            }
+          },
+          "name": "from_env",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 130,
+                "character": 4
+              },
+              "end": {
+                "line": 152,
+                "character": 5
+              }
+            }
+          },
+          "name": "subcommand",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 154,
+                "character": 4
+              },
+              "end": {
+                "line": 166,
+                "character": 5
+              }
+            }
+          },
+          "name": "contains",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 168,
+                "character": 4
+              },
+              "end": {
+                "line": 196,
+                "character": 5
+              }
+            }
+          },
+          "name": "contains_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 198,
+                "character": 4
+              },
+              "end": {
+                "line": 208,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 210,
+                "character": 4
+              },
+              "end": {
+                "line": 240,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 242,
+                "character": 4
+              },
+              "end": {
+                "line": 252,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 254,
+                "character": 4
+              },
+              "end": {
+                "line": 265,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 267,
+                "character": 4
+              },
+              "end": {
+                "line": 295,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_fn_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 297,
+                "character": 4
+              },
+              "end": {
+                "line": 367,
+                "character": 5
+              }
+            }
+          },
+          "name": "find_value",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 369,
+                "character": 4
+              },
+              "end": {
+                "line": 389,
+                "character": 5
+              }
+            }
+          },
+          "name": "find_value",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 391,
+                "character": 4
+              },
+              "end": {
+                "line": 401,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 403,
+                "character": 4
+              },
+              "end": {
+                "line": 433,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 435,
+                "character": 4
+              },
+              "end": {
+                "line": 460,
+                "character": 5
+              }
+            }
+          },
+          "name": "value_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 462,
+                "character": 4
+              },
+              "end": {
+                "line": 473,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 475,
+                "character": 4
+              },
+              "end": {
+                "line": 503,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_value_from_os_str_impl",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 505,
+                "character": 4
+              },
+              "end": {
+                "line": 531,
+                "character": 5
+              }
+            }
+          },
+          "name": "values_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 533,
+                "character": 4
+              },
+              "end": {
+                "line": 547,
+                "character": 5
+              }
+            }
+          },
+          "name": "index_of",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 549,
+                "character": 4
+              },
+              "end": {
+                "line": 567,
+                "character": 5
+              }
+            }
+          },
+          "name": "index_of2",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 569,
+                "character": 4
+              },
+              "end": {
+                "line": 578,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 580,
+                "character": 4
+              },
+              "end": {
+                "line": 605,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 607,
+                "character": 4
+              },
+              "end": {
+                "line": 618,
+                "character": 5
+              }
+            }
+          },
+          "name": "free_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 620,
+                "character": 4
+              },
+              "end": {
+                "line": 631,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 633,
+                "character": 4
+              },
+              "end": {
+                "line": 656,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_fn",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 658,
+                "character": 4
+              },
+              "end": {
+                "line": 677,
+                "character": 5
+              }
+            }
+          },
+          "name": "opt_free_from_os_str",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 679,
+                "character": 4
+              },
+              "end": {
+                "line": 686,
+                "character": 5
+              }
+            }
+          },
+          "name": "finish",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Arguments"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 689,
+                "character": 0
+              },
+              "end": {
+                "line": 694,
+                "character": 1
+              }
+            }
+          },
+          "name": "error_to_string",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 696,
+                "character": 0
+              },
+              "end": {
+                "line": 708,
+                "character": 1
+              }
+            }
+          },
+          "name": "starts_with_plus_eq",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 710,
+                "character": 0
+              },
+              "end": {
+                "line": 723,
+                "character": 1
+              }
+            }
+          },
+          "name": "starts_with_short_prefix",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 725,
+                "character": 0
+              },
+              "end": {
+                "line": 729,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 730,
+                "character": 0
+              },
+              "end": {
+                "line": 734,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 735,
+                "character": 0
+              },
+              "end": {
+                "line": 739,
+                "character": 1
+              }
+            }
+          },
+          "name": "index_predicate",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 741,
+                "character": 0
+              },
+              "end": {
+                "line": 749,
+                "character": 1
+              }
+            }
+          },
+          "name": "ends_with",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 751,
+                "character": 0
+              },
+              "end": {
+                "line": 754,
+                "character": 1
+              }
+            }
+          },
+          "name": "os_to_str",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 757,
+                "character": 0
+              },
+              "end": {
+                "line": 762,
+                "character": 35
+              }
+            }
+          },
+          "name": "Keys",
+          "kind": 23,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 764,
+                "character": 0
+              },
+              "end": {
+                "line": 774,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 765,
+                "character": 4
+              },
+              "end": {
+                "line": 768,
+                "character": 5
+              }
+            }
+          },
+          "name": "first",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 770,
+                "character": 4
+              },
+              "end": {
+                "line": 773,
+                "character": 5
+              }
+            }
+          },
+          "name": "second",
+          "kind": 6,
+          "tags": [],
+          "containerName": "impl Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 776,
+                "character": 0
+              },
+              "end": {
+                "line": 788,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl From<[&'static str; 2]> for Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 777,
+                "character": 4
+              },
+              "end": {
+                "line": 787,
+                "character": 5
+              }
+            }
+          },
+          "name": "from",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl From<[&'static str; 2]> for Keys"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 790,
+                "character": 0
+              },
+              "end": {
+                "line": 796,
+                "character": 1
+              }
+            }
+          },
+          "name": "validate_shortflag",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 798,
+                "character": 0
+              },
+              "end": {
+                "line": 807,
+                "character": 1
+              }
+            }
+          },
+          "name": "impl From<&'static str> for Keys",
+          "kind": 19,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+            "range": {
+              "start": {
+                "line": 799,
+                "character": 4
+              },
+              "end": {
+                "line": 806,
+                "character": 5
+              }
+            }
+          },
+          "name": "from",
+          "kind": 12,
+          "tags": [],
+          "containerName": "impl From<&'static str> for Keys"
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": null
+    }
+  ],
+  "exitCode": 0
+}

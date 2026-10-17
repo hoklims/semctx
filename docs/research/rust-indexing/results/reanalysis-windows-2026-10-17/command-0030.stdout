@@ -1,0 +1,4 @@
+summary	items	3	methods	0
+symbol	use	_	0	144	
+symbol	fn	main	146	442	
+symbol	fn	semctx_reindex_probe	444	489	

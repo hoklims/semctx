@@ -1,0 +1,59 @@
+Generating SCIP start...
+rust-analyzer: Loading discovering sysroot
+2026-10-15T11:50:05.127065+02:00 ERROR failed fetching cargo workspace root e=cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTUP_AUTO_INSTALL="0" "/Users/sebastien/.cargo/bin/cargo" "locate-project" "--workspace" "--manifest-path" "$ROOT/docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml" failed, exit status: 101
+stderr:
+error: string values must be quoted, expected literal string
+ --> Cargo.toml:3:10
+  |
+3 | version =
+  |          ^
+ cargo_toml=$ROOT/docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml
+rust-analyzer: Loading querying project metadata
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: ?
+rust-analyzer: Loading cargo metadata: ?
+rust-analyzer: Loading cargo metadata: ?
+rust-analyzer: Loading cargo metadata: ?
+rust-analyzer: Loading cargo metadata: ?
+rust-analyzer: Loading cargo metadata: failed exit status: 101
+rust-analyzer: Loading cargo metadata: finished
+2026-10-15T11:50:05.2533+02:00  WARN failed to run `cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTUP_AUTO_INSTALL="0" __CARGO_TEST_CHANNEL_OVERRIDE_DO_NOT_USE_THIS="nightly" "/Users/sebastien/.cargo/bin/cargo" "rustc" "-Z" "unstable-options" "--print" "cfg" "--target" "aarch64-apple-darwin" "--" "-O"`, falling back to invoking rustc directly e=cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTUP_AUTO_INSTALL="0" __CARGO_TEST_CHANNEL_OVERRIDE_DO_NOT_USE_THIS="nightly" "/Users/sebastien/.cargo/bin/cargo" "rustc" "-Z" "unstable-options" "--print" "cfg" "--target" "aarch64-apple-darwin" "--" "-O" failed, exit status: 101
+stderr:
+error: string values must be quoted, expected literal string
+ --> Cargo.toml:3:10
+  |
+3 | version =
+  |          ^
+
+2026-10-15T11:50:05.253649+02:00  WARN failed to run `cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTC_BOOTSTRAP="1" RUSTUP_AUTO_INSTALL="0" "/Users/sebastien/.cargo/bin/cargo" "rustc" "-Z" "unstable-options" "--print" "target-spec-json" "--target" "aarch64-apple-darwin" "--" "-Z" "unstable-options"`, falling back to invoking rustc directly e=cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTC_BOOTSTRAP="1" RUSTUP_AUTO_INSTALL="0" "/Users/sebastien/.cargo/bin/cargo" "rustc" "-Z" "unstable-options" "--print" "target-spec-json" "--target" "aarch64-apple-darwin" "--" "-Z" "unstable-options" failed, exit status: 101
+stderr:
+error: string values must be quoted, expected literal string
+ --> Cargo.toml:3:10
+  |
+3 | version =
+  |          ^
+
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: finished
+Error: Failed to load the project at $ROOT/docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml
+
+Caused by:
+    0: Failed to read Cargo metadata from Cargo.toml file $ROOT/docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml, Some(Version { major: 1, minor: 98, patch: 1 })
+    1: Failed to run `cd "$ROOT/docs/research/rust-indexing/fixture/negative/manifest" && RUSTUP_AUTO_INSTALL="0" "/Users/sebastien/.cargo/bin/cargo" "metadata" "--format-version" "1" "--manifest-path" "$ROOT/docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml" "--filter-platform" "aarch64-apple-darwin"`
+    2: `cargo metadata` exited with an error: error: string values must be quoted, expected literal string
+        --> Cargo.toml:3:10
+         |
+       3 | version =
+         |          ^
+
+
+Stack backtrace:
+   0: <std::backtrace::Backtrace>::create
+   1: <std::backtrace::Backtrace>::capture
+   2: <anyhow::Error as core::convert::From<cargo_metadata::errors::Error>>::from
+   3: <project_model::cargo_workspace::FetchMetadata>::exec::{closure#2}
+   4: <project_model::cargo_workspace::FetchMetadata>::exec
+   5: std::sys::backtrace::__rust_begin_short_backtrace::<<project_model::workspace::ProjectWorkspace>::load_cargo::{closure#1}::{closure#3}, core::result::Result<(cargo_metadata::Metadata, core::option::Option<anyhow::Error>), anyhow::Error>>
+   6: <std::thread::lifecycle::spawn_unchecked<<project_model::workspace::ProjectWorkspace>::load_cargo::{closure#1}::{closure#3}, core::result::Result<(cargo_metadata::Metadata, core::option::Option<anyhow::Error>), anyhow::Error>>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+   7: <std::sys::thread::unix::Thread>::new::thread_start
+   8: __pthread_exit

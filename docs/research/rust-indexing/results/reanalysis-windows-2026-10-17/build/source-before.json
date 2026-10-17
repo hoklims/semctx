@@ -1,0 +1,85 @@
+{
+  "head": "45015888fb6978e7648ca4b6345623209c6b1526",
+  "files": [
+    {
+      "path": "docs/research/rust-indexing/fixture/Cargo.lock",
+      "bytes": 251,
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/Cargo.toml.snapshot",
+      "bytes": 55,
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/app/Cargo.toml.snapshot",
+      "bytes": 160,
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/app/src/main.rs",
+      "bytes": 443,
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/domain/Cargo.toml.snapshot",
+      "bytes": 109,
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/domain/src/lib.rs",
+      "bytes": 615,
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/domain/src/model.rs",
+      "bytes": 308,
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/domain/src/operations.rs",
+      "bytes": 517,
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/domain/tests/dispatch.rs",
+      "bytes": 582,
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/negative/malformed.rs",
+      "bytes": 17,
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/negative/manifest/Cargo.toml.snapshot",
+      "bytes": 45,
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a"
+    },
+    {
+      "path": "docs/research/rust-indexing/fixture/negative/unresolved.rs",
+      "bytes": 72,
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9"
+    },
+    {
+      "path": "docs/research/rust-indexing/syn-probe/Cargo.lock",
+      "bytes": 1115,
+      "sha256": "e27614a9a07c29e871bbc3d08a213f437250a6a1818b3bc9d63ec1a8dcbf2c92"
+    },
+    {
+      "path": "docs/research/rust-indexing/syn-probe/Cargo.toml.snapshot",
+      "bytes": 250,
+      "sha256": "a77d0a42bb6297bfaa39cfb95ff37173474a9d4ab40e2c3b37906a94d98259ab"
+    },
+    {
+      "path": "docs/research/rust-indexing/syn-probe/src/main.rs",
+      "bytes": 5690,
+      "sha256": "a316f6047bf7f2c5d4385602a7dec6309193b3485f64fc120f34cb88f30e5e25"
+    },
+    {
+      "path": "docs/research/rust-indexing/syn-probe/tests/cli.rs",
+      "bytes": 2988,
+      "sha256": "7af0a3876711dfec89ba947a1cb7be6b2b67740c958d00cef4bbb3486eaec24b"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+summary	items	6	methods	2
+symbol	use	_	0	36	
+symbol	struct	FixedQuote	38	60	
+symbol	impl	_	62	127	
+symbol	impl	_	129	322	
+symbol	fn	quote	324	418	
+symbol	fn	quote_dyn	420	516	

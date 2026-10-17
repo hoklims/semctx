@@ -1,0 +1,1040 @@
+{
+  "initialization": {
+    "capabilities": {
+      "positionEncoding": "utf-16",
+      "textDocumentSync": {
+        "openClose": true,
+        "change": 2,
+        "save": {}
+      },
+      "completionProvider": {
+        "triggerCharacters": [
+          ":",
+          ".",
+          "'",
+          "("
+        ],
+        "resolveProvider": false,
+        "completionItem": {
+          "labelDetailsSupport": false
+        }
+      },
+      "hoverProvider": true,
+      "signatureHelpProvider": {
+        "triggerCharacters": [
+          "(",
+          ",",
+          "<"
+        ]
+      },
+      "declarationProvider": true,
+      "definitionProvider": true,
+      "typeDefinitionProvider": true,
+      "implementationProvider": true,
+      "referencesProvider": true,
+      "documentHighlightProvider": true,
+      "documentSymbolProvider": true,
+      "codeActionProvider": true,
+      "codeLensProvider": {
+        "resolveProvider": true
+      },
+      "workspaceSymbolProvider": true,
+      "documentFormattingProvider": true,
+      "documentRangeFormattingProvider": false,
+      "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+          "=",
+          "<",
+          ">",
+          "{",
+          "(",
+          "|",
+          "+"
+        ]
+      },
+      "renameProvider": {
+        "prepareProvider": true
+      },
+      "foldingRangeProvider": true,
+      "selectionRangeProvider": true,
+      "callHierarchyProvider": true,
+      "semanticTokensProvider": {
+        "legend": {
+          "tokenTypes": [
+            "comment",
+            "decorator",
+            "enumMember",
+            "enum",
+            "function",
+            "interface",
+            "keyword",
+            "macro",
+            "method",
+            "namespace",
+            "number",
+            "operator",
+            "parameter",
+            "property",
+            "string",
+            "struct",
+            "typeParameter",
+            "variable",
+            "type",
+            "label",
+            "angle",
+            "arithmetic",
+            "attributeBracket",
+            "attribute",
+            "bitwise",
+            "boolean",
+            "brace",
+            "bracket",
+            "builtinAttribute",
+            "builtinType",
+            "character",
+            "colon",
+            "comma",
+            "comparison",
+            "constParameter",
+            "const",
+            "deriveHelper",
+            "derive",
+            "dot",
+            "escapeSequence",
+            "formatSpecifier",
+            "generic",
+            "invalidEscapeSequence",
+            "lifetime",
+            "logical",
+            "macroBang",
+            "negation",
+            "parenthesis",
+            "procMacro",
+            "punctuation",
+            "selfKeyword",
+            "selfTypeKeyword",
+            "semicolon",
+            "static",
+            "toolModule",
+            "typeAlias",
+            "union",
+            "unresolvedReference"
+          ],
+          "tokenModifiers": [
+            "async",
+            "documentation",
+            "declaration",
+            "static",
+            "defaultLibrary",
+            "deprecated",
+            "associated",
+            "attribute",
+            "callable",
+            "constant",
+            "consuming",
+            "controlFlow",
+            "crateRoot",
+            "injected",
+            "intraDocLink",
+            "library",
+            "macro",
+            "mutable",
+            "procMacro",
+            "public",
+            "reference",
+            "trait",
+            "unsafe"
+          ]
+        },
+        "range": true,
+        "full": {
+          "delta": true
+        }
+      },
+      "inlayHintProvider": {
+        "resolveProvider": false
+      },
+      "diagnosticProvider": {
+        "identifier": "rust-analyzer",
+        "interFileDependencies": true,
+        "workspaceDiagnostics": false
+      },
+      "workspace": {
+        "workspaceFolders": {
+          "supported": true,
+          "changeNotifications": true
+        },
+        "fileOperations": {
+          "willRename": {
+            "filters": [
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**/*.rs",
+                  "matches": "file"
+                }
+              },
+              {
+                "scheme": "file",
+                "pattern": {
+                  "glob": "**",
+                  "matches": "folder"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "experimental": {
+        "externalDocs": true,
+        "hoverRange": true,
+        "joinLines": true,
+        "matchingBrace": true,
+        "moveItem": true,
+        "onEnter": true,
+        "openCargoToml": true,
+        "parentModule": true,
+        "childModules": true,
+        "runnables": {
+          "kinds": [
+            "cargo"
+          ]
+        },
+        "ssr": true,
+        "workspaceSymbolScopeKindFiltering": true
+      }
+    },
+    "serverInfo": {
+      "name": "rust-analyzer",
+      "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+    }
+  },
+  "symbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 1
+          }
+        }
+      },
+      "name": "left",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 4
+          },
+          "end": {
+            "line": 3,
+            "character": 5
+          }
+        }
+      },
+      "name": "shared",
+      "kind": 12,
+      "tags": [],
+      "containerName": "left"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      "name": "right",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 9,
+            "character": 5
+          }
+        }
+      },
+      "name": "shared",
+      "kind": 12,
+      "tags": [],
+      "containerName": "right"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      "name": "ambiguous",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      "name": "missing",
+      "kind": 12,
+      "tags": []
+    }
+  ],
+  "unknown": [],
+  "hierarchy": [
+    {
+      "name": "missing",
+      "kind": 12,
+      "detail": "pub fn missing() -> u32",
+      "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 0
+        },
+        "end": {
+          "line": 21,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 19,
+          "character": 7
+        },
+        "end": {
+          "line": 19,
+          "character": 14
+        }
+      }
+    }
+  ],
+  "calls": [],
+  "definition": [],
+  "editedSymbols": [
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 1
+          }
+        }
+      },
+      "name": "left",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 4
+          },
+          "end": {
+            "line": 3,
+            "character": 5
+          }
+        }
+      },
+      "name": "shared",
+      "kind": 12,
+      "tags": [],
+      "containerName": "left"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 10,
+            "character": 1
+          }
+        }
+      },
+      "name": "right",
+      "kind": 2,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 7,
+            "character": 4
+          },
+          "end": {
+            "line": 9,
+            "character": 5
+          }
+        }
+      },
+      "name": "shared",
+      "kind": 12,
+      "tags": [],
+      "containerName": "right"
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 17,
+            "character": 1
+          }
+        }
+      },
+      "name": "ambiguous",
+      "kind": 12,
+      "tags": []
+    },
+    {
+      "deprecated": false,
+      "location": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 0
+          },
+          "end": {
+            "line": 21,
+            "character": 1
+          }
+        }
+      },
+      "name": "missing",
+      "kind": 12,
+      "tags": []
+    }
+  ],
+  "timingsMs": {
+    "initialize": 1.127332914620638,
+    "ready": 3005.5693751201034,
+    "workspace/symbol": 3.824708051979542,
+    "textDocument/prepareCallHierarchy": 0.3576250746846199,
+    "callHierarchy/outgoingCalls": 0.4238330293446779,
+    "textDocument/definition": 0.2237921580672264,
+    "documentSymbolAfterEdit": 0.4037909675389528,
+    "shutdown": 1.6918329056352377
+  },
+  "messages": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "capabilities": {
+          "positionEncoding": "utf-16",
+          "textDocumentSync": {
+            "openClose": true,
+            "change": 2,
+            "save": {}
+          },
+          "completionProvider": {
+            "triggerCharacters": [
+              ":",
+              ".",
+              "'",
+              "("
+            ],
+            "resolveProvider": false,
+            "completionItem": {
+              "labelDetailsSupport": false
+            }
+          },
+          "hoverProvider": true,
+          "signatureHelpProvider": {
+            "triggerCharacters": [
+              "(",
+              ",",
+              "<"
+            ]
+          },
+          "declarationProvider": true,
+          "definitionProvider": true,
+          "typeDefinitionProvider": true,
+          "implementationProvider": true,
+          "referencesProvider": true,
+          "documentHighlightProvider": true,
+          "documentSymbolProvider": true,
+          "codeActionProvider": true,
+          "codeLensProvider": {
+            "resolveProvider": true
+          },
+          "workspaceSymbolProvider": true,
+          "documentFormattingProvider": true,
+          "documentRangeFormattingProvider": false,
+          "documentOnTypeFormattingProvider": {
+            "firstTriggerCharacter": ".",
+            "moreTriggerCharacter": [
+              "=",
+              "<",
+              ">",
+              "{",
+              "(",
+              "|",
+              "+"
+            ]
+          },
+          "renameProvider": {
+            "prepareProvider": true
+          },
+          "foldingRangeProvider": true,
+          "selectionRangeProvider": true,
+          "callHierarchyProvider": true,
+          "semanticTokensProvider": {
+            "legend": {
+              "tokenTypes": [
+                "comment",
+                "decorator",
+                "enumMember",
+                "enum",
+                "function",
+                "interface",
+                "keyword",
+                "macro",
+                "method",
+                "namespace",
+                "number",
+                "operator",
+                "parameter",
+                "property",
+                "string",
+                "struct",
+                "typeParameter",
+                "variable",
+                "type",
+                "label",
+                "angle",
+                "arithmetic",
+                "attributeBracket",
+                "attribute",
+                "bitwise",
+                "boolean",
+                "brace",
+                "bracket",
+                "builtinAttribute",
+                "builtinType",
+                "character",
+                "colon",
+                "comma",
+                "comparison",
+                "constParameter",
+                "const",
+                "deriveHelper",
+                "derive",
+                "dot",
+                "escapeSequence",
+                "formatSpecifier",
+                "generic",
+                "invalidEscapeSequence",
+                "lifetime",
+                "logical",
+                "macroBang",
+                "negation",
+                "parenthesis",
+                "procMacro",
+                "punctuation",
+                "selfKeyword",
+                "selfTypeKeyword",
+                "semicolon",
+                "static",
+                "toolModule",
+                "typeAlias",
+                "union",
+                "unresolvedReference"
+              ],
+              "tokenModifiers": [
+                "async",
+                "documentation",
+                "declaration",
+                "static",
+                "defaultLibrary",
+                "deprecated",
+                "associated",
+                "attribute",
+                "callable",
+                "constant",
+                "consuming",
+                "controlFlow",
+                "crateRoot",
+                "injected",
+                "intraDocLink",
+                "library",
+                "macro",
+                "mutable",
+                "procMacro",
+                "public",
+                "reference",
+                "trait",
+                "unsafe"
+              ]
+            },
+            "range": true,
+            "full": {
+              "delta": true
+            }
+          },
+          "inlayHintProvider": {
+            "resolveProvider": false
+          },
+          "diagnosticProvider": {
+            "identifier": "rust-analyzer",
+            "interFileDependencies": true,
+            "workspaceDiagnostics": false
+          },
+          "workspace": {
+            "workspaceFolders": {
+              "supported": true,
+              "changeNotifications": true
+            },
+            "fileOperations": {
+              "willRename": {
+                "filters": [
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**/*.rs",
+                      "matches": "file"
+                    }
+                  },
+                  {
+                    "scheme": "file",
+                    "pattern": {
+                      "glob": "**",
+                      "matches": "folder"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "experimental": {
+            "externalDocs": true,
+            "hoverRange": true,
+            "joinLines": true,
+            "matchingBrace": true,
+            "moveItem": true,
+            "onEnter": true,
+            "openCargoToml": true,
+            "parentModule": true,
+            "childModules": true,
+            "runnables": {
+              "kinds": [
+                "cargo"
+              ]
+            },
+            "ssr": true,
+            "workspaceSymbolScopeKindFiltering": true
+          }
+        },
+        "serverInfo": {
+          "name": "rust-analyzer",
+          "version": "0.3.3081-standalone (2ad81e72b7 2026-10-11)"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": false,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "experimental/serverStatus",
+      "params": {
+        "health": "ok",
+        "quiescent": true,
+        "message": null
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 4,
+                "character": 1
+              }
+            }
+          },
+          "name": "left",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 5
+              }
+            }
+          },
+          "name": "shared",
+          "kind": 12,
+          "tags": [],
+          "containerName": "left"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 1
+              }
+            }
+          },
+          "name": "right",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 5
+              }
+            }
+          },
+          "name": "shared",
+          "kind": 12,
+          "tags": [],
+          "containerName": "right"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            }
+          },
+          "name": "ambiguous",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 21,
+                "character": 1
+              }
+            }
+          },
+          "name": "missing",
+          "kind": 12,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "textDocument/publishDiagnostics",
+      "params": {
+        "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+        "version": 1,
+        "diagnostics": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": [
+        {
+          "name": "missing",
+          "kind": 12,
+          "detail": "pub fn missing() -> u32",
+          "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 0
+            },
+            "end": {
+              "line": 21,
+              "character": 1
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 19,
+              "character": 7
+            },
+            "end": {
+              "line": 19,
+              "character": 14
+            }
+          }
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": []
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": [
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 4,
+                "character": 1
+              }
+            }
+          },
+          "name": "left",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 3,
+                "character": 5
+              }
+            }
+          },
+          "name": "shared",
+          "kind": 12,
+          "tags": [],
+          "containerName": "left"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 6,
+                "character": 0
+              },
+              "end": {
+                "line": 10,
+                "character": 1
+              }
+            }
+          },
+          "name": "right",
+          "kind": 2,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 5
+              }
+            }
+          },
+          "name": "shared",
+          "kind": 12,
+          "tags": [],
+          "containerName": "right"
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 0
+              },
+              "end": {
+                "line": 17,
+                "character": 1
+              }
+            }
+          },
+          "name": "ambiguous",
+          "kind": 12,
+          "tags": []
+        },
+        {
+          "deprecated": false,
+          "location": {
+            "uri": "file://$ROOT/docs/research/rust-indexing/edge-cases/src/invalid.rs",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 0
+              },
+              "end": {
+                "line": 21,
+                "character": 1
+              }
+            }
+          },
+          "name": "missing",
+          "kind": 12,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": null
+    }
+  ],
+  "exitCode": 0
+}

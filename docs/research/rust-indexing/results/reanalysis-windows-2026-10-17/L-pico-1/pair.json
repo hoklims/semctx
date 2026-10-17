@@ -1,0 +1,66 @@
+{
+  "engine": "L",
+  "workspace": "pico",
+  "sample": 1,
+  "sources": {
+    "src/lib.rs": {
+      "beforeSha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "afterSha256": "57bff9219714d42aff830f0461a757404db6a0e60fd44d77c80f013991008754"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0023",
+      "exitCode": 0,
+      "elapsedMs": 3447.5920999830123,
+      "stdoutSha256": "8c2bad82d552048488a290984a00f1081c35a9dd11e2fe6675378ca2d7f266fd",
+      "stderrSha256": "7a5bdc6514c5b4ff2ad2e55dfaa2b279157121eed5457807504374156860a2dc",
+      "argvSha256": "fe16d5e65007437e73126de35bb801eef42cd1a7157cbb5898fa04372289269d",
+      "directChildPeakRss": {
+        "peakRssBytes": 31424512,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc"
+    },
+    {
+      "path": "LICENSE",
+      "capturePath": "LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8"
+    },
+    {
+      "path": "README.md",
+      "capturePath": "README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc"
+    },
+    {
+      "path": "src/lib.rs",
+      "capturePath": "src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865"
+    }
+  ],
+  "nativeTimingsMs": {
+    "initialize": 2.0778000180143863,
+    "ready": 2926.0032999736723,
+    "documentSymbolBeforeEdit": 1.9477999885566533,
+    "workspace/symbol": 2.3493999906349927,
+    "textDocument/prepareCallHierarchy": 0.4921999934595078,
+    "callHierarchy/outgoingCalls": 203.86849998612888,
+    "textDocument/definition": 0.4459999909158796,
+    "changeToDocumentSymbol": 4.730000015115365,
+    "documentSymbolAfterEdit": 3.2276999845635146,
+    "shutdown": 0.2452000044286251
+  }
+}

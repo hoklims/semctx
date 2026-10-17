@@ -1,0 +1,2061 @@
+{
+  "kind": "DERIVED_FIELD_REFERENCES_NOT_NEW_MEASUREMENTS",
+  "sourceHead": "1f08463191369097fe15dda1721324a4c7ab4215",
+  "resultSha256": "a5ee4c82ac815cd285d90dbdebe408f4af90107e97a9b7b23c9b43bed5702560",
+  "rows": [
+    {
+      "engine": "T",
+      "workspace": "fixture",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 3.8765000000000143,
+              "source": "T-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "846ee753dcf362a96ba8419fcf407c0c60478b65129714be6e6a91e6508c9283"
+            },
+            "incrementalParse": {
+              "value": 0.33499999999999375,
+              "source": "T-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "846ee753dcf362a96ba8419fcf407c0c60478b65129714be6e6a91e6508c9283"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 300.7563000137452,
+                "source": "T-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "846ee753dcf362a96ba8419fcf407c0c60478b65129714be6e6a91e6508c9283"
+              },
+              "peakRssBytes": {
+                "value": 75788288,
+                "source": "T-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "846ee753dcf362a96ba8419fcf407c0c60478b65129714be6e6a91e6508c9283"
+              },
+              "stdout": {
+                "path": "command-0000.stdout",
+                "sha256": "766a58e5ed041ab6f7969d3a61c97e1ebacbfc92d4e1685d92dcb0c0a9ffac54"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 3.9088000000000065,
+              "source": "T-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "9e3d6e43affa14a65e06e7f6613fd178e1914fa999db4827de485fd14bc40077"
+            },
+            "incrementalParse": {
+              "value": 0.29819999999999425,
+              "source": "T-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "9e3d6e43affa14a65e06e7f6613fd178e1914fa999db4827de485fd14bc40077"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 126.44389999331906,
+                "source": "T-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "9e3d6e43affa14a65e06e7f6613fd178e1914fa999db4827de485fd14bc40077"
+              },
+              "peakRssBytes": {
+                "value": 75255808,
+                "source": "T-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "9e3d6e43affa14a65e06e7f6613fd178e1914fa999db4827de485fd14bc40077"
+              },
+              "stdout": {
+                "path": "command-0024.stdout",
+                "sha256": "6534a44423d226012331ef71a3b8b4e6975e910e74376fac120edeee0a948734"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 3.7550000000000026,
+              "source": "T-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "4218ac54d33c6e8dd21c2870744ef9fa121f93ab59ce0f7e1d3921dc58f8e902"
+            },
+            "incrementalParse": {
+              "value": 0.296599999999998,
+              "source": "T-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "4218ac54d33c6e8dd21c2870744ef9fa121f93ab59ce0f7e1d3921dc58f8e902"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 110.02029999508522,
+                "source": "T-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "4218ac54d33c6e8dd21c2870744ef9fa121f93ab59ce0f7e1d3921dc58f8e902"
+              },
+              "peakRssBytes": {
+                "value": 75853824,
+                "source": "T-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "4218ac54d33c6e8dd21c2870744ef9fa121f93ab59ce0f7e1d3921dc58f8e902"
+              },
+              "stdout": {
+                "path": "command-0048.stdout",
+                "sha256": "d6620c3606486fd2c51e14ef8dde46dee85dfc253af990adb4cbfa78160d3179"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "one Node process per cold/incremental pair"
+    },
+    {
+      "engine": "T",
+      "workspace": "pico",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 8.509499999999996,
+              "source": "T-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "26d47539db458675f50c38228ea3b54fb88a7d1b2dcd4dab9c5895bdd04ada33"
+            },
+            "incrementalParse": {
+              "value": 0.3692000000000064,
+              "source": "T-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "26d47539db458675f50c38228ea3b54fb88a7d1b2dcd4dab9c5895bdd04ada33"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 121.29480001749471,
+                "source": "T-pico-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "26d47539db458675f50c38228ea3b54fb88a7d1b2dcd4dab9c5895bdd04ada33"
+              },
+              "peakRssBytes": {
+                "value": 84230144,
+                "source": "T-pico-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "26d47539db458675f50c38228ea3b54fb88a7d1b2dcd4dab9c5895bdd04ada33"
+              },
+              "stdout": {
+                "path": "command-0016.stdout",
+                "sha256": "4b6e764bbdedb4f10165bec414f8c3814801a9f048c56b3e8d6c7d33e9ad01ae"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 8.398199999999996,
+              "source": "T-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "74e025ba503b0c273b9adc46ae5a94b173562047b132665211cf2f5d12c9b13f"
+            },
+            "incrementalParse": {
+              "value": 0.37130000000000507,
+              "source": "T-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "74e025ba503b0c273b9adc46ae5a94b173562047b132665211cf2f5d12c9b13f"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 111.16620001848787,
+                "source": "T-pico-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "74e025ba503b0c273b9adc46ae5a94b173562047b132665211cf2f5d12c9b13f"
+              },
+              "peakRssBytes": {
+                "value": 84893696,
+                "source": "T-pico-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "74e025ba503b0c273b9adc46ae5a94b173562047b132665211cf2f5d12c9b13f"
+              },
+              "stdout": {
+                "path": "command-0040.stdout",
+                "sha256": "237d3fb58c4c679057925818adea1d7fbce32ccd1f177b7e9e19c03e40736683"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "coldParse": {
+              "value": 8.451099999999997,
+              "source": "T-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldParse",
+              "sha256": "b1a3dea5a227a32381eb30bb43c25b62d7c58fbf4044a3f75ca64a7db1d69dfe"
+            },
+            "incrementalParse": {
+              "value": 0.3509999999999991,
+              "source": "T-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/incrementalParse",
+              "sha256": "b1a3dea5a227a32381eb30bb43c25b62d7c58fbf4044a3f75ca64a7db1d69dfe"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 109.19700001250021,
+                "source": "T-pico-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "b1a3dea5a227a32381eb30bb43c25b62d7c58fbf4044a3f75ca64a7db1d69dfe"
+              },
+              "peakRssBytes": {
+                "value": 84672512,
+                "source": "T-pico-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "b1a3dea5a227a32381eb30bb43c25b62d7c58fbf4044a3f75ca64a7db1d69dfe"
+              },
+              "stdout": {
+                "path": "command-0064.stdout",
+                "sha256": "fc87172b912fefdd0269f03d6f6077ed8e9ba23ea4edfde807b6d21c666d7937"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "one Node process per cold/incremental pair"
+    },
+    {
+      "engine": "Y",
+      "workspace": "fixture",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 1.1271,
+              "source": "Y-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+            },
+            "editedFullParse": {
+              "value": 1.1388,
+              "source": "Y-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 17.347199987852946,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6086656,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0001.stdout",
+                "sha256": "494dd836fd71aeb51a81cafbc1193a975eedba604c4a8ecdeabad9c894f3ba89"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 16.772200004197657,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6094848,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0002.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 17.802000016672537,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6082560,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0003.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 24.50999998836778,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6365184,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0004.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 20.664799987571314,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/4/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6029312,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/4/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0005.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 31.93769999779761,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/5/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6131712,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/5/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0006.stdout",
+                "sha256": "d19a2955ab3a475a4c6d8d5b18c9b1a286080d697ef3e93877abd961f08ed962"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 15.532499994151294,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/6/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6098944,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/6/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0007.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 14.112599979853258,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/7/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6086656,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/7/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0008.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 16.92309998907149,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/8/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6356992,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/8/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0009.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 188.26319999061525,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/9/elapsedMs",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "peakRssBytes": {
+                "value": 6025216,
+                "source": "Y-fixture-1/pair.json",
+                "jsonPointer": "/commands/9/directChildPeakRss/peakRssBytes",
+                "sha256": "abc7c7ab1d1ba6da1a5a0ee45e2be63fe51c1ea9e39c4cf1173ea53a123779f5"
+              },
+              "stdout": {
+                "path": "command-0010.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 1.1777,
+              "source": "Y-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+            },
+            "editedFullParse": {
+              "value": 1.1628,
+              "source": "Y-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 51.96829998749308,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6090752,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0025.stdout",
+                "sha256": "494dd836fd71aeb51a81cafbc1193a975eedba604c4a8ecdeabad9c894f3ba89"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 16.7166999890469,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6090752,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0026.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 31.995600002119318,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6090752,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0027.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 18.19579998846166,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6373376,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0028.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 16.99839998036623,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/4/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6025216,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/4/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0029.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 226.90270000020973,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/5/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6131712,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/5/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0030.stdout",
+                "sha256": "d19a2955ab3a475a4c6d8d5b18c9b1a286080d697ef3e93877abd961f08ed962"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 9.635399997932836,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/6/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6098944,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/6/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0031.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 14.732500014360994,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/7/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6086656,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/7/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0032.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 10.53290002164431,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/8/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6361088,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/8/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0033.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 12.284800002817065,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/9/elapsedMs",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "peakRssBytes": {
+                "value": 6029312,
+                "source": "Y-fixture-2/pair.json",
+                "jsonPointer": "/commands/9/directChildPeakRss/peakRssBytes",
+                "sha256": "fdbc3ff1df30f01c8a2ce7b7335b06c0f61460302607537548d9f31e9557e6db"
+              },
+              "stdout": {
+                "path": "command-0034.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 1.1547,
+              "source": "Y-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+            },
+            "editedFullParse": {
+              "value": 1.1671,
+              "source": "Y-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 16.376500017940998,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6086656,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0049.stdout",
+                "sha256": "494dd836fd71aeb51a81cafbc1193a975eedba604c4a8ecdeabad9c894f3ba89"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 19.14659998146817,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6090752,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0050.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 22.199999977601692,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6086656,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0051.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 16.035000007832423,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6365184,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0052.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 15.587300003971905,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/4/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6033408,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/4/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0053.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 19.923800020478666,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/5/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6123520,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/5/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0054.stdout",
+                "sha256": "d19a2955ab3a475a4c6d8d5b18c9b1a286080d697ef3e93877abd961f08ed962"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 17.88319999468513,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/6/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6098944,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/6/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0055.stdout",
+                "sha256": "b75ce37f13018c34927eaf2df501dae3d9054fe8ba40d8debb21d99752eabd5a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 13.67519999621436,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/7/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6082560,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/7/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0056.stdout",
+                "sha256": "5bf7f1760f81f634397329cc0e518bf0a787f5dc23725b8ec3ff63fcc29b0d4a"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 14.52860000426881,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/8/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6361088,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/8/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0057.stdout",
+                "sha256": "1f68f96bf1e152150a27e07b1012e991497b69f47e074221cf870c4d9c9388d3"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 13.911599991843104,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/9/elapsedMs",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "peakRssBytes": {
+                "value": 6029312,
+                "source": "Y-fixture-3/pair.json",
+                "jsonPointer": "/commands/9/directChildPeakRss/peakRssBytes",
+                "sha256": "e51a655035b47d77d2fb2abdec3a1632ebf6cc8c332a36d4823bfc2db6a9ad7f"
+              },
+              "stdout": {
+                "path": "command-0058.stdout",
+                "sha256": "947067be8a3c59ef259ee3d1fb9e2fb558894ad354e02f58aa945a433ee634f3"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "one full syn helper process per selected file per state"
+    },
+    {
+      "engine": "Y",
+      "workspace": "pico",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 2.4015,
+              "source": "Y-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+            },
+            "editedFullParse": {
+              "value": 2.4712,
+              "source": "Y-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 20.171499985735863,
+                "source": "Y-pico-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+              },
+              "peakRssBytes": {
+                "value": 7811072,
+                "source": "Y-pico-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+              },
+              "stdout": {
+                "path": "command-0017.stdout",
+                "sha256": "c930fd88a9ec5cdd2a714ac42ad62de3e02e79883ceee59a61ace4156baf9d80"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 31.966300011845306,
+                "source": "Y-pico-1/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+              },
+              "peakRssBytes": {
+                "value": 7794688,
+                "source": "Y-pico-1/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "a1489cdc89ec5350987ac33aeac1785c9df6ddc525213872f43151e16563fef2"
+              },
+              "stdout": {
+                "path": "command-0018.stdout",
+                "sha256": "206e9028373f21c3e571d42e517f8c4ddffe1aeb1d70f49155a7b81cdab3222c"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 2.4752,
+              "source": "Y-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+            },
+            "editedFullParse": {
+              "value": 2.486,
+              "source": "Y-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 21.75289997830987,
+                "source": "Y-pico-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+              },
+              "peakRssBytes": {
+                "value": 7843840,
+                "source": "Y-pico-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+              },
+              "stdout": {
+                "path": "command-0041.stdout",
+                "sha256": "c930fd88a9ec5cdd2a714ac42ad62de3e02e79883ceee59a61ace4156baf9d80"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 42.18879999825731,
+                "source": "Y-pico-2/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+              },
+              "peakRssBytes": {
+                "value": 7831552,
+                "source": "Y-pico-2/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "bf9058902b4f72591d81edb51bd61ebb4292d8bb9ff0efa1ef268348de1eda6d"
+              },
+              "stdout": {
+                "path": "command-0042.stdout",
+                "sha256": "206e9028373f21c3e571d42e517f8c4ddffe1aeb1d70f49155a7b81cdab3222c"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "coldFullParse": {
+              "value": 2.3868,
+              "source": "Y-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/coldFullParse",
+              "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+            },
+            "editedFullParse": {
+              "value": 2.3315,
+              "source": "Y-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/editedFullParse",
+              "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 20.854400005191565,
+                "source": "Y-pico-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+              },
+              "peakRssBytes": {
+                "value": 7811072,
+                "source": "Y-pico-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+              },
+              "stdout": {
+                "path": "command-0065.stdout",
+                "sha256": "c930fd88a9ec5cdd2a714ac42ad62de3e02e79883ceee59a61ace4156baf9d80"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 38.598000013735145,
+                "source": "Y-pico-3/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+              },
+              "peakRssBytes": {
+                "value": 7794688,
+                "source": "Y-pico-3/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "6fceeda63a0ff52af635f32ef855b349818677996381fab5679f5d9eec62f0a3"
+              },
+              "stdout": {
+                "path": "command-0066.stdout",
+                "sha256": "206e9028373f21c3e571d42e517f8c4ddffe1aeb1d70f49155a7b81cdab3222c"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "one full syn helper process per selected file per state"
+    },
+    {
+      "engine": "S",
+      "workspace": "fixture",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2620.4927999933716,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "peakRssBytes": {
+                "value": 569069568,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "stdout": {
+                "path": "command-0011.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 459.1704999911599,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "peakRssBytes": {
+                "value": 318214144,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "stdout": {
+                "path": "command-0012.stdout",
+                "sha256": "20a2d9d7b4d3648acd5edcf0e2e1d72caaa5e5b9e51dad5fa15a7c58314b2121"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2631.3835000037216,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "peakRssBytes": {
+                "value": 563535872,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "stdout": {
+                "path": "command-0013.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 466.04679999290965,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "peakRssBytes": {
+                "value": 318271488,
+                "source": "S-fixture-1/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "f138489119d733eb7ddda79927f7cceba8301299a9909e2e3bc4a2c459f16b73"
+              },
+              "stdout": {
+                "path": "command-0014.stdout",
+                "sha256": "231ba0b6dd1a3982302bc03f3143072ca1586e62832b7385d79914507a353087"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2623.423000011826,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "peakRssBytes": {
+                "value": 559747072,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "stdout": {
+                "path": "command-0035.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 427.7531999978237,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "peakRssBytes": {
+                "value": 318185472,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "stdout": {
+                "path": "command-0036.stdout",
+                "sha256": "d42cec8c650cc35c5f4167ceeb977f0d49936cf65701f199665bb637d6c94fe6"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2111.0112000023946,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "peakRssBytes": {
+                "value": 567955456,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "stdout": {
+                "path": "command-0037.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 431.1636000056751,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "peakRssBytes": {
+                "value": 318320640,
+                "source": "S-fixture-2/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "b952ee9b6979237a316b55d125dd38999e932d63cf1e9ace4ae5c046d761a909"
+              },
+              "stdout": {
+                "path": "command-0038.stdout",
+                "sha256": "de30572d057eb16a752808827ebbb9f292a9a57cf2d40263608d80b937d28af1"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2314.065800019307,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "peakRssBytes": {
+                "value": 563642368,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "stdout": {
+                "path": "command-0059.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 429.893099993933,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "peakRssBytes": {
+                "value": 318275584,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "stdout": {
+                "path": "command-0060.stdout",
+                "sha256": "e5a07444200ccf625bc6140d23bf5bb26c00b65d5812626f472b40bfe7a586cb"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2215.5573000200093,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "peakRssBytes": {
+                "value": 569671680,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "stdout": {
+                "path": "command-0061.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 430.3823999944143,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "peakRssBytes": {
+                "value": 318398464,
+                "source": "S-fixture-3/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "5811ccfedfa8e96f7482e05e47daab46e124810cad46a609ed55c17839dc2061"
+              },
+              "stdout": {
+                "path": "command-0062.stdout",
+                "sha256": "d1b478261eebf8d481b8b3abb70a7d2791371b3e39c613a933f8568c060f8c56"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "two full RA batch processes and two separate decoder processes"
+    },
+    {
+      "engine": "S",
+      "workspace": "pico",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2291.5961000253446,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "peakRssBytes": {
+                "value": 564363264,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "stdout": {
+                "path": "command-0019.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 440.3634000045713,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "peakRssBytes": {
+                "value": 318414848,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "stdout": {
+                "path": "command-0020.stdout",
+                "sha256": "dadc21778eda436e5808b17d6d8e84a6401d94b92e25fe5af2bc99ae7da54a60"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2276.8963999988046,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "peakRssBytes": {
+                "value": 561893376,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "stdout": {
+                "path": "command-0021.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 433.23169997893274,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "peakRssBytes": {
+                "value": 318287872,
+                "source": "S-pico-1/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "e794da1adca0745cfd0578a09c7f8818226b4b24c3bd76306529dc8f43272da7"
+              },
+              "stdout": {
+                "path": "command-0022.stdout",
+                "sha256": "77abc03dc8f44cf0e9870a1392834b3810b43916c3e752d3d2e08ca5bc72bef8"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2140.4075999744236,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "peakRssBytes": {
+                "value": 566743040,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "stdout": {
+                "path": "command-0043.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 456.674600020051,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "peakRssBytes": {
+                "value": 318242816,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "stdout": {
+                "path": "command-0044.stdout",
+                "sha256": "2c0774a8223d663f28f63432d9065f49dca9687e229a4f4edc83cbb95ab96c12"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2289.137399988249,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "peakRssBytes": {
+                "value": 568053760,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "stdout": {
+                "path": "command-0045.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 436.56210001790896,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "peakRssBytes": {
+                "value": 318140416,
+                "source": "S-pico-2/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "79006e1e4777174b85b3fea8ce211321ff3d5d1fe21e82e46cf0eb94dda911ac"
+              },
+              "stdout": {
+                "path": "command-0046.stdout",
+                "sha256": "0f52a0dae08e933301ca178a50fe0b3b569f672f20f51d53aeff04969227926a"
+              }
+            }
+          ]
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {},
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 2243.808800005354,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "peakRssBytes": {
+                "value": 566820864,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "stdout": {
+                "path": "command-0067.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 429.6271000057459,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/1/elapsedMs",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "peakRssBytes": {
+                "value": 318251008,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/1/directChildPeakRss/peakRssBytes",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "stdout": {
+                "path": "command-0068.stdout",
+                "sha256": "b5ed5d13a8bf4b1ad96c1133a5c7835d4b29e499849b6e9b59da62cef3a9bc4d"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 2224.7437000041828,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/2/elapsedMs",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "peakRssBytes": {
+                "value": 565256192,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/2/directChildPeakRss/peakRssBytes",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "stdout": {
+                "path": "command-0069.stdout",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              }
+            },
+            {
+              "elapsedMs": {
+                "value": 427.0150999946054,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/3/elapsedMs",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "peakRssBytes": {
+                "value": 318386176,
+                "source": "S-pico-3/pair.json",
+                "jsonPointer": "/commands/3/directChildPeakRss/peakRssBytes",
+                "sha256": "e9b2af53d4ff35e33e5c1ed31a2e593e81b8c79880a47cdd62fd01ea34c5a585"
+              },
+              "stdout": {
+                "path": "command-0070.stdout",
+                "sha256": "a7cc9400f6b9985022df18a39996b963646c9dc91bfb778c526aad7d2d75b497"
+              }
+            }
+          ]
+        }
+      ],
+      "scope": "two full RA batch processes and two separate decoder processes"
+    },
+    {
+      "engine": "L",
+      "workspace": "fixture",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 1.0093000018969178,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "ready": {
+              "value": 3635.475300019607,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 0.7275000098161399,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "workspace/symbol": {
+              "value": 4.807899997103959,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.6865999894216657,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 11.97269998374395,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "textDocument/definition": {
+              "value": 0.4754000110551715,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "changeToDocumentSymbol": {
+              "value": 3.0805999995209277,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 1.0252000065520406,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            },
+            "shutdown": {
+              "value": 0.23140001576393843,
+              "source": "L-fixture-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 3987.4688000127207,
+                "source": "L-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+              },
+              "peakRssBytes": {
+                "value": 30732288,
+                "source": "L-fixture-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "0483bc4ae7d5e17873c821aa3928d2de13d48adce2356c195cb15796108ece3e"
+              },
+              "stdout": {
+                "path": "command-0015.stdout",
+                "sha256": "c9c30bb8f3da31896f583d2ca7a95d055f51bb6b91ef0f42156d78a53b841726"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 591884288,
+            "source": "command-0015.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "c9c30bb8f3da31896f583d2ca7a95d055f51bb6b91ef0f42156d78a53b841726"
+          }
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 3.2463999814353883,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "ready": {
+              "value": 2766.8586000218056,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 0.36360000376589596,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "workspace/symbol": {
+              "value": 2.757499983999878,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.35859999479725957,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 5.870499997399747,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "textDocument/definition": {
+              "value": 0.30869999318383634,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "changeToDocumentSymbol": {
+              "value": 1.801800011890009,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 0.38029998540878296,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            },
+            "shutdown": {
+              "value": 0.16289998893626034,
+              "source": "L-fixture-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 3214.5547999825794,
+                "source": "L-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+              },
+              "peakRssBytes": {
+                "value": 30695424,
+                "source": "L-fixture-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "714a3e80ecf14935fd20870ba393bcfc6b61faa441f055708ce9d1e8589dbf3f"
+              },
+              "stdout": {
+                "path": "command-0039.stdout",
+                "sha256": "13c8415b92930f475ed08371def12dff6ab73ad07e9ffff0642f1e13196d4b35"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 596922368,
+            "source": "command-0039.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "13c8415b92930f475ed08371def12dff6ab73ad07e9ffff0642f1e13196d4b35"
+          }
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 0.8736999880056828,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "ready": {
+              "value": 4446.548600011738,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 0.6466000049840659,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "workspace/symbol": {
+              "value": 4.51590001466684,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.5139000131748617,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 9.618799987947568,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "textDocument/definition": {
+              "value": 0.46189999557100236,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "changeToDocumentSymbol": {
+              "value": 1.9696999806910753,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 0.6611999997403473,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            },
+            "shutdown": {
+              "value": 0.23929998860694468,
+              "source": "L-fixture-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 4754.758099996252,
+                "source": "L-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+              },
+              "peakRssBytes": {
+                "value": 30834688,
+                "source": "L-fixture-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "0a34d54207d92705631b16b186056e6e1da8626916edbfbb6a59a1633f741ad1"
+              },
+              "stdout": {
+                "path": "command-0063.stdout",
+                "sha256": "3b337a4eeeebfda2369c3ab3e0f9af1b1c0a1694e6d797bfb62e41d9088c357a"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 601137152,
+            "source": "command-0063.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "3b337a4eeeebfda2369c3ab3e0f9af1b1c0a1694e6d797bfb62e41d9088c357a"
+          }
+        }
+      ],
+      "scope": "one persistent RA server in one Python probe process per pair"
+    },
+    {
+      "engine": "L",
+      "workspace": "pico",
+      "samples": [
+        {
+          "sample": 1,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 2.0778000180143863,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "ready": {
+              "value": 2926.0032999736723,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 1.9477999885566533,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "workspace/symbol": {
+              "value": 2.3493999906349927,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.4921999934595078,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 203.86849998612888,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "textDocument/definition": {
+              "value": 0.4459999909158796,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "changeToDocumentSymbol": {
+              "value": 4.730000015115365,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 3.2276999845635146,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            },
+            "shutdown": {
+              "value": 0.2452000044286251,
+              "source": "L-pico-1/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 3447.5920999830123,
+                "source": "L-pico-1/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+              },
+              "peakRssBytes": {
+                "value": 31424512,
+                "source": "L-pico-1/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "d35003a70b2986e6d30e0d6a60e511463c1796bd67265c3471a422dd4f06129d"
+              },
+              "stdout": {
+                "path": "command-0023.stdout",
+                "sha256": "8c2bad82d552048488a290984a00f1081c35a9dd11e2fe6675378ca2d7f266fd"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 605900800,
+            "source": "command-0023.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "8c2bad82d552048488a290984a00f1081c35a9dd11e2fe6675378ca2d7f266fd"
+          }
+        },
+        {
+          "sample": 2,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 1.6886999947018921,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "ready": {
+              "value": 3461.3494999939576,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 2.7860999980475754,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "workspace/symbol": {
+              "value": 3.3720999781508,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.6937000143807381,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 267.8535000013653,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "textDocument/definition": {
+              "value": 0.39370000013150275,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "changeToDocumentSymbol": {
+              "value": 5.016600014641881,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 3.638399997726083,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            },
+            "shutdown": {
+              "value": 0.24519997532479465,
+              "source": "L-pico-2/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 4055.5123000231106,
+                "source": "L-pico-2/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+              },
+              "peakRssBytes": {
+                "value": 31485952,
+                "source": "L-pico-2/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "72b8277ef8ac19e3cead45287971b0e92c347c0c2b6e0053e7de56872264153b"
+              },
+              "stdout": {
+                "path": "command-0047.stdout",
+                "sha256": "9c5162ef10f1d27067f3d2b9e49744e8589c847792ee946c8d3ac292692852cf"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 599887872,
+            "source": "command-0047.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "9c5162ef10f1d27067f3d2b9e49744e8589c847792ee946c8d3ac292692852cf"
+          }
+        },
+        {
+          "sample": 3,
+          "nativeTimingsMs": {
+            "initialize": {
+              "value": 1.336900022579357,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/initialize",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "ready": {
+              "value": 4290.487200021744,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/ready",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "documentSymbolBeforeEdit": {
+              "value": 2.8405000048223883,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolBeforeEdit",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "workspace/symbol": {
+              "value": 3.8600999978370965,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/workspace/symbol",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "textDocument/prepareCallHierarchy": {
+              "value": 0.6622000073548406,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/prepareCallHierarchy",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "callHierarchy/outgoingCalls": {
+              "value": 266.3642000115942,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/callHierarchy/outgoingCalls",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "textDocument/definition": {
+              "value": 1.4764999796170741,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/textDocument/definition",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "changeToDocumentSymbol": {
+              "value": 4.538800014415756,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/changeToDocumentSymbol",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "documentSymbolAfterEdit": {
+              "value": 3.145299997413531,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/documentSymbolAfterEdit",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            },
+            "shutdown": {
+              "value": 0.28100001509301364,
+              "source": "L-pico-3/pair.json",
+              "jsonPointer": "/nativeTimingsMs/shutdown",
+              "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+            }
+          },
+          "commands": [
+            {
+              "elapsedMs": {
+                "value": 4860.279300017282,
+                "source": "L-pico-3/pair.json",
+                "jsonPointer": "/commands/0/elapsedMs",
+                "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+              },
+              "peakRssBytes": {
+                "value": 31408128,
+                "source": "L-pico-3/pair.json",
+                "jsonPointer": "/commands/0/directChildPeakRss/peakRssBytes",
+                "sha256": "01beef64fba8c5d71cc8eb7dc72efbdf7b7afd266ac3856b41b343f2a0ea6a03"
+              },
+              "stdout": {
+                "path": "command-0071.stdout",
+                "sha256": "e3f76b384159cf34d9458821316aa4a5f89ab4e1e6d361ac3cc653c7c7de6f60"
+              }
+            }
+          ],
+          "serverPeakRssBytes": {
+            "value": 600244224,
+            "source": "command-0071.stdout",
+            "jsonPointer": "/serverPeakRss/peakRssBytes",
+            "sha256": "e3f76b384159cf34d9458821316aa4a5f89ab4e1e6d361ac3cc653c7c7de6f60"
+          }
+        }
+      ],
+      "scope": "one persistent RA server in one Python probe process per pair"
+    }
+  ]
+}

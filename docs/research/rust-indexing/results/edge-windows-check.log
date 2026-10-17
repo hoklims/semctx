@@ -1,0 +1,9 @@
+   Compiling semctx-rust-edge-cases v0.1.0 ($ROOT/docs/research/rust-indexing/edge-cases)
+   Compiling semctx-edge-macros v0.1.0 ($ROOT/docs/research/rust-indexing/edge-cases/edge-macros)
+error[E0463]: can't find crate for `std`
+  |
+  = note: the `x86_64-pc-windows-msvc` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-pc-windows-msvc`
+
+For more information about this error, try `rustc --explain E0463`.
+error: could not compile `semctx-rust-edge-cases` (lib) due to 1 previous error

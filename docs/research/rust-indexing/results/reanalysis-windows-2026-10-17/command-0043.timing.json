@@ -1,0 +1,13 @@
+{
+  "prefix": "command-0043",
+  "exitCode": 0,
+  "elapsedMs": 2140.4075999744236,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "99baf3de57534486217883000c6fa9bb5af2902eba74c7183803de23e1851df8",
+  "argvSha256": "a482d2681952e9c4a3be2dc4febe2165dc7616bbf07aa05a6f94139b267273c9",
+  "directChildPeakRss": {
+    "peakRssBytes": 566743040,
+    "scope": "direct process peak working set"
+  },
+  "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+}

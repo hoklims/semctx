@@ -1,0 +1,98 @@
+[
+  {
+    "corpus": "fixture",
+    "engine": "scip",
+    "run": 1,
+    "exitCode": 0,
+    "wallS": 1.9,
+    "maxRssBytes": 541573120
+  },
+  {
+    "corpus": "fixture",
+    "engine": "lsp",
+    "run": 1,
+    "exitCode": 0,
+    "wallS": 2.03,
+    "maxRssBytes": 566476800
+  },
+  {
+    "corpus": "fixture",
+    "engine": "scip",
+    "run": 2,
+    "exitCode": 0,
+    "wallS": 1.68,
+    "maxRssBytes": 544112640
+  },
+  {
+    "corpus": "fixture",
+    "engine": "lsp",
+    "run": 2,
+    "exitCode": 0,
+    "wallS": 2.01,
+    "maxRssBytes": 556711936
+  },
+  {
+    "corpus": "fixture",
+    "engine": "scip",
+    "run": 3,
+    "exitCode": 0,
+    "wallS": 1.68,
+    "maxRssBytes": 541900800
+  },
+  {
+    "corpus": "fixture",
+    "engine": "lsp",
+    "run": 3,
+    "exitCode": 0,
+    "wallS": 1.99,
+    "maxRssBytes": 554172416
+  },
+  {
+    "corpus": "pico",
+    "engine": "scip",
+    "run": 1,
+    "exitCode": 0,
+    "wallS": 1.7,
+    "maxRssBytes": 545095680
+  },
+  {
+    "corpus": "pico",
+    "engine": "lsp",
+    "run": 1,
+    "exitCode": 0,
+    "wallS": 2.18,
+    "maxRssBytes": 572030976
+  },
+  {
+    "corpus": "pico",
+    "engine": "scip",
+    "run": 2,
+    "exitCode": 0,
+    "wallS": 1.69,
+    "maxRssBytes": 543916032
+  },
+  {
+    "corpus": "pico",
+    "engine": "lsp",
+    "run": 2,
+    "exitCode": 0,
+    "wallS": 2.19,
+    "maxRssBytes": 574160896
+  },
+  {
+    "corpus": "pico",
+    "engine": "scip",
+    "run": 3,
+    "exitCode": 0,
+    "wallS": 1.68,
+    "maxRssBytes": 545243136
+  },
+  {
+    "corpus": "pico",
+    "engine": "lsp",
+    "run": 3,
+    "exitCode": 0,
+    "wallS": 2.22,
+    "maxRssBytes": 567476224
+  }
+]

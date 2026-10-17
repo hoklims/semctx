@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "$ROOT/scripts/rust-indexing-lsp.py",
+    "$RUN/tools/rust-analyzer",
+    "$ROOT/docs/research/rust-indexing/edge-cases",
+    "src/invalid.rs",
+    "--line",
+    "15",
+    "--character",
+    "8",
+    "--definition-line",
+    "20",
+    "--definition-character",
+    "8",
+    "--features",
+    "invalid"
+  ],
+  "exitCode": 0
+}

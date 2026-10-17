@@ -1,0 +1,20 @@
+2026-10-15T11:51:21.717719+02:00  WARN notify error: No path was found. about ["$ROOT/docs/research/rust-indexing/fixture/rust-analyzer.toml"]
+2026-10-15T11:51:21.718185+02:00  WARN notify error: No path was found. about ["/Users/sebastien/Library/Application Support/rust-analyzer/rust-analyzer.toml"]
+        2.01 real         2.17 user         0.53 sys
+           556711936  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              109874  page reclaims
+                  94  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   1  messages sent
+                   1  messages received
+                   0  signals received
+                  55  voluntary context switches
+                4136  involuntary context switches
+           659372535  instructions retired
+           247689382  cycles elapsed
+            20021800  peak memory footprint

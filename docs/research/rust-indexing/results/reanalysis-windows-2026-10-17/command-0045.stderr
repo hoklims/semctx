@@ -1,0 +1,9 @@
+Generating SCIP start...
+2026-10-17T08:29:27.9115291+02:00 ERROR Config Error(s) error_sink=ConfigErrors([])
+rust-analyzer: Loading discovering sysroot
+rust-analyzer: Loading querying project metadata
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: started
+rust-analyzer: Loading cargo metadata: finished
+rust-analyzer: Loading cargo metadata: finished
+Generating SCIP finished 2.1991397s

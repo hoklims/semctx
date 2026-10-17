@@ -1,0 +1,4 @@
+summary	items	3	methods	1
+symbol	struct	Amount	0	148	derive,doc=@invariant discovery-fixture-only: accepted amounts are positive
+symbol	enum	Outcome	150	238	derive
+symbol	trait	Quote	240	307	

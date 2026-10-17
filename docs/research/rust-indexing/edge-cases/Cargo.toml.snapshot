@@ -1,0 +1,16 @@
+[workspace]
+members = ["edge-macros"]
+resolver = "2"
+
+[package]
+name = "semctx-rust-edge-cases"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+alternate = []
+invalid = []
+
+[dependencies]
+semctx-edge-macros = { path = "edge-macros", version = "=0.1.0" }

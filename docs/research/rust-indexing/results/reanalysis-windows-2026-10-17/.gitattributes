@@ -1,0 +1,3 @@
+* -text whitespace=cr-at-eol
+*.stdout whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+*.stderr whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof

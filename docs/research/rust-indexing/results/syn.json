@@ -1,0 +1,194 @@
+[
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/tests/dispatch.rs",
+    "run": 1,
+    "wallMs": 4.271875,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t115\t\nsymbol\tfn\tgeneric_and_dynamic_dispatch_preserve_amounts_and_reject_zero\t117\t581\ttest\n",
+    "stderr": "timing\tparse_ns\t119417\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/tests/dispatch.rs",
+    "run": 2,
+    "wallMs": 3.969583,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t115\t\nsymbol\tfn\tgeneric_and_dynamic_dispatch_preserve_amounts_and_reject_zero\t117\t581\ttest\n",
+    "stderr": "timing\tparse_ns\t111292\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/tests/dispatch.rs",
+    "run": 3,
+    "wallMs": 3.846375,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t115\t\nsymbol\tfn\tgeneric_and_dynamic_dispatch_preserve_amounts_and_reject_zero\t117\t581\ttest\n",
+    "stderr": "timing\tparse_ns\t107500\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/lib.rs",
+    "run": 1,
+    "wallMs": 4.180166,
+    "exitCode": 0,
+    "stdout": "summary\titems\t9\tmethods\t0\nsymbol\tmod\tmodel\t0\t10\t\nsymbol\tmod\tcalculations\t12\t59\tpath=operations.rs\nsymbol\tuse\t_\t61\t104\t\nsymbol\tuse\t_\t105\t145\t\nsymbol\tmacro\tmake_amount\t147\t252\tmacro_export\nsymbol\tfn\textra_quote\t254\t329\tcfg\nsymbol\tmod\ttests\t331\t614\tcfg\n",
+    "stderr": "timing\tparse_ns\t124834\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/lib.rs",
+    "run": 2,
+    "wallMs": 4.316667,
+    "exitCode": 0,
+    "stdout": "summary\titems\t9\tmethods\t0\nsymbol\tmod\tmodel\t0\t10\t\nsymbol\tmod\tcalculations\t12\t59\tpath=operations.rs\nsymbol\tuse\t_\t61\t104\t\nsymbol\tuse\t_\t105\t145\t\nsymbol\tmacro\tmake_amount\t147\t252\tmacro_export\nsymbol\tfn\textra_quote\t254\t329\tcfg\nsymbol\tmod\ttests\t331\t614\tcfg\n",
+    "stderr": "timing\tparse_ns\t129292\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/lib.rs",
+    "run": 3,
+    "wallMs": 4.2065,
+    "exitCode": 0,
+    "stdout": "summary\titems\t9\tmethods\t0\nsymbol\tmod\tmodel\t0\t10\t\nsymbol\tmod\tcalculations\t12\t59\tpath=operations.rs\nsymbol\tuse\t_\t61\t104\t\nsymbol\tuse\t_\t105\t145\t\nsymbol\tmacro\tmake_amount\t147\t252\tmacro_export\nsymbol\tfn\textra_quote\t254\t329\tcfg\nsymbol\tmod\ttests\t331\t614\tcfg\n",
+    "stderr": "timing\tparse_ns\t126583\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/operations.rs",
+    "run": 1,
+    "wallMs": 4.172209,
+    "exitCode": 0,
+    "stdout": "summary\titems\t6\tmethods\t2\nsymbol\tuse\t_\t0\t36\t\nsymbol\tstruct\tFixedQuote\t38\t60\t\nsymbol\timpl\t_\t62\t127\t\nsymbol\timpl\t_\t129\t322\t\nsymbol\tfn\tquote\t324\t418\t\nsymbol\tfn\tquote_dyn\t420\t516\t\n",
+    "stderr": "timing\tparse_ns\t178542\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/operations.rs",
+    "run": 2,
+    "wallMs": 4.222208,
+    "exitCode": 0,
+    "stdout": "summary\titems\t6\tmethods\t2\nsymbol\tuse\t_\t0\t36\t\nsymbol\tstruct\tFixedQuote\t38\t60\t\nsymbol\timpl\t_\t62\t127\t\nsymbol\timpl\t_\t129\t322\t\nsymbol\tfn\tquote\t324\t418\t\nsymbol\tfn\tquote_dyn\t420\t516\t\n",
+    "stderr": "timing\tparse_ns\t199666\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/operations.rs",
+    "run": 3,
+    "wallMs": 3.873708,
+    "exitCode": 0,
+    "stdout": "summary\titems\t6\tmethods\t2\nsymbol\tuse\t_\t0\t36\t\nsymbol\tstruct\tFixedQuote\t38\t60\t\nsymbol\timpl\t_\t62\t127\t\nsymbol\timpl\t_\t129\t322\t\nsymbol\tfn\tquote\t324\t418\t\nsymbol\tfn\tquote_dyn\t420\t516\t\n",
+    "stderr": "timing\tparse_ns\t187333\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/model.rs",
+    "run": 1,
+    "wallMs": 4.048167,
+    "exitCode": 0,
+    "stdout": "summary\titems\t3\tmethods\t1\nsymbol\tstruct\tAmount\t0\t148\tderive,doc=@invariant discovery-fixture-only: accepted amounts are positive\nsymbol\tenum\tOutcome\t150\t238\tderive\nsymbol\ttrait\tQuote\t240\t307\t\n",
+    "stderr": "timing\tparse_ns\t101625\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/model.rs",
+    "run": 2,
+    "wallMs": 3.913375,
+    "exitCode": 0,
+    "stdout": "summary\titems\t3\tmethods\t1\nsymbol\tstruct\tAmount\t0\t148\tderive,doc=@invariant discovery-fixture-only: accepted amounts are positive\nsymbol\tenum\tOutcome\t150\t238\tderive\nsymbol\ttrait\tQuote\t240\t307\t\n",
+    "stderr": "timing\tparse_ns\t87417\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/domain/src/model.rs",
+    "run": 3,
+    "wallMs": 3.397708,
+    "exitCode": 0,
+    "stdout": "summary\titems\t3\tmethods\t1\nsymbol\tstruct\tAmount\t0\t148\tderive,doc=@invariant discovery-fixture-only: accepted amounts are positive\nsymbol\tenum\tOutcome\t150\t238\tderive\nsymbol\ttrait\tQuote\t240\t307\t\n",
+    "stderr": "timing\tparse_ns\t83792\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/app/src/main.rs",
+    "run": 1,
+    "wallMs": 3.927458,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t144\t\nsymbol\tfn\tmain\t146\t442\t\n",
+    "stderr": "timing\tparse_ns\t132583\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/app/src/main.rs",
+    "run": 2,
+    "wallMs": 3.941083,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t144\t\nsymbol\tfn\tmain\t146\t442\t\n",
+    "stderr": "timing\tparse_ns\t150834\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/app/src/main.rs",
+    "run": 3,
+    "wallMs": 3.62675,
+    "exitCode": 0,
+    "stdout": "summary\titems\t2\tmethods\t0\nsymbol\tuse\t_\t0\t144\t\nsymbol\tfn\tmain\t146\t442\t\n",
+    "stderr": "timing\tparse_ns\t125500\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+    "run": 1,
+    "wallMs": 6.835792,
+    "exitCode": 0,
+    "stdout": "summary\titems\t22\tmethods\t32\nsymbol\tuse\t_\t1199\t1231\t\nsymbol\tuse\t_\t1232\t1262\t\nsymbol\tuse\t_\t1263\t1285\t\nsymbol\tenum\tError\t1288\t1897\tdoc= A list of possible errors.,derive\nsymbol\timpl\t_\t1899\t3001\t\nsymbol\timpl\t_\t3003\t3038\t\nsymbol\tenum\tPairKind\t3041\t3201\tderive\nsymbol\tstruct\tArguments\t3204\t3289\tdoc= An arguments parser.,derive\nsymbol\timpl\t_\t3291\t23117\t\nsymbol\tfn\terror_to_string\t23242\t23327\tinline\nsymbol\tfn\tstarts_with_plus_eq\t23329\t23663\tcfg,inline\nsymbol\tfn\tstarts_with_short_prefix\t23665\t24017\tcfg,inline\nsymbol\tfn\tindex_predicate\t24019\t24234\tcfg,inline\nsymbol\tfn\tindex_predicate\t24235\t24413\tcfg,inline\nsymbol\tfn\tindex_predicate\t24414\t24597\tcfg,inline\nsymbol\tfn\tends_with\t24599\t24822\tcfg,inline\nsymbol\tfn\tos_to_str\t24824\t24943\tinline\nsymbol\tstruct\tKeys\t24946\t25085\tdoc= A keys container.,doc=,doc= Should not be used directly.,doc,derive\nsymbol\timpl\t_\t25087\t25254\t\nsymbol\timpl\t_\t25256\t25699\t\nsymbol\tfn\tvalidate_shortflag\t25701\t25994\t\nsymbol\timpl\t_\t25996\t26272\t\n",
+    "stderr": "timing\tparse_ns\t2187417\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+    "run": 2,
+    "wallMs": 6.890667,
+    "exitCode": 0,
+    "stdout": "summary\titems\t22\tmethods\t32\nsymbol\tuse\t_\t1199\t1231\t\nsymbol\tuse\t_\t1232\t1262\t\nsymbol\tuse\t_\t1263\t1285\t\nsymbol\tenum\tError\t1288\t1897\tdoc= A list of possible errors.,derive\nsymbol\timpl\t_\t1899\t3001\t\nsymbol\timpl\t_\t3003\t3038\t\nsymbol\tenum\tPairKind\t3041\t3201\tderive\nsymbol\tstruct\tArguments\t3204\t3289\tdoc= An arguments parser.,derive\nsymbol\timpl\t_\t3291\t23117\t\nsymbol\tfn\terror_to_string\t23242\t23327\tinline\nsymbol\tfn\tstarts_with_plus_eq\t23329\t23663\tcfg,inline\nsymbol\tfn\tstarts_with_short_prefix\t23665\t24017\tcfg,inline\nsymbol\tfn\tindex_predicate\t24019\t24234\tcfg,inline\nsymbol\tfn\tindex_predicate\t24235\t24413\tcfg,inline\nsymbol\tfn\tindex_predicate\t24414\t24597\tcfg,inline\nsymbol\tfn\tends_with\t24599\t24822\tcfg,inline\nsymbol\tfn\tos_to_str\t24824\t24943\tinline\nsymbol\tstruct\tKeys\t24946\t25085\tdoc= A keys container.,doc=,doc= Should not be used directly.,doc,derive\nsymbol\timpl\t_\t25087\t25254\t\nsymbol\timpl\t_\t25256\t25699\t\nsymbol\tfn\tvalidate_shortflag\t25701\t25994\t\nsymbol\timpl\t_\t25996\t26272\t\n",
+    "stderr": "timing\tparse_ns\t2140458\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/corpus/pico-args-0.5.0/src/lib.rs",
+    "run": 3,
+    "wallMs": 6.612709,
+    "exitCode": 0,
+    "stdout": "summary\titems\t22\tmethods\t32\nsymbol\tuse\t_\t1199\t1231\t\nsymbol\tuse\t_\t1232\t1262\t\nsymbol\tuse\t_\t1263\t1285\t\nsymbol\tenum\tError\t1288\t1897\tdoc= A list of possible errors.,derive\nsymbol\timpl\t_\t1899\t3001\t\nsymbol\timpl\t_\t3003\t3038\t\nsymbol\tenum\tPairKind\t3041\t3201\tderive\nsymbol\tstruct\tArguments\t3204\t3289\tdoc= An arguments parser.,derive\nsymbol\timpl\t_\t3291\t23117\t\nsymbol\tfn\terror_to_string\t23242\t23327\tinline\nsymbol\tfn\tstarts_with_plus_eq\t23329\t23663\tcfg,inline\nsymbol\tfn\tstarts_with_short_prefix\t23665\t24017\tcfg,inline\nsymbol\tfn\tindex_predicate\t24019\t24234\tcfg,inline\nsymbol\tfn\tindex_predicate\t24235\t24413\tcfg,inline\nsymbol\tfn\tindex_predicate\t24414\t24597\tcfg,inline\nsymbol\tfn\tends_with\t24599\t24822\tcfg,inline\nsymbol\tfn\tos_to_str\t24824\t24943\tinline\nsymbol\tstruct\tKeys\t24946\t25085\tdoc= A keys container.,doc=,doc= Should not be used directly.,doc,derive\nsymbol\timpl\t_\t25087\t25254\t\nsymbol\timpl\t_\t25256\t25699\t\nsymbol\tfn\tvalidate_shortflag\t25701\t25994\t\nsymbol\timpl\t_\t25996\t26272\t\n",
+    "stderr": "timing\tparse_ns\t2119291\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/malformed.rs",
+    "run": 1,
+    "wallMs": 4.147875,
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "parse: cannot parse string into token stream\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/malformed.rs",
+    "run": 2,
+    "wallMs": 3.855916,
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "parse: cannot parse string into token stream\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/malformed.rs",
+    "run": 3,
+    "wallMs": 3.495291,
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "parse: cannot parse string into token stream\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/unresolved.rs",
+    "run": 1,
+    "wallMs": 4.004667,
+    "exitCode": 0,
+    "stdout": "summary\titems\t1\tmethods\t0\nsymbol\tfn\tunresolved\t0\t71\t\n",
+    "stderr": "timing\tparse_ns\t72833\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/unresolved.rs",
+    "run": 2,
+    "wallMs": 3.717042,
+    "exitCode": 0,
+    "stdout": "summary\titems\t1\tmethods\t0\nsymbol\tfn\tunresolved\t0\t71\t\n",
+    "stderr": "timing\tparse_ns\t60750\n"
+  },
+  {
+    "file": "docs/research/rust-indexing/fixture/negative/unresolved.rs",
+    "run": 3,
+    "wallMs": 3.388542,
+    "exitCode": 0,
+    "stdout": "summary\titems\t1\tmethods\t0\nsymbol\tfn\tunresolved\t0\t71\t\n",
+    "stderr": "timing\tparse_ns\t61916\n"
+  }
+]

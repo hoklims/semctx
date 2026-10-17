@@ -1,0 +1,113 @@
+{
+  "engine": "T",
+  "workspace": "fixture",
+  "sample": 3,
+  "sources": {
+    "app/src/main.rs": {
+      "beforeSha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "afterSha256": "ba52e98eb28f335508f92ec6535246ef1adcc17af4138f2d7c9c18fc14eefb28"
+    },
+    "domain/src/lib.rs": {
+      "beforeSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "afterSha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    "domain/src/model.rs": {
+      "beforeSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "afterSha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    "domain/src/operations.rs": {
+      "beforeSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "afterSha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    "domain/tests/dispatch.rs": {
+      "beforeSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "afterSha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    }
+  },
+  "appendSha256": "146c77e3af91e815152fe8009b178feda371e9003750799d51aba74ae681929c",
+  "commands": [
+    {
+      "prefix": "command-0048",
+      "exitCode": 0,
+      "elapsedMs": 110.02029999508522,
+      "stdoutSha256": "d6620c3606486fd2c51e14ef8dde46dee85dfc253af990adb4cbfa78160d3179",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argvSha256": "85940d2b1a5d1aecf1b2bd2ef0b20666366396430391a66015863eada13cc2d7",
+      "directChildPeakRss": {
+        "peakRssBytes": 75853824,
+        "scope": "direct process peak working set"
+      },
+      "rssLimit": "PSAPI direct-process peak only; descendants are not aggregated."
+    }
+  ],
+  "workspaceInputs": [
+    {
+      "path": "app/Cargo.toml.snapshot",
+      "capturePath": "app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4"
+    },
+    {
+      "path": "app/src/main.rs",
+      "capturePath": "app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb"
+    },
+    {
+      "path": "Cargo.lock",
+      "capturePath": "Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d"
+    },
+    {
+      "path": "Cargo.toml.snapshot",
+      "capturePath": "Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8"
+    },
+    {
+      "path": "domain/Cargo.toml.snapshot",
+      "capturePath": "domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07"
+    },
+    {
+      "path": "domain/src/lib.rs",
+      "capturePath": "domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134"
+    },
+    {
+      "path": "domain/src/model.rs",
+      "capturePath": "domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057"
+    },
+    {
+      "path": "domain/src/operations.rs",
+      "capturePath": "domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f"
+    },
+    {
+      "path": "domain/tests/dispatch.rs",
+      "capturePath": "domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb"
+    },
+    {
+      "path": "negative/malformed.rs",
+      "capturePath": "negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8"
+    },
+    {
+      "path": "negative/manifest/Cargo.toml.snapshot",
+      "capturePath": "negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a"
+    },
+    {
+      "path": "negative/unresolved.rs",
+      "capturePath": "negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9"
+    }
+  ],
+  "adapterInput": {
+    "path": "T-fixture-3/adapter.json",
+    "sha256": "cee3b92d5de5c74a0b9f116e67d6f795fe8e36cb8ab5b92ab3a9928371dddb19"
+  },
+  "nativeTimingsMs": {
+    "coldParse": 3.7550000000000026,
+    "incrementalParse": 0.296599999999998
+  }
+}

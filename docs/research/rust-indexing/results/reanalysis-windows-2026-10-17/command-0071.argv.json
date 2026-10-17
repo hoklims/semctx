@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "C:/Python314/python.exe",
+    "E:\\CodexScratch\\semctx-review-378-382\\scripts\\rust-indexing-lsp.py",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-tools\\rust-analyzer.exe",
+    "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\L-pico-3\\workspace",
+    "src/lib.rs",
+    "--timeout",
+    "458.9467702000111",
+    "--append-text",
+    "\npub fn semctx_reindex_probe() -> usize { 17 }\n",
+    "--expect-added-symbol",
+    "semctx_reindex_probe",
+    "--line",
+    "124",
+    "--character",
+    "14",
+    "--definition-line",
+    "125",
+    "--definition-character",
+    "14"
+  ],
+  "cwd": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-measurements-1f08463\\L-pico-3\\workspace"
+}

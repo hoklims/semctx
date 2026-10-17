@@ -1,0 +1,31 @@
+{
+  "explicit_profile": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "RUSTUP_HOME": "C:/Users/Hokli/scoop/persist/rustup-gnu/.rustup",
+    "CARGO_HOME": "C:/Users/Hokli/scoop/persist/rustup-gnu/.cargo",
+    "CARGO_NET_OFFLINE": "true",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_TARGET_DIR": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-15\\j-ai-un-gros-souci-au\\work\\review378-382\\reindex382-build\\target"
+  },
+  "environment_keys_only": [
+    "APPDATA",
+    "CARGO_HOME",
+    "CARGO_NET_OFFLINE",
+    "CARGO_TARGET_DIR",
+    "COMSPEC",
+    "LOCALAPPDATA",
+    "PATH",
+    "PATHEXT",
+    "RUSTUP_AUTO_INSTALL",
+    "RUSTUP_HOME",
+    "RUSTUP_TOOLCHAIN",
+    "SYSTEMROOT",
+    "TEMP",
+    "TMP",
+    "USERPROFILE",
+    "WINDIR"
+  ],
+  "path_prepend": "C:\\Users\\Hokli\\scoop\\apps\\rustup-gnu\\current\\.cargo\\bin",
+  "gcc_path": "C:\\Users\\Hokli\\scoop\\apps\\mingw\\current\\bin\\gcc.EXE",
+  "gcc_sha256": "b679be675c6dcddee63cf973f8bcbde303a421b531d88688ae962715eb01e650"
+}

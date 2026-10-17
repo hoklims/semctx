@@ -1,0 +1,1042 @@
+{
+  "kind": "DETERMINISTIC_LOSSLESS_STORAGE_NOT_NEW_MEASUREMENT",
+  "measuredHead": "1f08463191369097fe15dda1721324a4c7ab4215",
+  "archive": {
+    "path": "captured-inputs.zip",
+    "bytes": 439498,
+    "sha256": "75b494bd832d4076b5f1201657039724d943f2877b41ddf35714b001bbd00656",
+    "uncompressedBytes": 408132,
+    "format": "ZIP_STORED",
+    "memberOrder": "lexicographic",
+    "fixedDateTime": [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "members": [
+    {
+      "path": "L-fixture-1/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "L-fixture-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "L-fixture-1/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "L-fixture-1/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "L-fixture-1/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "L-fixture-1/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "L-fixture-1/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "L-fixture-1/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "L-fixture-1/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "L-fixture-1/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "L-fixture-1/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "L-fixture-1/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "L-fixture-2/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "L-fixture-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "L-fixture-2/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "L-fixture-2/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "L-fixture-2/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "L-fixture-2/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "L-fixture-2/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "L-fixture-2/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "L-fixture-2/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "L-fixture-2/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "L-fixture-2/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "L-fixture-2/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "L-fixture-3/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "L-fixture-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "L-fixture-3/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "L-fixture-3/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "L-fixture-3/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "L-fixture-3/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "L-fixture-3/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "L-fixture-3/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "L-fixture-3/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "L-fixture-3/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "L-fixture-3/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "L-fixture-3/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "L-pico-1/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "L-pico-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "L-pico-1/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "L-pico-1/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "L-pico-1/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "L-pico-2/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "L-pico-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "L-pico-2/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "L-pico-2/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "L-pico-2/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "L-pico-3/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "L-pico-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "L-pico-3/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "L-pico-3/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "L-pico-3/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "S-fixture-1/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "S-fixture-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "S-fixture-1/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "S-fixture-1/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "S-fixture-1/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "S-fixture-1/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "S-fixture-1/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "S-fixture-1/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "S-fixture-1/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "S-fixture-1/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "S-fixture-1/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "S-fixture-1/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "S-fixture-2/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "S-fixture-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "S-fixture-2/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "S-fixture-2/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "S-fixture-2/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "S-fixture-2/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "S-fixture-2/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "S-fixture-2/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "S-fixture-2/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "S-fixture-2/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "S-fixture-2/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "S-fixture-2/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "S-fixture-3/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "S-fixture-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "S-fixture-3/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "S-fixture-3/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "S-fixture-3/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "S-fixture-3/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "S-fixture-3/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "S-fixture-3/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "S-fixture-3/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "S-fixture-3/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "S-fixture-3/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "S-fixture-3/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "S-pico-1/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "S-pico-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "S-pico-1/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "S-pico-1/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "S-pico-1/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "S-pico-2/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "S-pico-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "S-pico-2/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "S-pico-2/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "S-pico-2/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "S-pico-3/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "S-pico-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "S-pico-3/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "S-pico-3/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "S-pico-3/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "T-fixture-1/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "T-fixture-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "T-fixture-1/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "T-fixture-1/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "T-fixture-1/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "T-fixture-1/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "T-fixture-1/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "T-fixture-1/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "T-fixture-1/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "T-fixture-1/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "T-fixture-1/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "T-fixture-1/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "T-fixture-2/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "T-fixture-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "T-fixture-2/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "T-fixture-2/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "T-fixture-2/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "T-fixture-2/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "T-fixture-2/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "T-fixture-2/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "T-fixture-2/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "T-fixture-2/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "T-fixture-2/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "T-fixture-2/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "T-fixture-3/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "T-fixture-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "T-fixture-3/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "T-fixture-3/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "T-fixture-3/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "T-fixture-3/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "T-fixture-3/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "T-fixture-3/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "T-fixture-3/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "T-fixture-3/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "T-fixture-3/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "T-fixture-3/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "T-pico-1/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "T-pico-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "T-pico-1/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "T-pico-1/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "T-pico-1/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "T-pico-2/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "T-pico-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "T-pico-2/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "T-pico-2/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "T-pico-2/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "T-pico-3/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "T-pico-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "T-pico-3/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "T-pico-3/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "T-pico-3/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "Y-fixture-1/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "Y-fixture-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "Y-fixture-1/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "Y-fixture-1/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "Y-fixture-1/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "Y-fixture-1/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "Y-fixture-1/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "Y-fixture-1/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "Y-fixture-1/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "Y-fixture-1/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "Y-fixture-1/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "Y-fixture-1/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "Y-fixture-2/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "Y-fixture-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "Y-fixture-2/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "Y-fixture-2/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "Y-fixture-2/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "Y-fixture-2/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "Y-fixture-2/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "Y-fixture-2/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "Y-fixture-2/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "Y-fixture-2/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "Y-fixture-2/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "Y-fixture-2/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "Y-fixture-3/inputs/Cargo.lock",
+      "sha256": "f68ab943af827a5606818084d9147afcfba7346cc7270ae04206adbc3cf17a9d",
+      "bytes": 251
+    },
+    {
+      "path": "Y-fixture-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "412308df23dca3ffac79c996505736c4d607ca97c541d940fde214867911f9d8",
+      "bytes": 55
+    },
+    {
+      "path": "Y-fixture-3/inputs/app/Cargo.toml.snapshot.capture",
+      "sha256": "2bb9bdb5da215e90c7e3d5bb150ef0ee1af79c4db33c9364f35f0cd6212917f4",
+      "bytes": 160
+    },
+    {
+      "path": "Y-fixture-3/inputs/app/src/main.rs",
+      "sha256": "db9435459938de87bf9941f39d460de5e444a6a2a12a1bc9faac667f0949ddbb",
+      "bytes": 443
+    },
+    {
+      "path": "Y-fixture-3/inputs/domain/Cargo.toml.snapshot.capture",
+      "sha256": "d3f47462193d8ec9d4c8c24fa7ad9eafbd15206e4a5ae689604226f2a2660f07",
+      "bytes": 109
+    },
+    {
+      "path": "Y-fixture-3/inputs/domain/src/lib.rs",
+      "sha256": "937074afb5130e14b5d686fb32115badc2b023b12a06ac4d2f06919df8149134",
+      "bytes": 615
+    },
+    {
+      "path": "Y-fixture-3/inputs/domain/src/model.rs",
+      "sha256": "8db9cea188e636358b715244d362194661c71380c9c7c5256a94104413615057",
+      "bytes": 308
+    },
+    {
+      "path": "Y-fixture-3/inputs/domain/src/operations.rs",
+      "sha256": "051c595425b6c94d6d4b91cc85d3e27b93c7b5411ba20f573a3e202fdbc4630f",
+      "bytes": 517
+    },
+    {
+      "path": "Y-fixture-3/inputs/domain/tests/dispatch.rs",
+      "sha256": "5aaf57c9cae7ee14ddad2d9eb11e49ddeed9ff4bac8193b2bef96c0b6c243ddb",
+      "bytes": 582
+    },
+    {
+      "path": "Y-fixture-3/inputs/negative/malformed.rs",
+      "sha256": "bbfe721f470ffee879d4d32da4b3aa9ffaf1cfa24820b8c542880bce211f1ea8",
+      "bytes": 17
+    },
+    {
+      "path": "Y-fixture-3/inputs/negative/manifest/Cargo.toml.snapshot.capture",
+      "sha256": "4789b1eae51058b0b784c5ab3cc3f7b07feae3c2c23b72a8be87ab8a43d65a8a",
+      "bytes": 45
+    },
+    {
+      "path": "Y-fixture-3/inputs/negative/unresolved.rs",
+      "sha256": "3812a992abf77c5221650532c1ceb3262a7306a399a0199b8fe1cc9047eeb0e9",
+      "bytes": 72
+    },
+    {
+      "path": "Y-pico-1/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "Y-pico-1/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "Y-pico-1/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "Y-pico-1/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "Y-pico-1/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "Y-pico-2/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "Y-pico-2/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "Y-pico-2/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "Y-pico-2/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "Y-pico-2/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    },
+    {
+      "path": "Y-pico-3/inputs/Cargo.lock",
+      "sha256": "75cd0f239642eff79c97ba50539842ff886dc5c19ff0998a42f55e83b4d6ee4f",
+      "bytes": 153
+    },
+    {
+      "path": "Y-pico-3/inputs/Cargo.toml.snapshot.capture",
+      "sha256": "1a8913f660858e58d226ae45c7ca24913137e2777219eca5f59cbac591af87bc",
+      "bytes": 447
+    },
+    {
+      "path": "Y-pico-3/inputs/LICENSE",
+      "sha256": "be8e392dd41994a6df38da0dd0e61a131d30179ce3e4c287f49311e6b8f6b2b8",
+      "bytes": 1060
+    },
+    {
+      "path": "Y-pico-3/inputs/README.md",
+      "sha256": "003d937d623b9556736f046059e44530aabf954d725e6fb35e48da3b19af91cc",
+      "bytes": 2904
+    },
+    {
+      "path": "Y-pico-3/inputs/src/lib.rs",
+      "sha256": "a3bec80854f4b259944720f3d984de4da19b230e24010e1fac374f6f32cc6865",
+      "bytes": 26273
+    }
+  ]
+}
