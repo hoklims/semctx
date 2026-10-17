@@ -14,6 +14,13 @@ const RangeSchema = z.object({ start: PositionSchema, end: PositionSchema });
 const LocationSchema = z.object({ uri: z.string(), range: RangeSchema });
 const LocationLinkSchema = z.object({ targetUri: z.string(), targetRange: RangeSchema, targetSelectionRange: RangeSchema });
 const DefinitionSchema = z.union([z.null(), LocationSchema, z.array(LocationSchema), z.array(LocationLinkSchema)]);
+const InitializeResponseSchema = z.object({
+  capabilities: z.object({ positionEncoding: z.literal("utf-16") }),
+  serverInfo: z.object({ version: z.enum([
+    "0.3.3081-standalone",
+    "0.3.3081-standalone (2ad81e72b7 2026-10-11)",
+  ]) }),
+});
 const MetadataSchema = z.object({ packages: z.array(z.object({
   manifest_path: z.string(), edition: z.enum(["2018", "2021", "2024"]),
   targets: z.array(z.object({ src_path: z.string() })),
@@ -21,6 +28,10 @@ const MetadataSchema = z.object({ packages: z.array(z.object({
 })), workspace_members: z.array(z.string()) });
 
 function digest(bytes: string | Uint8Array): string { return `sha256:${createHash("sha256").update(bytes).digest("hex")}`; }
+
+export function parseRustAnalyzerInitializeResponse(value: unknown): void {
+  InitializeResponseSchema.parse(value);
+}
 
 function directoryDigest(directory: string): string {
   const entries: [string, string][] = [];
@@ -125,14 +136,13 @@ export async function resolveRustNavigation(input: {
     const sysrootSource = join(directory, "sysroot-source");
     cpSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"), sysrootSource, { recursive: true });
     client = new RustLspClient([config.rustAnalyzerPath], { cwd: root, budgetMs: config.budgetMs, env: environment });
-    const initialized = z.object({ capabilities: z.object({ positionEncoding: z.literal("utf-16") }), serverInfo: z.object({ version: z.literal("0.3.3081-standalone (2ad81e72b7 2026-10-11)") }) }).parse(await client.request("initialize", {
+    parseRustAnalyzerInitializeResponse(await client.request("initialize", {
       processId: null, rootUri: pathToFileURL(root).href,
       capabilities: { experimental: { serverStatusNotification: true }, general: { positionEncodings: ["utf-16"] } },
       initializationOptions: { linkedProjects: roots.map((manifest) => join(root, manifest.relPath)),
         cargo: { buildScripts: { enable: false }, sysroot: config.toolchainRoot, sysrootSrc: sysrootSource, target: config.target, features: config.features },
         cfg: { setTest: true }, procMacro: { enable: false }, checkOnSave: false },
     }));
-    if (initialized.capabilities.positionEncoding !== "utf-16") throw new Error("RUST_POSITION_ENCODING_UNSUPPORTED");
     client.notify("initialized", {});
     await client.waitUntilReady();
     for (const file of input.files) client.notify("textDocument/didOpen", { textDocument: { uri: pathToFileURL(join(root, file.relPath)).href, languageId: "rust", version: 1, text: file.source } });
