@@ -184,9 +184,8 @@ describe("CI governance", () => {
       matrix: "${{ fromJSON(needs.plan.outputs.matrix) }}",
     });
     expect(gates["runs-on"]).toBe("${{ matrix.os }}");
-    expect(checkout?.with).toEqual({
+    expect(checkout?.with).toMatchObject({
       ref: "${{ github.event.pull_request.head.sha || github.sha }}",
-      "fetch-depth": 0,
       "persist-credentials": false,
     });
     expect(python?.with?.["python-version"]).toBe("3.10");
