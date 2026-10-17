@@ -20,9 +20,14 @@ const generatorEntrypoint = resolve(repoRoot, "scripts/build-plugin-runtime.ts")
 const committedDist = resolve(repoRoot, "plugins/claude-code/dist");
 const pluginRuntimeArtifactPaths = [
   "semctx-index-worker.js",
+  "semctx-rust-worker.js",
   "semctx-mcp.js",
   "semctx-shared.js",
   "semctx.js",
+  "rust-parser/web-tree-sitter.wasm",
+  "rust-parser/tree-sitter-rust.wasm",
+  "rust-parser/LICENSE-web-tree-sitter",
+  "rust-parser/LICENSE-tree-sitter-rust",
 ] as const;
 const pluginRuntimeCoreArtifactPaths = ["semctx-mcp.js", "semctx-shared.js", "semctx.js"] as const;
 const portableTypeScriptPrelude =
@@ -99,7 +104,6 @@ describe("split plugin runtime build", () => {
     expect(paths).toContain("semctx-mcp.js");
     expect(paths).toContain("semctx.js");
     expect(paths).toContain("semctx-index-worker.js");
-    expect(paths).toHaveLength(4);
     chunkPath(paths);
   }, 30_000);
 
@@ -109,6 +113,7 @@ describe("split plugin runtime build", () => {
     const sharedChunk = chunkPath(paths);
 
     for (const [relativePath, bytes] of built) {
+      if (!relativePath.endsWith(".js")) continue;
       const body = new TextDecoder().decode(bytes);
       expect(body).not.toContain(JSON.stringify(repoRoot).slice(1, -1));
       expect(body).not.toMatch(/typescript@[^"']+node_modules[^"']+typescript[^"']+lib/);
@@ -258,3 +263,14 @@ describe("exact plugin runtime artifact set", () => {
     expect(() => assertPluginRuntimeArtifactsExact(dist, built)).toThrow(/artifact set/);
   }, 30_000);
 });
+
+  test("rejects a missing Rust grammar and a changed Rust worker", async () => {
+    const built = await artifacts();
+    const dist = materialize(built);
+    const grammar = resolve(dist, "rust-parser/tree-sitter-rust.wasm");
+    rmSync(grammar);
+    expect(() => assertPluginRuntimeArtifactsExact(dist, built)).toThrow(/artifact set/);
+    writeFileSync(grammar, built.get("rust-parser/tree-sitter-rust.wasm")!);
+    writeFileSync(resolve(dist, "semctx-rust-worker.js"), "changed");
+    expect(() => assertPluginRuntimeArtifactsExact(dist, built)).toThrow(/stale generated plugin artifact/);
+  });

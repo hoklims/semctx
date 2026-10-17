@@ -14,6 +14,21 @@ import {
 } from "@semantic-context/ts-analyzer";
 
 const roots: string[] = [];
+it("selects Rust only through explicit v2 activation and keeps file roles and exclusions", () => {
+  const root = fixture();
+  writeFileSync(join(root, "src/lib.rs"), "#[cfg(test)] mod unit {}\n");
+  mkdirSync(join(root, "tests"));
+  writeFileSync(join(root, "tests/booking.rs"), "#[test] fn booking() {}\n");
+  writeFileSync(join(root, "src/ignored.rs"), "fn ignored() {}\n");
+  const config = globConfig(root, { include: ["**/*.rs"], exclude: ["**/ignored.rs"], languages: { rust: "on" } });
+  expect(discoverRepository(config).files.map(({ relPath, role, language }) => ({ relPath, role, language }))).toEqual([
+    { relPath: "src/lib.rs", role: "source", language: "rust" },
+    { relPath: "tests/booking.rs", role: "test", language: "rust" },
+  ]);
+  expect(discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", languages: { rust: "off" } }).candidates.find((file) => file.relPath === "src/lib.rs")?.analysisOutcome).toBe("disabled");
+  expect(discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", languages: {} }).candidates.find((file) => file.relPath === "src/lib.rs")?.analysisOutcome).toBe("unsupported");
+  expect(discoverRepository({ ...createDefaultConfig(root), include: ["**/*.rs"] }).files.some((file) => file.relPath.endsWith(".rs"))).toBe(false);
+});
 const itOnPosix = process.platform === "win32" ? it.skip : it;
 
 function fixture(): string {

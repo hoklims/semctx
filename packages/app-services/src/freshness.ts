@@ -1,3 +1,5 @@
+import { captureRustInputs } from "./rust-inputs";
+import { rustToolchainIdentity } from "@semantic-context/rust-analyzer";
 import { spawnGitSync } from "./git-process";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from "node:fs";
@@ -282,8 +284,17 @@ export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly 
     if (isAbsolute(relPath) || relPath === ".." || relPath.startsWith("../")) return [];
     return [{ path: relPath, contentHash: content === undefined ? null : hash("analysis-input-content", canonicalSourceText(content)) }];
   }).sort((a, b) => compareIds(a.path, b.path));
+  const rustInputs = config.version === 2 && config.languages.rust === "on" ? captureRustInputs(config) : undefined;
+  let rustToolchain: string | undefined;
+  if (config.version === 2 && config.languages.rust === "on" && config.rust !== undefined) {
+    try { rustToolchain = rustToolchainIdentity(config.rust); }
+    catch (error) { rustToolchain = error instanceof Error && /^RUST_[A-Z_]+$/.test(error.message)
+      ? error.message : "RUST_TOOLCHAIN_UNAVAILABLE"; }
+  }
   const manifest = {
     config,
+    ...(rustInputs === undefined ? {} : { rustInputs }),
+    ...(rustToolchain === undefined ? {} : { rustToolchain }),
     ...(configurationInputs.length === 0 ? {} : { configurationInputs }),
     ...(configurationDiagnostics.length === 0 ? {} : {
       configurationDiagnostics: configurationDiagnostics.sort((a, b) => compareIds(a.path, b.path)),
@@ -292,7 +303,7 @@ export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly 
       .map((file) => ({
         path: file.relPath.replace(/\\/g, "/"),
         role: file.role,
-        contentHash: hash("analysis-input-content", canonicalSourceText(file.content)),
+        contentHash: hash("analysis-input-content", file.relPath.endsWith(".rs") ? file.content : canonicalSourceText(file.content)),
       }))
       .sort((a, b) => compareIds(a.path, b.path)),
   };

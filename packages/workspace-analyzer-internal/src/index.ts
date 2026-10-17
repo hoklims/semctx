@@ -65,6 +65,7 @@ export interface WorkspaceProjection {
 }
 
 export interface AnalyzeWorkspaceInput {
+  readonly cargo?: boolean;
   readonly repositoryRoot: string;
   readonly repositoryId?: string;
   readonly artifacts?: readonly WorkspaceArtifact[];
@@ -94,7 +95,7 @@ interface DirectoryRecord {
 interface ManifestRecord {
   readonly root: string;
   readonly path: string;
-  readonly kind: "package-json" | "pyproject";
+  readonly kind: "package-json" | "pyproject" | "cargo";
   readonly identity?: string;
   readonly members: readonly string[];
   readonly memberField: string;
@@ -119,7 +120,7 @@ export async function analyzeWorkspace(input: AnalyzeWorkspaceInput): Promise<Wo
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    await inspectRepository(repositoryRoot, diagnostics, input.manifestContents, input.excludePath);
+    await inspectRepository(repositoryRoot, diagnostics, input.manifestContents, input.excludePath, input.cargo);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -191,7 +192,7 @@ export function analyzeWorkspaceSync(input: AnalyzeWorkspaceInput): WorkspacePro
   }
 
   const { directories, layoutCandidates, manifests, malformedRoots } =
-    inspectRepositorySync(repositoryRoot, diagnostics, input.manifestContents, input.excludePath);
+    inspectRepositorySync(repositoryRoot, diagnostics, input.manifestContents, input.excludePath, input.cargo);
   const candidates: WorkspaceCandidate[] = [];
   const identitiesByRoot = new Map<string, string[]>();
 
@@ -423,6 +424,7 @@ async function inspectRepository(
   diagnostics: WorkspaceDiagnostic[],
   manifestContents?: ReadonlyMap<string, string>,
   excludePath?: (relativePath: string, kind?: "file" | "directory") => boolean,
+  cargo = false,
 ): Promise<{
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -465,7 +467,7 @@ async function inspectRepository(
     const absolute = directory.root === ROOT
       ? repositoryRoot
       : resolve(repositoryRoot, ...directory.root.split("/"));
-    for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
+    for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST, ...(cargo ? ["Cargo.toml"] : [])]) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
       if (excludePath?.(manifestPath, "file") === true) continue;
       const manifestAbsolute = resolve(absolute, manifestName);
@@ -495,6 +497,7 @@ async function inspectRepository(
       try {
         manifests.push(manifestName === PACKAGE_MANIFEST
           ? parsePackageManifest(directory.root, manifestPath, source)
+          : manifestName === "Cargo.toml" ? parseCargoManifest(directory.root, manifestPath, source)
           : parsePyproject(directory.root, manifestPath, source));
       } catch {
         malformedRoots.add(directory.root);
@@ -516,6 +519,7 @@ function inspectRepositorySync(
   diagnostics: WorkspaceDiagnostic[],
   manifestContents?: ReadonlyMap<string, string>,
   excludePath?: (relativePath: string, kind?: "file" | "directory") => boolean,
+  cargo = false,
 ): {
   directories: readonly DirectoryRecord[];
   layoutCandidates: readonly WorkspaceLayoutCandidate[];
@@ -558,7 +562,7 @@ function inspectRepositorySync(
     const absolute = directory.root === ROOT
       ? repositoryRoot
       : resolve(repositoryRoot, ...directory.root.split("/"));
-    for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST] as const) {
+    for (const manifestName of [PACKAGE_MANIFEST, PYTHON_MANIFEST, ...(cargo ? ["Cargo.toml"] : [])]) {
       const manifestPath = directory.root === ROOT ? manifestName : `${directory.root}/${manifestName}`;
       if (excludePath?.(manifestPath, "file") === true) continue;
       const manifestAbsolute = resolve(absolute, manifestName);
@@ -588,6 +592,7 @@ function inspectRepositorySync(
       try {
         manifests.push(manifestName === PACKAGE_MANIFEST
           ? parsePackageManifest(directory.root, manifestPath, source)
+          : manifestName === "Cargo.toml" ? parseCargoManifest(directory.root, manifestPath, source)
           : parsePyproject(directory.root, manifestPath, source));
       } catch {
         malformedRoots.add(directory.root);
@@ -613,13 +618,13 @@ function intrinsicManifestCandidate(manifest: ManifestRecord): WorkspaceCandidat
     identity: manifest.identity,
     evidence: [{
       manifestPath: manifest.path,
-      field: manifest.kind === "pyproject" ? "project.name" : "name",
+      field: manifest.kind === "pyproject" ? "project.name" : manifest.kind === "cargo" ? "package.name" : "name",
       value: manifest.identity,
     }],
   };
 }
 
-const DECLARATION_FIELD = /^(?:workspaces|workspaces\.packages|tool\.uv\.workspace\.members)\[\d+\]$/;
+const DECLARATION_FIELD = /^(?:workspaces|workspaces\.packages|workspace\.members|tool\.uv\.workspace\.members)\[\d+\]$/;
 
 /** Whether a manifest's workspace member list declares this root, not only its own manifest name. */
 function isDeclaredMember(candidate: WorkspaceCandidate): boolean {
@@ -678,6 +683,23 @@ function parsePackageManifest(root: string, path: string, source: string): Manif
     members,
     memberField: isRecord(rawWorkspaces) ? "workspaces.packages" : "workspaces",
   };
+}
+
+function parseCargoManifest(root: string, path: string, source: string): ManifestRecord {
+  const parsed = Bun.TOML.parse(source);
+  if (!isRecord(parsed)) throw new Error("Invalid Cargo manifest");
+  const workspace = parsed.workspace;
+  const crate = parsed.package;
+  if (workspace !== undefined && !isRecord(workspace)) throw new Error("Invalid Cargo workspace");
+  if (crate !== undefined && !isRecord(crate)) throw new Error("Invalid Cargo package");
+  if (workspace === undefined && crate === undefined) throw new Error("Missing Cargo package or workspace");
+  const identity = readOptionalIdentity(isRecord(crate) ? crate.name : undefined);
+  if (crate !== undefined && identity === undefined) throw new Error("Missing Cargo package name");
+  const members = isRecord(workspace) ? workspace.members ?? [] : [];
+  if (!Array.isArray(members) || !members.every((member) => typeof member === "string")) {
+    throw new Error("Cargo workspace members must contain strings");
+  }
+  return { root, path, kind: "cargo", identity, members, memberField: "workspace.members" };
 }
 
 function parsePyproject(root: string, path: string, source: string): ManifestRecord {

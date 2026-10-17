@@ -46,6 +46,12 @@ const PYTHON_FACT_KINDS = [
   "related_to",
 ] as const;
 
+const RUST_FACT_KINDS = [
+  "module", "test", "function", "type", "enum", "symbol", "capability", "invariant", "contract",
+  "risk", "bounded_context", "belongs_to", "declares", "implements_capability", "constrained_by", "related_to",
+  "imports", "references", "calls", "tested_by", "covers",
+] as const;
+
 const MARKDOWN_FACT_KINDS = [
   "document",
   "capability",
@@ -73,6 +79,9 @@ interface AuthorityRegistration {
 }
 
 const AUTHORITY_REGISTRATIONS: readonly AuthorityRegistration[] = [
+  ...(["2018", "2021", "2024"] as const).map((edition) => ({
+    configVersions: [2] as const, language: "rust", dialectVersion: edition, factKinds: RUST_FACT_KINDS,
+  })),
   {
     configVersions: [1, 2],
     language: "typescript",

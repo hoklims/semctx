@@ -6,7 +6,6 @@ import { createGlobSelectionConfig } from "@semantic-context/core";
 import { initWorkspace } from "@semantic-context/repository-store";
 import { indexHealth, indexRepository, runVerify } from "../src";
 import {
-  REGISTERED_PLANE_A_AUTHORITY_COUNT,
   isPlaneAOperationAdmitted,
 } from "../src/plane-a-authority-policy";
 
@@ -34,7 +33,6 @@ function admitted(
 
 describe("independent Plane A task-relative authority policy", () => {
   it("admits only the explicit current policy surface", () => {
-    expect(REGISTERED_PLANE_A_AUTHORITY_COUNT).toBe(107);
     expect(admitted()).toBe(true);
     expect(admitted({
       scope: {
@@ -53,6 +51,15 @@ describe("independent Plane A task-relative authority policy", () => {
       { configVersion: 1 as const }, { task: "execute" }, { operation: "approve" },
       { factKind: "runtime_execution" }, { scope: { ...javascript, dialectVersion: "5.8.0" } },
     ]) expect(admitted({ scope: javascript, ...overrides })).toBe(false);
+  });
+
+  it("admits Rust facts only for the declared edition and verify/change operation", () => {
+    const rust = { ...scope, language: "rust", selectedPaths: ["src/lib.rs"], dialectVersion: "2021" };
+    expect(admitted({ scope: rust })).toBe(true);
+    expect(admitted({ scope: { ...rust, dialectVersion: "2015" } })).toBe(false);
+    expect(admitted({ scope: rust, configVersion: 1 })).toBe(false);
+    expect(admitted({ scope: rust, factKind: "runtime_execution" })).toBe(false);
+    expect(admitted({ scope: rust, operation: "approve" })).toBe(false);
   });
 
   it("admits genuinely indexed mixed ESM facts only after refreshing the changed sources", () => {

@@ -48,8 +48,13 @@ const pluginRuntimeCoreArtifactPaths = [
 const pluginRuntimeArtifactPaths = [
   "semctx-mcp.js",
   "semctx-index-worker.js",
+  "semctx-rust-worker.js",
   pluginRuntimeSharedChunk,
   "semctx.js",
+  "rust-parser/web-tree-sitter.wasm",
+  "rust-parser/tree-sitter-rust.wasm",
+  "rust-parser/LICENSE-web-tree-sitter",
+  "rust-parser/LICENSE-tree-sitter-rust",
 ] as const;
 
 export interface BundleSpec {
@@ -57,6 +62,7 @@ export interface BundleSpec {
   name: string;
   entrypoint: string;
   label: string;
+  typeScriptPrelude?: "absent";
 }
 
 export const CLI_BUNDLE_SPEC: BundleSpec = {
@@ -69,6 +75,13 @@ export const INDEX_WORKER_BUNDLE_SPEC: BundleSpec = {
   name: "semctx-index-worker.js",
   entrypoint: "packages/ts-analyzer/src/index-worker.ts",
   label: "index worker",
+};
+
+export const RUST_WORKER_BUNDLE_SPEC: BundleSpec = {
+  name: "semctx-rust-worker.js",
+  entrypoint: "packages/rust-analyzer/src/worker.ts",
+  label: "Rust worker",
+  typeScriptPrelude: "absent",
 };
 
 /** Host-specific shell ladder for the shared control skill (issue #40 option A). */
@@ -616,9 +629,10 @@ export async function buildPortableBundle(spec: BundleSpec): Promise<Uint8Array>
 
   const generated = await result.outputs[0]!.text();
   const preludeCount = generated.split(absoluteTypeScriptPrelude).length - 1;
-  if (preludeCount !== 1) {
+  const expectedPreludeCount = spec.typeScriptPrelude === "absent" ? 0 : 1;
+  if (preludeCount !== expectedPreludeCount) {
     throw new Error(
-      `expected one bundled TypeScript path prelude in ${spec.label}, found ${preludeCount}`,
+      `expected ${expectedPreludeCount} bundled TypeScript path preludes in ${spec.label}, found ${preludeCount}`,
     );
   }
   const portable = generated
@@ -780,6 +794,8 @@ export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8A
       INDEX_WORKER_BUNDLE_SPEC.name,
       await buildPortableBundle(INDEX_WORKER_BUNDLE_SPEC),
     );
+    built.set(RUST_WORKER_BUNDLE_SPEC.name, await buildPortableBundle(RUST_WORKER_BUNDLE_SPEC));
+    for (const [path, bytes] of rustParserAssets()) built.set(path, bytes);
     if ([...built.keys()].sort().join("\n") !== [...pluginRuntimeArtifactPaths].sort().join("\n")) {
       throw new Error("unexpected complete plugin runtime artifact set");
     }
@@ -787,6 +803,17 @@ export async function buildPortablePluginArtifacts(): Promise<Map<string, Uint8A
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true });
   }
+}
+
+export function rustParserAssets(): Map<string, Uint8Array> {
+  const grammar = resolve(root, "packages/rust-analyzer/vendor");
+  const runtime = dirname(Bun.resolveSync("web-tree-sitter/web-tree-sitter.wasm", resolve(root, "packages/rust-analyzer")));
+  return new Map([
+    ["rust-parser/web-tree-sitter.wasm", readFileSync(resolve(runtime, "web-tree-sitter.wasm"))],
+    ["rust-parser/tree-sitter-rust.wasm", readFileSync(resolve(grammar, "tree-sitter-rust.wasm"))],
+    ["rust-parser/LICENSE-web-tree-sitter", readFileSync(resolve(runtime, "LICENSE"))],
+    ["rust-parser/LICENSE-tree-sitter-rust", readFileSync(resolve(grammar, "LICENSE"))],
+  ]);
 }
 
 export function writePortableTypeScriptLibs(dist: string): void {

@@ -7,7 +7,7 @@ import { gitEnvironment, processLimits } from "../../../plugins/shared/hooks/pro
 import { canonicalFilesystemPath as canonicalPath, resolveTypeScriptModule } from "./ts-symbols";
 
 export type FileRole = "source" | "test" | "document" | "migration" | "other";
-export type SourceLanguage = "typescript" | "javascript" | "python" | "markdown" | "sql" | "unknown";
+export type SourceLanguage = "typescript" | "javascript" | "python" | "rust" | "markdown" | "sql" | "unknown";
 
 export interface DiscoveredFile {
   absPath: string;
@@ -97,6 +97,8 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
 
   if (MARKDOWN_RE.test(relPath)) return "document";
 
+  if (relPath.endsWith(".rs")) return parts.includes("tests") ? "test" : "source";
+
   if (PYTHON_FILE_RE.test(relPath)) {
     const isTest =
       PYTHON_TEST_FILENAME_RE.test(relPath) ||
@@ -115,6 +117,7 @@ function classify(relPath: string, content: string, config: SemctxConfig): FileR
 }
 
 export function sourceLanguage(relPath: string): SourceLanguage {
+  if (relPath.endsWith(".rs")) return "rust";
   if (TS_FILE_RE.test(relPath)) return "typescript";
   if (JS_FILE_RE.test(relPath)) return "javascript";
   if (PYTHON_FILE_RE.test(relPath)) return "python";

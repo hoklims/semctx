@@ -87,6 +87,6 @@ for (const [path, source, reason] of [
     expect(result.discoveryLedger[0]!.analysisReasons).toContain(reason!);
     const profile = result.sidecar.capabilityProfiles.find(p => p.scope.language === "javascript")!;
     expect(profile.completenessClaim).toBe("partial");
-    expect(resolvePlaneACapabilityRequirement({ configVersion: 2, producerConfigurationDigest: result.sidecar.producerConfigurationDigest, task: "verify", operation: "change", language: "javascript", factKind: profile.factKind, completenessClaim: profile.completenessClaim })).toBeNull();
+    expect(resolvePlaneACapabilityRequirement({ configVersion: 2, producerConfigurationDigest: result.sidecar.producerConfigurationDigest, task: "verify", operation: "change", language: "javascript", dialectVersion: "5.9.3", factKind: profile.factKind, completenessClaim: profile.completenessClaim })).toBeNull();
   });
 }

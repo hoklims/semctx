@@ -4,6 +4,11 @@
  * always injected from the call/CLI root at load time (see #82).
  */
 
+import type { z } from "zod";
+import type { RustNavigationConfigSchema } from "../schemas";
+
+export type RustNavigationConfig = z.infer<typeof RustNavigationConfigSchema>;
+
 export type BlockingCondition =
   | "invariant_touched_without_test"
   | "critical_contract_changed_without_test"
@@ -85,6 +90,7 @@ export interface SemctxConfigV2 extends SemctxConfigBase {
   selectionMode: "globs-v1" | "qualified-static-v1";
   /** Language analysis is explicit. A selected language absent from this registry is unsupported. */
   languages: Record<string, LanguageAnalysisMode>;
+  rust?: RustNavigationConfig;
 }
 
 export type SemctxConfig = SemctxConfigV1 | SemctxConfigV2;

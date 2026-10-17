@@ -41,7 +41,7 @@ const NAMED_EXTENSIONS: Record<string, string> = {
 };
 
 /** Languages semctx has a producer for; any other language is unsupported, file by file. */
-const ANALYZED_LANGUAGES = new Set(["typescript", "python", "markdown", "sql", "javascript"]);
+const ANALYZED_LANGUAGES = new Set(["typescript", "python", "rust", "markdown", "sql", "javascript"]);
 
 export function fileLanguage(path: string): string {
   const known = sourceLanguage(path);
@@ -57,7 +57,8 @@ export interface FileCoverageInput {
   /** Null when the binding is broken: no file can have been joined to the index. */
   bound: { sideOf: (path: string) => "old" | "new"; indexedFiles: ReadonlySet<string>;
     javascriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }>;
-    typescriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }> } | null;
+    typescriptOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }>;
+    rustOutcomes?: ReadonlyMap<string, { outcome: string; reasons: readonly string[] }> } | null;
 }
 
 /**
@@ -74,6 +75,8 @@ export function coverageOf(file: ChangedFile, input: FileCoverageInput): FileCov
   if (!ANALYZED_LANGUAGES.has(language)) return notAnalyzed("LANGUAGE_UNSUPPORTED");
   if (language === "javascript" && (input.config.version !== 2 || input.config.languages.javascript === undefined)) return notAnalyzed("LANGUAGE_UNSUPPORTED");
   if (language === "javascript" && input.config.version === 2 && input.config.languages.javascript === "off") return notAnalyzed("LANGUAGE_DISABLED");
+  if (language === "rust" && (input.config.version !== 2 || input.config.languages.rust === undefined)) return notAnalyzed("LANGUAGE_UNSUPPORTED");
+  if (language === "rust" && input.config.version === 2 && input.config.languages.rust === "off") return notAnalyzed("LANGUAGE_DISABLED");
   if (!isPathSelected(input.config, file.path) && (file.oldPath === undefined || !isPathSelected(input.config, file.oldPath))) {
     return notAnalyzed("OUTSIDE_SELECTION");
   }
@@ -84,6 +87,12 @@ export function coverageOf(file: ChangedFile, input: FileCoverageInput): FileCov
   if (file.status === "untracked") return notAnalyzed("UNTRACKED_NOT_DIFFED");
   if (language === "javascript" || (language === "typescript" && input.config.version === 2)) {
     const observed = (language === "javascript" ? input.bound.javascriptOutcomes : input.bound.typescriptOutcomes)?.get(boundPath);
+    if (observed === undefined) return notAnalyzed("ANALYZER_EVIDENCE_MISSING");
+    if (observed.outcome !== "analyzed") return notAnalyzed(`ANALYSIS_${observed.outcome.toUpperCase()}`);
+    if (observed.reasons.length > 0) return notAnalyzed("ANALYSIS_PARTIAL");
+  }
+  if (language === "rust") {
+    const observed = input.bound.rustOutcomes?.get(boundPath);
     if (observed === undefined) return notAnalyzed("ANALYZER_EVIDENCE_MISSING");
     if (observed.outcome !== "analyzed") return notAnalyzed(`ANALYSIS_${observed.outcome.toUpperCase()}`);
     if (observed.reasons.length > 0) return notAnalyzed("ANALYSIS_PARTIAL");

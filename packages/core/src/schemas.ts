@@ -88,11 +88,20 @@ function rejectLegacyQualifiedMarkers(value: unknown, context: z.RefinementCtx):
 }
 export const SemctxConfigV1Schema = z.preprocess(rejectLegacyQualifiedMarkers, SemctxConfigV1ShapeSchema);
 
+export const RustNavigationConfigSchema = z.object({
+  mode: z.literal("navigation"), trusted: z.literal(true),
+  rustAnalyzerPath: z.string().min(1), rustAnalyzerSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  toolchainRoot: z.string().min(1), target: z.string().regex(/^[a-zA-Z0-9_-]+$/),
+  features: z.array(z.string().regex(/^[a-zA-Z0-9_/-]+$/)),
+  budgetMs: z.number().int().min(1_000).max(600_000),
+}).strict();
+
 const SemctxConfigV2ShapeSchema = SemctxConfigBaseSchema.extend({
   version: z.literal(2),
   analysisProfile: z.literal("public-monorepo-static-v1").optional(),
   selectionMode: z.enum(["globs-v1", "qualified-static-v1"]),
   languages: z.record(z.enum(["on", "off"])),
+  rust: RustNavigationConfigSchema.optional(),
 });
 function validateAnalysisProfile(value: { version: number; selectionMode?: string; analysisProfile?: string }, context: z.RefinementCtx): void {
   if ((value.selectionMode === "qualified-static-v1") !== (value.analysisProfile === "public-monorepo-static-v1")) {
