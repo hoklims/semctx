@@ -14,7 +14,9 @@ characterization, workload preparation and the measurement protocol (D6). No Rus
 dependency, workflow change or product change is introduced.
 
 Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Checkpoint 4
-captures each workload's dependency closure. All three are described below.
+captures each workload's dependency closure. Checkpoint 5 fixes the measurement setup and records
+one shake-down run per workload. Two owner decisions are open; see
+[Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -222,10 +224,74 @@ Two checks confirm that installation leaves each snapshot's sources intact:
   and bytes are identical for all seven workloads. Yarn's install state is a new candidate, and
   discovery excludes it.
 
+## Measurement setup
+
+**Reference build.** Users install a minified bundle, not the TypeScript sources the pilots ran.
+Rebuilding `3e94997` with Bun 1.4.0, the release workflow's pinned version, reproduces the
+published `semctx@0.4.5` package byte for byte. `3e94997` differs from the release commit only in
+documentation. The requalified reference is built the same way from `3e94997` plus the
+requalification patch. Only `index.js` differs from the release. The reference runs that bundle
+with Bun 1.4.3 and one worker, which is the CLI default and what `auto` selects on macOS.
+
+**Snapshots as Git repositories.** Outside a Git repository the baseline refuses to index
+(`GIT_ERROR`, cannot capture control freshness). Each snapshot is therefore a one-commit
+repository built from its archive. Upstream files that match `.gitignore` are added explicitly,
+and a submodule is recorded as its upstream pointer without being initialized. The local tree id
+equals the upstream commit's tree id for all seven workloads, and `git status` is clean.
+Discovery selection is unchanged.
+
+**Memory collector (macOS).** The metric is `phys_footprint`, read through `proc_pid_rusage`
+every 50 ms for each process of the command's tree. It excludes shared clean pages, so summing
+processes does not count shared libraries twice. Aggregate memory is the maximum over samples of
+the summed footprint. The kernel's per-process lifetime peak, summed over processes, bounds it
+from above. On a 768 MiB allocation, the collector matches `ps` for resident size and
+`/usr/bin/footprint` for footprint and peak. Each run also records the system's compressor and
+swap counter deltas. Linux and Windows have no declared collector and no measurement, so they
+remain unqualified.
+
+**Instrumentation cost.** On hono, 10 cold pairs with sampling off and at 50 ms, in shuffled
+order, give a wall-time ratio of 1.0023 (95% bootstrap interval 1.0012–1.0042) and a peak
+footprint ratio of 1.0043 (0.9948–1.0128). The sampled aggregate stays within 0.2–1.5% of the
+kernel upper bound. Reference series keep sampling on. Phase attribution uses separate
+CPU-profiled runs; their cost is not yet measured. Ratios are medians over pairs, with a seeded
+percentile bootstrap over pairs.
+
+## Shake-down runs
+
+One cold run per workload sizes the series. These are not reference measurements. The host is an
+Apple M5 Pro with 18 cores and 48 GiB.
+
+| Workload | Result | Wall time | Aggregate peak footprint |
+| --- | --- | ---: | ---: |
+| `sindresorhus/ky` | indexed | 2.2 s | 0.71 GB |
+| `honojs/hono` | indexed | 15.5 s | 1.63 GB |
+| `trpc/trpc` | indexed | 95.7 s | 4.30 GB |
+| `PrefectHQ/prefect` | refused: submodules unsupported by the freshness seal | 0.17 s | 0.06 GB |
+| `backstage/backstage` | indexed | 10,746 s | 42.31 GB |
+| `microsoft/vscode` | indexed | 1,146 s | 43.29 GB |
+| `aws/aws-sdk-js-v3` | not run | | |
+
+With its dependencies, VS Code takes about six times as long as the pilot without them (187 s).
+The pilot measured RSS, so its 24.8 GB is not compared with these footprints. Both large workloads
+plateau near 42–43 GB on a 48 GiB host. Memory
+compression may dominate their times, but these runs predate the per-run compressor counters, so
+that cause is not established. At these durations, 10 pairs on backstage would take days.
+
+## Open decisions
+
+Both decisions belong to the T01 owner. They come before any repeated series.
+
+1. **Submodule refusal.** The baseline refuses the Prefect checkout because its tree contains a
+   submodule. That refusal stays recorded as a result. The multilanguage cell still needs an
+   indexed measurement.
+2. **Host memory for large cells.** Large and very large series need a declared host memory. On
+   48 GiB, the large cells measure behavior under memory pressure and do not fit a 10-pair
+   series.
+
 ## Next checkpoints
 
-1. Declare the memory collector and sampling period per OS, and measure instrumentation cost.
-2. Record repeated baseline series per phase and size class. Derive the size-dependent budget
-   coefficients from them.
-3. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
+1. Apply the owner's decisions, then record repeated baseline series per size class. Derive the
+   size-dependent budget coefficients from them. Measure the CPU-profile cost for phase
+   attribution.
+2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
