@@ -260,12 +260,13 @@ test("invalidates Rust navigation input binding when pinned toolchain bytes chan
   try {
     const toolchainRoot = join(root, "toolchain");
     const analyzer = join(root, "rust-analyzer");
+    const executable = process.platform === "win32" ? ".exe" : "";
     mkdirSync(join(toolchainRoot, "bin"), { recursive: true });
     mkdirSync(join(toolchainRoot, "lib/rustlib/src/rust/library"), { recursive: true });
     mkdirSync(join(toolchainRoot, "lib/rustlib/aarch64-apple-darwin/lib"), { recursive: true });
     writeFileSync(analyzer, "analyzer-v1");
-    writeFileSync(join(toolchainRoot, "bin/rustc"), "compiler-v1");
-    writeFileSync(join(toolchainRoot, "bin/cargo"), "cargo-v1");
+    writeFileSync(join(toolchainRoot, "bin", `rustc${executable}`), "compiler-v1");
+    writeFileSync(join(toolchainRoot, "bin", `cargo${executable}`), "cargo-v1");
     writeFileSync(join(toolchainRoot, "lib/rustlib/src/rust/library/lib.rs"), "source-v1");
     writeFileSync(join(toolchainRoot, "lib/rustlib/aarch64-apple-darwin/lib/libstd.rlib"), "stdlib-v1");
     const initialized = Bun.spawnSync(["git", "init", "-q"], { cwd: root, stdout: "pipe", stderr: "pipe" });
@@ -277,10 +278,10 @@ test("invalidates Rust navigation input binding when pinned toolchain bytes chan
     const baseline = fingerprintAnalysisInputs(config, []);
     const qualified = { ...config, selectionMode: "qualified-static-v1" as const, analysisProfile: "public-monorepo-static-v1" as const };
     const qualifiedBaseline = fingerprintAnalysisInputs(qualified, []);
-    writeFileSync(join(toolchainRoot, "bin/rustc"), "compiler-v2");
+    writeFileSync(join(toolchainRoot, "bin", `rustc${executable}`), "compiler-v2");
     expect(fingerprintAnalysisInputs(config, [])).not.toBe(baseline);
     expect(fingerprintAnalysisInputs(qualified, [])).not.toBe(qualifiedBaseline);
-    writeFileSync(join(toolchainRoot, "bin/rustc"), "compiler-v1");
+    writeFileSync(join(toolchainRoot, "bin", `rustc${executable}`), "compiler-v1");
     expect(fingerprintAnalysisInputs(config, [])).toBe(baseline);
     expect(fingerprintAnalysisInputs(qualified, [])).toBe(qualifiedBaseline);
     rmSync(join(toolchainRoot, "lib/rustlib/src/rust/library/lib.rs"));
