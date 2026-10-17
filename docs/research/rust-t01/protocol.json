@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-17",
-  "checkpoint": 3,
+  "checkpoint": 4,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -129,7 +129,6 @@
     }
   ],
   "remainingEvidence": [
-    "dependency closures per workload, captured without install scripts",
     "declared memory collector and sampling period per OS",
     "instrumentation cost",
     "repeated baseline series per phase and size class",
@@ -283,8 +282,31 @@
           "typescript": 1083178
         },
         "discoveryMsSingleRun": 61,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 416433
+        "archiveBytes": 416433,
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfiles": [],
+          "generatedLockfile": {
+            "reason": "the repository commits no lockfile (.npmrc sets package-lock=false)",
+            "command": "npm install --package-lock-only --package-lock=true --ignore-scripts --before=2026-10-09T06:29:22Z",
+            "resolutionCutoffUtc": "2026-10-09T06:29:22Z",
+            "resolutionCutoffSource": "committer date of the pinned commit",
+            "sha256": "fd656990172666d23e094ecdd1947fa2a8de5becd37e6705cd3752a7e98a1e97",
+            "regeneratedIdentically": true,
+            "removedFromTreeAfterInstall": true
+          },
+          "commands": [
+            "npm ci --package-lock=true --ignore-scripts"
+          ],
+          "installedPackageDirectories": 610,
+          "distinctNameVersions": 571,
+          "installedFiles": 16163,
+          "installedBytes": 124897677,
+          "closureManifestSha256": "baa5371978d4c5c6e3b338b4dc4ecf4bda4f4809d8ab5d7606a8557dd94d6519",
+          "installSecondsSingleRun": 3,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "honojs/hono",
@@ -308,8 +330,27 @@
           "typescript": 2891073
         },
         "discoveryMsSingleRun": 181,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 1770391
+        "archiveBytes": 1770391,
+        "dependencyClosure": {
+          "packageManager": "pnpm@12.6.0",
+          "lockfiles": [
+            {
+              "path": "pnpm-lock.yaml",
+              "sha256": "3bbe772c131585b3e138d0a48b7f229069c1533dc63225629beb3039a5fcac86"
+            }
+          ],
+          "commands": [
+            "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile"
+          ],
+          "installedPackageDirectories": 723,
+          "distinctNameVersions": 720,
+          "installedFiles": 25493,
+          "installedBytes": 868156267,
+          "closureManifestSha256": "65ac332da0e5eacc5b994cfddd4d3d8b26354f375b8d5febc064810417c18eb2",
+          "installSecondsSingleRun": 42,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "trpc/trpc",
@@ -337,8 +378,27 @@
           "typescript": 3564659
         },
         "discoveryMsSingleRun": 321,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 1730742
+        "archiveBytes": 1730742,
+        "dependencyClosure": {
+          "packageManager": "pnpm@12.4.1",
+          "lockfiles": [
+            {
+              "path": "pnpm-lock.yaml",
+              "sha256": "9f67929d0bfc5232057489fc4ef1401a9742e44f9b333157b725e5ba75c6fbe4"
+            }
+          ],
+          "commands": [
+            "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile"
+          ],
+          "installedPackageDirectories": 3496,
+          "distinctNameVersions": 3422,
+          "installedFiles": 190093,
+          "installedBytes": 2518708983,
+          "closureManifestSha256": "6d577d3d68b4006097672a91295642eb64cf8eb781dd1c50b849daa474f87f40",
+          "installSecondsSingleRun": 111,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "PrefectHQ/prefect",
@@ -368,8 +428,36 @@
           "typescript": 6080166
         },
         "discoveryMsSingleRun": 524,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 40904572
+        "archiveBytes": 40904572,
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfiles": [
+            {
+              "path": "ui-v2/package-lock.json",
+              "sha256": "1e2a97faeba5c5fc2b2aea91c29c7c81ced4c0a1437459323d8ea84823b73e20"
+            },
+            {
+              "path": "ui/package-lock.json",
+              "sha256": "51f71daa713b7ed2138b3b53a40feabe55221d73e3b5a96d4df01bb208a44c95"
+            }
+          ],
+          "commands": [
+            "npm ci --ignore-scripts (ui-v2)",
+            "npm ci --ignore-scripts (ui)"
+          ],
+          "notInstalled": {
+            "uv.lock": "the baseline Python analyzer resolves imports statically and reads no installed package",
+            "src/integrations/prefect-aws/infra/package-lock.json": "separate infrastructure project outside the UI install set"
+          },
+          "installedPackageDirectories": 1577,
+          "distinctNameVersions": 1369,
+          "installedFiles": 99066,
+          "installedBytes": 1008732927,
+          "closureManifestSha256": "d9bdaf0e6e72411f4e1f43fe0341926ce418a169b9c342e46fafe72700a93d71",
+          "installSecondsSingleRun": 42,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "backstage/backstage",
@@ -395,8 +483,30 @@
           "typescript": 30801796
         },
         "discoveryMsSingleRun": 3107,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 203176525
+        "archiveBytes": 203176525,
+        "dependencyClosure": {
+          "packageManager": "yarn@4.18.0",
+          "lockfiles": [
+            {
+              "path": "yarn.lock",
+              "sha256": "45553a058737f91cdf5f58fa3900e215f4ef27f244c4756f410824e828ff0f28"
+            }
+          ],
+          "commands": [
+            "yarn install --immutable --mode=skip-build"
+          ],
+          "addedOutsideNodeModules": [
+            ".yarn/install-state.gz (discovery candidate, excluded)"
+          ],
+          "installedPackageDirectories": 4429,
+          "distinctNameVersions": 3651,
+          "installedFiles": 232209,
+          "installedBytes": 1991673453,
+          "closureManifestSha256": "0be2c0db53853eba7b194ee6117efb7147f79cf943d520375452cf7bc10d02a3",
+          "installSecondsSingleRun": 98,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "microsoft/vscode",
@@ -424,7 +534,24 @@
           "typescript": 205023780
         },
         "discoveryMsSingleRun": 15354,
-        "dependencyClosureCaptured": false
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfileCount": 56,
+          "lockfileSetSha256": "ba2d8e44a1414ee798b4fc268d91a2495bf1b81d79739d3a9f15b43c42dc7595",
+          "installSetSource": "static directory list in build/npm/dirs.ts, read without executing it; the repository's postinstall installs the same list",
+          "installSetSourceSha256": "ac461ed9505833d96dfd7c835638af5219f215ad0ac0ac25014f7588e88b429a",
+          "commands": [
+            "npm ci --ignore-scripts in each of the 56 listed directories"
+          ],
+          "installedPackageDirectories": 5141,
+          "distinctNameVersions": 2738,
+          "installedFiles": 223228,
+          "installedBytes": 5253479249,
+          "closureManifestSha256": "7e3ffa547196241c444fb7cdd1f0b8ae492d7a0d2aeb0e232785f8f9fcbfe93c",
+          "installSecondsSingleRun": 203,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       },
       {
         "repository": "aws/aws-sdk-js-v3",
@@ -450,9 +577,61 @@
           "typescript": 272151586
         },
         "discoveryMsSingleRun": 44546,
-        "dependencyClosureCaptured": false,
-        "archiveBytes": 70643151
+        "archiveBytes": 70643151,
+        "dependencyClosure": {
+          "packageManager": "yarn@4.17.1",
+          "lockfiles": [
+            {
+              "path": "yarn.lock",
+              "sha256": "690ed2ce761f25748ef9f8925b6fb20e1112ff8130b1039f4b812d7a2087fbeb"
+            }
+          ],
+          "commands": [
+            "yarn install --immutable --mode=skip-build"
+          ],
+          "addedOutsideNodeModules": [
+            ".yarn/install-state.gz (discovery candidate, excluded)"
+          ],
+          "installedPackageDirectories": 1416,
+          "distinctNameVersions": 1256,
+          "installedFiles": 55913,
+          "installedBytes": 509816531,
+          "closureManifestSha256": "3bb607dd8d6379711efecfb2e575439f14e087e6da57b9b73cc42359aa7b32ab",
+          "installSecondsSingleRun": 37,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
       }
-    ]
+    ],
+    "dependencyClosureProtocol": {
+      "recordedDateUtc": "2026-10-17",
+      "scope": "what the repository's own development install fetches, with every install script disabled",
+      "host": {
+        "os": "macOS 26.7.1 (Darwin 25.6.0) arm64",
+        "node": "24.22.0",
+        "npm": "11.19.1"
+      },
+      "packageManagers": {
+        "pnpm@12.6.0": "sha512-PvaPlRyxEawgS0paFvCy3fDaVqluBBPoHYVdnwtV75JnFHCQKOHNAMQFwsX7e56OxNxGd3yAXQNzwvL/AP0g7A==",
+        "pnpm@12.4.1": "sha512-LoHjmdc/6DkNqyXgaqeIq3pZCCSNL1o3D4K0gRR6ano2e/gEj5pv22Rg8hpm8FQt7bi5TKLIcjWWdBkgsWVtTA==",
+        "@yarnpkg/cli-dist@4.18.0": "sha512-WV9H+/O8BPElO7GKzrKipTtCNt8/gBCUJaNAEOw4U/x2k17aZjseYzll4QhpZE4xIsEvo8bK6KvjhsXuHrclPg==",
+        "@yarnpkg/cli-dist@4.17.1": "sha512-2tiSQuJNl/L3QwTdrq6lKWDpkcnp9MGvCT/rIldHcbu3SWfnLdmehvt3eulX1hT7FFt1Gjfq3CesF+kvhFip6g=="
+      },
+      "packageManagerSource": "npm registry, scripts disabled; versions match each repository's packageManager field",
+      "yarnReleaseCheck": "registry bundle byte-identical to the committed .yarn/releases file; YARN_IGNORE_PATH=1 so the committed file is not executed",
+      "isolation": "package caches in a dedicated scratch directory; Yarn global cache disabled; no pnpmfile loaded",
+      "sourceTreeCheck": "SHA-256 manifest of every file outside node_modules before and after installation",
+      "selectionCheck": "requalified baseline discovery with the matrix configuration rerun after installation; selected files and bytes identical for every workload",
+      "closureManifest": "sorted (location, name, version) of every package directory under node_modules, hashed with SHA-256",
+      "installTimesAreNotMeasurements": "single runs with a partly warm cache and network variance",
+      "scriptSha256": {
+        "install": "ee097c9d569215e29e39b8d7aabd2f5b995524a0b970c903f7d446973c2972c2",
+        "treeManifest": "97db3a4f8d2941f45e7518a896d73d4d27b1dbd7ae113e344519fccc894025d4",
+        "closureManifest": "84c734826e432663df27fdf5888ba6d261a44446d5e8625876d818cb481a836c",
+        "vscodeDirectories": "67884252736a9286846c53006b0189107158d54e1fde2b50da5aacd64fce9484",
+        "selectionComparison": "b89b20f584c9547aa56274fb9fa043c2aef1b5f07264d55abe33b54849be2415"
+      },
+      "selectionAfterInstallSha256": "0a747110438506ceaa49bbdb8f68b3c6accf5ed637343961f4385cd7a9425230"
+    }
   }
 }
