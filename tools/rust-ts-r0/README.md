@@ -42,5 +42,9 @@ filesystem; the independent verifier must compare them with its own inputs.
 This instrumentation does not establish absence of arbitrary operating-system
 reads or coherent acquisition of live files.
 
-Qualification, reserved cases, optimized artifacts and Windows/Linux proof
-remain separate steps. No outcome in this crate alone opens T01.
+The [selected optimized checkpoint](../../docs/research/rust-ts-r0/selection/README.md)
+records the macOS ARM64 artifact and its six DEV vectors. Separate semantic,
+source-parsing and module-configuration observations allow independent component
+comparison. Elementary JavaScript scan reasons do not represent the complete
+historical JavaScript consumer. Qualification, reserved cases and Windows/Linux
+proof remain separate steps. No outcome in this crate alone opens T01.

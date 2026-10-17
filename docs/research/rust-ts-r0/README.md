@@ -40,7 +40,7 @@ coherence still require execution evidence.
 ambiguous star-export call resolution in Rust. The historical baseline commit
 remains pinned; its order-dependent call edge is not the expected Rust result.
 No separate TypeScript correction is requested. Native DEV controls now exercise
-the ambiguity correction; frozen qualification remains unexecuted.
+the ambiguity correction; frozen qualification was unexecuted at the stage-5 selection checkpoint.
 
 ## Independence and effort
 
@@ -68,6 +68,14 @@ execution. [Composition C1](composition1/record-index.json) now records the firs
 native composition and its first correction pass. The private prototype lives in
 [`tools/rust-ts-r0`](../../../tools/rust-ts-r0/README.md). Its DEV results are
 separate from the 268 frozen qualification records and the reserved corpus.
+
+[The selected optimized checkpoint](selection/README.md) freezes C1 after its
+first correction pass. The six native development vectors pass on macOS ARM64;
+they establish no qualification or reserved-case result. The checkpoint records
+its artifact/source identities, actual process Outcomes, reported input reads and
+the remaining native observation gaps. The native CI job now also executes the
+same optimized TS/JS vectors and retains its artifacts. Windows/Linux execution
+evidence remains pending.
 
 ## Verification and tooling
 
