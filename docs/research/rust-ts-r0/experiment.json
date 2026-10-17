@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
-  "stage": 1,
+  "stage": 2,
   "r0Decision": "NOT_RUN",
   "owner": "SebastienElet",
   "baseline": {
@@ -41,14 +41,22 @@
     "globalInstallationPerformed": false,
     "gitConfigGlobalRemovedForVerification": true,
     "nativeHostProvider": "GitHub Actions",
-    "requiredR0NativeHosts": ["ubuntu-latest", "windows-latest"],
+    "requiredR0NativeHosts": [
+      "ubuntu-latest",
+      "windows-latest"
+    ],
     "nativeCandidateRuns": []
   },
   "tooling": {
     "pullRequest": 383,
     "mergeCommit": "d4e73e74709a369ff908041ea370b39a76d9cd3a",
     "mergedAt": "2026-10-16T18:09:43Z",
-    "sourceArchivePaths": ["tools/gates", "tools/qualification", "rust-toolchain.toml", "clippy.toml"],
+    "sourceArchivePaths": [
+      "tools/gates",
+      "tools/qualification",
+      "rust-toolchain.toml",
+      "clippy.toml"
+    ],
     "gitArchiveSha256": "12b379c97b69374d755ed53f3481db6555d488267f3453c5ce5ef6f913438805",
     "integration": "external pinned source; no stack restack",
     "existingScenarioQualificationCoversSemanticPrecision": false
@@ -109,7 +117,7 @@
     "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
   },
   "remainingEvidence": [
-    "closed ordinary and qualified Compiler API obligations inventory",
+    "independently reviewed/frozen case expectations and per-branch denominator for the inventoried ordinary/qualified obligations",
     "corpus dependency, configuration and SDK closures",
     "independently controlled expectations and frozen denominator",
     "native producer mechanisms and actual process inventory",
@@ -117,5 +125,17 @@
     "qualification and reserved-case results",
     "native Linux and Windows portability results",
     "arbitrations and final R0 decision"
-  ]
+  ],
+  "sourceInventory": {
+    "obligations": "inventory/obligations.json",
+    "catalogue": "inventory/catalogue.json",
+    "scopeAndMethod": "inventory/scope-and-method.json",
+    "provenance": "inventory/provenance-summary.json",
+    "baselineDeltas": "inventory/baseline-to-T00-deltas.json",
+    "manifest": "inventory/manifest.json",
+    "sourceUsageGroups": 240,
+    "caseDenominatorFrozen": false,
+    "nativeEvidence": false
+  },
+  "arbitrations": "arbitrations.json"
 }

@@ -15,7 +15,8 @@ expected results.
 
 The owner authorized execution, commits and incremental normal pushes on
 `rust/365-t00`, and PR-description updates. No merge, release, deployment or push
-to another owner's branch is authorized. No GitHub comments are used.
+to another owner's branch is authorized. One owner-requested bug comment is linked in the arbitration; no other GitHub
+comments are authorized.
 
 Each completed stage is a separate checkpoint:
 
@@ -27,9 +28,17 @@ Each completed stage is a separate checkpoint:
 6. Exercise qualification, reserved cases and common native portability vectors.
 7. Preserve arbitrations and issue the reproducible R0 decision.
 
-Only prerequisite acquisition is recorded here. The corpus dependency/SDK
-closures, case expectations, complete obligations inventory and native candidate
-executions remain unqualified. Source archives alone do not supply those proofs.
+The source inventory in [inventory](inventory/README.md) records 240 usage and
+consumer groups, their exact baseline sites, input/rule references and unknown
+native states. Its source census is separate from behavioral case coverage.
+The corpus dependency closures, case expectations and native candidate executions
+remain unqualified. Source archives alone do not supply those proofs.
+
+[arbitrations.json](arbitrations.json) records the owner's decision to correct
+ambiguous star-export call resolution in Rust. The historical baseline commit
+remains pinned; its order-dependent call edge is not the expected Rust result.
+No separate TypeScript correction is requested and no native correction is yet
+demonstrated.
 
 ## Independence and effort
 
