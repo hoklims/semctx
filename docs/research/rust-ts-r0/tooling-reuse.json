@@ -249,5 +249,13 @@
   "purpose": "Recover canonical exact-head CI and reuse existing native supervision; not a TS/JS native composition.",
   "authority": "Accepted ADR0037 at sourceCommit supersedes TypeScript CI execution entry points, while retaining required aggregate, native OS coverage and conservative fallback.",
   "ciFailure": "The native stacked PR synthetic merge used main Rust workflow with exact T00 head checkout lacking canonical tools; reuse closes that source/workflow mismatch without restacking.",
-  "verificationScope": "Exact source reuse is not evidence of successful integration, native semantic parity or R0. Fresh local and public execution must establish their own results."
+  "verificationScope": "Exact source reuse is not evidence of successful integration, native semantic parity or R0. Fresh local and public execution must establish their own results.",
+  "recordScope": "Historical exact import at checkpoint2; paths/blob hashes below name source blobs, not a current-file identity guarantee after documented C1 adaptations.",
+  "subsequentAdaptations": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "checkpoint": 4,
+      "scope": "C1 native crate linting, captured SDK environment, serial native tests,45minute budget and retained DEV evidence; original #383 controller/workspace discovery unchanged."
+    }
+  ]
 }

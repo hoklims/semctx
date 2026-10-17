@@ -1,0 +1,1042 @@
+use semctx_gates::process::{self, Outcome};
+use semctx_r0_probe::{
+    identity,
+    receiver::*,
+    wire::{self, Fact},
+};
+use serde_json::{Value, json};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    path::{Path, PathBuf},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+};
+
+const FROZEN_CASES: &str = include_str!("fixtures/native-development-flow/cases.json");
+const KINDS: &[&str] = &[
+    "node:repository",
+    "node:module",
+    "node:test",
+    "node:function",
+    "node:class",
+    "node:interface",
+    "node:type",
+    "node:enum",
+    "node:capability",
+    "node:invariant",
+    "node:contract",
+    "node:risk",
+    "node:bounded_context",
+    "edge:belongs_to",
+    "edge:declares",
+    "edge:imports",
+    "edge:calls",
+    "edge:tested_by",
+    "edge:covers",
+    "edge:implements_capability",
+    "edge:constrained_by",
+    "edge:related_to",
+];
+
+fn strings(values: &[&str]) -> BTreeSet<String> {
+    values.iter().map(|value| (*value).into()).collect()
+}
+
+fn write_json(path: &Path, value: &impl serde::Serialize) {
+    fs::write(path, serde_json::to_vec_pretty(value).unwrap()).unwrap();
+}
+
+fn text<'a>(value: &'a Value, key: &str) -> &'a str {
+    value[key]
+        .as_str()
+        .unwrap_or_else(|| panic!("missing {key} in {value}"))
+}
+
+fn semantic_id(payload: &Value) -> String {
+    format!(
+        "{}|{}|{}",
+        text(payload, "kind"),
+        text(payload, "filePath"),
+        text(payload, "name")
+    )
+}
+
+fn graph_from_received_facts(facts: &[Fact]) -> Value {
+    let mut nodes = vec![];
+    let mut edges = vec![];
+    for fact in facts {
+        match fact {
+            Fact::Node { payload, .. } => nodes.push(payload.clone()),
+            Fact::Edge { payload, .. } => edges.push(payload.clone()),
+        }
+    }
+    json!({"nodes":nodes,"edges":edges})
+}
+
+fn assert_semantics(case: &Value, batch: &wire::Batch) {
+    let graph = graph_from_received_facts(&batch.facts);
+    let mut graph_ids = BTreeSet::new();
+    let mut edge_ids = BTreeSet::new();
+    for node in graph["nodes"].as_array().unwrap() {
+        assert!(
+            graph_ids.insert(text(node, "id").to_string()),
+            "duplicate graph node id"
+        );
+    }
+    for edge in graph["edges"].as_array().unwrap() {
+        assert!(
+            edge_ids.insert(text(edge, "id").to_string()),
+            "duplicate graph edge id"
+        );
+        assert!(
+            graph_ids.contains(text(edge, "from")) && graph_ids.contains(text(edge, "to")),
+            "dangling actual graph endpoint"
+        );
+    }
+    for fact in &batch.facts {
+        match fact {
+            Fact::Node {
+                id,
+                fact_kind,
+                payload,
+                ..
+            } => {
+                assert_eq!(text(payload, "id"), id);
+                assert_eq!(*fact_kind, format!("node:{}", text(payload, "kind")));
+            }
+            Fact::Edge {
+                fact_kind,
+                from,
+                to,
+                payload,
+                ..
+            } => {
+                assert_eq!(*fact_kind, format!("edge:{}", text(payload, "kind")));
+                assert_eq!(text(payload, "from"), from);
+                assert_eq!(text(payload, "to"), to);
+            }
+        }
+    }
+    let mut semantic_by_graph_id = BTreeMap::new();
+    let mut functions = BTreeSet::new();
+    for payload in graph["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|node| node["kind"] == "function")
+    {
+        let semantic = semantic_id(payload);
+        assert!(
+            functions.insert(semantic.clone()),
+            "duplicate semantic function"
+        );
+        semantic_by_graph_id.insert(text(payload, "id").to_string(), semantic.clone());
+        let expected = case["expected_function_projection"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|expected| expected["semantic_id"] == semantic)
+            .unwrap_or_else(|| panic!("unexpected graph function {semantic}"));
+        assert_eq!(
+            payload["evidence"],
+            json!([{"filePath":expected["path"],"startLine":expected["start_line"],"endLine":expected["end_line"],"sourceKind":"code"}]),
+            "actual graph evidence must use exact source lines; private UTF16 fields are separate"
+        );
+        let private = batch
+            .facts
+            .iter()
+            .find(|fact| matches!(fact,Fact::Node{id,..} if id==text(payload,"id")))
+            .unwrap();
+        if let Fact::Node { path, range, .. } = private {
+            assert_eq!(path.as_deref(), expected["path"].as_str());
+            let range = range.as_ref().expect("private function range required");
+            assert_eq!(range.start_utf16, expected["start_utf16"].as_u64().unwrap());
+            assert_eq!(range.end_utf16, expected["end_utf16"].as_u64().unwrap());
+            assert_eq!(
+                u64::from(range.start_line),
+                expected["start_line"].as_u64().unwrap()
+            );
+            assert_eq!(
+                u64::from(range.end_line),
+                expected["end_line"].as_u64().unwrap()
+            );
+        }
+    }
+    let expected_functions = case["expected_function_projection"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|value| text(value, "semantic_id").to_string())
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        functions, expected_functions,
+        "missing or extra graph functions"
+    );
+    let mut calls = BTreeSet::new();
+    for edge in graph["edges"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|edge| edge["kind"] == "calls")
+    {
+        let caller = semantic_by_graph_id
+            .get(text(edge, "from"))
+            .expect("graph caller has no frozen semantic identity");
+        let callee = semantic_by_graph_id
+            .get(text(edge, "to"))
+            .expect("graph target has no frozen semantic identity");
+        let owner = case["expected_function_projection"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|value| value["semantic_id"] == *caller)
+            .unwrap();
+        assert_eq!(
+            edge["evidence"],
+            json!([{"filePath":owner["path"],"startLine":owner["start_line"],"sourceKind":"code"}]),
+            "the frozen one-line caller invokes its alias on line2"
+        );
+        assert!(
+            calls.insert((caller.clone(), callee.clone())),
+            "duplicate graph call"
+        );
+    }
+    let expected_calls = case["expected_call_projection"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|value| {
+            (
+                value[0].as_str().unwrap().to_string(),
+                value[1].as_str().unwrap().to_string(),
+            )
+        })
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        calls, expected_calls,
+        "actual graph must carry the alias call, without homonym invention"
+    );
+    let outcomes = batch
+        .subjects
+        .iter()
+        .map(|subject| {
+            (
+                subject.subject_id.clone(),
+                serde_json::to_value(subject.outcome)
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let expected_outcomes = serde_json::from_value::<BTreeMap<String, String>>(
+        case["expected_subject_outcomes"].clone(),
+    )
+    .unwrap();
+    assert_eq!(
+        outcomes, expected_outcomes,
+        "subjects and outcomes come from frozen fixture, never producer denominator"
+    );
+    let reasons = batch
+        .diagnostics
+        .iter()
+        .map(|reason| reason.code.clone())
+        .collect::<BTreeSet<_>>();
+    let expected_reasons = case["expected_reason_codes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|reason| reason.as_str().unwrap().to_string())
+        .collect::<BTreeSet<_>>();
+    assert_eq!(reasons, expected_reasons);
+    assert_eq!(
+        serde_json::to_value(batch.terminal).unwrap(),
+        case["expected_terminal"]
+    );
+}
+
+#[derive(Clone)]
+struct Observed {
+    artifact: Vec<u8>,
+    input: Value,
+    capture: Value,
+    snapshot: Value,
+    scope: Value,
+    facts: Vec<Fact>,
+    graph: Value,
+    freshness: Freshness,
+    profile: String,
+}
+impl Observed {
+    fn current(&self) -> ObservedState<'_> {
+        ObservedState {
+            artifact_bytes: &self.artifact,
+            input_manifest: &self.input,
+            capture: &self.capture,
+            facts: &self.facts,
+            graph: &self.graph,
+            snapshot: &self.snapshot,
+            scope: &self.scope,
+            profile: &self.profile,
+            freshness: &self.freshness,
+            binding_valid: true,
+            build_complete: true,
+            check_changed: false,
+            request_current: true,
+        }
+    }
+}
+
+fn bindings_and_observation(
+    request: &Value,
+    sdk: &Value,
+    batch: &wire::Batch,
+    artifact: Vec<u8>,
+) -> Observed {
+    let profile = if request["qualified"] == true {
+        "modelo-suite-static-v1"
+    } else {
+        "ordinary"
+    }
+    .to_string();
+    let input = json!({"files":request["files"],"utf16_files":{},"raw_files":{},"sdk":sdk});
+    let capture = json!({"repository_root":request["cwd"],"case_sensitive":request["case_sensitive"],
+        "files":request["files"],"utf16_files":{},"raw_files":{}});
+    let fixture: Value = serde_json::from_str(FROZEN_CASES).unwrap();
+    let case = fixture["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|case| case["id"] == request["id"])
+        .unwrap();
+    let subjects = case["expected_subject_ids"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|subject| {
+            (
+                subject.as_str().unwrap().to_string(),
+                json!({"role":"source","selection":"selected"}),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let scope = json!({"profile":profile,"repository_root":request["cwd"],"subjects":subjects,
+        "effective_options":request["options"],"retained":request["retained"],"sdk_directory":request["sdk_directory"]});
+    let snapshot = json!({"domain":"T00-captured-snapshot-v1","input_manifest_id":identity::digest(&input),"capture_id":identity::digest(&capture)});
+    let facts = batch.facts.clone();
+    let graph = graph_from_received_facts(&facts);
+    let fact_id = FactsId::observed_json(&serde_json::to_value(&facts).unwrap());
+    let input_id = InputId::observed_json(&input);
+    Observed {
+        artifact,
+        input,
+        capture,
+        snapshot,
+        scope,
+        facts,
+        graph,
+        profile,
+        freshness: Freshness {
+            verdict: FreshnessVerdict::Fresh,
+            reasons: vec![],
+            seal: Some(FreshnessSeal {
+                repository_facts: fact_id.clone(),
+                indexed_facts: fact_id,
+                analysis_input: input_id.clone(),
+                indexed_input: input_id,
+            }),
+        },
+    }
+}
+
+fn expected(case: &Value, observed: &Observed, deadline: Instant) -> Expected {
+    let subjects = case["source_bytes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|source| ExpectedSubject {
+            id: SubjectId::new(text(source, "path")).unwrap(),
+            selection: wire::Selection::Selected,
+            source: Some(SourceExtent {
+                path: text(source, "path").into(),
+                utf16_length: source["utf16_length"].as_u64().unwrap(),
+                line_count: u32::try_from(source["line_count"].as_u64().unwrap()).unwrap(),
+            }),
+            fact_kinds: strings(KINDS),
+            ranged_fact_kinds: strings(&[
+                "node:function",
+                "node:class",
+                "node:interface",
+                "node:type",
+                "node:enum",
+            ]),
+            pathless_fact_kinds: strings(&["node:repository"]),
+            absence_allowed_kinds: BTreeSet::new(),
+        })
+        .collect();
+    let terminal = if case["qualified"] == true {
+        ExpectedTerminal::ControlledRefusal {
+            exit_code: 0,
+            reason_codes: case["expected_reason_codes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|s| s.as_str().unwrap().to_string())
+                .collect(),
+        }
+    } else {
+        ExpectedTerminal::Analyzed
+    };
+    Expected {
+        case_id: text(case, "id").into(),
+        request: RequestId::new(text(case, "id")).unwrap(),
+        bindings: observed.current().bindings().unwrap(),
+        profile: observed.profile.clone(),
+        subjects,
+        terminal,
+        deadline,
+        max_duration_ms: 20_000,
+        output_cap: 8_388_608,
+    }
+}
+
+fn poisoned(original: &Outcome, mutate: impl FnOnce(&mut Value)) -> Outcome {
+    let mut value: Value = serde_json::from_str(&original.stdout).unwrap();
+    mutate(&mut value);
+    let mut result = original.clone();
+    result.stdout = serde_json::to_string(&value).unwrap();
+    result.stdout_bytes = result.stdout.len() as u64;
+    result.stdout_hash = identity::digest_bytes(result.stdout.as_bytes())
+        .trim_start_matches("sha256:")
+        .into();
+    result
+}
+
+fn rejected<T>(result: Result<T, Rejection>, expected: Rejection) {
+    match result {
+        Err(actual) => assert_eq!(actual, expected),
+        Ok(_) => panic!("forged evidence was accepted; expected {expected:?}"),
+    }
+}
+
+fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed, root: &Path) {
+    let receiver = Receiver::new(expected(
+        case,
+        observed,
+        Instant::now() + Duration::from_secs(30),
+    ))
+    .unwrap();
+    let current = observed.current();
+    let endpoint = poisoned(outcome, |batch| {
+        let edge = batch["facts"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|fact| fact["fact_kind"] == "edge:calls")
+            .unwrap();
+        edge["to"] = json!("not-an-observed-node");
+        edge["payload"]["to"] = json!("not-an-observed-node");
+    });
+    rejected(
+        receiver.receive(&endpoint, &current),
+        Rejection::InvalidFact,
+    );
+    let range = poisoned(outcome, |batch| {
+        let function = batch["facts"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|fact| fact["fact_kind"] == "node:function")
+            .unwrap();
+        function["range"]["end_utf16"] = json!(9_999_999);
+    });
+    rejected(receiver.receive(&range, &current), Rejection::InvalidRange);
+    rejected(
+        receiver.receive(
+            &poisoned(outcome, |b| b["request_id"] = json!("foreign-request")),
+            &current,
+        ),
+        Rejection::IdentityMismatch,
+    );
+    rejected(
+        receiver.receive(
+            &poisoned(outcome, |b| {
+                b["subjects"].as_array_mut().unwrap().pop();
+            }),
+            &current,
+        ),
+        Rejection::SubjectMismatch,
+    );
+    rejected(
+        receiver.receive(
+            &poisoned(outcome, |b| b["qualified_admitted"] = json!(true)),
+            &current,
+        ),
+        Rejection::MalformedOutput,
+    );
+    rejected(
+        receiver.receive(
+            &poisoned(outcome, |b| b["complete"] = json!(false)),
+            &current,
+        ),
+        Rejection::IncompleteCoverage,
+    );
+    let late = Receiver::new(expected(
+        case,
+        observed,
+        Instant::now() - Duration::from_millis(1),
+    ))
+    .unwrap();
+    rejected(late.receive(outcome, &current), Rejection::LateResult);
+    let logical = text(&case["source_bytes"][0], "path");
+    let live_path = root.join(logical);
+    let original_bytes = fs::read(&live_path).unwrap();
+    fs::write(
+        &live_path,
+        b"export function changedAfterCapture() { return 19; }\n",
+    )
+    .unwrap();
+    let actual_changed_text = fs::read_to_string(&live_path).unwrap();
+    let mut changed_capture = observed.capture.clone();
+    let captured_path = format!("{}/{}", text(&observed.capture, "repository_root"), logical);
+    changed_capture["files"][&captured_path] = json!(actual_changed_text);
+    let mut post_capture = observed.current();
+    post_capture.capture = &changed_capture;
+    let changed_result = receiver.receive(outcome, &post_capture);
+    fs::write(&live_path, &original_bytes).unwrap();
+    rejected(changed_result, Rejection::IdentityMismatch);
+    let receipt = receiver.receive(outcome, &current).unwrap();
+    let mut changed_graph = observed.graph.clone();
+    changed_graph["nodes"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"id":"unreceived-node"}));
+    let mut graph_current = observed.current();
+    graph_current.graph = &changed_graph;
+    rejected(
+        receiver.revalidate(&receipt, &graph_current),
+        Rejection::IdentityMismatch,
+    );
+    let claimed = poisoned(outcome, |b| b["producer_claimed_ownership"] = json!(true));
+    let mut missing_seal = observed.freshness.clone();
+    missing_seal.seal = None;
+    let mut claimed_current = observed.current();
+    claimed_current.freshness = &missing_seal;
+    rejected(
+        receiver.receive(&claimed, &claimed_current),
+        Rejection::MissingSeal,
+    );
+    let mut inactive = observed.current();
+    inactive.request_current = false;
+    rejected(
+        receiver.receive(outcome, &inactive),
+        Rejection::InactiveRequest,
+    );
+}
+
+fn assert_input_provenance(request: &Value, sdk: &Value, batch: &wire::Batch) -> Value {
+    let key = |path: &str| {
+        let path = path.replace('\\', "/");
+        if request["case_sensitive"] == true {
+            path
+        } else {
+            path.to_lowercase()
+        }
+    };
+    let mut supplied = BTreeMap::new();
+    for origin in [&request["files"], &sdk["files"]] {
+        for (path, content) in origin.as_object().unwrap() {
+            assert!(
+                supplied
+                    .insert(key(path), content.as_str().unwrap())
+                    .is_none(),
+                "conflicting supplied file identities"
+            );
+        }
+    }
+    let mut consumed = BTreeSet::new();
+    let mut unique = BTreeSet::new();
+    for observation in &batch.input_observations {
+        assert!(!observation.context.is_empty() && !observation.operation.is_empty());
+        if observation.operation == "case_sensitive" {
+            assert_eq!(
+                observation.found,
+                request["case_sensitive"].as_bool().unwrap()
+            );
+            assert!(observation.path.is_empty());
+        }
+        if observation.operation == "captured_cwd" {
+            assert_eq!(observation.path, text(request, "cwd"));
+            assert!(observation.found);
+        }
+        assert!(
+            unique.insert((
+                observation.context.clone(),
+                observation.operation.clone(),
+                observation.path.clone(),
+                observation.found,
+                observation.content_id.clone()
+            )),
+            "duplicate merged observation"
+        );
+        if observation.operation == "read_file" && observation.found {
+            let path = key(&observation.path);
+            let bytes = supplied.get(&path).unwrap_or_else(|| {
+                panic!(
+                    "successful read outside captured source/SDK bytes: {}",
+                    observation.path
+                )
+            });
+            assert_eq!(
+                observation.content_id.as_deref(),
+                Some(identity::digest_bytes(bytes.as_bytes()).as_str()),
+                "read hash differs from independently joined input bytes"
+            );
+            consumed.insert(path);
+        } else {
+            assert!(
+                observation.content_id.is_none(),
+                "non-read or absent probe cannot claim consumed bytes"
+            );
+        }
+    }
+    for source in request["files"].as_object().unwrap().keys() {
+        assert!(
+            consumed.contains(&key(source)),
+            "root source not observed read"
+        );
+    }
+    for library in ["/sdk/lib/lib.es2022.full.d.ts", "/sdk/lib/lib.es2022.d.ts"] {
+        assert!(
+            consumed.contains(&key(library)),
+            "required ES2022 default-library read absent: {library}"
+        );
+    }
+    let sdk_reads = consumed
+        .iter()
+        .filter(|path| {
+            sdk["files"]
+                .as_object()
+                .unwrap()
+                .keys()
+                .any(|source| key(source) == **path)
+        })
+        .cloned()
+        .collect::<Vec<_>>();
+    json!({"successful_read_paths":consumed,"sdk_read_paths":sdk_reads,"supplied_sdk_files":sdk["files"].as_object().unwrap().len(),"observations":batch.input_observations.len(),"claim":"Native reported captured-Fs observations joined to supplied bytes; no all100-consumed, OS sandbox or coherent acquisition claim."})
+}
+
+fn coherent_payload_poisons(
+    case: &Value,
+    request: &Value,
+    sdk: &Value,
+    outcome: &Outcome,
+    observed: &Observed,
+    evidence: &Path,
+) {
+    let mut results = vec![];
+    for mutation in [
+        "edge-kind",
+        "node-id-changed",
+        "node-id-missing",
+        "function-evidence-lines",
+        "call-evidence-in-range",
+    ] {
+        let forged = poisoned(outcome, |value| {
+            let facts = value["facts"].as_array_mut().unwrap();
+            if mutation == "edge-kind" || mutation == "call-evidence-in-range" {
+                let edge = facts
+                    .iter_mut()
+                    .find(|fact| fact["fact_kind"] == "edge:calls")
+                    .unwrap();
+                if mutation == "edge-kind" {
+                    edge["payload"]["kind"] = json!("related_to");
+                } else {
+                    edge["payload"]["evidence"][0]["startLine"] = json!(3);
+                }
+            } else {
+                let node = facts
+                    .iter_mut()
+                    .find(|fact| fact["fact_kind"] == "node:function")
+                    .unwrap();
+                match mutation {
+                    "node-id-changed" => node["payload"]["id"] = json!("forged-graph-node"),
+                    "node-id-missing" => {
+                        node["payload"].as_object_mut().unwrap().remove("id");
+                    }
+                    _ => {
+                        node["payload"]["evidence"][0]["startLine"] = json!(2);
+                        node["payload"]["evidence"][0]["endLine"] = json!(2);
+                    }
+                }
+            }
+            let facts: Vec<Fact> = serde_json::from_value(value["facts"].clone()).unwrap();
+            value["facts_id"] = json!(identity::digest(&serde_json::to_value(&facts).unwrap()));
+            value["graph_id"] = json!(identity::digest(&graph_from_received_facts(&facts)));
+        });
+        let batch: wire::Batch = serde_json::from_str(&forged.stdout).unwrap();
+        assert!(
+            std::panic::catch_unwind(|| assert_semantics(case, &batch)).is_err(),
+            "coherent payload poison escaped semantic oracle: {mutation}"
+        );
+        let mut current = observed.clone();
+        current.facts = batch.facts.clone();
+        current.graph = graph_from_received_facts(&current.facts);
+        let facts = FactsId::observed_json(&serde_json::to_value(&current.facts).unwrap());
+        let seal = current.freshness.seal.as_mut().unwrap();
+        seal.repository_facts = facts.clone();
+        seal.indexed_facts = facts;
+        let receiver = Receiver::new(expected(
+            case,
+            &current,
+            Instant::now() + Duration::from_secs(120),
+        ))
+        .unwrap();
+        let result = receiver.receive(&forged, &current.current());
+        let disposition = if mutation == "call-evidence-in-range" {
+            assert!(
+                result.is_ok(),
+                "in-range source line is a semantic oracle property, not a receiver-range proof"
+            );
+            "structurally-valid-semantic-oracle-rejected"
+        } else {
+            rejected(
+                result,
+                if mutation == "function-evidence-lines" {
+                    Rejection::InvalidRange
+                } else {
+                    Rejection::InvalidFact
+                },
+            );
+            "receiver-and-semantic-oracle-rejected"
+        };
+        results.push(json!({"mutation":mutation,"facts_hash_refreshed":batch.facts_id,"graph_hash_refreshed":batch.graph_id,"freshness_seal_refreshed":true,"disposition":disposition}));
+    }
+    let actual: wire::Batch = serde_json::from_str(&outcome.stdout).unwrap();
+    for mutation in ["read-hash", "read-foreign-path", "nonread-content"] {
+        let mut altered = actual.clone();
+        if mutation == "nonread-content" {
+            let probe = altered
+                .input_observations
+                .iter_mut()
+                .find(|probe| probe.operation != "read_file")
+                .expect("expected actual non-read probe");
+            probe.content_id = Some("sha256:forged".into());
+        } else {
+            let probe = altered
+                .input_observations
+                .iter_mut()
+                .find(|probe| probe.operation == "read_file" && probe.found)
+                .unwrap();
+            if mutation == "read-hash" {
+                probe.content_id = Some("sha256:forged".into());
+            } else {
+                probe.path = "/outside/unidentified-source.ts".into();
+            }
+        }
+        assert!(
+            std::panic::catch_unwind(|| assert_input_provenance(request, sdk, &altered)).is_err(),
+            "input provenance poison accepted"
+        );
+        results.push(json!({"mutation":mutation,"disposition":"independent-byte-join-rejected"}));
+    }
+    write_json(
+        &evidence.join("coherent-payload-and-input-poisons.json"),
+        &json!({"results":results,"frozen_expectations_unchanged":true,"source_stdout_hash":outcome.stdout_hash}),
+    );
+}
+
+fn helper_path() -> PathBuf {
+    if let Some(path) = std::env::var_os("SEMCTX_PROCESS_HELPER") {
+        return PathBuf::from(path);
+    }
+    panic!(
+        "SEMCTX_PROCESS_HELPER must name the already compiled #383 helper; missing supervision never skips this test"
+    )
+}
+
+fn supervise(
+    argv: &[String],
+    root: &Path,
+    helper: &Path,
+    timeout: u64,
+    cap: usize,
+    evidence: &Path,
+    label: &str,
+) -> Outcome {
+    let producer = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    let producer_before = identity::digest_bytes(&fs::read(producer).unwrap());
+    let helper_before = identity::digest_bytes(&fs::read(helper).unwrap());
+    let started = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    let result = process::run_with_helper(argv, root, timeout, cap, helper).unwrap();
+    let producer_after = identity::digest_bytes(&fs::read(producer).unwrap());
+    let helper_after = identity::digest_bytes(&fs::read(helper).unwrap());
+    write_json(
+        &evidence.join(format!("{label}.json")),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":timeout,"output_cap":cap,
+        "producer_path":producer,"producer_before":producer_before,"producer_after":producer_after,
+        "helper_path":helper,"helper_before":helper_before,"helper_after":helper_after,"started_unix_ms":started,"outcome":result,
+        "evidence_boundary":"Real #383 supervision of the native binary; no fixture process controller. Host dependencies outside PATH are not excluded."}),
+    );
+    assert_eq!(
+        producer_before, producer_after,
+        "producer changed during run"
+    );
+    assert_eq!(helper_before, helper_after, "supervisor changed during run");
+    result
+}
+
+#[test]
+fn native_alias_homonym_flow_has_independent_semantics_and_refuses_forged_evidence() {
+    run_native_fixture(0);
+}
+
+#[test]
+fn native_default_expression_is_a_controlled_refusal_without_ownership() {
+    run_native_fixture(1);
+}
+
+fn run_native_fixture(target_index: usize) {
+    let fixtures: Value = serde_json::from_str(FROZEN_CASES).unwrap();
+    assert_eq!(
+        identity::digest_bytes(FROZEN_CASES.as_bytes()),
+        "sha256:9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a"
+    );
+    let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let evidence_base = std::env::var_os("SEMCTX_NATIVE_EVIDENCE")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("development-evidence/native-verifier"));
+    let run_id = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let evidence = evidence_base.join(format!("run-{}-{run_id}", std::process::id()));
+    fs::create_dir_all(&evidence).unwrap();
+    let helper = helper_path();
+    assert!(
+        helper.is_file(),
+        "compiled helper missing: {}",
+        helper.display()
+    );
+    let sdk_path = std::env::var_os("SEMCTX_NATIVE_SDK")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("sdk/sdk-input.json"));
+    let sdk: Value = serde_json::from_slice(&fs::read(&sdk_path).unwrap()).unwrap();
+    assert_eq!(sdk["version"], "5.9.3");
+    assert_eq!(
+        sdk["archive_sha256"],
+        "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+    );
+    let options = json!({"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false});
+    for (index, case) in fixtures["cases"].as_array().unwrap().iter().enumerate() {
+        if index != target_index {
+            continue;
+        }
+        let root = evidence.join(format!("workspace-{index}"));
+        fs::create_dir_all(&root).unwrap();
+        let sentinel = root.join("T00NativeCaseSentinel");
+        fs::write(&sentinel, b"observed native case semantics").unwrap();
+        let case_sensitive = !root.join("t00nativecasesentinel").exists();
+        fs::remove_file(sentinel).unwrap();
+        let cwd = root
+            .canonicalize()
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/");
+        let files = case["files"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(p, t)| {
+                let actual = root.join(p);
+                fs::create_dir_all(actual.parent().unwrap()).unwrap();
+                fs::write(&actual, t.as_str().unwrap()).unwrap();
+                (format!("{cwd}/{p}"), t.clone())
+            })
+            .collect::<BTreeMap<_, _>>();
+        let roots = case["roots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|p| format!("{cwd}/{}", p.as_str().unwrap()))
+            .collect::<Vec<_>>();
+        let request = json!({"id":case["id"],"cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":case_sensitive,
+            "roots":roots,"files":files,"options":options,"retained":true,"qualified":case["qualified"],"roles":{},"selection":{},"utf16_files":{},"raw_files":{}});
+        let request_path = evidence.join(format!("request-{index}.json"));
+        write_json(&request_path, &request);
+        let argv = vec![
+            env!("CARGO_BIN_EXE_semctx-r0-probe").into(),
+            "--batch".into(),
+            request_path.to_string_lossy().into_owned(),
+            sdk_path.to_string_lossy().into_owned(),
+        ];
+        let launched = Instant::now();
+        let outcome = supervise(
+            &argv,
+            &root,
+            &helper,
+            20_000,
+            8_388_608,
+            &evidence,
+            &format!("native-{index}"),
+        );
+        assert_eq!(
+            outcome.kind, "success",
+            "actual native command failed: {outcome:?}"
+        );
+        assert_eq!(outcome.exit_code, Some(0));
+        let batch: wire::Batch = serde_json::from_str(&outcome.stdout)
+            .expect("actual stdout must be a strict batch DTO");
+        assert_semantics(case, &batch);
+        let provenance = assert_input_provenance(&request, &sdk, &batch);
+        write_json(
+            &evidence.join(format!("input-provenance-{index}.json")),
+            &provenance,
+        );
+        let observed = bindings_and_observation(
+            &request,
+            &sdk,
+            &batch,
+            fs::read(env!("CARGO_BIN_EXE_semctx-r0-probe")).unwrap(),
+        );
+        let receiver = Receiver::new(expected(
+            case,
+            &observed,
+            launched + Duration::from_secs(20),
+        ))
+        .unwrap();
+        let current = observed.current();
+        let receipt = receiver
+            .receive(&outcome, &current)
+            .expect("receiver must accept actual independently checked native batch");
+        if index == 0 {
+            assert_eq!(receipt.disposition(), EvidenceDisposition::Analyzed);
+            let ownership = receiver.revalidate(&receipt, &current).unwrap();
+            assert_eq!(ownership.graph(), &observed.graph);
+            assert!(!ownership.absence_evidence_eligible(
+                &SubjectId::new("src/orbit-use.ts").unwrap(),
+                "edge:calls"
+            ));
+            adversarial_actual_batch(case, &outcome, &observed, &root);
+            coherent_payload_poisons(case, &request, &sdk, &outcome, &observed, &evidence);
+            write_json(
+                &evidence.join("receiver-poisons.json"),
+                &json!({
+                    "case_id":case["id"],"source_stdout_hash":outcome.stdout_hash,
+                    "actual_receiver_rejections_completed":["InvalidFact:forged-endpoint-payload","InvalidRange","IdentityMismatch:foreign-request","SubjectMismatch:cardinality","MalformedOutput:forged-admission","IncompleteCoverage","LateResult","IdentityMismatch:postcapture-real-file-observation","IdentityMismatch:graph-mutation","MissingSeal:producer-ownership-claim","InactiveRequest"],
+                    "boundary":"Mutated copies of actual native stdout; transformed capture metadata is an in-memory transport adversary, not an observed subprocess Outcome. Frozen semantic expectations unchanged."
+                }),
+            );
+            let mut missing_alias_call = batch.clone();
+            missing_alias_call.facts.retain(
+                |fact| !matches!(fact, Fact::Edge { fact_kind, .. } if fact_kind == "edge:calls"),
+            );
+            assert!(
+                std::panic::catch_unwind(|| assert_semantics(case, &missing_alias_call)).is_err(),
+                "independent semantic oracle must reject removal of an actual alias edge against unchanged frozen expectations"
+            );
+            let malformed = evidence.join("malformed-request.json");
+            fs::write(&malformed, b"{").unwrap();
+            let mut failure_argv = argv.clone();
+            failure_argv[2] = malformed.to_string_lossy().into_owned();
+            let failure = supervise(
+                &failure_argv,
+                &root,
+                &helper,
+                20_000,
+                8_388_608,
+                &evidence,
+                "real-native-failure",
+            );
+            assert_eq!(failure.kind, "nonzero");
+            rejected(
+                receiver.receive(&failure, &current),
+                Rejection::ProcessFailure,
+            );
+            let timeout = supervise(
+                &argv,
+                &root,
+                &helper,
+                1,
+                8_388_608,
+                &evidence,
+                "real-native-timeout",
+            );
+            assert_eq!(timeout.kind, "timeout");
+            rejected(
+                receiver.receive(&timeout, &current),
+                Rejection::ProcessFailure,
+            );
+            let capped = supervise(
+                &argv,
+                &root,
+                &helper,
+                20_000,
+                1,
+                &evidence,
+                "real-native-output-cap",
+            );
+            assert_eq!(capped.kind, "output_limit");
+            rejected(
+                receiver.receive(&capped, &current),
+                Rejection::ProcessFailure,
+            );
+            #[cfg(unix)]
+            {
+                let empty_path = root.join("empty-path");
+                fs::create_dir(&empty_path).unwrap();
+                let mut isolated = vec![
+                    "/usr/bin/env".into(),
+                    "-i".into(),
+                    format!("PATH={}", empty_path.display()),
+                    "GOPORT_LIB_PARSE_SNAPSHOT=0".into(),
+                    "GOPORT_LIB_SNAPSHOT=0".into(),
+                ];
+                isolated.extend(argv.clone());
+                let isolated_started = Instant::now();
+                let no_tools = supervise(
+                    &isolated,
+                    &root,
+                    &helper,
+                    20_000,
+                    8_388_608,
+                    &evidence,
+                    "real-native-empty-path",
+                );
+                assert_eq!(no_tools.kind, "success");
+                let isolated_batch: wire::Batch = serde_json::from_str(&no_tools.stdout).unwrap();
+                assert_semantics(case, &isolated_batch);
+                assert_input_provenance(&request, &sdk, &isolated_batch);
+                let isolated_receiver = Receiver::new(expected(
+                    case,
+                    &observed,
+                    isolated_started + Duration::from_secs(20),
+                ))
+                .unwrap();
+                let isolated_receipt = isolated_receiver.receive(&no_tools, &current).unwrap();
+                assert_eq!(
+                    isolated_receipt.disposition(),
+                    EvidenceDisposition::Analyzed
+                );
+            }
+        } else {
+            assert_eq!(
+                receipt.disposition(),
+                EvidenceDisposition::ControlledRefusal
+            );
+            rejected(
+                receiver.revalidate(&receipt, &current),
+                Rejection::RefusalHasNoOwnership,
+            );
+        }
+        write_json(
+            &evidence.join(format!("semantic-{index}.json")),
+            &json!({"case_id":case["id"],"fixture_sha256":identity::digest_bytes(FROZEN_CASES.as_bytes()),"function_projection":case["expected_function_projection"],"call_projection":case["expected_call_projection"],"receiver_accepted":true,"semantic_projection_matched":true,"global_qualified_admission_proven":false,"scope":"Two newly authored DEV cases only; qualification and reserved unexecuted."}),
+        );
+    }
+    eprintln!("native DEV evidence: {}", evidence.display());
+}

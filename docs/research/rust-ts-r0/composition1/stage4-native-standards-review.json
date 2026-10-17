@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "axis": "STANDARDS",
+  "reviewer": "/root/stage4_native_standards_review",
+  "status": "NO_DEMONSTRATED_STANDARDS_FINDING_IN_REVIEWED_SCOPE_NOT_R0_QUALIFICATION",
+  "created_utc": "2026-10-17T18:19:39.441850+00:00",
+  "prototype_root": "/private/tmp/semctx-t00-native-composition1-20261017",
+  "main_worktree": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+  "main_head": "9494388269ed1b3220ce4bde247e58543c6ffd87",
+  "scope": {
+    "inventory": [
+      {
+        "path": "Cargo.toml",
+        "sha256": "128ddca7aea0f92f653f7ceffdc396fe1d729a6c0a8772003c5a542cc9242ca2",
+        "size_bytes": 606
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+        "size_bytes": 22559
+      },
+      {
+        "path": "builtin-modules.json",
+        "sha256": "79db033d1873d73a41c2045fcb2bb893f8d0c7cf214a1f4b1d3b99cc562b7eb2",
+        "size_bytes": 4535
+      },
+      {
+        "path": "src/main.rs",
+        "sha256": "86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+        "size_bytes": 65088
+      },
+      {
+        "path": "src/batch.rs",
+        "sha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+        "size_bytes": 12276
+      },
+      {
+        "path": "src/captured.rs",
+        "sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+        "size_bytes": 717
+      },
+      {
+        "path": "src/configuration.rs",
+        "sha256": "f38e0422e5c520584e0ed1fa615890d4580b84ff7e7d9ac39b610b7bf0c08132",
+        "size_bytes": 21633
+      },
+      {
+        "path": "src/source_text.rs",
+        "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+        "size_bytes": 2942
+      },
+      {
+        "path": "src/identity.rs",
+        "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+        "size_bytes": 2859
+      },
+      {
+        "path": "src/wire.rs",
+        "sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+        "size_bytes": 2871
+      },
+      {
+        "path": "src/lib.rs",
+        "sha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8",
+        "size_bytes": 50
+      },
+      {
+        "path": "src/configured_resolver.rs",
+        "sha256": "7f38ffe48639916a308d6ad7c9316acdcfd04000dfbfcebf6ed03358965aa405",
+        "size_bytes": 46403
+      },
+      {
+        "path": "src/legacy_resolution.rs",
+        "sha256": "4724b6f4605fbc7a6a10e51119f24330e704afde146e9edb057aa1ccf1456309",
+        "size_bytes": 57672
+      },
+      {
+        "path": "src/ordinary.rs",
+        "sha256": "74c16a29d00ee2d4cb3e7a2dd5b59cb086220a5fc97bdd8cfb76c7ac0a9c4de3",
+        "size_bytes": 65700
+      },
+      {
+        "path": "src/qualified.rs",
+        "sha256": "e76b1961a4554b70c531b2b2e4c6e7e173a0923d9bbc1303574630ad38817023",
+        "size_bytes": 149206
+      },
+      {
+        "path": "src/assembly.rs",
+        "sha256": "89646b787269213a722fdc9887dd6a5857fef24cd986c378ad39cf4469eb9c5d",
+        "size_bytes": 41037
+      },
+      {
+        "path": "src/outline.rs",
+        "sha256": "31d9e04a9d65bc0c9fd40e86efb8394d386f54af51d0f379c60bbf193850c767",
+        "size_bytes": 36511
+      },
+      {
+        "path": "src/javascript.rs",
+        "sha256": "22339abce6f00649f593ff32e16459f10725f9f08eb6b04e4ebadd17feec3d33",
+        "size_bytes": 42654
+      },
+      {
+        "path": "src/runtime_configuration.rs",
+        "sha256": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+        "size_bytes": 71116
+      },
+      {
+        "path": "src/es5_helpers.rs",
+        "sha256": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+        "size_bytes": 16271
+      },
+      {
+        "path": "src/receiver.rs",
+        "sha256": "54647334d11900665f96c1b808e34db68f36ba4d7405d77031015be2f7de8095",
+        "size_bytes": 76260
+      },
+      {
+        "path": "src/development.rs",
+        "sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+        "size_bytes": 2517
+      },
+      {
+        "path": "tests/native_development_flow.rs",
+        "sha256": "8a6715dbf9b883f4ca16a5b7a686ed5834686f50b750d4a76fcf41cd223b5f79",
+        "size_bytes": 27897
+      },
+      {
+        "path": "tests/fixtures/native-development-flow/cases.json",
+        "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+        "size_bytes": 5639
+      }
+    ],
+    "method": "Read-only independent standards review of dependency declarations, every module structural inventory, and targeted source inspection of capture, entrypoint/configuration/resolver, wire identity, assembly and receiver trust boundaries. Not a complete semantic review of all 17748 Rust lines or SDK59 worker equivalence.",
+    "outside_scope": [
+      "qualification or reserved payloads",
+      "execution of cargo or native analysis CLI",
+      "full T02 integration",
+      "PR merge verdict",
+      "unrelated observer/request files"
+    ]
+  },
+  "standards_sources": [
+    "User-supplied AGENTS.md instructions for main worktree",
+    "CONTRIBUTING.md at main HEAD9494388269ed1b3220ce4bde247e58543c6ffd87",
+    "/Users/sebastien/.agents/skills/code-review/SKILL.md"
+  ],
+  "findings": [],
+  "observed_properties": [
+    {
+      "anchors": [
+        "Cargo.toml:8-15",
+        "Cargo.lock:542-565",
+        "Cargo.lock:700-702"
+      ],
+      "observation": "All direct registry dependencies use exact versions, ts_goport uses exact7.0.0-dev and full780dc512d64f40afebffa6a7028207649fb7ed1c revision with default-features=false/noembed, and Cargo.lock resolves the same git revision. semctx-gates is owned local path source, not registry content."
+    },
+    {
+      "anchors": [
+        "src/main.rs:78-264",
+        "src/captured.rs:1-16",
+        "src/configuration.rs:110-152"
+      ],
+      "observation": "Source/compiler/configuration reads go through captured maps; absent reads remain absent and mutating Fs operations return Permission. The inspected owned modules do not introduce a live source-filesystem fallback."
+    },
+    {
+      "anchors": [
+        "src/main.rs:765-899",
+        "src/source_text.rs:1-50"
+      ],
+      "observation": "Entrypoint rejects unsupported explicit options, native/captured case mismatch, missing required GOPORT_LIB flags, foreign role/selection/disabled subjects, duplicate decoded source keys and normalized capture-key collisions. Raw source decoding uses an explicit profile."
+    },
+    {
+      "anchors": [
+        "src/configured_resolver.rs:15-229",
+        "src/legacy_resolution.rs:203-294",
+        "src/legacy_resolution.rs:742-842"
+      ],
+      "observation": "Configured resolution keeps context per containing directory; unavailable selected mapping forms and recursion-limit conditions return explicit native errors rather than choosing arbitrary successful endpoints. Full SDK59 equivalence is not established by this inspection."
+    },
+    {
+      "anchors": [
+        "src/wire.rs:1-108",
+        "src/receiver.rs:13-197",
+        "src/receiver.rs:459-888",
+        "src/receiver.rs:891-982"
+      ],
+      "observation": "Receiver uses distinct typed identity domains and a private receipt issuer, strict JSON unique-key parsing, subject/fact inventories, range and endpoint checks, current-binding/freshness validation and revalidation before ownership context. These source structures are not substitutes for execution evidence."
+    },
+    {
+      "anchors": [
+        "src/identity.rs:1-54",
+        "src/assembly.rs:1-52",
+        "src/batch.rs:269-314"
+      ],
+      "observation": "Emitted identity/graph/probe paths inspected use explicit canonical JSON ordering, deterministic map/set iteration or sorting. No obvious randomized HashMap/HashSet output iteration was identified in the targeted export-analysis inspection."
+    },
+    {
+      "anchors": [
+        "src/*.rs",
+        "tests/native_development_flow.rs"
+      ],
+      "observation": "No added Rust source comments observed. Comment-shaped sequences identified by scan belong to external source examples/fixtures or parsed comment syntax."
+    },
+    {
+      "anchors": [
+        "src/main.rs:130-150",
+        "src/main.rs:767-770",
+        "src/main.rs:1090-1094",
+        "src/main.rs:1320-1376"
+      ],
+      "observation": "Post-review fixes preserve fail-closed qualified snapshot precondition, portable captured-directory spelling, and unsupported JS outcome for late configuration reasons. Dedicated DEV tests were read; no Windows native execution is inferred from the synthetic Windows path case."
+    }
+  ],
+  "nonblocking_limits": [
+    {
+      "id": "PRIVATE_PATH_DEPENDENCY",
+      "anchor": "Cargo.toml:15",
+      "detail": "The prototype semctx-gates path is absolute to this machine. Root has stated adoption will use../gates in tools/rust-ts-r0. This private prototype manifest must not be published unchanged; no portable-build claim is made here."
+    },
+    {
+      "id": "SDK_AUTHENTICITY_EXTERNAL",
+      "anchor": "src/main.rs:781-787",
+      "detail": "Producer checks SDK descriptor labels, not authenticity of every SDK file. Root confirmed controller-side independent comparison of all100 libraries before the first native query, recorded in composition1-journal.json first_execution.all100SdkLibrariesIndependentlyMatchedPublishedBytes. Supplied captured bytes are identity-bound; this review does not turn caller labels into content attestation."
+    },
+    {
+      "id": "OWNED_PORT_MAINTENANCE",
+      "anchor": "src/legacy_resolution.rs;src/es5_helpers.rs;src/qualified.rs",
+      "detail": "Owned SDK59 compatibility workers and semantic predicates represent substantial maintained behavior. This is a maintenance risk, not a style blocker or a request for a new framework/gate. DEV checks do not prove complete R0 coverage."
+    },
+    {
+      "id": "INPUT_OBSERVATION_JOIN_ROOT_OWNED",
+      "anchor": "src/batch.rs:269-314;src/receiver.rs:634-888",
+      "detail": "Read content IDs are emitted, but the independent join against captured input and observation completeness is being closed by root. This review does not claim that receiver authenticates input_observations or that this source inspection proves capture completeness."
+    },
+    {
+      "id": "SUPPORTED_TARGETS_UNEXERCISED",
+      "detail": "macOS ARM64 source inspection only; native Windows and Linux execution remains required outside this review. No Cargo, native CLI, test, lint or format command was run by this reviewer."
+    }
+  ],
+  "candidate_refresh": {
+    "initial_main_sha256": "24ec279b1dfc1c51db7c091468500e69a5551fa320b0e2e68265a69d77f7890d",
+    "final_main_sha256": "86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+    "final_receiver_sha256": "54647334d11900665f96c1b808e34db68f36ba4d7405d77031015be2f7de8095",
+    "final_ordinary_sha256": "74c16a29d00ee2d4cb3e7a2dd5b59cb086220a5fc97bdd8cfb76c7ac0a9c4de3",
+    "changes_reviewed": [
+      "main now rejects qualified without retained snapshot before semantic query, normalizes slash spelling before CaptureFs parent enumeration, and applies late named-configuration refusal to JS as well as qualified mode; the three dedicated DEV tests inspect each changed boundary",
+      "receiver four nested-if style collapses retain inspected conditions",
+      "ordinary UTF16 start-position expression formatting retains inspected AST/position-map call"
+    ],
+    "check_claim": "Parent reported integration-review-red.log three genuine failures followed by green-1.log three passes; this reviewer did not run or independently authenticate those logs. No test execution credit claimed here.",
+    "detail": "Final source hashes refreshed after root fixes. No new standards finding from the changed sections. Future adoption/Cargo manifest changes require their own exact-source validation."
+  },
+  "execution": {
+    "environment": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "executed": [
+      "read-only source/status/hash commands"
+    ],
+    "cargo_or_cli": false,
+    "tests_executed": false,
+    "candidate_files_mutated": false,
+    "reserved_inputs_accessed": false,
+    "hosted_web_reading": false,
+    "source_review_only": true
+  },
+  "recommendation": "Proceed with root-owned local findings closure, portable adoption manifest and exact-source DEV verification. This report supplies only the independent standards axis and no adoption, R0 or merge verdict.",
+  "refreshed_utc": "2026-10-17T18:20:21.532722+00:00"
+}

@@ -1,0 +1,65 @@
+{
+  "status": "NATIVE_DEVELOPMENT_ONLY",
+  "environment": "macOS ARM64; Rust1.95.0; SDK5.9.3 captured text; debug native artifact; #383 release supervisor",
+  "full_cargo_test": {
+    "exitCode": 0,
+    "libraryTests": 30,
+    "binaryTests": 124,
+    "independentProcessTests": 2,
+    "ignoredTests": 0,
+    "docTests": 0,
+    "fixtureSha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+    "verifierSha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561"
+  },
+  "formatCheckExitCode": 0,
+  "clippyAllTargetsWarningsDeniedExitCode": 0,
+  "sdkReadObservation": "63 SDK files read of100 supplied on each of the two independent DEV cases. Read hashes matched supplied SDK/source bytes. This is neither all100-consumed nor coherent acquisition/OS sandbox proof.",
+  "qualificationExecutionUnitsRun": 0,
+  "reservedVariantsRun": 0,
+  "optimizedFrozenArtifact": false,
+  "nativeWindowsOrLinuxExercised": false,
+  "logs": [
+    {
+      "path": "logs/integration-review-green-1.log.b64",
+      "sha256": "5de709319a25fbbcb51de3045f612883877f16c81ca1b3762fab2bd1a6c3b65c",
+      "bytes": 630,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    },
+    {
+      "path": "logs/integration-review-red.log.b64",
+      "sha256": "6cba79e321540fd80a6420a37646f5fd57a3718c053974e4f851e7b795a5da46",
+      "bytes": 1984,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    },
+    {
+      "path": "logs/portable-clippy-after-payload-guard.log.b64",
+      "sha256": "1b1b047b98e30c65d7a9828c4387b0eb9c073972d00bf59be9a3cc6f46db71a2",
+      "bytes": 244,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    },
+    {
+      "path": "logs/portable-native-all-stage4-1.log.b64",
+      "sha256": "db57037533f2ffd1b49e07928fb2476178e930c5a76f90abcd18a977704b3b00",
+      "bytes": 16665,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    },
+    {
+      "path": "logs/portable-receiver-extra-fields-green-1.log.b64",
+      "sha256": "9841a0d84e9e2bfb7bf267efb7e84184f7c75a7747dd8fc03b05672312bd1a18",
+      "bytes": 3023,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    },
+    {
+      "path": "logs/portable-receiver-extra-fields-red.log.b64",
+      "sha256": "09f1c7d679beccde99227d1959187c331c42df1d4036e3da5ea80e4314dd5de6",
+      "bytes": 1092,
+      "encoding": "base64",
+      "sha256Domain": "Decoded raw log bytes, including original trailing blank line"
+    }
+  ]
+}
