@@ -43,6 +43,19 @@ test("a changed Rust source in a mixed checkout stays outside the qualified TS/E
       path: "src/lib.rs", status: "unsupported", reasons: ["OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE"],
     }));
     expect(indexHealth(root).freshness.verdict).toBe("DIRTY_KNOWN");
+    git(root, "add", "src/lib.rs");
+    const staged = runVerify(root, { kind: "staged" }).report.analysisAdmission;
+    expect(staged?.status).toBe("rejected");
+    expect(staged?.changeCoverage.files).toContainEqual(expect.objectContaining({
+      path: "src/lib.rs", status: "unsupported", reasons: ["OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE"],
+    }));
+    git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Rust change");
+    indexRepository(root, "2026-10-17T10:01:00.000Z");
+    const range = runVerify(root, { kind: "range", base: "HEAD^" }).report.analysisAdmission;
+    expect(range?.status).toBe("rejected");
+    expect(range?.changeCoverage.files).toContainEqual(expect.objectContaining({
+      path: "src/lib.rs", status: "unsupported", reasons: ["OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE"],
+    }));
     writeFileSync(join(root, "Cargo.toml"), '[package]\nname="mixed"\nversion="0.1.0"\nedition="2024"\n');
     expect(indexHealth(root).freshness.verdict).toBe("STALE");
   } finally { rmSync(root, { recursive: true, force: true }); }
