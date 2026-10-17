@@ -192,7 +192,7 @@ jobs:
   rust-gates:
     needs: plan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -202,6 +202,11 @@ jobs:
         shell: bash
     env:
       QUALIFICATION_BIN: tools/qualification/target/release/semctx-qualification${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+      GOPORT_LIB_PARSE_SNAPSHOT: "0"
+      GOPORT_LIB_SNAPSHOT: "0"
+      RUST_TEST_THREADS: "1"
+      SEMCTX_PROCESS_HELPER: ${{ github.workspace }}/tools/gates/target/debug/semctx-gates${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+      SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -217,8 +222,10 @@ jobs:
         run: |
           cargo fmt --manifest-path tools/gates/Cargo.toml --check
           cargo fmt --manifest-path tools/qualification/Cargo.toml --check
+          cargo fmt --manifest-path tools/rust-ts-r0/Cargo.toml --check
           cargo clippy --manifest-path tools/gates/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/qualification/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --all-targets -- -D warnings
       - name: Execute native Rust tests
         run: |
           cargo test --manifest-path tools/gates/Cargo.toml --locked
@@ -231,6 +238,13 @@ jobs:
         with:
           name: rust-product-tests-${{ matrix.os }}
           path: ${{ runner.temp }}/native-product-tests.json
+          if-no-files-found: error
+      - name: Retain native R0 development observations
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-r0-development-${{ matrix.os }}
+          path: ${{ runner.temp }}/native-r0-development/
           if-no-files-found: error
       - name: Require the tested source to remain unchanged
         run: git diff --exit-code HEAD

@@ -39,8 +39,8 @@ coherence still require execution evidence.
 [arbitrations.json](arbitrations.json) records the owner's decision to correct
 ambiguous star-export call resolution in Rust. The historical baseline commit
 remains pinned; its order-dependent call edge is not the expected Rust result.
-No separate TypeScript correction is requested and no native correction is yet
-demonstrated.
+No separate TypeScript correction is requested. Native DEV controls now exercise
+the ambiguity correction; frozen qualification remains unexecuted.
 
 ## Independence and effort
 
@@ -64,7 +64,10 @@ set within the remaining approved envelope.
 Record active work intervals by agent and activity. Parallel work contributes to
 cumulative effort; it does not enlarge the approved envelope. Candidate first runs
 and correction passes require their own scopes and remaining-budget entries before
-execution. No native composition or correction pass has started at this checkpoint.
+execution. [Composition C1](composition1/record-index.json) now records the first
+native composition and its first correction pass. The private prototype lives in
+[`tools/rust-ts-r0`](../../../tools/rust-ts-r0/README.md). Its DEV results are
+separate from the 268 frozen qualification records and the reserved corpus.
 
 ## Verification and tooling
 
@@ -82,8 +85,8 @@ unstable Windows tests from this investigation; such failures remain reported an
 cannot count as successful R0 portability evidence or a green required aggregate.
 
 [#383](https://github.com/hoklims/semctx/pull/383) is merged, but absent from this
-branch's base. Its canonical tooling and integration files are reused at their
-exact Git blobs, listed in [tooling-reuse.json](tooling-reuse.json), without
+branch's base. The initial import reused its canonical tooling and integration
+files at the exact Git blobs listed in [tooling-reuse.json](tooling-reuse.json), without
 restacking the chain or creating another process controller. Its existing CLI/MCP scenario qualification does not
 qualify fact batches or semantic precision. In particular, its `no_product` report
 is not evidence that a producer ran.
@@ -91,5 +94,10 @@ is not evidence that a producer ran.
 New dependencies require exact versions and committed lockfiles; new GitHub
 Actions references require full commit SHAs. The initial preregistration changed
 only documents. The subsequent tooling reuse introduces the existing Rust gates,
-qualification tools and CI integration from #383; it does not introduce a native
-TS/JS producer or count as a tested semantic composition.
+qualification tools and CI integration from #383. The subsequent C1 prototype
+reuses that supervisor and native workspace discovery. Its configured Windows,
+Linux and macOS executions do not count as results until their actual CI runs
+succeed; local DEV checks establish no cross-platform qualification.
+The C1 workflow adaptation adds the prototype's lint checks, explicit captured-SDK
+environment and retained DEV observations; the canonical process controller and
+workspace discovery remain unchanged.

@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
-  "stage": 3,
+  "stage": 4,
   "r0Decision": "NOT_RUN",
   "owner": "SebastienElet",
   "baseline": {
@@ -45,7 +45,18 @@
       "ubuntu-latest",
       "windows-latest"
     ],
-    "nativeCandidateRuns": []
+    "nativeCandidateRuns": [
+      {
+        "composition": "C1",
+        "candidate": "tools/rust-ts-r0",
+        "state": "FIRST_CORRECTION_PASS_NATIVE_DEV_PASSED_QUALIFICATION_PENDING",
+        "evidenceRecord": "composition1/record-index.json",
+        "environment": "macOS27.0.1ARM64 / Rust1.95.0 / debug",
+        "qualification": false,
+        "optimized": false,
+        "windowsOrLinuxResult": false
+      }
+    ]
   },
   "tooling": {
     "pullRequest": 383,
@@ -61,7 +72,7 @@
     "integration": "exact canonical source and integration Git blobs adopted from merged #383; no stack restack or controller fork",
     "existingScenarioQualificationCoversSemanticPrecision": false,
     "pathManifest": "tooling-reuse.json",
-    "semanticCompositionRunsConsumed": 0
+    "semanticCompositionRunsConsumed": 1
   },
   "corpusAcquisitions": {
     "development": "Ten source-authored bootstrap cases /17variants, separately indexed and byte-disjoint from268qualification records within the stated comparison; historical assertions remain source references.",
@@ -148,7 +159,8 @@
     "manifest": "inventory/manifest.json",
     "sourceUsageGroups": 240,
     "caseDenominatorFrozen": true,
-    "nativeEvidence": false
+    "nativeEvidence": false,
+    "nativeDevelopmentEvidence": "composition1/record-index.json"
   },
   "arbitrations": "arbitrations.json",
   "caseFreeze": {
@@ -160,7 +172,9 @@
     "developmentRecords": 10,
     "developmentVariants": 17,
     "historicalAssertionReferencesAreExecutableControls": false,
-    "nativeExecutionEvidence": false
+    "nativeExecutionEvidence": false,
+    "nativeQualificationExecutionUnitsRun": 0,
+    "nativeReservedVariantsRun": 0
   },
   "checkpoint3Verification": {
     "recordedUtc": "2026-10-17T16:10:12.284155+00:00",
@@ -213,5 +227,7 @@
       "status": "All checks including semctx-required SUCCESS",
       "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
     }
-  }
+  },
+  "stageStatus": "C1_NATIVE_DEVELOPMENT_CHECKPOINT_LOCAL_PASSED",
+  "checkpoint4Evidence": "composition1/record-index.json"
 }
