@@ -1,0 +1,253 @@
+{
+  "sourceCommit": "d4e73e74709a369ff908041ea370b39a76d9cd3a",
+  "author": "/root exact Gitblob reuse",
+  "paths": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "b0dab573a34747d49e44d85a9f7988ac60a4bd661e67ce5690d27353937fa88f",
+      "blob": "2f6942fc3007c06b1a04c800c7a9c88019fcb9e7"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "7332a9f0708614608f552a1955b80fab2b4c6b175f7757f3e5df6ad6d46170c3",
+      "blob": "56f27e7087ca6d0e8c2c4e36619d3d2ed757f294"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "6e79d0d203a2188de07e8535267b8bf9a668432f82f5f730bab21477f15b157a",
+      "blob": "74c74498a118bc0b94e2bca621f102ecc4e873e0"
+    },
+    {
+      "path": "clippy.toml",
+      "sha256": "637674406714e6494d5774cc85fb00303daafdeafb6520977d0cf1e9769f26ec",
+      "blob": "1f95626bc7c1ac2be499276133d4292039f49872"
+    },
+    {
+      "path": "docs/adr/0037-rust-gates-and-qualified-evidence.md",
+      "sha256": "e2b686db3bc7361d005efe4955e3a0e6e82bbb7b0c9a7347e76d2e0fccb486a4",
+      "blob": "3d4a4d88bd71a2c7c144696d3225386246e7fdb8"
+    },
+    {
+      "path": "docs/contributing/rust-gates.md",
+      "sha256": "36d954fa076e3b3050d747da80d12c1cfe6af4046a1b52ea0fc486c51b3941c9",
+      "blob": "d3241a002e1ab35435a136bdfa3bb4f916f91787"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "dad8e50a53c5c424ed8478bc24800aaaa981bb9eaf5946d63e79610e42acada7",
+      "blob": "8722a01a5208ef177fb89b90d2cb99406d3d81bc"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ab127f56e1a255ac46286509166cdd275a700161dabfc7413b4f23e0be6d7596",
+      "blob": "9ceb0e13cfe1f7a396d7216abbef311cd3695ef4"
+    },
+    {
+      "path": "plugins/shared/skills/index-control-plane/tests/test_index_control.py",
+      "sha256": "e1166d5662d7f7fd0fddbedde7685e473bd5e4e2ad0d52844db856a89610b0f0",
+      "blob": "b91edb7c178d67c82f51f6fb5703ea85a58e72f9"
+    },
+    {
+      "path": "plugins/shared/skills/index-control-plane/tests/test_reconcile_worker.py",
+      "sha256": "74f236495cd96287e7a8b7d5c40a340b664b62a4f4d85e6922356e7f639eb502",
+      "blob": "5ad04751e8bd634d0909259896bbbe1e34444342"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a",
+      "blob": "8770b1d875864c5356dc4abad904b69ec484817f"
+    },
+    {
+      "path": "scripts/contributor.ts",
+      "sha256": "fe58734931d78b7939f2601977bfc5ea25020974fe7f6f22f526b33dd71c556b",
+      "blob": "c22542435aae61ef356fe7443c45350911b7c4ca"
+    },
+    {
+      "path": "scripts/index-routing-inventory.json",
+      "sha256": "95e646f0dd6f6f168e85204ff61ecc9b758d32c229da0cbc9057f33fd2cc9f00",
+      "blob": "d6beac222c6ea29f8ab82fe0e48d59ef17102bfa"
+    },
+    {
+      "path": "scripts/test/governance-files.test.ts",
+      "sha256": "1122e48511a12b0310fe108151de9ee2b49d06a4ef090eb82fa997bb268c5049",
+      "blob": "502667f3574bd7eb266c99e7b34f17fcc9425bd6"
+    },
+    {
+      "path": "scripts/test/index-routing-inventory.test.ts",
+      "sha256": "d615c68829b1b2bc581d4de1d29648415d24ed4a3acaccc09c11dcf4f1157046",
+      "blob": "fab60d436ba188612ce27c09ec0054618cb67715"
+    },
+    {
+      "path": "scripts/test/rust-gates-wiring.test.ts",
+      "sha256": "8adf0a6fcc34596dbe0f0eb483086d69323553f0a377449d7680210b16898b1f",
+      "blob": "eb1046dba8b0710dcc8bc84c6e59d60fae2835f8"
+    },
+    {
+      "path": "scripts/test/rust-prerequisites.test.ts",
+      "sha256": "29c114e297b0098575f2bdfe463f4390d8269bbb5d2927a30cae10bbb79288ab",
+      "blob": "89c975eaef6e54c669f78f2413561610ec34829a"
+    },
+    {
+      "path": "scripts/test/test_index_routing_inventory.py",
+      "sha256": "e633f36a90734bb7bb880628fa8c6f3a52a35b879a1bfd5a60f6037f9a3beaf9",
+      "blob": "67cc14bbf4a1d249443b8310cb2b4e771dab9ac9"
+    },
+    {
+      "path": "scripts/verify-index-routing.py",
+      "sha256": "4ac17bf43032d0e2a02d80bb09a0a5c3229ea06a82499ab6dbbe05e7a7f189b9",
+      "blob": "fc42993bbd337170527157174e3077ee18d55495"
+    },
+    {
+      "path": "scripts/verify-pr.ts",
+      "sha256": "05c9463909945db4294c61a441876fb7bc2eb1aac96e3449fcf5b2177bc494a2",
+      "blob": "f0c76c3d7d715350fb4f104b2a1e4ad5429203aa"
+    },
+    {
+      "path": "tools/gates/.gitignore",
+      "sha256": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+      "blob": "b83d22266ac8aa2f8df2edef68082c789727841d"
+    },
+    {
+      "path": "tools/gates/Cargo.lock",
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "blob": "48df522b2bc9f71937dcd488e4569a2cd4e6e958"
+    },
+    {
+      "path": "tools/gates/Cargo.toml",
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "blob": "60dd9ef73c65cd97affe92a6b3e74840ba5508a1"
+    },
+    {
+      "path": "tools/gates/src/lib.rs",
+      "sha256": "b3941c8a830199f8913ef7ff1b379a3c163a7cfb94dfbd6c761ff4634992925f",
+      "blob": "460ba32825253f4dba2ba2e4c6940b5b0540045e"
+    },
+    {
+      "path": "tools/gates/src/main.rs",
+      "sha256": "dbeb66f67bf8973e7ef7116a9d00e1fb0857121e44e14752447c5aa261a72a6e",
+      "blob": "59023bc4673b913329c2c3ae36e70ec88be970b3"
+    },
+    {
+      "path": "tools/gates/src/plan.rs",
+      "sha256": "98b3c3f8fe3e314839e01ce21bff63b45af08954a58d0fc9e4a81f0a6b619084",
+      "blob": "56c99dfd7acf1ca771a73ba7b9ca0406f020f2c6"
+    },
+    {
+      "path": "tools/gates/src/process.rs",
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "blob": "800a5ce54cd38fc78bb8fcbfb561dddc859a8e18"
+    },
+    {
+      "path": "tools/gates/src/receipt.rs",
+      "sha256": "27509340a5c239a3031c9e7f2735402a0931089514c0bc4b0f97bfb0ef318f4b",
+      "blob": "390bd0a587656f459b4527f7c2a75eaecc073317"
+    },
+    {
+      "path": "tools/gates/src/rust_workspace.rs",
+      "sha256": "d7ffeb14b2f74494d3d4ddc01ccc438b0d5dac841f4f4f80562588e6b00af053",
+      "blob": "687ff55032280e89cd86f5936e541949957a6eb5"
+    },
+    {
+      "path": "tools/gates/tests/owned_process.rs",
+      "sha256": "b64c4514282ce9fb2957cb07be5c2a1c2b3a71f48b376f5a13b3841c214238e6",
+      "blob": "08bd93bbc05b49807072050f5e8e2ccd4248c66e"
+    },
+    {
+      "path": "tools/gates/tests/planning.rs",
+      "sha256": "d9e0bda5b1906a4c1f57216d29c913eac9ae25e782d37e035cdcca46118ca1b0",
+      "blob": "c0d964e39850d03342d046fd0147485214045789"
+    },
+    {
+      "path": "tools/gates/tests/process.rs",
+      "sha256": "a5d7f10964f03e31cc1bbec620644771552171bc5f57aac9cfc8a5296ee52b40",
+      "blob": "e1a08376a32a53c8eac40e3038065ec2c974a806"
+    },
+    {
+      "path": "tools/gates/tests/rust_product.rs",
+      "sha256": "786decb59afbc540834e2178beb8f63c307354ca8bd43042d28cad617860fca7",
+      "blob": "d68f2e80ca4265246d2df34109b37dd61d5ee363"
+    },
+    {
+      "path": "tools/gates/tests/support/fixture.rs",
+      "sha256": "023a2c300e4eb821c347f9fa2a55342ddadf5a65ff39d4911d1e90f0f149e9c7",
+      "blob": "0ec2a094a60da896f83d1fb4ffe728cca6a3a65f"
+    },
+    {
+      "path": "tools/qualification/.gitignore",
+      "sha256": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+      "blob": "b83d22266ac8aa2f8df2edef68082c789727841d"
+    },
+    {
+      "path": "tools/qualification/Cargo.lock",
+      "sha256": "cf765053ab4c427fbd9543ad2b42012e88ab1cb2fa09c3919d0ba75225d6c904",
+      "blob": "e4047e8ba620e7212aad2c522283b0dae2d1600e"
+    },
+    {
+      "path": "tools/qualification/Cargo.toml",
+      "sha256": "00f704a9cdecd7b30e963d7ea79819258d3fd916b77eaa6aa7c025ff288b4013",
+      "blob": "b70ec7c9b7ce489494dbd8d0de5b41e2eddb3498"
+    },
+    {
+      "path": "tools/qualification/README.md",
+      "sha256": "dafbabacbea5823f62aaa5e28099ba66684e9a94895e8a20b0f2b0c8f0ccc2a2",
+      "blob": "6d263704cb3d5e98f0d5ce8b0bb59801c540c891"
+    },
+    {
+      "path": "tools/qualification/src/journeys.rs",
+      "sha256": "52bf1bf55a5e0dff984e3912372daf1203c5fc63981cc1a4cf874196ba99c8a7",
+      "blob": "c00b9033a913a7d7642874f4e133a09bf424cf0c"
+    },
+    {
+      "path": "tools/qualification/src/lib.rs",
+      "sha256": "f3e395a58ecbb465beeb8bd52e2a7285a64f5b74abbc5fbc84e31564ba965162",
+      "blob": "a5cbfe1424f6ad7a0d6a8ecb40395a46107e7999"
+    },
+    {
+      "path": "tools/qualification/src/main.rs",
+      "sha256": "2f3e1dbf415030b50587811f28bfee7378791db4ffb0c893a9ae2a573218c6e3",
+      "blob": "10e8130ec99c9a004f19d82905071d5e7e6887f2"
+    },
+    {
+      "path": "tools/qualification/src/mcp.rs",
+      "sha256": "e3543b4b7122984dd1be25021844b9f4250cf8bdf6a4ba9b5ca1e068e89ce7de",
+      "blob": "a7f6a748d3fe8df297707e583b6a2619cbce3669"
+    },
+    {
+      "path": "tools/qualification/src/process.rs",
+      "sha256": "0abf3f630d41263bada1624afd0e36602a92711dbdf2cc7cb70ba6212c1e8de0",
+      "blob": "88d546de952949ec14871bf801652204513dfff5"
+    },
+    {
+      "path": "tools/qualification/tests/fixtures/mcp.rs",
+      "sha256": "f2538b5aa71ab3f5c28ebf35ca0c049eeb9d369097bcf1960b5a9b76ecf1d0ba",
+      "blob": "f36f28a076715770e7d6ac0bcd547ab965561db5"
+    },
+    {
+      "path": "tools/qualification/tests/mcp_stderr.rs",
+      "sha256": "0fed4c97c157814a979a1eba4f18096d5f1e8fc8c84480bc8acd3b603caf9faa",
+      "blob": "4efab437193a788ceb6ac9c9290af7db50b5e1c6"
+    },
+    {
+      "path": "tools/qualification/tests/native_adapter.rs",
+      "sha256": "c6432c252afc2ba77eb783f2d967d4c263afce7f8cccede5fc8a5b8b5ec2da77",
+      "blob": "9ea4c1ce81f43d11fdcec72077b182b2bbabcc7b"
+    },
+    {
+      "path": "tools/qualification/tests/process_lifecycle.rs",
+      "sha256": "7575fce374d737774e6a5472125abe898cca24554e04d778cada04713794f11c",
+      "blob": "eda1378859c8293839e3104b55e985522f258f78"
+    }
+  ],
+  "excluded": [
+    ".github/CODEOWNERS",
+    "CONTRIBUTING.md",
+    "apps/cli/test/install-cli.test.ts",
+    "docs/contributing/first-check.md",
+    "packages/app-services/test/codex-plugin-production-boundary.test.ts",
+    "plugins/shared/skills/index-control-plane/tests/test_gateway.py"
+  ],
+  "purpose": "Recover canonical exact-head CI and reuse existing native supervision; not a TS/JS native composition.",
+  "authority": "Accepted ADR0037 at sourceCommit supersedes TypeScript CI execution entry points, while retaining required aggregate, native OS coverage and conservative fallback.",
+  "ciFailure": "The native stacked PR synthetic merge used main Rust workflow with exact T00 head checkout lacking canonical tools; reuse closes that source/workflow mismatch without restacking.",
+  "verificationScope": "Exact source reuse is not evidence of successful integration, native semantic parity or R0. Fresh local and public execution must establish their own results."
+}

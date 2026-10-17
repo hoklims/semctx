@@ -1,0 +1,34 @@
+{
+  "recordVersion": 1,
+  "arbitrations": [
+    {
+      "id": "T00-ARB-001",
+      "status": "approved_expectation_pending_native_qualification",
+      "owner": "SebastienElet",
+      "decisionSource": "https://github.com/hoklims/semctx/issues/365#issuecomment-6235210936",
+      "approval": "Sébastien requested recording this bug on365 and correcting it in the Rust implementation.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "separateTypeScriptFixRequested": false,
+      "historicalObservation": {
+        "ambiguousAB": "TS2308; resolved call consumer.run->a.f; qualified admitted with empty reasons; global WARN.",
+        "ambiguousBA": "TS2308; resolved call consumer.run->b.f; qualified admitted with empty reasons; global WARN.",
+        "explicitNamedBControl": "NoTS2308; consumer.run->b.f; qualified admitted."
+      },
+      "expectedRustBehavior": [
+        "Do not emit an arbitrarily resolved call edge for the two ambiguous star-export variants.",
+        "Report the ambiguity and reject the corresponding qualified admission.",
+        "Keep explicit named reexport to b.f valid."
+      ],
+      "comparisonRule": "Record this specific historical correction as an approved divergence. Historical output remains supplementary observation and cannot mint the expected Rust result. All other strict-baseline expectations remain unchanged.",
+      "diagnosticCode": "not selected; freeze with the private case contract before qualification",
+      "evidenceEnvironment": {
+        "host": "Darwin arm64",
+        "bun": "1.4.3",
+        "typescriptSDK": "5.9.3",
+        "WindowsLinuxExercised": false
+      },
+      "witnessArchiveSha256": "c9eb16890540767e1c4c09199c7c1fc06997b84b569d139194ac5dad46e3859f",
+      "nativeCandidateRuns": 0
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "author": "/root",
+  "status": "PRIVATE_T00_REPRESENTATION_PROPOSAL_FOR_INDEPENDENT_REVIEW",
+  "authority": "#365 sections2.1/4.2 and reconciled private-batch contract targets; no public ABI or fullT02 schema port",
+  "wire": "UTF-8 JSON; identities lower-case sha256:<64hex>; distinct Rust types for artifact/input/snapshot/facts/request/scope; representation alone carries no authority",
+  "equality_class_fixture_bindings": {
+    "FACTS_A": "sha256:1f8213320e1d112c4aabf56db31e26e44e98be2388a48c4c32ecdfd9ea93b4a7",
+    "FACTS_B": "sha256:09383ca56eb411d8beb0db402f91df20022eb8584e540568751ce99d57587f92",
+    "INPUT_A": "sha256:2b7698d83e1f63e62e12fa30c78599d5222489af82cc88e0d3c36d4407ae092c",
+    "INPUT_B": "sha256:aacaeee21d627aadcd41a1292c9ddaee7725d6298db9e11c59ab430f27e3fc9e",
+    "CAPTURE_A": "sha256:35cfc3ee3631ed33d3142c81150ae88a10e8279b184b34f490ecf133265fc455",
+    "CAPTURE_B": "sha256:f2f8aa40eb4c8aed38ad49803460e947d83c1eb949469a22c3b8fed355a9c257"
+  },
+  "runtime_identity_binding": "Actual native process/artifact/input/facts hashes replace fixture equality classes from independently observed bytes. Actual optimized artifact identity is frozen at stage5, never guessed before compilation. Fixture constants test the guard, not an actual process attestation.",
+  "producer_result_claims": [
+    "schema_version",
+    "case_id",
+    "request_id",
+    "snapshot_id",
+    "scope_id",
+    "profile",
+    "producer_artifact_id",
+    "input_manifest_id",
+    "complete",
+    "subjects",
+    "facts",
+    "diagnostics",
+    "outcomes",
+    "input_observations"
+  ],
+  "receiver_owned_observations": [
+    "actual executable bytes hash",
+    "bounded command/process/terminal outcome from reused #383 supervisor",
+    "expected request/snapshot/scope/profile/input identities from frozen case inventory",
+    "validated result cardinality/completeness/identity and actual received facts hash",
+    "current capture/facts/freshness at consumer use"
+  ],
+  "authority_boundary": "Producer JSON is data. Receiver observation/context is an internal type unavailable to producer deserialization and is constructed only by the receiver execution/validation path. A serialized producer ownership flag never authorizes a context.",
+  "QRECEIPT_projection": "Map each authored scenario to receiver context available true/false and its named failure scenario; do not infer global admission. Fixed labels above permit exact equality guards without requiring future candidate artifact bytes now.",
+  "failures": "Missing/malformed/foreign identities, wrong subject counts, conflicting duplicates, incomplete output, range/endpoint errors, failure/timeout/truncation/cancellation or late output refuse receipt acceptance; all actual process failures remain explicit. Controlled product refusal is a separately declared complete structured outcome, not process-success authority.",
+  "proof_limits": "No process or guard ran here. Named unit projections need the receiver oracle; T-* integration cases and native process observations must separately establish real invocation/termination behavior. Schema internal names may be bound by an explicit implementation adapter without changing frozen semantic expectations."
+}

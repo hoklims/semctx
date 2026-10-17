@@ -1,0 +1,217 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "pullRequest": "https://github.com/hoklims/semctx/pull/386",
+  "recordedDateUtc": "2026-10-17",
+  "stage": 3,
+  "r0Decision": "NOT_RUN",
+  "owner": "SebastienElet",
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "tree": "d3faa654755ce9f7aca24cd63d076045af37c706",
+    "version": "0.4.5",
+    "typescript": "5.9.3"
+  },
+  "initialSubject": {
+    "branch": "rust/365-t00",
+    "commit": "d5ba8fdb3a3b8b8da7ceeb06c16db851d02ad950",
+    "tree": "60c904de8cef825c321b217b0af3f874dc9784c9",
+    "baseBranch": "rust/365-coordination",
+    "baseCommit": "382c084fc39c44e552bdbe159c441c0d08ea49ac"
+  },
+  "approvedEnvelope": {
+    "nativeCompositionsMaximum": 2,
+    "correctionPassesAfterFirstRunPerCompositionMaximum": 2,
+    "cumulativeEffortWorkingDaysMaximum": 5,
+    "preparationAndArbitrationIncluded": true,
+    "parallelAgentEffortIsCumulative": true,
+    "preferEarlyFalsification": true,
+    "extensionRequiresExplicitBudget": true
+  },
+  "execution": {
+    "localHost": "macOS 27.0.1 ARM64",
+    "bun": "1.4.3",
+    "rust": "1.95.0",
+    "cargo": "1.95.0",
+    "python": "3.10.22",
+    "ruff": "0.16.10",
+    "zizmor": "1.30.1",
+    "git": "2.54.0 (Apple Git-157)",
+    "qualityEnvironment": "disposable virtual environment outside checkout",
+    "globalInstallationPerformed": false,
+    "gitConfigGlobalRemovedForVerification": true,
+    "nativeHostProvider": "GitHub Actions",
+    "requiredR0NativeHosts": [
+      "ubuntu-latest",
+      "windows-latest"
+    ],
+    "nativeCandidateRuns": []
+  },
+  "tooling": {
+    "pullRequest": 383,
+    "mergeCommit": "d4e73e74709a369ff908041ea370b39a76d9cd3a",
+    "mergedAt": "2026-10-16T18:09:43Z",
+    "sourceArchivePaths": [
+      "tools/gates",
+      "tools/qualification",
+      "rust-toolchain.toml",
+      "clippy.toml"
+    ],
+    "gitArchiveSha256": "12b379c97b69374d755ed53f3481db6555d488267f3453c5ce5ef6f913438805",
+    "integration": "exact canonical source and integration Git blobs adopted from merged #383; no stack restack or controller fork",
+    "existingScenarioQualificationCoversSemanticPrecision": false,
+    "pathManifest": "tooling-reuse.json",
+    "semanticCompositionRunsConsumed": 0
+  },
+  "corpusAcquisitions": {
+    "development": "Ten source-authored bootstrap cases /17variants, separately indexed and byte-disjoint from268qualification records within the stated comparison; historical assertions remain source references.",
+    "qualification": [
+      {
+        "repository": "unjs/pathe",
+        "commit": "bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/unjs/pathe/tar.gz/bc7477a01f0bd60ada017add8142c9f9d69ccdc5",
+        "archiveSha256": "35e374b0c8449e3fdc70c3aeaf474ee5c1bb0d03a9a44d70f900bf55f2fc1209"
+      },
+      {
+        "repository": "sindresorhus/yocto-queue",
+        "commit": "72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "license": "MIT",
+        "licensePath": "license",
+        "archiveUrl": "https://codeload.github.com/sindresorhus/yocto-queue/tar.gz/72a8fa96a9d389765cdf2bb9c6daba8302fc375d",
+        "archiveSha256": "950ca6b5d09edc628c05bb3c7d149d26749f89223683f397d9f36e197c1fde1d"
+      }
+    ],
+    "reserved": {
+      "authorTask": "/root/reserved_corpus",
+      "authorMustNotImplementProducer": true,
+      "publicAcquisitionManifestSha256": "7af9f74b35371207bef3d5ad51674ad4c777325cc41a371375e911c02780f706",
+      "custodyIdentitySha256": "57af2c3698957735621d7f2765ec8174c1c9844f4690f3da19d677aecdacbb64",
+      "repositories": [
+        {
+          "repository": "sindresorhus/p-limit",
+          "commit": "a8a6fbec4e0e866d6d779b10889bb4f5567e70eb",
+          "license": "MIT",
+          "monorepo": false,
+          "archiveUrl": "https://codeload.github.com/sindresorhus/p-limit/tar.gz/a8a6fbec4e0e866d6d779b10889bb4f5567e70eb",
+          "archiveSha256": "74cc734c8ff3b9c1607ad1d9fa79a3f3683508fb39b8b396840348185a771926",
+          "sourceManifestSha256": "38f6cf5025bf30bbab4c8de665b5295548f0d8e0424cf27793a68aeca63614d8"
+        },
+        {
+          "repository": "TanStack/query",
+          "commit": "a636462b853438903567c9907c188a068021c633",
+          "license": "MIT",
+          "monorepo": true,
+          "archiveUrl": "https://codeload.github.com/TanStack/query/tar.gz/a636462b853438903567c9907c188a068021c633",
+          "archiveSha256": "2aad87b53d61abc2a10bf7ad07cd270478f64bd5b790017f0c55bd313ca19d51",
+          "sourceManifestSha256": "7d6dac1c342fef04f925053c35e219f3882fbba4a7b0618b0762ad164967bf08"
+        }
+      ],
+      "publicFreezeReceipt": {
+        "path": "cases/reserved/PUBLIC-FREEZE-RECEIPT.json",
+        "sha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a"
+      },
+      "custodyCommitmentSha256": "39eda7f63b07c619527009e36a28098d6353137e401f917a7b55e517e1300b5c",
+      "cases": 23,
+      "variants": 26,
+      "privatePayloadPublished": false,
+      "producerObservedPrivatePayload": false,
+      "priorCustodyIdentityRole": "Predecessor acquisition identity preserved; latest public freeze receipt records successor private commitments before candidate selection."
+    },
+    "dependencyClosuresVerified": false,
+    "caseExpectationsFrozen": true,
+    "boundedFixtureScopesIdentified": true,
+    "wholePublicProjectTypeDependencyClosureClaimed": false
+  },
+  "repositoryAccess": {
+    "visibility": "public",
+    "pushPermissionObserved": true,
+    "ciWorkflowObserved": "active",
+    "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
+  },
+  "remainingEvidence": [
+    "native producer mechanisms and actual process inventory",
+    "optimized candidate artifacts and consumed-input identities",
+    "actual SDK/configuration/dependency consumption and coherent capture witnesses",
+    "all354 frozen qualification execution units and51 supporting observations",
+    "independently reserved-case results",
+    "native Linux and Windows optimized common-vector results",
+    "remaining divergence arbitrations and final R0 decision"
+  ],
+  "sourceInventory": {
+    "obligations": "inventory/obligations.json",
+    "catalogue": "inventory/catalogue.json",
+    "scopeAndMethod": "inventory/scope-and-method.json",
+    "provenance": "inventory/provenance-summary.json",
+    "baselineDeltas": "inventory/baseline-to-T00-deltas.json",
+    "manifest": "inventory/manifest.json",
+    "sourceUsageGroups": 240,
+    "caseDenominatorFrozen": true,
+    "nativeEvidence": false
+  },
+  "arbitrations": "arbitrations.json",
+  "caseFreeze": {
+    "record": "cases/FREEZE.json",
+    "index": "cases/index.json",
+    "qualificationRecords": 268,
+    "qualificationExecutionUnits": 354,
+    "qualificationSupportUnits": 51,
+    "developmentRecords": 10,
+    "developmentVariants": 17,
+    "historicalAssertionReferencesAreExecutableControls": false,
+    "nativeExecutionEvidence": false
+  },
+  "checkpoint3Verification": {
+    "recordedUtc": "2026-10-17T16:10:12.284155+00:00",
+    "localCanonical": [
+      {
+        "shard": "1/4",
+        "exitCode": 0,
+        "sha256": "0056c1a49ac815a36c497900a9a148dd39bc5a6e095f1499c75b752ef27fcb21",
+        "raw": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"1/4\"\n    Finished `release` profile [optimized] target(s) in 0.13s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 1/4`\n[verify:pr] PASS  all checks\n",
+        "environment": "macOS27.0.1ARM64;Bun1.4.3;Rust1.95.0;pinned quality venv;GIT_CONFIG_GLOBAL unset;inherited Volta Node/npm PATH",
+        "command": "env -u GIT_CONFIG_GLOBAL RUSTUP_TOOLCHAIN=1.95.0 SEMCTX_VERIFY_BASE=rust/365-coordination bun run verify:pr --test-shard 1/4"
+      },
+      {
+        "shard": "2/4",
+        "exitCode": 0,
+        "sha256": "bc4472a93f4b761c0fbbb50abf753cbe8f721843f14498f8cff056afcb528581",
+        "raw": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"2/4\"\n    Finished `release` profile [optimized] target(s) in 0.01s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 2/4`\n[verify:pr] PASS  all checks\n",
+        "environment": "macOS27.0.1ARM64;Bun1.4.3;Rust1.95.0;pinned quality venv;GIT_CONFIG_GLOBAL unset;inherited Volta Node/npm PATH",
+        "command": "env -u GIT_CONFIG_GLOBAL RUSTUP_TOOLCHAIN=1.95.0 SEMCTX_VERIFY_BASE=rust/365-coordination bun run verify:pr --test-shard 2/4"
+      },
+      {
+        "shard": "3/4",
+        "exitCode": 0,
+        "sha256": "f6077d76192b899f510ed405e4ebfdb8a10b9b0a113752107052b41e4b2672e1",
+        "raw": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"3/4\"\n    Finished `release` profile [optimized] target(s) in 0.02s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 3/4`\n[verify:pr] PASS  all checks\n",
+        "environment": "macOS27.0.1ARM64;Bun1.4.3;Rust1.95.0;pinned quality venv;GIT_CONFIG_GLOBAL unset;inherited Volta Node/npm PATH",
+        "command": "env -u GIT_CONFIG_GLOBAL RUSTUP_TOOLCHAIN=1.95.0 SEMCTX_VERIFY_BASE=rust/365-coordination bun run verify:pr --test-shard 3/4"
+      },
+      {
+        "shard": "4/4",
+        "exitCode": 0,
+        "sha256": "2ea25406040140a950e78703ddada8203e944cedea34499d9c38b2cdf9fea472",
+        "raw": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"4/4\"\n    Finished `release` profile [optimized] target(s) in 0.02s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 4/4`\n[verify:pr] PASS  all checks\n",
+        "environment": "macOS27.0.1ARM64;Bun1.4.3;Rust1.95.0;pinned quality venv;GIT_CONFIG_GLOBAL unset;inherited Volta Node/npm PATH",
+        "command": "env -u GIT_CONFIG_GLOBAL RUSTUP_TOOLCHAIN=1.95.0 SEMCTX_VERIFY_BASE=rust/365-coordination bun run verify:pr --test-shard 4/4"
+      }
+    ],
+    "outputLimit": "Canonical noninteractive output is aggregate-only; no detailed test count inferred.",
+    "finalDocumentaryChecks": "Existing docs:check, Bun1.4.3 JSON parser, frozen-file identities, portable references/base64 decoded bytes and git diff --cached --check repeated after metadata-only corrections.",
+    "duringRuns": "Only documentary statuses and execution associations changed after commands started; authored fixture bytes/projections, executable code, tests, CI configuration and dependency blobs unchanged. These runs are not claimed to target the exact final documentary diff.",
+    "independentSpecificationReview": "cases/annexes/stage3-global-freeze-review.json",
+    "independentPackageReview": {
+      "sha256": "10da9233482af4b4e87daaedd694e16fdc819df0899acda6e8b47df8ec2d7c01",
+      "rawJson": "{\n  \"reviewer\": \"/root/stage3_package_standards\",\n  \"scope\": \"Independent read-only local standards and proof-document review; no GitHub, mutation, native execution or private holdout read. Report stored outside candidate.\",\n  \"anchor\": {\n    \"head\": \"e1e82886330b452c40a4a4da42bb0cc4330d4662\",\n    \"tree\": \"de5793083a6d08f91ff8849b81a553893c8eb9e3\",\n    \"diffSha256\": \"73690f95ef7f74f3298b8cfe3be0683028519a7a890adae1d608d8d670379374\",\n    \"files\": [\n      \"docs/research/rust-ts-r0/README.md\",\n      \"docs/research/rust-ts-r0/cases/.gitattributes\",\n      \"docs/research/rust-ts-r0/cases/FILE-HASHES.json\",\n      \"docs/research/rust-ts-r0/cases/FREEZE.json\",\n      \"docs/research/rust-ts-r0/cases/README.md\",\n      \"docs/research/rust-ts-r0/cases/allocation/disjointness-original.json\",\n      \"docs/research/rust-ts-r0/cases/allocation/disjointness-portable.json\",\n      \"docs/research/rust-ts-r0/cases/allocation/input-index.json\",\n      \"docs/research/rust-ts-r0/cases/allocation/policy.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/baseline-analyzer-identity.expected.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/diagnostic-expectations.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/e03-expectations.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/encoding-coordinate-expectations.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/encoding-edge-observations.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/nine-obligation-branch-matrix.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/primitive-inputs.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/private-batch-claim-ledger.md\",\n      \"docs/research/rust-ts-r0/cases/annexes/private-batch-contract.draft.md\",\n      \"docs/research/rust-ts-r0/cases/annexes/private-identity-expectations.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/receipt-representation-claim-ledger.md\",\n      \"docs/research/rust-ts-r0/cases/annexes/receipt-representation-verdict.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/receipt-representation.v1.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/report.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/sdk-and-config-requirements.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/sdk-helper-matrices.v3.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/sdk-required-closure.v3.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/stage3-global-freeze-review.json\",\n      \"docs/research/rust-ts-r0/cases/annexes/typescript-observations.json\",\n      \"docs/research/rust-ts-r0/cases/index.json\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R01-ascii-lf.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R02-retained-bom.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R03-ascii-crlf.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R04-shebang-lf.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R05-astral-comment-crlf.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/R06-combined-retained-raw-text.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/UTF16BE.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/UTF16LE-lone-high-surrogate.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/UTF16LE-odd-tail.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/UTF16LE.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/inputs/encoding/UTF8-invalid.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/provenance.json\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/LICENSE\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/package.json.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/src/_glob.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/src/_internal.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/src/_path.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/src/index.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/src/utils.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/pathe/tsconfig.json.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/yocto-queue/index.d.ts.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/yocto-queue/index.js.source.b64\",\n      \"docs/research/rust-ts-r0/cases/public/yocto-queue/license\",\n      \"docs/research/rust-ts-r0/cases/public/yocto-queue/package.json.source.b64\",\n      \"docs/research/rust-ts-r0/cases/qualification/adoption-overlay.json\",\n      \"docs/research/rust-ts-r0/cases/qualification/obligations.json\",\n      \"docs/research/rust-ts-r0/cases/qualification/scenarios.json\",\n      \"docs/research/rust-ts-r0/cases/qualification/support.json\",\n      \"docs/research/rust-ts-r0/cases/reserved/PUBLIC-FREEZE-RECEIPT.json\",\n      \"docs/research/rust-ts-r0/cases/sources/development-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/historical-assertion-references.json\",\n      \"docs/research/rust-ts-r0/cases/sources/ordinary-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/outline-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/public-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/qualified-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/semantic-cases.json\",\n      \"docs/research/rust-ts-r0/cases/sources/semantic-key-pair.json\",\n      \"docs/research/rust-ts-r0/cases/upstream/typescript/LICENSE.txt.b64\",\n      \"docs/research/rust-ts-r0/cases/upstream/typescript/sdk-manifest.json\",\n      \"docs/research/rust-ts-r0/effort.json\",\n      \"docs/research/rust-ts-r0/experiment.json\",\n      \"docs/research/rust-ts-r0/inventory/catalogue.json\",\n      \"docs/research/rust-ts-r0/inventory/manifest.json\"\n    ]\n  },\n  \"stable_anchor_after_audit\": {\n    \"head\": \"e1e82886330b452c40a4a4da42bb0cc4330d4662\",\n    \"tree\": \"de5793083a6d08f91ff8849b81a553893c8eb9e3\",\n    \"diffSha256\": \"73690f95ef7f74f3298b8cfe3be0683028519a7a890adae1d608d8d670379374\"\n  },\n  \"conclusion\": \"NO_REMAINING_FINDINGS_IN_BOUNDED_STANDARDS_REVIEW\",\n  \"findings\": [],\n  \"resolved_findings\": [\n    {\n      \"id\": \"STATUS-1\",\n      \"axis\": \"standards/proof documentary consistency\",\n      \"original_anchor_tree\": \"1fabeb7cd72eb5d21b4aa6d5f9a73591dcde7cfc\",\n      \"locations\": [\n        \"cases/qualification/scenarios.json initial row frozen:false repeated349times\",\n        \"cases/qualification/support.json initial row frozen:false repeated51times\",\n        \"cases/qualification/obligations.json six execution_unit_ids empty despite adopted qualification_execution_unit_ids\"\n      ],\n      \"fact\": \"Effective frozen package retained contradictory proposal flags and six empty execution_unit_ids.\",\n      \"resolution\": \"Pass1 sets all354 scenario and51 support effective frozen flags; preserves old values in historical metadata; all240 execution_unit_ids equal nonempty qualification_execution_unit_ids. Rechecked exact hashes and pointers on new anchor.\"\n    }\n  ],\n  \"checks\": {\n    \"file_inventory_hashes_exact\": 66,\n    \"index_hashed_references_resolved\": 590,\n    \"index_json_pointers_resolved\": 536,\n    \"base64_stored_and_decoded_identities_exact\": 22,\n    \"public_payload_decoded_vs_immutable_source_manifest_exact\": 10,\n    \"qualification_records_unique\": 268,\n    \"execution_unit_ids_unique\": 354,\n    \"support_ids_unique\": 51,\n    \"obligation_ids_unique\": 240,\n    \"canonical_inventory_fields_preserved\": 8,\n    \"historical_assertion_references\": 111,\n    \"historical_families\": 27,\n    \"adoption_bindings\": 6,\n    \"additional_consumer_execution_units\": 5,\n    \"all_effective_qualification_associations_nonempty_and_resolve\": true,\n    \"reserved_directory_contains_only_public_receipt\": true,\n    \"effort_sum_matches_record\": 32287.821,\n    \"baseline\": \"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b\",\n    \"correction_row_changed_keys\": {\n      \"qualification/scenarios.json\": [\n        \"frozen\",\n        \"historical_proposal_metadata\",\n        \"qualification_state\"\n      ],\n      \"qualification/support.json\": [\n        \"frozen\",\n        \"historical_proposal_metadata\"\n      ],\n      \"qualification/obligations.json\": [\n        \"execution_unit_ids\",\n        \"historical_proposal_execution_unit_ids\"\n      ]\n    }\n  },\n  \"proof_integrity\": {\n    \"verdict\": \"NOT_APPLICABLE\",\n    \"scope\": \"No running gate, executor, cache, CI selection rule or executable test oracle changes in this indexed documentary package. Frozen future native expectations and their source provenance were audited; this verdict grants no native correctness or qualification.\",\n    \"native_state\": \"NOT_RUN\",\n    \"native_compositions_selected\": 0,\n    \"native_runs\": 0,\n    \"source_status_interpretation\": \"Canonical stage2 eight-field inventory and immutable source proposal statuses are historical/source evidence; effective stage3 freeze lives in index/FREEZE and qualification projections. None is native execution evidence.\",\n    \"full_T02_not_prerequisite\": true\n  },\n  \"environment\": {\n    \"host\": \"macOS-27.0.1-arm64-arm-64bit-Mach-O\",\n    \"architecture\": \"arm64\",\n    \"bun\": \"1.4.3\",\n    \"git\": \"2.54.0 (Apple Git-157)\",\n    \"python\": \"3.15.0\",\n    \"exercised\": \"macOS local document reads, Git identity checks and ephemeral in-memory Python identity/reference queries\",\n    \"supported_native_targets_not_exercised\": [\n      \"Linux native\",\n      \"Windows native\"\n    ],\n    \"canonical_verify_pr\": \"Parent running; not rerun or claimed here\"\n  },\n  \"limitations\": [\n    \"Bounded source-document review; no claim that every authored semantic projection was independently rederived here. Independent source/consumer review is retained in annexes/stage3-global-freeze-review.json.\",\n    \"Public source archive bytes were cross-checked through supplied immutable manifest identities; no network reacquisition.\",\n    \"Development disjointness is the declared narrow static byte comparison, not semantic independence proof.\",\n    \"Private reserved payload never opened; only published custody receipt reviewed.\",\n    \"No new gate or mirror test added.\"\n  ],\n  \"effort_interval\": {\n    \"startUtc\": \"2026-10-17T15:53:55Z\",\n    \"endUtc\": \"2026-10-17T16:00:39.489395+00:00\",\n    \"basis\": \"Start is conservative wall envelope allowance; includes waits and reviewer tool time, not measured active CPU.\"\n  }\n}\n"
+    },
+    "canonicalToolingPublicCI": {
+      "head": "e1e82886330b452c40a4a4da42bb0cc4330d4662",
+      "ci": "https://github.com/hoklims/semctx/actions/runs/39044995967",
+      "codeql": "https://github.com/hoklims/semctx/actions/runs/39044862322",
+      "status": "All checks including semctx-required SUCCESS",
+      "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
+    }
+  }
+}
