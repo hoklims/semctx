@@ -9,9 +9,11 @@ issue owns acceptance. This record declares neither `ECONOMIC_PROTOTYPE_PASS` no
 
 T01 depends on T00. T00 has not reached `READY_TS_NATIVE`; its record reports stage 1 and
 `r0Decision: NOT_RUN`. Hypotheses H1–H3, the prototype and the economic gate therefore remain
-unstarted. This checkpoint only covers work #365 places in T01 before any comparison: baseline
+unstarted. This record only covers work #365 places in T01 before any comparison: baseline
 characterization, workload preparation and the measurement protocol (D6). No Rust code,
 dependency, workflow change or product change is introduced.
+
+Checkpoint 2 adds the requalified baseline described below.
 
 [protocol.json](protocol.json) is the machine record of this checkpoint.
 
@@ -87,13 +89,39 @@ it reproduces an independent 32-bit collision:
 At this edge count, the birthday bound predicts about two colliding pairs. The partner of
 `342a8bf7` lies outside the relative-import scan and remains unidentified.
 
+## Requalified baseline
+
+On 2026-10-17 the owner, who holds authority over #365, arbitrated the identity defect under
+#365 section 2.3. The decision applies to T01 measurements only:
+
+- The T01 reference is `3e94997` plus one patch to `packages/core/src/ids.ts`. `edgeId` and
+  `claimId` use the first 128 bits of SHA-256 instead of 32-bit FNV-1a. Both populations grow
+  with the repository. Other identities are unchanged. The exact patch and its digest are in
+  `protocol.json` (`requalifiedBaseline`).
+- The patch is applied to a disposable checkout outside this branch. It is not a product change
+  and does not modify `main`. The identity format of the Rust candidate remains a T02 decision
+  under D4.
+- The historical baseline stays pinned. It remains the reference for any behavior other than
+  these two identities.
+
+Single-run checks of the requalified baseline:
+
+| Check | Result |
+| --- | --- |
+| VS Code `5b23ab3`, previously failing | Indexed: 101,587 nodes, 463,422 edges, 697,442 evidence rows, 19,663 claims; 186.9 s; 24.8 GB maximum RSS |
+| Semctx, store compared with the historical baseline | Nodes, evidence and edges without their id identical; claims identical once subject and evidence lists are compared as sets; edge and claim ids unique in both |
+| Semctx, cost | 4.82 s and 1.88 GB, against 4.88 s and 1.92 GB historically; single runs, within noise |
+
+Only identity values and the order they induce changed. Edges are iterated in id order, so 73 of
+the 1,077 claims list the same subjects and evidence in a different order. At 463,422 edges, the
+birthday bound predicts about 25 colliding pairs under 32-bit identities, so the historical
+baseline cannot index this workload.
+
 ## Consequences for the protocol
 
-- The baseline cannot serve as a parity or cost oracle on large workloads until this identity
-  defect is arbitrated. Under #365 section 2.3, correcting historical behavior needs a separate
-  product decision and requalifies the baseline. Edge identities are public identities in T02's
-  scope (IDs and domain hashes). Until then, large cells are `BLOCKED_MEASUREMENT`; they are not
-  removed from the matrix.
+- Large cells use the requalified baseline. A Rust candidate's facts are compared with it,
+  ignoring only edge and claim identity values and the order they induce. All other fields must
+  match exactly.
 - Baseline memory grows to tens of GB on large repositories. Every size class must declare its
   host memory before runs. A run that exhausts memory is recorded as a result, not discarded.
 - Aggregate memory is measured as the maximum over time of the summed RSS of the live process
@@ -102,8 +130,7 @@ At this edge count, the birthday bound predicts about two colliding pairs. The p
 
 ## Next checkpoints
 
-1. Obtain the owner's confirmation of the size translation above and the arbitration route for
-   the identity defect.
+1. Obtain the owner's confirmation of the size translation above.
 2. Select and pin the workload snapshots per size class, disjoint from T00's qualification and
    reserved repositories, with their configurations and dependency closures.
 3. Measure instrumentation cost, then record repeated baseline series per phase and size class.
