@@ -708,6 +708,15 @@ test("an explicit Cargo target matching its conventional target remains one worl
   expect(membership.ambiguousPaths.has("src/main.rs")).toBe(false);
 });
 
+test("an explicit Cargo target can rename a conventional target without adding a world", () => {
+  const membership = rustMembershipByPath([{ path: "Cargo.toml",
+    content: '[package]\nname = "app"\nversion = "0.1.0"\nedition = "2021"\n[[bin]]\nname = "renamed"\npath = "src/main.rs"\n[[test]]\nname = "also_renamed"\npath = "tests/booking.rs"\n' }],
+  ["src/main.rs", "tests/booking.rs"], []);
+  expect([...membership.editionsByPath.keys()].sort()).toEqual(["src/main.rs", "tests/booking.rs"]);
+  expect(membership.testPaths.has("tests/booking.rs")).toBe(true);
+  expect([...membership.ambiguousPaths]).toEqual([]);
+});
+
 test("a module reached from distinct Cargo targets has no single analysis world", () => {
   const content = "mod shared;\n";
   const modules = ["src/lib.rs", "src/main.rs"].map((relPath) => ({ relPath, name: "shared", rustKind: "mod_item",

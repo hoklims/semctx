@@ -75,6 +75,12 @@ export function rustMembershipByPath(
     };
     const targets = new Map<string, { path: string; isTest: boolean; explicit: boolean }>();
     const addTarget = (path: string, isTest: boolean, world: string, explicit = false): void => {
+      if (explicit) {
+        const kind = world.slice(0, world.indexOf(":"));
+        for (const [candidateWorld, candidate] of targets) {
+          if (!candidate.explicit && candidate.path === path && candidateWorld.startsWith(`${kind}:`)) targets.delete(candidateWorld);
+        }
+      }
       const previous = targets.get(world);
       if (previous?.path === path) return;
       if (previous !== undefined && previous.explicit && !explicit) return;
