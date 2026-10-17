@@ -20,7 +20,7 @@
         "Keep explicit named reexport to b.f valid."
       ],
       "comparisonRule": "Record this specific historical correction as an approved divergence. Historical output remains supplementary observation and cannot mint the expected Rust result. All other strict-baseline expectations remain unchanged.",
-      "diagnosticCode": "not selected; freeze with the private case contract before qualification",
+      "diagnosticCode": "SOURCE_EXPORT_AMBIGUOUS; fixed before C1 selection in cases/annexes/e03-expectations.json (SHA25636d94cc69dda4d5c1d35129e65a5f45a1b6b2636cbf84954cee4fc0d46c8f1ac), unchanged for qualification",
       "evidenceEnvironment": {
         "host": "Darwin arm64",
         "bun": "1.4.3",
@@ -28,7 +28,8 @@
         "WindowsLinuxExercised": false
       },
       "witnessArchiveSha256": "c9eb16890540767e1c4c09199c7c1fc06997b84b569d139194ac5dad46e3859f",
-      "nativeCandidateRuns": 0
+      "nativeQualificationRuns": 0,
+      "nativeDevelopmentEvidence": "composition1/record-index.json; ordinary::development_ambiguous_stars_have_no_endpoint_and_explicit_export_resolves and qualified SOURCE_EXPORT_AMBIGUOUS; no qualification credit"
     }
   ]
 }

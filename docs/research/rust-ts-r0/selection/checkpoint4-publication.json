@@ -1,0 +1,18 @@
+{
+  "recordedUtc": "2026-10-17T18:53:29.526729+00:00",
+  "commit": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+  "tree": "9c9bada340f3c463ff94e0769e89a30507f92b1e",
+  "branch": "rust/365-t00",
+  "baseBranch": "rust/365-coordination",
+  "push": "normal",
+  "prBodyUpdated": true,
+  "ciRun": "https://github.com/hoklims/semctx/actions/runs/39059904140",
+  "ciResult": "WORKFLOW_REJECTED_BEFORE_JOBS",
+  "diagnosis": "runner.temp unavailable in jobs.rust-gates.env; confirmed actionlint1.7.12 RED and officialGitHubcontextavailability; no candidate test executed remotely",
+  "localCorrection": "Move SEMCTX_NATIVE_EVIDENCE to native workspace test step env",
+  "correctionNativeValidation": "actionlint1.7.12 GREEN",
+  "correctionIndependentReview": "stage4-ci-context-correction-review.json",
+  "r0": "NOT_RUN",
+  "qualificationQueries": 0,
+  "reservedQueries": 0
+}

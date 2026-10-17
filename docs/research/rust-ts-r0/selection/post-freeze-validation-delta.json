@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-17T19:25:14.394539+00:00",
+  "frozenManifestSha256": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208",
+  "historicalManifestPreserved": true,
+  "frozenCandidateSha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+  "authorizedNonSutDeltas": [
+    {
+      "path": "tools/rust-ts-r0/README.md",
+      "originalSha256": "512bc650cc8b077d1d9eba2db76290ecea1f18f6f27bba77d2e70fc3458cf1f4",
+      "currentSha256": "abae26be75d647965e1bff598e3d260180cb14116558283515ae935f29ac6880",
+      "scope": "documentation only"
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "originalSha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+      "currentSha256": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb",
+      "scope": "verification only: independent poison receivers and preparation before consumer window; subprocess timeout and explicit late-result refusal retained"
+    }
+  ],
+  "allOtherManifestFilesUnchanged": true,
+  "limitations": [
+    "Process timeout20s and controlled consumer window20s are separate; no dispatch-to-admission20s guarantee or fullT02 lifecycle claim."
+  ],
+  "debugEvidence": {
+    "path": "/private/tmp/semctx-t00-20261017/evidence/native-receiver-ready-debug.log",
+    "sha256": "11f04a4a9d576f4e05c6de9c908a9a793eb3ba5b697ec8e4a724a3563b35b4df",
+    "exitCode": 0,
+    "testsPassed": 2,
+    "host": "macOS arm64; debug"
+  },
+  "staticReview": {
+    "path": "native-deadline-isolation-review-bis.json",
+    "sha256": "1e7cb82c6405137682bd163a491801b4e546a9229ac33437cc567d2b9ad799ca",
+    "verdictAtSnapshot": "PROOF_WEAK",
+    "scope": "bounded static review; execution was incomplete at reviewer snapshot"
+  },
+  "finalDebugIndependentReview": {
+    "path": "native-deadline-isolation-review-bis-final-evidence.json",
+    "sha256": "d3a53d990ea240fcc0ba4c5420ac666d0855687b98afeef451ac9c34b2674579",
+    "verdict": "PROOF_ADEQUATE limited to final macOS DEV test delta"
+  },
+  "releaseEvidence": {
+    "path": "validation-history/native-receiver-ready-release.log.b64",
+    "rawSha256": "fe5327462128a764d53389a1ac9b6a7267b1876d887861d31685d87eae87afba",
+    "exitCode": 0,
+    "testsPassed": 3,
+    "host": "macOS arm64; release",
+    "sourceSha256": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb"
+  }
+}
