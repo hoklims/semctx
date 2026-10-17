@@ -58,8 +58,10 @@
       "clippy.toml"
     ],
     "gitArchiveSha256": "12b379c97b69374d755ed53f3481db6555d488267f3453c5ce5ef6f913438805",
-    "integration": "external pinned source; no stack restack",
-    "existingScenarioQualificationCoversSemanticPrecision": false
+    "integration": "exact canonical source and integration Git blobs adopted from merged #383; no stack restack or controller fork",
+    "existingScenarioQualificationCoversSemanticPrecision": false,
+    "pathManifest": "tooling-reuse.json",
+    "semanticCompositionRunsConsumed": 0
   },
   "corpusAcquisitions": {
     "development": "baseline fixtures and authored microcases; detailed manifest pending stage 3",
