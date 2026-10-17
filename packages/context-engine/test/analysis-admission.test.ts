@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+
 import { evaluateAnalysisAdmission } from "../src/analysis-admission";
 
 test("a healthy changed file cannot admit an inadmissible transitive dependent", () => {
