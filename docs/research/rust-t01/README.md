@@ -13,8 +13,8 @@ unstarted. This record only covers work #365 places in T01 before any comparison
 characterization, workload preparation and the measurement protocol (D6). No Rust code,
 dependency, workflow change or product change is introduced.
 
-Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Both are
-described below.
+Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Checkpoint 4
+captures each workload's dependency closure. All three are described below.
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -177,11 +177,55 @@ assumed. If the baseline cannot complete a cell, no ratio exists for it. Its bud
 derived from the size-dependent coefficients fitted on the cells the baseline completes, and the
 cell stays in the matrix.
 
+## Dependency closures
+
+The baseline TS/JS analyzer resolves external imports through `node_modules`. Measuring a
+snapshot without its dependencies would leave SDK declarations and re-exports unresolved. It
+would not represent real use. Checkpoint 4 installs each workload's closure with these rules:
+
+- **Scope**: the closure is what the repository's own development install fetches. VS Code
+  installs the 56 directories listed in `build/npm/dirs.ts`; that list is read as text, not
+  executed. Prefect installs its two TS interfaces, `ui-v2` and `ui`. Every other workload
+  installs from its root lockfile.
+- **No repository code runs**: every install script is disabled (`--ignore-scripts`, Yarn
+  `--mode=skip-build`, no pnpmfile). Package managers come from the npm registry at the
+  version each repository declares. The committed Yarn releases are byte-identical to the
+  registry bundles but are not executed.
+- **Frozen**: `npm ci`, `pnpm install --frozen-lockfile` and `yarn install --immutable` refuse
+  any lockfile drift.
+- **`sindresorhus/ky`** commits no lockfile. Its lockfile was generated with npm 11.19.1,
+  resolving only versions published before the pinned commit's date
+  (`--before=2026-10-09T06:29:22Z`). A second generation produced the same file. Its digest is
+  recorded.
+- **Python** dependencies are not installed. The baseline Python analyzer resolves imports
+  statically and reads no installed package.
+
+| Workload | Package manager | Lockfiles | Distinct packages | Installed size |
+| --- | --- | ---: | ---: | ---: |
+| `sindresorhus/ky` | npm 11.19.1 | 1 (generated) | 571 | 0.12 GB |
+| `honojs/hono` | pnpm 12.6.0 | 1 | 720 | 0.87 GB |
+| `trpc/trpc` | pnpm 12.4.1 | 1 | 3,422 | 2.52 GB |
+| `PrefectHQ/prefect` | npm 11.19.1 | 2 | 1,369 | 1.01 GB |
+| `backstage/backstage` | Yarn 4.18.0 | 1 | 3,651 | 1.99 GB |
+| `microsoft/vscode` | npm 11.19.1 | 56 | 2,738 | 5.25 GB |
+| `aws/aws-sdk-js-v3` | Yarn 4.17.1 | 1 | 1,256 | 0.51 GB |
+
+Distinct packages count name and version pairs. `protocol.json` records lockfile digests,
+commands and a digest of each closure manifest, which lists every installed package by
+location, name and version.
+
+Two checks confirm that installation leaves each snapshot's sources intact:
+
+- A SHA-256 manifest of every file outside `node_modules`, taken before and after. Nothing
+  changed, except that Yarn added `.yarn/install-state.gz` to backstage and the AWS SDK.
+- A rerun of the requalified baseline's discovery with the matrix configuration. Selected files
+  and bytes are identical for all seven workloads. Yarn's install state is a new candidate, and
+  discovery excludes it.
+
 ## Next checkpoints
 
-1. Capture each workload's dependency closure from its lockfile without running install
-   scripts. `sindresorhus/ky` has no lockfile, so its closure must be generated once and pinned.
-2. Measure instrumentation cost, then record repeated baseline series per phase and size class.
-   Derive the size-dependent budget coefficients from them.
+1. Declare the memory collector and sampling period per OS, and measure instrumentation cost.
+2. Record repeated baseline series per phase and size class. Derive the size-dependent budget
+   coefficients from them.
 3. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
