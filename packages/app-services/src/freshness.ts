@@ -1,4 +1,4 @@
-import { captureRustInputs } from "./rust-inputs";
+import { captureRustInputs, isRustAnalysisMetadataPath } from "./rust-inputs";
 import { rustToolchainIdentity } from "@semantic-context/rust-analyzer";
 import { spawnGitSync } from "./git-process";
 import { createHash } from "node:crypto";
@@ -228,7 +228,8 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
         const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
         if (isHardExcludedPath(relPath)) continue;
         const stat = lstatSync(path);
-        if (!entry.isDirectory() && !eligible(relPath)) continue;
+        const rustMetadata = config.version === 2 && config.languages.rust === "on" && isRustAnalysisMetadataPath(relPath);
+        if (!entry.isDirectory() && !eligible(relPath) && !rustMetadata) continue;
         if (stat.isSymbolicLink()) {
           throw new SemctxError("INVALID_TASK_INPUT", "qualified source scope cannot read a symbolic link", { path: relative(config.repositoryRoot, path) });
         }
@@ -249,15 +250,25 @@ export function captureQualifiedAnalysisInputs(config: SemctxConfig): {
     const workspaceLayout = analyzeWorkspaceSync({ repositoryRoot: config.repositoryRoot, manifestContents, excludePath: createDiscoveryPathExclusion(config) });
     const workspaceRoots = [...new Set([...workspaceLayout.nodes, ...workspaceLayout.candidates].map(entry => entry.root))].sort(compareIds);
     const rawConfiguration = configurationInput.state === "present" ? { state: "present", contentHash: hash("qualified-input-bytes", configurationInput.bytes) } : configurationInput;
-    return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, rawConfiguration, analyzer: QUALIFIED_ANALYZER_IDENTITY, files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files, workspaceRoots, configurationInput };
+    const rustToolchain = rustToolchainBinding(config);
+    return { digest: hash("qualified-analysis-input-v1", serializeControlReport({ config, rawConfiguration, analyzer: QUALIFIED_ANALYZER_IDENTITY,
+      ...(rustToolchain === undefined ? {} : { rustToolchain }), files: entries.sort((a, b) => compareIds(a.path, b.path)), workspaceLayout })), files, workspaceRoots, configurationInput };
+}
+
+function rustToolchainBinding(config: SemctxConfig): string | undefined {
+  if (config.version !== 2 || config.languages.rust !== "on" || config.rust === undefined) return undefined;
+  try { return rustToolchainIdentity(config.rust); }
+  catch (error) { return error instanceof Error && /^RUST_[A-Z_]+$/.test(error.message)
+    ? error.message : "RUST_TOOLCHAIN_UNAVAILABLE"; }
 }
 
 /** Repository-owned inputs sealed by the named profile; shared with Git post-image checks. */
 export function isQualifiedRepositoryInputPath(path: string): boolean {
   if (isHardExcludedPath(path)) return false;
   const name = path.slice(path.lastIndexOf("/") + 1);
-  return /\.(?:[cm]?[jt]sx?|py|sql|mdx?|json|ya?ml)$/.test(name)
-    || /^(?:pyproject\.toml|\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(name);
+  return /\.(?:[cm]?[jt]sx?|py|rs|sql|mdx?|json|ya?ml)$/.test(name)
+    || /^(?:Cargo\.toml|Cargo\.lock|rust-toolchain(?:\.toml)?|pyproject\.toml|\.gitignore|\.gitattributes|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(name)
+    || /(?:^|\/)\.cargo\/config(?:\.toml)?$/.test(path);
 }
 
 /** Fingerprint the exact discovered Plane A contents plus the parsed analyzer configuration. */
@@ -285,12 +296,7 @@ export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly 
     return [{ path: relPath, contentHash: content === undefined ? null : hash("analysis-input-content", canonicalSourceText(content)) }];
   }).sort((a, b) => compareIds(a.path, b.path));
   const rustInputs = config.version === 2 && config.languages.rust === "on" ? captureRustInputs(config) : undefined;
-  let rustToolchain: string | undefined;
-  if (config.version === 2 && config.languages.rust === "on" && config.rust !== undefined) {
-    try { rustToolchain = rustToolchainIdentity(config.rust); }
-    catch (error) { rustToolchain = error instanceof Error && /^RUST_[A-Z_]+$/.test(error.message)
-      ? error.message : "RUST_TOOLCHAIN_UNAVAILABLE"; }
-  }
+  const rustToolchain = rustToolchainBinding(config);
   const manifest = {
     config,
     ...(rustInputs === undefined ? {} : { rustInputs }),

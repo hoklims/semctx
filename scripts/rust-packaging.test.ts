@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createGlobSelectionConfig } from "@semantic-context/core";
@@ -32,6 +32,14 @@ function expectPackagedRustIndex(entrypoint: string): void {
     const rust = health.candidates.filter((candidate: { language: string }) => candidate.language === "rust");
     expect(rust.length).toBeGreaterThan(0);
     expect(rust.every((candidate: { analysisOutcome: string }) => candidate.analysisOutcome === "analyzed")).toBe(true);
+    const inspection = JSON.parse(run(root, [...command, "inspect", "symbol", "confirm", "--json"]));
+    expect(inspection.matchedNodes).toContainEqual(expect.objectContaining({ name: "confirm", filePath: "domain/src/reservation.rs" }));
+    const sourcePath = join(root, "domain/src/reservation.rs");
+    writeFileSync(sourcePath, readFileSync(sourcePath, "utf8").replace("> 0", ">= 0"));
+    run(root, [...command, "index", "--json"]);
+    const verification = JSON.parse(run(root, [...command, "verify", "diff", "--format", "json"], 3));
+    expect(verification.verdict).toBe("BLOCK");
+    expect(verification.findings).toContainEqual(expect.objectContaining({ rule: "invariant_touched_without_test" }));
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 

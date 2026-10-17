@@ -30,11 +30,11 @@ export function evaluateAnalysisAdmission(input: {
     if (candidate?.selectionDecision === "excluded" || selected?.selectionDecision === "excluded") return {
       path, status: "excluded", reasons: [...(candidate?.selectionReasons ?? []), ...(selected === undefined ? [] : [selected.reason])],
     };
+    if (!/\.[cm]?[jt]sx?$/.test(path)) return { path, status: "unsupported", reasons: ["OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE"] };
     if (candidate === undefined || selected === undefined) return { path, status: "missing", reasons: ["NO_CURRENT_ANALYZED_SOURCE"] };
     if (candidate.analysisOutcome !== "analyzed") return { path, status: candidate.analysisOutcome === "failed" ? "failed" : "unsupported", reasons: [...candidate.analysisReasons, ...candidate.selectionReasons, `ANALYSIS_OUTCOME:${candidate.analysisOutcome}`] };
     if (candidate.analysisReasons.length > 0) return { path, status: candidate.analysisReasons.some((reason) => /UNSUPPORTED|UNRESOLVED|SOURCE_CONFIGURATION/.test(reason)) ? "unsupported" : "failed", reasons: candidate.analysisReasons };
     if (!candidate.admissible) return { path, status: "failed", reasons: ["LOAD_BEARING_EVALUATION_NOT_ADMITTED"] };
-    if (!/\.[cm]?[jt]sx?$/.test(path)) return { path, status: "unsupported", reasons: ["OUTSIDE_BOUNDED_ESM_TYPESCRIPT_PROFILE"] };
     return { path, status: "analyzed", reasons: [] };
   };
   const files = [...expected].sort().map(file);

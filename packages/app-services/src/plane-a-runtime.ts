@@ -228,12 +228,17 @@ function composePlaneARuntime(
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
         continue;
       }
+      if (rustFacts.unsupportedPaths.has(candidate.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["RUST_TARGET_WORLD_AMBIGUOUS", ...reasons]);
+        continue;
+      }
       if (!rustFacts.editionsByPath.has(candidate.relPath)) {
         forcedOutcomes.set(candidate.relPath, "unsupported");
         forcedAnalysisReasons.set(candidate.relPath, ["RUST_CRATE_MEMBERSHIP_UNPROVEN", ...reasons]);
         continue;
       }
-      perPath.push({ candidate, file, producer: RUST_PRODUCER,
+      perPath.push({ candidate, file: rustFacts.testPaths.has(file.relPath) ? { ...file, role: "test" } : file, producer: RUST_PRODUCER,
         facts: rustFacts.factsByPath.get(candidate.relPath) ?? [], analysisReasons: reasons,
         completenessClaim: "partial", negativeEvidenceEligible: false,
         resolutionSemantics: "rust-source-structure-v1", navigation: rustFacts.navigation });
@@ -416,8 +421,10 @@ function composePlaneARuntime(
         producerConfigurationDigest,
         factSchemaDigest,
         evidenceContract: "source-lines-v1",
-        resolutionSemantics: item.navigation && ["imports", "calls", "references", "tested_by", "covers"].includes(factKind)
-          ? "rust-navigation-test-v1" : item.resolutionSemantics,
+        resolutionSemantics: item.candidate.language === "rust" && factKind === "imports"
+          ? "rust-module-imports-partial-v1"
+          : item.navigation && ["calls", "references", "tested_by", "covers"].includes(factKind)
+            ? "rust-navigation-test-v1" : item.resolutionSemantics,
         soundnessClaim: "best-effort-static",
         completenessClaim: item.completenessClaim,
         negativeEvidenceEligible: item.negativeEvidenceEligible,

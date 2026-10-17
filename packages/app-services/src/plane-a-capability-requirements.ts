@@ -75,7 +75,7 @@ const RUST_STRUCTURAL_FACT_KINDS = [
   "risk", "bounded_context", "belongs_to", "declares", "implements_capability", "constrained_by", "related_to",
 ] as const;
 
-const RUST_NAVIGATION_FACT_KINDS = ["imports", "references", "calls", "tested_by", "covers"] as const;
+const RUST_NAVIGATION_FACT_KINDS = ["references", "calls", "tested_by", "covers"] as const;
 
 const MARKDOWN_FACT_KINDS = [
   "document",
@@ -113,6 +113,9 @@ const REGISTRATIONS: readonly CapabilityRegistration[] = [
     { configVersions: [2] as const, language: "rust", dialectVersion: edition,
       producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
       factKinds: RUST_STRUCTURAL_FACT_KINDS, resolutionSemantics: "rust-source-structure-v1", completenessClaims: ["partial"] },
+    { configVersions: [2] as const, language: "rust", dialectVersion: edition,
+      producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
+      factKinds: ["imports"], resolutionSemantics: "rust-module-imports-partial-v1", completenessClaims: ["partial"] },
     { configVersions: [2] as const, language: "rust", dialectVersion: edition,
       producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
       factKinds: RUST_NAVIGATION_FACT_KINDS, resolutionSemantics: "rust-navigation-test-v1", completenessClaims: ["partial"] },

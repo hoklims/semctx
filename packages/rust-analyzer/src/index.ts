@@ -97,28 +97,30 @@ function declaration(node: Node, file: RustSource, scope: string[]): RustSymbol 
   };
 }
 
-function collect(node: Node, file: RustSource, scope: string[], result: RustExtraction): void {
+function collect(node: Node, file: RustSource, scope: string[], result: RustExtraction, conditional = false): void {
   const symbol = declaration(node, file, scope);
   if (symbol !== undefined) result.symbols.push(symbol);
+  const unqualified = conditional || attributes(node).some((attribute) => /^#\[\s*cfg(?:_attr)?\s*\(/.test(attribute.text)
+    && (symbol === undefined || !/^#\[\s*cfg\s*\(\s*test\s*\)\s*\]$/.test(attribute.text)));
   const kind = node.type === "use_wildcard" ? "glob-import"
     : node.type === "macro_invocation" || node.type === "macro_definition" ? "macro-expansion"
     : node.type === "attribute_item" && /^#\[\s*cfg(?:_attr)?\s*\(/.test(node.text) ? "conditional-source"
     : undefined;
   if (kind !== undefined) result.limitations.push({ relPath: file.relPath, kind, range: range(node) });
-  if (node.type === "use_declaration") {
+  if (node.type === "use_declaration" && !unqualified) {
     const argument = node.childForFieldName("argument");
     if (argument !== null) for (const target of importTargets(argument)) {
       result.queries.push({ relPath: file.relPath, kind: "import", scope, range: range(node), target: range(target) });
     }
   }
-  if (node.type === "call_expression") {
+  if (node.type === "call_expression" && !unqualified) {
     const expression = node.childForFieldName("function");
     const target = expression === null ? null : callableName(expression);
     if (target !== null) result.queries.push({ relPath: file.relPath, kind: "call", scope, range: range(node), target: range(target) });
   }
   const nestedScope = symbol === undefined ? scope : [...scope,
     node.type === "trait_item" ? `trait ${symbol.name}` : symbol.name];
-  for (const child of node.namedChildren) collect(child, file, nestedScope, result);
+  for (const child of node.namedChildren) collect(child, file, nestedScope, result, unqualified);
 }
 
 function callableName(node: Node): Node | null {

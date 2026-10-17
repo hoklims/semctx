@@ -122,6 +122,7 @@ The v2 selection fields are shown below. This remains a valid config with an emp
 | `include` | Applied as repository-relative Bun globs. An empty array selects no files. |
 | `exclude` | Applied as repository-relative Bun globs after inclusion; exclude wins. |
 | `languages` | Maps a language name to `on` or `off`. A selected language with no registered mode/producer is unsupported. |
+| `rust` | Optional conditional navigation for explicitly trusted Rust repositories. Requires `languages.rust: "on"`; see the [bounded Rust candidate](rust-indexing.md) for the pinned binary, toolchain, target, feature and deadline fields. |
 | `docsDirs` | Persisted but not used for selection or classification; selected `.md`/`.mdx` files are documents. |
 | `migrationsDirs` | Used for TypeScript role classification; selected `.sql` files are always migrations. It does not reclassify Python. |
 | `testGlobs` | Persisted but not applied. TypeScript uses `.test`/`.spec`, test-directory, and test-import heuristics; Python uses `test_*.py`, `*_test.py`, and test directories. |

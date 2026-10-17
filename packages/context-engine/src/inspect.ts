@@ -32,7 +32,7 @@ export interface InspectionResult {
 }
 
 const KIND_MAP: Record<Exclude<InspectKind, "any">, NodeKind[]> = {
-  symbol: ["function", "class", "interface", "type", "enum"],
+  symbol: ["symbol", "function", "class", "interface", "type", "enum"],
   capability: ["capability"],
   invariant: ["invariant"],
   contract: ["contract"],

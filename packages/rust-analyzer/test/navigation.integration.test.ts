@@ -46,6 +46,24 @@ test("refuses ambiguous globs without publishing the singleton navigation target
   expect(result.unresolved).toEqual([{ queryIndex: 0, reason: "RUST_GLOB_IMPORT_PROFILE_REFUSED" }]);
 }, 40_000);
 
+test("navigation resolves a call after a non-BMP character but leaves function-value dispatch unresolved", async () => {
+  const source = 'pub fn target() {}\npub fn invoke(f: fn()) { f(); }\npub fn run() { let crab = "🦀"; target(); invoke(target); }\n';
+  const files = [{ relPath: "src/lib.rs", source }];
+  const extraction = await extractRust(files);
+  const result = await resolveRustNavigation({ files, extraction,
+    metadata: [{ relPath: "Cargo.toml", source: '[package]\nname="positions"\nversion="0.1.0"\nedition="2021"\n' }],
+    config: nativeConfig() });
+  const resolved = result.relations.map(({ queryIndex, symbolIndex }) => ({
+    caller: extraction.queries[queryIndex]?.scope.join("."),
+    written: source.slice(extraction.queries[queryIndex]!.target.startOffset, extraction.queries[queryIndex]!.target.endOffset),
+    target: extraction.symbols[symbolIndex]?.name,
+  }));
+  expect(resolved).toContainEqual({ caller: "run", written: "target", target: "target" });
+  expect(resolved).toContainEqual({ caller: "run", written: "invoke", target: "invoke" });
+  expect(resolved.some((relation) => relation.caller === "invoke" && relation.written === "f")).toBe(false);
+  expect(result.unresolved.some(({ queryIndex }) => extraction.queries[queryIndex]?.scope.join(".") === "invoke")).toBe(true);
+}, 40_000);
+
 test("rejects external dependencies and escaping workspace members before Cargo loading", async () => {
   const files = [{ relPath: "src/lib.rs", source: "pub fn value() -> u32 { 1 }" }];
   const extraction = await extractRust(files);

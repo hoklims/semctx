@@ -53,6 +53,7 @@ import { evaluateAuthorityInvariants, removedAuthorityDeclarations } from "./aut
 import { withFileCoverage } from "./file-coverage";
 import { parsePlaneAIndexSnapshot } from "./index-health";
 import { observeIndexBinding, resolveSource } from "./verify";
+import { rustImpactOutline } from "./rust-impact-outline";
 
 /**
  * The Git-backed sources only: semctx computes the diff itself, so the analysed hunks are proven to
@@ -170,7 +171,8 @@ function outlinesFor(
       if (!eligible(path)) continue;
       const text = readSide(root, revision, path);
       if (text === undefined) continue;
-      (side === rangeSide ? bound : other).set(path, outlineTopLevel(text, path));
+      (side === rangeSide ? bound : other).set(path,
+        sourceLanguage(path) === "rust" ? rustImpactOutline(text, path) : outlineTopLevel(text, path));
     }
   }
   return { bound, other };
@@ -613,7 +615,6 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
         && javascriptOutcomes.get(path)?.outcome === "analyzed" && javascriptOutcomes.get(path)?.reasons.length === 0);
     const eligibleRust = (path: string): boolean => sourceLanguage(path) === "rust" && config.version === 2
       && config.languages.rust === "on" && rustOutcomes.get(path)?.outcome === "analyzed"
-      && rustOutcomes.get(path)?.reasons.length === 0
       && ["2018", "2021", "2024"].includes(rustOutcomes.get(path)?.dialectVersion ?? "");
     const eligibleSource = (path: string): boolean => eligibleTypeScriptOrJavaScript(path) || eligibleRust(path);
     const unsupportedSourceFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
@@ -667,7 +668,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           index: new GraphIndex(impactGraph),
           diff,
           rangeSide: sideOf,
-          outlines: outlinesFor(root, diff, sideOf, revisions, eligibleTypeScriptOrJavaScript),
+          outlines: outlinesFor(root, diff, sideOf, revisions, eligibleSource),
           untrackedPaths: untracked,
           packages,
           surfaces: surfaceInput?.map ?? null,

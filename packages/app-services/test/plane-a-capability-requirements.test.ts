@@ -90,6 +90,7 @@ describe("consumer-owned Plane A capability requirements", () => {
 
   it("admits only bounded Rust structural and navigation facts for an explicit edition", () => {
     expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "function", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-source-structure-v1");
+    expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "imports", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-module-imports-partial-v1");
     expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "calls", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-navigation-test-v1");
     for (const input of [
       { configVersion: 1 as const, dialectVersion: "2021", factKind: "function", completenessClaim: "partial" },
