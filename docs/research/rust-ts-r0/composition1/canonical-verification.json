@@ -1,0 +1,46 @@
+{
+  "environment": "macOS ARM64; Bun1.4.3; Rust1.95.0; pinned quality venv; GIT_CONFIG_GLOBAL unset",
+  "base": "rust/365-coordination",
+  "results": [
+    {
+      "shard": "1/4",
+      "exitCode": 0,
+      "log": "logs/verify-stage4-1.log.b64",
+      "encoding": "base64",
+      "decoded_sha256": "1a3ba139b50ca51fdc60b64d3600fa4becd86ca4c5f8c4878941801d338037c3",
+      "decoded_bytes": 540
+    },
+    {
+      "shard": "2/4",
+      "exitCode": 0,
+      "log": "logs/verify-stage4-2.log.b64",
+      "encoding": "base64",
+      "decoded_sha256": "7b9f8c3631c5256d5754adc8a3b15677215c9fd95031b959e493bb508a577272",
+      "decoded_bytes": 1239
+    },
+    {
+      "shard": "3/4",
+      "exitCode": 0,
+      "log": "logs/verify-stage4-3.log.b64",
+      "encoding": "base64",
+      "decoded_sha256": "ceb8c977f3f57d0cdc32a41e807b07ec463ef60fb6c66bb68dffb64cf7e0a676",
+      "decoded_bytes": 488
+    },
+    {
+      "shard": "4/4",
+      "exitCode": 0,
+      "log": "logs/verify-stage4-4.log.b64",
+      "encoding": "base64",
+      "decoded_sha256": "7cd6756fbdaf395272de5ed2dcdc9227e70315b11211528bf62224353c2700c6",
+      "decoded_bytes": 540
+    }
+  ],
+  "scope": "Exact executable/indexed C1 source, native tests, dependencies and CI changes. Documentary evidence/status exports were completed afterward and checked with existing docs parser, JSON decoding and git whitespace checks. Aggregate canonical output does not imply extra test counts.",
+  "nativeSdkEnvironment": {
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "RUST_TEST_THREADS": "1"
+  },
+  "independentLocalProofReview": "stage4-proof-integrity-final-review.json",
+  "remoteCI": "PENDING_PUSH"
+}

@@ -1,0 +1,143 @@
+{
+  "status": "SOURCE_COPY_BEFORE_PORTABLE_LINT_CORRECTION",
+  "source": "/private/tmp/semctx-t00-native-composition1-20261017",
+  "destination": "tools/rust-ts-r0",
+  "sources": [
+    {
+      "path": "Cargo.toml",
+      "source_sha256": "128ddca7aea0f92f653f7ceffdc396fe1d729a6c0a8772003c5a542cc9242ca2",
+      "bytes": 606
+    },
+    {
+      "path": "Cargo.lock",
+      "source_sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+      "bytes": 22559
+    },
+    {
+      "path": "builtin-modules.json",
+      "source_sha256": "79db033d1873d73a41c2045fcb2bb893f8d0c7cf214a1f4b1d3b99cc562b7eb2",
+      "bytes": 4535
+    },
+    {
+      "path": "development/review-controls.json",
+      "source_sha256": "705f985c832686b22bb35870f4cba6544a4f3e4c6719669f70db862e1b173991",
+      "bytes": 3167
+    },
+    {
+      "path": "sdk/sdk-input.json",
+      "source_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "bytes": 3218481
+    },
+    {
+      "path": "tests/native_development_flow.rs",
+      "source_sha256": "61f288005f5dfb284a55ef2b5ab81b4b354f2732974d453b99c006162b13c838",
+      "bytes": 38417
+    },
+    {
+      "path": "tests/fixtures/native-development-flow/cases.json",
+      "source_sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+      "bytes": 5639
+    },
+    {
+      "path": "src/assembly.rs",
+      "source_sha256": "89646b787269213a722fdc9887dd6a5857fef24cd986c378ad39cf4469eb9c5d",
+      "bytes": 41037
+    },
+    {
+      "path": "src/batch.rs",
+      "source_sha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+      "bytes": 12276
+    },
+    {
+      "path": "src/captured.rs",
+      "source_sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+      "bytes": 717
+    },
+    {
+      "path": "src/configuration.rs",
+      "source_sha256": "f38e0422e5c520584e0ed1fa615890d4580b84ff7e7d9ac39b610b7bf0c08132",
+      "bytes": 21633
+    },
+    {
+      "path": "src/configured_resolver.rs",
+      "source_sha256": "7f38ffe48639916a308d6ad7c9316acdcfd04000dfbfcebf6ed03358965aa405",
+      "bytes": 46403
+    },
+    {
+      "path": "src/development.rs",
+      "source_sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+      "bytes": 2517
+    },
+    {
+      "path": "src/es5_helpers.rs",
+      "source_sha256": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+      "bytes": 16271
+    },
+    {
+      "path": "src/identity.rs",
+      "source_sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+      "bytes": 2859
+    },
+    {
+      "path": "src/javascript.rs",
+      "source_sha256": "22339abce6f00649f593ff32e16459f10725f9f08eb6b04e4ebadd17feec3d33",
+      "bytes": 42654
+    },
+    {
+      "path": "src/legacy_resolution.rs",
+      "source_sha256": "4724b6f4605fbc7a6a10e51119f24330e704afde146e9edb057aa1ccf1456309",
+      "bytes": 57672
+    },
+    {
+      "path": "src/lib.rs",
+      "source_sha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8",
+      "bytes": 50
+    },
+    {
+      "path": "src/main.rs",
+      "source_sha256": "86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+      "bytes": 65088
+    },
+    {
+      "path": "src/ordinary.rs",
+      "source_sha256": "74c16a29d00ee2d4cb3e7a2dd5b59cb086220a5fc97bdd8cfb76c7ac0a9c4de3",
+      "bytes": 65700
+    },
+    {
+      "path": "src/outline.rs",
+      "source_sha256": "31d9e04a9d65bc0c9fd40e86efb8394d386f54af51d0f379c60bbf193850c767",
+      "bytes": 36511
+    },
+    {
+      "path": "src/qualified.rs",
+      "source_sha256": "e76b1961a4554b70c531b2b2e4c6e7e173a0923d9bbc1303574630ad38817023",
+      "bytes": 149206
+    },
+    {
+      "path": "src/receiver.rs",
+      "source_sha256": "54647334d11900665f96c1b808e34db68f36ba4d7405d77031015be2f7de8095",
+      "bytes": 76260
+    },
+    {
+      "path": "src/runtime_configuration.rs",
+      "source_sha256": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+      "bytes": 71116
+    },
+    {
+      "path": "src/source_text.rs",
+      "source_sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+      "bytes": 2942
+    },
+    {
+      "path": "src/wire.rs",
+      "source_sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+      "bytes": 2871
+    }
+  ],
+  "transformations": [
+    "Cargo semctx-gates absolute\u2192../gates",
+    "Cargo own package license Apache-2.0",
+    "SDK license and notice exact package bytes",
+    "old observer/requests/cargo-home/targets not adopted"
+  ]
+}

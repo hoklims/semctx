@@ -1,0 +1,254 @@
+{
+  "verdict": "PROOF_WEAK",
+  "recorded_utc": "2026-10-17T18:11:05.289937+00:00",
+  "reviewer": "/root/native_verifier_independent_review",
+  "producer_and_verifier_author": false,
+  "review_mode": "READ_ONLY_SOURCE_AND_RETAINED_DEV_EVIDENCE; no source edits, builds, cargo, native queries, qualification or reserved reads/runs",
+  "scope": "Independent proof-integrity audit of the DEV native verifier only; no PR verdict, qualification, producer semantic certification, admission parity or R0 decision.",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "anchors": [
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/native_development_flow.rs",
+      "sha256": "8a6715dbf9b883f4ca16a5b7a686ed5834686f50b750d4a76fcf41cd223b5f79",
+      "index_identical": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/fixtures/native-development-flow/cases.json",
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+      "index_identical": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/development-report.json",
+      "sha256": "1d9613c01adb54fbc028a814cf2130e86bc91b7c128fff95200cb0aff84cf284"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/dev-expectations.frozen.json",
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/src/receiver.rs",
+      "sha256": "fe083ac4e8d0633ea080edad428fa46508d639c97563db1d09bcfcea569ce04d"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/src/wire.rs",
+      "sha256": "1ca6335ed62c19afe22fc3ffcaa57083e0f2f6d7ffb4df41be757d92053cb714"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/gates/src/process.rs",
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "title": "Credited calls and source coordinates are checked on wire envelopes, while the returned graph uses unchecked payload fields",
+      "status": "STATIC_CONTROL_FLOW_FINDING; representative breaking witness specified, not executed in this read-only review",
+      "anchors": [
+        {
+          "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/native_development_flow.rs",
+          "lines": "64-73",
+          "fact": "graph_from_received_facts clones raw node/edge payloads into the consumer graph"
+        },
+        {
+          "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/native_development_flow.rs",
+          "lines": "76-118",
+          "fact": "function semantic tuple uses payload kind/path/name, but exact source coordinates are checked only on envelope range"
+        },
+        {
+          "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/native_development_flow.rs",
+          "lines": "130-170",
+          "fact": "calls projection filters fact_kind=edge:calls and checks payload from/to, but never payload.kind"
+        },
+        {
+          "path": "/private/tmp/semctx-t00-native-composition1-20261017/tests/native_development_flow.rs",
+          "lines": "278-300,343-347,631-653",
+          "fact": "facts, graph and synthetic freshness bindings are built after stdout from that same batch; graph digest equality cannot independently establish graph semantics"
+        },
+        {
+          "path": "/private/tmp/semctx-t00-native-composition1-20261017/src/receiver.rs",
+          "lines": "380-390,479-558,560-564",
+          "fact": "receiver checks hash bindings and envelope node ids/endpoints/ranges, without validating node payload ids or payload evidence against those envelopes"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/core/src/types/graph.ts",
+          "lines": "13-19,29-52",
+          "fact": "consumer graph uses payload node id, edge kind/from/to and EvidenceRef source lines"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "lines": "195-208,298-312",
+          "fact": "baseline graph emits symbol evidence lines and actual calls edges connecting graph node ids"
+        }
+      ],
+      "breaking_witnesses_possible": [
+        {
+          "mutation": "On an actual successful native batch, retain edge fact_kind=edge:calls and endpoints, change only its payload.kind to related_to, then produce coherent facts_id/graph_id for the changed batch before verifier observation.",
+          "expected_required_result": "Semantic oracle rejects the graph because the alias call is absent.",
+          "current_source_result": "Call tuple remains the expected pair; envelope endpoint checks still pass, and the reconstructed graph has no calls edge. No existing assertion rejects this mutation."
+        },
+        {
+          "mutation": "Change or remove an incident function payload.id while preserving its envelope id and semantic kind/path/name; refresh producer facts/graph digests.",
+          "expected_required_result": "Reject missing graph node identity or dangling graph endpoint.",
+          "current_source_result": "Semantic identities use envelope ids; receiver endpoint closure uses envelope ids; graph payload contains a missing/different node id and can retain a dangling call."
+        },
+        {
+          "mutation": "Change or remove function payload.evidence source lines while keeping the envelope range correct; refresh producer facts/graph digests.",
+          "expected_required_result": "Reject the incorrect source pointer in the assembled graph.",
+          "current_source_result": "Only envelope range is compared with frozen coordinates; graph EvidenceRef is not checked. UTF16 fields are private envelope coordinates and are not asserted here as baseline Graph EvidenceRef fields."
+        }
+      ],
+      "impact": "The current evidence supports a narrow wire-envelope projection, but does not support the reported pipeline claim that independently checked reconstructed graph payloads contain the credited alias call and source coordinates. This is a proof gap in the verifier, not a demonstrated semantic defect in the producer.",
+      "repair_direction": "Use the already reconstructed consumer graph as the semantic oracle input, or explicitly validate the relevant payload kind/id/endpoint/source-line relation to the checked envelopes. Add a targeted actual-oracle negative witness on a changed copy of successful stdout, retain rejection and restored success, without changing frozen expectations."
+    }
+  ],
+  "verified_retained_evidence": {
+    "native_run_log": {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/native-dev-third-run.log",
+      "sha256": "37ac2c750afe54f237f7fee1f91e2281870f9cb8eb8bf9310bebd71f26c2827a",
+      "lines": "26-40",
+      "observed": "2 passed, 0 failed, 0 ignored, 0 filtered; 102.56s; expected caught missing-alias-edge panic at oracle line 168 precedes test success"
+    },
+    "compile_log_sha256": "c898eb7ccf5d35bdec7c94d9154401f07d7e978d8d857c92cb9f39f1bd8df2e2",
+    "raw_outcomes": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260297180582000/real-native-empty-path.json",
+        "sha256": "1bdd49bcce49e1a0aa80a4fbd612a18551027432daf29d92b31f4bb4b4de1293",
+        "report_file_hash_matches": true,
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 4851,
+        "timeout_ms": 20000,
+        "output_cap": 8388608,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 10712,
+        "stdout_retained_bytes": 10712,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260297180582000/real-native-failure.json",
+        "sha256": "d315eb77700708c2bedf8379c123ca2a6168100559d39384e83f0c3b37764040",
+        "report_file_hash_matches": true,
+        "kind": "nonzero",
+        "exit_code": 1,
+        "duration_ms": 13,
+        "timeout_ms": 20000,
+        "output_cap": 8388608,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 0,
+        "stdout_retained_bytes": 0,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260297180582000/real-native-output-cap.json",
+        "sha256": "2c51e298c96491e8f0237e4142792018ab39f3beba592dc9ef3ef57df2670e5f",
+        "report_file_hash_matches": true,
+        "kind": "output_limit",
+        "exit_code": null,
+        "duration_ms": 4868,
+        "timeout_ms": 20000,
+        "output_cap": 1,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 10712,
+        "stdout_retained_bytes": 1,
+        "stdout_hash_matches_retained": false,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260297180582000/real-native-timeout.json",
+        "sha256": "c747f2044dad8529c9f0082035cbcfdad581ab3f91dd76b73f2ca4dbbd6f3696",
+        "report_file_hash_matches": true,
+        "kind": "timeout",
+        "exit_code": null,
+        "duration_ms": 15,
+        "timeout_ms": 1,
+        "output_cap": 8388608,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 0,
+        "stdout_retained_bytes": 0,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260297180582000/native-0.json",
+        "sha256": "0392d3e4171d939773d50b211ca7b272f65065c3510a9b6fe43570643578a9f3",
+        "report_file_hash_matches": true,
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 5575,
+        "timeout_ms": 20000,
+        "output_cap": 8388608,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 10712,
+        "stdout_retained_bytes": 10712,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/outcomes/run-2850-1792260384496887000/native-1.json",
+        "sha256": "08e05a3702c9b252692fe2f54c34206f529c776274bee8938c1bed51fa171548",
+        "report_file_hash_matches": true,
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 4286,
+        "timeout_ms": 20000,
+        "output_cap": 8388608,
+        "producer_stable": true,
+        "helper_stable": true,
+        "stdout_count": 2314,
+        "stdout_retained_bytes": 2314,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      }
+    ],
+    "output_cap_explanation": "The output_limit run retains 1 byte but counts/hashes all 10712 observed stdout bytes. Its retained text cannot reproduce the full hash; tools/gates/src/process.rs:260-267 records this exact bounded-retention behavior. This is not a forged complete-output claim, and receive rejects its process kind before semantic parsing.",
+    "producer_sha256_during_all_six_final_runs": "sha256:daada42b97ca4e8a92636d851eada78b8bfeb7f6e4d2b193767903fb50b3547f",
+    "helper_sha256_during_all_six_final_runs": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+    "freeze": "Fixture current/index/frozen-copy/receipt/first-query/report SHA all match 9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a. Retained declaration timestamps place freeze before first query; historical timing is retained provenance, not independently authenticated time.",
+    "verifier_revision_binding": "prequery-plan test SHA dba586..., immediately-before-first-query SHA 7acbb3..., revision2 SHA 05d980..., final test SHA 8a6715.... The verifier changed after native observations; frozen expectations did not. No claim that the final verifier bytes were frozen before the first native query is supported.",
+    "receiver_negative_witness": "receiver-poisons.json is a completion declaration backed by sequential assertions in native_development_flow.rs:375-486 and the green test log; it is not a separate captured subprocess Outcome.",
+    "genuine_oracle_fault_detection_observed": "First retained native run rejected unexpected SOURCE_COERCION_UNSUPPORTED with unchanged expected diagnostics. Final run also executes caught deletion of actual alias call against unchanged frozen expectations."
+  },
+  "assessment_by_surface": {
+    "selection_and_empty_discovery": "Two explicit test functions select fixed cases 0/1; hardcoded whole-fixture digest rejects an altered/empty fixture. Missing helper or SDK panics; no runtime opt-out observed.",
+    "expected_to_producer_coupling": "Expected function/call tuples, subject denominator/outcomes and refusal reason originate in frozen hand-authored cases. No producer semantic implementation was read by this reviewer. Identity primitives are shared only for transport hashing; graph-payload correctness remains the F1 gap.",
+    "denominator": "Expected subjects are taken from frozen source_bytes; exact outcomes from expected_subject_outcomes; receiver validates cardinality, expected ids, uniqueness and selections. No omitted-subject bypass found for these two cases.",
+    "process_path": "Verifier imports semctx_gates::process and calls run_with_helper directly. tools/qualification/src/process.rs was inspected only to establish the shared supervisor relationship; its wrapper is not the invocation path here. Actual retained Outcomes show native binary argv and pre/post stable producer/helper hashes.",
+    "receipt_and_freshness": "Receipt binds observed facts/graph and issuer; independent freshness/build/binding booleans are synthetic controlled receiver state. Existing capture-file and graph-change witnesses test metadata/binding rejection, not automatic public filesystem recapture or real freshness/ownership acquisition. Author report states this limit.",
+    "semantics": "Credited independent envelope projection is three named functions with ranges, exactly one imported alias call with parameter-homonym absence, and one controlled default-expression refusal. Other kinds are expressly uncredited.",
+    "fail_closed": "Observed malformed request => nonzero, 1ms budget => timeout, 1-byte cap => output_limit; receiver ProcessFailure assertions are on the native Outcomes, not fake process fixtures. Unexpected helper absence, JSON shape, terminal, outcome or subject count causes failure.",
+    "fake_receipt_or_tamper_claim": "No forged execution claim established. SHA before/after fields match in all inspected final Outcomes. Postcapture source is really written/read/restored but the receiver sees an explicitly rebuilt in-memory capture; that boundary is disclosed."
+  },
+  "environment": {
+    "review_host_observed": "Darwin arm64",
+    "execution_evidence_environment": "macOS arm64 debug DEV binary; existing release #383 helper; Rust1.95.0 according to retained first-query binding",
+    "not_exercised": [
+      "Linux",
+      "native Windows",
+      "optimized frozen delivery",
+      "qualification",
+      "reserved cases",
+      "full public admission/ownership flow",
+      "coherent acquisition and SDK supplied-versus-consumed readset",
+      "absolute subprocess/ambient filesystem exclusion"
+    ],
+    "new_execution_in_this_review": false
+  },
+  "scope_preservation": {
+    "source_mutations": 0,
+    "new_native_queries": 0,
+    "builds": 0,
+    "qualification_or_reserved_reads": 0,
+    "github_messages": 0
+  },
+  "recommendation": "Correct F1 within the existing verifier/receiver surface and independently review only that delta. Preserve the frozen fixtures and the current explicit DEV-only limits."
+}
