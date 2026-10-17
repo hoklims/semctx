@@ -2,6 +2,7 @@ use semctx_r0_probe::{identity, wire};
 mod assembly;
 mod batch;
 mod captured;
+mod component_observations;
 mod configuration;
 mod configured_resolver;
 #[cfg(test)]
@@ -489,6 +490,15 @@ fn inspect_subject(
         .reasons
         .iter()
         .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY");
+    let component_named_reasons = if retained {
+        configuration::unconsumed_named(
+            fs.clone(),
+            root,
+            &project.keys().cloned().collect::<Vec<_>>(),
+        )?
+    } else {
+        vec![]
+    };
     let semantic_roots = if retained {
         project
             .keys()
@@ -570,7 +580,7 @@ fn inspect_subject(
     } else {
         BTreeSet::new()
     };
-    let runtime = if retained && (qualified || is_js) && !outside {
+    let runtime = if retained && !outside {
         runtime_configuration::inspect(file, &configuration.options)
     } else {
         runtime_configuration::RuntimeConfiguration::default()
@@ -624,16 +634,32 @@ fn inspect_subject(
                 }
             }
         }
-        let semantic = if semantic_required {
-            qualified::inspect_semantic_dependencies(file, checker, &inputs)
-        } else {
-            qualified::QualifiedScan::default()
-        };
+        let semantic = qualified::inspect_semantic_dependencies(file, checker, &inputs);
         let javascript = javascript::inspect(file, checker, &relative, retained);
         (semantic, javascript)
     });
-    let mut unimplemented = semantic.unsupported.clone();
-    unimplemented.extend(runtime.unsupported.iter().cloned());
+    let semantic_observation = component_observations::semantic(&semantic);
+    let source_parsing_observation = component_observations::source_parsing(&parsing);
+    let module_configuration_observations = component_observations::module_configuration(
+        component_observations::ModuleConfigurationInputs {
+            source: file,
+            path,
+            retained,
+            named_reasons: &component_named_reasons,
+            configuration: &configuration,
+            semantic: &semantic,
+            javascript: &javascript,
+            runtime: &runtime,
+        },
+    );
+    let mut unimplemented = if semantic_required {
+        semantic.unsupported.clone()
+    } else {
+        BTreeSet::new()
+    };
+    if retained && semantic_required && !outside {
+        unimplemented.extend(runtime.unsupported.iter().cloned());
+    }
     let mut reasons = if qualified || is_js {
         configuration
             .reasons
@@ -763,7 +789,7 @@ fn inspect_subject(
         serde_json::to_value(&*observations.borrow()).expect("resolution serialization")
     });
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 
@@ -1166,6 +1192,225 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn component_request(id: &str, path: &str, text: &str) -> Request {
+        serde_json::from_value(serde_json::json!({
+            "id": id, "cwd": "/repo", "sdk_directory": "/sdk/lib",
+            "case_sensitive": ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+            "roots": [path], "files": {path: text},
+            "options": {"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false}
+        })).unwrap()
+    }
+
+    fn component_sdk() -> Sdk {
+        serde_json::from_slice(
+            &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn component_observation_executes_semantics_for_ordinary_ts_without_changing_admission() {
+        let request = component_request(
+            "t00ComponentObservationsP",
+            "/repo/component-observations-p.ts",
+            r#"/// <reference path="./component-absent-p.ts" />
+const t00ComponentObservationsP = 227;"#,
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let subject = &observed["subjects"][0];
+        assert_eq!(subject["semanticObservation"]["executed"], true);
+        assert_eq!(
+            subject["semanticObservation"]["reasons"],
+            serde_json::json!(["SOURCE_REFERENCE_PATH_UNSUPPORTED"])
+        );
+        assert_eq!(
+            subject["semanticObservation"]["unsupported"],
+            serde_json::json!([])
+        );
+        assert_eq!(subject["outcome"], "analyzed");
+        assert_eq!(subject["reasons"], serde_json::json!([]));
+        let configurations = &subject["moduleConfigurationObservations"];
+        assert_eq!(configurations["retainedWithoutSource"]["executed"], true);
+        assert_eq!(
+            configurations["retainedWithoutSource"]["reasons"],
+            serde_json::json!(["SOURCE_REFERENCE_PATH_UNSUPPORTED"])
+        );
+        assert_eq!(
+            configurations["retainedWithSource"]["reasons"],
+            serde_json::json!([
+                "SOURCE_REFERENCE_PATH_UNSUPPORTED",
+                "SOURCE_GLOBAL_SCRIPT_UNSUPPORTED"
+            ])
+        );
+        assert_eq!(
+            configurations["ordinaryWithoutSnapshot"]["reasons"],
+            serde_json::json!([])
+        );
+    }
+
+    #[test]
+    fn component_observation_keeps_snapshot_profile_out_of_ordinary_configuration() {
+        let mut request = component_request(
+            "t00ComponentProfileQ",
+            "/repo/component-profile-q.ts",
+            "const t00ComponentProfileQ = 229; export default t00ComponentProfileQ;",
+        );
+        request.files.insert(
+            "/repo/tsconfig.json".into(),
+            r#"{"compilerOptions":{"module":"CommonJS","moduleResolution":"Node10"}}"#.into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
+        let expected = serde_json::json!([
+            "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED",
+            "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
+            "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10"
+        ]);
+        assert_eq!(modes["retainedWithoutSource"]["reasons"], expected);
+        assert_eq!(modes["retainedWithSource"]["reasons"], expected);
+        assert_eq!(
+            modes["ordinaryWithoutSnapshot"]["reasons"],
+            serde_json::json!([])
+        );
+    }
+
+    #[test]
+    fn component_observation_source_parser_uses_source_codes_for_javascript() {
+        let request = component_request(
+            "t00ComponentParserR",
+            "/repo/component-parser-r.js",
+            "export const t00ComponentParserR = ;",
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let parsing = &observed["subjects"][0]["sourceParsingObservation"];
+        assert_eq!(parsing["executed"], true);
+        assert_eq!(
+            parsing["reasons"],
+            serde_json::json!(["SOURCE_PARSE_ERROR:1109:Expression expected."])
+        );
+        assert_eq!(parsing["diagnosticCodes"], serde_json::json!([1109]));
+        assert_eq!(parsing["diagnostics"][0]["start_utf16"], 35);
+        assert_eq!(parsing["diagnostics"][0]["end_utf16"], 36);
+    }
+
+    #[test]
+    fn component_observation_outside_configuration_short_circuits_all_source_reasons() {
+        let mut request = component_request(
+            "t00ComponentOutsideS",
+            "/repo/component-outside-s.ts",
+            "const t00ComponentOutsideS = 233; export default t00ComponentOutsideS;",
+        );
+        request.files.insert(
+            "/tsconfig.json".into(),
+            r#"{"compilerOptions":{"module":"CommonJS"}}"#.into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
+        for mode in [
+            "retainedWithoutSource",
+            "retainedWithSource",
+            "ordinaryWithoutSnapshot",
+        ] {
+            assert_eq!(modes[mode]["executed"], true);
+            assert_eq!(
+                modes[mode]["reasons"],
+                serde_json::json!(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"])
+            );
+            assert_eq!(modes[mode]["unsupported"], serde_json::json!([]));
+        }
+    }
+
+    #[test]
+    fn component_observation_invalid_json_configuration_preserves_source_and_parser_reasons() {
+        let mut request = component_request(
+            "t00ComponentInvalidT",
+            "/repo/component-invalid-t.ts",
+            "const t00ComponentInvalidT = 239; export default t00ComponentInvalidT;",
+        );
+        request.files.insert(
+            "/repo/tsconfig.json".into(),
+            r#"{"compilerOptions": "#.into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
+        let retained = modes["retainedWithoutSource"]["reasons"]
+            .as_array()
+            .unwrap();
+        let ordinary = modes["ordinaryWithoutSnapshot"]["reasons"]
+            .as_array()
+            .unwrap();
+        assert_eq!(
+            retained.first().unwrap(),
+            "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"
+        );
+        assert!(!ordinary.is_empty());
+        assert!(ordinary.iter().all(|reason| {
+            reason
+                .as_str()
+                .unwrap()
+                .starts_with("SOURCE_CONFIGURATION_INVALID:")
+        }));
+        assert_eq!(&retained[1..], ordinary);
+    }
+
+    #[test]
+    fn component_observation_distinguishes_explicit_module_none_from_omission() {
+        let mut request = component_request(
+            "t00ComponentNoneV",
+            "/repo/component-none-v.ts",
+            "export const t00ComponentNoneV = 241;",
+        );
+        request.files.insert(
+            "/repo/tsconfig.json".into(),
+            r#"{"compilerOptions":{"module":"none"}}"#.into(),
+        );
+        let observed = analyze(request.clone(), component_sdk()).unwrap();
+        let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
+        assert_eq!(
+            modes["retainedWithoutSource"]["reasons"],
+            serde_json::json!(["SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"])
+        );
+        assert_eq!(
+            modes["ordinaryWithoutSnapshot"]["reasons"],
+            serde_json::json!([])
+        );
+        request
+            .files
+            .insert("/repo/tsconfig.json".into(), "{}".into());
+        let omitted = analyze(request, component_sdk()).unwrap();
+        assert_eq!(
+            omitted["subjects"][0]["moduleConfigurationObservations"]["retainedWithoutSource"]["reasons"],
+            serde_json::json!([])
+        );
+    }
+
+    #[test]
+    fn component_observation_distinguishes_absent_and_invalid_configuration_for_jsx() {
+        let mut request = component_request(
+            "t00ComponentViewU",
+            "/repo/component-view-u.tsx",
+            "/** @jsxRuntime automatic */\nconst t00ComponentViewU=<aside/>; export {};",
+        );
+        let absent = analyze(request.clone(), component_sdk()).unwrap();
+        assert_eq!(
+            absent["subjects"][0]["moduleConfigurationObservations"]["retainedWithoutSource"]["reasons"],
+            serde_json::json!(["SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED"])
+        );
+        request.files.insert(
+            "/repo/tsconfig.json".into(),
+            r#"{"compilerOptions": "#.into(),
+        );
+        let invalid = analyze(request, component_sdk()).unwrap();
+        let reasons = invalid["subjects"][0]["moduleConfigurationObservations"]["retainedWithoutSource"]["reasons"].as_array().unwrap();
+        assert!(!reasons.is_empty());
+        assert!(reasons.iter().all(|reason| {
+            reason
+                .as_str()
+                .unwrap()
+                .starts_with("SOURCE_CONFIGURATION_INVALID:")
+        }));
+    }
+
     #[test]
     fn case_mode_accepts_matching_native_semantics_and_rejects_mismatch() {
         assert!(validate_case_mode(false, false).is_ok());

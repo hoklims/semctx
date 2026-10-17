@@ -205,8 +205,8 @@ jobs:
       GOPORT_LIB_PARSE_SNAPSHOT: "0"
       GOPORT_LIB_SNAPSHOT: "0"
       RUST_TEST_THREADS: "1"
+      CARGO_BUILD_JOBS: "2"
       SEMCTX_PROCESS_HELPER: ${{ github.workspace }}/tools/gates/target/debug/semctx-gates${{ matrix.os == 'windows-latest' && '.exe' || '' }}
-      SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -231,6 +231,8 @@ jobs:
           cargo test --manifest-path tools/gates/Cargo.toml --locked
           cargo test --manifest-path tools/qualification/Cargo.toml --locked
       - name: Discover and execute native product workspaces
+        env:
+          SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
         run: cargo run --manifest-path tools/gates/Cargo.toml --locked -- rust-test --root "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/native-product-tests.json"
       - name: Retain native product discovery and execution
         if: always()
@@ -245,6 +247,19 @@ jobs:
         with:
           name: native-r0-development-${{ matrix.os }}
           path: ${{ runner.temp }}/native-r0-development/
+          if-no-files-found: error
+      - name: Exercise the optimized native T00 prototype on common vectors
+        env:
+          SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-optimized
+        run: cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --test native_development_flow --test native_common_portability
+      - name: Retain the optimized T00 artifact and observations
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-r0-optimized-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/native-r0-optimized/
+            tools/rust-ts-r0/target/release/semctx-r0-probe${{ matrix.os == 'windows-latest' && '.exe' || '' }}
           if-no-files-found: error
       - name: Require the tested source to remain unchanged
         run: git diff --exit-code HEAD

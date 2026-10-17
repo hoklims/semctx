@@ -401,6 +401,12 @@ fn expected(case: &Value, observed: &Observed, deadline: Instant) -> Expected {
     }
 }
 
+fn ready_receiver(case: &Value, observed: &Observed, budget: Duration) -> Receiver {
+    let mut policy = expected(case, observed, Instant::now());
+    policy.deadline = Instant::now() + budget;
+    Receiver::new(policy).unwrap()
+}
+
 fn poisoned(original: &Outcome, mutate: impl FnOnce(&mut Value)) -> Outcome {
     let mut value: Value = serde_json::from_str(&original.stdout).unwrap();
     mutate(&mut value);
@@ -421,12 +427,7 @@ fn rejected<T>(result: Result<T, Rejection>, expected: Rejection) {
 }
 
 fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed, root: &Path) {
-    let receiver = Receiver::new(expected(
-        case,
-        observed,
-        Instant::now() + Duration::from_secs(30),
-    ))
-    .unwrap();
+    let receiver = || ready_receiver(case, observed, Duration::from_secs(30));
     let current = observed.current();
     let endpoint = poisoned(outcome, |batch| {
         let edge = batch["facts"]
@@ -439,7 +440,7 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
         edge["payload"]["to"] = json!("not-an-observed-node");
     });
     rejected(
-        receiver.receive(&endpoint, &current),
+        receiver().receive(&endpoint, &current),
         Rejection::InvalidFact,
     );
     let range = poisoned(outcome, |batch| {
@@ -451,16 +452,19 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
             .unwrap();
         function["range"]["end_utf16"] = json!(9_999_999);
     });
-    rejected(receiver.receive(&range, &current), Rejection::InvalidRange);
     rejected(
-        receiver.receive(
+        receiver().receive(&range, &current),
+        Rejection::InvalidRange,
+    );
+    rejected(
+        receiver().receive(
             &poisoned(outcome, |b| b["request_id"] = json!("foreign-request")),
             &current,
         ),
         Rejection::IdentityMismatch,
     );
     rejected(
-        receiver.receive(
+        receiver().receive(
             &poisoned(outcome, |b| {
                 b["subjects"].as_array_mut().unwrap().pop();
             }),
@@ -469,14 +473,14 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
         Rejection::SubjectMismatch,
     );
     rejected(
-        receiver.receive(
+        receiver().receive(
             &poisoned(outcome, |b| b["qualified_admitted"] = json!(true)),
             &current,
         ),
         Rejection::MalformedOutput,
     );
     rejected(
-        receiver.receive(
+        receiver().receive(
             &poisoned(outcome, |b| b["complete"] = json!(false)),
             &current,
         ),
@@ -503,10 +507,11 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
     changed_capture["files"][&captured_path] = json!(actual_changed_text);
     let mut post_capture = observed.current();
     post_capture.capture = &changed_capture;
-    let changed_result = receiver.receive(outcome, &post_capture);
+    let changed_result = receiver().receive(outcome, &post_capture);
     fs::write(&live_path, &original_bytes).unwrap();
     rejected(changed_result, Rejection::IdentityMismatch);
-    let receipt = receiver.receive(outcome, &current).unwrap();
+    let receipt_receiver = receiver();
+    let receipt = receipt_receiver.receive(outcome, &current).unwrap();
     let mut changed_graph = observed.graph.clone();
     changed_graph["nodes"]
         .as_array_mut()
@@ -515,7 +520,7 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
     let mut graph_current = observed.current();
     graph_current.graph = &changed_graph;
     rejected(
-        receiver.revalidate(&receipt, &graph_current),
+        receipt_receiver.revalidate(&receipt, &graph_current),
         Rejection::IdentityMismatch,
     );
     let claimed = poisoned(outcome, |b| b["producer_claimed_ownership"] = json!(true));
@@ -524,13 +529,13 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
     let mut claimed_current = observed.current();
     claimed_current.freshness = &missing_seal;
     rejected(
-        receiver.receive(&claimed, &claimed_current),
+        receiver().receive(&claimed, &claimed_current),
         Rejection::MissingSeal,
     );
     let mut inactive = observed.current();
     inactive.request_current = false;
     rejected(
-        receiver.receive(outcome, &inactive),
+        receiver().receive(outcome, &inactive),
         Rejection::InactiveRequest,
     );
 }
@@ -874,7 +879,6 @@ fn run_native_fixture(target_index: usize) {
             request_path.to_string_lossy().into_owned(),
             sdk_path.to_string_lossy().into_owned(),
         ];
-        let launched = Instant::now();
         let outcome = supervise(
             &argv,
             &root,
@@ -903,12 +907,7 @@ fn run_native_fixture(target_index: usize) {
             &batch,
             fs::read(env!("CARGO_BIN_EXE_semctx-r0-probe")).unwrap(),
         );
-        let receiver = Receiver::new(expected(
-            case,
-            &observed,
-            launched + Duration::from_secs(20),
-        ))
-        .unwrap();
+        let receiver = ready_receiver(case, &observed, Duration::from_secs(20));
         let current = observed.current();
         let receipt = receiver
             .receive(&outcome, &current)
@@ -997,7 +996,6 @@ fn run_native_fixture(target_index: usize) {
                     "GOPORT_LIB_SNAPSHOT=0".into(),
                 ];
                 isolated.extend(argv.clone());
-                let isolated_started = Instant::now();
                 let no_tools = supervise(
                     &isolated,
                     &root,
@@ -1011,12 +1009,7 @@ fn run_native_fixture(target_index: usize) {
                 let isolated_batch: wire::Batch = serde_json::from_str(&no_tools.stdout).unwrap();
                 assert_semantics(case, &isolated_batch);
                 assert_input_provenance(&request, &sdk, &isolated_batch);
-                let isolated_receiver = Receiver::new(expected(
-                    case,
-                    &observed,
-                    isolated_started + Duration::from_secs(20),
-                ))
-                .unwrap();
+                let isolated_receiver = ready_receiver(case, &observed, Duration::from_secs(20));
                 let isolated_receipt = isolated_receiver.receive(&no_tools, &current).unwrap();
                 assert_eq!(
                     isolated_receipt.disposition(),

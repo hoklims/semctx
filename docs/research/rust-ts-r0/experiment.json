@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
-  "stage": 4,
+  "stage": 5,
   "r0Decision": "NOT_RUN",
   "owner": "SebastienElet",
   "baseline": {
@@ -49,12 +49,15 @@
       {
         "composition": "C1",
         "candidate": "tools/rust-ts-r0",
-        "state": "FIRST_CORRECTION_PASS_NATIVE_DEV_PASSED_QUALIFICATION_PENDING",
+        "state": "OPTIMIZED_SELECTED_PASS1_FROZEN_QUALIFICATION_PENDING",
         "evidenceRecord": "composition1/record-index.json",
-        "environment": "macOS27.0.1ARM64 / Rust1.95.0 / debug",
+        "environment": "macOS27.0.1ARM64 / Rust1.95.0 / release opt-level3",
         "qualification": false,
-        "optimized": false,
-        "windowsOrLinuxResult": false
+        "optimized": true,
+        "windowsOrLinuxResult": false,
+        "selectionRecord": "selection/FREEZE.json",
+        "optimizedProducerSha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+        "developmentVectorsPassed": 6
       }
     ]
   },
@@ -142,8 +145,6 @@
     "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
   },
   "remainingEvidence": [
-    "native producer mechanisms and actual process inventory",
-    "optimized candidate artifacts and consumed-input identities",
     "actual SDK/configuration/dependency consumption and coherent capture witnesses",
     "all354 frozen qualification execution units and51 supporting observations",
     "independently reserved-case results",
@@ -174,7 +175,8 @@
     "historicalAssertionReferencesAreExecutableControls": false,
     "nativeExecutionEvidence": false,
     "nativeQualificationExecutionUnitsRun": 0,
-    "nativeReservedVariantsRun": 0
+    "nativeReservedVariantsRun": 0,
+    "nativeExecutionCountsAsOfUtc": "2026-10-17T18:58:42+00:00"
   },
   "checkpoint3Verification": {
     "recordedUtc": "2026-10-17T16:10:12.284155+00:00",
@@ -228,6 +230,10 @@
       "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
     }
   },
-  "stageStatus": "C1_NATIVE_DEVELOPMENT_CHECKPOINT_LOCAL_PASSED",
-  "checkpoint4Evidence": "composition1/record-index.json"
+  "stageStatus": "C1_OPTIMIZED_FROZEN_BEFORE_QUALIFICATION",
+  "checkpoint4Evidence": "composition1/record-index.json",
+  "selectedCheckpoint": "selection/README.md",
+  "selectionScope": "Frozen optimized source/artifact and scoped process/input inventory; no native qualification/reserved or WindowsLinux success implied.",
+  "checkpoint5StateAsOfUtc": "2026-10-17T18:58:42+00:00",
+  "checkpoint5ValidationDelta": "selection/post-freeze-validation-delta.json"
 }
