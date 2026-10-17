@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-17",
-  "checkpoint": 4,
+  "checkpoint": 5,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -129,8 +129,9 @@
     }
   ],
   "remainingEvidence": [
-    "declared memory collector and sampling period per OS",
-    "instrumentation cost",
+    "owner decisions: submodule-refusal and large-cell-host-memory",
+    "memory collector for Linux and Windows before any measurement there",
+    "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
     "size-dependent budget coefficients",
     "READY_TS_NATIVE from T00",
@@ -633,5 +634,191 @@
       },
       "selectionAfterInstallSha256": "0a747110438506ceaa49bbdb8f68b3c6accf5ed637343961f4385cd7a9425230"
     }
-  }
+  },
+  "referenceBuild": {
+    "releaseReproduction": {
+      "source": "3e94997 (historical baseline; packages and apps identical to the 0.4.5 release commit 6072cb4a)",
+      "builder": "Bun 1.4.0, the release workflow's pinned version, from @oven/bun-darwin-aarch64@1.4.0",
+      "builderIntegrity": "sha512-GCpf8QuFLsyioVawP5HrMxA1ZRBlu6Hq9RNnSc3UTUWAzIxBso9trjoZczw1HdgpqSssFkszfIV2zmOzFTjhkw==",
+      "command": "bun scripts/build-cli-package.ts",
+      "publishedPackage": "semctx@0.4.5",
+      "publishedIntegrity": "sha512-n+aGtkzRh2Ifpbg1lh3y3auVZNK71G67vJOXckSGM3J487cSX/LPUX7mX7KeC2+PDBcn3VHNnt8ujZVf+f8NiA==",
+      "result": "apps/cli/dist byte-identical to the published package dist",
+      "indexJsSha256": "70e76af900394546233f769ae9d60ca9181af3d2e9d406e5d43264193cfed551",
+      "indexWorkerJsSha256": "206a4e0fe473207a61791d4f78682500a76677dfff0cc9c136f7dd9a7527cd98"
+    },
+    "requalifiedBundle": {
+      "source": "3e94997 plus the requalification patch",
+      "builder": "same Bun 1.4.0 and command",
+      "indexJsSha256": "ef95e161260033419da2f1eab3d22b6a5b7722d5c8e43b48edb46e887cfc05a6",
+      "indexWorkerJsSha256": "206a4e0fe473207a61791d4f78682500a76677dfff0cc9c136f7dd9a7527cd98",
+      "typescriptLibIdenticalToRelease": true
+    },
+    "runtime": "Bun 1.4.3 (T00 toolchain), command `bun <bundle>/index.js index --json` from the workload root",
+    "workers": "1: the CLI default, and what `auto` selects on macOS",
+    "note": "the reference runs the built, minified bundle users install, not the TypeScript sources the pilots used"
+  },
+  "snapshotRepositories": {
+    "reason": "the baseline requires a Git repository: outside one it refuses with GIT_ERROR (cannot capture control freshness)",
+    "procedure": [
+      "git init in the extracted archive with dependencies installed",
+      ".semctx/ and .yarn/install-state.gz in .git/info/exclude",
+      "git add -A, then git add -f for upstream files that match .gitignore",
+      "submodule recorded as its upstream gitlink, left uninitialized as in a non-recursive clone",
+      "a CRLF blob stored without filters, then checked out again so the index stat matches a clone",
+      "one commit by t01-snapshot <t01-snapshot@invalid> at 2026-10-17T00:00:00Z"
+    ],
+    "check": "the local tree id equals the upstream commit's tree id for all seven workloads; git status is clean",
+    "treeIds": {
+      "sindresorhus/ky": "2563212e6be0e3dcdc2f09412d3beb01fa78127e",
+      "honojs/hono": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
+      "trpc/trpc": "e2d7614f56f8bef1448b1f001024da15cec214b0",
+      "PrefectHQ/prefect": "4337a4b91091dcbe374f1329895f1a05987dbaa3",
+      "backstage/backstage": "231dd80ff286b5a6698cfaee45cc3abb14b48433",
+      "microsoft/vscode": "4e660e90a465158c60b353a1f328ca759eb6f736",
+      "aws/aws-sdk-js-v3": "586a79c7a1b629bb18c11de4a5aba03739d840f9"
+    },
+    "selectionUnchanged": true,
+    "selectionOutputSha256": "cb6f152f89a5c4ce0157f13601cfa7c742630ea207dc9eb98517aa9a90f22677"
+  },
+  "memoryCollector": {
+    "macOS": {
+      "metric": "phys_footprint from proc_pid_rusage (RUSAGE_INFO_V4)",
+      "aggregate": "maximum over samples of the summed phys_footprint of the live process tree",
+      "tree": "proc_listchildpids from the command's process, recursively",
+      "samplingPeriodMs": 50,
+      "upperBound": "sum over processes of ri_lifetime_max_phys_footprint; the root is read after exit, before it is reaped",
+      "alsoRecorded": [
+        "summed resident size (RSS)",
+        "system compressor and swap page counter deltas over the run"
+      ],
+      "doubleCounting": "phys_footprint excludes shared clean pages, so summing processes does not count shared libraries twice",
+      "limits": [
+        "peaks shorter than the period can be missed; the kernel lifetime peak bounds that error from above",
+        "compressor counters are system-wide, so other host activity can contribute"
+      ],
+      "validation": "on a 768 MiB allocation: resident size equals ps RSS (783.8 MiB); footprint and lifetime peak equal /usr/bin/footprint (775 MB); a parent and child tree is summed",
+      "scriptSha256": "4543cd7994698dc746b1e74bf774c37a54409da2c1fd27d6d9e6515344da83ca",
+      "history": "compressor and swap counter deltas were added after the shake-down and cost runs; sampling is otherwise unchanged"
+    },
+    "linux": "not declared; no Linux measurement exists, so Linux stays unqualified",
+    "windows": "not declared; no Windows measurement exists, so Windows stays unqualified"
+  },
+  "instrumentationCost": {
+    "workload": "honojs/hono, cold application cache",
+    "design": "10 pairs, sampling off (0) versus 50 ms, order shuffled per pair with seed 365",
+    "statistic": "ratio of medians; 95% percentile bootstrap over pairs, 10,000 resamples, seed 365",
+    "wallTimeRatio": 1.0023,
+    "wallTimeRatioBootstrap95": [
+      1.0012,
+      1.0042
+    ],
+    "rootPeakFootprintRatio": 1.0043,
+    "rootPeakFootprintRatioBootstrap95": [
+      0.9948,
+      1.0128
+    ],
+    "sampledAggregateOverUpperBound": [
+      0.985,
+      0.9983
+    ],
+    "wallSecondsRange": [
+      14.805,
+      15.307
+    ],
+    "conclusion": "sampling at 50 ms adds about 0.2% wall time and no measurable memory; reference series keep it on",
+    "phaseAttribution": "CPU-profiled runs only, kept apart from reference series; their cost is not yet measured",
+    "rowsSha256": "1fc3fd85dd80248c8d169a9d9c4dbccafb5d66881b1f3da0955fd70f8bb76c68",
+    "scriptSha256": {
+      "pairs": "4c1a145273f15a9c78e472fac1e301116b3170d53ad221e9b612fa54a4332669",
+      "statistics": "b0bc6e554e9d346440b6a7bb1cd8fd58ab4524f6d2f6b7ff0d709f3e5d68573b"
+    }
+  },
+  "shakeDown": {
+    "purpose": "one cold run per workload to size the series; not a reference series",
+    "host": "MacBook Pro, Apple M5 Pro, 18 cores, 48 GiB, macOS 26.7.1, battery then AC power",
+    "compressorCountersRecorded": false,
+    "runs": [
+      {
+        "repository": "sindresorhus/ky",
+        "exitCode": 0,
+        "wallSeconds": 2.203,
+        "aggregatePeakFootprintBytes": 714343624,
+        "sumOfLifetimePeakFootprintsBytes": 714441928,
+        "nodes": 437,
+        "edges": 971,
+        "evidence": 2388,
+        "claims": 82
+      },
+      {
+        "repository": "honojs/hono",
+        "exitCode": 0,
+        "wallSeconds": 15.458,
+        "aggregatePeakFootprintBytes": 1630341160,
+        "sumOfLifetimePeakFootprintsBytes": 1636944512,
+        "nodes": 2689,
+        "edges": 5934,
+        "evidence": 11164,
+        "claims": 455
+      },
+      {
+        "repository": "trpc/trpc",
+        "exitCode": 0,
+        "wallSeconds": 95.7,
+        "aggregatePeakFootprintBytes": 4302590992,
+        "sumOfLifetimePeakFootprintsBytes": 4344289376,
+        "nodes": 5925,
+        "edges": 12101,
+        "evidence": 18102,
+        "claims": 2047
+      },
+      {
+        "repository": "PrefectHQ/prefect",
+        "exitCode": 1,
+        "wallSeconds": 0.166,
+        "aggregatePeakFootprintBytes": 63866008,
+        "sumOfLifetimePeakFootprintsBytes": 69338240,
+        "refusal": "GIT_ERROR: Git submodules are unsupported by the control freshness seal"
+      },
+      {
+        "repository": "backstage/backstage",
+        "exitCode": 0,
+        "wallSeconds": 10745.677,
+        "aggregatePeakFootprintBytes": 42305027632,
+        "sumOfLifetimePeakFootprintsBytes": 42324509456,
+        "nodes": 37611,
+        "edges": 101086,
+        "evidence": 94098,
+        "claims": 5275
+      },
+      {
+        "repository": "microsoft/vscode",
+        "exitCode": 0,
+        "wallSeconds": 1145.883,
+        "aggregatePeakFootprintBytes": 43293376048,
+        "sumOfLifetimePeakFootprintsBytes": 43343725760,
+        "nodes": 102822,
+        "edges": 476176,
+        "evidence": 704866,
+        "claims": 19698
+      },
+      {
+        "repository": "aws/aws-sdk-js-v3",
+        "notRun": "held until the host memory decision"
+      }
+    ]
+  },
+  "openDecisions": [
+    {
+      "id": "submodule-refusal",
+      "fact": "the baseline refuses the PrefectHQ/prefect checkout because its tree contains a submodule gitlink (compat-tests); without Git it refuses as well",
+      "question": "how the multilanguage cell obtains an indexed measurement while the refusal stays recorded"
+    },
+    {
+      "id": "large-cell-host-memory",
+      "fact": "with dependencies, VS Code and backstage each reach about 42-43 GB of aggregate footprint on a 48 GiB host, and take 1,146 s and 10,746 s against 187 s for VS Code without dependencies",
+      "unverified": "whether memory compression dominates those times; per-run compressor counters were not yet recorded",
+      "question": "which host memory each size class declares, and where large and very large series run"
+    }
+  ]
 }
