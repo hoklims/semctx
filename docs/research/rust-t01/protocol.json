@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-17",
-  "checkpoint": 1,
+  "checkpoint": 2,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -30,7 +30,13 @@
     "recordedDateUtc": "2026-10-17",
     "statement": "every repository size; adaptive, natively",
     "translation": {
-      "workloadSizeClasses": ["small", "medium", "large", "very-large", "monorepo"],
+      "workloadSizeClasses": [
+        "small",
+        "medium",
+        "large",
+        "very-large",
+        "monorepo"
+      ],
       "sizeClassificationBeforeResults": true,
       "budgetForm": "fixed startup term + per-unit term, with explicit time and aggregate-memory growth bounds",
       "budgetCoefficientsSource": "repeated baseline characterization",
@@ -109,8 +115,8 @@
         "distinctRelativeImportPairsScanned": 123283
       },
       "failingIdPartnerIdentified": false,
-      "consequence": "large cells are BLOCKED_MEASUREMENT until a separate product decision arbitrates the identity defect",
-      "arbitration": "pending"
+      "consequence": "large cells use the requalified baseline; the Rust identity format remains a T02 decision under D4",
+      "arbitration": "resolved for T01 measurements by the owner on 2026-10-17; see requalifiedBaseline"
     },
     {
       "id": "uncached-filesystem-canonicalization",
@@ -120,7 +126,6 @@
   ],
   "remainingEvidence": [
     "owner confirmation of the size translation",
-    "arbitration route for the edge identity defect",
     "pinned workload snapshots per size class, disjoint from T00 corpora",
     "declared memory collector and sampling period per OS",
     "instrumentation cost",
@@ -128,5 +133,61 @@
     "size-dependent budget coefficients",
     "READY_TS_NATIVE from T00",
     "hypothesis selection, prototype and economic gate"
-  ]
+  ],
+  "requalifiedBaseline": {
+    "decidedBy": "hoklims",
+    "decidedDateUtc": "2026-10-17",
+    "authority": "owner of #365 milestones; #365 section 2.3 arbitration",
+    "scope": "T01 measurements only; no product change; historical baseline stays pinned",
+    "base": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "changedFiles": [
+      "packages/core/src/ids.ts"
+    ],
+    "change": "edgeId and claimId use the first 128 bits of SHA-256 instead of 32-bit FNV-1a",
+    "patchSha256": "a1e7c8f77e5954a0a8b00cc443d700167b3f8ba3d192f17d0009d3dc7210fcfb",
+    "patch": "diff --git a/packages/core/src/ids.ts b/packages/core/src/ids.ts\nindex 32b33e22..b3d83608 100644\n--- a/packages/core/src/ids.ts\n+++ b/packages/core/src/ids.ts\n@@ -6,6 +6,8 @@\n  * hard requirement so that graphs, claims and context packs diff and cache cleanly.\n  */\n \n+import { createHash } from \"node:crypto\";\n+\n /** Normalise a path to forward slashes and strip a leading \"./\". */\n export function normalizePath(filePath: string): string {\n   return filePath.replace(/\\\\/g, \"/\").replace(/^\\.\\//, \"\");\n@@ -44,6 +46,11 @@ export function fnv1a(text: string): string {\n   return (hash >>> 0).toString(16).padStart(8, \"0\");\n }\n \n+/** First 128 bits of SHA-256 as hex, for identities whose population grows with the repository. */\n+export function wideDigest(text: string): string {\n+  return createHash(\"sha256\").update(text).digest(\"hex\").slice(0, 32);\n+}\n+\n export function repositoryId(root: string): string {\n   const leaf = root.split(/[\\\\/]/).filter(Boolean).pop() ?? \"repository\";\n   return `repo:${slugify(leaf)}`;\n@@ -194,7 +201,7 @@ export function boundedContextId(name: string): string {\n }\n \n export function edgeId(kind: string, from: string, to: string): string {\n-  return `edge:${kind}:${fnv1a(`${from}->${to}`)}`;\n+  return `edge:${kind}:${wideDigest(`${from}->${to}`)}`;\n }\n \n export function evidenceId(sourceKind: string, filePath: string, startLine?: number, endLine?: number): string {\n@@ -203,7 +210,7 @@ export function evidenceId(sourceKind: string, filePath: string, startLine?: num\n \n export function claimId(kind: string, statement: string, subjectNodeIds: readonly string[]): string {\n   const key = `${subjectNodeIds.join(\"|\")}::${statement}`;\n-  return `claim:${kind}:${slugify(statement).slice(0, 40)}-${fnv1a(key)}`;\n+  return `claim:${kind}:${slugify(statement).slice(0, 40)}-${wideDigest(key)}`;\n }\n \n export function taskFrameId(rawTask: string): string {\n",
+    "comparisonRule": "facts must match the requalified baseline exactly, except edge and claim identity values and the order they induce",
+    "checks": [
+      {
+        "subject": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "exitCode": 0,
+        "nodes": 101587,
+        "edges": 463422,
+        "evidence": 697442,
+        "claims": 19663,
+        "wallSeconds": 186.88,
+        "maxRssBytes": 24838717440,
+        "expected32BitCollidingPairs": 25,
+        "rawSha256": {
+          "indexJson": "2013bbe66fcd1549c3918528fc5eda0590c633412fbf219b56d0aa56e297fb7c",
+          "collectorOutput": "5b0198c1de100beecba35af376302c7da75c1c234866b680aae6776e6a2e61f2"
+        }
+      },
+      {
+        "subject": "semctx baseline archive",
+        "snapshotTree": "a4d1383cd3e8d62d44e24afea02ea91dce1fc641",
+        "exitCode": 0,
+        "wallSeconds": 4.82,
+        "maxRssBytes": 1884618752,
+        "storeComparisonWithHistoricalBaseline": {
+          "nodes": "identical",
+          "evidence": "identical",
+          "edgesWithoutId": "identical",
+          "claimsWithoutId": "identical when subject and evidence lists are compared as sets",
+          "claimsWithReorderedLists": 73,
+          "claimsTotal": 1077,
+          "edgeAndClaimIdsUnique": true
+        },
+        "rawSha256": {
+          "indexJson": "077c779f9c4f8fc6862515f94961d2025e8da9bad3afa740918a6a18dbd3f115",
+          "timeOutput": "cac534f114037f27c1bb6ec79928f2589a2c2f8e54a12cb03c03d50606ee807b"
+        }
+      }
+    ],
+    "tooling": {
+      "storeComparisonScriptSha256": "5e39e6fde7660a1b1f0f4bad543bfee77a364e3b5cd445c03184ad50b45b09e5",
+      "collisionScanScriptSha256": "dd524d8cdc644fcbf29a183729f16bdcf4d15f19eb39e0da122a8c3bb4f1f8c1"
+    }
+  }
 }
