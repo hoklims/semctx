@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-17",
-  "checkpoint": 2,
+  "checkpoint": 3,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -45,7 +45,8 @@
       "referenceComparisonAtEqualWorkers": true,
       "adaptiveDefaultsEvidenceGated": true
     },
-    "translationConfirmedByOwner": false
+    "translationConfirmedByOwner": true,
+    "translationConfirmedDateUtc": "2026-10-17"
   },
   "phases": [
     "input-capture",
@@ -66,7 +67,7 @@
         "subject": "semctx baseline archive",
         "snapshotTree": "a4d1383cd3e8d62d44e24afea02ea91dce1fc641",
         "typescriptFiles": 904,
-        "config": "semctx init default",
+        "config": "semctx init default (version 1; discovery walks the whole repository)",
         "exitCode": 0,
         "wallSeconds": 4.88,
         "maxRssBytes": 1916960768,
@@ -81,7 +82,8 @@
           "indexJson": "e97d9526ee82d8547622e6aaf2b24c9667a1b03e97d114571f0a1737f0621ff2",
           "timeOutput": "a87180cd566edba2fc296d4544c6a4986b0ecd93c9d529ee1f48c807ecc65e9c",
           "cpuProfile": "3489ebe8df53c79fad8c47ad4f5c524aeac14808dc18eea2c8d3b28fe392c39b"
-        }
+        },
+        "moduleAndTestNodes": 701
       },
       {
         "subject": "microsoft/vscode",
@@ -89,8 +91,7 @@
         "license": "MIT",
         "archiveUrl": "https://codeload.github.com/microsoft/vscode/tar.gz/5b23ab39bef800e5c4dad4e544671ef20617e660",
         "archiveSha256": "f46423d0c44c21e7d0563008dc4da02b4c6afc6c77629614d64bde2f48c35a8c",
-        "typescriptFiles": 10614,
-        "config": "semctx init default",
+        "config": "semctx init default (version 1; discovery walks the whole repository)",
         "exitCode": 1,
         "error": "PlaneAAssemblyError: FACT_ID_CONFLICT {\"id\":\"edge:imports:342a8bf7\",\"metadataKey\":\"specifier\"}",
         "wallSeconds": 144.09,
@@ -98,7 +99,9 @@
         "collector": "ps-based process-tree RSS sum, 200 ms interval",
         "rawSha256": {
           "collectorOutput": "c5a325d91c12dd78a893f8f3b6b7c55a70f363df4bb666df197354a8cd2b58af"
-        }
+        },
+        "nonDeclarationTypescriptFiles": 14818,
+        "moduleAndTestNodesInRequalifiedRun": 14794
       }
     ]
   },
@@ -112,7 +115,8 @@
           "src/vs/workbench/contrib/browserView/common/browserSearch.ts -> src/vs/nls.ts",
           "src/vs/sessions/contrib/layout/test/browser/desktopLayoutController.test.ts -> src/vs/sessions/contrib/layout/browser/desktopLayoutController.ts"
         ],
-        "distinctRelativeImportPairsScanned": 123283
+        "distinctRelativeImportPairsScanned": 123283,
+        "scanScope": "src tree, relative imports only"
       },
       "failingIdPartnerIdentified": false,
       "consequence": "large cells use the requalified baseline; the Rust identity format remains a T02 decision under D4",
@@ -125,8 +129,7 @@
     }
   ],
   "remainingEvidence": [
-    "owner confirmation of the size translation",
-    "pinned workload snapshots per size class, disjoint from T00 corpora",
+    "dependency closures per workload, captured without install scripts",
     "declared memory collector and sampling period per OS",
     "instrumentation cost",
     "repeated baseline series per phase and size class",
@@ -189,5 +192,267 @@
       "storeComparisonScriptSha256": "5e39e6fde7660a1b1f0f4bad543bfee77a364e3b5cd445c03184ad50b45b09e5",
       "collisionScanScriptSha256": "dd524d8cdc644fcbf29a183729f16bdcf4d15f19eb39e0da122a8c3bb4f1f8c1"
     }
+  },
+  "workloadMatrix": {
+    "recordedDateUtc": "2026-10-17",
+    "recordedBefore": "repeated baseline series and any candidate",
+    "disjointFromT00Corpora": true,
+    "sizeMetric": "TS/JS files selected by the matrix configuration",
+    "sizeClasses": {
+      "small": {
+        "maximumExclusive": 300
+      },
+      "medium": {
+        "minimum": 300,
+        "maximumExclusive": 3000
+      },
+      "large": {
+        "minimum": 3000,
+        "maximumExclusive": 20000
+      },
+      "very-large": {
+        "minimum": 20000
+      }
+    },
+    "configuration": {
+      "version": 2,
+      "selectionMode": "globs-v1",
+      "include": [
+        "**/*.{ts,tsx,mts,cts}",
+        "**/*.{js,jsx,mjs,cjs}",
+        "**/*.py",
+        "**/*.{md,mdx}",
+        "**/*.sql"
+      ],
+      "exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/coverage/**",
+        "**/.git/**",
+        "**/.semctx/**"
+      ],
+      "docsDirs": [
+        "docs"
+      ],
+      "migrationsDirs": [
+        "migrations"
+      ],
+      "testGlobs": [
+        "**/*.{test,spec}.{ts,tsx,mts,cts}",
+        "test/**/*.{ts,tsx,mts,cts,py}",
+        "tests/**/*.{ts,tsx,mts,cts,py}",
+        "**/test_*.py",
+        "**/*_test.py"
+      ],
+      "languages": {
+        "typescript": "on",
+        "javascript": "on",
+        "python": "on",
+        "markdown": "on",
+        "sql": "on"
+      },
+      "semanticProvider": "none",
+      "blockingRules": []
+    },
+    "configurationSha256": "b6b3a1ea75515ddfedb935500afb1ddc06d96bfc8b641ee8a4b54c294f1d7220",
+    "selectionCounter": "requalified baseline discoverRepository(loadConfig(root))",
+    "selectionOutputSha256": "95acddb0942c6d07f341850e8df9f457d9362f4079f8fd4174bcb482bbf68525",
+    "selectionScriptSha256": "44d0aa6b5413432cb888dad9ccea9f9897110c897a7cec3132b5cf327b1dac2f",
+    "baselineIncompleteCellRule": "record the outcome; no ratio; budget from size-dependent coefficients fitted on completed cells; the cell stays",
+    "workloads": [
+      {
+        "repository": "sindresorhus/ky",
+        "commit": "3541888878c4d303a8bc2ad61815f4e048f55a5d",
+        "license": "MIT",
+        "licensePath": "license",
+        "archiveUrl": "https://codeload.github.com/sindresorhus/ky/tar.gz/3541888878c4d303a8bc2ad61815f4e048f55a5d",
+        "archiveSha256": "d1459746065d3c45dc1470ebf058b9cf5795351e1f5ad8032393a62cf3d568ea",
+        "structure": "single package",
+        "rootLockfile": null,
+        "sizeClass": "small",
+        "roles": [
+          "startup"
+        ],
+        "selectedFiles": {
+          "markdown": 3,
+          "typescript": 98
+        },
+        "selectedBytes": {
+          "markdown": 76168,
+          "typescript": 1083178
+        },
+        "discoveryMsSingleRun": 61,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 416433
+      },
+      {
+        "repository": "honojs/hono",
+        "commit": "5ca49b0720755c585c9a9835f0a479ceea36fb52",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/honojs/hono/tar.gz/5ca49b0720755c585c9a9835f0a479ceea36fb52",
+        "archiveSha256": "558739d106316259b89e3cbfa0002220edce22dd50a7ee59a071e08f0f44c813",
+        "structure": "single package, pnpm workspace file",
+        "rootLockfile": "pnpm-lock.yaml",
+        "sizeClass": "medium",
+        "roles": [],
+        "selectedFiles": {
+          "javascript": 2,
+          "markdown": 18,
+          "typescript": 450
+        },
+        "selectedBytes": {
+          "javascript": 1471,
+          "markdown": 28311,
+          "typescript": 2891073
+        },
+        "discoveryMsSingleRun": 181,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 1770391
+      },
+      {
+        "repository": "trpc/trpc",
+        "commit": "f15d2a1cdbae3609f633407cf0ac66d19f06cba1",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/trpc/trpc/tar.gz/f15d2a1cdbae3609f633407cf0ac66d19f06cba1",
+        "archiveSha256": "29e647788ff46e55c4179636367eac2c6ae056cef1567c58ca9be7fb3182218e",
+        "structure": "pnpm monorepo",
+        "rootLockfile": "pnpm-lock.yaml",
+        "sizeClass": "medium",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 26,
+          "markdown": 284,
+          "sql": 13,
+          "typescript": 1024
+        },
+        "selectedBytes": {
+          "javascript": 32363,
+          "markdown": 1360321,
+          "sql": 3787,
+          "typescript": 3564659
+        },
+        "discoveryMsSingleRun": 321,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 1730742
+      },
+      {
+        "repository": "PrefectHQ/prefect",
+        "commit": "e29ee8a50c54aa3b41c1566827f6223997e7153c",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/PrefectHQ/prefect/tar.gz/e29ee8a50c54aa3b41c1566827f6223997e7153c",
+        "archiveSha256": "c682c09e762cbba6d27926153f98b59f24103c7985a186eae647c89907510bfd",
+        "structure": "Python package with TS UI",
+        "rootLockfile": "uv.lock",
+        "sizeClass": "medium",
+        "roles": [
+          "multilanguage"
+        ],
+        "selectedFiles": {
+          "javascript": 7,
+          "markdown": 1054,
+          "python": 1916,
+          "sql": 6,
+          "typescript": 1672
+        },
+        "selectedBytes": {
+          "javascript": 25281,
+          "markdown": 7091803,
+          "python": 24700989,
+          "sql": 5057,
+          "typescript": 6080166
+        },
+        "discoveryMsSingleRun": 524,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 40904572
+      },
+      {
+        "repository": "backstage/backstage",
+        "commit": "8747376ceeb8c46d34549c53cdf6b81bb5de70f9",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/backstage/backstage/tar.gz/8747376ceeb8c46d34549c53cdf6b81bb5de70f9",
+        "archiveSha256": "1500f02f5da4cd841e552e3217d2c106e9b8bb159847bef66441fa62198b61a4",
+        "structure": "Yarn monorepo",
+        "rootLockfile": "yarn.lock",
+        "sizeClass": "large",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 427,
+          "markdown": 2143,
+          "typescript": 7447
+        },
+        "selectedBytes": {
+          "javascript": 10424615,
+          "markdown": 38115244,
+          "typescript": 30801796
+        },
+        "discoveryMsSingleRun": 3107,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 203176525
+      },
+      {
+        "repository": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "license": "MIT",
+        "licensePath": "LICENSE.txt",
+        "archiveUrl": "https://codeload.github.com/microsoft/vscode/tar.gz/5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "archiveSha256": "f46423d0c44c21e7d0563008dc4da02b4c6afc6c77629614d64bde2f48c35a8c",
+        "structure": "single repository",
+        "rootLockfile": "package-lock.json",
+        "sizeClass": "large",
+        "roles": [],
+        "selectedFiles": {
+          "javascript": 129,
+          "markdown": 369,
+          "python": 74,
+          "sql": 1,
+          "typescript": 14807
+        },
+        "selectedBytes": {
+          "javascript": 1310684,
+          "markdown": 6233673,
+          "python": 62235,
+          "sql": 123,
+          "typescript": 205023780
+        },
+        "discoveryMsSingleRun": 15354,
+        "dependencyClosureCaptured": false
+      },
+      {
+        "repository": "aws/aws-sdk-js-v3",
+        "commit": "412d1362e9d60979d3e11e7396e2598872b55773",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/aws/aws-sdk-js-v3/tar.gz/412d1362e9d60979d3e11e7396e2598872b55773",
+        "archiveSha256": "2eeabbe1803b11ec55025cd173ea38b80bb772c4fe0d33b38047b7f1880a6b4f",
+        "structure": "Yarn monorepo, generated clients",
+        "rootLockfile": "yarn.lock",
+        "sizeClass": "very-large",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 608,
+          "markdown": 1248,
+          "typescript": 36895
+        },
+        "selectedBytes": {
+          "javascript": 14731800,
+          "markdown": 87304088,
+          "typescript": 272151586
+        },
+        "discoveryMsSingleRun": 44546,
+        "dependencyClosureCaptured": false,
+        "archiveBytes": 70643151
+      }
+    ]
   }
 }

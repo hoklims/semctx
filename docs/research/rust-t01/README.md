@@ -13,15 +13,15 @@ unstarted. This record only covers work #365 places in T01 before any comparison
 characterization, workload preparation and the measurement protocol (D6). No Rust code,
 dependency, workflow change or product change is introduced.
 
-Checkpoint 2 adds the requalified baseline described below.
+Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Both are
+described below.
 
-[protocol.json](protocol.json) is the machine record of this checkpoint.
+[protocol.json](protocol.json) is the machine record of these checkpoints.
 
 ## Owner input on workload sizes
 
 The T01 owner set the expected usage on 2026-10-17: every repository size, with native
-adaptation. This record translates that input as follows. The translation is a draft for the
-owner to confirm before the protocol is frozen.
+adaptation. The owner confirmed the following translation the same day.
 
 1. **Workloads span the whole size range.** The matrix covers small, medium, large and very
    large TS/JS snapshots plus at least one monorepo. Each snapshot is classified by selected
@@ -61,7 +61,12 @@ These observations come from single, unrepeated runs on one host. They orient th
 They are not a reference series and support no ratio, budget or threshold. Raw outputs stay
 outside the checkout. Their SHA-256 digests are listed in `protocol.json`.
 
-**Semctx at the baseline commit (904 TS files, default config, 1 worker).** The index
+Both pilot runs use the default version 1 configuration. Version 1 discovery walks the whole
+repository and does not apply `include` (see `docs/reference/configuration.md`), so file counts
+below are what discovery indexed, not a `src` subset.
+
+**Semctx at the baseline commit (904 `.ts`/`.tsx` files; 701 module and test nodes; 1
+worker).** The index
 succeeded in 4.9 s wall time, with 1.92 GB maximum resident set size. A CPU profile attributes
 about 36% of sampled time to `realpathNativeSync`. It is reached mainly through
 `canonicalFilesystemPath`, called once per resolved call target by `relOf` and
@@ -72,13 +77,15 @@ about 36% of sampled time to `realpathNativeSync`. It is reached mainly through
 This repeated filesystem canonicalization is a language-independent cost. A comparison must
 not attribute its removal to Rust. Any ablation must keep the same confinement guarantees.
 
-**VS Code `5b23ab3` (10,614 TS files under `src`, default config, 1 worker).** The baseline
+**VS Code `5b23ab3` (14,818 non-declaration TS files; 14,794 module and test nodes in the
+later requalified run; 1 worker).** The baseline
 failed after 144 s with `PlaneAAssemblyError: FACT_ID_CONFLICT` on `edge:imports:342a8bf7`,
 metadata key `specifier`. The sampled peak RSS of the process tree was 18.4 GB.
 
 `edgeId` derives edge identities from a 32-bit FNV-1a hash of `from->to`. Import occurrences
 with the same pair are grouped before assembly, so the conflict comes from distinct pairs. A
-regex scan of the same snapshot finds 123,283 distinct relative import pairs. Within that set,
+regex scan of the snapshot's `src` tree finds 123,283 distinct relative import pairs. Within
+that set,
 it reproduces an independent 32-bit collision:
 
 - `edge:imports:4fdac1ed` for
@@ -128,12 +135,53 @@ baseline cannot index this workload.
   tree. The pilot sampler polls `ps` every 200 ms and may miss short peaks. The reference series
   needs a declared collector and sampling period per OS (#365 section 3.3).
 
+## Workload matrix
+
+Checkpoint 3 pins seven public snapshots, recorded before any repeated baseline series and
+before any candidate exists. All are disjoint from T00's qualification and reserved
+repositories. Commits, archive URLs and archive digests are in `protocol.json` (`workloads`).
+
+Size classes count the TS/JS files selected by the matrix configuration. The thresholds were
+fixed before classification:
+
+| Class | Selected TS/JS files |
+| --- | --- |
+| small | fewer than 300 |
+| medium | 300 to 2,999 |
+| large | 3,000 to 19,999 |
+| very large | 20,000 or more |
+
+| Workload | License | Structure | TS | JS | Python | Markdown/MDX | SQL | Class |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `sindresorhus/ky` | MIT | single package | 98 | 0 | 0 | 3 | 0 | small (startup) |
+| `honojs/hono` | MIT | single package, pnpm workspace file | 450 | 2 | 0 | 18 | 0 | medium |
+| `trpc/trpc` | MIT | pnpm monorepo | 1,024 | 26 | 0 | 284 | 13 | medium, monorepo |
+| `PrefectHQ/prefect` | Apache-2.0 | Python package with TS UI | 1,672 | 7 | 1,916 | 1,054 | 6 | medium, multilanguage |
+| `backstage/backstage` | Apache-2.0 | Yarn monorepo | 7,447 | 427 | 0 | 2,143 | 0 | large, monorepo |
+| `microsoft/vscode` | MIT | single repository | 14,807 | 129 | 74 | 369 | 1 | large |
+| `aws/aws-sdk-js-v3` | Apache-2.0 | Yarn monorepo, generated clients | 36,895 | 608 | 0 | 1,248 | 0 | very large, monorepo |
+
+The counts come from the requalified baseline's own discovery with the matrix configuration.
+That configuration is identical for every workload. It uses version 2 `globs-v1` selection,
+enables TypeScript, JavaScript, Python, Markdown and SQL, and excludes `node_modules`, `dist`,
+`build`, `coverage`, `.git` and `.semctx`. Its digest is in `protocol.json`. Generated sources,
+such as the AWS SDK clients, are kept: they are the repository's real source.
+
+Discovery alone takes 15.4 s on VS Code and 44.5 s on the AWS SDK (single runs). The baseline
+runs discovery twice per index, once at capture and once at recapture. This is a candidate
+cost mechanism for hypothesis selection.
+
+The very large cell may exceed this host's 48 GiB on the baseline: VS Code peaked at about
+1.7 MB of RSS per selected TS/JS file, which extrapolates to about 62 GB for the AWS SDK. That outcome must be measured and recorded, not
+assumed. If the baseline cannot complete a cell, no ratio exists for it. Its budget is then
+derived from the size-dependent coefficients fitted on the cells the baseline completes, and the
+cell stays in the matrix.
+
 ## Next checkpoints
 
-1. Obtain the owner's confirmation of the size translation above.
-2. Select and pin the workload snapshots per size class, disjoint from T00's qualification and
-   reserved repositories, with their configurations and dependency closures.
-3. Measure instrumentation cost, then record repeated baseline series per phase and size class.
+1. Capture each workload's dependency closure from its lockfile without running install
+   scripts. `sindresorhus/ky` has no lockfile, so its closure must be generated once and pinned.
+2. Measure instrumentation cost, then record repeated baseline series per phase and size class.
    Derive the size-dependent budget coefficients from them.
-4. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
+3. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
