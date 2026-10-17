@@ -66,13 +66,14 @@ only and never summarized into a scope.
 
 `changes.files[].coverage` says whether the analysis read each changed file. `analyzed` means the
 index holds facts for the file on the bound side, so its hunks were joined to graph units; it does
-not make the reach complete. A `not_analyzed` file contributes no unit and no target. Reasons, in
+not make the reach complete. A `not_analyzed` file contributes no trusted indexed symbol target;
+diff-level unclassified units can still diagnose its changed text. Reasons, in
 the order they are decided (an open code set):
 
 | `reason` | meaning |
 | --- | --- |
-| `LANGUAGE_UNSUPPORTED` | no enabled semctx producer reads this language (`csharp`, `rust`, `yaml`, `toml`, `json`, `powershell`, `msbuild`, … or `unknown`); JavaScript additionally requires configuration v2 and explicit language registration |
-| `LANGUAGE_DISABLED`, `ANALYZER_EVIDENCE_MISSING`, `ANALYSIS_FAILED`, `ANALYSIS_PARTIAL` | JavaScript was disabled, has no bound producer ledger, failed parsing, or produced explicit partial diagnostics; an indexed node alone does not establish effective analysis |
+| `LANGUAGE_UNSUPPORTED` | no enabled semctx producer reads this language (`csharp`, `yaml`, `toml`, `json`, `powershell`, `msbuild`, … or `unknown`); JavaScript and Rust require configuration v2 and explicit language registration |
+| `LANGUAGE_DISABLED`, `ANALYZER_EVIDENCE_MISSING`, `ANALYSIS_FAILED`, `ANALYSIS_UNSUPPORTED`, `ANALYSIS_PARTIAL` | JavaScript or Rust was disabled, has no bound producer ledger, failed analysis, is outside the retained profile, or produced explicit partial diagnostics; an indexed node alone does not establish effective analysis |
 | `OUTSIDE_SELECTION` | a supported language outside the configured analysis selection |
 | `INDEX_BINDING_BROKEN` | the binding is broken, so no file was joined to the index |
 | `BINARY_CONTENT`, `METADATA_ONLY`, `UNRECOGNIZED_DIFF_BLOCK` | the diff carries no analysable text for the file |

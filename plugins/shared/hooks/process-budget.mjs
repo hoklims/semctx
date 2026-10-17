@@ -212,6 +212,8 @@ async function killTree(pid) {
   return process.platform === "win32" ? await taskkillTree(pid) : killPosixTree(pid);
 }
 
+export { killTree as terminateProcessTree };
+
 // Detached workers do not receive the supervisor's foreground signals. Stop every owned tree
 // before restoring the original signal's default behavior, including concurrent budgeted calls.
 const activeProcessIds = new Set();

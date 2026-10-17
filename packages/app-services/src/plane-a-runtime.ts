@@ -1,4 +1,5 @@
 import { basename } from "node:path";
+import { buildRustFacts } from "./rust-facts";
 import {
   boundedContextId,
   capabilityId,
@@ -77,6 +78,8 @@ const PYTHON_PRODUCER: ProducerIdentity = {
   version: "0.1.0",
 };
 
+const RUST_PRODUCER: ProducerIdentity = { identity: "@semantic-context/rust-analyzer", version: "0.1.0" };
+
 const JAVASCRIPT_PRODUCER: ProducerIdentity = {
   identity: "@semantic-context/ts-analyzer/javascript",
   version: "0.1.0",
@@ -86,7 +89,7 @@ const RUNTIME_FACT_SCHEMA = {
   schemaVersion: 1,
   facts: ["node", "edge"],
   evidence: "source-lines-v1",
-  languages: ["typescript", "python", "markdown", "sql"],
+  languages: ["typescript", "python", "rust", "markdown", "sql"],
 } as const;
 
 export interface PlaneARuntimeResult {
@@ -109,6 +112,7 @@ interface PerPathAnalysis {
   readonly completenessClaim: string;
   readonly negativeEvidenceEligible: boolean;
   readonly resolutionSemantics: string;
+  readonly navigation?: boolean;
 }
 
 interface PythonFacts {
@@ -207,12 +211,39 @@ function composePlaneARuntime(
     }
   }
 
+  const rustFiles = selectedAnalyzable.filter((candidate) => candidate.language === "rust")
+    .map((candidate) => filesByPath.get(candidate.relPath)!);
+  const rustFacts = rustFiles.length === 0 ? undefined : buildRustFacts(rustFiles, repositoryIdentity, config, compilerInputs);
   const perPath: PerPathAnalysis[] = [];
   const localCallReasons = getQualifiedCallIntegrityReasons(legacyAnalysis);
   const workspaceLinks = createWorkspaceLinkResolver();
   for (const candidate of selectedAnalyzable) {
     const file = filesByPath.get(candidate.relPath);
     if (file === undefined) continue;
+    if (candidate.language === "rust") {
+      if (rustFacts === undefined) throw new Error("Rust analysis missing for selected sources");
+      const reasons = rustFacts.reasonsByPath.get(candidate.relPath) ?? [];
+      if (rustFacts.failedPaths.has(candidate.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "failed");
+        forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
+        continue;
+      }
+      if (rustFacts.unsupportedPaths.has(candidate.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["RUST_TARGET_WORLD_AMBIGUOUS", ...reasons]);
+        continue;
+      }
+      if (!rustFacts.editionsByPath.has(candidate.relPath)) {
+        forcedOutcomes.set(candidate.relPath, "unsupported");
+        forcedAnalysisReasons.set(candidate.relPath, ["RUST_CRATE_MEMBERSHIP_UNPROVEN", ...reasons]);
+        continue;
+      }
+      perPath.push({ candidate, file: rustFacts.testPaths.has(file.relPath) ? { ...file, role: "test" } : file, producer: RUST_PRODUCER,
+        facts: rustFacts.factsByPath.get(candidate.relPath) ?? [], analysisReasons: reasons,
+        completenessClaim: "partial", negativeEvidenceEligible: false,
+        resolutionSemantics: "rust-source-structure-v1", navigation: rustFacts.navigation });
+      continue;
+    }
     if (config.version === 2 && candidate.language === "typescript") {
       if (config.selectionMode === "qualified-static-v1" && config.analysisProfile === "public-monorepo-static-v1" && file.role === "migration") {
         forcedOutcomes.set(candidate.relPath, "unsupported");
@@ -293,11 +324,13 @@ function composePlaneARuntime(
   const provisionalArtifacts = mergeWorkspaceArtifacts(
     workspaceArtifacts(legacyAnalysis),
     workspaceArtifactsFromFacts(
-      [...(pythonFacts?.factsByPath.values() ?? [])].flat(),
+      [...(pythonFacts?.factsByPath.values() ?? []), ...(rustFacts === undefined ? []
+        : [...rustFacts.factsByPath].filter(([path]) => rustFacts.editionsByPath.has(path)).map(([, facts]) => facts))].flat(),
     ),
   );
   const workspaceProjection = analyzeWorkspaceSync({
     repositoryRoot: config.repositoryRoot,
+    cargo: config.version === 2 && config.languages.rust === "on",
     repositoryId: repositoryIdentity,
     artifacts: provisionalArtifacts,
     excludePath: createDiscoveryPathExclusion(config),
@@ -330,14 +363,17 @@ function composePlaneARuntime(
 
   const failedProducerByPath = new Map<string, ProducerIdentity>();
   for (const candidate of discovery.candidates) {
-    if (candidate.selectionDecision !== "selected" || candidate.analysisOutcome !== "failed") continue;
+    if (candidate.selectionDecision !== "selected"
+      || (candidate.analysisOutcome !== "failed" && !(candidate.language === "rust" && forcedOutcomes.get(candidate.relPath) === "failed"))) continue;
     const producer = candidate.language === "python" ? PYTHON_PRODUCER
-      : candidate.language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
+      : candidate.language === "javascript" ? JAVASCRIPT_PRODUCER
+      : candidate.language === "rust" ? RUST_PRODUCER : TYPESCRIPT_PRODUCER;
     const scope = scopeForCandidate(
       repositoryIdentity,
       candidate,
       filesByPath.get(candidate.relPath),
       workspaceUnitByPath.get(candidate.relPath),
+      rustFacts?.editionsByPath.get(candidate.relPath),
     );
     const failureId = digestCanonical({
       status: "failed",
@@ -365,6 +401,7 @@ function composePlaneARuntime(
       item.candidate,
       item.file,
       workspaceUnitByPath.get(item.candidate.relPath),
+      rustFacts?.editionsByPath.get(item.candidate.relPath),
     );
     const facts = canonicalizeFacts(item.facts);
     const factKinds = [...new Set(facts.map((fact) => fact.kind))].sort(compareText);
@@ -384,7 +421,10 @@ function composePlaneARuntime(
         producerConfigurationDigest,
         factSchemaDigest,
         evidenceContract: "source-lines-v1",
-        resolutionSemantics: item.resolutionSemantics,
+        resolutionSemantics: item.candidate.language === "rust" && factKind === "imports"
+          ? "rust-module-imports-partial-v1"
+          : item.navigation && ["calls", "references", "tested_by", "covers"].includes(factKind)
+            ? "rust-navigation-test-v1" : item.resolutionSemantics,
         soundnessClaim: "best-effort-static",
         completenessClaim: item.completenessClaim,
         negativeEvidenceEligible: item.negativeEvidenceEligible,
@@ -449,6 +489,7 @@ function composePlaneARuntime(
           candidate,
           file,
           workspaceUnitByPath.get(candidate.relPath),
+          rustFacts?.editionsByPath.get(candidate.relPath),
         ),
         selectionDecision: candidate.selectionDecision,
         analysisOutcome: outcome,
@@ -464,7 +505,7 @@ function composePlaneARuntime(
     : extendLegacyAnalysis(
         legacyAnalysis,
         factBatches
-          .filter((batch) => batch.producer.identity === PYTHON_PRODUCER.identity)
+          .filter((batch) => batch.producer.identity === PYTHON_PRODUCER.identity || batch.producer.identity === RUST_PRODUCER.identity)
           .flatMap((batch) => batch.facts),
         discovery.files.map((file) => file.relPath),
       );
@@ -781,6 +822,7 @@ function scopeForCandidate(
   candidate: DiscoveryCandidate,
   file: DiscoveredFile | undefined,
   workspaceUnitId: string | undefined,
+  rustEdition?: string,
 ): ArtifactScope {
   const selectedPaths = [candidate.relPath];
   return {
@@ -794,6 +836,7 @@ function scopeForCandidate(
       ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
       : {}),
     ...(candidate.language === "python" ? { dialectVersion: "<=3.12" } : {}),
+    ...(candidate.language === "rust" && rustEdition !== undefined ? { dialectVersion: rustEdition } : {}),
   };
 }
 

@@ -1,0 +1,7 @@
+[package]
+name = "booking-app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+booking-domain = { path = "../domain", version = "=0.1.0" }

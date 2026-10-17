@@ -4,6 +4,8 @@ import {
   buildPortableBundle,
   CLI_BUNDLE_SPEC,
   INDEX_WORKER_BUNDLE_SPEC,
+  RUST_WORKER_BUNDLE_SPEC,
+  rustParserAssets,
   writePortableTypeScriptLibs,
 } from "./build-plugin-runtime";
 
@@ -17,6 +19,12 @@ await Bun.write(
   resolve(dist, INDEX_WORKER_BUNDLE_SPEC.name),
   await buildPortableBundle(INDEX_WORKER_BUNDLE_SPEC),
 );
+await Bun.write(resolve(dist, RUST_WORKER_BUNDLE_SPEC.name), await buildPortableBundle(RUST_WORKER_BUNDLE_SPEC));
+for (const [path, bytes] of rustParserAssets()) {
+  const output = resolve(dist, path);
+  mkdirSync(resolve(output, ".."), { recursive: true });
+  await Bun.write(output, bytes);
+}
 writePortableTypeScriptLibs(dist);
 
 if (process.env["npm_lifecycle_event"] !== "prepack") {

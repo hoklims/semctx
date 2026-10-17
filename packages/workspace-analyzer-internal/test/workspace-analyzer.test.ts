@@ -12,6 +12,30 @@ import {
 } from "../src/index";
 
 const fixtureRoots: string[] = [];
+it("projects Cargo crates from manifests in sync and async mixed workspaces", async () => {
+  const root = await fixture();
+  await text(root, "Cargo.toml", '[workspace]\nmembers = ["crates/*"]\nresolver = "2"\n');
+  await text(root, "crates/domain/Cargo.toml", '[package]\nname = "booking-domain"\nversion = "0.1.0"\nedition = "2021"\n');
+  await text(root, "crates/app/Cargo.toml", '[package]\nname = "booking-app"\nversion = "0.1.0"\nedition = "2024"\n');
+  await json(root, "web/package.json", { name: "booking-web" });
+  await text(root, "jobs/pyproject.toml", '[project]\nname = "booking-jobs"\n');
+  const input = { repositoryRoot: root, cargo: true };
+  const projection = analyzeWorkspaceSync(input);
+  expect(projection.nodes.map(({ identity }) => identity).sort()).toEqual(["booking-app", "booking-domain", "booking-jobs", "booking-web"]);
+  expect(projection.nodes.find((node) => node.identity === "booking-domain")?.evidence).toContainEqual({ manifestPath: "Cargo.toml", field: "workspace.members[0]", value: "crates/*" });
+  expect(projection.diagnostics).toEqual([]);
+  expect(await analyzeWorkspace(input)).toEqual(projection);
+  expect(analyzeWorkspaceSync({ repositoryRoot: root }).nodes.map(({ identity }) => identity).sort()).toEqual(["booking-jobs", "booking-web"]);
+});
+
+it("refuses invalid Cargo manifests and escaping workspace members", async () => {
+  const root = await fixture();
+  await text(root, "Cargo.toml", '[workspace]\nmembers = ["../escape"]\n');
+  await text(root, "crates/broken/Cargo.toml", '[package]\nname = \n');
+  const projection = analyzeWorkspaceSync({ repositoryRoot: root, cargo: true });
+  expect(projection.nodes).toEqual([]);
+  expect(projection.diagnostics.map(({ code }) => code)).toEqual(["AMBIGUOUS_LAYOUT", "AMBIGUOUS_LAYOUT"]);
+});
 it("round3 reserved semctx manifests do not affect sync or async workspace projection", async () => {
   const root = await fixture();
   const before = analyzeWorkspaceSync({ repositoryRoot: root });

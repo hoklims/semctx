@@ -53,6 +53,7 @@ import { evaluateAuthorityInvariants, removedAuthorityDeclarations } from "./aut
 import { withFileCoverage } from "./file-coverage";
 import { parsePlaneAIndexSnapshot } from "./index-health";
 import { observeIndexBinding, resolveSource } from "./verify";
+import { rustImpactOutline } from "./rust-impact-outline";
 
 /**
  * The Git-backed sources only: semctx computes the diff itself, so the analysed hunks are proven to
@@ -170,7 +171,8 @@ function outlinesFor(
       if (!eligible(path)) continue;
       const text = readSide(root, revision, path);
       if (text === undefined) continue;
-      (side === rangeSide ? bound : other).set(path, outlineTopLevel(text, path));
+      (side === rangeSide ? bound : other).set(path,
+        sourceLanguage(path) === "rust" ? rustImpactOutline(text, path) : outlineTopLevel(text, path));
     }
   }
   return { bound, other };
@@ -592,22 +594,34 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const facts = { graph, claims, evidence };
     const javascriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
     const typescriptOutcomes = new Map<string, { outcome: string; reasons: readonly string[] }>();
+    const rustOutcomes = new Map<string, { outcome: string; reasons: readonly string[]; dialectVersion: string | undefined }>();
     const planeSnapshot = parsePlaneAIndexSnapshot(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     for (const entry of planeSnapshot?.sidecar.discoveryLedger ?? []) {
       if (entry.selectionDecision !== "selected") continue;
       const outcomes = entry.scope.language === "javascript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer/javascript")
         ? javascriptOutcomes : entry.scope.language === "typescript" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/ts-analyzer")
-          ? typescriptOutcomes : undefined;
+          ? typescriptOutcomes : entry.scope.language === "rust" && (entry.analysisOutcome !== "analyzed" || entry.selectedProducer?.identity === "@semantic-context/rust-analyzer")
+            ? rustOutcomes : undefined;
       if (outcomes === undefined) continue;
-      for (const path of entry.scope.selectedPaths) outcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });
+      for (const path of entry.scope.selectedPaths) {
+        if (entry.scope.language === "rust") rustOutcomes.set(path, { outcome: entry.analysisOutcome,
+          reasons: entry.analysisReasons, dialectVersion: entry.scope.dialectVersion });
+        else outcomes.set(path, { outcome: entry.analysisOutcome, reasons: entry.analysisReasons });
+      }
     }
-    const eligibleSource = (path: string): boolean => (sourceLanguage(path) === "typescript" && (config.version !== 2
+    const eligibleTypeScriptOrJavaScript = (path: string): boolean => (sourceLanguage(path) === "typescript" && (config.version !== 2
       || (typescriptOutcomes.get(path)?.outcome === "analyzed" && typescriptOutcomes.get(path)?.reasons.length === 0)))
       || (sourceLanguage(path) === "javascript" && config.version === 2 && config.languages.javascript === "on"
         && javascriptOutcomes.get(path)?.outcome === "analyzed" && javascriptOutcomes.get(path)?.reasons.length === 0);
+    const eligibleRust = (path: string): boolean => sourceLanguage(path) === "rust" && config.version === 2
+      && config.languages.rust === "on" && rustOutcomes.get(path)?.outcome === "analyzed"
+      && ["2018", "2021", "2024"].includes(rustOutcomes.get(path)?.dialectVersion ?? "");
+    const eligibleSource = (path: string): boolean => eligibleTypeScriptOrJavaScript(path) || eligibleRust(path);
     const unsupportedSourceFiles = new Set(graph.nodes.flatMap((node) => node.filePath !== undefined
-      && ["javascript", "typescript"].includes(sourceLanguage(node.filePath)) && !eligibleSource(node.filePath) ? [node.filePath] : []));
-    for (const path of [...typescriptOutcomes.keys(), ...javascriptOutcomes.keys()]) {
+      && ["javascript", "typescript", "rust"].includes(sourceLanguage(node.filePath)) && !eligibleSource(node.filePath) ? [node.filePath] : []));
+    const partialRustFiles = [...rustOutcomes].filter(([, item]) => item.outcome === "analyzed" && item.reasons.length > 0)
+      .map(([path]) => path);
+    for (const path of [...typescriptOutcomes.keys(), ...javascriptOutcomes.keys(), ...rustOutcomes.keys()]) {
       if (!eligibleSource(path)) unsupportedSourceFiles.add(path);
     }
     const impactNodes = graph.nodes.filter((node) => node.filePath === undefined || !unsupportedSourceFiles.has(node.filePath));
@@ -647,7 +661,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
     const packages = workspacePackages(store.getMeta(PLANE_A_INDEX_SNAPSHOT_META_KEY));
     // Unchanged files read the same on disk as at indexing (clean then, or dirty and untouched since).
     const scanRevision = indexedDirty && source.kind === "working-tree" ? null : committedSide === "old" ? revisions.old : revisions.new;
-    const scan = breaks.length > 0 ? undefined : scanModuleLinks(root, scanRevision, impactGraph, packages, eligibleSource);
+    const scan = breaks.length > 0 ? undefined : scanModuleLinks(root, scanRevision, impactGraph, packages, eligibleTypeScriptOrJavaScript);
     const core = breaks.length > 0
       ? null
       : computeChangeImpact({
@@ -659,15 +673,22 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
           packages,
           surfaces: surfaceInput?.map ?? null,
           isPathSelected: (path) => isPathSelected(config, path),
-          hasCallEdges: eligibleSource,
+          hasCallEdges: (path) => eligibleTypeScriptOrJavaScript(path)
+            || (eligibleRust(path) && config.version === 2 && config.rust !== undefined
+              && rustOutcomes.get(path)?.reasons.length === 0),
           ...(scan !== undefined ? { moduleLinks: scan.links, moduleLinksUnread: scan.unread, wholeModuleReads: scan.whole } : {}),
           ...(unchangedSinceIndexing !== undefined ? { unchangedSinceIndexing } : {}),
           bounds,
         });
-    if (core !== null) core.unresolved = sortUnresolved([...core.unresolved, ...[...unsupportedSourceFiles].map((path) => ({
-      code: sourceLanguage(path) === "javascript" ? "JAVASCRIPT_ANALYSIS_INCOMPLETE" : "TYPESCRIPT_ANALYSIS_INCOMPLETE", scope: "file" as const, file: path,
-      detail: "The indexed source producer is disabled, missing, failed, or partial; no effective impact facts are admitted for this file.", affects: "reach" as const,
-    }))]);
+    if (core !== null) core.unresolved = sortUnresolved([...core.unresolved,
+      ...[...unsupportedSourceFiles].filter((path) => !partialRustFiles.includes(path)).map((path) => ({
+        code: sourceLanguage(path) === "javascript" ? "JAVASCRIPT_ANALYSIS_INCOMPLETE"
+          : sourceLanguage(path) === "rust" ? "RUST_ANALYSIS_INCOMPLETE" : "TYPESCRIPT_ANALYSIS_INCOMPLETE", scope: "file" as const, file: path,
+        detail: "The indexed source producer is disabled, missing, failed, or partial; no effective impact facts are admitted for this file.", affects: "reach" as const,
+      })),
+      ...partialRustFiles.map((path) => ({ code: "RUST_ANALYSIS_PARTIAL", scope: "file" as const, file: path,
+        detail: `Rust source structure is indexed with unresolved limits: ${rustOutcomes.get(path)!.reasons.join(", ")}. Reverse reach is incomplete.`, affects: "reach" as const })),
+    ]);
 
     // Searched inside the mutable-state bracket below: a worktree or index that moves during the
     // search makes its result unusable, exactly like the index-derived sets. The declarations come
@@ -731,7 +752,7 @@ export function runChangeImpact(root: string, source: ChangeImpactRequest, optio
 
     const indexedFiles = new Set(graph.nodes.flatMap((node) => (node.filePath === undefined ? [] : [node.filePath])));
     const coverage = (files: Parameters<typeof withFileCoverage>[0]) =>
-      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles, javascriptOutcomes, typescriptOutcomes } });
+      withFileCoverage(files, { config, bound: broken || core === null ? null : { sideOf, indexedFiles, javascriptOutcomes, typescriptOutcomes, rustOutcomes } });
 
     if (broken || core === null) {
       // Re-indexing cannot bind a staged or range diff while the index reads uncommitted files.

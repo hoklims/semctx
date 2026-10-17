@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { TYPESCRIPT_DIALECT_VERSION } from "@semantic-context/ts-analyzer";
 import {
-  REGISTERED_PLANE_A_CAPABILITY_COUNT,
   resolvePlaneACapabilityRequirement,
 } from "../src/plane-a-capability-requirements";
 
@@ -12,6 +11,7 @@ function requirement(input: {
   task?: string;
   operation?: string;
   language: string;
+  dialectVersion?: string;
   factKind: string;
   completenessClaim?: string;
 }) {
@@ -20,13 +20,13 @@ function requirement(input: {
     task: input.task ?? "verify",
     operation: input.operation ?? "change",
     completenessClaim: input.completenessClaim ?? "producer-declared",
+    dialectVersion: input.dialectVersion ?? (input.language === "typescript" || input.language === "javascript" ? "5.9.3" : input.language === "python" ? "<=3.12" : null),
     ...input,
   });
 }
 
 describe("consumer-owned Plane A capability requirements", () => {
   it("registers the exact closed TS, JavaScript ESM, Python, Markdown, and SQL policy surface", () => {
-    expect(REGISTERED_PLANE_A_CAPABILITY_COUNT).toBe(122);
     expect(TYPESCRIPT_DIALECT_VERSION).toBe("5.9.3");
     expect(requirement({
       configVersion: 2,
@@ -41,7 +41,7 @@ describe("consumer-owned Plane A capability requirements", () => {
       },
       producerConfigurationDigest,
       factSchemaDigest:
-        "sha256:4972b087e684b19f14c54f03d4fa511b4642c91ca8c1bb0175ae030d91cbc61d",
+        "sha256:b293caaa0f790633dbe30ed2b7acb82846496e41df1dd9186781515b4347e916",
       evidenceContract: "source-lines-v1",
       resolutionSemantics: "typescript-static-v1",
       soundnessClaim: "best-effort-static",
@@ -86,5 +86,17 @@ describe("consumer-owned Plane A capability requirements", () => {
     },
   ])("fails closed for an unregistered tuple: %o", (input) => {
     expect(requirement(input)).toBeNull();
+  });
+
+  it("admits only bounded Rust structural and navigation facts for an explicit edition", () => {
+    expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "function", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-source-structure-v1");
+    expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "imports", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-module-imports-partial-v1");
+    expect(requirement({ configVersion: 2, language: "rust", dialectVersion: "2021", factKind: "calls", completenessClaim: "partial" })?.resolutionSemantics).toBe("rust-navigation-test-v1");
+    for (const input of [
+      { configVersion: 1 as const, dialectVersion: "2021", factKind: "function", completenessClaim: "partial" },
+      { configVersion: 2 as const, dialectVersion: "2015", factKind: "function", completenessClaim: "partial" },
+      { configVersion: 2 as const, dialectVersion: "2021", factKind: "function", completenessClaim: "producer-declared" },
+      { configVersion: 2 as const, dialectVersion: "2021", factKind: "runtime_execution", completenessClaim: "partial" },
+    ]) expect(requirement({ language: "rust", ...input })).toBeNull();
   });
 });

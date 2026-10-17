@@ -690,6 +690,7 @@ function evaluatePlaneAArtifacts(
         task: "verify",
         operation: "change",
         language: entry.scope.language,
+        dialectVersion: entry.scope.dialectVersion ?? null,
         factKind,
         completenessClaim: referencedProfile?.completenessClaim ?? "",
       });

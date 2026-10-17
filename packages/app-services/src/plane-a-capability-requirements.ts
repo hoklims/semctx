@@ -24,7 +24,7 @@ const POLYGLOT_FACT_SCHEMA_DIGEST = digestCanonical({
   schemaVersion: 1,
   facts: ["node", "edge"],
   evidence: "source-lines-v1",
-  languages: ["typescript", "python", "markdown", "sql"],
+  languages: ["typescript", "python", "rust", "markdown", "sql"],
 });
 
 const TYPESCRIPT_FACT_KINDS = [
@@ -70,6 +70,13 @@ const PYTHON_FACT_KINDS = [
   "related_to",
 ] as const;
 
+const RUST_STRUCTURAL_FACT_KINDS = [
+  "module", "test", "function", "type", "enum", "symbol", "capability", "invariant", "contract",
+  "risk", "bounded_context", "belongs_to", "declares", "implements_capability", "constrained_by", "related_to",
+] as const;
+
+const RUST_NAVIGATION_FACT_KINDS = ["references", "calls", "tested_by", "covers"] as const;
+
 const MARKDOWN_FACT_KINDS = [
   "document",
   "capability",
@@ -102,6 +109,17 @@ interface CapabilityRegistration {
 }
 
 const REGISTRATIONS: readonly CapabilityRegistration[] = [
+  ...(["2018", "2021", "2024"] as const).flatMap((edition) => [
+    { configVersions: [2] as const, language: "rust", dialectVersion: edition,
+      producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
+      factKinds: RUST_STRUCTURAL_FACT_KINDS, resolutionSemantics: "rust-source-structure-v1", completenessClaims: ["partial"] },
+    { configVersions: [2] as const, language: "rust", dialectVersion: edition,
+      producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
+      factKinds: ["imports"], resolutionSemantics: "rust-module-imports-partial-v1", completenessClaims: ["partial"] },
+    { configVersions: [2] as const, language: "rust", dialectVersion: edition,
+      producer: { identity: "@semantic-context/rust-analyzer", version: "0.1.0" },
+      factKinds: RUST_NAVIGATION_FACT_KINDS, resolutionSemantics: "rust-navigation-test-v1", completenessClaims: ["partial"] },
+  ]),
   {
     configVersions: [2],
     language: "javascript",
@@ -154,6 +172,7 @@ function capabilityKey(
   task: string,
   operation: string,
   language: string,
+  dialectVersion: string | null,
   factKind: string,
   completenessClaim: string,
 ): string {
@@ -162,6 +181,7 @@ function capabilityKey(
     task,
     operation,
     language,
+    dialectVersion,
     factKind,
     completenessClaim,
   ]);
@@ -179,6 +199,7 @@ for (const registration of REGISTRATIONS) {
           "verify",
           "change",
           registration.language,
+          registration.dialectVersion,
           factKind,
           completenessClaim,
         );
@@ -212,6 +233,7 @@ export function resolvePlaneACapabilityRequirement(input: {
   readonly task: string;
   readonly operation: string;
   readonly language: string;
+  readonly dialectVersion: string | null;
   readonly factKind: string;
   readonly completenessClaim: string;
 }): PlaneACapabilityRequirement | null {
@@ -220,6 +242,7 @@ export function resolvePlaneACapabilityRequirement(input: {
     input.task,
     input.operation,
     input.language,
+    input.dialectVersion,
     input.factKind,
     input.completenessClaim,
   ));

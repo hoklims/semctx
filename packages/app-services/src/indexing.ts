@@ -276,6 +276,7 @@ function completeRepositoryIndex(
   const workspaceProjectionDigest = digestCanonical(indexed.workspaceProjection);
   const workspaceProjectionAfter = analyzeWorkspaceSync({
     repositoryRoot: configAfter.repositoryRoot,
+    cargo: configAfter.version === 2 && configAfter.languages.rust === "on",
     repositoryId: indexed.workspaceProjection.repositoryId,
     artifacts: workspaceArtifacts(indexed.analysis),
     excludePath: createDiscoveryPathExclusion(configAfter),

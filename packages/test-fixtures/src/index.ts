@@ -8,6 +8,7 @@ export const REPO_ROOT = resolve(import.meta.dir, "..", "..", "..");
 
 /** The sample booking repo that semctx analyses in tests and demos. */
 export const SAMPLE_REPO = join(REPO_ROOT, "examples", "sample-typescript-repo");
+export const SAMPLE_RUST_REPO = join(REPO_ROOT, "examples", "sample-rust-repo");
 
 export function sampleConfig(): SemctxConfig {
   return createDefaultConfig(SAMPLE_REPO);
