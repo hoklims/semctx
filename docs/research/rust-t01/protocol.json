@@ -1,0 +1,132 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "pullRequest": "https://github.com/hoklims/semctx/pull/387",
+  "recordedDateUtc": "2026-10-17",
+  "checkpoint": 1,
+  "owner": "hoklims",
+  "gateDecision": "NOT_RUN",
+  "dependency": {
+    "milestone": "T00",
+    "pullRequest": 386,
+    "requiredDecision": "READY_TS_NATIVE",
+    "observedDecision": "NOT_RUN",
+    "observedStage": 1
+  },
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "tree": "d3faa654755ce9f7aca24cd63d076045af37c706",
+    "version": "0.4.5",
+    "typescript": "5.9.3"
+  },
+  "envelope": {
+    "hypothesesMaximum": 3,
+    "correctionPassesPerHypothesisMaximum": 2,
+    "cumulativeEffortWorkingDaysMaximum": 10,
+    "extensionRequiresExplicitBudget": true,
+    "hypothesisWorkStarted": false
+  },
+  "ownerInput": {
+    "recordedDateUtc": "2026-10-17",
+    "statement": "every repository size; adaptive, natively",
+    "translation": {
+      "workloadSizeClasses": ["small", "medium", "large", "very-large", "monorepo"],
+      "sizeClassificationBeforeResults": true,
+      "budgetForm": "fixed startup term + per-unit term, with explicit time and aggregate-memory growth bounds",
+      "budgetCoefficientsSource": "repeated baseline characterization",
+      "budgetCoefficientsRecorded": false,
+      "nativeAdaptation": "worker count, batch size and memory use follow host and snapshot without user tuning",
+      "referenceComparisonAtEqualWorkers": true,
+      "adaptiveDefaultsEvidenceGated": true
+    },
+    "translationConfirmedByOwner": false
+  },
+  "phases": [
+    "input-capture",
+    "ts-js-analysis",
+    "assembly",
+    "recapture",
+    "publication",
+    "process"
+  ],
+  "pilot": {
+    "kind": "orientation only; single unrepeated runs; no ratio, budget or threshold",
+    "host": "macOS 26.7.1 ARM64, Apple M5 Pro, 18 cores, 48 GiB",
+    "bun": "1.4.3",
+    "git": "2.56.0",
+    "workers": 1,
+    "runs": [
+      {
+        "subject": "semctx baseline archive",
+        "snapshotTree": "a4d1383cd3e8d62d44e24afea02ea91dce1fc641",
+        "typescriptFiles": 904,
+        "config": "semctx init default",
+        "exitCode": 0,
+        "wallSeconds": 4.88,
+        "maxRssBytes": 1916960768,
+        "collector": "/usr/bin/time -l",
+        "cpuProfileShare": {
+          "realpathNativeSync": 0.363,
+          "canonicalFilesystemPath": 0.326,
+          "completeRepositoryIndex": 0.151,
+          "prepareRepositoryIndex": 0.068
+        },
+        "rawSha256": {
+          "indexJson": "e97d9526ee82d8547622e6aaf2b24c9667a1b03e97d114571f0a1737f0621ff2",
+          "timeOutput": "a87180cd566edba2fc296d4544c6a4986b0ecd93c9d529ee1f48c807ecc65e9c",
+          "cpuProfile": "3489ebe8df53c79fad8c47ad4f5c524aeac14808dc18eea2c8d3b28fe392c39b"
+        }
+      },
+      {
+        "subject": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "license": "MIT",
+        "archiveUrl": "https://codeload.github.com/microsoft/vscode/tar.gz/5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "archiveSha256": "f46423d0c44c21e7d0563008dc4da02b4c6afc6c77629614d64bde2f48c35a8c",
+        "typescriptFiles": 10614,
+        "config": "semctx init default",
+        "exitCode": 1,
+        "error": "PlaneAAssemblyError: FACT_ID_CONFLICT {\"id\":\"edge:imports:342a8bf7\",\"metadataKey\":\"specifier\"}",
+        "wallSeconds": 144.09,
+        "sampledPeakTreeRssBytes": 18417991680,
+        "collector": "ps-based process-tree RSS sum, 200 ms interval",
+        "rawSha256": {
+          "collectorOutput": "c5a325d91c12dd78a893f8f3b6b7c55a70f363df4bb666df197354a8cd2b58af"
+        }
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "edge-id-32-bit-collision",
+      "statement": "edgeId hashes from->to with 32-bit FNV-1a; distinct import pairs collide on large repositories and fail assembly",
+      "witness": {
+        "edgeId": "edge:imports:4fdac1ed",
+        "pairs": [
+          "src/vs/workbench/contrib/browserView/common/browserSearch.ts -> src/vs/nls.ts",
+          "src/vs/sessions/contrib/layout/test/browser/desktopLayoutController.test.ts -> src/vs/sessions/contrib/layout/browser/desktopLayoutController.ts"
+        ],
+        "distinctRelativeImportPairsScanned": 123283
+      },
+      "failingIdPartnerIdentified": false,
+      "consequence": "large cells are BLOCKED_MEASUREMENT until a separate product decision arbitrates the identity defect",
+      "arbitration": "pending"
+    },
+    {
+      "id": "uncached-filesystem-canonicalization",
+      "statement": "canonicalFilesystemPath calls realpath per resolved call target without memoization",
+      "consequence": "language-independent cost; its removal must not be attributed to Rust"
+    }
+  ],
+  "remainingEvidence": [
+    "owner confirmation of the size translation",
+    "arbitration route for the edge identity defect",
+    "pinned workload snapshots per size class, disjoint from T00 corpora",
+    "declared memory collector and sampling period per OS",
+    "instrumentation cost",
+    "repeated baseline series per phase and size class",
+    "size-dependent budget coefficients",
+    "READY_TS_NATIVE from T00",
+    "hypothesis selection, prototype and economic gate"
+  ]
+}
