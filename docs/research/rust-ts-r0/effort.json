@@ -1,0 +1,453 @@
+{
+  "recordVersion": 1,
+  "recordedAtUtc": "2026-10-17T15:55:26.213444+00:00",
+  "maximumWorkingDays": 5,
+  "workingDayAccountingHours": 8,
+  "maximumEffortSeconds": 144000,
+  "accounting": "Conservative charged effort upper bound, summing agent wall envelopes and explicit unmeasured allowances. Host suspension and waiting are included as overcharge where not exactly measured; these are not claimed as actual active work. Automated check durations are separately retained in verification records and not added again.",
+  "entries": [
+    {
+      "agent": "/root",
+      "activity": "initial prerequisite discovery before first clock sample",
+      "secondsCharged": 900,
+      "basis": "conservative allowance; unmeasured"
+    },
+    {
+      "agent": "/root",
+      "activity": "prerequisite recording and verification setup",
+      "startUtc": "2026-10-17T08:19:25Z",
+      "endUtc": "2026-10-17T08:26:00Z",
+      "secondsCharged": 395,
+      "basis": "observed clock interval"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "draft inventory preparation",
+      "startUtc": "2026-10-17T08:19:30Z",
+      "endUtc": "2026-10-17T08:25:07Z",
+      "secondsCharged": 337,
+      "basis": "agent recorded interval"
+    },
+    {
+      "agent": "/root/reserved_corpus",
+      "activity": "independent reserved acquisition and expectation preparation",
+      "startUtc": "2026-10-17T08:19:09Z",
+      "endUtc": "2026-10-17T08:25:30Z",
+      "secondsCharged": 381,
+      "basis": "agent recorded interval"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "pinned verification-tool reuse inspection",
+      "startUtc": "2026-10-17T08:19:11Z",
+      "endUtc": "2026-10-17T08:20:12Z",
+      "secondsCharged": 61,
+      "basis": "agent recorded interval"
+    },
+    {
+      "agent": "/root/step1_standards_review",
+      "activity": "independent stage1 standards review",
+      "secondsCharged": 600,
+      "basis": "conservative allowance; exact interval unavailable"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "independent stage1 specification review",
+      "secondsCharged": 600,
+      "basis": "conservative allowance; exact interval unavailable"
+    },
+    {
+      "agent": "/root",
+      "activity": "prerequisite recovery, data/contract preparation, verification supervision and checkpoint publication",
+      "startUtc": "2026-10-17T08:26:00Z",
+      "endUtc": "2026-10-17T09:47:42Z",
+      "secondsCharged": 4902.0,
+      "basis": "observed wall envelope, including host suspension and waits as conservative overcharge; not actual active effort"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "typed provenance closure",
+      "startUtc": "2026-10-17T08:26:20Z",
+      "endUtc": "2026-10-17T08:34:38Z",
+      "secondsCharged": 498.0,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "canonical obligation rows",
+      "startUtc": "2026-10-17T08:35:36Z",
+      "endUtc": "2026-10-17T08:44:52.610Z",
+      "secondsCharged": 556.61,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "independent V1 branch audit",
+      "startUtc": "2026-10-17T08:52:54Z",
+      "endUtc": "2026-10-17T09:40:11Z",
+      "secondsCharged": 2837.0,
+      "basis": "reported wall interval includes reported host suspension; conservatively no deduction"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "portable stage2 bundle",
+      "startUtc": "2026-10-17T09:41:16Z",
+      "endUtc": "2026-10-17T09:42:31.210606Z",
+      "secondsCharged": 75.211,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "qualified source corrections",
+      "startUtc": "2026-10-17T08:26:22Z",
+      "endUtc": "2026-10-17T08:28:57Z",
+      "secondsCharged": 155.0,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "native checker API source survey",
+      "startUtc": "2026-10-17T08:31:31Z",
+      "endUtc": "2026-10-17T08:37:21.090Z",
+      "secondsCharged": 350.09,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "component compilation prerequisite",
+      "startUtc": "2026-10-17T08:47:52.949385Z",
+      "endUtc": "2026-10-17T08:49:01.245461Z",
+      "secondsCharged": 68.296,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "source-backed API guide",
+      "startUtc": "2026-10-17T08:53:02Z",
+      "endUtc": "2026-10-17T09:33:59Z",
+      "secondsCharged": 2457.0,
+      "basis": "reported wall interval includes host suspension; conservatively no deduction"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "independent baseline ambiguity witness",
+      "startUtc": "2026-10-17T09:40:08Z",
+      "endUtc": "2026-10-17T09:45:33Z",
+      "secondsCharged": 325.0,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "mechanism source survey",
+      "startUtc": "2026-10-17T08:26:31Z",
+      "endUtc": "2026-10-17T08:31:29Z",
+      "secondsCharged": 298.0,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "independent case V1",
+      "startUtc": "2026-10-17T08:40:21Z",
+      "endUtc": "2026-10-17T08:49:00.377915Z",
+      "secondsCharged": 519.378,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "independent case V2 and known corrections",
+      "startUtc": "2026-10-17T08:52:56Z",
+      "endUtc": "2026-10-17T09:38:33Z",
+      "secondsCharged": 2737.0,
+      "basis": "reported wall interval includes host suspension; conservatively no deduction; author estimated11m37 active excluding reported34m pause"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "initial independent architectural claim ledger",
+      "startUtc": "2026-10-17T08:35:41.719137Z",
+      "endUtc": "2026-10-17T08:37:17.781345Z",
+      "secondsCharged": 96.062,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "private contract reconciliation",
+      "startUtc": "2026-10-17T09:35:49.477081Z",
+      "endUtc": "2026-10-17T09:37:10.811010Z",
+      "secondsCharged": 81.334,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "delta reconciliation",
+      "startUtc": "2026-10-17T09:38:05.417Z",
+      "endUtc": "2026-10-17T09:38:34.349Z",
+      "secondsCharged": 28.932,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "nonzero refusal reconciliation",
+      "startUtc": "2026-10-17T09:39:16.849Z",
+      "endUtc": "2026-10-17T09:39:26.493Z",
+      "secondsCharged": 9.644,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "independent V2 freeze review",
+      "startUtc": "2026-10-17T09:40:14Z",
+      "endUtc": "2026-10-17T09:44:54Z",
+      "secondsCharged": 280.0,
+      "basis": "recorded wall interval; conservatively charged, not measured active work"
+    },
+    {
+      "agent": "/root",
+      "activity": "short bug explanation/issue-comment preparation before resumed timed interval",
+      "secondsCharged": 300,
+      "basis": "explicit conservative allowance; idle gap between prior09:47 snapshot and14:40 active work is excluded"
+    },
+    {
+      "agent": "/root",
+      "activity": "stage2 adoption, independent review reconciliation, canonical CI diagnosis orchestration and checkpoint preparation",
+      "startUtc": "2026-10-17T14:40:55Z",
+      "endUtc": "2026-10-17T15:05:14.596569+00:00",
+      "secondsCharged": 1459.597,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "SDK matrices V3",
+      "startUtc": "2026-10-17T14:42:51Z",
+      "endUtc": "2026-10-17T14:48:30Z",
+      "secondsCharged": 339.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "public bounded cases",
+      "startUtc": "2026-10-17T14:53:44Z",
+      "endUtc": "2026-10-17T14:57:28Z",
+      "secondsCharged": 224.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "SDK witness source correction",
+      "startUtc": "2026-10-17T15:01:19Z",
+      "endUtc": "2026-10-17T15:01:48Z",
+      "secondsCharged": 29.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "outline nine-obligation paired cases",
+      "startUtc": "2026-10-17T14:43:00Z",
+      "endUtc": "2026-10-17T14:47:46Z",
+      "secondsCharged": 286.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "remote CI failure diagnosis",
+      "startUtc": "2026-10-17T14:42:51Z",
+      "endUtc": "2026-10-17T14:48:10Z",
+      "secondsCharged": 319.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "out-of-tree canonical tooling API assessment",
+      "startUtc": "2026-10-17T14:58:17Z",
+      "endUtc": "2026-10-17T15:00:29Z",
+      "secondsCharged": 132.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/stage2_spec_review",
+      "activity": "independent initial documentary specification review",
+      "startUtc": "2026-10-17T14:50:34Z",
+      "endUtc": "2026-10-17T14:54:04Z",
+      "secondsCharged": 210.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/stage2_standards_review",
+      "activity": "independent initial documentary standards review",
+      "startUtc": "2026-10-17T14:50:23Z",
+      "endUtc": "2026-10-17T14:54:00Z",
+      "secondsCharged": 217.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "independent V3 outline/public/primitive expectation review",
+      "startUtc": "2026-10-17T14:58:22Z",
+      "endUtc": "2026-10-17T15:03:25Z",
+      "secondsCharged": 303.0,
+      "basis": "observed/reported wall envelope conservatively charged; not measured active time"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "stage2 independent changed-claim ledger",
+      "secondsCharged": 300,
+      "basis": "conservative allowance; raw reports retain exact intervals where available"
+    },
+    {
+      "agent": "/root/stage2_spec_review",
+      "activity": "stage2 pass1 scoped correction review",
+      "secondsCharged": 180,
+      "basis": "conservative allowance; raw reports retain exact intervals where available"
+    },
+    {
+      "agent": "/root/stage2_standards_review",
+      "activity": "stage2 pass1 and pass2 scoped correction reviews",
+      "secondsCharged": 180,
+      "basis": "conservative allowance; raw reports retain exact intervals where available"
+    },
+    {
+      "agent": "/root",
+      "activity": "canonical tooling reuse, verification, native CI evidence and stage3 orchestration",
+      "secondsCharged": 2555.098,
+      "basis": "reported wall envelope, conservatively charged; not measured active effort",
+      "startUtc": "2026-10-17T15:05:14.596569+00:00",
+      "endUtc": "2026-10-17T15:47:49.694082+00:00"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "exact canonical integration assessment",
+      "secondsCharged": 140,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "cumulative manifest v1",
+      "secondsCharged": 278,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/tooling_reuse_proof_review",
+      "activity": "independent canonical proof review",
+      "secondsCharged": 228.261,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/tooling_reuse_standards_review",
+      "activity": "independent canonical standards review",
+      "secondsCharged": 300,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "ordinary19 expectations and map",
+      "secondsCharged": 448,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "minimal gap classification",
+      "secondsCharged": 116,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "three final source-backed pairs",
+      "secondsCharged": 73,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "encoding identity diagnostic annex",
+      "secondsCharged": 377,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualified_ts_inventory",
+      "activity": "annex ordinary diagnostic scope correction",
+      "secondsCharged": 120,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "annex source review",
+      "secondsCharged": 227,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "qualified12 supplement29 usage map",
+      "secondsCharged": 524,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "cumulative v2 manifest",
+      "secondsCharged": 421,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "final delta review plus corrections",
+      "secondsCharged": 454.266,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/r0_batch_claim_audit",
+      "activity": "receipt representation independent claim ledger",
+      "secondsCharged": 82.417,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/ordinary_ts_inventory",
+      "activity": "new development10 bootstrap",
+      "secondsCharged": 274,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "v3 preselection allocation and disjointness",
+      "secondsCharged": 310.106,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root/reserved_corpus",
+      "activity": "public custody receipt and input verification",
+      "secondsCharged": 174,
+      "basis": "agent/report interval or explicit conservative allowance; detailed sources in stage3 checkpoint provenance"
+    },
+    {
+      "agent": "/root",
+      "activity": "stage3 portable adoption, source consumer verification and freeze",
+      "startUtc": "2026-10-17T15:47:49.694082+00:00",
+      "endUtc": "2026-10-17T15:55:26.213444+00:00",
+      "secondsCharged": 456.519,
+      "basis": "conservative observed root wall envelope"
+    },
+    {
+      "agent": "/root/step1_spec_review",
+      "activity": "global preselection case review and five consumer observation design",
+      "startUtc": "2026-10-17T15:45:07Z",
+      "endUtc": "2026-10-17T15:50:00Z",
+      "secondsCharged": 294,
+      "basis": "agent recorded294seconds incl rounded endpoints"
+    },
+    {
+      "agent": "/root/qualification383",
+      "activity": "portable67file case bundle preparation and source byte checks",
+      "startUtc": "2026-10-17T15:45:46Z",
+      "endUtc": "2026-10-17T15:52:34Z",
+      "secondsCharged": 408,
+      "basis": "agent recorded conservative active envelope"
+    }
+  ],
+  "secondsChargedThroughSnapshot": 32287.821,
+  "compositionsStarted": 0,
+  "correctionPassesStarted": 0,
+  "laterActiveIntervals": "Root continues after this snapshot; later final standards/proof review and native composition work not included. No native composition started.",
+  "workingDayConversionStatus": "8h accounting convention from initial journal, not an additional owner-approved budget; original approved limit remains5 cumulative working days. No limit is approached.",
+  "researchState": "ACTIVE_PREPARATION",
+  "r0Decision": "NOT_RUN",
+  "ownerDecisionResolved": {
+    "source": "https://github.com/hoklims/semctx/issues/365#issuecomment-6235210936",
+    "decision": "Correct approved export-star ambiguity in Rust only, preserve exact historical baseline and other expectations."
+  }
+}
