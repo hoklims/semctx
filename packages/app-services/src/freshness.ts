@@ -28,7 +28,7 @@ import type {
   SemanticNode,
 } from "@semantic-context/semantic-model/reconciliation-read";
 import type { DiscoveredFile } from "@semantic-context/ts-analyzer";
-import { createDiscoveryPathExclusion, createQualifiedPathEligibility, createWorkspaceLinkResolver, inspectModuleConfiguration, isHardExcludedPath } from "@semantic-context/ts-analyzer";
+import { createDiscoveryPathExclusion, createQualifiedPathEligibility, createWorkspaceLinkResolver, inspectModuleConfiguration, isHardExcludedPath, pathMappingFreshnessInputs } from "@semantic-context/ts-analyzer";
 import {
   canonicalSourceText,
   digestCanonical,
@@ -277,6 +277,9 @@ export function fingerprintAnalysisInputs(config: SemctxConfig, files: readonly 
       });
     }
   }
+  // Version 1 extraction maps imports through the `paths`/`baseUrl` of the nearest tsconfig, so the
+  // files that mapping reads are inputs too, and only while a selected file is governed by one.
+  for (const [path, content] of pathMappingFreshnessInputs(config, files)) workspaceLinks.inputs.set(path, content);
   const configurationInputs = [...workspaceLinks.inputs].flatMap(([path, content]) => {
     const relPath = relative(config.repositoryRoot, path).replaceAll("\\", "/");
     if (isAbsolute(relPath) || relPath === ".." || relPath.startsWith("../")) return [];

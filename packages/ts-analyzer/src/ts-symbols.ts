@@ -172,8 +172,9 @@ export interface TypeScriptExtractionOptions {
    * Resolve the non-relative specifiers of a TypeScript-only, snapshot-free graph through the
    * `paths` and `baseUrl` of the nearest tsconfig, `extends` included, over the historical Bundler
    * resolution. Nothing else of that configuration is applied, and a specifier that no mapping
-   * covers takes the historical resolution unchanged. Only configuration v2 sets this: its analysis
-   * input identity already binds the configuration files read here, which v1's does not.
+   * covers takes the historical resolution unchanged. Set it only where the analysis input identity
+   * binds the configuration files read here: configuration v2 through its live configuration
+   * inspection, configuration v1 through `pathMappingInputs`.
    */
   tsconfigPathMapping?: boolean;
 }
@@ -447,10 +448,10 @@ function createPathMappingPassFor(
   repositoryRoot: string | undefined,
   snapshot: CompilerInputSnapshot | undefined,
   options: TypeScriptExtractionOptions,
+  workspaceLinks: WorkspaceLinkResolver = createWorkspaceLinkResolver(),
 ): PathMappingPass | undefined {
   if (options.tsconfigPathMapping !== true || snapshot !== undefined || repositoryRoot === undefined
     || rootAbsPaths.some(path => /\.(mjs|cjs|js|jsx)$/.test(path))) return undefined;
-  const workspaceLinks = createWorkspaceLinkResolver();
   const pass: PathMappingPass = {
     repositoryRoot,
     roots: new Set(rootAbsPaths.map(canonicalTypeScriptFileKey)),
@@ -464,6 +465,22 @@ function createPathMappingPassFor(
     governsAnyRoot: () => rootAbsPaths.some(path => governingPathMapping(pass, dirname(path)) !== null),
   };
   return pass;
+}
+
+/**
+ * The configuration files an extraction of these roots reads to map their imports, with the content
+ * read (`undefined` for a refused or unreadable input), or an empty map when no mapping applies:
+ * no selected root is governed by `paths` or `baseUrl`, a root is JavaScript, or nothing can be
+ * confined. It is the freshness input of a caller whose analysis identity does not otherwise bind
+ * live configuration; the extraction reads exactly these files through the same pass.
+ */
+export function pathMappingInputs(
+  rootAbsPaths: readonly string[],
+  repositoryRoot: string,
+): ReadonlyMap<string, string | undefined> {
+  const workspaceLinks = createWorkspaceLinkResolver();
+  const pass = createPathMappingPassFor([...rootAbsPaths], repositoryRoot, undefined, { tsconfigPathMapping: true }, workspaceLinks);
+  return pass !== undefined && pass.governsAnyRoot() ? workspaceLinks.inputs : new Map();
 }
 
 function governingPathMapping(pass: PathMappingPass, directory: string): PathMapping | null {

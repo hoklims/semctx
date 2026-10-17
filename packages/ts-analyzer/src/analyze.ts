@@ -43,6 +43,7 @@ import { discoverFiles, sourceLanguage, type DiscoveredFile } from "./discovery"
 import {
   extractTypeScript,
   extractTypeScriptParallel,
+  pathMappingInputs,
   TYPESCRIPT_DIALECT_VERSION,
   type IndexWorkerSelection,
   type TsExtraction,
@@ -110,7 +111,7 @@ export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readon
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
     compilerInputs,
-    typeScriptExtractionOptions(config),
+    TYPESCRIPT_EXTRACTION_OPTIONS,
   );
   return assembleRepository(config, files, extraction, compilerInputs);
 }
@@ -129,7 +130,7 @@ export async function analyzeRepositoryAsync(
     config.repositoryRoot,
     workers,
     compilerInputs,
-    typeScriptExtractionOptions(config),
+    TYPESCRIPT_EXTRACTION_OPTIONS,
   );
   return {
     analysis: assembleRepository(config, files, result.extraction, compilerInputs),
@@ -412,12 +413,27 @@ function isTypeScriptSource(file: DiscoveredFile): boolean {
 }
 
 /**
- * Configuration v2 binds the tsconfig files that module resolution reads into its analysis input
- * identity (`fingerprintAnalysisInputs`), so a changed `paths` or `baseUrl` withdraws the index.
- * Version 1 does not, and keeps the historical resolution rather than gain an unbound input.
+ * Imports are resolved through the `paths` and `baseUrl` of the nearest tsconfig in every
+ * configuration version. The tsconfig files that resolution reads must be bound into the analysis
+ * input identity (`fingerprintAnalysisInputs`), so a changed `paths` or `baseUrl` withdraws the
+ * index: version 2 binds them through its live configuration inspection, version 1 through
+ * `pathMappingFreshnessInputs`.
  */
-function typeScriptExtractionOptions(config: SemctxConfig): TypeScriptExtractionOptions {
-  return { tsconfigPathMapping: config.version === 2 };
+const TYPESCRIPT_EXTRACTION_OPTIONS: TypeScriptExtractionOptions = { tsconfigPathMapping: true };
+
+/**
+ * The tsconfig files a version 1 extraction reads to map imports, as freshness inputs. Version 1
+ * does not inspect live configuration, so without these a changed `paths` or `baseUrl` would change
+ * the graph and leave the index fresh. The result is empty, and a version 1 identity unchanged,
+ * while no selected file is governed by `paths` or `baseUrl`. Version 2 already binds the same
+ * files and returns an empty map here.
+ */
+export function pathMappingFreshnessInputs(
+  config: SemctxConfig,
+  files: readonly DiscoveredFile[],
+): ReadonlyMap<string, string | undefined> {
+  if (config.version !== 1) return new Map();
+  return pathMappingInputs(files.filter(isTypeScriptSource).map(file => file.absPath), config.repositoryRoot);
 }
 
 function assertSnapshotInputs(files: readonly DiscoveredFile[], compilerInputs: CompilerInputSnapshot | undefined, config: SemctxConfig): void {

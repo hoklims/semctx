@@ -288,7 +288,8 @@ describe("control freshness seal", () => {
       expect(resolveTypeScriptModule("#shared", source)).toBeUndefined();
       expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);
       expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
-      expect(fingerprintAnalysisInputs(legacyConfig, legacyFiles)).toBe(legacyBefore);
+      // Version 1 maps imports through the same inherited `paths`, so it binds that chain as well.
+      expect(fingerprintAnalysisInputs(legacyConfig, legacyFiles)).not.toBe(legacyBefore);
       expect(typescriptOutcome()).toBe("failed");
       expect(typescriptOutcome(legacyConfig, legacyFiles)).toBe("analyzed");
       expect(fingerprintAnalysisInputs(config, typescriptFiles)).not.toBe(typescriptBefore);
@@ -334,8 +335,10 @@ describe("control freshness seal", () => {
       expect(resolveTypeScriptModule("#shared", source, undefined, true)).toBe(`${root}/src/other.ts`);
       expect(controlStatus(root)).toMatchObject({ verdict: "STALE", reasons: ["ANALYSIS_INPUT_MISMATCH"] });
       expect(fingerprintAnalysisInputs(config, files)).not.toBe(before);
-      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
+      // Version 1 maps imports through the same inherited `paths`, so it binds that chain as well.
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).not.toBe(legacyBefore);
       write("node_modules/@fixture/config/base.json", inherited);
+      expect(fingerprintAnalysisInputs(legacyConfig, files)).toBe(legacyBefore);
       expect(controlStatus(root).verdict).toBe("FRESH");
       rmSync(join(root, "node_modules/@fixture/config/base.json"));
       expect(inspectModuleConfiguration(source, root).some(reason => reason.startsWith("SOURCE_CONFIGURATION_INVALID:"))).toBe(true);

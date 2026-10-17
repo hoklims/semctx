@@ -172,7 +172,7 @@ example `SOURCE_CONFIGURATION_INVALID:6053`. Analysis of retained compiler snaps
 
 ### Path aliases in TypeScript
 
-In a version 2 configuration, a non-relative import written in a selected file of a
+In a version 1 or version 2 configuration, a non-relative import written in a selected file of a
 TypeScript-only graph is resolved through the `paths` and `baseUrl` of the nearest
 `tsconfig.json` of that file, including what it `extends`. An import such as
 `"@scope/pkg/feat/handler.js"` mapped by `"@scope/pkg/*": ["./src/*"]` then produces the same
@@ -207,9 +207,12 @@ the extraction byte-identical.
 - The configuration files read are those of the selected files and are part of the analysis input
   identity, so editing `paths`, `baseUrl` or an inherited configuration makes the index stale
   until it is rebuilt.
-- Version 1 configurations keep their historical resolution, which does not read
-  `tsconfig.json` and does not bind it into freshness. JavaScript-enabled graphs already apply the
-  complete nearest configuration.
+- Version 1 configurations resolve aliases the same way. Their analysis input identity binds the
+  configuration files read, but only while some selected file is governed by `paths` or `baseUrl`:
+  a version 1 repository whose configuration declares neither keeps its extraction and its
+  identity unchanged, and one that declares them is stale once after upgrading until it is
+  rebuilt. Version 1 still does not inspect `module` or `moduleResolution`. JavaScript-enabled graphs
+  already apply the complete nearest configuration.
 - `package.json` `imports` that target source files resolve as before. Entries of `imports` or
   `exports` that target build output (`./dist/...`) stay unresolved in a checkout that is not
   built: reaching their sources needs `outDir` and `rootDir`, which this resolution does not

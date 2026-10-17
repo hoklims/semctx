@@ -108,10 +108,11 @@ then returned empty sets that read as "no dependents".
   specifiers: its tsconfig is not an input freshness binds, so the extraction must not depend on
   it. A re-export through an unselected barrel therefore stays unresolved until the barrel is
   selected.
-- **Legacy.** Version 1 keeps its resolution. Its analysis input identity deliberately does not
-  inspect live configuration, so reading `paths` there would add an input the freshness seal
-  cannot bind. Mixed JavaScript/TypeScript graphs and qualified snapshots already applied the
-  complete nearest configuration and are unchanged.
+- **Legacy.** Version 1 keeps its resolution in this amendment. Its analysis input identity
+  deliberately does not inspect live configuration, so reading `paths` there would add an input the
+  freshness seal cannot bind (extended to version 1 by the amendment below). Mixed
+  JavaScript/TypeScript graphs and qualified snapshots already applied the complete nearest
+  configuration and are unchanged.
 - **Freshness.** Version 2 identity already binds the nearest configuration and its `extends`
   chain for every selected TypeScript and JavaScript file, including failed link probes, so an
   edited mapping withdraws the index. The extraction reads the same files through the same
@@ -146,3 +147,31 @@ then returned empty sets that read as "no dependents".
   identity, as for a relative import. For the same reason, a file created at a higher-priority
   target of a `paths` entry that is not selected (a git-ignored `gen/`) changes the resolved edge
   without making the index stale until it is rebuilt.
+
+## Amendment — path mapping in version 1 (2026-10-17)
+
+Status: proposed; awaiting maintainer acceptance with the pull request that implements it.
+Refines the Legacy and Freshness bullets of the amendment above.
+
+The previous amendment left version 1 on the historical resolution because its analysis input
+identity did not bind the configuration files that resolution reads. A version 1 repository whose
+tests import by tsconfig `paths` alias (for example `@/lib/guard`) therefore still indexed no
+`imports`, `tested_by` or `covers` edge for those tests, and `change verify` reported an
+invariant-constrained symbol as changed without a covering test although a test imports it. Moving
+to version 2 is not a repair for that repository: it changes the selected file set (ADR 0028), and
+a committed-range verification there reports `analysis_scope_incomplete` for every changed
+path because the TypeScript profile sets `negativeEvidenceEligible` to false.
+
+- **Rule.** The mapping of the previous amendment applies in version 1 as well, with the same scope:
+  no retained snapshot, no JavaScript root, imports written in a selected file, `paths` and
+  `baseUrl` only, and an unmapped specifier resolved as before.
+- **Freshness.** The version 1 identity binds the configuration files the mapping reads, the
+  nearest tsconfig of each selected file and its `extends` chain, as version 2 does. It binds them
+  only while some selected file is governed by `paths` or `baseUrl`. A version 1 repository whose
+  configuration declares neither keeps its extraction and its analysis input identity byte-identical,
+  so nothing is withdrawn by upgrading. A repository that declares one has a new identity once, and
+  its index is stale until it is rebuilt: that rebuild is what adds the alias edges.
+- **Not claimed.** Version 1 does not gain live configuration inspection or its diagnostics
+  (`SOURCE_CONFIGURATION_*`), and it does not read `module` or `moduleResolution`. A tsconfig
+  created closer to a selected file than the one read is not an input until some bound file changes,
+  as in version 2.

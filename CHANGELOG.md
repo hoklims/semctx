@@ -22,6 +22,15 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ### Fixed
 
+- A version 1 configuration now resolves imports through the `paths` and `baseUrl` of the nearest
+  `tsconfig.json` (`extends` included) in a TypeScript-only graph, as version 2 does since #354.
+  A test that imports by alias (`@/lib/guard`) previously produced no `imports`, `tested_by` or
+  `covers` edge, so `change verify` blocked an invariant-constrained symbol as changed without a
+  covering test although a test imports it. The version 1 analysis input identity binds the
+  configuration files read, so editing `paths`, `baseUrl` or an inherited configuration makes the
+  index stale; it binds them only while a selected file is governed by `paths` or `baseUrl`, so a
+  version 1 repository without either keeps its extraction and identity unchanged. A repository that
+  declares them is stale once after upgrading and gains the alias edges on the next index.
 - In a version 2 configuration, an import resolved by the `paths` or `baseUrl` of the nearest
   `tsconfig.json` (`extends` included) now produces its `imports` edge, its cross-file `calls`
   edges and its test link in a TypeScript-only graph, as the same import written relatively
