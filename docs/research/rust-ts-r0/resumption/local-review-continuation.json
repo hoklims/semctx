@@ -1,0 +1,43 @@
+{
+  "recordVersion": 1,
+  "recordedUtc": "2026-10-18T14:41:23.266713+00:00",
+  "state": "BOUNDED_GUARD_CORRECTION_REVIEWED_MACOS_DEV",
+  "source": "User explicitly set the previously blocked goal terminer #365 active again after the reported guard defect and requested local workflow exception.",
+  "interpretation": "Resume the disclosed bounded guard correction and review in the existing authorized T00 scope; not a new experiment or C1 budget.",
+  "previousCheckpoint": "cf5d1bee2fa2790df459ccb1f611b3a9a3d59815",
+  "previousEvidence": "harness-repair-evidence.json",
+  "localCorrectionCyclesAlreadyUsed": 2,
+  "additionalLocalCyclesInThisContinuation": 2,
+  "scope": [
+    "Honor independently measured native filesystem case mode when canonicalizing worker root, ancestor scope, issues and path-bearing probes.",
+    "Reject contradictory/malformed reported case capability observations; retain pathless exact metadata.",
+    "Preserve positive native worker controls and all existing negative alias tests; exercise red case-alias witness then green result.",
+    "Obtain independent standards/spec and adversarial proof review before checkpoint publication."
+  ],
+  "ownerAdditionalC1Pass": 1,
+  "ownerAdditionalC1PassStillOpen": true,
+  "ownerAdditionalC1PassesStarted": 1,
+  "ownerAdditionalC1PassesClosed": 0,
+  "ownerAdditionalC1PassesRemaining": 1,
+  "budgetIncreased": false,
+  "countersReset": false,
+  "frozenExpectedValuesChanged": false,
+  "reservedAccessAuthorizedHere": false,
+  "nextOrderedWork": "After step2 closes, continue step3 GAP mappings, step4 obligation review, step5 full native campaign, then reserved once and R0.",
+  "localCyclesTotalIncludingHistoricalStop": 4,
+  "continuationScopeInterpretation": "The user reactivated the full goal after the disclosed stop. Continue technical corrections within the already authorized worker guard scope and existing C1 pass; no new permission request for each ordinary review correction, no owner budget increase and no counter reset.",
+  "reviewIterations": [
+    {
+      "cycle": 3,
+      "candidateDiffSha256": "c45a56d570fe699ceed70c8c11420b2bbf5babd9aa9cc3fa7f1b174f7bf0bbf0",
+      "finding": "No-issue early return bypassed reported case metadata validation",
+      "verdict": "PROOF_WEAK"
+    },
+    {
+      "cycle": 4,
+      "scope": "Fix the same case-metadata rule before the no-issue return and exercise its failure paths",
+      "review": "NO_DEMONSTRATED_DEFECT_PROOF_ADEQUATE_MACOS_DEV_ONLY",
+      "evidence": "worker-case-mode-evidence.json"
+    }
+  ]
+}

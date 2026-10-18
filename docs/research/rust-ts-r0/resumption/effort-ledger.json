@@ -20,6 +20,13 @@
       "endUtc": "2026-10-18T13:41:21.914699+00:00",
       "activity": "Reopening records, harness regressions and corrections, local checks, independent reviews and checkpoint publication; includes waiting, so this open wall interval is not an active-effort total.",
       "state": "CLOSED_WALL_WINDOW_ACTIVE_DURATION_UNMEASURED"
+    },
+    {
+      "agent": "/root",
+      "startUtc": "2026-10-18T14:41:23.266713+00:00",
+      "endUtc": null,
+      "activity": "Bounded worker case-mode correction, focused replay, independent reviews and continuation of ordered T00 work",
+      "state": "OPEN_WALL_WINDOW_ACTIVE_DURATION_UNMEASURED"
     }
   ],
   "additionalC1Passes": [

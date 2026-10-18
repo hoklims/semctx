@@ -9,7 +9,7 @@ is abandoned for this resumption, with its history preserved.
 [record.json](record.json) is the current decision and budget record. It adds
 two C1 correction passes after the two historical passes. Neither new pass had
 started at registration. The first additional pass is now open, with
-[focused harness evidence](harness-repair-evidence.json). Approximately 3–4 days is the owner's planning estimate,
+[current focused harness evidence](worker-case-mode-evidence.json). Approximately 3–4 days is the owner's planning estimate,
 not measured effort or an inferred exact ceiling. [effort-ledger.json](effort-ledger.json)
 records the resumed work separately from the [historical ledger](../final/effort-ledger.json).
 The [old terminal dossier](../final/README.md), raw outcomes, frozen expectations
@@ -42,13 +42,15 @@ unaccessed and unexecuted during this registration. No resumed campaign or R0
 passage is claimed. [The independent claim ledger](claim-audit.md) records the
 authority and limits of this registration.
 
-Step2 remains incomplete. The ten original observations pass focused macOS DEV
-checks and `./`/`..` aliases are covered, but two independent reviews reproduced
-a case-insensitive alias bypass in the worker guard. The additional regression
-is deliberately red, with raw evidence preserved. The local `review-fix` workflow
-has reached its two correction-cycle limit; continuation needs an explicit
-exception to that local workflow limit. This does not exhaust, extend or reset
-the owner's C1 budget. Steps3–7, the reserved run and R0 remain pending.
+The [previous incomplete checkpoint](harness-repair-evidence.json) preserves the
+case-insensitive alias bypass and its red witness. The user reactivated the blocked
+goal after that reported local workflow stop; the
+[bounded continuation](local-review-continuation.json) records the resumed
+correction without resetting counters or changing the C1 budget. The ten original
+observations and four guard comparators now pass focused macOS DEV checks, with
+case sensitivity measured by the harness. The guard comparators and seven recipe
+CLI tests are wired into the native three-OS CI lane; new remote evidence remains
+to be collected. Steps3–7, the full campaign, reserved run and R0 remain pending.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

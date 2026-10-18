@@ -257,19 +257,19 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
             continue;
         }
         if name == "binding_aliases" {
-            if let Some(bindings) = value.get("bindingTargets") {
-                for binding in bindings.as_array().ok_or("invalid bindingTargets")? {
-                    let mut object = binding
-                        .as_object()
-                        .cloned()
-                        .ok_or("invalid binding target")?;
-                    clone_field(&mut object, value, "importer", "fromRelPath");
-                    if let (Some(p), Some(s)) = (binding.get("relPath"), binding.get("symbolPath"))
-                    {
-                        object.insert("target".into(), json!([p, s]));
-                    }
-                    result.push(Value::Object(object));
+            let Some(bindings) = value.get("bindingTargets") else {
+                continue;
+            };
+            for binding in bindings.as_array().ok_or("invalid bindingTargets")? {
+                let mut object = binding
+                    .as_object()
+                    .cloned()
+                    .ok_or("invalid binding target")?;
+                clone_field(&mut object, value, "importer", "fromRelPath");
+                if let (Some(p), Some(s)) = (binding.get("relPath"), binding.get("symbolPath")) {
+                    object.insert("target".into(), json!([p, s]));
                 }
+                result.push(Value::Object(object));
             }
             continue;
         }
@@ -313,6 +313,12 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
         result.push(Value::Object(object));
     }
     Ok(Value::Array(result))
+}
+fn confined_coordinate(path: &str) -> bool {
+    !path.starts_with('/')
+        && !path.starts_with('\\')
+        && !path.split(['/', '\\']).any(|part| part == "..")
+        && path.as_bytes().get(1).is_none_or(|byte| *byte != b':')
 }
 fn compare(actual: &Value, expected: &Value, mode: &str) -> Result<bool, String> {
     match mode {
@@ -444,12 +450,7 @@ fn compare(actual: &Value, expected: &Value, mode: &str) -> Result<bool, String>
                         ]
                         .contains(&k.as_str())
                         {
-                            x.as_str().is_some_and(|p| {
-                                !p.starts_with('/')
-                                    && !p.starts_with('\\')
-                                    && !p.split(['/', '\\']).any(|c| c == "..")
-                                    && !p.as_bytes().get(1).is_some_and(|c| *c == b':')
-                            })
+                            x.as_str().is_some_and(confined_coordinate)
                         } else {
                             confined(x)
                         }
@@ -565,7 +566,7 @@ fn safe_relative(path: &str) -> bool {
     !path.is_empty()
         && !Path::new(path).is_absolute()
         && !path.split(['/', '\\']).any(|p| p == "..")
-        && !path.as_bytes().get(1).is_some_and(|c| *c == b':')
+        && path.as_bytes().get(1).is_none_or(|c| *c != b':')
 }
 fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Value, String> {
     let cwd = root
@@ -696,11 +697,11 @@ fn run_raw_recipe(
     dir: &Path,
     artifact: &Path,
     helper: &Path,
-    sdk_path: &Path,
-    sdk: &Value,
+    sdk_input: (&Path, &Value),
     artifact_sha: &str,
     helper_sha: &str,
 ) -> Result<Value, String> {
+    let (sdk_path, sdk) = sdk_input;
     if let Err(error) = validate_component_checks(
         recipe["checks"]
             .as_array()
@@ -966,18 +967,39 @@ fn worker_bound_to_request(
 fn worker_negative_boundary_directory_probes(
     observed: &Value,
     request: &Value,
+    case_sensitive: bool,
 ) -> Result<Vec<Value>, String> {
     let issues = observed["frontendCapabilityObservation"]["workspaceIssues"]
         .as_array()
         .ok_or("missing worker workspace issue inventory")?;
+    let reported_probes = observed
+        .get("compiler_probes")
+        .map(|value| {
+            value
+                .as_array()
+                .ok_or("invalid worker compiler probe inventory")
+        })
+        .transpose()?;
+    for probe in reported_probes.into_iter().flatten() {
+        if probe["operation"] != "case_sensitive" {
+            continue;
+        }
+        let sensitive = probe["found"].as_bool().ok_or("invalid case capability")?;
+        if sensitive != case_sensitive
+            || *probe
+                != json!({"path":"","operation":"case_sensitive","found":sensitive,"content_id":null})
+        {
+            return Err("invalid pathless compiler capability probe".into());
+        }
+    }
     if issues.is_empty() {
         return Ok(vec![]);
     }
     let raw_root = value_text(request, "repoRoot")?;
-    let root = verifier_absolute_key(raw_root, true)?;
-    if root != raw_root.replace('\\', "/") {
+    if verifier_absolute_key(raw_root, true)? != raw_root.replace('\\', "/") {
         return Err("worker repository coordinate is not canonical".into());
     }
+    let root = verifier_absolute_key(raw_root, case_sensitive)?;
     let volume_root = if root.starts_with('/') {
         "/"
     } else {
@@ -1000,21 +1022,14 @@ fn worker_negative_boundary_directory_probes(
             ancestor.trim_end_matches('/')
         ));
     }
-    let probes = observed["compiler_probes"]
-        .as_array()
+    let probes = reported_probes
         .ok_or("missing actual worker compiler probes")?
         .iter()
         .map(|probe| {
-            if probe["operation"] == "case_sensitive" && probe["path"] == "" {
-                let sensitive = probe["found"].as_bool().ok_or("invalid case capability")?;
-                if *probe
-                    != json!({"path":"","operation":"case_sensitive","found":sensitive,"content_id":null})
-                {
-                    return Err("invalid pathless compiler capability probe".into());
-                }
+            if probe["operation"] == "case_sensitive" {
                 return Ok(probe.clone());
             }
-            let path = verifier_absolute_key(value_text(probe, "path")?, true)?;
+            let path = verifier_absolute_key(value_text(probe, "path")?, case_sensitive)?;
             let mut normalized = probe.clone();
             normalized["path"] = json!(path);
             Ok(normalized)
@@ -1022,7 +1037,7 @@ fn worker_negative_boundary_directory_probes(
         .collect::<Result<Vec<Value>, String>>()?;
     for issue in issues {
         let raw_path = value_text(issue, "path")?;
-        let path = verifier_absolute_key(raw_path, true)?;
+        let path = verifier_absolute_key(raw_path, case_sensitive)?;
         if !allowed.contains(&path)
             || *issue
                 != json!({"path":raw_path,"kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"})
@@ -1045,7 +1060,11 @@ fn worker_negative_boundary_directory_probes(
     }
     Ok(issues.clone())
 }
-fn worker_frontend_capability(observed: &Value, request: &Value) -> Result<Value, String> {
+fn worker_frontend_capability(
+    observed: &Value,
+    request: &Value,
+    case_sensitive: bool,
+) -> Result<Value, String> {
     let capability = &observed["frontendCapabilityObservation"];
     if capability["executed"] != true
         || capability["unsupported"] != json!([])
@@ -1054,7 +1073,7 @@ fn worker_frontend_capability(observed: &Value, request: &Value) -> Result<Value
         return Err("worker native frontend context is incomplete or unresolved".into());
     }
     let negative_boundary_directory_probes =
-        worker_negative_boundary_directory_probes(observed, request)?;
+        worker_negative_boundary_directory_probes(observed, request, case_sensitive)?;
     let roots = capability["roots"]
         .as_array()
         .ok_or("missing worker root capability observations")?;
@@ -1080,7 +1099,7 @@ fn worker_frontend_capability(observed: &Value, request: &Value) -> Result<Value
         return Err("worker did not load every exact root without parser incapacity".into());
     }
     Ok(
-        json!({"state":"COMPLETE_OBSERVED_NATIVE_WORKER_CONTEXT","roots":paths,"negative_boundary_directory_probes":negative_boundary_directory_probes,"global_admission_inferred":false}),
+        json!({"state":"COMPLETE_OBSERVED_NATIVE_WORKER_CONTEXT","roots":paths,"case_sensitive":case_sensitive,"negative_boundary_directory_probes":negative_boundary_directory_probes,"global_admission_inferred":false}),
     )
 }
 fn run_worker_recipe(
@@ -1088,14 +1107,25 @@ fn run_worker_recipe(
     dir: &Path,
     artifact: &Path,
     helper: &Path,
-    sdk_path: &Path,
-    sdk: &Value,
+    sdk_input: (&Path, &Value),
     artifact_sha: &str,
     helper_sha: &str,
 ) -> Result<Value, String> {
+    let (sdk_path, sdk) = sdk_input;
     fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     let root = dir.join("workspace");
     fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+    let sentinel = root.join("T00WorkerCaseSentinel");
+    fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&sentinel)
+        .map_err(|e| e.to_string())?;
+    let case_sensitive = !root
+        .join("t00workercasesentinel")
+        .try_exists()
+        .map_err(|e| e.to_string())?;
+    fs::remove_file(&sentinel).map_err(|e| e.to_string())?;
     let cwd = root
         .canonicalize()
         .map_err(|e| e.to_string())?
@@ -1121,15 +1151,17 @@ fn run_worker_recipe(
             object.insert("repoRoot".into(), json!(cwd));
         }
         for field in ["rootAbsPaths", "emitAbsPaths"] {
-            if let Some(paths) = object.get_mut(field).and_then(Value::as_array_mut) {
-                for path in paths {
-                    if let Some(relative) = path.as_str().and_then(|s| s.strip_prefix("ROOT/")) {
-                        if !safe_relative(relative) {
-                            return Err("worker requested path escapes authored root".into());
-                        }
-                        *path = json!(format!("{cwd}/{relative}"));
-                    }
+            let Some(paths) = object.get_mut(field).and_then(Value::as_array_mut) else {
+                continue;
+            };
+            for path in paths {
+                let Some(relative) = path.as_str().and_then(|s| s.strip_prefix("ROOT/")) else {
+                    continue;
+                };
+                if !safe_relative(relative) {
+                    return Err("worker requested path escapes authored root".into());
                 }
+                *path = json!(format!("{cwd}/{relative}"));
             }
         }
     }
@@ -1183,7 +1215,7 @@ fn run_worker_recipe(
                 json!({"state":"CONTROLLED_REQUEST_REFUSAL_NO_USEFUL_COMPILER_RESULT_CREDITED","absence_of_all_os_reads_claimed":false}),
             );
         }
-        worker_frontend_capability(&observed, &request)?;
+        let frontend = worker_frontend_capability(&observed, &request, case_sensitive)?;
         let repository_reads = observed["read_observations"]
             .as_array()
             .ok_or("missing actual worker repository reads")?;
@@ -1252,7 +1284,7 @@ fn run_worker_recipe(
             }
         }
         Ok(
-            json!({"state":"JOINED_REPORTED_NATIVE_WORKER_READS_ONLY","compiler_reads":reads,"atomic_capture_claimed":false,"all_sdk_supplied_consumed_claimed":false}),
+            json!({"state":"JOINED_REPORTED_NATIVE_WORKER_READS_ONLY","compiler_reads":reads,"frontend":frontend,"atomic_capture_claimed":false,"all_sdk_supplied_consumed_claimed":false}),
         )
     })();
     let checks=recipe["checks"].as_array().ok_or("missing worker checks")?.iter().map(|c|json!({"expected_origin":c["expected_origin"],"target":c["target"],"result":evaluate(&observed,c)})).collect::<Vec<_>>();
@@ -1264,8 +1296,7 @@ fn run_worker_recipe(
             &dir.join("direct-control"),
             artifact,
             helper,
-            sdk_path,
-            sdk,
+            (sdk_path, sdk),
             artifact_sha,
             helper_sha,
         )?;
@@ -1515,17 +1546,16 @@ fn run_primitive_recipe(
             .get("path")
             .and_then(Value::as_str)
             .map(str::to_owned)
+            && (path == "ROOT" || path.starts_with("ROOT/") || path.starts_with("ROOT\\"))
         {
-            if path == "ROOT" || path.starts_with("ROOT/") || path.starts_with("ROOT\\") {
-                request["path"] = json!(format!(
-                    "{}{}",
-                    dir.canonicalize()
-                        .map_err(|e| e.to_string())?
-                        .to_string_lossy()
-                        .replace('\\', "/"),
-                    &path[4..]
-                ));
-            }
+            request["path"] = json!(format!(
+                "{}{}",
+                dir.canonicalize()
+                    .map_err(|e| e.to_string())?
+                    .to_string_lossy()
+                    .replace('\\', "/"),
+                &path[4..]
+            ));
         }
         if request.get("cwd").is_some() {
             request["cwd"] = json!(
@@ -1753,8 +1783,7 @@ fn replay() -> Result<Value, String> {
                 &out.join(format!("unit-{index:03}")),
                 &artifact,
                 &helper,
-                &sdk_path,
-                &sdk,
+                (&sdk_path, &sdk),
                 &artifact_sha,
                 &helper_sha,
             )?;
@@ -1807,8 +1836,7 @@ fn replay() -> Result<Value, String> {
             &dir,
             &artifact,
             &helper,
-            &sdk_path,
-            &sdk,
+            (&sdk_path, &sdk),
             &artifact_sha,
             &helper_sha,
         )?;
@@ -1836,8 +1864,7 @@ fn replay() -> Result<Value, String> {
                         &out.join(format!("support-{index:03}")),
                         &artifact,
                         &helper,
-                        &sdk_path,
-                        &sdk,
+                        (&sdk_path, &sdk),
                         &artifact_sha,
                         &helper_sha,
                     )?
@@ -2304,12 +2331,7 @@ fn receiver_guard_projection(input: &Value, variant: &Value, artifact_bytes: &[u
         };
         let result = receiver
             .receive(&outcome, if post_receipt { &before } else { &state })
-            .and_then(|receipt| {
-                receiver
-                    .context(Some(&receipt), &state)
-                    .map(|_| ())
-                    .map_err(|e| e)
-            });
+            .and_then(|receipt| receiver.context(Some(&receipt), &state).map(|_| ()));
         let available = result.is_ok();
         let expected_available = boolean(variant, "consumer_owned_context_available")?;
         Ok(
@@ -2893,7 +2915,7 @@ fn comparator_coupled_relations_use_two_actual_observations_and_exact_cardinalit
         "PASS_PROJECTED_PROPERTY"
     );
     assert_ne!(
-        evaluate_relation(&[a.clone()], &relation)["state"],
+        evaluate_relation(std::slice::from_ref(&a), &relation)["state"],
         "PASS_PROJECTED_PROPERTY"
     );
     let short = json!({"rows":[{"digest":"dev-a"}]});
@@ -2975,7 +2997,7 @@ fn comparator_worker_refusal_and_descriptor_binding_do_not_promote_useful_succes
 #[test]
 fn comparator_nonreason_component_flag_needs_execution_and_no_unsupported() {
     let check = json!({"target":["subjects",{"path":"devParsingFlag.mjs"},"javascriptObservation","parseFailed"],"expected":false,"mode":"eq","actual_transform":"none"});
-    assert!(validate_component_checks(&[check.clone()]).is_err());
+    assert!(validate_component_checks(std::slice::from_ref(&check)).is_err());
     let mut complete = vec![check];
     for (field, value) in [("executed", json!(true)), ("unsupported", json!([]))] {
         complete.push(json!({"target":["subjects",{"path":"devParsingFlag.mjs"},"javascriptObservation",field],"expected":value,"mode":"eq","actual_transform":"none"}));
@@ -3023,7 +3045,7 @@ fn comparator_logical_binding_preserves_relocation_but_rejects_aliases_and_sdk_c
 fn comparator_worker_identical_facts_cannot_mask_unknown_frontend_or_missing_roots() {
     let request = json!({"rootAbsPaths":["/dev/workerCapability.ts"]});
     let good = json!({"extraction":{"symbols":[]},"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/workerCapability.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[],"resolutionErrors":{}}});
-    assert!(worker_frontend_capability(&good, &request).is_ok());
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
     for (field, value) in [
         ("executed", json!(false)),
         ("unsupported", json!(["DEV_UNKNOWN"])),
@@ -3036,14 +3058,14 @@ fn comparator_worker_identical_facts_cannot_mask_unknown_frontend_or_missing_roo
     ] {
         let mut poison = good.clone();
         poison["frontendCapabilityObservation"][field] = value;
-        assert!(worker_frontend_capability(&poison, &request).is_err());
+        assert!(worker_frontend_capability(&poison, &request, true).is_err());
     }
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["roots"][0]["parseDiagnosticCodes"] = json!([1134]);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["roots"][0]["loaded"] = json!(false);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
 }
 
 #[test]
@@ -3117,8 +3139,7 @@ fn repair_units(ids: &[&str]) {
                 &dir,
                 artifact,
                 helper,
-                sdk_path,
-                &sdk,
+                (sdk_path, &sdk),
                 artifact_sha,
                 helper_sha,
             ),
@@ -3130,8 +3151,7 @@ fn repair_units(ids: &[&str]) {
                 &dir,
                 artifact,
                 helper,
-                sdk_path,
-                &sdk,
+                (sdk_path, &sdk),
                 artifact_sha,
                 helper_sha,
             ),
@@ -3222,13 +3242,13 @@ fn repair_encoding_coordinates_submit_only_utf16_offsets() {
 }
 
 #[test]
-fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probes() {
+fn comparator_worker_capability_accepts_only_bound_negative_ancestor_directory_probes() {
     let request =
         json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
     let issue = json!({"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"});
     let probe = json!({"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null});
     let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[issue],"resolutionErrors":{}},"compiler_probes":[probe]});
-    assert!(worker_frontend_capability(&good, &request).is_ok());
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
     for sensitive in [false, true] {
         let mut with_capability = good.clone();
         with_capability["compiler_probes"]
@@ -3237,7 +3257,7 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
             .push(
                 json!({"path":"","operation":"case_sensitive","found":sensitive,"content_id":null}),
             );
-        assert!(worker_frontend_capability(&with_capability, &request).is_ok());
+        assert!(worker_frontend_capability(&with_capability, &request, sensitive).is_ok());
         for (field, value) in [
             ("operation", json!("read_file")),
             ("found", json!(null)),
@@ -3245,7 +3265,7 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
         ] {
             let mut poison = with_capability.clone();
             poison["compiler_probes"][1][field] = value;
-            assert!(worker_frontend_capability(&poison, &request).is_err());
+            assert!(worker_frontend_capability(&poison, &request, sensitive).is_err());
         }
     }
     for path in [
@@ -3259,7 +3279,7 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
         variant["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] = json!(path);
         variant["compiler_probes"][0]["path"] = json!(path);
         assert!(
-            worker_frontend_capability(&variant, &request).is_ok(),
+            worker_frontend_capability(&variant, &request, true).is_ok(),
             "allowed discovery directory {path}"
         );
     }
@@ -3277,7 +3297,7 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
         let mut poison = good.clone();
         poison["frontendCapabilityObservation"]["workspaceIssues"][0][field] = value;
         assert!(
-            worker_frontend_capability(&poison, &request).is_err(),
+            worker_frontend_capability(&poison, &request, true).is_err(),
             "unapproved issue field {field}"
         );
     }
@@ -3290,7 +3310,7 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
         let mut poison = good.clone();
         poison["compiler_probes"][0][field] = value;
         assert!(
-            worker_frontend_capability(&poison, &request).is_err(),
+            worker_frontend_capability(&poison, &request, true).is_err(),
             "unsafe probe field {field}"
         );
     }
@@ -3299,19 +3319,19 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
         .as_object_mut()
         .unwrap()
         .remove("content_id");
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["compiler_probes"] = json!([]);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["compiler_probes"].as_array_mut().unwrap().push(json!({"path":"/dev/outer/node_modules/@types","operation":"read_file","found":true,"content_id":"sha256:outside"}));
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["workspaceIssues"].as_array_mut().unwrap().push(json!({"path":"/dev/outer/workspace/main.ts","kind":"refusal","detail":"WORKSPACE_NESTED_REPOSITORY"}));
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["workspaceIssues"][0]["unsupported"] = json!(true);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     for (field, value) in [
         ("executed", json!(false)),
         ("unsupported", json!(["UNKNOWN"])),
@@ -3324,22 +3344,22 @@ fn repair_worker_capability_accepts_only_bound_negative_ancestor_directory_probe
     ] {
         let mut poison = good.clone();
         poison["frontendCapabilityObservation"][field] = value;
-        assert!(worker_frontend_capability(&poison, &request).is_err());
+        assert!(worker_frontend_capability(&poison, &request, true).is_err());
     }
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["roots"][0]["loaded"] = json!(false);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut poison = good.clone();
     poison["frontendCapabilityObservation"]["roots"][0]["parseDiagnosticCodes"] = json!([1134]);
-    assert!(worker_frontend_capability(&poison, &request).is_err());
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
     let mut malformed_request = request.clone();
     malformed_request
         .as_object_mut()
         .unwrap()
         .remove("repoRoot");
-    assert!(worker_frontend_capability(&good, &malformed_request).is_err());
+    assert!(worker_frontend_capability(&good, &malformed_request, true).is_err());
     malformed_request["repoRoot"] = json!("relative/workspace");
-    assert!(worker_frontend_capability(&good, &malformed_request).is_err());
+    assert!(worker_frontend_capability(&good, &malformed_request, true).is_err());
 }
 
 #[test]
@@ -3351,7 +3371,7 @@ fn repair_worker_facts_and_emit_subset_preserve_complete_native_context() {
 }
 
 #[test]
-fn repair_worker_boundary_probe_aliases_cannot_hide_nonnegative_operations() {
+fn comparator_worker_boundary_probe_aliases_cannot_hide_nonnegative_operations() {
     let request =
         json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
     let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[{"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"}],"resolutionErrors":{}},"compiler_probes":[{"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null}]});
@@ -3368,19 +3388,19 @@ fn repair_worker_boundary_probe_aliases_cannot_hide_nonnegative_operations() {
                 .unwrap()
                 .push(json!({"path":path,"operation":operation,"found":found,"content_id":null}));
             assert!(
-                worker_frontend_capability(&poison, &request).is_err(),
+                worker_frontend_capability(&poison, &request, true).is_err(),
                 "aliased {operation} must remain visible: {path}"
             );
         }
         let mut equivalent = good.clone();
         equivalent["compiler_probes"][0]["path"] = json!(path);
         assert!(
-            worker_frontend_capability(&equivalent, &request).is_ok(),
+            worker_frontend_capability(&equivalent, &request, true).is_ok(),
             "equivalent negative directory probe: {path}"
         );
         equivalent["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] = json!(path);
         assert!(
-            worker_frontend_capability(&equivalent, &request).is_ok(),
+            worker_frontend_capability(&equivalent, &request, true).is_ok(),
             "equivalent bound refusal: {path}"
         );
     }
@@ -3395,26 +3415,95 @@ fn repair_worker_boundary_probe_aliases_cannot_hide_nonnegative_operations() {
             json!({"path":path,"operation":"directory_exists","found":false,"content_id":null}),
         );
         assert!(
-            worker_frontend_capability(&poison, &request).is_err(),
+            worker_frontend_capability(&poison, &request, true).is_err(),
             "malformed probe path"
         );
     }
 }
 
 #[test]
-fn repair_worker_case_insensitive_probe_aliases_cannot_hide_nonnegative_operations() {
+fn comparator_worker_case_insensitive_probe_aliases_cannot_hide_nonnegative_operations() {
     let request =
         json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
     let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[{"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"}],"resolutionErrors":{}},"compiler_probes":[{"path":"","operation":"case_sensitive","found":false,"content_id":null},{"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null}]});
-    assert!(worker_frontend_capability(&good, &request).is_ok());
+    assert!(worker_frontend_capability(&good, &request, false).is_ok());
     for (operation, found) in [("read_file", false), ("directory_exists", true)] {
         let mut poison = good.clone();
         poison["compiler_probes"].as_array_mut().unwrap().push(
             json!({"path":"/DEV/OUTER/node_modules/@types","operation":operation,"found":found,"content_id":null}),
         );
         assert!(
-            worker_frontend_capability(&poison, &request).is_err(),
+            worker_frontend_capability(&poison, &request, false).is_err(),
             "case-insensitive alias {operation} must remain visible"
         );
+    }
+    let mut equivalent = good.clone();
+    equivalent["compiler_probes"][1]["path"] = json!("/DEV/OUTER/node_modules/part/../@TYPES");
+    equivalent["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] =
+        json!("/Dev/Outer/node_modules/./@Types/");
+    assert!(worker_frontend_capability(&equivalent, &request, false).is_ok());
+    let mut mixed_case_root = request.clone();
+    mixed_case_root["repoRoot"] = json!("/Dev/Outer/workspace");
+    assert!(worker_frontend_capability(&equivalent, &mixed_case_root, false).is_ok());
+    for sensitive in [false, true] {
+        let mut native = good.clone();
+        native["compiler_probes"][0]["found"] = json!(sensitive);
+        assert!(worker_frontend_capability(&native, &request, sensitive).is_ok());
+        assert!(worker_frontend_capability(&native, &request, !sensitive).is_err());
+        let mut malformed = native.clone();
+        malformed["compiler_probes"][0]["path"] = json!("/unrelated/capability");
+        assert!(worker_frontend_capability(&malformed, &request, sensitive).is_err());
+        let mut contradictory = native.clone();
+        contradictory["compiler_probes"].as_array_mut().unwrap().push(
+            json!({"path":"","operation":"case_sensitive","found":!sensitive,"content_id":null}),
+        );
+        assert!(worker_frontend_capability(&contradictory, &request, sensitive).is_err());
+        let mut distinct = native.clone();
+        distinct["compiler_probes"][1]["path"] = json!("/DEV/OUTER/node_modules/@types");
+        assert_eq!(
+            worker_frontend_capability(&distinct, &request, sensitive).is_ok(),
+            !sensitive
+        );
+    }
+    let drive_request = json!({"repoRoot":"C:/Dev/Outer/workspace","rootAbsPaths":["C:/Dev/Outer/workspace/main.ts"]});
+    let mut drive = good.clone();
+    drive["frontendCapabilityObservation"]["roots"][0]["path"] =
+        drive_request["rootAbsPaths"][0].clone();
+    drive["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] =
+        json!("C:/Dev/Outer/node_modules/@types");
+    drive["compiler_probes"][1]["path"] = json!("c:\\DEV\\OUTER\\node_modules\\.\\@TYPES");
+    assert!(worker_frontend_capability(&drive, &drive_request, false).is_ok());
+    drive["compiler_probes"].as_array_mut().unwrap().push(
+        json!({"path":"C:/DEV/OUTER/node_modules/part/../@types","operation":"read_file","found":false,"content_id":null}),
+    );
+    assert!(worker_frontend_capability(&drive, &drive_request, false).is_err());
+}
+
+#[test]
+fn comparator_worker_case_metadata_is_checked_without_workspace_refusals() {
+    let request =
+        json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
+    let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[],"resolutionErrors":{}},"compiler_probes":[{"path":"","operation":"case_sensitive","found":true,"content_id":null}]});
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
+    for (field, value) in [
+        ("found", json!(false)),
+        ("found", json!(null)),
+        ("path", json!("/unrelated/capability")),
+        ("content_id", json!("sha256:foreign")),
+    ] {
+        let mut malformed = good.clone();
+        malformed["compiler_probes"][0][field] = value;
+        assert!(worker_frontend_capability(&malformed, &request, true).is_err());
+    }
+    let mut contradictory = good.clone();
+    contradictory["compiler_probes"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"path":"","operation":"case_sensitive","found":false,"content_id":null}));
+    assert!(worker_frontend_capability(&contradictory, &request, true).is_err());
+    for value in [json!(null), json!({})] {
+        let mut malformed = good.clone();
+        malformed["compiler_probes"] = value;
+        assert!(worker_frontend_capability(&malformed, &request, true).is_err());
     }
 }
