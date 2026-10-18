@@ -705,6 +705,31 @@ for recipe in recipes:
     recipe['proof_scope'] = 'Exact frozen retained text versus supplied discovered-source metadata. P01 reuses its frozen retained leaf projection while live transient bytes remain physical; N01 has actual pre-analysis SOURCE_SNAPSHOT_MISMATCH and no analysis result. No automatic discovery, complete public Plane-A runtime, full retained scope or global admission inferred.'
 
 for recipe in recipes:
+    if recipe['case_id'] != 'QDYN-07-missing-retained-test-text-public-refusal':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    request = recipe['requests'][0]
+    omitted = inp['retained_omissions']
+    test_paths = sorted(row['relPath'] for row in inp['discovered_files'] if row['role'] == 'test')
+    private = assertions['private_scan_if_invoked_out_of_public_contract']
+    if omitted != test_paths or len(test_paths) != 1 or private['test_text'] != 'missing':
+        raise ValueError('unmapped missing retained test inventory')
+    public = {'capture_request':request, 'retained_omissions':omitted, 'discovered_sources':[{'relPath':row['relPath'],'content':inp['files'][row['relPath']]} for row in inp['discovered_files']], 'physical_live_after_capture':{}, 'gaps':[], 'checks':[check(['unsupported',0],assertions['public_analyzeRepository_error_exact'],'eq',ptr('public_analyzeRepository_error_exact')),check(['executed'],assertions['public_scan_or_completed_analysis_obtained'],'eq',ptr('public_scan_or_completed_analysis_obtained')),check(['executed'],assertions['admitted_control'],'eq',ptr('admitted_control'))]}
+    retained = {path:text for path,text in inp['files'].items() if path not in omitted}
+    primitive = {'primitive_requests':[{'operation':'test_dynamic_imports','retained_texts':retained,'test_paths':test_paths}], 'gaps':[], 'relations':[], 'checks':[check(['dynamic_keys'],private['dynamic_keys_added'],'eq',ptr('private_scan_if_invoked_out_of_public_contract')+'/dynamic_keys_added'),check(['source_states',test_paths[0],'state'],private['test_text'],'eq',ptr('private_scan_if_invoked_out_of_public_contract')+'/test_text'),check(['observation_scope'],'private_retained_test_scan','eq','Actual private supplied-map invocation scope'),check(['public_reachability_claimed'],False,'eq',ptr('private_scan_if_invoked_out_of_public_contract')+'/public_reachability')]}
+    recipe['surface'] = 'missing_retained_test_cli'
+    recipe['requests'] = []
+    recipe['public_guard_recipe'] = public
+    recipe['private_scan_recipe'] = primitive
+    recipe['checks'] = []
+    recipe['relations'] = []
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(assertions)
+    recipe['required_native_api'] = ['Actual retained-discovery guard and private shared-AST test_dynamic_imports component, bound to the same retained capture/test roles; physical omitted file remains present']
+    recipe['proof_scope'] = 'Frozen missing retained test-text case only. Public guard refuses before analysis; separate out-of-contract private scan observes missing text and no keys despite physical live text. No whole Plane-A runtime, full retained scope or global admission.'
+
+for recipe in recipes:
     if recipe['case_id'] not in ['T-timeout', 'T-output-limit']:
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']

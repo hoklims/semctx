@@ -1675,6 +1675,165 @@ fn run_controlled_assembly_recipe(
     Ok(result)
 }
 
+fn portable_capture_path(path: &str) -> bool {
+    safe_relative(path)
+        && !path.contains(['\\', ':', '\0'])
+        && path.split('/').all(|part| !matches!(part, "" | "." | ".."))
+}
+
+fn copy_private_scan_sources(
+    public_root: &Path,
+    private_root: &Path,
+    files: &Value,
+) -> Result<Value, String> {
+    let mut copies = vec![];
+    for path in files
+        .as_object()
+        .ok_or("missing physical source inventory")?
+        .keys()
+    {
+        if !portable_capture_path(path) || path.eq_ignore_ascii_case("descriptor.json") {
+            return Err("invalid private physical source path".into());
+        }
+        let bytes = fs::read(public_root.join(path)).map_err(|error| error.to_string())?;
+        let target = private_root.join(path);
+        fs::create_dir_all(target.parent().ok_or("missing private parent")?)
+            .map_err(|error| error.to_string())?;
+        fs::write(&target, &bytes).map_err(|error| error.to_string())?;
+        copies.push(json!({"path":path,"source_sha256":sha(&bytes),"private_physical_sha256":sha(&fs::read(target).map_err(|error|error.to_string())?)}));
+    }
+    Ok(json!(copies))
+}
+
+fn retained_omissions(analysis: &mut Value, omitted: &Value, root: &Path) -> Result<Value, String> {
+    let mut proof = vec![];
+    for path in omitted
+        .as_array()
+        .ok_or("retained omissions must be an array")?
+    {
+        let path = path
+            .as_str()
+            .filter(|path| portable_capture_path(path))
+            .ok_or("invalid retained omission path")?;
+        let key = format!("{}/{path}", value_text(analysis, "cwd")?);
+        let captured = analysis["files"]
+            .as_object_mut()
+            .ok_or("missing capture files")?
+            .remove(&key)
+            .ok_or("omitted source is not captured")?;
+        let text = captured.as_str().ok_or("omitted source must be text")?;
+        let physical = fs::read(root.join(path)).map_err(|error| error.to_string())?;
+        if physical != text.as_bytes() {
+            return Err("physical omitted source differs from frozen capture".into());
+        }
+        proof.push(json!({"path":path,"physical_source_sha256":sha(&physical),"captured_entry_removed":true,"physical_file_retained":true}));
+    }
+    Ok(json!(proof))
+}
+
+fn missing_test_capture_binding(public: &Value, private: &Value) -> Result<Value, String> {
+    let analysis = &public["analysis"];
+    let prefix = format!("{}/", value_text(analysis, "cwd")?);
+    let mut retained = serde_json::Map::new();
+    for (path, text) in analysis["files"]
+        .as_object()
+        .ok_or("missing public retained files")?
+    {
+        let relative = path
+            .strip_prefix(&prefix)
+            .filter(|path| safe_relative(path))
+            .ok_or("foreign public retained file")?;
+        retained.insert(relative.into(), text.clone());
+    }
+    let roles = analysis["roles"]
+        .as_object()
+        .ok_or("missing public roles")?;
+    let tests = roles
+        .iter()
+        .filter(|(_, role)| **role == "test")
+        .map(|(path, _)| path.clone())
+        .collect::<Vec<_>>();
+    let discovered = public["discovered_sources"]
+        .as_array()
+        .ok_or("missing public discovery")?;
+    if tests.is_empty()
+        || tests.iter().any(|path| {
+            retained.contains_key(path)
+                || discovered
+                    .iter()
+                    .filter(|row| row["relPath"] == *path && row["content"].is_string())
+                    .count()
+                    != 1
+        })
+    {
+        return Err(
+            "private scan requires actual missing retained test and discovered text".into(),
+        );
+    }
+    if private["operation"] != "test_dynamic_imports"
+        || private["retained_texts"] != Value::Object(retained)
+        || private["test_paths"] != json!(tests)
+    {
+        return Err("private scan is not coupled to public retained capture/test roles".into());
+    }
+    Ok(
+        json!({"state":"BOUND_MISSING_RETAINED_TEST_COMPONENTS","test_paths":tests,"public_reachability_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+fn run_missing_retained_test_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing coupled gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    fs::create_dir_all(dir).map_err(|error| error.to_string())?;
+    let public_dir = dir.join("public");
+    let public_result = run_retained_discovery_recipe(
+        &recipe["public_guard_recipe"],
+        &public_dir,
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let private_dir = dir.join("private");
+    let physical_root = private_dir.join("observation-000");
+    fs::create_dir_all(&physical_root).map_err(|error| error.to_string())?;
+    let copies = copy_private_scan_sources(
+        &public_dir.join("workspace"),
+        &physical_root,
+        &recipe["public_guard_recipe"]["capture_request"]["files"],
+    )?;
+    save(&dir.join("private-physical-source-setup.json"), &copies)?;
+    let private_result = run_primitive_recipe(
+        &recipe["private_scan_recipe"],
+        &private_dir,
+        artifact,
+        helper,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let public = read_json(&public_dir.join("retained-discovery-request.json"))?;
+    let private = read_json(&physical_root.join("descriptor.json"))?;
+    let binding = missing_test_capture_binding(&public, &private);
+    let pass = public_result["pass"] == true && private_result["pass"] == true && binding.is_ok();
+    let result = json!({"state":if pass{"PASS_FROZEN_MISSING_RETAINED_TEST_UNIT"}else{"NONPASS_MISSING_RETAINED_TEST_UNIT"},"pass":pass,"public":public_result,"private":private_result,"coupling":match binding{Ok(value)=>value,Err(error)=>json!({"error":error})},"public_reachability_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn retained_discovery_observation(outcome: &process::Outcome) -> Result<Value, Value> {
     if outcome.kind != "success" || outcome.exit_code != Some(0) {
         return Err(json!({"state":"RETAINED_DISCOVERY_PROCESS_NONPASS","pass":false}));
@@ -1761,7 +1920,11 @@ fn run_retained_discovery_recipe(
     fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
     let sensitive = !root.join("retaineddiscoverycaseprobe").exists();
     fs::remove_file(sentinel).map_err(|error| error.to_string())?;
-    let analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let mut analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    if let Some(omitted) = recipe.get("retained_omissions") {
+        let proof = retained_omissions(&mut analysis, omitted, &root)?;
+        save(&dir.join("retained-omissions.json"), &proof)?;
+    }
     let analysis_path = dir.join("analysis-request.json");
     save(&analysis_path, &analysis)?;
     let setup = apply_physical_post_capture(
@@ -2409,6 +2572,20 @@ fn replay() -> Result<Value, String> {
         let uid = value_text(recipe, "unit_id")?;
         if recipe["surface"] == "process_fault_cli" {
             let mut result = run_process_fault_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "missing_retained_test_cli" {
+            let mut result = run_missing_retained_test_recipe(
                 recipe,
                 &out.join(format!("unit-{index:03}")),
                 &artifact,
@@ -3898,6 +4075,15 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "missing_retained_test_cli" => run_missing_retained_test_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "retained_discovery_cli" => run_retained_discovery_recipe(
                 recipe,
                 &dir,
@@ -5195,4 +5381,131 @@ fn comparator_retained_discovery_process_errors_and_malformed_output_stay_nonpas
         assert_eq!(result["pass"], false);
         assert_eq!(result["state"], "RETAINED_DISCOVERY_MALFORMED_OBSERVATION");
     }
+}
+
+#[test]
+fn gap_missing_retained_test_pairs_public_refusal_and_private_scan() {
+    repair_units(&["QDYN-07-missing-retained-test-text-public-refusal::base"]);
+}
+
+#[test]
+fn comparator_missing_test_components_require_the_same_capture_and_test_owner() {
+    let public = json!({"analysis":{"cwd":"/dev","files":{"/dev/source.ts":"export const sourceDev=109;"},"roles":{"source.ts":"source","probe.test.ts":"test"}},"discovered_sources":[{"relPath":"probe.test.ts","content":"import('./source');"}]});
+    let private = json!({"operation":"test_dynamic_imports","retained_texts":{"source.ts":"export const sourceDev=109;"},"test_paths":["probe.test.ts"]});
+    assert!(missing_test_capture_binding(&public, &private).is_ok());
+    for (field, value) in [
+        ("operation", json!("other")),
+        ("test_paths", json!([])),
+        ("test_paths", json!(["other.test.ts"])),
+        ("retained_texts", json!({})),
+        ("retained_texts", json!({"source.ts":"changed"})),
+        (
+            "retained_texts",
+            json!({"source.ts":"export const sourceDev=109;","probe.test.ts":"import('./source');"}),
+        ),
+    ] {
+        let mut changed = private.clone();
+        changed[field] = value;
+        assert!(
+            missing_test_capture_binding(&public, &changed).is_err(),
+            "{field}"
+        );
+    }
+    for (pointer, value) in [
+        ("/analysis/files", json!({"/outside/source.ts":"foreign"})),
+        (
+            "/analysis/files",
+            json!({"/dev/probe.test.ts":"import('./source');"}),
+        ),
+        ("/analysis/roles", json!({})),
+        ("/discovered_sources", json!([])),
+        (
+            "/discovered_sources",
+            json!([{"relPath":"probe.test.ts","content":"import('./source');"},{"relPath":"probe.test.ts","content":"import('./source');"}]),
+        ),
+    ] {
+        let mut changed = public.clone();
+        *changed.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            missing_test_capture_binding(&changed, &private).is_err(),
+            "{pointer}"
+        );
+    }
+}
+
+#[test]
+fn comparator_omitted_capture_keeps_physical_bytes_and_private_setup_refuses_escapes() {
+    let root = std::env::temp_dir().join(format!(
+        "missing-test-setup-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir(&root).unwrap();
+    let public = root.join("public");
+    let private = root.join("private");
+    fs::create_dir(&public).unwrap();
+    fs::create_dir(&private).unwrap();
+    let physical = public.join("probe.test.ts");
+    fs::write(&physical, "import('./owned');").unwrap();
+    let cwd = public
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    let original = json!({"cwd":cwd,"files":{format!("{cwd}/probe.test.ts"):"import('./owned');"}});
+    let mut changed = original.clone();
+    let proof = retained_omissions(&mut changed, &json!(["probe.test.ts"]), &public).unwrap();
+    assert_eq!(changed["files"], json!({}));
+    assert_eq!(fs::read_to_string(&physical).unwrap(), "import('./owned');");
+    assert_eq!(proof[0]["physical_file_retained"], true);
+    let copied = copy_private_scan_sources(
+        &public,
+        &private,
+        &json!({"probe.test.ts":"unused caller text"}),
+    )
+    .unwrap();
+    assert_eq!(
+        fs::read_to_string(private.join("probe.test.ts")).unwrap(),
+        "import('./owned');"
+    );
+    assert_eq!(
+        copied[0]["source_sha256"],
+        copied[0]["private_physical_sha256"]
+    );
+    for path in [
+        "../escape.test.ts",
+        "/absolute.test.ts",
+        "./probe.test.ts",
+        "nested/../probe.test.ts",
+        "nested//probe.test.ts",
+        "C:probe.test.ts",
+        "nested\\probe.test.ts",
+        "probe\0.test.ts",
+    ] {
+        assert!(!portable_capture_path(path));
+        assert!(retained_omissions(&mut original.clone(), &json!([path]), &public).is_err());
+        assert!(copy_private_scan_sources(&public, &private, &json!({path:""})).is_err());
+    }
+    for path in ["descriptor.json", "Descriptor.JSON"] {
+        assert!(copy_private_scan_sources(&public, &private, &json!({path:""})).is_err());
+    }
+    for omitted in [
+        Value::Null,
+        json!({}),
+        json!([false]),
+        json!(["missing.test.ts"]),
+        json!(["probe.test.ts", "probe.test.ts"]),
+    ] {
+        assert!(retained_omissions(&mut original.clone(), &omitted, &public).is_err());
+    }
+    assert!(copy_private_scan_sources(&public, &private, &Value::Null).is_err());
+    assert!(copy_private_scan_sources(&public, &private, &json!({"missing.test.ts":""})).is_err());
+    fs::write(&physical, "changed physical source").unwrap();
+    assert!(retained_omissions(&mut original.clone(), &json!(["probe.test.ts"]), &public).is_err());
+    fs::remove_file(&physical).unwrap();
+    assert!(retained_omissions(&mut original.clone(), &json!(["probe.test.ts"]), &public).is_err());
+    fs::remove_dir_all(root).unwrap();
 }
