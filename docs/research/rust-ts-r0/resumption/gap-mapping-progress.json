@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_THREE_GAPS_MAPPED_TWENTY_TWO_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_FOUR_GAPS_MAPPED_TWENTY_THREE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining41 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T18:42:31.180551+00:00",
-  "staticGapUnitsRemaining": 41,
+  "next": "Continue the remaining40 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T18:54:34.975325+00:00",
+  "staticGapUnitsRemaining": 40,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -442,5 +442,26 @@
     "newProjectedPasses": 2,
     "finalRecipeSha256": "557c227935f42a812b09ff74c65e628eb414a529a17e172b23819f69c8b20bcd",
     "localReviewCorrection": "Initial independent proof review found impossible non-truncated count/prefix data accepted after coherent identity rebinding. Require full retained length=count and matching hash when count<=cap. Both stdout and stderr regressions ship; truncated hashes remain supervisor observations."
+  },
+  "ninthBatch": {
+    "registeredUtc": "2026-10-18T18:48:20.498910+00:00",
+    "state": "STATIC_BINDING_CONTROL_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-01-static-binding-control::base"
+    ],
+    "scope": "Use existing complete native assembly integrity map plus its actual test node and raw static bindingTargets. No producer change, guessed graph relation, frozen input rewrite or admission inference.",
+    "failurePaths": [
+      "Missing/malformed whole integrity map or unknown/ambiguous test node refuses, rather than substituting empty reasons.",
+      "Only a missing owner entry in an actual complete map denotes no reasons. Actual reasons remain exact observed strings.",
+      "Missing/extra/wrong static binding target or missing required graph relations cannot satisfy frozen checks. Other valid graph relations remain permitted by the frozen contains assertion."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892",
+    "recipesSha256": "0a68716b1f0d7073b99b597f971a2f61a7f5bdbc24b65135d609ace8bead29bf",
+    "evidence": "gap-static-binding-evidence.json",
+    "newProjectedPasses": 1
   }
 }

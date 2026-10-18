@@ -609,6 +609,17 @@ for recipe in recipes:
         recipe['credited_properties'] = list(assertions)
         recipe['required_native_api'] = ['--observe-configured-resolution; actual configured resolver with omitted mode and ordinary inspectModuleConfiguration; exact capture includes empty directories']
         recipe['proof_scope'] = 'Explicit configured resolution on the unchanged frozen source, not an inserted import. Component reasons only; no graph/admission result, coherent SDK acquisition or all-SDK consumption claim.'
+    if recipe['case_id'] == 'QDYN-01-static-binding-control':
+        source = next(path for path, role in recipe['requests'][0]['roles'].items() if role == 'test')
+        c = check(['assembly'], assertions['integrity_reasons_for_test'], 'reason_constraints', ptr('integrity_reasons_for_test'), 'qualified_test_integrity_reasons:'+source)
+        c['operation_binding'] = operation_binding(c['target'], 'getQualifiedCallIntegrityReasons', {'frozen_unit_pointer':recipe['frozen_unit_pointer'], 'native_source':'assembly.rs complete integrityReasons map', 'test_owner':source})
+        recipe['checks'].append(c)
+        target = assertions['static_import_binding_target']
+        recipe['checks'].append(check(['raw_extraction','imports',{'fromRelPath':source,'moduleSpecifier':'./target'},'bindingTargets'], [{'relPath':target[0], 'symbolPath':target[1]}], 'unordered_projected_eq', ptr('static_import_binding_target')))
+        for key in ['integrity_reasons_for_test','static_import_binding_target']:
+            remove_gap(recipe, key)
+            recipe['credited_properties'].append(key)
+        recipe['proof_scope'] = 'Actual native qualified assembly reason map, test node, static import bindings and graph edges. A missing owner key denotes no reasons only in the observed complete map; no full qualified admission or test-binding invention.'
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 

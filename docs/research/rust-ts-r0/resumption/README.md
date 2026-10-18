@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are41 static GAP units still to map; all240 obligations remain unqualified.
+are40 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -120,7 +120,20 @@ remaining and0 qualified obligations. Cancellation, malformed JSON, nonzero
 refusal and reader/finalization cases remain separate gaps. Native producer
 192/library43 checks are reused at their original3cc870b4 provenance;36 observer
 comparators and seven Python tests are current harness checks. The354-unit
-campaign and Linux/Windows fault replay remain pending.
+campaign and Linux/Windows fault replay remain pending. A
+[ninth tranche](gap-static-binding-evidence.json) maps QDYN-01 using its actual
+static import binding, required coverage relations and complete assembly reason
+map. The map and a unique test node must exist before an absent owner entry can
+mean no reasons. Source-operation binding remains required. The unchanged frozen
+static control passes on macOS, bringing the new mappings to24:23 limited PASS
+and N17c NONPASS, with40 GAP units remaining. No global admission follows.
+
+CI39153529120 at3cc870b4 completed its native jobs on all three OS:34 observer
+comparators, seven Python tests and43 library tests each; binary counts are193
+on Linux,191 on Windows and192 on macOS. The run was cancelled after a new head,
+so no overall CI success is claimed. This earlier evidence covers the producer
+and four DEV vectors, without proving current37 comparators, focused new unit
+replay or the full354 campaign.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
