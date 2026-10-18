@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_ONE_GAPS_MAPPED_TWENTY_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_THREE_GAPS_MAPPED_TWENTY_TWO_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining43 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T18:13:13.729205+00:00",
-  "staticGapUnitsRemaining": 43,
+  "next": "Continue the remaining41 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T18:42:31.180551+00:00",
+  "staticGapUnitsRemaining": 41,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -400,5 +400,47 @@
     "newProjectedPasses": 2,
     "finalRecipeSha256": "30b62a268a9265d62e2f3cb8c1f58ea7527418a7dab0b1be0f98c880b64dda77",
     "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892"
+  },
+  "eighthBatch": {
+    "registeredUtc": "2026-10-18T18:24:53.504565+00:00",
+    "state": "TWO_REAL_NATIVE_PROCESS_FAULT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "T-timeout::base",
+      "T-output-limit::base"
+    ],
+    "scope": "Real existing raw C1 invocation under the reused native #383 supervisor, with healthy frozen P16 input/control before and after each process fault. The external-fault units keep their empty source maps; P16 is an explicitly linked ancillary runnable control, not new source or semantic credit for these units.",
+    "nativeArtifactReuse": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892, unchanged producer sources since reviewed3cc870b4; no new qualification freeze",
+    "registeredFaultLimits": {
+      "T-timeout::base": {
+        "timeout_ms": 1,
+        "output_cap": 8388608
+      },
+      "T-output-limit::base": {
+        "timeout_ms": 20000,
+        "output_cap": 64
+      }
+    },
+    "failurePaths": [
+      "Malformed, unknown, zero, oversized or non-integral explicit execution limits refuse instead of falling back to defaults.",
+      "A wrong fault kind, missing/altered capture, outcome identity mismatch, or failed before/after health control cannot satisfy the fault unit.",
+      "Captured prefix identity is distinct from the supervisor full-stream hash when output is truncated; exposed fields are retained without inventing lower-level errors.",
+      "A deadline may occur during startup, before a final report. No claim that source analysis had already started.",
+      "Cancellation, malformed JSON, reader finalization and the controlled-refusal/nonzero branches remain separate GAP units until real mechanisms exist."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "ownedHarnessCorrection": {
+      "red": "semctx-t00-process-budget-unhonored-red.log",
+      "observed": "The existing raw recipe runner ignored explicit execution limits; all six requested native invocations completed successfully instead of observing the two intended faults.",
+      "correction": "Strict explicit limit parsing and actual forwarding to the existing supervisor; bind the original in-memory Outcome identity to its persisted capture. Defaults remain20s/8MiB.",
+      "green": "semctx-t00-process-budget-native-green.log",
+      "observations": "timeout15ms with no captured bytes; output_limit with64 retained stdout bytes out of125831 observed, exit0; four surrounding native controls pass. Raw actual outcome data remains authoritative, not these summary samples."
+    },
+    "evidence": "gap-process-fault-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "557c227935f42a812b09ff74c65e628eb414a529a17e172b23819f69c8b20bcd",
+    "localReviewCorrection": "Initial independent proof review found impossible non-truncated count/prefix data accepted after coherent identity rebinding. Require full retained length=count and matching hash when count<=cap. Both stdout and stderr regressions ship; truncated hashes remain supervisor observations."
   }
 }
