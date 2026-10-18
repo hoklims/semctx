@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_NINE_GAPS_MAPPED_TWENTY_EIGHT_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_THIRTY_GAPS_MAPPED_TWENTY_NINE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining35 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T20:45:32.228125+00:00",
-  "staticGapUnitsRemaining": 35,
+  "next": "Continue the remaining34 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T21:12:57.409781+00:00",
+  "staticGapUnitsRemaining": 34,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -565,5 +565,33 @@
       "sourceFaultsRejectedThenRestored": 2,
       "scope": "Only N01 base and P01 analyze-snapshot-consistent; Plane-A variants remain separate GAP; full dispatcher inspected, not exercised."
     }
+  },
+  "thirteenthBatch": {
+    "registeredUtc": "2026-10-18T21:12:57.409781+00:00",
+    "state": "FROZEN_MISSING_RETAINED_TEST_COMPONENT_PAIR_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-07-missing-retained-test-text-public-refusal::base"
+    ],
+    "scope": "One coupled QDYN07 public-guard/private-scan unit. Shared strict AST scanner; physically present test excluded only from retained text; no public reachability or full Plane-A claim.",
+    "evidence": "gap-missing-test-evidence.json",
+    "nativeArtifactSha256": "322aed26fea42c4609f94e2e0f63a42aaff85cb4bdeafe1c0bd84d1d73221abd",
+    "recipesSha256": "381642f7aecb3ecb7c6b63c5d8c4077135359a4e7047dcba52e6853f134f7b40",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "199BIN,47LIB,4nativeflows,44comparators,7Python,1newunit/2calls/7checks plus5carryoverunits;fmt/clippy/Ruff PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Missing/foreign descriptor, SDK, artifact or Outcome identity refuses before credit.",
+      "Public semantic refusal requires executed=false, guard=false, the exact error, and no native_analysis; no successful extraction or SDK consumption is claimed.",
+      "Private scan rejects malformed maps, duplicate test paths, unsupported script kinds and noncanonical portable relative paths; empty retained text remains present.",
+      "Missing private test text skips parsing without disk fallback. Real retained text uses the same native AST predicate and line calculation as existing assembly.",
+      "Foreign retained map, missing/duplicate discovery owner, different test role, invalid omission, changed physical bytes, escape or reserved descriptor alias prevents the paired unit from passing.",
+      "Nonzero, timeout, output-limit, cancellation, capture errors, unknown process states and malformed stdout remain NONPASS."
+    ],
+    "reservedPayloadAccessed": false,
+    "fullDispatcher": "Inspected,not executed."
   }
 }

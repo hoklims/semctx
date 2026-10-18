@@ -180,6 +180,23 @@ mod tests {
     }
 
     #[test]
+    fn retained_discovery_mismatch_precedes_analyze_preconditions() {
+        let mut changed = descriptor();
+        changed["discovered_sources"][0]["content"] =
+            json!("export const changedBeforeAnalysis=107;");
+        changed["analysis"]["options"] = Value::Null;
+        let mut foreign_sdk = sdk();
+        foreign_sdk.version = "foreign-version-dev".into();
+        let result = run(changed, &foreign_sdk);
+        assert_eq!(
+            result["unsupported"],
+            json!(["SOURCE_SNAPSHOT_MISMATCH: guard.ts"])
+        );
+        assert_eq!(result["executed"], false);
+        assert!(result.get("native_analysis").is_none());
+    }
+
+    #[test]
     fn retained_discovery_descriptor_and_paths_fail_closed() {
         let sdk = sdk();
         for path in [

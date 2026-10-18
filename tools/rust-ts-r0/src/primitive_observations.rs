@@ -40,6 +40,10 @@ enum Request {
         filename: String,
     },
 
+    TestDynamicImports {
+        retained_texts: BTreeMap<String, String>,
+        test_paths: Vec<String>,
+    },
     CanonicalFileKey {
         path: String,
         case_sensitive: bool,
@@ -342,6 +346,13 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
             "relative_import_specifiers",
             json!({"specifiers":relative_import_specifiers(&source, &filename),"runtime_dependency_claim":false}),
         ),
+        Request::TestDynamicImports {
+            retained_texts,
+            test_paths,
+        } => (
+            "test_dynamic_imports",
+            crate::test_dynamic_imports::observe(retained_texts, test_paths)?,
+        ),
         Request::CanonicalJson { value } => (
             "canonical_json",
             json!({"canonical_json":identity::canonical_json(&value),"canonical_descriptor_sha256":identity::digest(&value)}),
@@ -398,6 +409,104 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn retained_test_scan_uses_strict_literal_calls_and_skips_missing_capture() {
+        let descriptor = json!({"operation":"test_dynamic_imports","retained_texts":{"checks/probe.test.mts":"// 🪴\r\nexport async function check(){\r\nconst first=import('./native'); const repeated=import('./native');\r\nconst computed=import(name); const template=import(`./template`); const options=import('./options',{}); const parenthesized=import(('./parenthesized')); return first;}","unselected.ts":"import('./ignored');"},"test_paths":["checks/probe.test.mts","checks/missing.test.ts"]});
+        let observed = handle_observation(descriptor.clone()).unwrap();
+        assert_eq!(
+            observed["dynamic_keys"],
+            json!(["checks/probe.test.mts:3:./native"])
+        );
+        assert_eq!(
+            observed["source_states"]["checks/probe.test.mts"]["state"],
+            "present"
+        );
+        assert_eq!(
+            observed["source_states"]["checks/missing.test.ts"],
+            json!({"state":"missing"})
+        );
+        assert_eq!(
+            observed["request_descriptor_id"],
+            identity::digest(&descriptor)
+        );
+        assert_eq!(observed["observation_scope"], "private_retained_test_scan");
+        assert_eq!(observed["public_reachability_claimed"], false);
+        assert_eq!(observed["global_admission_inferred"], false);
+        let empty = handle_observation(json!({"operation":"test_dynamic_imports","retained_texts":{"empty.test.ts":""},"test_paths":["empty.test.ts"]})).unwrap();
+        assert_eq!(empty["dynamic_keys"], json!([]));
+        assert_eq!(empty["source_states"]["empty.test.ts"]["state"], "present");
+    }
+
+    #[test]
+    fn retained_test_scan_refuses_malformed_capture_and_ambiguous_paths() {
+        let valid = json!({"operation":"test_dynamic_imports","retained_texts":{"probe.test.ts":"import('./present');"},"test_paths":["probe.test.ts"]});
+        for path in [
+            "",
+            "/probe.test.ts",
+            "./probe.test.ts",
+            "nested/../probe.test.ts",
+            "nested//probe.test.ts",
+            "probe\\test.ts",
+            "C:probe.test.ts",
+            "probe\0.test.ts",
+        ] {
+            for field in ["test_paths", "retained_texts"] {
+                let mut changed = valid.clone();
+                changed[field] = if field == "test_paths" {
+                    json!([path])
+                } else {
+                    json!({path:""})
+                };
+                assert_eq!(
+                    handle_observation(changed).unwrap_err(),
+                    "TEST_DYNAMIC_SCAN_RELATIVE_PATH_INVALID"
+                );
+            }
+        }
+        let mut duplicate = valid.clone();
+        duplicate["test_paths"] = json!(["probe.test.ts", "probe.test.ts"]);
+        assert_eq!(
+            handle_observation(duplicate).unwrap_err(),
+            "TEST_DYNAMIC_SCAN_DUPLICATE_TEST_PATH"
+        );
+        let mut unsupported = valid.clone();
+        unsupported["test_paths"] = json!(["probe.test.vue"]);
+        assert_eq!(
+            handle_observation(unsupported).unwrap_err(),
+            "TEST_DYNAMIC_SCAN_SCRIPT_KIND_UNSUPPORTED"
+        );
+        for (field, value) in [
+            ("retained_texts", Value::Null),
+            ("retained_texts", json!({"probe.test.ts":false})),
+            ("test_paths", Value::Null),
+            ("test_paths", json!([7])),
+            ("extra", json!(true)),
+        ] {
+            let mut changed = valid.clone();
+            changed[field] = value;
+            assert!(
+                handle_observation(changed)
+                    .unwrap_err()
+                    .starts_with("PRIMITIVE_INVALID_REQUEST:")
+            );
+        }
+        for field in ["retained_texts", "test_paths"] {
+            let mut changed = valid.clone();
+            changed.as_object_mut().unwrap().remove(field);
+            assert!(
+                handle_observation(changed)
+                    .unwrap_err()
+                    .starts_with("PRIMITIVE_INVALID_REQUEST:")
+            );
+        }
+        let empty = handle_observation(
+            json!({"operation":"test_dynamic_imports","retained_texts":{},"test_paths":[]}),
+        )
+        .unwrap();
+        assert_eq!(empty["dynamic_keys"], json!([]));
+        assert_eq!(empty["source_states"], json!({}));
+    }
 
     #[test]
     fn canonical_file_key_uses_the_supplied_system_alias_before_normalizing() {

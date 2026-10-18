@@ -28,28 +28,7 @@ struct ControlledBinding {
     symbol_path: String,
 }
 
-pub fn test_dynamic_imports(file: core::Node, relative: &str) -> BTreeSet<(String, u32, String)> {
-    let mut nodes = vec![];
-    calls(file, &mut nodes);
-    let mut observed = BTreeSet::new();
-    for node in nodes {
-        if node.expression().kind() == SyntaxKind::ImportKeyword
-            && node.arguments().len() == 1
-            && node.arguments().get(0).kind() == SyntaxKind::StringLiteral
-        {
-            let starts = ast::source_file_ecma_line_map(file);
-            let line = starts
-                .partition_point(|start| *start <= astnav::get_start_of_node(node, file, false))
-                .max(1) as u32;
-            observed.insert((
-                relative.to_owned(),
-                line,
-                node.arguments().get(0).text().to_owned(),
-            ));
-        }
-    }
-    observed
-}
+pub use semctx_r0_probe::test_dynamic_imports::scan_node as test_dynamic_imports;
 
 fn controlled_observation(descriptor: Value, sdk: &Sdk) -> Result<Value, String> {
     let request: Request = serde_json::from_value(descriptor)
