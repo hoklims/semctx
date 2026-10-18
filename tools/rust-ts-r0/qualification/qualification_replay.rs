@@ -3258,6 +3258,18 @@ fn gap_ordinary_configuration_relations_and_conditional_exports_use_actual_nativ
 }
 
 #[test]
+fn gap_retained_callable_components_use_native_initializer_coordinates() {
+    repair_units(&[
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-01",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-02",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-03",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-04",
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+    ]);
+}
+
+#[test]
 fn comparator_materialized_sibling_capture_preserves_bytes_and_refuses_escape_or_collision() {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)

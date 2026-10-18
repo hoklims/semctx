@@ -112,6 +112,10 @@ for n,u in enumerate(UNITS):
         inp={'files':{'__adapter_component_carrier__.ts':v['value']},'retained_snapshot':False};component_carrier=True
     elif cid=='ORD-OUTLINE-SCRIPT-KIND':
         inp={'files':{v:inp['source']},'retained_snapshot':False}
+    elif cid=='ORD-CALLABLE-TYPE-ORIGIN':
+        inp={'files':{**inp['files'],'consumer.ts':v},'root_files':['consumer.ts'],'retained_snapshot':True}
+    elif cid=='ORD-CALLABLE-DECLARATION-PAIR':
+        inp={**inp,'retained_snapshot':True}
     elif cid=='ORD-RUNTIME-NAMED-VALUE':
         inp=copy.deepcopy(INPUTS[inp['reuse_case']]);inp['files']['consumer.ts']=INPUTS[cid]['replace_consumer_source']
     request,gaps=recipe_input(inp,cid)
@@ -544,6 +548,31 @@ for recipe in recipes:
         for key in ['ordinary_resolved_links_in_order', 'retained_configuration_reasons']:
             remove_gap(recipe, key)
             recipe['credited_properties'].append(key)
+    if recipe['case_id'] in ['ORD-CALLABLE-TYPE-ORIGIN', 'ORD-CALLABLE-DECLARATION-PAIR']:
+        source = recipe['requests'][0]['roots'][0]
+        component = ['subjects', {'path':source}, 'retainedCallableInitializers']
+        variant = int(recipe['unit_id'].rsplit('variant-', 1)[1]) - 1
+        if recipe['case_id'] == 'ORD-CALLABLE-TYPE-ORIGIN':
+            key = 'coordinate_variants'
+            expected = assertions[key][variant]
+            origin = ptr(key) + '/' + str(variant)
+            recipe['input_instantiation'] = {'path':'consumer.ts','is_authored_original_path':False,'scope':'Consumer filename unspecified; same directory as exact authored dep.ts, preserving relative module specifier and exact consumer bytes.'}
+            recipe['checks'].append(check(['outlines',source,'outline','hasSyntaxErrors'], False, 'eq', ptr('semantic_type_errors')))
+        else:
+            key = 'positive_coordinate' if variant == 0 else 'counter_coordinate'
+            expected = assertions[key]
+            origin = ptr(key)
+            recipe['explicit_uncredited_properties'].append({'key':'reason_for_counter','basis':'Frozen causal explanation of the private predicate, not an asserted diagnostic field. Reviewed native receiver-origin and declaration-kind guards plus the executed positive/counter pair supply its basis; no reason string invented.'})
+            for property_name in ['positive_coordinate','counter_coordinate','reason_for_counter']:
+                remove_gap(recipe, property_name)
+        recipe['checks'].extend([
+            check(component+['executed'], True, 'eq', 'Frozen retained Program/checker private component invocation'),
+            check(component+['unsupported'], [], 'eq', 'Actual retained callable component must have complete native context'),
+            check(component+['variables',{'name':'observed'},'coordinate'], expected, 'eq', origin),
+        ])
+        remove_gap(recipe, key)
+        recipe['credited_properties'].append(key)
+        recipe['component_scope'] = 'Actual retained_callable_coordinate on the observed variable initializer; not reconstructed from raw extraction symbols and no admission inference.'
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 

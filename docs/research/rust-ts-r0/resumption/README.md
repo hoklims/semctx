@@ -81,8 +81,13 @@ native outside-repository refusal passes focused macOS replay. A
 [fourth tranche](gap-ordinary-config-evidence.json) maps N02 and E08. Both pass
 macOS DEV replay after correcting ordinary JS module links to use the actual
 source-configured native resolution mode. Independent replay and ten negative
-witnesses cover these mappings. There are53 static GAP units still to map;
-all240 obligations remain unqualified.
+witnesses cover these mappings. A [fifth tranche](gap-callable-evidence.json)
+exposes the existing retained callable-coordinate operation for named variable
+initializers. All six frozen variants pass macOS DEV replay; independent checks
+reject52 altered observations and two producer error-propagation omissions. The
+missing error-path test found in review is added, with real native failures and
+restoration. There are47 static GAP units still to map; all240 obligations remain
+unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
