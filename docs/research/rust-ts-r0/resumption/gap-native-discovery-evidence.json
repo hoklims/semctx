@@ -1,0 +1,111 @@
+{
+  "recordVersion": 1,
+  "state": "FOUR_FROZEN_NATIVE_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "0879a3d4e4240318647237d2d960dd26f1592b79",
+  "reviewedDiffSha256": "fa0b24195642d22ffd187785dd71f66a4b0957d257fd55fba9d4fb380013b46d",
+  "archive": {
+    "path": "gap-native-discovery-evidence.tar.gz.b64",
+    "bytes": 2408273,
+    "sha256": "39c399770e9ec03e7deef893873292edcb5efa607f6596114d1f9ac8621cae5c",
+    "decodedSha256": "a3859c9b76f17746c6bfb5be4aaa681fc3cd98fb9fa7624dda3db95f1e83782c",
+    "files": 358
+  },
+  "units": [
+    "P08-discovery-language-and-role::base",
+    "N08-disabled-language::base",
+    "P03-confined-relative-source::discovery-confinement",
+    "N03-relative-escape::discovery-confinement"
+  ],
+  "authority": "Frozen354-unit corpus and actual pinned baseline ordinary discovery/config defaults; acceptedADR0037; same owner-authorized T00/C1/additionalpass1.",
+  "nativeArtifactSha256": "83166c43fde48e7442d18185f5bf4a956a9be58bc75aed02d5b4943edb37e2ce",
+  "nativeEngineSourceCount": 34,
+  "sourceHashScope": "DEV34Rustsource manifest only; not completebuildinputclosure or qualificationfreeze.",
+  "recipesSha256": "436ec69fed9897a2ac114b69927e8814fa4162963936595d1531a9608e10d5fb",
+  "scope": "Private actual ordinary filesystem discovery on exact frozen files/configurations: selected roles/languages, disabled candidate without source read, exact static relative import admission/refusal before analysis.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+    "nativeLibraryTests": 47,
+    "nativeBinaryTests": 210,
+    "nativeIntegrationTargets": {
+      "native_common_portability": 1,
+      "native_development_flow": 4,
+      "native_discovery_flow": 7,
+      "native_parallel_flow": 4,
+      "native_transport_flow": 3
+    },
+    "comparatorTests": 50,
+    "recipeCliTests": 7,
+    "frozenUnitChecks": [
+      3,
+      3,
+      3,
+      3
+    ],
+    "carryovers": "Four repair_* tests cover the7original units and3supports; three existing frozen transport units also pass on current artifact.",
+    "clippy": "PASS all-targets with qualification-observer and-Dwarnings",
+    "format": "PASS C1",
+    "ruff": "PASS",
+    "zizmorOffline": "PASS",
+    "completeVerifyPr": "Not rerun; prior four local partitions remain attributed only to63397c7b."
+  },
+  "failurePaths": [
+    "Invalid descriptors/config/unsupportedglob and unavailable root refuse.",
+    "Source permission failure retainsREAD_FAILED candidate;32MiBsource capture overflow refuses complete observation.",
+    "Resolver package.json read failure or separate32MiBcapture overflow refuses without fallback. Permission tests are Unix/macOS only.",
+    "Actual existing outside package-main source and Unix external file link are refused; outside file bytes are not read in named cases.",
+    "Reported positive probe paths normalize separators,driveverbatimprefix,dot/parent segments before confinement.",
+    "Actual transport cwd uses existing filesystem canonical paths; real./child/.. is accepted,foreign/missing/null refused,argument/tool/input hashes still exact."
+  ],
+  "review": {
+    "author_task": "/root",
+    "auditor_task": "/root/discovery_claims",
+    "claimLedger": "review/final/claims/ledger.md",
+    "claimContext": "review/final/claims/context.json",
+    "initialStandards": "review/initial/standards/report.md",
+    "initialSpecProof": "review/initial/spec-proof/report.txt",
+    "finalStandards": "review/final/standards/report.md",
+    "finalSpecProof": "review/final/spec-proof/report.txt",
+    "sourceAnchor": {
+      "base": "0879a3d4e4240318647237d2d960dd26f1592b79",
+      "diff_sha256": "fa0b24195642d22ffd187785dd71f66a4b0957d257fd55fba9d4fb380013b46d",
+      "files": {
+        ".github/workflows/ci.yml": "3cfb06389374f310dc4325c08a33ed9692bdc6df7dff5f44632d1842a5db7ba9",
+        "tools/rust-ts-r0/qualification/prepare_recipes.py": "3f0c32b8f8fe6e5c6fe110e32d0605d83afa00f7f19845b545aca872cb43e75d",
+        "tools/rust-ts-r0/qualification/qualification_replay.rs": "bbd149e4e886a13c0eac56290a9dac2bf3c828e904ba480ea1ff25d809dca000",
+        "tools/rust-ts-r0/qualification/repository_replay.rs": "ab77b527c78dae0c318d60a6f1d7f2d852b48fb623c67d795d7766b6d2b258b4",
+        "tools/rust-ts-r0/src/discovery_globs.rs": "a776bf439d51d11440c753d0969dc5e0dc52d031abd733866a83ca7383b5294c",
+        "tools/rust-ts-r0/src/discovery_resolution.rs": "116b74d71d7e94962d223361f94c84c05bf2510aa7a063e43e1a5707f22006b3",
+        "tools/rust-ts-r0/src/main.rs": "5c8f08337e7c0037452fb6bd501762b754a86c3ecdfb1456bf47e32280644588",
+        "tools/rust-ts-r0/src/repository_discovery.rs": "f2dcf8b6620ac532f5296029ac69a09cb0e20ea5edd542defc847912f853919e",
+        "tools/rust-ts-r0/tests/native_discovery_flow.rs": "3b02cf5ef947015961ed62b3e1ae3b1839fd33a0468608dd7df0d70cd44133a2",
+        "tools/rust-ts-r0/tests/native_transport_flow.rs": "21429e0a65a4f53e7652a7a5f52ddec369311a011b253ea7bd79c9b1db4918ee",
+        "tools/rust-ts-r0/tests/support/transport_process.rs": "9dc6c05fc228490cfa12ffc7925aa207c1cb3e1a270a824edb7be2bd182d048f"
+      }
+    },
+    "compiledFaultsRejectedThenRestored": 3,
+    "faultScope": "Independent release optimized source package-main guard, comparator positive-parent guard, transport cwd equality. Distinct independent executable hashes/profiles retained; no mutation of author immutable83166artifact.",
+    "localCorrectionPass": 1,
+    "localCorrectionPassState": "CLOSED_VALIDATED_FRESH_REVIEW",
+    "maxLocalCorrectionPasses": 2
+  },
+  "priorHeadCi": {
+    "head": "0879a3d4e4240318647237d2d960dd26f1592b79",
+    "run": 39174911717,
+    "conclusion": "failure",
+    "nativeMacos": "success",
+    "nativeLinux": "success",
+    "nativeWindows": "failure: rawcwd mixedseparator identity comparison",
+    "candidateRemoteProof": "Pending normal push and existing threeOS workflow; no currentcandidategreen inferred."
+  },
+  "limits": [
+    "40of64 initialGAP mapped cumulatively:39limitedPASS+N17cversionattributedNONPASS;24staticGAP;330of354recipeswithoutknownGAP;0/240qualified. No new fullcampaign aggregate.",
+    "N03base,T-reader-error and other24units remainGAP; discovery refusal does not prove retainedanalysis semantics.",
+    "Static relative imports only in exactfrozenP03/N03. No generic triple-slash,dynamicimport,require confinement or completeBunGlob parity.",
+    "Metadata readprobe hash validation is inspected code; no exhaustive expected probe denominator or dedicated metadatahash negative witness.",
+    "Only localmacOS exercised; currentexactheadLinux/Windows and full3543OScampaign still required. ExistingoptimizedCIcommandadds discoverytarget without newlane.",
+    "178property/supportreview,reserved23cases/26variantsonce,R0 and remaining#365 incomplete.",
+    "Owneradditionalpass1OPEN,pass2unused;3-4days unmeasured planningestimate.",
+    "No SDKconsumption,publicCLI/MCP/PlaneA,Git/globaladmission,retainedsemantic,allOSreads,atomiccapture,performance,fullbuildclosure or qualificationfreeze guarantee.",
+    "Reserved nonaccess individualauthor attestation only,not forensic proof."
+  ]
+}

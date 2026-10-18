@@ -777,6 +777,50 @@ for recipe in recipes:
     recipe['credited_properties'] = list(assertions)
     recipe['proof_scope'] = 'External native transport control instantiated from the frozen scenario. All Outcomes are actual supervisor returns. No useful product success, ownership, universal descendant termination, public acquisition, semantic or global admission inferred. Auxiliary native fixture and real C1 producer identities are separate.'
 
+for recipe in recipes:
+    if recipe['unit_id'] not in ['P08-discovery-language-and-role::base', 'N08-disabled-language::base', 'P03-confined-relative-source::discovery-confinement', 'N03-relative-escape::discovery-confinement']:
+        continue
+    inp = INPUTS[recipe['case_id']]
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    config = {'version':1, 'include':['src/**/*.ts'], 'exclude':['node_modules','dist','.semctx','.git','coverage'], 'languages':{}, 'migrationsDirs':['migrations']}
+    outside = {}
+    for setup in inp.get('setup', []):
+        if set(setup) == {'config'}:
+            config.update(setup['config'])
+        elif set(setup) == {'outside_repository_files'}:
+            outside.update(setup['outside_repository_files'])
+        else:
+            raise ValueError('Unmapped native discovery setup: '+recipe['unit_id'])
+    recipe['surface'] = 'repository_discovery_cli'
+    recipe['physical_files'] = inp['files']
+    recipe['outside_files'] = outside
+    recipe['discovery_config'] = config
+    recipe['expected_read_paths'] = [] if recipe['case_id'] == 'N08-disabled-language' else sorted(inp['files'])
+    recipe['requests'] = []
+    recipe['checks'] = []
+    if 'selected_files_exact' in assertions:
+        recipe['checks'].append(check(['selected_files_projection'], assertions['selected_files_exact'], 'eq', ptr('selected_files_exact')))
+    if 'candidate_reason_for_each' in assertions:
+        recipe['checks'].append(check(['candidate_reasons'], [assertions['candidate_reason_for_each']]*len(inp['files']), 'eq', ptr('candidate_reason_for_each')))
+    if 'candidate_projection_exact' in assertions:
+        recipe['checks'].append(check(['candidates'], assertions['candidate_projection_exact'], 'eq', ptr('candidate_projection_exact')))
+    if 'candidate_projection_contains' in assertions:
+        candidate = copy.deepcopy(assertions['candidate_projection_contains'])
+        if 'analysisOutcome' in assertions:
+            candidate['analysisOutcome'] = {'$field_absent':True}
+        recipe['checks'].append(check(['candidates', {'relPath':candidate['relPath']}], candidate, 'ordered_projected_eq', ptr('candidate_projection_contains')))
+        if 'analysisOutcome' in assertions:
+            recipe['checks'][-1]['additional_expected_origin'] = ptr('analysisOutcome')
+    for key in ['outside_repository_failure', 'selected_discovered_files_contains_main']:
+        if key in assertions:
+            recipe['checks'].append(check([key], assertions[key], 'eq', ptr(key)))
+    recipe['checks'].append(check(['raw_read_denominator_checked'], True, 'eq', 'Exact frozen enabled source-byte inventory; disabled-language files are not read.'))
+    recipe['relations'] = []
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(assertions)
+    recipe['configuration_authority'] = 'Pinned createDefaultConfig/createGlobSelectionConfig consumed discovery fields, including migrationsDirs default, plus exact frozen overrides. Legacy v1 ignores include/language selection as baseline does.'
+    recipe['proof_scope'] = 'Actual native ordinary filesystem discovery and shared C1 AST import/reference confinement before analysis. Selected candidates have no invented analysis outcome. Exact reported read bytes joined to frozen inputs, no semantic extraction, qualified eligibility, public CLI, all-Bun-glob syntax, atomic capture, all OS reads or global admission inferred. Native unsupported glob groups fail closed.'
+
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
 def code_units(text):

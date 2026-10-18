@@ -26,6 +26,13 @@ fn file_hash(path: &Path) -> Result<String, String> {
 fn require(ok: bool, error: &str) -> Result<(), String> {
     if ok { Ok(()) } else { Err(error.into()) }
 }
+fn directory_matches(observed: &Value, expected: &Path) -> bool {
+    observed
+        .as_str()
+        .and_then(|path| Path::new(path).canonicalize().ok())
+        .zip(expected.canonicalize().ok())
+        .is_some_and(|(observed, expected)| observed == expected)
+}
 fn save(path: &Path, value: &Value) -> Result<(), String> {
     fs::write(
         path,
@@ -276,7 +283,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                     .collect::<Result<Vec<_>, _>>()?;
                 require(
                     report["argv"] == json!([tools.producer, "--batch", request_path, tools.sdk])
-                        && report["cwd"] == json!(root)
+                        && directory_matches(&report["cwd"], &root)
                         && report["paths"] == json!(paths)
                         && report["before"] == json!(hashes)
                         && report["after"] == json!(hashes),
@@ -363,4 +370,27 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
     let result = json!({"scenario":scenario,"branches":branches,"qualification_success":false,"useful_product_success":false,"controlled_product_refusal":false,"failure_kind_distinct_from_success":true,"available_bounded_capture_retained":true,"error_identity_preserved":true,"lower_level_errors_invented":false,"before_control_healthy":true,"after_control_healthy":true,"global_admission_inferred":false,"ancillary_scope":"Frozen DEV default-expression refusal; no semantic credit transferred. The native fixture is a transport fault injector, C1 remains the fact producer; exit3 is the explicitly declared proxy convention, not a C1 exit code."});
     save(&dir.join("observation.json"), &result)?;
     Ok(result)
+}
+
+#[test]
+fn comparator_native_transport_directory_identity_refuses_foreign_and_missing_paths() {
+    let root = std::env::temp_dir().join(format!(
+        "semctx-transport-directory-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    let expected = root.join("workspace");
+    fs::create_dir_all(expected.join("child")).unwrap();
+    fs::create_dir(root.join("foreign")).unwrap();
+    assert!(directory_matches(
+        &json!(expected.join(".").join("child").join("..")),
+        &expected
+    ));
+    assert!(!directory_matches(&json!(root.join("foreign")), &expected));
+    assert!(!directory_matches(&json!(root.join("missing")), &expected));
+    assert!(!directory_matches(&Value::Null, &expected));
+    fs::remove_dir_all(root).unwrap();
 }
