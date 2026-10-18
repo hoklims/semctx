@@ -1,0 +1,1348 @@
+{
+  "aliases": {
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/development-request.json": {
+      "bytes": 3003,
+      "member": "session/composition2/correction-pass2/frozen/inputs/development-request.json",
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "member": "session/composition2/correction-pass2/frozen/inputs/sdk-required-closure.v3.json",
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2-registration.json": {
+      "bytes": 4399,
+      "member": "session/composition2/correction-pass2-registration.json",
+      "sha256": "64d3913b3ee3af56906362d1aed133824705c16f449229d9fb19369f1420ea39"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/FREEZE.json": {
+      "bytes": 10492,
+      "member": "session/composition2/correction-pass2/frozen/FREEZE.json",
+      "sha256": "e51c7d0137f8ab890b33116d1e5f7c2bc6e53b045cb20a3813b16e1ca53567df"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/bin/semctx-r0-ezno-probe": {
+      "bytes": 5343696,
+      "member": null,
+      "omittedReason": "compiled executable deliberately excluded",
+      "sha256": "acfd231f629de6036056f137b44edb2513ef3283ce1e531b9747279ca6b50a37"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/evidence-manifest.json": {
+      "bytes": 8083,
+      "member": "session/composition2/correction-pass2/frozen/evidence-manifest.json",
+      "sha256": "c46a777c5bfb6e057cfed0f5439e8a0aed2d29df55f3edb9bcd7dec66e5dadf0"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/development-request.json": {
+      "bytes": 3003,
+      "member": "session/composition2/correction-pass2/frozen/inputs/development-request.json",
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-input.json": {
+      "bytes": 3218481,
+      "member": null,
+      "omittedReason": "canonical SDK already versioned in repository",
+      "repositoryPath": "tools/rust-ts-r0/sdk/sdk-input.json",
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "member": "session/composition2/correction-pass2/frozen/inputs/sdk-required-closure.v3.json",
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/captured-resolution-green.log": {
+      "bytes": 9044,
+      "member": "session/composition2/correction-pass2/frozen/logs/captured-resolution-green.log",
+      "sha256": "eb39f00de7c936e0a726525c7e6e3214d719dc3624f6f7d21e2fe8f837a88901"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/captured-resolution-read-guard-red-source-binding.json": {
+      "bytes": 19612,
+      "member": "session/composition2/correction-pass2/frozen/logs/captured-resolution-read-guard-red-source-binding.json",
+      "sha256": "70b04d8248b566e54123b4c3335530f8f0290d525b35a96e9ea4ac1fb47b4c53"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/captured-resolution-read-guard-red.log": {
+      "bytes": 9607,
+      "member": "session/composition2/correction-pass2/frozen/logs/captured-resolution-read-guard-red.log",
+      "sha256": "e3c332fd066c4e929f127784e15549ae52ba6e58d08e0e805a39d4475edf047c"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/captured-resolution-red-source-binding.json": {
+      "bytes": 19612,
+      "member": "session/composition2/correction-pass2/frozen/logs/captured-resolution-red-source-binding.json",
+      "sha256": "30203ef98b962d7ee35af5ee48de10fd54c1cfc7c5b3d762cab7847132800d62"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/captured-resolution-red.log": {
+      "bytes": 10070,
+      "member": "session/composition2/correction-pass2/frozen/logs/captured-resolution-red.log",
+      "sha256": "5d700020771d2422cc5afd88c1f87c0ac837377eed5ee514c3c26bcf013662b1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/dependency-wiring.log": {
+      "bytes": 285,
+      "member": "session/composition2/correction-pass2/frozen/logs/dependency-wiring.log",
+      "sha256": "e950054c9326c435afe059f4629fbac55a940855c6bde222eab37876fb135fa2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/dts-ambient-green.log": {
+      "bytes": 9035,
+      "member": "session/composition2/correction-pass2/frozen/logs/dts-ambient-green.log",
+      "sha256": "1a17bdd87e9d0068a58f014a11c3b34915e453901c65baca6d57f9da56249bdf"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/dts-ambient-red-source-binding.json": {
+      "bytes": 19578,
+      "member": "session/composition2/correction-pass2/frozen/logs/dts-ambient-red-source-binding.json",
+      "sha256": "ec65189abca0983608935505f831cedbbe69e4bd2c6c171dcd46b25849142506"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/dts-ambient-red.log": {
+      "bytes": 10408,
+      "member": "session/composition2/correction-pass2/frozen/logs/dts-ambient-red.log",
+      "sha256": "0f36da022230424d16b70fe2ee27102abd1667bb64db51a769f0e4eb69e3df93"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/dts-green-sdk-order-red-source-binding.json": {
+      "bytes": 19601,
+      "member": "session/composition2/correction-pass2/frozen/logs/dts-green-sdk-order-red-source-binding.json",
+      "sha256": "eff274d53c286cdc866b53dd29537174d3824456688a51a2c421581b9e2c2db4"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-build-release.log": {
+      "bytes": 10877,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-build-release.log",
+      "sha256": "5dec41dee552eb38810c6472251958e0a16ba3ccb9244416953fd892b5315c29"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-checks-source-after.json": {
+      "bytes": 31999,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-checks-source-after.json",
+      "sha256": "0acc0c7e05b4f9337063a9d9c8413af43c54e17a255d3e95ebb866d20c09079c"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-checks-source-before.json": {
+      "bytes": 32006,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-checks-source-before.json",
+      "sha256": "b4bd0e0b6281275d910896c0f50183fa07de1c74efb96bd6212c6283a92b0638"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-clippy.log": {
+      "bytes": 10190,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-clippy.log",
+      "sha256": "e0cc8b8a25b29087b29e65a666cce274af4dd4d201dd600d54978e01ae491dba"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-fmt-check.log": {
+      "bytes": 0,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final-owned-tests.log": {
+      "bytes": 12637,
+      "member": "session/composition2/correction-pass2/frozen/logs/final-owned-tests.log",
+      "sha256": "49ac354f9fa1990f07f85bdf4ac1fbd2521e96765250e3c22d8f69cd60bb11b7"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-build-release.log": {
+      "bytes": 8380,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-build-release.log",
+      "sha256": "6c07acb1692312bb6a6504c604aab49f6462354d39debefe3bd79526c5aa3f3e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-checks-receipt.json": {
+      "bytes": 1993,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-checks-receipt.json",
+      "sha256": "090227492e23eef0864be6c92b3409aee43876a0fd053b6d46d454fa326d763a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-checks-source-after.json": {
+      "bytes": 32154,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-checks-source-after.json",
+      "sha256": "614c8d164227a475fcd50b0e492451f6b4be14dcfe895a7c4963f2b33041ce62"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-checks-source-before.json": {
+      "bytes": 32024,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-checks-source-before.json",
+      "sha256": "91fe2b2c446f7e22746b97e82245c11325df77f78d3a95fba04281cacf1d61b9"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-clippy.log": {
+      "bytes": 8532,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-clippy.log",
+      "sha256": "c24f9fcd541e6c535165bc0f8540f04082dbb0edd56e76f480dd45ab35cfe840"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-fmt-check.log": {
+      "bytes": 0,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/final2-owned-tests.log": {
+      "bytes": 12659,
+      "member": "session/composition2/correction-pass2/frozen/logs/final2-owned-tests.log",
+      "sha256": "541cda65c2345847b54894395edaa66eee581101e9c5079f6b35428648e4c958"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/fmt-apply.log": {
+      "bytes": 0,
+      "member": "session/composition2/correction-pass2/frozen/logs/fmt-apply.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/sdk-order-green.log": {
+      "bytes": 8934,
+      "member": "session/composition2/correction-pass2/frozen/logs/sdk-order-green.log",
+      "sha256": "380f828341b07dcfb32b90fc06b4968716d06d50ab670e13301277f78e65c823"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/logs/sdk-order-red.log": {
+      "bytes": 9905,
+      "member": "session/composition2/correction-pass2/frozen/logs/sdk-order-red.log",
+      "sha256": "2b0b83b71e5d6ca1de35c7b49108bd40893aa0521efa91c8a4bf68a5376b52ec"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/correction-pass2-registration.json": {
+      "bytes": 4399,
+      "member": "session/composition2/correction-pass2/frozen/provenance/correction-pass2-registration.json",
+      "sha256": "64d3913b3ee3af56906362d1aed133824705c16f449229d9fb19369f1420ea39"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/dependency-ready.json": {
+      "bytes": 2167,
+      "member": "session/composition2/correction-pass2/frozen/provenance/dependency-ready.json",
+      "sha256": "0bd39a3c8c63e0bb92ef49665a80007c06d345a211807e0d892a495393009c30"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/exact-dependencies.json": {
+      "bytes": 2852,
+      "member": "session/composition2/correction-pass2/frozen/provenance/exact-dependencies.json",
+      "sha256": "fbd72d88a38c0fdb6fc7d2a8e9801904c486edaf52234eac4fdb8a95c9fe9769"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/ezno-checker-0.0.18.crate": {
+      "bytes": 262575,
+      "member": "session/composition2/correction-pass2/frozen/provenance/ezno-checker-0.0.18.crate",
+      "sha256": "03d2d2b572208dcc7f410156c09dde56b22026592252a34d227e01d8bc78ab2e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/ezno-definition-mappings.patch": {
+      "bytes": 520,
+      "member": "session/composition2/correction-pass2/frozen/provenance/ezno-definition-mappings.patch",
+      "sha256": "558b0a7e1ed9b66ddabe0747a73fa52cf22821fd673514bae96d201152afd3f1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/ezno-exact-dependencies.patch": {
+      "bytes": 1810,
+      "member": "session/composition2/correction-pass2/frozen/provenance/ezno-exact-dependencies.patch",
+      "sha256": "c8723b629128d8ae8c651ef182b837cf7b15cb66ddb1a5d9cb3385b471202bcf"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/ezno-parser-0.1.7.crate": {
+      "bytes": 123625,
+      "member": "session/composition2/correction-pass2/frozen/provenance/ezno-parser-0.1.7.crate",
+      "sha256": "575232b97003825ee3ef5303e2b9bad448f0f11326b211c1b64f1f42e9f57e9e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/ezno-parser-exact-dependencies.patch": {
+      "bytes": 2241,
+      "member": "session/composition2/correction-pass2/frozen/provenance/ezno-parser-exact-dependencies.patch",
+      "sha256": "59db96ab22196148336d1b931331627f504a5ad9c1281acb6e5fcd1f118c5d69"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/independent-nonB-source-review.json": {
+      "bytes": 13074,
+      "member": "session/composition2/correction-pass2/frozen/provenance/independent-nonB-source-review.json",
+      "sha256": "01226e23adaba9fb4f2f088b6b1b130f5cf01658c3898196e12f4d6a34f82834"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/local-patch.json": {
+      "bytes": 636,
+      "member": "session/composition2/correction-pass2/frozen/provenance/local-patch.json",
+      "sha256": "25c2d1d1d5d4964cbc753f0a6097a6f161b393a6d4ba2d0927e576392e71abad"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/native-vs-baseline-null-policy.json": {
+      "bytes": 1137,
+      "member": "session/composition2/correction-pass2/frozen/provenance/native-vs-baseline-null-policy.json",
+      "sha256": "2615435758e277513abb6c6ae8900d72e23cc3a170942ca0d093ced1ab32a16f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/original-registry-artifact.json": {
+      "bytes": 550,
+      "member": "session/composition2/correction-pass2/frozen/provenance/original-registry-artifact.json",
+      "sha256": "d34ae4ec75de6e0d22ef049611ec6819ea8007e3cd726e1cde9f4563a9a75f69"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/parser-registry-and-exact-pins.json": {
+      "bytes": 3459,
+      "member": "session/composition2/correction-pass2/frozen/provenance/parser-registry-and-exact-pins.json",
+      "sha256": "f2cd8c6d62e0991c5fd2f255d28162155f3038671eae37b911958a5137576446"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-dts-ambient-sources.json": {
+      "bytes": 476,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-dts-ambient-sources.json",
+      "sha256": "614dc766b88709f88401526727799ef5e19344776ce6e49d07527d13bfb1ed34"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-dts-ambient.patch": {
+      "bytes": 1210,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-dts-ambient.patch",
+      "sha256": "8f1027caa8531f94d79344335282a5d617b3ca7f97e97f4482b234d88d48bd9d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-lock-before-wiring.json": {
+      "bytes": 23564,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-lock-before-wiring.json",
+      "sha256": "4c935e18b4b813c81f19735b055795901ae3b953df92337119f86f8a240f085e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery-report.json": {
+      "bytes": 9146,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery-report.json",
+      "sha256": "cc195817b85a480b4e5632df37a228689731ec6f7049418b0a29dae3ded27556"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery-review-closure.json": {
+      "bytes": 11987,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery-review-closure.json",
+      "sha256": "e723ae814af42339c84da4d5c3d2822e34043524ddf7032ef4b116fb3c833830"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery.patch": {
+      "bytes": 21038,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-tuple-typequery.patch",
+      "sha256": "ed93d9f16ed9b1a6feb2139b38be26d948f20d956f7258296b806cd7ae283dea"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-vendor-registry-delta.json": {
+      "bytes": 2443,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-vendor-registry-delta.json",
+      "sha256": "817e85a374794d0a9092ed23d10e951f182d00bd6a6c69f2a74af5c346bc9e94"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-vendor-registry-delta.patch": {
+      "bytes": 18487,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-vendor-registry-delta.patch",
+      "sha256": "bcd99806ffac7b59d11a5dca7414f592c21927f7c4a1d2a181499dd869b8f3ce"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-wrapper-delta.json": {
+      "bytes": 4035,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-wrapper-delta.json",
+      "sha256": "65eb3a0fa001febdd52411d2b733de56dd2892c3a4b2b687bbce559393a18117"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/pass2-wrapper-delta.patch": {
+      "bytes": 30103,
+      "member": "session/composition2/correction-pass2/frozen/provenance/pass2-wrapper-delta.patch",
+      "sha256": "57643d3429258d68237ef4d433b4fb6835658d909d5d92626cc856519fc69168"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/sdk-order-selection.json": {
+      "bytes": 1037,
+      "member": "session/composition2/correction-pass2/frozen/provenance/sdk-order-selection.json",
+      "sha256": "8e4d26404278430e0b22342785c5acc415d5d89c3895e19c0cbea5c34f2766cb"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/provenance/typescript-593-relative-extension-resolution.json": {
+      "bytes": 2392,
+      "member": "session/composition2/correction-pass2/frozen/provenance/typescript-593-relative-extension-resolution.json",
+      "sha256": "876326b8f370983208b568a76ebc099648f581663966db768f879aa723f40086"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source-manifest.json": {
+      "bytes": 31951,
+      "member": "session/composition2/correction-pass2/frozen/source-manifest.json",
+      "sha256": "165f324fa4e3efbac8b60e82399523b0e52780074f967923205cd8693b72b106"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/Cargo.lock": {
+      "bytes": 19250,
+      "member": "session/composition2/correction-pass2/frozen/source/Cargo.lock",
+      "sha256": "4139bf6c2d22c2abf94b91b02f782cfd8330ddcde739c4230891121a6db1f199"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/Cargo.toml": {
+      "bytes": 604,
+      "member": "session/composition2/correction-pass2/frozen/source/Cargo.toml",
+      "sha256": "734f4b9f30006ee3c44dbe005ccea414e641e6ed6f6a15478841a2e559024618"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/rust-toolchain.toml": {
+      "bytes": 86,
+      "member": "session/composition2/correction-pass2/frozen/source/rust-toolchain.toml",
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/src/inputs.rs": {
+      "bytes": 11190,
+      "member": "session/composition2/correction-pass2/frozen/source/src/inputs.rs",
+      "sha256": "3db0d4da8dc679c4c1f0121d46b92fcea659fbc9c88002944313177af97cff87"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/src/lib.rs": {
+      "bytes": 10969,
+      "member": "session/composition2/correction-pass2/frozen/source/src/lib.rs",
+      "sha256": "4dace612d4e8fcb16cc8c1a95290bd6f5827b8f56a84f634851ce3d0e81a3182"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/src/main.rs": {
+      "bytes": 7588,
+      "member": "session/composition2/correction-pass2/frozen/source/src/main.rs",
+      "sha256": "f257bc1f6bc858e9558ef0411a6e50362390d48adb3b523bf85ee85a78ce9191"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/src/sdk-order-5.9.3.json": {
+      "bytes": 2322,
+      "member": "session/composition2/correction-pass2/frozen/source/src/sdk-order-5.9.3.json",
+      "sha256": "002c2b4e72f64c69552ef892ed8c2c1a36e92884294ee88e90d4cc67d1b8586f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/src/sdk_order.rs": {
+      "bytes": 1822,
+      "member": "session/composition2/correction-pass2/frozen/source/src/sdk_order.rs",
+      "sha256": "d6b01e7b573edd75a23009828e6dc31144107b8d031cd780050079f3fa2e791d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/tests/captured_module_resolution.rs": {
+      "bytes": 3632,
+      "member": "session/composition2/correction-pass2/frozen/source/tests/captured_module_resolution.rs",
+      "sha256": "81b5ec7aa2e9bf1fb0572b5cf945027222b4f7fedf09f732e31052d00102d483"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/tests/definition_boundaries.rs": {
+      "bytes": 1997,
+      "member": "session/composition2/correction-pass2/frozen/source/tests/definition_boundaries.rs",
+      "sha256": "ef39bbb597f432fb4fcc801d2bb9c369401334b09a666868adccffccd5f9e014"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/tests/dts_and_ambient.rs": {
+      "bytes": 3100,
+      "member": "session/composition2/correction-pass2/frozen/source/tests/dts_and_ambient.rs",
+      "sha256": "6be0c7504d1e69f8f3e76bf85059d1053ddfc0d1b0ea7fa6f62d90d677cd6814"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/tests/tuple_rest_native.rs": {
+      "bytes": 9639,
+      "member": "session/composition2/correction-pass2/frozen/source/tests/tuple_rest_native.rs",
+      "sha256": "b6ab217e66c1a53cb59901e69e5daa6ea58834c0d1695324bb59313f8756f88a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/tests/type_query_native.rs": {
+      "bytes": 1518,
+      "member": "session/composition2/correction-pass2/frozen/source/tests/type_query_native.rs",
+      "sha256": "5792c65166c9dfd93d837742de4d09420a1ce36acd649586f7944837ed9f4a75"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/.cargo_vcs_info.json": {
+      "bytes": 120,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/.cargo_vcs_info.json",
+      "sha256": "aa248118e200bc378f55ea20042ac9c63d8c194ba269d93dc87372f3b3a97d41"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.lock": {
+      "bytes": 19640,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.lock",
+      "sha256": "57c49504ed90605b187898e6e477fdfc10f878b9bcfd8d0c3802aa0ad350d2b8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.toml": {
+      "bytes": 3312,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.toml",
+      "sha256": "4dfc296303394d3ec57bee139bdf5afbbc50c264b77d43d94ef08a04844eaa16"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.toml.orig": {
+      "bytes": 1631,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/Cargo.toml.orig",
+      "sha256": "9c7628873ace552cc297042c190dafbbbcccab3eae4a4c0676310d1830ec9dfc"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/README.md": {
+      "bytes": 1449,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/README.md",
+      "sha256": "4480260f6406fedf95168404a39950266474ed9c81a87d7835b00b0bca662be3"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/internal.ts.d.bin": {
+      "bytes": 34856,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/internal.ts.d.bin",
+      "sha256": "27b6aa1239a2b0e7ad9c81adc661b18b904539702aaf04c3aa110c7d2d96b536"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/overrides.d.ts": {
+      "bytes": 12877,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/overrides.d.ts",
+      "sha256": "b5191123bc160d7df1dc5232a0f0fba51b212f91329185f1c725e3cf2bd0af5d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/simple.d.ts": {
+      "bytes": 10992,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/definitions/simple.d.ts",
+      "sha256": "1fbc31179d255410e97bea25cfe82c775af5788490411f33903abcfdb3cc73c2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/architecture-tricks.md": {
+      "bytes": 297,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/architecture-tricks.md",
+      "sha256": "68fd180d5fb1b150f329fdfa9104f414a7ee94ca6bbdc1e858b0f20341a37785"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/checking.md": {
+      "bytes": 2086,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/checking.md",
+      "sha256": "89bfd5f3969f3609f1f674235de19dd781efd10f226e5cc42b290ec667a4a2e5"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/events.md": {
+      "bytes": 863,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/events.md",
+      "sha256": "532478b43f33bdff345929f9b12a8488468b4ec2a31d4a5bc240c328ba80e20d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/functions.md": {
+      "bytes": 1993,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/functions.md",
+      "sha256": "777e9e1ce392b09115c6f56a8bdbc23aae21c6276c84796d95c5214b07790d4e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/getting-started.md": {
+      "bytes": 1169,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/getting-started.md",
+      "sha256": "118ece61c3838b10933776bece7bfbdbeb25c877d9e9abf2999d4e9976638932"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/hard-problems.md": {
+      "bytes": 1965,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/hard-problems.md",
+      "sha256": "46fae5ad4a9a27e37978ae25dc1b4c75f5768b9599bb60019a59b83ad1b1b24a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/inference-map.canvas": {
+      "bytes": 2727,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/inference-map.canvas",
+      "sha256": "047613c9c6519971c30a8176c5f3b111ee1d8b04032ef29311c9f05f828e2dcd"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/inference.md": {
+      "bytes": 2887,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/inference.md",
+      "sha256": "3c34f850211ef731f2527004300cf0b6e84b2ac1812f8ec226c73937d4a14885"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/not-supported.md": {
+      "bytes": 820,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/not-supported.md",
+      "sha256": "277eb771dc1f5902f77585e6f0595bb9bd9810e0d461052616151932eef6f8b2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/parameters.md": {
+      "bytes": 1353,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/parameters.md",
+      "sha256": "9301c0d18b050311b5fc521d49b13e74644b036f42eeef0fbe407cc61d682e87"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/types.md": {
+      "bytes": 2320,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/types.md",
+      "sha256": "c7a6139ceb406d76781e0f8916d6da8ae0f5ab7e1579f01ecd052c0467157631"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/typescript.md": {
+      "bytes": 589,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/documentation/typescript.md",
+      "sha256": "f19fca466cda9ccd2b7b9bd11960b715cc1a3a968adafb90c06eb43050779ed8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/calculate_subtypes.rs": {
+      "bytes": 3012,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/calculate_subtypes.rs",
+      "sha256": "852bc5adf6ffbd189ef78e845c1a5e4d84f9be706404200e739a5f7036f5a7b6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/generate_cache.rs": {
+      "bytes": 612,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/generate_cache.rs",
+      "sha256": "d5dccd223b00434566994a791ec3fd964690740ffbf372139ffd44395589d7a3"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/run_checker.rs": {
+      "bytes": 3585,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/examples/run_checker.rs",
+      "sha256": "897b2d38e3e1ba8d70930ad8d7e5cc0b036fcb254277c9a7be9650c58e40c77b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/control_flow.rs": {
+      "bytes": 1,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/control_flow.rs",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/environment.rs": {
+      "bytes": 44934,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/environment.rs",
+      "sha256": "84dce37f92aba068f7ee6ff39360cf608ad37019213d755b85ac5dd30f0fb3a6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/information.rs": {
+      "bytes": 14407,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/information.rs",
+      "sha256": "d32a8abdfa89b34b1488ede221d6a8249a564ff4653569be772a92d3451a2fd6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/invocation.rs": {
+      "bytes": 6448,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/invocation.rs",
+      "sha256": "663c315b610ba34255f8291854aa0598882513325ac981ec6e659edd8970d0f0"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/mod.rs": {
+      "bytes": 30038,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/mod.rs",
+      "sha256": "3f340e79e941b90219fdd95c1af352cb2576ff555477665287b2ac1c90caedbf"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/root.rs": {
+      "bytes": 6544,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/context/root.rs",
+      "sha256": "94dfaa6697df8320da068ec2c9dc9a37a94bc68afca600da8ef8dd712d202397"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/diagnostics.rs": {
+      "bytes": 37897,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/diagnostics.rs",
+      "sha256": "3b79426c2ccd3dd5756c135b9e6c9db9d346fb154a6cc91ac96ba71e28112da9"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/application.rs": {
+      "bytes": 25139,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/application.rs",
+      "sha256": "71e485bfa30ff16ffc9e5511679ccb0c9c5af5b8e6cf5d13ff65530b042c9064"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/mod.rs": {
+      "bytes": 7842,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/mod.rs",
+      "sha256": "8e13a036b58c5a2f9aa2a012c952865923316d34a5c69b16530a981a9d1dd436"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/printing.rs": {
+      "bytes": 5623,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/events/printing.rs",
+      "sha256": "d323cf4eda753097fe906991a12537e75e94fa406d0175caf1adfacc01eb4c8b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/assignments.rs": {
+      "bytes": 2447,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/assignments.rs",
+      "sha256": "677d32502be727611e9375b44fd0caa0b25f6cebe5aa77061d44cc76cb910150"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/conditional.rs": {
+      "bytes": 3995,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/conditional.rs",
+      "sha256": "98f670a6e9ba3033fbcf1e1a1a4d46959d92f73e1b5b6ef0e2d1fe0b9f6996a8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/constant_functions.rs": {
+      "bytes": 24686,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/constant_functions.rs",
+      "sha256": "dd1e28ff3f31ea1cf97d5f211db44b0c62bdf9cdd5df69ef7ab8e7d123f9bd1e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/exceptions.rs": {
+      "bytes": 5480,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/exceptions.rs",
+      "sha256": "25d530b15f198fcb11c21fef3288aac9948bee8dc446011874c0df531f453fb2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/functions.rs": {
+      "bytes": 33418,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/functions.rs",
+      "sha256": "a066011e753d600db9ae66acc1cdcd2b12ec2d9e2594808e0c2c32d4282499c2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/iteration.rs": {
+      "bytes": 25703,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/iteration.rs",
+      "sha256": "4416f0a170d7ffdeb98826df1e78a0d15b3a6f957f242226d3d96cbc11f662fc"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/mod.rs": {
+      "bytes": 18069,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/mod.rs",
+      "sha256": "dc6922534a132daf3b1493110dab965fae9d52cac72a07e8b6fd53b38a2d3bc2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/modules.rs": {
+      "bytes": 15929,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/modules.rs",
+      "sha256": "01f1c18b7d80496ea9dc8547f772cf1afb1788ef1b76ad344e50bc36835fbcef"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/narrowing.rs": {
+      "bytes": 18011,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/narrowing.rs",
+      "sha256": "bc1378c4d8569aa79ac46f2638277532deed92865882ababf4d1c077fd15c3f6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/objects.rs": {
+      "bytes": 2153,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/objects.rs",
+      "sha256": "4accb7550bb5097f7ac360d99627af16fad6c06773ceabe80f6916ff74b364d6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/logical.rs": {
+      "bytes": 3337,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/logical.rs",
+      "sha256": "d74df5b2422a9ed2ffd6339643ccd813954b2b49f4181c040674675b6aadea8f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/mathematical_bitwise.rs": {
+      "bytes": 8750,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/mathematical_bitwise.rs",
+      "sha256": "dc3ab793df228f30c1ffd62060a1f7ce18b67bc83b2b1ad02bd9c2050c716e91"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/mod.rs": {
+      "bytes": 475,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/mod.rs",
+      "sha256": "169f13ff20ee11c8d7414b1866f5f4ae9181a27ed083639fd76cbeaa89c2bd8b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/relation.rs": {
+      "bytes": 10473,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/relation.rs",
+      "sha256": "936987de6b046f9b412a48fc988067f873b856923cef33c2e8dc41e264b87afc"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/unary.rs": {
+      "bytes": 2411,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/operations/unary.rs",
+      "sha256": "0a23bf3ea2f2f27650c7805998c0ad50ae6bc790dacce2f5ea068a8736969f53"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/regexp.rs": {
+      "bytes": 7747,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/regexp.rs",
+      "sha256": "759c9c972c04cde33b76323f4c58f1c19e57007e167619993d4c25b00d8c350e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/template_literal.rs": {
+      "bytes": 6063,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/template_literal.rs",
+      "sha256": "76acdd6b7f783aa0b47f3a560128ac9b8d37a54b865126248f16a4e7dcf80fd5"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/variables.rs": {
+      "bytes": 8764,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/features/variables.rs",
+      "sha256": "804eed26c513dd6acc3a1181560dd2cef793a5564288554260466dfaf4275ca1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/lib.rs": {
+      "bytes": 24563,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/lib.rs",
+      "sha256": "c30b924998db77e62093e6b77eac036761978313b49c235a8c162e261bfb6c3d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/options.rs": {
+      "bytes": 2599,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/options.rs",
+      "sha256": "50094aa244a4e0a12dd799f558304cdb28bbd7195d22e4eb188605d87638e422"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/README.md": {
+      "bytes": 287,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/README.md",
+      "sha256": "1c8c2351e85a4f69e7e70f5510e3a52a4cb3cb2f59523cb5be27f49c14cf7374"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/assignments.rs": {
+      "bytes": 8612,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/assignments.rs",
+      "sha256": "dfc857e7415eb884cd33791e8df433fe5451f11d3da72cc61baef6b9729f5270"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/block.rs": {
+      "bytes": 1731,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/block.rs",
+      "sha256": "534fb6791e854d064c52b96deb7ff7d9c318de29c98141252bbf6145e28dbf76"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/classes.rs": {
+      "bytes": 25855,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/classes.rs",
+      "sha256": "2c5a7f6e67a09113d3e8143cf079f20512499f5d687a0482f60bd746b90b2991"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/declarations.rs": {
+      "bytes": 6921,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/declarations.rs",
+      "sha256": "8060a7568f1c27e92a75d7773d945c81dbe8445e0f67c6111f4182fa19668e97"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/definitions.rs": {
+      "bytes": 3613,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/definitions.rs",
+      "sha256": "417b1616b09e426594b5005b7a5d26a4f2553c92832ce20ecc064c942063c7d5"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/expressions.rs": {
+      "bytes": 48311,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/expressions.rs",
+      "sha256": "6b7c733c03aee645074c0f25bb5585b849f035f6551df9e339fbb6dc4fed6d93"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/is_expression.rs": {
+      "bytes": 2202,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/is_expression.rs",
+      "sha256": "7afabf9c4bb64d54d5184e0dd3db85844d6df9dca0f4e3b1a69819e2e05f4f4d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/jsx.rs": {
+      "bytes": 17151,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/jsx.rs",
+      "sha256": "fc1e56fb6415a61370c72849cc39c79aff59f84e0aefd7e4f950def5261b9a4a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/mod.rs": {
+      "bytes": 36,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/extensions/mod.rs",
+      "sha256": "725156e9cd4eb8b11ceee561acee112fcde96a6607abbb60615361a1af9e6847"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/functions.rs": {
+      "bytes": 24071,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/functions.rs",
+      "sha256": "37f72dca3b0b69b65846f0b5531aceab2265f08b4bbe270bd941311f1a2730a7"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/hoisting.rs": {
+      "bytes": 28159,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/hoisting.rs",
+      "sha256": "2700355d9588579c527f43cf5e0ea90d63111497ab8663a90548fe76b6ab2824"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/interactive.rs": {
+      "bytes": 2563,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/interactive.rs",
+      "sha256": "4a359cd7cec8f285cf78ed87a16a962ce373773da358038b9c2b59826b91613d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/interfaces.rs": {
+      "bytes": 13910,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/interfaces.rs",
+      "sha256": "d725bfd286154f3a711a95d99eb017e6e9d1b1d7ad6e50273dda9993ca1233d5"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/mod.rs": {
+      "bytes": 9723,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/mod.rs",
+      "sha256": "c2e9cad88b8999e1236f749756d00d592cdcf5b4d90d68566bdf1fdf4aa3036d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/statements.rs": {
+      "bytes": 8429,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/statements.rs",
+      "sha256": "c832cd170a5c2734cd985f1952e7bf360a2e5edd6fded92bc55d593b1d18abe1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/type_annotations.rs": {
+      "bytes": 29646,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/type_annotations.rs",
+      "sha256": "74e584fd8490cd401093bc5ac4ff11b7321ba7230d597f6ff1955fceb97a5f32"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/variables.rs": {
+      "bytes": 15285,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/variables.rs",
+      "sha256": "855fd8b19f5425540f3d2e49252828e2bd318e6657732bdc374796b6f6802911"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/type_mappings.rs": {
+      "bytes": 3078,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/type_mappings.rs",
+      "sha256": "8a28afd2cd31b91014b9d4ad18ecea681873e119cac950b40cd907586c1f6cbf"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/calling.rs": {
+      "bytes": 63532,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/calling.rs",
+      "sha256": "67ad52e4ba7db86da5638b91ed840aaba5f27b1adfcae187c19d612df223f869"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/casts.rs": {
+      "bytes": 1672,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/casts.rs",
+      "sha256": "c226a79a9be85c413e51333caebf8c18ed7d1107e3c71a48fc37e8175bc6186a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/classes.rs": {
+      "bytes": 2741,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/classes.rs",
+      "sha256": "7cd094997b2709f3dfdab62f4152e1bcbd76060b33c2c6399bd1a36019d76ae3"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/disjoint.rs": {
+      "bytes": 11270,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/disjoint.rs",
+      "sha256": "4e2a95246295dc785c9b31869fe28c1587a4bc118f959cf72c39c56023c9cd2e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/functions.rs": {
+      "bytes": 8188,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/functions.rs",
+      "sha256": "158f5d3abed7e918473c29ba1f61a7a013a81acc85494d790bf062d0b939fd33"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/chain.rs": {
+      "bytes": 9790,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/chain.rs",
+      "sha256": "2bd646bff19ca485907fa50f9b52abf09d17225a99d83657b89901b9b61dc750"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/contributions.rs": {
+      "bytes": 7472,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/contributions.rs",
+      "sha256": "9362a9b54593188709f4a03cb8d4d17dfc40bdb8515760969718d8590952f879"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/generic_type_arguments.rs": {
+      "bytes": 2625,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/generic_type_arguments.rs",
+      "sha256": "ce4f50a16534b1b38c5095d8e94e2d93a2e6a2347b49d1c5c7afbbb3b7648412"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/generic_type_parameters.rs": {
+      "bytes": 2664,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/generic_type_parameters.rs",
+      "sha256": "6e5b90c398c29aee6bbd66ed853c3f5f3c8e37061163a69d82aafe6227dd3dc4"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/mod.rs": {
+      "bytes": 1082,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/mod.rs",
+      "sha256": "5b70fb6b60e5a55e197b62f3b332f8d0d5c43f9dbb1140d2cf7dbd2627b8effe"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/substitution.rs": {
+      "bytes": 20354,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/generics/substitution.rs",
+      "sha256": "7ebfe0b722cf144b02d6ed6daa7d5ca1ae6753b978a0b63a96965764493f8480"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/helpers.rs": {
+      "bytes": 13282,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/helpers.rs",
+      "sha256": "c4fab6771a0fad5a330bd60bbed7c62e50058bc0e0f410dafd176ac8a52b401c"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/inference.rs": {
+      "bytes": 1,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/inference.rs",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/intrinsics.rs": {
+      "bytes": 14519,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/intrinsics.rs",
+      "sha256": "3fd1c8134eae8a44bc4a05be30aaba457350ba4e49d3abd7d50f6470ea19d60d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/logical.rs": {
+      "bytes": 3225,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/logical.rs",
+      "sha256": "bfbaf2d5ddb33549c6a7b96a6ffe02473c83c95a88e1140d173aa5b91434cbb9"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/mod.rs": {
+      "bytes": 21911,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/mod.rs",
+      "sha256": "49a6fa67616a4ef84459ae6e4651865fd46d8e1d6311bcc0ffb57f7dd7fdbbd7"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/printing.rs": {
+      "bytes": 27828,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/printing.rs",
+      "sha256": "2691991786f387c322c884a79322ba1d69607b32f220980de2b5bc135b75d46b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/access.rs": {
+      "bytes": 34596,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/access.rs",
+      "sha256": "7b35143ea3586b6652ba2e1d1dbcda4603b4d8c104379538d58415d95714abb9"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/assignment.rs": {
+      "bytes": 18054,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/assignment.rs",
+      "sha256": "3aeba0a5077bf6657e8c34f5f75df53d845ece710a7e6cfe8593c4b7c3b991f6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/list.rs": {
+      "bytes": 10762,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/list.rs",
+      "sha256": "a91d40ea4996d76f8d8352b7784d70b646ea28d4644274db7b42b010a9277fe4"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/mod.rs": {
+      "bytes": 14863,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/properties/mod.rs",
+      "sha256": "a81a5cd203effff1f01e785baed04c68c7fba33a36954e7472da997163667914"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/store.rs": {
+      "bytes": 20975,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/store.rs",
+      "sha256": "84bee895c647c09ecc54479559beb389a562e57fb472d682c5167c1849fecf0c"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/subtyping.rs": {
+      "bytes": 88331,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/subtyping.rs",
+      "sha256": "0f82fc29ad53ae7d7003d44ea140c9b5c44f31672e4addafba9aec51b4cab89b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/terms.rs": {
+      "bytes": 1711,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/types/terms.rs",
+      "sha256": "6d6ca0c2e186bd79054f4b945613faee0cd51ea10522a6c467bcd8231668492a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/debugging.rs": {
+      "bytes": 1701,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/debugging.rs",
+      "sha256": "b6ea2f0678dabfaacf25901ed05e93f71611a37cfb0ff190920e1723ea4d8bf2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/float_range.rs": {
+      "bytes": 8351,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/float_range.rs",
+      "sha256": "b30c5619f40da397b41081f4e1fa8142ed382e11ce64604d5bf5e8436c7a643e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/map.rs": {
+      "bytes": 2176,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/map.rs",
+      "sha256": "873ec11bdd51c0a7205d19e8048805011856a50050a56b353eb96117f25bd89f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/mod.rs": {
+      "bytes": 206,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/mod.rs",
+      "sha256": "4680575c1cad60b0f9f2a3cb6f7ab7c0b6a8d4cd27056393bcfc97c972dd3739"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/modulo_class.rs": {
+      "bytes": 3561,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/modulo_class.rs",
+      "sha256": "130f20e857b1f364bce9a79ebdd315e2e4b9323d0bba3f162e0614f9e5011125"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/range_map.rs": {
+      "bytes": 1715,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/range_map.rs",
+      "sha256": "ff6ed48fb99336ad8584c94e67357d2e6821419a1b20bf174285a6171e0acf6f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/serialization.rs": {
+      "bytes": 7135,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/src/utilities/serialization.rs",
+      "sha256": "b5194456f29aaec280eb2513390ceca5d81be4c9d6bc13959849a8a82b4e6ff3"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/partial_source.rs": {
+      "bytes": 904,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/partial_source.rs",
+      "sha256": "a12f46136021061b2cc94e2d776dd740d24938603805ebdfb6defc141c706eaf"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/suggestions.rs": {
+      "bytes": 2295,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/suggestions.rs",
+      "sha256": "d90ad5bed4545dde9d001a78f2dafe3b0fd0ce65697d064ccb2368af6d6436db"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/type_mappings.rs": {
+      "bytes": 943,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-checker-0.0.18/tests/type_mappings.rs",
+      "sha256": "fe30998fc39cd351a72cb0233b44b351d48bf5fe0b4a197fa1ee5c376a263c3d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/.cargo_vcs_info.json": {
+      "bytes": 119,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/.cargo_vcs_info.json",
+      "sha256": "f6500973a7133e4c163bf48899b4a7b99bbd521aa59be74e2b3036b27a16191e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.lock": {
+      "bytes": 16181,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.lock",
+      "sha256": "1c6d88371f0e60a30b2bbd6d48085d670798854049f074705f8153b494276eff"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.toml": {
+      "bytes": 4569,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.toml",
+      "sha256": "93a129f08c466102d9364d72019010e5e1a0896fe83644a85b19fbf1ecd55baa"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.toml.orig": {
+      "bytes": 2136,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/Cargo.toml.orig",
+      "sha256": "843608a2491ca184c7638a01e2808fc2663e68e1cd12ebd28c9240a8137bbaa1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/README.md": {
+      "bytes": 4106,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/README.md",
+      "sha256": "5e0e56faea676f267ac9a1f49df19d74ecbeee00b3eaddba4730887906d12745"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/chain.rs": {
+      "bytes": 738,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/chain.rs",
+      "sha256": "eb7ac7bacb7d473c0355f333727f7dc98bc66bf47b0529e228ad064ce418f704"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/code_blocks_to_script.rs": {
+      "bytes": 8828,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/code_blocks_to_script.rs",
+      "sha256": "5235c97463dd66453f5ac6629c34c180c371a0e8825eecd3746159bc52e738f3"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/duplicate_block.rs": {
+      "bytes": 4027,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/duplicate_block.rs",
+      "sha256": "ca9a4e57a116b3b954af17a8ad04c7c149b9efa49a2e29d74dc15e3ffe4caacb"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/expressions.rs": {
+      "bytes": 335,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/expressions.rs",
+      "sha256": "4817d379075aaf251febd818ef36073cce0ec056b91bebd56ac280895a057a9e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/jsx.rs": {
+      "bytes": 813,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/jsx.rs",
+      "sha256": "f4d85cf2f96bbe16bd150d501b9d02bfa10e050318d986321259a5d382152ed9"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/lex.rs": {
+      "bytes": 1681,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/lex.rs",
+      "sha256": "1067aa26166cc9359bf8000cf475147ba0e0814c0e95378f3602c24be80b8061"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/parse.rs": {
+      "bytes": 4662,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/parse.rs",
+      "sha256": "11bcc2f85a3de5fef6a3cfebfdc5e099c60bd6aeeceb0e0e047a011e3bf2cdde"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/pretty_printing.rs": {
+      "bytes": 1294,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/pretty_printing.rs",
+      "sha256": "f0bee893e04b473db6773c67a7620cfc2351ef89894caac7f1e246dcee2565af"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/self_tokenization.rs": {
+      "bytes": 419,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/self_tokenization.rs",
+      "sha256": "cf1128210554e1180e2e132f9376c16cc0162e0676464325ed5667eb86cb9474"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/simple.rs": {
+      "bytes": 284,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/simple.rs",
+      "sha256": "6f6d88cd7c5aaba7c188e37e9f73ad00a669296b70fb870013f6f9da02347a67"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/statement.rs": {
+      "bytes": 171,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/statement.rs",
+      "sha256": "61d838a6e9ee3fd40d1cd3d99d4c5a0a6ba9e3dd7874af0e734dff023b27eacc"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/type_references.rs": {
+      "bytes": 388,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/examples/type_references.rs",
+      "sha256": "3a3ec7ed74dbaa6dbfe21b481f0d6fc20ceb3fed37a320ee8f322837cde8ea46"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/block.rs": {
+      "bytes": 12898,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/block.rs",
+      "sha256": "000496a58d21218c77c8132df9654f16301dd4ee7b6f42f25811a689a94154f2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/comments.rs": {
+      "bytes": 4901,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/comments.rs",
+      "sha256": "fbe07c729d5173aa649955a59efc5ccf823ecf22db5f5eec9eb5c77624928ace"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/classes/class_member.rs": {
+      "bytes": 11765,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/classes/class_member.rs",
+      "sha256": "28196a0d232b6db4b4f84e80593269eb425725f1057e6e74f4e403fff54a342a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/classes/mod.rs": {
+      "bytes": 6063,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/classes/mod.rs",
+      "sha256": "7955df03322a9584c094ba0f5d56d802cbe5470e4c648818a4d4fd641bf804ef"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/export.rs": {
+      "bytes": 11733,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/export.rs",
+      "sha256": "fadcd121e51ff9f95c42fd1f35a48d859732785c67da3f0293ff52eaf5698042"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/import.rs": {
+      "bytes": 6947,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/import.rs",
+      "sha256": "6e66d18ea466315312dee7470bea005fe623124aa1449ff6cb71031bfc50be7b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/mod.rs": {
+      "bytes": 19908,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/mod.rs",
+      "sha256": "4a94d68c06fba6d4cf8f25814ce95ad77e0bc2c2c774d19f36e627aff4b4fd44"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/variable.rs": {
+      "bytes": 11266,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/declarations/variable.rs",
+      "sha256": "be31f040f62bf384b212128a4d8b79982177d2be6fe56200abdfd0f95f31c8f0"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/errors.rs": {
+      "bytes": 9452,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/errors.rs",
+      "sha256": "582cf5831827b3509488b6be1a4840a4f4450149a32367fb9182a2ee63dee904"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/arrow_function.rs": {
+      "bytes": 7351,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/arrow_function.rs",
+      "sha256": "90e3f301caea0c4b6986dd09ed14feda832708124f7ae787aa153ead788f0690"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/assignments.rs": {
+      "bytes": 12152,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/assignments.rs",
+      "sha256": "0bc82baf1f237236183afaca937c249069bc2e5437eedf93ba76865dcce6ccc2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/mod.rs": {
+      "bytes": 77551,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/mod.rs",
+      "sha256": "ec598cc7679be6b7be00b64651b22d0bf887ed3891852eb39995731ccbc32d84"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/object_literal.rs": {
+      "bytes": 9502,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/object_literal.rs",
+      "sha256": "8d877cdc2c4ccea15d369dcc0c73ed6e98366d64f777309f16846064440b7be8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/operators.rs": {
+      "bytes": 15822,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/operators.rs",
+      "sha256": "fb5e953622eb4636defcac2ef0a1cee5a69fcfb8066b6c05d95f6a275ddb3fe2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/template_literal.rs": {
+      "bytes": 2517,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/expressions/template_literal.rs",
+      "sha256": "1ff932d59c8d4d1a13a1eaff46010ff269f210b117940b671f962bf3b9d78a14"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/decorators.rs": {
+      "bytes": 5534,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/decorators.rs",
+      "sha256": "7f3fae5ad578cafc65d2150c4382d88f47a22e4aa3c66f1805a7054671dd7da4"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/is_expression.rs": {
+      "bytes": 2761,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/is_expression.rs",
+      "sha256": "e9a9c3bd11116047470e20af65107ba3cad67cd5fe4db6254717a7b804718a8e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/jsx.rs": {
+      "bytes": 14056,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/jsx.rs",
+      "sha256": "f6e6110111c53c1d1bec2625f1862dbc68417e97e73344c866d6609f340b62a0"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/mod.rs": {
+      "bytes": 86,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/extensions/mod.rs",
+      "sha256": "30178f2364a7615e96f4a0704e01b5449b54f491af7a1b907098d794a739d3b8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/functions/mod.rs": {
+      "bytes": 21394,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/functions/mod.rs",
+      "sha256": "bf7d53106e6e1b7ea9600f05d87d3d708cbaf7b094c949df76678fea3e8febcc"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/functions/parameters.rs": {
+      "bytes": 13006,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/functions/parameters.rs",
+      "sha256": "e5d1728702d5dbefc9bfe4e89a953b30a2c4a232f31df86bc75572f6922e3ed7"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/generator_helpers.rs": {
+      "bytes": 1664,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/generator_helpers.rs",
+      "sha256": "ee40b6cea1c9a105e14eae78fa0439e1e2fac2a8cc2347258d54067871fb2358"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/lexer.rs": {
+      "bytes": 34610,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/lexer.rs",
+      "sha256": "03235ccd9945471905f593bdc5ff8decb0dfa27f14927464a3fa297a655d2163"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/lib.rs": {
+      "bytes": 22754,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/lib.rs",
+      "sha256": "2fa83ca12f4d65b896f5fe58d7b93e7718e7c14f46f3ef437a3b5a80ffbb54e8"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/marker.rs": {
+      "bytes": 1154,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/marker.rs",
+      "sha256": "83c2e3dd3bc7e74a8733d126b66bd2e673e12060f9539c9075a9fe924ce4183b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/modules.rs": {
+      "bytes": 4247,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/modules.rs",
+      "sha256": "ed2799f9c247c8afed6de3c3c4caa08336f8d71fd3f15468edacefe2415f4b91"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/number.rs": {
+      "bytes": 8102,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/number.rs",
+      "sha256": "0062b3ebdb1fa3755c7e8ea3f1fb84d38efa64d0f3716addcb5222ace81aac84"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/options.rs": {
+      "bytes": 6169,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/options.rs",
+      "sha256": "f5da0ad309ff5cb8c81a5b89f1956276bbaeebd4d4a3f7de3a779e0b8f888d2f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/property_key.rs": {
+      "bytes": 6800,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/property_key.rs",
+      "sha256": "193130b728626807e0f082555ab18676aa37e6769c959422e68e9c128830f339"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/for_statement.rs": {
+      "bytes": 11479,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/for_statement.rs",
+      "sha256": "1fd3d0e18a3828aaa99c1c62be28272bf81f67d38be88a3ba3c40a3086ddeeb2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/if_statement.rs": {
+      "bytes": 6689,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/if_statement.rs",
+      "sha256": "380177d027a632ea8171aaeb44db24c9b19cbeb884fcf04bd8cddf5484379027"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/mod.rs": {
+      "bytes": 13304,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/mod.rs",
+      "sha256": "c2b40605cfeff10fa8855abd2481bbc4207dfb40a509b14ca1c0386c01ecf16a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/switch_statement.rs": {
+      "bytes": 4860,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/switch_statement.rs",
+      "sha256": "033b67809d0a42de37a5371bb9912bce3cf33a8bb50694c4d4d1f4152556357a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/try_catch_statement.rs": {
+      "bytes": 4402,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/try_catch_statement.rs",
+      "sha256": "7005a946075c0fd583408f64f378493ff9bb6c4ec7785864e84b223041020d93"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/while_statement.rs": {
+      "bytes": 3023,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/statements/while_statement.rs",
+      "sha256": "d18cea7aa0df6acffc4dfbc629fd60b4b8a8791e1e59c0cdd1113a179d9eb183"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/tokens.rs": {
+      "bytes": 16522,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/tokens.rs",
+      "sha256": "da16e48df31f104d3f41f7e5b07086da0d5dad763c8373105c203b6494874729"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/declare_variable.rs": {
+      "bytes": 2372,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/declare_variable.rs",
+      "sha256": "cb06ee31a1b0050dabc7adc61f0906faedb7403bab6c6d12bb7f45ec06015831"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/enum_declaration.rs": {
+      "bytes": 3874,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/enum_declaration.rs",
+      "sha256": "5ea4b61089751d05553ec955d808ed740ef510776063227a7b9f3f30ed89d982"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/interface.rs": {
+      "bytes": 23432,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/interface.rs",
+      "sha256": "68843955126ee63419e7eb8a033d751cec451c83c671542bfcb8804fd838bc69"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/mod.rs": {
+      "bytes": 968,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/mod.rs",
+      "sha256": "a343b86a97db5209b208304429e7eb60303bfc4b07c4f28b201ed8a29de218d2"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/namespace.rs": {
+      "bytes": 1493,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/namespace.rs",
+      "sha256": "8cad685da4284694e0d36c78ae5d8d2b6520c9ce38029c3318540bc851c83d5b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_alias.rs": {
+      "bytes": 2000,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_alias.rs",
+      "sha256": "9039a35e83a38b37025e2af4af8b8bd43067f5fde5186f51e4acc68b066c499a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_annotations.rs": {
+      "bytes": 45266,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_annotations.rs",
+      "sha256": "1b21781e334ea7281217333dd18512466687fb12a8be08158fbaa89ae80d2bf6"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_declarations.rs": {
+      "bytes": 2334,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/types/type_declarations.rs",
+      "sha256": "48b60b34504cda69279bd8de6c83a90daf92de40dd754f5d06fec8d25b1bdc9b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/variable_fields.rs": {
+      "bytes": 23229,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/variable_fields.rs",
+      "sha256": "9f36db4095604c3906f2fb2965d89740bbe3b0c120f82315d075cb75667e2899"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/visiting.rs": {
+      "bytes": 19468,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/src/visiting.rs",
+      "sha256": "fee3a31ebb0539fb62d39f95d33a3784944628da2fdaf8ef208802381b276d8a"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/comments.rs": {
+      "bytes": 357,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/comments.rs",
+      "sha256": "bf1d1f0bdf6554a16c8711d627abbc0895652933c141bd1b580579c5e66f3545"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/expressions.rs": {
+      "bytes": 3920,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/expressions.rs",
+      "sha256": "f4ede5d0afbc2ae1f8730ea002521ddd3d5fdea06436e7c9d0542d4786a1b139"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/partial.rs": {
+      "bytes": 2263,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/partial.rs",
+      "sha256": "faa91c66b8c423b3dc3719d3b85aa0d2d6a9fb89e2a11e5da2fcb61fad3c1f6f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/statements_and_declarations.rs": {
+      "bytes": 7111,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/statements_and_declarations.rs",
+      "sha256": "bd6ba74ef8d45de00cc70aa4206f1f1570c2be30315e6096ee51cc068c76273d"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/type_annotations.rs": {
+      "bytes": 3970,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/type_annotations.rs",
+      "sha256": "a6f6e9c6cac1694f9789d178b4e0b4326a95d44506a4e7809bede311e9e8d97f"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/visiting.rs": {
+      "bytes": 2212,
+      "member": "session/composition2/correction-pass2/frozen/source/vendor/ezno-parser-0.1.7/tests/visiting.rs",
+      "sha256": "4ac5389521f0d3efa355f8da83c8a1a400a9bb339c4774fd960c566acac3f81c"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-tuple-source-review.json": {
+      "bytes": 8493,
+      "member": "session/composition2/oracle/pass2-tuple-source-review.json",
+      "sha256": "ead2c2c43a2859341d1b9451bb0c116869664b4339808dd8d4590e269ad3b415"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-wrapper-source-review.json": {
+      "bytes": 13074,
+      "member": "session/composition2/oracle/pass2-wrapper-source-review.json",
+      "sha256": "01226e23adaba9fb4f2f088b6b1b130f5cf01658c3898196e12f4d6a34f82834"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-native-logical-diagnostic.log": {
+      "bytes": 9551,
+      "member": "session/composition2/producer/pass2-tuple-native-logical-diagnostic.log",
+      "sha256": "1768549929e71cbbdb21230eb1176f05187fe34a571d70c6e6618acc46d63265"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-review-closure-attempt1.log": {
+      "bytes": 9504,
+      "member": "session/composition2/producer/pass2-tuple-review-closure-attempt1.log",
+      "sha256": "c623fdc59efdd80de99c2ab7ba40c7135d908e22e3cb165b237b570876962372"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-review-closure-green.log": {
+      "bytes": 9867,
+      "member": "session/composition2/producer/pass2-tuple-review-closure-green.log",
+      "sha256": "a7beb08f52fb1ce6271383dd3b2fec1ec0296c677746d982cd2c2c5bc717588b"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-attempt1.log": {
+      "bytes": 3891,
+      "member": "session/composition2/producer/pass2-tuple-typequery-attempt1.log",
+      "sha256": "dedc39196843cfd593709bf8dc095e5ed3af157926078489bf4855ecc263e089"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-attempt2.log": {
+      "bytes": 10599,
+      "member": "session/composition2/producer/pass2-tuple-typequery-attempt2.log",
+      "sha256": "bbfe974132342ae13f1e0b140adf2cf1db0e74036686534d96cf3468692a19d0"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-attempt3.log": {
+      "bytes": 9952,
+      "member": "session/composition2/producer/pass2-tuple-typequery-attempt3.log",
+      "sha256": "e158796529d272fe4390e22056d700a061cefd077159c3b28707a7444e301364"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-attempt4.log": {
+      "bytes": 11016,
+      "member": "session/composition2/producer/pass2-tuple-typequery-attempt4.log",
+      "sha256": "6b5ef6559ae6956d64a3bd4cfa98f9535ec05000907dbe158ffcf868bf4bbbfb"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-attempt5.log": {
+      "bytes": 10020,
+      "member": "session/composition2/producer/pass2-tuple-typequery-attempt5.log",
+      "sha256": "6062d36d1975bb099eb18e13583eb802e86a5acd951526154b5e3a0c9fae07db"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-green-formatted.log": {
+      "bytes": 9987,
+      "member": "session/composition2/producer/pass2-tuple-typequery-green-formatted.log",
+      "sha256": "893bd99a2aeb14fcfd47c62923150999cb4f995bd88c11018a52b6bbd55c81d4"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-green.log": {
+      "bytes": 9865,
+      "member": "session/composition2/producer/pass2-tuple-typequery-green.log",
+      "sha256": "7626440a6adca1af26f6af972fa72bef907c9f2bd0bdcdb5fd84c1d0eec6489e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-red.log": {
+      "bytes": 13416,
+      "member": "session/composition2/producer/pass2-tuple-typequery-red.log",
+      "sha256": "5dbf9a6cfd11049c6546c0f2c332f249154d54f4af689149efd591e68dcf097e"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-report.json": {
+      "bytes": 9146,
+      "member": "session/composition2/producer/pass2-tuple-typequery-report.json",
+      "sha256": "cc195817b85a480b4e5632df37a228689731ec6f7049418b0a29dae3ded27556"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-review-closure.json": {
+      "bytes": 11987,
+      "member": "session/composition2/producer/pass2-tuple-typequery-review-closure.json",
+      "sha256": "e723ae814af42339c84da4d5c3d2822e34043524ddf7032ef4b116fb3c833830"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery-review-closure.patch": {
+      "bytes": 22674,
+      "member": "session/composition2/producer/pass2-tuple-typequery-review-closure.patch",
+      "sha256": "065013a646645669be0108fc970ab3869f155e4541ec806becce556d81bdaca1"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-tuple-typequery.patch": {
+      "bytes": 21038,
+      "member": "session/composition2/producer/pass2-tuple-typequery.patch",
+      "sha256": "ed93d9f16ed9b1a6feb2139b38be26d948f20d956f7258296b806cd7ae283dea"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-typequery-green.log": {
+      "bytes": 8848,
+      "member": "session/composition2/producer/pass2-typequery-green.log",
+      "sha256": "80d9fa63ec449801700bade6a1831edd51d34231d7bc09312ca63d93064ea534"
+    },
+    "/private/tmp/semctx-t00-20261017/composition2/producer/pass2-typequery-red.log": {
+      "bytes": 9253,
+      "member": "session/composition2/producer/pass2-typequery-red.log",
+      "sha256": "53414c917312bbd047e5ccde60126971c43a8918825c73099106e6b2c0ec7bbf"
+    }
+  },
+  "schemaVersion": 1
+}

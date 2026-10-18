@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "author": "/root/c2_independent_oracle",
+  "reported_utc": "2026-10-18T06:57:00.733005+00:00",
+  "state": "FINAL_C2_PASS2_NONPASS_CLOSED",
+  "composition": "C2",
+  "correction_pass": 2,
+  "full_sdk_executions_in_this_task": 1,
+  "retry_count": 0,
+  "third_pass_allowed": false,
+  "closure": {
+    "version": 1,
+    "composition": "C2",
+    "correction_passes_used": 2,
+    "state": "CLOSED_NONPASS_FINAL_CORRECTION_EXHAUSTED",
+    "verdict": "NONPASS",
+    "exact_scope": "Pinned Ezno0.0.18 plus recorded local patches, final pass2 artifactacfd231f, fixed synthetic aliasValue/trim request and unchanged TS5.9.3 ES2022 required63file SDK closure on macOS ARM64 DEV.",
+    "transport": "success/exit0 only confirms a complete observation document.",
+    "semantic_failure": "Native initialization reports541errors and returns before loading any project module; both independent semantic targets remain unexercised.",
+    "parser_observation": "No parser_or_lexer diagnostic in classified final run; this does not establish complete TS grammar support.",
+    "targets": [
+      {
+        "expression": "aliasValue",
+        "expected_source": "/repo/dep.ts",
+        "expected_declaration_name": "sourceValue",
+        "expected_declaration_range_utf16": [
+          0,
+          59
+        ],
+        "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+      },
+      {
+        "expression": "aliasValue().trim",
+        "expected_source": "/sdk/lib/lib.es5.d.ts",
+        "expected_declaration_name": "String.trim",
+        "expected_declaration_range_utf16": [
+          21094,
+          21109
+        ],
+        "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+      }
+    ],
+    "independent_expected_unchanged_sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef",
+    "no_further_correction_or_full_sdk_execution_in_this_composition": true,
+    "global_stop_decision": "Not assigned by this verifier. Native SDK type/name/merging diagnostics alone do not prove universal semantic infeasibility, especially baseline skipLibCheck=true. Root consolidates actual composition/pass budget and R0 evidence.",
+    "qualification_credit": "No READY_TS_NATIVE, full T00 qualification, reserved or Windows/Linux C2 credit."
+  },
+  "environment": {
+    "host": "macOS ARM64 DEV",
+    "rustc": "Rust1.95.0 per frozen metadata",
+    "exact_process_environment": {
+      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8"
+    },
+    "supported_targets_unexercised": [
+      "Linux",
+      "Windows"
+    ]
+  },
+  "freeze_sha256": "e51c7d0137f8ab890b33116d1e5f7c2bc6e53b045cb20a3813b16e1ca53567df",
+  "source_manifest_sha256": "165f324fa4e3efbac8b60e82399523b0e52780074f967923205cd8693b72b106",
+  "evidence_manifest_sha256": "c46a777c5bfb6e057cfed0f5439e8a0aed2d29df55f3edb9bcd7dec66e5dadf0",
+  "plan_sha256": "7d983f2015bee181131ead362345f0166f3cb60719e8c4e7fd9ca4be53f0b0b0",
+  "identity_count": 458,
+  "identities_unchanged": true,
+  "source_files_bound": 188,
+  "source_copies_compared": 376,
+  "frozen_evidence_files_bound": 51,
+  "frozen_carriers_bound": 3,
+  "outcome_summary": {
+    "kind": "success",
+    "exit_code": 0,
+    "duration_ms": 357,
+    "stdout_bytes": 205915,
+    "stderr_bytes": 31295,
+    "stdout_hash": "be41e7568028dafab4669496e93d5c48f3ef058626d4d3e41052e2cc859943c3",
+    "stderr_hash": "c58eb5b892cf9b2eaf5dc2555c78f4e966cb7dca09b14236b299c1b06033c7ec"
+  },
+  "streams_complete_bounded_and_hash_verified": true,
+  "argv": [
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/bin/semctx-r0-ezno-probe",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/development-request.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-input.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-required-closure.v3.json"
+  ],
+  "cwd": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen",
+  "deadline_ms": 20000,
+  "stream_cap_bytes": 8388608,
+  "native": {
+    "error": true,
+    "diagnostics": 558,
+    "errors": 541,
+    "warnings": 17,
+    "category_counts": {
+      "warning": 17,
+      "unresolved_type_or_variable": 371,
+      "generic_constraint": 30,
+      "generic_arity_or_default": 123,
+      "redeclaration": 7,
+      "other_native_error": 1,
+      "missing_property": 9
+    },
+    "modules": [],
+    "expression_mappings": [],
+    "module_resolutions": [],
+    "all_entry_modules_present": false,
+    "project_reads": 0,
+    "sdk_reads": 63,
+    "actual_sdk_read_order_matches_independent_TS_order": true,
+    "actual_sdk_bytes_match_all63_frozen_files": true,
+    "bundled_definition_cache_requested": false,
+    "producer_semantic_verdict": "NOT_COMPUTED_BY_PRODUCER"
+  },
+  "triage": {
+    "observed_failure_boundary": "Native SDK definition initialization. CheckOutput early return at frozen checker src/lib.rs485\u2013494 occurs on accumulated native errors, before the entry-module loop.",
+    "diagnostic_families": {
+      "warning": 17,
+      "unresolved_type_or_variable": 371,
+      "generic_constraint": 30,
+      "generic_arity_or_default": 123,
+      "redeclaration": 7,
+      "other_native_error": 1,
+      "missing_property": 9
+    },
+    "first_errors": [
+      {
+        "reason": "Could not find type 'U'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 8380,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 8379
+        }
+      },
+      {
+        "reason": "Could not find type 'bigint'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 8438,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 8432
+        }
+      },
+      {
+        "reason": "Could not find type 'U'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 11824,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 11823
+        }
+      },
+      {
+        "reason": "Could not find type 'A'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 12023,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 12022
+        }
+      },
+      {
+        "reason": "Could not find type 'F'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 73342,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 73341
+        }
+      },
+      {
+        "reason": "Could not find type 'V'",
+        "position": {
+          "coordinate_kind": "native_ezno_u32_offsets",
+          "end": 73488,
+          "source": {
+            "native_source_id": "SourceId(1)",
+            "path": "/sdk/lib/lib.es5.d.ts"
+          },
+          "start": 73487
+        }
+      }
+    ],
+    "warning_families": {
+      "Unsupported: namespace": 1,
+      "Merging interfaces in the same context": 3,
+      "Unsupported: interface constructor": 1,
+      "Unsupported: interface caller": 1,
+      "No intersection between types PropertyDescriptorMap and ThisType<any>": 2,
+      "No intersection between types PropertyDescriptor and ThisType<any>": 1,
+      "Unsupported: constructor literal": 1,
+      "Unsupported: `this` annotation": 1,
+      "Unsupported: abstact type annotation": 1,
+      "Unsupported: namespace item": 1,
+      "Unsupported: throw error for annotation": 1,
+      "No intersection between types WindowProxy and any": 1,
+      "No intersection between types HTMLElementTagNameMap and { [keyof SVGElementTagNameMap]: SVGElementTagNameMap[keyof SVGElementTagNameMap] }": 1,
+      "No intersection between types { [PropertyKey]: any } and object": 1
+    },
+    "prior_fixes": "Initial hoisting panic did not recur; final classified diagnostics contain no parser/lexer rejection. These limited observations do not qualify declaration/type semantics.",
+    "forbidden_inference": "Do not equate exit0 with semantic PASS; do not claim alias/trim wrong targets when not exercised; do not infer global STOP_SEMANTIC from library errors.",
+    "no_sdk_error_suppression": "Native errors/warnings remain unmodified and no skip/error waiver/stub/expected rewrite applied.",
+    "analysis_deadline": "Bounded to4minutes after first final Outcome inspection; no additional native query."
+  },
+  "artifacts": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-run/process-outcome.json",
+      "bytes": 263946,
+      "sha256": "6a32798dc9a4c04f2aa6e9dd6d7130148654f47076c7000c7224e05997e4c812"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-run/stdout.retained.utf8",
+      "bytes": 205915,
+      "sha256": "be41e7568028dafab4669496e93d5c48f3ef058626d4d3e41052e2cc859943c3"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-run/stderr.retained.utf8",
+      "bytes": 31295,
+      "sha256": "c58eb5b892cf9b2eaf5dc2555c78f4e966cb7dca09b14236b299c1b06033c7ec"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-run/invocation-before.json",
+      "bytes": 151862,
+      "sha256": "74209839b8aa8e97929b966601297e50c13897e84f3ed726686f529b7e45bc79"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-run/invocation-after.json",
+      "bytes": 303580,
+      "sha256": "ab89013681ef8983eb41008d35b2dba982ff2e37279f422acd84f1a9246ee055"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-diagnostics-classification.json",
+      "bytes": 338203,
+      "sha256": "bab061aae4f675e95e54e53f093fbcfee89fb3ac6dbe178929df25b547273820"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-correction-closure.json",
+      "bytes": 1864,
+      "sha256": "078d54f6c5f8976d2d1db05438cd32d5ba3f97b6e6448a37f4e206ae24890ed4"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-preflight.json",
+      "bytes": 723,
+      "sha256": "09572cfe4fc6174d13afb28337c57f2c80e0882c798c20cd13ff9a223289410b"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-native-execution-plan.json",
+      "bytes": 106226,
+      "sha256": "7d983f2015bee181131ead362345f0166f3cb60719e8c4e7fd9ca4be53f0b0b0"
+    }
+  ],
+  "reproduction": {
+    "directory": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass2-reproduction",
+    "exact_native_command_file": "exact-command.json",
+    "invocation_source": "invoke.py",
+    "canonical_writer_source": "supervised-invocation.rs",
+    "canonical_writer_binary": "supervised-invocation",
+    "helper_binary": "semctx-gates",
+    "compiler_bindings": "compiler-bindings.json",
+    "preflight_source": "preflight-source.py",
+    "producer_rebuild_in_this_task": false,
+    "verifier_rebuild_in_this_task": false,
+    "existing_api": "semctx_gates::process::run_with_helper",
+    "scope": "Archive contains exact launcher/writer source+binary and copied actual helper. Original paths/digests/argv/env in immutable plan and receipts. Reproduction material is evidence, not authorization for a third correction or automatic replay."
+  },
+  "limits": [
+    "No full semantic qualification, R0 readiness, reserved or native Windows/Linux C2 evidence.",
+    "Library parse/type-name/generic handling is a native mechanism mismatch at this boundary; baseline skipLibCheck=true means accumulated SDK semantic diagnostics alone are not a universal impossibility proof.",
+    "No claim all100SDK files consumed, only actual63required reads observed and byte-joined.",
+    "Underlying build provenance relies on frozen source/check receipts; this verifier did not rebuild producer.",
+    "No tracked file, source, SDK, expected, reserved or GitHub mutation."
+  ],
+  "effort": {
+    "fresh_window_start_conservative_utc": "2026-10-18T06:53:00+00:00",
+    "fresh_window_end_utc": "2026-10-18T06:57:00.733005+00:00",
+    "fresh_charged_conservative_seconds": 240.733005,
+    "triage_started_utc": "2026-10-18T06:54:51+00:00",
+    "triage_elapsed_seconds": 129.733005,
+    "triage_limit_seconds": 240,
+    "prior_oracle_reviews_conservative_seconds": 1216.342206,
+    "prior_platform_followup_fresh_seconds": 240.485393,
+    "cumulative_all_this_agent_conservative_seconds": 1697.560604,
+    "overnight_wait_charged_seconds": 0,
+    "accounting": "Fresh task only; includes preflight and bounded analysis. Parent deduplicates previous charged tranches."
+  },
+  "comments_added": []
+}

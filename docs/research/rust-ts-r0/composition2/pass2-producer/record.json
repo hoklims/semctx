@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "state": "FROZEN_PRODUCER_DEV_PUBLICATION_NO_FINAL_SDK_RESULT",
+  "preflight": {
+    "freezeSha256": "e51c7d0137f8ab890b33116d1e5f7c2bc6e53b045cb20a3813b16e1ca53567df",
+    "sourceManifestSha256": "165f324fa4e3efbac8b60e82399523b0e52780074f967923205cd8693b72b106",
+    "sourceCount": 188,
+    "evidenceManifestSha256": "c46a777c5bfb6e057cfed0f5439e8a0aed2d29df55f3edb9bcd7dec66e5dadf0",
+    "evidenceCount": 51,
+    "allFrozenMembersAndInputsAndSelectedBinaryVerified": true,
+    "expectedOrSdkChanged": false
+  },
+  "archive": {
+    "file": "c2-pass2.tar.gz.b64",
+    "decodedSha256": "2e4b0f7aa543e7a520f48a20a30bcc2191ce8f09fea1d3c2e2563ab64c42af9f",
+    "decodedBytes": 959052,
+    "encodedSha256": "fc68f1109eb71580b73f45563984a01c58bb04b6b3b76a7db1f5f6a6e6e3e13e",
+    "encodedBytes": 1295562,
+    "memberCount": 264,
+    "uncompressedMemberBytes": 3058882,
+    "format": "sorted regular relative GNUtar members,uid/gid0,mode0644,mtime0;gzipmtime0,no filename;base64wrapped76"
+  },
+  "memberManifest": {
+    "path": "members-manifest.json",
+    "sha256": "33d4be7b60c35e15aa7ee85e28d466ccb9d204497a026489fcb1e2873905da16"
+  },
+  "aliases": {
+    "path": "original-path-aliases.json",
+    "sha256": "23337ea9e5ca0007973551053bd7fb88d46cb486e69e41e5a12cdb20f6532abf"
+  },
+  "selectedOriginalBinary": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/bin/semctx-r0-ezno-probe",
+    "bytes": 5343696,
+    "sha256": "acfd231f629de6036056f137b44edb2513ef3283ce1e531b9747279ca6b50a37"
+  },
+  "dependencyBinding": {
+    "root_manifest": {
+      "bytes": 604,
+      "sha256": "734f4b9f30006ee3c44dbe005ccea414e641e6ed6f6a15478841a2e559024618"
+    },
+    "root_lock": {
+      "bytes": 19250,
+      "sha256": "4139bf6c2d22c2abf94b91b02f782cfd8330ddcde739c4230891121a6db1f199"
+    },
+    "locked_name_version_count": 81,
+    "direct_dependencies": {
+      "ezno-parser": "=0.1.7",
+      "ezno-checker": "=0.0.18",
+      "serde": "=1.0.229",
+      "serde_json": "=1.0.151",
+      "sha2": "=0.10.9"
+    },
+    "checker_manifest": {
+      "bytes": 3312,
+      "sha256": "4dfc296303394d3ec57bee139bdf5afbbc50c264b77d43d94ef08a04844eaa16"
+    },
+    "parser_manifest": {
+      "bytes": 4569,
+      "sha256": "93a129f08c466102d9364d72019010e5e1a0896fe83644a85b19fbf1ecd55baa"
+    },
+    "checker_registry_archive": {
+      "bytes": 262575,
+      "sha256": "03d2d2b572208dcc7f410156c09dde56b22026592252a34d227e01d8bc78ab2e"
+    },
+    "parser_registry_archive": {
+      "bytes": 123625,
+      "sha256": "575232b97003825ee3ef5303e2b9bad448f0f11326b211c1b64f1f42e9f57e9e"
+    },
+    "identity": "Published registry bytes plus explicit local Rust patches. Published dirty VCS state is not an exact clean commit claim. Root lock governs build; nested upstream lock files preserved as source material."
+  },
+  "canonicalOmittedSdk": {
+    "repositoryPath": "tools/rust-ts-r0/sdk/sdk-input.json",
+    "bytes": 3218481,
+    "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-input.json"
+  },
+  "carriers": {
+    "development-request.json": {
+      "bytes": 3003,
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/development-request.json"
+    },
+    "sdk-input.json": {
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-input.json"
+    },
+    "sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-required-closure.v3.json"
+    }
+  },
+  "sourceRevision": "C2-P2-NATIVE-PARSER-BINDING-RESOLUTION",
+  "historicalRecordsPreservedByteExact": true,
+  "microOracleNull": {
+    "member": "session/composition2/oracle/pass2-tuple-source-review.json",
+    "field": "strict_null_checks.typescript_micro_oracle",
+    "contains": "original inline source and raw JSON results; no separate invented raw file"
+  },
+  "producerFinalReportPendingAtPublication": true,
+  "finalSdkRunReportsIncluded": false,
+  "reservedAccess": false,
+  "nativeQueriesOrBuildsByPublisher": false,
+  "limits": [
+    "33native DEV tests are local macOS evidence only; no final fullSDK, reserved case, Windows/Linux qualification from producer.",
+    "Native strict missing-element/null handling differs from baseline TypeScript5.9.3 without strictNullChecks. next(undefined)/binding tests characterize native policy, not baseline parity. No expected values normalized.",
+    "Baseline skipLibCheck=true: SDK type/name/merging diagnostics alone do not prove semantic infeasibility. Remaining unsupported native SDK capabilities and diagnostics stay visible.",
+    "Captured relative resolution is bounded, not complete Bundler/package exports/types/project-config parity. Unknown/missing/outside explicitly refuse; unconfigured readers preserve upstream behavior.",
+    "Imported .d.ts modules still follow ordinary native parse_source. No complete ambient-module or extension-specific ordinary .ts/.tsx parsing parity claimed.",
+    "Required SDK definitions set jsx=false; ordinary JSX options unchanged, extra_syntax=false. No SDK rewrites, stubs, omitted syntheses or ignored errors.",
+    "Upstream embedded internal.ts.d.bin remains in vendor and possibly binary branch; actual external required paths supplied. No bundled cache requested or used by probe.",
+    "Raw native source IDs/offsets/direct origins retained. Missing mappings remain missing, no guessed target mapping.",
+    "UTF8 strings bound from authorized carriers; malformed-encoding parity not claimed.",
+    "Upstream parser/checker warnings remain in raw logs. Strict clippy/fmt claims cover owned wrapper/tests, not all inherited upstream style.",
+    "Some provenance describes historical pass1 state, not current pass2 patch status. Current registry/vendor/root bindings explicit here.",
+    "External experiment only. No main-worktree changes, GitHub mutations, commits/pushes or mainline Git indexing by producer.",
+    "No third C2 correction after final supervised pass2 probe. No universal Rust infeasibility or READY_TS_NATIVE claim."
+  ],
+  "publicationVerification": "Decoded base64 and independently read every tar member back byte-for-byte; no extraction, execution, query, repository or Git index mutation.",
+  "effort": {
+    "freshActiveStartedUtc": "2026-10-18T06:52:43Z",
+    "waitingBeforeFreezeExcluded": true,
+    "earlierProducer1070SecondsAndReview156_4SecondsExcluded": true,
+    "freshActiveEndedUtc": "2026-10-18T06:54:35.613184+00:00",
+    "freshActiveSeconds": 112.613184
+  },
+  "readme": {
+    "path": "README.md",
+    "sha256": "89c10e73a10684a47af7c2ad770e231a36da8ce15660cbf82329b13afaca8387"
+  }
+}

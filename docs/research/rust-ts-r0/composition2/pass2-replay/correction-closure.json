@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "composition": "C2",
+  "correction_passes_used": 2,
+  "state": "CLOSED_NONPASS_FINAL_CORRECTION_EXHAUSTED",
+  "verdict": "NONPASS",
+  "exact_scope": "Pinned Ezno0.0.18 plus recorded local patches, final pass2 artifactacfd231f, fixed synthetic aliasValue/trim request and unchanged TS5.9.3 ES2022 required63file SDK closure on macOS ARM64 DEV.",
+  "transport": "success/exit0 only confirms a complete observation document.",
+  "semantic_failure": "Native initialization reports541errors and returns before loading any project module; both independent semantic targets remain unexercised.",
+  "parser_observation": "No parser_or_lexer diagnostic in classified final run; this does not establish complete TS grammar support.",
+  "targets": [
+    {
+      "expression": "aliasValue",
+      "expected_source": "/repo/dep.ts",
+      "expected_declaration_name": "sourceValue",
+      "expected_declaration_range_utf16": [
+        0,
+        59
+      ],
+      "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+    },
+    {
+      "expression": "aliasValue().trim",
+      "expected_source": "/sdk/lib/lib.es5.d.ts",
+      "expected_declaration_name": "String.trim",
+      "expected_declaration_range_utf16": [
+        21094,
+        21109
+      ],
+      "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+    }
+  ],
+  "independent_expected_unchanged_sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef",
+  "no_further_correction_or_full_sdk_execution_in_this_composition": true,
+  "global_stop_decision": "Not assigned by this verifier. Native SDK type/name/merging diagnostics alone do not prove universal semantic infeasibility, especially baseline skipLibCheck=true. Root consolidates actual composition/pass budget and R0 evidence.",
+  "qualification_credit": "No READY_TS_NATIVE, full T00 qualification, reserved or Windows/Linux C2 credit."
+}
