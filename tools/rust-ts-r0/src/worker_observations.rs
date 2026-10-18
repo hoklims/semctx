@@ -19,7 +19,7 @@ fn failure(job: &str, error: &str) -> serde_json::Value {
     serde_json::json!({"schemaVersion":1,"jobId":job,"ok":false,"error":error,"extraction_started":false})
 }
 
-fn read_repository(
+pub(super) fn read_repository(
     root: &std::path::Path,
 ) -> Result<(BTreeMap<String, String>, Vec<serde_json::Value>), String> {
     let native_path = |path: &std::path::Path| -> Result<String, String> {
@@ -95,7 +95,7 @@ fn read_repository(
     Ok((files, reads))
 }
 
-fn absolute_worker_path(path: &str) -> Result<String, String> {
+pub(super) fn absolute_worker_path(path: &str) -> Result<String, String> {
     let path = std::path::absolute(if path.is_empty() { "." } else { path })
         .map_err(|error| error.to_string())?;
     Ok(ts_goport::frontend::tspath::normalize_path(

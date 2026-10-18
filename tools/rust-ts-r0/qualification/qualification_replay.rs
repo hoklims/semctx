@@ -1,5 +1,6 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
+mod parallel_replay;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -1241,6 +1242,82 @@ fn worker_frontend_capability(
         json!({"state":"COMPLETE_OBSERVED_NATIVE_WORKER_CONTEXT","roots":paths,"case_sensitive":case_sensitive,"negative_boundary_directory_probes":negative_boundary_directory_probes,"global_admission_inferred":false}),
     )
 }
+fn worker_read_provenance(
+    observed: &Value,
+    request: &Value,
+    source_inputs: &serde_json::Map<String, Value>,
+    sdk: &Value,
+    case_sensitive: bool,
+) -> Result<Value, String> {
+    let frontend = worker_frontend_capability(observed, request, case_sensitive)?;
+    let repository_reads = observed["read_observations"]
+        .as_array()
+        .ok_or("missing actual worker repository reads")?;
+    let expected_paths = source_inputs.keys().cloned().collect::<BTreeSet<_>>();
+    let actual_paths = repository_reads
+        .iter()
+        .map(|r| value_text(r, "path").map(str::to_owned))
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    if actual_paths != expected_paths || actual_paths.len() != repository_reads.len() {
+        return Err(
+            "worker captured source denominator differs from authored physical files".into(),
+        );
+    }
+    for observation in repository_reads {
+        let path = value_text(observation, "path")?;
+        let text = source_inputs
+            .get(path)
+            .and_then(Value::as_str)
+            .ok_or("reported worker read does not match authored source path")?;
+        let target = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
+        let actual = fs::read(&target).map_err(|e| e.to_string())?;
+        if actual != text.as_bytes()
+            || observation["raw_bytes_sha256"] != identity::digest_bytes(text.as_bytes())
+            || observation["canonical_path"] != json!(target.to_string_lossy().replace('\\', "/"))
+        {
+            return Err("worker source read bytes or physical after observation do not match authored input".into());
+        }
+        if !text.is_ascii() {
+            return Err("worker decoded-port hash needs explicit non-ASCII profile mapping".into());
+        }
+        if observation["decoded_port_text_sha256"] != identity::digest_bytes(text.as_bytes()) {
+            return Err("worker ASCII decoded source identity mismatch".into());
+        }
+    }
+    let reads = join_successful_reads(
+        &json!({"capture_probes":observed["compiler_probes"]}),
+        &json!({"files":source_inputs}),
+        sdk,
+    )?;
+    let read_paths = reads["read_paths"]
+        .as_array()
+        .ok_or("missing joined worker compiler reads")?;
+    for root in request["rootAbsPaths"]
+        .as_array()
+        .ok_or("missing native worker roots")?
+    {
+        if !read_paths.contains(root) {
+            return Err(
+                "requested worker source root has no successful compiler read observation".into(),
+            );
+        }
+    }
+    for basename in ["/lib.es5.d.ts", "/lib.es2022.full.d.ts"] {
+        let path = sdk["files"]
+            .as_object()
+            .ok_or("missing pinned SDK file map")?
+            .keys()
+            .find(|p| p.ends_with(basename))
+            .ok_or("required baseline ES2022 default library absent from pinned SDK")?;
+        if !read_paths.contains(&json!(path)) {
+            return Err("worker actual ES2022 default library consumption not observed".into());
+        }
+    }
+    Ok(
+        json!({"state":"JOINED_REPORTED_NATIVE_WORKER_READS_ONLY","compiler_reads":reads,"frontend":frontend,"atomic_capture_claimed":false,"all_sdk_supplied_consumed_claimed":false}),
+    )
+}
+
 fn run_worker_recipe(
     recipe: &Value,
     dir: &Path,
@@ -1348,84 +1425,13 @@ fn run_worker_recipe(
         }
     };
     save(&dir.join("verified-input-binding.json"), &binding)?;
-    let provenance = (|| -> Result<Value, String> {
-        if controlled {
-            return Ok(
-                json!({"state":"CONTROLLED_REQUEST_REFUSAL_NO_USEFUL_COMPILER_RESULT_CREDITED","absence_of_all_os_reads_claimed":false}),
-            );
-        }
-        let frontend = worker_frontend_capability(&observed, &request, case_sensitive)?;
-        let repository_reads = observed["read_observations"]
-            .as_array()
-            .ok_or("missing actual worker repository reads")?;
-        let expected_paths = source_inputs.keys().cloned().collect::<BTreeSet<_>>();
-        let actual_paths = repository_reads
-            .iter()
-            .map(|r| value_text(r, "path").map(str::to_owned))
-            .collect::<Result<BTreeSet<_>, _>>()?;
-        if actual_paths != expected_paths || actual_paths.len() != repository_reads.len() {
-            return Err(
-                "worker captured source denominator differs from authored physical files".into(),
-            );
-        }
-        for observation in repository_reads {
-            let path = value_text(observation, "path")?;
-            let text = source_inputs
-                .get(path)
-                .and_then(Value::as_str)
-                .ok_or("reported worker read does not match authored source path")?;
-            let target = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
-            let actual = fs::read(&target).map_err(|e| e.to_string())?;
-            if actual != text.as_bytes()
-                || observation["raw_bytes_sha256"] != identity::digest_bytes(text.as_bytes())
-                || observation["canonical_path"]
-                    != json!(target.to_string_lossy().replace('\\', "/"))
-            {
-                return Err("worker source read bytes or physical after observation do not match authored input".into());
-            }
-            if !text.is_ascii() {
-                return Err(
-                    "worker decoded-port hash needs explicit non-ASCII profile mapping".into(),
-                );
-            }
-            if observation["decoded_port_text_sha256"] != identity::digest_bytes(text.as_bytes()) {
-                return Err("worker ASCII decoded source identity mismatch".into());
-            }
-        }
-        let reads = join_successful_reads(
-            &json!({"capture_probes":observed["compiler_probes"]}),
-            &json!({"files":source_inputs}),
-            sdk,
-        )?;
-        let read_paths = reads["read_paths"]
-            .as_array()
-            .ok_or("missing joined worker compiler reads")?;
-        for root in request["rootAbsPaths"]
-            .as_array()
-            .ok_or("missing native worker roots")?
-        {
-            if !read_paths.contains(root) {
-                return Err(
-                    "requested worker source root has no successful compiler read observation"
-                        .into(),
-                );
-            }
-        }
-        for basename in ["/lib.es5.d.ts", "/lib.es2022.full.d.ts"] {
-            let path = sdk["files"]
-                .as_object()
-                .ok_or("missing pinned SDK file map")?
-                .keys()
-                .find(|p| p.ends_with(basename))
-                .ok_or("required baseline ES2022 default library absent from pinned SDK")?;
-            if !read_paths.contains(&json!(path)) {
-                return Err("worker actual ES2022 default library consumption not observed".into());
-            }
-        }
+    let provenance = if controlled {
         Ok(
-            json!({"state":"JOINED_REPORTED_NATIVE_WORKER_READS_ONLY","compiler_reads":reads,"frontend":frontend,"atomic_capture_claimed":false,"all_sdk_supplied_consumed_claimed":false}),
+            json!({"state":"CONTROLLED_REQUEST_REFUSAL_NO_USEFUL_COMPILER_RESULT_CREDITED","absence_of_all_os_reads_claimed":false}),
         )
-    })();
+    } else {
+        worker_read_provenance(&observed, &request, &source_inputs, sdk, case_sensitive)
+    };
     let checks=recipe["checks"].as_array().ok_or("missing worker checks")?.iter().map(|c|json!({"expected_origin":c["expected_origin"],"target":c["target"],"result":evaluate(&observed,c)})).collect::<Vec<_>>();
     let mut direct_relation = json!({"state":"NOT_REQUIRED"});
     let mut direct_pass = true;
@@ -2611,6 +2617,20 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "parallel_cli" {
+            let mut result = parallel_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "process_fault_cli" {
             let mut result = run_process_fault_recipe(
                 recipe,
@@ -4086,6 +4106,15 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "parallel_cli" => parallel_replay::run(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "raw_cli" => run_raw_recipe(
                 recipe,
                 &dir,
@@ -4718,6 +4747,11 @@ fn gap_opaque_callback_ownership_uses_actual_graph_lifecycle() {
 #[test]
 fn gap_unselected_intermediate_uses_actual_loaded_module_components() {
     repair_units(&["N12-unselected-intermediate-connects::base"]);
+}
+
+#[test]
+fn gap_parallel_equivalence_uses_actual_native_workers_and_direct_bytes() {
+    repair_units(&["P12-parallel-equivalence::base"]);
 }
 
 #[test]

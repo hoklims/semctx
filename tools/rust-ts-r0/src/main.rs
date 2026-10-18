@@ -14,6 +14,7 @@ mod input_identity;
 mod javascript;
 mod ordinary;
 mod outline;
+mod parallel_observations;
 mod partition_observations;
 mod qualified;
 mod retained_discovery_observations;
@@ -1510,6 +1511,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             *mode,
             "--observe-primitives"
                 | "--extract-worker"
+                | "--extract-parallel"
                 | "--consume-worker"
                 | "--observe-system"
                 | "--observe-configured-resolution"
@@ -1519,7 +1521,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     }) else {
         return Ok(None);
     };
-    let valid_arity = if matches!(
+    let valid_arity = if mode == "--extract-parallel" {
+        args.len() == 5
+    } else if matches!(
         mode,
         "--extract-worker"
             | "--observe-configured-resolution"
@@ -1535,7 +1539,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     if !valid_arity {
         return Err(format!(
             "expected {mode} REQUEST.json{}",
-            if matches!(
+            if mode == "--extract-parallel" {
+                " SDK.json HELPER"
+            } else if matches!(
                 mode,
                 "--extract-worker"
                     | "--observe-configured-resolution"
@@ -1558,7 +1564,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     } else {
         None
     };
-    let sdk: Option<Sdk> = if malformed.is_none() && args.len() == 4 {
+    let sdk: Option<Sdk> = if malformed.is_none()
+        && (args.len() == 4 || mode == "--extract-parallel")
+    {
         Some(
             serde_json::from_slice(&std::fs::read(&args[3]).map_err(|error| error.to_string())?)
                 .map_err(|error| error.to_string())?,
@@ -1570,6 +1578,12 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
         refusal
     } else {
         match mode {
+            "--extract-parallel" => parallel_observations::run(
+                &descriptor,
+                sdk.as_ref().ok_or("parallel SDK input missing")?,
+                std::path::Path::new(&args[3]),
+                std::path::Path::new(&args[4]),
+            ),
             "--analyze-retained-discovery" => retained_discovery_observations::run(
                 descriptor.clone(),
                 sdk.as_ref().ok_or("retained discovery SDK input missing")?,
@@ -1607,6 +1621,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     observed["producer_artifact_id"] = serde_json::json!(identity::digest_bytes(
         &std::fs::read(executable).map_err(|error| error.to_string())?
     ));
+    if matches!(mode, "--extract-worker" | "--extract-parallel") {
+        observed["producer_process_id"] = serde_json::json!(std::process::id());
+    }
     Ok(Some(observed))
 }
 

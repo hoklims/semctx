@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are32 static GAP units still to map; all240 obligations remain unqualified.
+are31 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -245,6 +245,32 @@ format,Clippy and Ruff pass. Counts reach32 new mappings:31 limited PASS and
 N17c NONPASS,with32 static GAP and zero qualified obligations. The response
 field is raw only; no batch/worker transport credit follows. Additional C1
 pass1 stays open; pass2 remains unused.
+
+A [sixteenth tranche](gap-native-parallel-evidence.json) maps P12 with a real
+native explicit-worker controller. Its noLib/types[] Program checks preflight,
+partitions the loaded module components by source size and supplies the shared
+declaration root to each of two supervised native children. The existing worker
+response consumer remains in the path. The replay independently checks child
+roots,outcomes,reported reads,distinct PIDs,exact source coverage and ordered
+merge. Direct,one-worker and two-worker controls share one physical workspace;
+all three complete extractions serialize to409 identical bytes. One frozen
+unit uses five native executions,12 controller checks,one direct check and two
+byte relations,crediting three frozen properties. Six carryover units pass
+through10 native executions. Current macOS release checks pass207 binary and47
+library tests,four existing native flows,four parallel integrations,47
+comparators and seven Python tests;format,Clippy,Ruff and Zizmor pass. The
+existing optimized three-OS command now includes the parallel target; current
+remote results are pending. Independent standards release tests pass. Separate
+SPEC source-fault witnesses use dev/debug and test/debug: missing declaration
+roots are rejected,and bypassed byte equality makes its owning comparator fail;
+restored P12 and47 comparators pass. Initial artifact-overwrite setup failures
+are retained without behavioral credit. These are source-sensitivity witnesses,
+not optimized-artifact fault evidence. Counts reach33 new mappings:32 limited
+PASS and N17c NONPASS,with31 static GAP and zero qualified obligations. This
+private P12 result does not prove public parallel/auto/retained parity,capture
+atomicity,all SDK consumption,simultaneous CPU execution or general completed
+sibling termination. Cancellation request and absence of serial fallback facts
+are observed in the tested failure. Pass1 stays open;pass2 remains unused.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
