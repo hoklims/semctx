@@ -504,6 +504,13 @@ for recipe in recipes:
         for key in ['qualified_reason_contains', 'guessed_call_edges_from_object_member']:
             remove_gap(recipe, key)
             recipe['credited_properties'].append(key)
+    if recipe['case_id'] == 'V2-F02-outside-inherited-config':
+        setup = INPUTS[recipe['case_id']]['setup']
+        if len(setup) != 1 or set(setup[0]) != {'outside_root_retained_files'}:
+            raise ValueError('outside configuration requires the exact frozen sibling setup')
+        recipe['requests'][0]['outside_root_retained_files'] = copy.deepcopy(setup[0]['outside_root_retained_files'])
+        recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'SETUP_CAPTURE_OR_FILESYSTEM_FAULT_NOT_MAPPED']
+        recipe['setup_mapping'] = 'Exact frozen sibling retained bytes in a separate input envelope; direct sibling paths only, exclusive creation, included in captured request and independent input binding.'
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
