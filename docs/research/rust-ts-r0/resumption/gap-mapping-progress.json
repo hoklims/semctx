@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_EIGHT_GAPS_MAPPED_SEVEN_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_NINE_GAPS_MAPPED_EIGHT_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -159,9 +159,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining56 static GAP units, then178-obligation review and full3OS campaign; reserved run and R0 still pending.",
+  "next": "Continue the remaining55 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
   "updatedUtc": "2026-10-18T15:36:46.824560+00:00",
-  "staticGapUnitsRemaining": 56,
+  "staticGapUnitsRemaining": 55,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -204,5 +204,27 @@
     "nativeEngineChanged": false,
     "finalRecipeSha256": "93f7110fdaf265bc9ba0d503472807c96cc03bf0a5160ebc50bfa298e3797abf",
     "metadataCorrection": "prepared_state now refreshed after all mappings; CLI red/green witness; final recipe delta changes only10 metadata states. Checks/expected/source/gaps unchanged."
+  },
+  "thirdBatch": {
+    "registeredUtc": "2026-10-18T15:58:06.944433+00:00",
+    "state": "NATIVE_FROZEN_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "V2-F02-outside-inherited-config::base"
+    ],
+    "scope": "Materialize only the explicitly declared outside_root_retained_files setup in an isolated input envelope, preserve it in the native captured request, and compare the existing native retained configuration refusal. No general escape-path allowance or engine fallback.",
+    "failurePaths": [
+      "Only a direct sibling filename via ../name is accepted; absolute, deeper traversal and nested paths refuse.",
+      "Exclusive sibling creation cannot overwrite existing files or harness evidence. The caller gives it a separate input envelope.",
+      "Non-string setup data refuses; conflicting capture keys refuse; a failed setup cannot become a native PASS.",
+      "The request retains the sibling input bytes; the configuration component must actually emit the frozen outside-repository reason with executed=true and unsupported=[]."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-sibling-evidence.json",
+    "newProjectedPasses": 1,
+    "nativeEngineChanged": false,
+    "finalRecipeSha256": "de79213ae805640780d52f8e17f37ff7dd75618fdd26545826f386284449889c"
   }
 }

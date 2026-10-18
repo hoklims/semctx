@@ -72,7 +72,10 @@ to this property. It grants no qualification credit. A
 using existing native configuration, assembly and outline observations. All three
 and the existing unequal-digest control pass macOS DEV replay. The final recipe
 status is refreshed after late mappings; its stale label was reproduced and
-corrected without changing inputs or comparators. There are 56 static GAP
+corrected without changing inputs or comparators. A
+[third tranche](gap-sibling-evidence.json) materializes the explicitly captured
+sibling configuration for V2-F02 in a separate input envelope; the unchanged
+native outside-repository refusal passes focused macOS replay. There are 55 static GAP
 units still to map; all240 obligations remain unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.

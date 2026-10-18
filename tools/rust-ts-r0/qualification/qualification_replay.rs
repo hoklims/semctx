@@ -4,6 +4,7 @@ use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
+    io::Write,
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -575,6 +576,12 @@ fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Va
         .to_string_lossy()
         .replace('\\', "/");
     let mut request = template.clone();
+    let siblings = request
+        .as_object_mut()
+        .ok_or("prepared input must be object")?
+        .remove("outside_root_retained_files")
+        .unwrap_or_else(|| json!({}));
+    let siblings = siblings.as_object().ok_or("invalid sibling capture map")?;
     let mut files = serde_json::Map::new();
     for (path, text) in template["files"]
         .as_object()
@@ -593,6 +600,34 @@ fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Va
         )
         .map_err(|e| e.to_string())?;
         files.insert(format!("{cwd}/{path}"), text.clone());
+    }
+    if !siblings.is_empty() {
+        let parent = root.canonicalize().map_err(|e| e.to_string())?;
+        let parent = parent.parent().ok_or("missing input envelope")?;
+        for (path, text) in siblings {
+            let name = path
+                .strip_prefix("../")
+                .filter(|name| {
+                    safe_relative(name)
+                        && *name != "."
+                        && !name.contains('/')
+                        && !name.contains('\\')
+                })
+                .ok_or("outside capture requires a direct sibling filename")?;
+            let text = text.as_str().ok_or("sibling capture must be string")?;
+            let target = parent.join(name);
+            let key = target.to_string_lossy().replace('\\', "/");
+            if files.contains_key(&key) {
+                return Err("sibling capture conflicts with prepared source".into());
+            }
+            fs::OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .open(&target)
+                .and_then(|mut file| file.write_all(text.as_bytes()))
+                .map_err(|e| e.to_string())?;
+            files.insert(key, json!(text));
+        }
     }
     let roots = template["roots"]
         .as_array()
@@ -728,7 +763,11 @@ fn run_raw_recipe(
         } else {
             dir.join(format!("observation-{index:03}"))
         };
-        let root = subdir.join("workspace");
+        let root = if template.get("outside_root_retained_files").is_some() {
+            subdir.join("input-envelope/workspace")
+        } else {
+            subdir.join("workspace")
+        };
         fs::create_dir_all(&root).map_err(|e| e.to_string())?;
         let sentinel = root.join("T00NativeCaseSentinel");
         fs::write(&sentinel, b"native case probe").map_err(|e| e.to_string())?;
@@ -3203,6 +3242,60 @@ fn gap_existing_components_compare_empty_configuration_unmodeled_caller_and_comm
         "P09-outline-logical-set::digest-relation-01",
         "P09-outline-logical-set::digest-relation-02",
     ]);
+}
+
+#[test]
+fn gap_retained_outside_configuration_uses_the_declared_sibling_capture() {
+    repair_units(&["V2-F02-outside-inherited-config::base"]);
+}
+
+#[test]
+fn comparator_materialized_sibling_capture_preserves_bytes_and_refuses_escape_or_collision() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let test_root = std::env::temp_dir().join(format!("semctx-sibling-capture-dev-{stamp}"));
+    let envelope = test_root.join("input-envelope");
+    let root = envelope.join("workspace");
+    fs::create_dir_all(&root).unwrap();
+    let source = "export const siblingCaptureDev = 229;";
+    let outside = "{\"compilerOptions\":{\"module\":\"ESNext\"}}";
+    let template = json!({"files":{"main.ts":source},"roots":["main.ts"],"outside_root_retained_files":{"../adjacent.json":outside}});
+    let request = materialize(&template, &root, true).unwrap();
+    let path = envelope.join("adjacent.json");
+    assert_eq!(fs::read_to_string(&path).unwrap(), outside);
+    let key = path
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    assert_eq!(request["files"][&key], outside);
+    assert!(request.get("outside_root_retained_files").is_none());
+    let mut conflicting = template.clone();
+    conflicting["outside_root_retained_files"]["../adjacent.json"] = json!("changed");
+    assert!(materialize(&conflicting, &root, true).is_err());
+    assert_eq!(fs::read_to_string(&path).unwrap(), outside);
+    for invalid in [
+        "../../escaped.json",
+        "../nested/file.json",
+        "/absolute.json",
+        "outside.json",
+        "..\\outside.json",
+        "../.",
+        "../workspace",
+    ] {
+        let mut bad = template.clone();
+        bad["outside_root_retained_files"] = json!({invalid:"foreign"});
+        assert!(materialize(&bad, &root, true).is_err(), "{invalid}");
+    }
+    for malformed in [json!([]), json!({"../other.json":null})] {
+        let mut bad = template.clone();
+        bad["outside_root_retained_files"] = malformed;
+        assert!(materialize(&bad, &root, true).is_err());
+    }
+    assert!(!envelope.parent().unwrap().join("escaped.json").exists());
+    fs::remove_dir_all(test_root).unwrap();
 }
 
 #[test]
