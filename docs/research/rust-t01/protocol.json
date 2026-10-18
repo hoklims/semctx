@@ -1242,7 +1242,193 @@
         ],
         "runsPerWorkload": 10,
         "order": "consecutive runs of the one workload",
-        "expectedMinutes": "no indexed run exists yet; estimated 30 to 60"
+        "expectedMinutes": "no indexed run exists yet; estimated 30 to 60",
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:30:08Z",
+          "lastRunStartedUtc": "2026-10-18T13:51:02Z",
+          "runs": 10,
+          "exitCodes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 138.951,
+            "min": 138.364,
+            "max": 142.426,
+            "iqr": 0.13
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 8030806320,
+            "min": 7949492432,
+            "max": 8216945040,
+            "iqr": 49770544
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9981,
+            0.9989
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 46138,
+            "edges": 58166,
+            "evidence": 66437,
+            "claims": 815
+          },
+          "perRun": [
+            {
+              "wallSeconds": 142.426,
+              "aggregatePeakFootprintBytes": 8022581528,
+              "freeBytesBefore": 20602388480,
+              "inactiveBytesBefore": 12982484992,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 14,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 139.008,
+              "aggregatePeakFootprintBytes": 7993827608,
+              "freeBytesBefore": 20064141312,
+              "inactiveBytesBefore": 13547700224,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 28,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 139.118,
+              "aggregatePeakFootprintBytes": 8041882000,
+              "freeBytesBefore": 19899777024,
+              "inactiveBytesBefore": 13801996288,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 7,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.364,
+              "aggregatePeakFootprintBytes": 8014586136,
+              "freeBytesBefore": 19699548160,
+              "inactiveBytesBefore": 14062714880,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 34,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.648,
+              "aggregatePeakFootprintBytes": 8137826656,
+              "freeBytesBefore": 19404816384,
+              "inactiveBytesBefore": 14263943168,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 9,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.863,
+              "aggregatePeakFootprintBytes": 7949492432,
+              "freeBytesBefore": 19460964352,
+              "inactiveBytesBefore": 14350008320,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 1,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.95,
+              "aggregatePeakFootprintBytes": 8051089712,
+              "freeBytesBefore": 19345588224,
+              "inactiveBytesBefore": 14466072576,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 9,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.91,
+              "aggregatePeakFootprintBytes": 8216945040,
+              "freeBytesBefore": 19384139776,
+              "inactiveBytesBefore": 14508146688,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 3,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.997,
+              "aggregatePeakFootprintBytes": 7989518616,
+              "freeBytesBefore": 19365658624,
+              "inactiveBytesBefore": 14643871744,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 5,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.952,
+              "aggregatePeakFootprintBytes": 8039031112,
+              "freeBytesBefore": 19370491904,
+              "inactiveBytesBefore": 14727675904,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 3,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/prefect-derived",
+          "rowsSha256": "a037a40aff08a5def879bd20588495c8e89dbeb89923ea94eb1b932701368d85",
+          "statsSha256": "dd1fcddcc73c00ff4c6d630fafea2197501291c4a6688844405709277f7f21a0",
+          "note": "the original snapshot's refusal stays recorded in shakeDown; these runs index the admitted derived snapshot (derivedSnapshots)"
+        }
       },
       {
         "id": "vscode",

@@ -411,6 +411,7 @@ Remote Desktop host and Claude Code sessions kept running.
 | `sindresorhus/ky` | 10 × 0 | 2.04 s (1.88–2.08, 0.05) | 0.709 GB (0.699–0.717, 0.006) |
 | `honojs/hono` | 10 × 0 | 15.28 s (14.57–15.44, 0.30) | 1.559 GB (1.546–1.579, 0.015) |
 | `trpc/trpc` | 10 × 0 | 92.99 s (90.55–93.84, 0.76) | 5.046 GB (4.915–5.114, 0.020) |
+| `PrefectHQ/prefect`, derived snapshot | 10 × 0 | 138.95 s (138.36–142.43, 0.13) | 8.031 GB (7.949–8.217, 0.050) |
 
 IQR is Q3 − Q1 from `statistics.quantiles(n=4, method="inclusive")`. Nodes, edges, evidence and
 claims are identical across each workload's runs:
@@ -420,11 +421,16 @@ claims are identical across each workload's runs:
 | `sindresorhus/ky` | 437 | 971 | 2,388 | 82 |
 | `honojs/hono` | 2,689 | 5,934 | 11,164 | 455 |
 | `trpc/trpc` | 5,925 | 12,101 | 18,102 | 2,047 |
+| `PrefectHQ/prefect`, derived snapshot | 46,138 | 58,166 | 66,437 | 815 |
 
 No run recorded a compression, a swap-in or a swap-out. Decompressions per run stayed between 0
 and 384 pages. Swap use stayed at 0 MiB. Free memory fell from 22.43 GB before the first run to
 13.06 GB after the last, while inactive pages rose from 13.15 GB to 20.52 GB. The sampled aggregate
-stays within 1.7% of the kernel upper bound. The seal's `planeAIndexSnapshotHash` differs on
+stays within 1.7% of the kernel upper bound.
+
+The Prefect cell ran after the three interleaved workloads, as ten consecutive runs on the
+derived snapshot. Its runs also recorded no compression and no swap; decompressions stayed between
+1 and 34 pages, and free memory before each run stayed between 19.35 and 20.60 GB. The seal's `planeAIndexSnapshotHash` differs on
 every run, so it is not used as a fact identity; its cause is not investigated.
 
 ## Owner decision on Prefect and the large cells
@@ -448,7 +454,7 @@ Only the unselected `.gitmodules` candidate disappears, so the variant is admitt
 
 | Cell | Runs | Expected duration |
 | --- | ---: | --- |
-| Prefect, derived snapshot | 10 | 30–60 min (no indexed run exists yet) |
+| Prefect, derived snapshot | 10 | done: 23 min; see [Reference series](#reference-series) |
 | `microsoft/vscode` | 5 | about 1 h 40 |
 | `backstage/backstage` | 3 | about 9 h |
 | `aws/aws-sdk-js-v3` | 1 | not estimated; a memory failure is recorded and not rerun |
