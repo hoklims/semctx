@@ -183,6 +183,16 @@ pub fn extract(
     rel_path: &str,
     context: &ExtractionContext<'_>,
 ) -> Result<Extraction, String> {
+    extract_with_module_resolutions(source, checker, rel_path, context, None)
+}
+
+pub fn extract_with_module_resolutions(
+    source: Node,
+    checker: &mut Checker,
+    rel_path: &str,
+    context: &ExtractionContext<'_>,
+    module_resolutions: Option<&BTreeMap<(i32, i32), String>>,
+) -> Result<Extraction, String> {
     if source.is_nil() || source.kind() != SyntaxKind::SourceFile {
         return Err("ordinary extraction requires a loaded source file".into());
     }
@@ -214,6 +224,7 @@ pub fn extract(
     let mut walker = SymbolWalker {
         checker,
         context: *context,
+        module_resolutions,
         exported_declarations,
         runtime,
         namespace_references,
@@ -560,6 +571,7 @@ fn declaration_name(node: Node) -> Option<String> {
 struct SymbolWalker<'a, 'b> {
     checker: &'b mut Checker,
     context: ExtractionContext<'a>,
+    module_resolutions: Option<&'a BTreeMap<(i32, i32), String>>,
     exported_declarations: HashSet<Node>,
     runtime: HashSet<SymbolId>,
     namespace_references: HashMap<SymbolId, Vec<(Node, SymbolId)>>,
@@ -616,7 +628,18 @@ impl SymbolWalker<'_, '_> {
             return;
         }
         let symbol = self.checker.get_symbol_at_location_exported(literal);
-        let resolved = if symbol.is_some() {
+        let resolved = if let Some(resolutions) = self.module_resolutions {
+            resolutions
+                .get(&(literal.pos(), literal.end()))
+                .map(|path| {
+                    relative_path(
+                        self.context.repository_root,
+                        runtime_companion(path, &self.context)
+                            .as_deref()
+                            .unwrap_or(path),
+                    )
+                })
+        } else if symbol.is_some() {
             self.checker
                 .sym(symbol)
                 .declarations
@@ -1424,6 +1447,45 @@ mod tests {
             Some("t00DevelopmentRemoteB.ts")
         );
         assert_eq!(result.imports[0].names, vec!["t00DevelopmentLeafB"]);
+    }
+
+    #[test]
+    fn observed_unresolved_modules_do_not_fall_back_to_checker_symbols() {
+        let path = "/repo/nativeResolutionConsumerDev.ts";
+        let files = BTreeMap::from([
+            (path.to_string(), "import { nativeResolutionValueDev } from './nativeResolutionOwnerDev'; export const observed=nativeResolutionValueDev;".into()),
+            ("/repo/nativeResolutionOwnerDev.ts".into(), "export const nativeResolutionValueDev=251;".into()),
+        ]);
+        let captured = files.clone();
+        crate::development::with_project(files, vec![path.into()], move || {
+            let source = program::get_source_file(path);
+            program::with_type_checker_for_file(source, move |checker| {
+                let context = ExtractionContext {
+                    repository_root: "/repo",
+                    static_module_links: true,
+                    retained: false,
+                    javascript_enabled: true,
+                    captured_files: Some(&captured),
+                    case_sensitive: true,
+                };
+                let control =
+                    extract(source, checker, "nativeResolutionConsumerDev.ts", &context).unwrap();
+                assert_eq!(
+                    control.imports[0].resolved_rel_path.as_deref(),
+                    Some("nativeResolutionOwnerDev.ts")
+                );
+                let unresolved = BTreeMap::new();
+                let observed = extract_with_module_resolutions(
+                    source,
+                    checker,
+                    "nativeResolutionConsumerDev.ts",
+                    &context,
+                    Some(&unresolved),
+                )
+                .unwrap();
+                assert_eq!(observed.imports[0].resolved_rel_path, None);
+            });
+        });
     }
 
     #[test]

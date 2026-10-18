@@ -459,7 +459,35 @@ fn native_frontend(
     roots: Vec<String>,
     configured: bool,
 ) -> NativeFrontend {
-    let mut options = compiler_options();
+    native_frontend_with_options(fs, cwd, sdk, roots, configured, compiler_options())
+}
+
+fn ordinary_javascript_frontend(
+    fs: Rc<CaptureFs>,
+    cwd: &str,
+    sdk: &str,
+    path: &str,
+) -> Result<NativeFrontend, String> {
+    let configuration = configuration::inspect(fs.clone(), path, cwd)?;
+    let (options, _) = configuration::merge_configured_options(&compiler_options(), &configuration);
+    Ok(native_frontend_with_options(
+        fs,
+        cwd,
+        sdk,
+        vec![path.to_string()],
+        true,
+        options,
+    ))
+}
+
+fn native_frontend_with_options(
+    fs: Rc<CaptureFs>,
+    cwd: &str,
+    sdk: &str,
+    roots: Vec<String>,
+    configured: bool,
+    mut options: CompilerOptions,
+) -> NativeFrontend {
     let mut enumeration = options.clone();
     enumeration.types = Some(vec!["*".into()]);
     let names = ts_goport::frontend::module::get_automatic_type_directive_names(
@@ -502,6 +530,45 @@ fn native_frontend(
         program: Rc::new(compiler::new_program(options)),
         resolution,
     }
+}
+
+fn javascript_module_resolutions(
+    frontend: &NativeFrontend,
+    path: &str,
+) -> Result<BTreeMap<(i32, i32), String>, String> {
+    if let Some(error) = &frontend.program.module_resolution_error {
+        return Err(format!(
+            "native JavaScript module resolution failed: {error}"
+        ));
+    }
+    if let Some(observations) = &frontend.resolution
+        && !observations.borrow().errors.is_empty()
+    {
+        return Err(format!(
+            "native JavaScript resolver errors: {:?}",
+            observations.borrow().errors
+        ));
+    }
+    let parsed = frontend
+        .program
+        .get_source_file(path)
+        .ok_or("missing configured JavaScript source")?;
+    Ok(parsed
+        .imports
+        .iter()
+        .filter_map(|literal| {
+            frontend
+                .program
+                .get_resolved_module_from_module_specifier(parsed.as_ref(), *literal)
+                .filter(|module| !module.resolved_file_name.is_empty())
+                .map(|module| {
+                    (
+                        (literal.pos(), literal.end()),
+                        module.resolved_file_name.clone(),
+                    )
+                })
+        })
+        .collect())
 }
 
 fn all_nodes(node: core::Node, found: &mut Vec<core::Node>) {
@@ -678,7 +745,8 @@ fn inspect_subject(
         .any(|suffix| path.ends_with(suffix));
     let frontend = native_frontend(semantic_fs.clone(), root, sdk, semantic_roots, true);
     let link_frontend = (!retained && is_js)
-        .then(|| native_frontend(fs.clone(), root, sdk, vec![path.to_string()], true));
+        .then(|| ordinary_javascript_frontend(fs.clone(), root, sdk, path))
+        .transpose()?;
     let module_frontend = link_frontend.as_ref().unwrap_or(&frontend);
     let loaded = program::new_program_version(&frontend.program, None);
     let _semantic = core::enter_program(Some(loaded));
@@ -1149,20 +1217,40 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         let dynamic_path = relative.clone();
         let root = repository_root.clone();
         let captured = captured_files.clone();
+        let module_resolutions = if !retained
+            && [".js", ".jsx", ".mjs", ".cjs"]
+                .iter()
+                .any(|extension| path.ends_with(extension))
+        {
+            let configured = ordinary_javascript_frontend(
+                fs.clone(),
+                &request.cwd,
+                &request.sdk_directory,
+                path,
+            )?;
+            Some(javascript_module_resolutions(&configured, path)?)
+        } else {
+            None
+        };
         let mut raw = program::with_type_checker_for_file(file, move |checker| {
-            ordinary::extract(
-                file,
-                checker,
-                &relative,
-                &ordinary::ExtractionContext {
-                    repository_root: &root,
-                    static_module_links,
-                    retained,
-                    javascript_enabled,
-                    captured_files: Some(&captured),
-                    case_sensitive,
-                },
-            )
+            let context = ordinary::ExtractionContext {
+                repository_root: &root,
+                static_module_links,
+                retained,
+                javascript_enabled,
+                captured_files: Some(&captured),
+                case_sensitive,
+            };
+            match module_resolutions.as_ref() {
+                Some(resolutions) => ordinary::extract_with_module_resolutions(
+                    file,
+                    checker,
+                    &relative,
+                    &context,
+                    Some(resolutions),
+                ),
+                None => ordinary::extract(file, checker, &relative, &context),
+            }
         })?;
         extraction.modules.append(&mut raw.modules);
         extraction.symbols.append(&mut raw.symbols);
@@ -1517,6 +1605,89 @@ mod tests {
                 generated
             );
         }
+    }
+
+    #[test]
+    fn ordinary_javascript_conditional_imports_keep_the_native_resolution_paths() {
+        let mut request = component_request(
+            "gapConditionalImportDev",
+            "/repo/entry.cjs",
+            "import { dualValue } from '@dev/dual'; export const observed=dualValue; export function later(){return import('@dev/dual');}",
+        );
+        request.retained = false;
+        request.files.extend(BTreeMap::from([
+            ("/repo/tsconfig.json".into(), "{\"compilerOptions\":{\"module\":\"NodeNext\",\"moduleResolution\":\"NodeNext\"}}".into()),
+            ("/repo/node_modules/@dev/dual/package.json".into(), "{\"name\":\"@dev/dual\",\"exports\":{\"import\":\"./import.js\",\"require\":\"./require.js\"}}".into()),
+            ("/repo/node_modules/@dev/dual/import.js".into(), "export const dualValue=233;".into()),
+            ("/repo/node_modules/@dev/dual/require.js".into(), "export const dualValue=239;".into()),
+        ]));
+        let result = analyze(request, component_sdk()).unwrap();
+        let imports = result["raw_extraction"]["imports"].as_array().unwrap();
+        assert_eq!(imports.len(), 2);
+        assert_eq!(
+            imports[0]["resolvedRelPath"],
+            "node_modules/@dev/dual/require.js"
+        );
+        assert_eq!(
+            imports[1]["resolvedRelPath"],
+            "node_modules/@dev/dual/import.js"
+        );
+    }
+
+    #[test]
+    fn ordinary_javascript_resolution_errors_and_missing_context_do_not_become_empty_success() {
+        let path = "/repo/resolutionErrorsDev.js";
+        let fs = Rc::new(CaptureFs::new(
+            BTreeMap::from([(path.into(), "export const resolutionErrorsDev=241;".into())]),
+            true,
+        ));
+        let mut frontend = ordinary_javascript_frontend(fs, "/repo", "/sdk/lib", path).unwrap();
+        assert!(
+            javascript_module_resolutions(&frontend, path)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(javascript_module_resolutions(&frontend, "/repo/absentDev.js").is_err());
+        Rc::get_mut(&mut frontend.program)
+            .unwrap()
+            .module_resolution_error = Some(ts_goport::gostd::errors::new(
+            "resolution error from native program",
+        ));
+        assert!(
+            javascript_module_resolutions(&frontend, path)
+                .unwrap_err()
+                .contains("resolution error from native program")
+        );
+        Rc::get_mut(&mut frontend.program)
+            .unwrap()
+            .module_resolution_error = None;
+        frontend
+            .resolution
+            .as_ref()
+            .unwrap()
+            .borrow_mut()
+            .errors
+            .insert(
+                path.into(),
+                "resolution error from configured resolver".into(),
+            );
+        assert!(
+            javascript_module_resolutions(&frontend, path)
+                .unwrap_err()
+                .contains("resolution error from configured resolver")
+        );
+        frontend
+            .resolution
+            .as_ref()
+            .unwrap()
+            .borrow_mut()
+            .errors
+            .clear();
+        assert!(
+            javascript_module_resolutions(&frontend, path)
+                .unwrap()
+                .is_empty()
+        );
     }
 
     #[test]

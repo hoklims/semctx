@@ -53,7 +53,9 @@ CLI tests are wired into the native three-OS CI lane. At `c6a4241c`, those32
 comparators and seven Python tests passed on Linux and macOS. Windows passed31
 comparators, then exposed a fixture constructing backslash keys instead of using
 the real materializer. That fixture is corrected locally, with unchanged
-assertions and a negative witness; remote confirmation is pending the next push.
+assertions and a negative witness. CI [39142147341](https://github.com/hoklims/semctx/actions/runs/39142147341)
+at `53cd6fd9` confirms32 comparators and seven Python tests per OS on macOS, Linux
+and Windows. This does not cover subsequent mappings or the full354-unit campaign.
 The full campaign, reserved run and R0 remain pending.
 
 Step3 is now in progress. The [first GAP tranche](gap-mapping-progress.json)
@@ -75,8 +77,12 @@ status is refreshed after late mappings; its stale label was reproduced and
 corrected without changing inputs or comparators. A
 [third tranche](gap-sibling-evidence.json) materializes the explicitly captured
 sibling configuration for V2-F02 in a separate input envelope; the unchanged
-native outside-repository refusal passes focused macOS replay. There are 55 static GAP
-units still to map; all240 obligations remain unqualified.
+native outside-repository refusal passes focused macOS replay. A
+[fourth tranche](gap-ordinary-config-evidence.json) maps N02 and E08. Both pass
+macOS DEV replay after correcting ordinary JS module links to use the actual
+source-configured native resolution mode. Independent replay and ten negative
+witnesses cover these mappings. There are53 static GAP units still to map;
+all240 obligations remain unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

@@ -511,6 +511,39 @@ for recipe in recipes:
         recipe['requests'][0]['outside_root_retained_files'] = copy.deepcopy(setup[0]['outside_root_retained_files'])
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'SETUP_CAPTURE_OR_FILESYSTEM_FAULT_NOT_MAPPED']
         recipe['setup_mapping'] = 'Exact frozen sibling retained bytes in a separate input envelope; direct sibling paths only, exclusive creation, included in captured request and independent input binding.'
+    if recipe['case_id'] == 'N02-legacy-ignores-config':
+        if assertions['relation'] != 'Changing live config metadata must not change this legacy extraction.':
+            raise ValueError('unsupported legacy configuration relation')
+        for projection in recipe['checks']:
+            if projection['expected_origin'] == ptr('import_projection'):
+                projection['expected'] = copy.deepcopy(projection['expected'])
+                for imported in projection['expected']:
+                    if imported.get('resolvedRelPath') == 'absent':
+                        imported['resolvedRelPath'] = {'$field_absent':True}
+                projection['notation_interpretation'] = 'Frozen resolvedRelPath absent denotes an omitted field in legacy extraction.'
+        changed = copy.deepcopy(recipe['requests'][0])
+        changed['id'] += '::changed-live-config'
+        config = json.loads(changed['files']['tsconfig.json'])
+        config['compilerOptions']['paths']['#shared'] = ['./unresolved-after-config.ts']
+        changed['files']['tsconfig.json'] = json.dumps(config, separators=(',', ':'))
+        recipe['requests'].append(changed)
+        recipe['relations'] = [{'left_observation':0,'right_observation':1,'target':['raw_extraction'],'transform':'none','expected_equal':True,'origin':ptr('relation')}]
+        recipe['instantiated_mutation'] = {'path':'tsconfig.json','after_utf8_sha256':hashlib.sha256(changed['files']['tsconfig.json'].encode()).hexdigest(),'scope':'Only live paths metadata changes; selected source/roots unchanged; no originally frozen exact after bytes claimed.'}
+        remove_gap(recipe, 'relation')
+        recipe['credited_properties'].append('relation')
+    if recipe['case_id'] == 'V2-E08-ordinary-conditional-package-exports':
+        source = recipe['requests'][0]['roots'][0]
+        links = check(['raw_extraction', 'imports'], assertions['ordinary_resolved_links_in_order'], 'eq', ptr('ordinary_resolved_links_in_order'), 'pluck:resolvedRelPath')
+        links['actual_filter'] = {'fromRelPath':source}
+        recipe['checks'].append(links)
+        retained = copy.deepcopy(recipe['requests'][0])
+        retained['id'] += '::retained-configuration-component'
+        retained['retained'] = True
+        recipe['requests'].append(retained)
+        add_bound_check(recipe, ['subjects', {'path':source}, 'moduleConfigurationObservations', 'retainedWithoutSource', 'reasons'], assertions['retained_configuration_reasons'], 'reason_constraints', ptr('retained_configuration_reasons'), 'inspectModuleConfiguration under the separate prescribed retained profile', {'frozen_unit_pointer':recipe['frozen_unit_pointer']}, observation=1)
+        for key in ['ordinary_resolved_links_in_order', 'retained_configuration_reasons']:
+            remove_gap(recipe, key)
+            recipe['credited_properties'].append(key)
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 

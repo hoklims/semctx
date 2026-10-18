@@ -3250,6 +3250,14 @@ fn gap_retained_outside_configuration_uses_the_declared_sibling_capture() {
 }
 
 #[test]
+fn gap_ordinary_configuration_relations_and_conditional_exports_use_actual_native_links() {
+    repair_units(&[
+        "N02-legacy-ignores-config::base",
+        "V2-E08-ordinary-conditional-package-exports::base",
+    ]);
+}
+
+#[test]
 fn comparator_materialized_sibling_capture_preserves_bytes_and_refuses_escape_or_collision() {
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)

@@ -163,7 +163,7 @@
     }
   ],
   "currentEvidenceLimits": [
-    "Historical case-alias and early-return defects remain preserved. Current focused repairs pass locally with independent proof review; full campaign and new native Actions results remain separate.",
+    "Historical case-alias and early-return defects remain preserved. Current focused repairs pass locally with independent proof review. CI39142147341 at53cd passed32 comparators and7 recipe CLI tests on each ofmacOS/Linux/Windows; not a full campaign or coverage of later engine changes.",
     "Focused harness repairs are development evidence only; no new full qualification or reserved run. Zero qualified obligations remain the last observed state.",
     "The owner arbitration records a decision, not a new upstream root-cause experiment or an automatic support/obligation PASS.",
     "No current READY_TS_NATIVE or STOP_SEMANTIC decision. T01 and substantial ports remain outside this resumption.",
