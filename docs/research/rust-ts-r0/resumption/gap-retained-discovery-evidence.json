@@ -1,0 +1,80 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_FROZEN_RETAINED_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "d684823b80463e37370a70fa1dd7d9efd0d5422d",
+  "reviewedDiffSha256": "04e532cfac7404c47783b1f5c9b687a006927fa23230d8cc187b2a9f50eefe3a",
+  "archive": {
+    "path": "gap-retained-discovery-evidence.tar.gz.b64",
+    "bytes": 1000591,
+    "sha256": "ebb918bf6c2cad434a86840c3b6d0c3020a8ac069f287399b40811ed05e383fe",
+    "decodedSha256": "bc4d92a4d86bb17ba4c333fbeaaab45ecb157fa9b920fd0c52cd32dc4cfdbc07",
+    "files": 135
+  },
+  "units": [
+    "N01-snapshot-metadata-mismatch::base",
+    "P01-retained-source::analyze-snapshot-consistent"
+  ],
+  "nativeArtifactSha256": "823470486f99c432353eaceb7e74d896286f35b912a369af634ae0d49ab58329",
+  "recipesSha256": "25d3ff13082a732938eec320a95b59a9739a3893b2fe7e5f88888a169c2eabe2",
+  "authority": "Frozen public N01 base assertions and P01 analyze-snapshot-consistent assertions, explicitly reusing unchanged P01 base retained-leaf projection. Accepted ADR0037; owner-authorized same T00/C1/pass1.",
+  "mechanism": "Preserve exact captured leaf bytes and discovered mismatch for N01. For P01, keep discovered content equal to retained capture while physically writing the frozen transient bytes after saving the analysis Request. Invoke the unchanged optimized C1 through #383 and --analyze-retained-discovery. Classify actual refusal without inner native result separately from actual successful retained analysis.",
+  "binding": "Outer descriptor, supplied SDK and executable identities are recomputed; artifact/helper hashes are checked before and after actual process supervision. Successful inner native Request/logical input/artifact binding, all credited source-root capability and each reported successful-read content hash are checked. Refusal claims no SDK library consumption.",
+  "failurePaths": [
+    "Missing/foreign descriptor, SDK or artifact identity refuses before projected checks can pass.",
+    "Refusal requires explicit false execution/guard states, one actual error and native_analysis absent; null or present inner results refuse.",
+    "Success requires the actual inner identity, complete native observation, known root capability and joinable reported successful reads.",
+    "Nonzero, timeout, output-limit, cancellation, capture errors, unknown process states and malformed stdout remain NONPASS.",
+    "Physical mutation must target the captured source inside the disposable root, differ from retained bytes and leave the saved analysis Request unchanged."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22; snapshots0 RUST_TEST_THREADS1 GIT_CONFIG_GLOBAL unset",
+    "currentObserverComparators": 42,
+    "currentRecipeCliTests": 7,
+    "currentFocusedFrozenUnits": 2,
+    "currentProjectedChecks": 9,
+    "formatClippyRuffExitCode": 0,
+    "nativeSuitesReused": {
+      "checkpoint": "d684823b80463e37370a70fa1dd7d9efd0d5422d",
+      "binary": 198,
+      "library": 45,
+      "nativeProcessFlows": 4,
+      "evidence": "retained-discovery-evidence.json",
+      "basis": "All28 producer sources, artifact, SDK, helper, manifests and dependency pins unchanged; fixture preserves original build provenance. No fresh producer suite execution claimed."
+    },
+    "fullVerifyPrRerun": false
+  },
+  "review": {
+    "standards": "review/standards/report.md",
+    "specProofAdversarial": "review/spec-proof/review.txt",
+    "boundedVerdict": "PROOF_ADEQUATE for these two focused native DEV mappings only",
+    "standardsFreshChecks": "3 owning comparators and actual2unit/9projection replay PASS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaults": [
+      "Compiled Rust descriptor-identity guard bypass causes owning comparator exit101; restore all42 comparators and1 disposable independent adversarial test PASS.",
+      "Python source drops discovery override: only N01 recipe changes, actual native N01 success yields MISMATCH/unit NONPASS while P01 PASS; restore actual N01/P01 PASS."
+    ],
+    "adversarial": "Actual captured observations with foreign known-read hash, missing/unimplemented capability, missing probes, absent/null successful native result, or refusal carrying native analysis are rejected.",
+    "independentAdversarialTestShipped": false,
+    "candidateUnchangedDuringReview": true,
+    "claimAudit": {
+      "author_task": "/root",
+      "auditor_task": "/root/gap_batch12_claims",
+      "ledger": "design-claim-ledger.md",
+      "provenance": "Full named child final response persisted verbatim by parent; auditor is read-only.",
+      "reconciliation": "Do not adopt the five hypothetical contradicted claims. Native198/45/4 are reused evidence; current42 comparators and7 Python are fresh. Only reported successful reads are joined, not all OS reads or all SDK consumption. Full replay dispatch is inspected but unexecuted. Reserved no-access is actor attestation, not a forensic access guarantee. Future documentary target requires final parser/reconciliation; Plane-A and full campaign targets remain pending."
+    }
+  },
+  "workflowRecurrence": "Existing focused replay command performs deterministic native collection. Standard archive/manifest primitives retain identities, raw observations, mutation patches and restoration. No standalone packaging utility or new CI lane is shipped.",
+  "newMappingsCredited": 2,
+  "newProjectedPasses": 2,
+  "qualificationCredit": 0,
+  "limits": [
+    "29 of64 initial GAP units mapped:28 limited PASS and N17c version-attributed NONPASS;35 static GAP units remain;0/240 qualified obligations.",
+    "Historical283 PASS/7 NONPASS/64 GAP full-campaign counts retain original provenance. No new full354 aggregate extrapolated.",
+    "Both Plane-A runtime variants remain separate GAP; no complete public runtime, autodiscovery, full retained scope, capture atomicity or global admission proof.",
+    "Read provenance covers reported successful reads, not all OS reads or all supplied SDK consumption.",
+    "Full replay dispatcher routes to this runner by source inspection only; its full campaign path is not behaviorally exercised here.",
+    "Current mapping evidence is macOS only; Linux/Windows,178-obligation review,full354campaign,reserved execution andR0 remain pending.",
+    "Additional C1 pass1 stays OPEN, pass2 unused; no budget reset or measured cumulative-effort claim."
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_SEVEN_GAPS_MAPPED_TWENTY_SIX_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_NINE_GAPS_MAPPED_TWENTY_EIGHT_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining37 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T20:29:31.884945+00:00",
-  "staticGapUnitsRemaining": 37,
+  "next": "Continue the remaining35 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T20:45:32.228125+00:00",
+  "staticGapUnitsRemaining": 35,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -538,7 +538,7 @@
   },
   "twelfthBatch": {
     "registeredUtc": "2026-10-18T20:29:31.884945+00:00",
-    "state": "NATIVE_RETAINED_DISCOVERY_DEV_PREREQUISITE_REVIEWED_FROZEN_RECIPES_PENDING",
+    "state": "TWO_FROZEN_RETAINED_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
     "additionalC1Pass": 1,
     "passStillOpen": true,
     "scope": "At least one native nondeclaration TS/JS source root; String text capture only. Canonical root/capture keys use the existing measured-case normalizer; discovery coordinates must be canonical portable relative paths. Declaration annex roots do not belong to the supplied source inventory. No autodiscovery, role/language remapping, whole retained scope, capture atomicity or complete public Plane-A runtime claim.",
@@ -547,10 +547,23 @@
       "P01-retained-source::analyze-snapshot-consistent"
     ],
     "runtimeVariantsRemainSeparate": true,
-    "newMappingsCredited": 0,
+    "newMappingsCredited": 2,
     "qualificationCredit": 0,
     "nativeArtifactSha256": "823470486f99c432353eaceb7e74d896286f35b912a369af634ae0d49ab58329",
-    "evidence": "retained-discovery-evidence.json",
-    "nativePhase": "Native capture-versus-supplied-inventory guard reviewed;198binary/45library/4native-process-flow/39comparator tests pass on macOS. Frozen recipes and consumer replay still pending."
+    "evidence": "gap-retained-discovery-evidence.json",
+    "nativePhase": "Native capture-versus-supplied-inventory guard reviewed;198binary/45library/4native-process-flow/39comparator tests pass on macOS. Frozen recipes and consumer replay still pending.",
+    "nativePrerequisiteEvidence": "retained-discovery-evidence.json",
+    "newProjectedPasses": 2,
+    "mappingPhase": {
+      "registeredUtc": "2026-10-18T20:45:32.228125+00:00",
+      "state": "TWO_FROZEN_RETAINED_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+      "newMappingsCredited": 2,
+      "qualificationCredit": 0,
+      "passStillOpen": true,
+      "recipesSha256": "25d3ff13082a732938eec320a95b59a9739a3893b2fe7e5f88888a169c2eabe2",
+      "currentChecks": "42comparators,7Python,2actualnativeunits/9projections;fmt/clippy/Ruff PASS. Producer198/45/4 reused unchanged, not rerun.",
+      "sourceFaultsRejectedThenRestored": 2,
+      "scope": "Only N01 base and P01 analyze-snapshot-consistent; Plane-A variants remain separate GAP; full dispatcher inspected, not exercised."
+    }
   }
 }
