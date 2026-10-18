@@ -1,0 +1,64 @@
+{
+  "state": "ALL_FOUR_SHARDS_PASSED",
+  "headAtLaunch": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+  "command": "SEMCTX_VERIFY_BASE=382c084fc39c44e552bdbe159c441c0d08ea49ac SEMCTX_NATIVE_EVIDENCE=<external> script -qe -t 0 <log> python3 run-t00-command.py bun run verify:pr --test-shard N/4",
+  "environment": "macOS27.0.1 ARM64, Bun1.4.3, Rust1.95.0, pinned task-local venv and inherited Volta Node/npm PATH",
+  "gitConfigGlobal": "Removed in each child environment by archived wrapper",
+  "immutable383HelperSha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+  "shards": [
+    {
+      "shard": "1/4",
+      "exitCode": 0
+    },
+    {
+      "shard": "2/4",
+      "exitCode": 0
+    },
+    {
+      "shard": "3/4",
+      "exitCode": 0
+    },
+    {
+      "shard": "4/4",
+      "exitCode": 0
+    }
+  ],
+  "runtimeScope": "All repository paths except docs/research/rust-ts-r0; git diff --quiet49fa on that scope remains0. Research-only additions staged explicitly and separately parsed/checked after these runs.",
+  "runtimeBaseDiffSha256": "2f3a886fdea04a9b6bcc841868bd91bf3e359fcff6fd4bc3aebaa45a98128f56",
+  "archive": "canonical-logs.tar.gz.b64",
+  "decodedArchiveSha256": "560adddd07613299695d5b181c2afe21707d7f35e9fbd873a2f4ceb811d8f845",
+  "files": [
+    {
+      "member": "evidence/verify-final-r0-1.log",
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-final-r0-1.log",
+      "bytes": 279790,
+      "sha256": "49042e15a8788bbbeda0f76e91e0bf2fc6b36ea09880785900121119df3c01c4"
+    },
+    {
+      "member": "evidence/verify-final-r0-2.log",
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-final-r0-2.log",
+      "bytes": 581721,
+      "sha256": "199bc64c2e63d1815ce56015d6935436174f182eeab355a833bec0c6b490454c"
+    },
+    {
+      "member": "evidence/verify-final-r0-3.log",
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-final-r0-3.log",
+      "bytes": 719165,
+      "sha256": "3b1071983d2dc2c2ff90301955a0f660c86c55191dd360a0199ce7a843721a50"
+    },
+    {
+      "member": "evidence/verify-final-r0-4.log",
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-final-r0-4.log",
+      "bytes": 701373,
+      "sha256": "1a908ad6f953ed533747e23d300a997622ccc46ffa1fde05cd7c6dcbe82a5444"
+    },
+    {
+      "member": "run-t00-command.py",
+      "original": "/private/tmp/semctx-t00-20261017/run-t00-command.py",
+      "bytes": 630,
+      "sha256": "c766c2cc77215fd74e2a3f02bbf8f36df49429b0777abb7bdec4dba945b7e34d"
+    }
+  ],
+  "credit": "Local delivery checks only; no Windows/Linux result, R0 semantic qualification or final documentary-tree identity inferred."
+}

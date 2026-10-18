@@ -2,8 +2,9 @@
 
 This directory records the bounded TS/JS feasibility experiment for
 [#365](https://github.com/hoklims/semctx/issues/365), section 2. That issue owns
-acceptance. This record neither changes the accepted language profiles nor
-declares `READY_TS_NATIVE`.
+acceptance. The [final decision is STOP_BUDGET](final/README.md): both compositions and
+both correction passes are closed without R0. This record does not change the
+accepted language profiles or declare `READY_TS_NATIVE`.
 
 ## Preregistration
 
@@ -15,8 +16,9 @@ expected results.
 
 The owner authorized execution, commits and incremental normal pushes on
 `rust/365-t00`, and PR-description updates. No merge, release, deployment or push
-to another owner's branch is authorized. One owner-requested bug comment is linked in the arbitration; no other GitHub
-comments are authorized.
+to another owner's branch is authorized. One historical owner-requested bug comment is linked in the arbitration.
+The resumed session strictly prohibits every new GitHub comment, including#365;
+progress is published only in the PR386 description.
 
 Each completed stage is a separate checkpoint:
 
@@ -74,8 +76,9 @@ first correction pass. The six native development vectors pass on macOS ARM64;
 they establish no qualification or reserved-case result. The checkpoint records
 its artifact/source identities, actual process Outcomes, reported input reads and
 the remaining native observation gaps. The native CI job now also executes the
-same optimized TS/JS vectors and retains its artifacts. Windows/Linux execution
-evidence remains pending.
+same optimized TS/JS vectors and retains its artifacts. At that historical checkpoint Windows/Linux execution was pending.
+[The final platform dossier](selection/platforms-49fa/README.md) now preserves
+actual optimized C1 DEV evidence on native Windows/Linux/macOS.
 
 
 ## Current qualification checkpoint
@@ -98,26 +101,35 @@ The frozen expectations are unchanged. C1 has no correction pass remaining;
 its successful DEV checks do not cancel qualification failures or missing proofs.
 No reserved case has been executed.
 
-[C2 preregistration](composition2/registration.json) records a distinct Ezno
-native checker hypothesis before its build or first semantic execution. Its first
-DEV probe uses the unchanged TypeScript 5.9.3 SDK and the baseline default-library
-closure, plus a fresh cross-file alias and primitive-method target witness.
-It has no C1, JavaScript or Go semantic fallback. The independent expected-target
-check precedes native execution. Registration and successful compilation alone
-provide no semantic result. The [first native C2 run](composition2/initial/README.md)
-panicked after six SDK reads, before any project read. Its raw Outcome, independent
-oracle and unchanged identities are preserved. The first bounded C2 correction is
-registered for a source-backed definition-local mapping collision. That correction
-now passes the native DEV regression. The [independent corrected replay](composition2/pass1-replay/report.json)
-reads all63SDK files without panic, but returns734errors including12parser/lexer
-rejections, with no project module or target witness exercised. Process exit0 is
-not a semantic pass. One C2 correction remains; no global semantic impossibility
-is inferred from the initial panic alone. The approved two-composition
-envelope remains fixed.
+[C2 preregistration](composition2/registration.json) records the distinct Ezno
+native checker hypothesis. [Its initial run](composition2/initial/README.md)
+panicked after six SDK reads. The first correction isolates definition-local
+mappings; [its replay](composition2/pass1-replay/report.json) read all63SDK files
+but returned734errors and7warnings before project loading.
 
-[The exact-head CI entry](selection/ci-dispatch/README.md) records why an explicit
-manual workflow dispatch is needed and how its base and immutable head are bound.
-Public Windows/Linux execution and final R0 remain pending.
+[The final C2 correction](composition2/pass2-producer/README.md) preserves188source
+files and33passing native DEV tests. [One final independent replay](composition2/pass2-replay/report.json)
+completes in357ms with exit0,458unchanged identities and63exact SDK reads, but
+returns541errors and17warnings before any project module or expression mapping.
+The aliasValue and String.trim targets remain unexercised. No classified
+parser/lexer error or panic recurs; that limited result does not qualify grammar
+or semantics. Both C2 corrections are now closed. Baseline skipLibCheck and native
+nullability differences remain explicit; no SDK errors or expected values are
+suppressed to obtain a pass.
+
+[The final R0 dossier](final/README.md) records STOP_BUDGET from the actual
+composition/correction limits, with0qualified obligations and no reserved-case
+execution. It does not claim that five days were spent or that Rust is impossible.
+T01 and substantial ports remain closed. [The independent terminal claim audit](final/claim-audit.json)
+records no current finding within its bounded evidence scope.
+
+[The exact-head CI entry](selection/ci-dispatch/README.md) binds its base and
+immutable head. [The platform evidence](selection/platforms-49fa/README.md)
+contains optimized C1 common DEV vectors on native Windows/Linux/macOS. General
+CI has an unrelated Windows test failure; no aggregate green is claimed. C2
+remains macOS ARM64 DEV only. The [fresh delivery checks](selection/ci-dispatch/canonical-final/record.json)
+pass all four verify:pr shards locally with Bun1.4.3 and GIT_CONFIG_GLOBAL removed.
+Later research-only documentation is checked separately.
 
 ## Verification and tooling
 

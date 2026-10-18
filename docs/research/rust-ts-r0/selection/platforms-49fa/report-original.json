@@ -1,0 +1,598 @@
+{
+  "status": "PARTIAL_PLATFORM_EVIDENCE_PENDING",
+  "proof_verdict": "PROOF_WEAK",
+  "reviewer": "/root/native_verifier_independent_review",
+  "recorded_utc": "2026-10-18T06:42:13.388504+00:00",
+  "run_url": "https://github.com/hoklims/semctx/actions/runs/39103858448",
+  "run_id": 39103858448,
+  "run_attempt": 1,
+  "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+  "run_status": "in_progress",
+  "run_conclusion": null,
+  "plan": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/plan/gate-plan.json",
+    "sha256": "fd927d8f21d0dd3641b9f3a481123a0937cef20fc0e28d236fb996b7fa5e2e3a",
+    "plan_id": "49a8e86bcdd90e77278fb1bb2662ae8c7ddb6a2791bc52576d800d5f2ee706dc",
+    "subject": {
+      "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+      "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+      "tree": "057a1a4feeda56f86fd8833e5825073d3b233a3f",
+      "policy_hash": "ebeb82d0d64d2145335cf6e4a102a8714d7cc5b7c95413e758cf8b1fb3f85682"
+    }
+  },
+  "platforms": [
+    {
+      "platform": "ubuntu-latest",
+      "optimized_status": "PASS",
+      "debug_status": "PASS",
+      "native_job_id": 117605579165,
+      "native_job_status": "completed",
+      "native_job_conclusion": "success",
+      "active_steps": [],
+      "optimized_artifact_metadata": {
+        "id": 12127594517,
+        "name": "native-r0-optimized-ubuntu-latest",
+        "size_in_bytes": 12437921,
+        "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+        "expired": false
+      },
+      "missing_or_pending_evidence": [],
+      "common_vectors_debug_verified": 4,
+      "receiver_debug_outcomes_verified": 6
+    },
+    {
+      "platform": "windows-latest",
+      "optimized_status": "PENDING",
+      "debug_status": "PASS",
+      "native_job_id": 117605579140,
+      "native_job_status": "in_progress",
+      "native_job_conclusion": null,
+      "active_steps": [
+        "Exercise the optimized native T00 prototype on common vectors"
+      ],
+      "optimized_artifact_metadata": null,
+      "missing_or_pending_evidence": [
+        "native-r0-optimized-windows-latest not yet published"
+      ],
+      "common_vectors_debug_verified": 4,
+      "receiver_debug_outcomes_verified": 5
+    },
+    {
+      "platform": "macos-15",
+      "optimized_status": "PENDING",
+      "debug_status": "PASS",
+      "native_job_id": 117605579155,
+      "native_job_status": "in_progress",
+      "native_job_conclusion": null,
+      "active_steps": [
+        "Build the candidate CLI and the native qualification runner"
+      ],
+      "optimized_artifact_metadata": {
+        "id": 12128425722,
+        "name": "native-r0-optimized-macos-15",
+        "size_in_bytes": 11759569,
+        "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+        "expired": false
+      },
+      "missing_or_pending_evidence": [
+        "Archive available at last poll, not downloaded/independently verified within initial active-effort budget"
+      ],
+      "common_vectors_debug_verified": 4,
+      "receiver_debug_outcomes_verified": 6
+    }
+  ],
+  "credited_optimized_platform": {
+    "artifact_name": "native-r0-optimized-ubuntu-latest",
+    "runtime_os": "linux",
+    "arch": "x86_64",
+    "optimized": true,
+    "status": "PASS",
+    "producer_sha256": "sha256:df7d35d30d20a9ba50672693834e9f8cce0d3bbb1462410a7cbb1e1391628dd3",
+    "supervisor_sha256": "sha256:f82b4c8785f4c5c32700997264e4eee0867d21bfe7faa478c00790a79f8b2af0",
+    "common_vectors": [
+      {
+        "id": "t00Development07Valid",
+        "outcome_sha256": "665fd00b4641525329da8877cc7ae674477d1578108553e8562739f35682484b",
+        "stdout_hash": "3aa028ebc948c7cf3cb9331e92e8f82106f7d5825aee2f8ce3289115d6676658",
+        "argv0": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "independent_input_and_projection_match": true
+      },
+      {
+        "id": "t00Development07Malformed",
+        "outcome_sha256": "93f51028670e47f5ef7e21f3f301c8974bdc94d819d77d1242ea73fc4e45c048",
+        "stdout_hash": "1c5501d06a246656583da5b68c929938cf209b8ee23907125817b573a07ba18a",
+        "argv0": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "independent_input_and_projection_match": true
+      },
+      {
+        "id": "t00Development08BomCrLfAstral",
+        "outcome_sha256": "abfeb778a7ccac88b49627148ca3ed026a6b658dd463f281e0788d8209e0024d",
+        "stdout_hash": "5c651f142ac69f3a0dbbdbce8dcc91f273cf3ba8ca441bd3bbfa25d09f37da42",
+        "argv0": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "independent_input_and_projection_match": true
+      },
+      {
+        "id": "t00Development08SingleLineControl",
+        "outcome_sha256": "5813702df42581e4a45bcdaeb561b3a83aeae284f0a249d761cba4baa2bf3234",
+        "stdout_hash": "c6a179147d9e72aabc8a793b3b95d8a5ca0404496f9889d1c54f706ff54374ce",
+        "argv0": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "independent_input_and_projection_match": true
+      }
+    ],
+    "receiver_outcomes": [
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/native-0.json",
+        "sha256": "dc71ae1c02ebe4cc1bbf221a43d527f9e2ab298e145fb33bb8fdd8ffb42ae85a",
+        "kind": "success",
+        "exit_code": 0,
+        "stable_common_producer_and_helper": true
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-empty-path.json",
+        "sha256": "3fdabbc680321ede6ad8200074574a58af55c6e5e2bd42676e10dd6c43ee4659",
+        "kind": "success",
+        "exit_code": 0,
+        "stable_common_producer_and_helper": true
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-failure.json",
+        "sha256": "4e866dc450b681a779e744e88d6585e6b505344dc987d602c0fa1ee4250cdab2",
+        "kind": "nonzero",
+        "exit_code": 1,
+        "stable_common_producer_and_helper": true
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-output-cap.json",
+        "sha256": "b61368b217c04d5761788ab41cd3a6407855a8362013f0c9e4720f97af3ffed8",
+        "kind": "output_limit",
+        "exit_code": null,
+        "stable_common_producer_and_helper": true
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-timeout.json",
+        "sha256": "ba9bdcd0d37ab277df047afe2882a65cf777cd11718997af4779f7eb68e23e6f",
+        "kind": "timeout",
+        "exit_code": null,
+        "stable_common_producer_and_helper": true
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305462509476472/native-1.json",
+        "sha256": "738a2dbaade80a9008f677092efd62b50d317e96ab26d43ddf3b2d8331c4a927",
+        "kind": "success",
+        "exit_code": 0,
+        "stable_common_producer_and_helper": true
+      }
+    ],
+    "coherent_poison_artifacts": [
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/coherent-payload-and-input-poisons.json",
+        "sha256": "f66c55c1c86e736a04aaeedf7da20008f03fb1c49c46c502944e02ca68a32242",
+        "result_count": 8
+      }
+    ],
+    "read_provenance_artifacts": [
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305459942124870/input-provenance-0.json",
+        "sdk_read_paths": 63,
+        "supplied_sdk_files": 100,
+        "sha256": "4bd29156d375692feab2ecd06a5337178060d29367822e9ea654e29aeff7bfc4"
+      },
+      {
+        "path": "_temp/native-r0-optimized/run-13391-1792305462509476472/input-provenance-1.json",
+        "sdk_read_paths": 63,
+        "supplied_sdk_files": 100,
+        "sha256": "cffdbadf504a8e4da03a37dc8eaf17e309081f8ef34e2544f4164089edc5b9cf"
+      }
+    ],
+    "binary_artifact": {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/artifacts/native-r0-optimized-ubuntu-latest/semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+      "sha256": "df7d35d30d20a9ba50672693834e9f8cce0d3bbb1462410a7cbb1e1391628dd3",
+      "bytes": 36821584,
+      "format": "ELF",
+      "machine": 62,
+      "identity_matches_all_observed_processes": true
+    },
+    "common_vectors_sha256": "ea324b92f630dc3e2d9372ede71efd59905840b1c5e54ba01f587e10329e5a65"
+  },
+  "credited_debug_platforms": [
+    {
+      "platform": "ubuntu-latest",
+      "status": "DEBUG_DEV_PASS_OPTIMIZED_PENDING",
+      "runtime_os": "linux",
+      "arch": "x86_64",
+      "optimized": false,
+      "producer_sha256": "sha256:987c19948da005c789d9a774a1ef5eb3153bb0aff8ddd9deecc5721d9a944941",
+      "supervisor_sha256": "sha256:f82b4c8785f4c5c32700997264e4eee0867d21bfe7faa478c00790a79f8b2af0",
+      "same_four_vectors_verified": [
+        {
+          "id": "t00Development07Valid",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "c59dd1a9b49a983c616d4bef150ce19868841cc65e14839b90b689574f729c77",
+          "stdout_hash": "001c25bdf94f1f235d85f5b2b75a5d212c3dfe29ddfc36891e4f83ba69edd4f8",
+          "producer_argv": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development07Malformed",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "392f4426c0fa87b9d52ec8a2bc28c95cf0ab6d9181120a3309620878e626b92a",
+          "stdout_hash": "30f77a8974a8eaf75279d7516a2f426b78a9932efe24e9d3debd82f868cd95a8",
+          "producer_argv": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "1c5f63b635f543da5ca8d0c6ab1980a0719ccaef54d92b0150f9a1b7b5c99d2a",
+          "stdout_hash": "770f16d5a69c13ae73570fec6574482ebcd8ddd2a405942d23df956a68a4a248",
+          "producer_argv": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "acefbe79604bde64f67ff6c6f698813aebd2594e44d5a19ec0857be0aaa325fe",
+          "stdout_hash": "42addcba2be34185b771596809af6766478b1edf6fa4e9949afdc0012e697327",
+          "producer_argv": "/home/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        }
+      ],
+      "receiver_flow_outcomes": [
+        {
+          "file": "run-11675-1792305061329488091/native-0.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 5133,
+          "sha256": "4d64ec498149e6b305e3c8b644d1d2e81b0b238f27141bdc0dfd775de7edd261",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-11675-1792305061329488091/real-native-empty-path.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 5137,
+          "sha256": "3d7004c04cfaa7a65c66dec1b8f4717617688e3483d1bee5c164691bd7b8d031",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-11675-1792305061329488091/real-native-failure.json",
+          "kind": "nonzero",
+          "exit_code": 1,
+          "duration_ms": 5,
+          "sha256": "f701f03de93f52de0b62c14fc80075893a78d2d662698eef8f0dcad5ee00b042",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-11675-1792305061329488091/real-native-output-cap.json",
+          "kind": "output_limit",
+          "exit_code": null,
+          "duration_ms": 5148,
+          "sha256": "ff6824ea5adb93bd05d96f02110fc47b546f20bd61c43c95adc82057432ba1d4",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-11675-1792305061329488091/real-native-timeout.json",
+          "kind": "timeout",
+          "exit_code": null,
+          "duration_ms": 10,
+          "sha256": "d5a7b4072d51e842bb75ddaf81b2b5e8d87f0f2ab1aae6a63b1137d0c55c69f1",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-11675-1792305205046168868/native-1.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 4408,
+          "sha256": "86a1217e233d4daf65f96d2b22745cd0c68373b63f7e640e7d9df97bf160a293",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        }
+      ],
+      "common_evidence_sha256": "8c6f0519cd1e8cd956db2189f274171c0f80803b5ea7de7ad3ebd39095ec7bb9"
+    },
+    {
+      "platform": "macos-15",
+      "status": "DEBUG_DEV_PASS_OPTIMIZED_PENDING",
+      "runtime_os": "macos",
+      "arch": "aarch64",
+      "optimized": false,
+      "producer_sha256": "sha256:faefa83223d4e705adc8a85faf1e872c15745efc82780e9af5cd46b46204c3f6",
+      "supervisor_sha256": "sha256:fcc1b16ec40004fe7983459b1a3e2daf6abd43e62e3f6cfe41cec9b85a8f1f34",
+      "same_four_vectors_verified": [
+        {
+          "id": "t00Development07Valid",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "8f64bdab1371a8f9be27729c1cef7226ccdc84e1764ac7c131a083643c8d731d",
+          "stdout_hash": "656e346f323e5ee2658b039540388e9879423f369bfbbecabc2cad15f19f3748",
+          "producer_argv": "/Users/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development07Malformed",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "7350e13d478ed0150716f51d7df7207f3e113f6c4141f805e0a2758eb1fa079e",
+          "stdout_hash": "95126acdec24b5c5002692d589518445db8bf41e8626edde48449d5fd71d8ce0",
+          "producer_argv": "/Users/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "b3c3e907568a066751f1af39ef096780991fa10c476c45c7a218b417d5da2b30",
+          "stdout_hash": "33812c266a9b4813fc08490993a8c3fde080b2d590f503fbd09da462f220abc7",
+          "producer_argv": "/Users/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "projection_matches_independent_head": true,
+          "source_request_matches": true,
+          "outcome_sha256": "ad03bac439a7ad5c0de47cced06dcd6eebf65b9fff6a3f28497d0b87eaa5d127",
+          "stdout_hash": "53ae1bcd7d24ba157f36bd0aa95fd63ed8a6681d2b41c38e1a27f818ebd2b925",
+          "producer_argv": "/Users/runner/work/semctx/semctx/tools/rust-ts-r0/target/debug/semctx-r0-probe"
+        }
+      ],
+      "receiver_flow_outcomes": [
+        {
+          "file": "run-34753-1792305158216631000/native-0.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 5390,
+          "sha256": "287a353983d868b1eb5fbff489f3ad444ad7d4095edfbe41622c99cb5c670516",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-34753-1792305158216631000/real-native-empty-path.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 5671,
+          "sha256": "f0e823c1d6b04171fd2be59e3512d9a3d7d6ad3b7106ef1e12bc5f62c0f3e935",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-34753-1792305158216631000/real-native-failure.json",
+          "kind": "nonzero",
+          "exit_code": 1,
+          "duration_ms": 13,
+          "sha256": "c220d0e89f4643a2112bd9cb74b6935edfa4b229b00c1e606b19d560e80d7093",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-34753-1792305158216631000/real-native-output-cap.json",
+          "kind": "output_limit",
+          "exit_code": 0,
+          "duration_ms": 5838,
+          "sha256": "680e75f417c62f34fcf069390ea849635c5fba2804fcd8de7ea47f0c7002b7d1",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-34753-1792305158216631000/real-native-timeout.json",
+          "kind": "timeout",
+          "exit_code": null,
+          "duration_ms": 9,
+          "sha256": "d8dc12ef4fcc276ca287f0e7af85d308408de3d896d6ca2022d633385fab141c",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        },
+        {
+          "file": "run-34753-1792305333371132000/native-1.json",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 4885,
+          "sha256": "36c49bbe34ddfef24570e11c1558a93532ccbb174b92e066152e98c5daec0b52",
+          "producer_stable_and_common_identity_matches": true,
+          "supervisor_stable_and_common_identity_matches": true
+        }
+      ],
+      "common_evidence_sha256": "2431d5219ad560065cae8a31730f71fa03f06a3b33d4eb64d7fda8cf27092498"
+    },
+    {
+      "artifact_name": "native-r0-development-windows-latest",
+      "runtime_os": "windows",
+      "arch": "x86_64",
+      "optimized": false,
+      "status": "PASS",
+      "producer_sha256": "sha256:782bcc787f20bc1705f0a3bf0733ad93a5f3ada5ffea8be65205ba8d9f029083",
+      "supervisor_sha256": "sha256:01ca113bea1cc456d27b1682a9bf792910aa015659397413a9553ebb870903a9",
+      "common_vectors": [
+        {
+          "id": "t00Development07Valid",
+          "outcome_sha256": "0d28dc8b7f9223ee8505eb5ab2299fab9d51164352ba8cbd3a7ac826d0424afb",
+          "stdout_hash": "5b33af0e733aee88ee2b3e2ca3489fb3c49627adecc51793db92df4450eda6c7",
+          "argv0": "D:\\a\\semctx\\semctx\\tools\\rust-ts-r0\\target\\debug\\semctx-r0-probe.exe",
+          "independent_input_and_projection_match": true
+        },
+        {
+          "id": "t00Development07Malformed",
+          "outcome_sha256": "4a811dafd4fc19e86ea616283d09e1c89ec0edb3c833dbd8ff1e7472c2f94ebb",
+          "stdout_hash": "d48af6e9360bd482655f9aef04fb33f15bb211cdb3eed7347f453fdae7e6d2f4",
+          "argv0": "D:\\a\\semctx\\semctx\\tools\\rust-ts-r0\\target\\debug\\semctx-r0-probe.exe",
+          "independent_input_and_projection_match": true
+        },
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "outcome_sha256": "1cdcee558e27ec6c4168dab5968b4fa696f9e80527f5c0aca0e9071c670948fd",
+          "stdout_hash": "cc262cb44a232b0ac12be4cec9ae70a701e355f39698ecdbfd2b80f0f164caed",
+          "argv0": "D:\\a\\semctx\\semctx\\tools\\rust-ts-r0\\target\\debug\\semctx-r0-probe.exe",
+          "independent_input_and_projection_match": true
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "outcome_sha256": "90cc7981bd5894ab4535175a0bbc00de6c64e3e458803a56eeecf14d2daf039b",
+          "stdout_hash": "b7f646c290871749b7b4363d4e2f88b6284ceb7a008fa56bdf5ec0988cca758c",
+          "argv0": "D:\\a\\semctx\\semctx\\tools\\rust-ts-r0\\target\\debug\\semctx-r0-probe.exe",
+          "independent_input_and_projection_match": true
+        }
+      ],
+      "receiver_outcomes": [
+        {
+          "path": "run-5672-1792305313757955600/native-0.json",
+          "sha256": "7690804765688b82e55b4272e70ca9f4eb2988c785f9a50725189b18ef77b66f",
+          "kind": "success",
+          "exit_code": 0,
+          "stable_common_producer_and_helper": true
+        },
+        {
+          "path": "run-5672-1792305313757955600/real-native-failure.json",
+          "sha256": "5615f2f38f8f70e437219d04c6f419ae32ade55f5856ac9fe8385f10c13a88c1",
+          "kind": "nonzero",
+          "exit_code": 1,
+          "stable_common_producer_and_helper": true
+        },
+        {
+          "path": "run-5672-1792305313757955600/real-native-output-cap.json",
+          "sha256": "e5653d02f660127b42836439d67a87536737df13af29ea3ea51fe0066be4a278",
+          "kind": "output_limit",
+          "exit_code": 124,
+          "stable_common_producer_and_helper": true
+        },
+        {
+          "path": "run-5672-1792305313757955600/real-native-timeout.json",
+          "sha256": "2b8418353882e90b49e3a2584743151e75f5943fd7c201c649596a7120fd55c8",
+          "kind": "timeout",
+          "exit_code": 124,
+          "stable_common_producer_and_helper": true
+        },
+        {
+          "path": "run-5672-1792305415554618500/native-1.json",
+          "sha256": "fdd395996b0a51743ee2baa97ab24dc2925187fce77d8fd090b519381de6a6b9",
+          "kind": "success",
+          "exit_code": 0,
+          "stable_common_producer_and_helper": true
+        }
+      ],
+      "coherent_poison_artifacts": [
+        {
+          "path": "run-5672-1792305313757955600/coherent-payload-and-input-poisons.json",
+          "sha256": "a744bae644cd76d9e09ff6e2b5da56416040cf479dd157e83961b7434afc3cf0",
+          "result_count": 8
+        }
+      ],
+      "read_provenance_artifacts": [
+        {
+          "path": "run-5672-1792305415554618500/input-provenance-1.json",
+          "sdk_read_paths": 63,
+          "supplied_sdk_files": 100,
+          "sha256": "f44a16e5fcba55cc0ac986e3622b34e049995cc365f0bac16d6aa579c9976eb8"
+        },
+        {
+          "path": "run-5672-1792305313757955600/input-provenance-0.json",
+          "sdk_read_paths": 63,
+          "supplied_sdk_files": 100,
+          "sha256": "c8a70f7303f06c20322f52caceb1d41d48983ccffceaeecc4ed80b97c26c43c6"
+        }
+      ],
+      "binary_artifact": null,
+      "common_vectors_sha256": "9c90e312644097ccfd3484d0ceb6b055f587b7e303613d15165893e494cd9ed4"
+    }
+  ],
+  "expected_bindings": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/expected-common-development-bindings.json",
+    "sha256": "555caf3afe95be9945b91467695cb446faeb599214f9fe85cf95a6da15d0a856",
+    "values": {
+      "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+      "development_fixture_sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "native_common_test_sha256": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "native_receiver_flow_test_sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+      "sdk_input_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "manifest_sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b"
+    }
+  },
+  "archive_digest_verification": [
+    {
+      "name": "native-r0-development-macos-15",
+      "archive_sha256": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+      "metadata_digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+      "matches": true
+    },
+    {
+      "name": "native-r0-development-ubuntu-latest",
+      "archive_sha256": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+      "metadata_digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+      "matches": true
+    },
+    {
+      "name": "rust-product-tests-macos-15",
+      "archive_sha256": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+      "metadata_digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+      "matches": true
+    },
+    {
+      "name": "rust-product-tests-ubuntu-latest",
+      "archive_sha256": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+      "metadata_digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+      "matches": true
+    },
+    {
+      "name": "native-r0-development-windows-latest",
+      "archive_sha256": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+      "metadata_digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+      "matches": true
+    },
+    {
+      "name": "rust-product-tests-windows-latest",
+      "archive_sha256": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+      "metadata_digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+      "matches": true
+    },
+    {
+      "name": "native-r0-optimized-ubuntu-latest",
+      "archive_sha256": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+      "metadata_digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+      "matches": true
+    }
+  ],
+  "artifacts_and_metadata_manifest": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/file-manifest.json",
+    "sha256": "a5f812b043e7e6df5ed1064bc0b7c35e1d9ad9ce44cd202b451a846bfc03deaf"
+  },
+  "raw_logs": {
+    "linux_completed_native_job_download": {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/linux-native-job.download",
+      "sha256": "a6071bf8173b9bdf0c1824335780891a6cb4087cef29a6d6f2328bea519ef432"
+    },
+    "linux_native_steps_only": {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/linux-native-job.bounded.log",
+      "sha256": "138d9460c854f9ab62bb4ac71820b5565acee1c52855d334022bc2abd2d2c1bb",
+      "through": "Require the tested source to remain unchanged; later CLI/MCP qualification not inspected"
+    },
+    "product_stdout_stderr": "product-{os}.stdout.log / .stderr.log extracted verbatim from Actions product report Outcomes for each native OS"
+  },
+  "unrelated_failures": [],
+  "ignored_tests": "Native product/common/receiver suites report0ignored. The Linux raw tooling log also contains an existing16-passed/4-ignored tooling suite; it is retained and is not credited as native prototype coverage. No test selection, retry or skip was changed by reviewer.",
+  "scope_and_limits": [
+    "Only the same4frozen common DEVELOPMENT variants are compared: JS valid/malformed parsing and TS BOM+CRLF+astral/source-line control.",
+    "Common vectors use private development observations; the separate2native batch flows exercise receiver integration. Their producer byte identities are equal on each checked build.",
+    "Linux optimized uploaded ELF x86_64 binary SHA equals the real process/common-vector identity; before/after producer/helper fields match.",
+    "Debug Windows observations say runtime windows/x86_64 with native.exe argv on the windows-latest runner, not WSL. Optimized Windows.exe artifact is not yet available, so no optimized Windows PASS is claimed.",
+    "Every reported native success stdout hash and process kind was checked; output-cap text is intentionally truncated and cannot reconstruct its full captured-stream hash.",
+    "Input provenance artifacts and negative controls are retained; they establish reported captured-Fs reads and supplied-byte joins, not all100SDKfiles consumed, coherent acquisition or OS sandboxing.",
+    "No release authorization, R0, READY_TS_NATIVE, universal semantic qualification, aggregate-green claim, reserved or nativeC2 read follows from these platform observations.",
+    "The overall Actions run and two native jobs remain in progress. No unrelated unstable Windows failure has yet been observed at this snapshot; future failures must remain separately visible."
+  ],
+  "effort": {
+    "initial_started_utc": "2026-10-18T06:29:25Z",
+    "initial_budget": "8min active effort",
+    "accounting": "Approximately8min active review, interspersed with explicit sleeps/remote transfer waits. Stopping initial review here rather than charging further artifact inspection against this allocation.",
+    "resume_needed": "Inspect available macOS optimized artifact12128425722, then Windows optimized artifact when published; update platform statuses from retained metadata without reruns."
+  },
+  "operational_limits": {
+    "writes_only_under_independent": true,
+    "source_or_index_mutations": 0,
+    "github_mutations_comments_or_reruns": 0,
+    "sut_queries_or_builds": 0,
+    "reserved_or_nativeC2_files_read": 0,
+    "delegation": "Additional independent Windows artifact check was attempted; global thread limit prevented it. Reviewer performed the check directly.",
+    "retrieval_notes": "An initial directory-creation race and an archive still in transit caused local read attempts to fail; completed bytes were re-read and all7downloaded archive digests match Actions metadata. gh run view refused logs while overall run was active; completed Linux job logs were obtained through the primary jobs/logs API and escaped text was retained only in files."
+  }
+}

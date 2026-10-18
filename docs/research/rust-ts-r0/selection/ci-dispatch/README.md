@@ -50,3 +50,15 @@ regeneration on macOS ARM64 with Bun1.4.3, Rust1.95.0 and GIT_CONFIG_GLOBAL
 removed. The indexed runtime patch remained unchanged. Subsequent research-only
 metadata was checked separately. This local result grants no native Windows/Linux
 qualification, PR merge-context result or R0 decision.
+
+## Final bounded checkpoint
+
+[The final local delivery run](canonical-final/record.json) passes all four
+verify:pr shards with Bun1.4.3 and GIT_CONFIG_GLOBAL removed; runtime source is
+unchanged from49fa9830, with subsequent research-only documentation checked
+separately. [Actual optimized C1 platform evidence](../platforms-49fa/README.md)
+now exists on native Windows/Linux/macOS for the same four DEV vectors and
+bounded receiver controls. The general Windows shard1/4 failed an unrelated
+unchanged plugin inode-replacement test, preserved without retry, skip or fix;
+no aggregate green or PR merge-context result is inferred. [R0 stops for the
+exhausted research budget](../../final/README.md), independently of that CI failure.

@@ -1,0 +1,61 @@
+{
+  "checked_utc": "2026-10-18T06:55:49.773862+00:00",
+  "checks": {
+    "all_250_retained_data_member_sha256_match": true,
+    "all_253_tar_members_roundtrip_match": true,
+    "candidate_tests_API_queries_rerun": 0,
+    "excluded_optimized_native_executables": 3,
+    "native_exec_target_rlib_bytes_republished": 0,
+    "nine_original_zip_digests_match_API_metadata": true,
+    "original_report_followup_plan_windows_observation_byte_exact": true,
+    "repeat_local_deterministic_rebuild_matches": true,
+    "repository_index_GitHub_mutations": 0,
+    "unsafe_tar_paths": 0
+  },
+  "environment": "macOS local Python standard library; local retained data only",
+  "files": {
+    "README.md": {
+      "bytes": 4057,
+      "sha256": "e6c476f0d25c6dee3c747e7e7d11685c5bea952ea16ea5fdba72f866571a3ecf"
+    },
+    "archive-inventory.json": {
+      "bytes": 155642,
+      "sha256": "6a4ab42f7fb5f8f8c447ca4f9009adfc0af9a0d3f4bd665598f63644e60b09e3"
+    },
+    "ci-49fa-evidence.tar.gz.b64": {
+      "bytes": 4616803,
+      "sha256": "9ef859e0fa67e2a1e4b95814679690678535f9762ece06669973786645b54767"
+    },
+    "evidence-manifest.json": {
+      "bytes": 54883,
+      "sha256": "bc7b4ed180a0279439983ea5066e0ccfba42ce87e0d2fa6b5120fc0dc6bd142b"
+    },
+    "gate-plan.json": {
+      "bytes": 29059,
+      "sha256": "fd927d8f21d0dd3641b9f3a481123a0937cef20fc0e28d236fb996b7fa5e2e3a"
+    },
+    "original-path-aliases.json": {
+      "bytes": 192309,
+      "sha256": "8ccc7fd4aac687d58e33b96454115032c47b249f84b2c37a54fa18b6fb081f8b"
+    },
+    "record.json": {
+      "bytes": 3433,
+      "sha256": "0072d44a4cb3de8fe8af07ba64951b1f29e051118ba58e0b4d48042fa865f542"
+    },
+    "report-followup.json": {
+      "bytes": 29164,
+      "sha256": "a8fba38fb923fc4f06383d4039447ce5a76cf05374e49b29bc43c718545eb17a"
+    },
+    "report-original.json": {
+      "bytes": 29421,
+      "sha256": "7a3abb803d24117bd6112f750f85d9f833f8a3f317043b0239e990bc6cac5746"
+    },
+    "windows-shard1-observation.json": {
+      "bytes": 1255,
+      "sha256": "d3c609aab3969f68bd4167bb2f222815867c114b06548d48d0394498514b4de4"
+    }
+  },
+  "fresh_task_effort_seconds": 150.773862,
+  "schema_version": 1,
+  "separate_previous_C2_effort_seconds": 1493
+}
