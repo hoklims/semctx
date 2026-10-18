@@ -67,7 +67,12 @@ its individually demonstrated version attribution: C1's output equals the
 pinned TS5.9.3 ES2015 output, while TS5.9.3 ES5 adds `__generator`. TS7 removes
 the ES5 target; this internal capture is no supported public TS7 ES5 contract.
 The [independent claim audit](es5-version-claim-audit.md) limits that attribution
-to this property. It grants no qualification credit. There are 59 static GAP
+to this property. It grants no qualification credit. A
+[second tranche](gap-existing-components-evidence.json) maps three more units
+using existing native configuration, assembly and outline observations. All three
+and the existing unequal-digest control pass macOS DEV replay. The final recipe
+status is refreshed after late mappings; its stale label was reproduced and
+corrected without changing inputs or comparators. There are 56 static GAP
 units still to map; all240 obligations remain unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
