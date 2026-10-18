@@ -1,7 +1,10 @@
 use crate::{identity, source_text};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::path::{Component, Path, PathBuf};
+use std::{
+    collections::BTreeMap,
+    path::{Component, Path, PathBuf},
+};
 use ts_goport::{
     ast,
     astdata::SyntaxKind,
@@ -37,6 +40,11 @@ enum Request {
         filename: String,
     },
 
+    CanonicalFileKey {
+        path: String,
+        case_sensitive: bool,
+        realpath_results: BTreeMap<String, String>,
+    },
     SemanticKey {
         cwd: String,
         path: String,
@@ -338,6 +346,38 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
             "canonical_json",
             json!({"canonical_json":identity::canonical_json(&value),"canonical_descriptor_sha256":identity::digest(&value)}),
         ),
+        Request::CanonicalFileKey {
+            path,
+            case_sensitive,
+            realpath_results,
+        } => {
+            let resolved = realpath_results
+                .get(&path)
+                .ok_or("PRIMITIVE_CONTROLLED_REALPATH_MISSING")?;
+            if path.is_empty()
+                || path.contains('\0')
+                || resolved.is_empty()
+                || resolved.contains('\0')
+            {
+                return Err("PRIMITIVE_CONTROLLED_REALPATH_INVALID".into());
+            }
+            let normalized = resolved.replace('\\', "/");
+            let normalized = normalized
+                .strip_prefix("./")
+                .unwrap_or(&normalized)
+                .to_owned();
+            let key = if case_sensitive {
+                normalized
+            } else {
+                let lowered =
+                    scanner_util::to_lower_js(&scanner_util::go_string_from_utf8(normalized));
+                String::from_utf16_lossy(&units(&lowered))
+            };
+            (
+                "canonical_file_key",
+                json!({"key":key,"realpath_result":resolved,"realpath_source":"supplied_controlled_system","case_sensitive":case_sensitive}),
+            )
+        }
         Request::SemanticKey {
             cwd,
             path,
@@ -358,6 +398,70 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn canonical_file_key_uses_the_supplied_system_alias_before_normalizing() {
+        let system = json!({"/Dev/link.ts":"/Dev/source/Real.ts","/Dev/source/Real.ts":"/Dev/source/Real.ts","/Dev/source/Other.ts":"/Dev/source/Other.ts"});
+        let query = |path: &str| {
+            handle_observation(json!({"operation":"canonical_file_key","path":path,"case_sensitive":true,"realpath_results":system})).unwrap()
+        };
+        let alias = query("/Dev/link.ts");
+        let real = query("/Dev/source/Real.ts");
+        let other = query("/Dev/source/Other.ts");
+        assert_eq!(alias["key"], "/Dev/source/Real.ts");
+        assert_eq!(alias["key"], real["key"]);
+        assert_ne!(real["key"], other["key"]);
+        assert_eq!(alias["realpath_result"], "/Dev/source/Real.ts");
+        assert_eq!(alias["realpath_source"], "supplied_controlled_system");
+        let descriptor = json!({"operation":"canonical_file_key","path":"alias-dev","case_sensitive":false,"realpath_results":{"alias-dev":".\\Section\\..\\Thing.TS"}});
+        let normalized = handle_observation(descriptor.clone()).unwrap();
+        assert_eq!(normalized["key"], "section/../thing.ts");
+        assert_eq!(
+            normalized["request_descriptor_id"],
+            identity::digest(&descriptor)
+        );
+        let unicode=handle_observation(json!({"operation":"canonical_file_key","path":"alias-dev","case_sensitive":false,"realpath_results":{"alias-dev":"./ÅFile.ts"}})).unwrap();
+        assert_eq!(unicode["key"], "åfile.ts");
+    }
+
+    #[test]
+    fn canonical_file_key_refuses_unobserved_or_malformed_controlled_system_context() {
+        let valid = json!({"operation":"canonical_file_key","path":"dev-alias","case_sensitive":true,"realpath_results":{"dev-alias":"/Dev/Real.ts"}});
+        for field in ["path", "case_sensitive", "realpath_results"] {
+            let mut missing = valid.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(handle_observation(missing).is_err(), "{field}");
+        }
+        for (field, value) in [
+            ("path", json!(null)),
+            ("case_sensitive", json!("true")),
+            ("realpath_results", json!(null)),
+            ("realpath_results", json!([])),
+            ("realpath_results", json!({"dev-alias":7})),
+            ("unexpected", json!(true)),
+        ] {
+            let mut malformed = valid.clone();
+            malformed[field] = value;
+            assert!(handle_observation(malformed).is_err(), "{field}");
+        }
+        let missing=handle_observation(json!({"operation":"canonical_file_key","path":"Cargo.toml","case_sensitive":true,"realpath_results":{}})).unwrap_err();
+        assert_eq!(missing, "PRIMITIVE_CONTROLLED_REALPATH_MISSING");
+        for (path, resolved) in [
+            ("", "/Dev/Real.ts"),
+            ("bad\0path", "/Dev/Real.ts"),
+            ("dev-alias", ""),
+            ("dev-alias", "bad\0result"),
+        ] {
+            let mut request = valid.clone();
+            request["path"] = json!(path);
+            request["realpath_results"] =
+                serde_json::to_value(BTreeMap::from([(path, resolved)])).unwrap();
+            assert_eq!(
+                handle_observation(request).unwrap_err(),
+                "PRIMITIVE_CONTROLLED_REALPATH_INVALID"
+            );
+        }
+    }
 
     #[test]
     fn relative_import_primitive_observes_syntax_order_without_runtime_resolution() {

@@ -658,6 +658,23 @@ for recipe in recipes:
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
 for recipe in recipes:
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if recipe['case_id'] == 'ORD-CANONICAL-IDENTITY-PAIR':
+        inp = INPUTS[recipe['case_id']]
+        system = inp['fake_system']
+        if len(inp['queries']) != len(assertions['canonical_keys']) or len(inp['queries']) != 3:
+            raise ValueError('unmapped canonical identity pair cardinality')
+        recipe['surface'] = 'primitive_cli'
+        recipe['requests'] = []
+        recipe['primitive_requests'] = [{'operation':'canonical_file_key','path':path,'case_sensitive':system['useCaseSensitiveFileNames'],'realpath_results':system['realpath_results']} for path in inp['queries']]
+        recipe['checks'] = [check(['key'], value, 'eq', '/assertions/canonical_keys/'+str(index), observation=index) for index, value in enumerate(assertions['canonical_keys'])]
+        recipe['relations'] = [{'left_observation':left,'right_observation':right,'target':['key'],'transform':'none','expected_equal':equal,'origin':ptr(key),'requirement_interpretation':assertions[key]} for left,right,equal,key in [(0,1,True,'positive_relation'),(1,2,False,'counter_relation')]]
+        recipe['gaps'] = []
+        recipe['credited_properties'] = list(assertions)
+        recipe['required_native_api'] = ['--observe-primitives canonical_file_key; supplied controlled System realpath results, exact descriptor/artifact binding, native normalization and JS casefold']
+        recipe['proof_scope'] = 'Frozen private logical canonical-file-key component under supplied successful realpath observations. No physical-host alias equivalence, extraction/partition consumer coverage, acquisition identity or admission inferred.'
+
+for recipe in recipes:
     if recipe['case_id'] not in ['T-timeout', 'T-output-limit']:
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
