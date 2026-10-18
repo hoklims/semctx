@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are31 static GAP units still to map; all240 obligations remain unqualified.
+are28 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -271,6 +271,27 @@ private P12 result does not prove public parallel/auto/retained parity,capture
 atomicity,all SDK consumption,simultaneous CPU execution or general completed
 sibling termination. Cancellation request and absence of serial fallback facts
 are observed in the tested failure. Pass1 stays open;pass2 remains unused.
+
+A [seventeenth tranche](gap-native-transport-evidence.json) maps three transport
+units through actual supervised processes. A native proxy relays a real C1
+refused batch using an explicitly declared exit3 convention; wrong reasons,
+undeclared exits, truncated/empty batches and unexpected exit7 are rejected.
+Real JSON truncation remains a successful exit0 process but malformed receiver
+output. Cancellation follows an owned child/descendant readiness observation;
+this does not prove universal descendant termination. C1 before/after refusals
+are ancillary health controls only. The selected optimized C1 artefact4b remains
+unchanged; the native fault fixture is separately identified58e2a46d. All three
+macOS focused units pass35 projected checks. Counts reach36 mappings:35 limited
+PASS and N17c NONPASS,with28 static GAP,326 recipes without known GAP and zero
+qualified obligations. T-reader-error remains GAP. Independent compiled fault
+injection removes truncation and the owning test rejects; restored release test
+passes all three scenarios. That witness uses original source anchor fd157a,
+release test/producer and dev fixture; final review reconciles two helper
+extractions. Original Clippy findings are corrected without suppressions. A
+prior-head macOS CI failure exposed an existing MCP test's displaced capture
+cleanup race; owned-child cleanup now precedes its finalization and session
+drop, with the local complete qualification suite green. Current exact-head
+CI and Linux/Windows proof remain pending. Pass1 stays open;pass2 unused.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

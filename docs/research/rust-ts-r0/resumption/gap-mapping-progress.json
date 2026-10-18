@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_THIRTY_THREE_GAPS_MAPPED_THIRTY_TWO_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_THIRTY_SIX_GAPS_MAPPED_THIRTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining31 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T22:27:49.854047+00:00",
-  "staticGapUnitsRemaining": 31,
+  "next": "Continue the remaining28 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T22:59:09.263678+00:00",
+  "staticGapUnitsRemaining": 28,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -679,5 +679,60 @@
     ],
     "reservedPayloadAccessed": false,
     "cost": "Additional preflight and actual child processes; no isolated performance measurement."
+  },
+  "seventeenthBatch": {
+    "registeredUtc": "2026-10-18T22:59:09.263678+00:00",
+    "state": "THREE_FROZEN_NATIVE_TRANSPORT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "T-nonzero::base",
+      "T-invalid-json::base",
+      "T-cancelled::base"
+    ],
+    "scope": "Actual native transport faults and declared exit3 proxy convention with complete real C1 refusal control; no semantic credit.",
+    "evidence": "gap-native-transport-evidence.json",
+    "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+    "transportFixtureSha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+    "recipesSha256": "5621e61f2dd0996d7ca9d908d8301e41c2b4224f83cba8b113f366f14a958b41",
+    "newMappingsCredited": 3,
+    "newProjectedPasses": 3,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "projectedChecks": [
+        19,
+        8,
+        8
+      ],
+      "nativeBinaryTests": 207,
+      "nativeLibraryTests": 47,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 4,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 1
+      },
+      "comparatorTests": 47,
+      "recipeCliTests": 7,
+      "gatesSuite": "18LIB,5cli,25planning,13process,7rust_product PASS; final extracted fixture process13 PASS again.",
+      "qualificationSuite": "16LIB,21fixture,10stderr,2adapter,3lifecycle PASS; four existing ignored unit fixture entries remain explicitly not executed.",
+      "format": "PASS all3manifests",
+      "clippy": "PASS gates,C1 all-targets(+qualification feature),qualification -Dwarnings",
+      "ruff": "PASS",
+      "zizmorOffline": "PASS",
+      "completeVerifyPr": "Not rerun; four prior local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Declared proxy exit3 accepts complete actual C1 refused batch only with expected reason; revalidate refuses ownership. Undeclared exit3 and wrong expected reason are rejected.",
+      "Actual stdout truncation or omission is rejected as MalformedOutput; exit0 transport success remains distinct from malformed JSON classification.",
+      "Actual unexpected native exit7 is ProcessFailure.",
+      "Cancellation is requested only after owned child reports a living descendant; actual cancelled Outcome retains capture. No universal termination guarantee.",
+      "Missing tool/input/identity, invalid inner C1 refusal, changed tools or inconsistent captures fail closed.",
+      "Existing MCP test finalizes its displaced reader after owned-child cleanup and before shared reader-stop from session drop."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Auxiliary native processes and tool/input hashing; no isolated performance measurement."
   }
 }

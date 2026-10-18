@@ -257,7 +257,7 @@ jobs:
       - name: Exercise the optimized native T00 prototype on common vectors
         env:
           SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-optimized
-        run: cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --test native_development_flow --test native_common_portability --test native_parallel_flow
+        run: cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --test native_development_flow --test native_common_portability --test native_parallel_flow --test native_transport_flow
       - name: Retain the optimized T00 artifact and observations
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
