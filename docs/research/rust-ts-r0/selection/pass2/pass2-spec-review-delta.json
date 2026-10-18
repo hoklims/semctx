@@ -1,0 +1,37 @@
+{
+  "review": "C1 pass 2 SPEC-01 correction delta",
+  "generated_at": "2026-10-17T20:23:30.075833+00:00",
+  "prior_report_sha256": "0486b850d64bffb75c6d8c7d02cada67f62c75efc53b56a31d5df72e2fa71213",
+  "source": {
+    "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/main.rs",
+    "sha256": "434b93b32e37ee92ee6ddc51e507e9c24078deaf639947cb4321b0d1da2a3347"
+  },
+  "finding": "C1P2-SPEC-01",
+  "status": "RESOLVED_IN_REVIEWED_DELTA",
+  "evidence": {
+    "pass2-js-link-context-red.log": {
+      "sha256": "5a0fdace7312f9d0aaf4898fbf2195c4832e6090ba056ab9ac6abc069cc9f6a1",
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-js-link-context-red.log"
+    },
+    "pass2-js-link-context-green.log": {
+      "sha256": "af6bb6f4d44a3250e1ab2ff44e118c765eea1430b24774910d32b45d96164b2e",
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-js-link-context-green.log"
+    }
+  },
+  "source_trace": [
+    "Ordinary JS creates separate native link frontend using complete captured/workspace fs; retained profile continues using its existing complete frontend.",
+    "Source-only semantic frontend remains the active program and checker for inspect_semantic_dependencies.",
+    "Static-link cache lookup uses the complete module frontend and its source-file descriptor; declared_external reads full fs.",
+    "Pinned upstream get_resolved_module_from_module_specifier computes usage mode from file metadata/options and syntax, then looks up by file path, literal text, and mode. It does not require AST node identity membership in the selected frontend.",
+    "Both link frontend and semantic frontend resolution errors propagate to unsupported."
+  ],
+  "observed_execution": "Reviewer read the retained RED and GREEN raw logs; did not execute tests. RED rejects ./t00DependencyDev.js unresolved; GREEN exercises resolved local import and absent-but-declared external dependency in one DEV test, 1 passed in 10.03 seconds on macOS.",
+  "limits": [
+    "Full release suite, clippy and formatting after delta not yet reviewed.",
+    "No final qualification or reserved queries.",
+    "No Windows/Linux evidence for this delta."
+  ],
+  "new_findings": [],
+  "proof_integrity_verdict": "PROOF_ADEQUATE",
+  "verdict_scope": "Only SPEC-01 repair and its targeted macOS DEV negative/positive witness; no global R0 or platform claim."
+}

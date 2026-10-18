@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/pass2_oracle_delta_review",
+  "recorded_utc": "2026-10-17T20:11:56.582135+00:00",
+  "verdict": "PROOF_WEAK",
+  "scope": "Independent static oracle review only: bindings_and_observation, adversarial_actual_batch, actual_relocation_keeps_content_bindings_and_refuses_old_physical_scope and direct consumers. No new executable evidence observed in this review.",
+  "candidate": {
+    "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/tests/native_development_flow.rs",
+    "sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762"
+  },
+  "findings": [],
+  "positive_static_observations": [
+    "Logical input/capture/snapshot expected descriptors are independently reconstructed from frozen DEV fixture path inventory, exact request source text and supplied SDK. No producer batch::input_manifest/capture_manifest/snapshot_manifest helper is called for expected descriptors.",
+    "Input and capture use logical v2 domains; snapshot uses T00-captured-snapshot-v2 and independently computed input/capture digests. Source bytes, SDK version/archive/content and case sensitivity remain represented.",
+    "Postcapture mutation writes and rereads a real DEV file, reconstructs changed logical descriptors, explicitly checks input/capture/snapshot differ while scope is equal, and requires both old expected/current mismatch and new expected/stale output mismatch to reject.",
+    "Actual relocation executes the native batch again under a distinct physical repository root and SDK root; asserts frozen semantics and joins reported reads to exact supplied bytes before receive. Logical descriptors and actual batch input/capture/snapshot/producer IDs remain equal while physical scope IDs differ.",
+    "Relocation negative controls include old receiver versus relocated actual batch/current and scope-only current mutation for both receive and receipt revalidation. These isolate physical scope from content identity.",
+    "The oracle explicitly limits relocation to DEV producer executions, preserves graph physical metadata as potentially variable, and denies graph relocation invariance and T02 acquisition claims.",
+    "Poisoned stdout is labeled an in-memory transport adversary, not an observed subprocess outcome; owned supervision evidence is preserved separately."
+  ],
+  "limits": [
+    "No Cargo/test command run by this reviewer; final debug/release execution must bind this exact test source and integrated producer.",
+    "No native Windows or Linux execution reviewed.",
+    "Helper supports only these simple DEV fixtures: text representation only; canonical relative fixture names; SDK entries directly below the selected SDK directory. It asserts and refuses broader input shapes rather than silently guessing.",
+    "Observed facts and graph carrier are derived from actual batch and admitted only after assert_semantics checks the separate frozen semantic oracle. This binds carrier identity but does not independently certify every possible fact or arbitrary capture protocol.",
+    "No full T02, atomic snapshot, fresh live acquisition, arbitrary-byte filesystem completeness, reserved-corpus qualification, R0 or READY_TS_NATIVE claim is supported by this static review."
+  ],
+  "environment": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "publication_or_producer_queries": false,
+  "execution_evidence_annex": {
+    "reviewed_utc": "2026-10-17T20:16:19.903997+00:00",
+    "provenance": "Authored and executed by /root/pass2_identity_receiver_review; raw files read independently by this reviewer. This reviewer did not execute these tests.",
+    "source_test_sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+    "source_test_matches_current": true,
+    "author_report": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-identity-receiver/report.json",
+      "sha256": "95afe021184b38a4e7c2da905304106136dccc19fc4c7f3e7e68b54a4710542e"
+    },
+    "release_log": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-identity-receiver/final-release.log",
+      "sha256": "0cd8c7ef38ad8f94064078033ecf851a44d0f62cce1f83754178fa1927700d9b",
+      "observed_aggregate": "2 passed, 0 failed, 8.19s",
+      "expected_negative_panics": "Raw output contains caught negative oracle panics followed by successful tests; not unhandled aggregate failure."
+    },
+    "actual_relocation_evidence": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/pass2-identity-receiver/final-release-evidence/run-37869-1792267985951233000/real-relocation.json",
+        "sha256": "fff3ddc76ecdae6bc28dd389255a801bd08d7caa6354b06bff9d5ad60b71514c",
+        "scope_rejections_observed_in_author_evidence": true,
+        "reported_sdk_reads": 63,
+        "supplied_sdk_files": 100,
+        "all_supplied_sdk_consumed_inferred": false
+      }
+    ],
+    "limits": [
+      "macOS aarch64 only; no native Windows/Linux execution.",
+      "Exact final test source matches author report, but other scratch producer modules continue changing; this historical release run is not an exact final optimized candidate qualification."
+    ]
+  },
+  "prior_static_report_sha256": "982958d83f32b3fc9b723847483f340aae1c69a6e3b6889390471828883f6b9c",
+  "verdict_reason": "No certain source finding within reviewed scope; author release evidence supports v2 DEV integration. Final integrated candidate binding and native Windows/Linux evidence are still absent."
+}

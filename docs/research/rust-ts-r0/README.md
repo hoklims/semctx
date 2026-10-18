@@ -64,8 +64,8 @@ set within the remaining approved envelope.
 Record active work intervals by agent and activity. Parallel work contributes to
 cumulative effort; it does not enlarge the approved envelope. Candidate first runs
 and correction passes require their own scopes and remaining-budget entries before
-execution. [Composition C1](composition1/record-index.json) now records the first
-native composition and its first correction pass. The private prototype lives in
+execution. [Composition C1](composition1/record-index.json) records the initial native
+composition and its first correction pass. The private prototype lives in
 [`tools/rust-ts-r0`](../../../tools/rust-ts-r0/README.md). Its DEV results are
 separate from the 268 frozen qualification records and the reserved corpus.
 
@@ -76,6 +76,48 @@ its artifact/source identities, actual process Outcomes, reported input reads an
 the remaining native observation gaps. The native CI job now also executes the
 same optimized TS/JS vectors and retains its artifacts. Windows/Linux execution
 evidence remains pending.
+
+
+## Current qualification checkpoint
+
+[C1 pass2](selection/pass2/README.md) freezes the final allowed C1 correction.
+Its immutable optimized macOS artifact is SHA256
+eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081.
+The [second campaign](qualification/c1-pass2/second-replay-summary.json)
+processed 354 units: 283 passed their limited projected or controlled scope,
+7 were NONPASS and 64 remained gaps. Of 51 supports, 42 passed their exercised
+scope, 4 were NONPASS and 5 remained gaps. None of the 240 obligations is declared
+qualified. The first campaign and both raw archives remain preserved. The separate
+[reproduction supplement](qualification/reproduction/README.md) contains the
+original observers, recipes, source snapshots and reconstruction commands.
+
+The [source-backed triage](qualification/c1-pass2/second-replay-triage.json)
+separates recipe/context defects from a confirmed native divergence: an isolated
+UTF16 high surrogate produces diagnostic 1490 instead of frozen diagnostic 1127.
+The frozen expectations are unchanged. C1 has no correction pass remaining;
+its successful DEV checks do not cancel qualification failures or missing proofs.
+No reserved case has been executed.
+
+[C2 preregistration](composition2/registration.json) records a distinct Ezno
+native checker hypothesis before its build or first semantic execution. Its first
+DEV probe uses the unchanged TypeScript 5.9.3 SDK and the baseline default-library
+closure, plus a fresh cross-file alias and primitive-method target witness.
+It has no C1, JavaScript or Go semantic fallback. The independent expected-target
+check precedes native execution. Registration and successful compilation alone
+provide no semantic result. The [first native C2 run](composition2/initial/README.md)
+panicked after six SDK reads, before any project read. Its raw Outcome, independent
+oracle and unchanged identities are preserved. The first bounded C2 correction is
+registered for a source-backed definition-local mapping collision. That correction
+now passes the native DEV regression. The [independent corrected replay](composition2/pass1-replay/report.json)
+reads all63SDK files without panic, but returns734errors including12parser/lexer
+rejections, with no project module or target witness exercised. Process exit0 is
+not a semantic pass. One C2 correction remains; no global semantic impossibility
+is inferred from the initial panic alone. The approved two-composition
+envelope remains fixed.
+
+[The exact-head CI entry](selection/ci-dispatch/README.md) records why an explicit
+manual workflow dispatch is needed and how its base and immutable head are bound.
+Public Windows/Linux execution and final R0 remain pending.
 
 ## Verification and tooling
 

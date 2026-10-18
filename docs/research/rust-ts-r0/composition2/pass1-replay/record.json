@@ -1,0 +1,23 @@
+{
+  "state": "C2_PASS1_NATIVE_INGESTION_NONPASS",
+  "archive": "replay-evidence.tar.gz.b64",
+  "decodedArchiveSha256": "bf8558e620bed4469f78453d8162fd5104befd7c1e2e62874c1701918561e0e5",
+  "members": 12,
+  "invocations": 1,
+  "nativeProcess": "success/exit0 with native_error=true; process success is not semantic pass",
+  "nativeErrors": 734,
+  "nativeWarnings": 7,
+  "parserLexerErrors": 12,
+  "sdkReadCount": 63,
+  "projectReadCount": 0,
+  "moduleCount": 0,
+  "mappingCount": 0,
+  "boundIdentitiesUnchanged": 274,
+  "targetWitnesses": "Not exercised; no target mismatch invented",
+  "preservedPriorFailure": "Initial native panic remains original nonpass evidence; corrected run establishes no recurrence on this single witness.",
+  "frozenExpectedChanged": false,
+  "sdkOrInitialSelectedOrderChanged": false,
+  "nativeWindowsLinuxExercised": false,
+  "R0": false,
+  "remainingC2CorrectionPasses": 1
+}

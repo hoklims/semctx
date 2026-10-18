@@ -1,0 +1,320 @@
+[
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1-registration.json",
+    "member": "correction-pass1-registration.json",
+    "bytes": 2780,
+    "sha256": "a2d30608bb7954ae8da938a6bb10d7da46847c5a92f0ce1ef7f5e7d83bd3a38e"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/development-request.json",
+    "member": "development-request.json",
+    "bytes": 3003,
+    "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/baseline-ts-symbols.ts",
+    "member": "oracle/baseline-ts-symbols.ts",
+    "bytes": 61457,
+    "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/definition-order.json",
+    "member": "oracle/definition-order.json",
+    "bytes": 5689,
+    "sha256": "25d300d2c7b9be278de8e75e0ea02674362a63589a96b2239ba6807d230d6e4d"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/definition-order.v2.json",
+    "member": "oracle/definition-order.v2.json",
+    "bytes": 4128,
+    "sha256": "164679007c1caa57446a343d0eeb3024dba3e77e14330d0df2f5ccc9d2b4305d"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/expected.json",
+    "member": "oracle/expected.json",
+    "bytes": 23669,
+    "sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-execution-plan.json",
+    "member": "oracle/first-native-execution-plan.json",
+    "bytes": 8042,
+    "sha256": "b6adc2b4dc88d81420a0f1f7a30f3f589e1b6ed0b04e90d5789653035df3d986"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-report.json",
+    "member": "oracle/first-native-report.json",
+    "bytes": 10090,
+    "sha256": "e0a2dd8e0deae325f544b66bedcb2d4a48f3ffb68afa2499460fe9e319fd6756"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-run/invocation-after.json",
+    "member": "oracle/first-native-run/invocation-after.json",
+    "bytes": 23010,
+    "sha256": "760affe0dc53c12973d0fcf5e191634323ebeefd017e5becec477c781c479c78"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-run/invocation-before.json",
+    "member": "oracle/first-native-run/invocation-before.json",
+    "bytes": 11562,
+    "sha256": "a1923b7bded91586f4a44f85a200dfe8624569d6f0ecc6041d8b582148286f1d"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-run/process-outcome.json",
+    "member": "oracle/first-native-run/process-outcome.json",
+    "bytes": 21189,
+    "sha256": "12fa2857a0a863b52340bbfd569f5043907467ae2adde9c0992e59641b829b99"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-run/stderr.retained.utf8",
+    "member": "oracle/first-native-run/stderr.retained.utf8",
+    "bytes": 19518,
+    "sha256": "bc122c10b82240bc67a133d087c9d9d023927511d504eb6a3a423c07cd601c1b"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/first-native-run/stdout.retained.utf8",
+    "member": "oracle/first-native-run/stdout.retained.utf8",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-preparation.json",
+    "member": "oracle/invocation-preparation.json",
+    "bytes": 3527,
+    "sha256": "a6f1a27b85143e5c5d693b5b1fc5eaae52c43f34bd6855ef469f65ad0761bf09"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke-plan.json",
+    "member": "oracle/invocation-smoke-plan.json",
+    "bytes": 1032,
+    "sha256": "b607e7b9161aa77bce575d7e406bab9fe04aa7c63f975b5b6e67bdfeb22b85eb"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke/invocation-after.json",
+    "member": "oracle/invocation-smoke/invocation-after.json",
+    "bytes": 3693,
+    "sha256": "a8f71a35ccda1ea2435707b1b556ea43816151e56f62b11b1a3c576244de40b0"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke/invocation-before.json",
+    "member": "oracle/invocation-smoke/invocation-before.json",
+    "bytes": 1718,
+    "sha256": "b969a7da7eb798fa66d4efcecd4e4901349b2781421bfeb10e38ff9c69620925"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke/process-outcome.json",
+    "member": "oracle/invocation-smoke/process-outcome.json",
+    "bytes": 308,
+    "sha256": "21fed24e53fb77734197b6b9918ecd67dec08d06937a396085b26998cd8983c0"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke/stderr.retained.utf8",
+    "member": "oracle/invocation-smoke/stderr.retained.utf8",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invocation-smoke/stdout.retained.utf8",
+    "member": "oracle/invocation-smoke/stdout.retained.utf8",
+    "bytes": 2,
+    "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/invoke.py",
+    "member": "oracle/invoke.py",
+    "bytes": 3081,
+    "sha256": "ac207f8966a27aa148582cb413d6b1a019cccf1fca718daf6e414f12ce406de0"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/producer-source-review.json",
+    "member": "oracle/producer-source-review.json",
+    "bytes": 7700,
+    "sha256": "0ee3cc0118f246576c219149c38f5d9caf21a324a9c23975f2d5c5826c45c28f"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/report.json",
+    "member": "oracle/report.json",
+    "bytes": 8030,
+    "sha256": "ddda5b61187c028e37cbcd8e016a81b317ceaec4f0af5c68adc3f95169995848"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/oracle/supervised-invocation.rs",
+    "member": "oracle/supervised-invocation.rs",
+    "bytes": 2033,
+    "sha256": "e2eb6eb944b6f03ba6d67a0eb61c0a323b7240431fed7f045decd9aaee1f1d7e"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/FREEZE.json",
+    "member": "producer/frozen/FREEZE.json",
+    "bytes": 4798,
+    "sha256": "c3f7988167b4cf4adfdc49f3f6cd7d15ede07b4f3c744589f5646f52d4b7a0fb"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source-manifest.json",
+    "member": "producer/frozen/source-manifest.json",
+    "bytes": 753,
+    "sha256": "46f3e4017b58630a158e882bfea3c6f5ab3151c45f7f3e82f72a0da59530723f"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/Cargo.lock",
+    "member": "producer/frozen/source/Cargo.lock",
+    "bytes": 19520,
+    "sha256": "c00a491ba2c7eb0edb7ab73c0684fb7d1345c2f586d74b074ed8f429116ee3ef"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/Cargo.toml",
+    "member": "producer/frozen/source/Cargo.toml",
+    "bytes": 351,
+    "sha256": "2044b13c744ac795864d417abdcba78267cc29a1cb611ff8abce30a790eed573"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/rust-toolchain.toml",
+    "member": "producer/frozen/source/rust-toolchain.toml",
+    "bytes": 86,
+    "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/src/inputs.rs",
+    "member": "producer/frozen/source/src/inputs.rs",
+    "bytes": 10581,
+    "sha256": "056b573ff9c3056fa84e943956a334070305d0061577b7420c2b13b7eef52447"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/src/lib.rs",
+    "member": "producer/frozen/source/src/lib.rs",
+    "bytes": 5313,
+    "sha256": "2115bede98b448a816a7479131ca33c1e2aaa5cfd3c1e3f853c022b7e066a623"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/source/src/main.rs",
+    "member": "producer/frozen/source/src/main.rs",
+    "bytes": 7389,
+    "sha256": "0bc5dfc67301ea412abd3e29478fd2efbdb66860033aa518c9d0717cd02d3f1e"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/build-release.log",
+    "member": "producer/logs/build-release.log",
+    "bytes": 2369,
+    "sha256": "86607daebc10fae1ed216616523e5f60f315e7a5a3ec04205a2dd434e377795d"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/captured-read-green.log",
+    "member": "producer/logs/captured-read-green.log",
+    "bytes": 577,
+    "sha256": "b2ace7ec21bedd7c47f47f3e971e1ad5f6c362826c3945064c0405ff6764a12b"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/captured-read-red.log",
+    "member": "producer/logs/captured-read-red.log",
+    "bytes": 1049,
+    "sha256": "ca70255876dfdf5b439316151736e7362a20639e8e8b3c2e85a9a7a29316564e"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/check-bin.log",
+    "member": "producer/logs/check-bin.log",
+    "bytes": 2084,
+    "sha256": "bcf739bdc50ee1699a0b05a1291d78cf45b7deb3c073934b250477eee35d0633"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/clippy.log",
+    "member": "producer/logs/clippy.log",
+    "bytes": 158,
+    "sha256": "09a734ab2a32eb3abec888ff2f81fd98cd53503ed804cc2fc63fba9804bc2357"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/complete-owned-tests.log",
+    "member": "producer/logs/complete-owned-tests.log",
+    "bytes": 913,
+    "sha256": "fa052f1994ec20cff8b910e86b1fcfa82665611b0c95d142bf79d9413db22aef"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/definition-order-green.log",
+    "member": "producer/logs/definition-order-green.log",
+    "bytes": 740,
+    "sha256": "2a0d56271ab5f6ddb55b7236b6c603c17c62e8e93c5ff61f5afb4cad69551a33"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/definition-order-red.log",
+    "member": "producer/logs/definition-order-red.log",
+    "bytes": 1439,
+    "sha256": "3af1cc50c673d4b8693741e6531e0a7908344af53350fa57f46a1fa539f58a14"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/final-build-release.log",
+    "member": "producer/logs/final-build-release.log",
+    "bytes": 161,
+    "sha256": "a2d47b2f05b2d85d64d0c45ae053ba929c4c059c2a9c219349da08960faccdc2"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/final-clippy.log",
+    "member": "producer/logs/final-clippy.log",
+    "bytes": 158,
+    "sha256": "09a734ab2a32eb3abec888ff2f81fd98cd53503ed804cc2fc63fba9804bc2357"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/final-fmt-check.log",
+    "member": "producer/logs/final-fmt-check.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/final-owned-tests.log",
+    "member": "producer/logs/final-owned-tests.log",
+    "bytes": 1260,
+    "sha256": "293d5bb962eb41ca3c8b705b57df7ff04881d8568b70accdecd292759012a96b"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/fmt-apply.log",
+    "member": "producer/logs/fmt-apply.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/fmt-check.log",
+    "member": "producer/logs/fmt-check.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/fmt-final-apply.log",
+    "member": "producer/logs/fmt-final-apply.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/input-binding-green.log",
+    "member": "producer/logs/input-binding-green.log",
+    "bytes": 488,
+    "sha256": "94f80dd64ecc68b4db584abcbb3f6bfa22c79e9d253f2a0cee6a9b2f10b337cd"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/input-binding-red.log",
+    "member": "producer/logs/input-binding-red.log",
+    "bytes": 5281,
+    "sha256": "b325b32c98aeab0225c9fd4e28da7baddae7d74e7f85b39743395daee3a6ea1f"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/required-inputs-green.log",
+    "member": "producer/logs/required-inputs-green.log",
+    "bytes": 832,
+    "sha256": "4b33c0dba9a30f94caa6048a51e17a990284f2c43eb20f0db6a48862a5aa07ff"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/logs/required-inputs-red.log",
+    "member": "producer/logs/required-inputs-red.log",
+    "bytes": 1034,
+    "sha256": "b827363e3cf0e101559124e3af218859d7ac717310fddb9b5a3851dbeec82250"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/producer/producer-report.json",
+    "member": "producer/producer-report.json",
+    "bytes": 8299,
+    "sha256": "1cc90e2f15d7d0e38130a5171ea9b90c6e39127fb6aec2c3d4d2b9ee9a032955"
+  },
+  {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/registration.json",
+    "member": "registration.json",
+    "bytes": 3348,
+    "sha256": "f116f28de3559e41d4a004ba0d38619fcdff7a99f278868b6f9ea7116ecc3dc7"
+  }
+]

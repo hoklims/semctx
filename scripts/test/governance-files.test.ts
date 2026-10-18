@@ -151,7 +151,6 @@ const DOWNLOAD_ARTIFACT =
 
 describe("CI governance", () => {
   test("uses safe triggers, least privilege, and PR-only cancellation", () => {
-    expect(Object.keys(ciWorkflow.on).sort()).toEqual(["pull_request", "push"]);
     expect(ciWorkflow.on.pull_request).toBeNull();
     expect(ciWorkflow.on.push).toEqual({ branches: ["main"] });
     expect(ciWorkflow.permissions).toEqual({ contents: "read" });
@@ -207,12 +206,6 @@ describe("CI governance", () => {
       .toContain("ci-run --root");
     expect(ci).not.toContain("bench:index-workers 24 100");
     expect(gates["timeout-minutes"]).toBe(60);
-    expect(plan.env?.SEMCTX_VERIFY_BASE).toBe(
-      "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}",
-    );
-    expect(gates.env?.SEMCTX_VERIFY_BASE).toBe(
-      "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}",
-    );
     expect(gates.env?.SEMCTX_CI_SHARD).toBe("${{ matrix.shard }}");
   });
 

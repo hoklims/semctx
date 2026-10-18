@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "author": "/root/c2_independent_oracle",
+  "reported_utc": "2026-10-18T06:20:18.957139+00:00",
+  "state": "PASS1_FULL_SDK_NATIVE_DEV_NONPASS_SYNTAX_AND_DECLARATION_INGESTION",
+  "composition": "C2",
+  "correction_pass": 1,
+  "full_sdk_executions_in_this_task": 1,
+  "execution_retried": false,
+  "outcome_summary": {
+    "kind": "success",
+    "exit_code": 0,
+    "duration_ms": 328,
+    "stdout_bytes": 261600,
+    "stderr_bytes": 28881,
+    "stdout_hash": "8f5ddca7e0a7c248a9fa6c3566525c19d19ef803df851318d00ca522f602bbd0",
+    "stderr_hash": "aef30b47638e89ed243d04bb7688cdecde94378165722af8d1cebe4a95332291"
+  },
+  "interpretation": "Process transport succeeded and returned a complete native observation. Native checker itself reports errors and returned before entry modules. Transport success is no semantic PASS.",
+  "environment": {
+    "host": "macOS ARM64 DEV",
+    "rustc": "1.95.0 per frozen artifact metadata",
+    "execution_environment": {
+      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8"
+    },
+    "supported_targets_unexercised": [
+      "Linux",
+      "Windows"
+    ]
+  },
+  "identity_count": 274,
+  "identities_unchanged": true,
+  "streams_exact": true,
+  "preflight_sha256": "5d16ea00998b94b51ab02390ef48bea80be6cc330c95a8452f058751e17cb6e6",
+  "plan_sha256": "0dae717a1d4f94f1d332034b633695ff671e3f57168d4201fee2c4ad73ea8792",
+  "artifact_sha256": "8e41b3a7adb9e33998a6fb5cba3582b041e9a8205b11c937e5651004a5893bf0",
+  "inputs": {
+    "actual_sdk_reads": 63,
+    "required_sdk_file_count": 63,
+    "all_observed_file_hashes_and_counts_match_unchanged_sdk": true,
+    "read_order_equals_initial_independent_order": true,
+    "stderr_trace_equals_final_actual_reads": true,
+    "project_reads": 0,
+    "embedded_definition_cache_requested": false,
+    "scope": "All63 UTF8 SDK file bodies reached native ReadFromFS; not all declarations were accepted or synthesized."
+  },
+  "native": {
+    "error": true,
+    "diagnostics_count": 741,
+    "errors": 734,
+    "warnings": 7,
+    "category_counts": {
+      "unresolved_type_or_variable": 711,
+      "parser_or_lexer": 12,
+      "warning": 7,
+      "type_arguments": 6,
+      "missing_property": 5
+    },
+    "all_entry_modules_present": false,
+    "modules": [],
+    "expression_mappings_count": 0,
+    "producer_semantic_verdict": "NOT_COMPUTED_BY_PRODUCER"
+  },
+  "expected_comparison": {
+    "aliasValue_to_dep_ts_sourceValue": "NOT_EXERCISED",
+    "trim_to_lib_es5_String_trim": "NOT_EXERCISED",
+    "reason": "Definition errors cause check_project to return before entry loading. No projected declaration facts can be compared.",
+    "independent_expected_unchanged_sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef"
+  },
+  "source_backed_triage": [
+    {
+      "kind": "parser_or_lexer_rejection",
+      "count": 12,
+      "source": "ezno-parser0.1.7 errors.rs ParseErrors and LexingErrors; checker synthesis/mod.rs74\u201384 calls parser before synthesis.",
+      "conclusion": "These are actual raw SDK parser/lexer errors, distinct from type/name/merging errors. Definition ordering alone cannot affect definition_module_from_string tokenization."
+    },
+    {
+      "kind": "jsx_setting_gap",
+      "diagnostic_indexes": [
+        423,
+        473,
+        474
+      ],
+      "source": "checker synthesis/mod.rs80 ParseOptions uses Default; parser options.rs94\u2013101 defaults jsx=true; parser interface.rs256\u2013278 expects OpenChevron for generic callable.",
+      "witness": "Unchanged lib.es5.d.ts22281\u201322282 rejects < in BooleanConstructor generic call signature, and lib.es2015.core.d.ts4245\u20134246 rejects generic method <.",
+      "limit": "This identifies a definition-parser option/lexing gap; no corrected-options execution occurred and no claim this setting alone fixes all syntax errors."
+    },
+    {
+      "kind": "rest_tuple_binding_grammar_gap",
+      "diagnostic_indexes": [
+        426,
+        427,
+        553,
+        554
+      ],
+      "source": "parser types/type_annotations.rs1141\u20131152 calls token_as_identifier immediately after Spread; TypeAnnotationSpreadFunctionParameter.name is String at1231.",
+      "witness": "Unchanged lib.es2015.iterable.d.ts1535\u20131536 rejects [ in next(...[value]: [] | [TNext]).",
+      "limit": "This pinned parser path accepts only a simple identifier there. A semantics-preserving parser/AST adaptation was neither implemented nor executed."
+    },
+    {
+      "kind": "name_and_type_diagnostics",
+      "count": 722,
+      "breakdown": "711unresolved names/type variables +6type-argument requirements +5missing properties.",
+      "limit": "Do not treat these alone as baseline incompatibility: baseline skipLibCheck=true and this initial SDK order starts augmentation files before foundational libraries."
+    },
+    {
+      "kind": "prior_mapping_panic",
+      "conclusion": "Previously observed panic did not recur in this full-SDK invocation. This run supports removal of that failure for this request, not exhaustive mapping correctness."
+    }
+  ],
+  "source_identities": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/source/vendor/ezno-checker-0.0.18/src/synthesis/mod.rs",
+      "sha256": "834847a8adcde28955239858d82ce423d7c9b535ba9d6390d231951a5d2d3f0d"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/source/vendor/ezno-checker-0.0.18/src/lib.rs",
+      "sha256": "36ab642fe9b40fb687bcb325127cb382e7d72332e383e5fffab5241e2b566964"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/ezno-parser-0.1.7/src/errors.rs",
+      "sha256": "582cf5831827b3509488b6be1a4840a4f4450149a32367fb9182a2ee63dee904"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/ezno-parser-0.1.7/src/options.rs",
+      "sha256": "f5da0ad309ff5cb8c81a5b89f1956276bbaeebd4d4a3f7de3a779e0b8f888d2f"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/ezno-parser-0.1.7/src/types/interface.rs",
+      "sha256": "68843955126ee63419e7eb8a033d751cec451c83c671542bfcb8804fd838bc69"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/ezno-parser-0.1.7/src/types/type_annotations.rs",
+      "sha256": "9d61774c7d866d21bc59c96273bc0f020aaf62579e6eae24560c905d96bf087a"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/process-outcome.json",
+      "bytes": 323471,
+      "sha256": "e0fc6e817e7a2c1132b5fa6ad02d188e7db233167e13901b39c22788ea390624"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/stdout.retained.utf8",
+      "bytes": 261600,
+      "sha256": "8f5ddca7e0a7c248a9fa6c3566525c19d19ef803df851318d00ca522f602bbd0"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/stderr.retained.utf8",
+      "bytes": 28881,
+      "sha256": "aef30b47638e89ed243d04bb7688cdecde94378165722af8d1cebe4a95332291"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/invocation-before.json",
+      "bytes": 91387,
+      "sha256": "5d19b6828cf21e216c7fc3791dce3f2db6d09408cd5d075ac2cfc1468ceda955"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/invocation-after.json",
+      "bytes": 182630,
+      "sha256": "175a4f3ef04ca2a8432fce8420f56c68fe4c826ddf1afcb64fc9f7f20a9bb2ff"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-diagnostics-classification.json",
+      "bytes": 446879,
+      "sha256": "0a7934a39920008fc822e91a4e2bc640690d848d0007cb828c70959e6a55160d"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-syntax-witnesses.json",
+      "bytes": 12189,
+      "sha256": "282fa9751a7b78667ed0e8799515ad3a34fcddbdd1c4a10990cb9b1d040254bb"
+    }
+  ],
+  "limitations": [
+    "No READY_TS_NATIVE or R0 qualification established.",
+    "No global STOP inferred; one C2 correction pass remains under original composition envelope, subject to root registration/budget.",
+    "No native Windows/Linux execution.",
+    "No corrected SDK order, JSX option or parser adaptation executed.",
+    "No reserved input read, no candidate/oracle modification, no GitHub action/comment."
+  ],
+  "effort": {
+    "fresh_active_window_start_conservative_utc": "2026-10-18T06:16:30+00:00",
+    "fresh_window_end_utc": "2026-10-18T06:20:18.957139+00:00",
+    "charged_conservative_seconds": 228.957139,
+    "cap_seconds": 480,
+    "prior_oracle_tranches_conservative_seconds": 641.497675,
+    "cumulative_conservative_seconds": 870.4548139999999,
+    "overnight_wait_seconds_charged": 0,
+    "accounting": "Window begins28seconds before first observed tool clock, conservatively includes setup. Prior641.497675 is historical charged upper bound from previous reports; root must avoid double-debit."
+  },
+  "mutations": {
+    "tracked": 0,
+    "producer": 0,
+    "expected": 0,
+    "reserved": 0,
+    "github": 0
+  },
+  "comments_added": []
+}

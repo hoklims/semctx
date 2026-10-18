@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
-  "stage": 5,
+  "stage": 6,
   "r0Decision": "NOT_RUN",
   "owner": "SebastienElet",
   "baseline": {
@@ -57,7 +57,48 @@
         "windowsOrLinuxResult": false,
         "selectionRecord": "selection/FREEZE.json",
         "optimizedProducerSha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
-        "developmentVectorsPassed": 6
+        "developmentVectorsPassed": 6,
+        "historicalSelectionCheckpoint": true
+      },
+      {
+        "composition": "C1",
+        "candidate": "tools/rust-ts-r0",
+        "state": "PASS2_FROZEN_QUALIFICATION_INCOMPLETE_NONPASS",
+        "environment": "macOS27.0.1ARM64 / Rust1.95.0 / release",
+        "selectionRecord": "selection/pass2/FREEZE.json",
+        "optimizedProducerSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+        "qualificationSummary": "qualification/c1-pass2/second-replay-summary.json",
+        "qualificationTriage": "qualification/c1-pass2/second-replay-triage.json",
+        "qualification": false,
+        "windowsOrLinuxResult": false,
+        "correctionPassesRemaining": 0
+      },
+      {
+        "composition": "C2",
+        "state": "FIRST_NATIVE_NONPASS_SOURCE_BACKED_COLLISION_PASS1_REGISTERED",
+        "selectionRecord": "composition2/initial/FREEZE.json",
+        "optimizedProducerSha256": "09711dbdb2184ff4823d87dff61eb803d009a4973137a7a581bb2f5f9aa0eb92",
+        "evidence": "composition2/initial/first-native-report.json",
+        "platform": "macOS ARM64 DEV only",
+        "qualification": false,
+        "windowsOrLinuxResult": false,
+        "correctionPassesUsed": 0,
+        "historicalInitialWitness": true
+      },
+      {
+        "composition": "C2",
+        "correctionPass": 1,
+        "state": "PROCESS_SUCCESS_NATIVE_SEMANTIC_NONPASS",
+        "selectionRecord": "composition2/pass1-producer/FREEZE.json",
+        "optimizedProducerSha256": "8e41b3a7adb9e33998a6fb5cba3582b041e9a8205b11c937e5651004a5893bf0",
+        "evidence": "composition2/pass1-replay/report.json",
+        "sdkReadCount": 63,
+        "nativeErrors": 734,
+        "parserLexerErrors": 12,
+        "projectModuleCount": 0,
+        "platform": "macOS ARM64 DEV only",
+        "qualification": false,
+        "windowsOrLinuxResult": false
       }
     ]
   },
@@ -75,7 +116,7 @@
     "integration": "exact canonical source and integration Git blobs adopted from merged #383; no stack restack or controller fork",
     "existingScenarioQualificationCoversSemanticPrecision": false,
     "pathManifest": "tooling-reuse.json",
-    "semanticCompositionRunsConsumed": 1
+    "semanticCompositionRunsConsumed": 2
   },
   "corpusAcquisitions": {
     "development": "Ten source-authored bootstrap cases /17variants, separately indexed and byte-disjoint from268qualification records within the stated comparison; historical assertions remain source references.",
@@ -173,10 +214,14 @@
     "developmentRecords": 10,
     "developmentVariants": 17,
     "historicalAssertionReferencesAreExecutableControls": false,
-    "nativeExecutionEvidence": false,
-    "nativeQualificationExecutionUnitsRun": 0,
+    "nativeExecutionEvidence": true,
+    "nativeQualificationExecutionUnitsRun": 290,
     "nativeReservedVariantsRun": 0,
-    "nativeExecutionCountsAsOfUtc": "2026-10-17T18:58:42+00:00"
+    "nativeExecutionCountsAsOfUtc": "2026-10-17T20:32:00.157000+00:00",
+    "nativeQualificationExecutionUnitsProcessedIncludingGaps": 354,
+    "nativeQualificationSupportingUnitsRun": 46,
+    "qualifiedObligations": 0,
+    "nativeExecutionEvidenceScope": "Only observed bounded projections and controls; incomplete nonpassing campaign, no R0."
   },
   "checkpoint3Verification": {
     "recordedUtc": "2026-10-17T16:10:12.284155+00:00",
@@ -230,10 +275,25 @@
       "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
     }
   },
-  "stageStatus": "C1_OPTIMIZED_FROZEN_BEFORE_QUALIFICATION",
+  "stageStatus": "C1_NONPASS_C2_PASS1_NATIVE_INGESTION_NONPASS",
   "checkpoint4Evidence": "composition1/record-index.json",
   "selectedCheckpoint": "selection/README.md",
   "selectionScope": "Frozen optimized source/artifact and scoped process/input inventory; no native qualification/reserved or WindowsLinux success implied.",
   "checkpoint5StateAsOfUtc": "2026-10-17T18:58:42+00:00",
-  "checkpoint5ValidationDelta": "selection/post-freeze-validation-delta.json"
+  "checkpoint5ValidationDelta": "selection/post-freeze-validation-delta.json",
+  "researchState": "C1_FROZEN_C2_ONE_CORRECTION_REMAINING_NATIVE_PARSER_GAPS_TRIAGED",
+  "secondComposition": {
+    "registration": "composition2/registration.json",
+    "state": "PASS1_NATIVE_NONPASS_12_PARSER_LEXER_ERRORS_0_PROJECT_MODULES",
+    "producer": "Ezno native checker =0.0.18",
+    "firstNativeExecutionRecorded": true,
+    "budgetEnvelopeUnchanged": true,
+    "firstNativeReport": "composition2/initial/first-native-report.json",
+    "correctionPass1Registration": "composition2/correction-pass1-registration.json",
+    "correctionPassesUsed": 1,
+    "pass1Producer": "composition2/pass1-producer/FREEZE.json",
+    "pass1NativeReport": "composition2/pass1-replay/report.json",
+    "correctionPassesRemaining": 1
+  },
+  "checkpoint6CanonicalVerification": "selection/ci-dispatch/canonical-pass2/record.json"
 }

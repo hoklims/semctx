@@ -1,0 +1,32 @@
+{
+  "composition": "C1",
+  "correctionPass": 2,
+  "startUtc": "2026-10-17T19:31:14.312101+00:00",
+  "status": "SOURCE_DEV_COMPLETE_PENDING_FREEZE_AND_FINAL_QUALIFICATION",
+  "remainingCorrectionPassesForC1AfterThis": 0,
+  "globalBudget5WorkingDaysStillApplies": true,
+  "initialAgentEffortBoundSeconds": 14400,
+  "scope": [
+    "Fix owned exported_binding_names nil-name handling for native array holes; source-backed regression and frozen OL-B03 unchanged.",
+    "Complete inventoried native observation/API boundaries required by qualification: JS full operation, identity/encoding/coordinates, captured FS/discovery/runtime and narrow existing private consumers.",
+    "Independent adapter v2 may close comparisons over actual observations; no reason unions, expected fitting or unchanged rerun hidden."
+  ],
+  "isolation": "Prepare in external scratch copies while indexed stage5 final verification runs; apply only after stage5 publication. Selected6fa artifact, original39manifest, qualification sources and reserved remain immutable.",
+  "stopCriteria": "Before reaching agent4h envelope reevaluate progress against5dayglobal,2passC1,2compositionbudget. No infeasibility inference solely from API gaps.",
+  "qualificationFirstTrialReportSha256": "763eb9a84b72c4d224c16755add8aa942ad5076b96f85713b401425e1b96b22b",
+  "diagnosticEvidence": "crash-ol-b03-diagnostic/outcome-backtrace.json",
+  "preFreezeChecks": {
+    "releaseAllTargets": {
+      "exitCode": 0,
+      "log": "evidence/pass2-pre-freeze-final-release.log"
+    },
+    "clippyAllTargets": {
+      "exitCode": 0,
+      "log": "evidence/pass2-pre-freeze-final-clippy.log"
+    },
+    "nativeTargetsExercised": [
+      "macOSARM64DEV"
+    ],
+    "WindowsLinux": "NOT_RUN"
+  }
+}

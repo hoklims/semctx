@@ -1,0 +1,92 @@
+{
+  "recorded_utc": "2026-10-17T19:30:39.536116+00:00",
+  "status": "TRIAGE_NO_RERUN_NO_RETROACTIVE_PASS",
+  "summary": {
+    "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-summary.json",
+    "sha256": "ce023a254dd0d3edf86409e3bb867432b5ca7bfc4dbd0d19b72b9b61f61bc39f"
+  },
+  "first_campaign_source_expectations_unchanged": true,
+  "reason_routing_credit_is_provisional_pending_all_mapping_audit": true,
+  "groups": [
+    {
+      "category": "ADAPTER_OR_OBSERVATION_CONTRACT_REASON_ROUTING",
+      "unit_ids": [
+        "N06-conditional-callee::base",
+        "N18-semantic-jsdoc-import::base",
+        "N15-ambient-commonjs-origin::base",
+        "P20-own-methods-are-not-function-prototype::base",
+        "V2-J03-retained-jsx-source-reason-prefix::base"
+      ],
+      "finding": "Recipe uses moduleConfiguration retainedWithoutSource where immutable source operation/projection may require full historical JavaScript inspection, or targets the wrong file. Expected reason observed elsewhere is not sufficient to qualify the frozen operation. Full routing audit including coincidentally empty PASS projections is required.",
+      "semantic_candidate_defect_proven": false,
+      "retroactive_pass": false,
+      "evidence": [
+        "unit-002/result.json",
+        "unit-027/result.json",
+        "unit-048/result.json",
+        "unit-065/result.json",
+        "unit-108/result.json"
+      ]
+    },
+    {
+      "category": "ADAPTER_DTO_PATH_OR_MISSING_OBSERVATION",
+      "unit_ids": [
+        "N15-ambient-commonjs-origin::base",
+        "P15-local-commonjs-homonyms::base",
+        "P14-valid-javascript-parse::base"
+      ],
+      "finding": "commonJsUnsupported nested under javascript.native, while recipe reads javascript directly. parseFailed is not exposed by elementary JavaScript DTO; the historical full operation cannot be manufactured from a reason union.",
+      "semantic_candidate_defect_proven": false,
+      "retroactive_pass": false,
+      "evidence": [
+        "unit-048/result.json",
+        "unit-064/result.json",
+        "unit-063/result.json"
+      ]
+    },
+    {
+      "category": "ADAPTER_FROZEN_CONSTRAINT_SCHEMA_MISREAD",
+      "unit_ids": [
+        "N21b-sdk-alias-retains-origin::base",
+        "V2-J03-retained-jsx-source-reason-prefix::base"
+      ],
+      "finding": "ordinary_no_snapshot_excludes_only was passed as a string to an object-constraint comparator; comparator explicitly rejected it as malformed. Frozen string semantics need source-backed mapping, not altered expectations.",
+      "semantic_candidate_defect_proven": false,
+      "retroactive_pass": false,
+      "evidence": [
+        "unit-050/result.json",
+        "unit-108/result.json"
+      ]
+    },
+    {
+      "category": "CANDIDATE_NATIVE_CRASH",
+      "unit_ids": [
+        "OL-B03::base"
+      ],
+      "finding": "Native process nonzero101; checker-2 panic at upstream ts_goport ast/node.rs:2387 before observable product. Failure is certain; detailed upstream root cause remains unestablished without a new authorized run.",
+      "semantic_candidate_defect_proven": true,
+      "evidence": [
+        "unit-183/process-outcome.json"
+      ]
+    },
+    {
+      "category": "EXPLICIT_UNIMPLEMENTED_ADAPTER_OR_NATIVE_API_AND_SUPPORT_GAPS",
+      "unit_count": 98,
+      "support_count": 34,
+      "finding": "No native result is credited for these gaps. Static API inventory distinguishes 48 adapter/existing surface mappings;14 identity-coordinate;18 capture/FS/discovery/runtime;1 full-JavaScript;17 supervision/worker. Supports34=23encoding+6diagnostics+4identity+1complete-baseline-identity. Counts may require implementation-specific reassessment before another replay.",
+      "inventory_ref": {
+        "path": "/private/tmp/semctx-t00-20261017/pass2-api-gap-inventory.json",
+        "sha256": "711ba3cf56f7f831282cda567ef3b60ab820069fe94d9103a602e152c3b03ffe"
+      }
+    }
+  ],
+  "group_counts_may_overlap": true,
+  "native_output_refusal_is_distinct_from_process_success": true,
+  "qualification": false,
+  "READY_TS_NATIVE": false,
+  "trial_count": 1,
+  "retry_count": 0,
+  "next_scope_authorized": "External adapterv2 preparation only; no query until renewed signal and immutable adapter review",
+  "support_scope": "17 PASS fixed descriptor/digest/SHA primitives only; no full analyzerIdentity or coherent capture acquisition inferred",
+  "environment": "macOS ARM64 native; release observer and frozen optimized CLI. Windows/Linux not exercised"
+}

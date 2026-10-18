@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "reviewerTask": "/root/stage6_documentary_review",
+  "authorTask": "/root",
+  "recordedUtc": "2026-10-17T20:48:14.810717+00:00",
+  "scope": "Independent read-only factual and standards review of specified stage6 documentary checkpoint; no executable review repeated, native queries, reserved reads, repository/index/GitHub edits or new gate.",
+  "head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "anchors": [
+    {
+      "path": "docs/research/rust-ts-r0/README.md",
+      "sha256": "ef5109ddd02641b1c591e676e9eced1d59aa7b42070127fe4540fde943701d64",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/experiment.json",
+      "sha256": "7d301a9f004f70e9d6e6b3726501676c80e0f24f38b7de67c81b1065d59c7213",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/selection/pass2/README.md",
+      "sha256": "d5a174fe9dd287d2e502e164b84916cd547d5d88af0e0332c8c05ced3ed5a7ef",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/selection/pass2/FREEZE.json",
+      "sha256": "b987704e06211f90700af3b18611e7fc2ab922dd05c9bdde721c1aa1e77d6661",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/selection/pass2/source-manifest.json",
+      "sha256": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/selection/pass2/post-freeze-documentary-delta.json",
+      "sha256": "7a1e1e3eec474b2147cd7b7abc8a5d865383c477560cfa39d508b8e8b5256f11",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json",
+      "sha256": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-triage.json",
+      "sha256": "38ddb512dcfd8b674fb751942e87fdc9f08855edc05841c79b6446ca7bc871cb",
+      "stagedEqualsWorktree": true
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/c1-pass2/record.json",
+      "sha256": "9a17abf208dfee5c3184f12cbf24c8e8e638903b82fb6e9158b3ec0a53b00a89",
+      "stagedEqualsWorktree": true
+    }
+  ],
+  "verdict": "NO_BLOCKING_FINDING_IN_BOUNDED_DOCUMENTARY_SCOPE",
+  "blockingFindings": [],
+  "nonblockingHistoricalNotes": [
+    {
+      "location": "docs/research/rust-ts-r0/experiment.json:stageStatus and execution.nativeCandidateRuns[0].state",
+      "fact": "stageStatus=C1_OPTIMIZED_FROZEN_BEFORE_QUALIFICATION and pass1 state QUALIFICATION_PENDING retain the historical stage5 state, whereas stage=6, researchState and pass2 record explicitly report the subsequent nonpassing campaign.",
+      "suggestion": "Optional rename or explicit historical-prefix for these stage5 fields; existing checkpoint5StateAsOfUtc, current researchState and pass2 record prevent them from granting a current PASS/READY claim."
+    }
+  ],
+  "checks": {
+    "unitCounts": {
+      "limitedPass": 283,
+      "nonpass": 7,
+      "gap": 64,
+      "total": 354
+    },
+    "supportCounts": {
+      "limitedPass": 42,
+      "nonpass": 4,
+      "gap": 5,
+      "total": 51
+    },
+    "obligationStates": {
+      "associatedUnitsPassPropertySupportReviewRequired": 178,
+      "nonpass": 8,
+      "gap": 54,
+      "qualified": 0
+    },
+    "summaryAndTriageMatchPreservedPrivateOriginalBytes": true,
+    "publicFreezeEqualsOriginal": true,
+    "publicFreezeSha256": "b987704e06211f90700af3b18611e7fc2ab922dd05c9bdde721c1aa1e77d6661",
+    "publicSourceManifestEqualsOriginal": true,
+    "sourceManifestSha256": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5",
+    "currentManifestComparison": {
+      "files": 44,
+      "43Exact": true,
+      "onlyMismatch": "tools/rust-ts-r0/README.md",
+      "mismatchExactlyMatchesDeclaredDocumentationOnlyDelta": true
+    },
+    "c1CorrectionPassesRemaining": 0,
+    "noThirdProducerCorrectionClaimed": true,
+    "noR0OrReadyClaimed": true,
+    "confirmedDivergenceIndependentlyRead": {
+      "support": "ENC::UTF16LE-lone-high-surrogate::ordinary",
+      "actualProcessOutcome": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-021/observation-000/process-outcome.json",
+      "actualDecodedUtf16": [
+        55357
+      ],
+      "actualDiagnosticCodes": [
+        1490
+      ],
+      "frozenExpectedCodes": [
+        1127
+      ],
+      "scope": "SDK decoder/parser support only; product consumption and Rust impossibility not established"
+    },
+    "portableDev": {
+      "decodedArchiveSha256": "f26de633b7c5b5f3397190325d8e23560d8b64f2cb922c72061dc0854f83615c",
+      "decodedHashAndBytesMatchRecord": true,
+      "members": 529,
+      "allMembersSafeRelativeRegularFiles": true,
+      "sampledMemberIdentityMatches": 3,
+      "samples": [
+        "repository/docs/research/rust-ts-r0/selection/pass2/FREEZE.json",
+        "session/evidence/pass2-pre-freeze-final-release.log",
+        "session/selected-c1-pass2/source/tools/rust-ts-r0/src/main.rs"
+      ],
+      "aliases": 454,
+      "unarchivedReferences": 7,
+      "unarchivedReasonsExplicit": true,
+      "canonicalStreamsExplicitlyPendingNotArchived": 4,
+      "noCurrentCanonicalSuccessInferred": true
+    }
+  },
+  "limitations": [
+    "Bounded documentary review; did not independently rerun or certify each semantic projection or every raw archived DEV assertion.",
+    "Read portable archive member inventory and three identity samples; no bulk reading of raw qualification archive.",
+    "Current canonical verification remains pending/known failure under root diagnosis; this review asserts no final green checks.",
+    "No native Linux or Windows execution performed or credited.",
+    "No reserved payload accessed.",
+    "No dedicated architectural certification or open-PR merge verdict issued."
+  ],
+  "environment": {
+    "host": "macOS ARM64",
+    "operations": "Local Git reads and Python standard-library JSON/hash/tar inspection",
+    "supportedTargetsNotExercised": [
+      "native Windows",
+      "native Linux"
+    ]
+  },
+  "effort": {
+    "conservativeAllowanceSeconds": 180,
+    "basis": "Bounded reviewer wall allowance including tool and synthesis time; not measured CPU or a new user budget"
+  }
+}

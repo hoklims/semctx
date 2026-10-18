@@ -2,17 +2,20 @@ use semctx_r0_probe::{identity, wire};
 mod assembly;
 mod batch;
 mod captured;
+mod captured_system_observations;
 mod component_observations;
 mod configuration;
 mod configured_resolver;
 #[cfg(test)]
 mod development;
+mod input_identity;
 mod javascript;
 mod ordinary;
 mod outline;
 mod qualified;
 mod runtime_configuration;
 mod source_text;
+mod worker_observations;
 use captured::Captured;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -85,11 +88,13 @@ struct Probe {
 }
 struct CaptureFs {
     captured: Captured,
+    workspace: Option<captured_system_observations::Workspace>,
+    sdk_keys: BTreeSet<String>,
     files: BTreeMap<String, String>,
     dirs: BTreeSet<String>,
     spelling: BTreeMap<String, String>,
     sensitive: bool,
-    log: RefCell<Vec<Probe>>,
+    log: Rc<RefCell<Vec<Probe>>>,
 }
 impl CaptureFs {
     fn record(&self, operation: &str, path: &str, found: bool) {
@@ -122,11 +127,13 @@ impl CaptureFs {
     fn new(files: BTreeMap<String, String>, sensitive: bool) -> Self {
         let mut result = Self {
             captured: Captured::new(BTreeMap::new()),
+            workspace: None,
+            sdk_keys: BTreeSet::new(),
             files: BTreeMap::new(),
             dirs: BTreeSet::from(["/".into()]),
             spelling: BTreeMap::from([("/".into(), "/".into())]),
             sensitive,
-            log: RefCell::new(vec![]),
+            log: Rc::new(RefCell::new(vec![])),
         };
         for (path, text) in files {
             let path = path.replace('\\', "/");
@@ -151,6 +158,79 @@ impl CaptureFs {
         result.captured = Captured::new(result.files.clone());
         result
     }
+    fn with_workspace_root(
+        files: BTreeMap<String, String>,
+        sensitive: bool,
+        root: &str,
+        sdk_directory: Option<&str>,
+    ) -> Self {
+        let mut fs = Self::new(files, sensitive);
+        fs.workspace = Some(captured_system_observations::Workspace::build(
+            &fs,
+            root,
+            sdk_directory,
+        ));
+        fs
+    }
+    fn resolved_path(&self, path: &str) -> Option<String> {
+        if let Some(workspace) = &self.workspace {
+            return workspace.resolve(self, path);
+        }
+        let key = self.key(path);
+        (self.files.contains_key(&key) || self.dirs.contains(&key)).then_some(key)
+    }
+    fn record_resolved(
+        &self,
+        operation: &str,
+        requested: &str,
+        physical: Option<&str>,
+        found: bool,
+    ) {
+        let path = physical
+            .and_then(|key| self.spelling.get(key).map(String::as_str))
+            .unwrap_or(requested);
+        self.record(operation, path, found);
+    }
+    fn retained_read_directory(&self, path: &str) -> Vec<String> {
+        self.record("read_directory", path, false);
+        vec![]
+    }
+    fn with_sdk_keys<'a>(
+        mut self,
+        paths: impl IntoIterator<Item = &'a str>,
+    ) -> Result<Self, String> {
+        let keys = paths
+            .into_iter()
+            .map(|path| self.key(path))
+            .collect::<BTreeSet<_>>();
+        if keys.iter().any(|path| !self.files.contains_key(path)) {
+            return Err("CAPTURED_SYSTEM_SDK_FILE_NOT_CAPTURED".into());
+        }
+        if let Some(workspace) = self.workspace.as_mut() {
+            workspace.enable_sdk(keys.clone())?;
+        }
+        self.sdk_keys = keys;
+        Ok(self)
+    }
+    fn workspace_profile(&self, root: &str, sdk_directory: Option<&str>) -> Result<Self, String> {
+        let files = self
+            .files
+            .iter()
+            .map(|(key, text)| {
+                (
+                    self.spelling
+                        .get(key)
+                        .cloned()
+                        .unwrap_or_else(|| key.clone()),
+                    text.clone(),
+                )
+            })
+            .collect();
+        let mut profile = Self::with_workspace_root(files, self.sensitive, root, sdk_directory)
+            .with_sdk_keys(self.sdk_keys.iter().map(String::as_str))?;
+        profile.log = self.log.clone();
+        Ok(profile)
+    }
     fn deny(&self, operation: &str, path: &str) -> Result<(), FsError> {
         self.record(operation, path, false);
         Err(FsError::Permission)
@@ -162,26 +242,57 @@ impl Fs for CaptureFs {
         self.sensitive
     }
     fn file_exists(&self, path: &str) -> bool {
-        let found = self.files.contains_key(&self.key(path));
-        self.record("file_exists", path, found);
+        let physical = self.resolved_path(path);
+        let closest_configuration = self.workspace.as_ref().is_some_and(|workspace| {
+            let key = self.key(path);
+            (key == workspace.root || key.starts_with(&format!("{}/", workspace.root)))
+                && key.ends_with("/tsconfig.json")
+                && self.files.contains_key(&key)
+        });
+        let found = physical
+            .as_ref()
+            .is_some_and(|key| self.files.contains_key(key))
+            || closest_configuration;
+        self.record_resolved("file_exists", path, physical.as_deref(), found);
         found
     }
     fn read_file(&self, path: &str) -> (String, bool) {
-        let value = self.captured.read(&self.key(path)).map(str::to_owned);
-        self.record("read_file", path, value.is_some());
+        let physical = self.resolved_path(path);
+        let value = physical
+            .as_ref()
+            .and_then(|key| self.captured.read(key))
+            .map(str::to_owned);
+        self.record_resolved("read_file", path, physical.as_deref(), value.is_some());
         self.log.borrow_mut().last_mut().unwrap().content_id = value
             .as_ref()
             .map(|text| identity::digest_bytes(text.as_bytes()));
         (value.clone().unwrap_or_default(), value.is_some())
     }
     fn directory_exists(&self, path: &str) -> bool {
-        let found = self.dirs.contains(&self.key(path));
-        self.record("directory_exists", path, found);
+        let physical = self.resolved_path(path);
+        let found = physical.as_ref().is_some_and(|key| self.dirs.contains(key))
+            || self
+                .workspace
+                .as_ref()
+                .is_some_and(|workspace| workspace.virtual_node_modules(self, path));
+        self.record_resolved("directory_exists", path, physical.as_deref(), found);
         found
     }
     fn get_accessible_entries(&self, path: &str) -> Entries {
-        let key = self.key(path);
-        self.record("directory_entries", path, self.dirs.contains(&key));
+        let physical = self.resolved_path(path);
+        self.record_resolved(
+            "directory_entries",
+            path,
+            physical.as_deref(),
+            physical.as_ref().is_some_and(|key| self.dirs.contains(key)),
+        );
+        let Some(key) = physical else {
+            return Entries {
+                files: vec![],
+                directories: vec![],
+                symlinks: Some(Default::default()),
+            };
+        };
         let prefix = if key == "/" {
             "/".into()
         } else {
@@ -220,10 +331,11 @@ impl Fs for CaptureFs {
         }
     }
     fn stat(&self, path: &str) -> Option<FileInfo> {
-        let key = self.key(path);
+        let physical = self.resolved_path(path);
+        self.record_resolved("stat", path, physical.as_deref(), physical.is_some());
+        let key = physical?;
         let file = self.files.get(&key);
         let dir = self.dirs.contains(&key);
-        self.record("stat", path, file.is_some() || dir);
         if file.is_none() && !dir {
             return None;
         }
@@ -235,13 +347,13 @@ impl Fs for CaptureFs {
         })
     }
     fn realpath(&self, path: &str) -> String {
-        let key = self.key(path);
-        self.record(
-            "realpath",
-            path,
-            self.files.contains_key(&key) || self.dirs.contains(&key),
-        );
-        self.spelling.get(&key).cloned().unwrap_or(key)
+        let physical = self.resolved_path(path);
+        self.record_resolved("realpath", path, physical.as_deref(), physical.is_some());
+        match physical {
+            Some(key) => self.spelling.get(&key).cloned().unwrap_or(key),
+            None if self.workspace.is_some() => path.into(),
+            None => self.key(path),
+        }
     }
     fn write_file(&self, path: &str, _: &str) -> Result<(), FsError> {
         self.deny("write_file", path)
@@ -486,6 +598,30 @@ fn inspect_subject(
 ) -> Result<serde_json::Value, String> {
     let relative = relative_source_path(root, path, fs.sensitive)?;
     let configuration = configuration::inspect(fs.clone(), path, root)?;
+    let ordinary_fs = if retained {
+        Rc::new(fs.workspace_profile(root, Some(sdk))?)
+    } else {
+        fs.clone()
+    };
+    let first_ordinary_issue = ordinary_fs
+        .workspace
+        .as_ref()
+        .map_or(0, |workspace| workspace.issues.borrow().len());
+    let ordinary_configuration = configuration::inspect(ordinary_fs.clone(), path, root)?;
+    let ordinary_unsupported = ordinary_fs
+        .workspace
+        .as_ref()
+        .map(|workspace| {
+            workspace
+                .issues
+                .borrow()
+                .iter()
+                .skip(first_ordinary_issue)
+                .filter(|issue| issue.kind == "unsupported")
+                .map(|issue| issue.detail.clone())
+                .collect::<BTreeSet<_>>()
+        })
+        .unwrap_or_default();
     let outside = configuration
         .reasons
         .iter()
@@ -537,7 +673,13 @@ fn inspect_subject(
         files.insert(path.into(), text);
         Rc::new(CaptureFs::new(files, fs.sensitive))
     };
+    let is_js = [".js", ".jsx", ".mjs", ".cjs"]
+        .iter()
+        .any(|suffix| path.ends_with(suffix));
     let frontend = native_frontend(semantic_fs.clone(), root, sdk, semantic_roots, true);
+    let link_frontend = (!retained && is_js)
+        .then(|| native_frontend(fs.clone(), root, sdk, vec![path.to_string()], true));
+    let module_frontend = link_frontend.as_ref().unwrap_or(&frontend);
     let loaded = program::new_program_version(&frontend.program, None);
     let _semantic = core::enter_program(Some(loaded));
     program::bind_all();
@@ -547,9 +689,6 @@ fn inspect_subject(
     }
     let positions = ast::source_file_get_position_map(file);
     let parsing:Vec<_>=ast::source_file_diagnostics(file).iter().map(|diagnostic|serde_json::json!({"code":diagnostic.code(),"message":diagnostic.localize(&ts_goport::locale::DEFAULT),"start_utf16":positions.utf8_to_utf16(diagnostic.pos()),"end_utf16":positions.utf8_to_utf16(diagnostic.end())})).collect();
-    let is_js = [".js", ".jsx", ".mjs", ".cjs"]
-        .iter()
-        .any(|suffix| path.ends_with(suffix));
     let semantic_required = qualified || is_js;
     let case_sensitive = fs.sensitive;
     let repository = root.to_string();
@@ -647,6 +786,8 @@ fn inspect_subject(
             retained,
             named_reasons: &component_named_reasons,
             configuration: &configuration,
+            ordinary_configuration: &ordinary_configuration,
+            ordinary_unsupported: &ordinary_unsupported,
             semantic: &semantic,
             javascript: &javascript,
             runtime: &runtime,
@@ -699,6 +840,7 @@ fn inspect_subject(
                 .replace('\n', " ")
         ));
     }
+    let javascript_native = javascript.native.clone();
     let exports_json =
         serde_json::to_string(&javascript.static_exports).map_err(|error| error.to_string())?;
     let mut javascript = serde_json::to_value(javascript).map_err(|error| error.to_string())?;
@@ -708,7 +850,7 @@ fn inspect_subject(
             specifier: &'a str,
             resolution: &'static str,
         }
-        let parsed = frontend
+        let parsed = module_frontend
             .program
             .get_source_file(path)
             .ok_or("missing frontend source")?;
@@ -736,7 +878,7 @@ fn inspect_subject(
             });
             let resolved = literal
                 .and_then(|literal| {
-                    frontend
+                    module_frontend
                         .program
                         .get_resolved_module_from_module_specifier(parsed.as_ref(), *literal)
                 })
@@ -748,7 +890,7 @@ fn inspect_subject(
                     .is_some_and(|path| path.replace('\\', "/").contains("/node_modules/"))
                 || (resolved.is_none()
                     && !specifier.starts_with('.')
-                    && declared_external(&semantic_fs, path, &repository, specifier));
+                    && declared_external(&fs, path, &repository, specifier));
             let resolution = if external {
                 "external"
             } else if resolved.is_some() {
@@ -770,13 +912,40 @@ fn inspect_subject(
     } else {
         serde_json::Value::Null
     };
+    if let Some(observations) = &module_frontend.resolution {
+        unimplemented.extend(observations.borrow().errors.values().cloned());
+    }
+    if let Some(error) = &module_frontend.program.module_resolution_error {
+        unimplemented.insert(format!("NATIVE_MODULE_RESOLUTION_ERROR:{error}"));
+    }
     if let Some(observations) = &frontend.resolution {
         unimplemented.extend(observations.borrow().errors.values().cloned());
     }
     if let Some(error) = &frontend.program.module_resolution_error {
         unimplemented.insert(format!("NATIVE_MODULE_RESOLUTION_ERROR:{error}"));
     }
-    let outcome = if !parsing.is_empty() {
+    let javascript_observation =
+        javascript::inspect_javascript_source(javascript::JavaScriptSourceInputs {
+            source: file,
+            path,
+            native: &javascript_native,
+            semantic: &semantic,
+            configuration: if retained {
+                &module_configuration_observations.retained_without_source
+            } else {
+                &module_configuration_observations.ordinary_without_snapshot
+            },
+            static_module_links: &javascript["staticModuleLinks"],
+            unsupported: &unimplemented,
+        });
+    if is_js {
+        reasons.extend(javascript_observation.reasons.iter().cloned());
+        unimplemented.extend(javascript_observation.unsupported.iter().cloned());
+        if !javascript_observation.executed {
+            unimplemented.insert("JAVASCRIPT_COMPONENT_NOT_EXECUTED".into());
+        }
+    }
+    let outcome = if !parsing.is_empty() || javascript_observation.parse_failed == Some(true) {
         "failed"
     } else if !unimplemented.is_empty() {
         "unknown"
@@ -789,7 +958,7 @@ fn inspect_subject(
         serde_json::to_value(&*observations.borrow()).expect("resolution serialization")
     });
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 
@@ -823,9 +992,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     }
     let request_identity =
         identity::digest(&serde_json::to_value(&request).map_err(|error| error.to_string())?);
-    let input_identity = identity::digest(
-        &serde_json::json!({"files":request.files,"utf16_files":request.utf16_files,"raw_files":request.raw_files,"sdk":sdk}),
-    );
+    let input_identity = identity::digest(&batch::input_manifest(&request, &sdk)?);
     let repository_root = request.cwd.clone();
     let roots = request.roots.clone();
     let retained = request.retained;
@@ -912,6 +1079,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         }
     }
     let project_files = std::sync::Arc::new(files.clone());
+    let sdk_keys = sdk.files.keys().cloned().collect::<Vec<_>>();
     for (path, text) in sdk.files {
         if files
             .insert(path, ts_goport::scanner_util::go_string_from_utf8(text))
@@ -927,7 +1095,17 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             return Err(format!("conflicting captured key: {path}"));
         }
     }
-    let fs = Rc::new(CaptureFs::new(files, request.case_sensitive));
+    let fs = if retained {
+        CaptureFs::new(files, request.case_sensitive)
+    } else {
+        CaptureFs::with_workspace_root(
+            files,
+            request.case_sensitive,
+            &request.cwd,
+            Some(&request.sdk_directory),
+        )
+    };
+    let fs = Rc::new(fs.with_sdk_keys(sdk_keys.iter().map(String::as_str))?);
     fs.record("captured_cwd", &request.cwd, true);
     let frontend = native_frontend(
         fs.clone(),
@@ -1156,9 +1334,87 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"outlines":outlines,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
     )
 }
+fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
+    let Some(mode) = args.get(1).map(String::as_str).filter(|mode| {
+        matches!(
+            *mode,
+            "--observe-primitives" | "--extract-worker" | "--consume-worker" | "--observe-system"
+        )
+    }) else {
+        return Ok(None);
+    };
+    let valid_arity = if mode == "--extract-worker" {
+        args.len() == 4
+    } else if mode == "--observe-system" {
+        args.len() == 3 || args.len() == 4
+    } else {
+        args.len() == 3
+    };
+    if !valid_arity {
+        return Err(format!(
+            "expected {mode} REQUEST.json{}",
+            if mode == "--extract-worker" {
+                " SDK.json"
+            } else if mode == "--observe-system" {
+                " [SDK.json]"
+            } else {
+                ""
+            }
+        ));
+    }
+    let descriptor: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&args[2]).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let malformed = if mode == "--extract-worker" {
+        worker_observations::malformed_request(&descriptor)
+    } else {
+        None
+    };
+    let sdk: Option<Sdk> = if malformed.is_none() && args.len() == 4 {
+        Some(
+            serde_json::from_slice(&std::fs::read(&args[3]).map_err(|error| error.to_string())?)
+                .map_err(|error| error.to_string())?,
+        )
+    } else {
+        None
+    };
+    let mut observed = if let Some(refusal) = malformed {
+        refusal
+    } else {
+        match mode {
+            "--observe-primitives" => {
+                semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
+            }
+            "--extract-worker" => worker_observations::run(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("worker SDK input missing")?,
+            ),
+            "--consume-worker" => worker_observations::consume_worker(&descriptor),
+            "--observe-system" => {
+                captured_system_observations::run(descriptor.clone(), sdk.as_ref())
+            }
+            _ => return Err("unknown native observation command".into()),
+        }
+    };
+    observed["request_descriptor_id"] = serde_json::json!(identity::digest(&descriptor));
+    if let Some(sdk) = &sdk {
+        observed["sdk_input_id"] = serde_json::json!(identity::digest(
+            &serde_json::to_value(sdk).map_err(|error| error.to_string())?
+        ));
+    }
+    let executable = std::env::current_exe().map_err(|error| error.to_string())?;
+    observed["producer_artifact_id"] = serde_json::json!(identity::digest_bytes(
+        &std::fs::read(executable).map_err(|error| error.to_string())?
+    ));
+    Ok(Some(observed))
+}
+
 fn main() {
     let result = (|| {
         let args = std::env::args().collect::<Vec<_>>();
+        if let Some(observed) = additional_observation(&args)? {
+            return Ok(observed);
+        }
         let batch_mode = args.get(1).is_some_and(|value| value == "--batch");
         let first = if batch_mode { 2 } else { 1 };
         if args.len() != first + 2 {
@@ -1206,6 +1462,86 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn retained_configuration_keeps_workspace_links_in_ordinary_observation_only() {
+        let mut request = component_request(
+            "t00WorkspaceConfigurationDev",
+            "/repo/apps/web/main.ts",
+            "export const t00WorkspaceConfigurationDev = 379;",
+        );
+        request.files.extend(BTreeMap::from([
+            (
+                "/repo/package.json".into(),
+                r#"{"private":true,"workspaces":["packages/*","apps/*"]}"#.into(),
+            ),
+            (
+                "/repo/apps/web/package.json".into(),
+                r#"{"name":"web","dependencies":{"@t00/config":"workspace:*"}}"#.into(),
+            ),
+            (
+                "/repo/apps/web/tsconfig.json".into(),
+                r#"{"extends":"@t00/config/base.json"}"#.into(),
+            ),
+            (
+                "/repo/packages/config/package.json".into(),
+                r#"{"name":"@t00/config","version":"1.0.0"}"#.into(),
+            ),
+            (
+                "/repo/packages/config/base.json".into(),
+                r#"{"compilerOptions":{"module":"ESNext"}}"#.into(),
+            ),
+        ]));
+        let observed = analyze(request, component_sdk()).unwrap();
+        let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
+        assert_eq!(
+            modes["retainedWithoutSource"]["reasons"],
+            serde_json::json!(["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]),
+            "{modes}"
+        );
+        assert_eq!(
+            modes["ordinaryWithoutSnapshot"]["reasons"],
+            serde_json::json!([])
+        );
+    }
+
+    #[test]
+    fn unsupported_workspace_configuration_stays_unknown_in_ordinary_observation() {
+        let mut request = component_request(
+            "t00UnknownWorkspaceDev",
+            "/repo/apps/web/main.ts",
+            "export const t00UnknownWorkspaceDev = 397;",
+        );
+        request.files.extend(BTreeMap::from([
+            (
+                "/repo/pnpm-workspace.yaml".into(),
+                "packages: [apps/*, settings/*]".into(),
+            ),
+            (
+                "/repo/apps/web/package.json".into(),
+                r#"{"name":"web","dependencies":{"@t00/config":"workspace:*"}}"#.into(),
+            ),
+            (
+                "/repo/apps/web/tsconfig.json".into(),
+                r#"{"extends":"@t00/config/base.json"}"#.into(),
+            ),
+            (
+                "/repo/settings/config/package.json".into(),
+                r#"{"name":"@t00/config","version":"1.0.0"}"#.into(),
+            ),
+            ("/repo/settings/config/base.json".into(), "{}".into()),
+        ]));
+        let observed = analyze(request, component_sdk()).unwrap();
+        let ordinary =
+            &observed["subjects"][0]["moduleConfigurationObservations"]["ordinaryWithoutSnapshot"];
+        assert!(
+            ordinary["unsupported"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!("WORKSPACE_PNPM_DECLARATION_UNSUPPORTED")),
+            "{ordinary}"
+        );
     }
 
     #[test]
@@ -1807,6 +2143,199 @@ const t00ComponentObservationsP = 227;"#,
                 .unwrap()
                 .iter()
                 .any(|edge| edge["kind"] == "calls")
+        );
+    }
+}
+
+#[cfg(test)]
+mod pass2_javascript_development {
+    use super::*;
+
+    fn observe(text: &str, retained: bool, configuration: Option<&str>) -> serde_json::Value {
+        observe_files(text, retained, configuration, BTreeMap::new())
+    }
+    fn observe_files(
+        text: &str,
+        retained: bool,
+        configuration: Option<&str>,
+        additional: BTreeMap<String, String>,
+    ) -> serde_json::Value {
+        let mut files: BTreeMap<String, String> =
+            BTreeMap::from([("/repo/t00JavascriptFullDev.js".into(), text.into())]);
+        files.extend(additional);
+        if let Some(configuration) = configuration {
+            files.insert("/repo/tsconfig.json".into(), configuration.into());
+        }
+        let request: Request = serde_json::from_value(serde_json::json!({
+            "id":"t00JavascriptFullDev", "cwd":"/repo", "sdk_directory":"/sdk/lib",
+            "case_sensitive":ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+            "roots":["/repo/t00JavascriptFullDev.js"], "files":files, "retained":retained,
+            "options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false}
+        })).unwrap();
+        let sdk: Sdk = serde_json::from_slice(
+            &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+        )
+        .unwrap();
+        analyze(request, sdk).unwrap()["subjects"][0].clone()
+    }
+
+    #[test]
+    fn ordinary_javascript_links_use_captured_dependencies_and_declared_external_packages() {
+        for (specifier, files, resolution) in [
+            (
+                "./t00DependencyDev.js",
+                BTreeMap::from([(
+                    "/repo/t00DependencyDev.js".into(),
+                    "export const dependencyDev = 409;".into(),
+                )]),
+                "resolved",
+            ),
+            (
+                "t00-external-dev",
+                BTreeMap::from([(
+                    "/repo/package.json".into(),
+                    r#"{"dependencies":{"t00-external-dev":"1.0.0"}}"#.into(),
+                )]),
+                "external",
+            ),
+        ] {
+            let source = format!("import '{specifier}'; export const t00LinkDev = 419;");
+            let observed = observe_files(&source, false, None, files);
+            let operation = &observed["javascriptObservation"];
+            assert_eq!(operation["executed"], true);
+            assert_eq!(operation["unsupported"], serde_json::json!([]));
+            assert_eq!(
+                operation["staticModuleLinks"],
+                serde_json::json!([{"specifier":specifier,"resolution":resolution}])
+            );
+            assert!(
+                !operation["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&serde_json::json!(format!(
+                        "JAVASCRIPT_IMPORT_UNRESOLVED:{specifier}"
+                    )))
+            );
+        }
+    }
+
+    #[test]
+    fn javascript_operation_preserves_retained_and_ordinary_configuration_boundaries() {
+        for retained in [false, true] {
+            let subject = observe(
+                "export default 293;",
+                retained,
+                Some(r#"{"compilerOptions":{"module":"CommonJS","moduleResolution":"Node10"}}"#),
+            );
+            let observation = &subject["javascriptObservation"];
+            assert_eq!(observation["executed"], true);
+            assert_eq!(observation["parseFailed"], false);
+            assert_eq!(observation["unsupported"], serde_json::json!([]));
+            let expected = if retained {
+                serde_json::json!([
+                    "JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED",
+                    "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
+                    "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10",
+                    "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"
+                ])
+            } else {
+                serde_json::json!(["JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED"])
+            };
+            assert_eq!(observation["reasons"], expected);
+            assert_eq!(
+                observation["staticExports"],
+                serde_json::json!([{"name":"default","declarationKind":"expression"}])
+            );
+        }
+    }
+
+    #[test]
+    fn javascript_operation_uses_transpilation_diagnostics_for_js_type_syntax() {
+        let subject = observe(
+            "export const t00JavascriptTypedDev: number = 307;",
+            true,
+            None,
+        );
+        let observation = &subject["javascriptObservation"];
+        assert_eq!(observation["executed"], true);
+        assert_eq!(observation["parseFailed"], true);
+        assert_eq!(subject["outcome"], "failed");
+        assert_eq!(observation["unsupported"], serde_json::json!([]));
+        assert_eq!(
+            observation["reasons"],
+            serde_json::json!([
+                "JAVASCRIPT_PARSE_ERROR:8010:Type annotations can only be used in TypeScript files."
+            ])
+        );
+    }
+
+    #[test]
+    fn javascript_operation_composes_semantic_native_and_resolution_reasons() {
+        for retained in [false, true] {
+            let generator = observe(
+                "export function* t00JavascriptGeneratorDev(){ yield 317; }",
+                retained,
+                None,
+            );
+            let expected = if retained {
+                serde_json::json!([
+                    "JAVASCRIPT_ITERATION_UNSUPPORTED",
+                    "SOURCE_ITERATION_UNSUPPORTED"
+                ])
+            } else {
+                serde_json::json!(["JAVASCRIPT_ITERATION_UNSUPPORTED"])
+            };
+            assert_eq!(generator["javascriptObservation"]["reasons"], expected);
+            assert_eq!(
+                generator["javascriptObservation"]["unsupported"],
+                serde_json::json!([])
+            );
+            let loader = observe("const t00JavascriptLoaderDev = require;", retained, None);
+            let expected = if retained {
+                serde_json::json!([
+                    "JAVASCRIPT_COMMONJS_UNSUPPORTED",
+                    "SOURCE_COMMONJS_UNSUPPORTED"
+                ])
+            } else {
+                serde_json::json!(["JAVASCRIPT_COMMONJS_UNSUPPORTED"])
+            };
+            assert_eq!(loader["javascriptObservation"]["reasons"], expected);
+            assert_eq!(
+                loader["javascriptObservation"]["unsupported"],
+                serde_json::json!([])
+            );
+            assert_eq!(loader["javascript"]["native"]["commonJsUnsupported"], true);
+            let missing = observe(
+                "import { t00MissingDev } from './t00JavascriptAbsentDev.js'; export { t00MissingDev };",
+                retained,
+                None,
+            );
+            assert_eq!(
+                missing["javascriptObservation"]["reasons"],
+                serde_json::json!(["JAVASCRIPT_IMPORT_UNRESOLVED:./t00JavascriptAbsentDev.js"])
+            );
+            assert_eq!(
+                missing["javascriptObservation"]["unsupported"],
+                serde_json::json!([])
+            );
+            assert_eq!(
+                missing["javascriptObservation"]["staticModuleLinks"],
+                serde_json::json!([{"specifier":"./t00JavascriptAbsentDev.js","resolution":"unresolved"}])
+            );
+        }
+    }
+
+    #[test]
+    fn javascript_operation_does_not_add_explicit_source_scope_refusal() {
+        let subject = observe("const t00JavascriptScriptDev = 311;", true, None);
+        let observation = &subject["javascriptObservation"];
+        assert_eq!(observation["executed"], true);
+        assert_eq!(observation["parseFailed"], false);
+        assert_eq!(observation["reasons"], serde_json::json!([]));
+        assert_eq!(observation["unsupported"], serde_json::json!([]));
+        assert_eq!(
+            subject["moduleConfigurationObservations"]["retainedWithSource"]["reasons"],
+            serde_json::json!(["SOURCE_GLOBAL_SCRIPT_UNSUPPORTED"])
         );
     }
 }

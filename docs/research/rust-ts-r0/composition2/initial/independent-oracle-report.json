@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "author": "/root/c2_independent_oracle",
+  "registered_utc": "2026-10-17T20:45:22.792347+00:00",
+  "status": "INDEPENDENT_EXPECTED_FROZEN_BEFORE_FIRST_NATIVE_C2_RUN",
+  "verdict": "Fair required baseline ES2022 SDK closure and ordinary cross-file re-export plus String.trim witness. Independent TypeScript5.9.3 program succeeds with zero diagnostics and actually loads exactly the63 static required SDK files.",
+  "baseline_authority": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "path": "packages/ts-analyzer/src/ts-symbols.ts",
+    "option_lines": "154\u2013164",
+    "host_lines": "167\u2013183",
+    "alias_target_lines": "1195\u20131208",
+    "note": "Baseline no-lib/lib override absent. skipLibCheck:true is material: C2 ingestion diagnostics must not be conflated with required baseline library type checking."
+  },
+  "inputs": {
+    "request_sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+    "sdk_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "required_closure_count": 63,
+    "sdk_bytes_per_manifest": 2389540
+  },
+  "expected": [
+    {
+      "expression": {
+        "source": "/repo/entry.ts",
+        "kind": "PropertyAccessExpression",
+        "name": {
+          "text": "trim",
+          "start_utf16": 76,
+          "end_utf16": 80
+        },
+        "start_utf16": 63,
+        "end_utf16": 80,
+        "start_line_column": {
+          "line": 1,
+          "character": 21
+        },
+        "end_line_column": {
+          "line": 1,
+          "character": 38
+        },
+        "text": "aliasValue().trim",
+        "source_sha256": "23b285bbbf608aa0cf14078ee4d99c52198d3ad45998a04308376d9ead266122"
+      },
+      "resolved_symbol": "trim",
+      "declarations": [
+        {
+          "source": "/sdk/lib/lib.es5.d.ts",
+          "kind": "MethodSignature",
+          "name": {
+            "text": "trim",
+            "start_utf16": 21094,
+            "end_utf16": 21098
+          },
+          "container": "String",
+          "start_utf16": 21094,
+          "end_utf16": 21109,
+          "start_line_column": {
+            "line": 513,
+            "character": 4
+          },
+          "end_line_column": {
+            "line": 513,
+            "character": 19
+          },
+          "text": "trim(): string;",
+          "source_sha256": "c430d44666289dae81f30fa7b2edebf186ecc91a2d4c71266ea6ae76388792e1"
+        }
+      ],
+      "resolved_signature_declaration": {
+        "source": "/sdk/lib/lib.es5.d.ts",
+        "kind": "MethodSignature",
+        "name": {
+          "text": "trim",
+          "start_utf16": 21094,
+          "end_utf16": 21098
+        },
+        "container": "String",
+        "start_utf16": 21094,
+        "end_utf16": 21109,
+        "start_line_column": {
+          "line": 513,
+          "character": 4
+        },
+        "end_line_column": {
+          "line": 513,
+          "character": 19
+        },
+        "text": "trim(): string;",
+        "source_sha256": "c430d44666289dae81f30fa7b2edebf186ecc91a2d4c71266ea6ae76388792e1"
+      },
+      "return_type": "string"
+    },
+    {
+      "expression": {
+        "source": "/repo/entry.ts",
+        "kind": "Identifier",
+        "start_utf16": 63,
+        "end_utf16": 73,
+        "start_line_column": {
+          "line": 1,
+          "character": 21
+        },
+        "end_line_column": {
+          "line": 1,
+          "character": 31
+        },
+        "text": "aliasValue",
+        "source_sha256": "23b285bbbf608aa0cf14078ee4d99c52198d3ad45998a04308376d9ead266122"
+      },
+      "resolved_symbol": "sourceValue",
+      "declarations": [
+        {
+          "source": "/repo/dep.ts",
+          "kind": "FunctionDeclaration",
+          "name": {
+            "text": "sourceValue",
+            "start_utf16": 16,
+            "end_utf16": 27
+          },
+          "start_utf16": 0,
+          "end_utf16": 59,
+          "start_line_column": {
+            "line": 0,
+            "character": 0
+          },
+          "end_line_column": {
+            "line": 0,
+            "character": 59
+          },
+          "text": "export function sourceValue(): string { return \" value \"; }",
+          "source_sha256": "95c7e3e9b58cff85fbbb1c577e83c067db0201884b960117bebd13b040dd1ffe"
+        }
+      ],
+      "resolved_signature_declaration": {
+        "source": "/repo/dep.ts",
+        "kind": "FunctionDeclaration",
+        "name": {
+          "text": "sourceValue",
+          "start_utf16": 16,
+          "end_utf16": 27
+        },
+        "start_utf16": 0,
+        "end_utf16": 59,
+        "start_line_column": {
+          "line": 0,
+          "character": 0
+        },
+        "end_line_column": {
+          "line": 0,
+          "character": 59
+        },
+        "text": "export function sourceValue(): string { return \" value \"; }",
+        "source_sha256": "95c7e3e9b58cff85fbbb1c577e83c067db0201884b960117bebd13b040dd1ffe"
+      },
+      "return_type": "string"
+    }
+  ],
+  "ordering": {
+    "file": "definition-order.json",
+    "sha256": "25d300d2c7b9be278de8e75e0ea02674362a63589a96b2239ba6807d230d6e4d",
+    "fairness": "All63 unmodified inputs are required rather than all100 published SDK files. Postorder is independently frozen to avoid arbitrary alphabetical ingestion failure. This order is an adapter choice; it is not a TypeScript semantic guarantee.",
+    "caution": "If failure is only unresolved names or duplicate synthesis while TypeScript skipLibCheck succeeds, distinguish adapter order/merging deficiency from unsupported syntax. Do not use it alone for STOP_SEMANTIC."
+  },
+  "ezno_boundary_source": {
+    "package": "ezno-checker0.0.18 exact registry source",
+    "path": "/private/tmp/semctx-t00-20261017/c2-survey/ezno-checker-0.0.18/src/lib.rs",
+    "sha256": "2d69056b5f71f34a3e5fdfe96c9002ec4a1c0cf7736e5a2c157fa79cd59b13fe",
+    "evidence": [
+      {
+        "lines": "459\u2013491",
+        "fact": "Definitions added before entry modules; any contained Error returns output with empty modules."
+      },
+      {
+        "lines": "616\u2013687",
+        "fact": "Supplied definition paths parsed then synthesised one by one; internal.ts.d.bin selects bundled definitions and must remain excluded."
+      }
+    ],
+    "assessment": "A parser rejection on an unchanged required declaration is a meaningful failure of this pinned raw definition-ingestion boundary. It establishes neither universal Rust impossibility nor impossibility of a bounded owned adapter; preserve diagnostic source/range/reads and actual empty modules."
+  },
+  "evidence": [
+    {
+      "file": "baseline-ts-symbols.ts",
+      "bytes": 61457,
+      "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+    },
+    {
+      "file": "independent-ts-oracle.cjs",
+      "bytes": 6441,
+      "sha256": "ed206543ce1897b2bef94ac789c72d9806332802fc840a9ef5827a33502fe8a3"
+    },
+    {
+      "file": "expected.json",
+      "bytes": 23669,
+      "sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef"
+    },
+    {
+      "file": "definition-order.json",
+      "bytes": 5689,
+      "sha256": "25d300d2c7b9be278de8e75e0ea02674362a63589a96b2239ba6807d230d6e4d"
+    }
+  ],
+  "independence": {
+    "candidate_queries": 0,
+    "candidate_or_c1_edits": 0,
+    "heldout_reads": 0,
+    "github_actions": 0,
+    "github_mutations": 0,
+    "location": "external composition2/oracle only; no tracked edits"
+  },
+  "limitations": [
+    "DEV macOS arm64 TypeScript baseline only; not native candidate/platform qualification.",
+    "Semantic identity/range of target declarations is required; equal inferred string type alone is insufficient.",
+    "Baseline TypeScript program uses a read-only in-memory compiler host over exactly project+published SDK bytes with no file-content fallback to disk."
+  ],
+  "effort": {
+    "started_utc": "2026-10-17T20:45:00Z",
+    "limit_seconds": 480,
+    "charge_recommendation": "Use actual collaboration task interval conservatively; about5minutes active wall."
+  }
+}

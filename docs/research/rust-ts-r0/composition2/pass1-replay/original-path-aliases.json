@@ -1,0 +1,74 @@
+[
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-diagnostics-classification.json",
+    "member": "pass1-diagnostics-classification.json",
+    "bytes": 446879,
+    "sha256": "0a7934a39920008fc822e91a4e2bc640690d848d0007cb828c70959e6a55160d"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-execution-plan.json",
+    "member": "pass1-native-execution-plan.json",
+    "bytes": 63966,
+    "sha256": "0dae717a1d4f94f1d332034b633695ff671e3f57168d4201fee2c4ad73ea8792"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-report.json",
+    "member": "pass1-native-report.json",
+    "bytes": 9426,
+    "sha256": "03855876a4662796eb807d8950a567b66b207865949461b8c17e411368b944ab"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/invocation-after.json",
+    "member": "pass1-native-run/invocation-after.json",
+    "bytes": 182630,
+    "sha256": "175a4f3ef04ca2a8432fce8420f56c68fe4c826ddf1afcb64fc9f7f20a9bb2ff"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/invocation-before.json",
+    "member": "pass1-native-run/invocation-before.json",
+    "bytes": 91387,
+    "sha256": "5d19b6828cf21e216c7fc3791dce3f2db6d09408cd5d075ac2cfc1468ceda955"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/process-outcome.json",
+    "member": "pass1-native-run/process-outcome.json",
+    "bytes": 323471,
+    "sha256": "e0fc6e817e7a2c1132b5fa6ad02d188e7db233167e13901b39c22788ea390624"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/runner-stderr.bin",
+    "member": "pass1-native-run/runner-stderr.bin",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/runner-stdout.bin",
+    "member": "pass1-native-run/runner-stdout.bin",
+    "bytes": 124,
+    "sha256": "654188bd162ea7a6e3568505b6e316516b8930b2de366fa16e663b4518be4f9f"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/stderr.retained.utf8",
+    "member": "pass1-native-run/stderr.retained.utf8",
+    "bytes": 28881,
+    "sha256": "aef30b47638e89ed243d04bb7688cdecde94378165722af8d1cebe4a95332291"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-native-run/stdout.retained.utf8",
+    "member": "pass1-native-run/stdout.retained.utf8",
+    "bytes": 261600,
+    "sha256": "8f5ddca7e0a7c248a9fa6c3566525c19d19ef803df851318d00ca522f602bbd0"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-preflight.json",
+    "member": "pass1-preflight.json",
+    "bytes": 783,
+    "sha256": "5d16ea00998b94b51ab02390ef48bea80be6cc330c95a8452f058751e17cb6e6"
+  },
+  {
+    "original": "/private/tmp/semctx-t00-20261017/composition2/oracle/pass1-syntax-witnesses.json",
+    "member": "pass1-syntax-witnesses.json",
+    "bytes": 12189,
+    "sha256": "282fa9751a7b78667ed0e8799515ad3a34fcddbdd1c4a10990cb9b1d040254bb"
+  }
+]

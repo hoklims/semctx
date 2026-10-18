@@ -1,0 +1,16 @@
+{
+  "state": "FIRST_NATIVE_C2_NONPASS_PRESERVED_CORRECTION_PASS1_REGISTERED",
+  "archive": "evidence.tar.gz.b64",
+  "decodedArchiveSha256": "15ea9f4ec6e835ad0a1a70bf818c3d06a71df9ca73d21d62e38a4ef38791d13d",
+  "members": 53,
+  "sourceManifest": "producer/frozen/source-manifest.json",
+  "observed": "Canonical #383 Outcome nonzero/101,316ms,0stdout/19518stderr exact,35identities unchanged;6 SDK reads,0project reads; no alias/trim result",
+  "semanticConclusion": "No READY and no STOP_SEMANTIC from panic alone. Source-backed range-map collision is the scoped correction hypothesis; exact internal TypeId not observed.",
+  "omissions": [
+    "Native executables/rlibs/target artifacts; exact identities retained, rebuilt hash equality not promised.",
+    "Frozen SDK/closure input copies: use repository tools/rust-ts-r0/sdk/sdk-input.json and cases/annexes/sdk-required-closure.v3.json unchanged as specified in FREEZE; development-request original included."
+  ],
+  "nativeWindowsLinuxExercised": false,
+  "reservedRead": false,
+  "correctionPassesUsedAfterInitial": 0
+}
