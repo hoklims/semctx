@@ -1,4 +1,11 @@
-# T00 / R0 decision: STOP_BUDGET
+# Historical T00 / R0 decision: STOP_BUDGET
+
+This is the preserved pre-reopening dossier. On 2026-10-18 the owner
+[reopened the same T00 for C1](../resumption/README.md), with two additional
+correction passes and approximately 3–4 days. The decision and claim audit below
+describe the earlier checkpoint; they are not the current R0 verdict or budget.
+The isolated surrogate diagnostic now has the bounded owner arbitration
+[T00-ARB-002](../arbitrations.json). No new qualification result is implied.
 
 The owner-approved two-composition, two-correction-pass envelope is exhausted
 without R0 passage. Both final corrections are closed NONPASS. This is

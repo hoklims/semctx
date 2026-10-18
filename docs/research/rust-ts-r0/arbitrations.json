@@ -30,6 +30,52 @@
       "witnessArchiveSha256": "c9eb16890540767e1c4c09199c7c1fc06997b84b569d139194ac5dad46e3859f",
       "nativeQualificationRuns": 0,
       "nativeDevelopmentEvidence": "composition1/record-index.json; ordinary::development_ambiguous_stars_have_no_endpoint_and_explicit_export_resolves and qualified SOURCE_EXPORT_AMBIGUOUS; no qualification credit"
+    },
+    {
+      "id": "T00-ARB-002",
+      "status": "OWNER_APPROVED_VERSION_DIFFERENCE_PENDING_REOPENED_REPLAY",
+      "owner": "Sébastien",
+      "decisionDate": "2026-10-18",
+      "decisionSource": "Owner instruction in the resumed T00 session at 6270bc10765d697a4311150e3e1a4aea8a726335",
+      "approval": "Treat the isolated UTF16 surrogate diagnostic1490 instead of1127 as a TS7-versus-TS5.9.3 version difference; continue C1 within the renewed budget on the same T00/branch/PR.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "scope": {
+        "supportIds": [
+          "ENC::UTF16LE-lone-high-surrogate::ordinary"
+        ],
+        "historicalEnvironment": "macOS ARM64, C1 pass2",
+        "candidateArtifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "baselineTypeScriptVersion": "5.9.3"
+      },
+      "observed": {
+        "decodedUtf16Units": [
+          55357
+        ],
+        "nativeDiagnosticCode": 1490,
+        "frozenExpectedDiagnosticCode": 1127,
+        "syntaxErrorAgrees": true,
+        "historicalDisposition": "NONPASS, preserved unchanged"
+      },
+      "evidence": [
+        {
+          "path": "qualification/c1-pass2/second-replay-triage.json",
+          "bytes": 6273,
+          "sha256": "38ddb512dcfd8b674fb751942e87fdc9f08855edc05841c79b6446ca7bc871cb"
+        },
+        {
+          "path": "selection/pass2/FREEZE.json",
+          "bytes": 2815,
+          "sha256": "b987704e06211f90700af3b18611e7fc2ab922dd05c9bdde721c1aa1e77d6661"
+        }
+      ],
+      "authorityLimit": "Owner-adjudicated classification. The historical triage did not isolate the underlying SDK/internal WTF8 cause; this record does not claim new technical root-cause proof.",
+      "comparisonRule": "Accept only this specific version-attributed code difference under the owner arbitration, preserving raw diagnostics and frozen expectations. No new PASS is granted at registration. Additional TS7-versus-TS5 differences need individual demonstrable evidence; all other differences remain actual divergences.",
+      "automaticExtensionToOtherDiagnostics": false,
+      "historicalExpectationsRewritten": false,
+      "resumption": "resumption/record.json"
     }
   ]
 }

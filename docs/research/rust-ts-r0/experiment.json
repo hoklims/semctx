@@ -4,7 +4,7 @@
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
   "stage": 7,
-  "r0Decision": "STOP_BUDGET",
+  "r0Decision": null,
   "owner": "SebastienElet",
   "baseline": {
     "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
@@ -202,7 +202,7 @@
     "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
   },
   "remainingEvidence": [
-    "R0 was not passed; no automatic continuation beyond STOP_BUDGET. Missing qualified obligations/holdout and platform limits are preserved in final/decision.json."
+    "Owner reopened the same T00 on 2026-10-18; follow resumption/record.json. Harness repairs, GAP mappings, obligation review, full three-OS campaign, single reserved campaign and terminal R0 decision are pending."
   ],
   "sourceInventory": {
     "obligations": "inventory/obligations.json",
@@ -287,13 +287,13 @@
       "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
     }
   },
-  "stageStatus": "RESEARCH_CLOSED_TERMINAL_DOSSIER_PUBLICATION",
+  "stageStatus": "REOPENED_C1_OWNER_DECISION_REGISTERED",
   "checkpoint4Evidence": "composition1/record-index.json",
   "selectedCheckpoint": "selection/README.md",
   "selectionScope": "Frozen optimized source/artifact and scoped process/input inventory; no native qualification/reserved or WindowsLinux success implied.",
   "checkpoint5StateAsOfUtc": "2026-10-17T18:58:42+00:00",
   "checkpoint5ValidationDelta": "selection/post-freeze-validation-delta.json",
-  "researchState": "BOTH_COMPOSITIONS_TWO_CORRECTIONS_CLOSED_NONPASS",
+  "researchState": "C1_RESUMED_C2_ABANDONED_R0_PENDING",
   "secondComposition": {
     "registration": "composition2/registration.json",
     "state": "FINAL_PASS2_CLOSED_NONPASS",
@@ -322,5 +322,8 @@
     "evidence": "selection/platforms-49fa/record.json"
   },
   "finalDecision": "final/decision.json",
-  "finalEffort": "final/effort-ledger.json"
+  "finalEffort": "final/effort-ledger.json",
+  "currentDecision": "resumption/record.json",
+  "activeEnvelope": "resumption/record.json#/budget",
+  "historicalEnvelopeStatus": "approvedEnvelope and finalDecision describe the pre-reopening tranche. Historical counters and evidence remain unchanged; the active extension is separately counted inside this same T00."
 }
