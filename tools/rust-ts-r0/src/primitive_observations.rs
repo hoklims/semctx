@@ -32,11 +32,52 @@ enum Request {
     CanonicalJson {
         value: Value,
     },
+    RelativeImportSpecifiers {
+        source: String,
+        filename: String,
+    },
+
     SemanticKey {
         cwd: String,
         path: String,
         case_sensitive: bool,
     },
+}
+
+fn relative_import_specifiers(source: &str, filename: &str) -> Vec<String> {
+    let parsed = parse_source_file(
+        &SourceFileParseOptions {
+            file_name: filename.into(),
+            path: CompilerPath(filename.into()),
+            ..Default::default()
+        },
+        ast::FileText::new(source.to_owned(), false),
+        ScriptKind::TSX,
+    );
+    fn visit(node: Node, specifiers: &mut Vec<String>) {
+        let specifier = match node.kind() {
+            SyntaxKind::ImportDeclaration | SyntaxKind::ExportDeclaration => {
+                node.module_specifier()
+            }
+            SyntaxKind::CallExpression if node.expression().kind() == SyntaxKind::ImportKeyword => {
+                node.arguments().iter().next().unwrap_or(Node::NIL)
+            }
+            _ => Node::NIL,
+        };
+        if specifier.is_some()
+            && specifier.kind() == SyntaxKind::StringLiteral
+            && specifier.text().starts_with('.')
+        {
+            specifiers.push(specifier.text().to_owned());
+        }
+        node.for_each_child(&mut |child| {
+            visit(child, specifiers);
+            false
+        });
+    }
+    let mut specifiers = vec![];
+    visit(parsed.root, &mut specifiers);
+    specifiers
 }
 
 fn units(text: &str) -> Vec<u16> {
@@ -289,6 +330,10 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
                 filename.as_deref(),
             )?,
         ),
+        Request::RelativeImportSpecifiers { source, filename } => (
+            "relative_import_specifiers",
+            json!({"specifiers":relative_import_specifiers(&source, &filename),"runtime_dependency_claim":false}),
+        ),
         Request::CanonicalJson { value } => (
             "canonical_json",
             json!({"canonical_json":identity::canonical_json(&value),"canonical_descriptor_sha256":identity::digest(&value)}),
@@ -313,6 +358,37 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn relative_import_primitive_observes_syntax_order_without_runtime_resolution() {
+        let source = "import './same-dev'; export { item } from '../owner-dev'; import './same-dev'; const load = () => import('./lazy-dev', {with:{type:'json'}}); require('./legacy-dev'); import(name); import(`./template-dev`); import 'package-dev'; import '/absolute-dev'; const view = <section>{import('./jsx-dev')}</section>;";
+        let observed = handle_observation(json!({"operation":"relative_import_specifiers","source":source,"filename":"suggestions-dev.ts"})).unwrap();
+        assert_eq!(
+            observed["specifiers"],
+            json!([
+                "./same-dev",
+                "../owner-dev",
+                "./same-dev",
+                "./lazy-dev",
+                "./jsx-dev"
+            ])
+        );
+        assert_eq!(observed["runtime_dependency_claim"], false);
+        assert_eq!(observed["executed"], true);
+        assert_eq!(observed["unsupported"], json!([]));
+        for request in [
+            json!({"operation":"relative_import_specifiers","filename":"source.ts"}),
+            json!({"operation":"relative_import_specifiers","source":7,"filename":"source.ts"}),
+            json!({"operation":"relative_import_specifiers","source":"","filename":null}),
+            json!({"operation":"relative_import_specifiers","source":"","filename":"source.ts","unknown":true}),
+        ] {
+            assert!(
+                handle_observation(request)
+                    .unwrap_err()
+                    .starts_with("PRIMITIVE_INVALID_REQUEST:")
+            );
+        }
+    }
 
     #[test]
     fn primitive_decoder_observes_actual_utf16_units_and_canonical_source_identity() {

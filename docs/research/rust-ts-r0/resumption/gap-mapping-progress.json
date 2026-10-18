@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_SEVENTEEN_GAPS_MAPPED_SIXTEEN_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_NINETEEN_GAPS_MAPPED_EIGHTEEN_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining47 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T17:00:03.307780+00:00",
-  "staticGapUnitsRemaining": 47,
+  "next": "Continue the remaining45 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T17:18:07.277660+00:00",
+  "staticGapUnitsRemaining": 45,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -303,5 +303,33 @@
     "nativePolicyChanged": false,
     "newObservationAdded": true,
     "reviewCorrection": "Real native error-propagation test added after initial PROOF_WEAK, two removal mutants rejected; no product code change in correction."
+  },
+  "sixthBatch": {
+    "registeredUtc": "2026-10-18T17:06:52.048954+00:00",
+    "state": "TWO_NATIVE_FROZEN_COMPONENT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P26-independent-relative-comparator::base",
+      "N26-comparator-does-not-guess-dynamic-or-bare::base"
+    ],
+    "scope": "Standalone native parser primitive for the historical extractRelativeImportSpecifiers helper, forced TSX parse and syntactic traversal only. Two frozen component cases, no pilot execution, candidate comparison, runtime dependency or admission claim.",
+    "operationAuthority": "Frozen scenarios; historical3e94997 scripts/pilot/baselines.ts19-37 defines the source-level operation. AcceptedADR0019 pilot ordering and baseline identities are unchanged; this is component qualification, not a pilot result.",
+    "failurePaths": [
+      "Malformed/missing/unknown primitive request fields refuse through the existing typed boundary.",
+      "Only string literals on import/export declarations or the first argument of import() contribute; require, bare package, computed and template sources do not become relative suggestions.",
+      "Order and duplicates are retained; a second import() argument does not suppress the first literal in this distinct syntactic operation.",
+      "Missing/unexecuted/unsupported primitive observation cannot satisfy frozen comparisons."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-relative-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "cae92703e98bb39ca61856dbb6f3c2b25de26e63829a15858bf9ec86b46e018f",
+    "nativeArtifactSha256": "f040df206fd956f2f905168e2983f2feb816418c007d8474a94629f012b50637",
+    "ownedDefectsCorrected": [
+      "Nil native AST node guard",
+      "Focused test name accidentally matched comparator_ CI filter"
+    ]
   }
 }

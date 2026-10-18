@@ -573,6 +573,22 @@ for recipe in recipes:
         remove_gap(recipe, key)
         recipe['credited_properties'].append(key)
         recipe['component_scope'] = 'Actual retained_callable_coordinate on the observed variable initializer; not reconstructed from raw extraction symbols and no admission inference.'
+    if recipe['case_id'] in ['P26-independent-relative-comparator', 'N26-comparator-does-not-guess-dynamic-or-bare']:
+        files = INPUTS[recipe['case_id']]['files']
+        if len(files) != 1:
+            raise ValueError('relative-import component requires the exact single frozen source')
+        filename, text = next(iter(files.items()))
+        recipe['surface'] = 'primitive_cli'
+        recipe['requests'] = []
+        recipe['primitive_requests'] = [{'operation':'relative_import_specifiers','source':text,'filename':filename}]
+        recipe['checks'] = [check(['specifiers'], assertions['specifiers_exact'], 'eq', ptr('specifiers_exact'))]
+        if 'runtime_dependency_claim' in assertions:
+            recipe['checks'].append(check(['runtime_dependency_claim'], assertions['runtime_dependency_claim'], 'eq', ptr('runtime_dependency_claim')))
+            remove_gap(recipe, 'runtime_dependency_claim')
+        remove_gap(recipe, 'specifiers_exact')
+        recipe['credited_properties'] = ['specifiers_exact'] + (['runtime_dependency_claim'] if 'runtime_dependency_claim' in assertions else [])
+        recipe['required_native_api'] = ['--observe-primitives exact descriptor/artifact binding; actual native TSX parser and relative-import syntactic visitor']
+        recipe['proof_scope'] = 'Standalone native syntactic baseline component only. No pilot run, runtime dependency resolution, candidate comparison, graph or admission result.'
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
