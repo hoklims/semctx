@@ -14,6 +14,7 @@ mod input_identity;
 mod javascript;
 mod ordinary;
 mod outline;
+mod partition_observations;
 mod qualified;
 mod retained_discovery_observations;
 mod runtime_configuration;
@@ -1218,12 +1219,17 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         fs.clone(),
         &request.cwd,
         &request.sdk_directory,
-        program_roots,
+        program_roots.clone(),
         static_module_links,
     );
     let loaded = program::new_program_version(&frontend.program, None);
     let _current = core::enter_program(Some(loaded));
     program::bind_all();
+    let partition_observation = if !retained && !qualified {
+        partition_observations::observe(&frontend.program, &fs, &repository_root, &program_roots)
+    } else {
+        serde_json::json!({"executed":false,"unsupported":["COMPONENT_ORDINARY_INPUTS_NOT_ENABLED"],"parallelSafetyEvaluated":false,"globalAdmissionInferred":false})
+    };
     let mut before_ownership = BTreeMap::new();
     if retained && qualified {
         for path in &roots {
@@ -1495,7 +1501,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             .map_err(|error| error.to_string())?,
     );
     Ok(
-        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"outlines":outlines,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
+        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
     )
 }
 fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
@@ -1657,6 +1663,212 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn loaded_module_partition_connects_selected_roots_through_an_unselected_source() {
+        let mut request = component_request(
+            "loadedPartitionDev",
+            "/repo/a.ts",
+            "import { middle } from './middle'; export const a = middle + 1\n",
+        );
+        request.retained = false;
+        request.roots.push("/repo/b.ts".into());
+        request.files.insert(
+            "/repo/middle.ts".into(),
+            "import { b } from './b'; export const middle = b + 1\n".into(),
+        );
+        request
+            .files
+            .insert("/repo/b.ts".into(), "export const b = 1\n".into());
+        request.files.insert(
+            "/repo/unloaded.ts".into(),
+            "export const unloaded = 2;".into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let partition = &observed["partitionObservation"];
+        assert_eq!(partition["executed"], true, "{partition}");
+        assert_eq!(partition["unsupported"], serde_json::json!([]));
+        assert_eq!(
+            partition["selectedRoots"],
+            serde_json::json!(["a.ts", "b.ts"])
+        );
+        assert_eq!(
+            partition["dependencyComponents"],
+            serde_json::json!([["a.ts", "b.ts"]])
+        );
+        assert_eq!(
+            partition["loadedRepositorySources"],
+            serde_json::json!(["a.ts", "b.ts", "middle.ts"])
+        );
+        assert_eq!(
+            partition["resolvedEdges"],
+            serde_json::json!([
+                {"from":"a.ts","specifier":"./middle","to":"middle.ts"},
+                {"from":"middle.ts","specifier":"./b","to":"b.ts"}
+            ])
+        );
+        assert_eq!(
+            observed["raw_extraction"]["modules"],
+            serde_json::json!(["a.ts", "b.ts"])
+        );
+        assert_eq!(partition["globalAdmissionInferred"], false);
+    }
+
+    #[test]
+    fn loaded_module_partition_excludes_a_shared_external_package_from_connectivity() {
+        let mut request = component_request(
+            "externalPartitionDev",
+            "/repo/a.ts",
+            "import { marker } from 'shared-package'; export const a = marker;",
+        );
+        request.retained = false;
+        request.roots.push("/repo/b.ts".into());
+        request.files.extend([
+            (
+                "/repo/b.ts".into(),
+                "import { marker } from 'shared-package'; export const b = marker;".into(),
+            ),
+            (
+                "/repo/node_modules/shared-package/package.json".into(),
+                r#"{"name":"shared-package","types":"index.d.ts"}"#.into(),
+            ),
+            (
+                "/repo/node_modules/shared-package/index.d.ts".into(),
+                "export declare const marker: number;".into(),
+            ),
+        ]);
+        let observed = analyze(request, component_sdk()).unwrap();
+        assert_eq!(observed["partitionObservation"]["executed"], true);
+        assert_eq!(
+            observed["partitionObservation"]["dependencyComponents"],
+            serde_json::json!([["a.ts"], ["b.ts"]])
+        );
+        assert_eq!(
+            observed["partitionObservation"]["loadedRepositorySources"],
+            serde_json::json!(["a.ts", "b.ts"])
+        );
+        assert_eq!(
+            observed["partitionObservation"]["resolvedEdges"],
+            serde_json::json!([])
+        );
+        assert!(
+            observed["capture_probes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|probe| {
+                    probe["operation"] == "read_file"
+                        && probe["found"] == true
+                        && probe["path"] == "/repo/node_modules/shared-package/index.d.ts"
+                })
+        );
+    }
+
+    #[test]
+    fn loaded_module_partition_connectivity_is_undirected() {
+        let mut request =
+            component_request("reversePartitionDev", "/repo/a.ts", "export const a=1;");
+        request.retained = false;
+        request.roots.push("/repo/b.ts".into());
+        request.files.extend([
+            (
+                "/repo/middle.ts".into(),
+                "import { a } from './a'; export const middle=a+1;".into(),
+            ),
+            (
+                "/repo/b.ts".into(),
+                "import { middle } from './middle'; export const b=middle+1;".into(),
+            ),
+        ]);
+        let observed = analyze(request, component_sdk()).unwrap();
+        assert_eq!(
+            observed["partitionObservation"]["dependencyComponents"],
+            serde_json::json!([["a.ts", "b.ts"]])
+        );
+        assert_eq!(
+            observed["partitionObservation"]["resolvedEdges"],
+            serde_json::json!([
+                {"from":"b.ts","specifier":"./middle","to":"middle.ts"},
+                {"from":"middle.ts","specifier":"./a","to":"a.ts"}
+            ])
+        );
+    }
+
+    #[test]
+    fn loaded_module_partition_does_not_claim_parallel_safety_or_retained_execution() {
+        for (retained, qualified) in [(false, false), (true, false), (true, true)] {
+            let mut request =
+                component_request("partitionScopeDev", "/repo/global.ts", "const shared=1;");
+            request.retained = retained;
+            request.qualified = qualified;
+            let observed = analyze(request, component_sdk()).unwrap();
+            let partition = &observed["partitionObservation"];
+            assert_eq!(partition["parallelSafetyEvaluated"], false);
+            assert_eq!(partition["globalAdmissionInferred"], false);
+            assert_eq!(partition["executed"], !retained);
+            if retained {
+                assert_eq!(
+                    partition["unsupported"],
+                    serde_json::json!(["COMPONENT_ORDINARY_INPUTS_NOT_ENABLED"])
+                );
+                assert!(partition.get("dependencyComponents").is_none());
+            } else {
+                assert_eq!(
+                    partition["dependencyComponents"],
+                    serde_json::json!([["global.ts"]])
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn loaded_module_partition_reports_unavailable_or_duplicate_selected_context() {
+        let fs = Rc::new(CaptureFs::new(
+            BTreeMap::from([
+                ("/repo/a.ts".into(), "export const a=1;".into()),
+                (
+                    "/outside/external.ts".into(),
+                    "export const external=2;".into(),
+                ),
+            ]),
+            ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+        ));
+        let mut options = compiler_options();
+        options.no_lib = Tristate::True;
+        let frontend = native_frontend_with_options(
+            fs.clone(),
+            "/repo",
+            "/sdk/lib",
+            vec!["/repo/a.ts".into(), "/outside/external.ts".into()],
+            false,
+            options,
+        );
+        let loaded = program::new_program_version(&frontend.program, None);
+        let _current = core::enter_program(Some(loaded));
+        program::bind_all();
+        for (roots, expected) in [
+            (
+                vec!["/repo/missing.ts".into()],
+                "PARTITION_SELECTED_SOURCE_UNAVAILABLE",
+            ),
+            (
+                vec!["/repo/a.ts".into(), "/repo/a.ts".into()],
+                "PARTITION_DUPLICATE_SELECTED_SOURCE",
+            ),
+            (
+                vec!["/outside/external.ts".into()],
+                "PARTITION_SELECTED_SOURCE_OUTSIDE_GRAPH",
+            ),
+        ] {
+            let observed = partition_observations::observe(&frontend.program, &fs, "/repo", &roots);
+            assert_eq!(observed["executed"], false, "{observed}");
+            assert_eq!(observed["unsupported"], serde_json::json!([expected]));
+            assert!(observed.get("dependencyComponents").is_none());
+        }
+        let empty = partition_observations::observe(&frontend.program, &fs, "/repo", &[]);
+        assert_eq!(empty["executed"], true);
+        assert_eq!(empty["dependencyComponents"], serde_json::json!([]));
     }
 
     #[test]
