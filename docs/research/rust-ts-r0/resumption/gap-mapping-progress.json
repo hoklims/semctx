@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_THIRTY_ONE_GAPS_MAPPED_THIRTY_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_THIRTY_TWO_GAPS_MAPPED_THIRTY_ONE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining33 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T21:34:38.110305+00:00",
-  "staticGapUnitsRemaining": 33,
+  "next": "Continue the remaining32 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T21:57:38.834865+00:00",
+  "staticGapUnitsRemaining": 32,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -622,5 +622,33 @@
     ],
     "reservedPayloadAccessed": false,
     "cost": "3inspections total,2additional;unmeasured."
+  },
+  "fifteenthBatch": {
+    "registeredUtc": "2026-10-18T21:57:38.834865+00:00",
+    "state": "FROZEN_UNSELECTED_INTERMEDIATE_MODULE_COMPONENT_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N12-unselected-intermediate-connects::base"
+    ],
+    "scope": "Actual loaded-module connectivity through unselected middle.ts, projecting selected a.ts,b.ts; separate actual emitted-root exclusion. No workers2/full preflight/P12 claim.",
+    "evidence": "gap-loaded-partition-evidence.json",
+    "nativeArtifactSha256": "9ad2a4f915df2f4770111c28fdeacf137934314243ba7f355bc8c4c83b327c29",
+    "recipesSha256": "fd63866fb9bdd630b2519d7a2d7402a9c477b6b0b9621153fbf809f753f67958",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "207BIN,47LIB,4nativeflows,45comparators,7Python,1newunit/1process/9checks plus6carryoverunits/9processes/36checks plus1relation;fmt/clippy/Ruff PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Native module-resolution error, unavailable selected root, duplicate selected root or selected root outside loaded repository inventory produces executed=false/unsupported with the actual error and no invented dependencyComponents.",
+      "Actual nil source or malformed import literal refuses the component; unresolved native target or target outside loaded repository graph adds no edge.",
+      "Valid retained/qualified modes report component not executed. Qualified without retained still fails SOURCE_SNAPSHOT_REQUIRED earlier.",
+      "Missing observation, absent or incomplete component, wrong graph projection, unwanted emitted intermediate, or wrong actual input/artifact cannot pass N12.",
+      "Nonzero, timeout, output-limit, cancellation, capture error or malformed stdout remain NONPASS under the existing runner."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "Additional actual module graph traversal in ordinary raw analysis; unmeasured.",
+    "documentaryCorrection": "Final independent reconciliation counted actual process outcomes: N02=2,E08=2,P23=1,N01/P01=2,QDYN07=2, total9, not7. Six units,36checks and1N02relation PASS. Only documentation/context changed; native four-source anchor unchanged."
   }
 }

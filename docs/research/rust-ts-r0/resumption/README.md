@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are33 static GAP units still to map; all240 obligations remain unqualified.
+are32 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -226,6 +226,25 @@ Counts reach31 new mappings:30 limited PASS and N17c NONPASS,with33 static GAP
 and zero qualified obligations. This observation is raw only; no batch/worker
 lifecycle or full public Plane-A lifecycle follows. There are three inspections
 total,two added; their cost remains unmeasured. Additional C1 pass1 stays open.
+
+A [fifteenth tranche](gap-loaded-partition-evidence.json) maps the two frozen
+N12 assertions. The existing ordinary native Program really loads middle.ts;
+its resolved import graph connects selected a.ts,b.ts through that unselected
+source, while actual raw extraction emits only the selected roots. One native
+process passes nine checks. This observes module connectivity, with parallel
+safety explicitly unevaluated; it does not run the baseline workers2 operation,
+weighted partitioning, full preflight or P12. The ordinary full-SDK Program is
+not asserted equivalent to the historical noLib/types[] preflight Program.
+DEV controls exclude a captured but unloaded source and a shared external
+package, and exercise reverse connectivity. Compiled omission of the connector
+makes frozen N12 fail; removal of reciprocal adjacency makes the dedicated
+reverse-connectivity test fail. Both restorations pass. Six carryover units
+also pass on the current artifact. Current macOS checks pass207 binary tests,
+47 library tests,four native flows,45 comparators and seven Python tests;
+format,Clippy and Ruff pass. Counts reach32 new mappings:31 limited PASS and
+N17c NONPASS,with32 static GAP and zero qualified obligations. The response
+field is raw only; no batch/worker transport credit follows. Additional C1
+pass1 stays open; pass2 remains unused.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

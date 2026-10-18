@@ -831,6 +831,28 @@ for row in support_plans:
             row['diagnostic_projection_transport']='SOURCE_CONFIGURATION_INVALID:<u32 code>:<raw wording>, exact native format from src/configuration.rs; raw wording preserved in Outcome, excluded by frozen policy.'
 
 for recipe in recipes:
+    if recipe['case_id'] != 'N12-unselected-intermediate-connects':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    if inp['baseline_operation'] != 'partition selected roots a.ts,b.ts, workers2':
+        raise ValueError('unmapped selected roots for the frozen partition operation')
+    request = recipe['requests'][0]
+    request['roots'] = ['a.ts', 'b.ts']
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    component = ['partitionObservation']
+    recipe['checks'].append(check(component + ['dependencyComponents'], assertions['dependency_components_exact'], 'unordered_projected_eq', ptr('dependency_components_exact')))
+    recipe['checks'].append(check(['raw_extraction','modules'], assertions['emitted_roots_exclude'], 'excludes_projected', ptr('emitted_roots_exclude')))
+    recipe['checks'].append(check(component + ['selectedRoots'], request['roots'], 'eq', 'explicit selected roots of frozen baseline operation'))
+    recipe['checks'].append(check(component + ['loadedRepositorySources'], ['middle.ts'], 'contains_projected', 'actual compiler-loaded unselected connector'))
+    for field, expected in [('observationScope','native_loaded_repository_module_components'), ('parallelSafetyEvaluated',False), ('globalAdmissionInferred',False)]:
+        recipe['checks'].append(check(component + [field], expected, 'eq', 'actual module-connectivity component scope'))
+    for key in ['dependency_components_exact','emitted_roots_exclude']:
+        remove_gap(recipe, key)
+        recipe['credited_properties'].append(key)
+    recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
+    recipe['proof_scope'] = 'Actual loaded repository module graph includes the unselected middle source; components project only the two frozen selected roots. Emitted-root exclusion is checked on actual raw extraction, not inferred from components. No parallel-safety, worker scheduling or P12 equivalence credit.'
+
+for recipe in recipes:
     if recipe['case_id'] != 'P23-opaque-inline-call-has-graph-owner':
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
@@ -855,7 +877,7 @@ for recipe in recipes:
 
 def complete_component_fields(recipe):
     additions=[]
-    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership']
+    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership','partitionObservation']
     for c in recipe.get('checks',[]):
         target=c['target'];indices=[i for i,x in enumerate(target) if isinstance(x,str) and x in components]
         if not indices or target[-1] in ['executed','unsupported']:continue

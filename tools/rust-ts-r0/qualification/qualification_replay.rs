@@ -4716,6 +4716,11 @@ fn gap_opaque_callback_ownership_uses_actual_graph_lifecycle() {
 }
 
 #[test]
+fn gap_unselected_intermediate_uses_actual_loaded_module_components() {
+    repair_units(&["N12-unselected-intermediate-connects::base"]);
+}
+
+#[test]
 fn comparator_opaque_ownership_requires_actual_graph_ids_and_call_coordinates() {
     let graph = json!({
         "nodes":[
