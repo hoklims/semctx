@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "recordedUtc": "2026-10-18T12:13:39.082313+00:00",
-  "state": "REOPENED_C1_RECORDS_REGISTERED",
+  "state": "REOPENED_C1_PASS1_HARNESS_INCOMPLETE_LOCAL_REVIEW_LIMIT",
   "r0Decision": null,
   "READY_TS_NATIVE": false,
   "authority": {
@@ -49,9 +49,9 @@
   "budget": {
     "composition": "C1",
     "additionalCorrectionPassesMaximum": 2,
-    "additionalCorrectionPassesStarted": 0,
+    "additionalCorrectionPassesStarted": 1,
     "additionalCorrectionPassesClosed": 0,
-    "additionalCorrectionPassesRemaining": 2,
+    "additionalCorrectionPassesRemaining": 1,
     "historicalC1CorrectionsClosed": 2,
     "historicalC2CorrectionsClosed": 2,
     "effortWorkingDaysApproximate": [
@@ -124,12 +124,16 @@
     {
       "step": 1,
       "work": "Record reopening, new budget and owner arbitration, preserving history",
-      "state": "REGISTERED_VALIDATION_PENDING"
+      "state": "RECORDS_PUBLISHED_DOCUMENTARY_CHECK_AND_REVIEW_PASSED",
+      "checkpoint": "07e4b85eea3e86faa75a91596edef751fcbe3ab7",
+      "canonicalVerification": "Four verify:pr partitions passed locally on the indexed harness checkpoint before final focused corrections; explicit checks cover the later deltas. CI39127225378 succeeded at07e4b85e, previous reopening checkpoint only. See harness-repair-evidence.json for scope and failed prior attempts."
     },
     {
       "step": 2,
       "work": "Correct the ten harness failed observations (seven units, three supports)",
-      "state": "NOT_STARTED"
+      "state": "INCOMPLETE_CONFIRMED_CASE_ALIAS_BYPASS",
+      "evidence": "harness-repair-evidence.json",
+      "blockingDecision": "Exception to local review-fix two-cycle limit, described in harness-repair-evidence.json. Owner C1 budget unchanged."
     },
     {
       "step": 3,
@@ -158,7 +162,8 @@
     }
   ],
   "currentEvidenceLimits": [
-    "No new qualification or reserved run at registration. Zero qualified obligations remain the last observed state.",
+    "Case-insensitive worker probe aliases bypass the new refusal guard; two independent reviews reproduced it. No step2 completion claimed.",
+    "Focused harness repairs are development evidence only; no new full qualification or reserved run. Zero qualified obligations remain the last observed state.",
     "The owner arbitration records a decision, not a new upstream root-cause experiment or an automatic support/obligation PASS.",
     "No current READY_TS_NATIVE or STOP_SEMANTIC decision. T01 and substantial ports remain outside this resumption.",
     "Reserved payload is not accessed during registration or harness correction."
@@ -183,5 +188,6 @@
     ],
     "decisionRequired": "Stop and explain in the terminal when an owner decision is necessary."
   },
-  "claimAudit": "claim-audit.md"
+  "claimAudit": "claim-audit.md",
+  "activeCorrectionPass": "correction-pass1-registration.json"
 }

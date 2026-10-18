@@ -7,8 +7,9 @@ PR or separate experiment is authorized. C1 is the only active composition. C2
 is abandoned for this resumption, with its history preserved.
 
 [record.json](record.json) is the current decision and budget record. It adds
-two C1 correction passes after the two historical passes. Neither new pass has
-started at registration. Approximately 3–4 days is the owner's planning estimate,
+two C1 correction passes after the two historical passes. Neither new pass had
+started at registration. The first additional pass is now open, with
+[focused harness evidence](harness-repair-evidence.json). Approximately 3–4 days is the owner's planning estimate,
 not measured effort or an inferred exact ceiling. [effort-ledger.json](effort-ledger.json)
 records the resumed work separately from the [historical ledger](../final/effort-ledger.json).
 The [old terminal dossier](../final/README.md), raw outcomes, frozen expectations
@@ -40,6 +41,14 @@ only. Existing three-OS evidence covers four DEV vectors. Reserved inputs remain
 unaccessed and unexecuted during this registration. No resumed campaign or R0
 passage is claimed. [The independent claim ledger](claim-audit.md) records the
 authority and limits of this registration.
+
+Step2 remains incomplete. The ten original observations pass focused macOS DEV
+checks and `./`/`..` aliases are covered, but two independent reviews reproduced
+a case-insensitive alias bypass in the worker guard. The additional regression
+is deliberately red, with raw evidence preserved. The local `review-fix` workflow
+has reached its two correction-cycle limit; continuation needs an explicit
+exception to that local workflow limit. This does not exhaust, extend or reset
+the owner's C1 budget. Steps3–7, the reserved run and R0 remain pending.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
