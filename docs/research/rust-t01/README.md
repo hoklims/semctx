@@ -7,15 +7,17 @@ issue owns acceptance. This record declares neither `ECONOMIC_PROTOTYPE_PASS` no
 
 ## Status
 
-T01 depends on T00. T00 has not reached `READY_TS_NATIVE`; its record reports stage 1 and
-`r0Decision: NOT_RUN`. Hypotheses H1–H3, the prototype and the economic gate therefore remain
-unstarted. This record only covers work #365 places in T01 before any comparison: baseline
-characterization, workload preparation and the measurement protocol (D6). No Rust code,
-dependency, workflow change or product change is introduced.
+T01 depends on T00. T00 has not reached `READY_TS_NATIVE`: its final record at `c84e9382` on
+`rust/365-t00` decides `STOP_BUDGET`. On 2026-10-18 the owner stated that a new R0 budget will be
+granted; no new budget is recorded yet. Hypotheses H1–H3, the prototype and the economic gate
+therefore remain unstarted. This record only covers work #365 places in T01 before any
+comparison: baseline characterization, workload preparation and the measurement protocol (D6).
+No Rust code, dependency, workflow change or product change is introduced.
 
 Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Checkpoint 4
 captures each workload's dependency closure. Checkpoint 5 fixes the measurement setup and records
-one shake-down run per workload. Two owner decisions are open; see
+one shake-down run per workload. Checkpoint 6 records the owner's choice of a single Windows
+measurement host and declares its memory collector. One owner decision is open; see
 [Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
@@ -246,8 +248,9 @@ processes does not count shared libraries twice. Aggregate memory is the maximum
 the summed footprint. The kernel's per-process lifetime peak, summed over processes, bounds it
 from above. On a 768 MiB allocation, the collector matches `ps` for resident size and
 `/usr/bin/footprint` for footprint and peak. Each run also records the system's compressor and
-swap counter deltas. Linux and Windows have no declared collector and no measurement, so they
-remain unqualified.
+swap counter deltas. The Windows collector is declared under
+[Measurement host](#measurement-host). Linux has no declared collector and no measurement, so it
+remains unqualified.
 
 **Instrumentation cost.** On hono, 10 cold pairs with sampling off and at 50 ms, in shuffled
 order, give a wall-time ratio of 1.0023 (95% bootstrap interval 1.0012–1.0042) and a peak
@@ -277,21 +280,75 @@ plateau near 42–43 GB on a 48 GiB host. Memory
 compression may dominate their times, but these runs predate the per-run compressor counters, so
 that cause is not established. At these durations, 10 pairs on backstage would take days.
 
+## Measurement host
+
+On 2026-10-18 the owner decided that every size class runs on one Windows host. No 128 GiB host
+is available, and on the 48 GiB macOS host the large cells plateau near host memory. A single
+host keeps the size-dependent coefficients fitted on one machine and one memory metric.
+
+The host runs Windows 11 Pro 10.0.26300 on an Intel Core i7-13700K with 24 logical processors and
+63.7 GiB of physical memory visible to Windows. Microsoft Defender real-time protection is enabled
+and recorded as a run condition. Its exclusions are not readable without administrator rights,
+and T01 configures none.
+
+The macOS pilot, shake-down and instrumentation-cost runs remain orientation. They are not
+reference series and are not compared with Windows numbers. Before any Windows series, the
+setup of checkpoints 4 and 5 is redone on this host:
+
+- the reference build check;
+- the dependency closures and their manifests, since platform-specific optional packages differ;
+- the snapshot repositories and their tree-id check, since line endings and symbolic links
+  differ;
+- the collector cost on hono;
+- one shake-down run per workload.
+
+**Memory collector (Windows).** The command runs in a fresh Job Object, assigned while its root
+process is still suspended. Descendants inherit the job and cannot break away, so the tree is
+complete by construction. Every 50 ms, a high-resolution waitable timer triggers a sample. The
+system timer resolution is not changed. The metric is `PrivateWorkingSetSize`, the private pages
+resident in RAM. It excludes shared pages, so summing processes does not count shared libraries
+twice. Aggregate memory is the maximum over samples of the summed private working set. The
+kernel's `PeakJobMemoryUsed`, the exact peak of the job's summed private commit, bounds it from
+above. Each run also records summed private commit, summed working set, job page faults and CPU
+time, the minimum available physical memory, and system page-read and page-output deltas.
+
+`phys_footprint` also counts compressed private pages; the private working set does not. Without
+memory pressure both measure the same touched private memory. Under pressure the Windows metric
+drops while private commit and the page counters rise. Windows and macOS numbers are not
+compared.
+
+Validation on this host, against tasklist and .NET `Process` readings taken during the hold:
+
+| Case | Collector | Independent reading |
+| --- | ---: | ---: |
+| 768 MiB touched, one process: working set | 781.3 MiB | 781.3 MiB |
+| same: private commit | 777.6 MiB | 777.3 MiB |
+| 512 MiB parent and 256 MiB child: working set | 794.6 MiB | 794.6 MiB |
+| same: private commit | 785.2 MiB | 785.0 MiB |
+| 512 MiB held 5 ms above 256 MiB: sampled private working set and kernel bound | 681.0 MiB | 777.5 MiB |
+
+The single allocation reads 774.0 MiB of private working set. The short peak shows the sampling
+limit and the bound that covers it. Sample intervals have a median of 50.16 ms and a maximum of
+50.68 ms. With one live process, the collector uses 1.3 ms of CPU per sample, 2.5% of one of the
+24 logical processors. Its cost on a real workload is not yet measured. The collector, fixture
+and validator stay outside the checkout; their digests are in `protocol.json`
+(`memoryCollector.windows`).
+
 ## Open decisions
 
-Both decisions belong to the T01 owner. They come before any repeated series.
+This decision belongs to the T01 owner. It comes before any repeated series.
 
 1. **Submodule refusal.** The baseline refuses the Prefect checkout because its tree contains a
    submodule. That refusal stays recorded as a result. The multilanguage cell still needs an
    indexed measurement.
-2. **Host memory for large cells.** Large and very large series need a declared host memory. On
-   48 GiB, the large cells measure behavior under memory pressure and do not fit a 10-pair
-   series.
+
+The host-memory decision is resolved; see [Measurement host](#measurement-host).
 
 ## Next checkpoints
 
-1. Apply the owner's decisions, then record repeated baseline series per size class. Derive the
-   size-dependent budget coefficients from them. Measure the CPU-profile cost for phase
+1. Redo the measurement setup on the Windows host and measure the collector cost on hono. Apply
+   the owner's submodule decision. Then record repeated baseline series per size class, derive
+   the size-dependent budget coefficients from them and measure the CPU-profile cost for phase
    attribution.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.

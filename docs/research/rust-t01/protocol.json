@@ -2,16 +2,19 @@
   "recordVersion": 1,
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
-  "recordedDateUtc": "2026-10-17",
-  "checkpoint": 5,
+  "recordedDateUtc": "2026-10-18",
+  "checkpoint": 6,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
     "milestone": "T00",
     "pullRequest": 386,
     "requiredDecision": "READY_TS_NATIVE",
-    "observedDecision": "NOT_RUN",
-    "observedStage": 1
+    "observedDecision": "STOP_BUDGET",
+    "observedCommit": "c84e9382665acfffe601f7a90291248d2bf550da",
+    "observedRecord": "docs/research/rust-ts-r0/final/README.md on rust/365-t00",
+    "ownerIntent": "on 2026-10-18 the owner stated that a new R0 budget will be granted; no new budget is recorded yet",
+    "consequence": "T01 stays in preparation; hypotheses, prototype and gate remain unstarted"
   },
   "baseline": {
     "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
@@ -129,8 +132,10 @@
     }
   ],
   "remainingEvidence": [
-    "owner decisions: submodule-refusal and large-cell-host-memory",
-    "memory collector for Linux and Windows before any measurement there",
+    "owner decision: submodule-refusal",
+    "measurement setup redone on the Windows host (measurementHost.redoOnHost)",
+    "Windows collector cost on a real workload",
+    "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
     "size-dependent budget coefficients",
@@ -702,7 +707,69 @@
       "history": "compressor and swap counter deltas were added after the shake-down and cost runs; sampling is otherwise unchanged"
     },
     "linux": "not declared; no Linux measurement exists, so Linux stays unqualified",
-    "windows": "not declared; no Windows measurement exists, so Windows stays unqualified"
+    "windows": {
+      "metric": "PrivateWorkingSetSize from GetProcessMemoryInfo (PROCESS_MEMORY_COUNTERS_EX2): private pages resident in RAM",
+      "aggregate": "maximum over samples of the summed private working set of the live processes of the command's job",
+      "tree": "a Job Object assigned while the root process is suspended (CREATE_SUSPENDED); descendants inherit it and cannot break away; members are listed with JobObjectBasicProcessIdList",
+      "samplingPeriodMs": 50,
+      "timer": "high-resolution waitable timer (CREATE_WAITABLE_TIMER_HIGH_RESOLUTION); the system timer resolution is not changed",
+      "upperBound": "PeakJobMemoryUsed: the kernel's exact peak over time of the job's summed private commit; private resident pages are committed private pages, so it bounds the sampled aggregate from above",
+      "alsoRecorded": [
+        "summed private commit (PrivateUsage)",
+        "summed working set including shared pages (RSS)",
+        "job page faults and CPU time",
+        "minimum available physical memory over the run",
+        "system page reads, pages input and pages output deltas (PDH raw counters, English names)"
+      ],
+      "doubleCounting": "the private working set excludes shared pages, so summing processes does not count shared libraries twice",
+      "differenceFromMacOS": "phys_footprint also counts compressed private pages; the private working set does not. Without memory pressure both measure the same touched private memory; under pressure the Windows metric drops while private commit and the page counters rise. Windows and macOS numbers are not compared",
+      "limits": [
+        "peaks shorter than the period can be missed; PeakJobMemoryUsed bounds that error from above",
+        "system page counters are system-wide, so other host activity can contribute"
+      ],
+      "implementation": "Python 3.14.7 standard library (ctypes), kept outside the checkout",
+      "validation": {
+        "single": "768 MiB touched in one process: private working set 774.0 MiB; summed working set 781.3 MiB, tasklist and .NET WorkingSet64 781.3 MiB; private commit 777.6 MiB, .NET PrivateMemorySize64 777.3 MiB",
+        "tree": "512 MiB parent and 256 MiB child: 2 processes observed; summed working set 794.6 MiB, tasklist 794.6 MiB; private commit 785.2 MiB, .NET 785.0 MiB",
+        "shortPeak": "512 MiB held 5 ms above a 256 MiB base: sampled private working set 681.0 MiB, kernel upper bound 777.5 MiB",
+        "intervals": "median 50.16 ms, 95th percentile 50.46 ms, maximum 50.68 ms"
+      },
+      "selfCost": "0.516 s of collector CPU over 20.4 s and 401 samples (1.3 ms per sample, 2.5% of one of 24 logical processors) with one live process; cost on a real workload is not yet measured",
+      "scriptSha256": {
+        "collector": "1133810988307a239f177210e2824ad9e2eb2c9d9ec779d829cd7cac566af019",
+        "fixture": "e8240676d506f55ed5e6abff0dfe3758757846893787798a72a0f15be61bda14",
+        "validator": "2efc532021d665f77e4a56ce4e31f82c9d2be0f2bc05d8b7ee677a504630182d"
+      },
+      "validationOutputSha256": "f2412ba1d051e8f611aa4f3a718b354abc4b3f987fef7b2a7074240c5939ef45"
+    }
+  },
+  "measurementHost": {
+    "decidedBy": "owner",
+    "decidedDateUtc": "2026-10-18",
+    "decision": "every size class runs on one Windows host",
+    "reason": "no 128 GiB host is available; on the 48 GiB macOS host the large cells plateau near host memory; one host keeps the size-dependent coefficients fitted on one machine and one memory metric",
+    "host": {
+      "os": "Windows 11 Pro 10.0.26300",
+      "cpu": "Intel Core i7-13700K",
+      "logicalProcessors": 24,
+      "physicalMemoryBytes": 68388532224,
+      "pagefilesMiB": {
+        "C:": 1024,
+        "E:": 51200
+      }
+    },
+    "declaredConditions": {
+      "defenderRealTimeProtection": "enabled",
+      "defenderExclusions": "not readable without administrator rights; T01 configures none"
+    },
+    "macOSRecords": "the pilot, shake-down and instrumentation-cost runs on the 48 GiB macOS host remain orientation; they are not reference series and are not compared with Windows numbers",
+    "redoOnHost": [
+      "reference build check with Bun 1.4.0 and the requalification patch",
+      "dependency closures and closure manifests: platform-specific optional packages differ",
+      "snapshot repositories and tree-id check: line endings and symbolic links",
+      "collector cost on hono",
+      "one shake-down run per workload"
+    ]
   },
   "instrumentationCost": {
     "workload": "honojs/hono, cold application cache",
@@ -813,12 +880,6 @@
       "id": "submodule-refusal",
       "fact": "the baseline refuses the PrefectHQ/prefect checkout because its tree contains a submodule gitlink (compat-tests); without Git it refuses as well",
       "question": "how the multilanguage cell obtains an indexed measurement while the refusal stays recorded"
-    },
-    {
-      "id": "large-cell-host-memory",
-      "fact": "with dependencies, VS Code and backstage each reach about 42-43 GB of aggregate footprint on a 48 GiB host, and take 1,146 s and 10,746 s against 187 s for VS Code without dependencies",
-      "unverified": "whether memory compression dominates those times; per-run compressor counters were not yet recorded",
-      "question": "which host memory each size class declares, and where large and very large series run"
     }
   ]
 }
