@@ -208,6 +208,15 @@ fn module_none_value(raw: &tsoptions::CompilerOptionsValue) -> bool {
     matches!(options.get("module"),Some(tsoptions::CompilerOptionsValue::String(value)) if value.eq_ignore_ascii_case("none"))
 }
 
+fn negative_ancestor_package_directory(fs: &CaptureFs, repository: &str, probe: &Probe) -> bool {
+    if fs.workspace.is_none() || probe.operation != "directory_exists" || probe.found {
+        return false;
+    }
+    let key = fs.key(&probe.path);
+    key.strip_suffix("/node_modules")
+        .is_some_and(|ancestor| fs.key(repository).starts_with(&format!("{ancestor}/")))
+}
+
 pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Configuration, String> {
     if !contained(&fs, repository, path) {
         return Err("source outside repository".into());
@@ -353,10 +362,11 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     }
     let probes = fs.log.borrow();
     let new_probes = &probes[first_probe..];
-    if new_probes
-        .iter()
-        .any(|probe| !probe.path.is_empty() && !contained(&fs, repository, &probe.path))
-    {
+    if new_probes.iter().any(|probe| {
+        !probe.path.is_empty()
+            && !contained(&fs, repository, &probe.path)
+            && !negative_ancestor_package_directory(&fs, repository, probe)
+    }) {
         reasons.clear();
         reasons.insert("SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into());
     }
@@ -531,6 +541,51 @@ mod tests {
             vec!["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY"]
         );
         assert!(result.consumed.is_empty());
+    }
+
+    #[test]
+    fn missing_package_configuration_keeps_6053_despite_negative_ancestor_package_probes() {
+        let fs = Rc::new(CaptureFs::with_workspace_root(
+            BTreeMap::from([
+                (
+                    "/repo/app/package.json".into(),
+                    r#"{"name":"dev-app"}"#.into(),
+                ),
+                (
+                    "/repo/app/source.ts".into(),
+                    "export const sourceDev = 73;".into(),
+                ),
+                (
+                    "/repo/app/tsconfig.json".into(),
+                    r#"{"extends":"@dev/missing/base.json"}"#.into(),
+                ),
+            ]),
+            true,
+            "/repo",
+            None,
+        ));
+        let observed = inspect(fs.clone(), "/repo/app/source.ts", "/repo").unwrap();
+        assert!(
+            fs.log
+                .borrow()
+                .iter()
+                .any(|probe| probe.operation == "directory_exists"
+                    && probe.path == "/node_modules"
+                    && !probe.found)
+        );
+        assert!(
+            observed
+                .reasons
+                .iter()
+                .any(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:6053")),
+            "{:?}",
+            observed.reasons
+        );
+        assert!(
+            !observed
+                .reasons
+                .contains(&"SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into())
+        );
     }
 
     #[test]

@@ -90,15 +90,24 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are45 static GAP units still to map; all240 obligations remain unqualified.
+are43 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
 corrected native host accepts physical source inputs while preserving virtual
 configuration inheritance and root/nested-repository refusals. The actual test
 fails when the reviewer removes the host substitution and passes after
-restoration. This adds no mapping or qualification credit; the explicit query
-and exact empty-directory capture remain pending.
+restoration. That prerequisite checkpoint added no mapping or qualification credit. A
+[seventh tranche](gap-configured-query-evidence.json) now executes P11/N11 as
+explicit configured queries on their unchanged eight-file captures and a real
+empty `.git`. Both pass focused macOS replay. Empty directories survive profile
+cloning; canonical capture aliases create no phantom parents. Supported workspace
+patterns match path segments, and only negative strict-ancestor package-directory
+probes receive the workspace configuration exception. Actual outside inheritance
+remains refused. Independent review rejects32 altered observations,23 input
+attacks and five producer faults, each followed by successful restoration. This
+brings the new mappings to21, with20 limited PASS and the unchanged N17c NONPASS;
+no obligation is qualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

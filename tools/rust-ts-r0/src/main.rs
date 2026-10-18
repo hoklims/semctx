@@ -5,6 +5,7 @@ mod captured;
 mod captured_system_observations;
 mod component_observations;
 mod configuration;
+mod configured_resolution_observations;
 mod configured_resolver;
 #[cfg(test)]
 mod development;
@@ -226,8 +227,15 @@ impl CaptureFs {
                 )
             })
             .collect();
-        let mut profile = Self::with_workspace_root(files, self.sensitive, root, sdk_directory)
-            .with_sdk_keys(self.sdk_keys.iter().map(String::as_str))?;
+        let mut profile = Self::new(files, self.sensitive);
+        profile.dirs = self.dirs.clone();
+        profile.spelling = self.spelling.clone();
+        profile.workspace = Some(captured_system_observations::Workspace::build(
+            &profile,
+            root,
+            sdk_directory,
+        ));
+        let mut profile = profile.with_sdk_keys(self.sdk_keys.iter().map(String::as_str))?;
         profile.log = self.log.clone();
         Ok(profile)
     }
@@ -1455,12 +1463,16 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     let Some(mode) = args.get(1).map(String::as_str).filter(|mode| {
         matches!(
             *mode,
-            "--observe-primitives" | "--extract-worker" | "--consume-worker" | "--observe-system"
+            "--observe-primitives"
+                | "--extract-worker"
+                | "--consume-worker"
+                | "--observe-system"
+                | "--observe-configured-resolution"
         )
     }) else {
         return Ok(None);
     };
-    let valid_arity = if mode == "--extract-worker" {
+    let valid_arity = if matches!(mode, "--extract-worker" | "--observe-configured-resolution") {
         args.len() == 4
     } else if mode == "--observe-system" {
         args.len() == 3 || args.len() == 4
@@ -1470,7 +1482,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     if !valid_arity {
         return Err(format!(
             "expected {mode} REQUEST.json{}",
-            if mode == "--extract-worker" {
+            if matches!(mode, "--extract-worker" | "--observe-configured-resolution") {
                 " SDK.json"
             } else if mode == "--observe-system" {
                 " [SDK.json]"
@@ -1507,6 +1519,10 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 sdk.as_ref().ok_or("worker SDK input missing")?,
             ),
             "--consume-worker" => worker_observations::consume_worker(&descriptor),
+            "--observe-configured-resolution" => configured_resolution_observations::run(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("configured query SDK input missing")?,
+            ),
             "--observe-system" => {
                 captured_system_observations::run(descriptor.clone(), sdk.as_ref())
             }
@@ -1579,6 +1595,58 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn explicit_configured_query_cli_resolves_without_inserting_an_import() {
+        let directory = std::env::temp_dir().join(format!(
+            "semctx-explicit-configured-query-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        let descriptor = serde_json::json!({
+            "root":"/repo", "sdk_directory":"/sdk/lib",
+            "case_sensitive":ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+            "files":{
+                "/repo/source.ts":"export const sourceDev = 53;",
+                "/repo/leaf.ts":"export const leafDev = 59;",
+                "/repo/tsconfig.json":r##"{"compilerOptions":{"baseUrl":".","paths":{"#leaf":["./leaf.ts"]}}}"##
+            },
+            "directories":["/repo/.git"],
+            "containing_file":"/repo/source.ts", "specifier":"#leaf"
+        });
+        let request = directory.join("descriptor.json");
+        std::fs::write(&request, serde_json::to_vec(&descriptor).unwrap()).unwrap();
+        let args = vec![
+            "semctx-r0-probe".into(),
+            "--observe-configured-resolution".into(),
+            request.to_string_lossy().into_owned(),
+            concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json").into(),
+        ];
+        let observed = additional_observation(&args).unwrap();
+        std::fs::remove_dir_all(&directory).unwrap();
+        let observed = observed.expect("explicit configured-resolution operation must execute");
+        assert_eq!(observed["executed"], true, "{observed}");
+        assert_eq!(observed["unsupported"], serde_json::json!([]));
+        assert_eq!(observed["resolved_relative_path"], "leaf.ts");
+        assert_eq!(
+            observed["configuration"],
+            serde_json::json!({"executed":true,"reasons":[],"unsupported":[]})
+        );
+        assert_eq!(
+            observed["capturedDirectories"],
+            serde_json::json!([{"path":"/repo/.git","found":true}])
+        );
+        assert_eq!(
+            observed["request_descriptor_id"],
+            serde_json::json!(identity::digest(&descriptor))
+        );
+        assert_eq!(observed["containing_file"], "/repo/source.ts");
+        assert_eq!(observed["specifier"], "#leaf");
     }
 
     #[test]
