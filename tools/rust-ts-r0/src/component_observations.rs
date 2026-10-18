@@ -156,6 +156,33 @@ pub fn semantic(scan: &qualified::QualifiedScan) -> Observation {
     )
 }
 
+pub fn opaque_callback_ownership(
+    before: &serde_json::Value,
+    after: &serde_json::Value,
+    removed: &serde_json::Value,
+    graph: &serde_json::Value,
+    removed_graph: &serde_json::Value,
+) -> Result<serde_json::Value, String> {
+    let phase = |subject: &serde_json::Value| {
+        subject
+            .pointer("/moduleConfigurationObservations/retainedWithoutSource")
+            .filter(|value| value.is_object())
+            .cloned()
+            .ok_or_else(|| "missing native module-configuration phase".to_string())
+    };
+    Ok(serde_json::json!({
+        "executed":true,
+        "unsupported":[],
+        "beforeAnalysis":phase(before)?,
+        "afterAnalysis":phase(after)?,
+        "afterGraphEdgesRemoved":phase(removed)?,
+        "graphBeforeEdgeRemovalId":identity::digest(graph),
+        "graphAfterEdgeRemovalId":identity::digest(removed_graph),
+        "observationScope":"native_module_configuration_graph_ownership",
+        "globalAdmissionInferred":false
+    }))
+}
+
 pub fn source_parsing(diagnostics: &[serde_json::Value]) -> serde_json::Value {
     let reasons = diagnostics
         .iter()

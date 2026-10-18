@@ -124,6 +124,39 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
     if name == "none" {
         return Ok(actual.clone());
     }
+    if let Some(path) = name.strip_prefix("opaque_ownership_graph_binding:") {
+        if path.is_empty() {
+            return Err("missing ownership subject path".into());
+        }
+        let graph = actual.get("assembly").ok_or("missing actual assembly")?;
+        for field in ["nodes", "edges"] {
+            graph[field]
+                .as_array()
+                .ok_or("missing actual graph inventory")?;
+        }
+        let observed = select(
+            actual,
+            &[
+                json!("subjects"),
+                json!({"path":path}),
+                json!("opaqueCallbackOwnership"),
+            ],
+        )?;
+        if observed["executed"] != true
+            || observed["unsupported"] != json!([])
+            || observed["observationScope"] != "native_module_configuration_graph_ownership"
+            || observed["globalAdmissionInferred"] != false
+            || observed["graphBeforeEdgeRemovalId"] != identity::digest(graph)
+        {
+            return Err("ownership observation lacks actual graph binding".into());
+        }
+        let mut removed = graph.clone();
+        removed["edges"] = json!([]);
+        if observed["graphAfterEdgeRemovalId"] != identity::digest(&removed) {
+            return Err("ownership removal does not bind the actual edge-free graph".into());
+        }
+        return Ok(json!(true));
+    }
     if let Some(path) = name.strip_prefix("qualified_test_integrity_reasons:") {
         if path.is_empty() {
             return Err("missing actual test owner path".into());
@@ -151,7 +184,13 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
         }
         return Ok(reasons.get(path).cloned().unwrap_or_else(|| json!([])));
     }
-    if name == "logical_coverage_edges" || name == "logical_import_edges" {
+    if [
+        "logical_coverage_edges",
+        "logical_import_edges",
+        "logical_call_edges",
+    ]
+    .contains(&name)
+    {
         let nodes = actual["nodes"]
             .as_array()
             .ok_or("missing actual graph nodes")?;
@@ -199,8 +238,10 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
             let kind = value_text(edge, "kind")?;
             if if name == "logical_coverage_edges" {
                 !["covers", "tested_by"].contains(&kind)
-            } else {
+            } else if name == "logical_import_edges" {
                 kind != "imports"
+            } else {
+                kind != "calls"
             } {
                 continue;
             }
@@ -4667,6 +4708,109 @@ fn gap_real_native_process_deadline_and_capture_limit() {
 #[test]
 fn gap_static_binding_control_uses_actual_qualified_assembly() {
     repair_units(&["QDYN-01-static-binding-control::base"]);
+}
+
+#[test]
+fn gap_opaque_callback_ownership_uses_actual_graph_lifecycle() {
+    repair_units(&["P23-opaque-inline-call-has-graph-owner::base"]);
+}
+
+#[test]
+fn comparator_opaque_ownership_requires_actual_graph_ids_and_call_coordinates() {
+    let graph = json!({
+        "nodes":[
+            {"id":"caller","kind":"function","filePath":"dev.ts"},
+            {"id":"callee","kind":"function","filePath":"dev.ts"}
+        ],
+        "symbols":[
+            {"id":"caller","scope":[],"name":"run"},
+            {"id":"callee","scope":[],"name":"leaf"}
+        ],
+        "edges":[{"kind":"calls","from":"caller","to":"callee"}]
+    });
+    let mut removed = graph.clone();
+    removed["edges"] = json!([]);
+    let observed = json!({"assembly":graph,"subjects":[{
+        "path":"dev.ts","opaqueCallbackOwnership":{
+            "executed":true,"unsupported":[],
+            "observationScope":"native_module_configuration_graph_ownership",
+            "globalAdmissionInferred":false,
+            "graphBeforeEdgeRemovalId":identity::digest(&graph),
+            "graphAfterEdgeRemovalId":identity::digest(&removed)
+        }
+    }]});
+    assert_eq!(
+        transform(&observed, "opaque_ownership_graph_binding:dev.ts").unwrap(),
+        json!(true)
+    );
+    assert_eq!(
+        transform(&graph, "logical_call_edges").unwrap(),
+        json!([{"kind":"calls","from":{"path":"dev.ts","symbol_path":"run"},"to":{"path":"dev.ts","symbol_path":"leaf"}}])
+    );
+    for (pointer, value) in [
+        ("/assembly/nodes", Value::Null),
+        ("/assembly/edges", Value::Null),
+        ("/subjects/0/opaqueCallbackOwnership/executed", json!(false)),
+        (
+            "/subjects/0/opaqueCallbackOwnership/unsupported",
+            json!(["missing"]),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/globalAdmissionInferred",
+            json!(true),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/observationScope",
+            json!("other"),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/graphBeforeEdgeRemovalId",
+            json!("foreign"),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/graphAfterEdgeRemovalId",
+            identity::digest(&graph).into(),
+        ),
+    ] {
+        let mut bad = observed.clone();
+        *bad.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            transform(&bad, "opaque_ownership_graph_binding:dev.ts").is_err(),
+            "{pointer}"
+        );
+    }
+    for field in [
+        "graphBeforeEdgeRemovalId",
+        "graphAfterEdgeRemovalId",
+        "executed",
+        "unsupported",
+        "observationScope",
+        "globalAdmissionInferred",
+    ] {
+        let mut bad = observed.clone();
+        bad["subjects"][0]["opaqueCallbackOwnership"]
+            .as_object_mut()
+            .unwrap()
+            .remove(field);
+        assert!(
+            transform(&bad, "opaque_ownership_graph_binding:dev.ts").is_err(),
+            "{field}"
+        );
+    }
+    let mut duplicate = observed.clone();
+    duplicate["subjects"]
+        .as_array_mut()
+        .unwrap()
+        .push(observed["subjects"][0].clone());
+    assert!(transform(&duplicate, "opaque_ownership_graph_binding:dev.ts").is_err());
+    assert!(transform(&observed, "opaque_ownership_graph_binding:other.ts").is_err());
+    assert!(transform(&observed, "opaque_ownership_graph_binding:").is_err());
+    let mut dangling = graph.clone();
+    dangling["edges"][0]["to"] = json!("missing");
+    assert!(transform(&dangling, "logical_call_edges").is_err());
+    dangling = graph.clone();
+    dangling["symbols"] = json!([]);
+    assert!(transform(&dangling, "logical_call_edges").is_err());
 }
 
 #[test]

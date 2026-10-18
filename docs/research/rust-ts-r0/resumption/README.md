@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are34 static GAP units still to map; all240 obligations remain unqualified.
+are33 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -209,6 +209,23 @@ Counts reach30 new mappings:29 limited PASS and N17c NONPASS,with34 static GAP
 and zero qualified obligations. This private scan proves no public reachability;
 the complete Plane-A runtime,full retained scope,full dispatcher execution and
 three-OS campaign remain pending. Additional C1 pass1 remains open.
+
+A [fourteenth tranche](gap-opaque-ownership-evidence.json) maps P23 using real
+module-configuration inspections before fact extraction, with the assembled
+graph and with only its edges cleared. Compiler initialization and bind_all
+already precede the first phase. The named callback diagnostic is present,
+absent,then present; the actual graph carries main-to-helper by unique logical
+coordinates. Both graph identities bind the removal control. One native process
+passes15checks for four frozen properties; six carryover units also pass.
+Compiled edge-removal and graph-ID faults fail their owning tests,then restored
+tests and an independent P23 replay pass. Current macOS checks pass202 binary
+tests,47 library tests,four native flows,45 comparators and seven Python tests;
+format,Clippy and Ruff pass. The initial mapper's four invalid scalar-metadata
+completeness targets are corrected without dropping any genuine check.
+Counts reach31 new mappings:30 limited PASS and N17c NONPASS,with33 static GAP
+and zero qualified obligations. This observation is raw only; no batch/worker
+lifecycle or full public Plane-A lifecycle follows. There are three inspections
+total,two added; their cost remains unmeasured. Additional C1 pass1 stays open.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
