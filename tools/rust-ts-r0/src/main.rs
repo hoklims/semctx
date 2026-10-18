@@ -1,5 +1,6 @@
 use semctx_r0_probe::{identity, wire};
 mod assembly;
+mod assembly_observations;
 mod batch;
 mod captured;
 mod captured_system_observations;
@@ -1291,24 +1292,10 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         let mut nodes = vec![];
         calls(file, &mut nodes);
         if roles.get(&dynamic_path).is_some_and(|role| role == "test") {
-            for node in &nodes {
-                if node.expression().kind() == SyntaxKind::ImportKeyword
-                    && node.arguments().len() == 1
-                    && node.arguments().get(0).kind() == SyntaxKind::StringLiteral
-                {
-                    let starts = ast::source_file_ecma_line_map(file);
-                    let line = starts
-                        .partition_point(|start| {
-                            *start <= astnav::get_start_of_node(*node, file, false)
-                        })
-                        .max(1) as u32;
-                    dynamic_imports.insert((
-                        dynamic_path.clone(),
-                        line,
-                        node.arguments().get(0).text().to_string(),
-                    ));
-                }
-            }
+            dynamic_imports.extend(assembly_observations::test_dynamic_imports(
+                file,
+                &dynamic_path,
+            ));
         }
         let mut rows = program::with_type_checker_for_file(file, move |checker| {
             let mut rows = vec![];
@@ -1468,11 +1455,15 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 | "--consume-worker"
                 | "--observe-system"
                 | "--observe-configured-resolution"
+                | "--observe-controlled-assembly"
         )
     }) else {
         return Ok(None);
     };
-    let valid_arity = if matches!(mode, "--extract-worker" | "--observe-configured-resolution") {
+    let valid_arity = if matches!(
+        mode,
+        "--extract-worker" | "--observe-configured-resolution" | "--observe-controlled-assembly"
+    ) {
         args.len() == 4
     } else if mode == "--observe-system" {
         args.len() == 3 || args.len() == 4
@@ -1482,7 +1473,12 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
     if !valid_arity {
         return Err(format!(
             "expected {mode} REQUEST.json{}",
-            if matches!(mode, "--extract-worker" | "--observe-configured-resolution") {
+            if matches!(
+                mode,
+                "--extract-worker"
+                    | "--observe-configured-resolution"
+                    | "--observe-controlled-assembly"
+            ) {
                 " SDK.json"
             } else if mode == "--observe-system" {
                 " [SDK.json]"
@@ -1511,6 +1507,11 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
         refusal
     } else {
         match mode {
+            "--observe-controlled-assembly" => assembly_observations::run(
+                descriptor.clone(),
+                sdk.as_ref()
+                    .ok_or("controlled assembly SDK input missing")?,
+            ),
             "--observe-primitives" => {
                 semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
             }

@@ -988,6 +988,167 @@ fn native_default_expression_is_a_controlled_refusal_without_ownership() {
     run_native_fixture(1);
 }
 
+#[test]
+fn private_supplied_import_bindings_use_the_native_consumer_without_public_reachability_credit() {
+    let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let base = std::env::var_os("SEMCTX_NATIVE_EVIDENCE")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("development-evidence/native-verifier"));
+    let evidence = base.join(format!(
+        "controlled-import-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    let root = evidence.join("workspace");
+    fs::create_dir_all(&root).unwrap();
+    let sentinel = root.join("ControlledNativeCaseProbe");
+    fs::write(&sentinel, b"case").unwrap();
+    let sensitive = !root.join("controllednativecaseprobe").exists();
+    fs::remove_file(sentinel).unwrap();
+    let cwd = root
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    let mut files = BTreeMap::new();
+    for (path, source) in [
+        (
+            "factory.ts",
+            "export function nativeIntegrationFactory(){return 79;}",
+        ),
+        (
+            "probe.test.ts",
+            "export async function nativeIntegrationCheck(){const dep=await import('./factory');return dep.nativeIntegrationFactory();}",
+        ),
+        ("package.json", "{\"type\":\"module\"}"),
+    ] {
+        fs::write(root.join(path), source).unwrap();
+        files.insert(format!("{cwd}/{path}"), source);
+    }
+    let analysis = json!({"id":"nativeControlledImportDevelopment","cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"roots":[format!("{cwd}/factory.ts"),format!("{cwd}/probe.test.ts")],"files":files,"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"roles":{"factory.ts":"source","probe.test.ts":"test"},"selection":{},"disabled":[],"retained":true,"qualified":true,"utf16_files":{},"raw_files":{}});
+    let sdk_path = std::env::var_os("SEMCTX_NATIVE_SDK")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("sdk/sdk-input.json"));
+    let sdk: Value = serde_json::from_slice(&fs::read(&sdk_path).unwrap()).unwrap();
+    let helper = helper_path();
+    let producer = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    for (label, bindings, count) in [
+        (
+            "defined",
+            json!([{"relPath":"factory.ts","symbolPath":"nativeIntegrationFactory"}]),
+            2,
+        ),
+        ("empty", json!([]), 0),
+    ] {
+        let descriptor = json!({"analysis":analysis,"control":{"fromRelPath":"probe.test.ts","moduleSpecifier":"./factory","line":1,"bindingTargets":bindings}});
+        let path = evidence.join(format!("{label}-descriptor.json"));
+        write_json(&path, &descriptor);
+        let argv = vec![
+            producer.to_string_lossy().into_owned(),
+            "--observe-controlled-assembly".into(),
+            path.to_string_lossy().into_owned(),
+            sdk_path.to_string_lossy().into_owned(),
+        ];
+        let outcome = supervise(&argv, &root, &helper, 20_000, 8_388_608, &evidence, label);
+        assert_eq!(outcome.kind, "success", "{outcome:?}");
+        assert_eq!(outcome.exit_code, Some(0));
+        let observed: Value = serde_json::from_str(&outcome.stdout).unwrap();
+        assert_eq!(observed["state"], "CONTROLLED_ASSEMBLY_OBSERVED");
+        assert_eq!(observed["executed"], true);
+        assert_eq!(observed["unsupported"], json!([]));
+        assert_eq!(
+            observed["control_scope"],
+            "PRIVATE_SUPPLIED_EXTRACTION_ONLY"
+        );
+        assert_eq!(
+            observed["request_descriptor_id"],
+            identity::digest(&descriptor)
+        );
+        assert_eq!(observed["sdk_input_id"], identity::digest(&sdk));
+        assert_eq!(
+            observed["producer_artifact_id"],
+            identity::digest_bytes(&fs::read(producer).unwrap())
+        );
+        assert_eq!(
+            observed["native_analysis"]["request_id"],
+            identity::digest(&analysis)
+        );
+        assert_eq!(observed["public_extractor_reachability_claimed"], false);
+        assert_eq!(observed["global_admission_inferred"], false);
+        assert!(
+            observed["native_original_import"]
+                .get("bindingTargets")
+                .is_none()
+        );
+        assert_eq!(observed["controlled_import"]["bindingTargets"], bindings);
+        assert_eq!(
+            observed["native_extraction_id"],
+            identity::digest(&observed["native_analysis"]["raw_extraction"])
+        );
+        assert_eq!(
+            observed["controlled_extraction_id"],
+            identity::digest(&observed["controlled_extraction"])
+        );
+        assert!(
+            observed["assembly"]["integrityReasons"]
+                .as_object()
+                .unwrap()
+                .is_empty()
+        );
+        let edges = observed["assembly"]["edges"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|edge| edge["kind"] == "covers" || edge["kind"] == "tested_by")
+            .collect::<Vec<_>>();
+        assert_eq!(edges.len(), count);
+        for edge in edges {
+            let nodes = observed["assembly"]["nodes"].as_array().unwrap();
+            let node = |end: &str| nodes.iter().find(|node| node["id"] == edge[end]).unwrap();
+            let (test, symbol) = if edge["kind"] == "covers" {
+                (node("from"), node("to"))
+            } else {
+                (node("to"), node("from"))
+            };
+            assert_eq!(test["kind"], "test");
+            assert_eq!(test["filePath"], "probe.test.ts");
+            assert_eq!(symbol["kind"], "function");
+            assert_eq!(symbol["filePath"], "factory.ts");
+            assert_eq!(symbol["name"], "nativeIntegrationFactory");
+        }
+    }
+    let path = evidence.join("defined-descriptor.json");
+    let argv = vec![
+        producer.to_string_lossy().into_owned(),
+        "--observe-controlled-assembly".into(),
+        path.to_string_lossy().into_owned(),
+    ];
+    let missing_sdk = supervise(
+        &argv,
+        &root,
+        &helper,
+        20_000,
+        8_388_608,
+        &evidence,
+        "missing-sdk",
+    );
+    assert_eq!(missing_sdk.kind, "nonzero");
+    assert_eq!(missing_sdk.exit_code, Some(1));
+    assert!(
+        serde_json::from_str::<Value>(&missing_sdk.stderr).unwrap()["error"]
+            .as_str()
+            .unwrap()
+            .contains("SDK.json")
+    );
+    eprintln!(
+        "native private consumer DEV evidence: {}",
+        evidence.display()
+    );
+}
+
 fn run_native_fixture(target_index: usize) {
     let fixtures: Value = serde_json::from_str(FROZEN_CASES).unwrap();
     assert_eq!(
