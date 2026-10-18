@@ -3,6 +3,7 @@ use semctx_r0_probe::identity;
 mod parallel_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
+mod repository_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
 use serde_json::{Value, json};
@@ -2665,6 +2666,19 @@ fn replay() -> Result<Value, String> {
             results.push(result);
             continue;
         }
+        if recipe["surface"] == "repository_discovery_cli" {
+            let mut result = repository_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "parallel_cli" {
             let mut result = parallel_replay::run(
                 recipe,
@@ -4154,6 +4168,9 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "repository_discovery_cli" => {
+                repository_replay::run(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+            }
             "native_transport_cli" => run_transport_recipe(recipe, &dir, &fixture),
             "parallel_cli" => parallel_replay::run(
                 recipe,
@@ -5748,5 +5765,15 @@ fn gap_real_native_refusal_truncation_and_owned_cancellation() {
         "T-nonzero::base",
         "T-invalid-json::base",
         "T-cancelled::base",
+    ]);
+}
+
+#[test]
+fn gap_native_repository_discovery_language_roles_and_boundary() {
+    repair_units(&[
+        "P08-discovery-language-and-role::base",
+        "N08-disabled-language::base",
+        "P03-confined-relative-source::discovery-confinement",
+        "N03-relative-escape::discovery-confinement",
     ]);
 }

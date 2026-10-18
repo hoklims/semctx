@@ -9,6 +9,15 @@ use std::{
 
 #[test]
 fn real_native_transport_distinguishes_declared_refusal_truncation_and_owned_cancellation() {
+    check_transport(false, &["T-nonzero", "T-invalid-json", "T-cancelled"]);
+}
+
+#[test]
+fn native_transport_accepts_current_directory_aliases_with_dot_and_parent() {
+    check_transport(true, &["T-nonzero"]);
+}
+
+fn check_transport(aliases: bool, scenarios: &[&str]) {
     let helper = PathBuf::from(
         std::env::var_os("SEMCTX_PROCESS_HELPER").expect("compiled process helper required"),
     );
@@ -37,13 +46,19 @@ fn real_native_transport_distinguishes_declared_refusal_truncation_and_owned_can
             .unwrap()
             .as_nanos()
     ));
+    let run = if aliases {
+        std::fs::create_dir_all(run.join("child")).unwrap();
+        run.join(".").join("child").join("..").join("observations")
+    } else {
+        run
+    };
     let tools = transport_process::Tools {
         producer: std::path::Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe")),
         helper: &helper,
         fixture: &fixture,
         sdk: &sdk,
     };
-    for scenario in ["T-nonzero", "T-invalid-json", "T-cancelled"] {
+    for scenario in scenarios {
         let observed = transport_process::run(&tools, &run.join(scenario), scenario).unwrap();
         assert_eq!(observed["qualification_success"], false);
         assert_eq!(observed["before_control_healthy"], true);

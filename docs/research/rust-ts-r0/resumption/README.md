@@ -293,6 +293,35 @@ cleanup race; owned-child cleanup now precedes its finalization and session
 drop, with the local complete qualification suite green. Current exact-head
 CI and Linux/Windows proof remain pending. Pass1 stays open;pass2 unused.
 
+An [eighteenth tranche](gap-native-discovery-evidence.json) maps four ordinary
+discovery units through the native private command. P08 selects the three frozen
+files with their exact roles and languages; N08 retains its disabled candidate
+without reading its source. P03/N03 exercise their exact static relative imports,
+including outside-root refusal before analysis. This gives no retained N03base
+credit. Four macOS replays pass12 checks on optimized artifact83166c43, bound
+to34 Rust sources as a DEV manifest, not a complete build-input closure.
+Native source and resolver read errors and32MiB limits have shipped tests;
+permission failures and the file-link case are exercised on Unix/macOS only.
+The comparator normalizes positive probe paths before confinement. A prior-head
+Windows native CI failure exposed raw mixed-separator cwd equality in the
+transport guard. Both existing directories are now canonicalized; real dot and
+parent aliases pass, while foreign, missing and null paths refuse. Compiled
+source, comparator and cwd faults each fail their owning test, then restoration
+passes7 discovery,50 comparators,3 transport and4 independently replayed units.
+The complete25-row claim ledger is preserved verbatim with author/auditor context.
+Initial findings and raw failures remain archived. Local checks pass210 binary,
+47 library,1 common,4 existing,7 discovery,4 parallel and3 transport tests;
+Clippy,fmt,Ruff,Zizmor and7 Python tests pass. The ten original observations
+(7 units and3 supports) and three transport units pass focused carryover replay.
+Counts reach40 mappings:39 limited PASS and N17c NONPASS,24 static GAP,
+330 recipes without known GAP and zero qualified obligations. Current candidate
+three-OS CI remains unobserved; prior0879 native macOS/Linux passed and Windows
+failed. Full354,review178,reserved once and R0 remain pending. Static-import
+proof is limited to the named fixtures; no generic AST confinement, exhaustive
+metadata-probe denominator, full Bun glob parity, SDK, public Plane-A, global
+admission, atomic capture or performance guarantee follows. Owner pass1 stays
+open and pass2 remains unused.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required

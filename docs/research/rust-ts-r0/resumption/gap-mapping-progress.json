@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_THIRTY_SIX_GAPS_MAPPED_THIRTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FORTY_GAPS_MAPPED_THIRTY_NINE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining28 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T22:59:09.263678+00:00",
-  "staticGapUnitsRemaining": 28,
+  "next": "Continue the remaining24 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T23:44:21.033403+00:00",
+  "staticGapUnitsRemaining": 24,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -734,5 +734,61 @@
     "reservedPayloadAccessed": false,
     "reservedNonaccessScope": "Individual author attestation only.",
     "cost": "Auxiliary native processes and tool/input hashing; no isolated performance measurement."
+  },
+  "eighteenthBatch": {
+    "registeredUtc": "2026-10-18T23:44:21.033403+00:00",
+    "state": "FOUR_FROZEN_NATIVE_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P08-discovery-language-and-role::base",
+      "N08-disabled-language::base",
+      "P03-confined-relative-source::discovery-confinement",
+      "N03-relative-escape::discovery-confinement"
+    ],
+    "scope": "Private actual ordinary filesystem discovery on exact frozen files/configurations: selected roles/languages, disabled candidate without source read, exact static relative import admission/refusal before analysis.",
+    "evidence": "gap-native-discovery-evidence.json",
+    "nativeArtifactSha256": "83166c43fde48e7442d18185f5bf4a956a9be58bc75aed02d5b4943edb37e2ce",
+    "recipesSha256": "436ec69fed9897a2ac114b69927e8814fa4162963936595d1531a9608e10d5fb",
+    "newMappingsCredited": 4,
+    "newProjectedPasses": 4,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 210,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 4,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 50,
+      "recipeCliTests": 7,
+      "frozenUnitChecks": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "carryovers": "Four repair_* tests cover the7original units and3supports; three existing frozen transport units also pass on current artifact.",
+      "clippy": "PASS all-targets with qualification-observer and-Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "zizmorOffline": "PASS",
+      "completeVerifyPr": "Not rerun; prior four local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Invalid descriptors/config/unsupportedglob and unavailable root refuse.",
+      "Source permission failure retainsREAD_FAILED candidate;32MiBsource capture overflow refuses complete observation.",
+      "Resolver package.json read failure or separate32MiBcapture overflow refuses without fallback. Permission tests are Unix/macOS only.",
+      "Actual existing outside package-main source and Unix external file link are refused; outside file bytes are not read in named cases.",
+      "Reported positive probe paths normalize separators,driveverbatimprefix,dot/parent segments before confinement.",
+      "Actual transport cwd uses existing filesystem canonical paths; real./child/.. is accepted,foreign/missing/null refused,argument/tool/input hashes still exact."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Physical walk, bounded source/metadata capture, native resolution and hashing; no isolated performance measurement."
   }
 }
