@@ -461,7 +461,7 @@ impl Workspace {
         }
         links
     }
-    pub fn resolve(&self, fs: &CaptureFs, path: &str) -> Option<String> {
+    fn admitted_key(&self, fs: &CaptureFs, path: &str) -> Option<String> {
         let key = fs.key(path);
         if self.sdk_files.contains(&key) || self.sdk_directories.contains(&key) {
             return Some(key);
@@ -474,6 +474,14 @@ impl Workspace {
             self.issue(path, "refusal", "WORKSPACE_NESTED_REPOSITORY");
             return None;
         }
+        Some(key)
+    }
+    pub fn physical_path(&self, fs: &CaptureFs, path: &str) -> Option<String> {
+        let key = self.admitted_key(fs, path)?;
+        (fs.files.contains_key(&key) || fs.dirs.contains(&key)).then_some(key)
+    }
+    pub fn resolve(&self, fs: &CaptureFs, path: &str) -> Option<String> {
+        let key = self.admitted_key(fs, path)?;
         if fs.files.contains_key(&key) || fs.dirs.contains(&key) {
             return Some(key);
         }

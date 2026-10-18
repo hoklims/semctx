@@ -92,6 +92,14 @@ native syntactic relative-import helper: both frozen component cases pass, with
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
 are45 static GAP units still to map; all240 obligations remain unqualified.
 
+Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
+final module resolution admitted virtual workspace source-package links. The
+corrected native host accepts physical source inputs while preserving virtual
+configuration inheritance and root/nested-repository refusals. The actual test
+fails when the reviewer removes the host substitution and passes after
+restoration. This adds no mapping or qualification credit; the explicit query
+and exact empty-directory capture remain pending.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required
