@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use ts_goport::{
     ast,
@@ -9,7 +9,7 @@ use ts_goport::{
     flags::{ModifierFlags, SymbolFlags},
 };
 
-#[derive(Clone, Debug, Default, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Extraction {
     pub modules: Vec<String>,
@@ -18,7 +18,7 @@ pub struct Extraction {
     pub calls: Vec<Call>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Symbol {
     pub name: String,
@@ -37,7 +37,7 @@ pub struct Symbol {
     pub markers: Vec<Marker>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Marker {
     pub tag: String,
     pub slug: String,
@@ -45,7 +45,7 @@ pub struct Marker {
     pub statement: Option<String>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct BindingTarget {
     pub rel_path: String,
@@ -56,7 +56,7 @@ pub struct BindingTarget {
     pub unmodeled_reason: Option<String>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Import {
     pub from_rel_path: String,
@@ -69,7 +69,7 @@ pub struct Import {
     pub line: u32,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Call {
     pub caller_rel_path: String,

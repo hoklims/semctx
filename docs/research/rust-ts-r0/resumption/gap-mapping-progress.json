@@ -168,7 +168,7 @@
   ],
   "reservedPayloadAccessed": false,
   "next": "Continue the remaining40 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T18:54:34.975325+00:00",
+  "updatedUtc": "2026-10-18T19:30:05.809283+00:00",
   "staticGapUnitsRemaining": 40,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
@@ -463,5 +463,33 @@
     "recipesSha256": "0a68716b1f0d7073b99b597f971a2f61a7f5bdbc24b65135d609ace8bead29bf",
     "evidence": "gap-static-binding-evidence.json",
     "newProjectedPasses": 1
+  },
+  "tenthBatch": {
+    "registeredUtc": "2026-10-18T19:09:55.075830+00:00",
+    "state": "NATIVE_PRIVATE_IMPORT_CONSUMER_DEV_PASS_FROZEN_RECIPE_MAPPING_PENDING",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-06-defined-bindingTargets-private-consumer-control::variant-01",
+      "QDYN-06-defined-bindingTargets-private-consumer-control::variant-02"
+    ],
+    "scope": "Run the existing native assembly consumer with explicitly supplied bindingTargets arrays on native extraction. This is the frozen private consumer control, never a public-extractor reachability claim. Preserve original extraction and separate controlled extraction/graph observations.",
+    "failurePaths": [
+      "Missing/null/malformed bindingTargets or unknown descriptor fields refuse; an empty defined array remains distinct from absent bindings.",
+      "Actual import selector must identify one native extracted import, without creating or guessing a missing row.",
+      "Actual native test dynamic-import scan and unique native symbol coordinates govern resulting reasons/coverage.",
+      "Main raw/batch/worker Request identities stay unchanged; separate private descriptor, SDK and artifact identities bind the new observation."
+    ],
+    "scopeDiscoveryFindings": {
+      "nativeRetainedScopeMissing": true,
+      "gitFixturePrerequisite": "Frozen sources/qualified-cases.json common_materialization_prerequisites already prescribes init/add/commit for QDYN03-05/QSCOPE01-02; no owner decision needed.",
+      "nativeBoundary": "Same frozen prerequisite explicitly keeps Git out of minimal native batch analysis runtime and supplies captured/discovered inventory. Full scope requires capture/discovery boundary, not a SOURCE_* to DEPENDENCY_SCOPE_* relabel."
+    },
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "a9b1a1ffd4b39fab8e3beea099e76483e806d6eef95ac10a5f93858a921df997",
+    "nativePhase": "Private consumer API and strict descriptor reviewed independently;195 binary,43 library,37 comparator,7 Python and3 native process-flow tests pass on macOS. Four source faults rejected then restored. Both frozen QDYN06 variants still need recipes/comparators and have not run.",
+    "newMappingsCredited": 0,
+    "evidence": "controlled-assembly-evidence.json"
   }
 }

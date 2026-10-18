@@ -135,6 +135,16 @@ so no overall CI success is claimed. This earlier evidence covers the producer
 and four DEV vectors, without proving current37 comparators, focused new unit
 replay or the full354 campaign.
 
+The [private controlled-assembly prerequisite](controlled-assembly-evidence.json)
+now runs the real native consumer with supplied binding arrays, preserving the
+original extraction and limiting changes to one selected import. Independent
+review exercises the optimized process and rejects four source faults before
+restoration. Current macOS checks pass:195 binary tests,43 library tests,
+37 comparators, seven Python tests and three native process-flow integrations.
+The two frozen QDYN06 variants still require recipes/comparators and replay;
+this checkpoint adds no mapping or qualification credit. Counts remain24 mapped
+and40 GAP. Linux/Windows checks for this source and the full campaign remain pending.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required
