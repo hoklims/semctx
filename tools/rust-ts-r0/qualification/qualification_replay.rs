@@ -2432,9 +2432,12 @@ fn comparator_post_capture_setup_changes_physical_bytes_and_preserves_request() 
     fs::create_dir_all(&root).unwrap();
     let root = root.canonicalize().unwrap();
     let source = "export const adapterCapture = 177;";
-    let target = root.join("adapterCapture.ts");
-    fs::write(&target, source).unwrap();
-    let request = json!({"files":{target.to_string_lossy().to_string():source}});
+    let request = materialize(
+        &json!({"files":{"adapterCapture.ts":source},"roots":["adapterCapture.ts"]}),
+        &root,
+        true,
+    )
+    .unwrap();
     let request_path = root.join("request.json");
     save(&request_path, &request).unwrap();
     let original = fs::read(&request_path).unwrap();
@@ -2489,6 +2492,7 @@ fn validate_component_checks(checks: &[Value]) -> Result<(), String> {
                 "sourceParsingObservation",
                 "moduleConfigurationObservations",
                 "javascriptObservation",
+                "sourceFileObservation",
             ]
             .contains(&s.as_str().unwrap_or(""))
         });
@@ -3173,6 +3177,17 @@ fn repair_role_context_preserves_canonical_test_owners() {
     repair_units(&[
         "P07-namespace-real-owner::base",
         "V2-E04-default-through-barrel-test-owner::base",
+    ]);
+}
+
+#[test]
+fn gap_components_compare_source_markers_javascript_variant_and_real_emission() {
+    repair_units(&[
+        "N21-actual-sdk-map-callback::base",
+        "P16-explicit-esm-boundary::base",
+        "V2-F04-augmentation-is-distinct-from-module-marker::base",
+        "N17b-classic-factory-is-real-generated-call::base",
+        "N17c-importhelpers-es5-actual-emission::base",
     ]);
 }
 

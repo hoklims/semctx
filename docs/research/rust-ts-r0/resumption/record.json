@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "recordedUtc": "2026-10-18T12:13:39.082313+00:00",
-  "state": "REOPENED_C1_PASS1_FOCUSED_HARNESS_REPAIRS_OBSERVED",
+  "state": "REOPENED_C1_PASS1_STEP3_GAP_MAPPING_IN_PROGRESS",
   "r0Decision": null,
   "READY_TS_NATIVE": false,
   "authority": {
@@ -138,7 +138,8 @@
     {
       "step": 3,
       "work": "Resolve the 64 GAP qualification units: comparators, recipes, mappings",
-      "state": "READY_FOR_GAP_MAPPING"
+      "state": "IN_PROGRESS_COMPARATORS_RECIPES_NATIVE_OBSERVATION_MAPPINGS",
+      "evidence": "gap-mapping-progress.json"
     },
     {
       "step": 4,
@@ -189,5 +190,17 @@
     "decisionRequired": "Stop and explain in the terminal when an owner decision is necessary."
   },
   "claimAudit": "claim-audit.md",
-  "activeCorrectionPass": "correction-pass1-registration.json"
+  "activeCorrectionPass": "correction-pass1-registration.json",
+  "additionalVersionAttributions": [
+    {
+      "id": "T00-ARB-003",
+      "record": "../arbitrations.json",
+      "scope": [
+        "N17c-importhelpers-es5-actual-emission::base"
+      ],
+      "rawComparisonRemains": "NONPASS_PROJECTED_UNIT",
+      "qualificationCredit": 0,
+      "evidence": "gap-mapping-evidence.json"
+    }
+  ]
 }
