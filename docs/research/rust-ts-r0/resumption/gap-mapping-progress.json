@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_NINE_GAPS_MAPPED_EIGHT_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_ELEVEN_GAPS_MAPPED_TEN_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -128,7 +128,15 @@
       "windowsObserver": "31 comparator tests passed; post-capture test failed before Python invocation",
       "cause": "Test directly constructed backslash file keys; production materialize and physical mutation lookup use slash keys.",
       "correction": "Test now invokes real materialize before exercising post-capture mutation. Product comparison unchanged.",
-      "remoteFixedResult": "PENDING_NEXT_PUSH",
+      "remoteFixedResult": {
+        "state": "PASSED",
+        "head": "53cd6fd97f32efec884a549ba0fca31d40d25fa9",
+        "run": "https://github.com/hoklims/semctx/actions/runs/39142147341",
+        "conclusion": "success",
+        "perOsObserverComparators": 32,
+        "perOsRecipeCliTests": 7,
+        "scope": "macOS/Linux/Windows fixture and harness tests; not full354-unit qualification or subsequent engine"
+      },
       "independentDeltaReview": {
         "standards": "/root/gap_batch1_standards",
         "specProof": "/root/gap_batch1_spec_proof",
@@ -159,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining55 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T15:36:46.824560+00:00",
-  "staticGapUnitsRemaining": 55,
+  "next": "Continue the remaining53 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T16:45:44.850187+00:00",
+  "staticGapUnitsRemaining": 53,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -189,7 +197,7 @@
     ],
     "scope": "Use existing actual component/assembly/outline APIs; require complete empty configuration reasons, explicit unmodeled-caller refusal with absent caller coordinate/no calls edge, and the prescribed comment-only digest relation.",
     "inputInstantiation": "P09 frozen edit permits changing comment text or whitespace only; concrete after source changes the single /** Keys. */ comment to /** Digest comment changed. */ before querying. Sources and assertions in the frozen corpus are unchanged.",
-    "absenceInterpretation": "V2-C03 frozen callerSymbolPath=\"absent\" is mapped only at this property to the existing $field_absent predicate, supported by baseline ts-symbols.ts573–587 and native Option omission. A literal field containing \"absent\" must fail.",
+    "absenceInterpretation": "V2-C03 frozen callerSymbolPath=\"absent\" is mapped only at this property to the existing $field_absent predicate, supported by baseline ts-symbols.ts573\u2013587 and native Option omission. A literal field containing \"absent\" must fail.",
     "failurePaths": [
       "An unmapped recipe cannot pass the focused replay helper.",
       "Non-empty/unsupported/unexecuted configuration observation must not pass the empty-reason assertion.",
@@ -226,5 +234,43 @@
     "newProjectedPasses": 1,
     "nativeEngineChanged": false,
     "finalRecipeSha256": "de79213ae805640780d52f8e17f37ff7dd75618fdd26545826f386284449889c"
+  },
+  "fourthBatch": {
+    "registeredUtc": "2026-10-18T16:08:46.540799+00:00",
+    "state": "TWO_NATIVE_FROZEN_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N02-legacy-ignores-config::base",
+      "V2-E08-ordinary-conditional-package-exports::base"
+    ],
+    "scope": "Raw import and named configuration observations under separate ordinary/retained requests, with the explicitly registered owned native resolution correction.",
+    "inputInstantiation": "N02 second invocation changes only compilerOptions.paths[#shared] from ./shared.ts to ./unresolved-after-config.ts in the captured live config. The frozen relation authorizes changing live configuration metadata; selected source and roots unchanged.",
+    "absenceInterpretation": "Only N02 resolvedRelPath=\"absent\" is interpreted as the existing field-absence predicate; a present value, including the literal absent, must fail.",
+    "failurePaths": [
+      "A missing/non-string resolved link cannot satisfy E08 ordered links.",
+      "Retained configuration reasons require a separate retained invocation with executed=true and unsupported=[].",
+      "N02 cannot pass if imports differ after the declared live config change."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "scopeExpansionAfterNativeReplay": {
+      "recordedUtc": "2026-10-18T16:23:03.449990+00:00",
+      "reason": "N02 passes, but E08 lacks both native resolved import paths. A separate native regression reproduces it: checker symbol absent; global options give CommonJS mode to both imports.",
+      "ownedFix": "Use a source-configured native frontend for ordinary JS resolution, then join actual native module paths to the corresponding literal spans. Other extraction profiles keep their existing path; no guessed module resolver or TS fallback.",
+      "failurePaths": [
+        "Missing native source context is an error, never an empty successful lookup.",
+        "Native program or configured resolver errors propagate; no empty-success substitution.",
+        "Observed unresolved module stays absent; a requested lookup map never falls back to checker guesses.",
+        "Require/import conditions remain distinct for the same specifier on the same source line."
+      ],
+      "nativeEngineChanged": true,
+      "arbitrationRequired": false,
+      "budgetPassUnchanged": 1
+    },
+    "evidence": "gap-ordinary-config-evidence.json",
+    "newProjectedPasses": 2,
+    "nativeEngineChanged": true,
+    "finalRecipeSha256": "d6c5c84861c0833684e68b37972d918c69ebe211d92e82e98edf25cec0e310af"
   }
 }
