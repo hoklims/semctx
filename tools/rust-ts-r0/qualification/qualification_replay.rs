@@ -4852,3 +4852,8 @@ fn comparator_controlled_process_failure_and_malformed_stdout_cannot_be_success(
         assert!(!refusal["error"].as_str().unwrap().is_empty());
     }
 }
+
+#[test]
+fn gap_controlled_system_keys_preserve_alias_and_counter_relation() {
+    repair_units(&["ORD-CANONICAL-IDENTITY-PAIR::base"]);
+}

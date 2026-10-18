@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are38 static GAP units still to map; all240 obligations remain unqualified.
+are37 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -157,6 +157,18 @@ the helper called by this runner, with success, nonzero and malformed-stdout
 tests. Current macOS checks pass39 comparators and seven Python tests, plus both
 native variants. This brings the new mappings to26:25 limited PASS and N17c
 NONPASS, with38 static GAP units remaining and no obligation qualified.
+
+An [eleventh tranche](gap-canonical-system-evidence.json) executes the frozen
+canonical-file-key component against its supplied successful System realpath
+results. Three native invocations yield the exact keys and alias/target equality
+with a distinct counter-key. This logical component applies the historical slash,
+one-leading-./ and JS-casefold rules; native lexical semantic_key remains separate.
+Independent review exercises25 native probes and rejects a real operand fault,
+then restores both owning tests. Current macOS checks pass195 binary tests,
+45 library tests, three native process-flow integrations,39 comparators and seven
+Python tests. Counts reach27 new mappings:26 limited PASS and N17c NONPASS,
+with37 static GAP units remaining and zero qualified obligations. Physical-host
+aliases, consumer identity and Linux/Windows execution remain unproved here.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

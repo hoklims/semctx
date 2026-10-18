@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_SIX_GAPS_MAPPED_TWENTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_SEVEN_GAPS_MAPPED_TWENTY_SIX_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining38 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T19:48:37.212516+00:00",
-  "staticGapUnitsRemaining": 38,
+  "next": "Continue the remaining37 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T20:07:05.245207+00:00",
+  "staticGapUnitsRemaining": 37,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -509,5 +509,31 @@
     "nativePrerequisiteEvidence": "controlled-assembly-evidence.json",
     "newProjectedPasses": 2,
     "recipesSha256": "b6f6ea482e4d63f69c15aa5899845c71fe71f162f3d59d9a18b934be6a1a16a0"
+  },
+  "eleventhBatch": {
+    "registeredUtc": "2026-10-18T19:55:42.735023+00:00",
+    "state": "CONTROLLED_SYSTEM_CANONICAL_FILE_KEY_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "ORD-CANONICAL-IDENTITY-PAIR::base"
+    ],
+    "scope": "Frozen canonicalTypeScriptFileKey component with supplied controlled System realpath results and case flag. Existing semantic_key is a distinct native lexical operation and cannot prove the alias relation. No physical-host path equivalence or whole extraction/partition identity claim.",
+    "failurePaths": [
+      "Unknown/missing/malformed descriptor fields refuse.",
+      "A missing controlled realpath observation refuses instead of reading the host filesystem or assuming lexical identity.",
+      "Empty/NUL controlled path or result refuses as unavailable component context.",
+      "Exact normalization replaces backslashes and strips one leading ./, without resolving ..; JS casefold follows the controlled System flag."
+    ],
+    "newMappingsCredited": 1,
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "c1de5d6d33b11acdfe22c4dc8b4131be057916a0c33098f107f3f9dbf2387c9b",
+    "recipesSha256": "a7683f88a8850ab4ffb8e195977546f68d559bbcfb751ff503a31cdcea5c1a9b",
+    "nativePhase": "Native controlled-System primitive and frozen3query alias/counter component replay reviewed. Current195binary/45library/3native-process-flow/39comparator/7Python tests pass on macOS. No qualification credit.",
+    "preparationCorrection": "The first placement was skipped by the raw-request-only loop and left this unit GAP. Move component mapping to its own loop; static317/354 mapped and actual native component replay now pass. Initial output retained, not counted as pass.",
+    "testDiscovery": "Initial --bin filter found0 tests; the owning --lib target then ran the real failing unknown-operation test, before implementation. Zero discovery is retained separately and is not the red witness.",
+    "evidence": "gap-canonical-system-evidence.json",
+    "newProjectedPasses": 1
   }
 }
