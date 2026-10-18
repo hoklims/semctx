@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are40 static GAP units still to map; all240 obligations remain unqualified.
+are38 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -142,8 +142,21 @@ review exercises the optimized process and rejects four source faults before
 restoration. Current macOS checks pass:195 binary tests,43 library tests,
 37 comparators, seven Python tests and three native process-flow integrations.
 The two frozen QDYN06 variants still require recipes/comparators and replay;
-this checkpoint adds no mapping or qualification credit. Counts remain24 mapped
-and40 GAP. Linux/Windows checks for this source and the full campaign remain pending.
+that prerequisite checkpoint added no mapping or qualification credit.
+Linux/Windows checks for that source and the full campaign remain pending.
+
+A [tenth tranche](gap-controlled-consumer-evidence.json) now replays both frozen
+QDYN06 private variants on their exact three-file capture. The supplied nonempty
+array yields the required reciprocal coverage edges at the actual unique helper
+coordinate; the defined empty array yields neither edge. Both exclude the named
+unproven-binding reason in the actual complete map. Descriptor, SDK, executable,
+original extraction and the exact one-array delta are checked; no public
+reachability or admission follows. Review found missing automated tests for the
+new Outcome failure branches. The unchanged decoding behavior is factored into
+the helper called by this runner, with success, nonzero and malformed-stdout
+tests. Current macOS checks pass39 comparators and seven Python tests, plus both
+native variants. This brings the new mappings to26:25 limited PASS and N17c
+NONPASS, with38 static GAP units remaining and no obligation qualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
