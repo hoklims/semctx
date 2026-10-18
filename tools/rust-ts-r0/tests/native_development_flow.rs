@@ -300,9 +300,6 @@ fn bindings_and_observation(
         "ordinary"
     }
     .to_string();
-    let input = json!({"files":request["files"],"utf16_files":{},"raw_files":{},"sdk":sdk});
-    let capture = json!({"repository_root":request["cwd"],"case_sensitive":request["case_sensitive"],
-        "files":request["files"],"utf16_files":{},"raw_files":{}});
     let fixture: Value = serde_json::from_str(FROZEN_CASES).unwrap();
     let case = fixture["cases"]
         .as_array()
@@ -310,6 +307,44 @@ fn bindings_and_observation(
         .iter()
         .find(|case| case["id"] == request["id"])
         .unwrap();
+    assert_eq!(request["utf16_files"], json!({}));
+    assert_eq!(request["raw_files"], json!({}));
+    let fixture_files = case["files"].as_object().unwrap();
+    assert_eq!(
+        request["files"].as_object().unwrap().len(),
+        fixture_files.len()
+    );
+    let sensitive = request["case_sensitive"].as_bool().unwrap();
+    let mut project = fixture_files.keys().map(|relative| {
+        assert!(!relative.split('/').any(|part| part.is_empty() || part == "." || part == ".."));
+        let physical = format!("{}/{}", text(request,"cwd"),relative);
+        let source = request["files"][&physical].as_str().expect("known DEV source path absent");
+        let logical = if sensitive { relative.clone() } else { relative.to_lowercase() };
+        json!({"location":{"domain":"repository","path":logical},"representation":"text","text":source})
+    }).collect::<Vec<_>>();
+    project.sort_by_key(identity::canonical_json);
+    let sdk_prefix = format!("{}/", text(request, "sdk_directory"));
+    let mut libraries = sdk["files"]
+        .as_object()
+        .unwrap()
+        .iter()
+        .map(|(physical, content)| {
+            let basename = physical
+                .strip_prefix(&sdk_prefix)
+                .expect("DEV SDK file outside selected SDK directory");
+            assert!(!basename.contains('/') && !basename.contains('\\'));
+            let logical = if sensitive {
+                basename.to_string()
+            } else {
+                basename.to_lowercase()
+            };
+            json!({"location":{"domain":"sdk","path":logical},"text":content})
+        })
+        .collect::<Vec<_>>();
+    libraries.sort_by_key(identity::canonical_json);
+    let input = json!({"domain":"T00-logical-input-v2","project":project,
+        "sdk":{"domain":"T00-logical-sdk-v2","version":sdk["version"],"archive_sha256":sdk["archive_sha256"],"files":libraries}});
+    let capture = json!({"domain":"T00-logical-capture-v2","repository_root":"T00_REPOSITORY_ROOT","case_sensitive":sensitive,"project":project});
     let subjects = case["expected_subject_ids"]
         .as_array()
         .unwrap()
@@ -323,7 +358,7 @@ fn bindings_and_observation(
         .collect::<BTreeMap<_, _>>();
     let scope = json!({"profile":profile,"repository_root":request["cwd"],"subjects":subjects,
         "effective_options":request["options"],"retained":request["retained"],"sdk_directory":request["sdk_directory"]});
-    let snapshot = json!({"domain":"T00-captured-snapshot-v1","input_manifest_id":identity::digest(&input),"capture_id":identity::digest(&capture)});
+    let snapshot = json!({"domain":"T00-captured-snapshot-v2","input_manifest_id":identity::digest(&input),"capture_id":identity::digest(&capture)});
     let facts = batch.facts.clone();
     let graph = graph_from_received_facts(&facts);
     let fact_id = FactsId::observed_json(&serde_json::to_value(&facts).unwrap());
@@ -426,7 +461,14 @@ fn rejected<T>(result: Result<T, Rejection>, expected: Rejection) {
     }
 }
 
-fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed, root: &Path) {
+fn adversarial_actual_batch(
+    case: &Value,
+    request: &Value,
+    sdk: &Value,
+    outcome: &Outcome,
+    observed: &Observed,
+    root: &Path,
+) {
     let receiver = || ready_receiver(case, observed, Duration::from_secs(30));
     let current = observed.current();
     let endpoint = poisoned(outcome, |batch| {
@@ -502,14 +544,26 @@ fn adversarial_actual_batch(case: &Value, outcome: &Outcome, observed: &Observed
     )
     .unwrap();
     let actual_changed_text = fs::read_to_string(&live_path).unwrap();
-    let mut changed_capture = observed.capture.clone();
-    let captured_path = format!("{}/{}", text(&observed.capture, "repository_root"), logical);
-    changed_capture["files"][&captured_path] = json!(actual_changed_text);
-    let mut post_capture = observed.current();
-    post_capture.capture = &changed_capture;
-    let changed_result = receiver().receive(outcome, &post_capture);
+    let mut changed_request = request.clone();
+    let captured_path = format!("{}/{}", text(request, "cwd"), logical);
+    changed_request["files"][&captured_path] = json!(actual_changed_text);
+    let actual_batch: wire::Batch = serde_json::from_str(&outcome.stdout).unwrap();
+    let changed = bindings_and_observation(
+        &changed_request,
+        sdk,
+        &actual_batch,
+        observed.artifact.clone(),
+    );
+    assert_ne!(changed.input, observed.input);
+    assert_ne!(changed.capture, observed.capture);
+    assert_ne!(changed.snapshot, observed.snapshot);
+    assert_eq!(changed.scope, observed.scope);
+    let changed_result = receiver().receive(outcome, &changed.current());
+    let current_binding_receiver = ready_receiver(case, &changed, Duration::from_secs(30));
+    let stale_batch_result = current_binding_receiver.receive(outcome, &changed.current());
     fs::write(&live_path, &original_bytes).unwrap();
     rejected(changed_result, Rejection::IdentityMismatch);
+    rejected(stale_batch_result, Rejection::IdentityMismatch);
     let receipt_receiver = receiver();
     let receipt = receipt_receiver.receive(outcome, &current).unwrap();
     let mut changed_graph = observed.graph.clone();
@@ -612,9 +666,10 @@ fn assert_input_provenance(request: &Value, sdk: &Value, batch: &wire::Batch) ->
             "root source not observed read"
         );
     }
-    for library in ["/sdk/lib/lib.es2022.full.d.ts", "/sdk/lib/lib.es2022.d.ts"] {
+    for library in ["lib.es2022.full.d.ts", "lib.es2022.d.ts"] {
+        let library = format!("{}/{}", text(request, "sdk_directory"), library);
         assert!(
-            consumed.contains(&key(library)),
+            consumed.contains(&key(&library)),
             "required ES2022 default-library read absent: {library}"
         );
     }
@@ -749,6 +804,134 @@ fn coherent_payload_poisons(
     write_json(
         &evidence.join("coherent-payload-and-input-poisons.json"),
         &json!({"results":results,"frozen_expectations_unchanged":true,"source_stdout_hash":outcome.stdout_hash}),
+    );
+}
+
+fn actual_relocation_keeps_content_bindings_and_refuses_old_physical_scope(
+    case: &Value,
+    request: &Value,
+    sdk: &Value,
+    outcome: &Outcome,
+    observed: &Observed,
+    evidence: &Path,
+    helper: &Path,
+) {
+    let relocated_root = evidence.join("relocated-workspace");
+    fs::create_dir_all(&relocated_root).unwrap();
+    let relocated_cwd = relocated_root
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    let original_cwd = text(request, "cwd");
+    let mut relocated_request = request.clone();
+    relocated_request["cwd"] = json!(relocated_cwd);
+    relocated_request["sdk_directory"] = json!("/sdk-relocated/lib");
+    let mut files = BTreeMap::new();
+    for relative in case["files"].as_object().unwrap().keys() {
+        let source = request["files"][format!("{original_cwd}/{relative}")]
+            .as_str()
+            .unwrap();
+        let physical = relocated_root.join(relative);
+        fs::create_dir_all(physical.parent().unwrap()).unwrap();
+        fs::write(physical, source).unwrap();
+        files.insert(format!("{relocated_cwd}/{relative}"), json!(source));
+    }
+    relocated_request["files"] = json!(files);
+    relocated_request["roots"] = json!(
+        case["roots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|relative| format!("{relocated_cwd}/{}", relative.as_str().unwrap()))
+            .collect::<Vec<_>>()
+    );
+    let sdk_prefix = format!("{}/", text(request, "sdk_directory"));
+    let mut relocated_sdk = sdk.clone();
+    relocated_sdk["files"] = json!(
+        sdk["files"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(physical, source)| {
+                let relative = physical.strip_prefix(&sdk_prefix).unwrap();
+                (format!("/sdk-relocated/lib/{relative}"), source.clone())
+            })
+            .collect::<BTreeMap<_, _>>()
+    );
+    let request_path = evidence.join("relocated-request.json");
+    let sdk_path = evidence.join("relocated-sdk.json");
+    write_json(&request_path, &relocated_request);
+    write_json(&sdk_path, &relocated_sdk);
+    let argv = vec![
+        env!("CARGO_BIN_EXE_semctx-r0-probe").into(),
+        "--batch".into(),
+        request_path.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let relocated_outcome = supervise(
+        &argv,
+        &relocated_root,
+        helper,
+        20_000,
+        8_388_608,
+        evidence,
+        "native-relocated",
+    );
+    assert_eq!(relocated_outcome.kind, "success");
+    assert_eq!(relocated_outcome.exit_code, Some(0));
+    let relocated_batch: wire::Batch = serde_json::from_str(&relocated_outcome.stdout).unwrap();
+    let original_batch: wire::Batch = serde_json::from_str(&outcome.stdout).unwrap();
+    assert_semantics(case, &relocated_batch);
+    let provenance = assert_input_provenance(&relocated_request, &relocated_sdk, &relocated_batch);
+    let relocated = bindings_and_observation(
+        &relocated_request,
+        &relocated_sdk,
+        &relocated_batch,
+        observed.artifact.clone(),
+    );
+    assert_eq!(relocated.input, observed.input);
+    assert_eq!(relocated.capture, observed.capture);
+    assert_eq!(relocated.snapshot, observed.snapshot);
+    assert_ne!(relocated.scope, observed.scope);
+    assert_eq!(
+        relocated_batch.input_manifest_id,
+        original_batch.input_manifest_id
+    );
+    assert_eq!(relocated_batch.capture_id, original_batch.capture_id);
+    assert_eq!(relocated_batch.snapshot_id, original_batch.snapshot_id);
+    assert_eq!(
+        relocated_batch.producer_artifact_id,
+        original_batch.producer_artifact_id
+    );
+    assert_ne!(relocated_batch.scope_id, original_batch.scope_id);
+    let relocated_receiver = ready_receiver(case, &relocated, Duration::from_secs(20));
+    let receipt = relocated_receiver
+        .receive(&relocated_outcome, &relocated.current())
+        .unwrap();
+    assert_eq!(receipt.disposition(), EvidenceDisposition::Analyzed);
+    let original_receiver = ready_receiver(case, observed, Duration::from_secs(30));
+    let original_receipt = original_receiver
+        .receive(outcome, &observed.current())
+        .unwrap();
+    let mut scope_only = observed.current();
+    scope_only.scope = &relocated.scope;
+    rejected(
+        original_receiver.revalidate(&original_receipt, &scope_only),
+        Rejection::IdentityMismatch,
+    );
+    rejected(
+        ready_receiver(case, observed, Duration::from_secs(30)).receive(outcome, &scope_only),
+        Rejection::IdentityMismatch,
+    );
+    rejected(
+        ready_receiver(case, observed, Duration::from_secs(30))
+            .receive(&relocated_outcome, &relocated.current()),
+        Rejection::IdentityMismatch,
+    );
+    write_json(
+        &evidence.join("real-relocation.json"),
+        &json!({"source_stdout_hash":outcome.stdout_hash,"relocated_stdout_hash":relocated_outcome.stdout_hash,"input_manifest_id":relocated_batch.input_manifest_id,"capture_id":relocated_batch.capture_id,"snapshot_id":relocated_batch.snapshot_id,"original_scope_id":original_batch.scope_id,"relocated_scope_id":relocated_batch.scope_id,"native_byte_join":provenance,"old_expected_rejected":true,"scope_only_current_rejected":true,"old_receipt_scope_revalidation_rejected":true,"claim":"Actual DEV producer executions under distinct physical repository and SDK roots preserve logical content bindings; physical scope remains independently bound. Graph content may retain physical repository metadata; no graph relocation invariance or T02 acquisition claim."}),
     );
 }
 
@@ -920,8 +1103,11 @@ fn run_native_fixture(target_index: usize) {
                 &SubjectId::new("src/orbit-use.ts").unwrap(),
                 "edge:calls"
             ));
-            adversarial_actual_batch(case, &outcome, &observed, &root);
+            adversarial_actual_batch(case, &request, &sdk, &outcome, &observed, &root);
             coherent_payload_poisons(case, &request, &sdk, &outcome, &observed, &evidence);
+            actual_relocation_keeps_content_bindings_and_refuses_old_physical_scope(
+                case, &request, &sdk, &outcome, &observed, &evidence, &helper,
+            );
             write_json(
                 &evidence.join("receiver-poisons.json"),
                 &json!({

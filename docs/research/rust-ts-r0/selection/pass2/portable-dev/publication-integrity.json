@@ -1,0 +1,12 @@
+{
+  "archiveMembersChecked": 529,
+  "aliasesChecked": 454,
+  "extractedSourceMembersChecked": 117,
+  "safeRegularRelativeMembers": true,
+  "gzipMtimeZero": true,
+  "gzipRecompressionIdentical": true,
+  "pendingLogsAbsent": true,
+  "reservedMembersAbsent": true,
+  "checksEnvironment": "macOS ARM64 local Python3 standard library; publication integrity only, no product/native qualification",
+  "qualificationCredit": false
+}

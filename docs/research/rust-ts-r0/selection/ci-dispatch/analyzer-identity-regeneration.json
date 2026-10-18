@@ -1,0 +1,83 @@
+{
+  "scope": "Observed generated analyzer identity failure, deliberate canonical interruption, native regeneration and focused green validation; no semantic producer/oracle delta",
+  "files": [
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-1-generated.log",
+      "file": "verify-integrated-p2-1-generated.log.b64",
+      "sha256": "836199e530a137835979b6603aec0044a3f4d372ee489d5ba50103baef013b1c",
+      "bytes": 219557
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-2-generated.log",
+      "file": "verify-integrated-p2-2-generated.log.b64",
+      "sha256": "7334df3ab4d86483407ff1f6129144e9231705b9ca3318fcd8a93ac0b8b9ea65",
+      "bytes": 415760
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-3-generated.log",
+      "file": "verify-integrated-p2-3-generated.log.b64",
+      "sha256": "2d4c787542712148b46d6385e6f9c86de280ef05f3e01ee8b47d2b8c0ece4f61",
+      "bytes": 502636
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-4-generated.log",
+      "file": "verify-integrated-p2-4-generated.log.b64",
+      "sha256": "4634ee2d2081ae47ce3dee9fb59f93d1ce0202776dcf799e20b890d64556dc92",
+      "bytes": 254547
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/integrated-p2-generated-interruption.json",
+      "file": "integrated-p2-generated-interruption.json.b64",
+      "sha256": "c473128acc5c0d1ed9c988d89240b325b1c1b42fe32dc310165aa9a6406c8412",
+      "bytes": 757
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/pins-analyzer-identity-regeneration.log",
+      "file": "pins-analyzer-identity-regeneration.log.b64",
+      "sha256": "fd48a5124d70d90257a42fd3871559688aee9b223ea4e8924bc7233d4e01991e",
+      "bytes": 39956
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/pins-plugin-identity-regeneration.log",
+      "file": "pins-plugin-identity-regeneration.log.b64",
+      "sha256": "c3e79401c06b9c21437d9f77eee04a00c50f6c124591081072eb2f800726e714",
+      "bytes": 262
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/pins-analyzer-identity-green.log",
+      "file": "pins-analyzer-identity-green.log.b64",
+      "sha256": "0756acb9753dc2fb135aea1fb6ea9ed06b3e3da4cd009e0cf48631d2959e1890",
+      "bytes": 419
+    },
+    {
+      "original": "/private/tmp/semctx-t00-20261017/evidence/pins-plugin-identity-check.log",
+      "file": "pins-plugin-identity-check.log.b64",
+      "sha256": "80ae59a15ff3298ccd867b8aec472349705a89ee8df2e4fec0fe2d081140bd9f",
+      "bytes": 273
+    }
+  ],
+  "interruptedCanonicalShards": {
+    "1": {
+      "exitCode": 1,
+      "result": "CANCELLED_AFTER_SHARD4_IDENTITY_FAILURE_NO_GREEN_CREDIT"
+    },
+    "2": {
+      "exitCode": 1,
+      "result": "CANCELLED_AFTER_SHARD4_IDENTITY_FAILURE_NO_GREEN_CREDIT"
+    },
+    "3": {
+      "exitCode": 1,
+      "result": "CANCELLED_AFTER_SHARD4_IDENTITY_FAILURE_NO_GREEN_CREDIT"
+    },
+    "4": {
+      "exitCode": 1,
+      "result": "CANCELLED_AFTER_SHARD4_IDENTITY_FAILURE_NO_GREEN_CREDIT"
+    }
+  },
+  "retainedObservedFailure": "Shard4 scripts/analyzer-identity.test.ts actual generated value sha256:742350... differs from independent generated sha256:c6bdba... after exact manifests/lock; full diff retained in raw log",
+  "focusedIdentityTestsExitCode": 0,
+  "nativePluginCheckExitCode": 0,
+  "currentCanonical": "Separate verify-integrated-p2-N-identity.log runs in progress, not credited here",
+  "C1FrozenProducerChanged": false,
+  "frozenExpectedChanged": false
+}

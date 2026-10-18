@@ -1,0 +1,15 @@
+{
+  "archiveSha256": "79a2a9c23c97bb6526abbe056df29a5c43bddd82c18476193545d6bb2b73d69b",
+  "archiveBytes": 3651238,
+  "encoding": "base64(gzip(tar))",
+  "membersAreOriginalReplayFiles": true,
+  "candidate": "C1pass1",
+  "r0": "NOT_RUN",
+  "qualificationScope": "Originalreportprovisional;knownadapterroutingandmissingcomparatorsprecludequalification. No retroactive PASS after correction.",
+  "publicFiles": {
+    "first-replay-evidence-manifest.json": "7972181ae5ab39a584fa64bb3655d8aebfa55e4f1eb8f93cd6f14c7ed4c5b22d",
+    "first-replay-summary.json": "ce023a254dd0d3edf86409e3bb867432b5ca7bfc4dbd0d19b72b9b61f61bc39f",
+    "first-replay-triage.json": "c8b9d925322e18dca27c4d3b588b4119eeb3b7d00303deb90bd40c291fb7406c",
+    "first-replay.tar.gz.b64": "9fa19f9ef465fc99a907cf93d41920cc30e2c4011e7bdb4a22a25cd0fa6ccbe1"
+  }
+}

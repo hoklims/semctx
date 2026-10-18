@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "composition": "C2",
+  "correctionPass": 1,
+  "integrationRevision": "C2-P1-DEFINITION-LOCAL-MAPPINGS",
+  "originalFreeze": {
+    "path": "session/composition2/correction-pass1/frozen/FREEZE.json",
+    "bytes": 7451,
+    "sha256": "5dd67f86d363d02d42948ec9066efd7f1aa6faabe77fb9fb972aae952e5d9b30"
+  },
+  "originalSourceManifest": {
+    "path": "session/composition2/correction-pass1/frozen/source-manifest.json",
+    "files": 119,
+    "sha256": "045b88ee7026857a1d68b8bc47b9bcde739572e9bdd60248ed36eeb8e7abfd6b"
+  },
+  "originalSelectedBinary": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/bin/semctx-r0-ezno-probe",
+    "sha256": "8e41b3a7adb9e33998a6fb5cba3582b041e9a8205b11c937e5651004a5893bf0",
+    "bytes": 5334880
+  },
+  "originalRegistryArtifact": {
+    "path": "source/provenance/ezno-checker-0.0.18.crate",
+    "sha256": "03d2d2b572208dcc7f410156c09dde56b22026592252a34d227e01d8bc78ab2e",
+    "published_version": "0.0.18",
+    "published_vcs_dirty": true,
+    "current_integration_is_patched_and_distinct": true
+  },
+  "inputCarriers": {
+    "development-request.json": {
+      "bytes": 3003,
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/development-request.json"
+    },
+    "sdk-input.json": {
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/sdk-input.json"
+    },
+    "sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/sdk-required-closure.v3.json"
+    }
+  },
+  "canonicalSdkReuse": {
+    "originalPath": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-input.json",
+    "reason": "Reuses exact canonical repository SDK capture; bytes not duplicated",
+    "canonicalRepositoryPath": "tools/rust-ts-r0/sdk/sdk-input.json",
+    "canonicalPathAtPublication": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/sdk/sdk-input.json",
+    "bytes": 3218481,
+    "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654"
+  },
+  "rebuiltBinaryHashEqualityClaim": false,
+  "nativeQueriesByPublicationTask": 0
+}

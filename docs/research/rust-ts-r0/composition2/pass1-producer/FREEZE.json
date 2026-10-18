@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "composition": "C2",
+  "correction_pass": 1,
+  "integration_revision": "C2-P1-DEFINITION-LOCAL-MAPPINGS",
+  "state": "OPTIMIZED_PASS1_FROZEN_BEFORE_FULL_SDK_REEXECUTION",
+  "frozen_utc": "2026-10-17T20:59:50.423724+00:00",
+  "producer": "/root/c2_native_mechanism_survey",
+  "registration": {
+    "path": "../correction-pass1-registration.json",
+    "sha256": "a2d30608bb7954ae8da938a6bb10d7da46847c5a92f0ce1ef7f5e7d83bd3a38e"
+  },
+  "initial_freeze_sha256": "c3f7988167b4cf4adfdc49f3f6cd7d15ede07b4f3c744589f5646f52d4b7a0fb",
+  "initial_artifact_sha256": "09711dbdb2184ff4823d87dff61eb803d009a4973137a7a581bb2f5f9aa0eb92",
+  "environment": {
+    "host": "aarch64-apple-darwin",
+    "rustc": "1.95.0 (59807616e 2026-04-14)",
+    "GIT_CONFIG_GLOBAL": "unset",
+    "cargo_home": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home"
+  },
+  "binary": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/bin/semctx-r0-ezno-probe",
+    "sha256": "8e41b3a7adb9e33998a6fb5cba3582b041e9a8205b11c937e5651004a5893bf0",
+    "bytes": 5334880
+  },
+  "source_manifest": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/source-manifest.json",
+    "sha256": "045b88ee7026857a1d68b8bc47b9bcde739572e9bdd60248ed36eeb8e7abfd6b",
+    "file_count": 119
+  },
+  "inputs": {
+    "development-request.json": {
+      "bytes": 3003,
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/development-request.json"
+    },
+    "sdk-input.json": {
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/sdk-input.json"
+    },
+    "sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+      "copied_from_initial_freeze": "/private/tmp/semctx-t00-20261017/composition2/producer/frozen/inputs/sdk-required-closure.v3.json"
+    }
+  },
+  "correction": {
+    "upstream_version": "0.0.18",
+    "local_integration_revision": "C2-P1-DEFINITION-LOCAL-MAPPINGS",
+    "source_path": "src/lib.rs",
+    "original_sha256": "2d69056b5f71f34a3e5fdfe96c9002ec4a1c0cf7736e5a2c157fa79cd59b13fe",
+    "patched_sha256": "36ab642fe9b40fb687bcb325127cb382e7d72332e383e5fffab5241e2b566964",
+    "patch_sha256": "558b0a7e1ed9b66ddabe0747a73fa52cf22821fd673514bae96d201152afd3f1",
+    "effect": "Fresh temporary TypeMappings per definition synthesis, restore caller mappings afterwards; preserve shared RootContext, TypeStore, source identities and input bytes.",
+    "native_red_log": "logs/definition-isolation-red-2.log"
+  },
+  "registry_original": {
+    "path": "source/provenance/ezno-checker-0.0.18.crate",
+    "sha256": "03d2d2b572208dcc7f410156c09dde56b22026592252a34d227e01d8bc78ab2e",
+    "published_version": "0.0.18",
+    "published_vcs_dirty": true,
+    "current_integration_is_patched_and_distinct": true
+  },
+  "checks": {
+    "native_regression_red": {
+      "log": "logs/definition-isolation-red-2.log",
+      "exit_code": 101,
+      "boundary": "actual native check_project, two definition files same offset0, generic/nongeneric, panic hoisting.rs477"
+    },
+    "native_regression_green": {
+      "log": "logs/definition-isolation-green.log",
+      "exit_code": 0,
+      "passed": 1,
+      "boundary": "same native regression; both types visible and accepted in the shared root"
+    },
+    "final_tests": {
+      "log": "logs/final-owned-tests.log",
+      "exit_code": 0,
+      "passed": 8
+    },
+    "clippy": {
+      "log": "logs/final-clippy.log",
+      "exit_code": 0,
+      "scope": "owned wrapper all-targets strict; eight inherited vendor compiler warnings retained, not repaired or hidden"
+    },
+    "fmt": {
+      "log": "logs/final-fmt-check.log",
+      "exit_code": 0,
+      "scope": "owned wrapper/tests; vendor style preserved with only documented2Rust lines"
+    },
+    "release_build": {
+      "log": "logs/final-build-release.log",
+      "exit_code": 0,
+      "profile": "optimized"
+    }
+  },
+  "native_semantic_execution_count": {
+    "initial_full_sdk": 1,
+    "pass1_full_sdk": 0,
+    "targeted_regression_red": 1,
+    "targeted_regression_green": 2
+  },
+  "command_argv": [
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/bin/semctx-r0-ezno-probe",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/development-request.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-input.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-required-closure.v3.json"
+  ],
+  "observation_protocol": {
+    "stdout": "one final JSON document on normal return; no semantic verdict produced",
+    "stderr": "JSON lines prepared_inputs, native_checker_begin, captured_read; upstream stderr/panic stays visible",
+    "supervision": "Caller must use canonical #383 helper, not a new controller"
+  },
+  "limits": [
+    "No native Windows/Linux evidence.",
+    "Native SDK type/name/merging error alone does not refute baseline because skipLibCheck=true.",
+    "Ezno published crate includes an embedded definition-cache branch; exact required external SDK paths are passed, the internal path is never requested. No claim those bundled bytes are absent from binary.",
+    "Native mappings expose raw native source IDs/offsets and direct function origins when available; missing mappings remain missing. No output normalization or guessed declaration targets.",
+    "No JS-extension-to-TS source substitution in resolver; exact misses are reported.",
+    "Source and SDK are frozen UTF-8 strings from the authorized carriers. No malformed-encoding parity claim.",
+    "External experiment only; main-worktree files untouched, external source is not Git-indexed or committed here.",
+    "SDK/order/carriers exactly unchanged from initial freeze; sorted reference-edge traversal is still a separate known issue intentionally not corrected in pass1.",
+    "The minimal native regression proves removal of the cross-definition mapping panic and shared-root survival for that fixture only.",
+    "No corrected full-SDK process has run yet; independent review and root signal are required.",
+    "The local vendor differs from registry in exactly src/lib.rs and active Cargo.toml constraints. Original archive, Rust patch, pin patch and root Cargo.lock are retained.",
+    "Nested upstream vendor Cargo.lock is preserved source material; root Cargo.lock governs this build."
+  ],
+  "effort": {
+    "start_utc": "2026-10-17T20:54:28.795262+00:00",
+    "through_utc": "2026-10-17T20:59:50.423724+00:00",
+    "charged_conservative_seconds": 321.628462,
+    "internal_ceiling_seconds": 2700,
+    "kind": "full wall interval including setup/build/test/waits; independent reviewer charged separately",
+    "overlap_with_readonly_diagnosis": "Registration20:54:28 precedes diagnostic report finish20:55:12; root ledger must deduplicate that overlap if both full intervals are used."
+  },
+  "comments_added": [],
+  "independent_review": "Fresh child source review running; output outside frozen source at independent-source-review.json, no execution authorized by review."
+}

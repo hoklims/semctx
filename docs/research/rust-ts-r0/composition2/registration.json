@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "composition": "C2",
+  "registeredUtc": "2026-10-17T20:43:38.115097+00:00",
+  "state": "REGISTERED_BEFORE_BUILD_OR_NATIVE_EXECUTION",
+  "hypothesis": "Ezno checker 0.0.18 with its own native parser/checker can read unmodified TS5.9.3 required SDK closure and retain native declaration identities through cross-file re-export plus primitive trim call. Owned Rust captured filesystem/projection/process adapters only; no ts_goport/Go/JS semantic fallback.",
+  "differenceFromC1": "Independent native checker implementation and parser; this is not another ts_goport correction. C1 producer is permanently frozen for this envelope.",
+  "exactDependencies": {
+    "ezno-checker": {
+      "version": "=0.0.18",
+      "default-features": false,
+      "features": [
+        "ezno-parser"
+      ]
+    },
+    "serde": "=1.0.229",
+    "serde_json": "=1.0.151",
+    "sha2": "=0.10.9"
+  },
+  "parserIfDirectlyImported": "=0.1.7",
+  "requiredCargoLock": true,
+  "request": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/development-request.json",
+    "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+    "purpose": "fresh public DEV synthetic witness, not reserved"
+  },
+  "sdk": {
+    "path": "tools/rust-ts-r0/sdk/sdk-input.json",
+    "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "version": "5.9.3",
+    "closureManifest": "docs/research/rust-ts-r0/cases/annexes/sdk-required-closure.v3.json",
+    "closureManifestSha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+    "closureCount": 63,
+    "rule": "Use all63 baseline default ES2022 full reachable files unchanged; no Ezno bundled definitions/cache, no hand-written SDK stub, no removal of declaration syntax. A closure loading failure is retained as nonpass."
+  },
+  "successObservations": [
+    "Actual requested/read project and SDK paths plus exact content hashes",
+    "All native diagnostics, modules actually checked and any early-return condition",
+    "Actual declaration sources and ranges for alias call in dep.ts and trim in lib.es5.d.ts; inferred type string insufficient",
+    "Run through canonical #383 supervisor retaining full bounded Outcome; no new process controller"
+  ],
+  "firstCheckpointCumulativeSeconds": 2700,
+  "checkpointMeaning": "Internal early falsification/reassessment boundary, not a user STOP_BUDGET threshold. Global cap and both compositions/two correction passes remain controlling.",
+  "globalBudgetAtPreviousSnapshot": {
+    "chargedSeconds": 88920.623,
+    "maximumSeconds": 144000,
+    "snapshotUtc": "2026-10-17T20:33:00.681422+00:00",
+    "additionalUnchargedWorkMustBeDebited": true
+  },
+  "correctionPassesMaximum": 2,
+  "correctionPassesUsed": 0,
+  "firstNativeRunOccurred": false,
+  "platform": "macOS ARM64 DEV first; Windows/Linux GitHub Actions required before READY; DEV failure has no platform qualification credit",
+  "independence": "Verifier validates source-backed request closure/expected declaration identity before first native execution; producer may not inspect reserved material.",
+  "stopGuard": "Reject this pinned composition on demonstrated required unsupported syntax/feature or missing native semantic target mechanism; report scope, not universal impossibility. No silent retry or expected-output rewrite."
+}

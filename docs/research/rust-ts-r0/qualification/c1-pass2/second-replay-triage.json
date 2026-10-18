@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "status": "C1_PASS2_TRIAGE_ONLY_NONPASS_AND_GAPS_PRESERVED",
+  "recorded_utc": "2026-10-17T20:35:01.481105+00:00",
+  "campaign": {
+    "started_utc": "2026-10-17T20:29:50.139446+00:00",
+    "finished_report_utc": "2026-10-17T20:32:00.157000+00:00",
+    "elapsed_seconds": 130.017554,
+    "runner_exit_code": 101,
+    "invocations": 1,
+    "retry_count": 0,
+    "candidate_rebuilt": false,
+    "reserved_access": false,
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "scope": "macOS ARM64 only; native Windows/Linux not exercised"
+  },
+  "all_observed_nonpasses_preserved": true,
+  "native_intrinsic_discrepancies_certain": 1,
+  "root_cause_groups": [
+    {
+      "classification": "ADAPTER_TEST_ROLE_CONTEXT_NOT_MATERIALIZED",
+      "units": [
+        "P07-namespace-real-owner::base",
+        "V2-E04-default-through-barrel-test-owner::base"
+      ],
+      "observed": "Coverage expectations mismatch. Actual request roles={} and no actual test nodes; owner binding targets themselves identify expected owner.",
+      "authority": "Frozen source assembly.rs212–230,514–550; preparer67–72; frozen scenarios units11/76",
+      "limit": "No repaired role context replay; complete historical role discovery still unexercised. No candidate owner-resolution defect established."
+    },
+    {
+      "classification": "ADAPTER_WORKER_POSITIVE_CONTROL_REQUEST_EMIT_OVER_SPECIFIED",
+      "units": [
+        "N13-malformed-worker-evidence::mutation-01",
+        "N13-malformed-worker-evidence::mutation-02",
+        "N13-malformed-worker-evidence::mutation-03"
+      ],
+      "observed": "Positive carrier modules1 against adapter emit2 already rejected, so unchanged positive cannot discriminate any of the3 mutations.",
+      "authority": {
+        "baseline_commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "lines": [
+          943,
+          962,
+          963,
+          964,
+          965
+        ],
+        "candidate": "selected-c1-pass2/source/tools/rust-ts-r0/src/worker_response.rs224–243",
+        "adapter": "prepare_recipes.py390"
+      },
+      "certainty": "Primary baseline explicitly requires exact unique modules cardinality equal to emitPaths. Candidate cardinality guard agrees with historical code. Adapter incorrectly equates frozen root_paths with emitAbsPaths; emit subset was not separately specified in that frozen input.",
+      "disposition": "Keep all3 NONPASS; no isolated negative rejection credit, no carrier bytes or expectations changed."
+    },
+    {
+      "classification": "CONSERVATIVE_ADAPTER_FRONTEND_GUARD_REFUSAL_CONTRACT_GAP",
+      "units": [
+        "P13-worker-preserves-facts::base",
+        "ORD-WORKER-EMIT-SUBSET::base"
+      ],
+      "observed": "Every frozen worker fact projection passes; P13 complete worker/direct sets equal, emit subset also correct. Native context executed,unsupportedempty,resolutionempty,roots loadedwithoutparseerrors. Guard alone rejects workspaceIssues containing kind=refusal boundary probes.",
+      "authority": "Frozen worker_observations.rs223–240; oracle worker_frontend_capability requires workspaceIssues=[]",
+      "limit": "No blanket harmlessness of boundary probes or full-completeness guarantee inferred. Contract must distinguish policy refusals from native incapacity before any guard correction. No semantic worker-facts or read-join defect proven."
+    },
+    {
+      "classification": "ADAPTER_UTF8_OFFSETS_MISLABELED_AS_UTF16",
+      "supports": [
+        "ENC::R02-retained-bom::retained",
+        "ENC::R06-combined-retained-raw-text::ordinary",
+        "ENC::R06-combined-retained-raw-text::retained"
+      ],
+      "observed": "Native processes correctly refuse PRIMITIVE_OFFSET_OUT_OF_RANGE before parser. Recipe collects every list in coordinates, including *_utf8_of_decoded_text, into offsets_utf16.",
+      "authority": "prepare_recipes.py432; frozen primitive_observations.rs185–194",
+      "max_requested_vs_decoded_units": [
+        [
+          24,
+          23
+        ],
+        [
+          74,
+          73
+        ],
+        [
+          77,
+          74
+        ]
+      ],
+      "disposition": "Keep3 NONPASS. No native decoder/range defect established by those invocations."
+    },
+    {
+      "classification": "OBSERVED_CANDIDATE_PARSER_DIAGNOSTIC_DIVERGENCE",
+      "supports": [
+        "ENC::UTF16LE-lone-high-surrogate::ordinary"
+      ],
+      "observed": "Exact frozen raw bytes decode to expected UTF16[55357] and expected rawSHA. Actual entry.ts TS parser emits diagnostic1490 (binary) while frozen support expects1127. Both have syntaxerrortrue; code equality fails.",
+      "authority": "Frozen support.json support_units21; actual support021/observation000/process-outcome.json; frozen primitive_observations.rs/source_text.rs",
+      "certainty": "Candidate diagnostic-code mismatch certain at this authored surface. Underlying SDK/internal WTF8 cause not isolated; no decoder or offset error demonstrated.",
+      "disposition": "Keep NONPASS; no diagnostic rewrite, new golden, candidate correction or rerun."
+    }
+  ],
+  "explicit_gap_units": 64,
+  "explicit_gap_supports": 5,
+  "unit_counts": {
+    "GAP": 64,
+    "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 283,
+    "NONPASS_OBSERVED": 7
+  },
+  "support_counts": {
+    "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 42,
+    "NONPASS_OBSERVED": 4,
+    "GAP": 5
+  },
+  "obligation_counts": {
+    "GAP": 54,
+    "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 178,
+    "NONPASS_OBSERVED": 8
+  },
+  "independent_reports": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-early-triage.json",
+      "sha256": "8334234df324c52bd26c08273db70196b3900459e0e6fcf714da59f2317aa12e"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-support-triage.json",
+      "sha256": "1843bdce467302554460b6d4fc86d5f36389afd3731b11cbe2b1320c90b6dd3b"
+    }
+  ],
+  "no_changes_after_outcomes": {
+    "candidate": true,
+    "expected_values": true,
+    "oracle": true,
+    "retries": 0,
+    "reserved_reads": 0
+  },
+  "R0": false,
+  "READY_TS_NATIVE": false,
+  "candidate_correction_passes_remaining": 0
+}

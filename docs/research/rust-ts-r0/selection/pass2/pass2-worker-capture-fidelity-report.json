@@ -1,0 +1,95 @@
+{
+  "task": "Authorized correction after independent standards review",
+  "author_agent": "/root/pass2_standards_review",
+  "initial_independent_review": {
+    "path": "/private/tmp/semctx-t00-20261017/pass2-standards-review.json",
+    "sha256": "f3c8e298ebb6661f8fb97dafa2ac27f6fc9370d0bff862bb2291e6019ff858e2",
+    "closed_before_correction": true
+  },
+  "owned_file": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/worker_observations.rs",
+  "producer_before_correction_sha256": "8c103a3ae41c39a73ae3175e5efd5651a314320addae4f8d39b49e33490ee474",
+  "producer_after_sha256": "8455b1697f51233507eaf0d4a986171cf6cfebd74502e18cf9a3a40940960c5d",
+  "changed_regions": [
+    "read_repository only",
+    "worker_observations tests only"
+  ],
+  "changes": [
+    "Native capture root, lexical file path and canonical file path must be representable without UTF-8 replacement.",
+    "Unix literal backslash paths are refused before extraction instead of being conflated with portable separators.",
+    "Duplicate logical file insertion returns an explicit error.",
+    "Root-authored entry ordering and final read-observation sorting are preserved.",
+    "Existing root-authored oversized-file rejection test is preserved."
+  ],
+  "bypasses_exercised": {
+    "real_unix_literal_backslash_vs_directory": "Actual RED returned ok:true and two identical logical read paths with distinct hashes; after correction actual GREEN returns bound failure before extraction.",
+    "valid_replacement_character_filename": "Positive control passed; legal Unicode replacement-character spelling remains representable.",
+    "non_utf8_lexical_and_canonical_path": "Linux-specific actual filesystem test added; local APFS rejects fixture creation with errno 92. No actual Linux execution is claimed."
+  },
+  "checks": {
+    "red_initial": {
+      "exit": 101,
+      "meaning": "One actual behavioral RED plus one fixture setup failure. Do not credit non-UTF8 variant as RED."
+    },
+    "red_after_platform_binding": {
+      "exit": 101,
+      "meaning": "Actual literal backslash collision accepted incorrectly before guard implementation."
+    },
+    "green_final": {
+      "exit": 0,
+      "tests": 13,
+      "failed": 0,
+      "ignored": 0,
+      "duration_seconds": 4.44
+    },
+    "clippy_bin": {
+      "exit": 0,
+      "warnings_denied": true
+    },
+    "format_owned_file": {
+      "exit": 0,
+      "rustfmt": "1.95.0",
+      "skip_children": true
+    }
+  },
+  "logs": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-red.log",
+      "sha256": "d96256e7fe108b785aee9cfa1b7ff11c57805cf3057a3b82ce8614c640afe830"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-red-2.log",
+      "sha256": "f82cdf96eee9fc9fcb92e6b33f84aaa070228fc7eb1b52eac1f10e86b02cae59"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-green.log",
+      "sha256": "69a91840a3a1163c0f21a4ad74906ef3d571c41ef87ccfef82e9e904d16ec392"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-final-green.log",
+      "sha256": "a0add4855afb8e1d2f916f547aa0a5c434dd6cf8e47c92f5c7814f20898d75b0"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-clippy.log",
+      "sha256": "4bfacdab97d520111850e646ad8e50f7397968cc7e575f7977aefef3ec8ecd2d"
+    }
+  ],
+  "environment": {
+    "platform": "macOS native",
+    "toolchain": "Rust 1.95.0",
+    "GIT_CONFIG_GLOBAL": "unset",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "limitations": [
+    "Linux invalid-UTF8 lexical and canonical-path witnesses still require native GitHub Actions execution.",
+    "Windows native execution remains pending; its native separators are retained because literal-backslash refusal is Unix-specific.",
+    "Scratch source is outside Git index; root must explicitly stage intended files before repository validation.",
+    "No source-snapshot hash was retained at the exact RED invocation; raw logs and known pre-correction production hash are preserved.",
+    "Final correction requires fresh independent review by another context; this artifact is implementation evidence, not self-approval.",
+    "No full T00 qualification, reserved queries, READY or atomic-acquisition claim."
+  ],
+  "completed_at": "2026-10-17T20:23:39.156489+00:00",
+  "effort_allowance_seconds": 600
+}

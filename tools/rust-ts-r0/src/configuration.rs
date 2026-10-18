@@ -216,7 +216,9 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     let mut dir = ts_goport::frontend::tspath::get_directory_path(path);
     let config = loop {
         let candidate = format!("{dir}/tsconfig.json");
-        if fs.file_exists(&candidate) {
+        let found = fs.files.contains_key(&fs.key(&candidate));
+        fs.record("configuration_discovery_file_exists", &candidate, found);
+        if found {
             break Some(candidate);
         }
         let parent = ts_goport::frontend::tspath::get_directory_path(&dir);

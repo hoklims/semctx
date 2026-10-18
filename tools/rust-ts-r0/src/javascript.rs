@@ -1,7 +1,7 @@
 use serde::Serialize;
 use ts_goport::{checker::Checker, core::Node};
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NativeBindings {
     pub common_js_unsupported: bool,
@@ -820,6 +820,136 @@ pub fn inspect(
     }
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JavaScriptSourceObservation {
+    pub executed: bool,
+    pub parse_failed: Option<bool>,
+    pub reasons: Vec<String>,
+    pub unsupported: BTreeSet<String>,
+    pub static_exports: Vec<StaticExport>,
+    pub static_module_links: serde_json::Value,
+}
+
+pub struct JavaScriptSourceInputs<'a> {
+    pub source: Node,
+    pub path: &'a str,
+    pub native: &'a NativeBindings,
+    pub semantic: &'a crate::qualified::QualifiedScan,
+    pub configuration: &'a crate::component_observations::Observation,
+    pub static_module_links: &'a serde_json::Value,
+    pub unsupported: &'a BTreeSet<String>,
+}
+
+pub fn inspect_javascript_source(
+    inputs: JavaScriptSourceInputs<'_>,
+) -> JavaScriptSourceObservation {
+    use ts_goport::{
+        flags::{JsxEmit, ModuleKind, ScriptTarget},
+        options::CompilerOptions,
+        transpile,
+    };
+
+    if !inputs
+        .source
+        .flags()
+        .intersects(NodeFlags::JAVA_SCRIPT_FILE)
+    {
+        return JavaScriptSourceObservation {
+            executed: false,
+            parse_failed: None,
+            reasons: vec![],
+            unsupported: BTreeSet::from(["COMPONENT_JAVASCRIPT_SOURCE_REQUIRED".into()]),
+            static_exports: vec![],
+            static_module_links: serde_json::json!([]),
+        };
+    }
+    let output = transpile::transpile_module(
+        &ts_goport::gostd::context::background(),
+        &ast::source_file_text(inputs.source),
+        transpile::Options {
+            compiler_options: Some(CompilerOptions {
+                target: ScriptTarget::ES2022,
+                module: ModuleKind::ES_NEXT,
+                jsx: JsxEmit::PRESERVE,
+                ..Default::default()
+            }),
+            file_name: inputs.path.into(),
+            report_diagnostics: true,
+        },
+    );
+    let mut unsupported = inputs.unsupported.clone();
+    unsupported.extend(inputs.semantic.unsupported.iter().cloned());
+    unsupported.extend(inputs.configuration.unsupported.iter().cloned());
+    if !inputs.configuration.executed {
+        unsupported.insert("NATIVE_JAVASCRIPT_CONFIGURATION_NOT_EXECUTED".into());
+    }
+    let Some(output) = output else {
+        unsupported.insert("NATIVE_JAVASCRIPT_TRANSPILATION_CANCELLED".into());
+        return JavaScriptSourceObservation {
+            executed: false,
+            parse_failed: None,
+            reasons: vec![],
+            unsupported,
+            static_exports: vec![],
+            static_module_links: serde_json::json!([]),
+        };
+    };
+    let mut reasons = BTreeSet::new();
+    for diagnostic in &output.diagnostics {
+        reasons.insert(format!(
+            "JAVASCRIPT_PARSE_ERROR:{}:{}",
+            diagnostic.code(),
+            diagnostic
+                .localize(&ts_goport::locale::DEFAULT)
+                .replace('\n', " "),
+        ));
+    }
+    reasons.extend(
+        inputs
+            .semantic
+            .reasons
+            .iter()
+            .map(|reason| reason.replacen("SOURCE_", "JAVASCRIPT_", 1)),
+    );
+    if inputs.path.ends_with(".cjs") || inputs.native.common_js_unsupported {
+        reasons.insert("JAVASCRIPT_COMMONJS_UNSUPPORTED".into());
+    }
+    if has_semantic_jsdoc_import(inputs.source) {
+        reasons.insert("JAVASCRIPT_JSDOC_IMPORT_UNSUPPORTED".into());
+    }
+    if has_unsupported_default_expression(inputs.source) {
+        reasons.insert("JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED".into());
+    }
+    if inputs.native.runtime_evaluation_unsupported == Some(true) {
+        reasons.insert("JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED".into());
+    }
+    for member in &inputs.native.unmodeled_members {
+        reasons.insert(format!(
+            "JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:{member}"
+        ));
+    }
+    let exports = static_exports(inputs.source, &mut reasons);
+    let mut links = vec![];
+    syntax_scan(inputs.source, &mut reasons, &mut links);
+    for link in inputs.static_module_links.as_array().into_iter().flatten() {
+        if link["resolution"] == "unresolved"
+            && let Some(specifier) = link["specifier"].as_str()
+        {
+            reasons.insert(format!("JAVASCRIPT_IMPORT_UNRESOLVED:{specifier}"));
+        }
+    }
+    reasons.extend(inputs.configuration.reasons.iter().cloned());
+    JavaScriptSourceObservation {
+        executed: true,
+        parse_failed: Some(!output.diagnostics.is_empty()),
+        reasons: sorted(reasons.into_iter().collect()),
+        unsupported,
+        static_exports: exports,
+        static_module_links: inputs.static_module_links.clone(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -837,6 +967,51 @@ mod tests {
                 })
             },
         )
+    }
+
+    #[test]
+    fn javascript_source_observation_preserves_unavailable_dependency_as_unsupported() {
+        for executed in [false, true] {
+            let observed = crate::development::with_project(
+                BTreeMap::from([(
+                    "/repo/t00JavascriptUnknownDev.js".into(),
+                    "export const t00JavascriptUnknownDev = 331;".into(),
+                )]),
+                vec!["/repo/t00JavascriptUnknownDev.js".into()],
+                || {
+                    let source = program::get_source_file("/repo/t00JavascriptUnknownDev.js");
+                    let configuration = crate::component_observations::Observation {
+                        executed,
+                        reasons: vec![],
+                        unsupported: if executed {
+                            BTreeSet::from(["NATIVE_DEVELOPMENT_CONFIGURATION_UNAVAILABLE".into()])
+                        } else {
+                            BTreeSet::new()
+                        },
+                    };
+                    inspect_javascript_source(JavaScriptSourceInputs {
+                        source,
+                        path: "/repo/t00JavascriptUnknownDev.js",
+                        native: &NativeBindings::default(),
+                        semantic: &crate::qualified::QualifiedScan::default(),
+                        configuration: &configuration,
+                        static_module_links: &serde_json::json!([]),
+                        unsupported: &BTreeSet::new(),
+                    })
+                },
+            );
+            assert!(observed.executed);
+            assert_eq!(observed.parse_failed, Some(false));
+            assert!(observed.reasons.is_empty());
+            assert_eq!(
+                observed.unsupported,
+                BTreeSet::from([if executed {
+                    "NATIVE_DEVELOPMENT_CONFIGURATION_UNAVAILABLE".into()
+                } else {
+                    "NATIVE_JAVASCRIPT_CONFIGURATION_NOT_EXECUTED".into()
+                }])
+            );
+        }
     }
 
     #[test]

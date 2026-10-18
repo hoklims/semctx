@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "author": "/root/c2_independent_oracle",
+  "reported_utc": "2026-10-17T20:54:19.612772+00:00",
+  "state": "FIRST_C2_NATIVE_DEV_NONPASS_PANIC_BEFORE_ENTRY_MODULES",
+  "native_executions": 1,
+  "correction_passes_used": 0,
+  "outcome_summary": {
+    "kind": "nonzero",
+    "exit_code": 101,
+    "duration_ms": 316,
+    "stdout_bytes": 0,
+    "stderr_bytes": 19518,
+    "stdout_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_hash": "bc122c10b82240bc67a133d087c9d9d023927511d504eb6a3a423c07cd601c1b"
+  },
+  "identity_count": 35,
+  "identities_unchanged": true,
+  "streams_exact": true,
+  "actual_sdk_reads": [
+    {
+      "bytes": 1887,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.dom.asynciterable.d.ts",
+      "sha256": "d7a3c8b952931daebdfc7a2897c53c0a1c73624593fa070e46bd537e64dcd20a"
+    },
+    {
+      "bytes": 1874901,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.dom.d.ts",
+      "sha256": "080941d9f9ff9307f7e27a83bcd888b7c8270716c39af943532438932ec1d0b9"
+    },
+    {
+      "bytes": 29802,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.dom.iterable.d.ts",
+      "sha256": "2e80ee7a49e8ac312cc11b77f1475804bee36b3b2bc896bead8b6e1266befb43"
+    },
+    {
+      "bytes": 5229,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.es2015.collection.d.ts",
+      "sha256": "dc2df20b1bcdc8c2d34af4926e2c3ab15ffe1160a63e58b7e09833f616efff44"
+    },
+    {
+      "bytes": 22866,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.es2015.core.d.ts",
+      "sha256": "c57796738e7f83dbc4b8e65132f11a377649c00dd3eee333f672b8f0a6bea671"
+    },
+    {
+      "bytes": 1649,
+      "event": "captured_read",
+      "found": true,
+      "path": "/sdk/lib/lib.es2015.symbol.d.ts",
+      "sha256": "4ff2a353abf8a80ee399af572debb8faab2d33ad38c4b4474cff7f26e7653b8d"
+    }
+  ],
+  "requested_definition_count": 63,
+  "observed_sdk_read_count": 6,
+  "observed_project_read_count": 0,
+  "definition_order_matches_initial_independent_order": true,
+  "prepared_required_hashes_match_static_sdk": true,
+  "raw_panic_lines": [
+    "thread 'main' (49517997) panicked at /private/tmp/semctx-t00-native-composition1-20261017/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/ezno-checker-0.0.18/src/synthesis/hoisting.rs:477:49:",
+    "called `Option::unwrap()` on a `None` value",
+    "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  ],
+  "native_diagnostic_visibility": {
+    "emitted_diagnostics": [],
+    "fact": "No diagnostic object was emitted before panic; producer serializes diagnostics only after check_project returns. Accumulated internal syntax/name/merging diagnostics are therefore unknown, not zero.",
+    "classification": "Observed failure is a native synthesis panic, not an observed unsupported-syntax diagnostic."
+  },
+  "expected_comparison": {
+    "alias_declaration_target": "NOT_EXERCISED_NO_PROJECT_READ_OR_FINAL_OBSERVATION",
+    "trim_declaration_target": "NOT_EXERCISED_NO_PROJECT_READ_OR_FINAL_OBSERVATION",
+    "entry_modules": "No final modules DTO produced; read trace shows no entry source requested.",
+    "independent_expected_unchanged_sha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef"
+  },
+  "triage": {
+    "most_supported_cause": "Cross-file local position-map contamination during sequential SDK definition synthesis; not a genuine generic merge of SymbolConstructor.",
+    "certainty": "Static deterministic source/input/ordering inference, strongly supported. Native offending TypeId was not traced, so do not present it as a runtime pointer observation.",
+    "trigger": {
+      "path": "/sdk/lib/lib.es2015.symbol.d.ts",
+      "interface": "SymbolConstructor",
+      "start_utf8": 853,
+      "header": "interface SymbolConstructor {",
+      "type_parameters": null
+    },
+    "colliding_earlier_declarations": [
+      {
+        "path": "/sdk/lib/lib.es2015.collection.d.ts",
+        "start_utf8": 853,
+        "header": "interface Map<K, V> {"
+      },
+      {
+        "path": "/sdk/lib/lib.es2015.core.d.ts",
+        "start_utf8": 853,
+        "header": "interface Array<T> {"
+      }
+    ],
+    "source_chain": [
+      {
+        "path": "src/lib.rs",
+        "lines": "616\u2013687",
+        "fact": "Sequential definition parse+synthesis shares CheckingData across files."
+      },
+      {
+        "path": "src/synthesis/mod.rs",
+        "lines": "95\u2013103",
+        "fact": "Definition synthesizer delegates directly without taking/resetting local_type_mappings."
+      },
+      {
+        "path": "src/synthesis/definitions.rs",
+        "lines": "16\u201324",
+        "fact": "Calls hoist_statements with shared CheckingData, no local-map reset."
+      },
+      {
+        "path": "src/type_mappings.rs",
+        "lines": "9\u201324",
+        "fact": "TypeMappings documented per-module; types_to_types is RangeMap<TypeId> without SourceId."
+      },
+      {
+        "path": "src/utilities/range_map.rs",
+        "lines": "23\u201345",
+        "fact": "push appends values at equal start offsets; get returns earliest matching insertion at nearest start, without source namespace."
+      },
+      {
+        "path": "src/synthesis/hoisting.rs",
+        "lines": "71\u201375;449\u2013477",
+        "fact": "Interfaces are pushed with source-local positions; later get(start) may retrieve prior file generic parameters, then unwraps current AST type_parameters."
+      },
+      {
+        "path": "src/context/environment.rs",
+        "lines": "1340\u20131400",
+        "fact": "Real interface merging uses interface NAME. Current SymbolConstructor has no prior declaration among first5read SDK files."
+      },
+      {
+        "path": "src/context/root.rs",
+        "lines": "122\u2013143",
+        "fact": "mem::take(local_type_mappings) occurs for ordinary modules, not definition-file synthesis."
+      }
+    ],
+    "rejected_inference": "No STOP_SEMANTIC or universal Rust impossibility follows. Reordering alone can mask/move map collision and is not proof of correction; missing native diagnostics cannot be invented."
+  },
+  "primary_source_identities": [
+    {
+      "path": "src/synthesis/hoisting.rs",
+      "sha256": "2700355d9588579c527f43cf5e0ea90d63111497ab8663a90548fe76b6ab2824",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/synthesis/definitions.rs",
+      "sha256": "417b1616b09e426594b5005b7a5d26a4f2553c92832ce20ecc064c942063c7d5",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/synthesis/mod.rs",
+      "sha256": "834847a8adcde28955239858d82ce423d7c9b535ba9d6390d231951a5d2d3f0d",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/type_mappings.rs",
+      "sha256": "8a28afd2cd31b91014b9d4ad18ecea681873e119cac950b40cd907586c1f6cbf",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/utilities/range_map.rs",
+      "sha256": "ff6ed48fb99336ad8584c94e67357d2e6821419a1b20bf174285a6171e0acf6f",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "2d69056b5f71f34a3e5fdfe96c9002ec4a1c0cf7736e5a2c157fa79cd59b13fe",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/context/environment.rs",
+      "sha256": "84dce37f92aba068f7ee6ff39360cf608ad37019213d755b85ac5dd30f0fb3a6",
+      "survey_equals_executed_registry_source": true
+    },
+    {
+      "path": "src/context/root.rs",
+      "sha256": "94dfaa6697df8320da068ec2c9dc9a37a94bc68afca600da8ef8dd712d202397",
+      "survey_equals_executed_registry_source": true
+    }
+  ],
+  "alternative_order": {
+    "path": "definition-order.v2.json",
+    "sha256": "164679007c1caa57446a343d0eeb3024dba3e77e14330d0df2f5ccc9d2b4305d",
+    "root_directive_order": [
+      "/sdk/lib/lib.es2022.d.ts",
+      "/sdk/lib/lib.dom.d.ts",
+      "/sdk/lib/lib.webworker.importscripts.d.ts",
+      "/sdk/lib/lib.scripthost.d.ts",
+      "/sdk/lib/lib.dom.iterable.d.ts",
+      "/sdk/lib/lib.dom.asynciterable.d.ts"
+    ],
+    "note": "Actual TS sourcefile priority puts ES5 first. Initial graph reference_edges were sorted alphabetically and are not original directive order. Closure bytes/set and semantic expected stay unchanged."
+  },
+  "raw_evidence": [
+    {
+      "file": "stderr.retained.utf8",
+      "bytes": 19518,
+      "sha256": "bc122c10b82240bc67a133d087c9d9d023927511d504eb6a3a423c07cd601c1b"
+    },
+    {
+      "file": "runner-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "process-outcome.json",
+      "bytes": 21189,
+      "sha256": "12fa2857a0a863b52340bbfd569f5043907467ae2adde9c0992e59641b829b99"
+    },
+    {
+      "file": "stdout.retained.utf8",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "invocation-after.json",
+      "bytes": 23010,
+      "sha256": "760affe0dc53c12973d0fcf5e191634323ebeefd017e5becec477c781c479c78"
+    },
+    {
+      "file": "invocation-before.json",
+      "bytes": 11562,
+      "sha256": "a1923b7bded91586f4a44f85a200dfe8624569d6f0ecc6041d8b582148286f1d"
+    },
+    {
+      "file": "runner-stdout.bin",
+      "bytes": 126,
+      "sha256": "f65853e74c6b9e8b191fbbcc89f1667f2eeaf238702ca05a19e4a1d45cc669f6"
+    }
+  ],
+  "effort": {
+    "accounting": "Conservative continuous agent window beginning no earlier than parent composition2 registration2026-10-17T20:43:38.115097Z through reported_utc; includes waits and all three oracle tranches. Parent should debit only remaining uncharged portion, not double-count earlier tranches.",
+    "initial_tranche_cap_seconds": 480,
+    "source_review_tranche_cap_seconds": 300,
+    "execution_and_triage_tranche_cap_seconds": 300
+  },
+  "mutations": {
+    "tracked": 0,
+    "producer": 0,
+    "reserved": 0,
+    "github": 0
+  }
+}

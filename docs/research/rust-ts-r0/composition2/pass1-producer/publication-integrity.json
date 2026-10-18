@@ -1,0 +1,18 @@
+{
+  "environment": "macOS ARM64; Python3 standard library; publication integrity only",
+  "archiveMembersChecked": 140,
+  "originalAliasesChecked": 137,
+  "sourceManifestMatches": 119,
+  "preservedLogHashesChecked": 8,
+  "safeRegularRelativeMembers": true,
+  "noExecutableMemberMode": true,
+  "gzipMtimeZero": true,
+  "gzipRecompressionIdentical": true,
+  "originalCrateAndInternalDataPresent": true,
+  "sdkCaptureReusedNotDuplicated": true,
+  "pendingIndependentReplayNotRead": true,
+  "reservedNotAccessed": true,
+  "nativeQueries": 0,
+  "reconstructionCommandsExecuted": false,
+  "rebuiltBinaryHashEqualityClaim": false
+}

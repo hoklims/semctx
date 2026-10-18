@@ -21,6 +21,8 @@ pub struct ModuleConfigurationInputs<'a> {
     pub retained: bool,
     pub named_reasons: &'a [String],
     pub configuration: &'a configuration::Configuration,
+    pub ordinary_configuration: &'a configuration::Configuration,
+    pub ordinary_unsupported: &'a BTreeSet<String>,
     pub semantic: &'a qualified::QualifiedScan,
     pub javascript: &'a javascript::JavascriptScan,
     pub runtime: &'a runtime_configuration::RuntimeConfiguration,
@@ -50,17 +52,23 @@ pub fn module_configuration(
         .reasons
         .iter()
         .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY");
-    let ordinary = if outside {
+    let ordinary = if inputs
+        .ordinary_configuration
+        .reasons
+        .iter()
+        .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY")
+    {
         vec!["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into()]
     } else {
-        configuration
+        inputs
+            .ordinary_configuration
             .reasons
             .iter()
             .filter(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
             .cloned()
             .collect()
     };
-    let ordinary_without_snapshot = observed(ordinary, BTreeSet::new());
+    let ordinary_without_snapshot = observed(ordinary, inputs.ordinary_unsupported.clone());
     if !inputs.retained {
         return ModuleConfigurationObservations {
             retained_without_source: not_executed(),

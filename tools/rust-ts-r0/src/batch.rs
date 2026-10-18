@@ -9,12 +9,12 @@ pub fn profile(request: &Request) -> &'static str {
     }
 }
 
-pub fn input_manifest(request: &Request, sdk: &Sdk) -> Value {
-    json!({"files":request.files,"utf16_files":request.utf16_files,"raw_files":request.raw_files,"sdk":sdk})
+pub fn input_manifest(request: &Request, sdk: &Sdk) -> Result<Value, String> {
+    input_identity::input(request, sdk)
 }
 
-pub fn capture_manifest(request: &Request) -> Value {
-    json!({"repository_root":request.cwd,"case_sensitive":request.case_sensitive,"files":request.files,"utf16_files":request.utf16_files,"raw_files":request.raw_files})
+pub fn capture_manifest(request: &Request) -> Result<Value, String> {
+    input_identity::capture(request)
 }
 
 pub fn scope_manifest(request: &Request) -> Result<Value, String> {
@@ -36,8 +36,10 @@ pub fn scope_manifest(request: &Request) -> Result<Value, String> {
     Ok(scope)
 }
 
-pub fn snapshot_manifest(request: &Request, sdk: &Sdk) -> Value {
-    json!({"domain":"T00-captured-snapshot-v1","input_manifest_id":identity::digest(&input_manifest(request,sdk)),"capture_id":identity::digest(&capture_manifest(request))})
+pub fn snapshot_manifest(request: &Request, sdk: &Sdk) -> Result<Value, String> {
+    Ok(
+        json!({"domain":"T00-captured-snapshot-v2","input_manifest_id":identity::digest(&input_manifest(request,sdk)?),"capture_id":identity::digest(&capture_manifest(request)?)}),
+    )
 }
 
 pub fn graph_from_facts(facts: &[wire::Fact]) -> Value {
@@ -331,12 +333,12 @@ pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Bat
         schema_version: 1,
         case_id: request.id.clone(),
         request_id: request.id.clone(),
-        snapshot_id: identity::digest(&snapshot_manifest(request, sdk)),
+        snapshot_id: identity::digest(&snapshot_manifest(request, sdk)?),
         scope_id: identity::digest(&scope_manifest(request)?),
         profile: profile(request).into(),
         producer_artifact_id: text(observed, "producer_artifact_id")?.into(),
-        input_manifest_id: identity::digest(&input_manifest(request, sdk)),
-        capture_id: identity::digest(&capture_manifest(request)),
+        input_manifest_id: identity::digest(&input_manifest(request, sdk)?),
+        capture_id: identity::digest(&capture_manifest(request)?),
         facts_id,
         graph_id,
         complete: observed["complete"] == true,

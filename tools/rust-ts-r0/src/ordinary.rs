@@ -280,6 +280,9 @@ fn module_source(literal: Node, checker: &mut Checker) -> Option<Node> {
 }
 
 fn exported_binding_names(node: Node, names: &mut HashSet<String>) {
+    if node.is_nil() {
+        return;
+    }
     if node.kind() == SyntaxKind::Identifier {
         names.insert(node.text().into());
     } else if matches!(
@@ -1519,6 +1522,23 @@ mod tests {
         assert_eq!(result.imports[0].binding_targets, Some(Vec::new()));
         assert_eq!(result.calls.len(), 1);
         assert!(result.calls[0].callee_rel_path.is_none());
+    }
+
+    #[test]
+    fn development_exported_nested_array_holes_preserve_explicit_names() {
+        let files = BTreeMap::from([
+            ("/repo/t00HoleLeftDev.ts".into(), "export const t00HoleKeepDev = 241; export const t00HoleNestedDev = 251; export const t00HoleRestDev = 257;".into()),
+            ("/repo/t00HoleRightDev.ts".into(), "export const t00HoleKeepDev = 263; export const t00HoleNestedDev = 269; export const t00HoleRestDev = 271;".into()),
+            ("/repo/t00HoleEntryDev.ts".into(), "export * from './t00HoleLeftDev'; export * from './t00HoleRightDev'; export const [, { branch: [, t00HoleNestedDev] }, ...t00HoleRestDev] = [0, { branch: [0, 277] }, 281];".into()),
+        ]);
+        let roots = files.keys().cloned().collect();
+        let reasons = crate::development::with_project(files, roots, || {
+            let source = program::get_source_file("/repo/t00HoleEntryDev.ts");
+            program::with_type_checker_for_file(source, move |checker| {
+                export_ambiguities(source, checker)
+            })
+        });
+        assert_eq!(reasons, vec!["t00HoleKeepDev"]);
     }
 
     #[test]

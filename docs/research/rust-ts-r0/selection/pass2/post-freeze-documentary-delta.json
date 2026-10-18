@@ -1,0 +1,9 @@
+{
+  "scope": "Documentation-only trailing blank line removal after immutable candidate freeze; no producer, dependencies, test, oracle or expected-input change",
+  "path": "tools/rust-ts-r0/README.md",
+  "beforeSha256": "41ab728e6c9dfef260311d1b654184cab37e0af31921fd0872ba807428f9a4e8",
+  "afterSha256": "067e4f503c8dd377a8f8716ef87d967d960798d5dd4e6e32c90fb71a88833275",
+  "frozenArtifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+  "freezeManifestPreserved": true,
+  "nativeCorrectionPassConsumed": false
+}

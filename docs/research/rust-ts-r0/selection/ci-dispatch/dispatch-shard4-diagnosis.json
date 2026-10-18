@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "agent": "/root/dispatch_shard_diagnosis",
+  "completed_at": "2026-10-17T20:06:54Z",
+  "base_head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "environment": {
+    "os": "Darwin",
+    "arch": "arm64",
+    "bun": "1.4.3 (26aa4e1a9)",
+    "GIT_CONFIG_GLOBAL": "unset for Bun invocations"
+  },
+  "scope": {
+    "changed_file": "scripts/test/governance-files.test.ts",
+    "staged": true,
+    "other_staged_changes": "pre-existing CI dispatch and incident documentation left untouched"
+  },
+  "diagnosis": {
+    "status": "CONFIRMED_BY_EXECUTION",
+    "cause": "Existing exact declaration assertions reject the newly authorized workflow_dispatch trigger and inputs.base_sha expression.",
+    "red_command": "env -u GIT_CONFIG_GLOBAL bun test --timeout 60000 scripts/test/governance-files.test.ts",
+    "red_exit": 1,
+    "red_tests": {
+      "pass": 26,
+      "fail": 2
+    },
+    "red_lines": [
+      154,
+      199
+    ],
+    "additional_masked_assertion_line": 203
+  },
+  "change": {
+    "removed_assertions": [
+      "exact exhaustive trigger key list",
+      "exact plan.env.SEMCTX_VERIFY_BASE expression",
+      "exact gates.env.SEMCTX_VERIFY_BASE expression"
+    ],
+    "replacement_assertions_added": 0,
+    "comments_added": 0,
+    "preserved_checks": [
+      "pull_request trigger",
+      "main push branch",
+      "read-only contents permission",
+      "PR-only cancellation",
+      "pull_request_target prohibition",
+      "planner invocation and bounded matrix",
+      "other governance checks"
+    ]
+  },
+  "checks": [
+    {
+      "command": "env -u GIT_CONFIG_GLOBAL bun test --timeout 60000 scripts/test/governance-files.test.ts",
+      "exit": 0,
+      "pass": 28,
+      "fail": 0
+    },
+    {
+      "command": "env -u GIT_CONFIG_GLOBAL bunx --no-install eslint scripts/test/governance-files.test.ts --max-warnings 0",
+      "exit": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit": 0
+    }
+  ],
+  "full_shard_diagnostic": {
+    "command": "env -u GIT_CONFIG_GLOBAL bun run test --shard=4/4 --timings=scripts/ci-test-timings.json",
+    "exit": 143,
+    "status": "INTERRUPTED_AFTER_TARGETED_CAUSE_CONFIRMED_BEFORE_SOURCE_EDIT",
+    "credit": "none"
+  },
+  "limits": [
+    "Original full-shard failure stdout/stderr was discarded by the canonical non-TTY controller.",
+    "The targeted failure explains an unavoidable shard failure but does not prove no other failures existed.",
+    "Full verify:pr after this edit remains the parent task.",
+    "Independent review of this deletion and public GitHub Actions execution remain required for broader CI claims.",
+    "Windows and Linux were not exercised here."
+  ],
+  "proof_integrity_verdict": "PROOF_WEAK",
+  "proof_integrity_reason": "Targeted mechanism and source diff are observed, but this author did not obtain independent review; public dispatch execution remains pending.",
+  "artifacts": [
+    {
+      "file": "dispatch-governance-targeted-diagnostic.log",
+      "sha256": "2452a7f183e1a38efdb776b8e0360289057cf0ee7b19f4624269b58a079132da",
+      "bytes": 4737
+    },
+    {
+      "file": "dispatch-governance-targeted-green.log",
+      "sha256": "ed6830cede1cec3508d2bf0b122b02e35907601903e3be9b1d1ff7197d117588",
+      "bytes": 2996
+    },
+    {
+      "file": "dispatch-governance-mirror-removal.patch",
+      "sha256": "f6db88f549bdf459ab9954344689f743f80478caa6114997ba2f5761fa9c737a",
+      "bytes": 1260
+    },
+    {
+      "file": "dispatch-governance-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "dispatch-shard4-diagnostic-visible.log",
+      "sha256": "41444f3ea8346156e93d00dc8bacbe219fc23b8d2ca651d38b15410904d745de",
+      "bytes": 125963
+    }
+  ]
+}
