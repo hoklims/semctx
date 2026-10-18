@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-18",
-  "checkpoint": 6,
+  "checkpoint": 7,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -133,8 +133,9 @@
   ],
   "remainingEvidence": [
     "owner decision: submodule-refusal",
-    "measurement setup redone on the Windows host (measurementHost.redoOnHost)",
-    "Windows collector cost on a real workload",
+    "quiet-host procedure for the Windows host",
+    "measurement setup redone on the Windows host for the six other workloads (measurementHost.redoOnHost)",
+    "Windows collector cost on hono, on a quiet host",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
@@ -729,18 +730,19 @@
       ],
       "implementation": "Python 3.14.7 standard library (ctypes), kept outside the checkout",
       "validation": {
-        "single": "768 MiB touched in one process: private working set 774.0 MiB; summed working set 781.3 MiB, tasklist and .NET WorkingSet64 781.3 MiB; private commit 777.6 MiB, .NET PrivateMemorySize64 777.3 MiB",
-        "tree": "512 MiB parent and 256 MiB child: 2 processes observed; summed working set 794.6 MiB, tasklist 794.6 MiB; private commit 785.2 MiB, .NET 785.0 MiB",
-        "shortPeak": "512 MiB held 5 ms above a 256 MiB base: sampled private working set 681.0 MiB, kernel upper bound 777.5 MiB",
-        "intervals": "median 50.16 ms, 95th percentile 50.46 ms, maximum 50.68 ms"
+        "single": "768 MiB touched in one process: private working set 774.1 MiB; summed working set 781.4 MiB, tasklist and .NET WorkingSet64 781.0 MiB; private commit 777.5 MiB, .NET PrivateMemorySize64 777.0 MiB",
+        "tree": "512 MiB parent and 256 MiB child: 2 processes observed; summed working set 794.6 MiB, tasklist 794.6 MiB; private commit 785.1 MiB, .NET 784.9 MiB",
+        "shortPeak": "512 MiB held 5 ms above a 256 MiB base: sampled private working set 602.9 MiB, kernel upper bound 777.7 MiB",
+        "intervals": "median 50.23 ms, 95th percentile 50.56 ms, maximum 50.78 ms"
       },
-      "selfCost": "0.516 s of collector CPU over 20.4 s and 401 samples (1.3 ms per sample, 2.5% of one of 24 logical processors) with one live process; cost on a real workload is not yet measured",
+      "selfCost": "0.516 s of collector CPU over 20.4 s and 401 samples (1.3 ms per sample, 2.5% of one of 24 logical processors) with one live process, measured before the sampling-off revision; the sampling path is unchanged",
       "scriptSha256": {
-        "collector": "1133810988307a239f177210e2824ad9e2eb2c9d9ec779d829cd7cac566af019",
+        "collector": "01177aa1c8154f978d981f4d49a79f5694f362978b79e042c3400760acda1503",
         "fixture": "e8240676d506f55ed5e6abff0dfe3758757846893787798a72a0f15be61bda14",
         "validator": "2efc532021d665f77e4a56ce4e31f82c9d2be0f2bc05d8b7ee677a504630182d"
       },
-      "validationOutputSha256": "f2412ba1d051e8f611aa4f3a718b354abc4b3f987fef7b2a7074240c5939ef45"
+      "validationOutputSha256": "a8b8cb5a6a8243c57221d35cdede66d0ee46101255f792e17b1b3ceac5984835",
+      "samplingOff": "a period of 0 takes no samples; wall time and the job's kernel peaks remain, as the macOS off mode keeps its lifetime peak"
     }
   },
   "measurementHost": {
@@ -764,12 +766,86 @@
     },
     "macOSRecords": "the pilot, shake-down and instrumentation-cost runs on the 48 GiB macOS host remain orientation; they are not reference series and are not compared with Windows numbers",
     "redoOnHost": [
-      "reference build check with Bun 1.4.0 and the requalification patch",
-      "dependency closures and closure manifests: platform-specific optional packages differ",
-      "snapshot repositories and tree-id check: line endings and symbolic links",
-      "collector cost on hono",
+      "dependency closures, snapshots and selection for the six other workloads",
+      "collector cost on hono, on a quiet host",
       "one shake-down run per workload"
-    ]
+    ],
+    "observedLoad": "during the hono runs, available physical memory at run start ranged 25.0–27.7 GiB of 63.7 GiB; other applications held the rest. No quiet-host procedure is declared yet",
+    "setupOnHost": {
+      "recordedDateUtc": "2026-10-18",
+      "referenceBuild": {
+        "builder": "Bun 1.4.0 from @oven/bun-windows-x64@1.4.0",
+        "builderIntegrity": "sha512-jRKv1NPLznMSZY5BEWciMF7zv0Tiyo2pQSxAJ3w+YWJ6y3VWNJQQQdLlV5Jx8lbOFDrJdrc9dD3GV17k3BP41A==",
+        "source": "git archive of 3e94997 without line-ending conversion; dependencies by bun install --frozen-lockfile",
+        "historical": "apps/cli/dist byte-identical to the published semctx@0.4.5 dist (index.js 70e76af9…, semctx-index-worker.js 206a4e0f…)",
+        "requalified": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…, identical to the macOS requalified bundle",
+        "runtime": "Bun 1.4.3 from @oven/bun-windows-x64@1.4.3",
+        "runtimeIntegrity": "sha512-9pV16qXHTFvZDH61S8hpdpVBbWmvEqekczLF54zTnQHKP28D6yRCNLrD/7jVbXYR61fQYAx4FSBgzCxGCKb3rQ=="
+      },
+      "configuration": {
+        "file": ".semctx/config.json, the matrix configuration serialized with two-space indentation and a final newline",
+        "sha256": "aee8f8d6b0440ad30f368c68e56b635a020bdf56b9ff2024c8d82b9f0741be3a",
+        "note": "the macOS file bytes (b6b3a1ea…) are not reproducible from the recorded object; the parsed content is the recorded configuration"
+      },
+      "workloads": {
+        "honojs/hono": {
+          "archiveSha256Verified": true,
+          "lockfileSha256Verified": true,
+          "snapshot": "same procedure as snapshotRepositories; core.autocrlf=false; upstream executable bits restored on two files; two .gitkeep files matching .gitignore added explicitly; commit created with git commit-tree on branch t01-snapshot",
+          "treeId": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
+          "treeIdEqualsUpstream": true,
+          "gitStatusClean": true,
+          "dependencyClosure": {
+            "packageManager": "pnpm@12.6.0, run with Node.js 22.23.2",
+            "command": "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile",
+            "installSecondsSingleRun": 45,
+            "packageDirectories": 722,
+            "distinctNameVersions": 719,
+            "installedFiles": 25961,
+            "installedBytes": 852293759,
+            "closureManifestSha256": "373fdf2f06258215f59f2ca2bdf9c427c492e6cc21029dbcf538d5cd99f20d8a",
+            "platformPackages": "25 win32 or windows name-version pairs (esbuild, rollup, workerd, oxc and others) replace their darwin counterparts",
+            "countingNote": "counted by a new manifest script; the macOS counts (723 directories, 720 pairs) used another script",
+            "sourceTreeUnchanged": true
+          },
+          "selection": {
+            "selectedFiles": {
+              "typescript": 450,
+              "javascript": 2,
+              "markdown": 18
+            },
+            "selectedBytes": {
+              "typescript": 2891073,
+              "javascript": 1471,
+              "markdown": 28311
+            },
+            "equalsMacOSSelection": true,
+            "selectionListSha256": "5d19c6c0ae164e3f6db8d9443921cbcb359861e3574224aadf3c8c0fd9b99494",
+            "discoveryMsSingleRun": 411
+          },
+          "firstIndex": {
+            "exitCode": 0,
+            "nodes": 2689,
+            "edges": 5934,
+            "evidence": 11164,
+            "claims": 455,
+            "equalsMacOSCounts": true,
+            "wallSeconds": 44.47,
+            "aggregatePeakPrivateWorkingSetBytes": 1930104832,
+            "jobPeakCommitBytes": 2110787584,
+            "cpuSeconds": {
+              "user": 25.16,
+              "kernel": 24.72
+            }
+          }
+        }
+      },
+      "scriptSha256": {
+        "treeManifest": "62f91c31e2a3d4535eb3aa01550d3b6da8f2d074351ee1f45865e8378b869877",
+        "closureManifest": "62f8f9130f7288898a7148e33e969e304a4fef63e723587ba8d6d719efae48aa",
+        "selection": "58e1c29f89209d3b1fab0c258a94d86a7da09108fa563a9212fefa03578a5be0"
+      }
+    }
   },
   "instrumentationCost": {
     "workload": "honojs/hono, cold application cache",
@@ -799,6 +875,36 @@
     "scriptSha256": {
       "pairs": "4c1a145273f15a9c78e472fac1e301116b3170d53ad221e9b612fa54a4332669",
       "statistics": "b0bc6e554e9d346440b6a7bb1cd8fd58ab4524f6d2f6b7ff0d709f3e5d68573b"
+    }
+  },
+  "instrumentationCostWindows": {
+    "workload": "honojs/hono, cold application cache (.semctx emptied except config.json before every run)",
+    "design": "10 pairs, sampling off (0) versus 50 ms, order shuffled per pair with random.Random(365)",
+    "statistic": "ratio of medians; 95% percentile bootstrap over pairs, 10,000 resamples, seed 365",
+    "wallTimeRatio": 0.9504,
+    "wallTimeRatioBootstrap95": [
+      0.8107,
+      1.0265
+    ],
+    "jobPeakCommitRatio": 0.9948,
+    "jobPeakCommitRatioBootstrap95": [
+      0.9627,
+      1.0251
+    ],
+    "sampledAggregateOverUpperBound": [
+      0.8921,
+      0.9084
+    ],
+    "wallSecondsRange": [
+      38.42,
+      56.795
+    ],
+    "factsIdenticalAcrossRuns": true,
+    "conclusion": "inconclusive: run-to-run variation of the loaded host (38.4–56.8 s, slower in the last three pairs) is far larger than the effect being measured; the interval cannot exclude a cost of several percent. Repeat on a quiet host",
+    "rowsSha256": "0d8992ab642231622d8db46d75f4d2df0aff6f3a0d1d8f1b22a6679f7b869544",
+    "scriptSha256": {
+      "pairs": "809ac36d8f23d7deb940187571687098682ca4a00ba577eaa4c4a2beaad14542",
+      "statistics": "f759a0dbc2594382518eada30ec9ad18798371e699b20e5a317e6f05ca3fba81"
     }
   },
   "shakeDown": {

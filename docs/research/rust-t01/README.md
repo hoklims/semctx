@@ -17,7 +17,9 @@ No Rust code, dependency, workflow change or product change is introduced.
 Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matrix. Checkpoint 4
 captures each workload's dependency closure. Checkpoint 5 fixes the measurement setup and records
 one shake-down run per workload. Checkpoint 6 records the owner's choice of a single Windows
-measurement host and declares its memory collector. One owner decision is open; see
+measurement host and declares its memory collector. Checkpoint 7 redoes the reference build and
+the hono cell on that host; its collector-cost measurement is inconclusive. One owner decision is
+open; see
 [Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
@@ -295,11 +297,12 @@ The macOS pilot, shake-down and instrumentation-cost runs remain orientation. Th
 reference series and are not compared with Windows numbers. Before any Windows series, the
 setup of checkpoints 4 and 5 is redone on this host:
 
-- the reference build check;
-- the dependency closures and their manifests, since platform-specific optional packages differ;
+- the reference build check (done; see [Windows setup](#windows-setup-reference-and-hono));
+- the dependency closures and their manifests, since platform-specific optional packages differ
+  (done for hono);
 - the snapshot repositories and their tree-id check, since line endings and symbolic links
-  differ;
-- the collector cost on hono;
+  differ (done for hono);
+- the collector cost on hono (run, inconclusive);
 - one shake-down run per workload.
 
 **Memory collector (Windows).** The command runs in a fresh Job Object, assigned while its root
@@ -321,18 +324,57 @@ Validation on this host, against tasklist and .NET `Process` readings taken duri
 
 | Case | Collector | Independent reading |
 | --- | ---: | ---: |
-| 768 MiB touched, one process: working set | 781.3 MiB | 781.3 MiB |
-| same: private commit | 777.6 MiB | 777.3 MiB |
+| 768 MiB touched, one process: working set | 781.4 MiB | 781.0 MiB |
+| same: private commit | 777.5 MiB | 777.0 MiB |
 | 512 MiB parent and 256 MiB child: working set | 794.6 MiB | 794.6 MiB |
-| same: private commit | 785.2 MiB | 785.0 MiB |
-| 512 MiB held 5 ms above 256 MiB: sampled private working set and kernel bound | 681.0 MiB | 777.5 MiB |
+| same: private commit | 785.1 MiB | 784.9 MiB |
+| 512 MiB held 5 ms above 256 MiB: sampled private working set and kernel bound | 602.9 MiB | 777.7 MiB |
 
-The single allocation reads 774.0 MiB of private working set. The short peak shows the sampling
-limit and the bound that covers it. Sample intervals have a median of 50.16 ms and a maximum of
-50.68 ms. With one live process, the collector uses 1.3 ms of CPU per sample, 2.5% of one of the
-24 logical processors. Its cost on a real workload is not yet measured. The collector, fixture
-and validator stay outside the checkout; their digests are in `protocol.json`
-(`memoryCollector.windows`).
+The single allocation reads 774.1 MiB of private working set. The short peak shows the sampling
+limit and the bound that covers it. Sample intervals have a median of 50.23 ms and a maximum of
+50.78 ms. A period of 0 turns sampling off and keeps the wall time and the job's kernel peaks, as
+the macOS off mode keeps its lifetime peak. With one live process, the collector uses 1.3 ms of
+CPU per sample, 2.5% of one of the 24 logical processors; this figure predates the sampling-off
+revision, which leaves the sampling path unchanged. The collector, fixture and validator stay
+outside the checkout; their digests are in `protocol.json` (`memoryCollector.windows`).
+
+## Windows setup: reference and hono
+
+Checkpoint 7 redoes the reference build and the hono cell on the Windows host.
+
+**Reference build.** Bun 1.4.0 (`@oven/bun-windows-x64`) builds `3e94997` from a `git archive`
+without line-ending conversion. The historical `apps/cli/dist` is byte-identical to the published
+`semctx@0.4.5`. The requalified bundle has the same digests as on macOS. The reference runs it
+with Bun 1.4.3 for Windows.
+
+**Configuration.** The macOS configuration file bytes cannot be rebuilt from the recorded object.
+The Windows file serializes the same object with two-space indentation; its digest is recorded
+separately.
+
+**hono.** Archive and lockfile digests match the record:
+
+- pnpm 12.6.0 installs the closure in 45 s with every script disabled: 719 distinct name-version
+  pairs, 25,961 files, 0.85 GB;
+- 25 Windows-specific packages replace their macOS counterparts (esbuild, rollup, workerd, oxc and
+  others);
+- sources outside `node_modules` are unchanged by the install;
+- the snapshot repository's tree id equals upstream `662fabe5`, once two executable bits and two
+  ignored `.gitkeep` files are restored, and `git status` is clean;
+- the baseline's discovery selects exactly the macOS files and bytes;
+- a first index produces the macOS counts (2,689 nodes, 5,934 edges, 11,164 evidence rows, 455
+  claims) in 44.5 s, with 1.93 GB of aggregate private working set; 24.7 of its 49.9 CPU seconds
+  are kernel time.
+
+**Collector cost: inconclusive.** Ten cold pairs, sampling off versus 50 ms, shuffled with seed
+365, give a wall-time ratio of 0.950 (95% bootstrap interval 0.811–1.027). The job's peak commit
+ratio is 0.995 (0.963–1.025). The sampled aggregate is 89–91% of the kernel upper bound. Facts are
+identical in all 20 runs. Wall times range from 38.4 s to 56.8 s, and the last three pairs are
+slower. That host variation is far larger than the effect measured, so the interval cannot exclude
+a cost of several percent.
+
+The host was not quiet: available physical memory at run start ranged from 25.0 to 27.7 GiB of
+63.7 GiB, because other applications held the rest. With that load, the 42–43 GB large cells would
+again run under memory pressure. No quiet-host procedure is declared yet.
 
 ## Open decisions
 
@@ -346,9 +388,9 @@ The host-memory decision is resolved; see [Measurement host](#measurement-host).
 
 ## Next checkpoints
 
-1. Redo the measurement setup on the Windows host and measure the collector cost on hono. Apply
-   the owner's submodule decision. Then record repeated baseline series per size class, derive
-   the size-dependent budget coefficients from them and measure the CPU-profile cost for phase
-   attribution.
+1. Declare a quiet-host procedure and repeat the collector cost on hono under it. Redo the setup
+   of the six other workloads on the Windows host. Apply the owner's submodule decision. Then
+   record repeated baseline series per size class, derive the size-dependent budget coefficients
+   from them and measure the CPU-profile cost for phase attribution.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
