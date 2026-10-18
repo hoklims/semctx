@@ -1224,6 +1224,32 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     let loaded = program::new_program_version(&frontend.program, None);
     let _current = core::enter_program(Some(loaded));
     program::bind_all();
+    let mut before_ownership = BTreeMap::new();
+    if retained && qualified {
+        for path in &roots {
+            if [".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|extension| path.ends_with(extension))
+            {
+                continue;
+            }
+            let relative = relative_source_path(&repository_root, path, fs.sensitive)?;
+            if !roles.contains_key(&relative) {
+                continue;
+            }
+            let subject = inspect_subject(
+                fs.clone(),
+                path,
+                &repository_root,
+                &request.sdk_directory,
+                project_files.clone(),
+                serde_json::json!({"nodes":[],"edges":[]}),
+                retained,
+                qualified,
+            )?;
+            before_ownership.insert(relative, subject);
+        }
+    }
     let mut result = vec![];
     let mut extraction = ordinary::Extraction::default();
     let mut dynamic_imports = BTreeSet::new();
@@ -1394,6 +1420,31 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             retained,
             qualified,
         )?;
+        subject["opaqueCallbackOwnership"] = if retained && qualified {
+            let mut removed_graph = assembly.clone();
+            removed_graph["edges"] = serde_json::json!([]);
+            let removed = inspect_subject(
+                fs.clone(),
+                path,
+                &repository_root,
+                &request.sdk_directory,
+                project_files.clone(),
+                removed_graph.clone(),
+                retained,
+                qualified,
+            )?;
+            component_observations::opaque_callback_ownership(
+                before_ownership
+                    .get(&relative)
+                    .ok_or("missing pre-extraction ownership observation")?,
+                &subject,
+                &removed,
+                &assembly,
+                &removed_graph,
+            )?
+        } else {
+            serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_QUALIFIED_INPUTS_NOT_ENABLED"]})
+        };
         if (qualified
             || [".js", ".jsx", ".mjs", ".cjs"]
                 .iter()
@@ -1606,6 +1657,108 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn opaque_callback_observation_tracks_actual_graph_ownership_and_edge_removal() {
+        let source = "import { register } from 'opaque'; function helper() { return 1; } export function main() { return register(() => helper()); }";
+        let mut request = component_request("opaqueOwnershipDev", "/repo/main.ts", source);
+        request.retained = true;
+        request.qualified = true;
+        request.files.insert(
+            "/repo/package.json".into(),
+            r#"{"dependencies":{"opaque":"1.0.0"}}"#.into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        let ownership = &observed["subjects"][0]["opaqueCallbackOwnership"];
+        assert_eq!(ownership["executed"], true, "{ownership}");
+        assert_eq!(ownership["unsupported"], serde_json::json!([]));
+        for (phase, expected) in [
+            ("beforeAnalysis", true),
+            ("afterAnalysis", false),
+            ("afterGraphEdgesRemoved", true),
+        ] {
+            let phase = &ownership[phase];
+            assert_eq!(phase["executed"], true, "{phase}");
+            assert_eq!(phase["unsupported"], serde_json::json!([]), "{phase}");
+            assert_eq!(
+                phase["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|reason| reason == "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+                expected,
+                "{phase}"
+            );
+        }
+        let graph = &observed["assembly"];
+        assert_eq!(
+            ownership["graphBeforeEdgeRemovalId"],
+            identity::digest(graph)
+        );
+        let mut removed_graph = graph.clone();
+        removed_graph["edges"] = serde_json::json!([]);
+        assert_eq!(
+            ownership["graphAfterEdgeRemovalId"],
+            identity::digest(&removed_graph)
+        );
+        let nodes = graph["nodes"].as_array().unwrap();
+        let caller = nodes.iter().find(|node| node["name"] == "main").unwrap();
+        let helper = nodes.iter().find(|node| node["name"] == "helper").unwrap();
+        assert!(graph["edges"].as_array().unwrap().iter().any(|edge| {
+            edge["kind"] == "calls" && edge["from"] == caller["id"] && edge["to"] == helper["id"]
+        }));
+        assert_eq!(ownership["globalAdmissionInferred"], false);
+    }
+
+    #[test]
+    fn opaque_callback_observation_requires_retained_qualified_inputs() {
+        for (retained, qualified) in [(false, false), (true, false)] {
+            let mut request = component_request(
+                "opaqueOwnershipModeDev",
+                "/repo/mode.ts",
+                "export function leaf(){return 1;}",
+            );
+            request.retained = retained;
+            request.qualified = qualified;
+            let observed = analyze(request, component_sdk()).unwrap();
+            let ownership = &observed["subjects"][0]["opaqueCallbackOwnership"];
+            assert_eq!(ownership["executed"], false, "{ownership}");
+            assert_eq!(
+                ownership["unsupported"],
+                serde_json::json!(["COMPONENT_RETAINED_QUALIFIED_INPUTS_NOT_ENABLED"])
+            );
+            assert!(ownership.get("beforeAnalysis").is_none());
+            assert!(ownership.get("afterAnalysis").is_none());
+            assert!(ownership.get("afterGraphEdgesRemoved").is_none());
+        }
+    }
+
+    #[test]
+    fn opaque_callback_observation_does_not_substitute_a_missing_native_phase() {
+        let observed = serde_json::json!({
+            "moduleConfigurationObservations":{
+                "retainedWithoutSource":{"executed":true,"unsupported":[],"reasons":[]}
+            }
+        });
+        let graph = serde_json::json!({"nodes":[],"edges":[]});
+        for missing in [
+            serde_json::Value::Null,
+            serde_json::json!({}),
+            serde_json::json!({"moduleConfigurationObservations":{"retainedWithoutSource":null}}),
+            serde_json::json!({"moduleConfigurationObservations":{"retainedWithoutSource":[]}}),
+        ] {
+            for index in 0..3 {
+                let mut phases = [&observed, &observed, &observed];
+                phases[index] = &missing;
+                assert!(
+                    component_observations::opaque_callback_ownership(
+                        phases[0], phases[1], phases[2], &graph, &graph
+                    )
+                    .is_err()
+                );
+            }
+        }
     }
 
     #[test]

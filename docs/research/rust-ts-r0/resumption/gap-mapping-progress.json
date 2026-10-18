@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_THIRTY_GAPS_MAPPED_TWENTY_NINE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_THIRTY_ONE_GAPS_MAPPED_THIRTY_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining34 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T21:12:57.409781+00:00",
-  "staticGapUnitsRemaining": 34,
+  "next": "Continue the remaining33 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T21:34:38.110305+00:00",
+  "staticGapUnitsRemaining": 33,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -593,5 +593,34 @@
     ],
     "reservedPayloadAccessed": false,
     "fullDispatcher": "Inspected,not executed."
+  },
+  "fourteenthBatch": {
+    "registeredUtc": "2026-10-18T21:34:38.110305+00:00",
+    "state": "FROZEN_OPAQUE_CALLBACK_GRAPH_OWNERSHIP_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P23-opaque-inline-call-has-graph-owner::base"
+    ],
+    "scope": "Actual P23 raw module-configuration observations before fact extraction, with the real graph and after exact edge removal; not before compiler initialization or a complete public/batch/worker lifecycle.",
+    "evidence": "gap-opaque-ownership-evidence.json",
+    "nativeArtifactSha256": "c1cc73d0ffdb6dbe5bc31d14b0972c3aeb6a3689c6462990c309edfbe5436a81",
+    "recipesSha256": "be93119ad85d55b0adc5202809eaa67473e28ad428a421fb302b4c835fe8873b",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "202BIN,47LIB,4nativeflows,45comparators,7Python,1newunit/1process/15checks plus6carryoverunits;fmt/clippy/Ruff PASS macOS.",
+    "mappingCorrection": "First native replay passed15 genuine checks but generated4 invalid completeness targets beneath scalar observationScope/globalAdmissionInferred. Treat only the three named phase children as nested observations; all15 real checks remain and final replay passes. Both recipes and raw outcomes retained.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Missing, null or non-object native phase is an error, never a substituted successful empty reason list.",
+      "Ordinary and retained-nonqualified valid modes report executed=false with no three phases. Qualified-without-retained still fails SOURCE_SNAPSHOT_REQUIRED before subjects.",
+      "Missing/foreign graph identity, incomplete root observation, wrong scope, ambiguous subject or absent graph inventory cannot bind the control.",
+      "Logical calls require actual unique endpoint nodes and unique grouped symbol coordinates; dangling or missing endpoints refuse.",
+      "Every reason phase separately requires executed=true and unsupported=[]; root completeness cannot replace phase completeness.",
+      "Nonzero, timeout, output-limit, cancellation, capture errors, malformed stdout or wrong actual input/artifact remain NONPASS."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "3inspections total,2additional;unmeasured."
   }
 }

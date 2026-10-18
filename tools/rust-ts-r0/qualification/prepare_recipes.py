@@ -830,13 +830,38 @@ for row in support_plans:
             row['proof_scope']='Only emitted SOURCE_CONFIGURATION_INVALID reason/code projection; native18003 must already be absent. Other configuration/source policy reasons and admission are not inferred.'
             row['diagnostic_projection_transport']='SOURCE_CONFIGURATION_INVALID:<u32 code>:<raw wording>, exact native format from src/configuration.rs; raw wording preserved in Outcome, excluded by frozen policy.'
 
+for recipe in recipes:
+    if recipe['case_id'] != 'P23-opaque-inline-call-has-graph-owner':
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    request = recipe['requests'][0]
+    if not request['retained'] or not request['qualified']:
+        raise ValueError('opaque graph ownership requires the frozen retained qualified profile')
+    source = first_source(request['files'])
+    component = ['subjects', {'path':source}, 'opaqueCallbackOwnership']
+    for key, phase in [('before_analysis','beforeAnalysis'), ('after_analysis','afterAnalysis'), ('after_graph_edges_removed','afterGraphEdgesRemoved')]:
+        add_bound_check(recipe, component + [phase, 'reasons'], assertions[key], 'reason_constraints', ptr(key), 'inspectModuleConfiguration at the actual graph-ownership phase', {'frozen_unit_pointer':recipe['frozen_unit_pointer']})
+        remove_gap(recipe, key)
+        recipe['credited_properties'].append(key)
+    for current in recipe['checks']:
+        if current['expected_origin'] == ptr('calls_contains'):
+            current['target'] = ['assembly']
+            current['actual_transform'] = 'logical_call_edges'
+            current['expected'] = [graph_relation({'kind':'calls','from':call['caller'],'to':call['callee']}) for call in assertions['calls_contains']]
+    for field, expected in [('executed',True), ('unsupported',[]), ('observationScope','native_module_configuration_graph_ownership'), ('globalAdmissionInferred',False)]:
+        recipe['checks'].append(check(component + [field], expected, 'eq', 'actual native ownership observation scope/completeness'))
+    recipe['checks'].append(check([], True, 'eq', 'actual graph identity and exact edge-removal control binding', 'opaque_ownership_graph_binding:' + source))
+    recipe['proof_scope'] = 'Actual module-configuration calls before fact extraction, with the real assembled graph, and with only its edges removed. Frozen call assertion projects actual graph coordinates. No public Plane-A lifecycle or global admission inferred.'
+
 def complete_component_fields(recipe):
     additions=[]
-    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation']
+    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership']
     for c in recipe.get('checks',[]):
         target=c['target'];indices=[i for i,x in enumerate(target) if isinstance(x,str) and x in components]
         if not indices or target[-1] in ['executed','unsupported']:continue
-        index=indices[0];end=index+1+(1 if target[index]=='moduleConfigurationObservations' else 0)
+        index=indices[0]
+        nested=target[index]=='moduleConfigurationObservations' or (target[index]=='opaqueCallbackOwnership' and target[index+1] in ['beforeAnalysis','afterAnalysis','afterGraphEdgesRemoved'])
+        end=index+1+(1 if nested else 0)
         observation=c.get('observation',0)
         for field,expected in [('executed',True),('unsupported',[])]:
             path=target[:end]+[field]
