@@ -1675,6 +1675,145 @@ fn run_controlled_assembly_recipe(
     Ok(result)
 }
 
+fn retained_discovery_observation(outcome: &process::Outcome) -> Result<Value, Value> {
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Err(json!({"state":"RETAINED_DISCOVERY_PROCESS_NONPASS","pass":false}));
+    }
+    serde_json::from_str(&outcome.stdout).map_err(|error| json!({"state":"RETAINED_DISCOVERY_MALFORMED_OBSERVATION","error":error.to_string(),"pass":false}))
+}
+
+fn retained_discovery_complete_binding(
+    observed: &Value,
+    descriptor: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(descriptor)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("retained discovery observation is unbound".into());
+    }
+    match observed["executed"].as_bool() {
+        Some(false) => {
+            if observed["state"] != "RETAINED_DISCOVERY_REFUSED"
+                || observed["snapshot_guard_passed"] != false
+                || observed.get("native_analysis").is_some()
+                || !observed["unsupported"].as_array().is_some_and(|errors| {
+                    errors.len() == 1 && errors[0].as_str().is_some_and(|error| !error.is_empty())
+                })
+            {
+                return Err("incomplete retained discovery refusal".into());
+            }
+            Ok(
+                json!({"state":"BOUND_RETAINED_DISCOVERY_REFUSAL","sdk_consumption_claimed":false,"global_admission_inferred":false}),
+            )
+        }
+        Some(true) => {
+            if observed["state"] != "RETAINED_DISCOVERY_OBSERVED"
+                || observed["snapshot_guard_passed"] != true
+                || observed["unsupported"] != json!([])
+            {
+                return Err("incomplete retained discovery analysis".into());
+            }
+            let analysis = &descriptor["analysis"];
+            let native = &observed["native_analysis"];
+            let binding = observation_bound_to_request(native, analysis, sdk, artifact_sha)?;
+            let capability = native_product_capability(
+                native,
+                analysis,
+                &json!({"checks":[{"target":["raw_extraction"]}]}),
+            )?;
+            let reads = join_successful_reads(native, analysis, sdk)?;
+            Ok(
+                json!({"state":"BOUND_RETAINED_DISCOVERY_ANALYSIS","native_binding":binding,"capability":capability,"read_provenance":reads,"global_admission_inferred":false}),
+            )
+        }
+        None => Err("missing retained discovery execution state".into()),
+    }
+}
+
+fn run_retained_discovery_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing retained discovery gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing retained discovery checks")?;
+    validate_component_checks(checks)?;
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("RetainedDiscoveryCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("retaineddiscoverycaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let analysis_path = dir.join("analysis-request.json");
+    save(&analysis_path, &analysis)?;
+    let setup = apply_physical_post_capture(
+        &analysis,
+        &recipe["physical_live_after_capture"],
+        &root,
+        &analysis_path,
+    )?;
+    save(&dir.join("physical-post-capture-setup.json"), &setup)?;
+    let descriptor = json!({"analysis":analysis,"discovered_sources":recipe["discovered_sources"]});
+    let request_path = dir.join("retained-discovery-request.json");
+    save(&request_path, &descriptor)?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--analyze-retained-discovery".into(),
+        request_path.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let outcome_value = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
+    save(&dir.join("process-outcome.json"), &outcome_value)?;
+    save(
+        &dir.join("process-invocation.json"),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":20_000,"output_cap":8_388_608,"process_outcome_id":identity::digest(&outcome_value)}),
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    let observed = match retained_discovery_observation(&outcome) {
+        Ok(observed) => observed,
+        Err(result) => {
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = retained_discovery_complete_binding(&observed, &descriptor, sdk, artifact_sha);
+    let checked = checks.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checked.is_empty()
+        && checked
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_RETAINED_DISCOVERY_UNIT"}else{"NONPASS_RETAINED_DISCOVERY_UNIT"},"checks":checked,"binding":match binding {Ok(value)=>value,Err(error)=>json!({"error":error})},"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn configured_query_complete_binding(
     observed: &Value,
     request: &Value,
@@ -2270,6 +2409,20 @@ fn replay() -> Result<Value, String> {
         let uid = value_text(recipe, "unit_id")?;
         if recipe["surface"] == "process_fault_cli" {
             let mut result = run_process_fault_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "retained_discovery_cli" {
+            let mut result = run_retained_discovery_recipe(
                 recipe,
                 &out.join(format!("unit-{index:03}")),
                 &artifact,
@@ -3745,6 +3898,15 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "retained_discovery_cli" => run_retained_discovery_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "controlled_assembly_cli" => run_controlled_assembly_recipe(
                 recipe,
                 &dir,
@@ -4856,4 +5018,181 @@ fn comparator_controlled_process_failure_and_malformed_stdout_cannot_be_success(
 #[test]
 fn gap_controlled_system_keys_preserve_alias_and_counter_relation() {
     repair_units(&["ORD-CANONICAL-IDENTITY-PAIR::base"]);
+}
+
+#[test]
+fn gap_retained_discovery_binds_capture_and_metadata() {
+    repair_units(&[
+        "N01-snapshot-metadata-mismatch::base",
+        "P01-retained-source::analyze-snapshot-consistent",
+    ]);
+}
+
+#[test]
+fn comparator_retained_discovery_refusal_requires_exact_binding_and_no_native_result() {
+    let descriptor = json!({"analysis":{"id":"guardDev"},"discovered_sources":[]});
+    let sdk = json!({"version":"guard-sdk-dev"});
+    let good = json!({"state":"RETAINED_DISCOVERY_REFUSED","executed":false,"snapshot_guard_passed":false,"unsupported":["SOURCE_SNAPSHOT_MISMATCH: guard.ts"],"global_admission_inferred":false,"request_descriptor_id":identity::digest(&descriptor),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:guard-artifact-dev"});
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "guard-artifact-dev").is_ok()
+    );
+    for (field, value) in [
+        ("request_descriptor_id", json!("sha256:other")),
+        ("sdk_input_id", json!("sha256:other")),
+        ("producer_artifact_id", json!("sha256:other")),
+        ("global_admission_inferred", json!(true)),
+        ("state", json!("RETAINED_DISCOVERY_OBSERVED")),
+        ("snapshot_guard_passed", json!(true)),
+        ("executed", Value::Null),
+        ("executed", json!(true)),
+        ("unsupported", json!([])),
+        ("unsupported", Value::Null),
+        ("unsupported", json!([""])),
+        ("unsupported", json!([false])),
+        ("unsupported", json!(["one", "two"])),
+        ("native_analysis", Value::Null),
+        ("native_analysis", json!({})),
+    ] {
+        let mut changed = good.clone();
+        changed[field] = value;
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "{field}:{changed}"
+        );
+    }
+    for field in [
+        "state",
+        "executed",
+        "snapshot_guard_passed",
+        "unsupported",
+        "global_admission_inferred",
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+    ] {
+        let mut changed = good.clone();
+        changed.as_object_mut().unwrap().remove(field);
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "missing {field}"
+        );
+    }
+    assert!(
+        retained_discovery_complete_binding(
+            &good,
+            &json!({"analysis":{"id":"other"}}),
+            &sdk,
+            "guard-artifact-dev"
+        )
+        .is_err()
+    );
+    assert!(
+        retained_discovery_complete_binding(
+            &good,
+            &descriptor,
+            &json!({"version":"other"}),
+            "guard-artifact-dev"
+        )
+        .is_err()
+    );
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "other-artifact").is_err()
+    );
+}
+
+#[test]
+fn comparator_retained_discovery_analysis_requires_native_input_capability_and_reads() {
+    let analysis = json!({"id":"guardNativeDev","cwd":"/dev","sdk_directory":"/sdk/lib","case_sensitive":true,"roots":["/dev/guard.ts"],"files":{"/dev/guard.ts":"export const guardDev=103;"},"utf16_files":{},"raw_files":{}});
+    let descriptor = json!({"analysis":analysis,"discovered_sources":[{"relPath":"guard.ts","content":"export const guardDev=103;"}]});
+    let sdk = json!({"version":"guard-sdk-dev","archive_sha256":"guard-archive-dev","files":{}});
+    let native = json!({"request":analysis["id"],"request_id":identity::digest(&analysis),"input_manifest_id":identity::digest(&verifier_logical_input(&analysis,&sdk).unwrap()),"producer_artifact_id":"sha256:guard-artifact-dev","complete":true,"global_admission_inferred":false,"subjects":[{"path":"guard.ts","outcome":"analyzed","unimplemented":[]}],"capture_probes":[]});
+    let good = json!({"state":"RETAINED_DISCOVERY_OBSERVED","executed":true,"snapshot_guard_passed":true,"unsupported":[],"global_admission_inferred":false,"request_descriptor_id":identity::digest(&descriptor),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:guard-artifact-dev","native_analysis":native});
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "guard-artifact-dev").is_ok()
+    );
+    for (pointer, value) in [
+        ("/state", json!("RETAINED_DISCOVERY_REFUSED")),
+        ("/snapshot_guard_passed", json!(false)),
+        ("/unsupported", json!(["missing native context"])),
+        ("/native_analysis/request_id", json!("sha256:other")),
+        ("/native_analysis/input_manifest_id", json!("sha256:other")),
+        (
+            "/native_analysis/producer_artifact_id",
+            json!("sha256:other"),
+        ),
+        ("/native_analysis/complete", json!(false)),
+        ("/native_analysis/global_admission_inferred", json!(true)),
+        ("/native_analysis/subjects", json!([])),
+        ("/native_analysis/subjects/0/outcome", json!("unknown")),
+        (
+            "/native_analysis/subjects/0/unimplemented",
+            json!(["native context absent"]),
+        ),
+        (
+            "/native_analysis/capture_probes",
+            json!([{"operation":"read_file","path":"/outside/foreign.ts","found":true,"content_id":"sha256:foreign"}]),
+        ),
+    ] {
+        let mut changed = good.clone();
+        *changed.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "{pointer}:{changed}"
+        );
+    }
+    for field in ["native_analysis", "snapshot_guard_passed", "unsupported"] {
+        let mut changed = good.clone();
+        changed.as_object_mut().unwrap().remove(field);
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "missing {field}"
+        );
+    }
+}
+
+#[test]
+fn comparator_retained_discovery_process_errors_and_malformed_output_stay_nonpass() {
+    let success = process::Outcome {
+        kind: "success".into(),
+        exit_code: Some(0),
+        duration_ms: 1,
+        stdout: "{}".into(),
+        stderr: String::new(),
+        stdout_bytes: 2,
+        stderr_bytes: 0,
+        stdout_hash: identity::digest_bytes(b"{}"),
+        stderr_hash: identity::digest_bytes(b""),
+    };
+    assert_eq!(retained_discovery_observation(&success).unwrap(), json!({}));
+    for (kind, code) in [
+        ("nonzero", Some(7)),
+        ("nonzero", Some(0)),
+        ("timeout", None),
+        ("output_limit", Some(0)),
+        ("cancelled", None),
+        ("capture_error", None),
+        ("unknown", Some(0)),
+        ("success", Some(1)),
+        ("success", None),
+    ] {
+        let mut changed = success.clone();
+        changed.kind = kind.into();
+        changed.exit_code = code;
+        let result = retained_discovery_observation(&changed).unwrap_err();
+        assert_eq!(result["pass"], false);
+        assert_eq!(result["state"], "RETAINED_DISCOVERY_PROCESS_NONPASS");
+    }
+    for stdout in ["", "not-json", "{} trailing", "{"] {
+        let mut changed = success.clone();
+        changed.stdout = stdout.into();
+        changed.stdout_bytes = stdout.len() as u64;
+        changed.stdout_hash = identity::digest_bytes(stdout.as_bytes());
+        let result = retained_discovery_observation(&changed).unwrap_err();
+        assert_eq!(result["pass"], false);
+        assert_eq!(result["state"], "RETAINED_DISCOVERY_MALFORMED_OBSERVATION");
+    }
 }

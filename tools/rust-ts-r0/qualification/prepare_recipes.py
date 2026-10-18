@@ -675,6 +675,36 @@ for recipe in recipes:
         recipe['proof_scope'] = 'Frozen private logical canonical-file-key component under supplied successful realpath observations. No physical-host alias equivalence, extraction/partition consumer coverage, acquisition identity or admission inferred.'
 
 for recipe in recipes:
+    if recipe['unit_id'] not in ['N01-snapshot-metadata-mismatch::base', 'P01-retained-source::analyze-snapshot-consistent']:
+        continue
+    unit = UNITS_BY_ID[recipe['unit_id']]
+    assertions = unit['assertions']
+    inp = INPUTS[recipe['case_id']]
+    request = recipe['requests'][0]
+    discovered = copy.deepcopy(inp['files'])
+    for setup in inp.get('setup', []):
+        discovered.update(setup.get('discovery_content_override', {}))
+    recipe['surface'] = 'retained_discovery_cli'
+    recipe['capture_request'] = request
+    recipe['discovered_sources'] = [{'relPath':path, 'content':discovered[path]} for path in sorted(request['roots'])]
+    recipe['requests'] = []
+    recipe['relations'] = []
+    if recipe['case_id'].startswith('N01-'):
+        recipe['checks'] = [check(['executed'], assertions['analysis_success'], 'eq', '/assertions/analysis_success'), check(['unsupported', 0], assertions['error_contains'], 'contains_text', '/assertions/error_contains')]
+    else:
+        base = next(row for row in recipes if row['unit_id'] == 'P01-retained-source::base')
+        recipe['checks'] = copy.deepcopy(base['checks'])
+        for c in recipe['checks']:
+            c['target'] = ['native_analysis'] + c['target']
+            c['expected_origin'] = 'P01-retained-source::base' + c['expected_origin']
+        recipe['checks'] += [check(['snapshot_guard_passed'], assertions['snapshot_guard_passes'], 'eq', '/assertions/snapshot_guard_passes'), check(['unsupported'], [], 'eq', '/assertions/SOURCE_SNAPSHOT_MISMATCH')]
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(assertions)
+    recipe['explicit_uncredited_properties'] = []
+    recipe['required_native_api'] = ['--analyze-retained-discovery; bound descriptor/SDK/artifact; actual captured/discovered guard before native analyze; successful native observation/input/capability/read binding']
+    recipe['proof_scope'] = 'Exact frozen retained text versus supplied discovered-source metadata. P01 reuses its frozen retained leaf projection while live transient bytes remain physical; N01 has actual pre-analysis SOURCE_SNAPSHOT_MISMATCH and no analysis result. No automatic discovery, complete public Plane-A runtime, full retained scope or global admission inferred.'
+
+for recipe in recipes:
     if recipe['case_id'] not in ['T-timeout', 'T-output-limit']:
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']

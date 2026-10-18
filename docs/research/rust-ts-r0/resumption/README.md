@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are37 static GAP units still to map; all240 obligations remain unqualified.
+are35 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -177,10 +177,23 @@ symbols despite different live bytes and refuses missing or changed metadata.
 Independent review runs27 probes and detects a compiled comparison bypass,
 then restores the owning native integration. Current macOS checks pass198 binary
 tests,45 library tests, four native process flows and39 comparators; format and
-Clippy also pass. The standards reviewer reruns format only. P01/N01 frozen
-recipes and runtime consumers remain pending: no new mapping or qualification
-credit, no full discovery, retained-scope or public Plane-A parity claim. Counts
-remain27 mappings and37 GAP; additional C1 pass1 remains open.
+Clippy also pass. At that prerequisite checkpoint the standards reviewer reran
+format only; P01/N01 frozen recipes and runtime consumers remained pending,
+with no new mapping or qualification credit and counts27 mappings/37 GAP.
+
+A [twelfth tranche](gap-retained-discovery-evidence.json) now executes N01 base
+and P01 analyze-snapshot-consistent through the actual native guard. N01 refuses
+with SOURCE_SNAPSHOT_MISMATCH before analysis; P01 keeps the retained leaf
+projection while the frozen transient bytes are physically present. Both pass
+all nine checks, with exact outer and inner identities, source capability and
+reported successful-read joins. Independent compiled binding and mapper faults
+are rejected, then restored native replays pass. Current macOS checks pass42
+comparators, seven Python tests and both units; format, Clippy and Ruff pass.
+The unchanged producer198/45/4 suites retain their d684823b provenance and are
+not rerun here. Counts reach29 mappings:28 limited PASS and N17c NONPASS,
+with35 static GAP and zero qualified obligations. Plane-A runtime variants,
+the full dispatcher execution and three-OS campaign remain pending; only the
+reported successful reads are joined. Additional C1 pass1 remains open.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
