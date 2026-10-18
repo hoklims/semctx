@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-18",
-  "checkpoint": 7,
+  "checkpoint": 8,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -133,9 +133,7 @@
   ],
   "remainingEvidence": [
     "owner decision: submodule-refusal",
-    "quiet-host procedure for the Windows host",
-    "measurement setup redone on the Windows host for the six other workloads (measurementHost.redoOnHost)",
-    "Windows collector cost on hono, on a quiet host",
+    "series size for the large cells under memory pressure, fixed before any series",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
@@ -748,103 +746,113 @@
   "measurementHost": {
     "decidedBy": "owner",
     "decidedDateUtc": "2026-10-18",
-    "decision": "every size class runs on one Windows host",
-    "reason": "no 128 GiB host is available; on the 48 GiB macOS host the large cells plateau near host memory; one host keeps the size-dependent coefficients fitted on one machine and one memory metric",
-    "host": {
-      "os": "Windows 11 Pro 10.0.26300",
-      "cpu": "Intel Core i7-13700K",
-      "logicalProcessors": 24,
-      "physicalMemoryBytes": 68388532224,
-      "pagefilesMiB": {
-        "C:": 1024,
-        "E:": 51200
-      }
-    },
-    "declaredConditions": {
-      "defenderRealTimeProtection": "enabled",
-      "defenderExclusions": "not readable without administrator rights; T01 configures none"
-    },
-    "macOSRecords": "the pilot, shake-down and instrumentation-cost runs on the 48 GiB macOS host remain orientation; they are not reference series and are not compared with Windows numbers",
-    "redoOnHost": [
-      "dependency closures, snapshots and selection for the six other workloads",
-      "collector cost on hono, on a quiet host",
-      "one shake-down run per workload"
-    ],
-    "observedLoad": "during the hono runs, available physical memory at run start ranged 25.0–27.7 GiB of 63.7 GiB; other applications held the rest. No quiet-host procedure is declared yet",
-    "setupOnHost": {
-      "recordedDateUtc": "2026-10-18",
-      "referenceBuild": {
-        "builder": "Bun 1.4.0 from @oven/bun-windows-x64@1.4.0",
-        "builderIntegrity": "sha512-jRKv1NPLznMSZY5BEWciMF7zv0Tiyo2pQSxAJ3w+YWJ6y3VWNJQQQdLlV5Jx8lbOFDrJdrc9dD3GV17k3BP41A==",
-        "source": "git archive of 3e94997 without line-ending conversion; dependencies by bun install --frozen-lockfile",
-        "historical": "apps/cli/dist byte-identical to the published semctx@0.4.5 dist (index.js 70e76af9…, semctx-index-worker.js 206a4e0f…)",
-        "requalified": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…, identical to the macOS requalified bundle",
-        "runtime": "Bun 1.4.3 from @oven/bun-windows-x64@1.4.3",
-        "runtimeIntegrity": "sha512-9pV16qXHTFvZDH61S8hpdpVBbWmvEqekczLF54zTnQHKP28D6yRCNLrD/7jVbXYR61fQYAx4FSBgzCxGCKb3rQ=="
-      },
-      "configuration": {
-        "file": ".semctx/config.json, the matrix configuration serialized with two-space indentation and a final newline",
-        "sha256": "aee8f8d6b0440ad30f368c68e56b635a020bdf56b9ff2024c8d82b9f0741be3a",
-        "note": "the macOS file bytes (b6b3a1ea…) are not reproducible from the recorded object; the parsed content is the recorded configuration"
-      },
-      "workloads": {
-        "honojs/hono": {
-          "archiveSha256Verified": true,
-          "lockfileSha256Verified": true,
-          "snapshot": "same procedure as snapshotRepositories; core.autocrlf=false; upstream executable bits restored on two files; two .gitkeep files matching .gitignore added explicitly; commit created with git commit-tree on branch t01-snapshot",
-          "treeId": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
-          "treeIdEqualsUpstream": true,
-          "gitStatusClean": true,
-          "dependencyClosure": {
-            "packageManager": "pnpm@12.6.0, run with Node.js 22.23.2",
-            "command": "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile",
-            "installSecondsSingleRun": 45,
-            "packageDirectories": 722,
-            "distinctNameVersions": 719,
-            "installedFiles": 25961,
-            "installedBytes": 852293759,
-            "closureManifestSha256": "373fdf2f06258215f59f2ca2bdf9c427c492e6cc21029dbcf538d5cd99f20d8a",
-            "platformPackages": "25 win32 or windows name-version pairs (esbuild, rollup, workerd, oxc and others) replace their darwin counterparts",
-            "countingNote": "counted by a new manifest script; the macOS counts (723 directories, 720 pairs) used another script",
-            "sourceTreeUnchanged": true
-          },
-          "selection": {
-            "selectedFiles": {
-              "typescript": 450,
-              "javascript": 2,
-              "markdown": 18
-            },
-            "selectedBytes": {
-              "typescript": 2891073,
-              "javascript": 1471,
-              "markdown": 28311
-            },
-            "equalsMacOSSelection": true,
-            "selectionListSha256": "5d19c6c0ae164e3f6db8d9443921cbcb359861e3574224aadf3c8c0fd9b99494",
-            "discoveryMsSingleRun": 411
-          },
-          "firstIndex": {
-            "exitCode": 0,
-            "nodes": 2689,
-            "edges": 5934,
-            "evidence": 11164,
-            "claims": 455,
-            "equalsMacOSCounts": true,
-            "wallSeconds": 44.47,
-            "aggregatePeakPrivateWorkingSetBytes": 1930104832,
-            "jobPeakCommitBytes": 2110787584,
-            "cpuSeconds": {
-              "user": 25.16,
-              "kernel": 24.72
-            }
-          }
+    "decision": "every size class runs on the macOS host of checkpoints 1 to 5 (Apple M5 Pro, 18 cores, 48 GiB)",
+    "reason": "owner: simpler; the macOS setup, collector and collector cost already exist; the Windows host was loaded by other applications",
+    "largeCells": "large and very large cells run under memory pressure on 48 GiB; every run records compressor and swap counter deltas; their series size is fixed before any series",
+    "macOSRecords": "the macOS reference build, closures, snapshots, collector and collector cost of checkpoints 4 and 5 apply; pilot and shake-down runs remain orientation",
+    "windowsRecords": "the Windows collector, reference reproduction and hono setup of checkpoints 6 and 7 remain records; no Windows series is planned",
+    "previous": {
+      "decidedBy": "owner",
+      "decidedDateUtc": "2026-10-18",
+      "decision": "every size class runs on one Windows host",
+      "reason": "no 128 GiB host is available; on the 48 GiB macOS host the large cells plateau near host memory; one host keeps the size-dependent coefficients fitted on one machine and one memory metric",
+      "host": {
+        "os": "Windows 11 Pro 10.0.26300",
+        "cpu": "Intel Core i7-13700K",
+        "logicalProcessors": 24,
+        "physicalMemoryBytes": 68388532224,
+        "pagefilesMiB": {
+          "C:": 1024,
+          "E:": 51200
         }
       },
-      "scriptSha256": {
-        "treeManifest": "62f91c31e2a3d4535eb3aa01550d3b6da8f2d074351ee1f45865e8378b869877",
-        "closureManifest": "62f8f9130f7288898a7148e33e969e304a4fef63e723587ba8d6d719efae48aa",
-        "selection": "58e1c29f89209d3b1fab0c258a94d86a7da09108fa563a9212fefa03578a5be0"
-      }
+      "declaredConditions": {
+        "defenderRealTimeProtection": "enabled",
+        "defenderExclusions": "not readable without administrator rights; T01 configures none"
+      },
+      "macOSRecords": "the pilot, shake-down and instrumentation-cost runs on the 48 GiB macOS host remain orientation; they are not reference series and are not compared with Windows numbers",
+      "redoOnHost": [
+        "dependency closures, snapshots and selection for the six other workloads",
+        "collector cost on hono, on a quiet host",
+        "one shake-down run per workload"
+      ],
+      "observedLoad": "during the hono runs, available physical memory at run start ranged 25.0–27.7 GiB of 63.7 GiB; other applications held the rest. No quiet-host procedure is declared yet",
+      "setupOnHost": {
+        "recordedDateUtc": "2026-10-18",
+        "referenceBuild": {
+          "builder": "Bun 1.4.0 from @oven/bun-windows-x64@1.4.0",
+          "builderIntegrity": "sha512-jRKv1NPLznMSZY5BEWciMF7zv0Tiyo2pQSxAJ3w+YWJ6y3VWNJQQQdLlV5Jx8lbOFDrJdrc9dD3GV17k3BP41A==",
+          "source": "git archive of 3e94997 without line-ending conversion; dependencies by bun install --frozen-lockfile",
+          "historical": "apps/cli/dist byte-identical to the published semctx@0.4.5 dist (index.js 70e76af9…, semctx-index-worker.js 206a4e0f…)",
+          "requalified": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…, identical to the macOS requalified bundle",
+          "runtime": "Bun 1.4.3 from @oven/bun-windows-x64@1.4.3",
+          "runtimeIntegrity": "sha512-9pV16qXHTFvZDH61S8hpdpVBbWmvEqekczLF54zTnQHKP28D6yRCNLrD/7jVbXYR61fQYAx4FSBgzCxGCKb3rQ=="
+        },
+        "configuration": {
+          "file": ".semctx/config.json, the matrix configuration serialized with two-space indentation and a final newline",
+          "sha256": "aee8f8d6b0440ad30f368c68e56b635a020bdf56b9ff2024c8d82b9f0741be3a",
+          "note": "the macOS file bytes (b6b3a1ea…) are not reproducible from the recorded object; the parsed content is the recorded configuration"
+        },
+        "workloads": {
+          "honojs/hono": {
+            "archiveSha256Verified": true,
+            "lockfileSha256Verified": true,
+            "snapshot": "same procedure as snapshotRepositories; core.autocrlf=false; upstream executable bits restored on two files; two .gitkeep files matching .gitignore added explicitly; commit created with git commit-tree on branch t01-snapshot",
+            "treeId": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
+            "treeIdEqualsUpstream": true,
+            "gitStatusClean": true,
+            "dependencyClosure": {
+              "packageManager": "pnpm@12.6.0, run with Node.js 22.23.2",
+              "command": "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile",
+              "installSecondsSingleRun": 45,
+              "packageDirectories": 722,
+              "distinctNameVersions": 719,
+              "installedFiles": 25961,
+              "installedBytes": 852293759,
+              "closureManifestSha256": "373fdf2f06258215f59f2ca2bdf9c427c492e6cc21029dbcf538d5cd99f20d8a",
+              "platformPackages": "25 win32 or windows name-version pairs (esbuild, rollup, workerd, oxc and others) replace their darwin counterparts",
+              "countingNote": "counted by a new manifest script; the macOS counts (723 directories, 720 pairs) used another script",
+              "sourceTreeUnchanged": true
+            },
+            "selection": {
+              "selectedFiles": {
+                "typescript": 450,
+                "javascript": 2,
+                "markdown": 18
+              },
+              "selectedBytes": {
+                "typescript": 2891073,
+                "javascript": 1471,
+                "markdown": 28311
+              },
+              "equalsMacOSSelection": true,
+              "selectionListSha256": "5d19c6c0ae164e3f6db8d9443921cbcb359861e3574224aadf3c8c0fd9b99494",
+              "discoveryMsSingleRun": 411
+            },
+            "firstIndex": {
+              "exitCode": 0,
+              "nodes": 2689,
+              "edges": 5934,
+              "evidence": 11164,
+              "claims": 455,
+              "equalsMacOSCounts": true,
+              "wallSeconds": 44.47,
+              "aggregatePeakPrivateWorkingSetBytes": 1930104832,
+              "jobPeakCommitBytes": 2110787584,
+              "cpuSeconds": {
+                "user": 25.16,
+                "kernel": 24.72
+              }
+            }
+          }
+        },
+        "scriptSha256": {
+          "treeManifest": "62f91c31e2a3d4535eb3aa01550d3b6da8f2d074351ee1f45865e8378b869877",
+          "closureManifest": "62f8f9130f7288898a7148e33e969e304a4fef63e723587ba8d6d719efae48aa",
+          "selection": "58e1c29f89209d3b1fab0c258a94d86a7da09108fa563a9212fefa03578a5be0"
+        }
+      },
+      "status": "superseded by the owner on 2026-10-18; kept as a record"
     }
   },
   "instrumentationCost": {

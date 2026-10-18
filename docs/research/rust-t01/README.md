@@ -18,8 +18,8 @@ Checkpoint 2 adds the requalified baseline. Checkpoint 3 pins the workload matri
 captures each workload's dependency closure. Checkpoint 5 fixes the measurement setup and records
 one shake-down run per workload. Checkpoint 6 records the owner's choice of a single Windows
 measurement host and declares its memory collector. Checkpoint 7 redoes the reference build and
-the hono cell on that host; its collector-cost measurement is inconclusive. One owner decision is
-open; see
+the hono cell on that host; its collector-cost measurement is inconclusive. Checkpoint 8 records
+the owner's return to the macOS host. One owner decision is open; see
 [Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
@@ -284,9 +284,21 @@ that cause is not established. At these durations, 10 pairs on backstage would t
 
 ## Measurement host
 
-On 2026-10-18 the owner decided that every size class runs on one Windows host. No 128 GiB host
-is available, and on the 48 GiB macOS host the large cells plateau near host memory. A single
-host keeps the size-dependent coefficients fitted on one machine and one memory metric.
+**Current decision.** Later on 2026-10-18, after the Windows measurements below, the owner moved
+every size class back to the macOS host of checkpoints 1 to 5 (Apple M5 Pro, 18 cores, 48 GiB).
+The macOS setup, collector and collector cost already exist, and the Windows host was loaded by
+other applications. Consequences:
+
+- the macOS reference build, closures, snapshots, collector and collector cost of checkpoints 4
+  and 5 apply; pilot and shake-down runs remain orientation;
+- the large and very large cells run under memory pressure on 48 GiB, and every run records
+  compressor and swap counter deltas; their series size is fixed before any series;
+- the Windows records of checkpoints 6 and 7 remain records. No Windows series is planned.
+
+**Superseded decision.** Earlier the same day, the owner had chosen one Windows host for every
+size class. No 128 GiB host is available, and on the 48 GiB macOS host the large cells plateau
+near host memory. A single host keeps the size-dependent coefficients fitted on one machine and
+one memory metric. The rest of this section and the next record what that decision produced.
 
 The host runs Windows 11 Pro 10.0.26300 on an Intel Core i7-13700K with 24 logical processors and
 63.7 GiB of physical memory visible to Windows. Microsoft Defender real-time protection is enabled
@@ -388,9 +400,8 @@ The host-memory decision is resolved; see [Measurement host](#measurement-host).
 
 ## Next checkpoints
 
-1. Declare a quiet-host procedure and repeat the collector cost on hono under it. Redo the setup
-   of the six other workloads on the Windows host. Apply the owner's submodule decision. Then
-   record repeated baseline series per size class, derive the size-dependent budget coefficients
-   from them and measure the CPU-profile cost for phase attribution.
+1. On the macOS host: apply the owner's submodule decision and fix the series size of the large
+   cells. Then record repeated baseline series per size class, derive the size-dependent budget
+   coefficients from them and measure the CPU-profile cost for phase attribution.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
