@@ -168,7 +168,7 @@
   ],
   "reservedPayloadAccessed": false,
   "next": "Continue the remaining45 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T17:18:07.277660+00:00",
+  "updatedUtc": "2026-10-18T17:45:35.323923+00:00",
   "staticGapUnitsRemaining": 45,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
@@ -331,5 +331,50 @@
       "Nil native AST node guard",
       "Focused test name accidentally matched comparator_ CI filter"
     ]
+  },
+  "seventhBatch": {
+    "registeredUtc": "2026-10-18T17:32:05.778089+00:00",
+    "state": "PREREQUISITE_SOURCE_HOST_FIX_IMPLEMENTED_QUERY_AND_MAPPINGS_PENDING",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P11-workspace-config-link::base",
+      "N11-registry-range-is-not-workspace::base"
+    ],
+    "scope": "Private configured-resolution observation with an explicit containing file/specifier and captured empty directories. Reuse existing native factory and ordinary configuration observation; no frozen import added, no main Request/batch identity or worker protocol extension.",
+    "operationAuthority": "Frozen P11/N11; historical3e94997 packages/ts-analyzer/src/ts-symbols.ts227-310. Resolution mode omitted, configuration workspace links allowed while final source resolution must not synthesize source package links.",
+    "failurePaths": [
+      "Malformed, relative/outside, ambiguous canonical keys and file/directory collisions refuse before resolution.",
+      "Foreign SDK, case mode mismatch and absent captured containing file refuse.",
+      "Empty directory inventory is bound to the private descriptor and survives workspace profile cloning.",
+      "Native resolution error differs from unresolved without error; outside result cannot become a fabricated relative path.",
+      "Ordinary configuration reasons remain a separately named actual component; N11 requires6053, not transport failure.",
+      "Configuration inheritance retains workspace links, final source resolution does not fabricate source package links."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "scopeExpansionAfterRegression": {
+      "recordedUtc": "2026-10-18T17:35:12.103004+00:00",
+      "observed": "Configured native final source resolution returns /repo/packages/physical-source-dev/index.ts through a virtual workspace package path which is not physically captured. The historical owned resolver admits virtual links only during configuration inheritance.",
+      "red": "semctx-t00-gap-explicit-source-link-bound-red.log",
+      "positiveControl": "The same capture really exposes the configuration/workspace alias; consumer is a declared workspace member. Earlier green used a non-member consumer and is not a regression witness.",
+      "correction": "Keep workspace configuration lookup, but restrict the final source resolver host to physically captured paths under the existing workspace/root/SDK admission boundary.",
+      "classification": "Owned adapter defect; no TS7-vs-TS5 arbitration requested or applied",
+      "additionalC1Pass": 1
+    },
+    "prerequisiteCorrection": {
+      "state": "NATIVE_REGRESSION_AND_BOUNDARIES_PASS_MACOS_DEV_REVIEWED",
+      "failure": "Virtual source package alias returned as an actual resolved module",
+      "restoredControls": [
+        "Physical installed source package resolves",
+        "Virtual configuration inheritance selects the real physical target",
+        "Outside-root and nested-repository source targets remain refused"
+      ],
+      "qualificationCredit": 0,
+      "gapUnitsNewlyMapped": 0,
+      "evidence": "source-host-boundary-evidence.json",
+      "independentNegativeWitness": "Source host substitution removed in disposable copy:101; restored0; candidate stable",
+      "review": "PROOF_ADEQUATE bounded to source-host fix"
+    }
   }
 }

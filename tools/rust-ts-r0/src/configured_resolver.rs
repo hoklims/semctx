@@ -23,6 +23,14 @@ pub fn factory(
     let observations = Rc::new(RefCell::new(ResolutionObservations::default()));
     let recorded = observations.clone();
     let create = Rc::new(move |mut options: ResolverOptions| {
+        if fs.workspace.is_some()
+            && let Some(host) = options.host.take()
+        {
+            options.host = Some(Rc::new(SourceResolutionHost {
+                base: host,
+                fs: PhysicalCaptureFs(fs.clone()),
+            }));
+        }
         let base: Rc<dyn Resolver> = Rc::new(module::new_resolver(options.clone()));
         options.package_json_cache =
             Some(base.get_resolution_data().package_json_info_cache.clone());
@@ -37,6 +45,113 @@ pub fn factory(
         }) as Rc<dyn Resolver>
     });
     (create, observations)
+}
+
+struct SourceResolutionHost {
+    base: Rc<dyn module::ResolutionHost>,
+    fs: PhysicalCaptureFs,
+}
+impl module::ResolutionHost for SourceResolutionHost {
+    fn fs(&self) -> &dyn Fs {
+        &self.fs
+    }
+    fn get_current_directory(&self) -> &str {
+        self.base.get_current_directory()
+    }
+}
+struct PhysicalCaptureFs(Rc<CaptureFs>);
+impl PhysicalCaptureFs {
+    fn physical(&self, path: &str) -> Option<String> {
+        let key = self.0.key(path);
+        self.0.workspace.as_ref().map_or_else(
+            || {
+                (self.0.files.contains_key(&key) || self.0.dirs.contains(&key))
+                    .then_some(key.clone())
+            },
+            |workspace| workspace.physical_path(&self.0, path),
+        )
+    }
+    fn file(&self, path: &str) -> bool {
+        self.physical(path)
+            .is_some_and(|key| self.0.files.contains_key(&key))
+    }
+    fn directory(&self, path: &str) -> bool {
+        self.physical(path)
+            .is_some_and(|key| self.0.dirs.contains(&key))
+    }
+}
+impl Fs for PhysicalCaptureFs {
+    fn use_case_sensitive_file_names(&self) -> bool {
+        self.0.use_case_sensitive_file_names()
+    }
+    fn file_exists(&self, path: &str) -> bool {
+        if self.file(path) {
+            self.0.file_exists(path)
+        } else {
+            self.0.record("file_exists", path, false);
+            false
+        }
+    }
+    fn read_file(&self, path: &str) -> (String, bool) {
+        if self.file(path) {
+            self.0.read_file(path)
+        } else {
+            self.0.record("read_file", path, false);
+            (String::new(), false)
+        }
+    }
+    fn directory_exists(&self, path: &str) -> bool {
+        if self.directory(path) {
+            self.0.directory_exists(path)
+        } else {
+            self.0.record("directory_exists", path, false);
+            false
+        }
+    }
+    fn get_accessible_entries(&self, path: &str) -> Entries {
+        if self.directory(path) {
+            self.0.get_accessible_entries(path)
+        } else {
+            self.0.record("directory_entries", path, false);
+            Entries {
+                symlinks: Some(Default::default()),
+                ..Default::default()
+            }
+        }
+    }
+    fn stat(&self, path: &str) -> Option<FileInfo> {
+        if self.physical(path).is_some() {
+            self.0.stat(path)
+        } else {
+            self.0.record("stat", path, false);
+            None
+        }
+    }
+    fn realpath(&self, path: &str) -> String {
+        if self.physical(path).is_some() {
+            self.0.realpath(path)
+        } else {
+            self.0.record("realpath", path, false);
+            path.into()
+        }
+    }
+    fn write_file(&self, path: &str, data: &str) -> Result<(), FsError> {
+        self.0.write_file(path, data)
+    }
+    fn append_file(&self, path: &str, data: &str) -> Result<(), FsError> {
+        self.0.append_file(path, data)
+    }
+    fn remove(&self, path: &str) -> Result<(), FsError> {
+        self.0.remove(path)
+    }
+    fn chtimes(
+        &self,
+        path: &str,
+        access: Option<SystemTime>,
+        modified: Option<SystemTime>,
+    ) -> Result<(), FsError> {
+        self.0.chtimes(path, access, modified)
+    }
 }
 
 #[derive(Clone)]
@@ -427,6 +542,120 @@ mod tests {
             ..Default::default()
         });
         (resolver, observations, fs)
+    }
+
+    #[test]
+    fn configured_source_resolution_does_not_create_workspace_source_package_links() {
+        let files = BTreeMap::from([
+            (
+                "/repo/package.json".into(),
+                r#"{"workspaces":["packages/*","app"]}"#.into(),
+            ),
+            (
+                "/repo/packages/physical-source-dev/package.json".into(),
+                r#"{"name":"physical-source-dev","version":"1.0.0","types":"index.ts"}"#.into(),
+            ),
+            (
+                "/repo/packages/physical-source-dev/index.ts".into(),
+                "export function physicalSourceDev() { return 29; }".into(),
+            ),
+            (
+                "/repo/app/package.json".into(),
+                r#"{"dependencies":{"physical-source-dev":"workspace:*","@dev/config":"workspace:*"}}"#.into(),
+            ),
+            (
+                "/repo/app/source.ts".into(),
+                "export const sourceDev = 31;".into(),
+            ),
+            (
+                "/repo/app/node_modules/installed-source-dev/package.json".into(),
+                r#"{"name":"installed-source-dev","types":"index.ts"}"#.into(),
+            ),
+            (
+                "/repo/app/node_modules/installed-source-dev/index.ts".into(),
+                "export const installedSourceDev = 37;".into(),
+            ),
+            ("/repo/packages/config-dev/package.json".into(), r#"{"name":"@dev/config","version":"1.0.0"}"#.into()),
+            ("/repo/packages/config-dev/tsconfig.json".into(), r##"{"compilerOptions":{"baseUrl":".","paths":{"#dev":["leaf.ts"]}}}"##.into()),
+            ("/repo/packages/config-dev/leaf.ts".into(), "export const inheritedDev = 41;".into()),
+            ("/repo/app/tsconfig.json".into(), r#"{"extends":"@dev/config/tsconfig.json"}"#.into()),
+            ("/repo/nested/.git/HEAD".into(), "ref: refs/heads/dev".into()),
+            ("/repo/nested/hidden.ts".into(), "export const nestedDev = 43;".into()),
+            ("/outside-dev.ts".into(), "export const outsideDev = 47;".into()),
+        ]);
+        let fs = Rc::new(CaptureFs::with_workspace_root(
+            files,
+            true,
+            "/repo",
+            Some("/sdk/lib"),
+        ));
+        assert!(fs.file_exists("/repo/app/node_modules/physical-source-dev/index.ts"));
+        let (create, observations) = factory(fs.clone(), "/repo".into(), "/sdk/lib".into());
+        let resolver = create(ResolverOptions {
+            host: Some(Rc::new(DevelopmentHost(fs.clone()))),
+            compiler_options: Some(Rc::new(compiler_options())),
+            ..Default::default()
+        });
+        let (found, _, error) = resolver.resolve_module_name(
+            "physical-source-dev",
+            "/repo/app/source.ts",
+            ModuleKind::NONE,
+            None,
+        );
+        assert!(error.is_none(), "{error:?}");
+        assert!(
+            found
+                .as_ref()
+                .is_none_or(|value| value.resolved_file_name.is_empty()),
+            "{:?}",
+            found.as_ref().map(|value| &value.resolved_file_name)
+        );
+        assert!(observations.borrow().errors.is_empty());
+        let (installed, _, error) = resolver.resolve_module_name(
+            "installed-source-dev",
+            "/repo/app/source.ts",
+            ModuleKind::NONE,
+            None,
+        );
+        assert!(error.is_none());
+        assert_eq!(
+            installed.unwrap().resolved_file_name,
+            "/repo/app/node_modules/installed-source-dev/index.ts"
+        );
+        let (inherited, _, error) =
+            resolver.resolve_module_name("#dev", "/repo/app/source.ts", ModuleKind::NONE, None);
+        assert!(error.is_none(), "{error:?}");
+        assert_eq!(
+            inherited.unwrap().resolved_file_name,
+            "/repo/packages/config-dev/leaf.ts"
+        );
+        assert!(observations.borrow().reasons["/repo/app/source.ts"].is_empty());
+        for (specifier, refusal) in [
+            ("../../outside-dev", "WORKSPACE_PATH_OUTSIDE_ROOT"),
+            ("../nested/hidden", "WORKSPACE_NESTED_REPOSITORY"),
+        ] {
+            let (found, _, error) = resolver.resolve_module_name(
+                specifier,
+                "/repo/app/source.ts",
+                ModuleKind::NONE,
+                None,
+            );
+            assert!(error.is_none(), "{error:?}");
+            assert!(
+                found
+                    .as_ref()
+                    .is_none_or(|value| value.resolved_file_name.is_empty())
+            );
+            assert!(
+                fs.workspace
+                    .as_ref()
+                    .unwrap()
+                    .issues
+                    .borrow()
+                    .iter()
+                    .any(|issue| issue.detail == refusal)
+            );
+        }
     }
 
     #[test]
