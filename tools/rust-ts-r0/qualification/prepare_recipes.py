@@ -749,6 +749,34 @@ for recipe in recipes:
     recipe['credited_properties'] = list(assertions)
     recipe['proof_scope'] = 'Actual reused native supervisor and existing raw-observation rejection path on C1. An imposed deadline may occur during startup, before final report; capped capture preserves full-stream observations separately from captured-prefix hashes. No ownership, useful-product success, semantic or global admission inferred.'
 
+for recipe in recipes:
+    if recipe['case_id'] not in ['T-cancelled', 'T-invalid-json', 'T-nonzero']:
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    recipe['surface'] = 'native_transport_cli'
+    recipe['requests'] = []
+    recipe['fault_injection_mechanism'] = {'T-cancelled':'Native #383 fixture supervises a child and descendant, waits for readiness, then requests cancellation.', 'T-invalid-json':'Native proxy invokes real C1 --batch, retains its actual Outcome and writes its stdout prefix without the final closing brace, exit 0.', 'T-nonzero':'Native proxy invokes real C1 --batch and forwards its complete refused batch with declared exit 3; malformed/empty exit 3 and unexpected native exit 7 are negative branches.'}[recipe['case_id']]
+    recipe['ancillary_control'] = {'fixture':'tests/fixtures/native-development-flow/cases.json', 'case_id':'DEV-INDEPENDENT-ORBIT-DEFAULT-REFUSAL', 'reason':'SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED', 'scope':'Actual C1 before/after health and batch control only; no semantic credit transferred. Exit 3 belongs to the explicit native proxy convention, not C1.'}
+    recipe['checks'] = [check([key], expected, 'eq', ptr(key)) for key, expected in assertions.items() if isinstance(expected, bool)]
+    if recipe['case_id'] == 'T-nonzero':
+        for key in ['controlled_product_refusal', 'unexpected_process_failure']:
+            recipe['checks'].append(check(['branches',0,key], assertions['branches'][0][key], 'eq', '/assertions/branches/0/'+key))
+        recipe['checks'].append(check(['branches',0,'expected_refusal_case_satisfied'], True, 'eq', '/assertions/branches/0/qualification_success'))
+        recipe['checks'].append(check(['qualification_success'], False, 'eq', '/assertions/branches/0/qualification_success'))
+        for index in [1,2,3]:
+            for key in ['controlled_product_refusal', 'unexpected_process_failure', 'qualification_success']:
+                recipe['checks'].append(check(['branches',index,key], assertions['branches'][1][key], 'eq', '/assertions/branches/1/'+key))
+        for key in ['wrong_reason_rejected','undeclared_exit_rejected']:
+            recipe['checks'].append(check(['branches',0,key], True, 'eq', '/assertions/branches/1/condition'))
+    else:
+        recipe['checks'].append(check(['error_identity_preserved'], True, 'eq', '/assertions/error_identity_if_exposed_by_reused_supervisor'))
+        recipe['checks'][-1]['requirement_interpretation'] = assertions['error_identity_if_exposed_by_reused_supervisor']
+    recipe['checks'].extend([check(['before_control_healthy'], True, 'eq', 'Actual ancillary native refusal before the fault'), check(['after_control_healthy'], True, 'eq', 'Actual ancillary native refusal after the fault')])
+    recipe['relations'] = []
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(assertions)
+    recipe['proof_scope'] = 'External native transport control instantiated from the frozen scenario. All Outcomes are actual supervisor returns. No useful product success, ownership, universal descendant termination, public acquisition, semantic or global admission inferred. Auxiliary native fixture and real C1 producer identities are separate.'
+
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
 def code_units(text):

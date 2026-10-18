@@ -1,0 +1,84 @@
+{
+  "recordVersion": 1,
+  "state": "THREE_FROZEN_NATIVE_TRANSPORT_UNITS_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "35b3e223d55a919dcdcf3c23b62c5d0e4a1db0bd",
+  "reviewedDiffSha256": "5c624e7ab58597d795b35549c425c87ebe677aced7186a3723d7b6d55510fec6",
+  "archive": {
+    "path": "gap-native-transport-evidence.tar.gz.b64",
+    "bytes": 410990,
+    "sha256": "e2093d8f181c26cdeb705379306b77562f86650c43859816cca49f1a13de4d48",
+    "decodedSha256": "4d30b9c093426005442b38ae0dc5edf7296be63e8cc99988249f299cf6c317f6",
+    "files": 142
+  },
+  "units": [
+    "T-nonzero::base",
+    "T-invalid-json::base",
+    "T-cancelled::base"
+  ],
+  "authority": "Frozen scenarios units14/15/16 and allocation/input-index; accepted ADR0037; same owner-authorized T00/C1/additional pass1. Ancillary frozen DEV default-expression refusal supplies actual C1 batch only.",
+  "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+  "nativeEngineSourceCount": 31,
+  "sourceHashScope": "Development source manifest rechecked; not a complete build-input closure or qualification freeze. C1 engine sources and selected artifact unchanged in this tranche.",
+  "transportFixtureSha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+  "transportFixtureScope": "Separately identified native fault injector/proxy; not the C1 facts producer or a new candidate composition.",
+  "recipesSha256": "5621e61f2dd0996d7ca9d908d8301e41c2b4224f83cba8b113f366f14a958b41",
+  "checks": {
+    "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+    "projectedChecks": [
+      19,
+      8,
+      8
+    ],
+    "nativeBinaryTests": 207,
+    "nativeLibraryTests": 47,
+    "nativeIntegrationTargets": {
+      "native_common_portability": 1,
+      "native_development_flow": 4,
+      "native_parallel_flow": 4,
+      "native_transport_flow": 1
+    },
+    "comparatorTests": 47,
+    "recipeCliTests": 7,
+    "gatesSuite": "18LIB,5cli,25planning,13process,7rust_product PASS; final extracted fixture process13 PASS again.",
+    "qualificationSuite": "16LIB,21fixture,10stderr,2adapter,3lifecycle PASS; four existing ignored unit fixture entries remain explicitly not executed.",
+    "format": "PASS all3manifests",
+    "clippy": "PASS gates,C1 all-targets(+qualification feature),qualification -Dwarnings",
+    "ruff": "PASS",
+    "zizmorOffline": "PASS",
+    "completeVerifyPr": "Not rerun; four prior local partitions remain attributed only to63397c7b."
+  },
+  "failurePaths": [
+    "Declared proxy exit3 accepts complete actual C1 refused batch only with expected reason; revalidate refuses ownership. Undeclared exit3 and wrong expected reason are rejected.",
+    "Actual stdout truncation or omission is rejected as MalformedOutput; exit0 transport success remains distinct from malformed JSON classification.",
+    "Actual unexpected native exit7 is ProcessFailure.",
+    "Cancellation is requested only after owned child reports a living descendant; actual cancelled Outcome retains capture. No universal termination guarantee.",
+    "Missing tool/input/identity, invalid inner C1 refusal, changed tools or inconsistent captures fail closed.",
+    "Existing MCP test finalizes its displaced reader after owned-child cleanup and before shared reader-stop from session drop."
+  ],
+  "review": {
+    "initialStandards": "review/initial/standards/report.md",
+    "specProof": "review/initial/spec-proof/report.txt",
+    "finalReview": "review/final/report.md",
+    "claimLedger": "review/initial/claims/ledger.md",
+    "claimContext": "review/initial/claims/context.json",
+    "sourceFaultsRejectedThenRestored": 1,
+    "sourceFaultProfile": "Independent release optimized test/producer with dev fixture, original source anchor fd157a; not author immutable4b.",
+    "finalDelta": "Two helper extractions and MCP test teardown order; complete 11-file delta independently reviewed.",
+    "candidateUnchangedDuringFinalReview": true
+  },
+  "limits": [
+    "36of64 initial GAP now mapped cumulatively:35limitedPASS and N17c version-attributed NONPASS;28staticGAP;326of354 recipes have no known GAP. No new full-campaign aggregate;0/240qualified.",
+    "T-reader-error remains GAP; malformedJSON does not prove native reader/finalization error handling.",
+    "Only macOS exercised here. Workflow includes ordinary optimized transport integration on existing3OS lane; no new lane or remote success claimed.",
+    "Full3543OScampaign,178property/supportreview,reservedonce,R0 and remaining#365 incomplete.",
+    "Owner pass1OPEN,pass2unused;3-4days is unmeasured planning estimate.",
+    "No useful-product,semantic,ownership,global,atomic-capture,all-SDK,universaltermination or performance guarantee.",
+    "Reserved payload nonaccess is author attestation only; no forensic guarantee."
+  ],
+  "priorHeadCi": {
+    "head": "35b3e223d55a919dcdcf3c23b62c5d0e4a1db0bd",
+    "run": 39172565446,
+    "macosRustJob": "failure in existing MCP replaced-capture cleanup test; remote raw retained",
+    "attribution": "Not a current-head result. Fresh exact-head CI remains required."
+  }
+}

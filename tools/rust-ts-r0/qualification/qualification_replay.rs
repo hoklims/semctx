@@ -1,6 +1,10 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
 mod parallel_replay;
+#[path = "../tests/support/receiver_context.rs"]
+mod receiver_context;
+#[path = "../tests/support/transport_process.rs"]
+mod transport_process;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -1644,6 +1648,43 @@ fn run_process_fault_recipe(
     Ok(result)
 }
 
+fn run_transport_recipe(recipe: &Value, dir: &Path, manifest: &Value) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("transport gap registry absent")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    let producer = Path::new(value_text(manifest, "artifact_path")?);
+    let helper = Path::new(value_text(manifest, "helper_path")?);
+    let fixture = Path::new(value_text(manifest, "transport_fixture_path")?);
+    let sdk = Path::new(value_text(manifest, "sdk_path")?);
+    for (path, field) in [
+        (producer, "artifact_sha256"),
+        (helper, "helper_sha256"),
+        (fixture, "transport_fixture_sha256"),
+        (sdk, "sdk_sha256"),
+    ] {
+        exact_hash(path, value_text(manifest, field)?)?;
+    }
+    let tools = transport_process::Tools {
+        producer,
+        helper,
+        fixture,
+        sdk,
+    };
+    let observed = transport_process::run(&tools, dir, value_text(recipe, "case_id")?)?;
+    let checks = recipe["checks"].as_array().ok_or("transport checks absent")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"pass":pass,"state":if pass {"PASS_FROZEN_NATIVE_TRANSPORT_UNIT"}else{"NONPASS_NATIVE_TRANSPORT_UNIT"},"checks":checks,"observation":observed,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn controlled_assembly_observation(outcome: &process::Outcome) -> Result<Value, Value> {
     if outcome.kind != "success" || outcome.exit_code != Some(0) {
         return Err(json!({"state":"CONTROLLED_ASSEMBLY_PROCESS_NONPASS","pass":false}));
@@ -2617,6 +2658,13 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "native_transport_cli" {
+            let mut result =
+                run_transport_recipe(recipe, &out.join(format!("unit-{index:03}")), &freeze)?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "parallel_cli" {
             let mut result = parallel_replay::run(
                 recipe,
@@ -4106,6 +4154,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "native_transport_cli" => run_transport_recipe(recipe, &dir, &fixture),
             "parallel_cli" => parallel_replay::run(
                 recipe,
                 &dir,
@@ -5691,4 +5740,13 @@ fn comparator_omitted_capture_keeps_physical_bytes_and_private_setup_refuses_esc
     fs::remove_file(&physical).unwrap();
     assert!(retained_omissions(&mut original.clone(), &json!(["probe.test.ts"]), &public).is_err());
     fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn gap_real_native_refusal_truncation_and_owned_cancellation() {
+    repair_units(&[
+        "T-nonzero::base",
+        "T-invalid-json::base",
+        "T-cancelled::base",
+    ]);
 }
