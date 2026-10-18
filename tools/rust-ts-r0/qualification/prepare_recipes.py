@@ -612,6 +612,26 @@ for recipe in recipes:
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
+for recipe in recipes:
+    if recipe['case_id'] not in ['T-timeout', 'T-output-limit']:
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    control = next(row for row in recipes if row['unit_id'] == 'P16-explicit-esm-boundary::base')
+    recipe['surface'] = 'process_fault_cli'
+    recipe['requests'] = []
+    recipe['control_recipe'] = control
+    recipe['control_scope'] = 'Explicit ancillary frozen P16 native invocation, only health before/after fault; no semantic P16 credit transferred to the external-fault unit.'
+    recipe['expected_fault_kind'] = 'timeout' if recipe['case_id'] == 'T-timeout' else 'output_limit'
+    recipe['execution_limits'] = {'timeout_ms':1, 'output_cap':8388608} if recipe['case_id'] == 'T-timeout' else {'timeout_ms':20000, 'output_cap':64}
+    recipe['checks'] = [check([key], expected, 'eq', '/assertions/'+key) for key, expected in assertions.items() if isinstance(expected, bool)]
+    recipe['checks'].append(check(['error_identity_preserved'], True, 'eq', '/assertions/error_identity_if_exposed_by_reused_supervisor'))
+    recipe['checks'][-1]['requirement_interpretation'] = assertions['error_identity_if_exposed_by_reused_supervisor']
+    recipe['checks'].append(check(['failure_kind'], recipe['expected_fault_kind'], 'eq', '/variant_input_or_observation/scenario'))
+    recipe['relations'] = []
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(assertions)
+    recipe['proof_scope'] = 'Actual reused native supervisor and existing raw-observation rejection path on C1. An imposed deadline may occur during startup, before final report; capped capture preserves full-stream observations separately from captured-prefix hashes. No ownership, useful-product success, semantic or global admission inferred.'
+
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
 def code_units(text):

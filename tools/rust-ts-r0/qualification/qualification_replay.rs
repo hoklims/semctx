@@ -727,6 +727,31 @@ fn evaluate_relation(observations: &[Value], relation: &Value) -> Value {
         Err(error) => json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":error}),
     }
 }
+fn raw_execution_limits(recipe: &Value) -> Result<(u64, usize), String> {
+    let Some(limits) = recipe.get("execution_limits") else {
+        return Ok((20_000, 8_388_608));
+    };
+    let object = limits
+        .as_object()
+        .ok_or("raw execution limits must be an object")?;
+    if object.len() != 2 || !object.contains_key("timeout_ms") || !object.contains_key("output_cap")
+    {
+        return Err("raw execution limits require exactly timeout_ms/output_cap".into());
+    }
+    let timeout = limits["timeout_ms"]
+        .as_u64()
+        .filter(|value| (1..=20_000).contains(value))
+        .ok_or("invalid raw timeout")?;
+    let cap = limits["output_cap"]
+        .as_u64()
+        .filter(|value| (1..=8_388_608).contains(value))
+        .ok_or("invalid raw output cap")?;
+    Ok((
+        timeout,
+        usize::try_from(cap).map_err(|_| "raw output cap overflow")?,
+    ))
+}
+
 fn run_raw_recipe(
     recipe: &Value,
     dir: &Path,
@@ -737,6 +762,7 @@ fn run_raw_recipe(
     helper_sha: &str,
 ) -> Result<Value, String> {
     let (sdk_path, sdk) = sdk_input;
+    let (timeout_ms, output_cap) = raw_execution_limits(recipe)?;
     if let Err(error) = validate_component_checks(
         recipe["checks"]
             .as_array()
@@ -794,7 +820,7 @@ fn run_raw_recipe(
             request_path.to_string_lossy().into_owned(),
             sdk_path.to_string_lossy().into_owned(),
         ];
-        let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        let outcome = process::run_with_helper(&argv, &root, timeout_ms, output_cap, helper)
             .map_err(|e| e.to_string())?;
         let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
         save(
@@ -805,9 +831,15 @@ fn run_raw_recipe(
             &subdir.join("artifact-observation.json"),
             &json!({"before":before,"after":after}),
         )?;
+        let process_outcome_id =
+            identity::digest(&serde_json::to_value(&outcome).map_err(|error| error.to_string())?);
+        save(
+            &subdir.join("process-invocation.json"),
+            &json!({"argv":argv,"cwd":root,"timeout_ms":timeout_ms,"output_cap":output_cap,"process_outcome_id":process_outcome_id}),
+        )?;
         if outcome.kind != "success" || outcome.exit_code != Some(0) {
             return Ok(
-                json!({"state":"PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION","outcome_kind":outcome.kind,"observation":index,"pass":false}),
+                json!({"state":"PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION","outcome_kind":outcome.kind,"process_outcome_id":process_outcome_id,"observation":index,"pass":false}),
             );
         }
         let observed: Value = match serde_json::from_str(&outcome.stdout) {
@@ -1376,6 +1408,168 @@ fn run_worker_recipe(
     save(&dir.join("result.json"), &result)?;
     Ok(result)
 }
+fn project_process_fault(
+    expected_kind: &str,
+    budget: (u64, usize),
+    raw_result: &Value,
+    captured: &Value,
+) -> Result<Value, String> {
+    let outcome: process::Outcome =
+        serde_json::from_value(captured.clone()).map_err(|error| error.to_string())?;
+    if !matches!(expected_kind, "timeout" | "output_limit")
+        || outcome.kind != expected_kind
+        || raw_result["state"]
+            != "PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION"
+        || raw_result["pass"] != false
+        || raw_result["outcome_kind"] != outcome.kind
+        || raw_result["process_outcome_id"] != identity::digest(captured)
+    {
+        return Err("native fault kind, raw rejection or captured outcome identity differs".into());
+    }
+    let bounded = [
+        (
+            outcome.stdout.as_bytes(),
+            outcome.stdout_bytes,
+            &outcome.stdout_hash,
+        ),
+        (
+            outcome.stderr.as_bytes(),
+            outcome.stderr_bytes,
+            &outcome.stderr_hash,
+        ),
+    ]
+    .iter()
+    .all(|(prefix, count, digest)| {
+        prefix.len() <= budget.1
+            && *count >= prefix.len() as u64
+            && digest.len() == 64
+            && digest.bytes().all(|byte| byte.is_ascii_hexdigit())
+            && (*count > budget.1 as u64
+                || (*count == prefix.len() as u64 && sha(prefix) == **digest))
+    });
+    if !bounded
+        || (expected_kind == "timeout" && outcome.duration_ms < budget.0)
+        || (expected_kind == "output_limit"
+            && outcome.stdout_bytes <= budget.1 as u64
+            && outcome.stderr_bytes <= budget.1 as u64)
+    {
+        return Err("native fault budget or bounded capture is inconsistent".into());
+    }
+    Ok(json!({
+        "failure_kind":outcome.kind,"qualification_success":raw_result["pass"],"useful_product_success":false,"controlled_product_refusal":false,
+        "failure_kind_distinct_from_success":outcome.kind != "success","available_bounded_capture_retained":bounded,"error_identity_preserved":true,
+        "supervisor_outcome":captured,"process_outcome_id":raw_result["process_outcome_id"],
+        "captured_stdout_id":identity::digest_bytes(outcome.stdout.as_bytes()),"captured_stderr_id":identity::digest_bytes(outcome.stderr.as_bytes()),
+        "full_stream_hashes_are_supervisor_observations":true,"lower_level_errors_invented":false,"global_admission_inferred":false
+    }))
+}
+
+fn evaluate_process_fault_unit(
+    recipe: &Value,
+    observed: &Value,
+    before: &Value,
+    after: &Value,
+) -> Result<Value, String> {
+    let checks = recipe["checks"].as_array().ok_or("missing process fault checks")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(observed,check)})).collect::<Vec<_>>();
+    let healthy = |control: &Value| {
+        control["pass"] == true && control["state"] == "PASS_FROZEN_PROJECTED_UNIT"
+    };
+    let pass = healthy(before)
+        && healthy(after)
+        && !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    Ok(
+        json!({"state":if pass {"PASS_FROZEN_NATIVE_PROCESS_FAULT_UNIT"} else {"NONPASS_NATIVE_PROCESS_FAULT_UNIT"},"pass":pass,"checks":checks,"global_admission_inferred":false}),
+    )
+}
+
+fn run_process_fault_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing fault gap registry")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    let control = recipe
+        .get("control_recipe")
+        .ok_or("missing native runnable control")?;
+    let before = run_raw_recipe(
+        control,
+        &dir.join("before-control"),
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let mut faulty = control.clone();
+    faulty["execution_limits"] = recipe["execution_limits"].clone();
+    let fault_dir = dir.join("fault");
+    let rejected = run_raw_recipe(
+        &faulty,
+        &fault_dir,
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let after = run_raw_recipe(
+        control,
+        &dir.join("after-control"),
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let captured = read_json(&fault_dir.join("process-outcome.json"))?;
+    let limits = &recipe["execution_limits"];
+    let budget = (
+        limits["timeout_ms"]
+            .as_u64()
+            .ok_or("missing fault timeout")?,
+        usize::try_from(
+            limits["output_cap"]
+                .as_u64()
+                .ok_or("missing fault output cap")?,
+        )
+        .map_err(|_| "fault output cap overflow")?,
+    );
+    let observed = match project_process_fault(
+        value_text(recipe, "expected_fault_kind")?,
+        budget,
+        &rejected,
+        &captured,
+    ) {
+        Ok(value) => value,
+        Err(error) => {
+            let result = json!({"state":"NATIVE_PROCESS_FAULT_EVIDENCE_REJECTED","pass":false,"error":error,"before":before,"fault":rejected,"after":after});
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("process-fault-observation.json"), &observed)?;
+    let mut result = evaluate_process_fault_unit(recipe, &observed, &before, &after)?;
+    result["before"] = before;
+    result["fault_rejection"] = rejected;
+    result["after"] = after;
+    result["fault_observation"] = observed;
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn configured_query_complete_binding(
     observed: &Value,
     request: &Value,
@@ -1969,6 +2163,20 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "process_fault_cli" {
+            let mut result = run_process_fault_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "configured_query_cli" {
             let mut result = run_configured_query_recipe(
                 recipe,
@@ -3405,6 +3613,15 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "process_fault_cli" => run_process_fault_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "configured_query_cli" => run_configured_query_recipe(
                 recipe,
                 &dir,
@@ -3959,5 +4176,130 @@ fn comparator_configured_query_refuses_missing_or_substituted_component_evidence
     descriptor["directories"] = json!([]);
     assert!(
         configured_query_complete_binding(&observed, &descriptor, &sdk, "dev-artifact").is_err()
+    );
+}
+
+#[test]
+fn gap_real_native_process_deadline_and_capture_limit() {
+    repair_units(&["T-timeout::base", "T-output-limit::base"]);
+}
+
+#[test]
+fn comparator_process_limits_never_fall_back_from_explicit_invalid_budgets() {
+    assert_eq!(
+        raw_execution_limits(&json!({})).unwrap(),
+        (20_000, 8_388_608)
+    );
+    assert_eq!(
+        raw_execution_limits(&json!({"execution_limits":{"timeout_ms":1,"output_cap":64}}))
+            .unwrap(),
+        (1, 64)
+    );
+    for limits in [
+        Value::Null,
+        json!({}),
+        json!({"timeout_ms":1}),
+        json!({"timeout_ms":1,"output_cap":64,"extra":true}),
+        json!({"timeout_ms":0,"output_cap":64}),
+        json!({"timeout_ms":20001,"output_cap":64}),
+        json!({"timeout_ms":1.5,"output_cap":64}),
+        json!({"timeout_ms":"1","output_cap":64}),
+        json!({"timeout_ms":1,"output_cap":0}),
+        json!({"timeout_ms":1,"output_cap":8388609}),
+        json!({"timeout_ms":1,"output_cap":-1}),
+    ] {
+        assert!(raw_execution_limits(&json!({"execution_limits":limits})).is_err());
+    }
+}
+
+#[test]
+fn comparator_process_fault_requires_actual_bound_capture_and_healthy_controls() {
+    let captured = json!({"kind":"timeout","exit_code":null,"duration_ms":12,"stdout":"partial","stderr":"","stdout_bytes":7,"stderr_bytes":0,"stdout_hash":sha(b"partial"),"stderr_hash":sha(b"")});
+    let rejected = json!({"state":"PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION","pass":false,"outcome_kind":"timeout","process_outcome_id":identity::digest(&captured)});
+    let observed = project_process_fault("timeout", (1, 64), &rejected, &captured).unwrap();
+    assert_eq!(observed["qualification_success"], false);
+    for field in [
+        "kind",
+        "exit_code",
+        "duration_ms",
+        "stdout",
+        "stderr",
+        "stdout_bytes",
+        "stderr_bytes",
+        "stdout_hash",
+        "stderr_hash",
+    ] {
+        let mut altered = captured.clone();
+        altered.as_object_mut().unwrap().remove(field);
+        assert!(
+            project_process_fault("timeout", (1, 64), &rejected, &altered).is_err(),
+            "missing {field}"
+        );
+    }
+    for (field, value) in [
+        ("kind", json!("success")),
+        ("stdout", json!("substituted")),
+        ("duration_ms", json!(13)),
+        ("exit_code", json!(3)),
+    ] {
+        let mut altered = captured.clone();
+        altered[field] = value;
+        assert!(
+            project_process_fault("timeout", (1, 64), &rejected, &altered).is_err(),
+            "unbound {field}"
+        );
+    }
+    for (field, value) in [
+        ("duration_ms", json!(0)),
+        ("stdout_bytes", json!(1)),
+        ("stdout_bytes", json!(8)),
+        ("stderr_bytes", json!(1)),
+        ("stdout_hash", json!("not-a-hash")),
+        ("stdout_hash", json!(sha(b"different"))),
+    ] {
+        let mut altered = captured.clone();
+        altered[field] = value;
+        let mut rebound = rejected.clone();
+        rebound["process_outcome_id"] = json!(identity::digest(&altered));
+        assert!(
+            project_process_fault("timeout", (1, 64), &rebound, &altered).is_err(),
+            "inconsistent {field}"
+        );
+    }
+    assert!(project_process_fault("capture_error", (1, 64), &rejected, &captured).is_err());
+    let mut limited = captured.clone();
+    limited["kind"] = json!("output_limit");
+    limited["stdout_bytes"] = json!(100);
+    limited["stdout_hash"] = json!(sha(&[b'x'; 100]));
+    let mut bounded = rejected.clone();
+    bounded["outcome_kind"] = json!("output_limit");
+    bounded["process_outcome_id"] = json!(identity::digest(&limited));
+    assert!(project_process_fault("output_limit", (20000, 7), &bounded, &limited).is_ok());
+    assert!(project_process_fault("output_limit", (20000, 6), &bounded, &limited).is_err());
+    assert!(project_process_fault("output_limit", (20000, 100), &bounded, &limited).is_err());
+    let check = json!({"target":["qualification_success"],"expected":false,"mode":"eq","expected_origin":"/assertions/qualification_success","actual_transform":"none"});
+    let recipe = json!({"checks":[check]});
+    let good = json!({"state":"PASS_FROZEN_PROJECTED_UNIT","pass":true});
+    assert_eq!(
+        evaluate_process_fault_unit(&recipe, &observed, &good, &good).unwrap()["pass"],
+        true
+    );
+    for bad in [
+        json!({}),
+        json!({"pass":false,"state":"PASS_FROZEN_PROJECTED_UNIT"}),
+        json!({"pass":true,"state":"NONPASS_PROJECTED_UNIT"}),
+    ] {
+        assert_eq!(
+            evaluate_process_fault_unit(&recipe, &observed, &bad, &good).unwrap()["pass"],
+            false
+        );
+        assert_eq!(
+            evaluate_process_fault_unit(&recipe, &observed, &good, &bad).unwrap()["pass"],
+            false
+        );
+    }
+    assert_eq!(
+        evaluate_process_fault_unit(&json!({"checks":[]}), &observed, &good, &good).unwrap()["pass"],
+        false
     );
 }

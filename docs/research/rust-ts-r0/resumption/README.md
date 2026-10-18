@@ -90,7 +90,7 @@ restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
 native syntactic relative-import helper: both frozen component cases pass, with
 18 altered observations and three native visitor faults rejected independently.
 This is component evidence, with the ADR0019 pilot workflow unchanged. There
-are43 static GAP units still to map; all240 obligations remain unqualified.
+are41 static GAP units still to map; all240 obligations remain unqualified.
 
 Preparation of P11/N11 exposed an [owned source-host defect](source-host-boundary-evidence.json):
 final module resolution admitted virtual workspace source-package links. The
@@ -107,7 +107,20 @@ probes receive the workspace configuration exception. Actual outside inheritance
 remains refused. Independent review rejects32 altered observations,23 input
 attacks and five producer faults, each followed by successful restoration. This
 brings the new mappings to21, with20 limited PASS and the unchanged N17c NONPASS;
-no obligation is qualified.
+no obligation is qualified. An
+[eighth tranche](gap-process-fault-evidence.json) maps the actual timeout and
+output-limit supervision cases. Each real C1 fault is surrounded by the same
+healthy P16 control; that control gives no semantic credit to the empty T inputs.
+Explicit budgets now reach the supervisor. The original in-memory outcome binds
+the persisted capture, and non-truncated byte counts must equal retained lengths.
+Independent review found that last consistency defect, retained its red witness
+and reviewed the correction. These two macOS DEV passes bring the new mappings
+to23:22 limited PASS and the unchanged N17c NONPASS, with41 static GAP units
+remaining and0 qualified obligations. Cancellation, malformed JSON, nonzero
+refusal and reader/finalization cases remain separate gaps. Native producer
+192/library43 checks are reused at their original3cc870b4 provenance;36 observer
+comparators and seven Python tests are current harness checks. The354-unit
+campaign and Linux/Windows fault replay remain pending.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
