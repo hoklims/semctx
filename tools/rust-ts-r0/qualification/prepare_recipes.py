@@ -875,6 +875,25 @@ for recipe in recipes:
     recipe['checks'].append(check([], True, 'eq', 'actual graph identity and exact edge-removal control binding', 'opaque_ownership_graph_binding:' + source))
     recipe['proof_scope'] = 'Actual module-configuration calls before fact extraction, with the real assembled graph, and with only its edges removed. Frozen call assertion projects actual graph coordinates. No public Plane-A lifecycle or global admission inferred.'
 
+for recipe in recipes:
+    if recipe['case_id'] != 'P12-parallel-equivalence':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    if inp['baseline_operation'] != 'extractTypeScriptParallel roots=[globals.d.ts,packages/a/index.ts,packages/b/index.ts], workers=1 then2':
+        raise ValueError('unmapped parallel invocation operation')
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    direct = copy.deepcopy(recipe)
+    direct['gaps'] = []
+    direct['proof_scope'] = 'Actual native direct control on the exact frozen roots and file bytes; modules projection only, reused as the complete extraction byte-relation control.'
+    recipe.update({'surface':'parallel_cli', 'parallel_worker_counts':[1,2], 'direct_recipe':direct, 'requests':[], 'checks':[], 'relations':[], 'gaps':[], 'credited_properties':['modules_exact','baseline_parallelism','extraction_relation']})
+    for index, expected in enumerate(assertions['baseline_parallelism']):
+        recipe['checks'].append(check(['parallelism'], {'requested':expected['workers'],'used':expected['used'],'mode':expected['mode']}, 'ordered_projected_eq', ptr('baseline_parallelism') + '/' + str(index), observation=index))
+        recipe['checks'].append(check(['extraction','modules'], assertions['modules_exact'], 'ordered_projected_eq', ptr('modules_exact'), observation=index))
+        for field, expected in [('executed',True), ('unsupported',[]), ('globalAdmissionInferred',False), ('observationScope','native_type_script_parallel_extraction')]:
+            recipe['checks'].append(check([field], expected, 'eq', 'actual native parallel component completeness/scope', observation=index))
+    recipe['required_native_api'] = ['--extract-parallel REQUEST.json SDK.json HELPER; actual 1/2 workers and direct native extraction; exact extraction JSON bytes, child descriptor/artifact/SDK bindings, reported repository/compiler reads and exact merge coverage']
+    recipe['proof_scope'] = 'Actual native noLib/types[] preflight, deterministic weighted module-component chunks, shared declarations in each real native child, response consumer and ordered merge. Frozen P12 native extraction relation only; no public Plane-A, batch/worker transport parity, atomic capture, complete SDK consumption or global admission credit.'
+
 def complete_component_fields(recipe):
     additions=[]
     components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership','partitionObservation']

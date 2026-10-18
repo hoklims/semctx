@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_THIRTY_TWO_GAPS_MAPPED_THIRTY_ONE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_THIRTY_THREE_GAPS_MAPPED_THIRTY_TWO_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining32 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T21:57:38.834865+00:00",
-  "staticGapUnitsRemaining": 32,
+  "next": "Continue the remaining31 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T22:27:49.854047+00:00",
+  "staticGapUnitsRemaining": 31,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -650,5 +650,34 @@
     "reservedPayloadAccessed": false,
     "cost": "Additional actual module graph traversal in ordinary raw analysis; unmeasured.",
     "documentaryCorrection": "Final independent reconciliation counted actual process outcomes: N02=2,E08=2,P23=1,N01/P01=2,QDYN07=2, total9, not7. Six units,36checks and1N02relation PASS. Only documentation/context changed; native four-source anchor unchanged."
+  },
+  "sixteenthBatch": {
+    "registeredUtc": "2026-10-18T22:27:49.854047+00:00",
+    "state": "FROZEN_NATIVE_PARALLEL_EQUIVALENCE_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P12-parallel-equivalence::base"
+    ],
+    "scope": "Actual native explicit1/2 workers and direct complete extraction byte relation on the same frozen P12 workspace; private fact boundary only.",
+    "evidence": "gap-native-parallel-evidence.json",
+    "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+    "recipesSha256": "12fb90f599e1c0141832be5d796f24ac8de31e1b1fab43890ddbdea24f677fd6",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "207BIN,47LIB,4nativeflows+4parallel integrations,47comparators,7Python;P12 5processes,12controllerchecks+1directcheck+2byte relations;6carryoverunits/10processes;fmt/clippy/Ruff/Zizmor PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaultProfiles": "Product dev/debug; comparator,replay and integrations test/debug. Author release4b evidence remains separate.",
+    "failurePaths": [
+      "Missing,foreign,null or incomplete controller execution/descriptor/artifact/SDK/scope cannot bind.",
+      "Invalid0/9/fractional/auto worker counts refuse without jobs; private schema offers explicit counts, not auto.",
+      "Native unsafe/connected DEV preflight fixtures execute a single Program before dispatch; this does not cover every configuration/syntax variant.",
+      "Missing shared declarations, unsuccessful reported reads, unknown frontend, malformed/nonzero/incomplete worker outcome, changed producer/helper, wrong SDK, reused PID, omitted/duplicate/foreign emit roots or wrong ordered merge refuse.",
+      "A foreign-SDK worker failure requests cancellation and returns executed=false with no extraction or serial fallback; no universal completed sibling-termination guarantee.",
+      "Complete byte comparison refuses reordered arrays, missing required arrays and any differing extra field."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "Additional preflight and actual child processes; no isolated performance measurement."
   }
 }
