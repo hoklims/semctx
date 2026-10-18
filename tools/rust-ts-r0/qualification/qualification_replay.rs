@@ -124,6 +124,33 @@ fn transform(actual: &Value, name: &str) -> Result<Value, String> {
     if name == "none" {
         return Ok(actual.clone());
     }
+    if let Some(path) = name.strip_prefix("qualified_test_integrity_reasons:") {
+        if path.is_empty() {
+            return Err("missing actual test owner path".into());
+        }
+        let nodes = actual["nodes"]
+            .as_array()
+            .ok_or("missing actual graph nodes")?;
+        if nodes
+            .iter()
+            .filter(|node| node["kind"] == "test" && node["filePath"] == path)
+            .count()
+            != 1
+        {
+            return Err("integrity reasons require one actual test owner".into());
+        }
+        let reasons = actual["integrityReasons"]
+            .as_object()
+            .ok_or("missing complete actual integrity map")?;
+        if reasons.values().any(|values| {
+            values
+                .as_array()
+                .is_none_or(|values| values.iter().any(|value| !value.is_string()))
+        }) {
+            return Err("malformed actual integrity reason list".into());
+        }
+        return Ok(reasons.get(path).cloned().unwrap_or_else(|| json!([])));
+    }
     if name == "logical_coverage_edges" || name == "logical_import_edges" {
         let nodes = actual["nodes"]
             .as_array()
@@ -2912,7 +2939,10 @@ fn validate_reason_routing(check: &Value) -> Result<(), String> {
     let target = check["target"]
         .as_array()
         .ok_or("invalid credited target")?;
-    if target.last().and_then(Value::as_str) != Some("reasons") {
+    let test_integrity = check["actual_transform"]
+        .as_str()
+        .is_some_and(|name| name.starts_with("qualified_test_integrity_reasons:"));
+    if target.last().and_then(Value::as_str) != Some("reasons") && !test_integrity {
         return Ok(());
     }
     let binding = check
@@ -2925,6 +2955,7 @@ fn validate_reason_routing(check: &Value) -> Result<(), String> {
             .and_then(Value::as_str)
             .is_none_or(str::is_empty)
         || binding.get("authority").is_none_or(Value::is_null)
+        || (test_integrity && binding["baseline_operation"] != "getQualifiedCallIntegrityReasons")
     {
         return Err("reason projection does not match its verified source operation".into());
     }
@@ -4182,6 +4213,55 @@ fn comparator_configured_query_refuses_missing_or_substituted_component_evidence
 #[test]
 fn gap_real_native_process_deadline_and_capture_limit() {
     repair_units(&["T-timeout::base", "T-output-limit::base"]);
+}
+
+#[test]
+fn gap_static_binding_control_uses_actual_qualified_assembly() {
+    repair_units(&["QDYN-01-static-binding-control::base"]);
+}
+
+#[test]
+fn comparator_qualified_test_integrity_requires_complete_map_and_actual_test_owner() {
+    let graph = json!({"nodes":[{"kind":"test","filePath":"dev.test.ts"}],"integrityReasons":{}});
+    let target = json!(["assembly"]);
+    let check = json!({"target":target,"expected":{"excludes":["DEV_DYNAMIC_UNPROVEN"]},"mode":"reason_constraints","actual_transform":"qualified_test_integrity_reasons:dev.test.ts","operation_binding":{"status":"VERIFIED_SOURCE_OPERATION","target":target,"baseline_operation":"getQualifiedCallIntegrityReasons","authority":{"source":"native assembly complete reason map"}}});
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &check)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+    let mut bad = graph.clone();
+    bad["integrityReasons"]["dev.test.ts"] = json!(["DEV_DYNAMIC_UNPROVEN"]);
+    assert_eq!(
+        evaluate(&json!({"assembly":bad}), &check)["state"],
+        "MISMATCH"
+    );
+    for bad in [
+        json!({"nodes":graph["nodes"]}),
+        json!({"nodes":graph["nodes"],"integrityReasons":null}),
+        json!({"nodes":graph["nodes"],"integrityReasons":{"dev.test.ts":null}}),
+        json!({"nodes":graph["nodes"],"integrityReasons":{"other.ts":[7]}}),
+        json!({"nodes":[],"integrityReasons":{}}),
+        json!({"nodes":[{"kind":"module","filePath":"dev.test.ts"}],"integrityReasons":{}}),
+        json!({"nodes":[graph["nodes"][0],graph["nodes"][0]],"integrityReasons":{}}),
+    ] {
+        assert_eq!(
+            evaluate(&json!({"assembly":bad}), &check)["state"],
+            "UNKNOWN_UNMAPPED_OR_MALFORMED"
+        );
+    }
+    let mut unbound = check.clone();
+    unbound.as_object_mut().unwrap().remove("operation_binding");
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &unbound)["state"],
+        "UNKNOWN_UNMAPPED_OR_MALFORMED"
+    );
+    let mut misbound = check.clone();
+    misbound["operation_binding"]["baseline_operation"] = json!("inspectModuleConfiguration");
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &misbound)["state"],
+        "UNKNOWN_UNMAPPED_OR_MALFORMED"
+    );
+    assert!(transform(&graph, "qualified_test_integrity_reasons:").is_err());
 }
 
 #[test]
