@@ -1380,3 +1380,98 @@ fn run_native_fixture(target_index: usize) {
     }
     eprintln!("native DEV evidence: {}", evidence.display());
 }
+
+#[test]
+fn retained_discovery_checks_captured_text_before_native_analysis() {
+    let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let base = std::env::var_os("SEMCTX_NATIVE_EVIDENCE")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("development-evidence/native-verifier"));
+    let evidence = base.join(format!(
+        "retained-discovery-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    let root = evidence.join("workspace");
+    fs::create_dir_all(&root).unwrap();
+    let sentinel = root.join("DiscoveryNativeCaseProbe");
+    fs::write(&sentinel, b"case").unwrap();
+    let sensitive = !root.join("discoverynativecaseprobe").exists();
+    fs::remove_file(sentinel).unwrap();
+    let cwd = root
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    let retained = "export function capturedDiscoveryFactory(){return 83;}";
+    let transient = "export function liveDiscoveryFactory(){return 89;}";
+    fs::write(root.join("factory.ts"), transient).unwrap();
+    let analysis = json!({"id":"retainedDiscoveryDevelopment","cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"roots":[format!("{cwd}/factory.ts")],"files":{format!("{cwd}/factory.ts"):retained},"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+    let sdk_path = std::env::var_os("SEMCTX_NATIVE_SDK")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| crate_root.join("sdk/sdk-input.json"));
+    let sdk: Value = serde_json::from_slice(&fs::read(&sdk_path).unwrap()).unwrap();
+    let helper = helper_path();
+    let producer = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    for (label, content, success) in [
+        ("consistent", retained, true),
+        ("mismatch", transient, false),
+    ] {
+        let descriptor = json!({"analysis":analysis,"discovered_sources":[{"relPath":"factory.ts","content":content}]});
+        let request_path = evidence.join(format!("{label}-request.json"));
+        write_json(&request_path, &descriptor);
+        let argv = vec![
+            producer.to_string_lossy().into_owned(),
+            "--analyze-retained-discovery".into(),
+            request_path.to_string_lossy().into_owned(),
+            sdk_path.to_string_lossy().into_owned(),
+        ];
+        let outcome = supervise(&argv, &root, &helper, 20_000, 8_388_608, &evidence, label);
+        assert_eq!(outcome.kind, "success", "{outcome:?}");
+        assert_eq!(outcome.exit_code, Some(0));
+        let observed: Value = serde_json::from_str(&outcome.stdout).unwrap();
+        assert_eq!(
+            observed["request_descriptor_id"],
+            identity::digest(&descriptor)
+        );
+        assert_eq!(observed["sdk_input_id"], identity::digest(&sdk));
+        assert_eq!(
+            observed["producer_artifact_id"],
+            identity::digest_bytes(&fs::read(producer).unwrap())
+        );
+        assert_eq!(observed["executed"], success, "{observed}");
+        assert_eq!(observed["global_admission_inferred"], false);
+        if success {
+            assert_eq!(observed["snapshot_guard_passed"], true);
+            assert_eq!(observed["unsupported"], json!([]));
+            assert_eq!(
+                observed["native_analysis"]["raw_extraction"]["modules"],
+                json!(["factory.ts"])
+            );
+            let names = observed["native_analysis"]["raw_extraction"]["symbols"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|symbol| symbol["name"].as_str().unwrap())
+                .collect::<Vec<_>>();
+            assert_eq!(names, vec!["capturedDiscoveryFactory"]);
+            assert_eq!(
+                observed["native_analysis"]["request_id"],
+                identity::digest(&analysis)
+            );
+        } else {
+            assert_eq!(
+                observed["unsupported"],
+                json!(["SOURCE_SNAPSHOT_MISMATCH: factory.ts"])
+            );
+            assert!(observed.get("native_analysis").is_none());
+        }
+        assert_eq!(
+            fs::read_to_string(root.join("factory.ts")).unwrap(),
+            transient
+        );
+    }
+}

@@ -170,6 +170,18 @@ Python tests. Counts reach27 new mappings:26 limited PASS and N17c NONPASS,
 with37 static GAP units remaining and zero qualified obligations. Physical-host
 aliases, consumer identity and Linux/Windows execution remain unproved here.
 
+A [retained-discovery prerequisite](retained-discovery-evidence.json) now compares
+the supplied inventory of all native nondeclaration roots with captured text
+before actual native analysis. This bounded text-only API preserves captured
+symbols despite different live bytes and refuses missing or changed metadata.
+Independent review runs27 probes and detects a compiled comparison bypass,
+then restores the owning native integration. Current macOS checks pass198 binary
+tests,45 library tests, four native process flows and39 comparators; format and
+Clippy also pass. The standards reviewer reruns format only. P01/N01 frozen
+recipes and runtime consumers remain pending: no new mapping or qualification
+credit, no full discovery, retained-scope or public Plane-A parity claim. Counts
+remain27 mappings and37 GAP; additional C1 pass1 remains open.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required
