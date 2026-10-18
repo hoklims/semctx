@@ -11,6 +11,7 @@ use std::{
 use ts_goport::{
     ast,
     astdata::SyntaxKind,
+    astnav,
     core::{self, Node},
     emitter::{
         emitter::{EmitOnly, Emitter},
@@ -27,18 +28,35 @@ pub struct RuntimeConfiguration {
     pub reasons: BTreeSet<String>,
     pub unsupported: BTreeSet<String>,
     pub emit_fs_probes: Vec<serde_json::Value>,
+    pub emission: EmissionObservation,
+}
+
+#[derive(Debug, Default, Serialize)]
+#[serde(tag = "state", rename_all = "snake_case")]
+pub enum EmissionObservation {
+    #[default]
+    NotRequested,
+    Unavailable {
+        reason: String,
+    },
+    Observed {
+        observation: EmitObservation,
+    },
 }
 
 pub fn inspect(source: Node, options: &CompilerOptions) -> RuntimeConfiguration {
     let mut result = RuntimeConfiguration::default();
     if source.is_nil() {
+        result.emission = EmissionObservation::Unavailable {
+            reason: "RUNTIME_CONFIGURATION_SOURCE_UNAVAILABLE".into(),
+        };
         result
             .unsupported
             .insert("RUNTIME_CONFIGURATION_SOURCE_UNAVAILABLE".into());
         return result;
     }
     let mut spans = BTreeSet::new();
-    collect_jsx_spans(source, &mut spans);
+    collect_jsx_spans(source, source, &mut spans);
     if !spans.is_empty() && !ast::get_jsx_implicit_import_base(options, source).is_empty() {
         result
             .reasons
@@ -92,9 +110,11 @@ pub fn inspect(source: Node, options: &CompilerOptions) -> RuntimeConfiguration 
                     .reasons
                     .insert("SOURCE_CONFIGURATION_HELPERS_UNSUPPORTED".into());
             }
+            result.emission = EmissionObservation::Observed { observation };
         }
         Err(reason) => {
-            result.unsupported.insert(reason);
+            result.unsupported.insert(reason.clone());
+            result.emission = EmissionObservation::Unavailable { reason };
         }
     }
     result
@@ -106,7 +126,7 @@ struct EmitAttempt {
 }
 
 #[derive(Debug, Serialize)]
-struct EmitObservation {
+pub struct EmitObservation {
     classic_factory: bool,
     non_scoped_helpers: Vec<String>,
     sdk_non_scoped_helpers: Vec<String>,
@@ -118,15 +138,15 @@ struct EmitObservation {
     imports_tslib: Result<bool, String>,
 }
 
-fn collect_jsx_spans(node: Node, spans: &mut BTreeSet<(i32, i32)>) {
+fn collect_jsx_spans(node: Node, source: Node, spans: &mut BTreeSet<(i32, i32)>) {
     if matches!(
         node.kind(),
         SyntaxKind::JsxElement | SyntaxKind::JsxSelfClosingElement | SyntaxKind::JsxFragment
     ) {
-        spans.insert((node.pos(), node.end()));
+        spans.insert((astnav::get_start_of_node(node, source, false), node.end()));
     }
     for child in node.iter_children() {
-        collect_jsx_spans(child, spans);
+        collect_jsx_spans(child, source, spans);
     }
 }
 
@@ -300,7 +320,7 @@ fn observe_on_checker_thread(
     };
     let mut spans = BTreeSet::new();
     if observe_classic {
-        collect_jsx_spans(source, &mut spans);
+        collect_jsx_spans(source, source, &mut spans);
     }
     let classic_factory = observe_classic && has_classic_factory(print.source_file, &spans);
     let helpers_visible_at_source_file = !system_module
@@ -874,6 +894,46 @@ mod tests {
             "{value:?}"
         );
         assert!(value.unsupported.is_empty(), "{value:?}");
+    }
+
+    #[test]
+    fn emission_observation_exposes_the_actual_transformed_output() {
+        let value = run(
+            "/** @jsx gapCompose */ export const view=<article/>;",
+            JsxEmit::REACT,
+            false,
+            ScriptTarget::ES2022,
+        );
+        let value = serde_json::to_value(value).unwrap();
+        assert_eq!(value["emission"]["state"], "observed");
+        assert_eq!(value["emission"]["observation"]["classic_factory"], true);
+        assert!(
+            value["emission"]["observation"]["output_text"]
+                .as_str()
+                .unwrap()
+                .contains("gapCompose(\"article\", null)")
+        );
+    }
+
+    #[test]
+    fn emission_observation_distinguishes_no_request_from_unavailable_source() {
+        let plain = run(
+            "export const gapNoEmit = 227;",
+            JsxEmit::PRESERVE,
+            false,
+            ScriptTarget::ES2022,
+        );
+        assert_eq!(
+            serde_json::to_value(plain).unwrap()["emission"]["state"],
+            "not_requested"
+        );
+        let unavailable = inspect(Node::NIL, &CompilerOptions::default());
+        let unavailable = serde_json::to_value(unavailable).unwrap();
+        assert_eq!(unavailable["emission"]["state"], "unavailable");
+        assert_eq!(
+            unavailable["emission"]["reason"],
+            "RUNTIME_CONFIGURATION_SOURCE_UNAVAILABLE"
+        );
     }
 
     #[test]

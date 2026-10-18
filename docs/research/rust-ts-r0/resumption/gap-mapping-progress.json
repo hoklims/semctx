@@ -1,0 +1,180 @@
+{
+  "recordVersion": 1,
+  "startedUtc": "2026-10-18T15:10:36.832726+00:00",
+  "state": "STEP3_FIRST_FIVE_GAPS_MAPPED_FOUR_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "additionalC1Pass": 1,
+  "passStillOpen": true,
+  "ownerBudgetChanged": false,
+  "startingGapUnits": 64,
+  "startingGapCases": 50,
+  "qualificationCredit": 0,
+  "firstBatch": {
+    "units": [
+      "N21-actual-sdk-map-callback::base",
+      "P16-explicit-esm-boundary::base",
+      "V2-F04-augmentation-is-distinct-from-module-marker::base",
+      "N17b-classic-factory-is-real-generated-call::base",
+      "N17c-importhelpers-es5-actual-emission::base"
+    ],
+    "scope": "Map the prescribed JS variant, expose the native SourceFile module marker and already computed real emission observation. No semantic fallback, frozen source edits or expected-value adaptation.",
+    "nativeSources": [
+      "tools/rust-ts-r0/src/main.rs",
+      "tools/rust-ts-r0/src/runtime_configuration.rs"
+    ],
+    "harnessSources": [
+      "tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs"
+    ],
+    "failurePaths": [
+      "SourceFile unavailability does not become an observed marker.",
+      "Emission not requested and emission unavailable remain distinct from actual observed output.",
+      "Missing or unsupported native observations cannot satisfy comparators."
+    ],
+    "state": "FIVE_EXECUTABLE_MAPPINGS_REVIEWED_NOT_A_QUALIFICATION_CAMPAIGN",
+    "nativeArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+    "developmentResults": {
+      "NONPASS_PROJECTED_UNIT": 1,
+      "nonpassUnit": "N17c-importhelpers-es5-actual-emission::base",
+      "mismatch": "__generator absent from actual emitted text",
+      "attribution": "T00-ARB-003; raw comparator remains NONPASS",
+      "PASS_FROZEN_PROJECTED_UNIT": 4
+    },
+    "ownedDefectCorrected": {
+      "cause": "JSX node.pos included leading trivia; generated factory call starts at get_start_of_node. Normalize authored JSX start before comparing native synthetic-call ranges.",
+      "red": "semctx-t00-imported-factory-return-red.log",
+      "green": "semctx-t00-imported-factory-trivia-green.log",
+      "nativeFrozenReplay": "N17b now PASS with unchanged source and assertion"
+    },
+    "checks": {
+      "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "nativeBinTests": {
+        "exitCode": 0,
+        "passed": 179
+      },
+      "observerComparatorTests": {
+        "exitCode": 0,
+        "passed": 32
+      },
+      "recipeCliTests": {
+        "exitCode": 0,
+        "passed": 7
+      },
+      "format": {
+        "exitCode": 0
+      },
+      "clippyAllTargetsQualificationObserver": {
+        "exitCode": 0
+      },
+      "ruff": {
+        "exitCode": 0
+      },
+      "fiveUnitResearchReplay": {
+        "exitCode": 101,
+        "reason": "One frozen expected property differs; no test or assertion weakened."
+      },
+      "verifyPrFourPartitions": {
+        "state": "PASSED",
+        "logs": [
+          {
+            "shard": "1/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 1/4",
+            "exitCode": 0,
+            "stdoutSha256": "f352f92106839a7bb04d04fa98ba206ff09fa1cdfbe43f7e5c41682cb96c66bd",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"1/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.04s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 1/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "2/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 2/4",
+            "exitCode": 0,
+            "stdoutSha256": "5cac3e0bf4fd8171de3e333995c18855c15941fc9c6b89da2c7c174cd0485ea5",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"2/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.05s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 2/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "3/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 3/4",
+            "exitCode": 0,
+            "stdoutSha256": "acc175b6e1415f7b2e12f216f46b89c414258e964243ee95db31e45ea30a488c",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"3/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.05s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 3/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "4/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 4/4",
+            "exitCode": 0,
+            "stdoutSha256": "f7bb2695c37b9ba946f8227db7a96b6b87fc0f039691f75f1fc73d127d2060ac",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"4/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Finished `release` profile [optimized] target(s) in 0.04s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 4/4`\n[verify:pr] PASS  all checks\n"
+          }
+        ],
+        "environment": "macOS27.0.1 arm64; Bun1.4.3; Rust1.95.0; GIT_CONFIG_GLOBAL unset; SEMCTX_VERIFY_BASE4e80d36c258cd63a871bf98fe0dcce0e7f1c2739; native evidence isolated by shard",
+        "scopeLimit": "Started before final result documentation and the Windows test-fixture correction. Runtime engine unchanged during execution. That fixture delta passed32 explicit comparator tests, formatting and Clippy; final documentation parser rerun separately."
+      }
+    },
+    "independentReview": {
+      "standards": "/root/gap_batch1_standards",
+      "specProof": "/root/gap_batch1_spec_proof",
+      "base": "c6a4241cb98ebb266e7601aa3ed1e00ffca9955e",
+      "reviewedDiffSha256": "755fdca58c3d6d47d673105fcb591f2d236af590fda9a6e02960b820fa9f2bd6",
+      "verdict": "PROOF_ADEQUATE for mechanism; no new demonstrated defect; no qualification or merge verdict",
+      "negativeWitnesses": 18,
+      "nativeObservationsReproduced": 6,
+      "candidateStableDuringReview": true,
+      "subsequentDelta": "Evidence/result documentation and bounded version attribution only; executable mappings unchanged."
+    },
+    "researchCheckpointAuthority": "Owner explicitly requests regular same-branch T00 pushes, including negative research observations. No claim that the five-unit research replay is green; normal repository gates remain required and no merge is authorized.",
+    "windowsCiDiscovery": {
+      "run": "https://github.com/hoklims/semctx/actions/runs/39139069855",
+      "head": "c6a4241cb98ebb266e7601aa3ed1e00ffca9955e",
+      "macosObserver": "32 comparator tests and7 Python CLI tests passed",
+      "linuxObserver": "32 comparator tests and7 Python CLI tests passed",
+      "windowsObserver": "31 comparator tests passed; post-capture test failed before Python invocation",
+      "cause": "Test directly constructed backslash file keys; production materialize and physical mutation lookup use slash keys.",
+      "correction": "Test now invokes real materialize before exercising post-capture mutation. Product comparison unchanged.",
+      "remoteFixedResult": "PENDING_NEXT_PUSH",
+      "independentDeltaReview": {
+        "standards": "/root/gap_batch1_standards",
+        "specProof": "/root/gap_batch1_spec_proof",
+        "verdict": "PROOF_ADEQUATE for fixture delta, local only; Windows after correction pending",
+        "localComparatorsPassed": 32,
+        "formatAndClippyExitCode": 0
+      },
+      "runConclusion": "failure: Windows native lane, therefore semctx-required; all other lanes passed"
+    }
+  },
+  "discoveryFindings": [
+    {
+      "cases": [
+        "P11-workspace-config-link",
+        "N11-registry-range-is-not-workspace"
+      ],
+      "missingObservation": "Explicit configured resolution query and exact captured empty directories; inserting an import/sentinel into frozen source inputs would be invalid."
+    },
+    {
+      "cases": [
+        "P19-qualified-inherited-esnext-bundler",
+        "N19-excluded-dependent-blocks"
+      ],
+      "missingObservation": "Actual prescribed Git/init/index/public verify flow; raw subject or fact-batch admission does not prove public verdict/exit. Investigate this boundary separately; no credit inferred."
+    }
+  ],
+  "independentReading": [
+    "/root/gap_component_reading"
+  ],
+  "reservedPayloadAccessed": false,
+  "next": "Continue the remaining 59 static GAP units; then review178 obligations, freeze and replay354 units on3OS, execute reserved cases once and decideR0.",
+  "updatedUtc": "2026-10-18T15:36:46.824560+00:00",
+  "staticGapUnitsRemaining": 59,
+  "documentaryReconciliation": {
+    "state": "DOCUMENTARY_RECONCILIATION_PASSED",
+    "frozenScenarioBytesUnchanged": true,
+    "frozenUnitCanonicalSha256": "b20495e215061259a7ab26dd30532d1823de4df7621b9ce3edb81324b35655ed",
+    "recipeStillRequiresGenerator": true,
+    "rawComparisonStillNonpass": true,
+    "focusedPasses": 4,
+    "qualificationCredit": 0,
+    "archiveManifestEntriesVerified": 197,
+    "nativeOutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+    "nativeEqualsTs593Es2015NotEs5": true,
+    "independentAuditor": "/root/es5_version_claim_audit",
+    "finalArchiveEncodedSha256": "f57606e212ec65870931800741ef4a2e44015a47979a36c1b4249436419093d6",
+    "result": "Final reconciliation conforms; no remaining finding. Historical180-entry observation explicitly scoped to the pre-extension archive."
+  }
+}

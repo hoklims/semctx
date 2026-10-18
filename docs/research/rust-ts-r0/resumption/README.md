@@ -49,8 +49,26 @@ goal after that reported local workflow stop; the
 correction without resetting counters or changing the C1 budget. The ten original
 observations and four guard comparators now pass focused macOS DEV checks, with
 case sensitivity measured by the harness. The guard comparators and seven recipe
-CLI tests are wired into the native three-OS CI lane; new remote evidence remains
-to be collected. Steps3–7, the full campaign, reserved run and R0 remain pending.
+CLI tests are wired into the native three-OS CI lane. At `c6a4241c`, those32
+comparators and seven Python tests passed on Linux and macOS. Windows passed31
+comparators, then exposed a fixture constructing backslash keys instead of using
+the real materializer. That fixture is corrected locally, with unchanged
+assertions and a negative witness; remote confirmation is pending the next push.
+The full campaign, reserved run and R0 remain pending.
+
+Step3 is now in progress. The [first GAP tranche](gap-mapping-progress.json)
+makes five previously incomplete units executable: the JS callback variant,
+two native module markers, classic JSX emission and ES5 helper emission.
+Four pass focused macOS DEV replay. The JSX classifier needed an owned fix:
+authored JSX start positions now exclude leading trivia before matching the
+actual generated factory call. N17c remains NONPASS on the unchanged
+`__generator` expectation. [T00-ARB-003](../arbitrations.json) separately records
+its individually demonstrated version attribution: C1's output equals the
+pinned TS5.9.3 ES2015 output, while TS5.9.3 ES5 adds `__generator`. TS7 removes
+the ES5 target; this internal capture is no supported public TS7 ES5 contract.
+The [independent claim audit](es5-version-claim-audit.md) limits that attribution
+to this property. It grants no qualification credit. There are 59 static GAP
+units still to map; all240 obligations remain unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

@@ -433,6 +433,54 @@ for r in recipes:
                 if queries[index]['operation']=='read_file':checks.append(check(target+['found'],True,'eq','/assertions/results/'+str(index)))
         r.update({'surface':'captured_system_cli','system_profile':'retained','system_files':snapshot,'system_queries':queries,'system_live_after_capture':{p.removeprefix('R/'):text for p,text in inp['live_files'].items()},'requests':[],'checks':checks,'gaps':[],'proof_scope':'Actual retained System queries with physical changed/live-only files present after immutable request capture. readDirectory[] is historical retained profile, distinct from native_get_accessible_entries. No SDK fallback, cache implementation identity, global OS-read absence or graph admission claimed.','prepared_state':'MAPPED_REQUIRES_PASS2_DTO_FREEZE_AND_REVIEW'})
 
+for recipe in recipes:
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if not isinstance(assertions, dict) or not recipe['requests']:
+        continue
+    source = first_source(recipe['requests'][0]['files'])
+    if 'external_module' in assertions:
+        recipe['checks'].append(check(['subjects', {'path':source}, 'sourceFileObservation', 'external_module'], assertions['external_module'], 'eq', ptr('external_module')))
+        remove_gap(recipe, 'external_module')
+        recipe['credited_properties'].append('external_module')
+    if recipe['case_id'] == 'N21-actual-sdk-map-callback':
+        variant = copy.deepcopy(recipe['requests'][0])
+        javascript_path = str(pathlib.PurePosixPath(source).with_suffix('.js'))
+        variant['id'] += '::javascript-component'
+        variant['files'] = {javascript_path if name == source else name:text for name,text in variant['files'].items()}
+        variant['roots'] = [javascript_path if name == source else name for name in variant['roots']]
+        recipe['requests'].append(variant)
+        add_bound_check(recipe, ['subjects', {'path':javascript_path}, 'javascriptObservation', 'reasons'], [assertions['javascript_variant_contains']], 'contains_projected', ptr('javascript_variant_contains'), 'inspectJavaScriptSource on the prescribed JavaScript variant', {'frozen_unit_pointer':recipe['frozen_unit_pointer']}, observation=1)
+        remove_gap(recipe, 'javascript_variant_contains')
+        recipe['credited_properties'].append('javascript_variant_contains')
+    emission_key = next((key for key in ['independent_emission_fact', 'independent_emission_facts'] if key in assertions), None)
+    if emission_key:
+        if emission_key == 'independent_emission_fact':
+            source = assertions['forbidden_extraction_calls'][0]['caller'][0]
+        runtime = ['subjects', {'path':source}, 'runtimeConfiguration']
+        observation = runtime + ['emission', 'observation']
+        recipe['checks'].extend([
+            check(runtime + ['unsupported'], [], 'eq', 'independent native emission mechanism must be supported'),
+            check(runtime + ['emission', 'state'], 'observed', 'eq', ptr(emission_key)),
+        ])
+        if emission_key == 'independent_emission_fact':
+            expected_call = 'h("div", null)'
+            if expected_call not in assertions[emission_key]:
+                raise ValueError('unsupported frozen classic emission fact')
+            recipe['checks'].extend([
+                check(observation + ['classic_factory'], True, 'eq', ptr(emission_key)),
+                check(observation + ['output_text'], expected_call, 'contains_text', ptr(emission_key)),
+            ])
+        else:
+            for fact in assertions[emission_key]:
+                if fact == 'an import from tslib':
+                    recipe['checks'].append(check(observation + ['imports_tslib', 'Ok'], True, 'eq', ptr(emission_key)))
+                elif fact in ['__awaiter', '__generator']:
+                    recipe['checks'].append(check(observation + ['output_text'], fact, 'contains_text', ptr(emission_key)))
+                else:
+                    raise ValueError('unsupported frozen helper emission fact: ' + str(fact))
+        remove_gap(recipe, emission_key)
+        recipe['credited_properties'].append(emission_key)
+
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
 def code_units(text):
@@ -516,7 +564,7 @@ for row in support_plans:
 
 def complete_component_fields(recipe):
     additions=[]
-    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation']
+    components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation']
     for c in recipe.get('checks',[]):
         target=c['target'];indices=[i for i,x in enumerate(target) if isinstance(x,str) and x in components]
         if not indices or target[-1] in ['executed','unsupported']:continue

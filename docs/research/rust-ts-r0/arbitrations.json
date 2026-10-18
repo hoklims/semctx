@@ -76,6 +76,51 @@
       "automaticExtensionToOtherDiagnostics": false,
       "historicalExpectationsRewritten": false,
       "resumption": "resumption/record.json"
+    },
+    {
+      "id": "T00-ARB-003",
+      "status": "INDIVIDUALLY_DEMONSTRATED_VERSION_DIFFERENCE_PENDING_CAMPAIGN",
+      "owner": "Sébastien",
+      "decisionDate": "2026-10-18",
+      "decisionSource": "Owner2026-10-18 instruction: extend TS7-versus-TS5 reasoning only to individually demonstrated version differences with evidence. Applied within that delegated scope.",
+      "scope": {
+        "unitIds": [
+          "N17c-importhelpers-es5-actual-emission::base"
+        ],
+        "property": "independent_emission_facts: __generator only",
+        "frozenUnitCanonicalSha256": "b20495e215061259a7ab26dd30532d1823de4df7621b9ce3edb81324b35655ed",
+        "candidateArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "baselineTypeScriptVersion": "5.9.3",
+        "environment": "macOS27.0.1 arm64; no all-OS assertion"
+      },
+      "observed": {
+        "source": "export async function run() { return 1; }",
+        "options": {
+          "target": "ES5",
+          "module": "ESNext",
+          "importHelpers": true
+        },
+        "native": "tslib __awaiter import and generator syntax; __generator absent",
+        "frozenExpected": "tslib import, __awaiter, __generator",
+        "rawDisposition": "NONPASS_PROJECTED_UNIT",
+        "nativeOutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+        "ts593Es2015OutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+        "ts593Es5OutputSha256": "c3b89ee3b637e0ccf6be2e0054c9a0e509d737c03e757c98afbad8dc66d8d6e4"
+      },
+      "mechanism": "Pinned native pipeline falls through to new_es2016_transformer for targets below ES2016; it has no ES2015/generator-lowering pass. TS5.9.3 runs transformES2015 and transformGenerators below ES2015. The exact C1 output equals the controlled TS5.9.3 ES2015 output. Official TS7 intent removes targetES5.",
+      "authorityLimit": "TS7 does not support targetES5. This is an observed internal API effect, not a supported canonical TS7 ES5 output or permission to silently remap all removed targets.",
+      "comparisonRule": "Classify only this omitted __generator as an individually demonstrated version difference. Preserve frozen expectation, recipe, comparator and raw NONPASS. No qualification PASS or R0 credit is granted here; other properties and divergences retain their independent gates.",
+      "automaticExtensionToOtherDifferences": false,
+      "historicalExpectationsRewritten": false,
+      "evidence": "resumption/gap-mapping-evidence.json",
+      "independentClaimAudit": "resumption/es5-version-claim-audit.md",
+      "primaryIntentSources": [
+        "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html",
+        "https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/"
+      ]
     }
   ]
 }

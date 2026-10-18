@@ -957,8 +957,13 @@ fn inspect_subject(
     let resolution = frontend.resolution.as_ref().map(|observations| {
         serde_json::to_value(&*observations.borrow()).expect("resolution serialization")
     });
+    let source_file_observation = serde_json::json!({
+        "executed": true,
+        "external_module": ast::is_external_module(file),
+        "unsupported": [],
+    });
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 
@@ -1462,6 +1467,56 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn source_file_observation_reports_the_native_module_marker_independently_of_scope_refusals() {
+        for (source, external) in [
+            ("export const gapModuleMarker = 211;", true),
+            (
+                "export {}; declare global { const gapAugmentation: number; }",
+                true,
+            ),
+            ("const gapGlobalScript = 223;", false),
+        ] {
+            let request = component_request("gapModuleObservation", "/repo/marker.ts", source);
+            let result = analyze(request, component_sdk()).unwrap();
+            let observation = &result["subjects"][0]["sourceFileObservation"];
+            assert_eq!(observation["executed"], true);
+            assert_eq!(observation["external_module"], external);
+            assert_eq!(observation["unsupported"], serde_json::json!([]));
+        }
+    }
+
+    #[test]
+    fn imported_classic_factory_observation_distinguishes_generated_and_written_calls() {
+        for (jsx, generated) in [("react", true), ("preserve", false)] {
+            let mut request = component_request(
+                "gapImportedFactory",
+                "/repo/view.tsx",
+                "import { constructGap } from './factory'; export const manual=constructGap('manual',null); export function view(){return <div/>;}",
+            );
+            request.files.insert(
+                "/repo/factory.ts".into(),
+                "export function constructGap(){return 0;}".into(),
+            );
+            request.files.insert("/repo/tsconfig.json".into(), serde_json::json!({"compilerOptions":{"jsx":jsx,"jsxFactory":"constructGap","module":"ESNext","moduleResolution":"Bundler"}}).to_string());
+            let result = analyze(request, component_sdk()).unwrap();
+            let runtime = &result["subjects"][0]["runtimeConfiguration"];
+            assert_eq!(runtime["emission"]["state"], "observed");
+            assert_eq!(
+                runtime["emission"]["observation"]["classic_factory"],
+                generated
+            );
+            assert_eq!(
+                runtime["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|reason| reason == "SOURCE_CLASSIC_JSX_RUNTIME_UNSUPPORTED"),
+                generated
+            );
+        }
     }
 
     #[test]
