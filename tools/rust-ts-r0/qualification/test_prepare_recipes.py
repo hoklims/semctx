@@ -24,6 +24,14 @@ class RecipeOutputTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((output / 'replay-recipes.json').is_file())
             self.assertTrue((output / 'support-mapping-plan.json').is_file())
+            recipes = json.loads((output / 'replay-recipes.json').read_text(encoding='utf-8'))['recipes']
+            for unit_id in [
+                'V2-F01-empty-config-no-input-diagnostic::base',
+                'V2-C03-object-literal-caller-unmodeled::base',
+            ]:
+                recipe = next(row for row in recipes if row['unit_id'] == unit_id)
+                self.assertEqual(recipe['gaps'], [])
+                self.assertEqual(recipe['prepared_state'], 'MAPPED_REQUIRES_PASS2_DTO_FREEZE_AND_REVIEW')
 
     def test_missing_output_is_refused(self):
         result = self.invoke()

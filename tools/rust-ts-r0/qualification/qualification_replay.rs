@@ -3136,6 +3136,10 @@ fn repair_units(ids: &[&str]) {
             .iter()
             .find(|r| r["unit_id"] == *id)
             .expect("existing frozen unit");
+        assert!(
+            recipe["gaps"].as_array().unwrap().is_empty(),
+            "focused replay requires a fully mapped recipe: {id}"
+        );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
             "raw_cli" => run_raw_recipe(
@@ -3188,6 +3192,16 @@ fn gap_components_compare_source_markers_javascript_variant_and_real_emission() 
         "V2-F04-augmentation-is-distinct-from-module-marker::base",
         "N17b-classic-factory-is-real-generated-call::base",
         "N17c-importhelpers-es5-actual-emission::base",
+    ]);
+}
+
+#[test]
+fn gap_existing_components_compare_empty_configuration_unmodeled_caller_and_comment_digest() {
+    repair_units(&[
+        "V2-F01-empty-config-no-input-diagnostic::base",
+        "V2-C03-object-literal-caller-unmodeled::base",
+        "P09-outline-logical-set::digest-relation-01",
+        "P09-outline-logical-set::digest-relation-02",
     ]);
 }
 

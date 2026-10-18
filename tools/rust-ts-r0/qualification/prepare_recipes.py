@@ -359,10 +359,14 @@ for r in recipes:
         r['relations']=[{'left_observation':0,'right_observation':1,'target':['outlines',path,'outline','statements'],'transform':'pluck:digest','expected_equal':a['same_statement_digest_pairs'] if cid=='ORD-OUTLINE-COMMENT-CONTROLS' else a['first_statement_digest_equal'],'origin':ptr('same_statement_digest_pairs' if cid=='ORD-OUTLINE-COMMENT-CONTROLS' else 'first_statement_digest_equal')}]
         if cid=='ORD-OUTLINE-PRIVATE-DIGEST':r['relations'][0]['first_only']=True;r['checks'].append(check(['outlines',path,'outline','hasSyntaxErrors'],False,'eq','exact valid source component precondition'));r['synthetic_path_scope']='filename-independent private digest component; original unspecified path not claimed'
         r['gaps']=[]
-    if r['unit_id']=='P09-outline-logical-set::digest-relation-02':
-        row=COUPLED_BY_ID[r['unit_id']];before=row['exact_before_input'];after=copy.deepcopy(before);path=next(iter(after['files']));assert after['files'][path].count('value = 1;')==1;after['files'][path]=after['files'][path].replace('value = 1;','value = -1;')
+    if r['unit_id'] in ['P09-outline-logical-set::digest-relation-01','P09-outline-logical-set::digest-relation-02']:
+        row=COUPLED_BY_ID[r['unit_id']];before=row['exact_before_input'];after=copy.deepcopy(before);path=next(iter(after['files']))
+        old,new=('value = 1;','value = -1;') if r['unit_id'].endswith('02') else ('/** Keys. */','/** Digest comment changed. */')
+        assert after['files'][path].count(old)==1
+        after['files'][path]=after['files'][path].replace(old,new)
         r['requests']=[recipe_input(x,r['unit_id']+'::'+phase)[0] for x,phase in [(before,'before'),(after,'after')]];r['checks']=[];r['gaps']=[]
-        r['relations']=[{'left_observation':0,'right_observation':1,'target':['outlines',path,'outline','statements'],'transform':'pluck:digest','expected_equal':False,'origin':'/assertions/equal'}];r['mapping_authority']=row
+        r['relations']=[{'left_observation':0,'right_observation':1,'target':['outlines',path,'outline','statements'],'transform':'pluck:digest','expected_equal':a['equal'],'origin':'/assertions/equal'}];r['mapping_authority']=row
+        r['instantiated_mutation']={'path':path,'replaced':old,'replacement':new,'after_utf8_sha256':hashlib.sha256(after['files'][path].encode()).hexdigest(),'scope':'Deterministic instantiation of the frozen edit description; not an originally frozen exact after source or expected digest.'}
     r['gaps']=[g for g in r['gaps'] if not (g=='NO_EXECUTABLE_CREDITED_COMPARATOR' and (r['checks'] or r.get('relations'))) and not(g=='NO_ACTUAL_NATIVE_INVOCATION_RECIPE' and r['requests']) and not(g=='INPUT_REQUIRES_EXPLICIT_COMPONENT_OR_COUPLED_MAPPING' and cid.startswith('ORD-OUTLINE-') and r['requests'])]
     completion=[]
     for c in r['checks']:
@@ -480,6 +484,28 @@ for recipe in recipes:
                     raise ValueError('unsupported frozen helper emission fact: ' + str(fact))
         remove_gap(recipe, emission_key)
         recipe['credited_properties'].append(emission_key)
+    if recipe['case_id'] == 'V2-F01-empty-config-no-input-diagnostic':
+        target = ['subjects', {'path':source}, 'moduleConfigurationObservations', 'retainedWithoutSource', 'reasons']
+        add_bound_check(recipe, target, assertions['configuration_reason_projection_exact'], 'unordered_projected_eq', ptr('configuration_reason_projection_exact'), 'inspectModuleConfiguration on exact retained source/config input', {'frozen_unit_pointer':recipe['frozen_unit_pointer']})
+        remove_gap(recipe, 'configuration_reason_projection_exact')
+        recipe['credited_properties'].append('configuration_reason_projection_exact')
+    if recipe['case_id'] == 'V2-C03-object-literal-caller-unmodeled':
+        for projection in recipe['checks']:
+            if projection['expected_origin'] == ptr('raw_call_projection'):
+                projection['expected'] = copy.deepcopy(projection['expected'])
+                for call in projection['expected']:
+                    if call.get('callerSymbolPath') == 'absent':
+                        call['callerSymbolPath'] = {'$field_absent':True}
+                projection['notation_interpretation'] = 'Frozen callerSymbolPath absent denotes omitted field, not the literal string; baseline ts-symbols.ts573-587 and native optional field serialization.'
+        recipe['checks'].append(check(['assembly', 'integrityReasons', source], [assertions['qualified_reason_contains']], 'contains_projected', ptr('qualified_reason_contains')))
+        edges = check(['assembly', 'edges'], assertions['guessed_call_edges_from_object_member'], 'unordered_projected_eq', ptr('guessed_call_edges_from_object_member'))
+        edges['actual_filter'] = {'kind':'calls'}
+        recipe['checks'].append(edges)
+        for key in ['qualified_reason_contains', 'guessed_call_edges_from_object_member']:
+            remove_gap(recipe, key)
+            recipe['credited_properties'].append(key)
+    if recipe['checks'] or recipe.get('relations'):
+        recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
@@ -577,6 +603,7 @@ def complete_component_fields(recipe):
     recipe.setdefault('checks',[]).extend(additions)
 for recipe in recipes:
     complete_component_fields(recipe)
+    recipe['prepared_state']='MAPPED_REQUIRES_PASS2_DTO_FREEZE_AND_REVIEW' if not recipe['gaps'] else 'PARTIAL_OR_NOT_EXECUTABLE_EXPLICIT_GAPS'
     if recipe.get('direct_recipe'):complete_component_fields(recipe['direct_recipe'])
 for support_plan in support_plans:
     if support_plan.get('surface')=='raw_cli':complete_component_fields(support_plan)
