@@ -132,8 +132,6 @@
     }
   ],
   "remainingEvidence": [
-    "owner decision: submodule-refusal",
-    "series size for the large cells under memory pressure, fixed before any series",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
@@ -989,13 +987,7 @@
       }
     ]
   },
-  "openDecisions": [
-    {
-      "id": "submodule-refusal",
-      "fact": "the baseline refuses the PrefectHQ/prefect checkout because its tree contains a submodule gitlink (compat-tests); without Git it refuses as well",
-      "question": "how the multilanguage cell obtains an indexed measurement while the refusal stays recorded"
-    }
-  ],
+  "openDecisions": [],
   "measurementSpace": {
     "recordedDateUtc": "2026-10-18",
     "path": "/Users/hokli/t01-bench",
@@ -1242,6 +1234,45 @@
           "rowsSha256": "4cccc632bd35a4a8d9541ae6ea5b5f874976581015b051c451aaa5f7f7f957b7",
           "statsSha256": "6d3c12632297e1e2ad1db6ceadffa4b4f09a83c3bc41fba024ccba6b49f41e4b"
         }
+      },
+      {
+        "id": "prefect-derived",
+        "workloads": [
+          "PrefectHQ/prefect (derived snapshot)"
+        ],
+        "runsPerWorkload": 10,
+        "order": "consecutive runs of the one workload",
+        "expectedMinutes": "no indexed run exists yet; estimated 30 to 60"
+      },
+      {
+        "id": "vscode",
+        "workloads": [
+          "microsoft/vscode"
+        ],
+        "runsPerWorkload": 5,
+        "order": "consecutive runs",
+        "expectedMinutes": 100,
+        "underMemoryPressure": true
+      },
+      {
+        "id": "backstage",
+        "workloads": [
+          "backstage/backstage"
+        ],
+        "runsPerWorkload": 3,
+        "order": "consecutive runs",
+        "expectedMinutes": 540,
+        "underMemoryPressure": true
+      },
+      {
+        "id": "aws-sdk-js-v3",
+        "workloads": [
+          "aws/aws-sdk-js-v3"
+        ],
+        "runsPerWorkload": 1,
+        "order": "one run, not repeated",
+        "underMemoryPressure": true,
+        "failureRule": "a memory failure is a result: it is recorded and the run is not repeated"
       }
     ],
     "run": {
@@ -1288,6 +1319,55 @@
       "series": "77925cc15d1ec179cd27b00b75ac979d4eed5280db21e074c8b99a63871c82f0",
       "statistics": "64737c59b4b1be8dca154b519e0f19e1ad2475150febdaf9e2e627577ec6b337",
       "collector": "4543cd7994698dc746b1e74bf774c37a54409da2c1fd27d6d9e6515344da83ca"
+    },
+    "cellOrder": [
+      "prefect-derived",
+      "vscode",
+      "backstage",
+      "aws-sdk-js-v3"
+    ],
+    "perCell": "one commit and one push after each cell; host memory at start and compressor and swap deltas recorded for every run"
+  },
+  "ownerDecisions": [
+    {
+      "id": "submodule-refusal-and-large-cell-series",
+      "decidedBy": "owner",
+      "decidedDateUtc": "2026-10-18",
+      "statement": "Prefect en variante dérivée sans gitlink (admise si sélection identique, refus inscrit) ; grandes cellules sous pression : vscode 5 runs, backstage 3 runs, aws-sdk-js-v3 1 run avec résultat inscrit même en échec mémoire.",
+      "resolves": [
+        "submodule-refusal",
+        "series size for the large cells under memory pressure, fixed before any series"
+      ]
+    }
+  ],
+  "derivedSnapshots": {
+    "PrefectHQ/prefect": {
+      "reason": "the baseline refuses the original snapshot (GIT_ERROR: Git submodules are unsupported by the control freshness seal); that refusal stays recorded in shakeDown",
+      "derivedFrom": "snapshot tree 4337a4b91091dcbe374f1329895f1a05987dbaa3, left unchanged",
+      "path": "/Users/hokli/t01-bench/matrix/PrefectHQ_prefect-derived (APFS clone of the original snapshot directory)",
+      "change": "remove .gitmodules and the compat-tests gitlink (160000 3c5ec0111e2aa7b160f2b21cfd383d19448dfe13) from the index and the working tree",
+      "commit": {
+        "identity": "t01-snapshot <t01-snapshot@invalid>",
+        "authorAndCommitterDateUtc": "2026-10-17T00:00:00Z",
+        "parents": 0,
+        "id": "919fffeaa0474595bde72ef21985cfc12c698b74"
+      },
+      "treeId": "09bb641dbfe2ce5bba343663192d5142debe2908",
+      "gitStatusClean": true,
+      "admissionRule": "admitted only if discovery selection equals the workloadMatrix record; otherwise refused and recorded",
+      "selectionCheck": {
+        "counter": "requalified baseline discoverRepository(loadConfig(root)), selection script 44d0aa6b…",
+        "selectedFilesAndBytesEqualWorkloadMatrix": true,
+        "candidates": {
+          "original": 5446,
+          "derived": 5445,
+          "difference": ".gitmodules, a candidate that is not selected"
+        },
+        "outputSha256": "29ff8b930b693b3598e5c9ab0dd84a28419f67c0436e4d01d3d1a18fdba9133b"
+      },
+      "closureManifestSha256": "d9bdaf0e6e72411f4e1f43fe0341926ce418a169b9c342e46fafe72700a93d71",
+      "admitted": true,
+      "scriptSha256": "8ecf66b8772645dde1b076e4e5f3979c5226150ccc6df3bfebdf16d585ba61e6"
     }
   }
 }

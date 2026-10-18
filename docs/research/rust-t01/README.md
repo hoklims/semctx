@@ -21,8 +21,9 @@ measurement host and declares its memory collector. Checkpoint 7 redoes the refe
 the hono cell on that host; its collector-cost measurement is inconclusive. Checkpoint 8 records
 the owner's return to the macOS host. Checkpoint 9 moves the measurement space to a durable path
 and records the plan of the first reference series before any of its runs (`measurementSpace`
-and `referenceSeries` in `protocol.json`). One owner decision is open; see
-[Open decisions](#open-decisions).
+and `referenceSeries` in `protocol.json`). It also records the owner's decision on Prefect and the
+large cells; see [Owner decision](#owner-decision-on-prefect-and-the-large-cells). No owner
+decision is open.
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -426,20 +427,35 @@ and 384 pages. Swap use stayed at 0 MiB. Free memory fell from 22.43 GB before t
 stays within 1.7% of the kernel upper bound. The seal's `planeAIndexSnapshotHash` differs on
 every run, so it is not used as a fact identity; its cause is not investigated.
 
-## Open decisions
+## Owner decision on Prefect and the large cells
 
-This decision belongs to the T01 owner. It comes before any repeated series.
+On 2026-10-18 the owner decided, in these words:
 
-1. **Submodule refusal.** The baseline refuses the Prefect checkout because its tree contains a
-   submodule. That refusal stays recorded as a result. The multilanguage cell still needs an
-   indexed measurement.
+> Prefect en variante dérivée sans gitlink (admise si sélection identique, refus inscrit) ;
+> grandes cellules sous pression : vscode 5 runs, backstage 3 runs, aws-sdk-js-v3 1 run avec
+> résultat inscrit même en échec mémoire.
 
-The host-memory decision is resolved; see [Measurement host](#measurement-host).
+This resolves both earlier open decisions. No owner decision is open.
+
+**Derived Prefect snapshot.** The baseline's refusal of the original snapshot stays recorded in
+the shake-down results. The derived snapshot is a separate copy of the original snapshot
+directory. It removes `.gitmodules` and the `compat-tests` gitlink and is recommitted as one root
+commit by the same identity at the same date. Its tree id is `09bb641d`, and `git status` is
+clean. Its discovery selection equals the workload matrix record file for file and byte for byte.
+Only the unselected `.gitmodules` candidate disappears, so the variant is admitted.
+
+**Remaining cells.** They run in this order, with one commit and one push after each cell:
+
+| Cell | Runs | Expected duration |
+| --- | ---: | --- |
+| Prefect, derived snapshot | 10 | 30–60 min (no indexed run exists yet) |
+| `microsoft/vscode` | 5 | about 1 h 40 |
+| `backstage/backstage` | 3 | about 9 h |
+| `aws/aws-sdk-js-v3` | 1 | not estimated; a memory failure is recorded and not rerun |
 
 ## Next checkpoints
 
-1. On the macOS host: apply the owner's submodule decision and fix the series size of the large
-   cells. Then record repeated baseline series per size class, derive the size-dependent budget
-   coefficients from them and measure the CPU-profile cost for phase attribution.
+1. On the macOS host: record the remaining cells above. Then derive the size-dependent budget
+   coefficients from the series and measure the CPU-profile cost for phase attribution.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
