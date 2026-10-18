@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-18",
-  "checkpoint": 8,
+  "checkpoint": 9,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -995,5 +995,85 @@
       "fact": "the baseline refuses the PrefectHQ/prefect checkout because its tree contains a submodule gitlink (compat-tests); without Git it refuses as well",
       "question": "how the multilanguage cell obtains an indexed measurement while the refusal stays recorded"
     }
-  ]
+  ],
+  "measurementSpace": {
+    "recordedDateUtc": "2026-10-18",
+    "path": "/Users/hokli/t01-bench",
+    "reason": "the checkpoint 4-5 space lived under /private/tmp, which macOS may clear at restart; the series last hours",
+    "copiedFrom": "the checkpoint 4-5 scratch directory under /private/tmp/claude-501",
+    "copy": "rsync -aH (openrsync, protocol 29), before any series and with no series running",
+    "verification": {
+      "requalifiedBundle": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…; apps/cli/dist identical to the source by diff -r",
+      "collector": "memprobe.py 4543cd79…",
+      "treeIds": "equal to snapshotRepositories.treeIds for all seven snapshots",
+      "gitStatusClean": true,
+      "configuration": "every .semctx/config.json has digest b6b3a1ea…",
+      "closureManifests": "recomputed with the closure-manifest script; equal to each workload's closureManifestSha256"
+    },
+    "verifiedBeforeCopy": "the same checks passed on the source space",
+    "newRawOutputs": "written only under this path"
+  },
+  "referenceSeries": {
+    "recordedDateUtc": "2026-10-18",
+    "recordedBefore": "any run of these series",
+    "host": "the macOS measurement host (measurementHost)",
+    "series": [
+      {
+        "id": "small-medium",
+        "workloads": [
+          "sindresorhus/ky",
+          "honojs/hono",
+          "trpc/trpc"
+        ],
+        "runsPerWorkload": 10,
+        "order": "10 rounds; each round runs the three workloads once, in an order shuffled by one Python random.Random(365), reshuffled every round",
+        "expectedMinutes": 25
+      }
+    ],
+    "run": {
+      "cold": ".semctx emptied except config.json before every run; the operating-system file cache is not flushed",
+      "command": "bun <requalified bundle>/index.js index --json from the workload root",
+      "runtime": "Bun 1.4.3",
+      "workers": 1,
+      "collector": "memprobe.py (4543cd79…) at 50 ms: aggregate peak phys_footprint, kernel lifetime-peak upper bound, compressor and swap page counter deltas",
+      "hostMemoryPerRun": "vm_stat free, inactive, compressor-stored and compressor-occupied pages and sysctl vm.swapusage, read before and after each run"
+    },
+    "statistics": {
+      "perWorkload": "median, minimum, maximum and interquartile range of wall time and of aggregate peak footprint",
+      "interquartileRange": "Q3 - Q1 from Python statistics.quantiles(n=4, method=\"inclusive\")",
+      "factsCheck": "nodes, edges, evidence and claims identical across a workload's runs",
+      "alsoReported": "exit codes and page counter deltas per run"
+    },
+    "hostConditions": {
+      "power": "AC power, battery 100% charged",
+      "sleep": "caffeinate -dimsu for the duration of each series",
+      "closedBeforeSeries": [
+        "Google Chrome",
+        "Discord",
+        "Microsoft Teams"
+      ],
+      "leftRunning": {
+        "Trend Micro Security (iCoreService)": "security software",
+        "Chrome Remote Desktop host": "possible remote access to the host",
+        "Claude Code sessions": "including the session running the series"
+      },
+      "memoryAtPlan": {
+        "source": "vm_stat and sysctl vm.swapusage, hw.memsize, hw.pagesize, read after the copy and before the series",
+        "physicalMemoryBytes": 51539607552,
+        "pageSizeBytes": 16384,
+        "freePages": 1601427,
+        "freeBytes": 26237779968,
+        "inactivePages": 612225,
+        "inactiveBytes": 10030694400,
+        "pagesStoredInCompressor": 222297,
+        "pagesOccupiedByCompressor": 86769,
+        "swapUsedMiB": 0.0
+      }
+    },
+    "scriptSha256": {
+      "series": "77925cc15d1ec179cd27b00b75ac979d4eed5280db21e074c8b99a63871c82f0",
+      "statistics": "64737c59b4b1be8dca154b519e0f19e1ad2475150febdaf9e2e627577ec6b337",
+      "collector": "4543cd7994698dc746b1e74bf774c37a54409da2c1fd27d6d9e6515344da83ca"
+    }
+  }
 }

@@ -19,7 +19,9 @@ captures each workload's dependency closure. Checkpoint 5 fixes the measurement 
 one shake-down run per workload. Checkpoint 6 records the owner's choice of a single Windows
 measurement host and declares its memory collector. Checkpoint 7 redoes the reference build and
 the hono cell on that host; its collector-cost measurement is inconclusive. Checkpoint 8 records
-the owner's return to the macOS host. One owner decision is open; see
+the owner's return to the macOS host. Checkpoint 9 moves the measurement space to a durable path
+and records the plan of the first reference series before any of its runs (`measurementSpace`
+and `referenceSeries` in `protocol.json`). One owner decision is open; see
 [Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
