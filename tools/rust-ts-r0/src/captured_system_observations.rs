@@ -122,7 +122,7 @@ fn workspace_globs(
     values: Vec<String>,
     sensitive: bool,
     unsupported: &mut BTreeSet<String>,
-) -> Option<(Vec<tsoptions::Glob>, Vec<tsoptions::Glob>)> {
+) -> Option<(Vec<String>, Vec<String>)> {
     let mut include = vec![];
     let mut exclude = vec![];
     for value in values {
@@ -150,20 +150,34 @@ fn workspace_globs(
         } else {
             value.to_lowercase()
         };
-        let glob = match tsoptions::glob_parse(&value) {
-            Ok(glob) => glob,
-            Err(_) => {
-                unsupported.insert(format!("WORKSPACE_PATTERN_UNSUPPORTED:{value}"));
-                return None;
-            }
-        };
         if negative {
-            exclude.push(glob);
+            exclude.push(value);
         } else {
-            include.push(glob);
+            include.push(value);
         }
     }
     Some((include, exclude))
+}
+
+fn workspace_path_matches(pattern: &str, path: &str) -> bool {
+    let segments = path.split('/').collect::<Vec<_>>();
+    let mut reachable = vec![false; segments.len() + 1];
+    reachable[0] = true;
+    for pattern in pattern.split('/') {
+        let mut next = vec![false; segments.len() + 1];
+        if pattern == "**" {
+            for index in 0..=segments.len() {
+                next[index] = reachable[index] || index > 0 && next[index - 1];
+            }
+        } else {
+            for index in 1..=segments.len() {
+                next[index] =
+                    reachable[index - 1] && (pattern == "*" || pattern == segments[index - 1]);
+            }
+        }
+        reachable = next;
+    }
+    reachable[segments.len()]
 }
 
 fn valid_name(name: &str) -> bool {
@@ -332,8 +346,12 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
         {
             continue;
         }
-        if include.iter().any(|glob| glob.match_(relative))
-            && !exclude.iter().any(|glob| glob.match_(relative))
+        if include
+            .iter()
+            .any(|glob| workspace_path_matches(glob, relative))
+            && !exclude
+                .iter()
+                .any(|glob| workspace_path_matches(glob, relative))
         {
             members.insert(directory.into());
         }
@@ -577,7 +595,7 @@ fn native_case() -> bool {
     ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names()
 }
 
-fn absolute(path: &str) -> bool {
+pub(super) fn absolute(path: &str) -> bool {
     path.starts_with('/')
         || path.starts_with('\\')
         || (path.len() > 2
@@ -1244,6 +1262,64 @@ mod tests {
             serde_json::json!(["leaf.ts"])
         );
         assert_eq!(observed["results"][3]["found"], false);
+    }
+
+    #[test]
+    fn workspace_segment_depth_and_recursive_exclusions_select_actual_members() {
+        for (pattern, consumer, excluded, expected) in [
+            ("apps/**/client", "/apps/client", false, true),
+            ("apps/**/client", "/apps/team/client", false, true),
+            ("apps/*/client", "/apps/client", false, false),
+            ("apps/*/client", "/apps/team/client", false, true),
+            ("apps/*/client", "/apps/team/sub/client", false, false),
+            ("apps/**", "/apps/team/client", true, false),
+        ] {
+            let mut files = workspace_files()
+                .into_iter()
+                .map(|(path, text)| (path.replace("/apps/client", consumer), text))
+                .collect::<BTreeMap<_, _>>();
+            let mut patterns = vec!["settings/**", pattern];
+            if excluded {
+                patterns.push("!apps/**/client");
+            }
+            files.insert(
+                "/repo/package.json".into(),
+                serde_json::json!({"workspaces":{"packages":patterns}}).to_string(),
+            );
+            let fs = CaptureFs::with_workspace_root(files, true, "/repo", None);
+            assert_eq!(
+                fs.file_exists(&format!(
+                    "/repo{consumer}/node_modules/@t00/config-dev/tsconfig/base.json"
+                )),
+                expected,
+                "{pattern} {consumer} excluded={excluded}"
+            );
+        }
+    }
+
+    #[test]
+    fn workspace_members_with_multiple_wildcard_segments_keep_the_configuration_alias() {
+        for sensitive in [true, false] {
+            let files = workspace_files()
+                .into_iter()
+                .map(|(path, text)| (path.replace("/apps/client", "/apps/team/client"), text))
+                .collect::<BTreeMap<_, _>>();
+            let mut files = files;
+            files.insert(
+                "/repo/package.json".into(),
+                r#"{"workspaces":{"packages":["settings/*","apps/*/*"]}}"#.into(),
+            );
+            let fs = CaptureFs::with_workspace_root(files, sensitive, "/repo", None);
+            let path = "/repo/apps/team/client/node_modules/@t00/config-dev/tsconfig/base.json";
+            assert!(
+                fs.file_exists(path),
+                "wildcard configuration alias must exist with case mode {sensitive}"
+            );
+            assert_eq!(
+                fs.realpath(path),
+                "/repo/settings/shared/tsconfig/base.json"
+            );
+        }
     }
 
     #[test]

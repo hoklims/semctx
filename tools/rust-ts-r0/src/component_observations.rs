@@ -44,6 +44,27 @@ fn not_executed() -> Observation {
     }
 }
 
+pub fn ordinary_module_configuration(
+    configuration: &configuration::Configuration,
+    unsupported: BTreeSet<String>,
+) -> Observation {
+    let ordinary = if configuration
+        .reasons
+        .iter()
+        .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY")
+    {
+        vec!["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into()]
+    } else {
+        configuration
+            .reasons
+            .iter()
+            .filter(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
+            .cloned()
+            .collect()
+    };
+    observed(ordinary, unsupported)
+}
+
 pub fn module_configuration(
     inputs: ModuleConfigurationInputs<'_>,
 ) -> ModuleConfigurationObservations {
@@ -52,23 +73,10 @@ pub fn module_configuration(
         .reasons
         .iter()
         .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY");
-    let ordinary = if inputs
-        .ordinary_configuration
-        .reasons
-        .iter()
-        .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY")
-    {
-        vec!["SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into()]
-    } else {
-        inputs
-            .ordinary_configuration
-            .reasons
-            .iter()
-            .filter(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
-            .cloned()
-            .collect()
-    };
-    let ordinary_without_snapshot = observed(ordinary, inputs.ordinary_unsupported.clone());
+    let ordinary_without_snapshot = ordinary_module_configuration(
+        inputs.ordinary_configuration,
+        inputs.ordinary_unsupported.clone(),
+    );
     if !inputs.retained {
         return ModuleConfigurationObservations {
             retained_without_source: not_executed(),

@@ -1376,6 +1376,195 @@ fn run_worker_recipe(
     save(&dir.join("result.json"), &result)?;
     Ok(result)
 }
+fn configured_query_complete_binding(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+        || observed["containing_file"] != request["containing_file"]
+        || observed["specifier"] != request["specifier"]
+        || observed["resolutionMode"] != "omitted"
+        || observed["configuration"]["executed"] != true
+        || observed["configuration"]["unsupported"] != json!([])
+        || observed["native_diagnostics"] != json!([])
+        || observed.get("native_error") != Some(&Value::Null)
+        || observed["resolutionObservations"]["errors"] != json!({})
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("configured query observation is incomplete or unbound".into());
+    }
+    if !observed["configuration"]["reasons"]
+        .as_array()
+        .is_some_and(|reasons| reasons.iter().all(Value::is_string))
+    {
+        return Err("configured query lacks actual configuration reasons".into());
+    }
+    let sensitive = request["case_sensitive"]
+        .as_bool()
+        .ok_or("missing measured native case mode")?;
+    let files = request["files"]
+        .as_object()
+        .ok_or("missing configured source capture")?;
+    let root = verifier_absolute_key(value_text(request, "root")?, sensitive)?;
+    let resolved = observed
+        .get("resolved_file_name")
+        .ok_or("missing configured resolution result")?;
+    let relative = observed
+        .get("resolved_relative_path")
+        .ok_or("missing configured relative result")?;
+    if resolved.is_null() {
+        if !relative.is_null() {
+            return Err("unresolved query reports a relative target".into());
+        }
+    } else {
+        let resolved = verifier_absolute_key(
+            resolved.as_str().ok_or("invalid resolved file name")?,
+            sensitive,
+        )?;
+        let expected_relative = resolved
+            .strip_prefix(&format!("{root}/"))
+            .ok_or("resolved source outside root")?;
+        if !files.keys().any(|path| verifier_absolute_key(path, sensitive).is_ok_and(|key| key == resolved))
+            || relative.as_str().is_none_or(|path| if sensitive { path.to_string() } else { path.to_lowercase() } != expected_relative)
+        {
+            return Err("configured target is not the captured resolved source".into());
+        }
+    }
+    let directories = request["directories"]
+        .as_array()
+        .ok_or("missing configured directory inventory")?;
+    let actual = observed["capturedDirectories"]
+        .as_array()
+        .ok_or("missing actual directory inventory")?;
+    let probes = observed["probes"]
+        .as_array()
+        .ok_or("missing native query probes")?;
+    if directories.len() != actual.len() {
+        return Err("configured directory count differs".into());
+    }
+    for (path, actual) in directories.iter().zip(actual) {
+        if actual["path"] != *path
+            || actual["found"] != true
+            || !probes.iter().any(|probe| {
+                probe["operation"] == "directory_exists"
+                    && probe["path"].as_str().zip(path.as_str()).is_some_and(
+                        |(actual, expected)| {
+                            verifier_absolute_key(actual, sensitive)
+                                .ok()
+                                .zip(verifier_absolute_key(expected, sensitive).ok())
+                                .is_some_and(|(actual, expected)| actual == expected)
+                        },
+                    )
+                    && probe["found"] == true
+            })
+        {
+            return Err(
+                "captured empty directory was not observed in the workspace profile".into(),
+            );
+        }
+    }
+    Ok(
+        json!({"state":"BOUND_EXPLICIT_CONFIGURED_COMPONENT","request_descriptor_id":observed["request_descriptor_id"],"sdk_consumption_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+fn run_configured_query_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing query gap registry")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("NativeConfiguredQueryCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("nativeconfiguredquerycaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let capture = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let cwd = value_text(&capture, "cwd")?;
+    let mut directories = vec![];
+    let mut setup = vec![];
+    for directory in recipe["capture_directories"]
+        .as_array()
+        .ok_or("missing frozen directories")?
+    {
+        let path = directory
+            .as_str()
+            .filter(|path| safe_relative(path))
+            .ok_or("invalid frozen empty directory")?;
+        let target = root.join(path);
+        fs::create_dir_all(&target).map_err(|error| error.to_string())?;
+        if fs::read_dir(&target)
+            .map_err(|error| error.to_string())?
+            .next()
+            .is_some()
+        {
+            return Err("frozen empty directory has unexpected entries".into());
+        }
+        directories.push(json!(format!("{cwd}/{path}")));
+        setup.push(json!({"relative_path":path,"directory_exists":target.is_dir(),"entries":[]}));
+    }
+    let source = value_text(&recipe["explicit_query"], "containing_file")?;
+    if !safe_relative(source) {
+        return Err("configured containing file escapes root".into());
+    }
+    let request = json!({"root":cwd,"sdk_directory":capture["sdk_directory"],"case_sensitive":sensitive,"files":capture["files"],"directories":directories,"containing_file":format!("{cwd}/{source}"),"specifier":recipe["explicit_query"]["specifier"]});
+    let descriptor = dir.join("configured-query-request.json");
+    save(&descriptor, &request)?;
+    save(&dir.join("physical-setup.json"), &json!(setup))?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--observe-configured-resolution".into(),
+        descriptor.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, dir, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    save(
+        &dir.join("process-outcome.json"),
+        &serde_json::to_value(&outcome).map_err(|error| error.to_string())?,
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Ok(json!({"state":"CONFIGURED_QUERY_PROCESS_NONPASS","pass":false}));
+    }
+    let observed: Value =
+        serde_json::from_str(&outcome.stdout).map_err(|error| error.to_string())?;
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = configured_query_complete_binding(&observed, &request, sdk, artifact_sha);
+    let checks = recipe["checks"].as_array().ok_or("missing configured query checks")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass {"PASS_FROZEN_CONFIGURED_QUERY_UNIT"} else {"NONPASS_CONFIGURED_QUERY_UNIT"},"checks":checks,"binding":match binding {Ok(value)=>value,Err(error)=>json!({"state":"CONFIGURED_QUERY_BINDING_REJECTED","error":error})},"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn system_complete_binding(
     observed: &Value,
     request: &Value,
@@ -1780,6 +1969,20 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "configured_query_cli" {
+            let mut result = run_configured_query_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "captured_system_cli" {
             let mut result = run_system_recipe(
                 recipe,
@@ -3202,6 +3405,15 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "configured_query_cli" => run_configured_query_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "primitive_cli" => {
                 run_primitive_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
             }
@@ -3659,4 +3871,93 @@ fn comparator_worker_case_metadata_is_checked_without_workspace_refusals() {
         malformed["compiler_probes"] = value;
         assert!(worker_frontend_capability(&malformed, &request, true).is_err());
     }
+}
+
+#[test]
+fn gap_explicit_configured_resolution_keeps_workspace_and_registry_distinct() {
+    repair_units(&[
+        "P11-workspace-config-link::base",
+        "N11-registry-range-is-not-workspace::base",
+    ]);
+}
+
+#[test]
+fn comparator_configured_query_refuses_missing_or_substituted_component_evidence() {
+    let sdk = json!({"files":{}});
+    let request = json!({"root":"/repo","case_sensitive":true,"files":{"/repo/source.ts":"authored","/repo/leaf.ts":"leaf"},"directories":["/repo/.git"],"containing_file":"/repo/source.ts","specifier":"./leaf"});
+    let observed = json!({
+        "request_descriptor_id":identity::digest(&request),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:dev-artifact",
+        "executed":true,"unsupported":[],"containing_file":"/repo/source.ts","specifier":"./leaf","resolutionMode":"omitted",
+        "configuration":{"executed":true,"unsupported":[],"reasons":[]},"native_diagnostics":[],"native_error":null,
+        "resolutionObservations":{"errors":{}},"global_admission_inferred":false,
+        "resolved_file_name":"/repo/leaf.ts","resolved_relative_path":"leaf.ts",
+        "capturedDirectories":[{"path":"/repo/.git","found":true}],"probes":[{"operation":"directory_exists","path":"/repo/.git","found":true}]
+    });
+    assert!(configured_query_complete_binding(&observed, &request, &sdk, "dev-artifact").is_ok());
+    for field in [
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+        "executed",
+        "unsupported",
+        "containing_file",
+        "specifier",
+        "resolutionMode",
+        "configuration",
+        "native_diagnostics",
+        "native_error",
+        "resolutionObservations",
+        "global_admission_inferred",
+        "resolved_file_name",
+        "resolved_relative_path",
+        "capturedDirectories",
+        "probes",
+    ] {
+        let mut altered = observed.clone();
+        altered.as_object_mut().unwrap().remove(field);
+        assert!(
+            configured_query_complete_binding(&altered, &request, &sdk, "dev-artifact").is_err(),
+            "missing {field}"
+        );
+    }
+    for (pointer, replacement) in [
+        ("/configuration/executed", json!(false)),
+        ("/configuration/unsupported", json!(["not observed"])),
+        ("/configuration/reasons", json!([7])),
+        ("/native_error", json!("native failure")),
+        ("/resolutionObservations/errors", json!({"source":"failed"})),
+        ("/resolved_file_name", json!("/outside.ts")),
+        ("/resolved_file_name", json!("/repo/uncaptured.ts")),
+        ("/resolved_relative_path", json!("source.ts")),
+        ("/capturedDirectories/0/found", json!(false)),
+        ("/probes/0/found", json!(false)),
+        ("/probes/0/operation", json!("read_file")),
+        ("/probes/0/path", json!("/outside/.git")),
+    ] {
+        let mut altered = observed.clone();
+        *altered.pointer_mut(pointer).unwrap() = replacement;
+        assert!(
+            configured_query_complete_binding(&altered, &request, &sdk, "dev-artifact").is_err(),
+            "{pointer}"
+        );
+    }
+    let mut unresolved = observed.clone();
+    unresolved["resolved_file_name"] = Value::Null;
+    unresolved["resolved_relative_path"] = Value::Null;
+    assert!(configured_query_complete_binding(&unresolved, &request, &sdk, "dev-artifact").is_ok());
+    unresolved["resolved_relative_path"] = json!("leaf.ts");
+    assert!(
+        configured_query_complete_binding(&unresolved, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut aliased = request.clone();
+    aliased["directories"] = json!(["/repo/phantom/../.git"]);
+    let mut actual = observed.clone();
+    actual["request_descriptor_id"] = json!(identity::digest(&aliased));
+    actual["capturedDirectories"][0]["path"] = aliased["directories"][0].clone();
+    assert!(configured_query_complete_binding(&actual, &aliased, &sdk, "dev-artifact").is_ok());
+    let mut descriptor = request.clone();
+    descriptor["directories"] = json!([]);
+    assert!(
+        configured_query_complete_binding(&observed, &descriptor, &sdk, "dev-artifact").is_err()
+    );
 }

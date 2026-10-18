@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_NINETEEN_GAPS_MAPPED_EIGHTEEN_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_ONE_GAPS_MAPPED_TWENTY_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining45 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T17:45:35.323923+00:00",
-  "staticGapUnitsRemaining": 45,
+  "next": "Continue the remaining43 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T18:13:13.729205+00:00",
+  "staticGapUnitsRemaining": 43,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -334,7 +334,7 @@
   },
   "seventhBatch": {
     "registeredUtc": "2026-10-18T17:32:05.778089+00:00",
-    "state": "PREREQUISITE_SOURCE_HOST_FIX_IMPLEMENTED_QUERY_AND_MAPPINGS_PENDING",
+    "state": "TWO_NATIVE_FROZEN_EXPLICIT_QUERY_UNITS_PASS_MACOS_DEV_REVIEWED",
     "additionalC1Pass": 1,
     "passStillOpen": true,
     "units": [
@@ -375,6 +375,30 @@
       "evidence": "source-host-boundary-evidence.json",
       "independentNegativeWitness": "Source host substitution removed in disposable copy:101; restored0; candidate stable",
       "review": "PROOF_ADEQUATE bounded to source-host fix"
-    }
+    },
+    "additionalFindings": [
+      {
+        "classification": "Owned adapter operation chosen from pinned upstream glob implementation",
+        "observation": "Actual C1 workspace queries match tooling/* and literal domains/registry/api but miss domains/*/*. Pinned ts_goport Glob Star consumes the slash then expects a Slash token. No compiler version arbitration.",
+        "red": "semctx-t00-explicit-query-workspace-glob-red.log",
+        "correctionScope": "Owned workspace patterns already limited to literal segments, * and **; use segment matching for this supported subset."
+      },
+      {
+        "classification": "Owned configuration reason classification",
+        "observation": "Missing inherited package configuration6053 is replaced by outside-repository solely because of false directory_exists on strict-ancestor node_modules search folders. Actual outside file/read probes still need refusal.",
+        "red": "semctx-t00-explicit-query-ancestor-probe-red.log",
+        "correctionScope": "Workspace profile only: exclude false directory_exists for exact strict-ancestor node_modules from reason replacement; retain retained-profile behavior, every other outside probe and physical confinement."
+      }
+    ],
+    "implementationNotes": [
+      "The CLI omission red and lost empty-directory red are real test failures, now corrected.",
+      "Initial scalar-number typesVersions fixture returned unresolved; scalar string and non-string array element are the actual error witnesses.",
+      "Initial P11/N11 replay retained missing operation binding and glob/reason failures. Bind inspectModuleConfiguration explicitly; no comparator relaxation.",
+      "A real capture-alias test exposed phantom parent directories from raw dot/dotdot paths. Normalize file and directory names before constructing parent inventories; directory probe comparisons are canonical."
+    ],
+    "evidence": "gap-configured-query-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "30b62a268a9265d62e2f3cb8c1f58ea7527418a7dab0b1be0f98c880b64dda77",
+    "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892"
   }
 }

@@ -589,6 +589,26 @@ for recipe in recipes:
         recipe['credited_properties'] = ['specifiers_exact'] + (['runtime_dependency_claim'] if 'runtime_dependency_claim' in assertions else [])
         recipe['required_native_api'] = ['--observe-primitives exact descriptor/artifact binding; actual native TSX parser and relative-import syntactic visitor']
         recipe['proof_scope'] = 'Standalone native syntactic baseline component only. No pilot run, runtime dependency resolution, candidate comparison, graph or admission result.'
+    if recipe['case_id'] in ['P11-workspace-config-link', 'N11-registry-range-is-not-workspace']:
+        inp = INPUTS[recipe['case_id']]
+        source = 'domains/registry/api/src/registry.ts'
+        if source not in inp['files']:
+            raise ValueError('explicit configured query source is not captured')
+        recipe['surface'] = 'configured_query_cli'
+        recipe['capture_request'] = recipe['requests'][0]
+        recipe['requests'] = []
+        recipe['capture_directories'] = [path for setup in inp['setup'] for path in setup['directories']]
+        recipe['explicit_query'] = {'containing_file': source, 'specifier': '#shared'}
+        recipe['checks'] = [check(['resolved_relative_path'], assertions['resolved_relative_path'], 'eq', ptr('resolved_relative_path'))]
+        if 'configuration_reason_projection_exact' in assertions:
+            add_bound_check(recipe, ['configuration', 'reasons'], assertions['configuration_reason_projection_exact'], 'eq', ptr('configuration_reason_projection_exact'), 'inspectModuleConfiguration', {'frozen_unit_pointer':recipe['frozen_unit_pointer'], 'profile':'ordinary-no-snapshot', 'containing_file':source})
+        else:
+            add_bound_check(recipe, ['configuration', 'reasons'], assertions['reasons'], 'reason_constraints', ptr('reasons'), 'inspectModuleConfiguration', {'frozen_unit_pointer':recipe['frozen_unit_pointer'], 'profile':'ordinary-no-snapshot', 'containing_file':source})
+        recipe['relations'] = []
+        recipe['gaps'] = []
+        recipe['credited_properties'] = list(assertions)
+        recipe['required_native_api'] = ['--observe-configured-resolution; actual configured resolver with omitted mode and ordinary inspectModuleConfiguration; exact capture includes empty directories']
+        recipe['proof_scope'] = 'Explicit configured resolution on the unchanged frozen source, not an inserted import. Component reasons only; no graph/admission result, coherent SDK acquisition or all-SDK consumption claim.'
     if recipe['checks'] or recipe.get('relations'):
         recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
 
