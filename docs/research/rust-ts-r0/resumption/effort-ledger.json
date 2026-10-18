@@ -1,0 +1,27 @@
+{
+  "recordVersion": 1,
+  "tranche": "Same T00, reopened C1, 2026-10-18",
+  "historicalLedger": "../final/effort-ledger.json",
+  "effortWorkingDaysApproximate": [
+    3,
+    4
+  ],
+  "conversion": "No new exact day/hour ceiling inferred from the owner estimate.",
+  "preRegistrationPreparation": {
+    "state": "NOT_TIMED_SEPARATELY",
+    "scope": "Repository/rules/record discovery and independent reopening-claim audit before this ledger was opened. Not claimed as zero effort.",
+    "firstObservedClockUtc": "2026-10-18T12:10:28Z"
+  },
+  "activeIntervals": [
+    {
+      "agent": "/root",
+      "startUtc": "2026-10-18T12:13:39.082313+00:00",
+      "endUtc": null,
+      "activity": "Reopening record preparation, checks, review and checkpoint publication",
+      "state": "OPEN"
+    }
+  ],
+  "additionalC1Passes": [],
+  "secondsChargedClosedIntervals": 0,
+  "externalWaitingNotActiveEffort": true
+}

@@ -2,8 +2,11 @@
 
 This directory records the bounded TS/JS feasibility experiment for
 [#365](https://github.com/hoklims/semctx/issues/365), section 2. That issue owns
-acceptance. The [final decision is STOP_BUDGET](final/README.md): both compositions and
-both correction passes are closed without R0. This record does not change the
+acceptance. The owner [reopened this same T00 on 2026-10-18](resumption/README.md),
+on the same branch and PR, for C1 only: two additional correction passes and
+approximately 3–4 days. C2 is abandoned for the resumption. The
+[previous STOP_BUDGET dossier](final/README.md) remains historical; current R0 is
+pending. This record does not change the
 accepted language profiles or declare `READY_TS_NATIVE`.
 
 ## Preregistration
@@ -20,7 +23,7 @@ to another owner's branch is authorized. One historical owner-requested bug comm
 The resumed session strictly prohibits every new GitHub comment, including#365;
 progress is published only in the PR386 description.
 
-Each completed stage is a separate checkpoint:
+The original stages are recorded as separate checkpoints:
 
 1. Record prerequisites, identities and the research envelope.
 2. Close the ordinary and qualified Compiler API obligations inventory.
@@ -81,9 +84,9 @@ same optimized TS/JS vectors and retains its artifacts. At that historical check
 actual optimized C1 DEV evidence on native Windows/Linux/macOS.
 
 
-## Current qualification checkpoint
+## Historical qualification checkpoint before reopening
 
-[C1 pass2](selection/pass2/README.md) freezes the final allowed C1 correction.
+[C1 pass2](selection/pass2/README.md) freezes the final C1 correction under the original budget.
 Its immutable optimized macOS artifact is SHA256
 eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081.
 The [second campaign](qualification/c1-pass2/second-replay-summary.json)
@@ -95,11 +98,14 @@ qualified. The first campaign and both raw archives remain preserved. The separa
 original observers, recipes, source snapshots and reconstruction commands.
 
 The [source-backed triage](qualification/c1-pass2/second-replay-triage.json)
-separates recipe/context defects from a confirmed native divergence: an isolated
+separates recipe/context defects from an observed diagnostic difference: an isolated
 UTF16 high surrogate produces diagnostic 1490 instead of frozen diagnostic 1127.
-The frozen expectations are unchanged. C1 has no correction pass remaining;
-its successful DEV checks do not cancel qualification failures or missing proofs.
-No reserved case has been executed.
+The frozen expectations are unchanged. The owner now classifies this specific
+difference as TS7 versus TS5.9.3 in [T00-ARB-002](arbitrations.json), without a new
+technical root-cause proof or automatic qualification credit. The original C1
+budget was exhausted; the [renewed budget](resumption/record.json) adds two passes.
+Successful DEV checks do not cancel qualification failures or missing proofs.
+No reserved case has been executed as of reopening.
 
 [C2 preregistration](composition2/registration.json) records the distinct Ezno
 native checker hypothesis. [Its initial run](composition2/initial/README.md)
@@ -117,11 +123,11 @@ or semantics. Both C2 corrections are now closed. Baseline skipLibCheck and nati
 nullability differences remain explicit; no SDK errors or expected values are
 suppressed to obtain a pass.
 
-[The final R0 dossier](final/README.md) records STOP_BUDGET from the actual
+[The historical R0 dossier](final/README.md) records STOP_BUDGET from the actual
 composition/correction limits, with0qualified obligations and no reserved-case
 execution. It does not claim that five days were spent or that Rust is impossible.
 T01 and substantial ports remain closed. [The independent terminal claim audit](final/claim-audit.json)
-records no current finding within its bounded evidence scope.
+records no finding within its historical evidence scope; it does not audit the resumed work.
 
 [The exact-head CI entry](selection/ci-dispatch/README.md) binds its base and
 immutable head. [The platform evidence](selection/platforms-49fa/README.md)
