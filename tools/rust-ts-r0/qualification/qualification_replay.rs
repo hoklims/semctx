@@ -3202,6 +3202,9 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "primitive_cli" => {
+                run_primitive_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+            }
             other => panic!("unsupported repair unit surface {other}"),
         }
         .unwrap_or_else(|error| json!({"pass":false,"error":error}));
@@ -3266,6 +3269,14 @@ fn gap_retained_callable_components_use_native_initializer_coordinates() {
         "ORD-CALLABLE-TYPE-ORIGIN::variant-04",
         "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
         "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+    ]);
+}
+
+#[test]
+fn gap_syntactic_relative_imports_use_the_native_primitive() {
+    repair_units(&[
+        "P26-independent-relative-comparator::base",
+        "N26-comparator-does-not-guess-dynamic-or-bare::base",
     ]);
 }
 

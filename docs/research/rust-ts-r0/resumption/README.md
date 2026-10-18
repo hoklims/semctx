@@ -86,8 +86,11 @@ exposes the existing retained callable-coordinate operation for named variable
 initializers. All six frozen variants pass macOS DEV replay; independent checks
 reject52 altered observations and two producer error-propagation omissions. The
 missing error-path test found in review is added, with real native failures and
-restoration. There are47 static GAP units still to map; all240 obligations remain
-unqualified.
+restoration. A [sixth tranche](gap-relative-evidence.json) adds the standalone
+native syntactic relative-import helper: both frozen component cases pass, with
+18 altered observations and three native visitor faults rejected independently.
+This is component evidence, with the ADR0019 pilot workflow unchanged. There
+are45 static GAP units still to map; all240 obligations remain unqualified.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
