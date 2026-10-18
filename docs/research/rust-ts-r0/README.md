@@ -146,10 +146,13 @@ Those candidate executions use GitHub Actions. The owner excluded unrelated
 unstable Windows tests from this investigation; such failures remain reported and
 cannot count as successful R0 portability evidence or a green required aggregate.
 
-[#383](https://github.com/hoklims/semctx/pull/383) is merged, but absent from this
-branch's base. The initial import reused its canonical tooling and integration
-files at the exact Git blobs listed in [tooling-reuse.json](tooling-reuse.json), without
-restacking the chain or creating another process controller. Its existing CLI/MCP scenario qualification does not
+At the initial import, merged [#383](https://github.com/hoklims/semctx/pull/383)
+was absent from the historical coordination base 382c084f. That checkpoint reused
+the canonical tooling and integration Git blobs listed in
+[tooling-reuse.json](tooling-reuse.json), without then restacking the chain or
+creating another process controller. The subsequent restack inherits #383 and
+the complete #399 CI policy from main through coordination 4e80d36c; the original
+execution records retain their historical source and artifact identities. Its existing CLI/MCP scenario qualification does not
 qualify fact batches or semantic precision. In particular, its `no_product` report
 is not evidence that a producer ran.
 
