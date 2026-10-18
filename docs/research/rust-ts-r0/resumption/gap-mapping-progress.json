@@ -168,7 +168,7 @@
   ],
   "reservedPayloadAccessed": false,
   "next": "Continue the remaining37 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T20:07:05.245207+00:00",
+  "updatedUtc": "2026-10-18T20:29:31.884945+00:00",
   "staticGapUnitsRemaining": 37,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
@@ -535,5 +535,22 @@
     "testDiscovery": "Initial --bin filter found0 tests; the owning --lib target then ran the real failing unknown-operation test, before implementation. Zero discovery is retained separately and is not the red witness.",
     "evidence": "gap-canonical-system-evidence.json",
     "newProjectedPasses": 1
+  },
+  "twelfthBatch": {
+    "registeredUtc": "2026-10-18T20:29:31.884945+00:00",
+    "state": "NATIVE_RETAINED_DISCOVERY_DEV_PREREQUISITE_REVIEWED_FROZEN_RECIPES_PENDING",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "scope": "At least one native nondeclaration TS/JS source root; String text capture only. Canonical root/capture keys use the existing measured-case normalizer; discovery coordinates must be canonical portable relative paths. Declaration annex roots do not belong to the supplied source inventory. No autodiscovery, role/language remapping, whole retained scope, capture atomicity or complete public Plane-A runtime claim.",
+    "units": [
+      "N01-snapshot-metadata-mismatch::base",
+      "P01-retained-source::analyze-snapshot-consistent"
+    ],
+    "runtimeVariantsRemainSeparate": true,
+    "newMappingsCredited": 0,
+    "qualificationCredit": 0,
+    "nativeArtifactSha256": "823470486f99c432353eaceb7e74d896286f35b912a369af634ae0d49ab58329",
+    "evidence": "retained-discovery-evidence.json",
+    "nativePhase": "Native capture-versus-supplied-inventory guard reviewed;198binary/45library/4native-process-flow/39comparator tests pass on macOS. Frozen recipes and consumer replay still pending."
   }
 }

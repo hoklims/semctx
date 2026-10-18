@@ -15,6 +15,7 @@ mod javascript;
 mod ordinary;
 mod outline;
 mod qualified;
+mod retained_discovery_observations;
 mod runtime_configuration;
 mod source_text;
 mod worker_observations;
@@ -1456,13 +1457,17 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 | "--observe-system"
                 | "--observe-configured-resolution"
                 | "--observe-controlled-assembly"
+                | "--analyze-retained-discovery"
         )
     }) else {
         return Ok(None);
     };
     let valid_arity = if matches!(
         mode,
-        "--extract-worker" | "--observe-configured-resolution" | "--observe-controlled-assembly"
+        "--extract-worker"
+            | "--observe-configured-resolution"
+            | "--observe-controlled-assembly"
+            | "--analyze-retained-discovery"
     ) {
         args.len() == 4
     } else if mode == "--observe-system" {
@@ -1478,6 +1483,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 "--extract-worker"
                     | "--observe-configured-resolution"
                     | "--observe-controlled-assembly"
+                    | "--analyze-retained-discovery"
             ) {
                 " SDK.json"
             } else if mode == "--observe-system" {
@@ -1507,6 +1513,10 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
         refusal
     } else {
         match mode {
+            "--analyze-retained-discovery" => retained_discovery_observations::run(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("retained discovery SDK input missing")?,
+            ),
             "--observe-controlled-assembly" => assembly_observations::run(
                 descriptor.clone(),
                 sdk.as_ref()
