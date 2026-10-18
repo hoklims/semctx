@@ -1027,7 +1027,221 @@
         ],
         "runsPerWorkload": 10,
         "order": "10 rounds; each round runs the three workloads once, in an order shuffled by one Python random.Random(365), reshuffled every round",
-        "expectedMinutes": 25
+        "expectedMinutes": 25,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:07:21Z",
+          "lastRunStartedUtc": "2026-10-18T13:24:11Z",
+          "runs": 30,
+          "workloads": {
+            "sindresorhus/ky": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 2.044,
+                "min": 1.882,
+                "max": 2.076,
+                "iqr": 0.054
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 708756704,
+                "min": 699057376,
+                "max": 717243616,
+                "iqr": 5677056
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9934,
+                0.9998
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 437,
+                "edges": 971,
+                "evidence": 2388,
+                "claims": 82
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 1,
+                  "iqr": 0
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14621745152,
+                "min": 12512215040,
+                "max": 22430302208,
+                "iqr": 2306306048
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            },
+            "honojs/hono": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 15.277,
+                "min": 14.574,
+                "max": 15.442,
+                "iqr": 0.297
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 1558964240,
+                "min": 1546094560,
+                "max": 1578993632,
+                "iqr": 15298512
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9835,
+                0.9989
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 2689,
+                "edges": 5934,
+                "evidence": 11164,
+                "claims": 455
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 14,
+                  "iqr": 2
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14677131264,
+                "min": 12554682368,
+                "max": 22375563264,
+                "iqr": 1415618560
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            },
+            "trpc/trpc": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 92.991,
+                "min": 90.55,
+                "max": 93.835,
+                "iqr": 0.762
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 5046105920,
+                "min": 4915320592,
+                "max": 5113845568,
+                "iqr": 19513320
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9919,
+                0.9989
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 5925,
+                "edges": 12101,
+                "evidence": 18102,
+                "claims": 2047
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 4,
+                  "min": 0,
+                  "max": 384,
+                  "iqr": 14
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14728347648,
+                "min": 12426952704,
+                "max": 21739601920,
+                "iqr": 2178949120
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            }
+          },
+          "factsCheck": "passed: nodes, edges, evidence and claims, and the node and claim kind counts, identical across each workload's runs",
+          "planeAIndexSnapshotHash": "differs on every run, so it is not used as a fact identity here; its cause is not investigated",
+          "hostMemory": "free pages fell from 22.43 GB before the first run to 13.06 GB after the last while inactive pages rose from 13.15 GB to 20.52 GB; swap used stayed 0 MiB and no run recorded a compression or a swap",
+          "rawOutputs": "/Users/hokli/t01-bench/runs/small-medium (index outputs, rows.jsonl, stats.json, log)",
+          "rowsSha256": "4cccc632bd35a4a8d9541ae6ea5b5f874976581015b051c451aaa5f7f7f957b7",
+          "statsSha256": "6d3c12632297e1e2ad1db6ceadffa4b4f09a83c3bc41fba024ccba6b49f41e4b"
+        }
       }
     ],
     "run": {

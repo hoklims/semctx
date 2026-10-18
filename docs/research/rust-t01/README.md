@@ -390,6 +390,42 @@ The host was not quiet: available physical memory at run start ranged from 25.0 
 63.7 GiB, because other applications held the rest. With that load, the 42–43 GB large cells would
 again run under memory pressure. No quiet-host procedure is declared yet.
 
+## Reference series
+
+Checkpoint 9 records the first reference series on the macOS host. Its plan was committed before
+any of its runs. Raw outputs stay outside the checkout, under the durable measurement space
+`/Users/hokli/t01-bench`. That space is a copy of the checkpoint 4–5 space and was checked against
+the record before the series: bundle and collector digests, snapshot tree ids, a clean
+`git status` and the closure manifests all match.
+
+**Design.** Ten cold runs per workload use the requalified bundle under Bun 1.4.3 with one worker,
+and the collector samples every 50 ms. The order is interleaved: each of ten rounds runs the three
+workloads once, in an order shuffled by `random.Random(365)`. Before every run, `.semctx` is emptied
+except `config.json`, and host memory is read from `vm_stat` and `vm.swapusage`. The host ran on AC
+power under `caffeinate -dimsu`, with Chrome, Discord and Teams closed. Trend Micro, the Chrome
+Remote Desktop host and Claude Code sessions kept running.
+
+| Workload | Exit codes | Wall time, median (min–max, IQR) | Aggregate peak footprint, median (min–max, IQR) |
+| --- | --- | ---: | ---: |
+| `sindresorhus/ky` | 10 × 0 | 2.04 s (1.88–2.08, 0.05) | 0.709 GB (0.699–0.717, 0.006) |
+| `honojs/hono` | 10 × 0 | 15.28 s (14.57–15.44, 0.30) | 1.559 GB (1.546–1.579, 0.015) |
+| `trpc/trpc` | 10 × 0 | 92.99 s (90.55–93.84, 0.76) | 5.046 GB (4.915–5.114, 0.020) |
+
+IQR is Q3 − Q1 from `statistics.quantiles(n=4, method="inclusive")`. Nodes, edges, evidence and
+claims are identical across each workload's runs:
+
+| Workload | Nodes | Edges | Evidence | Claims |
+| --- | ---: | ---: | ---: | ---: |
+| `sindresorhus/ky` | 437 | 971 | 2,388 | 82 |
+| `honojs/hono` | 2,689 | 5,934 | 11,164 | 455 |
+| `trpc/trpc` | 5,925 | 12,101 | 18,102 | 2,047 |
+
+No run recorded a compression, a swap-in or a swap-out. Decompressions per run stayed between 0
+and 384 pages. Swap use stayed at 0 MiB. Free memory fell from 22.43 GB before the first run to
+13.06 GB after the last, while inactive pages rose from 13.15 GB to 20.52 GB. The sampled aggregate
+stays within 1.7% of the kernel upper bound. The seal's `planeAIndexSnapshotHash` differs on
+every run, so it is not used as a fact identity; its cause is not investigated.
+
 ## Open decisions
 
 This decision belongs to the T01 owner. It comes before any repeated series.
