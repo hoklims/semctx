@@ -792,37 +792,62 @@ fn inspect_subject(
     } else {
         runtime_configuration::RuntimeConfiguration::default()
     };
-    let (semantic, javascript) = program::with_type_checker_for_file(file, move |checker| {
-        let mut inputs = qualified::QualifiedInputs {
-            repository_root: root.clone(),
-            retained_files: retained_files.clone(),
-            retained_paths: if retained {
-                retained_files.keys().cloned().collect()
-            } else {
-                BTreeSet::from([qualified_span(file, case_sensitive).path])
-            },
-            graph: qualified.then_some(graph),
-            builtin_modules,
-            case_sensitive,
-            retained_callable_coordinates_observed: true,
-            inline_callback_ownership_observed: true,
-            ..Default::default()
-        };
-        for captured_path in project.keys() {
-            let source = program::get_source_file(captured_path);
-            if source.is_nil() {
-                continue;
+    let (semantic, javascript, mut callable_initializers) = program::with_type_checker_for_file(
+        file,
+        move |checker| {
+            let mut inputs = qualified::QualifiedInputs {
+                repository_root: root.clone(),
+                retained_files: retained_files.clone(),
+                retained_paths: if retained {
+                    retained_files.keys().cloned().collect()
+                } else {
+                    BTreeSet::from([qualified_span(file, case_sensitive).path])
+                },
+                graph: qualified.then_some(graph),
+                builtin_modules,
+                case_sensitive,
+                retained_callable_coordinates_observed: true,
+                inline_callback_ownership_observed: true,
+                ..Default::default()
+            };
+            for captured_path in project.keys() {
+                let source = program::get_source_file(captured_path);
+                if source.is_nil() {
+                    continue;
+                }
+                let mut nodes = vec![];
+                all_nodes(source, &mut nodes);
+                for node in nodes {
+                    if matches!(
+                        node.kind(),
+                        SyntaxKind::Identifier
+                            | SyntaxKind::PropertyAccessExpression
+                            | SyntaxKind::ElementAccessExpression
+                    ) && ordinary::retained_callable_coordinate(
+                        node,
+                        checker,
+                        &ordinary::ExtractionContext {
+                            repository_root: &root,
+                            static_module_links: true,
+                            retained: true,
+                            javascript_enabled: true,
+                            captured_files: Some(&retained_files),
+                            case_sensitive,
+                        },
+                    )
+                    .is_some()
+                    {
+                        inputs
+                            .retained_callable_coordinates
+                            .insert(qualified_span(node, case_sensitive));
+                    }
+                }
             }
-            let mut nodes = vec![];
-            all_nodes(source, &mut nodes);
-            for node in nodes {
-                if matches!(
-                    node.kind(),
-                    SyntaxKind::Identifier
-                        | SyntaxKind::PropertyAccessExpression
-                        | SyntaxKind::ElementAccessExpression
-                ) && ordinary::retained_callable_coordinate(
-                    node,
+            let semantic = qualified::inspect_semantic_dependencies(file, checker, &inputs);
+            let javascript = javascript::inspect(file, checker, &relative, retained);
+            let callable_initializers = if retained {
+                component_observations::retained_callable_initializers(
+                    file,
                     checker,
                     &ordinary::ExtractionContext {
                         repository_root: &root,
@@ -833,18 +858,12 @@ fn inspect_subject(
                         case_sensitive,
                     },
                 )
-                .is_some()
-                {
-                    inputs
-                        .retained_callable_coordinates
-                        .insert(qualified_span(node, case_sensitive));
-                }
-            }
-        }
-        let semantic = qualified::inspect_semantic_dependencies(file, checker, &inputs);
-        let javascript = javascript::inspect(file, checker, &relative, retained);
-        (semantic, javascript)
-    });
+            } else {
+                serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"variables":[]})
+            };
+            (semantic, javascript, callable_initializers)
+        },
+    );
     let semantic_observation = component_observations::semantic(&semantic);
     let source_parsing_observation = component_observations::source_parsing(&parsing);
     let module_configuration_observations = component_observations::module_configuration(
@@ -986,11 +1005,16 @@ fn inspect_subject(
     if let Some(error) = &module_frontend.program.module_resolution_error {
         unimplemented.insert(format!("NATIVE_MODULE_RESOLUTION_ERROR:{error}"));
     }
+    let mut semantic_frontend_unsupported = BTreeSet::new();
     if let Some(observations) = &frontend.resolution {
-        unimplemented.extend(observations.borrow().errors.values().cloned());
+        semantic_frontend_unsupported.extend(observations.borrow().errors.values().cloned());
     }
     if let Some(error) = &frontend.program.module_resolution_error {
-        unimplemented.insert(format!("NATIVE_MODULE_RESOLUTION_ERROR:{error}"));
+        semantic_frontend_unsupported.insert(format!("NATIVE_MODULE_RESOLUTION_ERROR:{error}"));
+    }
+    unimplemented.extend(semantic_frontend_unsupported.iter().cloned());
+    if retained {
+        callable_initializers["unsupported"] = serde_json::json!(semantic_frontend_unsupported);
     }
     let javascript_observation =
         javascript::inspect_javascript_source(javascript::JavaScriptSourceInputs {
@@ -1031,7 +1055,7 @@ fn inspect_subject(
         "unsupported": [],
     });
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"retainedCallableInitializers":callable_initializers,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 
@@ -1555,6 +1579,113 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    fn retained_callable_observation_distinguishes_type_origins_and_noncallable_initializers() {
+        let text = "import { callableOwnerDev, type callableOwnerDev as typeOwnerDev } from './callable-owner-dev'; import type defaultOwnerDev from './callable-owner-dev'; import type * as typeNamespaceDev from './callable-owner-dev'; export const liveDev = callableOwnerDev; export const specifierDev = typeOwnerDev; export const defaultDev = defaultOwnerDev; export const namespaceDev = typeNamespaceDev.callableOwnerDev; export const dataDev = 1; export const arrowDev = () => 17; export const observedArrowDev = arrowDev; export const observedDataDev = dataDev; export let pendingDev;";
+        let mut request = component_request(
+            "callableObservationDev",
+            "/repo/callable-consumer-dev.ts",
+            text,
+        );
+        request.retained = true;
+        request.files.insert(
+            "/repo/callable-owner-dev.ts".into(),
+            "export function callableOwnerDev() {} export default function defaultOwnerDev() {}"
+                .into(),
+        );
+        let ordinary = Request {
+            retained: false,
+            ..request.clone()
+        };
+        let observed = analyze(request, component_sdk()).unwrap();
+        let component = &observed["subjects"][0]["retainedCallableInitializers"];
+        assert_eq!(component["executed"], true);
+        assert_eq!(component["unsupported"], serde_json::json!([]));
+        let variables = component["variables"].as_array().unwrap();
+        let coordinate =
+            |name: &str| &variables.iter().find(|v| v["name"] == name).unwrap()["coordinate"];
+        assert_eq!(
+            coordinate("liveDev"),
+            &serde_json::json!({"relPath":"callable-owner-dev.ts","symbolPath":"callableOwnerDev"})
+        );
+        assert_eq!(
+            coordinate("observedArrowDev"),
+            &serde_json::json!({"relPath":"callable-consumer-dev.ts","symbolPath":"arrowDev"})
+        );
+        for name in [
+            "specifierDev",
+            "defaultDev",
+            "namespaceDev",
+            "observedDataDev",
+        ] {
+            assert_eq!(coordinate(name), &serde_json::json!({"state":"undefined"}));
+        }
+        assert_eq!(
+            coordinate("pendingDev"),
+            &serde_json::json!({"state":"no_initializer"})
+        );
+        let observed = analyze(ordinary, component_sdk()).unwrap();
+        assert_eq!(
+            observed["subjects"][0]["retainedCallableInitializers"],
+            serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"variables":[]})
+        );
+    }
+
+    #[test]
+    fn retained_callable_observation_preserves_native_resolution_failures_until_restored() {
+        for (mapping, error) in [
+            (
+                serde_json::json!("index.ts"),
+                Some("NATIVE_SDK59_SCALAR_VERSION_PATH_UNAVAILABLE"),
+            ),
+            (
+                serde_json::json!([7]),
+                Some("NATIVE_SDK59_VERSION_PATH_ELEMENT_UNAVAILABLE"),
+            ),
+            (serde_json::json!(["index.ts"]), None),
+        ] {
+            let mut request = component_request(
+                "callableFailureObservationDev",
+                "/repo/callable-failure-dev.ts",
+                "import { callableFailureDev } from 'callable-failure-dev'; export const observed = callableFailureDev;",
+            );
+            request.retained = true;
+            request.files.insert(
+                "/repo/node_modules/callable-failure-dev/package.json".into(),
+                serde_json::json!({"types":"index.ts","typesVersions":{"<6":{"*":mapping}}})
+                    .to_string(),
+            );
+            request.files.insert(
+                "/repo/node_modules/callable-failure-dev/index.ts".into(),
+                "export function callableFailureDev() { return 19; }".into(),
+            );
+            let observed = analyze(request, component_sdk()).unwrap();
+            let component = &observed["subjects"][0]["retainedCallableInitializers"];
+            assert_eq!(component["executed"], true);
+            let unsupported = component["unsupported"].as_array().unwrap();
+            if let Some(error) = error {
+                assert!(
+                    unsupported.contains(&serde_json::json!(error)),
+                    "{component}"
+                );
+                assert!(
+                    unsupported
+                        .iter()
+                        .any(|value| value.as_str().is_some_and(|reason| reason
+                            .starts_with("NATIVE_MODULE_RESOLUTION_ERROR:")
+                            && reason.contains(error))),
+                    "{component}"
+                );
+            } else {
+                assert!(unsupported.is_empty(), "{component}");
+                assert_eq!(
+                    component["variables"][0]["coordinate"],
+                    serde_json::json!({"relPath":"node_modules/callable-failure-dev/index.ts","symbolPath":"callableFailureDev"})
+                );
+            }
+        }
     }
 
     #[test]

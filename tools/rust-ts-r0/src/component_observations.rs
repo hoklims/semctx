@@ -171,3 +171,32 @@ pub fn source_parsing(diagnostics: &[serde_json::Value]) -> serde_json::Value {
         "diagnosticCodes": codes, "diagnostics": diagnostics,
     })
 }
+
+pub fn retained_callable_initializers(
+    source: core::Node,
+    checker: &mut ts_goport::checker::Checker,
+    context: &ordinary::ExtractionContext<'_>,
+) -> serde_json::Value {
+    let mut nodes = vec![];
+    all_nodes(source, &mut nodes);
+    let variables = nodes
+        .into_iter()
+        .filter(|node| {
+            node.kind() == SyntaxKind::VariableDeclaration
+                && node.name().kind() == SyntaxKind::Identifier
+        })
+        .map(|node| {
+            let coordinate = if node.initializer().is_nil() {
+                serde_json::json!({"state":"no_initializer"})
+            } else if let Some((path, symbol)) =
+                ordinary::retained_callable_coordinate(node.initializer(), checker, context)
+            {
+                serde_json::json!({"relPath":path,"symbolPath":symbol})
+            } else {
+                serde_json::json!({"state":"undefined"})
+            };
+            serde_json::json!({"name":node.name().text(),"coordinate":coordinate})
+        })
+        .collect::<Vec<_>>();
+    serde_json::json!({"executed":true,"unsupported":[],"variables":variables})
+}
