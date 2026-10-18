@@ -412,6 +412,7 @@ Remote Desktop host and Claude Code sessions kept running.
 | `honojs/hono` | 10 × 0 | 15.28 s (14.57–15.44, 0.30) | 1.559 GB (1.546–1.579, 0.015) |
 | `trpc/trpc` | 10 × 0 | 92.99 s (90.55–93.84, 0.76) | 5.046 GB (4.915–5.114, 0.020) |
 | `PrefectHQ/prefect`, derived snapshot | 10 × 0 | 138.95 s (138.36–142.43, 0.13) | 8.031 GB (7.949–8.217, 0.050) |
+| `microsoft/vscode` | 5 × 0 | 1,088.24 s (1,076.77–1,095.23, 12.95) | 38.277 GB (35.121–42.615, 5.298) |
 
 IQR is Q3 − Q1 from `statistics.quantiles(n=4, method="inclusive")`. Nodes, edges, evidence and
 claims are identical across each workload's runs:
@@ -422,6 +423,7 @@ claims are identical across each workload's runs:
 | `honojs/hono` | 2,689 | 5,934 | 11,164 | 455 |
 | `trpc/trpc` | 5,925 | 12,101 | 18,102 | 2,047 |
 | `PrefectHQ/prefect`, derived snapshot | 46,138 | 58,166 | 66,437 | 815 |
+| `microsoft/vscode` | 102,822 | 476,176 | 704,866 | 19,698 |
 
 No run recorded a compression, a swap-in or a swap-out. Decompressions per run stayed between 0
 and 384 pages. Swap use stayed at 0 MiB. Free memory fell from 22.43 GB before the first run to
@@ -430,7 +432,14 @@ stays within 1.7% of the kernel upper bound.
 
 The Prefect cell ran after the three interleaved workloads, as ten consecutive runs on the
 derived snapshot. Its runs also recorded no compression and no swap; decompressions stayed between
-1 and 34 pages, and free memory before each run stayed between 19.35 and 20.60 GB. The seal's `planeAIndexSnapshotHash` differs on
+1 and 34 pages, and free memory before each run stayed between 19.35 and 20.60 GB.
+
+The VS Code cell ran next, as five consecutive runs, under memory pressure. Each run recorded
+between 1.13 and 3.03 million page compressions and between 0.23 and 2.81 million
+decompressions. No run swapped, and swap use stayed at 0 MiB. Free memory before the runs ranged
+from 19.03 GB (first run) to 34.58 GB. Wall time stayed within 1.7%, but the aggregate peak
+footprint ranged from 35.1 to 42.6 GB; the two runs with the most compressions reached the two
+highest peaks. The facts equal those of the shake-down run. The seal's `planeAIndexSnapshotHash` differs on
 every run, so it is not used as a fact identity; its cause is not investigated.
 
 ## Owner decision on Prefect and the large cells
@@ -455,7 +464,7 @@ Only the unselected `.gitmodules` candidate disappears, so the variant is admitt
 | Cell | Runs | Expected duration |
 | --- | ---: | --- |
 | Prefect, derived snapshot | 10 | done: 23 min; see [Reference series](#reference-series) |
-| `microsoft/vscode` | 5 | about 1 h 40 |
+| `microsoft/vscode` | 5 | done: 1 h 31 |
 | `backstage/backstage` | 3 | about 9 h |
 | `aws/aws-sdk-js-v3` | 1 | not estimated; a memory failure is recorded and not rerun |
 

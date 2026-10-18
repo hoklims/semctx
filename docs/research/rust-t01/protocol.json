@@ -1438,7 +1438,118 @@
         "runsPerWorkload": 5,
         "order": "consecutive runs",
         "expectedMinutes": 100,
-        "underMemoryPressure": true
+        "underMemoryPressure": true,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:54:30Z",
+          "lastRunStartedUtc": "2026-10-18T15:07:09Z",
+          "runs": 5,
+          "exitCodes": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 1088.239,
+            "min": 1076.771,
+            "max": 1095.228,
+            "iqr": 12.948
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 38276989616,
+            "min": 35121265024,
+            "max": 42614588104,
+            "iqr": 5298356680
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9978,
+            0.9994
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 102822,
+            "edges": 476176,
+            "evidence": 704866,
+            "claims": 19698
+          },
+          "perRun": [
+            {
+              "wallSeconds": 1093.752,
+              "aggregatePeakFootprintBytes": 38276989616,
+              "freeBytesBefore": 19029213184,
+              "inactiveBytesBefore": 14685470720,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 666069,
+                "compressions": 2230343,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1080.804,
+              "aggregatePeakFootprintBytes": 35121265024,
+              "freeBytesBefore": 33860009984,
+              "inactiveBytesBefore": 7303266304,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 234565,
+                "compressions": 1125740,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1095.228,
+              "aggregatePeakFootprintBytes": 42050044112,
+              "freeBytesBefore": 34575417344,
+              "inactiveBytesBefore": 8859205632,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2736873,
+                "compressions": 2934240,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1088.239,
+              "aggregatePeakFootprintBytes": 42614588104,
+              "freeBytesBefore": 34427977728,
+              "inactiveBytesBefore": 8980414464,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2806422,
+                "compressions": 3025653,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1076.771,
+              "aggregatePeakFootprintBytes": 36751687432,
+              "freeBytesBefore": 34323890176,
+              "inactiveBytesBefore": 9022537728,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 355297,
+                "compressions": 1409831,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/vscode",
+          "rowsSha256": "4684006b62e247d845e58c24a8e66d37b42d3e45b754ed8f9b630884def8d130",
+          "statsSha256": "e3d4898216f440af64a7cbb56f3a052a510bb950ccaa2061a75e7eda03ef2d90",
+          "note": "under memory pressure: every run recorded 1.1 to 3.0 million compressions and no swap"
+        }
       },
       {
         "id": "backstage",
