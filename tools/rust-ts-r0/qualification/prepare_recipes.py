@@ -19,6 +19,7 @@ OUT = output_argument.parent.resolve() / output_argument.name
 OUT.mkdir(parents=True, exist_ok=False)
 INDEX = json.loads((BASE / 'index.json').read_text(encoding='utf-8'))
 ORIGINAL_ORDINARY = {x['id']:x for x in json.loads((BASE/'sources/ordinary-cases.json').read_text(encoding='utf-8'))['cases']}
+ORIGINAL_QUALIFIED = {x['id']:x for x in json.loads((BASE/'sources/qualified-cases.json').read_text(encoding='utf-8'))['cases']}
 UNITS = json.loads((BASE / INDEX['scenarios']['path']).read_text(encoding='utf-8'))['execution_units']
 INPUTS = {x['case_id']: x['input_specification'] for x in json.loads((BASE / INDEX['input_index']['path']).read_text(encoding='utf-8'))['qualification_records']}
 OPTIONS = {'target':'ES2022','module':'ESNext','moduleResolution':'Bundler','allowJs':True,'jsx':'Preserve','skipLibCheck':True,'noEmit':True,'strict':False}
@@ -609,6 +610,39 @@ for recipe in recipes:
         recipe['credited_properties'] = list(assertions)
         recipe['required_native_api'] = ['--observe-configured-resolution; actual configured resolver with omitted mode and ordinary inspectModuleConfiguration; exact capture includes empty directories']
         recipe['proof_scope'] = 'Explicit configured resolution on the unchanged frozen source, not an inserted import. Component reasons only; no graph/admission result, coherent SDK acquisition or all-SDK consumption claim.'
+    if recipe['case_id'] == 'QDYN-06-defined-bindingTargets-private-consumer-control':
+        unit = UNITS_BY_ID[recipe['unit_id']]
+        variant = unit['variant_input_or_observation']
+        predicate = ORIGINAL_QUALIFIED[recipe['case_id']]['private_predicate_input']
+        original = predicate['import_record_base']
+        source = original['fromRelPath']
+        target = original['resolvedRelPath']
+        if predicate['checkLocalCalls'] is not True or predicate['dynamicScanKeys'] != [source+':'+str(original['line'])+':'+original['moduleSpecifier']]:
+            raise ValueError('unmapped private consumer invocation context')
+        recipe['surface'] = 'controlled_assembly_cli'
+        recipe['capture_request'] = recipe['requests'][0]
+        recipe['requests'] = []
+        recipe['private_control'] = {key:original[key] for key in ['fromRelPath','moduleSpecifier','line']}
+        recipe['private_control']['bindingTargets'] = variant['bindingTargets']
+        c = check(['assembly'], {'excludes':[variant['integrity_reason_absent']]}, 'reason_constraints', '/variant_input_or_observation/integrity_reason_absent', 'qualified_test_integrity_reasons:'+source)
+        c['operation_binding'] = operation_binding(c['target'], 'getQualifiedCallIntegrityReasons', {'frozen_unit_pointer':recipe['frozen_unit_pointer'], 'native_source':'actual controlled assembly::assemble complete integrityReasons map', 'test_owner':source})
+        target_coordinate = {'path':target,'symbol_path':'helper'}
+        test_coordinate = {'path':source,'test_node':True}
+        edges = [{'kind':'tested_by','from':target_coordinate,'to':test_coordinate},{'kind':'covers','from':test_coordinate,'to':target_coordinate}]
+        positive = variant.get('tested_by_covers_contains_target_helper_if_unique_graph_coordinate_exists') is True
+        edge_key = 'tested_by_covers_contains_target_helper_if_unique_graph_coordinate_exists' if positive else 'tested_by_covers_contains_target_helper'
+        recipe['checks'] = [c,
+            check(['controlled_import','bindingTargets'], variant['bindingTargets'], 'eq', '/variant_input_or_observation/bindingTargets'),
+            check(['native_original_import'], {**original,'bindingTargets':{'$field_absent':True}}, 'ordered_projected_eq', 'Frozen private_predicate_input.import_record_base and historical public reachability exclusion'),
+            check(['assembly','symbols',{'relPath':target,'name':'helper','scope':[]},'kind'], 'function', 'eq', 'Frozen private_predicate_input.graph_coordinate_precondition'),
+            check(['assembly'], edges, 'contains_projected' if positive else 'excludes_projected', '/variant_input_or_observation/'+edge_key, 'logical_coverage_edges'),
+        ]
+        recipe['relations'] = []
+        recipe['gaps'] = []
+        recipe['credited_properties'] = ['private_consumer_variants']
+        recipe['explicit_uncredited_properties'] = [{'key':'public_extractor_reachability','basis':assertions['public_extractor_reachability']+' Private binding/flags are enforced, never public producer success or admission.'}]
+        recipe['required_native_api'] = ['--observe-controlled-assembly exact private descriptor/SDK/artifact binding; actual native extraction, strict dynamic tuple and existing native assembly consumer']
+        recipe['proof_scope'] = 'Only the selected frozen private-consumer variant on exact source/role capture, with actual unique helper coordinate and supplied array. Original public extraction remains visible; no public dynamic-binding reachability, full retained scope or admission inferred.'
     if recipe['case_id'] == 'QDYN-01-static-binding-control':
         source = next(path for path, role in recipe['requests'][0]['roles'].items() if role == 'test')
         c = check(['assembly'], assertions['integrity_reasons_for_test'], 'reason_constraints', ptr('integrity_reasons_for_test'), 'qualified_test_integrity_reasons:'+source)

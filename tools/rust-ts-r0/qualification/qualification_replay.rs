@@ -1597,6 +1597,84 @@ fn run_process_fault_recipe(
     Ok(result)
 }
 
+fn controlled_assembly_observation(outcome: &process::Outcome) -> Result<Value, Value> {
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Err(json!({"state":"CONTROLLED_ASSEMBLY_PROCESS_NONPASS","pass":false}));
+    }
+    serde_json::from_str(&outcome.stdout).map_err(|error| json!({"state":"CONTROLLED_ASSEMBLY_MALFORMED_OBSERVATION","error":error.to_string(),"pass":false}))
+}
+
+fn run_controlled_assembly_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing controlled recipe gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing private component checks")?;
+    validate_component_checks(checks)?;
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("ControlledConsumerCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("controlledconsumercaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let request = json!({"analysis":analysis,"control":recipe["private_control"]});
+    let descriptor = dir.join("controlled-assembly-request.json");
+    save(&descriptor, &request)?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--observe-controlled-assembly".into(),
+        descriptor.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let outcome_value = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
+    save(&dir.join("process-outcome.json"), &outcome_value)?;
+    save(
+        &dir.join("process-invocation.json"),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":20_000,"output_cap":8_388_608,"process_outcome_id":identity::digest(&outcome_value)}),
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    let observed = match controlled_assembly_observation(&outcome) {
+        Ok(observed) => observed,
+        Err(result) => {
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = controlled_assembly_complete_binding(&observed, &request, sdk, artifact_sha);
+    let checked=checks.iter().map(|check|json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checked.is_empty()
+        && checked
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_PRIVATE_CONSUMER_UNIT"}else{"NONPASS_PRIVATE_CONSUMER_UNIT"},"checks":checked,"binding":match binding{Ok(value)=>value,Err(error)=>json!({"state":"CONTROLLED_ASSEMBLY_BINDING_REJECTED","error":error})},"pass":pass,"public_extractor_reachability_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
 fn configured_query_complete_binding(
     observed: &Value,
     request: &Value,
@@ -2192,6 +2270,20 @@ fn replay() -> Result<Value, String> {
         let uid = value_text(recipe, "unit_id")?;
         if recipe["surface"] == "process_fault_cli" {
             let mut result = run_process_fault_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "controlled_assembly_cli" {
+            let mut result = run_controlled_assembly_recipe(
                 recipe,
                 &out.join(format!("unit-{index:03}")),
                 &artifact,
@@ -3653,6 +3745,15 @@ fn repair_units(ids: &[&str]) {
                 artifact_sha,
                 helper_sha,
             ),
+            "controlled_assembly_cli" => run_controlled_assembly_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
             "configured_query_cli" => run_configured_query_recipe(
                 recipe,
                 &dir,
@@ -4382,4 +4483,372 @@ fn comparator_process_fault_requires_actual_bound_capture_and_healthy_controls()
         evaluate_process_fault_unit(&json!({"checks":[]}), &observed, &good, &good).unwrap()["pass"],
         false
     );
+}
+
+fn controlled_assembly_complete_binding(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    let descriptor = request.as_object().ok_or("missing private descriptor")?;
+    let control = request["control"]
+        .as_object()
+        .ok_or("missing private control")?;
+    if descriptor.len() != 2
+        || !descriptor.contains_key("analysis")
+        || !descriptor.contains_key("control")
+        || control.len() != 4
+        || !control.contains_key("bindingTargets")
+        || request["analysis"]["retained"] != true
+        || request["analysis"]["qualified"] != true
+        || sdk["files"]
+            .as_object()
+            .is_none_or(|files| files.is_empty())
+        || request["analysis"]["raw_files"] != json!({})
+        || request["analysis"]["utf16_files"] != json!({})
+    {
+        return Err("private control descriptor or native context is incomplete".into());
+    }
+    let source = value_text(&request["control"], "fromRelPath")?;
+    let specifier = value_text(&request["control"], "moduleSpecifier")?;
+    let line = request["control"]["line"]
+        .as_u64()
+        .filter(|line| *line > 0 && *line <= u32::MAX as u64)
+        .ok_or("invalid private import line")?;
+    if !safe_relative(source) || specifier.is_empty() {
+        return Err("invalid private import selector".into());
+    }
+    let targets = request["control"]["bindingTargets"]
+        .as_array()
+        .ok_or("missing defined binding array")?;
+    for target in targets {
+        if target.as_object().is_none_or(|object| object.len() != 2)
+            || !target
+                .get("relPath")
+                .and_then(Value::as_str)
+                .is_some_and(safe_relative)
+            || target
+                .get("symbolPath")
+                .and_then(Value::as_str)
+                .is_none_or(str::is_empty)
+        {
+            return Err("invalid supplied native binding coordinate".into());
+        }
+    }
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["state"] != "CONTROLLED_ASSEMBLY_OBSERVED"
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+        || observed["control_scope"] != "PRIVATE_SUPPLIED_EXTRACTION_ONLY"
+        || observed["public_extractor_reachability_claimed"] != false
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("private assembly observation is incomplete or unbound".into());
+    }
+    let native = &observed["native_analysis"];
+    let analysis = &request["analysis"];
+    let binding = observation_bound_to_request(native, analysis, sdk, artifact_sha)?;
+    let capability = native_product_capability(
+        native,
+        analysis,
+        &json!({"checks":[{"target":["raw_extraction"]}]}),
+    )?;
+    let reads = join_successful_reads(native, analysis, sdk)?;
+    let extraction = native
+        .get("raw_extraction")
+        .filter(|value| value.is_object())
+        .ok_or("missing original native extraction")?;
+    let imports = extraction["imports"]
+        .as_array()
+        .ok_or("missing original native imports")?;
+    let selected = imports
+        .iter()
+        .enumerate()
+        .filter(|(_, import)| {
+            import["fromRelPath"] == source
+                && import["moduleSpecifier"] == specifier
+                && import["line"] == line
+        })
+        .collect::<Vec<_>>();
+    if selected.len() != 1 {
+        return Err("private selector does not identify one original native import".into());
+    }
+    let (index, original) = selected[0];
+    let mut expected = extraction.clone();
+    expected["imports"][index]
+        .as_object_mut()
+        .ok_or("invalid original import")?
+        .insert("bindingTargets".into(), json!(targets));
+    if observed["native_extraction_id"] != identity::digest(extraction)
+        || observed["controlled_extraction_id"] != identity::digest(&expected)
+        || observed["native_original_import"] != *original
+        || observed["controlled_import"] != expected["imports"][index]
+        || observed["controlled_extraction"] != expected
+    {
+        return Err("private extraction differs beyond the exact supplied array".into());
+    }
+    let dynamic = observed["dynamic_imports"]
+        .as_array()
+        .ok_or("missing actual dynamic scan")?;
+    if dynamic.iter().any(|tuple| {
+        tuple.as_array().is_none_or(|tuple| {
+            tuple.len() != 3
+                || !tuple[0].is_string()
+                || tuple[1].as_u64().is_none()
+                || !tuple[2].is_string()
+        })
+    }) || dynamic
+        .iter()
+        .filter(|tuple| **tuple == json!([source, line, specifier]))
+        .count()
+        != 1
+    {
+        return Err("private import lacks one actual strict dynamic tuple".into());
+    }
+    transform(
+        &native["assembly"],
+        &format!("qualified_test_integrity_reasons:{source}"),
+    )?;
+    transform(
+        &observed["assembly"],
+        &format!("qualified_test_integrity_reasons:{source}"),
+    )?;
+    for field in ["nodes", "symbols"] {
+        if !native["assembly"][field].is_array()
+            || observed["assembly"][field] != native["assembly"][field]
+        {
+            return Err("controlled graph changes native node or symbol coordinates".into());
+        }
+    }
+    transform(&observed["assembly"], "logical_coverage_edges")?;
+    Ok(
+        json!({"state":"BOUND_PRIVATE_SUPPLIED_EXTRACTION_COMPONENT","native_binding":binding,"native_capability":capability,"reported_reads":reads,"public_extractor_reachability_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+#[test]
+fn comparator_controlled_assembly_binds_the_original_and_exact_supplied_array() {
+    let analysis = json!({"id":"private-consumer-dev","cwd":"/dev","sdk_directory":"/sdk/lib","case_sensitive":true,"roots":["/dev/factory.ts","/dev/probe.test.ts"],"files":{"/dev/factory.ts":"export function sample(){return 83;}","/dev/probe.test.ts":"export async function check(){return import('./factory');}"},"utf16_files":{},"raw_files":{},"disabled":[],"retained":true,"qualified":true});
+    let request = json!({"analysis":analysis,"control":{"fromRelPath":"probe.test.ts","moduleSpecifier":"./factory","line":1,"bindingTargets":[{"relPath":"factory.ts","symbolPath":"sample"}]}});
+    let sdk = json!({"version":"development-sdk","archive_sha256":"dev","files":{"/sdk/lib/lib.d.ts":"interface Object {}"}});
+    let import = json!({"fromRelPath":"probe.test.ts","moduleSpecifier":"./factory","resolvedRelPath":"factory.ts","names":[],"line":1});
+    let extraction = json!({"symbols":[],"imports":[import],"calls":[],"markers":[]});
+    let graph = json!({"nodes":[{"id":"dev-test","kind":"test","filePath":"probe.test.ts"},{"id":"dev-symbol","kind":"function","filePath":"factory.ts"}],"symbols":[{"id":"dev-symbol","relPath":"factory.ts","name":"sample","scope":[]}],"edges":[],"integrityReasons":{}});
+    let native = json!({"request":analysis["id"],"request_id":identity::digest(&analysis),"input_manifest_id":identity::digest(&verifier_logical_input(&analysis,&sdk).unwrap()),"producer_artifact_id":"sha256:dev-artifact","complete":true,"global_admission_inferred":false,"raw_extraction":extraction,"assembly":graph,"capture_probes":[],"subjects":[{"path":"factory.ts","outcome":"analyzed","unimplemented":[]},{"path":"probe.test.ts","outcome":"analyzed","unimplemented":[]}]});
+    let mut controlled = extraction.clone();
+    controlled["imports"][0]["bindingTargets"] = request["control"]["bindingTargets"].clone();
+    let observed = json!({"state":"CONTROLLED_ASSEMBLY_OBSERVED","executed":true,"unsupported":[],"request_descriptor_id":identity::digest(&request),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:dev-artifact","control_scope":"PRIVATE_SUPPLIED_EXTRACTION_ONLY","public_extractor_reachability_claimed":false,"global_admission_inferred":false,"native_analysis":native,"native_original_import":import,"controlled_import":controlled["imports"][0],"native_extraction_id":identity::digest(&extraction),"controlled_extraction_id":identity::digest(&controlled),"controlled_extraction":controlled,"dynamic_imports":[["probe.test.ts",1,"./factory"]],"assembly":graph});
+    assert!(
+        controlled_assembly_complete_binding(&observed, &request, &sdk, "dev-artifact").is_ok()
+    );
+    for field in [
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+        "native_extraction_id",
+        "controlled_extraction_id",
+        "control_scope",
+    ] {
+        let mut changed = observed.clone();
+        changed[field] = json!("wrong");
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    for field in [
+        "executed",
+        "public_extractor_reachability_claimed",
+        "global_admission_inferred",
+    ] {
+        let mut changed = observed.clone();
+        changed[field] = json!(!changed[field].as_bool().unwrap());
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["controlled_extraction"]["calls"] = json!([{"invented":true}]);
+    changed["controlled_extraction_id"] =
+        json!(identity::digest(&changed["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["controlled_extraction"]["imports"][0]["bindingTargets"] = json!([]);
+    changed["controlled_import"] = changed["controlled_extraction"]["imports"][0].clone();
+    changed["controlled_extraction_id"] =
+        json!(identity::digest(&changed["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for field in ["dynamic_imports", "unsupported"] {
+        let mut changed = observed.clone();
+        changed[field] = if field == "dynamic_imports" {
+            json!([])
+        } else {
+            json!(["not complete"])
+        };
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["native_original_import"]["names"] = json!(["forged"]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["request_id"] = json!("swapped");
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["assembly"]["symbols"] = json!([]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for path in [
+        vec!["native_analysis", "complete"],
+        vec!["native_analysis", "global_admission_inferred"],
+        vec!["native_analysis", "assembly", "integrityReasons"],
+        vec!["assembly", "integrityReasons"],
+        vec!["assembly", "edges"],
+    ] {
+        let mut changed = observed.clone();
+        let mut value = &mut changed;
+        for part in &path[..path.len() - 1] {
+            value = &mut value[*part];
+        }
+        value[path[path.len() - 1]] = Value::Null;
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{path:?}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["native_analysis"]["raw_extraction"]["imports"] = json!([import, import]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["subjects"][0]["unimplemented"] = json!(["DEV_UNIMPLEMENTED"]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["capture_probes"] = json!([{"operation":"read_file","found":true,"path":"/dev/unknown.ts","content_id":"sha256:forged"}]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for (parent, key, value) in [
+        ("control", "unexpected", json!(true)),
+        ("control", "line", json!(0)),
+        ("control", "fromRelPath", json!("other.test.ts")),
+        ("analysis", "retained", json!(false)),
+        ("analysis", "qualified", json!(false)),
+        ("analysis", "raw_files", json!({"/dev/factory.ts":{}})),
+        ("analysis", "utf16_files", json!({"/dev/factory.ts":[65]})),
+    ] {
+        let mut bad = request.clone();
+        bad[parent][key] = value;
+        let mut changed = observed.clone();
+        changed["request_descriptor_id"] = json!(identity::digest(&bad));
+        assert!(
+            controlled_assembly_complete_binding(&changed, &bad, &sdk, "dev-artifact").is_err(),
+            "{parent}.{key}"
+        );
+    }
+    let mut bad = request.clone();
+    bad["control"]["bindingTargets"][0]["runtimeUsed"] = json!(true);
+    let mut changed = observed.clone();
+    changed["request_descriptor_id"] = json!(identity::digest(&bad));
+    assert!(controlled_assembly_complete_binding(&changed, &bad, &sdk, "dev-artifact").is_err());
+    let mut empty_request = request.clone();
+    empty_request["control"]["bindingTargets"] = json!([]);
+    let mut empty = observed.clone();
+    empty["request_descriptor_id"] = json!(identity::digest(&empty_request));
+    empty["controlled_extraction"]["imports"][0]["bindingTargets"] = json!([]);
+    empty["controlled_import"] = empty["controlled_extraction"]["imports"][0].clone();
+    empty["controlled_extraction_id"] = json!(identity::digest(&empty["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&empty, &empty_request, &sdk, "dev-artifact").is_ok()
+    );
+    for value in [Value::Null, json!("invalid"), json!([{}])] {
+        let mut bad = empty_request.clone();
+        bad["control"]["bindingTargets"] = value;
+        let mut rebound = empty.clone();
+        rebound["request_descriptor_id"] = json!(identity::digest(&bad));
+        assert!(
+            controlled_assembly_complete_binding(&rebound, &bad, &sdk, "dev-artifact").is_err()
+        );
+    }
+}
+
+#[test]
+fn gap_private_defined_bindings_use_the_real_native_consumer() {
+    repair_units(&[
+        "QDYN-06-defined-bindingTargets-private-consumer-control::variant-01",
+        "QDYN-06-defined-bindingTargets-private-consumer-control::variant-02",
+    ]);
+}
+
+#[test]
+fn comparator_controlled_process_failure_and_malformed_stdout_cannot_be_success() {
+    let success = process::Outcome {
+        kind: "success".into(),
+        exit_code: Some(0),
+        duration_ms: 1,
+        stdout: "{\"executed\":true}".into(),
+        stderr: String::new(),
+        stdout_bytes: 17,
+        stderr_bytes: 0,
+        stdout_hash: identity::digest_bytes(b"{\"executed\":true}"),
+        stderr_hash: identity::digest_bytes(b""),
+    };
+    assert_eq!(
+        controlled_assembly_observation(&success).unwrap(),
+        json!({"executed":true})
+    );
+    for (kind, code) in [
+        ("nonzero", Some(7)),
+        ("nonzero", Some(0)),
+        ("timeout", None),
+        ("output_limit", Some(0)),
+        ("cancelled", None),
+        ("capture_error", None),
+        ("unknown", Some(0)),
+        ("success", Some(1)),
+        ("success", None),
+    ] {
+        let mut outcome = success.clone();
+        outcome.kind = kind.into();
+        outcome.exit_code = code;
+        let refusal = controlled_assembly_observation(&outcome).unwrap_err();
+        assert_eq!(refusal["state"], "CONTROLLED_ASSEMBLY_PROCESS_NONPASS");
+        assert_eq!(refusal["pass"], false);
+    }
+    for stdout in [
+        "not-json",
+        "",
+        "{\"executed\":true} trailing",
+        "{\"executed\":",
+    ] {
+        let mut outcome = success.clone();
+        outcome.stdout = stdout.into();
+        outcome.stdout_bytes = stdout.len() as u64;
+        outcome.stdout_hash = identity::digest_bytes(stdout.as_bytes());
+        let refusal = controlled_assembly_observation(&outcome).unwrap_err();
+        assert_eq!(
+            refusal["state"],
+            "CONTROLLED_ASSEMBLY_MALFORMED_OBSERVATION"
+        );
+        assert_eq!(refusal["pass"], false);
+        assert!(!refusal["error"].as_str().unwrap().is_empty());
+    }
 }

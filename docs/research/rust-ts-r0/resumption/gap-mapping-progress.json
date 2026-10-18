@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_TWENTY_FOUR_GAPS_MAPPED_TWENTY_THREE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_TWENTY_SIX_GAPS_MAPPED_TWENTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining40 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T19:30:05.809283+00:00",
-  "staticGapUnitsRemaining": 40,
+  "next": "Continue the remaining38 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-18T19:48:37.212516+00:00",
+  "staticGapUnitsRemaining": 38,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -466,7 +466,7 @@
   },
   "tenthBatch": {
     "registeredUtc": "2026-10-18T19:09:55.075830+00:00",
-    "state": "NATIVE_PRIVATE_IMPORT_CONSUMER_DEV_PASS_FROZEN_RECIPE_MAPPING_PENDING",
+    "state": "TWO_PRIVATE_VARIANTS_PASS_MACOS_DEV_REVIEWED",
     "additionalC1Pass": 1,
     "passStillOpen": true,
     "units": [
@@ -488,8 +488,26 @@
     "qualificationCredit": 0,
     "reservedPayloadAccessed": false,
     "nativeArtifactSha256": "a9b1a1ffd4b39fab8e3beea099e76483e806d6eef95ac10a5f93858a921df997",
-    "nativePhase": "Private consumer API and strict descriptor reviewed independently;195 binary,43 library,37 comparator,7 Python and3 native process-flow tests pass on macOS. Four source faults rejected then restored. Both frozen QDYN06 variants still need recipes/comparators and have not run.",
-    "newMappingsCredited": 0,
-    "evidence": "controlled-assembly-evidence.json"
+    "nativePhase": "Prior private API prerequisite unchanged; both frozen variants now execute with exact arrays, reason map and actual graph coordinates. No public reachability or admission inferred.",
+    "newMappingsCredited": 2,
+    "evidence": "gap-controlled-consumer-evidence.json",
+    "mappingPhase": {
+      "registeredUtc": "2026-10-18T19:36:26.435426+00:00",
+      "state": "TWO_PRIVATE_VARIANTS_PASS_MACOS_DEV_REVIEWED",
+      "newMappingsCredited": 2,
+      "qualificationCredit": 0,
+      "passStillOpen": true,
+      "frozenAssertionsChanged": false,
+      "failurePaths": [
+        "Swapped descriptor/SDK/artifact, original-native binding or exact extraction delta refuses.",
+        "Missing complete reason map, unique test/helper coordinate, actual dynamic tuple or either requested array value cannot receive a private consumer pass.",
+        "Actual invocation uses existing #383 supervisor, with nonzero/malformed outputs refused and retained separately."
+      ],
+      "localCorrectionPassesUsed": 1,
+      "correction": "R10-F01: ship tests on the actual Outcome decoder for nonzero and malformed stdout. No runtime refusal or C1 budget change."
+    },
+    "nativePrerequisiteEvidence": "controlled-assembly-evidence.json",
+    "newProjectedPasses": 2,
+    "recipesSha256": "b6f6ea482e4d63f69c15aa5899845c71fe71f162f3d59d9a18b934be6a1a16a0"
   }
 }
