@@ -17,8 +17,22 @@ The compiler reported734errors and7warnings, including12parser/lexer rejections.
 It loaded no project module and produced no expression mapping. The alias and
 String.trim witnesses remain unexercised. This is no semantic or R0 pass.
 
-Both failed observations remain preserved. One C2 correction remains under the
-approved two-composition/two-pass envelope. Parser failures are distinguished from
-name/type failures potentially affected by declaration order. Any subsequent
-correction requires its scope, native regression evidence, immutable freeze and
-independent replay. No reserved input has been accessed.
+[The second and final correction](pass2-producer/README.md) records native parser,
+tuple/binding and bounded captured-resolution changes,188frozen source files,
+exact pins/lock and33passing macOS DEV tests. [The single final replay](pass2-replay/report.json)
+reads all63unchanged SDK files in the independently verified TypeScript5.9.3
+priority order. All458bound identities remain unchanged. The process exits0 in
+357ms but initialization produces541errors and17warnings and returns before any
+project read,module,mapping or target witness. No parser/lexer rejection or panic
+was classified; this does not qualify all TS grammar.
+
+[The final correction closure](pass2-replay/correction-closure.json) is NONPASS.
+No correction remains. Both original carriers and independent targets are
+unchanged; native SDK errors are not suppressed. The baseline skipLibCheck and
+nullability-policy differences remain explicit, so these diagnostics alone are
+not a universal semantic impossibility proof. No reserved input was accessed.
+
+[The consolidated R0 decision](../final/README.md) is STOP_BUDGET because both
+compositions and their two correction passes are exhausted without R0. No
+READY_TS_NATIVE,T01 or substantial port follows. C2 has only macOS ARM64 DEV
+evidence; the independently checked Windows/Linux C1 vectors do not qualify C2.

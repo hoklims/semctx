@@ -3,8 +3,8 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/386",
   "recordedDateUtc": "2026-10-17",
-  "stage": 6,
-  "r0Decision": "NOT_RUN",
+  "stage": 7,
+  "r0Decision": "STOP_BUDGET",
   "owner": "SebastienElet",
   "baseline": {
     "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
@@ -99,6 +99,22 @@
         "platform": "macOS ARM64 DEV only",
         "qualification": false,
         "windowsOrLinuxResult": false
+      },
+      {
+        "composition": "C2",
+        "correctionPass": 2,
+        "state": "FINAL_CLOSED_NONPASS",
+        "selectionRecord": "composition2/pass2-producer/FREEZE.json",
+        "optimizedProducerSha256": "acfd231f629de6036056f137b44edb2513ef3283ce1e531b9747279ca6b50a37",
+        "evidence": "composition2/pass2-replay/report.json",
+        "sdkReadCount": 63,
+        "nativeErrors": 541,
+        "nativeWarnings": 17,
+        "projectModuleCount": 0,
+        "expressionMappings": 0,
+        "platform": "macOS ARM64 DEV only",
+        "qualification": false,
+        "windowsOrLinuxResult": false
       }
     ]
   },
@@ -186,11 +202,7 @@
     "actionsPolicyAdministration": "not available; HTTP 403; not required for branch pushes"
   },
   "remainingEvidence": [
-    "actual SDK/configuration/dependency consumption and coherent capture witnesses",
-    "all354 frozen qualification execution units and51 supporting observations",
-    "independently reserved-case results",
-    "native Linux and Windows optimized common-vector results",
-    "remaining divergence arbitrations and final R0 decision"
+    "R0 was not passed; no automatic continuation beyond STOP_BUDGET. Missing qualified obligations/holdout and platform limits are preserved in final/decision.json."
   ],
   "sourceInventory": {
     "obligations": "inventory/obligations.json",
@@ -275,25 +287,40 @@
       "nativeProduct": "All three reports no_product; qualification is existing Bun CLI/MCP adapter only; not R0 proof."
     }
   },
-  "stageStatus": "C1_NONPASS_C2_PASS1_NATIVE_INGESTION_NONPASS",
+  "stageStatus": "RESEARCH_CLOSED_TERMINAL_DOSSIER_PUBLICATION",
   "checkpoint4Evidence": "composition1/record-index.json",
   "selectedCheckpoint": "selection/README.md",
   "selectionScope": "Frozen optimized source/artifact and scoped process/input inventory; no native qualification/reserved or WindowsLinux success implied.",
   "checkpoint5StateAsOfUtc": "2026-10-17T18:58:42+00:00",
   "checkpoint5ValidationDelta": "selection/post-freeze-validation-delta.json",
-  "researchState": "C1_FROZEN_C2_ONE_CORRECTION_REMAINING_NATIVE_PARSER_GAPS_TRIAGED",
+  "researchState": "BOTH_COMPOSITIONS_TWO_CORRECTIONS_CLOSED_NONPASS",
   "secondComposition": {
     "registration": "composition2/registration.json",
-    "state": "PASS1_NATIVE_NONPASS_12_PARSER_LEXER_ERRORS_0_PROJECT_MODULES",
+    "state": "FINAL_PASS2_CLOSED_NONPASS",
     "producer": "Ezno native checker =0.0.18",
     "firstNativeExecutionRecorded": true,
     "budgetEnvelopeUnchanged": true,
     "firstNativeReport": "composition2/initial/first-native-report.json",
     "correctionPass1Registration": "composition2/correction-pass1-registration.json",
-    "correctionPassesUsed": 1,
+    "correctionPassesUsed": 2,
     "pass1Producer": "composition2/pass1-producer/FREEZE.json",
     "pass1NativeReport": "composition2/pass1-replay/report.json",
-    "correctionPassesRemaining": 1
+    "correctionPassesRemaining": 0,
+    "correctionPassesStarted": 2,
+    "correctionPassesClosed": 2,
+    "correctionPass2Registration": "composition2/correction-pass2-registration.json",
+    "pass2Producer": "composition2/pass2-producer/FREEZE.json",
+    "pass2NativeReport": "composition2/pass2-replay/report.json",
+    "pass2CorrectionClosure": "composition2/pass2-replay/correction-closure.json"
   },
-  "checkpoint6CanonicalVerification": "selection/ci-dispatch/canonical-pass2/record.json"
+  "checkpoint6CanonicalVerification": "selection/ci-dispatch/canonical-pass2/record.json",
+  "platformRun": {
+    "url": "https://github.com/hoklims/semctx/actions/runs/39103858448",
+    "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+    "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+    "state": "C1_OPTIMIZED_THREE_OS_LIMITED_DEV_VERIFIED_GENERAL_CI_NOT_GREEN",
+    "evidence": "selection/platforms-49fa/record.json"
+  },
+  "finalDecision": "final/decision.json",
+  "finalEffort": "final/effort-ledger.json"
 }
