@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "author": "/root/c2_native_mechanism_survey",
+  "created_utc": "2026-10-18T06:24:45.725964+00:00",
+  "scope": "READ_ONLY bounded source diagnosis and correction proposal; C2 pass2 NOT registered or mutated",
+  "observed_native_process": "success0 is transport only; 63SDK reads,0project/modules/mappings,741diagnostics (734errors+7warnings). Existing pass1 checker is frozen unchanged.",
+  "parse_rejections": [
+    {
+      "path": "/sdk/lib/lib.dom.d.ts",
+      "native_start": 489792,
+      "reason": "Invalid syntax on LHS of assignment",
+      "category": "typeof_union"
+    },
+    {
+      "path": "/sdk/lib/lib.es2015.core.d.ts",
+      "native_start": 4245,
+      "reason": "Expected OpenParentheses, QuestionMark, Colon or OptionalMember found JSXOpeningTagStart",
+      "category": "dts_jsx_lexing"
+    },
+    {
+      "path": "/sdk/lib/lib.es2015.iterable.d.ts",
+      "native_start": 1535,
+      "reason": "Expected identifier at spread function parameter, found OpenBracket",
+      "category": "rest_pattern"
+    },
+    {
+      "path": "/sdk/lib/lib.es2015.generator.d.ts",
+      "native_start": 1124,
+      "reason": "Expected identifier at spread function parameter, found OpenBracket",
+      "category": "rest_pattern"
+    },
+    {
+      "path": "/sdk/lib/lib.decorators.legacy.d.ts",
+      "native_start": 1326,
+      "reason": "Unclosed JSX literal",
+      "category": "dts_jsx_lexing"
+    },
+    {
+      "path": "/sdk/lib/lib.es5.d.ts",
+      "native_start": 22281,
+      "reason": "Expected identifier at property key, found JSXOpeningTagStart",
+      "category": "dts_jsx_lexing"
+    },
+    {
+      "path": "/sdk/lib/lib.es2018.asynciterable.d.ts",
+      "native_start": 1339,
+      "reason": "Expected identifier at spread function parameter, found OpenBracket",
+      "category": "rest_pattern"
+    },
+    {
+      "path": "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+      "native_start": 1139,
+      "reason": "Expected identifier at spread function parameter, found OpenBracket",
+      "category": "rest_pattern"
+    },
+    {
+      "path": "/sdk/lib/lib.es2018.intl.d.ts",
+      "native_start": 2398,
+      "reason": "Expected Assign found SemiColon",
+      "category": "ambient_const"
+    },
+    {
+      "path": "/sdk/lib/lib.es2020.intl.d.ts",
+      "native_start": 11155,
+      "reason": "Expected Assign found SemiColon",
+      "category": "ambient_const"
+    },
+    {
+      "path": "/sdk/lib/lib.es2021.intl.d.ts",
+      "native_start": 8241,
+      "reason": "Expected Assign found SemiColon",
+      "category": "ambient_const"
+    },
+    {
+      "path": "/sdk/lib/lib.es2022.intl.d.ts",
+      "native_start": 7156,
+      "reason": "Expected Assign found SemiColon",
+      "category": "ambient_const"
+    }
+  ],
+  "categories": {
+    "dts_jsx_lexing": 3,
+    "typeof_union": 1,
+    "rest_pattern": 4,
+    "ambient_const": 4
+  },
+  "minimal_native_corrections": [
+    {
+      "problem": "d.ts inherits jsx=true",
+      "source": "ezno-checker0.0.18/src/synthesis/mod.rs70–85; ezno-parser0.1.7/src/options.rs87–105",
+      "mechanism": "definition_module_from_string sets type_definition_module=true but leaves ParseOptions::default().jsx=true. Required generic method/call syntax and legacy decorator generic signatures become JSX tokens.",
+      "proposed_fix": "Set jsx=false explicitly only for native .d.ts definition parsing; preserve JSX behavior of ordinary JS/TSX parser. This is native parser configuration, no SDK rewrite.",
+      "tests": [
+        "Generic interface method of<T>(...items:T[]) parses as method.",
+        "Generic call signature <T>(value?:T):boolean parses as caller.",
+        "Generic decorator function type parses with no unclosed-JSX error.",
+        "TSX entry still uses JSX mode; malformed d.ts generic reports real parse error with span."
+      ]
+    },
+    {
+      "problem": "typeof type query consumes union as runtime expression",
+      "source": "ezno-parser0.1.7/src/types/type_annotations.rs553–556; src/expressions/assignments.rs42–54,97ff",
+      "mechanism": "TypeOf calls VariableOrPropertyAccess::from_reader, which parses full Expression then try_into. For typeof FileReader.EMPTY | typeof FileReader.LOADING the union bar is consumed as runtime bitwise expression and rejected as invalid LHS.",
+      "proposed_fix": "Use a type-query-specific native member/qualified-name parser or sufficiently tight existing member-access precedence, so the surrounding native type parser retains |/&/conditional delimiters. Keep runtime assignment parsing unchanged; reject invalid qualified names explicitly.",
+      "tests": [
+        "typeof A.X | typeof A.Y produces Union of two TypeOf nodes with exact source ranges.",
+        "Single typeof A.X remains source-backed.",
+        "Malformed typeof A. fails with span.",
+        "Runtime bitwise/assignment parsing unaffected."
+      ]
+    },
+    {
+      "problem": "namespace ambient const routed as runtime initializer-required declaration",
+      "source": "ezno-parser0.1.7/src/declarations/mod.rs221–233,270–283; src/types/namespace.rs24–31; src/types/declare_variable.rs65–96; src/declarations/variable.rs288–300",
+      "mechanism": "Namespace body uses generic Block parser. const chooses VariableDeclaration<Expression>, which requires Assign; existing DeclareVariableDeclaration already permits optional initializer and preserves VariableKeyword::Const.",
+      "proposed_fix": "In type_definition_module ambient context route const to existing DeclareVariableDeclaration::from_reader_sub_declare with no explicit declare prefix; preserve name/keyword/type/span. Do not manufacture initializer or broadly allow runtime const without initializer. Namespace synthesis support remains separate and must not be hidden.",
+      "tests": [
+        "namespace Intl { const PluralRules: PluralRulesConstructor; } yields real ambient const node.",
+        "Ambient object-valued constructor declaration with semicolon parses.",
+        "Ordinary .ts const x:number; remains rejected.",
+        "Malformed missing type or identifier is not silently accepted."
+      ]
+    },
+    {
+      "problem": "rest destructuring unsupported in type annotation AST and signature checker",
+      "source": "ezno-parser0.1.7/src/types/type_annotations.rs1077–1157,1229–1234; contrast src/functions/parameters.rs78–90,319–337; ezno-checker0.0.18/src/synthesis/functions.rs227–329,428–483; src/synthesis/variables.rs54–103; src/types/calling.rs1632–1720",
+      "mechanism": "TypeAnnotationSpreadFunctionParameter.name is String and parser consumes identifier only. Ordinary rest parser already has VariableField under extras. Checker currently registers one string name and reduces rest constraint to homogeneous Array<T>; []|[TNext] becomes ERROR_TYPE. Call engine compares any number of arguments against scalar item_type without checking tuple arity.",
+      "proposed_fix": "Preserve native VariableField in annotation-rest AST, parse it using existing pattern parser, serialize its actual pattern, register bound identifiers through real register_variable destructuring. Then validate assembled rest argument tuple against the complete native constraint (including tuple union and generic substitution), reusing native subtype infrastructure if it really preserves lengths/positions. Keep display text separate from binding identity. Never replace [value] by a synthetic label or ERROR/any and count success.",
+      "estimated_scope": "Not a whole-AST rewrite: existing VariableField and destructuring helpers can be reused. But this crosses parser AST, native binding and call-signature/domain semantics; it is materially more than a parser fix. A bounded isolated implementation experiment is needed to see whether tuple/union subtype and arity are reusable.",
+      "tests": [
+        "AST records array destructuring pattern value with exact binding span and tuple-union annotation.",
+        "Native binding resolves value to actual position, not a generated name.",
+        "Native next(...[value]:[]|[number]) accepts zero arguments and one number.",
+        "Two arguments refused; wrong argument type refused.",
+        "One explicit undefined refused when number excludes undefined; do not flatten []|[T] into optional parameter.",
+        "Existing named homogeneous rest and ordinary destructuring continue to work.",
+        "Unsupported more complex rest pattern remains explicit failure; do not discard annotations or synthesis."
+      ]
+    }
+  ],
+  "sdk_order": {
+    "source": "oracle/definition-order.v2.json",
+    "sha256": "164679007c1caa57446a343d0eeb3024dba3e77e14330d0df2f5ccc9d2b4305d",
+    "basis": "Actual independently frozen TypeScript5.9.3 SourceFiles order from compareDefaultLibFiles/getDefaultLibFilePriority/libEntries, not alphabetical closure edges and not merely source-directive DFS.",
+    "proposed_fix": "Pass the explicit independent63path order after set/uniqueness/hash validation against the same required closure; do not derive semantic expected values or edit SDK bytes. Preserve old order as historical evidence.",
+    "limits": "Ezno synthesizes each definition sequentially and TSC binds a multi-file program; adopting TSC order is a fairness correction, not proof all forward declarations are available."
+  },
+  "non_parser_blockers_not_to_hide": [
+    "Native interfaces.rs291–308 explicitly raises unsupported interface constructor and caller, both required by the SDK. Namespace synthesis also remains explicitly unsupported.",
+    "check_project returns before project checking on any definition error, while baseline skipLibCheck=true. Missing-name/merging SDK diagnostics are not independently semantic-refutation proof; disabling or dropping them would not demonstrate the required actual SDK declaration target.",
+    "Fixing12first parse errors does not prove entire63file parsing or native SDK semantic closure: later syntax/errors may surface after these first-failure positions.",
+    "0project/module/mapping is not evidence about successful cross-file aliases or primitive trim target; that independent oracle remains unmet."
+  ],
+  "recommendation": "Register one coherent C2 pass2 with explicit native changes, tests and early sub-checkpoint for genuine rest pattern/tuple-arity semantics before full SDK adapter work. If existing native subtype/binding primitives cannot support it within a bounded scope, report exact unsupported signature capability instead of a fake label, SDK stub or suppressed diagnostics. Do not claim universal Rust infeasibility.",
+  "mutations_rebuilds_native_queries": false,
+  "effort": {
+    "start_utc": "2026-10-18T06:20:32+00:00",
+    "through_utc": "2026-10-18T06:24:45.726342+00:00",
+    "limit_seconds": 300,
+    "accounting": "Conservative full read/analysis interval; no reset of original composition/correction effort."
+  }
+}

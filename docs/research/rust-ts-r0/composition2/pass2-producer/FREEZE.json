@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "composition": "C2",
+  "correction_pass": 2,
+  "integration_revision": "C2-P2-NATIVE-PARSER-BINDING-RESOLUTION",
+  "state": "OPTIMIZED_PASS2_FROZEN_BEFORE_UNIQUE_FULL_SDK_EXECUTION",
+  "frozen_utc": "2026-10-18T06:52:26.001826+00:00",
+  "producer": "/root/c2_native_mechanism_survey",
+  "registration": {
+    "original_path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2-registration.json",
+    "frozen_path": "provenance/correction-pass2-registration.json",
+    "sha256": "64d3913b3ee3af56906362d1aed133824705c16f449229d9fb19369f1420ea39",
+    "last_authorized_correction": true
+  },
+  "predecessor": {
+    "pass1_freeze_sha256": "5dd67f86d363d02d42948ec9066efd7f1aa6faabe77fb9fb972aae952e5d9b30",
+    "pass1_artifact_sha256": "8e41b3a7adb9e33998a6fb5cba3582b041e9a8205b11c937e5651004a5893bf0",
+    "initial_freeze_sha256": "c3f7988167b4cf4adfdc49f3f6cd7d15ede07b4f3c744589f5646f52d4b7a0fb"
+  },
+  "environment": {
+    "host": "aarch64-apple-darwin",
+    "toolchain": "Rust1.95.0",
+    "GIT_CONFIG_GLOBAL": "unset",
+    "cargo_home": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home",
+    "cargo_build_jobs": 2
+  },
+  "binary": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/bin/semctx-r0-ezno-probe",
+    "bytes": 5343696,
+    "sha256": "acfd231f629de6036056f137b44edb2513ef3283ce1e531b9747279ca6b50a37"
+  },
+  "source_manifest": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/source-manifest.json",
+    "bytes": 31951,
+    "sha256": "165f324fa4e3efbac8b60e82399523b0e52780074f967923205cd8693b72b106",
+    "file_count": 188,
+    "matches_last_33_test_sources": true
+  },
+  "evidence_manifest": {
+    "path": "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/evidence-manifest.json",
+    "bytes": 8083,
+    "sha256": "c46a777c5bfb6e057cfed0f5439e8a0aed2d29df55f3edb9bcd7dec66e5dadf0",
+    "file_count": 51
+  },
+  "inputs": {
+    "development-request.json": {
+      "bytes": 3003,
+      "sha256": "3e85ee864fd76252859b8b8e1cb5d25c69fefdc5d002551591dd3b5179d3dc19",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/development-request.json"
+    },
+    "sdk-input.json": {
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-input.json"
+    },
+    "sdk-required-closure.v3.json": {
+      "bytes": 18368,
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+      "copied_byte_exact_from": "/private/tmp/semctx-t00-20261017/composition2/correction-pass1/frozen/inputs/sdk-required-closure.v3.json"
+    }
+  },
+  "dependency_binding": {
+    "root_manifest": {
+      "bytes": 604,
+      "sha256": "734f4b9f30006ee3c44dbe005ccea414e641e6ed6f6a15478841a2e559024618"
+    },
+    "root_lock": {
+      "bytes": 19250,
+      "sha256": "4139bf6c2d22c2abf94b91b02f782cfd8330ddcde739c4230891121a6db1f199"
+    },
+    "locked_name_version_count": 81,
+    "direct_dependencies": {
+      "ezno-parser": "=0.1.7",
+      "ezno-checker": "=0.0.18",
+      "serde": "=1.0.229",
+      "serde_json": "=1.0.151",
+      "sha2": "=0.10.9"
+    },
+    "checker_manifest": {
+      "bytes": 3312,
+      "sha256": "4dfc296303394d3ec57bee139bdf5afbbc50c264b77d43d94ef08a04844eaa16"
+    },
+    "parser_manifest": {
+      "bytes": 4569,
+      "sha256": "93a129f08c466102d9364d72019010e5e1a0896fe83644a85b19fbf1ecd55baa"
+    },
+    "checker_registry_archive": {
+      "bytes": 262575,
+      "sha256": "03d2d2b572208dcc7f410156c09dde56b22026592252a34d227e01d8bc78ab2e"
+    },
+    "parser_registry_archive": {
+      "bytes": 123625,
+      "sha256": "575232b97003825ee3ef5303e2b9bad448f0f11326b211c1b64f1f42e9f57e9e"
+    },
+    "identity": "Published registry bytes plus explicit local Rust patches. Published dirty VCS state is not an exact clean commit claim. Root lock governs build; nested upstream lock files preserved as source material."
+  },
+  "correction": {
+    "keeps_pass1_definition_local_type_mappings_isolation": true,
+    "native_definition_jsx": false,
+    "extra_syntax": false,
+    "ambient_const": "Native DeclareVariableDeclaration under type_definition_module; no initializer invented.",
+    "typeof_and_rest": "Native AST boundary and real VariableField binding; tuple/union rest shape and arity checked using native types.",
+    "sdk_order": "Compile-time63paths, pinned TypeScript5.9.3 source-backed priority. Same63SDK files/bytes, no runtime oracle/JS/Go lookup.",
+    "captured_resolution": "Optional native ReadFromFS hook chooses actual captured path before SourceId/parse. Bounded relative .js substitution/file/index selection; no OS fallback when configured.",
+    "vendor_delta": "provenance/pass2-vendor-registry-delta.json",
+    "nonB_delta": "provenance/pass2-wrapper-delta.json"
+  },
+  "sdk_order_binding": {
+    "compiled_paths": {
+      "bytes": 2322,
+      "sha256": "002c2b4e72f64c69552ef892ed8c2c1a36e92884294ee88e90d4cc67d1b8586f"
+    },
+    "source_provenance": {
+      "bytes": 1037,
+      "sha256": "8e4d26404278430e0b22342785c5acc415d5d89c3895e19c0cbea5c34f2766cb"
+    },
+    "semantic_expected_values_in_config": false
+  },
+  "checks": {
+    "tests": {
+      "path": "logs/final2-owned-tests.log",
+      "sha256": "541cda65c2345847b54894395edaa66eee581101e9c5079f6b35428648e4c958",
+      "bytes": 12659,
+      "exit_code": 0,
+      "passed": 33
+    },
+    "clippy": {
+      "path": "logs/final2-clippy.log",
+      "sha256": "c24f9fcd541e6c535165bc0f8540f04082dbb0edd56e76f480dd45ab35cfe840",
+      "bytes": 8532,
+      "exit_code": 0
+    },
+    "fmt": {
+      "path": "logs/final2-fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "exit_code": 0
+    },
+    "release": {
+      "path": "logs/final2-build-release.log",
+      "sha256": "6c07acb1692312bb6a6504c604aab49f6462354d39debefe3bd79526c5aa3f3e",
+      "bytes": 8380,
+      "exit_code": 0
+    }
+  },
+  "final_check_binding": {
+    "receipt": "logs/final2-checks-receipt.json",
+    "receipt_sha256": "090227492e23eef0864be6c92b3409aee43876a0fd053b6d46d454fa326d763a",
+    "before": "logs/final2-checks-source-before.json",
+    "after": "logs/final2-checks-source-after.json",
+    "same_source_file_count": 188,
+    "historical_31_test_receipt": "logs/final-owned-tests.log",
+    "historical_receipt_preserved": true
+  },
+  "independent_review": {
+    "nonB_path": "provenance/independent-nonB-source-review.json",
+    "nonB_sha256": "01226e23adaba9fb4f2f088b6b1b130f5cf01658c3898196e12f4d6a34f82834",
+    "nonB_scope": "Readonly14files, excludes reviewer own6worker files; no demonstrated defect in bounded scope.",
+    "worker_review": "Parent independent oracleB review closed without source defect before freeze; worker review closure retained.",
+    "review_is_not_R0_certification": true
+  },
+  "full_sdk_execution_count_before_this_freeze": {
+    "initial": 1,
+    "pass1": 1,
+    "pass2": 0
+  },
+  "command_argv": [
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/bin/semctx-r0-ezno-probe",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/development-request.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-input.json",
+    "/private/tmp/semctx-t00-20261017/composition2/correction-pass2/frozen/inputs/sdk-required-closure.v3.json"
+  ],
+  "observation_protocol": {
+    "supervision": "Parent independent verifier uses canonical #383 supervisor for unique frozen pass2 SDK probe. Producer has not executed it.",
+    "stdout": "Final JSON on normal return, with raw native diagnostics/modules/mappings/read/resolution evidence, no semantic verdict.",
+    "stderr": "Prepared input and captured read/resolution evidence plus unchanged upstream native diagnostics/panic."
+  },
+  "limits": [
+    "33native DEV tests are local macOS evidence only; no final fullSDK, reserved case, Windows/Linux qualification from producer.",
+    "Native strict missing-element/null handling differs from baseline TypeScript5.9.3 without strictNullChecks. next(undefined)/binding tests characterize native policy, not baseline parity. No expected values normalized.",
+    "Baseline skipLibCheck=true: SDK type/name/merging diagnostics alone do not prove semantic infeasibility. Remaining unsupported native SDK capabilities and diagnostics stay visible.",
+    "Captured relative resolution is bounded, not complete Bundler/package exports/types/project-config parity. Unknown/missing/outside explicitly refuse; unconfigured readers preserve upstream behavior.",
+    "Imported .d.ts modules still follow ordinary native parse_source. No complete ambient-module or extension-specific ordinary .ts/.tsx parsing parity claimed.",
+    "Required SDK definitions set jsx=false; ordinary JSX options unchanged, extra_syntax=false. No SDK rewrites, stubs, omitted syntheses or ignored errors.",
+    "Upstream embedded internal.ts.d.bin remains in vendor and possibly binary branch; actual external required paths supplied. No bundled cache requested or used by probe.",
+    "Raw native source IDs/offsets/direct origins retained. Missing mappings remain missing, no guessed target mapping.",
+    "UTF8 strings bound from authorized carriers; malformed-encoding parity not claimed.",
+    "Upstream parser/checker warnings remain in raw logs. Strict clippy/fmt claims cover owned wrapper/tests, not all inherited upstream style.",
+    "Some provenance describes historical pass1 state, not current pass2 patch status. Current registry/vendor/root bindings explicit here.",
+    "External experiment only. No main-worktree changes, GitHub mutations, commits/pushes or mainline Git indexing by producer.",
+    "No third C2 correction after final supervised pass2 probe. No universal Rust infeasibility or READY_TS_NATIVE claim."
+  ],
+  "effort": {
+    "previous_checkpoint_conservative_own_seconds": 1400,
+    "fresh_freeze_actions_started_utc": "2026-10-18T06:50:53Z",
+    "fresh_freeze_action_seconds": 93.001826,
+    "review_wait_after_checkpoint": "excluded, not implicitly recharged",
+    "worker_independent_review": "separate; parent consolidates without duplicated checkpoints",
+    "cumulative_pass_ceiling_seconds": 7200
+  },
+  "comments_added": []
+}
