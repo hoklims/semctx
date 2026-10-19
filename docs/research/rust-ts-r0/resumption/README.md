@@ -529,6 +529,26 @@ Formal credit remains0/240; review178, full354 threeOS, reserved23/26 and R0 rem
 pending. No public assembly/admission, coherent capture or complete OS-read
 inventory follows. Owner continuation, counters and CI/publication rules stay unchanged.
 
+A [twenty-sixth tranche](gap-retained-runtime-evidence.json) maps the two frozen
+retained-runtime units at the private analysis-transport success/rejection boundary.
+P01 preserves captured `leaf` while physical `transient` remains; N01 propagates
+an actual exit1 snapshot mismatch with empty stdout and exact JSON cause, without
+a successful analysis. Twelve checks (9+3) pass across six native contexts,
+including healthy controls before and after each subject. Independent mutations
+fail and restore;20 adverse experiments preserve canonical P/N PASS. The recipe
+requires an external canonical hash check: deleting its physical-live inventory
+can still pass the focused runner, which then proves no mounted divergence.
+Error identity comes from the bound caller invocation, not embedded error fields.
+The [complete claim ledger](gap-retained-runtime-claim-audit.md) limits this to
+six sources committed locally at `e59bcae3`; concurrent T-reader work is excluded.
+Local macOS checks pass323 release tests,61 comparators,8 Python tests,Clippy and
+Ruff; WindowsGNU is crosscompiled only. CI for pushed base9da7 does not cover this
+patch. No public PlaneA composition, worker policy, graph ownership or global
+admission is inferred. Cumulative checkpoints now reach60 mappings:59 limited
+PASS plus N17c NONPASS,4 original GAP and350/354 static recipes without known GAP;
+prior58/6 remains historical. Formal credit stays0/240; review178, full354 threeOS,
+reserved23/26 and R0 remain pending. Owner continuation and CI rules are unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI

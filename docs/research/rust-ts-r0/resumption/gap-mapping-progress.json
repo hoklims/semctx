@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FIFTY_EIGHT_GAPS_MAPPED_FIFTY_SEVEN_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_SIXTY_GAPS_MAPPED_FIFTY_NINE_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve remaining6 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved23cases/26variants and R0 under unchanged owner continuation and CI/publication rules.",
-  "updatedUtc": "2026-10-19T20:12:25.700828+00:00",
-  "staticGapUnitsRemaining": 6,
+  "next": "Resolve remaining4 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved23cases/26variants and R0 under unchanged owner continuation and CI/publication rules. Concurrent T-reader work is not credited by the runtime checkpoint.",
+  "updatedUtc": "2026-10-19T21:07:36.940793+00:00",
+  "staticGapUnitsRemaining": 4,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -1073,6 +1073,50 @@
       "ownerAdditionalPass1": "OPEN",
       "ownerAdditionalPass2": "NOT_STARTED",
       "scope": "Cumulative checkpoints across distinct artifacts; static preparation is not one current campaign."
+    }
+  },
+  "twentySixthBatch": {
+    "registeredUtc": "2026-10-19T21:07:36.940793+00:00",
+    "state": "TWO_FROZEN_RETAINED_ANALYSIS_TRANSPORT_BOUNDARY_LIMITED_PASSES_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "P01-retained-source::plane-a-runtime-consistent",
+      "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch"
+    ],
+    "evidence": "gap-retained-runtime-evidence.json",
+    "localSourceCommit": "e59bcae350d44c27617f05683894d7ccedf42ea3",
+    "nativeArtifactSha256": "d7c8fafaaeacd200f01ad05a0aefbd7a6d7027a5c8b98962cd92d2d4b9191931",
+    "recipesSha256": "fc722cd475a18dda3320adac0abe385a64ccd967f185f0ac8c439763ac0ab558",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "projectedChecks": 12,
+    "checksPerUnit": [
+      9,
+      3
+    ],
+    "nativeContexts": 6,
+    "qualificationCredit": 0,
+    "policyScope": "Private retained-analysis success/rejection transport only,canonicalrecipe externally hash-verified. No full public composition/admission,embedded error identity or concurrent T-reader credit.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 60,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 59,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 4,
+      "recipesWithoutKnownGaps": 350,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across distinct artifacts;350 is static preparation, not one current campaign."
     }
   }
 }
