@@ -9,7 +9,8 @@
     "date": "2026-10-18",
     "source": "Owner instruction in the resumed T00 session at head 6270bc10765d697a4311150e3e1a4aea8a726335",
     "kind": "Explicit owner decision; not an ADR or a new technical proof",
-    "decision": "Continue the same T00, C1 only, on the same branch and PR. Supersedes the historical STOP_BUDGET continuation restriction; no separate experiment."
+    "decision": "Continue the same T00, C1 only, on the same branch and PR. Supersedes the historical STOP_BUDGET continuation restriction; no separate experiment.",
+    "continuationDecision": "owner-continuation-20261019.json"
   },
   "subject": {
     "repository": "hoklims/semctx",
@@ -44,14 +45,35 @@
       "bytes": 2000,
       "sha256": "d8719535b7539f65d9cf8d714b0f5be2f8cc7fff6688dc403bf82297fb94668c"
     },
-    "policy": "Historical candidate, pass, expectation and campaign records retain their original identities, outcomes and budget counters. The final directory is the historical terminal dossier, not the current R0 state."
+    "policy": "Historical candidate, pass, expectation and campaign records retain their original identities, outcomes and budget counters. The final directory is the historical terminal dossier, not the current R0 state.",
+    "supersededCorrectionBudget20261018": {
+      "authorityDate": "2026-10-18",
+      "supersededBy": "owner-continuation-20261019.json",
+      "scope": "Historical snapshot before the 2026-10-19 owner decision; these ceilings and remaining count are not current limits.",
+      "budget": {
+        "composition": "C1",
+        "additionalCorrectionPassesMaximum": 2,
+        "additionalCorrectionPassesStarted": 1,
+        "additionalCorrectionPassesClosed": 0,
+        "additionalCorrectionPassesRemaining": 1,
+        "historicalC1CorrectionsClosed": 2,
+        "historicalC2CorrectionsClosed": 2,
+        "effortWorkingDaysApproximate": [
+          3,
+          4
+        ],
+        "effortInterpretation": "Owner planning estimate, not measured elapsed effort or a newly inferred exact hard ceiling. Preparation and review are recorded separately in effort-ledger.json.",
+        "effortLedger": "effort-ledger.json",
+        "passRegistrationRule": "Register each of the two new correction passes before its implementation/replay; identify its scope, inputs and remaining budget. No third additional pass is authorized."
+      }
+    }
   },
   "budget": {
     "composition": "C1",
-    "additionalCorrectionPassesMaximum": 2,
+    "additionalCorrectionPassesMaximum": null,
     "additionalCorrectionPassesStarted": 1,
     "additionalCorrectionPassesClosed": 0,
-    "additionalCorrectionPassesRemaining": 1,
+    "additionalCorrectionPassesRemaining": null,
     "historicalC1CorrectionsClosed": 2,
     "historicalC2CorrectionsClosed": 2,
     "effortWorkingDaysApproximate": [
@@ -60,7 +82,16 @@
     ],
     "effortInterpretation": "Owner planning estimate, not measured elapsed effort or a newly inferred exact hard ceiling. Preparation and review are recorded separately in effort-ledger.json.",
     "effortLedger": "effort-ledger.json",
-    "passRegistrationRule": "Register each of the two new correction passes before its implementation/replay; identify its scope, inputs and remaining budget. No third additional pass is authorized."
+    "passRegistrationRule": "Register each additional C1 correction pass before implementation/replay, identifying scope, inputs and counters. The owner decision of 2026-10-19 removes any fixed pass or local review-turn ceiling; no counter reset or qualification waiver follows.",
+    "continuationPolicy": {
+      "authority": "owner-continuation-20261019.json",
+      "fixedTurnOrPassCeiling": false,
+      "nullMaximumAndRemainingMeaning": "No fixed numerical ceiling; not zero remaining and not a reset.",
+      "localReviewTurnCeilingsSuperseded": true,
+      "countersReset": false,
+      "additionalCorrectionPass2State": "NOT_STARTED",
+      "effortEstimateStatus": "The existing approximate 3–4-day estimate remains historical planning context, not an exact ceiling; no new duration or numerical budget is set."
+    }
   },
   "compositions": {
     "C1": {
