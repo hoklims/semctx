@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FORTY_SIX_GAPS_MAPPED_FORTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FIFTY_TWO_GAPS_MAPPED_FIFTY_ONE_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining18 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-19T00:47:26.870530+00:00",
-  "staticGapUnitsRemaining": 18,
+  "next": "Resolve remaining12 static GAP units and the demonstrated bare unresolved-import adapter gap before retained-scope parity/R0; then perform the obligation review, full3OS campaign and reserved run under the unchanged workflow.",
+  "updatedUtc": "2026-10-19T15:38:56.306518+00:00",
+  "staticGapUnitsRemaining": 12,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -888,5 +888,68 @@
     "reservedPayloadAccessed": false,
     "reservedNonaccessScope": "Individual author attestation only.",
     "cost": "Native Program AST visitor; no isolated performance measurement."
-  }
+  },
+  "priorTopLevelCheckpoint": {
+    "state": "STEP3_FORTY_SIX_GAPS_MAPPED_FORTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+    "updatedUtc": "2026-10-19T00:47:26.870530+00:00",
+    "staticGapUnitsRemaining": 18,
+    "next": "Continue the remaining18 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0."
+  },
+  "twentyFirstBatch": {
+    "state": "N03_BASE_LIMITED_PASS_MACOS_REVIEWED",
+    "evidence": "gap-source-confinement-evidence.json",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "cumulativeMappedOriginalGapUnits": 47,
+    "cumulativeLimitedFocusedPass": 46,
+    "existingVersionAttributedNonpass": 1,
+    "residualStaticGapUnits": 17,
+    "recipesWithoutKnownGaps": 337,
+    "qualificationCredit": 0,
+    "reconciliation": "Adds the existing README/source-confinement checkpoint omitted from this JSON; original twentiethBatch and prior top-level snapshot retained."
+  },
+  "twentySecondBatch": {
+    "registeredUtc": "2026-10-19T15:38:56.306518+00:00",
+    "state": "FIVE_LIMITED_FROZEN_QDYN_PROJECTIONS_PASS_MACOS_REVIEWED",
+    "evidence": "gap-dynamic-import-evidence.json",
+    "units": [
+      "QDYN-02-one-literal-dynamic-refusal::base",
+      "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+      "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+      "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+      "QDYN-05-unresolved-literal-target::base"
+    ],
+    "nativeArtifactSha256": "507dbc29ad5e28256efb6921ac5deffa3a7082320cf9ab15c29340d1bc77451c",
+    "recipesSha256": "34dc44a230338a9bcef15d8fb83d66607a72aa6421e1e9748fc0cce55c384d50",
+    "newMappingsCredited": 5,
+    "newProjectedPasses": 5,
+    "projectedChecks": 39,
+    "realNativeProcesses": 5,
+    "relatedCarryoverPasses": 5,
+    "remainingOwnedAdapterGap": "Undeclared bare unresolved import remains analyzed without baseline reason; resolve before complete retained-scope parity/R0; outside original64 GAP count.",
+    "qualificationCredit": 0,
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 52,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 51,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 12,
+      "recipesWithoutKnownGaps": 342,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "NOT_PERFORMED; historical classification, not recomputed after these mappings",
+      "campaign354ThreeOS": "NOT_PERFORMED_ON_THIS_CANDIDATE",
+      "reservedReplay": "NOT_EXECUTED_BY_THIS_FOCUSED_REPLAY",
+      "R0": "PENDING",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "UNUSED",
+      "scope": "Cumulative mapping checkpoints across different producer artifacts; not a current single-artifact campaign."
+    },
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false
+  },
+  "reservedNonaccessScope": "Historical and current per-actor attestations only; this focused replay contains public frozen requests. No exhaustive global access-history guarantee."
 }

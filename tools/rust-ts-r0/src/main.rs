@@ -919,6 +919,7 @@ fn inspect_subject(
     }
     if qualified && !outside {
         reasons.extend(javascript.qualified_scope_reasons.iter().cloned());
+        reasons.extend(retained_scope_syntax.reasons.iter().cloned());
     }
     if is_js {
         reasons.extend(
@@ -1466,11 +1467,19 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         } else {
             serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_QUALIFIED_INPUTS_NOT_ENABLED"]})
         };
+        let unresolved_relative_imports = if retained && qualified {
+            component_observations::unresolved_relative_import_reasons(
+                &extraction.imports,
+                &relative,
+            )
+        } else {
+            BTreeSet::new()
+        };
         if (qualified
             || [".js", ".jsx", ".mjs", ".cjs"]
                 .iter()
                 .any(|suffix| path.ends_with(suffix)))
-            && !named_reasons.is_empty()
+            && (!named_reasons.is_empty() || !unresolved_relative_imports.is_empty())
             && !subject["reasons"].as_array().is_some_and(|reasons| {
                 reasons
                     .iter()
@@ -1484,6 +1493,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
                 .filter_map(|value| value.as_str().map(str::to_string))
                 .collect::<BTreeSet<_>>();
             reasons.extend(named_reasons.iter().cloned());
+            reasons.extend(unresolved_relative_imports);
             subject["reasons"] = serde_json::json!(reasons);
             if subject["outcome"] == "analyzed" {
                 subject["outcome"] = serde_json::json!("unsupported");
@@ -1515,8 +1525,12 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         &std::fs::read(std::env::current_exe().map_err(|error| error.to_string())?)
             .map_err(|error| error.to_string())?,
     );
+    let test_dynamic_import_keys = dynamic_imports
+        .into_iter()
+        .map(|(path, line, specifier)| format!("{path}:{line}:{specifier}"))
+        .collect::<Vec<_>>();
     Ok(
-        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
+        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
     )
 }
 fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
@@ -1696,6 +1710,125 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    fn dynamic_import_request(text: &str) -> Request {
+        let mut request = component_request("dynamicImportDev", "/repo/src/target.test.ts", text);
+        request.qualified = true;
+        request
+            .roles
+            .insert("src/target.test.ts".into(), "test".into());
+        request.roots.push("/repo/src/target.ts".into());
+        request.files.insert(
+            "/repo/src/target.ts".into(),
+            "export function helper(){return 1;}\n".into(),
+        );
+        request.files.insert(
+            "/repo/package.json".into(),
+            r#"{"name":"qualified-fixture","type":"module"}"#.into(),
+        );
+        request
+    }
+
+    #[test]
+    fn retained_dynamic_computed_imports_refuse_with_the_scope_reason() {
+        let sdk = component_sdk();
+        for text in [
+            "const name='./target';export async function check(){return import(name);}\n",
+            "export async function check(){return import('./target',{with:{type:'json'}});}\n",
+        ] {
+            let request = dynamic_import_request(text);
+            let observed = analyze(request.clone(), sdk.clone()).unwrap();
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            assert!(
+                subject["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&serde_json::json!(
+                        "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+                    ))
+            );
+            assert_eq!(
+                serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
+                "refused"
+            );
+        }
+    }
+
+    #[test]
+    fn retained_unresolved_relative_import_refuses_without_inventing_a_target() {
+        let sdk = component_sdk();
+        let request =
+            dynamic_import_request("export async function check(){return import('./missing');}\n");
+        let observed = analyze(request.clone(), sdk.clone()).unwrap();
+        let import = &observed["raw_extraction"]["imports"][0];
+        assert_eq!(import["moduleSpecifier"], "./missing");
+        assert!(import.get("resolvedRelPath").is_none());
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "src/target.test.ts")
+            .unwrap();
+        assert!(
+            subject["reasons"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!(
+                    "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:./missing"
+                ))
+        );
+        assert_eq!(
+            serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
+            "refused"
+        );
+    }
+
+    #[test]
+    fn retained_literal_dynamic_import_keeps_its_resolved_unproven_binding() {
+        let request = dynamic_import_request(
+            "export async function check(){const dep=await import('./target');return dep.helper();}\n",
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        assert_eq!(
+            observed["test_dynamic_import_keys"],
+            serde_json::json!(["src/target.test.ts:1:./target"])
+        );
+        assert_eq!(
+            observed["raw_extraction"]["imports"][0]["resolvedRelPath"],
+            "src/target.ts"
+        );
+        assert!(
+            observed["raw_extraction"]["imports"][0]
+                .get("bindingTargets")
+                .is_none()
+        );
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "src/target.test.ts")
+            .unwrap();
+        assert!(
+            subject["reasons"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!(
+                    "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+                ))
+        );
+        assert!(
+            !subject["reasons"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|reason| reason.as_str().unwrap().starts_with("DEPENDENCY_SCOPE_"))
+        );
     }
 
     #[test]

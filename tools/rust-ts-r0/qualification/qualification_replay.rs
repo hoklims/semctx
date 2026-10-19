@@ -5834,6 +5834,17 @@ fn gap_native_relative_source_escape_refusal_and_positive_control() {
 }
 
 #[test]
+fn gap_retained_dynamic_import_scan_scope_and_unproven_binding() {
+    repair_units(&[
+        "QDYN-02-one-literal-dynamic-refusal::base",
+        "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+        "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+        "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+        "QDYN-05-unresolved-literal-target::base",
+    ]);
+}
+
+#[test]
 fn gap_retained_scope_import_type_and_external_import_equals() {
     repair_units(&[
         "QSCOPE-01-import-type-refusal::base",
