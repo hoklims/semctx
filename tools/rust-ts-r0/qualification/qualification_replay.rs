@@ -9,6 +9,7 @@ mod repository_replay;
 mod source_confinement_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
+mod workspace_system_replay;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -2662,6 +2663,16 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "workspace_system_cli" {
+            let mut result = workspace_system_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "repository_eligibility_cli" {
             let mut result = repository_replay::run_eligibility(
                 recipe,
@@ -4219,6 +4230,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "workspace_system_cli" => workspace_system_replay::run(recipe, &dir, &fixture),
             "repository_eligibility_cli" => repository_replay::run_eligibility(
                 recipe,
                 &dir,
@@ -4331,6 +4343,14 @@ fn repair_units(ids: &[&str]) {
         "repair observations: {}",
         serde_json::to_string(&results).unwrap()
     );
+}
+
+#[test]
+fn gap_workspace_system_reads_preserve_link_precedence_and_outside_boundary() {
+    repair_units(&[
+        "ORD-WORKSPACE-SYSTEM-READS::variant-01",
+        "ORD-WORKSPACE-SYSTEM-READS::variant-02",
+    ]);
 }
 
 #[test]

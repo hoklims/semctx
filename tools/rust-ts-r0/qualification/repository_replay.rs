@@ -1,6 +1,6 @@
 use super::*;
 
-fn comparison_key(path: &str) -> Result<String, String> {
+pub(super) fn comparison_key(path: &str) -> Result<String, String> {
     let path = path.replace('\\', "/");
     let path = path
         .strip_prefix("//?/")
