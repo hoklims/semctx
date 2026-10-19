@@ -26,6 +26,25 @@ pub fn from_units(units: &[u16]) -> String {
     ts_goport::scanner_util::go_string_from_bytes(bytes)
 }
 
+pub fn to_units(text: &str) -> Vec<u16> {
+    use ts_goport::scanner_util::{GoUnit, go_unit_at, go_value};
+    let text = go_value(text);
+    let mut units = vec![];
+    let mut offset = 0;
+    while offset < text.len() {
+        let (unit, width) = go_unit_at(&text, offset);
+        match unit {
+            GoUnit::Char(character) => {
+                units.extend_from_slice(character.encode_utf16(&mut [0; 2]));
+            }
+            GoUnit::Surrogate(unit) => units.push(unit as u16),
+            GoUnit::InvalidByte(_) => units.push(0xfffd),
+        }
+        offset += width;
+    }
+    units
+}
+
 pub fn decode(bytes: &[u8], profile: ReadProfile) -> String {
     let mut bytes = bytes;
     if matches!(profile, ReadProfile::CompilerSystem) {
@@ -80,5 +99,10 @@ mod tests {
         assert_eq!(&*bytes, b"A\xed\xa0\xb4B\xf0\x9f\x9a\x80C\xed\xb0\x81");
         let map = ts_goport::ast::compute_position_map(&port);
         assert_eq!(map.utf8_to_utf16(port.len() as i32), units.len() as i32);
+        assert_eq!(to_units(&port), units);
+        let markers = [
+            0xfdd0, 0xd800, 0xd800, 0xd83d, 0xde00, 0xfdd0, 0xdbfe, 0xdc00,
+        ];
+        assert_eq!(to_units(&from_units(&markers)), markers);
     }
 }

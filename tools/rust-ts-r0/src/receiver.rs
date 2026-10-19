@@ -102,7 +102,7 @@ pub enum ExpectedTerminal {
     Analyzed,
     ControlledRefusal {
         exit_code: i32,
-        reason_codes: BTreeSet<String>,
+        reason_codes: BTreeSet<ReasonCode>,
     },
 }
 #[derive(Clone, Debug)]
@@ -737,10 +737,10 @@ impl Receiver {
             if !expected.contains_key(diagnostic.subject_id.as_str()) {
                 return Err(Rejection::SubjectMismatch);
             }
-            if diagnostic.code.is_empty() {
+            if diagnostic.code.is_empty() || !diagnostic.text_is_consistent() {
                 return Err(Rejection::MalformedOutput);
             }
-            if !diagnostic_ids.insert((&diagnostic.subject_id, &diagnostic.code)) {
+            if !diagnostic_ids.insert((&diagnostic.subject_id, diagnostic.canonical_code())) {
                 return Err(Rejection::DuplicateIdentity);
             }
         }
@@ -748,7 +748,7 @@ impl Receiver {
             let codes = batch
                 .diagnostics
                 .iter()
-                .map(|d| d.code.clone())
+                .map(Diagnostic::canonical_code)
                 .collect::<BTreeSet<_>>();
             if &codes != reason_codes {
                 return Err(Rejection::RefusalMismatch);
@@ -1640,6 +1640,8 @@ mod tests {
             subject_id: "subject-a".into(),
             code: "UNSUPPORTED_SOURCE".into(),
             message: "unsupported source".into(),
+            code_utf16: None,
+            message_utf16: None,
         });
         let mut observed = outcome(&b);
         observed.kind = "nonzero".into();
@@ -1669,6 +1671,128 @@ mod tests {
             Some(Rejection::ProcessFailure)
         );
     }
+    #[test]
+    fn diagnostic_utf16_values_are_consumed_without_display_loss() {
+        let mut fixture = Fixture::new();
+        fixture.facts.clear();
+        fixture.rebind_graph();
+        fixture.freshness.seal = None;
+        let code = "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:subject-a:\u{fdd0}";
+        let mut expected = fixture.expected();
+        expected.terminal = ExpectedTerminal::ControlledRefusal {
+            exit_code: 0,
+            reason_codes: BTreeSet::from([code.into()]),
+        };
+        let receiver = Receiver::new(expected).unwrap();
+        let mut batch = fixture.batch();
+        batch.terminal = Terminal::Refused;
+        batch.subjects[0].outcome = Some(AnalysisOutcome::Unsupported);
+        batch.subjects[0].coverage.clear();
+        let mut batch = serde_json::to_value(batch).unwrap();
+        let units = code.encode_utf16().collect::<Vec<_>>();
+        batch["diagnostics"] = serde_json::json!([{
+            "subject_id":"subject-a", "code":code, "message":code,
+            "code_utf16":units, "message_utf16":units,
+        }]);
+        assert_eq!(
+            receiver
+                .receive(&text_outcome(batch.to_string()), &fixture.state())
+                .unwrap()
+                .disposition(),
+            EvidenceDisposition::ControlledRefusal
+        );
+        for field in ["code_utf16", "message_utf16"] {
+            for malformed in [
+                serde_json::Value::Null,
+                serde_json::json!([65536]),
+                serde_json::json!([]),
+                serde_json::json!([65]),
+            ] {
+                let mut altered = batch.clone();
+                altered["diagnostics"][0][field] = malformed;
+                assert_eq!(
+                    receiver
+                        .receive(&text_outcome(altered.to_string()), &fixture.state())
+                        .err(),
+                    Some(Rejection::MalformedOutput),
+                    "{field}"
+                );
+            }
+            let mut altered = batch.clone();
+            altered["diagnostics"][0]
+                .as_object_mut()
+                .unwrap()
+                .remove(field);
+            assert_eq!(
+                receiver
+                    .receive(&text_outcome(altered.to_string()), &fixture.state())
+                    .err(),
+                Some(Rejection::MalformedOutput)
+            );
+        }
+    }
+
+    #[test]
+    fn refusal_expectations_distinguish_utf16_codes_with_the_same_display() {
+        let mut fixture = Fixture::new();
+        fixture.facts.clear();
+        fixture.rebind_graph();
+        fixture.freshness.seal = None;
+        let mut first = "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:subject-a:"
+            .encode_utf16()
+            .collect::<Vec<_>>();
+        first.push(0xd800);
+        let mut second = first.clone();
+        *second.last_mut().unwrap() = 0xd801;
+        assert_eq!(
+            String::from_utf16_lossy(&first),
+            String::from_utf16_lossy(&second)
+        );
+        let mut expected = fixture.expected();
+        expected.terminal = ExpectedTerminal::ControlledRefusal {
+            exit_code: 0,
+            reason_codes: BTreeSet::from([
+                ReasonCode::from(first.clone()),
+                ReasonCode::from(second.clone()),
+            ]),
+        };
+        let receiver = Receiver::new(expected).unwrap();
+        let mut batch = fixture.batch();
+        batch.terminal = Terminal::Refused;
+        batch.subjects[0].outcome = Some(AnalysisOutcome::Unsupported);
+        batch.subjects[0].coverage.clear();
+        let mut batch = serde_json::to_value(batch).unwrap();
+        batch["diagnostics"] = serde_json::json!([first.clone(),second.clone()].into_iter().map(|units| {
+            let display = String::from_utf16_lossy(&units);
+            serde_json::json!({"subject_id":"subject-a", "code":display, "message":display, "code_utf16":units, "message_utf16":units})
+        }).collect::<Vec<_>>());
+        assert_eq!(
+            receiver
+                .receive(&text_outcome(batch.to_string()), &fixture.state())
+                .unwrap()
+                .disposition(),
+            EvidenceDisposition::ControlledRefusal
+        );
+        let mut altered = batch.clone();
+        *second.last_mut().unwrap() = 0xd802;
+        altered["diagnostics"][1]["code_utf16"] = serde_json::json!(second);
+        altered["diagnostics"][1]["message_utf16"] = serde_json::json!(second);
+        assert_eq!(
+            receiver
+                .receive(&text_outcome(altered.to_string()), &fixture.state())
+                .err(),
+            Some(Rejection::RefusalMismatch)
+        );
+        let mut duplicate = batch;
+        duplicate["diagnostics"][1] = duplicate["diagnostics"][0].clone();
+        assert_eq!(
+            receiver
+                .receive(&text_outcome(duplicate.to_string()), &fixture.state())
+                .err(),
+            Some(Rejection::DuplicateIdentity)
+        );
+    }
+
     #[test]
     fn complete_closed_edge_endpoints_and_reordered_subject_reports_are_accepted() {
         let mut f = Fixture::new();
@@ -1806,6 +1930,8 @@ mod tests {
                 subject_id: "subject-a".into(),
                 code: "UNSUPPORTED_SOURCE".into(),
                 message: "unsupported source".into(),
+                code_utf16: None,
+                message_utf16: None,
             });
             let mut observed = outcome(&b);
             observed.kind = "nonzero".into();
@@ -1852,6 +1978,8 @@ mod tests {
             subject_id: "subject-b".into(),
             code: "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED".into(),
             message: "declared unsupported source".into(),
+            code_utf16: None,
+            message_utf16: None,
         });
         let state = f.state();
         let receipt = receiver.receive(&outcome(&batch), &state).unwrap();

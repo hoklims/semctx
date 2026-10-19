@@ -19,7 +19,9 @@ mod parallel_observations;
 mod partition_observations;
 mod qualified;
 mod repository_discovery;
+mod retained_aliases;
 mod retained_discovery_observations;
+mod retained_manifest;
 mod runtime_configuration;
 mod source_text;
 mod worker_observations;
@@ -1415,6 +1417,16 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     } else {
         vec![]
     };
+    let unresolved_imports = if retained && qualified {
+        component_observations::unresolved_import_reasons(
+            &extraction.imports,
+            &project_files,
+            &repository_root,
+            case_sensitive,
+        )?
+    } else {
+        BTreeMap::new()
+    };
     let mut subjects = vec![];
     for path in &roots {
         if [".d.ts", ".d.mts", ".d.cts"]
@@ -1467,19 +1479,15 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         } else {
             serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_QUALIFIED_INPUTS_NOT_ENABLED"]})
         };
-        let unresolved_relative_imports = if retained && qualified {
-            component_observations::unresolved_relative_import_reasons(
-                &extraction.imports,
-                &relative,
-            )
-        } else {
-            BTreeSet::new()
-        };
+        let unresolved_imports = unresolved_imports
+            .get(&relative)
+            .cloned()
+            .unwrap_or_default();
         if (qualified
             || [".js", ".jsx", ".mjs", ".cjs"]
                 .iter()
                 .any(|suffix| path.ends_with(suffix)))
-            && (!named_reasons.is_empty() || !unresolved_relative_imports.is_empty())
+            && (!named_reasons.is_empty() || !unresolved_imports.is_empty())
             && !subject["reasons"].as_array().is_some_and(|reasons| {
                 reasons
                     .iter()
@@ -1493,8 +1501,13 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
                 .filter_map(|value| value.as_str().map(str::to_string))
                 .collect::<BTreeSet<_>>();
             reasons.extend(named_reasons.iter().cloned());
-            reasons.extend(unresolved_relative_imports);
+            reasons.extend(
+                unresolved_imports
+                    .iter()
+                    .map(|units| String::from_utf16_lossy(units)),
+            );
             subject["reasons"] = serde_json::json!(reasons);
+            subject["unresolvedImportReasonsUtf16"] = serde_json::json!(unresolved_imports);
             if subject["outcome"] == "analyzed" {
                 subject["outcome"] = serde_json::json!("unsupported");
             }
@@ -1787,6 +1800,939 @@ mod tests {
             serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
             "refused"
         );
+    }
+
+    #[test]
+    fn retained_unresolved_undeclared_package_refuses_without_inventing_a_target() {
+        let sdk = component_sdk();
+        let request = dynamic_import_request(
+            "import { missing } from 'missing';export function check(){return missing();}\n",
+        );
+        let observed = analyze(request.clone(), sdk.clone()).unwrap();
+        let import = &observed["raw_extraction"]["imports"][0];
+        assert_eq!(import["moduleSpecifier"], "missing");
+        assert!(import.get("resolvedRelPath").is_none());
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "src/target.test.ts")
+            .unwrap();
+        assert!(
+            subject["reasons"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!(
+                    "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:missing"
+                ))
+        );
+        assert_eq!(subject["outcome"], "unsupported");
+        assert_eq!(
+            serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
+            "refused"
+        );
+    }
+
+    #[test]
+    fn retained_unresolved_imports_distinguish_external_packages_workspaces_and_aliases() {
+        let sdk = component_sdk();
+        for (specifier, manifest, extra, external) in [
+            (
+                "external",
+                r#"{"dependencies":{"external":"1"}}"#,
+                None,
+                true,
+            ),
+            (
+                "@scope/external/sub",
+                r#"{"devDependencies":{"@scope/external":"1"}}"#,
+                None,
+                true,
+            ),
+            (
+                "externalish",
+                r#"{"dependencies":{"external":"1"}}"#,
+                None,
+                false,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":1}}"#,
+                None,
+                false,
+            ),
+            (
+                "external",
+                "{/* retained JSONC */\"dependencies\":{\"external\":\"1\",},}",
+                None,
+                true,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"1"},"optionalDependencies":{"external":"workspace:*"}}"#,
+                None,
+                false,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"file:../external"}}"#,
+                None,
+                false,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"link:../external"}}"#,
+                None,
+                false,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"1"}}"#,
+                Some((
+                    "/repo/packages/internal/package.json",
+                    r#"{"name":"external"}"#,
+                )),
+                false,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"1"}}"#,
+                Some((
+                    "/repo/src/package.json",
+                    r#"{"dependencies":{"external":"workspace:*"}}"#,
+                )),
+                true,
+            ),
+            (
+                "external",
+                r#"{"dependencies":{"external":"1"}}"#,
+                Some((
+                    "/repo/tsconfig.json",
+                    r#"{"compilerOptions":{"paths":{"external":["./missing"]}}}"#,
+                )),
+                false,
+            ),
+            (
+                "external/sub",
+                r#"{"dependencies":{"external":"1"}}"#,
+                Some((
+                    "/repo/tsconfig.json",
+                    r#"{"compilerOptions":{"paths":{"external/*":["./missing/*"]}}}"#,
+                )),
+                false,
+            ),
+            (
+                "external/sub",
+                r#"{"dependencies":{"external":"1"}}"#,
+                Some((
+                    "/repo/config/tsconfig.extra.json",
+                    r#"{"compilerOptions":{"paths":{"external/*":["./missing/*"]}}}"#,
+                )),
+                false,
+            ),
+            ("node:fs", "{}", None, true),
+            ("fs/promises", "{}", None, true),
+            ("missing", "{broken", None, false),
+            ("/repo/missing", "{}", None, false),
+        ] {
+            let mut request = dynamic_import_request(&format!(
+                "export function check(){{return import('{specifier}');}}\n"
+            ));
+            request
+                .files
+                .insert("/repo/package.json".into(), manifest.into());
+            if let Some((path, text)) = extra {
+                request.files.insert(path.into(), text.into());
+            }
+            let observed = analyze(request, sdk.clone()).unwrap();
+            let import = &observed["raw_extraction"]["imports"][0];
+            assert_eq!(import["moduleSpecifier"], specifier);
+            assert!(
+                import.get("resolvedRelPath").is_none(),
+                "{specifier} {manifest}"
+            );
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            let reason = serde_json::json!(format!(
+                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+            ));
+            assert_eq!(
+                subject["reasons"].as_array().unwrap().contains(&reason),
+                !external,
+                "{specifier} {manifest} {extra:?}"
+            );
+            if !external {
+                assert_eq!(subject["outcome"], "unsupported");
+            }
+            assert_eq!(observed["global_admission_inferred"], false);
+        }
+    }
+
+    #[test]
+    fn unresolved_dependency_scope_refusal_requires_the_retained_qualified_profile() {
+        let sdk = component_sdk();
+        for retained in [true, false] {
+            let mut request =
+                dynamic_import_request("export function check(){return import('missing');}\n");
+            request.retained = retained;
+            request.qualified = false;
+            let observed = analyze(request, sdk.clone()).unwrap();
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            assert!(
+                !subject["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|reason| reason
+                        .as_str()
+                        .unwrap()
+                        .starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:"))
+            );
+        }
+    }
+
+    #[test]
+    fn retained_unresolved_aliases_preserve_bun_literals_and_escapes() {
+        let sdk = component_sdk();
+        for (alias, specifier, local) in [
+            (r"extern\al", "external", true),
+            ("foo(bar)", "external", false),
+            ("foo(bar)", "foo(bar)", true),
+            ("[broken", "external", false),
+            ("![broken", "external", true),
+            (r"extern\*al", "external", false),
+            (r"extern\*al", "extern*al", true),
+            (r"extern\{al", "extern{al", true),
+            ("!{external,other}", "external", false),
+        ] {
+            let mut request = dynamic_import_request(&format!(
+                "export function check(){{return import('{specifier}');}}\n"
+            ));
+            request.files.insert(
+                "/repo/package.json".into(),
+                serde_json::json!({
+                    "dependencies": {specifier: "1"}
+                })
+                .to_string(),
+            );
+            request.files.insert(
+                "/repo/tsconfig.json".into(),
+                serde_json::json!({
+                    "compilerOptions": {"paths": {alias: ["./missing"]}}
+                })
+                .to_string(),
+            );
+            let observed = analyze(request, sdk.clone()).unwrap();
+            assert!(
+                observed["raw_extraction"]["imports"][0]
+                    .get("resolvedRelPath")
+                    .is_none()
+            );
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            assert_eq!(
+                subject["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&serde_json::json!(format!(
+                        "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+                    ))),
+                local,
+                "{alias} {specifier}"
+            );
+        }
+    }
+
+    #[test]
+    fn retained_negated_globstar_alias_refuses_a_trailing_slash_import() {
+        let sdk = component_sdk();
+        let mut request =
+            dynamic_import_request("export function check(){return import('external/');}\n");
+        request.files.insert(
+            "/repo/package.json".into(),
+            r#"{"dependencies":{"external":"1"}}"#.into(),
+        );
+        request.files.insert(
+            "/repo/tsconfig.json".into(),
+            r#"{"compilerOptions":{"paths":{"!**/*":["./missing"]}}}"#.into(),
+        );
+        let observed = analyze(request.clone(), sdk.clone()).unwrap();
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "src/target.test.ts")
+            .unwrap();
+        assert!(
+            subject["reasons"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!(
+                    "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:external/"
+                ))
+        );
+        assert_eq!(subject["outcome"], "unsupported");
+        assert_eq!(
+            serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
+            "refused"
+        );
+    }
+
+    #[test]
+    fn retained_alias_braces_do_not_change_globstar_kind() {
+        let sdk = component_sdk();
+        for (alias, specifier, local) in [
+            ("!**{,a}", "external/sub", true),
+            ("**{,a}", "external/sub", false),
+            ("!{,a}**", "external/sub", true),
+            ("{,a}**", "external/sub", false),
+            ("!{external/,other/}**", "external/sub/deep", true),
+            ("{external/,other/}**", "external/sub/deep", false),
+        ] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    format!("export function check(){{return import('{specifier}');}}\n")
+                } else {
+                    format!("import '{specifier}';export function check(){{return 1;}}\n")
+                };
+                let mut request = dynamic_import_request(&text);
+                request.files.insert(
+                    "/repo/package.json".into(),
+                    r#"{"dependencies":{"external":"1"}}"#.into(),
+                );
+                request.files.insert(
+                    "/repo/tsconfig.json".into(),
+                    serde_json::json!({
+                        "compilerOptions":{"paths":{alias:["./missing"]}}
+                    })
+                    .to_string(),
+                );
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(format!(
+                            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+                        ))),
+                    local,
+                    "{alias} {specifier} dynamic={dynamic}"
+                );
+                if local {
+                    let batch =
+                        serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap())
+                            .unwrap();
+                    assert_eq!(batch["terminal"], "refused");
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|coverage| coverage["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_scope_preserves_enumerable_manifest_entries() {
+        let sdk = component_sdk();
+        for (manifest, specifier, local) in [
+            (
+                r#"{"dependencies":{"0":"1"},"compilerOptions":{"paths":"a"}}"#,
+                "0",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"0":"1"},"compilerOptions":{"paths":["./missing"]}}"#,
+                "0",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"1":"1"},"compilerOptions":{"paths":"😀"}}"#,
+                "1",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"0":"1"},"compilerOptions":{"paths":false}}"#,
+                "0",
+                false,
+            ),
+            (r#"{"dependencies":["1"]}"#, "0", false),
+            (r#"{"dependencies":"1"}"#, "0", false),
+            (r#"{"dependencies":"😀"}"#, "1", false),
+            (r#"{"dependencies":"\ufdd0"}"#, "1", true),
+            (r#"{"dependencies":"\ud800"}"#, "1", true),
+            (
+                r#"{"dependencies":["1"],"optionalDependencies":{"0":false}}"#,
+                "0",
+                true,
+            ),
+        ] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    format!("export function check(){{return import('{specifier}');}}\n")
+                } else {
+                    format!("import '{specifier}';export function check(){{return 1;}}\n")
+                };
+                let mut request = dynamic_import_request(&text);
+                request
+                    .files
+                    .insert("/repo/package.json".into(), manifest.into());
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(format!(
+                            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+                        ))),
+                    local,
+                    "{manifest} {specifier} dynamic={dynamic}"
+                );
+                let batch =
+                    serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+                assert_eq!(
+                    batch["terminal"],
+                    if local { "refused" } else { "complete" }
+                );
+                if local {
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|entry| entry["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_scope_preserves_parsed_manifest_prototypes() {
+        let sdk = component_sdk();
+        for (manifest, specifier, local) in [
+            (r#"{"dependencies":{"__proto__":"1"}}"#, "__proto__", true),
+            (
+                r#"{"dependencies":{"external":"1"},"__proto__":{"compilerOptions":{"paths":{"external":["./missing"]}}}}"#,
+                "external",
+                true,
+            ),
+            (
+                r#"{"__proto__":{"dependencies":{"external":"1"}}}"#,
+                "external",
+                false,
+            ),
+            (
+                r#"{"__proto__":{"name":"external"},"dependencies":{"external":"1"}}"#,
+                "external",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"__proto__":null,"__proto__":"1"},"compilerOptions":{"paths":{"__proto__":null,"__proto__":["./missing"]}}}"#,
+                "__proto__",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"external":"1"},"compilerOptions":{"__proto__":{"paths":{"external":["./missing"]}}}}"#,
+                "external",
+                true,
+            ),
+            (
+                r#"{"dependencies":{"external":"1"},"compilerOptions":{"paths":{"__proto__":{"external":["./missing"]}}}}"#,
+                "external",
+                false,
+            ),
+            (
+                r#"{"dependencies":{"__proto__":null,"__proto__":"1"}}"#,
+                "__proto__",
+                false,
+            ),
+            (
+                r#"{"dependencies":{"__proto__":{},"__proto__":"1"}}"#,
+                "__proto__",
+                true,
+            ),
+            (
+                r#"{"__proto__":{"compilerOptions":{"paths":{"external":["./missing"]}}},"__proto__":"ignored","dependencies":{"external":"1"}}"#,
+                "external",
+                true,
+            ),
+            (
+                r#"{"__proto__":{"compilerOptions":{"paths":{"external":["./missing"]}}},"__proto__":null,"dependencies":{"external":"1"}}"#,
+                "external",
+                false,
+            ),
+            ("{'dependencies':{'external':'1'}}", "external", true),
+        ] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    format!("export function check(){{return import('{specifier}');}}\n")
+                } else {
+                    format!("import '{specifier}';export function check(){{return 1;}}\n")
+                };
+                let mut request = dynamic_import_request(&text);
+                request
+                    .files
+                    .insert("/repo/package.json".into(), manifest.into());
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(format!(
+                            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+                        ))),
+                    local,
+                    "{manifest} {specifier} dynamic={dynamic}"
+                );
+                let batch =
+                    serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+                assert_eq!(
+                    batch["terminal"],
+                    if local { "refused" } else { "complete" }
+                );
+                if local {
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|entry| entry["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_aliases_use_javascript_characters_instead_of_port_string_markers() {
+        let sdk = component_sdk();
+        for (literal, alias, local) in [
+            (r"\ufdd0", "?", true),
+            (r"\ufdd0", "??", false),
+            (r"\ufdd0", "!?", false),
+            (r"\ud800", "?", true),
+            (r"\ud800", "??", false),
+            (r"\ud800", r"[\ufffd]", true),
+            (r"\ud800", r"[!\ufffd]", false),
+            (r"\ud800\ud800", "??", true),
+            (r"\ud800\ud800", "?", false),
+            (r"\ud800\ud800", r"\ufffd\ufffd", true),
+            (r"\ud800\udc00", "?", true),
+            (r"\ud800\udc00", r"[\ufffd]", false),
+            (r"\udc00\ud800", "??", true),
+        ] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    format!("export function check(){{return import('{literal}');}}\n")
+                } else {
+                    format!("import '{literal}';export function check(){{return 1;}}\n")
+                };
+                let mut request = dynamic_import_request(&text);
+                request.files.insert("/repo/package.json".into(), format!(
+                    r#"{{"dependencies":{{"{literal}":"1"}},"compilerOptions":{{"paths":{{"{alias}":[]}}}}}}"#
+                ));
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|reason| reason
+                            .as_str()
+                            .unwrap()
+                            .starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:")),
+                    local,
+                    "{literal} {alias} dynamic={dynamic}"
+                );
+                let batch =
+                    serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+                assert_eq!(
+                    batch["terminal"],
+                    if local { "refused" } else { "complete" }
+                );
+                if local {
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|entry| entry["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_scope_keeps_package_suffix_metadata_from_consumed_configurations() {
+        let sdk = component_sdk();
+        for (filename, package, configuration, local) in [
+            (
+                "tsconfigpackage.json",
+                r#"{"dependencies":{"external":"1"}}"#,
+                r#"{"name":"external"}"#,
+                true,
+            ),
+            (
+                "tsconfig.package.json",
+                r#"{"dependencies":{"external":"1"}}"#,
+                "{}",
+                true,
+            ),
+            (
+                "tsconfigpackage.json",
+                "{}",
+                r#"{"dependencies":{"external":"1"}}"#,
+                false,
+            ),
+            (
+                "configpackage.json",
+                r#"{"dependencies":{"external":"1"}}"#,
+                r#"{"name":"external"}"#,
+                false,
+            ),
+        ] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    "export function check(){return import('external');}\n"
+                } else {
+                    "import 'external';export function check(){return 1;}\n"
+                };
+                let mut request = dynamic_import_request(text);
+                request
+                    .files
+                    .insert("/repo/package.json".into(), package.into());
+                request
+                    .files
+                    .insert(format!("/repo/{filename}"), configuration.into());
+                request.files.insert(
+                    "/repo/tsconfig.json".into(),
+                    serde_json::json!({"extends":format!("./{filename}")}).to_string(),
+                );
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(
+                            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:external"
+                        )),
+                    local,
+                    "{filename} {configuration} dynamic={dynamic}"
+                );
+                let batch =
+                    serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+                assert_eq!(
+                    batch["terminal"],
+                    if local { "refused" } else { "complete" }
+                );
+                if local {
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|entry| entry["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_scope_applies_same_directory_metadata_in_javascript_capture_order() {
+        let sdk = component_sdk();
+        for external in [false, true] {
+            for dynamic in [true, false] {
+                let text = if dynamic {
+                    "export function check(){return import('external');}\n"
+                } else {
+                    "import 'external';export function check(){return 1;}\n"
+                };
+                let mut request = dynamic_import_request(text);
+                request
+                    .files
+                    .insert("/repo/package.json".into(), "{}".into());
+                let declaration = r#"{"dependencies":{"external":"1"}}"#;
+                request.files.insert(
+                    "/repo/tsconfig😀package.json".into(),
+                    if external { "{}" } else { declaration }.into(),
+                );
+                request.files.insert(
+                    "/repo/tsconfig\u{e000}package.json".into(),
+                    if external { declaration } else { "{}" }.into(),
+                );
+                request.files.insert("/repo/tsconfig.json".into(), serde_json::json!({"extends":["./tsconfig😀package.json", "./tsconfig\u{e000}package.json"]}).to_string());
+                let observed = analyze(request.clone(), sdk.clone()).unwrap();
+                let subject = observed["subjects"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                assert_eq!(
+                    subject["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(
+                            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:external"
+                        )),
+                    !external,
+                    "external={external} dynamic={dynamic}"
+                );
+                let batch =
+                    serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+                assert_eq!(
+                    batch["terminal"],
+                    if external { "complete" } else { "refused" }
+                );
+                if !external {
+                    let subject = batch["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|subject| subject["subject_id"] == "src/target.test.ts")
+                        .unwrap();
+                    assert!(
+                        subject["coverage"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|entry| entry["negative_evidence_eligible"] == false)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn retained_unresolved_diagnostics_keep_exact_utf16_at_the_batch_boundary() {
+        let sdk = component_sdk();
+        for (literal, units) in [
+            (r"\ufdd0", vec![0xfdd0]),
+            (r"\ud800", vec![0xd800]),
+            (r"\ud800\ud800", vec![0xd800, 0xd800]),
+            (r"\udc00\ud800", vec![0xdc00, 0xd800]),
+            (r"\ud800\udc00", vec![0xd800, 0xdc00]),
+        ] {
+            let request = dynamic_import_request(&format!(
+                "export function check(){{return import('{literal}');}}\n"
+            ));
+            let mut expected = "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:"
+                .encode_utf16()
+                .collect::<Vec<_>>();
+            expected.extend(units);
+            let observed = analyze(request.clone(), sdk.clone()).unwrap();
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            assert_eq!(
+                subject["reasons"],
+                serde_json::json!([String::from_utf16_lossy(&expected)])
+            );
+            assert_eq!(
+                subject["unresolvedImportReasonsUtf16"],
+                serde_json::json!([expected.clone()])
+            );
+            let batch =
+                serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+            assert_eq!(batch["terminal"], "refused");
+            let diagnostics = batch["diagnostics"].as_array().unwrap();
+            let diagnostic = diagnostics
+                .iter()
+                .find(|diagnostic| {
+                    diagnostic["code"]
+                        .as_str()
+                        .is_some_and(|code| code.starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:"))
+                })
+                .unwrap();
+            assert_eq!(diagnostic["code_utf16"], serde_json::json!(expected));
+            assert_eq!(diagnostic["message_utf16"], serde_json::json!(expected));
+            assert_eq!(diagnostic["code"], String::from_utf16_lossy(&expected));
+            for malformed in [
+                serde_json::Value::Null,
+                serde_json::json!([[65536]]),
+                serde_json::json!([[]]),
+                serde_json::json!([expected.clone(), expected.clone()]),
+            ] {
+                let mut altered = observed.clone();
+                let subject = altered["subjects"]
+                    .as_array_mut()
+                    .unwrap()
+                    .iter_mut()
+                    .find(|subject| subject["path"] == "src/target.test.ts")
+                    .unwrap();
+                subject["unresolvedImportReasonsUtf16"] = malformed;
+                assert!(batch::build(&request, &sdk, &altered).is_err());
+            }
+        }
+        let request = dynamic_import_request(
+            "export function check(){return Promise.all([import('\\ud800'),import('\\ud801')]);}\n",
+        );
+        let observed = analyze(request.clone(), sdk.clone()).unwrap();
+        let batch = serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap();
+        let diagnostics = batch["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|d| {
+                d["code"]
+                    .as_str()
+                    .is_some_and(|c| c.starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:"))
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(diagnostics.len(), 2);
+        assert_eq!(diagnostics[0]["code"], diagnostics[1]["code"]);
+        assert_ne!(diagnostics[0]["code_utf16"], diagnostics[1]["code_utf16"]);
+    }
+
+    #[test]
+    fn retained_alias_inspection_keeps_valid_large_configuration_contexts() {
+        let sdk = component_sdk();
+        for aliases in [
+            (0..1025)
+                .map(|index| {
+                    (
+                        format!("unrelated-{index}"),
+                        serde_json::json!(["./missing"]),
+                    )
+                })
+                .collect::<serde_json::Map<_, _>>(),
+            serde_json::Map::from_iter([("a".repeat(4097), serde_json::json!(["./missing"]))]),
+        ] {
+            let mut request =
+                dynamic_import_request("export function check(){return import('external');}\n");
+            request.files.insert(
+                "/repo/package.json".into(),
+                r#"{"dependencies":{"external":"1"}}"#.into(),
+            );
+            request.files.insert(
+                "/repo/tsconfig.json".into(),
+                serde_json::json!({
+                    "compilerOptions":{"paths":aliases}
+                })
+                .to_string(),
+            );
+            let observed = analyze(request.clone(), sdk.clone()).unwrap();
+            assert_eq!(
+                serde_json::to_value(batch::build(&request, &sdk, &observed).unwrap()).unwrap()["terminal"],
+                "complete"
+            );
+        }
+    }
+
+    #[test]
+    fn retained_unresolved_builtins_keep_the_qualified_prefix_distinctions() {
+        let sdk = component_sdk();
+        for (specifier, external) in [
+            ("sqlite", false),
+            ("node:test", true),
+            ("node:node:sqlite", true),
+        ] {
+            let request = dynamic_import_request(&format!(
+                "export function check(){{return import('{specifier}');}}\n"
+            ));
+            let observed = analyze(request, sdk.clone()).unwrap();
+            let import = &observed["raw_extraction"]["imports"][0];
+            assert_eq!(import["moduleSpecifier"], specifier);
+            assert!(import.get("resolvedRelPath").is_none());
+            let subject = observed["subjects"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|subject| subject["path"] == "src/target.test.ts")
+                .unwrap();
+            assert_eq!(
+                subject["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&serde_json::json!(format!(
+                        "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:{specifier}"
+                    ))),
+                !external,
+                "{specifier}"
+            );
+        }
     }
 
     #[test]
