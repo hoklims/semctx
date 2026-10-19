@@ -1,0 +1,145 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "milestone": "T02",
+  "recordedDateUtc": "2026-10-19",
+  "status": "OBSERVED_TYPESCRIPT_OUTPUTS_NOT_INDEPENDENT_EXPECTATIONS",
+  "productBase": "948817473317411b617f238a9e22f46eca5933af",
+  "runtime": "Bun 1.4.3, Windows 11 x64",
+  "probe": {
+    "description": "a TypeScript script outside the checkout that imports the functions below from the product sources at productBase and prints their outputs; its outputs are recorded verbatim",
+    "scriptSha256": "a059fdf46d8eaf7d7918961059980762f5a327b4858e1952e360be7015b1f73a",
+    "outputSha256": "fb53f3cefd4706e1266b67b9c1e1ad6e9dccde104ed9205da4487dc6c75bad24"
+  },
+  "functions": {
+    "coreCanonicalJson": "packages/core/src/canonical.ts canonicalJson",
+    "planeACanonicalJson": "packages/plane-a-internal/src/canonical.ts canonicalJson",
+    "serializeControlReport": "packages/control-model/src/canonical.ts serializeControlReport",
+    "changeAuthorizationJcsV1": "packages/control-model/src/change-authorization-canonical.ts serializeChangeAuthorizationJcsV1",
+    "ids": "packages/core/src/ids.ts fnv1a, edgeId, claimId"
+  },
+  "notes": [
+    "inputs are JavaScript source literals; unsafe 9007199254740993 is already rounded to 9007199254740992 when the literal is parsed, so it witnesses parsing, not serialization",
+    "THROWS records the error message of a rejected input",
+    "edgeId_separator_ambiguity_left and edgeId_separator_ambiguity_right are equal: finding 4 of README.md"
+  ],
+  "canonical": [
+    {
+      "name": "integerLikeKeys",
+      "input": "{ \"10\": \"ten\", \"2\": \"two\", a: \"a\" }",
+      "outputs": {
+        "coreCanonicalJson": "{\"2\":\"two\",\"10\":\"ten\",\"a\":\"a\"}",
+        "planeACanonicalJson": "{\"2\":\"two\",\"10\":\"ten\",\"a\":\"a\"}",
+        "serializeControlReport": "{\"2\":\"two\",\"10\":\"ten\",\"a\":\"a\"}",
+        "changeAuthorizationJcsV1": "{\"10\":\"ten\",\"2\":\"two\",\"a\":\"a\"}"
+      }
+    },
+    {
+      "name": "bmpVersusAstralKeys",
+      "input": "{ \"\\u{e000}\": 1, \"\\u{10000}\": 2, a: 3 }",
+      "outputs": {
+        "coreCanonicalJson": "{\"a\":3,\"\ud800\udc00\":2,\"\ue000\":1}",
+        "planeACanonicalJson": "{\"a\":3,\"\ud800\udc00\":2,\"\ue000\":1}",
+        "serializeControlReport": "{\"a\":3,\"\ud800\udc00\":2,\"\ue000\":1}",
+        "changeAuthorizationJcsV1": "{\"a\":3,\"\ud800\udc00\":2,\"\ue000\":1}"
+      }
+    },
+    {
+      "name": "negativeZero",
+      "input": "{ value: -0 }",
+      "outputs": {
+        "coreCanonicalJson": "{\"value\":0}",
+        "planeACanonicalJson": "{\"value\":0}",
+        "serializeControlReport": "{\"value\":0}",
+        "changeAuthorizationJcsV1": "{\"value\":0}"
+      }
+    },
+    {
+      "name": "largeAndSmallNumbers",
+      "input": "{ big: 1e21, small: 1e-7, unsafe: 9007199254740993, decimal: 0.1 }",
+      "outputs": {
+        "coreCanonicalJson": "{\"big\":1e+21,\"decimal\":0.1,\"small\":1e-7,\"unsafe\":9007199254740992}",
+        "planeACanonicalJson": "{\"big\":1e+21,\"decimal\":0.1,\"small\":1e-7,\"unsafe\":9007199254740992}",
+        "serializeControlReport": "{\"big\":1e+21,\"decimal\":0.1,\"small\":1e-7,\"unsafe\":9007199254740992}",
+        "changeAuthorizationJcsV1": "{\"big\":1e+21,\"decimal\":0.1,\"small\":1e-7,\"unsafe\":9007199254740992}"
+      }
+    },
+    {
+      "name": "nullMember",
+      "input": "{ present: null }",
+      "outputs": {
+        "coreCanonicalJson": "{\"present\":null}",
+        "planeACanonicalJson": "{\"present\":null}",
+        "serializeControlReport": "{\"present\":null}",
+        "changeAuthorizationJcsV1": "{\"present\":null}"
+      }
+    },
+    {
+      "name": "undefinedMember",
+      "input": "{ absent: undefined, kept: 1 }",
+      "outputs": {
+        "coreCanonicalJson": "{\"kept\":1}",
+        "planeACanonicalJson": "{\"kept\":1}",
+        "serializeControlReport": "{\"kept\":1}",
+        "changeAuthorizationJcsV1": "THROWS: JCS cannot encode undefined"
+      }
+    },
+    {
+      "name": "loneSurrogate",
+      "input": "{ value: \"\\ud800\" }",
+      "outputs": {
+        "coreCanonicalJson": "{\"value\":\"\\ud800\"}",
+        "planeACanonicalJson": "{\"value\":\"\\ud800\"}",
+        "serializeControlReport": "{\"value\":\"\\ud800\"}",
+        "changeAuthorizationJcsV1": "THROWS: JCS cannot encode a string with an unpaired UTF-16 surrogate"
+      }
+    }
+  ],
+  "ids": [
+    {
+      "name": "fnv1a_empty",
+      "call": "fnv1a(\"\")",
+      "output": "811c9dc5"
+    },
+    {
+      "name": "fnv1a_a",
+      "call": "fnv1a(\"a\")",
+      "output": "e40c292c"
+    },
+    {
+      "name": "fnv1a_cafe_nfc",
+      "call": "fnv1a(\"caf\\u00e9\")",
+      "output": "3308be7c"
+    },
+    {
+      "name": "fnv1a_cafe_nfd",
+      "call": "fnv1a(\"cafe\\u0301\")",
+      "output": "6d0969eb"
+    },
+    {
+      "name": "fnv1a_astral",
+      "call": "fnv1a(\"\\u{1F40D}\")",
+      "output": "c82e99ff"
+    },
+    {
+      "name": "edgeId_imports",
+      "call": "edgeId(\"imports\", \"mod:src/a.ts\", \"mod:src/b.ts\")",
+      "output": "edge:imports:5475c5d5"
+    },
+    {
+      "name": "edgeId_separator_ambiguity_left",
+      "call": "edgeId(\"calls\", \"a->b\", \"c\")",
+      "output": "edge:calls:ec262871"
+    },
+    {
+      "name": "edgeId_separator_ambiguity_right",
+      "call": "edgeId(\"calls\", \"a\", \"b->c\")",
+      "output": "edge:calls:ec262871"
+    },
+    {
+      "name": "claimId_non_ascii",
+      "call": "claimId(\"fact\", \"\\u00e9t\\u00e9\", [\"sym:function:src/a.ts:run\"])",
+      "output": "claim:fact:ete-7b97a052"
+    }
+  ]
+}
