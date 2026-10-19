@@ -1,6 +1,7 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
 mod ambiguous_exports_replay;
+mod identity_support_replay;
 mod legacy_identity_replay;
 mod parallel_replay;
 mod qualified_flow_replay;
@@ -2637,6 +2638,36 @@ fn support_projection(support: &Value) -> Value {
         }
     }
 }
+fn run_support_recipe(
+    recipe: &Value,
+    dir: &Path,
+    fixture: &Value,
+    recipes: &Value,
+) -> Result<Value, String> {
+    if recipe["surface"] == "identity_support_cli" {
+        return identity_support_replay::run(recipe, dir, fixture, recipes);
+    }
+    let artifact = Path::new(value_text(fixture, "artifact_path")?);
+    let helper = Path::new(value_text(fixture, "helper_path")?);
+    let artifact_sha = value_text(fixture, "artifact_sha256")?;
+    let helper_sha = value_text(fixture, "helper_sha256")?;
+    if recipe["surface"] == "raw_cli" {
+        let sdk_path = Path::new(value_text(fixture, "sdk_path")?);
+        let sdk = read_json(sdk_path)?;
+        run_raw_recipe(
+            recipe,
+            dir,
+            artifact,
+            helper,
+            (sdk_path, &sdk),
+            artifact_sha,
+            helper_sha,
+        )
+    } else {
+        run_primitive_recipe(recipe, dir, artifact, helper, artifact_sha, helper_sha)
+    }
+}
+
 fn replay() -> Result<Value, String> {
     if std::env::var("SEMCTX_QUALIFICATION_RUN_SIGNAL").as_deref()
         != Ok("stage5-optimized-frozen-stage6-authorized")
@@ -2999,26 +3030,12 @@ fn replay() -> Result<Value, String> {
                 .and_then(Value::as_array)
                 .and_then(|rs| rs.iter().find(|r| r["support_id"] == support["support_id"]));
             if let Some(recipe) = recipe {
-                let mut result = if recipe["surface"] == "raw_cli" {
-                    run_raw_recipe(
-                        recipe,
-                        &out.join(format!("support-{index:03}")),
-                        &artifact,
-                        &helper,
-                        (&sdk_path, &sdk),
-                        &artifact_sha,
-                        &helper_sha,
-                    )?
-                } else {
-                    run_primitive_recipe(
-                        recipe,
-                        &out.join(format!("support-{index:03}")),
-                        &artifact,
-                        &helper,
-                        &artifact_sha,
-                        &helper_sha,
-                    )?
-                };
+                let mut result = run_support_recipe(
+                    recipe,
+                    &out.join(format!("support-{index:03}")),
+                    &freeze,
+                    &recipes,
+                )?;
                 result["support_id"] = support["support_id"].clone();
                 Ok(result)
             } else {
@@ -6080,4 +6097,45 @@ fn comparator_retained_scope_syntax_requires_execution_and_complete_observation(
         .unwrap()
         .remove("operation_binding");
     assert!(validate_component_checks(&unbound).is_err());
+}
+
+#[test]
+fn gap_identity_supports_use_native_consumers_and_complete_baseline() {
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("support recipes"),
+    ))
+    .unwrap();
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("support fixture"),
+    ))
+    .unwrap();
+    verify_sources(
+        Path::new(value_text(&fixture, "cases_path").unwrap()),
+        &recipes,
+    )
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh support evidence"));
+    assert!(!out.exists());
+    fs::create_dir_all(&out).unwrap();
+    let mut results = vec![];
+    for id in [
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen",
+    ] {
+        let recipe = recipes["support_recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["support_id"] == id)
+            .expect("frozen identity support still unmapped");
+        let dir = out.join(id.replace("::", "-"));
+        let result = run_support_recipe(recipe, &dir, &fixture, &recipes).unwrap();
+        assert_eq!(result["pass"], true, "{id}: {result}");
+        results.push(json!({"support_id":id,"result":result}));
+    }
+    save(&out.join("support-results.json"), &json!(results)).unwrap();
 }
