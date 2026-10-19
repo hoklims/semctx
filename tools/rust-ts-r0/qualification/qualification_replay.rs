@@ -6,6 +6,7 @@ mod parallel_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
 mod repository_replay;
+mod retained_runtime_replay;
 mod source_confinement_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
@@ -2782,6 +2783,16 @@ fn replay() -> Result<Value, String> {
             results.push(result);
             continue;
         }
+        if recipe["surface"] == "retained_runtime_cli" {
+            let mut result = retained_runtime_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "retained_discovery_cli" {
             let mut result = run_retained_discovery_recipe(
                 recipe,
@@ -4231,6 +4242,7 @@ fn repair_units(ids: &[&str]) {
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
             "workspace_system_cli" => workspace_system_replay::run(recipe, &dir, &fixture),
+            "retained_runtime_cli" => retained_runtime_replay::run(recipe, &dir, &fixture),
             "repository_eligibility_cli" => repository_replay::run_eligibility(
                 recipe,
                 &dir,
@@ -5550,6 +5562,14 @@ fn gap_retained_discovery_binds_capture_and_metadata() {
     repair_units(&[
         "N01-snapshot-metadata-mismatch::base",
         "P01-retained-source::analyze-snapshot-consistent",
+    ]);
+}
+
+#[test]
+fn gap_retained_runtime_propagates_snapshot_rejection_and_keeps_captured_analysis() {
+    repair_units(&[
+        "P01-retained-source::plane-a-runtime-consistent",
+        "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch",
     ]);
 }
 

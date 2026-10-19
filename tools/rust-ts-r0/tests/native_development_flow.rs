@@ -1156,12 +1156,21 @@ fn run_native_fixture(target_index: usize) {
 
 #[test]
 fn retained_discovery_checks_captured_text_before_native_analysis() {
+    retained_native_boundary("--analyze-retained-discovery");
+}
+
+#[test]
+fn retained_runtime_propagates_snapshot_failure_without_an_analysis_result() {
+    retained_native_boundary("--analyze-retained-runtime");
+}
+
+fn retained_native_boundary(mode: &str) {
     let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let base = std::env::var_os("SEMCTX_NATIVE_EVIDENCE")
         .map(PathBuf::from)
         .unwrap_or_else(|| crate_root.join("development-evidence/native-verifier"));
     let evidence = base.join(format!(
-        "retained-discovery-{}-{}",
+        "retained-boundary-{mode}-{}-{}",
         std::process::id(),
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -1198,11 +1207,26 @@ fn retained_discovery_checks_captured_text_before_native_analysis() {
         write_json(&request_path, &descriptor);
         let argv = vec![
             producer.to_string_lossy().into_owned(),
-            "--analyze-retained-discovery".into(),
+            mode.into(),
             request_path.to_string_lossy().into_owned(),
             sdk_path.to_string_lossy().into_owned(),
         ];
         let outcome = supervise(&argv, &root, &helper, 20_000, 8_388_608, &evidence, label);
+        if mode == "--analyze-retained-runtime" && !success {
+            assert_eq!(outcome.kind, "nonzero", "{outcome:?}");
+            assert_eq!(outcome.exit_code, Some(1));
+            assert_eq!(outcome.stdout, "");
+            let rejected: Value = serde_json::from_str(&outcome.stderr).unwrap();
+            assert_eq!(
+                rejected,
+                json!({"error":"SOURCE_SNAPSHOT_MISMATCH: factory.ts"})
+            );
+            assert_eq!(
+                fs::read_to_string(root.join("factory.ts")).unwrap(),
+                transient
+            );
+            continue;
+        }
         assert_eq!(outcome.kind, "success", "{outcome:?}");
         assert_eq!(outcome.exit_code, Some(0));
         let observed: Value = serde_json::from_str(&outcome.stdout).unwrap();
