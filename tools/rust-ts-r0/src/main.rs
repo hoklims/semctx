@@ -13,6 +13,7 @@ mod configured_resolver;
 mod development;
 mod input_identity;
 mod javascript;
+mod native_program;
 mod ordinary;
 mod outline;
 mod parallel_observations;
@@ -531,7 +532,7 @@ fn native_frontend_with_options(
     } else {
         (None, None)
     };
-    let host = compiler::new_compiler_host(cwd, fs, sdk, None, None, None);
+    let host = compiler::new_compiler_host(cwd, fs.clone(), sdk, None, None, None);
     let options = compiler::ProgramOptions {
         host,
         config,
@@ -544,7 +545,7 @@ fn native_frontend_with_options(
     };
     let _empty = core::enter_program(None);
     NativeFrontend {
-        program: Rc::new(compiler::new_program(options)),
+        program: native_program::frontend(options, &fs),
         resolution,
     }
 }
@@ -765,8 +766,7 @@ fn inspect_subject(
         .then(|| ordinary_javascript_frontend(fs.clone(), root, sdk, path))
         .transpose()?;
     let module_frontend = link_frontend.as_ref().unwrap_or(&frontend);
-    let loaded = program::new_program_version(&frontend.program, None);
-    let _semantic = core::enter_program(Some(loaded));
+    let _semantic = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let file = program::get_source_file(path);
     if file.is_nil() {
@@ -1241,8 +1241,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         program_roots.clone(),
         static_module_links,
     );
-    let loaded = program::new_program_version(&frontend.program, None);
-    let _current = core::enter_program(Some(loaded));
+    let _current = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let partition_observation = if !retained && !qualified {
         partition_observations::observe(&frontend.program, &fs, &repository_root, &program_roots)
@@ -3199,8 +3198,7 @@ mod tests {
             false,
             options,
         );
-        let loaded = program::new_program_version(&frontend.program, None);
-        let _current = core::enter_program(Some(loaded));
+        let _current = native_program::NativeProgram::enter(&frontend.program);
         program::bind_all();
         for (roots, expected) in [
             (

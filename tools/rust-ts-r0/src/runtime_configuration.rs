@@ -244,20 +244,22 @@ fn observe_emission(
     let host = compiler::new_compiler_host("/", fs.clone(), "/runtime-sdk", None, None, None);
     let frontend = {
         let _empty = core::enter_program(None);
-        Rc::new(compiler::new_program(compiler::ProgramOptions {
-            host,
-            config,
-            use_source_of_project_reference: false,
-            single_threaded: Tristate::True,
-            typings_location: String::new(),
-            project_name: String::new(),
-            create_module_resolver: None,
-            skip_module_resolution: true,
-        }))
+        crate::native_program::frontend(
+            compiler::ProgramOptions {
+                host,
+                config,
+                use_source_of_project_reference: false,
+                single_threaded: Tristate::True,
+                typings_location: String::new(),
+                project_name: String::new(),
+                create_module_resolver: None,
+                skip_module_resolution: true,
+            },
+            &fs,
+        )
     };
-    let loaded = program::new_program_version(&frontend, None);
     let result = {
-        let _current = core::enter_program(Some(loaded));
+        let _current = crate::native_program::NativeProgram::enter(&frontend);
         let source = program::get_source_file(&file_name);
         if source.is_nil() {
             Err("RUNTIME_CONFIGURATION_EMIT_SOURCE_UNAVAILABLE".into())
@@ -271,7 +273,6 @@ fn observe_emission(
                 .unwrap_or_else(|| Err("RUNTIME_CONFIGURATION_EMIT_RESULT_UNAVAILABLE".into()))
         }
     };
-    program::release_program(loaded);
     let fs_probes=fs.log.borrow().iter().map(|probe|serde_json::json!({"operation":probe.operation,"path":probe.path,"found":probe.found})).collect();
     EmitAttempt {
         observation: result,

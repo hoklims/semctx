@@ -174,8 +174,7 @@ fn extract(
         roots.clone(),
         javascript_enabled,
     );
-    let loaded = program::new_program_version(&frontend.program, None);
-    let _current = core::enter_program(Some(loaded));
+    let _current = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let mut extraction = ordinary::Extraction::default();
     let mut extracted_roots = BTreeSet::new();

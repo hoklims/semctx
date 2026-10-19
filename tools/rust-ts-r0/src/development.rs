@@ -57,22 +57,24 @@ fn with_options<T>(
             current_directory: "/repo".into(),
         },
     ));
-    let host = compiler::new_compiler_host("/repo", fs, "/sdk/lib", None, None, None);
+    let host = compiler::new_compiler_host("/repo", fs.clone(), "/sdk/lib", None, None, None);
     let frontend = {
         let _empty = core::enter_program(None);
-        Rc::new(compiler::new_program(compiler::ProgramOptions {
-            host,
-            config,
-            use_source_of_project_reference: false,
-            single_threaded: Tristate::True,
-            typings_location: String::new(),
-            project_name: String::new(),
-            create_module_resolver: None,
-            skip_module_resolution: false,
-        }))
+        native_program::frontend(
+            compiler::ProgramOptions {
+                host,
+                config,
+                use_source_of_project_reference: false,
+                single_threaded: Tristate::True,
+                typings_location: String::new(),
+                project_name: String::new(),
+                create_module_resolver: None,
+                skip_module_resolution: false,
+            },
+            &fs,
+        )
     };
-    let loaded = program::new_program_version(&frontend, None);
-    let _current = core::enter_program(Some(loaded));
+    let _current = native_program::NativeProgram::enter(&frontend);
     program::bind_all();
     run()
 }
