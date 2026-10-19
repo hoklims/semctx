@@ -35,16 +35,8 @@ enum Mode {
     Off,
 }
 
-const IGNORED: &[&str] = &[
-    "node_modules",
-    ".git",
-    ".semctx",
-    "dist",
-    "build",
-    "coverage",
-    ".turbo",
-    ".next",
-];
+pub(super) const HARD_IGNORED: &[&str] = &["node_modules", ".git", ".semctx"];
+pub(super) const OUTPUT_DIRECTORIES: &[&str] = &["dist", "build", "coverage", ".turbo", ".next"];
 fn path_text(path: &Path) -> Result<String, String> {
     path.to_str()
         .map(|s| s.replace('\\', "/"))
@@ -218,7 +210,11 @@ fn boundary(
     }
     Ok(None)
 }
-fn walk(root: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
+fn walk(
+    root: &Path,
+    ignored: impl Fn(&str) -> bool,
+    nested_worktree: impl Fn(&fs::Metadata) -> bool,
+) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
     let mut pending = vec![root.to_path_buf()];
     let mut files = vec![];
     let mut links = vec![];
@@ -231,7 +227,7 @@ fn walk(root: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
             let path = entry.path();
             let name = entry.file_name();
             let name = name.to_str().ok_or("DISCOVERY_PATH_NOT_UTF8")?;
-            if IGNORED.contains(&name) {
+            if ignored(name) {
                 continue;
             }
             seen += 1;
@@ -248,7 +244,8 @@ fn walk(root: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
             }
             if metadata.is_dir() {
                 match fs::symlink_metadata(path.join(".git")) {
-                    Ok(_) => continue,
+                    Ok(marker) if nested_worktree(&marker) => continue,
+                    Ok(_) => {}
                     Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
                     Err(e) => return Err(format!("DISCOVERY_GIT_MARKER_FAILED:{e}")),
                 }
@@ -266,6 +263,15 @@ fn walk(root: &Path) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
     });
     links.sort();
     Ok((files, links))
+}
+
+pub(super) fn qualified_metadata_paths(root: &Path) -> Result<Vec<PathBuf>, String> {
+    walk(
+        root,
+        |name| HARD_IGNORED.contains(&name),
+        |marker| marker.is_file() || marker.file_type().is_symlink(),
+    )
+    .map(|(files, _)| files)
 }
 fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
     let descriptor: Descriptor =
@@ -288,7 +294,11 @@ fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
     if !root.is_dir() {
         return Err("DISCOVERY_REPOSITORY_NOT_DIRECTORY".into());
     }
-    let (paths, links) = walk(&root)?;
+    let (paths, links) = walk(
+        &root,
+        |name| HARD_IGNORED.contains(&name) || OUTPUT_DIRECTORIES.contains(&name),
+        |_| true,
+    )?;
     let mut files = vec![];
     let mut candidates = vec![];
     let mut reads = vec![];

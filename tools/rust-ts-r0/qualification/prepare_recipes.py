@@ -1107,6 +1107,22 @@ for recipe in recipes:
     recipe['proof_scope'] = 'Actual native CLI exit1 with complete empty stdout and sole JSON IMPORT_OUTSIDE_REPOSITORY stderr; declared physical outside setup remains absent from the retained source map. Refusal and absence of returned analysis/outside facts only, tied to reviewed pre-Program guard and caller argv/input/artifact hashes. No negative claim about arbitrary OS reads, coherent capture, SDK consumption or global admission; no producer-side input acknowledgement on this error route. Separate P03 positive control exercises native usefulness.'
 
 for recipe in recipes:
+    if recipe['case_id'] != 'ORD-QUALIFIED-ELIGIBILITY':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if set(assertions) != {'eligible_results', 'git_command_failure_control'}:
+        raise ValueError('unmapped qualified eligibility assertion')
+    if inp['configuration_constructor'] != 'createGlobSelectionConfig(R), preserving all defaults; include only src/**/*.ts; baseline analysisProfile modelo-suite-static-v1':
+        raise ValueError('unmapped qualified eligibility configuration')
+    recipe.update({'surface':'repository_eligibility_cli', 'physical_files':copy.deepcopy(inp['files']), 'include':['src/**/*.ts'], 'exclude':['node_modules','dist','.semctx','.git','coverage'], 'eligibility_queries':inp['queries'], 'requests':[], 'checks':[], 'gaps':[], 'credited_properties':sorted(assertions), 'explicit_uncredited_properties':[]})
+    failure = assertions['git_command_failure_control']
+    for observation, established in enumerate([True, False]):
+        for target, expected in [('executed', True), ('unsupported', []), ('eligibility_established', established), ('eligible_results', assertions['eligible_results'] if established else None), ('error', None if established else {'code':failure['error_code'], 'message':failure['message']})]:
+            recipe['checks'].append(check([target], expected, 'eq', ptr('eligible_results' if established else 'git_command_failure_control'), observation=observation))
+    recipe['proof_scope'] = 'Actual Git ls-files cached/others with only repository .gitignore controls, causal metadata discovery and relative extends closure, six exact eligibility queries. Same frozen files also run outside a Git repository, retaining real nonzero capture and exact IO_ERROR. Include/exclude values preserve the fields consumed from the frozen constructor; this component does not claim the full application configuration, capture/verification/admission or all OS reads.'
+
+for recipe in recipes:
     if recipe['case_id'] != 'V3-E03-ambiguous-stars-arbitrated-refusal':
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']

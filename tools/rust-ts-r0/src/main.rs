@@ -18,6 +18,7 @@ mod outline;
 mod parallel_observations;
 mod partition_observations;
 mod qualified;
+mod qualified_path_eligibility;
 mod repository_discovery;
 mod retained_aliases;
 mod retained_discovery_observations;
@@ -1552,6 +1553,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             *mode,
             "--observe-primitives"
                 | "--discover-repository"
+                | "--observe-path-eligibility"
                 | "--extract-worker"
                 | "--extract-parallel"
                 | "--consume-worker"
@@ -1636,6 +1638,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                     .ok_or("controlled assembly SDK input missing")?,
             ),
             "--discover-repository" => repository_discovery::run(descriptor.clone()),
+            "--observe-path-eligibility" => qualified_path_eligibility::run(descriptor.clone()),
             "--observe-primitives" => {
                 semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
             }

@@ -3,11 +3,31 @@
 This directory records the bounded TS/JS feasibility experiment for
 [#365](https://github.com/hoklims/semctx/issues/365), section 2. That issue owns
 acceptance. The owner [reopened this same T00 on 2026-10-18](resumption/README.md),
-on the same branch and PR, for C1 only: two additional correction passes and
-approximately 3–4 days. C2 is abandoned for the resumption. The
+on the same branch and PR, for C1 only. The original two-pass reopening budget
+is historical: the [2026-10-19 continuation](resumption/owner-continuation-20261019.json)
+lifts the fixed pass ceiling without resetting counters or waiving qualification.
+The approximate3–4day estimate remains planning context. C2 is abandoned for the resumption. The
 [previous STOP_BUDGET dossier](final/README.md) remains historical; current R0 is
 pending. This record does not change the
 accepted language profiles or declare `READY_TS_NATIVE`.
+
+The [qualified-path eligibility tranche](resumption/gap-qualified-eligibility-evidence.json)
+adds one frozen component mapping: two assertions become ten checks across a real
+Git context and a real nonrepository refusal. The six eligible results, exact
+`IO_ERROR` and two causal metadata reads are bound to actual native captures.
+Partial JSONC `extends` recovery and `.git` directory-marker defects have separate
+RED/GREEN and historical/native controls. Independent adverse checks agree on
+23/24 historical vectors; inherited invalid `GIT_INDEX_FILE` exposes the declared
+Git preamble boundary. The predicate/metadata claim requires the separately
+hash-verified canonical recipe; focused replay does not authenticate policy.
+The [complete claim ledger](resumption/gap-qualified-eligibility-claim-audit.md)
+keeps these limits. Cumulative checkpoints reach56 mappings:55 limited PASS plus
+N17c NONPASS,8 original GAP and346/354 recipes without known GAP; prior55/9
+remains historical. Runtime evidence is macOS ARM64; WindowsGNU is crosschecked
+only, with no Linux/Windows execution. Formal credit stays0/240; review178,
+threeOS354, reserved23/26 and R0 remain pending. No global admission, public
+assembly or qualification freeze follows. The [current CI/publication rules](resumption/owner-ci-rules-20261019.json)
+continue to govern milestone pushes; this tranche supplies no full `verify:pr` result.
 
 ## Preregistration
 
@@ -103,7 +123,8 @@ UTF16 high surrogate produces diagnostic 1490 instead of frozen diagnostic 1127.
 The frozen expectations are unchanged. The owner now classifies this specific
 difference as TS7 versus TS5.9.3 in [T00-ARB-002](arbitrations.json), without a new
 technical root-cause proof or automatic qualification credit. The original C1
-budget was exhausted; the [renewed budget](resumption/record.json) adds two passes.
+budget was exhausted; the [reopening record](resumption/record.json) preserves
+its initial two-pass budget and the later owner continuation without a fixed pass ceiling.
 Successful DEV checks do not cancel qualification failures or missing proofs.
 No reserved case has been executed as of reopening.
 
