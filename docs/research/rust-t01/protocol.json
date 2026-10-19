@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-19",
-  "checkpoint": 11,
+  "checkpoint": 12,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -129,6 +129,24 @@
       "id": "uncached-filesystem-canonicalization",
       "statement": "canonicalFilesystemPath calls realpath per resolved call target without memoization",
       "consequence": "language-independent cost; its removal must not be attributed to Rust"
+    },
+    {
+      "id": "seal-snapshot-hash-includes-capture-time",
+      "statement": "planeAIndexSnapshotHash digests the persisted Plane-A snapshot, which includes capturedAt (the indexing time); it therefore differs on every run by construction, and so does the seal hash",
+      "source": "3e94997 packages/app-services/src/indexing.ts:347-354 (createPlaneAIndexSnapshot with capturedAt: indexedAt, then digestCanonical) and packages/app-services/src/index-health.ts:596-613",
+      "witness": {
+        "runs": "the 20 Windows hono runs of instrumentationCostWindows (rows 0d8992ab…)",
+        "varyingSealFields": [
+          "indexedAt",
+          "planeAIndexSnapshotHash",
+          "indexedPlaneAIndexSnapshotHash",
+          "sealHash"
+        ],
+        "stableSealFields": "every other scalar field, including repositoryGraphHash, analysisInputHash, semanticModelHash and workingDiffHash (1 distinct value each)",
+        "repositoryGraphHash": "sha256:9d484cb6124d9255331c70a02915af9a5da5d847050cb52d0fe8edbcc30d417d"
+      },
+      "consequence": "repositoryGraphHash, not planeAIndexSnapshotHash, is the baseline's run-to-run fact identity on one host; a candidate comparison still compares stores, because repositoryGraphHash covers edge and claim identity values that the comparison rule ignores",
+      "notChecked": "the macOS series did not record repositoryGraphHash per run, and cross-host equality of repositoryGraphHash is not checked"
     }
   ],
   "remainingEvidence": [

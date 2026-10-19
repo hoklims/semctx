@@ -26,7 +26,9 @@ large cells; see [Owner decision](#owner-decision-on-prefect-and-the-large-cells
 records that the very large cell has no measurement, returns authorship to the owner's sessions
 and tests the registered budget form against the series; see
 [Budget form check](#budget-form-check). Checkpoint 11 records the budget-form decision and the
-budgets per measured cell; see [Budgets](#budgets). No owner decision is open.
+budgets per measured cell; see [Budgets](#budgets). Checkpoint 12 traces why the seal's Plane-A
+snapshot hash changes on every run; see [Reference series](#reference-series). No owner decision is
+open.
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -453,7 +455,16 @@ before each run stayed between 32.49 and 33.24 GB. The facts equal those of the 
 A first launch of this cell was stopped about one minute after it started, because the
 harness that launched it stops background commands after two hours. It produced no measurement,
 and its empty outputs are kept beside the raw outputs. The seal's `planeAIndexSnapshotHash` differs on
-every run, so it is not used as a fact identity; its cause is not investigated.
+every run, so it is not used as a fact identity. Checkpoint 12 traces the cause:
+`indexRepositoryAsync` builds the Plane-A snapshot with `capturedAt` set to the indexing time,
+then digests it (`packages/app-services/src/indexing.ts`, lines 347–354, at `3e94997`). The hash,
+and the seal hash with it, therefore change on every run by construction. Across the 20 Windows
+hono runs of checkpoint 7, only `indexedAt`, the two Plane-A snapshot hashes and `sealHash` vary.
+Every other scalar seal field keeps one value, including `repositoryGraphHash`. On one host,
+`repositoryGraphHash` is thus the baseline's run-to-run fact identity. A candidate comparison
+still compares stores, because that hash also covers the edge and claim identity values the
+comparison rule ignores. The macOS series did not record `repositoryGraphHash` per run, and its
+equality across hosts is not checked.
 
 ## Owner decision on Prefect and the large cells
 
