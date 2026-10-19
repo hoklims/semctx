@@ -17,11 +17,12 @@ registration and counters remain required; no counter is reset.
 The former two-pass budget remains a dated historical snapshot in
 [record.json](record.json). Historical C1 and C2 each closed two corrections.
 The first resumed C1 pass remains open; pass2 has not started. The current
-unresolved-import repair has consumed two local correction/review turns and
-still has a finding, as reported by the author task; a third and subsequent
-turns are authorized without resetting those counters. This records workflow
-authority, not a proven Rust correction. Step3 and formal credit0/240 remain
-current; no semantic/profile waiver or R0 passage follows.
+unresolved-import repair has consumed eight local correction/review turns. The
+[retained-import correction](retained-unresolved-import-evidence.json) now has
+focused v12 evidence and independent reviews with no remaining demonstrated
+defect in that correction. Further turns remain authorized without resetting
+counters. This records workflow authority and bounded local evidence; Step3
+and formal credit0/240 remain current, with no semantic/profile waiver or R0 passage.
 
 The existing approximate 3–4-day estimate is historical planning context,
 not measured effort or an exact ceiling. [effort-ledger.json](effort-ledger.json)
@@ -437,10 +438,11 @@ QSCOPE01/02 units also pass. The conditional full-valid-context admission
 property stays explicitly uncredited; no global admission follows.
 
 Twenty-two actual DEV CLI attempts cover the bounded shapes and controls.
-The undeclared bare `missing` import remains analyzed without the pinned
-baseline's unresolved reason. This is a remaining owned adapter gap to resolve
-before retained-scope parity or R0, outside the five relative projections and
-original64 GAP count; no waiver or version attribution is applied.
+At that checkpoint the undeclared bare `missing` import remained analyzed
+without the pinned baseline's unresolved reason: an owned adapter gap outside
+the five relative projections and original64 GAP count. The subsequent
+retained-import correction below addresses this defect; its original observation
+and lack of waiver or version attribution remain historical evidence.
 Local checks pass47 library,227 binary,55 comparator and8 Python tests;
 Clippy and Ruff pass. Final independent proof review is adequate only for the
 five local projections. The complete33-row initial/supplementary claim ledger
@@ -452,6 +454,40 @@ These are different artifact checkpoints, not a current354-unit campaign.
 Formal credit stays0/240; the historical178-review classification has not been
 recomputed or reviewed. Linux/Windows candidate behavior, full354, reserved
 replay and R0 remain unestablished. Owner pass1 stays open;pass2 unused.
+
+The [retained-import correction](retained-unresolved-import-evidence.json) now
+rejects the demonstrated unresolved bare-import case and preserves the exercised
+baseline dependency/workspace/builtin/alias decisions. Relevant JSONC enumerable
+and prototype behavior and UTF16 capture ordering have actual behavioral controls.
+Canonical unresolved reasons flow as exact UTF16 units through Subject, batch
+Diagnostic and receiver ReasonCode; display remains derived. Malformed, missing,
+inconsistent and substituted unit metadata is refused, including values whose
+displays collide. This private prototype producer and receiver deploy together.
+The adapted Bun1.4.3 matcher retains its pinned source provenance and MIT notice,
+with no new Cargo dependency; the installed Bun revision is a different source
+revision and is not asserted identical to the acquired official tag.
+
+Current macOS ARM64 checks pass49 library,242 binary,23 native integration and55
+observer comparator tests; both Clippy scopes pass. Independent SPEC review runs
+98 classification/unit/capture-order cases and four direct tests; adversarial
+review runs178 cases through356 producer processes plus32 actual receiver checks.
+Order, text and receiver RED/GREEN witnesses and same-display controls are retained.
+Ten frozen carryover units/60checks pass using the unchanged prior observer;
+those raw-path replays do not prove the new receiver. The
+[complete independent claim ledger](retained-unresolved-import-claim-audit.md)
+binds the narrowed claims and rejected extrapolations to these oracles.
+
+This adds no mapping or qualification credit:52 mappings still mean51 limited
+PASS plus N17c NONPASS across checkpoints, with12 original GAP, review178 and
+full354 pending. Reserved inputs were not read or executed by these tasks;
+reserved replay and R0 remain pending. Current-fix Linux/Windows behavior is
+unexercised. CI[39291640202](https://github.com/hoklims/semctx/actions/runs/39291640202)
+at8fdc was cancelled during macOS observer compilation after45minutes; increasing
+the job timeout to60minutes does not establish a green rerun. Earlier full
+`verify:pr` success belongs to the d765 restack, not this correction. Raw JSON
+surrogate equality, normalization of every legacy SDK field and complete
+capture/discovery/admission equivalence are not established. Owner pass1 stays
+open;pass2 has not started.
 
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit

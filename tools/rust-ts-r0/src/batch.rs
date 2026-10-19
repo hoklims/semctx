@@ -158,16 +158,58 @@ pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Bat
         } else {
             vec![]
         };
+        let unresolved = report
+            .get("unresolvedImportReasonsUtf16")
+            .map(|value| {
+                serde_json::from_value::<Vec<Vec<u16>>>(value.clone())
+                    .map_err(|error| error.to_string())
+            })
+            .transpose()?
+            .unwrap_or_default();
+        let unique = unresolved.iter().collect::<BTreeSet<_>>();
+        if unique.len() != unresolved.len() {
+            return Err("duplicate unresolved import reason".into());
+        }
+        let prefix = format!("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{subject_id}:")
+            .encode_utf16()
+            .collect::<Vec<_>>();
+        let reasons = report["reasons"]
+            .as_array()
+            .ok_or("missing reason inventory")?;
+        let mut unresolved_displays = BTreeSet::new();
+        for units in unresolved {
+            let code = String::from_utf16_lossy(&units);
+            if !units.starts_with(&prefix) || !reasons.iter().any(|reason| reason == &json!(code)) {
+                return Err("unbound unresolved import reason units".into());
+            }
+            unresolved_displays.insert(code.clone());
+            diagnostics.push(wire::Diagnostic {
+                subject_id: subject_id.clone(),
+                message: code.clone(),
+                code,
+                code_utf16: Some(units.clone()),
+                message_utf16: Some(units),
+            });
+        }
         for key in ["reasons", "unimplemented"] {
             for reason in report[key].as_array().ok_or("missing reason inventory")? {
                 let code = reason
                     .as_str()
                     .ok_or("invalid reason observation")?
                     .to_string();
+                let unresolved = code.starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:");
+                if unresolved && !unresolved_displays.contains(&code) {
+                    return Err("missing unresolved import reason units".into());
+                }
+                if unresolved {
+                    continue;
+                }
                 diagnostics.push(wire::Diagnostic {
                     subject_id: subject_id.clone(),
                     message: code.clone(),
                     code,
+                    code_utf16: None,
+                    message_utf16: None,
                 });
             }
         }
@@ -183,9 +225,10 @@ pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Bat
         a.subject_id
             .encode_utf16()
             .cmp(b.subject_id.encode_utf16())
-            .then_with(|| a.code.encode_utf16().cmp(b.code.encode_utf16()))
+            .then_with(|| a.canonical_code().cmp(&b.canonical_code()))
     });
-    diagnostics.dedup_by(|a, b| a.subject_id == b.subject_id && a.code == b.code);
+    diagnostics
+        .dedup_by(|a, b| a.subject_id == b.subject_id && a.canonical_code() == b.canonical_code());
     let primary = subjects
         .iter()
         .find(|subject| {

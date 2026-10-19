@@ -95,24 +95,102 @@ pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> 
     observed(reasons.into_iter().collect(), BTreeSet::new())
 }
 
-pub fn unresolved_relative_import_reasons(
+pub fn unresolved_import_reasons(
     imports: &[ordinary::Import],
-    path: &str,
-) -> BTreeSet<String> {
-    imports
+    files: &BTreeMap<String, String>,
+    root: &str,
+    sensitive: bool,
+) -> Result<BTreeMap<String, BTreeSet<Vec<u16>>>, String> {
+    let mut workspace_names = BTreeSet::new();
+    let mut external_packages = BTreeMap::new();
+    let mut aliases = vec![];
+    let builtin_inventory: serde_json::Value =
+        serde_json::from_str(include_str!("../builtin-modules.json"))
+            .map_err(|error| error.to_string())?;
+    let builtins = builtin_inventory["modules"]
+        .as_array()
+        .ok_or("invalid qualified builtin inventory")?
         .iter()
-        .filter(|import| {
-            import.from_rel_path == path
-                && import.resolved_rel_path.is_none()
-                && import.module_specifier.starts_with('.')
-        })
-        .map(|import| {
-            format!(
-                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{path}:{}",
-                import.module_specifier
+        .map(|value| value.as_str().ok_or("invalid qualified builtin name"))
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    let _empty = core::enter_program(None);
+    let mut ordered = files.iter().collect::<Vec<_>>();
+    ordered.sort_by(|(left, _), (right, _)| left.encode_utf16().cmp(right.encode_utf16()));
+    for (path, text) in ordered {
+        let Ok(relative) = relative_source_path(root, path, sensitive) else {
+            continue;
+        };
+        let name = relative.rsplit('/').next().unwrap_or(&relative);
+        if name != "package.json" && !(name.starts_with("tsconfig") && name.ends_with(".json")) {
+            continue;
+        }
+        let Some(manifest) = retained_manifest::inspect(path, text) else {
+            continue;
+        };
+        if name.ends_with("package.json") {
+            if let Some(name) = manifest.name {
+                workspace_names.insert(name);
+            }
+            external_packages.insert(
+                ts_goport::frontend::tspath::get_directory_path(&relative),
+                manifest.external_packages,
+            );
+        }
+        aliases.extend(manifest.aliases);
+    }
+    let mut reasons: BTreeMap<String, BTreeSet<Vec<u16>>> = BTreeMap::new();
+    for import in imports
+        .iter()
+        .filter(|import| import.resolved_rel_path.is_none())
+    {
+        let specifier = &import.module_specifier;
+        if builtins.contains(specifier.as_str()) {
+            continue;
+        }
+        let local_path = specifier.starts_with('.') || specifier.starts_with('/');
+        let alias = !local_path
+            && aliases
+                .iter()
+                .any(|alias| retained_aliases::matches_port_strings(alias, specifier));
+        let package = specifier
+            .split('/')
+            .take(if specifier.starts_with('@') { 2 } else { 1 })
+            .collect::<Vec<_>>()
+            .join("/");
+        let mut external = false;
+        if !local_path && !alias && !workspace_names.contains(&package) {
+            let mut directory =
+                ts_goport::frontend::tspath::get_directory_path(&import.from_rel_path);
+            loop {
+                if external_packages
+                    .get(&directory)
+                    .is_some_and(|packages| packages.contains(&package))
+                {
+                    external = true;
+                    break;
+                }
+                let parent = ts_goport::frontend::tspath::get_directory_path(&directory);
+                if parent == directory {
+                    break;
+                }
+                directory = parent;
+            }
+        }
+        if !external {
+            let mut reason = format!(
+                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{}:",
+                import.from_rel_path
             )
-        })
-        .collect()
+            .encode_utf16()
+            .collect::<Vec<_>>();
+            reason.extend(source_text::to_units(specifier));
+            reasons
+                .entry(import.from_rel_path.clone())
+                .or_default()
+                .insert(reason);
+        }
+    }
+    Ok(reasons)
 }
 
 pub fn ordinary_module_configuration(

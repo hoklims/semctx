@@ -207,7 +207,10 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
     )?;
     policy.terminal = ExpectedTerminal::ControlledRefusal {
         exit_code: 3,
-        reason_codes: strings(&["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"]),
+        reason_codes: strings(&["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"])
+            .into_iter()
+            .map(Into::into)
+            .collect(),
     };
     let declared =
         Receiver::new(policy.clone()).map_err(|e| format!("declared refusal policy: {e:?}"))?;
@@ -366,7 +369,10 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                 let mut wrong = policy.clone();
                 wrong.terminal = ExpectedTerminal::ControlledRefusal {
                     exit_code: 3,
-                    reason_codes: strings(&["SOURCE_BODY_UNSUPPORTED"]),
+                    reason_codes: strings(&["SOURCE_BODY_UNSUPPORTED"])
+                        .into_iter()
+                        .map(Into::into)
+                        .collect(),
                 };
                 rejection(
                     &Receiver::new(wrong).map_err(|e| format!("wrong reason policy: {e:?}"))?,

@@ -73,6 +73,49 @@ pub struct Diagnostic {
     pub subject_id: String,
     pub code: String,
     pub message: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code_utf16: Option<Vec<u16>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message_utf16: Option<Vec<u16>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ReasonCode(Vec<u16>);
+
+impl From<&str> for ReasonCode {
+    fn from(value: &str) -> Self {
+        Self(value.encode_utf16().collect())
+    }
+}
+impl From<String> for ReasonCode {
+    fn from(value: String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+impl From<Vec<u16>> for ReasonCode {
+    fn from(value: Vec<u16>) -> Self {
+        Self(value)
+    }
+}
+
+impl Diagnostic {
+    pub fn canonical_code(&self) -> ReasonCode {
+        self.code_utf16
+            .clone()
+            .map_or_else(|| ReasonCode::from(self.code.as_str()), ReasonCode::from)
+    }
+
+    pub fn text_is_consistent(&self) -> bool {
+        match (&self.code_utf16, &self.message_utf16) {
+            (Some(code), Some(message)) => {
+                !code.is_empty()
+                    && String::from_utf16_lossy(code) == self.code
+                    && String::from_utf16_lossy(message) == self.message
+            }
+            (None, None) => !self.code.starts_with("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:"),
+            _ => false,
+        }
+    }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

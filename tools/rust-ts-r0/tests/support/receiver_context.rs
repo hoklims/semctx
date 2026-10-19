@@ -219,7 +219,7 @@ pub(super) fn expected(case: &Value, observed: &Observed, deadline: Instant) -> 
                 .as_array()
                 .unwrap()
                 .iter()
-                .map(|s| s.as_str().unwrap().to_string())
+                .map(|s| wire::ReasonCode::from(s.as_str().unwrap()))
                 .collect(),
         }
     } else {
