@@ -1,5 +1,6 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
+mod ambiguous_exports_replay;
 mod legacy_identity_replay;
 mod parallel_replay;
 #[path = "../tests/support/receiver_context.rs"]
@@ -2661,6 +2662,16 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "ambiguous_exports_cli" {
+            let mut result = ambiguous_exports_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "source_confinement_cli" {
             let mut result = source_confinement_replay::run(
                 recipe,
@@ -4195,6 +4206,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "ambiguous_exports_cli" => ambiguous_exports_replay::run(recipe, &dir, &fixture),
             "source_confinement_cli" => source_confinement_replay::run(
                 recipe,
                 &dir,
@@ -5849,6 +5861,15 @@ fn gap_retained_scope_import_type_and_external_import_equals() {
     repair_units(&[
         "QSCOPE-01-import-type-refusal::base",
         "QSCOPE-02-external-import-equals-refusal::base",
+    ]);
+}
+
+#[test]
+fn gap_ambiguous_star_exports_refuse_and_named_export_keeps_its_target() {
+    repair_units(&[
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-a-then-b",
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a",
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control",
     ]);
 }
 

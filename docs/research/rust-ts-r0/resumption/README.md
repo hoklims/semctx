@@ -489,6 +489,25 @@ surrogate equality, normalization of every legacy SDK field and complete
 capture/discovery/admission equivalence are not established. Owner pass1 stays
 open;pass2 has not started.
 
+A [twenty-third tranche](gap-ambiguous-exports-evidence.json) maps the three
+frozen E03 variants on the unchanged v12 producer: AB/BA refuse ambiguous stars
+with no arbitrary target or private ownership; the named control keeps the real
+`b.ts/same` target and revalidates its private Receiver graph. Three raw and three
+batch processes pass18 raw checks plus three consumer observations on macOS
+ARM64. Independent source mutations fail at unchanged expectations and restore;
+57 comparators,23 native integrations,8 Python tests,Clippy and Ruff pass. The
+Windows GNU crosscheck compiles on Darwin; Linux/Windows runtime remains untested.
+The exact recipe SHA153a… is separately checked: focused replay does not bind its
+policy hash or complete check inventory; changing source and deleting target/edge
+checks together can pass that path. Canonical complete checks reject the wrong
+target. The full-campaign recipe hash guard is inspected, still unexecuted. The
+[complete claim ledger](gap-ambiguous-exports-claim-audit.md) preserves this limit.
+Cumulative checkpoints now reach55 mappings:54 limited PASS plus N17c NONPASS,
+9 original GAP and345 recipes without known GAP; prior52/12 remains historical.
+Formal credit stays0/240; review178, full354 threeOS, reserved replay and R0 stay
+pending. No public application assembly or global admission follows. Owner pass1
+stays open;pass2 has not started; budget and CI/publication rules are unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI
