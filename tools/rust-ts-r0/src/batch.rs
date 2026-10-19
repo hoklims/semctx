@@ -1,6 +1,31 @@
 use super::*;
 use serde_json::{Value, json};
 
+pub(super) const FACT_KINDS: &[&str] = &[
+    "node:repository",
+    "node:module",
+    "node:test",
+    "node:function",
+    "node:class",
+    "node:interface",
+    "node:type",
+    "node:enum",
+    "node:capability",
+    "node:invariant",
+    "node:contract",
+    "node:risk",
+    "node:bounded_context",
+    "edge:belongs_to",
+    "edge:declares",
+    "edge:imports",
+    "edge:calls",
+    "edge:tested_by",
+    "edge:covers",
+    "edge:implements_capability",
+    "edge:constrained_by",
+    "edge:related_to",
+];
+
 pub fn profile(request: &Request) -> &'static str {
     if request.qualified {
         "modelo-suite-static-v1"
@@ -109,30 +134,7 @@ pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Bat
     let mut subjects = vec![];
     let mut diagnostics = vec![];
     let mut outcomes = BTreeMap::new();
-    let kinds = [
-        "node:repository",
-        "node:module",
-        "node:test",
-        "node:function",
-        "node:class",
-        "node:interface",
-        "node:type",
-        "node:enum",
-        "node:capability",
-        "node:invariant",
-        "node:contract",
-        "node:risk",
-        "node:bounded_context",
-        "edge:belongs_to",
-        "edge:declares",
-        "edge:imports",
-        "edge:calls",
-        "edge:tested_by",
-        "edge:covers",
-        "edge:implements_capability",
-        "edge:constrained_by",
-        "edge:related_to",
-    ];
+    let kinds = FACT_KINDS;
     for report in reports {
         let subject_id = text(report, "path")?.to_string();
         let selection: wire::Selection = serde_json::from_value(report["selection"].clone())

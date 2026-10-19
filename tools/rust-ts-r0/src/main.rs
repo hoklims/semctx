@@ -20,6 +20,7 @@ mod parallel_observations;
 mod partition_observations;
 mod qualified;
 mod qualified_path_eligibility;
+mod qualified_verification;
 mod repository_discovery;
 mod retained_aliases;
 mod retained_discovery_observations;
@@ -1681,8 +1682,14 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
 }
 
 fn main() {
+    let mut exit_code = 0;
     let result = (|| {
         let args = std::env::args().collect::<Vec<_>>();
+        if args.get(1).is_some_and(|mode| mode == "verify") {
+            let verified = qualified_verification::command(&args)?;
+            exit_code = verified.exit_code();
+            return Ok(verified.report);
+        }
         if let Some(observed) = additional_observation(&args)? {
             return Ok(observed);
         }
@@ -1708,7 +1715,12 @@ fn main() {
         }
     })();
     match result {
-        Ok(value) => println!("{}", value),
+        Ok(value) => {
+            println!("{}", value);
+            if exit_code != 0 {
+                std::process::exit(exit_code);
+            }
+        }
         Err(error) => {
             eprintln!("{}", serde_json::json!({"error":error}));
             std::process::exit(1);

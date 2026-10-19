@@ -214,6 +214,7 @@ fn walk(
     root: &Path,
     ignored: impl Fn(&str) -> bool,
     nested_worktree: impl Fn(&fs::Metadata) -> bool,
+    retain_aliases: bool,
 ) -> Result<(Vec<PathBuf>, Vec<PathBuf>), String> {
     let mut pending = vec![root.to_path_buf()];
     let mut files = vec![];
@@ -237,6 +238,9 @@ fn walk(
             let metadata = fs::symlink_metadata(&path)
                 .map_err(|e| format!("DISCOVERY_ENTRY_STAT_FAILED:{e}"))?;
             if metadata.file_type().is_symlink() {
+                if retain_aliases {
+                    files.push(path.clone());
+                }
                 if !physical(&path)?.starts_with(root) {
                     links.push(path);
                 }
@@ -270,10 +274,14 @@ pub(super) fn qualified_metadata_paths(root: &Path) -> Result<Vec<PathBuf>, Stri
         root,
         |name| HARD_IGNORED.contains(&name),
         |marker| marker.is_file() || marker.file_type().is_symlink(),
+        true,
     )
     .map(|(files, _)| files)
 }
-fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
+fn observe_paths(
+    value: serde_json::Value,
+    retained_paths: Option<&[PathBuf]>,
+) -> Result<serde_json::Value, String> {
     let descriptor: Descriptor =
         serde_json::from_value(value).map_err(|e| format!("DISCOVERY_REQUEST_INVALID:{e}"))?;
     let config = &descriptor.config;
@@ -294,11 +302,30 @@ fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
     if !root.is_dir() {
         return Err("DISCOVERY_REPOSITORY_NOT_DIRECTORY".into());
     }
-    let (paths, links) = walk(
-        &root,
-        |name| HARD_IGNORED.contains(&name) || OUTPUT_DIRECTORIES.contains(&name),
-        |_| true,
-    )?;
+    let (paths, links) = if let Some(paths) = retained_paths {
+        let mut paths = paths
+            .iter()
+            .filter(|path| {
+                path.strip_prefix(&root).is_ok_and(|relative| {
+                    !relative.components().any(|part| {
+                        part.as_os_str()
+                            .to_str()
+                            .is_some_and(|name| HARD_IGNORED.contains(&name))
+                    })
+                })
+            })
+            .cloned()
+            .collect::<Vec<_>>();
+        paths.sort();
+        (paths, vec![])
+    } else {
+        walk(
+            &root,
+            |name| HARD_IGNORED.contains(&name) || OUTPUT_DIRECTORIES.contains(&name),
+            |_| true,
+            false,
+        )?
+    };
     let mut files = vec![];
     let mut candidates = vec![];
     let mut reads = vec![];
@@ -403,11 +430,15 @@ fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
             .collect::<Vec<_>>()
     });
     Ok(
-        serde_json::json!({"executed":true,"unsupported":[],"files":files,"candidates":candidates,"reads":reads,"resolution_probes":resolution_probes,"repositoryRoot":path_text(&root)?,"observation_scope":"native_ordinary_repository_discovery","global_admission_inferred":false}),
+        serde_json::json!({"executed":true,"unsupported":[],"files":files,"candidates":candidates,"reads":reads,"resolution_probes":resolution_probes,"repositoryRoot":path_text(&root)?,"observation_scope":if retained_paths.is_some(){"native_qualified_retained_discovery"}else{"native_ordinary_repository_discovery"},"global_admission_inferred":false}),
     )
 }
 pub(super) fn run(descriptor: serde_json::Value) -> serde_json::Value {
-    observe(descriptor).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
+    observe_paths(descriptor, None).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
+}
+
+pub(super) fn qualified(descriptor: serde_json::Value, paths: &[PathBuf]) -> serde_json::Value {
+    observe_paths(descriptor, Some(paths)).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
 }
 
 #[cfg(test)]
