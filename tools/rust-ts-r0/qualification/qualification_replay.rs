@@ -3,6 +3,7 @@ use semctx_r0_probe::identity;
 mod ambiguous_exports_replay;
 mod legacy_identity_replay;
 mod parallel_replay;
+mod qualified_flow_replay;
 mod reader_error_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
@@ -2815,6 +2816,13 @@ fn replay() -> Result<Value, String> {
             results.push(result);
             continue;
         }
+        if recipe["surface"] == "qualified_flow_cli" {
+            let mut result =
+                qualified_flow_replay::run(recipe, &out.join(format!("unit-{index:03}")), &freeze)?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "reader_error_component" {
             let mut result =
                 reader_error_replay::run(recipe, &out.join(format!("unit-{index:03}")))?;
@@ -4280,6 +4288,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "qualified_flow_cli" => qualified_flow_replay::run(recipe, &dir, &fixture),
             "reader_error_component" => reader_error_replay::run(recipe, &dir),
             "workspace_system_cli" => workspace_system_replay::run(recipe, &dir, &fixture),
             "retained_runtime_cli" => retained_runtime_replay::run(recipe, &dir, &fixture),
@@ -6023,6 +6032,14 @@ fn gap_ambiguous_star_exports_refuse_and_named_export_keeps_its_target() {
 #[test]
 fn gap_qualified_path_eligibility_preserves_metadata_and_refuses_git_failure() {
     repair_units(&["ORD-QUALIFIED-ELIGIBILITY::base"]);
+}
+
+#[test]
+fn gap_qualified_scope_closure_drives_admission_and_actual_cli_exit() {
+    repair_units(&[
+        "P19-qualified-inherited-esnext-bundler::base",
+        "N19-excluded-dependent-blocks::base",
+    ]);
 }
 
 #[test]

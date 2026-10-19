@@ -1231,6 +1231,36 @@ for recipe in recipes:
     recipe['proof_scope'] = 'T00-ARB-001: complete frozen raw call target and graph-call projections, explicit native ambiguity reason, then the same materialized input through actual --batch and the native receiver. Ambiguous refusal cannot obtain private graph ownership. Named reexport preserves b.ts/same without inferring global application admission. No full health/storage/services or broad scope equivalence.'
 
 for recipe in recipes:
+    if recipe['case_id'] not in ['P19-qualified-inherited-esnext-bundler','N19-excluded-dependent-blocks']:
+        continue
+    inp = INPUTS[recipe['case_id']]
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if set(assertions) != ({'analysisAdmission_status','public_cli_exit','verdict','coverage_contains'} if 'coverage_contains' in assertions else {'analysisAdmission_status','public_cli_exit','verdict'}):
+        raise ValueError('unmapped qualified flow contract')
+    files = copy.deepcopy(inp['files'])
+    if files['src/main.ts'].count('return 1;') != 1:
+        raise ValueError('qualified flow initial mutation is not unique')
+    changed = copy.deepcopy(inp)
+    changed.pop('setup',None)
+    changed['files']['src/main.ts'] = files['src/main.ts'].replace('return 1;','return 2;')
+    changed['root_files'] = ['src/main.ts']
+    request, gaps = recipe_input(changed, recipe['unit_id'])
+    if gaps:
+        raise ValueError('qualified flow capture mapping incomplete')
+    request['qualified'] = True
+    recipe.update({'surface':'qualified_flow_cli', 'physical_files':files, 'include':['src/**/*.ts'], 'exclude':['node_modules','dist','.semctx','.git','coverage'], 'requests':[request], 'relations':[], 'checks':[], 'gaps':[], 'credited_properties':list(assertions), 'explicit_uncredited_properties':[]})
+    for key in ['analysisAdmission_status','public_cli_exit']:
+        recipe['checks'].append(check([key],assertions[key],'eq',ptr(key)))
+    if assertions['verdict'] == 'unknown-not-asserted':
+        recipe['credited_properties'].remove('verdict')
+        recipe['explicit_uncredited_properties'].append({'key':'verdict','basis':'Frozen positive verdict is explicitly unknown-not-asserted; no positive verdict is inferred.'})
+    else:
+        recipe['checks'].append(check(['verdict'],assertions['verdict'],'eq',ptr('verdict')))
+    if 'coverage_contains' in assertions:
+        recipe['checks'].append(check(['coverage'],assertions['coverage_contains'],'contains_projected',ptr('coverage_contains')))
+    recipe['proof_scope'] = 'Complete frozen physical files and real initial Git commit, retained working-tree mutation/index, selected C1 receipt bound against fresh native extraction, broad same-capture native dependencies, actual closure/admission/verification guard, then native CLI under --fail-on none. Bounded native counterpart of the historical rule; no assembled Bun CLI/SQLite/services or universal qualified admission inferred.'
+
+for recipe in recipes:
     if recipe['case_id'] != 'ORD-DIALECT-CAPABILITY':
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']

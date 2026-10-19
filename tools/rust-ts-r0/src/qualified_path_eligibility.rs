@@ -32,7 +32,7 @@ fn relative_path(path: &Path) -> Option<String> {
 }
 
 fn named_metadata(path: &str) -> bool {
-    let name = path.rsplit('/').next().unwrap_or("");
+    let name = path.rsplit('/').next().unwrap_or("").to_ascii_lowercase();
     name.starts_with("tsconfig") && name.ends_with(".json")
         || [
             "package.json",
@@ -43,16 +43,19 @@ fn named_metadata(path: &str) -> bool {
             "yarn.lock",
             "pnpm-lock.yaml",
         ]
-        .contains(&name)
+        .contains(&name.as_str())
 }
 
-fn metadata(root: &Path) -> Result<(BTreeSet<String>, Vec<serde_json::Value>), String> {
-    let files = repository_discovery::qualified_metadata_paths(root)?;
-    let available = files
+pub(super) fn metadata(root: &Path) -> Result<(BTreeSet<String>, Vec<serde_json::Value>), String> {
+    let root = root
+        .canonicalize()
+        .map_err(|e| format!("ELIGIBILITY_REPOSITORY_UNAVAILABLE:{e}"))?;
+    let files = repository_discovery::qualified_metadata_paths(&root)?;
+    let mut available = files
         .iter()
         .map(|path| {
             let name = path
-                .strip_prefix(root)
+                .strip_prefix(&root)
                 .map_err(|_| "ELIGIBILITY_METADATA_OUTSIDE_ROOT")?;
             Ok((
                 relative_path(name).ok_or("ELIGIBILITY_METADATA_PATH_INVALID")?,
@@ -68,17 +71,21 @@ fn metadata(root: &Path) -> Result<(BTreeSet<String>, Vec<serde_json::Value>), S
     let mut pending = retained
         .iter()
         .filter(|path| {
-            path.rsplit('/')
-                .next()
-                .is_some_and(|name| name.starts_with("tsconfig") && name.ends_with(".json"))
+            let name = path.rsplit('/').next().unwrap_or("").to_ascii_lowercase();
+            name.starts_with("tsconfig") && name.ends_with(".json")
         })
         .cloned()
         .collect::<Vec<_>>();
     let mut reads = vec![];
     while let Some(name) = pending.pop() {
-        let path = &available[&name];
+        let path = available[&name]
+            .canonicalize()
+            .map_err(|e| format!("ELIGIBILITY_CONFIGURATION_PATH_FAILED:{e}"))?;
+        if !path.starts_with(&root) {
+            return Err("ELIGIBILITY_CONFIGURATION_OUTSIDE_ROOT".into());
+        }
         let mut bytes = Vec::new();
-        fs::File::open(path)
+        fs::File::open(&path)
             .and_then(|file| file.take(33_554_433).read_to_end(&mut bytes))
             .map_err(|e| format!("ELIGIBILITY_CONFIGURATION_READ_FAILED:{e}"))?;
         if bytes.len() > 33_554_432 {
@@ -98,8 +105,24 @@ fn metadata(root: &Path) -> Result<(BTreeSet<String>, Vec<serde_json::Value>), S
             let Some(mut target) = relative_path(&target) else {
                 continue;
             };
-            if !target.ends_with(".json") {
+            if !target.to_ascii_lowercase().ends_with(".json") {
                 target.push_str(".json");
+            }
+            if !available.contains_key(&target) {
+                let path = root.join(&target);
+                match path.canonicalize() {
+                    Ok(actual) if !actual.starts_with(&root) => {
+                        return Err("ELIGIBILITY_CONFIGURATION_OUTSIDE_ROOT".into());
+                    }
+                    Ok(actual) if actual.is_file() => {
+                        available.insert(target.clone(), path);
+                    }
+                    Ok(_) => {}
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(error) => {
+                        return Err(format!("ELIGIBILITY_CONFIGURATION_PATH_FAILED:{error}"));
+                    }
+                }
             }
             if available.contains_key(&target) && retained.insert(target.clone()) {
                 pending.push(target);
@@ -276,6 +299,42 @@ mod tests {
             ])
         );
         assert_eq!(reads.len(), 3);
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink("tsconfig.json", root.join("dist/tsconfig.alias.json"))
+                .unwrap();
+            std::os::unix::fs::symlink("dist", root.join("config-alias")).unwrap();
+            fs::write(
+                root.join("tsconfig.extended.json"),
+                "{\"extends\":\"./config-alias/base\"}",
+            )
+            .unwrap();
+            let (aliases, _) = metadata(&root).unwrap();
+            for name in [
+                "dist/tsconfig.alias.json",
+                "tsconfig.extended.json",
+                "config-alias/base.json",
+                "config-alias/leaf.json",
+            ] {
+                assert!(aliases.contains(name), "{name}");
+            }
+            std::os::unix::fs::symlink("missing.json", root.join("tsconfig.dangling.json"))
+                .unwrap();
+            assert!(
+                metadata(&root)
+                    .unwrap_err()
+                    .starts_with("ELIGIBILITY_CONFIGURATION_PATH_FAILED:")
+            );
+            fs::remove_file(root.join("tsconfig.dangling.json")).unwrap();
+            let external = root.with_extension("outside.json");
+            fs::write(&external, "{}").unwrap();
+            std::os::unix::fs::symlink(&external, root.join("tsconfig.external.json")).unwrap();
+            assert_eq!(
+                metadata(&root).unwrap_err(),
+                "ELIGIBILITY_CONFIGURATION_OUTSIDE_ROOT"
+            );
+            fs::remove_file(external).unwrap();
+        }
         fs::remove_dir_all(root).unwrap();
     }
 }
