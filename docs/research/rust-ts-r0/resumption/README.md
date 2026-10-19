@@ -637,6 +637,22 @@ conflicts with identical local merge/head trees, so no semantic conflict or
 current-candidate CI success is established. All
 prior checkpoint totals remain historical; budget8fdc and CI rules are unchanged.
 
+The [version-classification addendum](step4-macos-campaign-evidence.json) records
+source `10d16de2` and a separate aggregate macOS PASS in127.68s. The campaign used
+the immutable v1observer frozen against9e4+patch; v2 changes only test borrowing,
+a parameter name and formatting. It is not a clean10d build/fullv2 replay.
+Raw352/354 units and50/51 supports PASS,three NONPASS,all rawchecks/relations/gaps
+and240obligations remain unchanged. Only existing ARB002/003/004 classify those
+NONPASS; formalcredit stays0/240 and R0pending. The classifier constructs the
+three internal results; the aggregate consumer trusts their state/credit rather
+than independently authenticating arbitrary JSON. An actual source-copy adversarial
+test accepts empty capture_probes for ARB003/004: reported-read joins do not prove
+mandatoryrootreads,completecapture or allSDKconsumption. This limitation remains;
+no actual pinned-producer forgery is shown. Currentv2 focusedtest/66comparators/
+Clippy pass; WindowsGNU is compilation only. Fullverify:pr10d,remoteCI and native
+Linux/Windows remain pending; the off-tree CI proposal is unapproved. Existing
+budget,arbitration authority,frozeninputs and reserved/prospective status stay unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI

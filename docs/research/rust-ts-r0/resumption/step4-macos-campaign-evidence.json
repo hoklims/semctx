@@ -75,5 +75,36 @@
     {"path": "ci-50f10-mergeability-contradiction-v1.json", "sha256": "1114d52109d2a50127cb498fec58450a59feb2e2a05c71d9efce2de3ef9cc053"},
     {"path": "identity-support-milestone-verify-pr-v1.log", "sha256": "a3067e7e2ced980739f7b46a393b2e7e2c4b36ecb952383420b30142ade5c4ba"},
     {"path": "ci-50f10-codeql-final-v1.json", "sha256": "6d1ae4b09018aa348d5d94cbcb0f28d495b85efb5bf0ce0c5fce2c96e9a7b12d"}
-  ]
+  ],
+  "versionArbitrationReceipt": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/version_arbitrations_claim_auditor",
+    "sourceCommit": "10d16de23302ad99a390754061a1867804998575",
+    "sourceSha256": "2ce086486ca8b488b40c587135fa40695654146ab4999eff7439ef7ee3169520",
+    "patchSha256": "c39e458a0a0d6a3fa5e776e38a44994ec6f3cdebec4359dd4a13bcfdc62f2205",
+    "scope": "Exact existing ARB-002/003/004 classifications only; no authority change,automatic extension,new expectation or waiver.",
+    "campaignBinding": "Immutable v1 observer3b434756f4d86033ca3f309f0e279c955d02927f33b54f57959d199ecfe8a52d; freeze source9e4e3c512f4116749ff687986a5f5464ec723410 plus archivedv1patch. Not a clean10d build or fullv2 runtime replay.",
+    "v1ToV2": "Only binding_complete renamed bindings_verified,four test clones replaced by from_ref,and formatting; independent source-delta reviews support bounded reuse of unchanged executable logic.",
+    "environment": "macOS27.0.1 (Darwin27.0.0) ARM64,Rust1.95.0,Bun1.4.3,GIT_CONFIG_GLOBAL absent; GoPort snapshots disabled,serial test as recorded in freeze.",
+    "aggregate": {"test":"qualification_replay_requires_explicit_optimized_freeze","pass":true,"elapsedSeconds":127.68,"unitsRawPass":352,"unitsRawNonpass":2,"supportsRawPass":50,"supportsRawNonpass":1,"qualificationCredit":0},
+    "classificationTrustBoundary": "version_arbitration constructs the three exact classifications internally; comparison_resolved consumes rawpass/state and arbitrationstate/credit0 without independently authenticating id,signature or checks. A directly forged result object is accepted at this isolated source-copy boundary; no route from forged native classification into the campaign is demonstrated.",
+    "rawEquality": "Against original reportdad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d: all354unit/51support state,pass,checks,relations,gaps and all240obligations are structurally identical. Reports differ in timestamps,temporary paths and captures/bindings; no byte equality claimed.",
+    "formal": "qualified=false; all240 REQUIRES_PROPERTY_AND_SUPPORT_REVIEW; R0=NOT_MADE_BY_ADAPTER. Aggregate classification does not qualify obligations.",
+    "targetedChecks": "Currentv2 exact three-arbitration native testPASS;66comparatorsPASS;Clippy alltargets/featurePASS; WindowsGNU compilationPASS onDarwin,notWindowsruntime.",
+    "acceptedOmission": "Actual source-copy adversarial test accepts capture_probes=[] for ARB003/004 after removing584/592probes. JOINED_REPORTED_SUCCESSFUL_READS_ONLY returns emptyread_paths; classification resolves with rawNONPASS/credit0 unchanged. This limit is retained,not fixed.",
+    "readScope": "Descriptor/artifact binding plus reported successful-read joins only; no mandatoryrootread,completecaptureinventory,allSDKconsumption or OS-sandbox proof. No pinned-producer omission or end-to-end forgery demonstrated; campaign classifications are recomputed internally.",
+    "pending": "Fullverify:pr at10d,push/remoteCI,Linux/Windowsruntime,threeOSqualification,reserved23/26,R0. OfftreeCIproposal notapproved; no prospectivewitness/input adoption or reserved read/run.",
+    "historyAndRetention": "Prior receipts and owner8fdc unlimitedpasses unchanged; rawproofs remain local temporary files,not durable archive.",
+    "evidence": [
+      {"path": "version-arbitrations-source-anchor-v2.json", "sha256": "bd3b86689fe57bea1cf2e84fa5703542ae9dda0eed60c8c11d871e53c19ea647"},
+      {"path": "version-arbitrations-check-receipt-v2.json", "sha256": "4d5196fe5c94fce3b80d5514bab0228ef505c993caa67e8239af00c2dcc518f6"},
+      {"path": "version-arbitrations-source-v2.patch", "sha256": "c39e458a0a0d6a3fa5e776e38a44994ec6f3cdebec4359dd4a13bcfdc62f2205"},
+      {"path": "version-arbitrations-standards-v2.md", "sha256": "b59bdc96c2e0e4d0810aa5968722547e905a49a89c8bd2254f8706749a5cdf8d"},
+      {"path": "version-arbitrations-spec-proof-v2.md", "sha256": "9733759583df17b46dfc81f4b4b6d783c8a825b5d41820301e40b033555dfb0a"},
+      {"path": "version-arbitrations-adversarial-v1.md", "sha256": "9e00bd29ccb16e62d186a89acd7d5f10931c056a7dcde88408494ad82d48b5d7"},
+      {"path": "campaign-macos-version-arbitrations-freeze-v1.json", "sha256": "11ece0dd04eecb38aaf444789521d871e96b0ef72fe68d367577ccb9c872b69e"},
+      {"path": "campaign-macos-version-arbitrations-v1/report.json", "sha256": "362361620782ce093f58256ce69656d637408ef30b8231e187256d40fcf89e99"},
+      {"path": "campaign-macos-version-arbitrations-v1.log", "sha256": "ad16b1102ce729d99e1bdbcd8b4d2386076554c76a8c9abb3c9357137983579c"}
+    ]
+  }
 }
