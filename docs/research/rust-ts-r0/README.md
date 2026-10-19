@@ -162,6 +162,13 @@ execution records retain their historical source and artifact identities. Its ex
 qualify fact batches or semantic precision. In particular, its `no_product` report
 is not evidence that a producer ran.
 
+The owner authorized another restack on2026-10-19 after the published QSCOPE
+checkpoint b36c029b. Coordination moved from4e80d36c to418d0f71 on main94881747;
+T00 was replayed above it. The [source record](resumption/restack-20261019.json)
+lists the observed Git objects, author check, conflict resolutions and generator
+commands. Earlier execution records keep their original source and artifact
+identities; restacking does not transfer those outcomes to the new head.
+
 New dependencies require exact versions and committed lockfiles; new GitHub
 Actions references require full commit SHAs. The initial preregistration changed
 only documents. The subsequent tooling reuse introduces the existing Rust gates,
