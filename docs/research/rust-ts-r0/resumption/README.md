@@ -571,6 +571,26 @@ its recorded overall run was still in progress. Those results do not cover
 local b098 or constitute the354-unit campaign or a normalized timing benchmark.
 Owner continuation and CI rules remain unchanged.
 
+A [twenty-eighth tranche](gap-qualified-flow-evidence.json) maps P19/N19 through
+an actual native minimal Git/index/retained extraction/Receiver/configuration/
+closure/admission flow. Six frozen observations pass: P19 admitted/CLI0;
+N19 rejected/BLOCK/CLI3 under `--fail-on none`, with hidden.ts excluded.
+The consumer is distinct from the assembled Bun/SQLite product. Four real prior
+defects remain recorded with RED/GREEN: tracked configuration omission, ignored
+configuration omission, symlink/alias and dist-source loss, then uppercase
+configuration on the exercised case-insensitive filesystem. The v5 corrections
+are bound to nine sources at ba7b1729 and immutable artifacts; later supportWIP
+is excluded. Local macOS checks pass324release tests,Clippy and64comparators;
+WindowsGNU is compilation only. The [complete claim ledger](gap-qualified-flow-claim-audit.md)
+keeps the exact recipehash requirement and limits: no universal admission,
+atomic capture,public Bun/SQLite equivalence or current threeOS qualification.
+All64original UNITGAPs now have mappings across checkpoints:62 limited PASS plus
+N17c and ORD-DIALECT version NONPASS,0 UNITGAP,354/354 static recipes without known
+unitGAP. Prior62/2 remains historical. The last support campaign still records
+five SUPPORTGAPs,not re-evaluated or credited by this lot; zeroUNITGAP does not
+close supports. Formalcredit0/240,review178,full354threeOS,reserved23/26 and R0
+remain pending. Owner continuation and CI/publication rules are unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI

@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_SIXTY_TWO_GAPS_MAPPED_SIXTY_LIMITED_PASS_TWO_INDIVIDUAL_VERSION_ATTRIBUTED_NONPASSES",
+  "state": "STEP3_ALL_64_ORIGINAL_UNIT_GAPS_MAPPED_62_LIMITED_PASS_TWO_VERSION_NONPASSES_SUPPORT_GAPS_PENDING",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve remainingP19/N19 original static GAP units,then178-obligation property/support review,full354threeOS campaign,reserved23cases/26variants and R0. N17c and ORD-DIALECT remain raw version-attributed NONPASS,notPASS.",
-  "updatedUtc": "2026-10-19T21:21:16.289279+00:00",
-  "staticGapUnitsRemaining": 2,
+  "next": "Resolve the five historically recorded SUPPORTGAPs under separate reviewed evidence,then review178obligations,runfull354threeOScampaign,reserved23cases/26variants and decideR0. All64originalUNITGAPs nowmapped;noformalqualification or supportWIPcredit.",
+  "updatedUtc": "2026-10-19T22:00:49.411262+00:00",
+  "staticGapUnitsRemaining": 0,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -1163,6 +1163,66 @@
       "ownerAdditionalPass1": "OPEN",
       "ownerAdditionalPass2": "NOT_STARTED",
       "scope": "Cumulative multi-artifact checkpoints;352 is static preparation,not campaign passage."
+    }
+  },
+  "twentyEighthBatch": {
+    "registeredUtc": "2026-10-19T22:00:49.411262+00:00",
+    "state": "TWO_FROZEN_NATIVE_QUALIFIED_FLOW_BOUNDARY_LIMITED_PASSES_V5_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "P19-qualified-inherited-esnext-bundler::base",
+      "N19-excluded-dependent-blocks::base"
+    ],
+    "evidence": "gap-qualified-flow-evidence.json",
+    "sourceCommit": "ba7b172923ed6351618e981ad3b3938d016d6c7e",
+    "nativeArtifactSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "recipesSha256": "cf56817edec5accb6b76a661a4b7b111dacf82288e2598ba865ab1750e227a09",
+    "newMappingsCredited": 2,
+    "newLimitedProjectedPasses": 2,
+    "frozenChecks": 6,
+    "qualificationCredit": 0,
+    "scope": "Minimal nativeGit/index/retainedReceiver/config/closure/admissionCLI0or3 only;notfullBun/SQLite/universal/atomiccapture. v1\u2013v4owneddefects and exactRED/GREEN retained in evidence.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 64,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 0,
+      "recipesWithoutKnownGaps": 354,
+      "unitDenominator": 354,
+      "historicalSupportGapsUnreevaluatedInThisLot": 5,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Original64UNITGAP mappings complete across distinct artifacts;354static recipes and zeroUNITGAP are not a campaign,not support completion,not obligationqualification."
+    },
+    "historicalSupportGapCheckpoint": {
+      "count": 5,
+      "supportIds": [
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen"
+      ],
+      "state": "HISTORICAL_GAPS_NOT_REEVALUATED_OR_CREDITED_BY_P19_N19",
+      "summary": "qualification/c1-pass2/second-replay-summary.json",
+      "summarySha256": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386",
+      "reportPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/report.json",
+      "reportSha256": "6cbabcfd91b0a2b278b107e9e9bc7486753f33a4783e74baef993956e2a05fd8",
+      "limit": "Last C1pass2 support checkpoint only; no claim about concurrent later support WIP or a new support execution."
     }
   }
 }
