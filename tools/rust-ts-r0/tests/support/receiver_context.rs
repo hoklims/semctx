@@ -96,12 +96,6 @@ pub(super) fn bindings_and_observation(
     batch: &wire::Batch,
     artifact: Vec<u8>,
 ) -> Observed {
-    let profile = if request["qualified"] == true {
-        "modelo-suite-static-v1"
-    } else {
-        "ordinary"
-    }
-    .to_string();
     let fixture: Value = serde_json::from_str(FROZEN_CASES).unwrap();
     let case = fixture["cases"]
         .as_array()
@@ -109,6 +103,22 @@ pub(super) fn bindings_and_observation(
         .iter()
         .find(|case| case["id"] == request["id"])
         .unwrap();
+    bindings_and_observation_for_case(case, request, sdk, batch, artifact)
+}
+
+pub(super) fn bindings_and_observation_for_case(
+    case: &Value,
+    request: &Value,
+    sdk: &Value,
+    batch: &wire::Batch,
+    artifact: Vec<u8>,
+) -> Observed {
+    let profile = if request["qualified"] == true {
+        "modelo-suite-static-v1"
+    } else {
+        "ordinary"
+    }
+    .to_string();
     assert_eq!(request["utf16_files"], json!({}));
     assert_eq!(request["raw_files"], json!({}));
     let fixture_files = case["files"].as_object().unwrap();
@@ -212,12 +222,11 @@ pub(super) fn expected(case: &Value, observed: &Observed, deadline: Instant) -> 
             absence_allowed_kinds: BTreeSet::new(),
         })
         .collect();
-    let terminal = if case["qualified"] == true {
+    let reason_codes = case["expected_reason_codes"].as_array().unwrap();
+    let terminal = if !reason_codes.is_empty() {
         ExpectedTerminal::ControlledRefusal {
             exit_code: 0,
-            reason_codes: case["expected_reason_codes"]
-                .as_array()
-                .unwrap()
+            reason_codes: reason_codes
                 .iter()
                 .map(|s| wire::ReasonCode::from(s.as_str().unwrap()))
                 .collect(),

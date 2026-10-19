@@ -1106,6 +1106,44 @@ for recipe in recipes:
         recipe['checks'].append(check([target], assertions[key], 'contains_text' if key == 'error_contains' else 'eq', ptr(key)))
     recipe['proof_scope'] = 'Actual native CLI exit1 with complete empty stdout and sole JSON IMPORT_OUTSIDE_REPOSITORY stderr; declared physical outside setup remains absent from the retained source map. Refusal and absence of returned analysis/outside facts only, tied to reviewed pre-Program guard and caller argv/input/artifact hashes. No negative claim about arbitrary OS reads, coherent capture, SDK consumption or global admission; no producer-side input acknowledgement on this error route. Separate P03 positive control exercises native usefulness.'
 
+for recipe in recipes:
+    if recipe['case_id'] != 'V3-E03-ambiguous-stars-arbitrated-refusal':
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    fields = {'exact_ambiguity_reason_codes', 'canonical_call_target', 'resolved_edge_to_a_same', 'resolved_edge_to_b_same', 'qualified_admission', 'ambiguity_explicit'}
+    if set(assertions) != fields:
+        raise ValueError('unmapped ambiguity assertion')
+    reasons = assertions['exact_ambiguity_reason_codes']
+    ambiguous = assertions['ambiguity_explicit']
+    if not isinstance(ambiguous, bool) or reasons != (['SOURCE_EXPORT_AMBIGUOUS'] if ambiguous else []):
+        raise ValueError('unexpected frozen ambiguity relation')
+    request = recipe['requests'][0]
+    request['qualified'] = True
+    recipe.update({'surface':'ambiguous_exports_cli', 'checks':[], 'gaps':[], 'credited_properties':sorted(fields), 'explicit_uncredited_properties':[], 'expected_ambiguity_reasons':reasons})
+    path = ['subjects', {'path':'barrel.ts'}, 'semanticObservation']
+    add_bound_check(recipe, path+['reasons'], reasons, 'eq', ptr('exact_ambiguity_reason_codes'), 'qualified::scan SOURCE_EXPORT_AMBIGUOUS', {'arbitration':'T00-ARB-001', 'frozen_unit':recipe['frozen_unit_pointer']})
+    recipe['checks'].append(check(['subjects', {'path':'barrel.ts'}, 'outcome'], 'unsupported' if ambiguous else 'analyzed', 'eq', ptr('ambiguity_explicit')))
+    call = {'callerRelPath':'main.ts', 'callerSymbolPath':'main', 'calleeName':'same', 'line':1}
+    target = assertions['canonical_call_target']
+    if target is None:
+        call.update({'calleeRelPath':{'$field_absent':True}, 'calleeSymbolPath':{'$field_absent':True}})
+    else:
+        call.update({'calleeRelPath':target['path'], 'calleeSymbolPath':target['symbol_path']})
+    recipe['checks'].append(check(['raw_extraction','calls'], [call], 'unordered_projected_eq', ptr('canonical_call_target')))
+    edges = [] if target is None else [{'kind':'calls', 'from':{'path':'main.ts','symbol_path':'main'}, 'to':target}]
+    if assertions['resolved_edge_to_a_same'] is not False or assertions['resolved_edge_to_b_same'] != (target == {'path':'b.ts','symbol_path':'same'}):
+        raise ValueError('unexpected frozen ambiguity edge relation')
+    recipe['checks'].append(check(['assembly'], edges, 'unordered_projected_eq', ptr('resolved_edge_to_a_same')+' + '+ptr('resolved_edge_to_b_same'), 'logical_call_edges'))
+    if ambiguous:
+        if assertions['qualified_admission'] != 'refused':
+            raise ValueError('ambiguity must refuse qualified admission')
+    else:
+        if assertions['qualified_admission'] != 'not inferred from absence of ambiguity; other admission prerequisites remain distinct':
+            raise ValueError('named ambiguity control cannot infer global admission')
+        recipe['credited_properties'].remove('qualified_admission')
+        recipe['explicit_uncredited_properties'].append({'key':'qualified_admission','basis':'Frozen named control explicitly prohibits full admission inference. Actual native batch/receiver analysis and graph consumption are separate, limited observations.'})
+    recipe['proof_scope'] = 'T00-ARB-001: complete frozen raw call target and graph-call projections, explicit native ambiguity reason, then the same materialized input through actual --batch and the native receiver. Ambiguous refusal cannot obtain private graph ownership. Named reexport preserves b.ts/same without inferring global application admission. No full health/storage/services or broad scope equivalence.'
+
 def complete_component_fields(recipe):
     additions=[]
     components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership','partitionObservation']

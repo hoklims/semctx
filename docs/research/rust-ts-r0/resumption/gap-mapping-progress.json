@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FIFTY_TWO_GAPS_MAPPED_FIFTY_ONE_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FIFTY_FIVE_GAPS_MAPPED_FIFTY_FOUR_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve remaining12 static GAP units and the demonstrated bare unresolved-import adapter gap before retained-scope parity/R0; then perform the obligation review, full3OS campaign and reserved run under the unchanged workflow.",
-  "updatedUtc": "2026-10-19T15:38:56.306518+00:00",
-  "staticGapUnitsRemaining": 12,
+  "next": "Resolve remaining9 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved run and R0 under unchanged owner budget and workflow. Retained-import repair has separate bounded v12 evidence; no complete retained-scope parity inferred.",
+  "updatedUtc": "2026-10-19T18:32:28.111607+00:00",
+  "staticGapUnitsRemaining": 9,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -951,5 +951,47 @@
     "passStillOpen": true,
     "ownerBudgetChanged": false
   },
-  "reservedNonaccessScope": "Historical and current per-actor attestations only; this focused replay contains public frozen requests. No exhaustive global access-history guarantee."
+  "reservedNonaccessScope": "Historical and current per-actor attestations only; this focused replay contains public frozen requests. No exhaustive global access-history guarantee.",
+  "twentyThirdBatch": {
+    "registeredUtc": "2026-10-19T18:32:28.111607+00:00",
+    "state": "THREE_FROZEN_E03_LIMITED_PASSES_MACOS_PRIVATE_CONSUMER_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-a-then-b",
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a",
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control"
+    ],
+    "evidence": "gap-ambiguous-exports-evidence.json",
+    "nativeArtifactSha256": "ea5a0b6a1b441d6d8cd2c2b174435c4dfe4b2ad404e9004ec7b36916e865f4ad",
+    "nativeProducerChanged": false,
+    "recipesSha256": "153a263f88812b34dbf08672a46052554fca14b09e1e55f3d86151f32ff3912b",
+    "newMappingsCredited": 3,
+    "newProjectedPasses": 3,
+    "projectedRawChecks": 18,
+    "realNativeProcesses": 6,
+    "consumerObservations": 3,
+    "qualificationCredit": 0,
+    "policyScope": "Canonical recipe separately hash-checked; focused path is not self-authenticating and accepts changed policy/checks in adversarial mutation25. Full-campaign recipe hash guard remains unexecuted.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 55,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 54,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 9,
+      "recipesWithoutKnownGaps": 345,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "NOT_PERFORMED; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reservedReplay": "PENDING; not read or executed by documentary author/auditor",
+      "R0": "PENDING",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across different artifacts, not one current campaign."
+    }
+  }
 }
