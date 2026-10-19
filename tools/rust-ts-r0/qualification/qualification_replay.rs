@@ -5,6 +5,7 @@ mod parallel_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
 mod repository_replay;
+mod source_confinement_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
 use serde_json::{Value, json};
@@ -2660,6 +2661,20 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "source_confinement_cli" {
+            let mut result = source_confinement_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &sdk_path,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "legacy_identity_cli" {
             let mut result = legacy_identity_replay::run(
                 recipe,
@@ -4180,6 +4195,15 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "source_confinement_cli" => source_confinement_replay::run(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                sdk_path,
+                artifact_sha,
+                helper_sha,
+            ),
             "legacy_identity_cli" => legacy_identity_replay::run(recipe, &dir, &fixture),
             "repository_discovery_cli" => {
                 repository_replay::run(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
@@ -5798,6 +5822,14 @@ fn gap_legacy_identity_relocation_byte_mutations_and_crlf_refusal() {
         "P25-byte-identity-relocation::identity-relation-01",
         "P25-byte-identity-relocation::identity-relation-02",
         "P25-byte-identity-relocation::identity-relation-03",
+    ]);
+}
+
+#[test]
+fn gap_native_relative_source_escape_refusal_and_positive_control() {
+    repair_units(&[
+        "N03-relative-escape::base",
+        "P03-confined-relative-source::base",
     ]);
 }
 

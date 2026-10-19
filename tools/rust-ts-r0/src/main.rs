@@ -3,6 +3,7 @@ mod assembly;
 mod assembly_observations;
 mod batch;
 mod captured;
+mod captured_confinement;
 mod captured_system_observations;
 mod component_observations;
 mod configuration;
@@ -1219,6 +1220,16 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     };
     let fs = Rc::new(fs.with_sdk_keys(sdk_keys.iter().map(String::as_str))?);
     fs.record("captured_cwd", &request.cwd, true);
+    captured_confinement::check(
+        fs.clone(),
+        captured_confinement::Inputs {
+            root: &request.cwd,
+            sdk_root: &request.sdk_directory,
+            roots: &program_roots,
+            configured_resolution: static_module_links,
+            ordinary_system_resolution: !request.retained && !static_module_links,
+        },
+    )?;
     let frontend = native_frontend(
         fs.clone(),
         &request.cwd,
@@ -1685,6 +1696,246 @@ mod tests {
             &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
         )
         .unwrap()
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn captured_analysis_checks_physical_aliases_and_surfaces_canonicalization_failures() {
+        let directory = std::env::temp_dir().join(format!(
+            "semctx-captured-alias-dev-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let root = directory.join("repo");
+        let outside = directory.join("outside");
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::create_dir_all(&outside).unwrap();
+        std::os::unix::fs::symlink(&outside, root.join("external")).unwrap();
+        std::os::unix::fs::symlink("loop", root.join("loop")).unwrap();
+        std::fs::write(root.join("inside.ts"), "export const leaf = 1;").unwrap();
+        std::os::unix::fs::symlink("inside.ts", root.join("alias.ts")).unwrap();
+        let root_text = root.to_str().unwrap();
+        let source = root.join("main.ts");
+        let observe = |text: &str, leaf: Option<(&str, &str)>| {
+            let mut request = component_request("physicalAliasDev", source.to_str().unwrap(), text);
+            request.cwd = root_text.into();
+            if let Some((path, text)) = leaf {
+                request
+                    .files
+                    .insert(format!("{root_text}/{path}"), text.into());
+            }
+            analyze(request, component_sdk())
+        };
+        let missing = observe("import './external/missing'; export const value = 1;", None);
+        let looped = observe("import './loop'; export const value = 1;", None);
+        let internal = observe(
+            "import {leaf} from './alias.ts'; export const value = leaf;",
+            Some(("alias.ts", "export const leaf = 1;")),
+        );
+        std::fs::remove_dir_all(directory).unwrap();
+        assert_eq!(
+            missing.err(),
+            Some("IMPORT_OUTSIDE_REPOSITORY: ./external/missing".into())
+        );
+        assert!(
+            looped
+                .unwrap_err()
+                .starts_with("SOURCE_CANONICAL_PATH_UNAVAILABLE:")
+        );
+        assert!(internal.is_ok());
+    }
+
+    #[test]
+    fn captured_analysis_refuses_property_require_and_amd_dependencies() {
+        for text in [
+            "custom.require('../../guardOutside'); export const value = 1;",
+            "define(['../../guardOutside'], () => 1);",
+            "define('named', ['../../guardOutside'], () => 1);",
+        ] {
+            let request = component_request("javascriptImportsDev", "/repo/main.ts", text);
+            assert_eq!(
+                analyze(request, component_sdk()).err(),
+                Some("IMPORT_OUTSIDE_REPOSITORY: ../../guardOutside".into()),
+                "{text}"
+            );
+        }
+    }
+
+    #[test]
+    fn captured_analysis_keeps_sdk59_non_dependency_call_and_template_contexts() {
+        for text in [
+            "export const note = \"define(['../../guardOutside'])\";",
+            "export const note = `${require('../../guardOutside')}`;",
+            "export const note = `${custom.require('../../guardOutside')}`;",
+            "(require)('../../guardOutside'); export const value = 1;",
+            "custom['require']('../../guardOutside'); export const value = 1;",
+            "require?.('../../guardOutside'); export const value = 1;",
+            "define?.(['../../guardOutside'], () => 1);",
+        ] {
+            let request = component_request("nonDependencyContextDev", "/repo/main.ts", text);
+            assert!(analyze(request, component_sdk()).is_ok(), "{text}");
+        }
+    }
+
+    #[test]
+    fn captured_analysis_accepts_equivalent_dot_and_parent_repository_roots() {
+        let directory =
+            std::env::temp_dir().join(format!("semctx-root-spelling-dev-{}", std::process::id()));
+        std::fs::create_dir(&directory).unwrap();
+        let source = directory.join("main.ts");
+        let mut request = component_request(
+            "rootSpellingDev",
+            source.to_str().unwrap(),
+            "export const value = 1;",
+        );
+        request.cwd = format!("{}/./missing/..", directory.display());
+        let observed = analyze(request, component_sdk());
+        std::fs::remove_dir(directory).unwrap();
+        assert!(observed.is_ok(), "{:?}", observed.err());
+    }
+
+    #[test]
+    fn captured_analysis_refuses_relative_import_escape_even_when_target_is_absent() {
+        for outside_present in [false, true] {
+            let mut request = component_request(
+                "capturedConfinementDev",
+                "/repo/src/guardConsumer.ts",
+                "import { guardedValue } from '../../guardOutside'; export const observed = guardedValue;",
+            );
+            if outside_present {
+                request.files.insert(
+                    "/guardOutside.ts".into(),
+                    "export const guardedValue = 109;".into(),
+                );
+            }
+            assert_eq!(
+                analyze(request, component_sdk()).err(),
+                Some("IMPORT_OUTSIDE_REPOSITORY: ../../guardOutside".into()),
+                "outside target present: {outside_present}"
+            );
+        }
+    }
+
+    #[test]
+    fn captured_analysis_keeps_a_parent_directory_import_inside_the_repository() {
+        let mut request = component_request(
+            "capturedConfinementParentDev",
+            "/repo/src/guardConsumer.ts",
+            "import { guardedValue } from '..'; export const observed = guardedValue;",
+        );
+        request.files.insert(
+            "/repo/index.ts".into(),
+            "export const guardedValue = 113;".into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        assert_eq!(
+            observed["raw_extraction"]["imports"][0]["resolvedRelPath"],
+            "index.ts"
+        );
+    }
+
+    #[test]
+    fn captured_analysis_checks_relative_imports_in_reached_dependencies() {
+        let mut request = component_request(
+            "capturedConfinementTransitiveDev",
+            "/repo/src/guardConsumer.ts",
+            "import { guardedValue } from './bridge'; export const observed = guardedValue;",
+        );
+        request.files.insert(
+            "/repo/src/bridge.ts".into(),
+            "import { guardedValue } from '../../guardOutside'; export { guardedValue };".into(),
+        );
+        assert_eq!(
+            analyze(request, component_sdk()).err(),
+            Some("IMPORT_OUTSIDE_REPOSITORY: ../../guardOutside".into())
+        );
+    }
+
+    #[test]
+    fn captured_analysis_does_not_check_unreached_captured_sources() {
+        let mut request = component_request(
+            "capturedConfinementUnreachedDev",
+            "/repo/src/guardConsumer.ts",
+            "export const observed = 127;",
+        );
+        request.files.insert(
+            "/repo/unreached.ts".into(),
+            "import { guardedValue } from '../guardOutside'; export { guardedValue };".into(),
+        );
+        let observed = analyze(request, component_sdk()).unwrap();
+        assert_eq!(
+            observed["raw_extraction"]["modules"],
+            serde_json::json!(["src/guardConsumer.ts"])
+        );
+    }
+
+    #[test]
+    fn captured_analysis_refuses_an_outside_reference_and_a_traversing_root() {
+        let request = component_request(
+            "capturedConfinementReferenceDev",
+            "/repo/src/guardConsumer.ts",
+            "/// <reference path=\"../../guardOutside.d.ts\" />\nexport const observed = 131;",
+        );
+        assert_eq!(
+            analyze(request, component_sdk()).err(),
+            Some("REFERENCE_OUTSIDE_REPOSITORY: ../../guardOutside.d.ts".into())
+        );
+        let request = component_request(
+            "capturedConfinementRootDev",
+            "/repo/src/../../guardOutside.ts",
+            "export const observed = 137;",
+        );
+        assert!(
+            analyze(request, component_sdk())
+                .err()
+                .is_some_and(|error| error.starts_with("source outside repository:"))
+        );
+    }
+
+    #[test]
+    fn captured_analysis_refuses_missing_source_bytes_before_native_analysis() {
+        let mut request = component_request(
+            "capturedConfinementMissingDev",
+            "/repo/src/guardConsumer.ts",
+            "export const observed = 139;",
+        );
+        request.files.clear();
+        assert_eq!(
+            analyze(request, component_sdk()).err(),
+            Some("SOURCE_SNAPSHOT_MISSING: src/guardConsumer.ts".into())
+        );
+    }
+
+    #[test]
+    fn captured_analysis_confines_the_sdk59_relative_dependency_syntaxes() {
+        for source in [
+            "import { x } from '../../guardOutside';",
+            "export { x } from '../../guardOutside';",
+            "export const x = import('../../guardOutside');",
+            "const x = require('../../guardOutside');",
+            "export type X = import('../../guardOutside').X;",
+            "import x = require('../../guardOutside');",
+        ] {
+            let request = component_request(
+                "capturedConfinementSyntaxDev",
+                "/repo/src/guardConsumer.ts",
+                source,
+            );
+            assert_eq!(
+                analyze(request, component_sdk()).err(),
+                Some("IMPORT_OUTSIDE_REPOSITORY: ../../guardOutside".into()),
+                "{source}"
+            );
+        }
+        let request = component_request(
+            "capturedConfinementQuotedDev",
+            "/repo/src/guardConsumer.ts",
+            "export const note = \"import { x } from '../../guardOutside';\";",
+        );
+        assert!(analyze(request, component_sdk()).is_ok());
     }
 
     #[test]
