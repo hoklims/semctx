@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "recordedDate": "2026-10-19",
-  "state": "OWNER_CI_PUBLICATION_RULES_WITH_EXACT_T00_RELEASE_TEST_EXCEPTION",
+  "state": "OWNER_CI_RULES_PRESERVED_WITH_FAILED_623_RUN_AND_LOCAL_RESOURCE_RECEIPTS",
   "authority": {
     "owner": "Sébastien",
     "source": "Current owner rules supplied to documentary author and independent auditor by /root; latest direct correction explicitly retains the other rules.",
@@ -17,7 +17,7 @@
     "branch": "rust/365-t00",
     "pullRequest": 386,
     "composition": "C1",
-    "domain": "Future CI/publication actions only; no Rust behavior or qualification review."
+    "domain": "Owner CI/publication rules plus bounded actual CI and local lifecycle receipts; no qualification or global performance review."
   },
   "rules": {
     "push": "Only completed coherent milestones after green local verify:pr with Bun1.4.3 and GIT_CONFIG_GLOBAL absent; evidence must bind the exact milestone head.",
@@ -27,12 +27,12 @@
     "windowsRustTests": "Run if possible using an available permitted non-manual route. No Windows success inferred without a green exact-SHA test result.",
     "mergeReleaseDeploy": false
   },
-  "evidenceLimits": "Approved prospective constraints only; no current milestone verify:pr, Windows test, run-event or external-action audit is supplied by this record. No qualification credit or R0 conclusion follows.",
+  "evidenceLimits": "Failed native CI jobs are retained as failures, not validated successful timing improvements. Local resource/tests evidence is DarwinARM64 only; WindowsGNU compilation is not Windows execution. No zero-leak, portable budget, current threeOS CI success, qualification or R0 conclusion follows.",
   "audit": {
     "authorTask": "/root/retained_unresolved_evidence_author",
-    "auditorTask": "/root/retained_unresolved_evidence_author/ci_exception_claim_auditor",
-    "ledger": "owner-ci-rules-claim-audit.md#approved-t00-ci-exception-2026-10-19",
-    "status": "Prospective targets only; old absolute workflow-edit claim contradicted within this exact exception. No current execution, CI or performance result supplied."
+    "auditorTask": "/root/retained_unresolved_evidence_author/ci_memory_receipt_claim_auditor",
+    "ledger": "owner-ci-rules-claim-audit.md#failed-623-ci-and-local-resource-receipts-2026-10-19",
+    "scope": "Six-source lifecycle correction and retained CI receipts only; prior policy/decision ledgers remain historical."
   },
   "approvedT00Exception": {
     "authorityDate": "2026-10-19",
@@ -53,5 +53,123 @@
     "auditorTask": "/root/retained_unresolved_evidence_author/owner_ci_rules_auditor",
     "ledger": "owner-ci-rules-claim-audit.md",
     "status": "Six target claims; no execution oracle promoted to held."
+  },
+  "policyAuditAsRecorded": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/ci_exception_claim_auditor",
+    "ledger": "owner-ci-rules-claim-audit.md#approved-t00-ci-exception-2026-10-19",
+    "status": "Prospective targets only; old absolute workflow-edit claim contradicted within this exact exception. No current execution, CI or performance result supplied."
+  },
+  "ci623Receipt": {
+    "head": "623c8676e6debd9f93e12e851958496760131aa1",
+    "run": 39313136266,
+    "url": "https://github.com/hoklims/semctx/actions/runs/39313136266",
+    "publication": "One milestone push is root’s attestation of its observed act. Fresh API receipt confirms automatic pull_request event and exact SHA; no global external-act audit claimed.",
+    "nativeJobsOutcome": "FAILURE_ON_ALL_THREE_OS",
+    "jobs": [
+      {
+        "os": "Linux",
+        "elapsedBeforeFailure": "9m10s",
+        "previousElapsed": "22m24s",
+        "signature": "Runner shutdown signal; exit143. SIGTERM-compatible, not a demonstrated OOM."
+      },
+      {
+        "os": "macOS",
+        "elapsedBeforeFailure": "13m37s",
+        "previousElapsed": "40m46s",
+        "signature": "SIGKILL9; no further cause established by this receipt."
+      },
+      {
+        "os": "Windows",
+        "elapsedBeforeFailure": "14m16s",
+        "previousElapsed": "25m43s",
+        "signature": "memory allocation of6219904bytes failed."
+      }
+    ],
+    "comparisonLimit": "Elapsed failed-job durations only. Earlier22–43minute timings are comparison context, not a verified successful performance improvement.",
+    "snapshotLimit": "ci-623-run-final.json remains the unchanged earlier in_progress snapshot. Fresh ci-623-run-receipt-with-event.json records completed/failure and pull_request; the later receipt supplements rather than rewrites the earlier snapshot.",
+    "newCandidate": "No CI result or Linux/Windows execution for the local lifecycle correction is supplied.",
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "failure",
+    "runListScope": {
+      "returnedRuns": 30,
+      "exactHeadMatches": 1,
+      "scope": "Only the returned30-run branch window; no global uniqueness guarantee."
+    }
+  },
+  "nativeResourceReceipt": {
+    "recordedDate": "2026-10-19",
+    "sourceCommitAtRecording": "d448364d66775af44e3514efd1cc0cdb2606bba5",
+    "parentAtRecording": "af5898cf",
+    "publicationAtRecording": "Local commit only, not pushed; last audited public run remains623c8676/39313136266.",
+    "sourceAnchor": {
+      "base": "623c8676e6debd9f93e12e851958496760131aa1",
+      "files": {
+        "tools/rust-ts-r0/src/main.rs": "8c33db342a6653adb9e732b172117cb09343c0a79052c5636741a84e787510b1",
+        "tools/rust-ts-r0/src/native_program.rs": "bbe36d3822430b865a86abc071bc413dae13f622ef30afa3a0524e320c04e188",
+        "tools/rust-ts-r0/src/development.rs": "2594ec1d483d40c0201d2174df357feab53a6cebb0bcb11a34832db5355690ef",
+        "tools/rust-ts-r0/src/worker_observations.rs": "1d3ca5d076c486e3588c3da68dc1085aecacda613138756c8a51c9014cf110e3",
+        "tools/rust-ts-r0/src/parallel_observations.rs": "014e2b432971791d656e472f4eeb9774e89290b4f953943b48d056f599399b94",
+        "tools/rust-ts-r0/src/runtime_configuration.rs": "5eac93329a6002835b633a22435a7dcbbd7c0599bd1d1d1d3112b8933f4942e0"
+      },
+      "patchSha256": "4d17929579029772f77d76f8b54377ba7a176589c7e8ba68e57eda7532db9638"
+    },
+    "mechanism": "Private NativeProgram RAII restores the previous current Program before releasing checker pool,tables and frontend. Captured paths are registered before parse; public FileVersion ownership/mark-freeable handling follows the pinned upstream API lease lifecycle.",
+    "upstreamAuthority": "Local pinned ts-rust@780dc512d64f40afebffa6a7028207649fb7ed1c, checked in independent source reviews; no dependency or workflow change in this six-source patch.",
+    "failurePathOracle": "Four real resource tests cover normal exit,early Err,nested panic with usable parent,first and repeated parse. RED table-lifetime and static-parse witnesses retained.",
+    "memoryEnvironment": "DarwinARM64,Rust1.95.0,/usr/bin/time -l,serial test threads,snapshots disabled,GIT_CONFIG_GLOBAL absent; measurements are separate executions.",
+    "measurements": [
+      {
+        "revision": "Reference before correction",
+        "testPasses": 244,
+        "maximumRssBytes": 22729031680,
+        "peakFootprintBytes": 38480701568
+      },
+      {
+        "revision": "Intermediate tables-only v1, insufficient",
+        "testPasses": 247,
+        "maximumRssBytes": 23639867392
+      },
+      {
+        "revision": "Production-helper v2",
+        "testPasses": 248,
+        "maximumRssBytes": 865042432,
+        "peakFootprintBytes": 712771264,
+        "elapsedSeconds": 41.41
+      }
+    ],
+    "v3Limit": "Production code unchanged from v2; v3 strengthens a test assertion. No v3 memory run is claimed and v2 values are not promoted to a current/portable guarantee.",
+    "v3Oracles": "Independent four-resource-test run PASS on unit binary SHA256672cb09389bc0e0663079a1a4ea48814294d0b55fd07be54452aa8e3ce6c7217. Unfiltered release49lib+248bin+25integrations=322PASS; alltargets/allfeatures Clippy-Dwarnings PASS. WindowsGNU alltargets/allfeatures cargo check PASS on Darwin, no Windows runtime.",
+    "notEstablished": "Zero leak,release of every upstream allocation,strictportablememorybudget,race/process-abort cleanup,threeOS runtime,current remote CI success,READY or qualification.",
+    "policyPreservation": "Existing owner rules,approvedT00Exception,budget8fdc/action pins/envguards/CI plan unchanged. No new qualification credit or campaign result."
+  },
+  "receiptEvidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "receiptEvidenceSha256": {
+    "ci-623-duration-results.json": "d6fa5e6e6f190493f7997d71fc217796b65c9446547f7ee302b70b9bfa35b30d",
+    "ci-623-jobs-results.json": "3b1b71d0e1c86f65c54689361434ead83a294ab3524878cc4af4966235729a53",
+    "ci-623-run-final.json": "28a8c061a9577f810ea610319800881212e8bf0fb703353b602c4e1ccddbb4a1",
+    "ci-623-linux.log": "572822ea3e9b5ac95f4528656c1087bfb4564b753b35440efd4f275ab4c47c0f",
+    "ci-623-macos.log": "858e0c1fb203fbecc9a75638f4031364b5bd08ebf609699757b40f3c329c563f",
+    "ci-623-windows.log": "d8f8186660b6718a29654cd337f24392e50602b864515c9554b40f2c9036b0e8",
+    "ci-623-release-memory-command.json": "5efaf358ffb525bcbd533ba99fd7af24727ebde38ca82e0fab40bb8b244274f0",
+    "ci-623-release-memory.stdout": "29c5144fd94bb7314569414828271d6450a33a1a614a1fba6a2d6acae7887f32",
+    "ci-623-release-memory.stderr": "aa28f3d8cbcd635b09a4a482d92fdd72d732754315252fe88d340ab225c93998",
+    "native-program-source-anchor-v3.json": "96bce7fd0baf69c29d18cd625b511a57655936ae9c103ebc825bd0d82b8d25b1",
+    "native-program-source-v3.patch": "4d17929579029772f77d76f8b54377ba7a176589c7e8ba68e57eda7532db9638",
+    "native-program-release-memory-v1.stdout": "6dd6065eccff645b184b16b9e914eb8a645e77d7e90721b53c46a823d65bbdca",
+    "native-program-release-memory-v1.stderr": "6fdc4e1c4d608d55c72f596b84873c0bd63bfbaccec818cb3a54cab296804d4c",
+    "native-program-release-memory-v2.stdout": "626692f8654726738e21494de461aef2991a7b9bde292ccf9f255638e8463d3e",
+    "native-program-release-memory-v2.stderr": "34455e48cd46de3b84040e60dfb7cc5fec0d9e5484244c3d3261cc2ef3d36bba",
+    "native-program-release-red.log": "e52be8c3d90a13afdfad4dd314ca6439d70f3b4da5b59eb1dbc5def3620b83bb",
+    "native-file-version-release-red.log": "be284e11068478833bd5a8c5984fd64cf9bb824d99095b322e83b786fea76929",
+    "native-program-spec-v1.md": "3f9c06207aea6eea8837a0b263eab8401415e8ebf2c498a1bc5794ecce52fa80",
+    "native-program-standards-v1.md": "27687898fde45e82f87cfc38548cbdb8752b372097a8f3699fb6ea354b2e420f",
+    "native-program-spec-v1-tests.log": "cc515514f6989b1c9a2b28eede54375263b1ef9c9eb1ee0323e76cae49b20e53",
+    "native-program-all-release-v1.log": "9ad5d99116037188386a6c7cb026d59aad90214763c0425deb4ba5d5e2589948",
+    "native-program-clippy-v1.log": "1f679b281e885ac618208a9536e8aaf043e4a8acb545c9c2ef965f03aec78176",
+    "native-program-windows-crosscheck-v1.log": "550aba769139959259b664b49eaa85cea367e43f60e0a6004dd0bea9361eadab",
+    "ci-623-run-receipt-with-event.json": "84a7038082dab82acce0a43c4ba638b966ed5213adac8a8b0f69b0ec562cd326",
+    "ci-623-run-list-receipt.json": "e21b5478315dbcb270c151dc5f0b93d86ed7464567c351dcb3426d42ee2a11eb"
   }
 }
