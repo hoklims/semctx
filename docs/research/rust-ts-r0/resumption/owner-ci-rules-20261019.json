@@ -1,12 +1,17 @@
 {
   "recordVersion": 1,
   "recordedDate": "2026-10-19",
-  "state": "OWNER_CI_PUBLICATION_RULES_ONLY",
+  "state": "OWNER_CI_PUBLICATION_RULES_WITH_EXACT_T00_RELEASE_TEST_EXCEPTION",
   "authority": {
     "owner": "Sébastien",
     "source": "Current owner rules supplied to documentary author and independent auditor by /root; latest direct correction explicitly retains the other rules.",
     "retentionVerbatimExcerpt": "Les autres règles restent valables.",
-    "rulesBelow": "Paraphrases of the retained CI/publication instructions, not verbatim quotations. No budget decision is recorded here."
+    "rulesBelow": "Paraphrases of approved CI/publication instructions, not verbatim quotations. No new budget decision is made; existing8fdc authority remains unchanged.",
+    "latestException": {
+      "source": "New direct Sébastien instruction in the root T00 session, relayed to this author and fresh independent auditor.",
+      "verbatimExcerpt": "correctif CI approuvé sur T00 uniquement (pas sur main)",
+      "scope": "Rule4 workflow-edit prohibition is lifted only for the exact enumerated T00 correction below; no permission for main or other workflow changes."
+    }
   },
   "scope": {
     "branch": "rust/365-t00",
@@ -17,13 +22,33 @@
   "rules": {
     "push": "Only completed coherent milestones after green local verify:pr with Bun1.4.3 and GIT_CONFIG_GLOBAL absent; evidence must bind the exact milestone head.",
     "manualCiLaunches": "PROHIBITED; includes workflow_dispatch",
-    "furtherWorkflowEdits": "PROHIBITED",
+    "furtherWorkflowEdits": "PROHIBITED except the exact approved T00 release-test correction recorded in approvedT00Exception; all other workflow edits remain forbidden.",
     "githubComments": "PROHIBITED_EVERYWHERE",
     "windowsRustTests": "Run if possible using an available permitted non-manual route. No Windows success inferred without a green exact-SHA test result.",
     "mergeReleaseDeploy": false
   },
   "evidenceLimits": "Approved prospective constraints only; no current milestone verify:pr, Windows test, run-event or external-action audit is supplied by this record. No qualification credit or R0 conclusion follows.",
   "audit": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/ci_exception_claim_auditor",
+    "ledger": "owner-ci-rules-claim-audit.md#approved-t00-ci-exception-2026-10-19",
+    "status": "Prospective targets only; old absolute workflow-edit claim contradicted within this exact exception. No current execution, CI or performance result supplied."
+  },
+  "approvedT00Exception": {
+    "authorityDate": "2026-10-19",
+    "workline": "T00 only, rust/365-t00 / PR386; no main change.",
+    "workspaceGate": "Add tools/rust-ts-r0/Cargo.toml to TOOL_MANIFESTS in tools/gates/src/rust_workspace.rs and add the corresponding gate regression test.",
+    "cargoCommand": "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release",
+    "commandScope": "One unfiltered T00 command covering library,binary and integrations; no --test selector or filter.",
+    "conditionalResources": "RUST_TEST_THREADS=1,CARGO_BUILD_JOBS=2,GOPORT_LIB_SNAPSHOT=0 only on the T00 step and only with demonstrated necessity. Prefer active valid snapshots.",
+    "triggers": "Remove workflow_dispatch; no manual launch, dispatch or rerun; observe the one naturally triggered pull_request run.",
+    "policyPreservation": "Retain the policy from main#399, other existing policies and complete immutable Action commit SHAs.",
+    "beforeSinglePush": "Require green exact-milestone actionlint,zizmor,gates,local release-mode R0 tests and verify:pr with Bun1.4.3 and GIT_CONFIG_GLOBAL absent, then one coherent push.",
+    "afterPush": "Monitor that single pull_request run; after completion compare OS-specific durations with the historical22–43minute range. No current performance result inferred.",
+    "unchangedProhibitions": "No GitHub comments, merge, published release or deployment. Other workflow edits remain forbidden.",
+    "budgetPreservation": "Existing8fdc decision and counters remain unchanged; this exception makes no new budget decision."
+  },
+  "historicalAudit": {
     "authorTask": "/root/retained_unresolved_evidence_author",
     "auditorTask": "/root/retained_unresolved_evidence_author/owner_ci_rules_auditor",
     "ledger": "owner-ci-rules-claim-audit.md",
