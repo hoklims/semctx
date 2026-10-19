@@ -159,8 +159,8 @@ fn convert(node: Node, source: Node, text: &str) -> Option<Value> {
     }
 }
 
-pub fn inspect(path: &str, text: &str) -> Option<Manifest> {
-    let source = parser::parse_source_file(
+fn parse_json(path: &str, text: &str) -> Node {
+    parser::parse_source_file(
         &parser::SourceFileParseOptions {
             file_name: path.into(),
             path: tspath::Path(path.into()),
@@ -169,7 +169,62 @@ pub fn inspect(path: &str, text: &str) -> Option<Manifest> {
         ast::FileText::new(text.to_owned(), false),
         ts_goport::flags::ScriptKind::JSON,
     )
-    .root;
+    .root
+}
+
+fn recovered_config_value(node: Node) -> Value {
+    match node.kind() {
+        K::NullKeyword => Value::Null,
+        K::StringLiteral => Value::String(node.text().to_owned()),
+        K::ArrayLiteralExpression => {
+            Value::Array(node.elements().iter().map(recovered_config_value).collect())
+        }
+        K::ObjectLiteralExpression => {
+            let mut object = Object::new();
+            for property in node.properties().iter() {
+                if property.kind() != K::PropertyAssignment {
+                    continue;
+                }
+                let (key, present) = ast::try_get_text_of_property_name(property.name());
+                if present {
+                    object.assign(key, recovered_config_value(property.initializer()));
+                }
+            }
+            Value::Object(object)
+        }
+        _ => Value::Scalar,
+    }
+}
+
+pub fn extended_configs(path: &str, text: &str) -> Vec<String> {
+    let source = parse_json(path, text);
+    if source.statements().is_empty() {
+        return vec![];
+    }
+    let mut root = source.statements().get(0).expression();
+    if root.kind() == K::ArrayLiteralExpression {
+        let Some(object) = root
+            .elements()
+            .iter()
+            .find(|node| node.kind() == K::ObjectLiteralExpression)
+        else {
+            return vec![];
+        };
+        root = object;
+    }
+    let value = recovered_config_value(root);
+    match value.get("extends") {
+        Some(Value::String(text)) => vec![text.clone()],
+        Some(Value::Array(values)) => values
+            .iter()
+            .filter_map(|value| value.string().map(str::to_owned))
+            .collect(),
+        _ => vec![],
+    }
+}
+
+pub fn inspect(path: &str, text: &str) -> Option<Manifest> {
+    let source = parse_json(path, text);
     let (_, errors) = tsoptions::convert_config_file_to_object(source, None);
     if !errors.is_empty() || !ast::source_file_diagnostics(source).is_empty() {
         return None;

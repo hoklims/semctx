@@ -2662,6 +2662,19 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "repository_eligibility_cli" {
+            let mut result = repository_replay::run_eligibility(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "ambiguous_exports_cli" {
             let mut result = ambiguous_exports_replay::run(
                 recipe,
@@ -4206,6 +4219,14 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "repository_eligibility_cli" => repository_replay::run_eligibility(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                artifact_sha,
+                helper_sha,
+            ),
             "ambiguous_exports_cli" => ambiguous_exports_replay::run(recipe, &dir, &fixture),
             "source_confinement_cli" => source_confinement_replay::run(
                 recipe,
@@ -5871,6 +5892,11 @@ fn gap_ambiguous_star_exports_refuse_and_named_export_keeps_its_target() {
         "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a",
         "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control",
     ]);
+}
+
+#[test]
+fn gap_qualified_path_eligibility_preserves_metadata_and_refuses_git_failure() {
+    repair_units(&["ORD-QUALIFIED-ELIGIBILITY::base"]);
 }
 
 #[test]
