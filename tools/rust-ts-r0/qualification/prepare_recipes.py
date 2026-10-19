@@ -86,13 +86,17 @@ def recipe_input(inp, cid):
         req['roles']={path:'test' for path,text in files.items() if re.search(r'\.(?:[cm]?[tj]sx?)$',path) and (re.search(r'\.(?:test|spec)\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$',path) or any(part in {'test','tests','__tests__'} for part in path.split('/')) or re.search(r'''from\s+["'](?:vitest|bun:test|node:test)["']''',text))}
     return req,gaps
 
-def outline_checks(assertions, source, index):
+def outline_checks(assertions, source, case_id):
     checks=[];claimed=[]
     for key in ['statements','statements_exact_except_digest','exportedNames','hasSyntaxErrors','directiveLines','markerLines']:
         if key in assertions:
             target=['outlines',source,'outline','statements' if key.startswith('statements') else key]
             mode='ordered_projected_eq' if key.startswith('statements') else 'eq'
             checks.append(check(target,assertions[key],mode,ptr(key)));claimed.append(key)
+            if key.startswith('statements') and case_id.startswith('OL-'):
+                absences=[{'index':i,'fields':[field for field in ['moduleSpecifier','importBindings','loadsModule','sideEffectImport'] if field not in statement]} for i,statement in enumerate(assertions[key])]
+                absences=[entry for entry in absences if entry['fields']]
+                if absences:checks.append(check(target,absences,'indexed_field_absences',ptr(key)))
     return checks,claimed
 
 recipes=[]
@@ -142,7 +146,7 @@ for n,u in enumerate(UNITS):
     def add(key,path,mode='eq',expected=None,transform='none',recipe=r,assertions=a,recognized_properties=recognized):
         recipe['checks'].append(check(path,assertions[key] if expected is None else expected,mode,ptr(key),transform));recognized_properties.add(key)
     if source:
-        oc,oks=outline_checks(a,source,n);r['checks']+=oc;recognized.update(oks)
+        oc,oks=outline_checks(a,source,cid);r['checks']+=oc;recognized.update(oks)
         for key,target in [('modules','modules'),('modules_exact','modules'),('imports','imports'),('imports_exact','imports'),('calls','calls'),('calls_exact','calls'),('symbols','symbols'),('symbols_exact','symbols'),('symbols_projection_exact','symbols')]:
             if key in a:add(key,['raw_extraction',target],'unordered_projected_eq',transform='symbol_aliases' if target=='symbols' else 'none')
         for key in ['symbol_projection','symbol_projection_exact']:
@@ -157,7 +161,10 @@ for n,u in enumerate(UNITS):
         for key in ['forbidden_symbol_names','absent_extracted_symbol_names']:
             if key in a:add(key,['raw_extraction','symbols'],'excludes_projected',expected=[{'name':name} for name in a[key]])
         if 'forbidden_call_targets' in a:add('forbidden_call_targets',['raw_extraction','calls'],'excludes_projected',expected=[{'callee':value} for value in a['forbidden_call_targets']],transform='call_aliases')
-        if 'links_exact' in a:add('links_exact',['outlines',source,'moduleLinks'],'ordered_projected_eq')
+        if 'links_exact' in a:
+            add('links_exact',['outlines',source,'moduleLinks'],'ordered_projected_eq')
+            absences=[{'index':i,'fields':['whole']} for i,link in enumerate(a['links_exact']) if 'whole' not in link]
+            if absences:r['checks'].append(check(['outlines',source,'moduleLinks'],absences,'indexed_field_absences',ptr('links_exact')))
         if 'outline_hasSyntaxErrors' in a:add('outline_hasSyntaxErrors',['outlines',source,'outline','hasSyntaxErrors'])
         if 'javascript_parseFailed' in a:add('javascript_parseFailed',['subjects',{'path':source},'javascript','parseFailed'])
         if 'commonJsUnsupported' in a:add('commonJsUnsupported',['subjects',{'path':source},'javascript','commonJsUnsupported'])
