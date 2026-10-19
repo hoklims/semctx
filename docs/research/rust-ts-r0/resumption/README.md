@@ -549,6 +549,28 @@ PASS plus N17c NONPASS,4 original GAP and350/354 static recipes without known GA
 prior58/6 remains historical. Formal credit stays0/240; review178, full354 threeOS,
 reserved23/26 and R0 remain pending. Owner continuation and CI rules are unchanged.
 
+A [twenty-seventh tranche](gap-reader-dialect-evidence.json) maps the reader and
+dialect units. The reader passes six checks across a real47byte kernel-error
+capture and two EOF controls, preserving exposed causeKind/OS/message. This
+covers the reused reader boundary, not outer `process::run` capture_error,
+cleanup or timeout. The dialect unit honestly remains NONPASS: two unchanged
+5.9.3 expectations mismatch the actual7.1.0-dev compiler/capability identity,
+independent of SDK5.9.3. [T00-ARB-004](../arbitrations.json) applies the existing
+individual version-attribution rule to that property only, with no new waiver
+or PASS. A private JS input observes languagejavascript/7.1 but still mismatches
+the frozen version. Exact recipehash binding remains external; a private expected
+version change can pass its changed policy without qualifying the frozen unit.
+The [complete ledger](gap-reader-dialect-claim-audit.md) preserves these limits.
+Local macOS checks pass49lib+248bin,63comparators,8Python,Clippy and Ruff;
+WindowsGNU is crosscompiled only. Cumulative mappings now reach62:60 limited
+PASS plus two raw version NONPASS units (N17c and ORD-DIALECT),2 original GAP
+(P19/N19),352/354 static recipes without known GAP. Prior60/4 remains historical.
+Formal credit stays0/240; review178,full354threeOS,reserved23/26 and R0 remain
+pending. CI39322421229 has three Rustjobs green at9da7,322Rusttests each;
+its recorded overall run was still in progress. Those results do not cover
+local b098 or constitute the354-unit campaign or a normalized timing benchmark.
+Owner continuation and CI rules remain unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI

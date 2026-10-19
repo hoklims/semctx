@@ -237,6 +237,16 @@
       "rawComparisonRemains": "NONPASS_PROJECTED_UNIT",
       "qualificationCredit": 0,
       "evidence": "gap-mapping-evidence.json"
+    },
+    {
+      "id": "T00-ARB-004",
+      "record": "../arbitrations.json",
+      "scope": [
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "rawComparisonRemains": "NONPASS_PROJECTED_UNIT",
+      "qualificationCredit": 0,
+      "evidence": "gap-reader-dialect-evidence.json"
     }
   ]
 }

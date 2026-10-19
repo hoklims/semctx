@@ -139,3 +139,23 @@ remain separate from the measured v2 memory run and from future native threeOS
 execution. No zero-leak or portable-resource guarantee follows. Original owner
 rules, exception, budget8fdc and prior ledgers are preserved; no qualification,
 reserved, campaign or R0 credit is added.
+
+## Three Rust jobs at9da7 — 2026-10-19 receipt
+
+Author task: `/root/retained_unresolved_evidence_author`.
+Fresh auditor task: `/root/retained_unresolved_evidence_author/reader_dialect_claim_auditor`,
+a distinct dedicated child. The [complete22-row seven-column ledger](gap-reader-dialect-claim-audit.md)
+contains every changed reader/dialect and CI9da7 claim, including the CI head,
+job/overall distinction, test/qualification denominators, elapsed-time limit and
+bounded publication attestation. It was returned and reconciled before these
+receipts were drafted; this section does not substitute a shortened ledger.
+
+`ci9da7Receipt` records run39322421229, automatic `pull_request` at9da7:
+three native Rust jobs SUCCESS,322 tests each, elapsed Linux9m08s/macOS14m07s/
+Windows19m52s. The retained overall snapshot is still `in_progress`; no globally
+green run is asserted. Prior fbc debug jobs failed at22m24s/40m46s/25m43s, so this
+comparison is not a normalized benchmark.322Rusttests and354qualificationunits
+are separate denominators. No reader/dialect b098 CI result or full354 campaign
+is inferred. One normal milestone push/no manual run is root's bounded observed-
+act attestation, not an exhaustive global-event proof. All earlier failed623 and
+local memory receipts, complete ledgers and owner rules remain unchanged.
