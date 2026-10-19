@@ -33,7 +33,7 @@
     },
     {
       "id": "T00-ARB-002",
-      "status": "OWNER_APPROVED_VERSION_DIFFERENCE_PENDING_REOPENED_REPLAY",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
       "owner": "Sébastien",
       "decisionDate": "2026-10-18",
       "decisionSource": "Owner instruction in the resumed T00 session at 6270bc10765d697a4311150e3e1a4aea8a726335",
@@ -75,11 +75,21 @@
       "comparisonRule": "Accept only this specific version-attributed code difference under the owner arbitration, preserving raw diagnostics and frozen expectations. No new PASS is granted at registration. Additional TS7-versus-TS5 differences need individual demonstrable evidence; all other differences remain actual divergences.",
       "automaticExtensionToOtherDiagnostics": false,
       "historicalExpectationsRewritten": false,
-      "resumption": "resumption/record.json"
+      "resumption": "resumption/record.json",
+      "previousStatusBeforeOriginalMacosCampaign": "OWNER_APPROVED_VERSION_DIFFERENCE_PENDING_REOPENED_REPLAY",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
     },
     {
       "id": "T00-ARB-003",
-      "status": "INDIVIDUALLY_DEMONSTRATED_VERSION_DIFFERENCE_PENDING_CAMPAIGN",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
       "owner": "Sébastien",
       "decisionDate": "2026-10-18",
       "decisionSource": "Owner2026-10-18 instruction: extend TS7-versus-TS5 reasoning only to individually demonstrated version differences with evidence. Applied within that delegated scope.",
@@ -120,11 +130,21 @@
       "primaryIntentSources": [
         "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html",
         "https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/"
-      ]
+      ],
+      "previousStatusBeforeOriginalMacosCampaign": "INDIVIDUALLY_DEMONSTRATED_VERSION_DIFFERENCE_PENDING_CAMPAIGN",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
     },
     {
       "id": "T00-ARB-004",
-      "status": "INDIVIDUALLY_DEMONSTRATED_COMPILER_IDENTITY_DIFFERENCE_PENDING_CAMPAIGN",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
       "owner": "Sébastien",
       "decisionSource": "Existing owner2026-10-18 per-difference rule recorded in T00-ARB-002.comparisonRule; applied within delegated individual-evidence scope,not a new owner approval.",
       "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
@@ -161,7 +181,17 @@
         "path": "/private/tmp/semctx-t00-import-scope-20261019/dialect-individual-version-proof-v1.json",
         "sha256": "5b203dad2d449108a880f58585e3a568ee92e9b9c4c5008302a136af21b0ca66"
       },
-      "independentClaimAudit": "resumption/gap-reader-dialect-claim-audit.md"
+      "independentClaimAudit": "resumption/gap-reader-dialect-claim-audit.md",
+      "previousStatusBeforeOriginalMacosCampaign": "INDIVIDUALLY_DEMONSTRATED_COMPILER_IDENTITY_DIFFERENCE_PENDING_CAMPAIGN",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
     }
   ]
 }

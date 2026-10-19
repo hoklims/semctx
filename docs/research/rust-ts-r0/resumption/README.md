@@ -21,8 +21,8 @@ unresolved-import repair has consumed eight local correction/review turns. The
 [retained-import correction](retained-unresolved-import-evidence.json) now has
 focused v12 evidence and independent reviews with no remaining demonstrated
 defect in that correction. Further turns remain authorized without resetting
-counters. This records workflow authority and bounded local evidence; Step3
-and formal credit0/240 remain current, with no semantic/profile waiver or R0 passage.
+counters. This records workflow authority and bounded local evidence; formal
+credit0/240 remains current, with no semantic/profile waiver or R0 passage.
 
 The existing approximate 3–4-day estimate is historical planning context,
 not measured effort or an exact ceiling. [effort-ledger.json](effort-ledger.json)
@@ -611,6 +611,31 @@ The previous five-supportGAP checkpoint remains historical; this is not a curren
 354/51campaign. Unit totals stay62limitedPASS+2versionNONPASS; formalcredit0/240,
 review178,fullthreeOScampaign,reserved23/26 and R0 remain pending. Budget8fdc and
 CI/publication rules remain unchanged.
+
+The [Step4 and original macOS campaign receipt](step4-macos-campaign-evidence.json)
+records candidate `f6102579` separately from published `50f10`. The v2 omission
+checks preserve all existing recipes and cover161 OL plus2 P10 absent fields
+across56 recipes; nine native carriers and22 controlled null insertions pass the
+sensitivity test. The historical v1 `sideEffectImport` gap and its RED remain.
+The original354-unit/51-support macOS ARM64 campaign has now executed:352 units
+and50 supports are raw PASS; N17c, ORD-DIALECT and UTF16-surrogate remain raw
+NONPASS under their existing individual version classifications. The final test
+exits101; this is execution completeness, with no new approval or PASS credit.
+Read-only review now spans all240 obligations: the historical178 snapshot has
+94 supported plans/84 GAP; the other62 has44 plans/18 GAP. These are pre-adoption
+snapshots, not post-correction closure totals or a new qualification result.
+Formalcredit remains0/240. Prospective witnesses are proposed but no owner
+response is recorded; original frozen expectations/inputs remain unchanged.
+Linux/Windows full354/51, reserved23/26 and R0 remain pending. Raw evidence is
+local and temporary under `/private/tmp`; hashes do not supply durable retention.
+The [complete independent ledger](step4-macos-campaign-claim-audit.md) preserves
+these limits. Full local `verify:pr` PASS belongs to50f10 only. At the retained
+mergeability receipt at22:45:07UTC, dynamic CodeQL exists and no `ci` pull_request
+run is observed for50f10. A separate final receipt establishes CodeQL39336746469
+SUCCESS at22:48:35UTC; it does not establish a green `ci` workflow. GitHub dirty
+conflicts with identical local merge/head trees, so no semantic conflict or
+current-candidate CI success is established. All
+prior checkpoint totals remain historical; budget8fdc and CI rules are unchanged.
 
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.

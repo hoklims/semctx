@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "ALL_ORIGINAL_UNIT_AND_SUPPORT_GAPS_STATICALLY_MAPPED_FORMAL_QUALIFICATION_PENDING",
+  "state": "ORIGINAL_MACOS_CAMPAIGN_EXECUTED_RAW_NONPASS_PROPERTY_REVIEW_OPEN",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,8 +167,8 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Review outstanding178property/supportobligations and exact DTO applicability,then runordered354unit+51supportthreeOScampaign,reserved23cases/26variants and decideR0. ZeroUNIT/SUPPORTGAP meansstaticmapping only;0/240qualified.",
-  "updatedUtc": "2026-10-19T22:13:07.098116+00:00",
+  "next": "Reconcile static240property/supportreviews and proposedremaps without automaticcredit; await ownerdecision before any prospectivewitness adoption; Linux/Windowsoriginal354+51campaign,reserved23cases/26variants andR0remain pending. MacOSoriginalcampaign is executed,rawNONPASS preserved;0/240qualified.",
+  "updatedUtc": "2026-10-19T23:06:46.589059+00:00",
   "staticGapUnitsRemaining": 0,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
@@ -1278,5 +1278,42 @@
       "ownerAdditionalPass2": "NOT_STARTED",
       "scope": "Zero UNIT/SUPPORTGAP is static mapping only. Five limitedsupportPASS do not execute/qualify all354units or51supports. UnitPASS totals remain cumulative across artifacts."
     }
+  },
+  "thirtiethBatch": {
+    "state": "STEP4_ABSENCE_V2_AND_ORIGINAL_MACOS_CAMPAIGN_RAW_RECEIPT",
+    "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+    "evidence": "step4-macos-campaign-evidence.json",
+    "claimAudit": "step4-macos-campaign-claim-audit.md",
+    "newUnitMappingsCredited": 0,
+    "newSupportMappingsCredited": 0,
+    "qualificationCredit": 0,
+    "outlineRecipesExtended": 56,
+    "originalMacosCampaign": {
+      "units": 354,
+      "rawUnitPass": 352,
+      "rawUnitNonpass": 2,
+      "supports": 51,
+      "rawSupportPass": 50,
+      "rawSupportNonpass": 1,
+      "testExitCode": 101
+    },
+    "staticReviews": {
+      "reviewed": 240,
+      "qualified": 0,
+      "historical178PlansGaps": [
+        94,
+        84
+      ],
+      "other62PlansGaps": [
+        44,
+        18
+      ],
+      "postCorrectionClosureTotal": "NOT_ADOPTED"
+    },
+    "prospectiveWitnessDecision": "REQUESTED_NOT_RECEIVED",
+    "campaignLinuxWindows": "PENDING",
+    "reserved23Cases26Variants": "NOT_READ_NOT_EXECUTED",
+    "R0": "UNDECIDED",
+    "history": "All preceding focused checkpoints and pending statuses remain dated historical records; this receipt supersedes their current macOS campaign/static-reading status only."
   }
 }

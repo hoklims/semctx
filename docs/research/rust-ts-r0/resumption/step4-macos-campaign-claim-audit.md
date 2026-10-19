@@ -1,0 +1,49 @@
+# Step4 omission checks and original macOS campaign: claim audit
+
+Author task: `/root/retained_unresolved_evidence_author`.
+Auditor task: `/root/retained_unresolved_evidence_author/macos_campaign_claim_auditor`.
+A fresh dedicated `design-claim-auditor`, with no inherited author context, returned
+this complete ledger before author evidence reading or drafting. A bounded
+follow-up replaces only the first row’s failure mechanism, as confirmed by the
+same independent auditor. A second bounded follow-up replaces only the CI
+receipt row to distinguish22:45:07 observation from22:48:35 CodeQL completion;
+all seven columns remain present. No repository
+file was written by the author. The proposals are reconciled to the bounded
+claims below; contradicted extrapolations are excluded.
+
+The table is the independent ledger in full. Its targeted Step4 “no full campaign”
+limits describe those earlier targeted checks, not the separately executed
+original macOS campaign. `target` on the three version classifications records
+the existing decision and its limited effect, not a new approval or green oracle.
+The 178/62 review counts remain pre-adoption snapshots. No final post-correction
+closure count is adopted. Raw evidence remains temporary under
+`/private/tmp/semctx-t00-import-scope-20261019`; this receipt supplies hashes,
+not a durable archive. See [the reconciled receipt](step4-macos-campaign-evidence.json).
+
+| Claim | Authority | Mechanism | Scope | Named behavioral oracle | Status | Failure mechanism |
+|---|---|---|---|---|---|---|
+| Continuer le même T00/C1, branche `rust/365-t00`, PR386 | Décision propriétaire `owner-continuation-20261019.json` à `8fdc…` | Continuation du workflow existant | Autorité de travail uniquement | Campagnes prescrites encore pendantes | target | N’autorise ni R0, merge ou nouvelle PR |
+| `f6102579…` est le candidat figé de la nouvelle campagne | Autorité Steps 4–5 inscrite dans `campaign-macos-freeze-v1.json` | Liaison `source_head`, producteur, observer et recettes par SHA256 | Campagne macOS temporaire | Préflight du freeze accepté avant production du rapport 354/51 | held | Toute dérive de hash casse la liaison ; aucune publication/CI de `f610…` n’en découle |
+| `verify:pr` complet a réussi à `50f10c4a…` | `CONTRIBUTING.md` et règle propriétaire de push | Gate canonique `verify:pr` | macOS 27.0.1 ARM64, Bun 1.4.3, Rust 1.95.0, head exact `50f10…` | `identity-support-milestone-verify-pr-v1.log`, exit 0 | held | Ne couvre pas le code local postérieur à `50f10…` |
+| À `50f10…`, l’observation de 22:45:07 voit CodeQL dynamique et aucun run automatique `ci` `pull_request`; CodeQL 39336746469 termine SUCCESS à 22:48:35 | Règles CI propriétaire | Photographie composite de deux reçus horodatés | Head exact `50f10…`; mergeability/CI observés à 22:45:07, conclusion CodeQL mise à jour à 22:48:35 | `ci-50f10-mergeability-contradiction-v1.json` et `ci-50f10-codeql-final-v1.json` | held | Aucun CodeQL vert n’est établi à 22:45:07 et son succès ultérieur ne vaut pas succès du workflow `ci` `pull_request` |
+| `mergeable_state=dirty` démontre un conflit sémantique | Aucune | État GitHub comparé aux arbres Git | PR386 à `50f10…` | Reçu : `local_merge_tree == head_tree` | contradicted | L’arbre de merge est identique au head ; le signal externe ne prouve pas un conflit sémantique |
+| Le correctif Step 4 v2 est ancré exactement sur deux fichiers de `50f10…` | Issue #365 §2.2–2.3 et attentes gelées | Hashes des sources, patch, observer et recettes | Patch `bdcb…`, deux fichiers | Test exact vert dans `step4-outline-absence-green-v2.log` | held | Dérive d’un hash ou d’une recette rompt l’ancrage |
+| Les omissions OL/P10 sont rendues observables par 56 recettes | Attendus OL/P10 gelés | `indexed_field_absences` et contrôle `contains_key` | 161 absences OL + 2 P10 ; 9 carriers | Test exact vert, 22 corruptions `null` refusées | held | Présence acceptée, mauvais index ou champ oublié |
+| `sideEffectImport` est couvert, y compris la lacune historique v1 | Attendu OL gelé | Ajout de la quatrième absence, historique v1 conservé | M15, M16, M01, M10 et contrôles M09 | `step4-outline-absence-adversarial-v2.md`, variantes fautives exit 101, contrôles avant/après verts | held | Omission, faute de nom ou mauvais index accepté |
+| Les checks antérieurs restent conservés | Corpus gelé de l’issue #365 | Régénération indépendante des 354 recettes ; seules 56 exigences sont ajoutées | Métadonnées, supports et anciens checks | 65 comparateurs et 8 tests Python verts | held | Suppression ou altération d’un ancien check |
+| Step 4 v2 qualifie le corpus complet ou Windows/Linux natifs | Aucune | Seulement tests ciblés macOS et cross-compilation Windows GNU | Aucun run 354/51 ni Windows/Linux natif | Les trois revues v2 déclarent explicitement ces limites | contradicted | Portée ciblée seulement ; aucune qualification/R0 |
+| La campagne originale macOS a parcouru 354 unités et 51 supports | Autorité propriétaire Steps 4–5 | Producteur, observer et recettes figés ; rapport final complet | macOS 27.0.1 ARM64 uniquement | `campaign-macos-original354-v1/report.json`, cardinalités 354/51 et process outcomes | held | Le gate final est rouge ; « complète » signifie exécutée, pas qualifiée |
+| Résultat brut : 352/354 unités PASS et 50/51 supports PASS | Attendus gelés | Comparaison individuelle des observations | Campagne macOS originale | Dispositions individuelles du rapport : 352 et 50 vertes | held | Toute agrégation en PASS global masque trois NONPASS |
+| Les trois NONPASS bruts deviennent PASS | Aucune décision ni oracle vert | Les arbitrages documentent seulement leur classification | N17c, ORD-DIALECT, UTF16 surrogate | Rapport rouge et version-bindings correspondants | contradicted | Deux unités et un support restent raw NONPASS ; aucun crédit automatique |
+| Le candidat est qualifié ou R0 est passé | Issue #365 §2.4 exige 240 obligations et tous les gates | Gate fail-closed | Candidat actuel | Rapport : `qualified=false`, 240 `REQUIRES_PROPERTY_AND_SUPPORT_REVIEW`, `R0_decision=NOT_MADE_BY_ADAPTER` | contradicted | 0/240, campagne trois OS et réservés pendants |
+| Les attentes et sources d’entrée gelées ont été modifiées | Issue #365 §2.3 | Vérification des index/hashes et du diff | Corpus original 354/51 | Revue SPEC v2 : index gelé et recettes d’origine identiques | contradicted | Aucun changement d’attendu, fixture ou source d’entrée démontré |
+| `arbitrations.json` contient exactement trois arbitrages | `docs/research/rust-ts-r0/arbitrations.json` | Comptage des enregistrements | Fichier courant | Lecture structurée : quatre entrées | contradicted | Formulation sûre : trois arbitrages de différence de version, plus l’historique `T00-ARB-001` |
+| UTF16 diagnostic 1490/1127 est une différence de version bornée | Décision propriétaire citée par `T00-ARB-002` | Classification individuelle, brut conservé | Support `ENC::UTF16LE-lone-high-surrogate::ordinary` | Aucun oracle de qualification encore vert | target | Pas de preuve de cause racine, PASS ou extension automatique |
+| Absence de `__generator` sur N17c est une différence de version bornée | Instruction propriétaire citée par `T00-ARB-003` | Comparaison TS7 interne avec TS5.9.3 ES2015/ES5 | Propriété exacte de N17c | Aucun oracle de qualification encore vert | target | Raw NONPASS conservé ; aucune généralisation aux autres cibles |
+| Identité compilateur 7.1/5.9.3 est une différence bornée | Règle propriétaire existante citée par `T00-ARB-004` | Attribution aux deux champs d’identité uniquement | `ORD-DIALECT-CAPABILITY::base` | Aucun oracle de qualification encore vert | target | Aucun nouvel accord propriétaire, waiver ou PASS |
+| Revue statique des 178 obligations historiques terminée : 94 plans, 84 gaps | Issue #365, étape 4 | Trois lectures source consolidées | 178 obligations ; aucune exécution native | Aucun oracle comportemental global | debt | Tracker #365 ; remaps, corrections de preuve et campagne restent requis |
+| Lecture statique des 62 restantes terminée | Issue #365, étape 4 | Groupes 15, 17 et 30 : 14/1, 14/3, 16/14 | Lecture seule à `f610…` | Aucun oracle comportemental global | debt | Tracker #365 ; ces nombres précèdent adoption des remaps/correction d’absence |
+| Les 240 obligations sont comportementalement closes | Aucune | Seule la lecture statique est terminée | Aucun total post-correction adopté | Aucun replay natif consolidé | contradicted | Pas de consolidation finale adoptée, campagne ni qualification |
+| Le supplément prospectif de witnesses est approuvé | Aucune décision propriétaire | `step4-prospective-proof-proposal-v1.json` est explicitement une proposition | Nouveaux témoins post-sélection | Aucun | contradicted | Aucun nouvel attendu ou input prospectif n’est adopté |
+| Campagne complète trois OS ou réservés 23/26 exécutés | Issue #365 les exige encore | Aucun run fourni | Windows/Linux natifs et réservés | Aucun | contradicted | Seul macOS original est exécuté ; réservés non lus/non exécutés |
+| Les raws sous `/private/tmp` constituent une archive durable | Exigence de dossier autonome de l’issue #365 §2.5 | Artefacts temporaires hors dépôt | Preuves de campagne et revues | Aucun oracle de conservation durable | contradicted | Répertoire temporaire, sans archive durable ni garantie de rétention |
