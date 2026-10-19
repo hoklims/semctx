@@ -66,6 +66,15 @@ operations explicitly. Worker capture is a bounded sequential materialization;
 it does not claim an atomic live snapshot. Nonrepresentable paths and ambiguous
 capture keys are refused.
 
+Default and worker extraction run a native source preflight before creating the
+Program. It checks selected sources and reached relative imports/references
+against captured paths and live canonical filesystem metadata. Ordinary,
+unconfigured TypeScript also probes the native System resolver and checks its
+resolved targets. These metadata and package-resolution reads are live; the
+captured input-read manifest does not attest their identity. The compiler still
+uses captured source/SDK inputs. The [N03/P03 record](../../docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.json)
+bounds the observed refusal and positive control to their exact macOS DEV replay.
+
 Private input, capture and snapshot bindings use the versioned logical-v2
 manifests in `src/input_identity.rs`. Repository and SDK paths inside their declared
 roots are relative content names; external paths stay in a disjoint physical

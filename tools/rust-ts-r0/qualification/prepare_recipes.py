@@ -1004,6 +1004,23 @@ for recipe in recipes:
     recipe['required_native_api'] = ['--extract-parallel REQUEST.json SDK.json HELPER; actual 1/2 workers and direct native extraction; exact extraction JSON bytes, child descriptor/artifact/SDK bindings, reported repository/compiler reads and exact merge coverage']
     recipe['proof_scope'] = 'Actual native noLib/types[] preflight, deterministic weighted module-component chunks, shared declarations in each real native child, response consumer and ordered merge. Frozen P12 native extraction relation only; no public Plane-A, batch/worker transport parity, atomic capture, complete SDK consumption or global admission credit.'
 
+for recipe in recipes:
+    if recipe['unit_id'] != 'N03-relative-escape::base':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    if inp['baseline_operation'] != 'extractTypeScript roots=[src/main.ts]' or inp['retained_snapshot'] is not True:
+        raise ValueError('unmapped relative source confinement operation')
+    outside = inp['setup'][0]['outside_repository_files']
+    if len(inp['setup']) != 1 or set(inp['setup'][0]) != {'outside_repository_files'}:
+        raise ValueError('unmapped relative source confinement setup')
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if set(assertions) != {'error_contains', 'analysis_success', 'outside_content_imported'}:
+        raise ValueError('unmapped relative source confinement assertions')
+    recipe.update({'surface':'source_confinement_cli', 'outside_files':copy.deepcopy(outside), 'checks':[], 'relations':[], 'gaps':[], 'credited_properties':list(assertions), 'explicit_uncredited_properties':[]})
+    for key, target in [('error_contains', 'error'), ('analysis_success', 'analysis_success'), ('outside_content_imported', 'outside_content_imported')]:
+        recipe['checks'].append(check([target], assertions[key], 'contains_text' if key == 'error_contains' else 'eq', ptr(key)))
+    recipe['proof_scope'] = 'Actual native CLI exit1 with complete empty stdout and sole JSON IMPORT_OUTSIDE_REPOSITORY stderr; declared physical outside setup remains absent from the retained source map. Refusal and absence of returned analysis/outside facts only, tied to reviewed pre-Program guard and caller argv/input/artifact hashes. No negative claim about arbitrary OS reads, coherent capture, SDK consumption or global admission; no producer-side input acknowledgement on this error route. Separate P03 positive control exercises native usefulness.'
+
 def complete_component_fields(recipe):
     additions=[]
     components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership','partitionObservation']

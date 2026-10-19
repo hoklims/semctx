@@ -384,6 +384,35 @@ on the new artifact. Counts reach46 mappings:45 limited PASS and N17c NONPASS,
 The prior efbe CI run remains distinct; no current Linux/Windows, full354,
 review178,reserved or R0 result is inferred. Owner pass1 stays open;pass2 unused.
 
+A [twenty-first tranche](gap-source-confinement-evidence.json) maps N03 base
+through the actual CLI refusal, with the existing P03 base as a useful native
+positive control. Both frozen inputs pass five checks on the optimized macOS
+artifact `56daa7a2`. The outside setup stays physical and outside the retained
+source map. The negative comparator requires exit1, complete empty stdout and
+one JSON import-refusal error; malformed, truncated, wrong-reason and useful
+success outcomes are rejected. A separate DEV recipe intentionally presents
+P03's successful native output to the negative comparator and is rejected.
+It is an oracle control, not another frozen qualification execution.
+
+The pre-Program guard now checks physical aliases as well as captured paths.
+Review witnesses exposed lost external symlink identity, extensionless ordinary
+resolution, missing `custom.require`/AMD dependencies and unnormalized `./`/`..`
+root spellings; the fixes and RED/GREEN evidence are preserved. Seven exact
+nondependency contexts remain accepted, checked against the separate SDK5.9.3
+preprocessor oracle. This is no exhaustive JavaScript-preprocessing claim.
+Canonical metadata and ordinary resolver package reads remain live and are not
+attested by the captured input-read manifest. Neither OS sandboxing, atomic
+capture, absence of arbitrary OS reads nor complete SDK consumption is inferred.
+
+This adds one mapping:47 of the original64 GAP units now have mappings, with46
+limited focused PASS and the existing N17c version-attributed NONPASS across
+their recorded checkpoints. Static preparation has337 recipes without known
+GAP and17 residual units. These totals are not a campaign on one current
+artifact. Zero obligations are qualified; review178, full354 on three OS,
+reserved once and R0 remain pending. Owner pass1 stays open;pass2 unused.
+The new record links the independent source/proof reviews, complete claim ledger,
+exact artifacts, checks and their platform limits.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required

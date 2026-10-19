@@ -156,6 +156,16 @@ fn extract(
             .iter()
             .any(|extension| path.ends_with(extension))
     });
+    captured_confinement::check(
+        fs.clone(),
+        captured_confinement::Inputs {
+            root: &root,
+            sdk_root: "/sdk/lib",
+            roots: &roots,
+            configured_resolution: javascript_enabled,
+            ordinary_system_resolution: !javascript_enabled,
+        },
+    )?;
     *started = true;
     let frontend = native_frontend(
         fs.clone(),
@@ -376,6 +386,79 @@ mod tests {
                 .starts_with("worker repository unavailable:")
         );
     }
+
+    #[test]
+    fn native_worker_refuses_a_relative_import_escape_before_extraction() {
+        let root = std::env::temp_dir().join(format!(
+            "semctx-worker-confinement-dev-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&root).unwrap();
+        let source = root.join("guardConsumer.ts");
+        std::fs::write(
+            &source,
+            "import { guardedValue } from '../guardOutside'; export const observed = guardedValue;",
+        )
+        .unwrap();
+        let sdk: Sdk = serde_json::from_slice(
+            &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+        )
+        .unwrap();
+        let observed = run(
+            serde_json::json!({"schemaVersion":1,"jobId":"guard-worker-dev","repoRoot":root,"rootAbsPaths":[source],"emitAbsPaths":[source]}),
+            &sdk,
+        );
+        std::fs::remove_dir_all(root).unwrap();
+        assert_eq!(observed["ok"], false);
+        assert_eq!(observed["extraction_started"], false);
+        assert_eq!(
+            observed["error"],
+            "IMPORT_OUTSIDE_REPOSITORY: ../guardOutside"
+        );
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn native_worker_refuses_external_symlink_imports_and_references_before_extraction() {
+        let directory = std::env::temp_dir().join(format!(
+            "semctx-worker-symlink-dev-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let root = directory.join("repo");
+        std::fs::create_dir_all(&root).unwrap();
+        let outside = directory.join("outside.ts");
+        std::fs::write(&outside, "export const leaf = 1;").unwrap();
+        std::os::unix::fs::symlink(&outside, root.join("external-link.ts")).unwrap();
+        let source = root.join("consumer.ts");
+        let sdk: Sdk = serde_json::from_slice(
+            &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+        )
+        .unwrap();
+        let results = [
+            ("import {leaf} from './external-link.ts'; export const value = leaf;", "IMPORT_OUTSIDE_REPOSITORY: ./external-link.ts"),
+            ("import {leaf} from './external-link'; export const value = leaf;", "IMPORT_OUTSIDE_REPOSITORY: ./external-link"),
+            ("/// <reference path=\"./external-link.ts\" />\nexport const value = 1;", "REFERENCE_OUTSIDE_REPOSITORY: ./external-link.ts"),
+        ].map(|(text, expected)| {
+            std::fs::write(&source, text).unwrap();
+            (run(serde_json::json!({"schemaVersion":1,"jobId":"guard-symlink-dev","repoRoot":root,"rootAbsPaths":[source],"emitAbsPaths":[source]}), &sdk), expected)
+        });
+        std::fs::remove_dir_all(directory).unwrap();
+        for (observed, expected) in results {
+            assert_eq!(observed["ok"], false, "{expected}: {observed}");
+            assert_eq!(observed["extraction_started"], false);
+            assert_eq!(observed["error"], expected);
+            assert!(observed.get("extraction").is_none());
+        }
+    }
+
     #[test]
     fn captured_worker_reads_are_sorted_and_oversized_files_are_refused_before_reading() {
         let root = std::env::temp_dir().join(format!(
@@ -602,17 +685,14 @@ mod tests {
         absent["rootAbsPaths"] = serde_json::json!([missing]);
         absent["emitAbsPaths"] = serde_json::json!([missing]);
         let result = run(absent, &sdk);
+        assert_eq!(result["ok"], false);
+        assert_eq!(result["extraction_started"], false);
         assert_eq!(
-            result["frontendCapabilityObservation"]["roots"][0]["loaded"],
-            false
+            result["error"],
+            "SOURCE_SNAPSHOT_MISSING: worker-development-absent.ts"
         );
-        assert_eq!(
-            result["frontendCapabilityObservation"]["unsupported"],
-            serde_json::json!([format!(
-                "WORKER_SOURCE_NOT_LOADED:{}",
-                missing.to_string_lossy().replace('\\', "/")
-            )])
-        );
+        assert!(result.get("frontendCapabilityObservation").is_none());
+        assert!(result.get("extraction").is_none());
         std::fs::remove_dir_all(&root).unwrap();
     }
 }
