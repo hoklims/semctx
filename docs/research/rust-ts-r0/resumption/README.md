@@ -508,10 +508,31 @@ Formal credit stays0/240; review178, full354 threeOS, reserved replay and R0 sta
 pending. No public application assembly or global admission follows. Owner pass1
 stays open;pass2 has not started; budget and CI/publication rules are unchanged.
 
+A [twenty-fifth tranche](gap-workspace-system-evidence.json) maps both frozen
+Workspace System variants through the immutable native CaptureFs component.
+Uninstalled reads use the physical P11 source; installed bytes and realpath take
+precedence. Existing outside file/directory controls refuse at the declared root.
+Each unit passes17 checks across two native contexts:34 checks/four contexts,
+with nine queries each. The historical primary System agrees on all36 queried
+operation/path/value results. Exact-env adverse controls, independent input
+mutations/restorations,60 comparators,8 Python tests,Clippy and Ruff pass on macOS
+ARM64; Windows is a compilation crosscheck only. `resolver_inputs_*` are validated
+causal-read projections, not a separate native cache/store. The replay adds its
+no-global-admission flag; the native observation does not attest that field.
+The [complete claim ledger](gap-workspace-system-claim-audit.md) keeps these limits
+and the separately verified canonical recipe hash requirement. These proofs cover
+only four qualification files and their immutable artifacts; concurrent Program
+lifetime/memory changes and rebuilt products are outside this checkpoint.
+Cumulative mappings now reach58:57 limited PASS plus N17c NONPASS,6 original GAP,
+348/354 recipes without known GAP. The previous56/8 checkpoint stays historical.
+Formal credit remains0/240; review178, full354 threeOS, reserved23/26 and R0 remain
+pending. No public assembly/admission, coherent capture or complete OS-read
+inventory follows. Owner continuation, counters and CI/publication rules stay unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI
-launch, further workflow modification or GitHub comment is permitted. Run Rust
+launch, workflow modification beyond the approved T00 exception, or GitHub comment is permitted. Run Rust
 tests on Windows if possible through an available permitted non-manual route;
 no Windows success is inferred without a green execution. The
 [current CI rules](owner-ci-rules-20261019.json) and their

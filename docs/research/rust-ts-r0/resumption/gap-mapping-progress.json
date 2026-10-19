@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FIFTY_SIX_GAPS_MAPPED_FIFTY_FIVE_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FIFTY_EIGHT_GAPS_MAPPED_FIFTY_SEVEN_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve remaining8 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved23cases/26variants and R0 under unchanged owner continuation and CI/publication rules.",
-  "updatedUtc": "2026-10-19T19:03:39.045533+00:00",
-  "staticGapUnitsRemaining": 8,
+  "next": "Resolve remaining6 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved23cases/26variants and R0 under unchanged owner continuation and CI/publication rules.",
+  "updatedUtc": "2026-10-19T20:12:25.700828+00:00",
+  "staticGapUnitsRemaining": 6,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -1031,6 +1031,48 @@
       "ownerAdditionalPass1": "OPEN",
       "ownerAdditionalPass2": "NOT_STARTED",
       "scope": "Cumulative checkpoints on distinct artifacts, not a current single-artifact campaign."
+    }
+  },
+  "twentyFifthBatch": {
+    "registeredUtc": "2026-10-19T20:12:25.700828+00:00",
+    "state": "TWO_FROZEN_WORKSPACE_SYSTEM_COMPONENT_LIMITED_PASSES_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "ORD-WORKSPACE-SYSTEM-READS::variant-01",
+      "ORD-WORKSPACE-SYSTEM-READS::variant-02"
+    ],
+    "evidence": "gap-workspace-system-evidence.json",
+    "nativeArtifactSha256": "9f67f55fe6199e6cf2f4726b3e175589a6e374ec3424ecfe8b7883ef70f5cca5",
+    "recipesSha256": "f0f3907617b01f160e4b13d6af73314aad5a7253dd6c1e4359cb6823af1e01e9",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "frozenAssertionsPerUnit": 12,
+    "projectedChecksPerUnit": 17,
+    "projectedChecks": 34,
+    "nativeContexts": 4,
+    "queriesPerContext": 9,
+    "qualificationCredit": 0,
+    "policyScope": "Separately hash-verified canonical recipe; causal read/probe projections only, no separate native cache/store, focused-policy authentication or concurrent Program/memory proof.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 58,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 57,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 6,
+      "recipesWithoutKnownGaps": 348,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across distinct artifacts; static preparation is not one current campaign."
     }
   }
 }

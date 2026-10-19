@@ -1107,6 +1107,37 @@ for recipe in recipes:
     recipe['proof_scope'] = 'Actual native CLI exit1 with complete empty stdout and sole JSON IMPORT_OUTSIDE_REPOSITORY stderr; declared physical outside setup remains absent from the retained source map. Refusal and absence of returned analysis/outside facts only, tied to reviewed pre-Program guard and caller argv/input/artifact hashes. No negative claim about arbitrary OS reads, coherent capture, SDK consumption or global admission; no producer-side input acknowledgement on this error route. Separate P03 positive control exercises native usefulness.'
 
 for recipe in recipes:
+    if recipe['case_id'] != 'ORD-WORKSPACE-SYSTEM-READS':
+        continue
+    inp = INPUTS[recipe['case_id']]
+    unit = UNITS_BY_ID[recipe['unit_id']]
+    assertions = unit['assertions']
+    fields = {'uninstalled':{'fileExists_virtual','readFile_virtual','directoryExists_virtual_parent','realpath_virtual','resolver_inputs_physical'}, 'installed':{'readFile_virtual','realpath_virtual'}, 'boundary_control':{'fileExists_outside','readFile_outside','directoryExists_outside','realpath_outside','resolver_inputs_outside'}}
+    if set(assertions) != set(fields) or any(set(assertions[key]) != value for key, value in fields.items()):
+        raise ValueError('unmapped workspace System assertions')
+    if inp['reuse_case'] != 'P11-workspace-config-link' or inp['boundary'] != 'R' or inp['outside'] != 'O/outside.json, O outside R' or inp['system'] != 'ordinary pinned baseline System over materialized files':
+        raise ValueError('unmapped workspace System context')
+    symbolic = [(assertions['uninstalled']['readFile_virtual'],'exact bytes of P11 tooling/config/tsconfig/node.json'), (assertions['uninstalled']['realpath_virtual'],'native canonical physical path'), (assertions['uninstalled']['resolver_inputs_physical'],'exact read bytes'), (assertions['installed']['realpath_virtual'],'native canonical virtual physical path'), (assertions['boundary_control']['realpath_outside'],'unchanged input path')]
+    if any(actual != expected for actual, expected in symbolic):
+        raise ValueError('unmapped workspace System symbolic expectation')
+    selector = inp['variants'].index(unit['variant_input_or_observation'])
+    if selector not in [0,1]:
+        raise ValueError('unmapped workspace System variant')
+    contexts = ['uninstalled','installed'] if selector == 0 else ['installed','uninstalled']
+    physical = inp['physical'].removeprefix('R/')
+    recipe.update({'surface':'workspace_system_cli', 'system_files':copy.deepcopy(INPUTS[inp['reuse_case']]['files']), 'virtual_path':inp['virtual'].removeprefix('R/'), 'physical_path':physical, 'installed_text':assertions['installed']['readFile_virtual'], 'system_contexts':contexts, 'requests':[], 'checks':[], 'gaps':[], 'credited_properties':sorted(assertions), 'explicit_uncredited_properties':[]})
+    for observation, name in enumerate(contexts):
+        for key, expected in assertions[name].items():
+            if key == 'realpath_virtual':
+                expected = 'NATIVE_CANONICAL_WORKSPACE_SOURCE'
+            elif name == 'uninstalled' and key in ['readFile_virtual','resolver_inputs_physical']:
+                expected = recipe['system_files'][physical]
+            recipe['checks'].append(check([key],expected,'eq',ptr(name)+'/'+key,observation=observation))
+        for key, expected in assertions['boundary_control'].items():
+            recipe['checks'].append(check(['boundary_control',key],'NATIVE_OUTSIDE_INPUT' if key == 'realpath_outside' else expected,'eq',ptr('boundary_control')+'/'+key,observation=observation))
+    recipe['proof_scope'] = 'Actual captured workspace System factory on materialized P11 inputs, with installed and uninstalled contexts in the frozen variant order. Each context queries all four operations outside the root, with the physical outside file present but absent from capture; an additional existing outside-directory probe must also refuse. Actual physical read bytes and explicit negative causal probes are bound to the descriptor/artifact and complete process capture. No public admission, live fallback, all-OS-read inventory or coherent capture inferred.'
+
+for recipe in recipes:
     if recipe['case_id'] != 'ORD-QUALIFIED-ELIGIBILITY':
         continue
     inp = INPUTS[recipe['case_id']]
