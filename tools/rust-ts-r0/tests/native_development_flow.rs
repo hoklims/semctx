@@ -1245,6 +1245,14 @@ fn retained_native_boundary(mode: &str) {
             assert_eq!(observed["snapshot_guard_passed"], true);
             assert_eq!(observed["unsupported"], json!([]));
             assert_eq!(
+                observed["native_analysis"]["subjects"][0]["capabilityScope"],
+                json!({"language":"typescript","dialectVersion":ts_goport::core::version()})
+            );
+            assert_ne!(
+                observed["native_analysis"]["subjects"][0]["capabilityScope"]["dialectVersion"],
+                sdk["version"]
+            );
+            assert_eq!(
                 observed["native_analysis"]["raw_extraction"]["modules"],
                 json!(["factory.ts"])
             );
