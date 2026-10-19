@@ -3,23 +3,36 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-19",
-  "checkpoint": 12,
+  "checkpoint": 13,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
     "milestone": "T00",
     "pullRequest": 386,
     "requiredDecision": "READY_TS_NATIVE",
-    "observedDecision": "STOP_BUDGET",
-    "observedCommit": "c84e9382665acfffe601f7a90291248d2bf550da",
-    "observedRecord": "docs/research/rust-ts-r0/final/README.md on rust/365-t00",
-    "consequence": "T01 stays in preparation until READY_TS_NATIVE; hypotheses, prototype and gate remain unstarted",
-    "newR0Budget": {
+    "observedDecision": "PENDING",
+    "observedAt": "rust/365-t00 d7658736 (2026-10-19): docs/research/rust-ts-r0/experiment.json has r0Decision null at stage 7",
+    "resumption": "docs/research/rust-ts-r0/resumption/README.md: T00 reopened from STOP_BUDGET on 2026-10-18 on the same branch and PR, C1 only, two additional C1 correction passes, about 3-4 days as a planning estimate, C2 abandoned, no separate experiment",
+    "previousDecision": {
+      "decision": "STOP_BUDGET",
+      "commit": "7aae8a72 (c84e9382 before the 2026-10-19 rebase of rust/365-t00)"
+    },
+    "budgetRecordedOnIssue": {
       "recordedDateUtc": "2026-10-19",
       "record": "https://github.com/hoklims/semctx/issues/365#issuecomment-6263151459",
       "envelope": "identical to the first slice: at most two native compositions, at most two correction passes after each first execution, five working days of cumulative implementation effort, one final execution for qualification and reserved cases",
       "condition": "a separate versioned experiment is registered on T00 before any launch"
-    }
+    },
+    "budgetConflict": "the #365 comment of 2026-10-19 records two native compositions, two correction passes each, five working days and a separate versioned experiment; the T00 resumption record of 2026-10-18 records C1 only, two additional passes, about 3-4 days and no separate experiment. Which record governs is the owner's decision; T01 does not choose",
+    "consequence": "T01 stays in preparation until READY_TS_NATIVE; hypotheses, prototype and gate remain unstarted"
+  },
+  "restack": {
+    "recordedDateUtc": "2026-10-19",
+    "from": "0907c093 on an earlier rust/365-t00 base (d5ba8fdb)",
+    "onto": "rust/365-t00 d7658736, after T00's own rebase",
+    "commits": 19,
+    "content": "docs/research/rust-t01 is byte-identical before and after; only commit identities change",
+    "reason": "CodeQL Rust analysis failed on the old base, which carried no Rust source"
   },
   "baseline": {
     "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
@@ -155,6 +168,7 @@
     }
   ],
   "remainingEvidence": [
+    "owner decision: which R0 budget record governs (dependency.budgetConflict)",
     "very large cell (aws-sdk-js-v3): no reference measurement",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
@@ -1677,7 +1691,7 @@
         "failureRule": "a memory failure is a result: it is recorded and the run is not repeated",
         "result": {
           "status": "NOT_RECORDED",
-          "observed": "after pushing the backstage cell (62f3592d), the macOS pilot session announced a detached launch of the single run; the session and its Remote Control host then went offline before any result was pushed",
+          "observed": "after pushing the backstage cell (13013e78; 62f3592d before the 2026-10-19 restack), the macOS pilot session announced a detached launch of the single run; the session and its Remote Control host then went offline before any result was pushed",
           "unknown": "whether the run ended, failed for memory or is still on the host; its raw outputs, if any, would be under /Users/hokli/t01-bench/runs on the macOS host",
           "ownerInstruction": "on 2026-10-19 the owner asked to continue without the macOS host",
           "consequence": "the very large cell has no reference measurement; this is not a memory failure result and is not counted as one"

@@ -7,12 +7,19 @@ issue owns acceptance. This record declares neither `ECONOMIC_PROTOTYPE_PASS` no
 
 ## Status
 
-T01 depends on T00. T00 has not reached `READY_TS_NATIVE`: its final record at `c84e9382` on
-`rust/365-t00` decides `STOP_BUDGET`. On 2026-10-19 the owner recorded a second R0 budget on
-[#365](https://github.com/hoklims/semctx/issues/365#issuecomment-6263151459), with the same
-envelope as the first slice; T00 registers its experiment before any launch. Hypotheses H1–H3, the
-prototype and the economic gate
-therefore remain unstarted. This record only covers work #365 places in T01 before any
+T01 depends on T00. T00 has not reached `READY_TS_NATIVE`. Its terminal record decided
+`STOP_BUDGET` (`7aae8a72` on `rust/365-t00`, formerly `c84e9382`). T00 was then reopened on
+2026-10-18 on the same branch, and its R0 decision is pending (`r0Decision: null` at `d7658736`).
+Two budget records disagree:
+
+- T00's resumption record keeps C1 only, adds two correction passes, plans about 3–4 days, and
+  allows no separate experiment.
+- The owner's comment of 2026-10-19 on
+  [#365](https://github.com/hoklims/semctx/issues/365#issuecomment-6263151459) grants two
+  compositions with two passes each and five days, and requires a separate versioned experiment.
+
+Which record governs is the owner's decision; T01 does not choose. Hypotheses H1–H3, the
+prototype and the economic gate therefore remain unstarted. This record only covers work #365 places in T01 before any
 comparison: baseline characterization, workload preparation and the measurement protocol (D6).
 No Rust code, dependency, workflow change or product change is introduced.
 
@@ -29,7 +36,9 @@ records that the very large cell has no measurement, returns authorship to the o
 and tests the registered budget form against the series; see
 [Budget form check](#budget-form-check). Checkpoint 11 records the budget-form decision and the
 budgets per measured cell; see [Budgets](#budgets). Checkpoint 12 traces why the seal's Plane-A
-snapshot hash changes on every run; see [Reference series](#reference-series). No owner decision is
+snapshot hash changes on every run; see [Reference series](#reference-series). Checkpoint 13
+restacks the branch on the rebased `rust/365-t00` (`d7658736`) without changing this record's
+content, updates the T00 references and records the budget conflict above. No T01 owner decision is
 open.
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
