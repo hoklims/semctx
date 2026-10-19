@@ -1,0 +1,79 @@
+{
+  "recordVersion": 1,
+  "state": "ORIGINAL_MACOS_CAMPAIGN_EXECUTED_RAW_NONPASS_FORMAL_REVIEW_OPEN",
+  "authorTask": "/root/retained_unresolved_evidence_author",
+  "auditorTask": "/root/retained_unresolved_evidence_author/macos_campaign_claim_auditor",
+  "claimAudit": "step4-macos-campaign-claim-audit.md",
+  "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+  "lastPublishedHead": "50f10c4a1f98adf4dcd1f54b608ba9e4bd8ec39e",
+  "environment": "macOS27.0.1 ARM64; release Rust1.95.0; Bun1.4.3; GIT_CONFIG_GLOBAL absent; GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1",
+  "temporaryEvidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceRetention": "Local temporary raw files; hashes identify bytes, not durable retention. No self-contained durable archive is claimed.",
+  "bindings": {
+    "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "observerSha256": "b1c08511888837c6493dca77e3e6116533ef58ec784b420105d2481b26c4f761",
+    "recipesSha256": "3e2a55686d2cd86987be339964354ae4b66bb08c7603784351c2b1521152cdef",
+    "sourcePatchSha256": "bdcb7f13f36099faab2b0f9b7af3ee4d7af290bee0a1ad08fab58a77cdcead7d"
+  },
+  "outlineAbsenceCorrection": {
+    "scope": "Existing frozen OL optional fields moduleSpecifier/importBindings/loadsModule/sideEffectImport and P10 links_exact.whole only.",
+    "mechanism": "indexed_field_absences checks object contains_key at the declared index; presence of null is not absence. Existing checks are retained.",
+    "recipesExtended": 56, "outlineAbsences": 161, "p10Absences": 2,
+    "nativeCarriers": 9, "controlledNullInsertionsRejected": 22,
+    "history": "Initial RED and v1 missing-sideEffectImport finding remain in their original reports; sideeffect RED then v2 GREEN close that demonstrated gap only.",
+    "oracles": ["step4-outline-absence-red-v1.log", "step4-outline-absence-sideeffect-red-v1.log", "step4-outline-absence-green-v2.log"],
+    "checks": "65 observer comparators,8 Python tests,Ruff,Clippy PASS; WindowsGNU cargo check only. Default release324 PASS belongs to50f10; no rerun claimed for this qualification-only delta.",
+    "proofScope": "Targeted reviews predate the separate full macOS campaign below; their no-full-campaign limitation remains historical."
+  },
+  "originalMacosCampaign": {
+    "authority": "Existing owner Steps4-5 authority in campaign-macos-freeze-v1.json; original frozen354unit/51support inputs only.",
+    "unitsExecuted": 354, "unitsRawPass": 352, "unitsRawNonpass": 2,
+    "supportsExecuted": 51, "supportsRawPass": 50, "supportsRawNonpass": 1,
+    "testExitCode": 101, "qualified": false, "qualifiedObligations": 0, "obligationDenominator": 240,
+    "obligationState": "REQUIRES_PROPERTY_AND_SUPPORT_REVIEW", "R0": "NOT_MADE_BY_ADAPTER",
+    "rawNonpass": [
+      {"id":"N17c-importhelpers-es5-actual-emission::base","arbitration":"T00-ARB-003","scope":"__generator absent; existing output hash and7.1.0-dev compiler observed; other raw checks pass"},
+      {"id":"ORD-DIALECT-CAPABILITY::base","arbitration":"T00-ARB-004","scope":"two frozen5.9.3 compiler/dialect identity checks mismatch7.1.0-dev; other raw checks pass"},
+      {"id":"ENC::UTF16LE-lone-high-surrogate::ordinary","arbitration":"T00-ARB-002","scope":"actual parser diagnostic1490 versus frozen1127,syntax error retained; owner classification is not new root-cause proof"}
+    ],
+    "arbitrationEffect": "Existing individual version classifications only; raw NONPASS and frozen expected bytes remain unchanged. No new approval,PASS,waiver or qualification credit.",
+    "scopeLimit": "Execution completeness is not closure of each canonical property,consumer/support obligation or global admission. No native Linux/Windows354/51 campaign or reserved23cases/26variants execution."
+  },
+  "staticReview": {
+    "reviewedObligations": 240, "qualifiedObligations": 0,
+    "historical178": {"supportedPlans":94,"gaps":84,"source":"step4-178-review-consolidated-v2.json"},
+    "other62": {"supportedPlans":44,"gaps":18,"groups":[15,17,30]},
+    "countMeaning": "Read-only pre-adoption snapshots; proposed remaps and the absence correction are not consolidated into new closure totals. No native execution or qualification follows from source reading.",
+    "prospectiveWitnessDecision": "REQUESTED_NOT_RECEIVED; proposal not adopted; no frozen expectations or input sources changed"
+  },
+  "publicationAndCiReceipt": {
+    "verifyPr": "Full local verify:pr PASS at50f10 only; identity-support-milestone-verify-pr-v1.log does not coverf610.",
+    "mergeabilityReceiptObservedUtc": "2026-10-19T22:45:07.311284+00:00",
+    "codeqlFinalReceiptUpdatedUtc": "2026-10-19T22:48:35Z",
+    "receiptChronology": "Composite: dynamic CodeQL existed at22:45:07; SUCCESS is established only by the later final receipt,updated22:48:35. No CodeQL success is claimed at22:45.",
+    "codeqlRun": 39336746469, "codeqlConclusion": "SUCCESS",
+    "ciPullRequestFor50f10": "ABSENT_AT_RETAINED_OBSERVATION",
+    "mergeability": "GitHub dirty/mergeablefalse contradicts same local merge/head tree d3be57f3ec144dd975f45fba2b7cb1608d6d1fd6; no semantic conflict established.",
+    "candidateCi": "No publishedf610 or candidate CI success claimed; no manual launch or policy change authorized by this receipt."
+  },
+  "unchanged": "Original64 staticUNITGAP mappings and51 supportplans remain historical; formal0/240,R0pending,reservedunread/unexecuted. Owner8fdc budget/pass counters and CI/publication constraints unchanged.",
+  "evidence": [
+    {"path": "step4-outline-absence-source-anchor-v2.json", "sha256": "0b2fa46afd932b07360a28499c5e69b992f1b1f38c974f7106ba815396c0ac1a"},
+    {"path": "step4-outline-absence-check-receipt-v2.json", "sha256": "1407e733adc8ee0969af2ea7bf8f2c73c1c42c09ca50a59c2cfc74fa5b270e7a"},
+    {"path": "step4-outline-absence-final-spec-proof-v2.md", "sha256": "d0ceec639f400f5ff106df4f8510699b2dd5b01cdf3ff7d5a3b161f96177c24b"},
+    {"path": "step4-outline-absence-final-standards-v2.md", "sha256": "0fd6af0229ed9a6d0ecf7558802313b1b618304de628ab8effd7f774e3993931"},
+    {"path": "step4-outline-absence-adversarial-v2.md", "sha256": "1000a56c4b15db6bcd22e06bd8562933eb76ad4171430ebbd28f96c01d995e3c"},
+    {"path": "campaign-macos-freeze-v1.json", "sha256": "6f382028676e9e67b6a17b5d06f1362a193c53528fc69101582c35ca4b64afdb"},
+    {"path": "campaign-macos-original354-v1/report.json", "sha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d"},
+    {"path": "campaign-macos-original354-v1.log", "sha256": "5085bffc35ccb337b5d11743e89e31f1fb6dca401017953c395cbbc61478c3ed"},
+    {"path": "campaign-macos-summary-v1.json", "sha256": "663d81470b9f0611426a436c234f792f299abf4184fa62c743be95147ea5eb5b"},
+    {"path": "campaign-macos-version-bindings-v1.json", "sha256": "8f23fa0dc32727fc705dd973984e5a94ca178f9bc0b589bd8e47633917cdff55"},
+    {"path": "step4-178-review-consolidated-v2.json", "sha256": "87a92cf7734233ad236db80e85ab3e2b8e4438a96591d01c413c278a29ddd0d5"},
+    {"path": "step4-other62-extraction-outline-review-v1.json", "sha256": "4a2177ac97103e9ddf73e24146f85192c16f709ae59793eba985aa17363dcee6"},
+    {"path": "step4-other62-ownership-worker-identity-review-v1.json", "sha256": "b1bfbcdce240020e400541a3ef6be87d396419cb1f3b55ca69fada2c180f2e5c"},
+    {"path": "step4-other62-scope-config-review-v1.json", "sha256": "123a6c98b1fe29857d8ce3b12dd0b54352ca94922d02c12bf1b6eb98e2650c37"},
+    {"path": "ci-50f10-mergeability-contradiction-v1.json", "sha256": "1114d52109d2a50127cb498fec58450a59feb2e2a05c71d9efce2de3ef9cc053"},
+    {"path": "identity-support-milestone-verify-pr-v1.log", "sha256": "a3067e7e2ced980739f7b46a393b2e7e2c4b36ecb952383420b30142ade5c4ba"},
+    {"path": "ci-50f10-codeql-final-v1.json", "sha256": "6d1ae4b09018aa348d5d94cbcb0f28d495b85efb5bf0ce0c5fce2c96e9a7b12d"}
+  ]
+}
