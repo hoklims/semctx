@@ -13,8 +13,13 @@
     "observedDecision": "STOP_BUDGET",
     "observedCommit": "c84e9382665acfffe601f7a90291248d2bf550da",
     "observedRecord": "docs/research/rust-ts-r0/final/README.md on rust/365-t00",
-    "ownerIntent": "on 2026-10-18 the owner stated that a new R0 budget will be granted; no new budget is recorded yet",
-    "consequence": "T01 stays in preparation; hypotheses, prototype and gate remain unstarted"
+    "consequence": "T01 stays in preparation until READY_TS_NATIVE; hypotheses, prototype and gate remain unstarted",
+    "newR0Budget": {
+      "recordedDateUtc": "2026-10-19",
+      "record": "https://github.com/hoklims/semctx/issues/365#issuecomment-6263151459",
+      "envelope": "identical to the first slice: at most two native compositions, at most two correction passes after each first execution, five working days of cumulative implementation effort, one final execution for qualification and reserved cases",
+      "condition": "a separate versioned experiment is registered on T00 before any launch"
+    }
   },
   "baseline": {
     "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
