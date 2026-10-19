@@ -114,6 +114,7 @@ fn no_product_does_not_qualify_an_absent_port() {
     let r = Repo::new();
     r.crate_at("tools/gates", "fake_tool", false, true);
     r.crate_at("tools/qualification", "fake_qualification", false, true);
+    r.crate_at("tools/rust-ts-r0", "fake_t00_prototype", false, true);
     r.track();
     let output = r.run();
     assert!(output.status.success());
@@ -126,6 +127,26 @@ fn no_product_does_not_qualify_an_absent_port() {
             .contains("no native product crates yet")
     );
     assert_eq!(value["runs"].as_array().unwrap().len(), 0);
+}
+#[test]
+fn t00_prototype_is_separate_from_discovered_product_tests() {
+    let r = Repo::new();
+    r.crate_at("tools/rust-ts-r0", "fake_t00_prototype", false, true);
+    r.crate_at("native/product", "fixture_product", true, true);
+    r.track();
+    let output = r.run();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(value["status"], "passed");
+    assert_eq!(
+        value["manifests"],
+        serde_json::json!(["native/product/Cargo.toml"])
+    );
+    assert_eq!(value["runs"].as_array().unwrap().len(), 1);
 }
 #[test]
 fn missing_lock_is_an_explicit_refusal() {
