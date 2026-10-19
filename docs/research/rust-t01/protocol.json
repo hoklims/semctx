@@ -2,8 +2,8 @@
   "recordVersion": 1,
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
-  "recordedDateUtc": "2026-10-18",
-  "checkpoint": 9,
+  "recordedDateUtc": "2026-10-19",
+  "checkpoint": 10,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -132,10 +132,12 @@
     }
   ],
   "remainingEvidence": [
+    "owner decision: budget-form",
+    "very large cell (aws-sdk-js-v3): no reference measurement",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
-    "size-dependent budget coefficients",
+    "budget coefficients, once the owner chooses the budget form",
     "READY_TS_NATIVE from T00",
     "hypothesis selection, prototype and economic gate"
   ],
@@ -987,7 +989,13 @@
       }
     ]
   },
-  "openDecisions": [],
+  "openDecisions": [
+    {
+      "id": "budget-form",
+      "fact": "a startup plus per-TS/JS-file form fits neither time nor memory: negative intercepts, backstage 14.8 times its predicted time, VS Code memory half its predicted value",
+      "question": "which budget form and unit the owner adopts, for example budgets per structure class, a different unit such as resolved edges, or absolute budgets per measured cell"
+    }
+  ],
   "measurementSpace": {
     "recordedDateUtc": "2026-10-18",
     "path": "/Users/hokli/t01-bench",
@@ -1650,7 +1658,14 @@
         "runsPerWorkload": 1,
         "order": "one run, not repeated",
         "underMemoryPressure": true,
-        "failureRule": "a memory failure is a result: it is recorded and the run is not repeated"
+        "failureRule": "a memory failure is a result: it is recorded and the run is not repeated",
+        "result": {
+          "status": "NOT_RECORDED",
+          "observed": "after pushing the backstage cell (62f3592d), the macOS pilot session announced a detached launch of the single run; the session and its Remote Control host then went offline before any result was pushed",
+          "unknown": "whether the run ended, failed for memory or is still on the host; its raw outputs, if any, would be under /Users/hokli/t01-bench/runs on the macOS host",
+          "ownerInstruction": "on 2026-10-19 the owner asked to continue without the macOS host",
+          "consequence": "the very large cell has no reference measurement; this is not a memory failure result and is not counted as one"
+        }
       }
     ],
     "run": {
@@ -1705,6 +1720,135 @@
       "aws-sdk-js-v3"
     ],
     "perCell": "one commit and one push after each cell; host memory at start and compressor and swap deltas recorded for every run"
+  },
+  "budgetFormCheck": {
+    "recordedDateUtc": "2026-10-19",
+    "form": "fixed startup term plus a per-unit term (ownerInput.translation.budgetForm)",
+    "unit": "selected TS/JS files",
+    "method": "ordinary least squares on the medians of the cells without memory pressure; pressured cells are compared with that fit, never used in it",
+    "fittedOn": [
+      "sindresorhus/ky",
+      "honojs/hono",
+      "trpc/trpc",
+      "PrefectHQ/prefect"
+    ],
+    "fit": {
+      "seconds": {
+        "startup": -13.4085,
+        "perFile": 0.092375
+      },
+      "gigabytes": {
+        "startup": -0.1154,
+        "perFile": 0.00482
+      }
+    },
+    "cells": [
+      {
+        "workload": "sindresorhus/ky",
+        "tsJsFiles": 98,
+        "pressure": false,
+        "seconds": 2.044,
+        "gigabytes": 0.708756704,
+        "edges": 971,
+        "secondsPredicted": -4.356,
+        "secondsObservedOverPredicted": -0.469,
+        "gigabytesPredicted": 0.357,
+        "gigabytesObservedOverPredicted": 1.986,
+        "secondsPerFile": 0.0209,
+        "millisecondsPerEdge": 2.105,
+        "megabytesPerFile": 7.232
+      },
+      {
+        "workload": "honojs/hono",
+        "tsJsFiles": 452,
+        "pressure": false,
+        "seconds": 15.277,
+        "gigabytes": 1.55896424,
+        "edges": 5934,
+        "secondsPredicted": 28.345,
+        "secondsObservedOverPredicted": 0.539,
+        "gigabytesPredicted": 2.063,
+        "gigabytesObservedOverPredicted": 0.756,
+        "secondsPerFile": 0.0338,
+        "millisecondsPerEdge": 2.574,
+        "megabytesPerFile": 3.449
+      },
+      {
+        "workload": "trpc/trpc",
+        "tsJsFiles": 1050,
+        "pressure": false,
+        "seconds": 92.991,
+        "gigabytes": 5.04610592,
+        "edges": 12101,
+        "secondsPredicted": 83.585,
+        "secondsObservedOverPredicted": 1.113,
+        "gigabytesPredicted": 4.946,
+        "gigabytesObservedOverPredicted": 1.02,
+        "secondsPerFile": 0.0886,
+        "millisecondsPerEdge": 7.685,
+        "megabytesPerFile": 4.806
+      },
+      {
+        "workload": "PrefectHQ/prefect",
+        "tsJsFiles": 1679,
+        "pressure": false,
+        "seconds": 138.951,
+        "gigabytes": 8.03080632,
+        "edges": 58166,
+        "secondsPredicted": 141.689,
+        "secondsObservedOverPredicted": 0.981,
+        "gigabytesPredicted": 7.977,
+        "gigabytesObservedOverPredicted": 1.007,
+        "secondsPerFile": 0.0828,
+        "millisecondsPerEdge": 2.389,
+        "megabytesPerFile": 4.783
+      },
+      {
+        "workload": "microsoft/vscode",
+        "tsJsFiles": 14936,
+        "pressure": true,
+        "seconds": 1088.239,
+        "gigabytes": 38.276989616,
+        "edges": 476176,
+        "secondsPredicted": 1366.304,
+        "secondsObservedOverPredicted": 0.796,
+        "gigabytesPredicted": 71.876,
+        "gigabytesObservedOverPredicted": 0.533,
+        "secondsPerFile": 0.0729,
+        "millisecondsPerEdge": 2.285,
+        "megabytesPerFile": 2.563
+      },
+      {
+        "workload": "backstage/backstage",
+        "tsJsFiles": 7874,
+        "pressure": true,
+        "seconds": 10546.78,
+        "gigabytes": 41.810213344,
+        "edges": 101086,
+        "secondsPredicted": 713.952,
+        "secondsObservedOverPredicted": 14.772,
+        "gigabytesPredicted": 37.837,
+        "gigabytesObservedOverPredicted": 1.105,
+        "secondsPerFile": 1.3394,
+        "millisecondsPerEdge": 104.335,
+        "megabytesPerFile": 5.31
+      }
+    ],
+    "findings": [
+      "both fitted startup terms are negative (-13.4 s, -0.12 GB), so the form has no valid fixed startup term on these cells",
+      "observed over predicted ranges from 0.54 to 1.11 for time and from 0.76 to 1.99 for memory on the fitted cells",
+      "backstage takes 14.8 times its predicted time: 1.34 s per TS/JS file against 0.02 to 0.09 s on every other cell",
+      "time per resolved edge is 2.1 to 2.6 ms on ky, hono, Prefect and VS Code, 7.7 ms on trpc and 104 ms on backstage; the two pnpm/Yarn monorepos carry the excess",
+      "VS Code memory is 0.53 of its predicted value (2.6 MB per file against 4.8 on trpc and Prefect)"
+    ],
+    "conclusion": "the registered form does not describe the baseline; no coefficient is recorded. Comparisons stay blocked until the owner chooses the budget form (#365 section 3.1)",
+    "scriptSha256": "aa032c5bbdd7931615958d28420744134308f010a18ac8fb2b5cd09a97239339",
+    "outputSha256": "96c603c90543b2fa161e13048cc22a095ab0c4a4ffdc828fa1b659f83245eec1"
+  },
+  "authorship": {
+    "recordedDateUtc": "2026-10-19",
+    "history": "checkpoints 1 to 8 and 10 were written from the owner's sessions; checkpoint 9 was written by the macOS pilot session, which was the branch's only author while it ran",
+    "current": "the owner's Windows session; the macOS pilot session is offline and holds no write role"
   },
   "ownerDecisions": [
     {

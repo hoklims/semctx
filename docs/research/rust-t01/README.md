@@ -22,8 +22,11 @@ the hono cell on that host; its collector-cost measurement is inconclusive. Chec
 the owner's return to the macOS host. Checkpoint 9 moves the measurement space to a durable path
 and records the plan of the first reference series before any of its runs (`measurementSpace`
 and `referenceSeries` in `protocol.json`). It also records the owner's decision on Prefect and the
-large cells; see [Owner decision](#owner-decision-on-prefect-and-the-large-cells). No owner
-decision is open.
+large cells; see [Owner decision](#owner-decision-on-prefect-and-the-large-cells). Checkpoint 10
+records that the very large cell has no measurement, returns authorship to the owner's sessions
+and tests the registered budget form against the series; see
+[Budget form check](#budget-form-check). One owner decision is open; see
+[Open decisions](#open-decisions).
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -460,7 +463,7 @@ On 2026-10-18 the owner decided, in these words:
 > grandes cellules sous pression : vscode 5 runs, backstage 3 runs, aws-sdk-js-v3 1 run avec
 > résultat inscrit même en échec mémoire.
 
-This resolves both earlier open decisions. No owner decision is open.
+This resolved both earlier open decisions.
 
 **Derived Prefect snapshot.** The baseline's refusal of the original snapshot stays recorded in
 the shake-down results. The derived snapshot is a separate copy of the original snapshot
@@ -476,11 +479,54 @@ Only the unselected `.gitmodules` candidate disappears, so the variant is admitt
 | Prefect, derived snapshot | 10 | done: 23 min; see [Reference series](#reference-series) |
 | `microsoft/vscode` | 5 | done: 1 h 31 |
 | `backstage/backstage` | 3 | done: 8 h 44 |
-| `aws/aws-sdk-js-v3` | 1 | not estimated; a memory failure is recorded and not rerun |
+| `aws/aws-sdk-js-v3` | 1 | not recorded; see below |
+
+**Very large cell.** After pushing the backstage cell, the macOS pilot session announced a
+detached launch of the single `aws/aws-sdk-js-v3` run. The session and its Remote Control host then
+went offline before any result was pushed. Whether the run ended, failed for memory or is still on
+the host is unknown; its raw outputs, if any, stay on that host. On 2026-10-19 the owner asked to
+continue without the macOS host. The very large cell therefore has no reference measurement. This
+is not a memory-failure result and is not counted as one.
+
+**Authorship.** The pilot session was the branch's only author while it ran, and wrote
+checkpoint 9. It is offline and holds no write role; the owner's Windows session writes again.
+
+## Budget form check
+
+The owner's translation requires each budget to be a fixed startup term plus a per-unit term.
+Checkpoint 10 tests that form on the recorded medians, with selected TS/JS files as the unit. It
+fits ordinary least squares on the four cells without memory pressure (ky, hono, trpc, Prefect)
+and compares the two pressured cells with that fit.
+
+| Cell | TS/JS files | Time, s | Time, observed / fit | Memory, GB | Memory, observed / fit | ms per edge |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `sindresorhus/ky` | 98 | 2.04 | fit negative | 0.71 | 1.99 | 2.1 |
+| `honojs/hono` | 452 | 15.28 | 0.54 | 1.56 | 0.76 | 2.6 |
+| `trpc/trpc` | 1,050 | 92.99 | 1.11 | 5.05 | 1.02 | 7.7 |
+| `PrefectHQ/prefect`, derived | 1,679 | 138.95 | 0.98 | 8.03 | 1.01 | 2.4 |
+| `microsoft/vscode`, pressured | 14,936 | 1,088.24 | 0.80 | 38.28 | 0.53 | 2.3 |
+| `backstage/backstage`, pressured | 7,874 | 10,546.78 | 14.77 | 41.81 | 1.10 | 104.3 |
+
+The fit gives a startup term of −13.4 s and −0.12 GB, so the form has no valid fixed startup term
+here. Backstage takes 14.8 times its predicted time: 1.34 s per TS/JS file, against 0.02 to 0.09 s
+on every other cell. Time per resolved edge stays between 2.1 and 2.6 ms on ky, hono, Prefect and
+VS Code. It reaches 7.7 ms on trpc and 104 ms on backstage, the two monorepos. VS Code uses half
+the memory the fit predicts.
+
+The registered form does not describe the baseline, so no coefficient is recorded. Comparisons
+stay blocked until the owner chooses a budget form, as #365 section 3.1 requires. The fitting
+script and its output stay outside the checkout; their digests are in `protocol.json`
+(`budgetFormCheck`).
+
+## Open decisions
+
+1. **Budget form.** A startup plus per-TS/JS-file form fits neither time nor memory. Possible
+   forms include budgets per structure class, another unit such as resolved edges, or absolute
+   budgets per measured cell. The choice belongs to the owner.
 
 ## Next checkpoints
 
-1. On the macOS host: record the remaining cells above. Then derive the size-dependent budget
-   coefficients from the series and measure the CPU-profile cost for phase attribution.
+1. Apply the owner's budget-form decision and record the coefficients. Measure the CPU-profile cost
+   for phase attribution on the measurement host.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.
