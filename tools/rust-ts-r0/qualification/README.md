@@ -26,7 +26,7 @@ Build and exercise the observer with the pinned Rust1.95.0 toolchain:
 
 The explicit feature keeps the campaign requiring frozen inputs outside default
 Cargo discovery. The existing three-OS native CI lane now explicitly runs the
-filtered comparator tests, including the worker guard tests, and seven recipe CLI tests
+filtered comparator tests, including the worker guard tests, and eight recipe CLI tests
 using Python3.13.16. Remote results must still be collected for the new checkpoint.
 Its existing optimized DEV artifact is retained before compiling the observer
 with the feature. The reproduction archive's standalone `rustc --test` build also
@@ -68,7 +68,8 @@ campaign manifest. This is the compiled `semctx-gates-fixture` fault injector,
 separate from the C1 fact producer. A proxy forwards an actual C1 refused batch
 using the explicitly declared exit 3 convention; it also truncates or omits the
 batch for negative controls. The cancellation fixture waits for an owned
-child/descendant readiness marker before requesting cancellation. Reader-error
-qualification remains an explicit GAP. Ordinary Cargo discovery includes the
+child/descendant readiness marker before requesting cancellation. The reader-error unit now has limited evidence through the actual
+`pipe_reader`/`finish_reader` kernel-failure component; outer `process::run`
+capture_error, child cleanup and finalize-timeout behavior remain unproved here. Ordinary Cargo discovery includes the
 native transport integration test; focused qualification uses
 `gap_real_native_refusal_truncation_and_owned_cancellation`.
