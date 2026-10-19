@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_SIXTY_GAPS_MAPPED_FIFTY_NINE_LIMITED_PASS_ONE_EXISTING_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_SIXTY_TWO_GAPS_MAPPED_SIXTY_LIMITED_PASS_TWO_INDIVIDUAL_VERSION_ATTRIBUTED_NONPASSES",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve remaining4 original static GAP units, then178-obligation property/support review, full354 threeOS campaign, reserved23cases/26variants and R0 under unchanged owner continuation and CI/publication rules. Concurrent T-reader work is not credited by the runtime checkpoint.",
-  "updatedUtc": "2026-10-19T21:07:36.940793+00:00",
-  "staticGapUnitsRemaining": 4,
+  "next": "Resolve remainingP19/N19 original static GAP units,then178-obligation property/support review,full354threeOS campaign,reserved23cases/26variants and R0. N17c and ORD-DIALECT remain raw version-attributed NONPASS,notPASS.",
+  "updatedUtc": "2026-10-19T21:21:16.289279+00:00",
+  "staticGapUnitsRemaining": 2,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -1117,6 +1117,52 @@
       "ownerAdditionalPass1": "OPEN",
       "ownerAdditionalPass2": "NOT_STARTED",
       "scope": "Cumulative checkpoints across distinct artifacts;350 is static preparation, not one current campaign."
+    }
+  },
+  "twentySeventhBatch": {
+    "registeredUtc": "2026-10-19T21:21:16.289279+00:00",
+    "state": "READER_COMPONENT_LIMITED_PASS_AND_DIALECT_IDENTITY_RAW_VERSION_NONPASS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "T-reader-error::base",
+      "ORD-DIALECT-CAPABILITY::base"
+    ],
+    "evidence": "gap-reader-dialect-evidence.json",
+    "localSourceCommit": "b09896d4d8daaed1280f7f48ab14f3a11307c095",
+    "nativeArtifactSha256": "aefaecbee4677e1c72f3a150532c4dda363a5b09b20a55392507f54bf1bb8b39",
+    "recipesSha256": "2507d8c2b53baec54f474bfcbfe3f48704c7134c779b380d656eb78c7e5ca272",
+    "newMappingsCredited": 2,
+    "newLimitedProjectedPasses": 1,
+    "newVersionAttributedRawNonpassUnits": 1,
+    "readerChecks": 6,
+    "readerContexts": 3,
+    "dialectMismatches": 2,
+    "qualificationCredit": 0,
+    "individualVersionAttribution": "T00-ARB-004,compileridentityonly; rawexpectations/NONPASSunchanged",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 62,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 60,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 2,
+      "recipesWithoutKnownGaps": 352,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative multi-artifact checkpoints;352 is static preparation,not campaign passage."
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "recordedDate": "2026-10-19",
-  "state": "OWNER_CI_RULES_PRESERVED_WITH_FAILED_623_RUN_AND_LOCAL_RESOURCE_RECEIPTS",
+  "state": "OWNER_CI_RULES_PRESERVED_WITH_DATED_623_FAILURE_AND_9DA7_THREE_RUST_JOB_SUCCESS_RECEIPTS",
   "authority": {
     "owner": "Sébastien",
     "source": "Current owner rules supplied to documentary author and independent auditor by /root; latest direct correction explicitly retains the other rules.",
@@ -27,7 +27,7 @@
     "windowsRustTests": "Run if possible using an available permitted non-manual route. No Windows success inferred without a green exact-SHA test result.",
     "mergeReleaseDeploy": false
   },
-  "evidenceLimits": "Failed native CI jobs are retained as failures, not validated successful timing improvements. Local resource/tests evidence is DarwinARM64 only; WindowsGNU compilation is not Windows execution. No zero-leak, portable budget, current threeOS CI success, qualification or R0 conclusion follows.",
+  "evidenceLimits": "The623failednativejobreceipt remains historical. The9da7receipt establishes threeRustjobsSUCCESS only,with overallrunstillin_progress in its snapshot. Localreader/dialectb098 has no currentCIreceipt. No normalizedbenchmark,zero-leak/portablebudget,full354qualification or R0 conclusion follows.",
   "audit": {
     "authorTask": "/root/retained_unresolved_evidence_author",
     "auditorTask": "/root/retained_unresolved_evidence_author/ci_memory_receipt_claim_auditor",
@@ -171,5 +171,59 @@
     "native-program-windows-crosscheck-v1.log": "550aba769139959259b664b49eaa85cea367e43f60e0a6004dd0bea9361eadab",
     "ci-623-run-receipt-with-event.json": "84a7038082dab82acce0a43c4ba638b966ed5213adac8a8b0f69b0ec562cd326",
     "ci-623-run-list-receipt.json": "e21b5478315dbcb270c151dc5f0b93d86ed7464567c351dcb3426d42ee2a11eb"
+  },
+  "ci9da7Receipt": {
+    "head": "9da7e451a1e1e2b36fdb10b0b753e896f3648b35",
+    "run": 39322421229,
+    "event": "pull_request",
+    "url": "https://github.com/hoklims/semctx/actions/runs/39322421229",
+    "rustJobsOutcome": "THREE_SUCCESS",
+    "jobs": [
+      {
+        "job": "rust-gates (ubuntu-latest)",
+        "conclusion": "success",
+        "elapsed": "9m08s",
+        "previousFailedDebugElapsed": "22m24s",
+        "nativeTestsPassed": 322
+      },
+      {
+        "job": "rust-gates (macos-15)",
+        "conclusion": "success",
+        "elapsed": "14m07s",
+        "previousFailedDebugElapsed": "40m46s",
+        "nativeTestsPassed": 322
+      },
+      {
+        "job": "rust-gates (windows-latest)",
+        "conclusion": "success",
+        "elapsed": "19m52s",
+        "previousFailedDebugElapsed": "25m43s",
+        "nativeTestsPassed": 322
+      }
+    ],
+    "overallAtReceipt": {
+      "status": "in_progress",
+      "conclusion": null
+    },
+    "limits": "Three Rustjob conclusions only; recordedoverallin_progress is not a globallygreenrun. Job elapsed versusfailedfbcdebug is not normalizedbenchmark.322Rusttests and354qualificationunits are distinctdenominators. NoCIforlocalb098/readerdialect or full354/reservedproof.",
+    "publicationAttestation": "ROOT attests one normal9da7milestonepush and no manualruns; not an exhaustive globalexternal-event audit.",
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/reader_dialect_claim_auditor",
+    "completeLedger": "gap-reader-dialect-claim-audit.md",
+    "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+    "evidenceSha256": {
+      "ci-9da7-jobs-v11.json": "ca35c0a871477f82ea9917ab1710826b04facbbd0ba59406e717fc5a4b82affb",
+      "ci-9da7-duration-results-v1.json": "29addced4c7f1794ddb3094ee5edc7b778597431459c12444f303873f45c6af1",
+      "ci-9da7-run-final-v1.json": "50f318375a90b5411edc480c21e07aec1afaf42e92ea556492a959cffb48f5e7",
+      "ci-9da7-linux.log": "2fbfb59f2c49f7f9fe64a29826d7cf871b540a07c8f2e28d501abe5b03448719",
+      "ci-9da7-macos.log": "26ec8484062cded9cee8b367bc074a0d9c9dead23e424048e5b7da274058fb81",
+      "ci-9da7-windows.log": "aa3e72391d403f7a259d3deee38a67a7eb68fb08499813eafdc94e03446a2d18"
+    }
+  },
+  "latestReceiptAudit": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/reader_dialect_claim_auditor",
+    "ledger": "gap-reader-dialect-claim-audit.md",
+    "scope": "New9da7three-Rust-job receipt only; historical623/memoryreceipts and ownerpolicy unchanged."
   }
 }

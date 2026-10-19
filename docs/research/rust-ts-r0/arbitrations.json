@@ -121,6 +121,47 @@
         "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html",
         "https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/"
       ]
+    },
+    {
+      "id": "T00-ARB-004",
+      "status": "INDIVIDUALLY_DEMONSTRATED_COMPILER_IDENTITY_DIFFERENCE_PENDING_CAMPAIGN",
+      "owner": "Sébastien",
+      "decisionSource": "Existing owner2026-10-18 per-difference rule recorded in T00-ARB-002.comparisonRule; applied within delegated individual-evidence scope,not a new owner approval.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "scope": {
+        "unitIds": [
+          "ORD-DIALECT-CAPABILITY::base"
+        ],
+        "property": "Actual compiler identity: native_compiler_version and every observed TS/JS capabilityScope.dialectVersion only.",
+        "frozenUnitCanonicalSha256": "25e9a78de2eda03053d69b9013006b4a30be479a8bcbde25e5e6cf1a969dd80e",
+        "candidateArtifactSha256": "aefaecbee4677e1c72f3a150532c4dda363a5b09b20a55392507f54bf1bb8b39",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "sdkVersion": "5.9.3",
+        "baselineCompilerPackageVersion": "5.9.3",
+        "environment": "macOSARM64 only; no current nativeLinux/Windows assertion."
+      },
+      "observed": {
+        "nativeCompilerVersion": "7.1.0-dev",
+        "capabilityScopeDialectVersion": "7.1.0-dev",
+        "frozenExpectedCompilerIdentity": "5.9.3",
+        "sdkVersion": "5.9.3",
+        "mismatchedChecks": 2,
+        "rawDisposition": "NONPASS_PROJECTED_UNIT"
+      },
+      "mechanism": "Pinned core::version() defaults to7.1.0-dev independently of SDK5.9.3. Historical ts-symbols derives dialect identity from ts.version; captured baseline compilerpackage is5.9.3. Exact source/package/probe identities retained in the individual evidence.",
+      "comparisonRule": "Classify only this unit’s two compiler-identity mismatches as individually demonstrated TS7/TS5 differences. Preserve frozen5.9.3 expectations,recipe,comparator and rawNONPASS. No automatic PASS,obligationclosure,qualification or R0 credit.",
+      "authorityLimit": "No new owner decision; no extension to unrelated parsing,semantics,transport,setup or other version differences. A private recipeexpected7.1 PASS is not frozenqualification.",
+      "automaticExtensionToOtherDifferences": false,
+      "historicalExpectationsRewritten": false,
+      "qualificationCredit": 0,
+      "evidence": "resumption/gap-reader-dialect-evidence.json",
+      "individualVersionProof": {
+        "path": "/private/tmp/semctx-t00-import-scope-20261019/dialect-individual-version-proof-v1.json",
+        "sha256": "5b203dad2d449108a880f58585e3a568ee92e9b9c4c5008302a136af21b0ca66"
+      },
+      "independentClaimAudit": "resumption/gap-reader-dialect-claim-audit.md"
     }
   ]
 }
