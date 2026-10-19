@@ -1,0 +1,121 @@
+{
+  "recordVersion": 1,
+  "state": "FIVE_FROZEN_IDENTITY_SUPPORT_LIMITED_PASSES_MACOS_STATIC_GAPS_CLOSED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/identity_support_claim_auditor",
+  "claimLedger": "gap-identity-supports-claim-audit.md",
+  "authority": {
+    "frozenSupports": "cases/qualification/support.json indices44–48, frozenSHAa0ea3216c1d23dbac8e8ca79cbfe1bc5a028203b73144c779ec600b933421619; expectations are not executionproof.",
+    "historicalScope": "Prior twentyEighthBatch preserves the five SUPPORTGAP IDs and lastC1pass2report hashes. This separate latercheckpoint supplies their focusedPASS without rewritinghistory.",
+    "qualification": "No automatic obligationqualification,globaladmission or R0decision from supportPASS."
+  },
+  "sourceAnchor": {
+    "base": "69d0efedbb2491178dfc478dc81d023f8d8419e2",
+    "commit": "20e3f2330bb5d0a89ec55c80004a0da6a09ef3aa",
+    "files": {
+      "tools/rust-ts-r0/qualification/identity_support_replay.rs": "64c14196c17359181d645cf993e8d3c946b4ba3518b267c2a85f9263281730ee",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "cb3a9f1454590b9009e93cc24050c6bc0eed7077ee9d79a54cf696fe3449154a",
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "2628a4b7a2ad86186fa3292b4525aef08a8bcc80b15e8550f6e4ab3bb89c03f8"
+    },
+    "patchSha256": "a61a8b05b048a089a89a02ae09e2cdc21ba575fd343e2ff72dd20e114dbb6755",
+    "scope": "Three committed qualification sources only; future worktree/producer/observer changes excluded."
+  },
+  "artifacts": {
+    "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "observerSha256": "3c7ebf4d6364414fe753ff2e990610a394b23965bc3837c402e29f58fd4e8468",
+    "fixtureSha256": "07483d25f170e05ac664c1ec80e1061cfef4fedad4a1c6aaec9108bf6673ca2d",
+    "canonicalRecipeSha256": "17d2eafd1f9de378306bc2e79ea7c908a7a0dd95d3cbf90839e68a3715e8f2e0",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "provenance": "Exact immutable artifacts,descriptors and before/after identities; no independent complete source→binary reconstruction."
+  },
+  "focusedReplay": {
+    "oracle": "gap_identity_supports_use_native_consumers_and_complete_baseline",
+    "supports": [
+      {"supportId": "IDENTITY::I-relocation", "pass": true, "nativeContexts": 3},
+      {"supportId": "IDENTITY::I-sdk-supplied-vs-consumed", "pass": true, "nativeContexts": 7},
+      {"supportId": "IDENTITY::I-request-separation", "pass": true, "nativeContexts": 3},
+      {"supportId": "IDENTITY::I-capture-mismatch", "pass": true, "nativeContexts": 6},
+      {"supportId": "IDENTITY::complete-baseline-specimen", "pass": true, "nativeContexts": 2}
+    ],
+    "nativeContexts": 21,
+    "resultSha256": "e9199e64e772a4b68353c0e4126f0cc8f3f1e3090561dca56804d27c783b2887",
+    "relocation": "Before/relocated/after actualC1batch+Receiver: contentinput/capture/snapshot/SDK/producer identity stays stable,physicalscope changes,oldReceiver rejects IdentityMismatch. No graph/facts invariance inferred.",
+    "requestSeparation": "Request-only mutation changes native requestID and request-bearingdescriptor digest,not content input_manifest_id/capture/snapshot/SDK/producer/scope. ActualoldReceiver rejects IdentityMismatch; originalrestored.",
+    "captureMismatch": "Six contexts=two separate before/subject/after trios. Samecaptured.analysis within eachtrio,not one DTO across allsix. Positive retainsleaf despitephysicallive transient; negative changesdiscoveredbytes under unchangedanalysis,exit1/emptystdout/soleSOURCE_SNAPSHOT_MISMATCH:entry.ts.",
+    "sdkSuppliedVsReads": "Sevencontexts=retainedpositive3+mismatch3+raw1. Canonical100suppliedSDKfiles;64joinedpaths=63SDK+1repo,not64consumedSDKfiles.592probes=149found+443notfound;129successfulread events deduplicate to64paths.",
+    "requiredRead": "A successful lib.es2022.full.d.ts read must join supplied/requestbytes. Removingdefaultlib makes supportfalse while rawrecipe stillPASS. Suppliedmanifest is not consumptionproof.",
+    "baseline": "Two actual identity observations,each392reads=290implementation+102compiler (TypeScript5.9.3 entry plus101library/package records); compiler_executed=false. NotC1artifactidentity or compilerexecution."
+  },
+  "negativeAndRestoration": {
+    "predicateFault": "Real temporarysourcefault accepted default-library path after failedjoin; comparator RED. Mutationbinding records faultSHA57619ac52b755809643d8e75a091fc9a7ecf06b4a5cd478323f3e0f11f361670 and restoredsourceSHA64c14196c17359181d645cf993e8d3c946b4ba3518b267c2a85f9263281730ee; matchescommit. Then65comparatorsGREEN.",
+    "sdkSupplyControl": "Independent unusedSDKaddition yields101supplied/same64joinedpaths,addedfileunread,all5supportsPASS. NoallSDKconsumedclaim.",
+    "baselineControls": "Required apps/cli/package.json omission and lib/typescript.js substitution reject with truthfully rebound inputs. .agents/plugins/marketplace.json and LICENSE.txt are outside fixeddenominator; their accepted mutations are not failednegativewitnesses."
+  },
+  "oracles": {
+    "environment": "macOS27.0.1 ARM64;GIT_CONFIG_GLOBAL absent,GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1.",
+    "local": "Exact5supportoraclePASS,65comparatorsPASS,ClippyPASS,Python8PASS,RuffPASS. IndependentSPEC/STANDARDS canonicalrerunsandrestorationPASS.",
+    "windows": "WindowsGNU cargo checkPASS onDarwin only; no runtimeLinux/Windows evidence.",
+    "adversarial": "12privatecopyvariants with real producer/helpercaptures; positivefullfocus21nativecontexts,hash/foreignprerequisite/requiredspecimen faultsreject. No fabricatedOutcome/nativeclaim.",
+    "recipeTrust": "Externalcanonicalrecipehash mandatory. Focused runner verifiesfrozensources but doesnotauthenticate arbitrary editedrecipepolicy; fullcampaignfreeze owns thatbinding."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 64,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+    "versionAttributedNonpassUnitIds": [
+      "N17c-importhelpers-es5-actual-emission::base",
+      "ORD-DIALECT-CAPABILITY::base"
+    ],
+    "residualStaticGapUnits": 0,
+    "recipesWithoutKnownGaps": 354,
+    "unitDenominator": 354,
+    "supportPlansMapped": 51,
+    "supportDenominator": 51,
+    "residualStaticSupportGaps": 0,
+    "newLimitedSupportPasses": 5,
+    "supportCampaign51": "NOT_EXECUTED_ON_ONE_CURRENT_CANDIDATE",
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Zero UNIT/SUPPORTGAP is static mapping only. Five limitedsupportPASS do not execute/qualify all354units or51supports. UnitPASS totals remain cumulative across artifacts."
+  },
+  "limits": [
+    "No51support/full354campaign,178review,reserved23/26,R0,fullpubliccomposition or globaladmission.",
+    "NoallSDKconsumption,OSsandbox,atomicliveacquisition/universalcoherence/graphrelocation guarantees. Reportedsuccessfulreads join supplied bytes only.",
+    "No budget8fdc/ownerCIrule/dependency/workflow change or counterreset. QualificationREADMEunchanged: no current false supportGAP phrase.",
+    "Compact selected hashes/projections only; temporary evidence may expire,no archive/base64."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "identity-support-source-anchor-v1.json": "19e8a6fd1a506fa01c4f141b2fa39853ad9ac43ac82c3f283e4f276475fb789b",
+    "identity-support-source-v1.patch": "a61a8b05b048a089a89a02ae09e2cdc21ba575fd343e2ff72dd20e114dbb6755",
+    "fixture-identity-supports-v1.json": "07483d25f170e05ac664c1ec80e1061cfef4fedad4a1c6aaec9108bf6673ca2d",
+    "identity-support-recipes-v1/replay-recipes.json": "17d2eafd1f9de378306bc2e79ea7c908a7a0dd95d3cbf90839e68a3715e8f2e0",
+    "identity-support-recipes-v1/preparation-summary.json": "41505d305f4dd833c0ccf648c42231853b9c8f5b9527d21d2c2fcc0ee3c978a7",
+    "identity-support-recipes-v1/support-mapping-plan.json": "44e63f71f904d3e5acf5fcc733d9bfa5ae69c122daf3caa5341002534adbe41e",
+    "identity-supports-green-v4.log": "a4d097889a34479bb578b27d80c1d8daaa00f425421cfd936d8a368faeabd9c6",
+    "identity-support-comparators-green-v1.log": "5ddea5596db37ddcf274a81acec6889f4e82935d3aed6793045c86d570547924",
+    "identity-supports-clippy-v3.log": "ebd371e1688e218e95d09bc0c9561f682696cb1673ee96da1fba57866901f148",
+    "identity-supports-python-v1.log": "02664c3430cc749b77f5a4f480b2bb6cedfd32e32134546f96033235da70d051",
+    "identity-supports-ruff-v1.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "identity-supports-windows-gnu-check-v1.log": "f4f66a28fed8cabc26d8ff3795b614a587912880cf180eef2ae2054ed5d66def",
+    "identity-support-negative-witness-red-v1.log": "50aeab3c7e32cb03401ab20cd828e3f1558887da16d3886681079dd2899933a1",
+    "identity-support-negative-mutation-binding.json": "39c2affeb105ac6a59784a69cfc62e115327af1f38edaee6c7cdfd1ef52f36a5",
+    "identity-support-standards-v1.md": "0fc64a1a4bca47bb92637af3a2f43f1ff56d5a13c37a54d0ddffa17c589b0af9",
+    "identity-support-spec-proof-v1.md": "99afe0c8a56386a4923b504852f93b65054f04fe6ea8ad23c612b297a265581a",
+    "identity-support-adversarial-v1.md": "29fe14bc2a4517eaa9eff785ac8bea40cf79bc3e7b8e6440c2dedce5c7c049f8",
+    "identity-support-standards-bindings-v1.json": "7c2532f0477064f7ccc9e6d133753faadf1d5533375ff5cbd5274e6828bb0af1",
+    "identity-support-spec-proof-bindings-v1.json": "e0d4902db3711426656f89965354bbc8e14a3f9514d7a540664f0066e9824dd3",
+    "identity-support-adversarial-v1/results.json": "54f1c0904545fec5a88491740f8b15286d5e596b675980811153d5eb803d01d4",
+    "identity-support-spec-restored-final-v1.log": "1b171573f3f1310e11db491712ae2ec7289cf89499152083de5416c0a408503d",
+    "identity-support-spec-mutations-v1/missing-actual-default-library/test.log": "db609eaa4efa5b9dacc85193a837c608a70a936fed3ea5fbe1802d31851e4b14"
+  }
+}
