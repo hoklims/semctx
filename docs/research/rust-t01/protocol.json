@@ -1559,7 +1559,88 @@
         "runsPerWorkload": 3,
         "order": "consecutive runs",
         "expectedMinutes": 540,
-        "underMemoryPressure": true
+        "underMemoryPressure": true,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T15:26:44Z",
+          "lastRunStartedUtc": "2026-10-18T21:20:00Z",
+          "runs": 3,
+          "exitCodes": [
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 10546.78,
+            "min": 10263.094,
+            "max": 10648.411,
+            "iqr": 192.658
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 41810213344,
+            "min": 41291577200,
+            "max": 46868041488,
+            "iqr": 2788232144
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9994,
+            0.9996
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 37611,
+            "edges": 101086,
+            "evidence": 94098,
+            "claims": 5275
+          },
+          "perRun": [
+            {
+              "wallSeconds": 10546.78,
+              "aggregatePeakFootprintBytes": 46868041488,
+              "freeBytesBefore": 32487817216,
+              "inactiveBytesBefore": 8933883904,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 36759557,
+                "compressions": 37178727,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 10648.411,
+              "aggregatePeakFootprintBytes": 41291577200,
+              "freeBytesBefore": 33242742784,
+              "inactiveBytesBefore": 9526837248,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2060353,
+                "compressions": 2197346,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 10263.094,
+              "aggregatePeakFootprintBytes": 41810213344,
+              "freeBytesBefore": 33109409792,
+              "inactiveBytesBefore": 9907879936,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 4631978,
+                "compressions": 5029466,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/backstage",
+          "rowsSha256": "c309e60b5d67743bdecd8b7577f405a203979ae0c6f615d61323577b21809094",
+          "statsSha256": "f899155ea058c86a2f196c1e3fcf1a755b851a9037f88a491e4ef5007d8286c7",
+          "note": "under memory pressure, no swap. An earlier launch at about 2026-10-18T15:25Z was stopped about one minute after it started, before any run completed, because the harness stops background commands after two hours; its empty outputs are kept in /Users/hokli/t01-bench/runs/backstage-aborted-launch. The recorded runs come from a relaunch detached from that limit"
+        }
       },
       {
         "id": "aws-sdk-js-v3",
