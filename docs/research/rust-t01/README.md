@@ -25,8 +25,8 @@ and `referenceSeries` in `protocol.json`). It also records the owner's decision 
 large cells; see [Owner decision](#owner-decision-on-prefect-and-the-large-cells). Checkpoint 10
 records that the very large cell has no measurement, returns authorship to the owner's sessions
 and tests the registered budget form against the series; see
-[Budget form check](#budget-form-check). One owner decision is open; see
-[Open decisions](#open-decisions).
+[Budget form check](#budget-form-check). Checkpoint 11 records the budget-form decision and the
+budgets per measured cell; see [Budgets](#budgets). No owner decision is open.
 
 [protocol.json](protocol.json) is the machine record of these checkpoints.
 
@@ -518,15 +518,46 @@ stay blocked until the owner chooses a budget form, as #365 section 3.1 requires
 script and its output stay outside the checkout; their digests are in `protocol.json`
 (`budgetFormCheck`).
 
-## Open decisions
+## Budgets
 
-1. **Budget form.** A startup plus per-TS/JS-file form fits neither time nor memory. Possible
-   forms include budgets per structure class, another unit such as resolved edges, or absolute
-   budgets per measured cell. The choice belongs to the owner.
+On 2026-10-19 the owner delegated the budget-form choice to the executing session. The decision
+is absolute budgets per measured cell, anchored on that cell's reference series, with no size
+function. It supersedes item 2 of the owner's translation above, which the budget form check
+refutes. Two alternatives were rejected:
+
+- **Budgets per structure class.** Only two monorepos are measured, and their per-file times
+  differ 15-fold (0.089 and 1.34 s). A monorepo fit would rest on two incompatible points.
+- **Resolved edges as the unit.** It holds at 2.1 to 2.6 ms per edge on four cells, but fails on
+  trpc (7.7 ms) and backstage (104 ms). Edges are also known only after a baseline run.
+
+A candidate's run is within budget on a cell when its wall time and aggregate peak footprint do
+not exceed the largest value of that cell's reference series. That maximum bounds the baseline's
+own dispersion on the same host, so a candidate equal to the baseline cannot fail by noise.
+
+| Cell | Reference runs | Wall time budget | Aggregate peak footprint budget |
+| --- | ---: | ---: | ---: |
+| `sindresorhus/ky` (startup) | 10 | 2.08 s | 0.717 GB |
+| `honojs/hono` | 10 | 15.44 s | 1.579 GB |
+| `trpc/trpc` | 10 | 93.84 s | 5.114 GB |
+| `PrefectHQ/prefect`, derived | 10 | 142.43 s | 8.217 GB |
+| `microsoft/vscode`, pressured | 5 | 1,095.23 s | 42.615 GB |
+| `backstage/backstage`, pressured | 3 | 10,648.41 s | 46.868 GB |
+
+Limits of this form:
+
+- Absolute budgets are a ceiling, not the frontier target. The gains #365 targets stay with the
+  economic gate (section 3.7) and its paired ratios.
+- `aws/aws-sdk-js-v3` has no reference measurement, so it has no absolute budget. Its results are
+  reported, not budget-gated.
+- Repositories outside the matrix have no absolute budget; no fitted function covers them.
+- No query budget is recorded, because no query series exists.
+- The budgets hold on the macOS measurement host only.
+
+No owner decision is open.
 
 ## Next checkpoints
 
-1. Apply the owner's budget-form decision and record the coefficients. Measure the CPU-profile cost
-   for phase attribution on the measurement host.
+1. Measure the CPU-profile cost for phase attribution on the measurement host, and record a query
+   series if query budgets are needed.
 2. After `READY_TS_NATIVE`: select at most three hypotheses from the measured costs, then run the
    prototype and the economic gate under the frozen protocol.

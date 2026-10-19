@@ -3,7 +3,7 @@
   "issue": "https://github.com/hoklims/semctx/issues/365",
   "pullRequest": "https://github.com/hoklims/semctx/pull/387",
   "recordedDateUtc": "2026-10-19",
-  "checkpoint": 10,
+  "checkpoint": 11,
   "owner": "hoklims",
   "gateDecision": "NOT_RUN",
   "dependency": {
@@ -132,12 +132,11 @@
     }
   ],
   "remainingEvidence": [
-    "owner decision: budget-form",
     "very large cell (aws-sdk-js-v3): no reference measurement",
     "memory collector for Linux before any measurement there",
     "CPU-profile cost for phase attribution",
     "repeated baseline series per phase and size class",
-    "budget coefficients, once the owner chooses the budget form",
+    "query budget, once a query series exists",
     "READY_TS_NATIVE from T00",
     "hypothesis selection, prototype and economic gate"
   ],
@@ -989,13 +988,7 @@
       }
     ]
   },
-  "openDecisions": [
-    {
-      "id": "budget-form",
-      "fact": "a startup plus per-TS/JS-file form fits neither time nor memory: negative intercepts, backstage 14.8 times its predicted time, VS Code memory half its predicted value",
-      "question": "which budget form and unit the owner adopts, for example budgets per structure class, a different unit such as resolved edges, or absolute budgets per measured cell"
-    }
-  ],
+  "openDecisions": [],
   "measurementSpace": {
     "recordedDateUtc": "2026-10-18",
     "path": "/Users/hokli/t01-bench",
@@ -1845,6 +1838,92 @@
     "scriptSha256": "aa032c5bbdd7931615958d28420744134308f010a18ac8fb2b5cd09a97239339",
     "outputSha256": "96c603c90543b2fa161e13048cc22a095ab0c4a4ffdc828fa1b659f83245eec1"
   },
+  "budgets": {
+    "recordedDateUtc": "2026-10-19",
+    "form": "per measured cell: a candidate's run is within budget when its wall time and aggregate peak footprint do not exceed the largest value of the cell's reference series",
+    "rationale": "the maximum over the reference runs bounds the baseline's own dispersion on the same host, so a candidate equal to the baseline cannot fail by noise; pressured cells keep their wide memory range",
+    "scope": [
+      "absolute budgets are a ceiling, not the frontier target; the gains #365 targets stay with the economic gate (section 3.7) and its paired ratios",
+      "a cell without a reference measurement has no absolute budget: aws-sdk-js-v3 is reported, not budget-gated",
+      "repositories outside the matrix have no absolute budget; size adaptation is not budgeted by a fitted function",
+      "startup is read on the small cell (sindresorhus/ky); no query budget is recorded, because no query series exists"
+    ],
+    "host": "the macOS measurement host (measurementHost); budgets do not transfer to another host",
+    "cells": [
+      {
+        "cell": "sindresorhus/ky",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 2.076,
+        "aggregatePeakFootprintBytesBudget": 717243616,
+        "baselineMedian": {
+          "wallSeconds": 2.044,
+          "aggregatePeakFootprintBytes": 708756704
+        }
+      },
+      {
+        "cell": "honojs/hono",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 15.442,
+        "aggregatePeakFootprintBytesBudget": 1578993632,
+        "baselineMedian": {
+          "wallSeconds": 15.277,
+          "aggregatePeakFootprintBytes": 1558964240
+        }
+      },
+      {
+        "cell": "trpc/trpc",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 93.835,
+        "aggregatePeakFootprintBytesBudget": 5113845568,
+        "baselineMedian": {
+          "wallSeconds": 92.991,
+          "aggregatePeakFootprintBytes": 5046105920
+        }
+      },
+      {
+        "cell": "PrefectHQ/prefect (derived snapshot)",
+        "series": "prefect-derived",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 142.426,
+        "aggregatePeakFootprintBytesBudget": 8216945040,
+        "baselineMedian": {
+          "wallSeconds": 138.951,
+          "aggregatePeakFootprintBytes": 8030806320
+        }
+      },
+      {
+        "cell": "microsoft/vscode",
+        "series": "vscode",
+        "runs": 5,
+        "underMemoryPressure": true,
+        "wallSecondsBudget": 1095.228,
+        "aggregatePeakFootprintBytesBudget": 42614588104,
+        "baselineMedian": {
+          "wallSeconds": 1088.239,
+          "aggregatePeakFootprintBytes": 38276989616
+        }
+      },
+      {
+        "cell": "backstage/backstage",
+        "series": "backstage",
+        "runs": 3,
+        "underMemoryPressure": true,
+        "wallSecondsBudget": 10648.411,
+        "aggregatePeakFootprintBytesBudget": 46868041488,
+        "baselineMedian": {
+          "wallSeconds": 10546.78,
+          "aggregatePeakFootprintBytes": 41810213344
+        }
+      }
+    ]
+  },
   "authorship": {
     "recordedDateUtc": "2026-10-19",
     "history": "checkpoints 1 to 8 and 10 were written from the owner's sessions; checkpoint 9 was written by the macOS pilot session, which was the branch's only author while it ran",
@@ -1860,6 +1939,16 @@
         "submodule-refusal",
         "series size for the large cells under memory pressure, fixed before any series"
       ]
+    },
+    {
+      "decidedDateUtc": "2026-10-19",
+      "decidedBy": "owner, delegating the choice to the executing session (\"ce qui te semble optimal\")",
+      "decision": "absolute budgets per measured cell, anchored on that cell's reference series; no size function",
+      "supersedes": "ownerInput.translation item 2 (budgets as a startup term plus a per-unit term), which budgetFormCheck refutes on the baseline",
+      "rejectedAlternatives": {
+        "budgets per structure class": "only two monorepos are measured and their per-file times differ 15-fold (0.089 and 1.34 s), so a monorepo fit would rest on two incompatible points",
+        "resolved edges as the unit": "holds at 2.1 to 2.6 ms per edge on four cells but fails on trpc (7.7) and backstage (104); edges are also known only after a baseline run"
+      }
     }
   ],
   "derivedSnapshots": {
