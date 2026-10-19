@@ -3,6 +3,7 @@ use semctx_r0_probe::identity;
 mod ambiguous_exports_replay;
 mod legacy_identity_replay;
 mod parallel_replay;
+mod reader_error_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
 mod repository_replay;
@@ -134,6 +135,37 @@ fn clone_field(object: &mut serde_json::Map<String, Value>, value: &Value, to: &
 fn transform(actual: &Value, name: &str) -> Result<Value, String> {
     if name == "none" {
         return Ok(actual.clone());
+    }
+    if name == "native_capability_dialect_versions" {
+        let version = value_text(actual, "native_compiler_version")?;
+        if version.is_empty() {
+            return Err("native compiler identity is empty".into());
+        }
+        let subjects = actual["subjects"]
+            .as_array()
+            .filter(|v| !v.is_empty())
+            .ok_or("native dialect capability inventory missing")?;
+        let mut paths = BTreeSet::new();
+        let mut versions = BTreeSet::new();
+        for subject in subjects {
+            if !paths.insert(value_text(subject, "path")?)
+                || subject["selection"] != "selected"
+                || subject["outcome"] != "analyzed"
+                || subject["sourceFileObservation"]["executed"] != true
+                || subject["sourceFileObservation"]["unsupported"] != json!([])
+                || !matches!(
+                    subject["capabilityScope"]["language"].as_str(),
+                    Some("typescript" | "javascript")
+                )
+                || subject["capabilityScope"]["dialectVersion"] != version
+            {
+                return Err(
+                    "native dialect capability is incomplete, unexecuted or foreign".into(),
+                );
+            }
+            versions.insert(version);
+        }
+        return Ok(json!(versions));
     }
     if let Some(path) = name.strip_prefix("opaque_ownership_graph_binding:") {
         if path.is_empty() {
@@ -2783,6 +2815,13 @@ fn replay() -> Result<Value, String> {
             results.push(result);
             continue;
         }
+        if recipe["surface"] == "reader_error_component" {
+            let mut result =
+                reader_error_replay::run(recipe, &out.join(format!("unit-{index:03}")))?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "retained_runtime_cli" {
             let mut result = retained_runtime_replay::run(
                 recipe,
@@ -4241,6 +4280,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "reader_error_component" => reader_error_replay::run(recipe, &dir),
             "workspace_system_cli" => workspace_system_replay::run(recipe, &dir, &fixture),
             "retained_runtime_cli" => retained_runtime_replay::run(recipe, &dir, &fixture),
             "repository_eligibility_cli" => repository_replay::run_eligibility(
@@ -5571,6 +5611,52 @@ fn gap_retained_runtime_propagates_snapshot_rejection_and_keeps_captured_analysi
         "P01-retained-source::plane-a-runtime-consistent",
         "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch",
     ]);
+}
+
+#[test]
+fn gap_reader_error_uses_real_kernel_failure_and_preserves_partial_capture() {
+    repair_units(&["T-reader-error::base"]);
+}
+
+#[test]
+fn gap_native_dialect_preserves_frozen_ts5_expectation() {
+    repair_units(&["ORD-DIALECT-CAPABILITY::base"]);
+}
+
+#[test]
+fn comparator_native_dialect_requires_real_nonempty_capability_and_compiler_identity() {
+    let good = json!({"native_compiler_version":"5.9.3","subjects":[{"path":"development.ts","selection":"selected","outcome":"analyzed","sourceFileObservation":{"executed":true,"unsupported":[]},"capabilityScope":{"language":"typescript","dialectVersion":"5.9.3"}}]});
+    assert_eq!(
+        transform(&good, "native_capability_dialect_versions").unwrap(),
+        json!(["5.9.3"])
+    );
+    for (field, value) in [
+        ("selection", json!("excluded")),
+        ("outcome", json!("unsupported")),
+        ("sourceFileObservation", json!({})),
+        (
+            "capabilityScope",
+            json!({"language":"typescript","dialectVersion":"sdk-only"}),
+        ),
+    ] {
+        let mut changed = good.clone();
+        changed["subjects"][0][field] = value;
+        assert!(transform(&changed, "native_capability_dialect_versions").is_err());
+    }
+    for subjects in [
+        json!([]),
+        Value::Null,
+        json!([good["subjects"][0], good["subjects"][0]]),
+    ] {
+        let mut changed = good.clone();
+        changed["subjects"] = subjects;
+        assert!(transform(&changed, "native_capability_dialect_versions").is_err());
+    }
+    let mut native_ts7 = good.clone();
+    native_ts7["native_compiler_version"] = json!("7.1.0-dev");
+    native_ts7["subjects"][0]["capabilityScope"]["dialectVersion"] = json!("7.1.0-dev");
+    let check = json!({"target":[],"mode":"eq","expected":["5.9.3"],"actual_transform":"native_capability_dialect_versions"});
+    assert_eq!(evaluate(&native_ts7, &check)["state"], "MISMATCH");
 }
 
 #[test]

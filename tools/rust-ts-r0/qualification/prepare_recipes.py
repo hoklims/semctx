@@ -767,6 +767,18 @@ for recipe in recipes:
     recipe['proof_scope'] = 'Frozen missing retained test-text case only. Public guard refuses before analysis; separate out-of-contract private scan observes missing text and no keys despite physical live text. No whole Plane-A runtime, full retained scope or global admission.'
 
 for recipe in recipes:
+    if recipe['case_id'] != 'T-reader-error':
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if assertions != {'qualification_success':False, 'useful_product_success':False, 'controlled_product_refusal':False, 'failure_kind_distinct_from_success':True, 'available_bounded_capture_retained':True, 'error_identity_if_exposed_by_reused_supervisor':'Preserve exposed cause without fabricating missing native details.'}:
+        raise ValueError('unmapped reader failure contract')
+    recipe.update({'surface':'reader_error_component', 'fault_injection_mechanism':'kernel_read_of_write_only_file', 'capture_budget':64, 'requests':[], 'relations':[], 'gaps':[], 'credited_properties':list(assertions), 'explicit_uncredited_properties':[]})
+    recipe['checks'] = [check([key], expected, 'eq', ptr(key)) for key, expected in assertions.items() if isinstance(expected, bool)]
+    recipe['checks'].append(check(['error_identity_preserved'], True, 'eq', ptr('error_identity_if_exposed_by_reused_supervisor')))
+    recipe['checks'][-1]['requirement_interpretation'] = assertions['error_identity_if_exposed_by_reused_supervisor']
+    recipe['proof_scope'] = 'Qualification-tool reader boundary: actual kernel refusal reading an owned write-only file through reused semctx-gates pipe_reader and finish_reader, after a real file prefix; same files with a readable EOF tail before and after. Retains the actual IO kind, OS code and message. No fabricated process Outcome, outer process::run capture_error, child lifecycle, C1 semantic result or controlled product refusal.'
+
+for recipe in recipes:
     if recipe['case_id'] not in ['T-timeout', 'T-output-limit']:
         continue
     assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
@@ -1217,6 +1229,20 @@ for recipe in recipes:
         recipe['credited_properties'].remove('qualified_admission')
         recipe['explicit_uncredited_properties'].append({'key':'qualified_admission','basis':'Frozen named control explicitly prohibits full admission inference. Actual native batch/receiver analysis and graph consumption are separate, limited observations.'})
     recipe['proof_scope'] = 'T00-ARB-001: complete frozen raw call target and graph-call projections, explicit native ambiguity reason, then the same materialized input through actual --batch and the native receiver. Ambiguous refusal cannot obtain private graph ownership. Named reexport preserves b.ts/same without inferring global application admission. No full health/storage/services or broad scope equivalence.'
+
+for recipe in recipes:
+    if recipe['case_id'] != 'ORD-DIALECT-CAPABILITY':
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    if assertions != {'every_typescript_or_javascript_capability_scope_dialectVersion':'5.9.3', 'compiler_package_version_input':'pinned TypeScript5.9.3', 'declarative_scope':'Producer dialect identity observation, not a numeric enum-value mirror test'}:
+        raise ValueError('unmapped native dialect identity contract')
+    source = next(row for row in recipes if row['unit_id'] == 'P04-small-complete-symbol-set::base')
+    request = copy.deepcopy(source['requests'][0])
+    request['id'] = recipe['unit_id']
+    recipe.update({'surface':'raw_cli', 'requests':[request], 'relations':[], 'gaps':[], 'credited_properties':list(assertions), 'explicit_uncredited_properties':[]})
+    recipe['checks'] = [check([], [assertions['every_typescript_or_javascript_capability_scope_dialectVersion']], 'eq', ptr('every_typescript_or_javascript_capability_scope_dialectVersion')+' + '+ptr('declarative_scope'), 'native_capability_dialect_versions'), check(['native_compiler_version'], '5.9.3', 'eq', ptr('compiler_package_version_input'))]
+    recipe['checks'][1]['requirement_interpretation'] = assertions['compiler_package_version_input']
+    recipe['proof_scope'] = 'Actual native compiler core::version identity, separated from the captured SDK version, in the ordinary analyzed P04 source capability scope. Version differences stay raw NONPASS against frozen5.9.3 expectations; this mapping supplies neither an automatic waiver nor a numeric enum mirror.'
 
 def complete_component_fields(recipe):
     additions=[]
