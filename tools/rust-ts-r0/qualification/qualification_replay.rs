@@ -6139,3 +6139,80 @@ fn gap_identity_supports_use_native_consumers_and_complete_baseline() {
     }
     save(&out.join("support-results.json"), &json!(results)).unwrap();
 }
+
+#[test]
+fn repair_outline_required_absences_reject_extra_native_projection_fields() {
+    let ids = [
+        "P10-complete-outline-links::base",
+        "OL-M15::base",
+        "OL-M22::base",
+        "OL-M16::base",
+        "OL-B01::base",
+        "OL-C00::base",
+        "OL-M01::base",
+        "OL-M09::base",
+        "OL-M10::base",
+    ];
+    repair_units(&ids);
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("units-P10-complete-outline-links");
+    for (index, id) in ids.iter().enumerate() {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|recipe| recipe["unit_id"] == *id)
+            .unwrap();
+        let outcome: process::Outcome = serde_json::from_value(
+            read_json(&out.join(format!("unit-{index:03}/process-outcome.json"))).unwrap(),
+        )
+        .unwrap();
+        let original: Value = serde_json::from_str(&outcome.stdout).unwrap();
+        let checks = recipe["checks"].as_array().unwrap();
+        assert!(
+            checks
+                .iter()
+                .all(|check| evaluate(&original, check)["state"] == "PASS_PROJECTED_PROPERTY")
+        );
+        let source = recipe["requests"][0]["roots"][0].as_str().unwrap();
+        let absent: &[(usize, &str)] = match index {
+            0 => &[(0, "whole"), (1, "whole")],
+            3 => &[(0, "importBindings"), (0, "sideEffectImport")],
+            6 | 8 => &[(0, "sideEffectImport")],
+            7 => &[],
+            _ => &[
+                (0, "moduleSpecifier"),
+                (0, "importBindings"),
+                (0, "loadsModule"),
+                (0, "sideEffectImport"),
+            ],
+        };
+        for (entry, field) in absent {
+            let mut poisoned = original.clone();
+            let entries = if index == 0 {
+                &mut poisoned["outlines"][source]["moduleLinks"]
+            } else {
+                &mut poisoned["outlines"][source]["outline"]["statements"]
+            };
+            let object = entries.as_array_mut().unwrap()[*entry]
+                .as_object_mut()
+                .unwrap();
+            assert!(
+                !object.contains_key(*field),
+                "native optional field is present: {id}/{entry}/{field}"
+            );
+            object.insert((*field).to_string(), Value::Null);
+            assert!(
+                checks
+                    .iter()
+                    .any(|check| evaluate(&poisoned, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+                "required absent field accepted by generated recipe: {id}/{entry}/{field}",
+            );
+        }
+    }
+}
