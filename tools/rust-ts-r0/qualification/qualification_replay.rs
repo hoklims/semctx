@@ -865,6 +865,77 @@ fn raw_execution_limits(recipe: &Value) -> Result<(u64, usize), String> {
     ))
 }
 
+fn version_arbitration(recipe: &Value, observations: &[Value], bindings_verified: bool) -> Value {
+    if !bindings_verified || observations.len() != 1 || ts_goport::core::version() != "7.1.0-dev" {
+        return Value::Null;
+    }
+    let observed = &observations[0];
+    let signature = identity::digest(recipe);
+    // T00-ARB-002/003/004 in docs/research/rust-ts-r0/arbitrations.json preserve raw NONPASS and allow only these individually demonstrated differences.
+    let (id, mismatches, observed_difference): (&str, &[usize], bool) = match signature.as_str() {
+        "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353" => {
+            let output = select(
+                observed,
+                &[
+                    json!("subjects"),
+                    json!({"path":"main.ts"}),
+                    json!("runtimeConfiguration"),
+                    json!("emission"),
+                    json!("observation"),
+                    json!("output_text"),
+                ],
+            )
+            .ok()
+            .and_then(Value::as_str);
+            (
+                "T00-ARB-003",
+                &[7],
+                output.is_some_and(|text| {
+                    sha(text.as_bytes())
+                        == "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7"
+                }),
+            )
+        }
+        "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147" => (
+            "T00-ARB-004",
+            &[0, 1],
+            transform(observed, "native_capability_dialect_versions").ok()
+                == Some(json!(["7.1.0-dev"])),
+        ),
+        "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed" => (
+            "T00-ARB-002",
+            &[4],
+            observed["source_parsing_observation"]["diagnostics"]
+                == json!([
+                    {"code":1490,"start_utf16":0,"end_utf16":0,"message":"File appears to be binary."}
+                ]),
+        ),
+        _ => return Value::Null,
+    };
+    if !observed_difference
+        || (id != "T00-ARB-002"
+            && (observed["native_compiler_version"] != "7.1.0-dev"
+                || observed["sdk_version"] != "5.9.3"
+                || observed["engine_revision"] != "780dc512d64f40afebffa6a7028207649fb7ed1c"))
+    {
+        return Value::Null;
+    }
+    let Some(checks) = recipe["checks"].as_array() else {
+        return Value::Null;
+    };
+    if !checks.iter().enumerate().all(|(index, check)| {
+        evaluate(observed, check)["state"]
+            == if mismatches.contains(&index) {
+                "MISMATCH"
+            } else {
+                "PASS_PROJECTED_PROPERTY"
+            }
+    }) {
+        return Value::Null;
+    }
+    json!({"id":id,"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","recipe_signature":signature,"qualification_credit":0})
+}
+
 fn run_raw_recipe(
     recipe: &Value,
     dir: &Path,
@@ -1027,7 +1098,18 @@ fn run_raw_recipe(
             b["native_product_capability"].get("error").is_none()
                 && b["read_provenance"].get("error").is_none()
         });
-    let result = json!({"state":if pass{"PASS_FROZEN_PROJECTED_UNIT"}else{"NONPASS_PROJECTED_UNIT"},"checks":checks,"relations":relations,"bound_observations":boundaries,"pass":pass,"global_admission_inferred":false});
+    let version_arbitration = version_arbitration(
+        recipe,
+        &observations,
+        sdk["version"] == "5.9.3"
+            && sdk["archive_sha256"]
+                == "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+            && boundaries.iter().all(|b| {
+                b["native_product_capability"].get("error").is_none()
+                    && b["read_provenance"].get("error").is_none()
+            }),
+    );
+    let result = json!({"version_arbitration":version_arbitration,"state":if pass{"PASS_FROZEN_PROJECTED_UNIT"}else{"NONPASS_PROJECTED_UNIT"},"checks":checks,"relations":relations,"bound_observations":boundaries,"pass":pass,"global_admission_inferred":false});
     save(&dir.join("result.json"), &result)?;
     Ok(result)
 }
@@ -2588,7 +2670,8 @@ fn run_primitive_recipe(
             .iter()
             .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY");
     let pass = passed_checks && gaps.is_empty();
-    let result = json!({"state":if pass{"PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT"}else if passed_checks && !gaps.is_empty(){"PARTIAL_PRIMITIVE_OBSERVATION_WITH_EXPLICIT_GAPS"}else{"NONPASS_PRIMITIVE_PROJECTED_UNIT"},"checks":checks,"relations":relations,"gaps":gaps,"pass":pass,"sdk_readset_claimed":false,"global_admission_inferred":false});
+    let version_arbitration = version_arbitration(recipe, &observations, true);
+    let result = json!({"version_arbitration":version_arbitration,"state":if pass{"PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT"}else if passed_checks && !gaps.is_empty(){"PARTIAL_PRIMITIVE_OBSERVATION_WITH_EXPLICIT_GAPS"}else{"NONPASS_PRIMITIVE_PROJECTED_UNIT"},"checks":checks,"relations":relations,"gaps":gaps,"pass":pass,"sdk_readset_claimed":false,"global_admission_inferred":false});
     save(&dir.join("result.json"), &result)?;
     Ok(result)
 }
@@ -3057,9 +3140,40 @@ fn replay() -> Result<Value, String> {
     Ok(report)
 }
 
+fn comparison_resolved(result: &Value) -> bool {
+    result["pass"] == true
+        || (result["pass"] == false
+            && matches!(
+                result["state"].as_str(),
+                Some("NONPASS_PROJECTED_UNIT" | "NONPASS_PRIMITIVE_PROJECTED_UNIT")
+            )
+            && result["version_arbitration"]["state"]
+                == "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+            && result["version_arbitration"]["qualification_credit"] == 0)
+}
+
+#[test]
+fn comparator_unresolved_failures_do_not_gain_arbitration_or_qualification_credit() {
+    assert!(comparison_resolved(&json!({"pass":true})));
+    for result in [
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT"}),
+        json!({"pass":false,"state":"NOT_EXECUTABLE_INPUT_GAP","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":0}}),
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"OTHER_DIFFERENCE","qualification_credit":0}}),
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":1}}),
+    ] {
+        assert!(!comparison_resolved(&result));
+    }
+    let result = json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":0}});
+    let before = result.clone();
+    assert!(comparison_resolved(&result));
+    assert_eq!(result, before);
+}
+
 #[test]
 fn qualification_replay_requires_explicit_optimized_freeze() {
     let report = replay().expect("qualification preparation is not execution authorization");
+    assert_eq!(report["qualified"], false);
+    assert_eq!(report["R0_decision"], "NOT_MADE_BY_ADAPTER");
     assert_eq!(report["units"].as_array().unwrap().len(), 354);
     assert_eq!(report["supports"].as_array().unwrap().len(), 51);
     assert!(
@@ -3067,16 +3181,16 @@ fn qualification_replay_requires_explicit_optimized_freeze() {
             .as_array()
             .unwrap()
             .iter()
-            .all(|r| r["pass"] == true),
-        "qualification has explicit nonpass units; inspect report.json"
+            .all(comparison_resolved),
+        "campaign has unresolved unit differences; inspect raw report.json"
     );
     assert!(
         report["supports"]
             .as_array()
             .unwrap()
             .iter()
-            .all(|r| r["pass"] == true),
-        "qualification has explicit nonpass supports; inspect report.json"
+            .all(comparison_resolved),
+        "campaign has unresolved support differences; inspect raw report.json"
     );
 }
 #[test]
@@ -4549,6 +4663,192 @@ fn repair_worker_mutations_start_from_an_accepted_emit_subset() {
         "N13-malformed-worker-evidence::mutation-02",
         "N13-malformed-worker-evidence::mutation-03",
     ]);
+}
+
+#[test]
+fn repair_version_arbitrations_preserve_raw_failures_and_frozen_expectations() {
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("repair fixture"),
+    ))
+    .unwrap();
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    verify_sources(Path::new(fixture["cases_path"].as_str().unwrap()), &recipes).unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("version-arbitrations");
+    assert!(!out.exists(), "repair evidence must be fresh");
+    fs::create_dir_all(&out).unwrap();
+    let artifact = Path::new(fixture["artifact_path"].as_str().unwrap());
+    let helper = Path::new(fixture["helper_path"].as_str().unwrap());
+    let sdk_path = Path::new(fixture["sdk_path"].as_str().unwrap());
+    let artifact_sha = fixture["artifact_sha256"].as_str().unwrap();
+    let helper_sha = fixture["helper_sha256"].as_str().unwrap();
+    exact_hash(sdk_path, fixture["sdk_sha256"].as_str().unwrap()).unwrap();
+    let sdk = read_json(sdk_path).unwrap();
+    let mut results = vec![];
+    for (index, (id, arbitration)) in [
+        (
+            "N17c-importhelpers-es5-actual-emission::base",
+            "T00-ARB-003",
+        ),
+        ("ORD-DIALECT-CAPABILITY::base", "T00-ARB-004"),
+        ("ENC::UTF16LE-lone-high-surrogate::ordinary", "T00-ARB-002"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .chain(recipes["support_recipes"].as_array().unwrap())
+            .find(|r| r["unit_id"] == id || r["support_id"] == id)
+            .unwrap();
+        let before = recipe.clone();
+        let dir = out.join(format!("case-{index:03}"));
+        let result = if recipe["surface"] == "raw_cli" {
+            run_raw_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            )
+        } else {
+            run_primitive_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+        }
+        .unwrap();
+        assert_eq!(*recipe, before);
+        let observation_dir = if recipe["surface"] == "raw_cli" {
+            dir.clone()
+        } else {
+            dir.join("observation-000")
+        };
+        let process = read_json(&observation_dir.join("process-outcome.json")).unwrap();
+        let observed: Value = serde_json::from_str(process["stdout"].as_str().unwrap()).unwrap();
+        assert!(version_arbitration(recipe, std::slice::from_ref(&observed), false).is_null());
+        assert!(version_arbitration(recipe, &[], true).is_null());
+        assert!(version_arbitration(recipe, &[observed.clone(), observed.clone()], true).is_null());
+        for field in [
+            "unit_id",
+            "support_id",
+            "frozen_unit_sha256",
+            "source_canonical_sha256",
+            "requests",
+            "primitive_requests",
+            "checks",
+            "relations",
+            "gaps",
+            "physical_live_after_capture",
+        ] {
+            let mut poison = recipe.clone();
+            poison[field] = json!("foreign or missing contract");
+            assert!(
+                version_arbitration(&poison, std::slice::from_ref(&observed), true).is_null(),
+                "{id}/{field}"
+            );
+        }
+        let mut missing_check = recipe.clone();
+        missing_check["checks"].as_array_mut().unwrap().pop();
+        assert!(
+            version_arbitration(&missing_check, std::slice::from_ref(&observed), true).is_null()
+        );
+        let mut extra_check = recipe.clone();
+        extra_check["checks"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"target":[],"expected":true,"mode":"eq","actual_transform":"none"}));
+        assert!(version_arbitration(&extra_check, std::slice::from_ref(&observed), true).is_null());
+        let poisons = if index == 0 {
+            vec![
+                ("/native_compiler_version", json!("7.2.0-dev")),
+                ("/sdk_version", json!("7.1.0-dev")),
+                ("/engine_revision", json!("foreign")),
+                (
+                    "/subjects/0/runtimeConfiguration/unsupported",
+                    json!(["unsupported"]),
+                ),
+                (
+                    "/subjects/0/runtimeConfiguration/emission/observation/output_text",
+                    json!("import { __awaiter } from 'tslib'; export const changed = 1;"),
+                ),
+            ]
+        } else if index == 1 {
+            vec![
+                ("/native_compiler_version", json!("7.2.0-dev")),
+                ("/sdk_version", json!("7.1.0-dev")),
+                ("/engine_revision", json!("foreign")),
+                (
+                    "/subjects/0/capabilityScope/dialectVersion",
+                    json!("7.2.0-dev"),
+                ),
+                ("/subjects/0/sourceFileObservation/executed", json!(false)),
+                ("/subjects", json!([])),
+            ]
+        } else {
+            vec![
+                ("/decoded_utf16_units", json!([55358])),
+                (
+                    "/source_parsing_observation/has_syntax_errors",
+                    json!(false),
+                ),
+                ("/source_parsing_observation/executed", json!(false)),
+                (
+                    "/source_parsing_observation/unsupported",
+                    json!(["unsupported"]),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/code",
+                    json!(1491),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/end_utf16",
+                    json!(1),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/message",
+                    json!("foreign"),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics",
+                    json!([{"code":1490},{"code":1127}]),
+                ),
+            ]
+        };
+        for (path, value) in poisons {
+            let mut poison = observed.clone();
+            *poison.pointer_mut(path).unwrap() = value;
+            assert!(
+                version_arbitration(recipe, &[poison], true).is_null(),
+                "{id}/{path}"
+            );
+        }
+        results.push(json!({"id":id,"arbitration":arbitration,"result":result}));
+    }
+    save(&out.join("results.json"), &json!(results)).unwrap();
+    for result in results {
+        assert_eq!(result["result"]["pass"], false);
+        assert!(
+            result["result"]["state"]
+                .as_str()
+                .unwrap()
+                .starts_with("NONPASS")
+        );
+        assert_eq!(
+            result["result"]["version_arbitration"]["id"], result["arbitration"],
+            "{}",
+            result["id"]
+        );
+        assert_eq!(
+            result["result"]["version_arbitration"]["qualification_credit"],
+            0
+        );
+    }
 }
 
 #[test]
