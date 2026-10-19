@@ -11,6 +11,12 @@ No additional historical archive, reserved payload, replay, network access,
 mutation or campaign qualification was performed by the auditor. Resumption
 oracles remain pending. Counts: 4 held, 11 target, 4 contradicted, 0 debt.
 
+Historical scope: the following reopening ledger is preserved verbatim as the
+2026-10-18 audit. Its two-additional-pass ceiling and local turn limits are
+prospectively superseded by the [2026-10-19 owner decision](owner-continuation-20261019.json).
+The row granting at most two passes remains evidence of the former decision,
+not an operative limit. Historical counters are retained without reset.
+
 | Claim | Authority | Mechanism | Scope | Named behavioral oracle | Status | Failure mechanism |
 | --- | --- | --- | --- | --- | --- | --- |
 | The prior checkpoint ended at `STOP_BUDGET`, with `READY_TS_NATIVE=false`. | Prior owner-approved #365 envelope as recorded in `final/decision.json`. | C1 and C2 each closed after two corrections without R0. | Historical record through the pre-resumption checkpoint only. | `Terminal budget reconciliation` (`final/effort-ledger.json`, C1 summary, C2 closure), green in `final/claim-audit.json`. | held | It fails if stated as the current state after the 2026-10-18 reopening. |
@@ -37,3 +43,29 @@ The author's reconciliation is recorded in [record.json](record.json): current
 R0 is pending; the renewed budget is counted separately; ARB-002 records only
 the owner decision. The historical final dossier has a dated banner. This
 reconciliation does not turn any pending campaign oracle green.
+
+## Owner continuation 2026-10-19
+
+Author task: `/root/owner_unbounded_continuation_record`. Auditor task:
+`/root/owner_unbounded_continuation_record/owner_continuation_audit`, dedicated
+`design-claim-auditor`, fresh context. The author received the initial complete
+five-row ledger before reading evidence or drafting. This audit covers the
+owner decision and documentary reconciliation only; it certifies no Rust
+behavior or qualification result. The auditor returned this complete final
+five-row ledger after inspecting the indexed draft and its documentary checks.
+
+| Claim | Authority | Mechanism | Scope | Named behavioral oracle | Status | Failure mechanism |
+| --- | --- | --- | --- | --- | --- | --- |
+| From 2026-10-19, no fixed turn or correction-cycle count may terminate the same T00/C1 work; this supersedes both the local two-cycle ceiling and the two-additional-C1-pass maximum. | Sébastien’s verbatim 2026-10-19 decision in `resumption/owner-continuation-20261019.json`: « Ne mets pas de blocage sur le nombre de tours à faire. On fera le nombre de tours qu’il faut ». | The indexed decision record preserves the quote; `record.json` moves the former budget under history, sets operative maximum/remaining to `null`, and defines them as no fixed ceiling while retaining registration and counters. README and claim audit agree. | Future technical correction/review turns in the existing T00 C1 resumption. No composition, delivery, proof, semantic or profile waiver follows. | `owner-continuation decision-record reconciliation`, green on indexed documents: JSON parsing, exact historical-budget comparison, `git diff --cached --check`, and `docs:check` with Bun 1.4.3 on Darwin arm64. | **held** | Reintroducing either numeric ceiling can recreate `STOP_BUDGET` contrary to the decision. Treating continuation as permission to bypass qualification gates or guarantee `READY_TS_NATIVE` exceeds its scope. |
+| Work remains on C1, branch `rust/365-t00`, PR386, as the same T00; C2 remains abandoned and no new branch, PR or experiment is created. | Existing owner decision in `resumption/record.json#/authority`, `#/subject` and `#/compositions`; the 2026-10-19 instruction changes persistence only. | Current workline and composition pointers remain unchanged in both decision records. | Repository/worktree continuity only; remote PR state was not independently queried. | `same-workline identity reconciliation`, green: local branch and `origin/rust/365-t00` resolve to `fce14fee…`; both records name PR386, C1 active and C2 abandoned. | **held** | Creating another workline or reactivating C2 lacks authority. Claiming remote PR state beyond the recorded pointer exceeds this oracle. |
+| Existing budget and cycle facts remain immutable history: historical C1 corrections `2`, historical C2 corrections `2`, recorded local cycles `2 + 2 = 4`, resumed C1 pass1 open and pass2 not started. Removing ceilings does not reset these counters. | `resumption/record.json#/history`, `#/budget`; `local-review-continuation.json`; `correction-pass1-registration.json`; existing preservation policy. | The exact former budget is retained under `supersededCorrectionBudget20261018`; active started/closed and historical counters are unchanged. | Recorded history through `fce14fee…`. The two current repair turns remain author-reported provenance, now persisted but not independently behaviorally verified. | `historical budget/counter reconciliation`, green: the snapshot exactly equals the former budget; four archive hashes match; active counters and every historical claim-ledger row reconcile with HEAD. | **held** | Rewriting prior counters destroys provenance. Persistence of the author’s two-turn report does not make it an independent behavioral oracle. |
+| The last published behavioral evidence still contains the undeclared bare-import adapter gap; the four staged Rust files do not yet prove its correction. | `resumption/gap-dynamic-import-evidence.json#/remainingOwnedAdapterGap`; staged-file inventory locally observed. | Published evidence records `bare_missing` as analyzed without the required unresolved-import reason. The staged Rust candidate remains unpublished and outside this audit. | Published evidence at `fce14fee…`; no certification of staged Rust behavior. | `qdyn-adversarial-v1/bare_missing remaining-gap reconciliation`, green for the published defect. No named green Rust oracle was supplied for the staged repair. | **held** | Describing the staged change as fixing parity or closing the gap from source inspection alone replaces behavioral proof with implementation intent. |
+| Continuation grants no semantic/profile waiver and no inferred R0 passage: step 3 remains current, formal credit remains `0/240`, and `r0Decision=null` / `READY_TS_NATIVE=false`. | `resumption/record.json#/orderedWork`, `#/r0Decision`, `#/READY_TS_NATIVE`; `gap-dynamic-import-evidence.json#/progress`; the owner decision expressly disclaims technical proof and qualification waiver. | Existing ordered qualification and reserved-campaign gates remain operative before any terminal decision. | Current documentary R0 state; Rust behavior, three-OS campaign, obligation review and reserved replay remain outside this audit. | `R0-state and qualification-credit reconciliation`, green: the cited records agree on step 3, `0/240`, campaign not performed and R0 pending. | **held** | Inferring parity, qualification, `READY_TS_NATIVE`, `STOP_SEMANTIC` or a profile exception from permission to continue contradicts the current state oracle. |
+
+Reconciliation: [record.json](record.json) now separates the historical two-pass
+snapshot from the operative continuation policy. Its current maximum and
+remaining count are `null`, explicitly meaning no fixed numerical ceiling.
+The [owner decision](owner-continuation-20261019.json) retains the exact
+instruction, counters and published head. The current two repair turns are
+labelled author-reported, without a Rust behavioral claim. No new duration,
+branch, PR, experiment, composition, qualification credit or waiver is created.

@@ -6,11 +6,25 @@ Sébastien reopened T00 on 2026-10-18 from `STOP_BUDGET`. Work continues on
 PR or separate experiment is authorized. C1 is the only active composition. C2
 is abandoned for this resumption, with its history preserved.
 
-[record.json](record.json) is the current decision and budget record. It adds
-two C1 correction passes after the two historical passes. Neither new pass had
-started at registration. The first additional pass is now open, with
-[current focused harness evidence](worker-case-mode-evidence.json). Approximately 3–4 days is the owner's planning estimate,
-not measured effort or an inferred exact ceiling. [effort-ledger.json](effort-ledger.json)
+[record.json](record.json) is the current decision and continuation record.
+On 2026-10-19, Sébastien explicitly required continuing this same blocking T00
+without a fixed number of correction or review turns. The
+[verbatim owner decision](owner-continuation-20261019.json) prospectively supersedes
+the two-additional-C1-pass ceiling and local review-turn ceilings, including the
+local two-cycle rule. It sets no new duration or numerical budget. Pass
+registration and counters remain required; no counter is reset.
+
+The former two-pass budget remains a dated historical snapshot in
+[record.json](record.json). Historical C1 and C2 each closed two corrections.
+The first resumed C1 pass remains open; pass2 has not started. The current
+unresolved-import repair has consumed two local correction/review turns and
+still has a finding, as reported by the author task; a third and subsequent
+turns are authorized without resetting those counters. This records workflow
+authority, not a proven Rust correction. Step3 and formal credit0/240 remain
+current; no semantic/profile waiver or R0 passage follows.
+
+The existing approximate 3–4-day estimate is historical planning context,
+not measured effort or an exact ceiling. [effort-ledger.json](effort-ledger.json)
 records the resumed work separately from the [historical ledger](../final/effort-ledger.json).
 The [old terminal dossier](../final/README.md), raw outcomes, frozen expectations
 and historical budget counters remain traceable.
