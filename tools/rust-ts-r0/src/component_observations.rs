@@ -64,6 +64,13 @@ pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> 
     }
     fn visit(node: core::Node, path: &str, reasons: &mut BTreeSet<String>) {
         let reason = match node.kind() {
+            SyntaxKind::CallExpression
+                if node.expression().kind() == SyntaxKind::ImportKeyword
+                    && (node.arguments().len() != 1
+                        || node.arguments().get(0).kind() != SyntaxKind::StringLiteral) =>
+            {
+                Some("DEPENDENCY_SCOPE_COMPUTED_IMPORT")
+            }
             SyntaxKind::ImportType => Some("DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED"),
             SyntaxKind::ImportEqualsDeclaration
                 if node.module_reference().kind() == SyntaxKind::ExternalModuleReference =>
@@ -86,6 +93,26 @@ pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> 
     let mut reasons = BTreeSet::new();
     visit(source, path, &mut reasons);
     observed(reasons.into_iter().collect(), BTreeSet::new())
+}
+
+pub fn unresolved_relative_import_reasons(
+    imports: &[ordinary::Import],
+    path: &str,
+) -> BTreeSet<String> {
+    imports
+        .iter()
+        .filter(|import| {
+            import.from_rel_path == path
+                && import.resolved_rel_path.is_none()
+                && import.module_specifier.starts_with('.')
+        })
+        .map(|import| {
+            format!(
+                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{path}:{}",
+                import.module_specifier
+            )
+        })
+        .collect()
 }
 
 pub fn ordinary_module_configuration(

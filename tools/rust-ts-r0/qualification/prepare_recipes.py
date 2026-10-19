@@ -74,7 +74,10 @@ def recipe_input(inp, cid):
     if not all(isinstance(p,str) and p in files for p in roots):gaps.append('EXPLICIT_ROOT_SET_NOT_MATERIALIZABLE_WITH_SUPPLIED_FILES')
     retained=inp.get('retained_snapshot', isinstance(inp.get('retained_map'),str) or 'retained_original_files' in inp)
     req={'id':cid,'files':files,'roots':roots,'options':OPTIONS,'retained':retained,'qualified':False,'sdk_directory':'/sdk/lib','roles':{},'selection':{},'disabled':[],'utf16_files':{},'raw_files':{}}
-    full_analysis=any(name in str(inp.get('operation',inp.get('baseline_operation',''))) for name in ['analyzeRepository','assembleRepository','inspectRetainedQualifiedScope'])
+    operation = inp.get('operation', inp.get('baseline_operation', ''))
+    if operation == 'same separated analyze/reason and retained-scope operations as QDYN03':
+        operation = INPUTS['QDYN-03-nonliteral-scan-control-scope-refusal']['operation']
+    full_analysis=any(name in str(operation) for name in ['analyzeRepository','assembleRepository','inspectRetainedQualifiedScope'])
     explicit_profile=inp.get('profile')=='qualified-static-v1/modelo-suite-static-v1' or inp.get('config',{}).get('overrides',{}).get('analysisProfile')=='modelo-suite-static-v1'
     req['qualified']=bool(full_analysis and explicit_profile)
     if req['qualified'] and not req['retained']:gaps.append('QUALIFIED_HISTORICAL_OPERATION_WITHOUT_CAPTURE_INPUTS')
@@ -98,7 +101,14 @@ for n,u in enumerate(UNITS):
     r={'unit_id':uid,'case_id':cid,'frozen_unit_pointer':f'/execution_units/{n}','frozen_unit_sha256':digest(u),'surface':'raw_cli','profile_binding_rule':'ordinary native pipeline unless frozen full analysis operation explicitly uses modelo-suite-static-v1; standalone component observations retain their actual mode regardless native graph admission profile','requests':[],'checks':[],'credited_properties':[],'explicit_uncredited_properties':[],'gaps':[],'runtime_state':'NOT_EXECUTED','native_pass':False}
     if not isinstance(a,dict):
         r['gaps'].append('COUPLED_IDENTITY_OR_IMPORT_NAME_PROJECTION_REQUIRES_EXPLICIT_MAPPING');recipes.append(r);continue
-    if isinstance(v,dict) and 'files' in v:inp=v
+    if isinstance(v,dict) and 'files' in v:
+        if uid == 'QDYN-02-one-literal-dynamic-refusal::mjs-variant':
+            inp = {**inp, **v, 'discovered_files':[
+                {**entry, 'relPath':entry['relPath'].removesuffix('ts')+'mjs', 'language':'javascript'}
+                for entry in inp['discovered_files']
+            ]}
+        else:
+            inp=v
     if u['kind']=='arbitrated-E03-execution-variant' and isinstance(v,dict):inp={**inp,'files':v,'retained_snapshot':True}
     if cid.startswith('QCALL-') and isinstance(v,dict):
         if 'replace_file_bytes' in v:inp['files'][next(iter(inp['files']))]=v['replace_file_bytes']
@@ -833,6 +843,81 @@ for recipe in recipes:
     remove_gap(recipe, 'retained_scope_reasons')
     recipe['credited_properties'].append('retained_scope_reasons')
     recipe['proof_scope'] = 'Only frozen contains-constraints for native AST ImportType/external import-equals visitor reasons. Full frozen captured request and existing native graph pipeline retained. Complete observation guards reject unavailable, invalid or non-retained syntax. No full inspectRetainedQualifiedScope equivalence, links, closure, Git eligibility, qualified/global admission, public command or performance claim.'
+
+for recipe in recipes:
+    if recipe['case_id'] not in [
+        'QDYN-02-one-literal-dynamic-refusal',
+        'QDYN-03-nonliteral-scan-control-scope-refusal',
+        'QDYN-04-two-arguments-scan-control-scope-refusal',
+        'QDYN-05-unresolved-literal-target',
+    ]:
+        continue
+    unit = UNITS_BY_ID[recipe['unit_id']]
+    assertions = copy.deepcopy(unit['assertions'])
+    request = recipe['requests'][0]
+    tests = [path for path, role in request['roles'].items() if role == 'test']
+    sources = [path for path, role in request['roles'].items() if role == 'source']
+    if not request['qualified'] or not request['retained'] or len(tests) != 1 or len(sources) != 1:
+        raise ValueError('dynamic import recipe lacks the exact retained source/test context')
+    source, target = tests[0], sources[0]
+    mapped = ['dynamic_scan_key_exact', 'integrity_reasons_for_test']
+    scan = assertions['dynamic_scan_key_exact']
+    if unit['kind'] == 'declared-MJS-variant':
+        scan = ['src/target.test.mjs:1:./target.mjs']
+        assertions['extracted_dynamic_import_projection'].update({
+            'fromRelPath':source, 'moduleSpecifier':'./target.mjs', 'resolvedRelPath':target,
+        })
+        assertions['integrity_reasons_for_test']['contains'] = [unit['variant_input_or_observation']['exact_integrity_reason']]
+        recipe['expectation_variant_authority'] = {'base_assertions':'/assertions', 'authored_files':'/variant_input_or_observation/files', 'integrity_reason':'/variant_input_or_observation/exact_integrity_reason', 'scope':'MJS file/specifier/target coordinates override the inherited TS coordinates; other frozen projection fields remain unchanged.'}
+    origin = '/variant_input_or_observation/files' if unit['kind'] == 'declared-MJS-variant' else ptr('dynamic_scan_key_exact')
+    recipe['checks'].append(check(['test_dynamic_import_keys'], scan, 'eq', origin))
+    reason = check(['assembly'], assertions['integrity_reasons_for_test'], 'reason_constraints', ptr('integrity_reasons_for_test'), 'qualified_test_integrity_reasons:'+source)
+    reason['operation_binding'] = operation_binding(reason['target'], 'getQualifiedCallIntegrityReasons', {'frozen_unit_pointer':recipe['frozen_unit_pointer'], 'native_source':'actual assembly integrityReasons with the same test-role AST scan'})
+    recipe['checks'].append(reason)
+    if unit['kind'] == 'declared-MJS-variant':
+        reason['additional_expected_origin'] = '/variant_input_or_observation/exact_integrity_reason'
+    if 'extracted_dynamic_import_projection' in assertions:
+        projection = assertions['extracted_dynamic_import_projection']
+        if projection['bindingTargets'] != 'ABSENT':
+            raise ValueError('unexpected dynamic binding projection')
+        projection['bindingTargets'] = {'$field_absent':True}
+        if assertions['tested_by_or_covers_from_this_dynamic_import_to_helper'] is not False:
+            raise ValueError('unexpected dynamic import coverage assertion')
+        selector = {key:projection[key] for key in ['fromRelPath','moduleSpecifier','line']}
+        recipe['checks'].append(check(['raw_extraction','imports',selector], projection, 'ordered_projected_eq', ptr('extracted_dynamic_import_projection')))
+        edges = [{'kind':'tested_by','from':{'path':target,'symbol_path':'helper'},'to':{'path':source,'test_node':True}}, {'kind':'covers','from':{'path':source,'test_node':True},'to':{'path':target,'symbol_path':'helper'}}]
+        recipe['checks'].append(check(['assembly'], edges, 'excludes_projected', ptr('tested_by_or_covers_from_this_dynamic_import_to_helper'), 'logical_coverage_edges'))
+        recipe['checks'].append(check(['assembly','symbols',{'relPath':target,'name':'helper','scope':[]},'kind'], 'function', 'eq', 'Actual helper coordinate required before the negative coverage projection.'))
+        mapped.extend(['extracted_dynamic_import_projection', 'tested_by_or_covers_from_this_dynamic_import_to_helper'])
+    if 'extracted_import_resolvedRelPath' in assertions:
+        if assertions['extracted_import_resolvedRelPath'] != 'ABSENT':
+            raise ValueError('unexpected unresolved import projection')
+        selector = {'fromRelPath':source,'moduleSpecifier':'./missing','line':1}
+        recipe['checks'].append(check(['raw_extraction','imports',selector], {'resolvedRelPath':{'$field_absent':True}}, 'ordered_projected_eq', ptr('extracted_import_resolvedRelPath')))
+        mapped.append('extracted_import_resolvedRelPath')
+    if 'retained_scope_reasons' in assertions:
+        syntax = recipe['case_id'] != 'QDYN-05-unresolved-literal-target'
+        path = ['subjects', {'path':source}]+(['retainedScopeSyntaxObservation'] if syntax else [])
+        add_bound_check(recipe, path+['reasons'], assertions['retained_scope_reasons'], 'reason_constraints', ptr('retained_scope_reasons'), 'inspectRetainedQualifiedScope computed-import visitor' if syntax else 'inspectRetainedQualifiedScope unresolved relative-import loop', {'commit':INDEX['baseline'], 'path':'packages/app-services/src/qualified-analysis.ts', 'function':'inspectRetainedQualifiedScope', 'scope':'Only the selected computed or unresolved relative-import reason; full retained scope is not inferred.'})
+        if syntax:
+            recipe['checks'].extend(check(path+[field], value, 'eq', 'Complete native retained syntax observation.') for field, value in [('executed',True), ('unsupported',[])])
+        mapped.append('retained_scope_reasons')
+    conditional = 'qualified_admission_when_full_valid_verification_context_supplied'
+    if not isinstance(assertions[conditional], str) or not assertions[conditional].startswith('refused'):
+        raise ValueError('unexpected conditional admission assertion')
+    recipe['explicit_uncredited_properties'].append({'key':conditional,'basis':'Frozen conditional guidance; the full verification context is not supplied by this case. Actual scoped reasons/refusal are checked; global qualified admission is not credited.'})
+    recipe['checks'].extend([
+        check(['global_admission_inferred'], False, 'eq', 'Frozen prohibition on global admission inference.'),
+        check(['subjects', {'path':source}, 'admission'], 'not_evaluated', 'eq', 'Full verification/admission is deliberately uncredited.'),
+        check(['subjects', {'path':source}, 'outcome'], 'unsupported', 'eq', 'Actual native profile refusal, without global admission credit.'),
+    ])
+    remove_gap(recipe, conditional)
+    for key in mapped:
+        remove_gap(recipe, key)
+        if key not in recipe['credited_properties']:
+            recipe['credited_properties'].append(key)
+    recipe['gaps'] = [gap for gap in recipe['gaps'] if gap != 'NO_EXECUTABLE_CREDITED_COMPARATOR']
+    recipe['proof_scope'] = 'Actual retained source/test extraction and assembly, exact shared dynamic AST scan keys, selected scope reason and absence of invented bindings/coverage. MJS inherits the parent capture/profile/roles and uses its explicit authored MJS file/reason overrides. Conditional full verification/global admission remains explicitly uncredited; no complete scope equivalence or public transport is inferred.'
 
 identity_reference = INDEX['annexes']['baseline_identity']
 identity_bytes = (BASE / identity_reference['path']).read_bytes()

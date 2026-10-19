@@ -413,6 +413,32 @@ reserved once and R0 remain pending. Owner pass1 stays open;pass2 unused.
 The new record links the independent source/proof reviews, complete claim ledger,
 exact artifacts, checks and their platform limits.
 
+A [twenty-second tranche](gap-dynamic-import-evidence.json) maps QDYN02 base/MJS
+and QDYN03/04/05 through the shared native AST dynamic-import scan, actual
+extraction and named subject refusals. Five optimized macOS processes pass39
+projected checks; the same recipes reject the preserved pre-change producer
+in all five actual controls. This qualifies sensitivity to the demonstrated
+missing scan/computed/unresolved behavior only. Five related QDYN01/06 and
+QSCOPE01/02 units also pass. The conditional full-valid-context admission
+property stays explicitly uncredited; no global admission follows.
+
+Twenty-two actual DEV CLI attempts cover the bounded shapes and controls.
+The undeclared bare `missing` import remains analyzed without the pinned
+baseline's unresolved reason. This is a remaining owned adapter gap to resolve
+before retained-scope parity or R0, outside the five relative projections and
+original64 GAP count; no waiver or version attribution is applied.
+Local checks pass47 library,227 binary,55 comparator and8 Python tests;
+Clippy and Ruff pass. Final independent proof review is adequate only for the
+five local projections. The complete33-row initial/supplementary claim ledger
+is preserved verbatim with distinct author/auditor identities.
+Cumulative checkpoints now reach52 mappings:51 limited PASS and the existing
+N17c NONPASS,12 residual static GAP and342 recipes without known GAP. The
+progress JSON also restores the previously omitted twenty-first checkpoint.
+These are different artifact checkpoints, not a current354-unit campaign.
+Formal credit stays0/240; the historical178-review classification has not been
+recomputed or reviewed. Linux/Windows candidate behavior, full354, reserved
+replay and R0 remain unestablished. Owner pass1 stays open;pass2 unused.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required

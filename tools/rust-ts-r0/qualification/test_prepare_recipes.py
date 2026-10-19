@@ -37,6 +37,35 @@ class RecipeOutputTest(unittest.TestCase):
         result = self.invoke()
         self.assertNotEqual(result.returncode, 0)
 
+    def test_dynamic_import_variants_preserve_the_declared_qualified_capture_context(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = pathlib.Path(directory) / 'recipes'
+            result = self.invoke('--output', str(output))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            recipes = json.loads((output / 'replay-recipes.json').read_text(encoding='utf-8'))['recipes']
+            for case_id, extension in [
+                ('QDYN-02-one-literal-dynamic-refusal::base', 'ts'),
+                ('QDYN-02-one-literal-dynamic-refusal::mjs-variant', 'mjs'),
+                ('QDYN-03-nonliteral-scan-control-scope-refusal::base', 'ts'),
+                ('QDYN-04-two-arguments-scan-control-scope-refusal::base', 'ts'),
+                ('QDYN-05-unresolved-literal-target::base', 'ts'),
+            ]:
+                with self.subTest(case_id=case_id):
+                    recipe = next(row for row in recipes if row['unit_id'] == case_id)
+                    request = recipe['requests'][0]
+                    self.assertTrue(request['retained'])
+                    self.assertTrue(request['qualified'])
+                    self.assertEqual(request['roles'], {
+                        f'src/target.{extension}': 'source',
+                        f'src/target.test.{extension}': 'test',
+                    })
+                    self.assertEqual(recipe['gaps'], [])
+                    if extension == 'mjs':
+                        self.assertIn(['src/target.test.mjs:1:./target.mjs'], [
+                            row['expected'] for row in recipe['checks']
+                            if row['target'] == ['test_dynamic_import_keys']
+                        ])
+
     def test_preparation_uses_relocated_repository_inputs(self):
         source = pathlib.Path(__file__).resolve().parent
         root = source.parents[2]
