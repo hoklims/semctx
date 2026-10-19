@@ -59,6 +59,7 @@ fn execute(
     root: &Path,
     dir: &Path,
     label: &str,
+    timeout_ms: u64,
 ) -> Result<Outcome, String> {
     let paths = [tools.producer, tools.helper, tools.fixture, tools.sdk];
     let hashes = || {
@@ -72,12 +73,12 @@ fn execute(
             .collect::<Result<Vec<_>, _>>()
     };
     let before = hashes()?;
-    let outcome = process::run_with_helper(&argv, root, 20_000, 8_388_608, tools.helper)
+    let outcome = process::run_with_helper(&argv, root, timeout_ms, 8_388_608, tools.helper)
         .map_err(|e| e.to_string())?;
     let after = hashes()?;
     save(
         &dir.join(format!("{label}.json")),
-        &json!({"argv":argv,"cwd":root,"timeout_ms":20000,"output_cap":8388608,"tools":paths,"before":before,"after":after,"outcome":outcome}),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":timeout_ms,"output_cap":8388608,"tools":paths,"before":before,"after":after,"outcome":outcome}),
     )?;
     require(before == after, "transport tools changed during execution")?;
     require(
@@ -159,7 +160,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
         request_path.to_string_lossy().into_owned(),
         tools.sdk.to_string_lossy().into_owned(),
     ];
-    let before = execute(tools, direct.clone(), &root, dir, "before-control")?;
+    let before = execute(tools, direct.clone(), &root, dir, "before-control", 20_000)?;
     let batch: wire::Batch = serde_json::from_str(&before.stdout).map_err(|e| e.to_string())?;
     let observed = bindings_and_observation(
         &request,
@@ -183,6 +184,27 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
         "refusal acquired ownership",
     )?;
     let mut policy = expected(case, &observed, Instant::now() + Duration::from_secs(120));
+    policy.max_duration_ms = 60_000;
+    let proxy_receiver =
+        Receiver::new(policy.clone()).map_err(|e| format!("proxy refusal policy: {e:?}"))?;
+    let mut duration_control = before.clone();
+    duration_control.duration_ms = 20_001;
+    rejection(
+        &receiver,
+        &duration_control,
+        &observed,
+        Rejection::LateResult,
+    )?;
+    proxy_receiver
+        .receive(&duration_control, &observed.current())
+        .map_err(|e| format!("proxy duration policy control: {e:?}"))?;
+    duration_control.duration_ms = 60_001;
+    rejection(
+        &proxy_receiver,
+        &duration_control,
+        &observed,
+        Rejection::LateResult,
+    )?;
     policy.terminal = ExpectedTerminal::ControlledRefusal {
         exit_code: 3,
         reason_codes: strings(&["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"]),
@@ -196,7 +218,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
             "cancel-outcome-supervisor".into(),
             tools.helper.to_string_lossy().into_owned(),
         ];
-        let outer = execute(tools, argv, &root, dir, "cancel-supervisor")?;
+        let outer = execute(tools, argv, &root, dir, "cancel-supervisor", 20_000)?;
         require(
             outer.kind == "success" && outer.exit_code == Some(0),
             "cancellation supervisor failed",
@@ -238,6 +260,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                     &root,
                     dir,
                     mode,
+                    20_000,
                 )?
             } else {
                 execute(
@@ -257,6 +280,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                     &root,
                     dir,
                     mode,
+                    policy.max_duration_ms,
                 )?
             };
             let code = if *mode == "truncated-0" {
@@ -269,7 +293,10 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
             require(
                 outcome.exit_code == Some(code)
                     && outcome.kind == if code == 0 { "success" } else { "nonzero" },
-                "proxy did not produce the declared actual exit",
+                &format!(
+                    "{mode}: proxy did not produce the declared actual exit: kind={}, exit={:?}, duration_ms={}",
+                    outcome.kind, outcome.exit_code, outcome.duration_ms
+                ),
             )?;
             if *mode != "unexpected-7" {
                 let report: Value = serde_json::from_slice(
@@ -330,7 +357,12 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                     ),
                     "exit3 refusal acquired ownership",
                 )?;
-                rejection(&receiver, &outcome, &observed, Rejection::ProcessFailure)?;
+                rejection(
+                    &proxy_receiver,
+                    &outcome,
+                    &observed,
+                    Rejection::ProcessFailure,
+                )?;
                 let mut wrong = policy.clone();
                 wrong.terminal = ExpectedTerminal::ControlledRefusal {
                     exit_code: 3,
@@ -350,7 +382,11 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
                     Rejection::MalformedOutput
                 };
                 rejection(
-                    if code == 0 { &receiver } else { &declared },
+                    if code == 0 {
+                        &proxy_receiver
+                    } else {
+                        &declared
+                    },
                     &outcome,
                     &observed,
                     expected.clone(),
@@ -359,7 +395,7 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
             }
         }
     }
-    let after = execute(tools, direct, &root, dir, "after-control")?;
+    let after = execute(tools, direct, &root, dir, "after-control", 20_000)?;
     let receipt = ready_receiver(case, &observed, Duration::from_secs(20))
         .receive(&after, &observed.current())
         .map_err(|e| format!("after control: {e:?}"))?;
