@@ -54,18 +54,20 @@ fn preflight(root: &str, roots: &[String]) -> Result<Preflight, String> {
         },
     ));
     let _empty = core::enter_program(None);
-    let frontend = Rc::new(compiler::new_program(compiler::ProgramOptions {
-        host: compiler::new_compiler_host(root, fs.clone(), "/sdk/lib", None, None, None),
-        config,
-        use_source_of_project_reference: false,
-        single_threaded: Tristate::True,
-        typings_location: String::new(),
-        project_name: String::new(),
-        create_module_resolver: None,
-        skip_module_resolution: false,
-    }));
-    let loaded = program::new_program_version(&frontend, None);
-    let _current = core::enter_program(Some(loaded));
+    let frontend = native_program::frontend(
+        compiler::ProgramOptions {
+            host: compiler::new_compiler_host(root, fs.clone(), "/sdk/lib", None, None, None),
+            config,
+            use_source_of_project_reference: false,
+            single_threaded: Tristate::True,
+            typings_location: String::new(),
+            project_name: String::new(),
+            create_module_resolver: None,
+            skip_module_resolution: false,
+        },
+        &fs,
+    );
+    let _current = native_program::NativeProgram::enter(&frontend);
     program::bind_all();
     let component = partition_observations::observe(&frontend, &fs, root, roots);
     if component["executed"] != true || component["unsupported"] != json!([]) {
