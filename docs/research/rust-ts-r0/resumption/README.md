@@ -355,6 +355,35 @@ reserved once and R0 remain pending. No current-platform campaign, publicPlaneA,
 global admission, build-closure, freeze or performance guarantee follows.
 Owner additionalpass1 stays open;pass2 is unused.
 
+A [twentieth tranche](gap-retained-scope-evidence.json) maps QSCOPE01/02 through
+an explicit native retained-scope syntax observation. It inspects the actual
+Program AST for import types and external import-equals; export-equals has a DEV
+positive control. Internal aliases, type-only import declarations and quoted
+syntax are negative controls. Nonretained input and one parse failure return
+incomplete observations. The defensive unavailable-AST branch is not directly
+exercised; the caller rejects missing sources before reaching it. The comparator
+requires complete execution and source-operation binding before reason credit.
+Two frozen units pass eight checks through two real optimized native processes.
+Only their contains-constraints are credited, with no native product projection,
+full retained-scope function, closure, Git eligibility or admission inferred.
+The exact frozen requests remain unchanged, including QSCOPE02 qualified=false.
+The immutable DEV artifact b3eb4646 has a35-source manifest, not a complete build
+closure or qualification freeze. Independent review repeats both frozen units.
+Two separately compiled source witnesses fail then pass after exact restoration:
+missing ImportType reason and omitted comparator recognition. These preserve
+RED-to-GREEN, not a full pre-fault baseline cycle; the exact faulty diff was not
+retained and its mechanism relies on the independent report. The immutable
+optimized producer was not mutated. Both complete claim ledgers are preserved
+verbatim:27 initial rows and10 supplementary rows, including contradicted claims,
+with author/auditor identities and reconciliation.
+Current macOS checks pass47 library,211 binary,1 common,8 development,7 discovery,
+4 parallel and3 transport tests,53 comparators and7 Python tests;fmt,Clippy,Ruff
+pass. Original7units/3supports,4identity,4discovery and3transport units also pass
+on the new artifact. Counts reach46 mappings:45 limited PASS and N17c NONPASS,
+18 static GAP,336 recipes without known GAP and zero qualified obligations.
+The prior efbe CI run remains distinct; no current Linux/Windows, full354,
+review178,reserved or R0 result is inferred. Owner pass1 stays open;pass2 unused.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required

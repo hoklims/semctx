@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FORTY_FOUR_GAPS_MAPPED_FORTY_THREE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FORTY_SIX_GAPS_MAPPED_FORTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining20 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-19T00:24:43.517451+00:00",
-  "staticGapUnitsRemaining": 20,
+  "next": "Continue the remaining18 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-19T00:47:26.870530+00:00",
+  "staticGapUnitsRemaining": 18,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -840,5 +840,53 @@
     "reservedPayloadAccessed": false,
     "reservedNonaccessScope": "Individualauthorattestationonly",
     "cost": "Completefilesystemmaterializationandboundedbytehashing; noisolatedperformance measurement"
+  },
+  "twentiethBatch": {
+    "registeredUtc": "2026-10-19T00:47:26.870530+00:00",
+    "state": "TWO_FROZEN_RETAINED_SCOPE_SYNTAX_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QSCOPE-01-import-type-refusal::base",
+      "QSCOPE-02-external-import-equals-refusal::base"
+    ],
+    "scope": "Private native Program AST syntax subset only: ImportType, external import-equals and export-equals. Two frozen contains-constraints pass, with no native product projection credit. No complete retained-scope function, links, closure, Git eligibility, admission, public command, campaign or performance equivalence.",
+    "evidence": "gap-retained-scope-evidence.json",
+    "nativeArtifactSha256": "b3eb4646e1477b963c84440492cf3384f29e276a0627c4b9a0279388f77766e0",
+    "recipesSha256": "5675f26deeb3bde872cdace5d876df4a406d4649fe61b5e966caf0eaf87ba480",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64 (Darwin27.0.0), Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 211,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 8,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 53,
+      "recipeCliTests": 7,
+      "frozenUnits": 2,
+      "frozenNativeProcesses": 2,
+      "projectedChecks": 8,
+      "carryovers": "7 original units + 3 supports, 4 legacy identity units, 4 discovery units and 3 transport units pass on current optimized artifact.",
+      "clippy": "PASS all-targets qualification-observer -Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "completeVerifyPr": "Not rerun; previous complete four local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Nonretained inputs return executed=false and COMPONENT_RETAINED_INPUTS_NOT_ENABLED; one invalid source returns executed=false and RETAINED_SCOPE_SYNTAX_PARSE_FAILED. Actual native DEV processes exercise both.",
+      "Missing/non-SourceFile defensive guard is implemented but not directly exercised; current inspect_subject rejects a missing native source before this call. No behavioral guarantee for that internal branch is claimed.",
+      "Internal import alias, type-only import declaration and quoted syntax remain without these reasons in three actual native DEV controls. Export-equals is a DEV positive only.",
+      "Comparator requires same-observation executed=true, unsupported=[] and source-operation binding before crediting reasons. Missing/null guards and missing binding refuse."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Native Program AST visitor; no isolated performance measurement."
   }
 }

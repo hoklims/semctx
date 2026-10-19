@@ -805,6 +805,8 @@ fn inspect_subject(
     } else {
         runtime_configuration::RuntimeConfiguration::default()
     };
+    let retained_scope_syntax =
+        component_observations::retained_scope_syntax(file, &relative, retained);
     let (semantic, javascript, mut callable_initializers) = program::with_type_checker_for_file(
         file,
         move |checker| {
@@ -1068,7 +1070,7 @@ fn inspect_subject(
         "unsupported": [],
     });
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"retainedCallableInitializers":callable_initializers,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"retainedScopeSyntaxObservation":retained_scope_syntax,"retainedCallableInitializers":callable_initializers,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 
