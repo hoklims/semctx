@@ -3530,6 +3530,7 @@ fn validate_component_checks(checks: &[Value]) -> Result<(), String> {
                 "moduleConfigurationObservations",
                 "javascriptObservation",
                 "sourceFileObservation",
+                "retainedScopeSyntaxObservation",
             ]
             .contains(&s.as_str().unwrap_or(""))
         });
@@ -5798,4 +5799,52 @@ fn gap_legacy_identity_relocation_byte_mutations_and_crlf_refusal() {
         "P25-byte-identity-relocation::identity-relation-02",
         "P25-byte-identity-relocation::identity-relation-03",
     ]);
+}
+
+#[test]
+fn gap_retained_scope_import_type_and_external_import_equals() {
+    repair_units(&[
+        "QSCOPE-01-import-type-refusal::base",
+        "QSCOPE-02-external-import-equals-refusal::base",
+    ]);
+}
+
+#[test]
+fn comparator_retained_scope_syntax_requires_execution_and_complete_observation() {
+    let target =
+        json!(["subjects",{"path":"scopeDev.ts"},"retainedScopeSyntaxObservation","reasons"]);
+    let prefix = [
+        json!("subjects"),
+        json!({"path":"scopeDev.ts"}),
+        json!("retainedScopeSyntaxObservation"),
+    ];
+    let reason = json!({"target":target,"expected":{"contains":["DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:scopeDev.ts"]},"mode":"reason_constraints","actual_transform":"none","operation_binding":{"status":"VERIFIED_SOURCE_OPERATION","target":target,"baseline_operation":"inspectRetainedQualifiedScope ImportType/external import-equals/export-equals AST visitor only","authority":"DEV scope-syntax witness"}});
+    let mut checks = vec![reason.clone()];
+    assert!(validate_component_checks(&checks).is_err());
+    for (field, expected) in [("executed", json!(true)), ("unsupported", json!([]))] {
+        let mut path = prefix.to_vec();
+        path.push(json!(field));
+        checks
+            .push(json!({"target":path,"mode":"eq","expected":expected,"actual_transform":"none"}));
+    }
+    assert!(validate_component_checks(&checks).is_ok());
+    for omitted in [1, 2] {
+        let mut broken = checks.clone();
+        broken.remove(omitted);
+        assert!(validate_component_checks(&broken).is_err());
+    }
+    for field in ["executed", "unsupported"] {
+        let mut broken = checks.clone();
+        broken
+            .iter_mut()
+            .find(|check| check["target"].as_array().unwrap().last() == Some(&json!(field)))
+            .unwrap()["expected"] = json!(null);
+        assert!(validate_component_checks(&broken).is_err());
+    }
+    let mut unbound = checks;
+    unbound[0]
+        .as_object_mut()
+        .unwrap()
+        .remove("operation_binding");
+    assert!(validate_component_checks(&unbound).is_err());
 }

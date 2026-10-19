@@ -44,6 +44,50 @@ fn not_executed() -> Observation {
     }
 }
 
+pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> Observation {
+    if !retained {
+        return not_executed();
+    }
+    let failure = if source.is_nil() || source.kind() != SyntaxKind::SourceFile {
+        Some("RETAINED_SCOPE_SYNTAX_SOURCE_UNAVAILABLE")
+    } else if !ast::source_file_diagnostics(source).is_empty() {
+        Some("RETAINED_SCOPE_SYNTAX_PARSE_FAILED")
+    } else {
+        None
+    };
+    if let Some(reason) = failure {
+        return Observation {
+            executed: false,
+            reasons: vec![],
+            unsupported: BTreeSet::from([reason.into()]),
+        };
+    }
+    fn visit(node: core::Node, path: &str, reasons: &mut BTreeSet<String>) {
+        let reason = match node.kind() {
+            SyntaxKind::ImportType => Some("DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED"),
+            SyntaxKind::ImportEqualsDeclaration
+                if node.module_reference().kind() == SyntaxKind::ExternalModuleReference =>
+            {
+                Some("DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED")
+            }
+            SyntaxKind::ExportAssignment if node.is_export_equals() => {
+                Some("DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED")
+            }
+            _ => None,
+        };
+        if let Some(reason) = reason {
+            reasons.insert(format!("{reason}:{path}"));
+        }
+        node.for_each_child(|child| {
+            visit(child, path, reasons);
+            false
+        });
+    }
+    let mut reasons = BTreeSet::new();
+    visit(source, path, &mut reasons);
+    observed(reasons.into_iter().collect(), BTreeSet::new())
+}
+
 pub fn ordinary_module_configuration(
     configuration: &configuration::Configuration,
     unsupported: BTreeSet<String>,

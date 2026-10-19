@@ -821,6 +821,19 @@ for recipe in recipes:
     recipe['configuration_authority'] = 'Pinned createDefaultConfig/createGlobSelectionConfig consumed discovery fields, including migrationsDirs default, plus exact frozen overrides. Legacy v1 ignores include/language selection as baseline does.'
     recipe['proof_scope'] = 'Actual native ordinary filesystem discovery and shared C1 AST import/reference confinement before analysis. Selected candidates have no invented analysis outcome. Exact reported read bytes joined to frozen inputs, no semantic extraction, qualified eligibility, public CLI, all-Bun-glob syntax, atomic capture, all OS reads or global admission inferred. Native unsupported glob groups fail closed.'
 
+for recipe in recipes:
+    if recipe['case_id'] not in ['QSCOPE-01-import-type-refusal', 'QSCOPE-02-external-import-equals-refusal']:
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    source = first_source(INPUTS[recipe['case_id']]['files'])
+    target = ['subjects', {'path':source}, 'retainedScopeSyntaxObservation']
+    add_bound_check(recipe, target+['reasons'], assertions['retained_scope_reasons'], 'reason_constraints', '/assertions/retained_scope_reasons', 'inspectRetainedQualifiedScope ImportType/external import-equals/export-equals AST visitor only', {'commit':INDEX['baseline'], 'path':'packages/app-services/src/qualified-analysis.ts', 'function':'inspectRetainedQualifiedScope', 'scope':'Specific syntax visitor branches, not full retained scope/admission.'})
+    for field, expected in [('executed',True), ('unsupported',[])]:
+        recipe['checks'].append(check(target+[field], expected, 'eq', 'Complete native retained syntax observation, independently required before reason credit.'))
+    remove_gap(recipe, 'retained_scope_reasons')
+    recipe['credited_properties'].append('retained_scope_reasons')
+    recipe['proof_scope'] = 'Only frozen contains-constraints for native AST ImportType/external import-equals visitor reasons. Full frozen captured request and existing native graph pipeline retained. Complete observation guards reject unavailable, invalid or non-retained syntax. No full inspectRetainedQualifiedScope equivalence, links, closure, Git eligibility, qualified/global admission, public command or performance claim.'
+
 identity_reference = INDEX['annexes']['baseline_identity']
 identity_bytes = (BASE / identity_reference['path']).read_bytes()
 if hashlib.sha256(identity_bytes).hexdigest() != identity_reference['sha256']:

@@ -2,6 +2,8 @@
 mod legacy_identity_flow;
 #[path = "support/receiver_context.rs"]
 mod receiver_context;
+#[path = "support/retained_scope_flow.rs"]
+mod retained_scope_flow;
 use receiver_context::*;
 use semctx_gates::process::{self, Outcome};
 use semctx_r0_probe::{
