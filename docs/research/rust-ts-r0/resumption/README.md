@@ -591,6 +591,27 @@ five SUPPORTGAPs,not re-evaluated or credited by this lot; zeroUNITGAP does not
 close supports. Formalcredit0/240,review178,full354threeOS,reserved23/26 and R0
 remain pending. Owner continuation and CI/publication rules are unchanged.
 
+A [twenty-ninth tranche](gap-identity-supports-evidence.json) gives the five frozen
+identity supports bounded macOS PASS evidence at20e3f233. Relocation and request
+mutation each run three real C1batch/Receiver contexts: content identities remain
+stable; scope changes for relocation, while requestID and request-bearing digest
+change for request mutation. `input_manifest_id` stays content-based. Capture
+mismatch uses two separate trios, with unchanged captured analysis inside each
+trio, not one DTO shared across allsix. SDK supply versus reads has sevencontexts:
+100suppliedSDKfiles,64joinedpaths (63SDK+1source); unusedSDKaddition gives101/64.
+Removing the actual default library fails the support even while raw extraction
+passes. Baselineidentity runs twice with392reads each (290implementation+102compiler),
+TS5.9.3 and `compiler_executed=false`; required omission/substitution refuses.
+Allfive supports pass across21nativecontexts. A real predicatefault makes its
+comparator RED; exactsource restoration gives65comparatorsGREEN. Python8,Clippy
+and Ruff pass; WindowsGNU is compilation only. The [complete claim ledger](gap-identity-supports-claim-audit.md)
+keeps exactrecipehash trust and no-allSDK/atomiccapture/globaladmission limits.
+Static mapping now has0UNITGAP and0SUPPORTGAP:354unitrecipes and51supportplans.
+The previous five-supportGAP checkpoint remains historical; this is not a current
+354/51campaign. Unit totals stay62limitedPASS+2versionNONPASS; formalcredit0/240,
+review178,fullthreeOScampaign,reserved23/26 and R0 remain pending. Budget8fdc and
+CI/publication rules remain unchanged.
+
 Pushes to the same branch are authorized only for complete coherent milestones
 following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
 PR-description updates remain authorized. No `workflow_dispatch`, manual CI

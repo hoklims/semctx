@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_ALL_64_ORIGINAL_UNIT_GAPS_MAPPED_62_LIMITED_PASS_TWO_VERSION_NONPASSES_SUPPORT_GAPS_PENDING",
+  "state": "ALL_ORIGINAL_UNIT_AND_SUPPORT_GAPS_STATICALLY_MAPPED_FORMAL_QUALIFICATION_PENDING",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,8 +167,8 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Resolve the five historically recorded SUPPORTGAPs under separate reviewed evidence,then review178obligations,runfull354threeOScampaign,reserved23cases/26variants and decideR0. All64originalUNITGAPs nowmapped;noformalqualification or supportWIPcredit.",
-  "updatedUtc": "2026-10-19T22:00:49.411262+00:00",
+  "next": "Review outstanding178property/supportobligations and exact DTO applicability,then runordered354unit+51supportthreeOScampaign,reserved23cases/26variants and decideR0. ZeroUNIT/SUPPORTGAP meansstaticmapping only;0/240qualified.",
+  "updatedUtc": "2026-10-19T22:13:07.098116+00:00",
   "staticGapUnitsRemaining": 0,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
@@ -1223,6 +1223,60 @@
       "reportPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/report.json",
       "reportSha256": "6cbabcfd91b0a2b278b107e9e9bc7486753f33a4783e74baef993956e2a05fd8",
       "limit": "Last C1pass2 support checkpoint only; no claim about concurrent later support WIP or a new support execution."
+    }
+  },
+  "staticSupportGapPlansRemaining": 0,
+  "supportPlansMapped": 51,
+  "twentyNinthBatch": {
+    "registeredUtc": "2026-10-19T22:13:07.098116+00:00",
+    "state": "FIVE_FROZEN_IDENTITY_SUPPORT_LIMITED_PASSES_MACOS_STATIC_GAPS_CLOSED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "supportIds": [
+      "IDENTITY::I-relocation",
+      "IDENTITY::I-sdk-supplied-vs-consumed",
+      "IDENTITY::I-request-separation",
+      "IDENTITY::I-capture-mismatch",
+      "IDENTITY::complete-baseline-specimen"
+    ],
+    "evidence": "gap-identity-supports-evidence.json",
+    "sourceCommit": "20e3f2330bb5d0a89ec55c80004a0da6a09ef3aa",
+    "nativeArtifactSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "recipesSha256": "17d2eafd1f9de378306bc2e79ea7c908a7a0dd95d3cbf90839e68a3715e8f2e0",
+    "newUnitMappingsCredited": 0,
+    "newSupportMappingsCredited": 5,
+    "newLimitedSupportPasses": 5,
+    "nativeContexts": 21,
+    "qualificationCredit": 0,
+    "scope": "Fivefocusedidentitysupports only;21contexts,not51supportcampaign. Samecapturedanalysiswithin eachtrio,notall6; SDKjoinedpathsnotallSDKconsumption; baselinecompiler_executedfalse.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 64,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 0,
+      "recipesWithoutKnownGaps": 354,
+      "unitDenominator": 354,
+      "supportPlansMapped": 51,
+      "supportDenominator": 51,
+      "residualStaticSupportGaps": 0,
+      "newLimitedSupportPasses": 5,
+      "supportCampaign51": "NOT_EXECUTED_ON_ONE_CURRENT_CANDIDATE",
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Zero UNIT/SUPPORTGAP is static mapping only. Five limitedsupportPASS do not execute/qualify all354units or51supports. UnitPASS totals remain cumulative across artifacts."
     }
   }
 }
