@@ -4,6 +4,7 @@ use ts_goport::frontend::module::{self, Resolver, ResolverOptions};
 struct ConfinedFs {
     base: Rc<dyn Fs>,
     root: PathBuf,
+    logical_root: PathBuf,
     outside: RefCell<BTreeSet<String>>,
     errors: RefCell<Vec<String>>,
     probes: RefCell<Vec<serde_json::Value>>,
@@ -11,8 +12,8 @@ struct ConfinedFs {
 }
 impl ConfinedFs {
     fn admitted(&self, path: &str) -> bool {
-        let target = lexical(Path::new(path));
-        if !target.starts_with(&self.root) {
+        let target = lexical(Path::new(&resolver_path(path)));
+        if !target.starts_with(&self.logical_root) {
             return false;
         }
         match physical(&target) {
@@ -38,20 +39,20 @@ impl Fs for ConfinedFs {
         self.base.use_case_sensitive_file_names()
     }
     fn file_exists(&self, path: &str) -> bool {
-        if !lexical(Path::new(path)).starts_with(&self.root)
+        if !lexical(Path::new(&resolver_path(path))).starts_with(&self.logical_root)
             && Path::new(path)
                 .file_name()
                 .is_some_and(|name| name != "package.json")
-            && self.base.file_exists(path)
+            && self.base.file_exists(&resolver_path(path))
         {
             self.outside.borrow_mut().insert(path.into());
         }
-        let found = self.admitted(path) && self.base.file_exists(path);
+        let found = self.admitted(path) && self.base.file_exists(&resolver_path(path));
         self.record("file_exists", path, found);
         found
     }
     fn directory_exists(&self, path: &str) -> bool {
-        let found = self.admitted(path) && self.base.directory_exists(path);
+        let found = self.admitted(path) && self.base.directory_exists(&resolver_path(path));
         self.record("directory_exists", path, found);
         found
     }
@@ -60,7 +61,7 @@ impl Fs for ConfinedFs {
             self.record("read_file", path, false);
             return (String::new(), false);
         }
-        let read = fs::File::open(path).and_then(|file| {
+        let read = fs::File::open(resolver_path(path)).and_then(|file| {
             let mut bytes = vec![];
             file.take(33_554_433).read_to_end(&mut bytes)?;
             Ok(bytes)
@@ -93,10 +94,10 @@ impl Fs for ConfinedFs {
         )
     }
     fn get_accessible_entries(&self, path: &str) -> Entries {
-        let found = self.admitted(path) && self.base.directory_exists(path);
+        let found = self.admitted(path) && self.base.directory_exists(&resolver_path(path));
         self.record("directory_entries", path, found);
         if found {
-            self.base.get_accessible_entries(path)
+            self.base.get_accessible_entries(&resolver_path(path))
         } else {
             Entries {
                 files: vec![],
@@ -106,17 +107,20 @@ impl Fs for ConfinedFs {
         }
     }
     fn stat(&self, path: &str) -> Option<FileInfo> {
-        let info = self.admitted(path).then(|| self.base.stat(path)).flatten();
+        let info = self
+            .admitted(path)
+            .then(|| self.base.stat(&resolver_path(path)))
+            .flatten();
         self.record("stat", path, info.is_some());
         info
     }
     fn realpath(&self, path: &str) -> String {
-        let found = self.admitted(path) && self.base.stat(path).is_some();
+        let found = self.admitted(path) && self.base.stat(&resolver_path(path)).is_some();
         self.record("realpath", path, found);
         if found {
-            self.base.realpath(path)
+            resolver_path(&self.base.realpath(&resolver_path(path)))
         } else {
-            path.into()
+            resolver_path(path)
         }
     }
     fn write_file(&self, _: &str, _: &str) -> Result<(), FsError> {
@@ -147,6 +151,7 @@ pub(super) fn outside(
     let fs = Rc::new(ConfinedFs {
         base: ts_goport::frontend::vfs::osvfs_fs(),
         root: root.to_path_buf(),
+        logical_root: PathBuf::from(resolver_path(&path_text(root)?)),
         outside: RefCell::new(BTreeSet::new()),
         errors: RefCell::new(vec![]),
         probes: RefCell::new(vec![]),
@@ -156,13 +161,17 @@ pub(super) fn outside(
     let resolver: Rc<dyn Resolver> = Rc::new(module::new_resolver(ResolverOptions {
         host: Some(Rc::new(tsoptions::ResolverHost {
             fs: fs.clone(),
-            current_directory: path_text(root)?,
+            current_directory: resolver_path(&path_text(root)?),
         })),
         compiler_options: Some(Rc::new(options)),
         ..Default::default()
     }));
-    let (found, diagnostics, error) =
-        resolver.resolve_module_name(specifier, &path_text(path)?, ModuleKind::NONE, None);
+    let (found, diagnostics, error) = resolver.resolve_module_name(
+        specifier,
+        &resolver_path(&path_text(path)?),
+        ModuleKind::NONE,
+        None,
+    );
     probes.extend(fs.probes.borrow().iter().cloned());
     if let Some(error) = fs.errors.borrow().first() {
         return Err(error.clone());
@@ -179,8 +188,38 @@ pub(super) fn outside(
     found
         .filter(|found| !found.resolved_file_name.is_empty())
         .map(|found| {
-            physical(Path::new(&found.resolved_file_name)).map(|actual| !actual.starts_with(root))
+            physical(Path::new(&resolver_path(&found.resolved_file_name)))
+                .map(|actual| !actual.starts_with(root))
         })
         .transpose()
         .map(|outside| outside.unwrap_or(false))
+}
+
+fn resolver_path(path: &str) -> String {
+    let path = path.replace('\\', "/");
+    if let Some(rest) = path.strip_prefix("//?/")
+        && rest.as_bytes().first().is_some_and(u8::is_ascii_alphabetic)
+        && rest.as_bytes().get(1) == Some(&b':')
+        && rest.as_bytes().get(2) == Some(&b'/')
+    {
+        return rest.into();
+    }
+    path
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn native_discovery_resolver_paths_preserve_drive_roots_across_verbatim_spelling() {
+        for (path, expected) in [
+            (r"\\?\D:\repo\src\main.ts", "D:/repo/src/main.ts"),
+            ("//?/D:/repo/./src/../main.ts", "D:/repo/./src/../main.ts"),
+            ("D:/repo/main.ts", "D:/repo/main.ts"),
+            ("/repo/main.ts", "/repo/main.ts"),
+            (r"\\server\share\main.ts", "//server/share/main.ts"),
+        ] {
+            assert_eq!(resolver_path(path), expected);
+        }
+    }
 }

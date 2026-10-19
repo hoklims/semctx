@@ -1,5 +1,6 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
+mod legacy_identity_replay;
 mod parallel_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
@@ -2659,6 +2660,16 @@ fn replay() -> Result<Value, String> {
     let mut results = vec![];
     for (index, recipe) in units.iter().enumerate() {
         let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "legacy_identity_cli" {
+            let mut result = legacy_identity_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
         if recipe["surface"] == "native_transport_cli" {
             let mut result =
                 run_transport_recipe(recipe, &out.join(format!("unit-{index:03}")), &freeze)?;
@@ -4168,6 +4179,7 @@ fn repair_units(ids: &[&str]) {
         );
         let dir = out.join(format!("unit-{index:03}"));
         let result = match recipe["surface"].as_str().unwrap() {
+            "legacy_identity_cli" => legacy_identity_replay::run(recipe, &dir, &fixture),
             "repository_discovery_cli" => {
                 repository_replay::run(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
             }
@@ -5775,5 +5787,15 @@ fn gap_native_repository_discovery_language_roles_and_boundary() {
         "N08-disabled-language::base",
         "P03-confined-relative-source::discovery-confinement",
         "N03-relative-escape::discovery-confinement",
+    ]);
+}
+
+#[test]
+fn gap_legacy_identity_relocation_byte_mutations_and_crlf_refusal() {
+    repair_units(&[
+        "N25-crlf-implementation-identity-input::base",
+        "P25-byte-identity-relocation::identity-relation-01",
+        "P25-byte-identity-relocation::identity-relation-02",
+        "P25-byte-identity-relocation::identity-relation-03",
     ]);
 }

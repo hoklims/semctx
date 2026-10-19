@@ -21,6 +21,10 @@ use ts_goport::{
 #[derive(Deserialize)]
 #[serde(tag = "operation", rename_all = "snake_case", deny_unknown_fields)]
 enum Request {
+    BaselineAnalyzerIdentity {
+        repository_root: PathBuf,
+        compiler_package_root: PathBuf,
+    },
     Decode {
         bytes: Vec<u8>,
         profile: source_text::ReadProfile,
@@ -316,6 +320,13 @@ pub fn handle_observation(request: Value) -> Result<Value, String> {
     let request: Request = serde_json::from_value(request)
         .map_err(|error| format!("PRIMITIVE_INVALID_REQUEST:{error}"))?;
     let (operation, mut observed) = match request {
+        Request::BaselineAnalyzerIdentity {
+            repository_root,
+            compiler_package_root,
+        } => (
+            "baseline_analyzer_identity",
+            crate::baseline_identity::observe(repository_root, compiler_package_root),
+        ),
         Request::Decode {
             bytes,
             profile,

@@ -1,3 +1,5 @@
+#[path = "support/legacy_identity_flow.rs"]
+mod legacy_identity_flow;
 #[path = "support/receiver_context.rs"]
 mod receiver_context;
 use receiver_context::*;
