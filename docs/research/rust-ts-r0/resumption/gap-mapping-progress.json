@@ -1,7 +1,7 @@
 {
   "recordVersion": 1,
   "startedUtc": "2026-10-18T15:10:36.832726+00:00",
-  "state": "STEP3_FORTY_GAPS_MAPPED_THIRTY_NINE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+  "state": "STEP3_FORTY_FOUR_GAPS_MAPPED_FORTY_THREE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
   "additionalC1Pass": 1,
   "passStillOpen": true,
   "ownerBudgetChanged": false,
@@ -167,9 +167,9 @@
     "/root/gap_component_reading"
   ],
   "reservedPayloadAccessed": false,
-  "next": "Continue the remaining24 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
-  "updatedUtc": "2026-10-18T23:44:21.033403+00:00",
-  "staticGapUnitsRemaining": 24,
+  "next": "Continue the remaining20 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0.",
+  "updatedUtc": "2026-10-19T00:24:43.517451+00:00",
+  "staticGapUnitsRemaining": 20,
   "documentaryReconciliation": {
     "state": "DOCUMENTARY_RECONCILIATION_PASSED",
     "frozenScenarioBytesUnchanged": true,
@@ -197,7 +197,7 @@
     ],
     "scope": "Use existing actual component/assembly/outline APIs; require complete empty configuration reasons, explicit unmodeled-caller refusal with absent caller coordinate/no calls edge, and the prescribed comment-only digest relation.",
     "inputInstantiation": "P09 frozen edit permits changing comment text or whitespace only; concrete after source changes the single /** Keys. */ comment to /** Digest comment changed. */ before querying. Sources and assertions in the frozen corpus are unchanged.",
-    "absenceInterpretation": "V2-C03 frozen callerSymbolPath=\"absent\" is mapped only at this property to the existing $field_absent predicate, supported by baseline ts-symbols.ts573–587 and native Option omission. A literal field containing \"absent\" must fail.",
+    "absenceInterpretation": "V2-C03 frozen callerSymbolPath=\"absent\" is mapped only at this property to the existing $field_absent predicate, supported by baseline ts-symbols.ts573\u2013587 and native Option omission. A literal field containing \"absent\" must fail.",
     "failurePaths": [
       "An unmapped recipe cannot pass the focused replay helper.",
       "Non-empty/unsupported/unexecuted configuration observation must not pass the empty-reason assertion.",
@@ -790,5 +790,55 @@
     "reservedPayloadAccessed": false,
     "reservedNonaccessScope": "Individual author attestation only.",
     "cost": "Physical walk, bounded source/metadata capture, native resolution and hashing; no isolated performance measurement."
+  },
+  "nineteenthBatch": {
+    "registeredUtc": "2026-10-19T00:24:43.517451+00:00",
+    "state": "FOUR_FROZEN_LEGACY_IDENTITY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N25-crlf-implementation-identity-input::base",
+      "P25-byte-identity-relocation::identity-relation-01",
+      "P25-byte-identity-relocation::identity-relation-02",
+      "P25-byte-identity-relocation::identity-relation-03"
+    ],
+    "scope": "Privatehistoricalidentity component only. Realfullbaseline and completeSDKfiles; frozenidentity plusrelocation/sourceonebyte/SDKonebyte relations andCRLFrefusal. NoTypeScriptcompilerexecution, C1produceridentity, current7fixedpolicy, qualification or globaladmission.",
+    "evidence": "gap-legacy-identity-evidence.json",
+    "nativeArtifactSha256": "642089cbef1794bacb92eb7dcb709ec578fec64373b5723bb484817c83ab3237",
+    "recipesSha256": "0293a0557205954bac3a04345cf38455c726052ee2dab7b82c3311abeed61df5",
+    "newMappingsCredited": 4,
+    "newProjectedPasses": 4,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 211,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 7,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 52,
+      "recipeCliTests": 7,
+      "frozenUnits": 4,
+      "frozenNativeProcesses": 7,
+      "projectedChecks": 5,
+      "carryovers": "7originalunits+3supports,4discoveryunits,3transportunits oncurrentoptimizedartifact",
+      "clippy": "PASS all-targets qualification-observer -Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "completeVerifyPr": "Not rerun; four prior local partitions only63397c7b, notcurrentcandidate."
+    },
+    "failurePaths": [
+      "Unavailableimplementation/SDKroots,directories,fixedinputs,SDKentry/librarydirectory,invalidSDKJSON/name/versionand64MiBaggregatecapturelimitrefusewithoutidentity.",
+      "Unix/macOSpermissionfailuresandexternalimplementation/SDKlinksrefuse. Linux-onlynonUTF8filenamefixture notrunlocally; APFScreationfailurepreserved.",
+      "Comparatorrejects foreignproducer/request/manifest, omitted/duplicate/changedreads, ambiguousbyteplansandoutsidepaths.",
+      "SourceCRLFrefusal appliesidentityinputs only, not analyzeduser-sourceCRLF."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individualauthorattestationonly",
+    "cost": "Completefilesystemmaterializationandboundedbytehashing; noisolatedperformance measurement"
   }
 }

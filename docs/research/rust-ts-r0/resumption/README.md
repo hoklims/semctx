@@ -322,6 +322,39 @@ metadata-probe denominator, full Bun glob parity, SDK, public Plane-A, global
 admission, atomic capture or performance guarantee follows. Owner pass1 stays
 open and pass2 remains unused.
 
+A [nineteenth tranche](gap-legacy-identity-evidence.json) maps four historical
+identity units. The native component reads the frozen baseline implementation
+and complete pinned SDK package without executing TypeScript. It retains the
+baseline six fixed inputs, distinct from the current seven-input policy, and
+matches the frozen290-file identity plus102 compiler reads. Seven actual native
+processes prove CRLF refusal, relocation equality and separate one-byte source
+and SDK mutations. CRLF refusal applies to identity inputs only. These digests
+do not replace the C1 producer identity or imply TS7/TS5 equivalence.
+The complete1249-file Git specimen and132-file SDK input capsule is archived,
+with independent prequery mutant expectations. The SDK archive is exactly
+identified and matches installed package bytes; retained download output does
+not independently establish registry provenance or a signature.
+Current macOS checks pass47 library,211 binary,1 common,7 development,7 discovery,
+4 parallel and3 transport tests,52 comparators and7 Python tests; fmt,Clippy
+and Ruff pass. Original7units/3supports,4discoveryunits and3transportunits pass
+on the new optimized artifact642089cb, with a35-source DEV manifest only.
+Three independent compiled debug faults fail then restore: native CRLF refusal,
+read-map comparator and drive formatter. These are source-sensitivity witnesses;
+the formatter is not Windows integration proof. Fresh review found no remaining
+demonstrated defect in the exact nine-file scope. The full25-row claim ledger
+and contradicted claims are retained with explicit reconciliation.
+Prior-head3b35 Windows CI exposed two discovery failures caused by slash-form
+verbatim drive roots reaching the resolver. The candidate normalizes logical
+resolver paths while retaining physical canonical-root confinement. Its current
+Windows runtime proof remains pending; prior-head Linux native passed and macOS
+was still running at the retained snapshot. Local permission/link controls run
+on macOS; the non-UTF8 filename fixture is Linux-only after APFS rejected setup.
+Counts reach44 mappings:43limitedPASS and N17cNONPASS,20staticGAP,
+334recipes without knownGAP and zero qualified obligations. Full354,review178,
+reserved once and R0 remain pending. No current-platform campaign, publicPlaneA,
+global admission, build-closure, freeze or performance guarantee follows.
+Owner additionalpass1 stays open;pass2 is unused.
+
 Normal pushes to the same branch and PR-description updates are authorized.
 Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
 SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required

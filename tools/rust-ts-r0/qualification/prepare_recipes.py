@@ -821,6 +821,31 @@ for recipe in recipes:
     recipe['configuration_authority'] = 'Pinned createDefaultConfig/createGlobSelectionConfig consumed discovery fields, including migrationsDirs default, plus exact frozen overrides. Legacy v1 ignores include/language selection as baseline does.'
     recipe['proof_scope'] = 'Actual native ordinary filesystem discovery and shared C1 AST import/reference confinement before analysis. Selected candidates have no invented analysis outcome. Exact reported read bytes joined to frozen inputs, no semantic extraction, qualified eligibility, public CLI, all-Bun-glob syntax, atomic capture, all OS reads or global admission inferred. Native unsupported glob groups fail closed.'
 
+identity_reference = INDEX['annexes']['baseline_identity']
+identity_bytes = (BASE / identity_reference['path']).read_bytes()
+if hashlib.sha256(identity_bytes).hexdigest() != identity_reference['sha256']:
+    raise ValueError('Frozen baseline identity annex differs')
+identity_expected = json.loads(identity_bytes)
+identity_manifest = {key:identity_expected[key] for key in ['schemaVersion','files','compiler','digest']}
+for recipe in recipes:
+    if recipe['case_id'] not in ['N25-crlf-implementation-identity-input', 'P25-byte-identity-relocation']:
+        continue
+    unit = UNITS_BY_ID[recipe['unit_id']]
+    negative = recipe['case_id'].startswith('N25-')
+    mode = 'crlf-refusal' if negative else {'identity-relation-01':'relocation', 'identity-relation-02':'source-byte', 'identity-relation-03':'sdk-byte'}[recipe['unit_id'].split('::')[1]]
+    recipe['surface'] = 'legacy_identity_cli'
+    recipe['legacy_identity_mode'] = mode
+    recipe['baseline_revision'] = INDEX['baseline']
+    recipe['baseline_expected_identity'] = identity_manifest
+    recipe['requests'] = []
+    recipe['relations'] = []
+    recipe['checks'] = [check(['identity_success'], False, 'eq', '/assertions/identity_success'), check(['error'], unit['assertions']['error_contains'], 'contains_text', '/assertions/error_contains')] if negative else [check(['relation_satisfied'], True, 'eq', '/assertions')]
+    recipe['identity_additional_files'] = {**INPUTS[recipe['case_id']]['files'], 'packages/fixture/package.json':'{"name":"@fixture/pkg"}\n'} if negative else {}
+    recipe['gaps'] = []
+    recipe['credited_properties'] = list(unit['assertions']) if negative else ['coupled_identity_relation']
+    recipe['required_native_api'] = ['--observe-primitives baseline_analyzer_identity: actual complete baseline implementation and pinned SDK filesystem bytes; baseline-specific insertion-order JSON identity, never native C1 producer identity']
+    recipe['proof_scope'] = 'Frozen legacy baseline identity component only: full baseline3e94997f export and complete pinned132file SDK package, unchanged290-input/102-read identity domain. Prequery independent byte-mutant controls and exact frozen baseline manifest; no compiler execution, source-analysis CRLF restriction, current seven-fixed-file policy, C1 producer identity, qualification or global admission.'
+
 SUPPORTS=json.loads((BASE/INDEX['supports']['path']).read_text(encoding='utf-8'))['support_units']
 support_plans=[]
 def code_units(text):
@@ -990,7 +1015,7 @@ for support_plan in support_plans:
 
 (OUT/'support-mapping-plan.json').write_text(json.dumps({'status':'PREQUERY_ONLY','support_denominator':51,'support_plans':support_plans,'qualification_queries':0},ensure_ascii=True,indent=2)+'\n',encoding='utf-8')
 
-payload={'schema_version':1,'status':'PREPARATION_ONLY_NEVER_EXECUTED','source_index_sha256':hashlib.sha256((BASE/'index.json').read_bytes()).hexdigest(),'immutable_sources':{k:INDEX[k] for k in ['scenarios','supports','obligation_map','input_index','allocation']},'records':268,'unit_denominator':354,'support_denominator':51,'native_queries':0,'recipes':recipes,'support_recipes':[x for x in support_plans if x.get('primitive_requests') or x.get('surface')=='raw_cli']}
+payload={'schema_version':1,'status':'PREPARATION_ONLY_NEVER_EXECUTED','source_index_sha256':hashlib.sha256((BASE/'index.json').read_bytes()).hexdigest(),'immutable_sources':{**{k:INDEX[k] for k in ['scenarios','supports','obligation_map','input_index','allocation']},'legacy_identity':INDEX['annexes']['identity'],'baseline_identity':identity_reference},'records':268,'unit_denominator':354,'support_denominator':51,'native_queries':0,'recipes':recipes,'support_recipes':[x for x in support_plans if x.get('primitive_requests') or x.get('surface')=='raw_cli']}
 path=OUT/'replay-recipes.json';path.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 summary={'status':'STATIC_PREPARATION_NO_QUERY_NO_PASS','recipes_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'units':len(recipes),'with_request':sum(bool(r['requests']) for r in recipes),'with_checks':sum(bool(r['checks']) for r in recipes),'without_known_gaps_pending_DTO_review':sum(not r['gaps'] for r in recipes),'gap_counts':dict(collections.Counter(g for r in recipes for g in r['gaps'])),'unit_gap_map':{r['unit_id']:r['gaps'] for r in recipes if r['gaps']},'pending_dto_counts':dict(collections.Counter(f for r in recipes for f in r.get('pending_dto_fields',[])))}
 (OUT/'preparation-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
