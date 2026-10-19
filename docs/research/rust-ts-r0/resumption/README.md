@@ -489,8 +489,14 @@ surrogate equality, normalization of every legacy SDK field and complete
 capture/discovery/admission equivalence are not established. Owner pass1 stays
 open;pass2 has not started.
 
-Normal pushes to the same branch and PR-description updates are authorized.
-Every GitHub comment is prohibited. Pins remain exact, Actions use full commit
-SHAs, and `verify:pr` uses Bun `1.4.3` with `GIT_CONFIG_GLOBAL` unset. A required
+Pushes to the same branch are authorized only for complete coherent milestones
+following green local `verify:pr` with Bun `1.4.3` and `GIT_CONFIG_GLOBAL` absent.
+PR-description updates remain authorized. No `workflow_dispatch`, manual CI
+launch, further workflow modification or GitHub comment is permitted. Run Rust
+tests on Windows if possible through an available permitted non-manual route;
+no Windows success is inferred without a green execution. The
+[current CI rules](owner-ci-rules-20261019.json) and their
+[complete independent ledger](owner-ci-rules-claim-audit.md) record these
+prospective constraints. Pins remain exact and Actions use full commit SHAs. A required
 owner decision stops dependent work and is explained in the terminal. T01,
 substantial ports, merge, release and deployment remain outside this resumption.

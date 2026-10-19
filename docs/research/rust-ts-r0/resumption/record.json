@@ -201,11 +201,14 @@
     "Reserved payload is not accessed during registration or harness correction."
   ],
   "publicationPolicy": {
-    "normalPushes": "rust/365-t00",
+    "normalPushes": "rust/365-t00; complete coherent milestones only after green local verify:pr under the pinned environment",
     "pullRequestBodyUpdates": 386,
     "githubComments": "PROHIBITED_EVERYWHERE",
     "mergeReleaseDeploy": false,
-    "regularPushes": true
+    "regularPushes": true,
+    "pushRequiresGreenLocalVerifyPr": true,
+    "manualCiLaunches": "PROHIBITED; includes workflow_dispatch",
+    "furtherWorkflowEdits": "PROHIBITED"
   },
   "verificationPolicy": {
     "bun": "1.4.3",
@@ -218,7 +221,9 @@
       "Linux",
       "Windows"
     ],
-    "decisionRequired": "Stop and explain in the terminal when an owner decision is necessary."
+    "decisionRequired": "Stop and explain in the terminal when an owner decision is necessary.",
+    "windowsRustTests": "Run if possible using an available permitted non-manual route; no Windows success inferred without a green exact-SHA test result.",
+    "currentOwnerCiRules": "owner-ci-rules-20261019.json"
   },
   "claimAudit": "claim-audit.md",
   "activeCorrectionPass": "correction-pass1-registration.json",

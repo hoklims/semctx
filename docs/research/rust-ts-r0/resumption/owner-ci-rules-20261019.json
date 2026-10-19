@@ -1,0 +1,32 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-19",
+  "state": "OWNER_CI_PUBLICATION_RULES_ONLY",
+  "authority": {
+    "owner": "Sébastien",
+    "source": "Current owner rules supplied to documentary author and independent auditor by /root; latest direct correction explicitly retains the other rules.",
+    "retentionVerbatimExcerpt": "Les autres règles restent valables.",
+    "rulesBelow": "Paraphrases of the retained CI/publication instructions, not verbatim quotations. No budget decision is recorded here."
+  },
+  "scope": {
+    "branch": "rust/365-t00",
+    "pullRequest": 386,
+    "composition": "C1",
+    "domain": "Future CI/publication actions only; no Rust behavior or qualification review."
+  },
+  "rules": {
+    "push": "Only completed coherent milestones after green local verify:pr with Bun1.4.3 and GIT_CONFIG_GLOBAL absent; evidence must bind the exact milestone head.",
+    "manualCiLaunches": "PROHIBITED; includes workflow_dispatch",
+    "furtherWorkflowEdits": "PROHIBITED",
+    "githubComments": "PROHIBITED_EVERYWHERE",
+    "windowsRustTests": "Run if possible using an available permitted non-manual route. No Windows success inferred without a green exact-SHA test result.",
+    "mergeReleaseDeploy": false
+  },
+  "evidenceLimits": "Approved prospective constraints only; no current milestone verify:pr, Windows test, run-event or external-action audit is supplied by this record. No qualification credit or R0 conclusion follows.",
+  "audit": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/owner_ci_rules_auditor",
+    "ledger": "owner-ci-rules-claim-audit.md",
+    "status": "Six target claims; no execution oracle promoted to held."
+  }
+}
