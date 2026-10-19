@@ -1560,6 +1560,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 | "--observe-configured-resolution"
                 | "--observe-controlled-assembly"
                 | "--analyze-retained-discovery"
+                | "--analyze-retained-runtime"
         )
     }) else {
         return Ok(None);
@@ -1572,6 +1573,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             | "--observe-configured-resolution"
             | "--observe-controlled-assembly"
             | "--analyze-retained-discovery"
+            | "--analyze-retained-runtime"
     ) {
         args.len() == 4
     } else if mode == "--observe-system" {
@@ -1590,6 +1592,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                     | "--observe-configured-resolution"
                     | "--observe-controlled-assembly"
                     | "--analyze-retained-discovery"
+                    | "--analyze-retained-runtime"
             ) {
                 " SDK.json"
             } else if mode == "--observe-system" {
@@ -1631,6 +1634,10 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 descriptor.clone(),
                 sdk.as_ref().ok_or("retained discovery SDK input missing")?,
             ),
+            "--analyze-retained-runtime" => retained_discovery_observations::observe(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("retained runtime SDK input missing")?,
+            )?,
             "--observe-controlled-assembly" => assembly_observations::run(
                 descriptor.clone(),
                 sdk.as_ref()

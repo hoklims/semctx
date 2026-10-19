@@ -15,7 +15,7 @@ struct DiscoveredSource {
     content: String,
 }
 
-fn observe(descriptor: Value, sdk: &Sdk) -> Result<Value, String> {
+pub(super) fn observe(descriptor: Value, sdk: &Sdk) -> Result<Value, String> {
     let request: DiscoveredRequest = serde_json::from_value(descriptor)
         .map_err(|error| format!("RETAINED_DISCOVERY_REQUEST_INVALID:{error}"))?;
     let analysis = &request.analysis;

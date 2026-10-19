@@ -715,6 +715,33 @@ for recipe in recipes:
     recipe['proof_scope'] = 'Exact frozen retained text versus supplied discovered-source metadata. P01 reuses its frozen retained leaf projection while live transient bytes remain physical; N01 has actual pre-analysis SOURCE_SNAPSHOT_MISMATCH and no analysis result. No automatic discovery, complete public Plane-A runtime, full retained scope or global admission inferred.'
 
 for recipe in recipes:
+    if recipe['unit_id'] not in ['P01-retained-source::plane-a-runtime-consistent', 'N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch']:
+        continue
+    assertions = UNITS_BY_ID[recipe['unit_id']]['assertions']
+    consistent = next(row for row in recipes if row['unit_id'] == 'P01-retained-source::analyze-snapshot-consistent')
+    component_id = 'N01-snapshot-metadata-mismatch::base' if 'rejects' in assertions else consistent['unit_id']
+    component = next(row for row in recipes if row['unit_id'] == component_id)
+    leaf = next(row for row in recipes if row['unit_id'] == 'P01-retained-source::base')
+    leaf_checks = copy.deepcopy(leaf['checks'])
+    for c in leaf_checks:
+        c['target'] = ['native_analysis'] + c['target']
+        c['expected_origin'] = leaf['unit_id'] + c['expected_origin']
+    recipe.update({'surface':'retained_runtime_cli', 'capture_request':copy.deepcopy(component['capture_request']), 'discovered_sources':copy.deepcopy(component['discovered_sources']), 'consistent_discovered_sources':copy.deepcopy(consistent['discovered_sources']), 'leaf_checks':leaf_checks, 'requests':[], 'relations':[], 'gaps':[], 'explicit_uncredited_properties':[], 'credited_properties':list(assertions)})
+    recipe['capture_request']['id'] = recipe['unit_id']
+    if 'rejects' in assertions:
+        if assertions != {'rejects':True, 'error_contains':'SOURCE_SNAPSHOT_MISMATCH: entry.ts', 'successful_runtime_result':False}:
+            raise ValueError('unmapped retained runtime rejection contract')
+        recipe['runtime_expected_state'] = 'rejected'
+        recipe['checks'] = [check(['rejects'], assertions['rejects'], 'eq', ptr('rejects')), check(['error'], assertions['error_contains'], 'contains_text', ptr('error_contains')), check(['successful_runtime_result'], assertions['successful_runtime_result'], 'eq', ptr('successful_runtime_result'))]
+    else:
+        if assertions != {'snapshot_mismatch_error':False, 'retained_leaf_analysis_projection_preserved':True, 'transient_symbol_forbidden':True, 'global_qualified_admission_inferred':False}:
+            raise ValueError('unmapped retained runtime analysis contract')
+        recipe['runtime_expected_state'] = 'analyzed'
+        recipe['checks'] = copy.deepcopy(leaf_checks) + [check([key], expected, 'eq', ptr(key)) for key, expected in assertions.items()]
+    recipe['required_native_api'] = ['--analyze-retained-runtime; real process Result propagation, bound captured/discovered inputs and positive native result; real matching-metadata controls before and after']
+    recipe['proof_scope'] = 'Private native analysis transport boundary: captured leaf output versus propagated SOURCE_SNAPSHOT_MISMATCH. Native CLI exit1 is a real rejected Result; no successful payload is inferred from a structured refusal. Complete public Plane-A composition, worker-selection policy, graph ownership and global admission are not inferred.'
+
+for recipe in recipes:
     if recipe['case_id'] != 'QDYN-07-missing-retained-test-text-public-refusal':
         continue
     inp = INPUTS[recipe['case_id']]
