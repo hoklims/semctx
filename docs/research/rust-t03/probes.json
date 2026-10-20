@@ -1,0 +1,40 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "milestone": "T03",
+  "recordedDateUtc": "2026-10-20",
+  "status": "OBSERVED_ON_ONE_HOST_NOT_PLATFORM_GUARANTEES",
+  "productBase": "948817473317411b617f238a9e22f46eca5933af",
+  "host": "Windows 11 x64",
+  "probe": {
+    "description": "a TypeScript script outside the checkout opens a fresh database with SqliteRepositoryStore.open from packages/repository-store/src/store.ts at productBase, reads engine settings through a second bun:sqlite connection, then closes the store and reads the journal mode again; its output is recorded verbatim",
+    "scriptSha256": "5bf8ea228fb2a093302e7aca10a36803d1e3408fab5bc663661824afebe4413b",
+    "outputSha256": "a9f70b5baf58247806244a85e1b55c1fa426b91a104e4ab5b3f43d61193e41a3"
+  },
+  "notes": [
+    "synchronous, wal_autocheckpoint and compile options are read on the second connection: they are this SQLite build's defaults, which the store does not override",
+    "compileOptions is filtered to synchronous, WAL, threading, journal and selected extension options",
+    "journalModeAfterClose shows the store returning the file to DELETE mode on close"
+  ],
+  "observed": {
+    "bunVersion": "1.4.3",
+    "sqliteVersion": "3.53.4",
+    "journalModeWhileWriterOpen": "wal",
+    "defaultSynchronous": 2,
+    "defaultWalAutocheckpoint": 1000,
+    "userVersion": 0,
+    "metaSchemaVersion": "1",
+    "compileOptions": [
+      "DEFAULT_JOURNAL_SIZE_LIMIT=-1",
+      "DEFAULT_SYNCHRONOUS=2",
+      "DEFAULT_WAL_AUTOCHECKPOINT=1000",
+      "DEFAULT_WAL_SYNCHRONOUS=2",
+      "ENABLE_FTS3",
+      "ENABLE_FTS3_PARENTHESIS",
+      "ENABLE_FTS5",
+      "ENABLE_MATH_FUNCTIONS",
+      "THREADSAFE=1"
+    ],
+    "journalModeAfterClose": "delete"
+  }
+}
