@@ -1,0 +1,2021 @@
+{
+  "recordVersion": 1,
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "pullRequest": "https://github.com/hoklims/semctx/pull/387",
+  "recordedDateUtc": "2026-10-19",
+  "checkpoint": 13,
+  "owner": "hoklims",
+  "gateDecision": "NOT_RUN",
+  "dependency": {
+    "milestone": "T00",
+    "pullRequest": 386,
+    "requiredDecision": "READY_TS_NATIVE",
+    "observedDecision": "PENDING",
+    "observedAt": "rust/365-t00 d7658736 (2026-10-19): docs/research/rust-ts-r0/experiment.json has r0Decision null at stage 7",
+    "resumption": "docs/research/rust-ts-r0/resumption/README.md: T00 reopened from STOP_BUDGET on 2026-10-18 on the same branch and PR, C1 only, two additional C1 correction passes, about 3-4 days as a planning estimate, C2 abandoned, no separate experiment",
+    "previousDecision": {
+      "decision": "STOP_BUDGET",
+      "commit": "7aae8a72 (c84e9382 before the 2026-10-19 rebase of rust/365-t00)"
+    },
+    "budgetRecordedOnIssue": {
+      "recordedDateUtc": "2026-10-19",
+      "record": "https://github.com/hoklims/semctx/issues/365#issuecomment-6263151459",
+      "envelope": "identical to the first slice: at most two native compositions, at most two correction passes after each first execution, five working days of cumulative implementation effort, one final execution for qualification and reserved cases",
+      "condition": "a separate versioned experiment is registered on T00 before any launch"
+    },
+    "budgetConflict": "the #365 comment of 2026-10-19 records two native compositions, two correction passes each, five working days and a separate versioned experiment; the T00 resumption record of 2026-10-18 records C1 only, two additional passes, about 3-4 days and no separate experiment. Which record governs is the owner's decision; T01 does not choose",
+    "consequence": "T01 stays in preparation until READY_TS_NATIVE; hypotheses, prototype and gate remain unstarted"
+  },
+  "restack": {
+    "recordedDateUtc": "2026-10-19",
+    "from": "0907c093 on an earlier rust/365-t00 base (d5ba8fdb)",
+    "onto": "rust/365-t00 d7658736, after T00's own rebase",
+    "commits": 19,
+    "content": "docs/research/rust-t01 is byte-identical before and after; only commit identities change",
+    "reason": "CodeQL Rust analysis failed on the old base, which carried no Rust source"
+  },
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "tree": "d3faa654755ce9f7aca24cd63d076045af37c706",
+    "version": "0.4.5",
+    "typescript": "5.9.3"
+  },
+  "envelope": {
+    "hypothesesMaximum": 3,
+    "correctionPassesPerHypothesisMaximum": 2,
+    "cumulativeEffortWorkingDaysMaximum": 10,
+    "extensionRequiresExplicitBudget": true,
+    "hypothesisWorkStarted": false
+  },
+  "ownerInput": {
+    "recordedDateUtc": "2026-10-17",
+    "statement": "every repository size; adaptive, natively",
+    "translation": {
+      "workloadSizeClasses": [
+        "small",
+        "medium",
+        "large",
+        "very-large",
+        "monorepo"
+      ],
+      "sizeClassificationBeforeResults": true,
+      "budgetForm": "fixed startup term + per-unit term, with explicit time and aggregate-memory growth bounds",
+      "budgetCoefficientsSource": "repeated baseline characterization",
+      "budgetCoefficientsRecorded": false,
+      "nativeAdaptation": "worker count, batch size and memory use follow host and snapshot without user tuning",
+      "referenceComparisonAtEqualWorkers": true,
+      "adaptiveDefaultsEvidenceGated": true
+    },
+    "translationConfirmedByOwner": true,
+    "translationConfirmedDateUtc": "2026-10-17"
+  },
+  "phases": [
+    "input-capture",
+    "ts-js-analysis",
+    "assembly",
+    "recapture",
+    "publication",
+    "process"
+  ],
+  "pilot": {
+    "kind": "orientation only; single unrepeated runs; no ratio, budget or threshold",
+    "host": "macOS 26.7.1 ARM64, Apple M5 Pro, 18 cores, 48 GiB",
+    "bun": "1.4.3",
+    "git": "2.56.0",
+    "workers": 1,
+    "runs": [
+      {
+        "subject": "semctx baseline archive",
+        "snapshotTree": "a4d1383cd3e8d62d44e24afea02ea91dce1fc641",
+        "typescriptFiles": 904,
+        "config": "semctx init default (version 1; discovery walks the whole repository)",
+        "exitCode": 0,
+        "wallSeconds": 4.88,
+        "maxRssBytes": 1916960768,
+        "collector": "/usr/bin/time -l",
+        "cpuProfileShare": {
+          "realpathNativeSync": 0.363,
+          "canonicalFilesystemPath": 0.326,
+          "completeRepositoryIndex": 0.151,
+          "prepareRepositoryIndex": 0.068
+        },
+        "rawSha256": {
+          "indexJson": "e97d9526ee82d8547622e6aaf2b24c9667a1b03e97d114571f0a1737f0621ff2",
+          "timeOutput": "a87180cd566edba2fc296d4544c6a4986b0ecd93c9d529ee1f48c807ecc65e9c",
+          "cpuProfile": "3489ebe8df53c79fad8c47ad4f5c524aeac14808dc18eea2c8d3b28fe392c39b"
+        },
+        "moduleAndTestNodes": 701
+      },
+      {
+        "subject": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "license": "MIT",
+        "archiveUrl": "https://codeload.github.com/microsoft/vscode/tar.gz/5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "archiveSha256": "f46423d0c44c21e7d0563008dc4da02b4c6afc6c77629614d64bde2f48c35a8c",
+        "config": "semctx init default (version 1; discovery walks the whole repository)",
+        "exitCode": 1,
+        "error": "PlaneAAssemblyError: FACT_ID_CONFLICT {\"id\":\"edge:imports:342a8bf7\",\"metadataKey\":\"specifier\"}",
+        "wallSeconds": 144.09,
+        "sampledPeakTreeRssBytes": 18417991680,
+        "collector": "ps-based process-tree RSS sum, 200 ms interval",
+        "rawSha256": {
+          "collectorOutput": "c5a325d91c12dd78a893f8f3b6b7c55a70f363df4bb666df197354a8cd2b58af"
+        },
+        "nonDeclarationTypescriptFiles": 14818,
+        "moduleAndTestNodesInRequalifiedRun": 14794
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "edge-id-32-bit-collision",
+      "statement": "edgeId hashes from->to with 32-bit FNV-1a; distinct import pairs collide on large repositories and fail assembly",
+      "witness": {
+        "edgeId": "edge:imports:4fdac1ed",
+        "pairs": [
+          "src/vs/workbench/contrib/browserView/common/browserSearch.ts -> src/vs/nls.ts",
+          "src/vs/sessions/contrib/layout/test/browser/desktopLayoutController.test.ts -> src/vs/sessions/contrib/layout/browser/desktopLayoutController.ts"
+        ],
+        "distinctRelativeImportPairsScanned": 123283,
+        "scanScope": "src tree, relative imports only"
+      },
+      "failingIdPartnerIdentified": false,
+      "consequence": "large cells use the requalified baseline; the Rust identity format remains a T02 decision under D4",
+      "arbitration": "resolved for T01 measurements by the owner on 2026-10-17; see requalifiedBaseline"
+    },
+    {
+      "id": "uncached-filesystem-canonicalization",
+      "statement": "canonicalFilesystemPath calls realpath per resolved call target without memoization",
+      "consequence": "language-independent cost; its removal must not be attributed to Rust"
+    },
+    {
+      "id": "seal-snapshot-hash-includes-capture-time",
+      "statement": "planeAIndexSnapshotHash digests the persisted Plane-A snapshot, which includes capturedAt (the indexing time); it therefore differs on every run by construction, and so does the seal hash",
+      "source": "3e94997 packages/app-services/src/indexing.ts:347-354 (createPlaneAIndexSnapshot with capturedAt: indexedAt, then digestCanonical) and packages/app-services/src/index-health.ts:596-613",
+      "witness": {
+        "runs": "the 20 Windows hono runs of instrumentationCostWindows (rows 0d8992ab…)",
+        "varyingSealFields": [
+          "indexedAt",
+          "planeAIndexSnapshotHash",
+          "indexedPlaneAIndexSnapshotHash",
+          "sealHash"
+        ],
+        "stableSealFields": "every other scalar field, including repositoryGraphHash, analysisInputHash, semanticModelHash and workingDiffHash (1 distinct value each)",
+        "repositoryGraphHash": "sha256:9d484cb6124d9255331c70a02915af9a5da5d847050cb52d0fe8edbcc30d417d"
+      },
+      "consequence": "repositoryGraphHash, not planeAIndexSnapshotHash, is the baseline's run-to-run fact identity on one host; a candidate comparison still compares stores, because repositoryGraphHash covers edge and claim identity values that the comparison rule ignores",
+      "notChecked": "the macOS series did not record repositoryGraphHash per run, and cross-host equality of repositoryGraphHash is not checked"
+    }
+  ],
+  "remainingEvidence": [
+    "owner decision: which R0 budget record governs (dependency.budgetConflict)",
+    "very large cell (aws-sdk-js-v3): no reference measurement",
+    "memory collector for Linux before any measurement there",
+    "CPU-profile cost for phase attribution",
+    "repeated baseline series per phase and size class",
+    "query budget, once a query series exists",
+    "READY_TS_NATIVE from T00",
+    "hypothesis selection, prototype and economic gate"
+  ],
+  "requalifiedBaseline": {
+    "decidedBy": "hoklims",
+    "decidedDateUtc": "2026-10-17",
+    "authority": "owner of #365 milestones; #365 section 2.3 arbitration",
+    "scope": "T01 measurements only; no product change; historical baseline stays pinned",
+    "base": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "changedFiles": [
+      "packages/core/src/ids.ts"
+    ],
+    "change": "edgeId and claimId use the first 128 bits of SHA-256 instead of 32-bit FNV-1a",
+    "patchSha256": "a1e7c8f77e5954a0a8b00cc443d700167b3f8ba3d192f17d0009d3dc7210fcfb",
+    "patch": "diff --git a/packages/core/src/ids.ts b/packages/core/src/ids.ts\nindex 32b33e22..b3d83608 100644\n--- a/packages/core/src/ids.ts\n+++ b/packages/core/src/ids.ts\n@@ -6,6 +6,8 @@\n  * hard requirement so that graphs, claims and context packs diff and cache cleanly.\n  */\n \n+import { createHash } from \"node:crypto\";\n+\n /** Normalise a path to forward slashes and strip a leading \"./\". */\n export function normalizePath(filePath: string): string {\n   return filePath.replace(/\\\\/g, \"/\").replace(/^\\.\\//, \"\");\n@@ -44,6 +46,11 @@ export function fnv1a(text: string): string {\n   return (hash >>> 0).toString(16).padStart(8, \"0\");\n }\n \n+/** First 128 bits of SHA-256 as hex, for identities whose population grows with the repository. */\n+export function wideDigest(text: string): string {\n+  return createHash(\"sha256\").update(text).digest(\"hex\").slice(0, 32);\n+}\n+\n export function repositoryId(root: string): string {\n   const leaf = root.split(/[\\\\/]/).filter(Boolean).pop() ?? \"repository\";\n   return `repo:${slugify(leaf)}`;\n@@ -194,7 +201,7 @@ export function boundedContextId(name: string): string {\n }\n \n export function edgeId(kind: string, from: string, to: string): string {\n-  return `edge:${kind}:${fnv1a(`${from}->${to}`)}`;\n+  return `edge:${kind}:${wideDigest(`${from}->${to}`)}`;\n }\n \n export function evidenceId(sourceKind: string, filePath: string, startLine?: number, endLine?: number): string {\n@@ -203,7 +210,7 @@ export function evidenceId(sourceKind: string, filePath: string, startLine?: num\n \n export function claimId(kind: string, statement: string, subjectNodeIds: readonly string[]): string {\n   const key = `${subjectNodeIds.join(\"|\")}::${statement}`;\n-  return `claim:${kind}:${slugify(statement).slice(0, 40)}-${fnv1a(key)}`;\n+  return `claim:${kind}:${slugify(statement).slice(0, 40)}-${wideDigest(key)}`;\n }\n \n export function taskFrameId(rawTask: string): string {\n",
+    "comparisonRule": "facts must match the requalified baseline exactly, except edge and claim identity values and the order they induce",
+    "checks": [
+      {
+        "subject": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "exitCode": 0,
+        "nodes": 101587,
+        "edges": 463422,
+        "evidence": 697442,
+        "claims": 19663,
+        "wallSeconds": 186.88,
+        "maxRssBytes": 24838717440,
+        "expected32BitCollidingPairs": 25,
+        "rawSha256": {
+          "indexJson": "2013bbe66fcd1549c3918528fc5eda0590c633412fbf219b56d0aa56e297fb7c",
+          "collectorOutput": "5b0198c1de100beecba35af376302c7da75c1c234866b680aae6776e6a2e61f2"
+        }
+      },
+      {
+        "subject": "semctx baseline archive",
+        "snapshotTree": "a4d1383cd3e8d62d44e24afea02ea91dce1fc641",
+        "exitCode": 0,
+        "wallSeconds": 4.82,
+        "maxRssBytes": 1884618752,
+        "storeComparisonWithHistoricalBaseline": {
+          "nodes": "identical",
+          "evidence": "identical",
+          "edgesWithoutId": "identical",
+          "claimsWithoutId": "identical when subject and evidence lists are compared as sets",
+          "claimsWithReorderedLists": 73,
+          "claimsTotal": 1077,
+          "edgeAndClaimIdsUnique": true
+        },
+        "rawSha256": {
+          "indexJson": "077c779f9c4f8fc6862515f94961d2025e8da9bad3afa740918a6a18dbd3f115",
+          "timeOutput": "cac534f114037f27c1bb6ec79928f2589a2c2f8e54a12cb03c03d50606ee807b"
+        }
+      }
+    ],
+    "tooling": {
+      "storeComparisonScriptSha256": "5e39e6fde7660a1b1f0f4bad543bfee77a364e3b5cd445c03184ad50b45b09e5",
+      "collisionScanScriptSha256": "dd524d8cdc644fcbf29a183729f16bdcf4d15f19eb39e0da122a8c3bb4f1f8c1"
+    }
+  },
+  "workloadMatrix": {
+    "recordedDateUtc": "2026-10-17",
+    "recordedBefore": "repeated baseline series and any candidate",
+    "disjointFromT00Corpora": true,
+    "sizeMetric": "TS/JS files selected by the matrix configuration",
+    "sizeClasses": {
+      "small": {
+        "maximumExclusive": 300
+      },
+      "medium": {
+        "minimum": 300,
+        "maximumExclusive": 3000
+      },
+      "large": {
+        "minimum": 3000,
+        "maximumExclusive": 20000
+      },
+      "very-large": {
+        "minimum": 20000
+      }
+    },
+    "configuration": {
+      "version": 2,
+      "selectionMode": "globs-v1",
+      "include": [
+        "**/*.{ts,tsx,mts,cts}",
+        "**/*.{js,jsx,mjs,cjs}",
+        "**/*.py",
+        "**/*.{md,mdx}",
+        "**/*.sql"
+      ],
+      "exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/coverage/**",
+        "**/.git/**",
+        "**/.semctx/**"
+      ],
+      "docsDirs": [
+        "docs"
+      ],
+      "migrationsDirs": [
+        "migrations"
+      ],
+      "testGlobs": [
+        "**/*.{test,spec}.{ts,tsx,mts,cts}",
+        "test/**/*.{ts,tsx,mts,cts,py}",
+        "tests/**/*.{ts,tsx,mts,cts,py}",
+        "**/test_*.py",
+        "**/*_test.py"
+      ],
+      "languages": {
+        "typescript": "on",
+        "javascript": "on",
+        "python": "on",
+        "markdown": "on",
+        "sql": "on"
+      },
+      "semanticProvider": "none",
+      "blockingRules": []
+    },
+    "configurationSha256": "b6b3a1ea75515ddfedb935500afb1ddc06d96bfc8b641ee8a4b54c294f1d7220",
+    "selectionCounter": "requalified baseline discoverRepository(loadConfig(root))",
+    "selectionOutputSha256": "95acddb0942c6d07f341850e8df9f457d9362f4079f8fd4174bcb482bbf68525",
+    "selectionScriptSha256": "44d0aa6b5413432cb888dad9ccea9f9897110c897a7cec3132b5cf327b1dac2f",
+    "baselineIncompleteCellRule": "record the outcome; no ratio; budget from size-dependent coefficients fitted on completed cells; the cell stays",
+    "workloads": [
+      {
+        "repository": "sindresorhus/ky",
+        "commit": "3541888878c4d303a8bc2ad61815f4e048f55a5d",
+        "license": "MIT",
+        "licensePath": "license",
+        "archiveUrl": "https://codeload.github.com/sindresorhus/ky/tar.gz/3541888878c4d303a8bc2ad61815f4e048f55a5d",
+        "archiveSha256": "d1459746065d3c45dc1470ebf058b9cf5795351e1f5ad8032393a62cf3d568ea",
+        "structure": "single package",
+        "rootLockfile": null,
+        "sizeClass": "small",
+        "roles": [
+          "startup"
+        ],
+        "selectedFiles": {
+          "markdown": 3,
+          "typescript": 98
+        },
+        "selectedBytes": {
+          "markdown": 76168,
+          "typescript": 1083178
+        },
+        "discoveryMsSingleRun": 61,
+        "archiveBytes": 416433,
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfiles": [],
+          "generatedLockfile": {
+            "reason": "the repository commits no lockfile (.npmrc sets package-lock=false)",
+            "command": "npm install --package-lock-only --package-lock=true --ignore-scripts --before=2026-10-09T06:29:22Z",
+            "resolutionCutoffUtc": "2026-10-09T06:29:22Z",
+            "resolutionCutoffSource": "committer date of the pinned commit",
+            "sha256": "fd656990172666d23e094ecdd1947fa2a8de5becd37e6705cd3752a7e98a1e97",
+            "regeneratedIdentically": true,
+            "removedFromTreeAfterInstall": true
+          },
+          "commands": [
+            "npm ci --package-lock=true --ignore-scripts"
+          ],
+          "installedPackageDirectories": 610,
+          "distinctNameVersions": 571,
+          "installedFiles": 16163,
+          "installedBytes": 124897677,
+          "closureManifestSha256": "baa5371978d4c5c6e3b338b4dc4ecf4bda4f4809d8ab5d7606a8557dd94d6519",
+          "installSecondsSingleRun": 3,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "honojs/hono",
+        "commit": "5ca49b0720755c585c9a9835f0a479ceea36fb52",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/honojs/hono/tar.gz/5ca49b0720755c585c9a9835f0a479ceea36fb52",
+        "archiveSha256": "558739d106316259b89e3cbfa0002220edce22dd50a7ee59a071e08f0f44c813",
+        "structure": "single package, pnpm workspace file",
+        "rootLockfile": "pnpm-lock.yaml",
+        "sizeClass": "medium",
+        "roles": [],
+        "selectedFiles": {
+          "javascript": 2,
+          "markdown": 18,
+          "typescript": 450
+        },
+        "selectedBytes": {
+          "javascript": 1471,
+          "markdown": 28311,
+          "typescript": 2891073
+        },
+        "discoveryMsSingleRun": 181,
+        "archiveBytes": 1770391,
+        "dependencyClosure": {
+          "packageManager": "pnpm@12.6.0",
+          "lockfiles": [
+            {
+              "path": "pnpm-lock.yaml",
+              "sha256": "3bbe772c131585b3e138d0a48b7f229069c1533dc63225629beb3039a5fcac86"
+            }
+          ],
+          "commands": [
+            "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile"
+          ],
+          "installedPackageDirectories": 723,
+          "distinctNameVersions": 720,
+          "installedFiles": 25493,
+          "installedBytes": 868156267,
+          "closureManifestSha256": "65ac332da0e5eacc5b994cfddd4d3d8b26354f375b8d5febc064810417c18eb2",
+          "installSecondsSingleRun": 42,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "trpc/trpc",
+        "commit": "f15d2a1cdbae3609f633407cf0ac66d19f06cba1",
+        "license": "MIT",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/trpc/trpc/tar.gz/f15d2a1cdbae3609f633407cf0ac66d19f06cba1",
+        "archiveSha256": "29e647788ff46e55c4179636367eac2c6ae056cef1567c58ca9be7fb3182218e",
+        "structure": "pnpm monorepo",
+        "rootLockfile": "pnpm-lock.yaml",
+        "sizeClass": "medium",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 26,
+          "markdown": 284,
+          "sql": 13,
+          "typescript": 1024
+        },
+        "selectedBytes": {
+          "javascript": 32363,
+          "markdown": 1360321,
+          "sql": 3787,
+          "typescript": 3564659
+        },
+        "discoveryMsSingleRun": 321,
+        "archiveBytes": 1730742,
+        "dependencyClosure": {
+          "packageManager": "pnpm@12.4.1",
+          "lockfiles": [
+            {
+              "path": "pnpm-lock.yaml",
+              "sha256": "9f67929d0bfc5232057489fc4ef1401a9742e44f9b333157b725e5ba75c6fbe4"
+            }
+          ],
+          "commands": [
+            "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile"
+          ],
+          "installedPackageDirectories": 3496,
+          "distinctNameVersions": 3422,
+          "installedFiles": 190093,
+          "installedBytes": 2518708983,
+          "closureManifestSha256": "6d577d3d68b4006097672a91295642eb64cf8eb781dd1c50b849daa474f87f40",
+          "installSecondsSingleRun": 111,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "PrefectHQ/prefect",
+        "commit": "e29ee8a50c54aa3b41c1566827f6223997e7153c",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/PrefectHQ/prefect/tar.gz/e29ee8a50c54aa3b41c1566827f6223997e7153c",
+        "archiveSha256": "c682c09e762cbba6d27926153f98b59f24103c7985a186eae647c89907510bfd",
+        "structure": "Python package with TS UI",
+        "rootLockfile": "uv.lock",
+        "sizeClass": "medium",
+        "roles": [
+          "multilanguage"
+        ],
+        "selectedFiles": {
+          "javascript": 7,
+          "markdown": 1054,
+          "python": 1916,
+          "sql": 6,
+          "typescript": 1672
+        },
+        "selectedBytes": {
+          "javascript": 25281,
+          "markdown": 7091803,
+          "python": 24700989,
+          "sql": 5057,
+          "typescript": 6080166
+        },
+        "discoveryMsSingleRun": 524,
+        "archiveBytes": 40904572,
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfiles": [
+            {
+              "path": "ui-v2/package-lock.json",
+              "sha256": "1e2a97faeba5c5fc2b2aea91c29c7c81ced4c0a1437459323d8ea84823b73e20"
+            },
+            {
+              "path": "ui/package-lock.json",
+              "sha256": "51f71daa713b7ed2138b3b53a40feabe55221d73e3b5a96d4df01bb208a44c95"
+            }
+          ],
+          "commands": [
+            "npm ci --ignore-scripts (ui-v2)",
+            "npm ci --ignore-scripts (ui)"
+          ],
+          "notInstalled": {
+            "uv.lock": "the baseline Python analyzer resolves imports statically and reads no installed package",
+            "src/integrations/prefect-aws/infra/package-lock.json": "separate infrastructure project outside the UI install set"
+          },
+          "installedPackageDirectories": 1577,
+          "distinctNameVersions": 1369,
+          "installedFiles": 99066,
+          "installedBytes": 1008732927,
+          "closureManifestSha256": "d9bdaf0e6e72411f4e1f43fe0341926ce418a169b9c342e46fafe72700a93d71",
+          "installSecondsSingleRun": 42,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "backstage/backstage",
+        "commit": "8747376ceeb8c46d34549c53cdf6b81bb5de70f9",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/backstage/backstage/tar.gz/8747376ceeb8c46d34549c53cdf6b81bb5de70f9",
+        "archiveSha256": "1500f02f5da4cd841e552e3217d2c106e9b8bb159847bef66441fa62198b61a4",
+        "structure": "Yarn monorepo",
+        "rootLockfile": "yarn.lock",
+        "sizeClass": "large",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 427,
+          "markdown": 2143,
+          "typescript": 7447
+        },
+        "selectedBytes": {
+          "javascript": 10424615,
+          "markdown": 38115244,
+          "typescript": 30801796
+        },
+        "discoveryMsSingleRun": 3107,
+        "archiveBytes": 203176525,
+        "dependencyClosure": {
+          "packageManager": "yarn@4.18.0",
+          "lockfiles": [
+            {
+              "path": "yarn.lock",
+              "sha256": "45553a058737f91cdf5f58fa3900e215f4ef27f244c4756f410824e828ff0f28"
+            }
+          ],
+          "commands": [
+            "yarn install --immutable --mode=skip-build"
+          ],
+          "addedOutsideNodeModules": [
+            ".yarn/install-state.gz (discovery candidate, excluded)"
+          ],
+          "installedPackageDirectories": 4429,
+          "distinctNameVersions": 3651,
+          "installedFiles": 232209,
+          "installedBytes": 1991673453,
+          "closureManifestSha256": "0be2c0db53853eba7b194ee6117efb7147f79cf943d520375452cf7bc10d02a3",
+          "installSecondsSingleRun": 98,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "microsoft/vscode",
+        "commit": "5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "license": "MIT",
+        "licensePath": "LICENSE.txt",
+        "archiveUrl": "https://codeload.github.com/microsoft/vscode/tar.gz/5b23ab39bef800e5c4dad4e544671ef20617e660",
+        "archiveSha256": "f46423d0c44c21e7d0563008dc4da02b4c6afc6c77629614d64bde2f48c35a8c",
+        "structure": "single repository",
+        "rootLockfile": "package-lock.json",
+        "sizeClass": "large",
+        "roles": [],
+        "selectedFiles": {
+          "javascript": 129,
+          "markdown": 369,
+          "python": 74,
+          "sql": 1,
+          "typescript": 14807
+        },
+        "selectedBytes": {
+          "javascript": 1310684,
+          "markdown": 6233673,
+          "python": 62235,
+          "sql": 123,
+          "typescript": 205023780
+        },
+        "discoveryMsSingleRun": 15354,
+        "dependencyClosure": {
+          "packageManager": "npm@11.19.1",
+          "lockfileCount": 56,
+          "lockfileSetSha256": "ba2d8e44a1414ee798b4fc268d91a2495bf1b81d79739d3a9f15b43c42dc7595",
+          "installSetSource": "static directory list in build/npm/dirs.ts, read without executing it; the repository's postinstall installs the same list",
+          "installSetSourceSha256": "ac461ed9505833d96dfd7c835638af5219f215ad0ac0ac25014f7588e88b429a",
+          "commands": [
+            "npm ci --ignore-scripts in each of the 56 listed directories"
+          ],
+          "installedPackageDirectories": 5141,
+          "distinctNameVersions": 2738,
+          "installedFiles": 223228,
+          "installedBytes": 5253479249,
+          "closureManifestSha256": "7e3ffa547196241c444fb7cdd1f0b8ae492d7a0d2aeb0e232785f8f9fcbfe93c",
+          "installSecondsSingleRun": 203,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      },
+      {
+        "repository": "aws/aws-sdk-js-v3",
+        "commit": "412d1362e9d60979d3e11e7396e2598872b55773",
+        "license": "Apache-2.0",
+        "licensePath": "LICENSE",
+        "archiveUrl": "https://codeload.github.com/aws/aws-sdk-js-v3/tar.gz/412d1362e9d60979d3e11e7396e2598872b55773",
+        "archiveSha256": "2eeabbe1803b11ec55025cd173ea38b80bb772c4fe0d33b38047b7f1880a6b4f",
+        "structure": "Yarn monorepo, generated clients",
+        "rootLockfile": "yarn.lock",
+        "sizeClass": "very-large",
+        "roles": [
+          "monorepo"
+        ],
+        "selectedFiles": {
+          "javascript": 608,
+          "markdown": 1248,
+          "typescript": 36895
+        },
+        "selectedBytes": {
+          "javascript": 14731800,
+          "markdown": 87304088,
+          "typescript": 272151586
+        },
+        "discoveryMsSingleRun": 44546,
+        "archiveBytes": 70643151,
+        "dependencyClosure": {
+          "packageManager": "yarn@4.17.1",
+          "lockfiles": [
+            {
+              "path": "yarn.lock",
+              "sha256": "690ed2ce761f25748ef9f8925b6fb20e1112ff8130b1039f4b812d7a2087fbeb"
+            }
+          ],
+          "commands": [
+            "yarn install --immutable --mode=skip-build"
+          ],
+          "addedOutsideNodeModules": [
+            ".yarn/install-state.gz (discovery candidate, excluded)"
+          ],
+          "installedPackageDirectories": 1416,
+          "distinctNameVersions": 1256,
+          "installedFiles": 55913,
+          "installedBytes": 509816531,
+          "closureManifestSha256": "3bb607dd8d6379711efecfb2e575439f14e087e6da57b9b73cc42359aa7b32ab",
+          "installSecondsSingleRun": 37,
+          "sourceTreeUnchanged": true,
+          "selectionUnchanged": true
+        }
+      }
+    ],
+    "dependencyClosureProtocol": {
+      "recordedDateUtc": "2026-10-17",
+      "scope": "what the repository's own development install fetches, with every install script disabled",
+      "host": {
+        "os": "macOS 26.7.1 (Darwin 25.6.0) arm64",
+        "node": "24.22.0",
+        "npm": "11.19.1"
+      },
+      "packageManagers": {
+        "pnpm@12.6.0": "sha512-PvaPlRyxEawgS0paFvCy3fDaVqluBBPoHYVdnwtV75JnFHCQKOHNAMQFwsX7e56OxNxGd3yAXQNzwvL/AP0g7A==",
+        "pnpm@12.4.1": "sha512-LoHjmdc/6DkNqyXgaqeIq3pZCCSNL1o3D4K0gRR6ano2e/gEj5pv22Rg8hpm8FQt7bi5TKLIcjWWdBkgsWVtTA==",
+        "@yarnpkg/cli-dist@4.18.0": "sha512-WV9H+/O8BPElO7GKzrKipTtCNt8/gBCUJaNAEOw4U/x2k17aZjseYzll4QhpZE4xIsEvo8bK6KvjhsXuHrclPg==",
+        "@yarnpkg/cli-dist@4.17.1": "sha512-2tiSQuJNl/L3QwTdrq6lKWDpkcnp9MGvCT/rIldHcbu3SWfnLdmehvt3eulX1hT7FFt1Gjfq3CesF+kvhFip6g=="
+      },
+      "packageManagerSource": "npm registry, scripts disabled; versions match each repository's packageManager field",
+      "yarnReleaseCheck": "registry bundle byte-identical to the committed .yarn/releases file; YARN_IGNORE_PATH=1 so the committed file is not executed",
+      "isolation": "package caches in a dedicated scratch directory; Yarn global cache disabled; no pnpmfile loaded",
+      "sourceTreeCheck": "SHA-256 manifest of every file outside node_modules before and after installation",
+      "selectionCheck": "requalified baseline discovery with the matrix configuration rerun after installation; selected files and bytes identical for every workload",
+      "closureManifest": "sorted (location, name, version) of every package directory under node_modules, hashed with SHA-256",
+      "installTimesAreNotMeasurements": "single runs with a partly warm cache and network variance",
+      "scriptSha256": {
+        "install": "ee097c9d569215e29e39b8d7aabd2f5b995524a0b970c903f7d446973c2972c2",
+        "treeManifest": "97db3a4f8d2941f45e7518a896d73d4d27b1dbd7ae113e344519fccc894025d4",
+        "closureManifest": "84c734826e432663df27fdf5888ba6d261a44446d5e8625876d818cb481a836c",
+        "vscodeDirectories": "67884252736a9286846c53006b0189107158d54e1fde2b50da5aacd64fce9484",
+        "selectionComparison": "b89b20f584c9547aa56274fb9fa043c2aef1b5f07264d55abe33b54849be2415"
+      },
+      "selectionAfterInstallSha256": "0a747110438506ceaa49bbdb8f68b3c6accf5ed637343961f4385cd7a9425230"
+    }
+  },
+  "referenceBuild": {
+    "releaseReproduction": {
+      "source": "3e94997 (historical baseline; packages and apps identical to the 0.4.5 release commit 6072cb4a)",
+      "builder": "Bun 1.4.0, the release workflow's pinned version, from @oven/bun-darwin-aarch64@1.4.0",
+      "builderIntegrity": "sha512-GCpf8QuFLsyioVawP5HrMxA1ZRBlu6Hq9RNnSc3UTUWAzIxBso9trjoZczw1HdgpqSssFkszfIV2zmOzFTjhkw==",
+      "command": "bun scripts/build-cli-package.ts",
+      "publishedPackage": "semctx@0.4.5",
+      "publishedIntegrity": "sha512-n+aGtkzRh2Ifpbg1lh3y3auVZNK71G67vJOXckSGM3J487cSX/LPUX7mX7KeC2+PDBcn3VHNnt8ujZVf+f8NiA==",
+      "result": "apps/cli/dist byte-identical to the published package dist",
+      "indexJsSha256": "70e76af900394546233f769ae9d60ca9181af3d2e9d406e5d43264193cfed551",
+      "indexWorkerJsSha256": "206a4e0fe473207a61791d4f78682500a76677dfff0cc9c136f7dd9a7527cd98"
+    },
+    "requalifiedBundle": {
+      "source": "3e94997 plus the requalification patch",
+      "builder": "same Bun 1.4.0 and command",
+      "indexJsSha256": "ef95e161260033419da2f1eab3d22b6a5b7722d5c8e43b48edb46e887cfc05a6",
+      "indexWorkerJsSha256": "206a4e0fe473207a61791d4f78682500a76677dfff0cc9c136f7dd9a7527cd98",
+      "typescriptLibIdenticalToRelease": true
+    },
+    "runtime": "Bun 1.4.3 (T00 toolchain), command `bun <bundle>/index.js index --json` from the workload root",
+    "workers": "1: the CLI default, and what `auto` selects on macOS",
+    "note": "the reference runs the built, minified bundle users install, not the TypeScript sources the pilots used"
+  },
+  "snapshotRepositories": {
+    "reason": "the baseline requires a Git repository: outside one it refuses with GIT_ERROR (cannot capture control freshness)",
+    "procedure": [
+      "git init in the extracted archive with dependencies installed",
+      ".semctx/ and .yarn/install-state.gz in .git/info/exclude",
+      "git add -A, then git add -f for upstream files that match .gitignore",
+      "submodule recorded as its upstream gitlink, left uninitialized as in a non-recursive clone",
+      "a CRLF blob stored without filters, then checked out again so the index stat matches a clone",
+      "one commit by t01-snapshot <t01-snapshot@invalid> at 2026-10-17T00:00:00Z"
+    ],
+    "check": "the local tree id equals the upstream commit's tree id for all seven workloads; git status is clean",
+    "treeIds": {
+      "sindresorhus/ky": "2563212e6be0e3dcdc2f09412d3beb01fa78127e",
+      "honojs/hono": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
+      "trpc/trpc": "e2d7614f56f8bef1448b1f001024da15cec214b0",
+      "PrefectHQ/prefect": "4337a4b91091dcbe374f1329895f1a05987dbaa3",
+      "backstage/backstage": "231dd80ff286b5a6698cfaee45cc3abb14b48433",
+      "microsoft/vscode": "4e660e90a465158c60b353a1f328ca759eb6f736",
+      "aws/aws-sdk-js-v3": "586a79c7a1b629bb18c11de4a5aba03739d840f9"
+    },
+    "selectionUnchanged": true,
+    "selectionOutputSha256": "cb6f152f89a5c4ce0157f13601cfa7c742630ea207dc9eb98517aa9a90f22677"
+  },
+  "memoryCollector": {
+    "macOS": {
+      "metric": "phys_footprint from proc_pid_rusage (RUSAGE_INFO_V4)",
+      "aggregate": "maximum over samples of the summed phys_footprint of the live process tree",
+      "tree": "proc_listchildpids from the command's process, recursively",
+      "samplingPeriodMs": 50,
+      "upperBound": "sum over processes of ri_lifetime_max_phys_footprint; the root is read after exit, before it is reaped",
+      "alsoRecorded": [
+        "summed resident size (RSS)",
+        "system compressor and swap page counter deltas over the run"
+      ],
+      "doubleCounting": "phys_footprint excludes shared clean pages, so summing processes does not count shared libraries twice",
+      "limits": [
+        "peaks shorter than the period can be missed; the kernel lifetime peak bounds that error from above",
+        "compressor counters are system-wide, so other host activity can contribute"
+      ],
+      "validation": "on a 768 MiB allocation: resident size equals ps RSS (783.8 MiB); footprint and lifetime peak equal /usr/bin/footprint (775 MB); a parent and child tree is summed",
+      "scriptSha256": "4543cd7994698dc746b1e74bf774c37a54409da2c1fd27d6d9e6515344da83ca",
+      "history": "compressor and swap counter deltas were added after the shake-down and cost runs; sampling is otherwise unchanged"
+    },
+    "linux": "not declared; no Linux measurement exists, so Linux stays unqualified",
+    "windows": {
+      "metric": "PrivateWorkingSetSize from GetProcessMemoryInfo (PROCESS_MEMORY_COUNTERS_EX2): private pages resident in RAM",
+      "aggregate": "maximum over samples of the summed private working set of the live processes of the command's job",
+      "tree": "a Job Object assigned while the root process is suspended (CREATE_SUSPENDED); descendants inherit it and cannot break away; members are listed with JobObjectBasicProcessIdList",
+      "samplingPeriodMs": 50,
+      "timer": "high-resolution waitable timer (CREATE_WAITABLE_TIMER_HIGH_RESOLUTION); the system timer resolution is not changed",
+      "upperBound": "PeakJobMemoryUsed: the kernel's exact peak over time of the job's summed private commit; private resident pages are committed private pages, so it bounds the sampled aggregate from above",
+      "alsoRecorded": [
+        "summed private commit (PrivateUsage)",
+        "summed working set including shared pages (RSS)",
+        "job page faults and CPU time",
+        "minimum available physical memory over the run",
+        "system page reads, pages input and pages output deltas (PDH raw counters, English names)"
+      ],
+      "doubleCounting": "the private working set excludes shared pages, so summing processes does not count shared libraries twice",
+      "differenceFromMacOS": "phys_footprint also counts compressed private pages; the private working set does not. Without memory pressure both measure the same touched private memory; under pressure the Windows metric drops while private commit and the page counters rise. Windows and macOS numbers are not compared",
+      "limits": [
+        "peaks shorter than the period can be missed; PeakJobMemoryUsed bounds that error from above",
+        "system page counters are system-wide, so other host activity can contribute"
+      ],
+      "implementation": "Python 3.14.7 standard library (ctypes), kept outside the checkout",
+      "validation": {
+        "single": "768 MiB touched in one process: private working set 774.1 MiB; summed working set 781.4 MiB, tasklist and .NET WorkingSet64 781.0 MiB; private commit 777.5 MiB, .NET PrivateMemorySize64 777.0 MiB",
+        "tree": "512 MiB parent and 256 MiB child: 2 processes observed; summed working set 794.6 MiB, tasklist 794.6 MiB; private commit 785.1 MiB, .NET 784.9 MiB",
+        "shortPeak": "512 MiB held 5 ms above a 256 MiB base: sampled private working set 602.9 MiB, kernel upper bound 777.7 MiB",
+        "intervals": "median 50.23 ms, 95th percentile 50.56 ms, maximum 50.78 ms"
+      },
+      "selfCost": "0.516 s of collector CPU over 20.4 s and 401 samples (1.3 ms per sample, 2.5% of one of 24 logical processors) with one live process, measured before the sampling-off revision; the sampling path is unchanged",
+      "scriptSha256": {
+        "collector": "01177aa1c8154f978d981f4d49a79f5694f362978b79e042c3400760acda1503",
+        "fixture": "e8240676d506f55ed5e6abff0dfe3758757846893787798a72a0f15be61bda14",
+        "validator": "2efc532021d665f77e4a56ce4e31f82c9d2be0f2bc05d8b7ee677a504630182d"
+      },
+      "validationOutputSha256": "a8b8cb5a6a8243c57221d35cdede66d0ee46101255f792e17b1b3ceac5984835",
+      "samplingOff": "a period of 0 takes no samples; wall time and the job's kernel peaks remain, as the macOS off mode keeps its lifetime peak"
+    }
+  },
+  "measurementHost": {
+    "decidedBy": "owner",
+    "decidedDateUtc": "2026-10-18",
+    "decision": "every size class runs on the macOS host of checkpoints 1 to 5 (Apple M5 Pro, 18 cores, 48 GiB)",
+    "reason": "owner: simpler; the macOS setup, collector and collector cost already exist; the Windows host was loaded by other applications",
+    "largeCells": "large and very large cells run under memory pressure on 48 GiB; every run records compressor and swap counter deltas; their series size is fixed before any series",
+    "macOSRecords": "the macOS reference build, closures, snapshots, collector and collector cost of checkpoints 4 and 5 apply; pilot and shake-down runs remain orientation",
+    "windowsRecords": "the Windows collector, reference reproduction and hono setup of checkpoints 6 and 7 remain records; no Windows series is planned",
+    "previous": {
+      "decidedBy": "owner",
+      "decidedDateUtc": "2026-10-18",
+      "decision": "every size class runs on one Windows host",
+      "reason": "no 128 GiB host is available; on the 48 GiB macOS host the large cells plateau near host memory; one host keeps the size-dependent coefficients fitted on one machine and one memory metric",
+      "host": {
+        "os": "Windows 11 Pro 10.0.26300",
+        "cpu": "Intel Core i7-13700K",
+        "logicalProcessors": 24,
+        "physicalMemoryBytes": 68388532224,
+        "pagefilesMiB": {
+          "C:": 1024,
+          "E:": 51200
+        }
+      },
+      "declaredConditions": {
+        "defenderRealTimeProtection": "enabled",
+        "defenderExclusions": "not readable without administrator rights; T01 configures none"
+      },
+      "macOSRecords": "the pilot, shake-down and instrumentation-cost runs on the 48 GiB macOS host remain orientation; they are not reference series and are not compared with Windows numbers",
+      "redoOnHost": [
+        "dependency closures, snapshots and selection for the six other workloads",
+        "collector cost on hono, on a quiet host",
+        "one shake-down run per workload"
+      ],
+      "observedLoad": "during the hono runs, available physical memory at run start ranged 25.0–27.7 GiB of 63.7 GiB; other applications held the rest. No quiet-host procedure is declared yet",
+      "setupOnHost": {
+        "recordedDateUtc": "2026-10-18",
+        "referenceBuild": {
+          "builder": "Bun 1.4.0 from @oven/bun-windows-x64@1.4.0",
+          "builderIntegrity": "sha512-jRKv1NPLznMSZY5BEWciMF7zv0Tiyo2pQSxAJ3w+YWJ6y3VWNJQQQdLlV5Jx8lbOFDrJdrc9dD3GV17k3BP41A==",
+          "source": "git archive of 3e94997 without line-ending conversion; dependencies by bun install --frozen-lockfile",
+          "historical": "apps/cli/dist byte-identical to the published semctx@0.4.5 dist (index.js 70e76af9…, semctx-index-worker.js 206a4e0f…)",
+          "requalified": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…, identical to the macOS requalified bundle",
+          "runtime": "Bun 1.4.3 from @oven/bun-windows-x64@1.4.3",
+          "runtimeIntegrity": "sha512-9pV16qXHTFvZDH61S8hpdpVBbWmvEqekczLF54zTnQHKP28D6yRCNLrD/7jVbXYR61fQYAx4FSBgzCxGCKb3rQ=="
+        },
+        "configuration": {
+          "file": ".semctx/config.json, the matrix configuration serialized with two-space indentation and a final newline",
+          "sha256": "aee8f8d6b0440ad30f368c68e56b635a020bdf56b9ff2024c8d82b9f0741be3a",
+          "note": "the macOS file bytes (b6b3a1ea…) are not reproducible from the recorded object; the parsed content is the recorded configuration"
+        },
+        "workloads": {
+          "honojs/hono": {
+            "archiveSha256Verified": true,
+            "lockfileSha256Verified": true,
+            "snapshot": "same procedure as snapshotRepositories; core.autocrlf=false; upstream executable bits restored on two files; two .gitkeep files matching .gitignore added explicitly; commit created with git commit-tree on branch t01-snapshot",
+            "treeId": "662fabe5b055bf36c9af97d7e8a9b7efd2e94fc3",
+            "treeIdEqualsUpstream": true,
+            "gitStatusClean": true,
+            "dependencyClosure": {
+              "packageManager": "pnpm@12.6.0, run with Node.js 22.23.2",
+              "command": "pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile",
+              "installSecondsSingleRun": 45,
+              "packageDirectories": 722,
+              "distinctNameVersions": 719,
+              "installedFiles": 25961,
+              "installedBytes": 852293759,
+              "closureManifestSha256": "373fdf2f06258215f59f2ca2bdf9c427c492e6cc21029dbcf538d5cd99f20d8a",
+              "platformPackages": "25 win32 or windows name-version pairs (esbuild, rollup, workerd, oxc and others) replace their darwin counterparts",
+              "countingNote": "counted by a new manifest script; the macOS counts (723 directories, 720 pairs) used another script",
+              "sourceTreeUnchanged": true
+            },
+            "selection": {
+              "selectedFiles": {
+                "typescript": 450,
+                "javascript": 2,
+                "markdown": 18
+              },
+              "selectedBytes": {
+                "typescript": 2891073,
+                "javascript": 1471,
+                "markdown": 28311
+              },
+              "equalsMacOSSelection": true,
+              "selectionListSha256": "5d19c6c0ae164e3f6db8d9443921cbcb359861e3574224aadf3c8c0fd9b99494",
+              "discoveryMsSingleRun": 411
+            },
+            "firstIndex": {
+              "exitCode": 0,
+              "nodes": 2689,
+              "edges": 5934,
+              "evidence": 11164,
+              "claims": 455,
+              "equalsMacOSCounts": true,
+              "wallSeconds": 44.47,
+              "aggregatePeakPrivateWorkingSetBytes": 1930104832,
+              "jobPeakCommitBytes": 2110787584,
+              "cpuSeconds": {
+                "user": 25.16,
+                "kernel": 24.72
+              }
+            }
+          }
+        },
+        "scriptSha256": {
+          "treeManifest": "62f91c31e2a3d4535eb3aa01550d3b6da8f2d074351ee1f45865e8378b869877",
+          "closureManifest": "62f8f9130f7288898a7148e33e969e304a4fef63e723587ba8d6d719efae48aa",
+          "selection": "58e1c29f89209d3b1fab0c258a94d86a7da09108fa563a9212fefa03578a5be0"
+        }
+      },
+      "status": "superseded by the owner on 2026-10-18; kept as a record"
+    }
+  },
+  "instrumentationCost": {
+    "workload": "honojs/hono, cold application cache",
+    "design": "10 pairs, sampling off (0) versus 50 ms, order shuffled per pair with seed 365",
+    "statistic": "ratio of medians; 95% percentile bootstrap over pairs, 10,000 resamples, seed 365",
+    "wallTimeRatio": 1.0023,
+    "wallTimeRatioBootstrap95": [
+      1.0012,
+      1.0042
+    ],
+    "rootPeakFootprintRatio": 1.0043,
+    "rootPeakFootprintRatioBootstrap95": [
+      0.9948,
+      1.0128
+    ],
+    "sampledAggregateOverUpperBound": [
+      0.985,
+      0.9983
+    ],
+    "wallSecondsRange": [
+      14.805,
+      15.307
+    ],
+    "conclusion": "sampling at 50 ms adds about 0.2% wall time and no measurable memory; reference series keep it on",
+    "phaseAttribution": "CPU-profiled runs only, kept apart from reference series; their cost is not yet measured",
+    "rowsSha256": "1fc3fd85dd80248c8d169a9d9c4dbccafb5d66881b1f3da0955fd70f8bb76c68",
+    "scriptSha256": {
+      "pairs": "4c1a145273f15a9c78e472fac1e301116b3170d53ad221e9b612fa54a4332669",
+      "statistics": "b0bc6e554e9d346440b6a7bb1cd8fd58ab4524f6d2f6b7ff0d709f3e5d68573b"
+    }
+  },
+  "instrumentationCostWindows": {
+    "workload": "honojs/hono, cold application cache (.semctx emptied except config.json before every run)",
+    "design": "10 pairs, sampling off (0) versus 50 ms, order shuffled per pair with random.Random(365)",
+    "statistic": "ratio of medians; 95% percentile bootstrap over pairs, 10,000 resamples, seed 365",
+    "wallTimeRatio": 0.9504,
+    "wallTimeRatioBootstrap95": [
+      0.8107,
+      1.0265
+    ],
+    "jobPeakCommitRatio": 0.9948,
+    "jobPeakCommitRatioBootstrap95": [
+      0.9627,
+      1.0251
+    ],
+    "sampledAggregateOverUpperBound": [
+      0.8921,
+      0.9084
+    ],
+    "wallSecondsRange": [
+      38.42,
+      56.795
+    ],
+    "factsIdenticalAcrossRuns": true,
+    "conclusion": "inconclusive: run-to-run variation of the loaded host (38.4–56.8 s, slower in the last three pairs) is far larger than the effect being measured; the interval cannot exclude a cost of several percent. Repeat on a quiet host",
+    "rowsSha256": "0d8992ab642231622d8db46d75f4d2df0aff6f3a0d1d8f1b22a6679f7b869544",
+    "scriptSha256": {
+      "pairs": "809ac36d8f23d7deb940187571687098682ca4a00ba577eaa4c4a2beaad14542",
+      "statistics": "f759a0dbc2594382518eada30ec9ad18798371e699b20e5a317e6f05ca3fba81"
+    }
+  },
+  "shakeDown": {
+    "purpose": "one cold run per workload to size the series; not a reference series",
+    "host": "MacBook Pro, Apple M5 Pro, 18 cores, 48 GiB, macOS 26.7.1, battery then AC power",
+    "compressorCountersRecorded": false,
+    "runs": [
+      {
+        "repository": "sindresorhus/ky",
+        "exitCode": 0,
+        "wallSeconds": 2.203,
+        "aggregatePeakFootprintBytes": 714343624,
+        "sumOfLifetimePeakFootprintsBytes": 714441928,
+        "nodes": 437,
+        "edges": 971,
+        "evidence": 2388,
+        "claims": 82
+      },
+      {
+        "repository": "honojs/hono",
+        "exitCode": 0,
+        "wallSeconds": 15.458,
+        "aggregatePeakFootprintBytes": 1630341160,
+        "sumOfLifetimePeakFootprintsBytes": 1636944512,
+        "nodes": 2689,
+        "edges": 5934,
+        "evidence": 11164,
+        "claims": 455
+      },
+      {
+        "repository": "trpc/trpc",
+        "exitCode": 0,
+        "wallSeconds": 95.7,
+        "aggregatePeakFootprintBytes": 4302590992,
+        "sumOfLifetimePeakFootprintsBytes": 4344289376,
+        "nodes": 5925,
+        "edges": 12101,
+        "evidence": 18102,
+        "claims": 2047
+      },
+      {
+        "repository": "PrefectHQ/prefect",
+        "exitCode": 1,
+        "wallSeconds": 0.166,
+        "aggregatePeakFootprintBytes": 63866008,
+        "sumOfLifetimePeakFootprintsBytes": 69338240,
+        "refusal": "GIT_ERROR: Git submodules are unsupported by the control freshness seal"
+      },
+      {
+        "repository": "backstage/backstage",
+        "exitCode": 0,
+        "wallSeconds": 10745.677,
+        "aggregatePeakFootprintBytes": 42305027632,
+        "sumOfLifetimePeakFootprintsBytes": 42324509456,
+        "nodes": 37611,
+        "edges": 101086,
+        "evidence": 94098,
+        "claims": 5275
+      },
+      {
+        "repository": "microsoft/vscode",
+        "exitCode": 0,
+        "wallSeconds": 1145.883,
+        "aggregatePeakFootprintBytes": 43293376048,
+        "sumOfLifetimePeakFootprintsBytes": 43343725760,
+        "nodes": 102822,
+        "edges": 476176,
+        "evidence": 704866,
+        "claims": 19698
+      },
+      {
+        "repository": "aws/aws-sdk-js-v3",
+        "notRun": "held until the host memory decision"
+      }
+    ]
+  },
+  "openDecisions": [],
+  "measurementSpace": {
+    "recordedDateUtc": "2026-10-18",
+    "path": "/Users/hokli/t01-bench",
+    "reason": "the checkpoint 4-5 space lived under /private/tmp, which macOS may clear at restart; the series last hours",
+    "copiedFrom": "the checkpoint 4-5 scratch directory under /private/tmp/claude-501",
+    "copy": "rsync -aH (openrsync, protocol 29), before any series and with no series running",
+    "verification": {
+      "requalifiedBundle": "index.js ef95e161… and semctx-index-worker.js 206a4e0f…; apps/cli/dist identical to the source by diff -r",
+      "collector": "memprobe.py 4543cd79…",
+      "treeIds": "equal to snapshotRepositories.treeIds for all seven snapshots",
+      "gitStatusClean": true,
+      "configuration": "every .semctx/config.json has digest b6b3a1ea…",
+      "closureManifests": "recomputed with the closure-manifest script; equal to each workload's closureManifestSha256"
+    },
+    "verifiedBeforeCopy": "the same checks passed on the source space",
+    "newRawOutputs": "written only under this path"
+  },
+  "referenceSeries": {
+    "recordedDateUtc": "2026-10-18",
+    "recordedBefore": "any run of these series",
+    "host": "the macOS measurement host (measurementHost)",
+    "series": [
+      {
+        "id": "small-medium",
+        "workloads": [
+          "sindresorhus/ky",
+          "honojs/hono",
+          "trpc/trpc"
+        ],
+        "runsPerWorkload": 10,
+        "order": "10 rounds; each round runs the three workloads once, in an order shuffled by one Python random.Random(365), reshuffled every round",
+        "expectedMinutes": 25,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:07:21Z",
+          "lastRunStartedUtc": "2026-10-18T13:24:11Z",
+          "runs": 30,
+          "workloads": {
+            "sindresorhus/ky": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 2.044,
+                "min": 1.882,
+                "max": 2.076,
+                "iqr": 0.054
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 708756704,
+                "min": 699057376,
+                "max": 717243616,
+                "iqr": 5677056
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9934,
+                0.9998
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 437,
+                "edges": 971,
+                "evidence": 2388,
+                "claims": 82
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 1,
+                  "iqr": 0
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14621745152,
+                "min": 12512215040,
+                "max": 22430302208,
+                "iqr": 2306306048
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            },
+            "honojs/hono": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 15.277,
+                "min": 14.574,
+                "max": 15.442,
+                "iqr": 0.297
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 1558964240,
+                "min": 1546094560,
+                "max": 1578993632,
+                "iqr": 15298512
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9835,
+                0.9989
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 2689,
+                "edges": 5934,
+                "evidence": 11164,
+                "claims": 455
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 14,
+                  "iqr": 2
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14677131264,
+                "min": 12554682368,
+                "max": 22375563264,
+                "iqr": 1415618560
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            },
+            "trpc/trpc": {
+              "runs": 10,
+              "exitCodes": [
+                0
+              ],
+              "wallSeconds": {
+                "median": 92.991,
+                "min": 90.55,
+                "max": 93.835,
+                "iqr": 0.762
+              },
+              "aggregatePeakFootprintBytes": {
+                "median": 5046105920,
+                "min": 4915320592,
+                "max": 5113845568,
+                "iqr": 19513320
+              },
+              "sampledAggregateOverUpperBound": [
+                0.9919,
+                0.9989
+              ],
+              "factsIdenticalAcrossRuns": true,
+              "facts": {
+                "nodes": 5925,
+                "edges": 12101,
+                "evidence": 18102,
+                "claims": 2047
+              },
+              "pageCounterDeltasPerRun": {
+                "decompressions": {
+                  "median": 4,
+                  "min": 0,
+                  "max": 384,
+                  "iqr": 14
+                },
+                "compressions": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapins": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                },
+                "swapouts": {
+                  "median": 0,
+                  "min": 0,
+                  "max": 0,
+                  "iqr": 0
+                }
+              },
+              "freeBytesBeforeRun": {
+                "median": 14728347648,
+                "min": 12426952704,
+                "max": 21739601920,
+                "iqr": 2178949120
+              },
+              "swapUsedMiBBeforeRun": {
+                "median": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "iqr": 0.0
+              }
+            }
+          },
+          "factsCheck": "passed: nodes, edges, evidence and claims, and the node and claim kind counts, identical across each workload's runs",
+          "planeAIndexSnapshotHash": "differs on every run, so it is not used as a fact identity here; its cause is not investigated",
+          "hostMemory": "free pages fell from 22.43 GB before the first run to 13.06 GB after the last while inactive pages rose from 13.15 GB to 20.52 GB; swap used stayed 0 MiB and no run recorded a compression or a swap",
+          "rawOutputs": "/Users/hokli/t01-bench/runs/small-medium (index outputs, rows.jsonl, stats.json, log)",
+          "rowsSha256": "4cccc632bd35a4a8d9541ae6ea5b5f874976581015b051c451aaa5f7f7f957b7",
+          "statsSha256": "6d3c12632297e1e2ad1db6ceadffa4b4f09a83c3bc41fba024ccba6b49f41e4b"
+        }
+      },
+      {
+        "id": "prefect-derived",
+        "workloads": [
+          "PrefectHQ/prefect (derived snapshot)"
+        ],
+        "runsPerWorkload": 10,
+        "order": "consecutive runs of the one workload",
+        "expectedMinutes": "no indexed run exists yet; estimated 30 to 60",
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:30:08Z",
+          "lastRunStartedUtc": "2026-10-18T13:51:02Z",
+          "runs": 10,
+          "exitCodes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 138.951,
+            "min": 138.364,
+            "max": 142.426,
+            "iqr": 0.13
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 8030806320,
+            "min": 7949492432,
+            "max": 8216945040,
+            "iqr": 49770544
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9981,
+            0.9989
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 46138,
+            "edges": 58166,
+            "evidence": 66437,
+            "claims": 815
+          },
+          "perRun": [
+            {
+              "wallSeconds": 142.426,
+              "aggregatePeakFootprintBytes": 8022581528,
+              "freeBytesBefore": 20602388480,
+              "inactiveBytesBefore": 12982484992,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 14,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 139.008,
+              "aggregatePeakFootprintBytes": 7993827608,
+              "freeBytesBefore": 20064141312,
+              "inactiveBytesBefore": 13547700224,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 28,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 139.118,
+              "aggregatePeakFootprintBytes": 8041882000,
+              "freeBytesBefore": 19899777024,
+              "inactiveBytesBefore": 13801996288,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 7,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.364,
+              "aggregatePeakFootprintBytes": 8014586136,
+              "freeBytesBefore": 19699548160,
+              "inactiveBytesBefore": 14062714880,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 34,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.648,
+              "aggregatePeakFootprintBytes": 8137826656,
+              "freeBytesBefore": 19404816384,
+              "inactiveBytesBefore": 14263943168,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 9,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.863,
+              "aggregatePeakFootprintBytes": 7949492432,
+              "freeBytesBefore": 19460964352,
+              "inactiveBytesBefore": 14350008320,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 1,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.95,
+              "aggregatePeakFootprintBytes": 8051089712,
+              "freeBytesBefore": 19345588224,
+              "inactiveBytesBefore": 14466072576,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 9,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.91,
+              "aggregatePeakFootprintBytes": 8216945040,
+              "freeBytesBefore": 19384139776,
+              "inactiveBytesBefore": 14508146688,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 3,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.997,
+              "aggregatePeakFootprintBytes": 7989518616,
+              "freeBytesBefore": 19365658624,
+              "inactiveBytesBefore": 14643871744,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 5,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 138.952,
+              "aggregatePeakFootprintBytes": 8039031112,
+              "freeBytesBefore": 19370491904,
+              "inactiveBytesBefore": 14727675904,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 3,
+                "compressions": 0,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/prefect-derived",
+          "rowsSha256": "a037a40aff08a5def879bd20588495c8e89dbeb89923ea94eb1b932701368d85",
+          "statsSha256": "dd1fcddcc73c00ff4c6d630fafea2197501291c4a6688844405709277f7f21a0",
+          "note": "the original snapshot's refusal stays recorded in shakeDown; these runs index the admitted derived snapshot (derivedSnapshots)"
+        }
+      },
+      {
+        "id": "vscode",
+        "workloads": [
+          "microsoft/vscode"
+        ],
+        "runsPerWorkload": 5,
+        "order": "consecutive runs",
+        "expectedMinutes": 100,
+        "underMemoryPressure": true,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T13:54:30Z",
+          "lastRunStartedUtc": "2026-10-18T15:07:09Z",
+          "runs": 5,
+          "exitCodes": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 1088.239,
+            "min": 1076.771,
+            "max": 1095.228,
+            "iqr": 12.948
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 38276989616,
+            "min": 35121265024,
+            "max": 42614588104,
+            "iqr": 5298356680
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9978,
+            0.9994
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 102822,
+            "edges": 476176,
+            "evidence": 704866,
+            "claims": 19698
+          },
+          "perRun": [
+            {
+              "wallSeconds": 1093.752,
+              "aggregatePeakFootprintBytes": 38276989616,
+              "freeBytesBefore": 19029213184,
+              "inactiveBytesBefore": 14685470720,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 666069,
+                "compressions": 2230343,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1080.804,
+              "aggregatePeakFootprintBytes": 35121265024,
+              "freeBytesBefore": 33860009984,
+              "inactiveBytesBefore": 7303266304,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 234565,
+                "compressions": 1125740,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1095.228,
+              "aggregatePeakFootprintBytes": 42050044112,
+              "freeBytesBefore": 34575417344,
+              "inactiveBytesBefore": 8859205632,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2736873,
+                "compressions": 2934240,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1088.239,
+              "aggregatePeakFootprintBytes": 42614588104,
+              "freeBytesBefore": 34427977728,
+              "inactiveBytesBefore": 8980414464,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2806422,
+                "compressions": 3025653,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 1076.771,
+              "aggregatePeakFootprintBytes": 36751687432,
+              "freeBytesBefore": 34323890176,
+              "inactiveBytesBefore": 9022537728,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 355297,
+                "compressions": 1409831,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/vscode",
+          "rowsSha256": "4684006b62e247d845e58c24a8e66d37b42d3e45b754ed8f9b630884def8d130",
+          "statsSha256": "e3d4898216f440af64a7cbb56f3a052a510bb950ccaa2061a75e7eda03ef2d90",
+          "note": "under memory pressure: every run recorded 1.1 to 3.0 million compressions and no swap"
+        }
+      },
+      {
+        "id": "backstage",
+        "workloads": [
+          "backstage/backstage"
+        ],
+        "runsPerWorkload": 3,
+        "order": "consecutive runs",
+        "expectedMinutes": 540,
+        "underMemoryPressure": true,
+        "result": {
+          "firstRunStartedUtc": "2026-10-18T15:26:44Z",
+          "lastRunStartedUtc": "2026-10-18T21:20:00Z",
+          "runs": 3,
+          "exitCodes": [
+            0,
+            0,
+            0
+          ],
+          "wallSeconds": {
+            "median": 10546.78,
+            "min": 10263.094,
+            "max": 10648.411,
+            "iqr": 192.658
+          },
+          "aggregatePeakFootprintBytes": {
+            "median": 41810213344,
+            "min": 41291577200,
+            "max": 46868041488,
+            "iqr": 2788232144
+          },
+          "sampledAggregateOverUpperBound": [
+            0.9994,
+            0.9996
+          ],
+          "factsIdenticalAcrossRuns": true,
+          "facts": {
+            "nodes": 37611,
+            "edges": 101086,
+            "evidence": 94098,
+            "claims": 5275
+          },
+          "perRun": [
+            {
+              "wallSeconds": 10546.78,
+              "aggregatePeakFootprintBytes": 46868041488,
+              "freeBytesBefore": 32487817216,
+              "inactiveBytesBefore": 8933883904,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 36759557,
+                "compressions": 37178727,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 10648.411,
+              "aggregatePeakFootprintBytes": 41291577200,
+              "freeBytesBefore": 33242742784,
+              "inactiveBytesBefore": 9526837248,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 2060353,
+                "compressions": 2197346,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            },
+            {
+              "wallSeconds": 10263.094,
+              "aggregatePeakFootprintBytes": 41810213344,
+              "freeBytesBefore": 33109409792,
+              "inactiveBytesBefore": 9907879936,
+              "swapUsedMiBBefore": 0.0,
+              "swapUsedMiBAfter": 0.0,
+              "pageCounterDeltas": {
+                "decompressions": 4631978,
+                "compressions": 5029466,
+                "swapins": 0,
+                "swapouts": 0
+              }
+            }
+          ],
+          "rawOutputs": "/Users/hokli/t01-bench/runs/backstage",
+          "rowsSha256": "c309e60b5d67743bdecd8b7577f405a203979ae0c6f615d61323577b21809094",
+          "statsSha256": "f899155ea058c86a2f196c1e3fcf1a755b851a9037f88a491e4ef5007d8286c7",
+          "note": "under memory pressure, no swap. An earlier launch at about 2026-10-18T15:25Z was stopped about one minute after it started, before any run completed, because the harness stops background commands after two hours; its empty outputs are kept in /Users/hokli/t01-bench/runs/backstage-aborted-launch. The recorded runs come from a relaunch detached from that limit"
+        }
+      },
+      {
+        "id": "aws-sdk-js-v3",
+        "workloads": [
+          "aws/aws-sdk-js-v3"
+        ],
+        "runsPerWorkload": 1,
+        "order": "one run, not repeated",
+        "underMemoryPressure": true,
+        "failureRule": "a memory failure is a result: it is recorded and the run is not repeated",
+        "result": {
+          "status": "NOT_RECORDED",
+          "observed": "after pushing the backstage cell (13013e78; 62f3592d before the 2026-10-19 restack), the macOS pilot session announced a detached launch of the single run; the session and its Remote Control host then went offline before any result was pushed",
+          "unknown": "whether the run ended, failed for memory or is still on the host; its raw outputs, if any, would be under /Users/hokli/t01-bench/runs on the macOS host",
+          "ownerInstruction": "on 2026-10-19 the owner asked to continue without the macOS host",
+          "consequence": "the very large cell has no reference measurement; this is not a memory failure result and is not counted as one"
+        }
+      }
+    ],
+    "run": {
+      "cold": ".semctx emptied except config.json before every run; the operating-system file cache is not flushed",
+      "command": "bun <requalified bundle>/index.js index --json from the workload root",
+      "runtime": "Bun 1.4.3",
+      "workers": 1,
+      "collector": "memprobe.py (4543cd79…) at 50 ms: aggregate peak phys_footprint, kernel lifetime-peak upper bound, compressor and swap page counter deltas",
+      "hostMemoryPerRun": "vm_stat free, inactive, compressor-stored and compressor-occupied pages and sysctl vm.swapusage, read before and after each run"
+    },
+    "statistics": {
+      "perWorkload": "median, minimum, maximum and interquartile range of wall time and of aggregate peak footprint",
+      "interquartileRange": "Q3 - Q1 from Python statistics.quantiles(n=4, method=\"inclusive\")",
+      "factsCheck": "nodes, edges, evidence and claims identical across a workload's runs",
+      "alsoReported": "exit codes and page counter deltas per run"
+    },
+    "hostConditions": {
+      "power": "AC power, battery 100% charged",
+      "sleep": "caffeinate -dimsu for the duration of each series",
+      "closedBeforeSeries": [
+        "Google Chrome",
+        "Discord",
+        "Microsoft Teams"
+      ],
+      "leftRunning": {
+        "Trend Micro Security (iCoreService)": "security software",
+        "Chrome Remote Desktop host": "possible remote access to the host",
+        "Claude Code sessions": "including the session running the series"
+      },
+      "memoryAtPlan": {
+        "source": "vm_stat and sysctl vm.swapusage, hw.memsize, hw.pagesize, read after the copy and before the series",
+        "physicalMemoryBytes": 51539607552,
+        "pageSizeBytes": 16384,
+        "freePages": 1601427,
+        "freeBytes": 26237779968,
+        "inactivePages": 612225,
+        "inactiveBytes": 10030694400,
+        "pagesStoredInCompressor": 222297,
+        "pagesOccupiedByCompressor": 86769,
+        "swapUsedMiB": 0.0
+      }
+    },
+    "scriptSha256": {
+      "series": "77925cc15d1ec179cd27b00b75ac979d4eed5280db21e074c8b99a63871c82f0",
+      "statistics": "64737c59b4b1be8dca154b519e0f19e1ad2475150febdaf9e2e627577ec6b337",
+      "collector": "4543cd7994698dc746b1e74bf774c37a54409da2c1fd27d6d9e6515344da83ca"
+    },
+    "cellOrder": [
+      "prefect-derived",
+      "vscode",
+      "backstage",
+      "aws-sdk-js-v3"
+    ],
+    "perCell": "one commit and one push after each cell; host memory at start and compressor and swap deltas recorded for every run"
+  },
+  "budgetFormCheck": {
+    "recordedDateUtc": "2026-10-19",
+    "form": "fixed startup term plus a per-unit term (ownerInput.translation.budgetForm)",
+    "unit": "selected TS/JS files",
+    "method": "ordinary least squares on the medians of the cells without memory pressure; pressured cells are compared with that fit, never used in it",
+    "fittedOn": [
+      "sindresorhus/ky",
+      "honojs/hono",
+      "trpc/trpc",
+      "PrefectHQ/prefect"
+    ],
+    "fit": {
+      "seconds": {
+        "startup": -13.4085,
+        "perFile": 0.092375
+      },
+      "gigabytes": {
+        "startup": -0.1154,
+        "perFile": 0.00482
+      }
+    },
+    "cells": [
+      {
+        "workload": "sindresorhus/ky",
+        "tsJsFiles": 98,
+        "pressure": false,
+        "seconds": 2.044,
+        "gigabytes": 0.708756704,
+        "edges": 971,
+        "secondsPredicted": -4.356,
+        "secondsObservedOverPredicted": -0.469,
+        "gigabytesPredicted": 0.357,
+        "gigabytesObservedOverPredicted": 1.986,
+        "secondsPerFile": 0.0209,
+        "millisecondsPerEdge": 2.105,
+        "megabytesPerFile": 7.232
+      },
+      {
+        "workload": "honojs/hono",
+        "tsJsFiles": 452,
+        "pressure": false,
+        "seconds": 15.277,
+        "gigabytes": 1.55896424,
+        "edges": 5934,
+        "secondsPredicted": 28.345,
+        "secondsObservedOverPredicted": 0.539,
+        "gigabytesPredicted": 2.063,
+        "gigabytesObservedOverPredicted": 0.756,
+        "secondsPerFile": 0.0338,
+        "millisecondsPerEdge": 2.574,
+        "megabytesPerFile": 3.449
+      },
+      {
+        "workload": "trpc/trpc",
+        "tsJsFiles": 1050,
+        "pressure": false,
+        "seconds": 92.991,
+        "gigabytes": 5.04610592,
+        "edges": 12101,
+        "secondsPredicted": 83.585,
+        "secondsObservedOverPredicted": 1.113,
+        "gigabytesPredicted": 4.946,
+        "gigabytesObservedOverPredicted": 1.02,
+        "secondsPerFile": 0.0886,
+        "millisecondsPerEdge": 7.685,
+        "megabytesPerFile": 4.806
+      },
+      {
+        "workload": "PrefectHQ/prefect",
+        "tsJsFiles": 1679,
+        "pressure": false,
+        "seconds": 138.951,
+        "gigabytes": 8.03080632,
+        "edges": 58166,
+        "secondsPredicted": 141.689,
+        "secondsObservedOverPredicted": 0.981,
+        "gigabytesPredicted": 7.977,
+        "gigabytesObservedOverPredicted": 1.007,
+        "secondsPerFile": 0.0828,
+        "millisecondsPerEdge": 2.389,
+        "megabytesPerFile": 4.783
+      },
+      {
+        "workload": "microsoft/vscode",
+        "tsJsFiles": 14936,
+        "pressure": true,
+        "seconds": 1088.239,
+        "gigabytes": 38.276989616,
+        "edges": 476176,
+        "secondsPredicted": 1366.304,
+        "secondsObservedOverPredicted": 0.796,
+        "gigabytesPredicted": 71.876,
+        "gigabytesObservedOverPredicted": 0.533,
+        "secondsPerFile": 0.0729,
+        "millisecondsPerEdge": 2.285,
+        "megabytesPerFile": 2.563
+      },
+      {
+        "workload": "backstage/backstage",
+        "tsJsFiles": 7874,
+        "pressure": true,
+        "seconds": 10546.78,
+        "gigabytes": 41.810213344,
+        "edges": 101086,
+        "secondsPredicted": 713.952,
+        "secondsObservedOverPredicted": 14.772,
+        "gigabytesPredicted": 37.837,
+        "gigabytesObservedOverPredicted": 1.105,
+        "secondsPerFile": 1.3394,
+        "millisecondsPerEdge": 104.335,
+        "megabytesPerFile": 5.31
+      }
+    ],
+    "findings": [
+      "both fitted startup terms are negative (-13.4 s, -0.12 GB), so the form has no valid fixed startup term on these cells",
+      "observed over predicted ranges from 0.54 to 1.11 for time and from 0.76 to 1.99 for memory on the fitted cells",
+      "backstage takes 14.8 times its predicted time: 1.34 s per TS/JS file against 0.02 to 0.09 s on every other cell",
+      "time per resolved edge is 2.1 to 2.6 ms on ky, hono, Prefect and VS Code, 7.7 ms on trpc and 104 ms on backstage; the two pnpm/Yarn monorepos carry the excess",
+      "VS Code memory is 0.53 of its predicted value (2.6 MB per file against 4.8 on trpc and Prefect)"
+    ],
+    "conclusion": "the registered form does not describe the baseline; no coefficient is recorded. Comparisons stay blocked until the owner chooses the budget form (#365 section 3.1)",
+    "scriptSha256": "aa032c5bbdd7931615958d28420744134308f010a18ac8fb2b5cd09a97239339",
+    "outputSha256": "96c603c90543b2fa161e13048cc22a095ab0c4a4ffdc828fa1b659f83245eec1"
+  },
+  "budgets": {
+    "recordedDateUtc": "2026-10-19",
+    "form": "per measured cell: a candidate's run is within budget when its wall time and aggregate peak footprint do not exceed the largest value of the cell's reference series",
+    "rationale": "the maximum over the reference runs bounds the baseline's own dispersion on the same host, so a candidate equal to the baseline cannot fail by noise; pressured cells keep their wide memory range",
+    "scope": [
+      "absolute budgets are a ceiling, not the frontier target; the gains #365 targets stay with the economic gate (section 3.7) and its paired ratios",
+      "a cell without a reference measurement has no absolute budget: aws-sdk-js-v3 is reported, not budget-gated",
+      "repositories outside the matrix have no absolute budget; size adaptation is not budgeted by a fitted function",
+      "startup is read on the small cell (sindresorhus/ky); no query budget is recorded, because no query series exists"
+    ],
+    "host": "the macOS measurement host (measurementHost); budgets do not transfer to another host",
+    "cells": [
+      {
+        "cell": "sindresorhus/ky",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 2.076,
+        "aggregatePeakFootprintBytesBudget": 717243616,
+        "baselineMedian": {
+          "wallSeconds": 2.044,
+          "aggregatePeakFootprintBytes": 708756704
+        }
+      },
+      {
+        "cell": "honojs/hono",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 15.442,
+        "aggregatePeakFootprintBytesBudget": 1578993632,
+        "baselineMedian": {
+          "wallSeconds": 15.277,
+          "aggregatePeakFootprintBytes": 1558964240
+        }
+      },
+      {
+        "cell": "trpc/trpc",
+        "series": "small-medium",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 93.835,
+        "aggregatePeakFootprintBytesBudget": 5113845568,
+        "baselineMedian": {
+          "wallSeconds": 92.991,
+          "aggregatePeakFootprintBytes": 5046105920
+        }
+      },
+      {
+        "cell": "PrefectHQ/prefect (derived snapshot)",
+        "series": "prefect-derived",
+        "runs": 10,
+        "underMemoryPressure": false,
+        "wallSecondsBudget": 142.426,
+        "aggregatePeakFootprintBytesBudget": 8216945040,
+        "baselineMedian": {
+          "wallSeconds": 138.951,
+          "aggregatePeakFootprintBytes": 8030806320
+        }
+      },
+      {
+        "cell": "microsoft/vscode",
+        "series": "vscode",
+        "runs": 5,
+        "underMemoryPressure": true,
+        "wallSecondsBudget": 1095.228,
+        "aggregatePeakFootprintBytesBudget": 42614588104,
+        "baselineMedian": {
+          "wallSeconds": 1088.239,
+          "aggregatePeakFootprintBytes": 38276989616
+        }
+      },
+      {
+        "cell": "backstage/backstage",
+        "series": "backstage",
+        "runs": 3,
+        "underMemoryPressure": true,
+        "wallSecondsBudget": 10648.411,
+        "aggregatePeakFootprintBytesBudget": 46868041488,
+        "baselineMedian": {
+          "wallSeconds": 10546.78,
+          "aggregatePeakFootprintBytes": 41810213344
+        }
+      }
+    ]
+  },
+  "authorship": {
+    "recordedDateUtc": "2026-10-19",
+    "history": "checkpoints 1 to 8 and 10 were written from the owner's sessions; checkpoint 9 was written by the macOS pilot session, which was the branch's only author while it ran",
+    "current": "the owner's Windows session; the macOS pilot session is offline and holds no write role"
+  },
+  "ownerDecisions": [
+    {
+      "id": "submodule-refusal-and-large-cell-series",
+      "decidedBy": "owner",
+      "decidedDateUtc": "2026-10-18",
+      "statement": "Prefect en variante dérivée sans gitlink (admise si sélection identique, refus inscrit) ; grandes cellules sous pression : vscode 5 runs, backstage 3 runs, aws-sdk-js-v3 1 run avec résultat inscrit même en échec mémoire.",
+      "resolves": [
+        "submodule-refusal",
+        "series size for the large cells under memory pressure, fixed before any series"
+      ]
+    },
+    {
+      "decidedDateUtc": "2026-10-19",
+      "decidedBy": "owner, delegating the choice to the executing session (\"ce qui te semble optimal\")",
+      "decision": "absolute budgets per measured cell, anchored on that cell's reference series; no size function",
+      "supersedes": "ownerInput.translation item 2 (budgets as a startup term plus a per-unit term), which budgetFormCheck refutes on the baseline",
+      "rejectedAlternatives": {
+        "budgets per structure class": "only two monorepos are measured and their per-file times differ 15-fold (0.089 and 1.34 s), so a monorepo fit would rest on two incompatible points",
+        "resolved edges as the unit": "holds at 2.1 to 2.6 ms per edge on four cells but fails on trpc (7.7) and backstage (104); edges are also known only after a baseline run"
+      }
+    }
+  ],
+  "derivedSnapshots": {
+    "PrefectHQ/prefect": {
+      "reason": "the baseline refuses the original snapshot (GIT_ERROR: Git submodules are unsupported by the control freshness seal); that refusal stays recorded in shakeDown",
+      "derivedFrom": "snapshot tree 4337a4b91091dcbe374f1329895f1a05987dbaa3, left unchanged",
+      "path": "/Users/hokli/t01-bench/matrix/PrefectHQ_prefect-derived (APFS clone of the original snapshot directory)",
+      "change": "remove .gitmodules and the compat-tests gitlink (160000 3c5ec0111e2aa7b160f2b21cfd383d19448dfe13) from the index and the working tree",
+      "commit": {
+        "identity": "t01-snapshot <t01-snapshot@invalid>",
+        "authorAndCommitterDateUtc": "2026-10-17T00:00:00Z",
+        "parents": 0,
+        "id": "919fffeaa0474595bde72ef21985cfc12c698b74"
+      },
+      "treeId": "09bb641dbfe2ce5bba343663192d5142debe2908",
+      "gitStatusClean": true,
+      "admissionRule": "admitted only if discovery selection equals the workloadMatrix record; otherwise refused and recorded",
+      "selectionCheck": {
+        "counter": "requalified baseline discoverRepository(loadConfig(root)), selection script 44d0aa6b…",
+        "selectedFilesAndBytesEqualWorkloadMatrix": true,
+        "candidates": {
+          "original": 5446,
+          "derived": 5445,
+          "difference": ".gitmodules, a candidate that is not selected"
+        },
+        "outputSha256": "29ff8b930b693b3598e5c9ab0dd84a28419f67c0436e4d01d3d1a18fdba9133b"
+      },
+      "closureManifestSha256": "d9bdaf0e6e72411f4e1f43fe0341926ce418a169b9c342e46fafe72700a93d71",
+      "admitted": true,
+      "scriptSha256": "8ecf66b8772645dde1b076e4e5f3979c5226150ccc6df3bfebdf16d585ba61e6"
+    }
+  }
+}
