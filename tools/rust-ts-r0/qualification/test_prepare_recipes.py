@@ -1,10 +1,162 @@
 import json
+import os
 import pathlib
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+
+
+class LocalEvidenceArchiveTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = pathlib.Path(temporary.name)
+        self.source = self.root / 'custody'
+        self.source.mkdir()
+        (self.source / 'sample.tar.gz').write_bytes(b'abc')
+        self.output = self.root / 'output'
+        self.index = self.root / 'index.json'
+        self.entry = {
+            'id': 'sample', 'path': 'sample.tar.gz', 'size_bytes': 3,
+            'sha256': 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+        }
+        self.save_index([self.entry])
+
+    def save_index(self, entries):
+        self.index.write_text(json.dumps({'entries': entries}), encoding='utf-8')
+
+    def invoke(self, *arguments, source_environment=None, replace_temporary=False):
+        script = str(pathlib.Path(__file__).with_name('fetch_evidence.py'))
+        command = [sys.executable, script]
+        if replace_temporary:
+            hook = (
+                'import pathlib, runpy, sys\n'
+                f'output = pathlib.Path({str(self.output)!r})\n'
+                'def replace(event, args):\n'
+                '    if event == "open" and pathlib.Path(str(args[0])).name == "sample.tar.gz":\n'
+                '        for temporary in output.glob(".restore-*"):\n'
+                '            temporary.unlink()\n'
+                '            temporary.write_bytes(b"UNVERIFIED")\n'
+                'sys.addaudithook(replace)\n'
+                'script = sys.argv.pop(1)\n'
+                'runpy.run_path(script, run_name="__main__")\n'
+            )
+            command = [sys.executable, '-c', hook, script]
+        environment = dict(os.environ)
+        environment.pop('SEMCTX_T00_EVIDENCE_DIRECTORY', None)
+        if source_environment is not None:
+            environment['SEMCTX_T00_EVIDENCE_DIRECTORY'] = source_environment
+        return subprocess.run(
+            [*command, '--index', str(self.index), *arguments],
+            capture_output=True, text=True, timeout=10, check=False, env=environment,
+        )
+
+    def restore(self, *arguments, **options):
+        return self.invoke('--source-dir', str(self.source), '--output', str(self.output),
+                           *arguments, **options)
+
+    def test_verifies_local_custody_without_creating_a_work_directory(self):
+        result = self.invoke('--source-dir', str(self.source), '--verify')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(self.output.exists())
+        self.assertEqual((self.source / 'sample.tar.gz').read_bytes(), b'abc')
+        self.assertEqual(list(self.source.iterdir()), [self.source / 'sample.tar.gz'])
+
+    def test_restores_exact_bytes_without_changing_custody(self):
+        result = self.restore()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((self.output / 'sample.tar.gz').read_bytes(), b'abc')
+        self.assertEqual((self.source / 'sample.tar.gz').read_bytes(), b'abc')
+
+    def test_environment_source_is_supported_and_explicit_argument_has_precedence(self):
+        result = self.invoke('--verify', source_environment=str(self.source))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = self.invoke('--source-dir', str(self.source), '--verify', source_environment='/missing')
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_source_and_action_are_required_without_defaulting_to_a_url_or_current_directory(self):
+        for arguments, environment in [
+            (('--verify',), None), (('--verify',), ''),
+            (('--source-dir', '', '--verify'), None),
+            (('--source-dir', 'https://example.test', '--verify'), None),
+            (('--source-dir', str(self.source)), None),
+            (('--source-dir', str(self.source), '--verify', '--output', str(self.output)), None),
+            (('--base-url', 'https://example.test', '--verify'), None),
+        ]:
+            with self.subTest(arguments=arguments, environment=environment):
+                result = self.invoke(*arguments, source_environment=environment)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(self.output.exists())
+
+    def test_corruption_or_incorrect_size_is_refused_in_both_modes(self):
+        for body in [b'abd', b'ab', b'abcd']:
+            (self.source / 'sample.tar.gz').write_bytes(body)
+            for action in [('--verify',), ('--output', str(self.output))]:
+                with self.subTest(body=body, action=action):
+                    result = self.invoke('--source-dir', str(self.source), *action)
+                    self.assertNotEqual(result.returncode, 0)
+                    if self.output.exists():
+                        self.assertEqual(list(self.output.iterdir()), [])
+                        self.output.rmdir()
+                    self.assertEqual((self.source / 'sample.tar.gz').read_bytes(), body)
+
+    def test_missing_or_nonregular_custody_file_is_refused(self):
+        archive = self.source / 'sample.tar.gz'
+        archive.unlink()
+        for directory in [False, True]:
+            if directory:
+                archive.mkdir()
+            result = self.invoke('--source-dir', str(self.source), '--verify')
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(self.output.exists())
+
+    def test_existing_destination_is_preserved(self):
+        self.output.mkdir()
+        target = self.output / 'sample.tar.gz'
+        target.write_bytes(b'prior')
+        result = self.restore()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(target.read_bytes(), b'prior')
+
+    def test_replaced_temporary_cannot_restore_unverified_bytes(self):
+        result = self.restore(replace_temporary=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(list(self.output.iterdir()), [])
+
+    def test_malformed_manifest_and_selection_are_refused_before_output(self):
+        invalid = [[], [self.entry, self.entry], [{**self.entry, 'path': '../outside.tar.gz'}],
+                   [{**self.entry, 'path': '/outside.tar.gz'}], [{**self.entry, 'sha256': 'bad'}],
+                   [{**self.entry, 'size_bytes': True}], [{**self.entry, 'size_bytes': -1}],
+                   [{**self.entry, 'id': '../outside'}], [self.entry, {**self.entry, 'id': 'other'}]]
+        for entries in invalid:
+            with self.subTest(entries=entries):
+                self.save_index(entries)
+                result = self.restore()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(self.output.exists())
+        self.save_index([self.entry])
+        for arguments in [('--archive', 'unknown'), ('--archive', 'sample', '--archive', 'sample')]:
+            result = self.restore(*arguments)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(self.output.exists())
+
+    def test_missing_or_malformed_index_is_refused_before_output(self):
+        for content in [None, '{broken', '[]', '{}']:
+            if self.index.exists():
+                self.index.unlink()
+            if content is not None:
+                self.index.write_text(content, encoding='utf-8')
+            result = self.restore()
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(self.output.exists())
+
+    def test_selected_archive_only_is_copied(self):
+        self.save_index([self.entry, {**self.entry, 'id': 'other', 'path': 'other.tar.gz'}])
+        result = self.restore('--archive', 'sample')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(list(self.output.iterdir()), [self.output / 'sample.tar.gz'])
 
 
 class RecipeOutputTest(unittest.TestCase):

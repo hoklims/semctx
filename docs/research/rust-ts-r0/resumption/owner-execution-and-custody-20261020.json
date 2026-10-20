@@ -1,0 +1,71 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-20",
+  "scope": "C1, rust/365-t00, PR386; local-only owner custody and normal cleanup commit/push authorized.",
+  "authority": {
+    "owner": "Sébastien",
+    "source": "Owner messages 2026-10-20 15:07, 15:44 and 16:39 in the active T00 session, relayed by /root; paraphrases below.",
+    "precedence": "16:39 replaces the 15:44 pending-hosting boundary with local-only custody and authorizes the cleanup commit/push. Existing-input assertion authority, local-first case execution and the 08:56 prospective-witness rejection remain unchanged."
+  },
+  "assertionDecision": {
+    "state": "APPROVED_EXISTING_INPUTS_ONLY",
+    "oracle": "TypeScript 5.9.3",
+    "scope": "Additional derived assertions on existing inputs only; no new case.",
+    "excluded": "The 14 prospective witness pairs and 3 complements remain rejected; do not adopt or execute the drafts.",
+    "effect": "Supersedes the pending request for permission to add these bounded assertions. It supplies no assertion content, execution or qualification credit."
+  },
+  "executionOrder": {
+    "localFirst": [
+      "Native macOS",
+      "OrbStack/Docker Linux aarch64, same configuration as original 354/51 campaign, pinned image digest and exact environment/toolchain/source identities recorded."
+    ],
+    "scope": "All remaining case execution, including reserved 23 cases / 26 variants and any other case work.",
+    "thenCI": "Local macOS and Linux execution precede CI execution; no ordering between the two local platforms is asserted.",
+    "windows": "CI only, at the final milestone, within the existing Windows rust-gates job.",
+    "unchanged": "No workflow_dispatch, manual CI launch, new job or matrix, GitHub comment, unpinned version or unpinned Action."
+  },
+  "custodyDecision": {
+    "state": "LOCAL_ONLY_OWNER_CUSTODY",
+    "removalScope": "26 unread resumption archives, 4 historical selection archives, and C2/Ezno detail: 5 payloads and 38 nonarchive files; retain a short C2 README.",
+    "kept": "All qualification archives remain, including qualifier-reproduction.tar.gz.b64 consumed by prepare_recipes.py.",
+    "preDeletionRequirement": "Decode every removed base64 archive to a tar.gz outside the repository and verify its SHA256 before deletion; also retain the original C2 nonarchive documents.",
+    "index": "../evidence/archive-index.json",
+    "guide": "../evidence/README.md",
+    "historicalResolution": "Original archive paths remain provenance in historical JSON records and audits; resolve an original_path through the index. Removed C2 document paths resolve to members of composition2-records.tar.gz. Historical hashes, outcomes and counters retain their original meaning.",
+    "observedBackup": {
+      "root": "/Users/sebastien/semctx-evidence/t00/20261020",
+      "manifest": "backup-manifest.json",
+      "manifestSHA256": "c50ccbc087400785121108c066cc46fc0f21b3c88780e7bd5122f67308970c47",
+      "sourceCommit": "dec0bd9522d0672e6f58fb539a83356716af4e0c",
+      "reportedVerification": "35 decoded archives read back for SHA256 and tar headers, plus one bundle containing 38 C2 nonarchive files.",
+      "scopeLimit": "Local custody only; header/hash checks are not archive replay or source completeness certification."
+    },
+    "publicationBoundary": "16:39 authorizes normal cleanup commit/push to rust/365-t00. Evidence remains only on the owner’s Mac; no GitHub release, tag or upload to any hosting is authorized.",
+    "historicalProposal": {
+      "time": "2026-10-20 15:44",
+      "then": "The owner authorized local preparation while a hosting proposal was pending; cleanup push was withheld at that checkpoint.",
+      "supersededBy": "Owner 2026-10-20 16:39: remote hosting is rejected and cleanup commit/push is approved.",
+      "effect": "The earlier hosting proposal is historical, not pending or approved; do not execute its publication plan."
+    },
+    "localAccess": {
+      "source": "Explicit local directory via --source-dir or SEMCTX_T00_EVIDENCE_DIRECTORY.",
+      "verify": "--verify checks the selected tar.gz bytes against the index without producing an output directory.",
+      "copy": "--output requires a new directory and copies selected tar.gz files after size/SHA256 verification; no extraction.",
+      "selection": "Repeated --archive selects IDs; default is all 36 indexed distributable files.",
+      "limits": "No download URL, remote source, public access, CI availability, retention period, redundant backup or recovery after local loss is provided."
+    }
+  },
+  "limits": [
+    "No new case, prospective witness, assertion execution, reserved execution, qualification credit, waiver, pass counter reset or R0 decision follows.",
+    "Local copies/index/hashes do not establish public availability, access from CI or another machine, retention, redundancy or recovery after local loss.",
+    "The historical dec0bd95 commit and previous records remain part of the plan; this additive record does not rewrite historical evidence.",
+    "All existing continuation, exact pinning, CI and publication rules remain unless explicitly superseded above."
+  ],
+  "audit": {
+    "authorTask": "/root/archive_relocation_docs",
+    "auditorTask": "/root/archive_relocation_docs/local_only_claim_auditor",
+    "agentType": "design-claim-auditor",
+    "forkTurns": "none",
+    "ledger": "owner-execution-and-custody-20261020-claim-audit.md"
+  }
+}

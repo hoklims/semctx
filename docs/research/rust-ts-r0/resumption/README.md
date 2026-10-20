@@ -513,7 +513,7 @@ Workspace System variants through the immutable native CaptureFs component.
 Uninstalled reads use the physical P11 source; installed bytes and realpath take
 precedence. Existing outside file/directory controls refuse at the declared root.
 Each unit passes17 checks across two native contexts:34 checks/four contexts,
-with nine queries each. The historical primary System agrees on all36 queried
+with nine queries each. The historical primary System agrees on all 36 queried
 operation/path/value results. Exact-env adverse controls, independent input
 mutations/restorations,60 comparators,8 Python tests,Clippy and Ruff pass on macOS
 ARM64; Windows is a compilation crosscheck only. `resolver_inputs_*` are validated
@@ -708,3 +708,18 @@ The [post-path-fix local receipts](local-campaigns-5fc644c6.json) record HEAD `5
 Raw results remain 352/354 unit PASS and 50/51 support PASS, with three existing arbitrated NONPASS; formal credit stays 0/240.
 The [complete independent audit](local-campaigns-5fc644c6-claim-audit.md) limits source/process provenance and temporary retention; Windows final CI, reserved 23/26 and R0 remain pending; these local receipts establish no remote CI result.
 Historical `43a9cf5a` receipts, owner decisions/counters and the current corpus are unchanged.
+
+The owner [approved further existing-input assertions and local-first execution](owner-execution-and-custody-20261020.json)
+on20October15:44/15:07. Additional expectations may derive from TypeScript5.9.3
+only on existing inputs; no new case is authorized, and the rejected14pairs/3complements
+remain excluded. Remaining cases, including reserved23/26, run first on native
+macOS and OrbStack Linux before CI; Windows stays CI-only at the final milestone.
+The same decision authorizes the local cleanup preparation. Historical archive
+paths in these JSON records and audits are resolved through the [archive index](../evidence/archive-index.json),
+without rewriting their original hashes or outcomes. The [custody guide](../evidence/README.md)
+limits access to the verified local backup only under the 20 October 16:39 decision.
+That decision rejects remote hosting and authorizes the cleanup commit/push; no
+GitHub release, tag or upload is authorized.
+No case execution, additional assertion or new qualification result is claimed by
+this record. The [complete independent ledger](owner-execution-and-custody-20261020-claim-audit.md)
+records authority, mechanisms and limits.
