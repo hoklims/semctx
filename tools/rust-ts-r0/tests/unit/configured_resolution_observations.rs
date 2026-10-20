@@ -1,4 +1,3 @@
-
 use super::*;
 
 fn descriptor() -> serde_json::Value {

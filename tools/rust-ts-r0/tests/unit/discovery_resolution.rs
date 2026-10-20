@@ -1,4 +1,3 @@
-
 use super::*;
 #[test]
 fn native_discovery_resolver_paths_preserve_drive_roots_across_verbatim_spelling() {

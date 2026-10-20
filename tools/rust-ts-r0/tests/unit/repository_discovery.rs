@@ -1,4 +1,3 @@
-
 use super::*;
 fn config() -> Config {
     serde_json::from_value(serde_json::json!({"version":2,"include":["**/*"],"exclude":[],"languages":{"typescript":"on","javascript":"on"},"migrationsDirs":["migrations"]})).unwrap()

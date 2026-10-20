@@ -1,4 +1,3 @@
-
 use super::*;
 fn fixture(root: &str, sdk_root: &str) -> (Request, Sdk) {
     let request = serde_json::from_value(json!({"id":"logicalIdentityDev","cwd":root,"sdk_directory":sdk_root,"case_sensitive":true,"roots":[format!("{root}/source.ts")],"files":{format!("{root}/source.ts"):"export const identityDev = 383;"},"options":{}})).unwrap();

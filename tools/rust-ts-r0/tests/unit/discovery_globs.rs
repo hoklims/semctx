@@ -1,4 +1,3 @@
-
 use super::*;
 #[test]
 fn native_globs_preserve_selection_recursion_braces_negation_and_unicode() {

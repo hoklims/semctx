@@ -1,4 +1,3 @@
-
 use super::*;
 
 fn observe(text: &str, retained: bool, configuration: Option<&str>) -> serde_json::Value {
