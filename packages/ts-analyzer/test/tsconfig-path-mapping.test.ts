@@ -249,13 +249,23 @@ describe("tsconfig path mapping in a TypeScript-only graph (issue #354)", () => 
     }
   });
 
-  test("the legacy v1 configuration keeps its historical resolution", () => {
+  test("a v1 configuration resolves aliases and links the test, as a relative import does", () => {
     const root = temporaryRoot("semctx-paths-v1-");
     write(root, ISSUE_FILES);
     const config: SemctxConfig = { ...createDefaultConfig(root), include: ["pkg/**/*.ts"], exclude: [] };
     const { graph } = analyzeRepository(config);
-    expect(edges(graph, "imports")).toEqual(["mod:pkg/src/feat/relative-user.ts -> mod:pkg/src/feat/handler.ts"]);
-    expect(extractTypeScript([join(root, "pkg/src/feat/alias-js-user.ts")], root).imports[0]!.resolvedRelPath).toBeUndefined();
+    expect(edges(graph, "imports")).toEqual(EXPECTED_IMPORTS);
+    expect(edges(graph, "tested_by")).toContain(`${HANDLER} -> test:pkg/src/feat/handler.spec.ts`);
+    expect(edges(graph, "covers")).toContain(`test:pkg/src/feat/handler.spec.ts -> ${HANDLER}`);
+    expect(edges(graph, "calls")).toContain(`sym:function:pkg/src/feat/alias-js-user.ts:viaAliasJs -> ${HANDLER}`);
+  });
+
+  test("a v1 configuration governed by neither paths nor baseUrl keeps its historical resolution", () => {
+    const root = temporaryRoot("semctx-paths-v1-none-");
+    const { "pkg/tsconfig.json": _removed, ...files } = ISSUE_FILES;
+    write(root, { ...files, "pkg/tsconfig.json": JSON.stringify({ compilerOptions: { strict: true }, include: ["src"] }) });
+    const config: SemctxConfig = { ...createDefaultConfig(root), include: ["pkg/**/*.ts"], exclude: [] };
+    expect(edges(analyzeRepository(config).graph, "imports")).toEqual(["mod:pkg/src/feat/relative-user.ts -> mod:pkg/src/feat/handler.ts"]);
   });
 
   test("the governing configuration is read once per pass, not once per import", () => {

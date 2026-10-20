@@ -1,5 +1,5 @@
 /** Public surface of @semantic-context/ts-analyzer. */
-export { analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons } from "./analyze";
+export { analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons, pathMappingFreshnessInputs } from "./analyze";
 export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
 export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration, hasNodeCreateRequireUse, inspectNativeModuleBindings } from "./javascript-diagnostics";
 export { createWorkspaceLinkResolver } from "./workspace-links";
