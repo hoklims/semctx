@@ -4852,6 +4852,64 @@ fn repair_version_arbitrations_preserve_raw_failures_and_frozen_expectations() {
 }
 
 #[test]
+fn repair_default_declaration_rejects_the_frozen_default_expression_reason() {
+    let id = "V2-E05-anonymous-default-nested-owner::base";
+    repair_units(&[id, "PUBLIC-PATHE-03-original-index-qualified-refusal::base"]);
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").unwrap(),
+    ))
+    .unwrap();
+    let recipe = recipes["recipes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|recipe| recipe["unit_id"] == id)
+        .unwrap();
+    let dir = PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").unwrap())
+        .join("units-V2-E05-anonymous-default-nested-owner/unit-000");
+    let outcome = read_json(&dir.join("process-outcome.json")).unwrap();
+    let observed: Value = serde_json::from_str(outcome["stdout"].as_str().unwrap()).unwrap();
+    for (field, value) in [
+        ("reasons", json!(["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"])),
+        ("executed", json!(false)),
+        ("unsupported", json!(["DEV_COMPONENT_UNAVAILABLE"])),
+    ] {
+        let mut poison = observed.clone();
+        let subject = poison["subjects"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|subject| subject["path"] == "default.mjs")
+            .unwrap();
+        subject["moduleConfigurationObservations"]["retainedWithoutSource"][field] = value;
+        assert!(
+            recipe["checks"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|check| evaluate(&poison, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+            "frozen default-declaration comparison accepts {field}"
+        );
+    }
+    let mut other_reason = observed;
+    let subject = other_reason["subjects"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|subject| subject["path"] == "default.mjs")
+        .unwrap();
+    subject["moduleConfigurationObservations"]["retainedWithoutSource"]["reasons"] =
+        json!(["DEV_UNRELATED_REASON"]);
+    assert!(
+        recipe["checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|check| evaluate(&other_reason, check)["state"] == "PASS_PROJECTED_PROPERTY")
+    );
+}
+
+#[test]
 fn repair_encoding_coordinates_submit_only_utf16_offsets() {
     let fixture = read_json(&PathBuf::from(
         std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("repair fixture"),
