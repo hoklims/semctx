@@ -106,5 +106,39 @@
       {"path": "campaign-macos-version-arbitrations-v1/report.json", "sha256": "362361620782ce093f58256ce69656d637408ef30b8231e187256d40fcf89e99"},
       {"path": "campaign-macos-version-arbitrations-v1.log", "sha256": "ad16b1102ce729d99e1bdbcd8b4d2386076554c76a8c9abb3c9357137983579c"}
     ]
+  },
+  "defaultExclusionReceipt": {
+    "authorTask": "/root/default_exclusion_receipt_author",
+    "auditorTask": "/root/default_exclusion_receipt_author/default_exclusion_auditor",
+    "sourceCommit": "aa943454509f76593af674af4ced8b29608703cc",
+    "authority": "Existing FROZEN_PRESELECTION obligations 10 and 11; one shared default-export assignment/declaration property and native V2-E05/PUBLIC-PATHE-03 pair. No new expected input or case.",
+    "mapping": "V2-E05 default.mjs retainedWithoutSource excludes SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED, requires executed=true and unsupported=[]; two existing checks and PUBLIC-PATHE-03 remain unchanged. Unrelated reasons remain allowed.",
+    "checks": "Integrated native RED exit 101 then GREEN exit 0; 66 comparators, 8 Python tests, Ruff, format and Clippy PASS; Windows GNU compilation PASS on Darwin only.",
+    "environment": "macOS 27.0.1 (Darwin 27.0.0) ARM64; Rust 1.95.0; Bun 1.4.3; Python 3.10.22; GIT_CONFIG_GLOBAL absent.",
+    "campaign": {
+      "observerSha256": "23fe02c76aca253680d67d63a9d43c753577a6124a074d164f295dfd34c73653",
+      "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+      "binding": "Current aa943 observer with retained immutable C1 producer; no clean-aa943 producer rebuild claimed.",
+      "test": "qualification_replay_requires_explicit_optimized_freeze",
+      "pass": true,
+      "elapsedSeconds": 126.56,
+      "delta": "Against report 36236162, all 354 unit and 51 support raw states/pass/relations/gaps/arbitrations and all 240 obligations are structurally unchanged. Only V2-E05 checks grow from 2 to 5, retaining the original two.",
+      "reportSha256": "42a287d07cb167d74ae8bbfaa855dfbd7e5befbcbfd49d12e2bd4261d421d081"
+    },
+    "limits": "Formal credit remains 0/240 and R0 pending. Retained full verify:pr PASS covers dfed4696 only. No remote CI, native Linux/Windows runtime or reserved/prospective run is established. Historical snapshots, owner budget/counters and pending CI/witness decisions remain unchanged.",
+    "evidence": [
+      {
+        "path": "step4-default-exclusion-integrated-receipt-v2.json",
+        "sha256": "b6995ca096a2cc24f3e1aecbfddfb76eb2f2ab98b4ea81595560376009fda9a6"
+      },
+      {
+        "path": "step4-frozen-default-exclusion-authority-v1.md",
+        "sha256": "7a1095b56cd73c619a15ee99dae1f949aa0d50ad53ac205c9226410ff4bebfcf"
+      },
+      {
+        "path": "step4-default-exclusion-obligation-reconciliation-v1.json",
+        "sha256": "7f591e3889e6e42b99e56509968c5a7b324c594444ad8b04de83e2dcd851d16f"
+      }
+    ]
   }
 }

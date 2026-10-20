@@ -664,3 +664,17 @@ no Windows success is inferred without a green execution. The
 prospective constraints. Pins remain exact and Actions use full commit SHAs. A required
 owner decision stops dependent work and is explained in the terminal. T01,
 substantial ports, merge, release and deployment remain outside this resumption.
+
+The [default-exclusion receipt](step4-macos-campaign-evidence.json) binds source
+`aa943454` to the existing frozen obligations 10/11: V2-E05 now excludes
+`SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED` for `default.mjs/retainedWithoutSource`,
+with executed/support checks, its two prior checks and PUBLIC-PATHE-03 preserved.
+Native RED exit 101 then GREEN exit 0 discriminates the correction while allowing
+unrelated reasons. The current observer replays the original macOS campaign in
+126.56 s on the retained immutable C1 producer: raw results and all 240 obligations
+are unchanged; only V2-E05 grows from two to five checks. Targeted checks pass;
+Windows GNU is compilation only. Formal credit stays 0/240 and R0 pending;
+the retained full `verify:pr` PASS covers `dfed4696` only. Native Linux/Windows,
+remote CI and reserved/prospective execution are not established. Historical
+snapshots, owner budget/counters and pending CI/witness decisions stay unchanged.
+The [independent ledger](step4-macos-campaign-claim-audit.md) gives the scope.
