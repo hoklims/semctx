@@ -723,3 +723,14 @@ GitHub release, tag or upload is authorized.
 No case execution, additional assertion or new qualification result is claimed by
 this record. The [complete independent ledger](owner-execution-and-custody-20261020-claim-audit.md)
 records authority, mechanisms and limits.
+
+The [unit-test extraction record](unit-test-extraction-20261020.json) and its
+[complete independent audit](unit-test-extraction-20261020-claim-audit.md) record the
+owner-authorized move of 29 internal test modules from 28 source files at `37cdaed8`.
+Native suites pass 324 tests on macOS ARM64 and 326 on OrbStack Linux ARM64.
+Fresh ORIGINAL 354/51 replays pass in 137.86 s and 148.59 s respectively, preserving
+352/354 raw unit PASS, 50/51 raw support PASS and the three arbitrated NONPASS
+with zero credit. Rebuilt identities and the bounded historical projection comparison
+are recorded; the complete local gate and exact-head CI are pending at this cutoff.
+Formal qualification stays 0/240; Windows final CI, reserved 23/26 and R0 remain pending.
+Historical records, frozen inputs, expectations and owner counters are unchanged.
