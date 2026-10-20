@@ -269,13 +269,19 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let captured_paths = request
         .files
         .keys()
-        .map(|path| relative_source_path(&request.cwd, path, request.case_sensitive).map(path_key))
-        .collect::<Result<BTreeSet<_>, _>>()?;
-    if captured_paths.len() != request.files.len() || captured_paths != required_paths {
+        .map(|path| {
+            relative_source_path(&request.cwd, path, request.case_sensitive)
+                .map(|relative| (path_key(relative), path))
+        })
+        .collect::<Result<BTreeMap<_, _>, _>>()?;
+    if captured_paths.len() != request.files.len()
+        || captured_paths.keys().cloned().collect::<BTreeSet<_>>() != required_paths
+    {
         return Err(
             "qualified capture does not cover authored Git and configuration inputs".into(),
         );
     }
+    let mut paths = Vec::with_capacity(request.files.len());
     for (path, text) in &request.files {
         let physical = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
         if !physical.starts_with(&root)
@@ -283,8 +289,8 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         {
             return Err("retained indexed bytes differ from current input".into());
         }
+        paths.push(physical);
     }
-    let paths = request.files.keys().map(PathBuf::from).collect::<Vec<_>>();
     let selected = discovery(&request.cwd, &spec.include, &spec.exclude, &paths)?;
     let broad = discovery(&request.cwd, &["**/*".into()], &[], &paths)?;
     let selected_files = selected["files"]
@@ -292,13 +298,18 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .ok_or("selected discovery files missing")?;
     let selected_roots = selected_files
         .iter()
-        .map(|f| f["absPath"].as_str().ok_or("selected path absent"))
+        .map(|f| {
+            f["relPath"]
+                .as_str()
+                .map(|path| path_key(path.to_string()))
+                .ok_or("selected path absent")
+        })
         .collect::<Result<BTreeSet<_>, _>>()?;
     if request
         .roots
         .iter()
-        .map(String::as_str)
-        .collect::<BTreeSet<_>>()
+        .map(|path| relative_source_path(&request.cwd, path, request.case_sensitive).map(path_key))
+        .collect::<Result<BTreeSet<_>, _>>()?
         != selected_roots
     {
         return Err("indexed extraction does not cover current selection".into());
@@ -313,7 +324,10 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .iter()
         .filter(|f| matches!(f["language"].as_str(), Some("typescript" | "javascript")))
         .map(|f| {
-            let path = f["absPath"].as_str().ok_or("broad source path absent")?;
+            let relative = f["relPath"].as_str().ok_or("broad source path absent")?;
+            let path = *captured_paths
+                .get(&path_key(relative.to_string()))
+                .ok_or("broad source absent from the indexed retained capture")?;
             if request.files.get(path).map(String::as_str) != f["content"].as_str() {
                 return Err("broad source absent from the indexed retained capture".into());
             }

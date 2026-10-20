@@ -69,6 +69,7 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
     let contexts = {
         let mut contexts = contexts;
         contexts.extend([
+            ("inherited-positive-aliased-root", None, false),
             ("omitted-symlink-nearest-config", None, false),
             ("included-symlink-nearest-config", None, false),
         ]);
@@ -157,8 +158,17 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         fs::write(root.join("QualifiedCaseProbe"), b"case").unwrap();
         let sensitive = !root.join("qualifiedcaseprobe").exists();
         fs::remove_file(root.join("QualifiedCaseProbe")).unwrap();
-        let cwd = root
-            .canonicalize()
+        let request_root = dir.join("workspace-alias");
+        #[cfg(unix)]
+        if label == "inherited-positive-aliased-root" {
+            std::os::unix::fs::symlink(&root, &request_root).unwrap();
+        }
+        let request_root = if label == "inherited-positive-aliased-root" {
+            &request_root
+        } else {
+            &root
+        };
+        let cwd = std::path::absolute(request_root)
             .unwrap()
             .to_string_lossy()
             .replace('\\', "/");
@@ -321,6 +331,16 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             let mut wrong_scope = descriptor.clone();
             wrong_scope["include"] = json!(["missing/**/*.ts"]);
             variants.push(("wrong-selection".into(), wrong_scope));
+            let mut duplicate_capture = descriptor.clone();
+            duplicate_capture["index"]["analysis"]["files"][format!("{cwd}/src/./selected.ts")] =
+                files["src/selected.ts"].clone();
+            variants.push(("duplicate-logical-capture".into(), duplicate_capture));
+            let mut omitted_capture = descriptor.clone();
+            omitted_capture["index"]["analysis"]["files"]
+                .as_object_mut()
+                .unwrap()
+                .remove(&format!("{cwd}/base.json"));
+            variants.push(("omitted-authored-capture".into(), omitted_capture));
             let mut wrong_options = descriptor.clone();
             wrong_options["index"]["analysis"]["options"]["module"] = json!("NodeNext");
             variants.push(("unsupported-options".into(), wrong_options));
