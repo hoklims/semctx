@@ -28,11 +28,19 @@ plugin regeneration logs are preserved. No result is inferred for pending runs.
 No reserved corpus was inspected or included. No producer, oracle, expected value,
 tracked repository file or Git index was modified by this publication task.
 
-Decode and inspect in an empty directory:
+The historical base64 payload has moved out of Git. The [local index](../../../evidence/archive-index.json)
+retains its identity and citants; the bytes remain only on the owner’s Mac under
+the 20 October 16:39 decision. See the [local access guide](../../../evidence/README.md).
+From the repository root, restore this archive into a new directory and inspect it:
 
-    python3 -c 'import base64,pathlib; pathlib.Path("portable-dev.tar.gz").write_bytes(base64.b64decode(pathlib.Path("portable-dev.tar.gz.b64").read_bytes()))'
-    shasum -a 256 portable-dev.tar.gz
-    tar -tzf portable-dev.tar.gz
+```sh
+python3 tools/rust-ts-r0/qualification/fetch_evidence.py \
+  --source-dir "$HOME/semctx-evidence/t00/20261020" \
+  --archive selection--pass2--portable-dev--portable-dev \
+  --output /tmp/semctx-t00-portable-dev
+
+tar -tzf /tmp/semctx-t00-portable-dev/selection--pass2--portable-dev--portable-dev.tar.gz
+```
 
 Archive members are regular files with relative names; deterministic tar metadata
 and gzip mtime=0 make the payload reproducible. Compare decoded archive SHA256 with

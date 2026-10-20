@@ -113,7 +113,7 @@ The [second campaign](qualification/c1-pass2/second-replay-summary.json)
 processed 354 units: 283 passed their limited projected or controlled scope,
 7 were NONPASS and 64 remained gaps. Of 51 supports, 42 passed their exercised
 scope, 4 were NONPASS and 5 remained gaps. None of the 240 obligations is declared
-qualified. The first campaign and both raw archives remain preserved. The separate
+qualified. The first campaign records and both qualification raw archives remain in Git. The separate
 [reproduction supplement](qualification/reproduction/README.md) contains the
 original observers, recipes, source snapshots and reconstruction commands.
 
@@ -128,21 +128,13 @@ its initial two-pass budget and the later owner continuation without a fixed pas
 Successful DEV checks do not cancel qualification failures or missing proofs.
 No reserved case has been executed as of reopening.
 
-[C2 preregistration](composition2/registration.json) records the distinct Ezno
-native checker hypothesis. [Its initial run](composition2/initial/README.md)
-panicked after six SDK reads. The first correction isolates definition-local
-mappings; [its replay](composition2/pass1-replay/report.json) read all63SDK files
-but returned734errors and7warnings before project loading.
-
-[The final C2 correction](composition2/pass2-producer/README.md) preserves188source
-files and33passing native DEV tests. [One final independent replay](composition2/pass2-replay/report.json)
-completes in357ms with exit0,458unchanged identities and63exact SDK reads, but
-returns541errors and17warnings before any project module or expression mapping.
-The aliasValue and String.trim targets remain unexercised. No classified
-parser/lexer error or panic recurs; that limited result does not qualify grammar
-or semantics. Both C2 corrections are now closed. Baseline skipLibCheck and native
-nullability differences remain explicit; no SDK errors or expected values are
-suppressed to obtain a pass.
+[C2 / Ezno is abandoned](composition2/README.md) for this continuation. Its final
+macOS ARM64 DEV replay returned before project loading and semantic targets;
+this establishes no semantic pass or universal impossibility. The historical
+records and five payloads are now addressed through the [archive index](evidence/archive-index.json).
+They are recoverable from the owner's verified local backup only, under the
+20 October 16:39 local-only decision. Qualification archives, including the active reproduction archive,
+remain in Git.
 
 [The historical R0 dossier](final/README.md) records STOP_BUDGET from the actual
 composition/correction limits, with0qualified obligations and no reserved-case
@@ -200,3 +192,11 @@ succeed; local DEV checks establish no cross-platform qualification.
 The C1 workflow adaptation adds the prototype's lint checks, explicit captured-SDK
 environment and retained DEV observations; the canonical process controller and
 workspace discovery remain unchanged.
+
+The [20 October continuation and custody decision](resumption/owner-execution-and-custody-20261020.json)
+authorizes additional TS 5.9.3-derived assertions on existing inputs only; no new
+case or rejected prospective witness is authorized. All remaining case execution,
+including reserved 23/26, starts locally on native macOS and OrbStack Linux before
+CI; Windows remains CI-only at the final milestone. The [archive access guide](evidence/README.md)
+explains the relocated payloads and the owner’s local-only custody decision. This cleanup
+adds no execution, qualification credit or R0 result.

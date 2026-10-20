@@ -22,9 +22,18 @@ Les trois exécutables optimisés ELF/Mach-O/PE sous `target/release` sont exclu
 
 ## Lecture hors ligne
 
+Le payload base64 historique a été retiré du dépôt. L’[index local](../../evidence/archive-index.json)
+conserve son identité et ses citants ; les octets restent uniquement sur le Mac du
+propriétaire sous la décision du 20 octobre 16:39. Voir le [guide d’accès local](../../evidence/README.md).
+Depuis la racine du dépôt, restaurer cette seule archive dans un nouveau répertoire :
+
 ```sh
-python3 -c "import base64,pathlib; pathlib.Path('ci-49fa-evidence.tar.gz').write_bytes(base64.b64decode(pathlib.Path('ci-49fa-evidence.tar.gz.b64').read_bytes()))"
-tar -xzf ci-49fa-evidence.tar.gz
+python3 tools/rust-ts-r0/qualification/fetch_evidence.py \
+  --source-dir "$HOME/semctx-evidence/t00/20261020" \
+  --archive selection--platforms-49fa--ci-49fa-evidence \
+  --output /tmp/semctx-t00-ci-49fa
+
+tar -tzf /tmp/semctx-t00-ci-49fa/selection--platforms-49fa--ci-49fa-evidence.tar.gz
 ```
 
 Tous les membres du tar ont des chemins relatifs vérifiés. Aucun chemin absolu capturé sur les hôtes CI n’est utilisé pour l’extraction. Les bytes de chaque membre ont été comparés après un aller-retour local base64/gzip/tar ; aucune suite CI ni expérience sémantique n’a été relancée. La création a eu lieu sur macOS, avec Python standard, à partir des seules données locales.

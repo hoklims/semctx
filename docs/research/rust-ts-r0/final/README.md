@@ -37,16 +37,18 @@ scope do not close a property, its supports, its actual input closure or an enti
 obligation. [obligation-states.json](obligation-states.json) records all240states
 and27family summaries; overlapping family associations are not additive counts.
 
-The [C2 source/DEV archive](../composition2/pass2-producer/README.md) publishes its
-member manifest, reconstruction instructions and omissions. The independent final
-preflight binds188source files and458identities; the source-bound final DEV receipt
-reports33passing tests. [The independent final replay](../composition2/pass2-replay/README.md)
-publishes its single invocation, bounded streams, diagnostics, independent targets
-and explicit correction closure. [Its publication record](../composition2/pass2-replay/record.json)
-names the archived members and excluded compiled executables. Earlier C2 failures
-are documented in [its record](../composition2/README.md). A new build has a new
-artifact identity; byte-identical rebuild output is not promised. No source-archive
-completeness or toolchain-distribution certification is inferred from R0.
+The [C2 summary](../composition2/README.md) retains the abandonment and bounded
+NONPASS result. Historical C2 source/DEV and replay documents are available as
+members of `composition2-records.tar.gz` in the [archive index](../evidence/archive-index.json),
+which also identifies the five original C2 payloads. Their original paths in this
+dossier's JSON records and claim audit are provenance, resolved through that index;
+the current custody is the owner's verified local backup only, under the
+20 October 16:39 decision; remote hosting is rejected.
+The historical preflight binds188source files and458identities; its source-bound
+DEV receipt reports33passing tests. Relocation does not rerun those checks or
+change their limits. A new build has a new artifact identity; byte-identical
+rebuild output is not promised. No source-archive completeness or
+toolchain-distribution certification is inferred from R0.
 
 C2's SDK name/type/merging errors alone do not prove semantic impossibility,
 especially since the baseline uses skipLibCheck=true. The concrete failed witness
