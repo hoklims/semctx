@@ -678,3 +678,16 @@ the retained full `verify:pr` PASS covers `dfed4696` only. Native Linux/Windows,
 remote CI and reserved/prospective execution are not established. Historical
 snapshots, owner budget/counters and pending CI/witness decisions stay unchanged.
 The [independent ledger](step4-macos-campaign-claim-audit.md) gives the scope.
+
+
+The [20 October owner decisions](owner-execution-decisions-20261020.json) replace earlier
+Linux-via-Actions, Windows “if possible” and pending-witness statements above.
+The current 354/51 corpus targets local native macOS and OrbStack/Docker Linux ARM64,
+with exact environment/source/producer identities and the Linux image digest recorded.
+Windows is CI-only, once at the final milestone before R0, in the existing job;
+prepare locally without pushing that change now. CI Linux/macOS scope stays unchanged.
+At 08:56 the 14 prospective witness pairs and 3 complements were rejected: keep the
+current corpus and do not adopt or execute the drafts; old proposals remain historical.
+Other [CI rules](owner-ci-rules-20261019.json), [continuation](owner-continuation-20261019.json),
+counters and historical limits remain unchanged. No new execution or qualification
+is claimed. The [complete grouped audit](owner-execution-decisions-20261020-claim-audit.md) records authority and limits.
