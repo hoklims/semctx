@@ -1280,6 +1280,11 @@ for recipe in recipes:
     recipe['checks'][1]['requirement_interpretation'] = assertions['compiler_package_version_input']
     recipe['proof_scope'] = 'Actual native compiler core::version identity, separated from the captured SDK version, in the ordinary analyzed P04 source capability scope. Version differences stay raw NONPASS against frozen5.9.3 expectations; this mapping supplies neither an automatic waiver nor a numeric enum mirror.'
 
+for recipe in recipes:
+    if recipe['unit_id'] == 'V2-E05-anonymous-default-nested-owner::base':
+        target = ['subjects', {'path':'default.mjs'}, 'moduleConfigurationObservations', 'retainedWithoutSource', 'reasons']
+        add_bound_check(recipe, target, {'excludes':['SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED']}, 'reason_constraints', 'qualification/obligations.json#/obligations/10/cumulative_properties/0/scope', 'inspectModuleConfiguration retained snapshot without supplied SourceFile', {'obligation_map':INDEX['obligation_map'], 'json_pointer':'/obligations/10/cumulative_properties/0', 'obligation_id':'T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hasunsupporteddefaultexpression-9f5389335c'})
+
 def complete_component_fields(recipe):
     additions=[]
     components=['semanticObservation','sourceParsingObservation','moduleConfigurationObservations','javascriptObservation','sourceFileObservation','opaqueCallbackOwnership','partitionObservation']
