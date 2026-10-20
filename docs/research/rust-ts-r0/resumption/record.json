@@ -1,0 +1,252 @@
+{
+  "recordVersion": 1,
+  "recordedUtc": "2026-10-18T12:13:39.082313+00:00",
+  "state": "REOPENED_C1_PASS1_STEP3_GAP_MAPPING_IN_PROGRESS",
+  "r0Decision": null,
+  "READY_TS_NATIVE": false,
+  "authority": {
+    "owner": "Sébastien",
+    "date": "2026-10-18",
+    "source": "Owner instruction in the resumed T00 session at head 6270bc10765d697a4311150e3e1a4aea8a726335",
+    "kind": "Explicit owner decision; not an ADR or a new technical proof",
+    "decision": "Continue the same T00, C1 only, on the same branch and PR. Supersedes the historical STOP_BUDGET continuation restriction; no separate experiment.",
+    "continuationDecision": "owner-continuation-20261019.json"
+  },
+  "subject": {
+    "repository": "hoklims/semctx",
+    "branch": "rust/365-t00",
+    "pullRequest": "https://github.com/hoklims/semctx/pull/386",
+    "headAtReopening": "6270bc10765d697a4311150e3e1a4aea8a726335",
+    "baseBranch": "rust/365-coordination",
+    "baseCommit": "4e80d36c258cd63a871bf98fe0dcce0e7f1c2739",
+    "newBranch": false,
+    "newPullRequest": false,
+    "separateExperiment": false
+  },
+  "history": {
+    "previousR0Decision": "STOP_BUDGET",
+    "previousDecision": {
+      "path": "../final/decision.json",
+      "bytes": 6640,
+      "sha256": "47703e0cba7a59ea8a11b99b2388beef0e644e91d13d72e65924e66e99f15ef6"
+    },
+    "previousEffort": {
+      "path": "../final/effort-ledger.json",
+      "bytes": 56173,
+      "sha256": "761888119787d138d8463512bd0d3a015b5e2c543eea73394fa1eb05701a3424"
+    },
+    "previousClaimAudit": {
+      "path": "../final/claim-audit.json",
+      "bytes": 20448,
+      "sha256": "ebe46f2df0bc016ae55794f44e71eadd315de740667bfeacb98dea95a20f8f55"
+    },
+    "previousBudgetGuard": {
+      "path": "../terminal-budget-guard.json",
+      "bytes": 2000,
+      "sha256": "d8719535b7539f65d9cf8d714b0f5be2f8cc7fff6688dc403bf82297fb94668c"
+    },
+    "policy": "Historical candidate, pass, expectation and campaign records retain their original identities, outcomes and budget counters. The final directory is the historical terminal dossier, not the current R0 state.",
+    "supersededCorrectionBudget20261018": {
+      "authorityDate": "2026-10-18",
+      "supersededBy": "owner-continuation-20261019.json",
+      "scope": "Historical snapshot before the 2026-10-19 owner decision; these ceilings and remaining count are not current limits.",
+      "budget": {
+        "composition": "C1",
+        "additionalCorrectionPassesMaximum": 2,
+        "additionalCorrectionPassesStarted": 1,
+        "additionalCorrectionPassesClosed": 0,
+        "additionalCorrectionPassesRemaining": 1,
+        "historicalC1CorrectionsClosed": 2,
+        "historicalC2CorrectionsClosed": 2,
+        "effortWorkingDaysApproximate": [
+          3,
+          4
+        ],
+        "effortInterpretation": "Owner planning estimate, not measured elapsed effort or a newly inferred exact hard ceiling. Preparation and review are recorded separately in effort-ledger.json.",
+        "effortLedger": "effort-ledger.json",
+        "passRegistrationRule": "Register each of the two new correction passes before its implementation/replay; identify its scope, inputs and remaining budget. No third additional pass is authorized."
+      }
+    }
+  },
+  "budget": {
+    "composition": "C1",
+    "additionalCorrectionPassesMaximum": null,
+    "additionalCorrectionPassesStarted": 1,
+    "additionalCorrectionPassesClosed": 0,
+    "additionalCorrectionPassesRemaining": null,
+    "historicalC1CorrectionsClosed": 2,
+    "historicalC2CorrectionsClosed": 2,
+    "effortWorkingDaysApproximate": [
+      3,
+      4
+    ],
+    "effortInterpretation": "Owner planning estimate, not measured elapsed effort or a newly inferred exact hard ceiling. Preparation and review are recorded separately in effort-ledger.json.",
+    "effortLedger": "effort-ledger.json",
+    "passRegistrationRule": "Register each additional C1 correction pass before implementation/replay, identifying scope, inputs and counters. The owner decision of 2026-10-19 removes any fixed pass or local review-turn ceiling; no counter reset or qualification waiver follows.",
+    "continuationPolicy": {
+      "authority": "owner-continuation-20261019.json",
+      "fixedTurnOrPassCeiling": false,
+      "nullMaximumAndRemainingMeaning": "No fixed numerical ceiling; not zero remaining and not a reset.",
+      "localReviewTurnCeilingsSuperseded": true,
+      "countersReset": false,
+      "additionalCorrectionPass2State": "NOT_STARTED",
+      "effortEstimateStatus": "The existing approximate 3–4-day estimate remains historical planning context, not an exact ceiling; no new duration or numerical budget is set."
+    }
+  },
+  "compositions": {
+    "C1": {
+      "state": "REOPENED_ONLY_ACTIVE_COMPOSITION",
+      "candidate": "tools/rust-ts-r0",
+      "crateVersion": "=7.0.0-dev",
+      "compilerVersion": "7.1.0-dev",
+      "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "sdkVersion": "5.9.3",
+      "historicalArtifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081"
+    },
+    "C2": {
+      "state": "ABANDONED_FOR_RESUMPTION",
+      "historicalEvidence": "../composition2/README.md",
+      "additionalBudget": 0
+    }
+  },
+  "arbitration": {
+    "id": "T00-ARB-002",
+    "record": "../arbitrations.json",
+    "scope": [
+      "ENC::UTF16LE-lone-high-surrogate::ordinary"
+    ],
+    "classification": "Owner-adjudicated TS7-versus-TS5.9.3 diagnostic difference",
+    "technicalRootCauseNewlyProven": false,
+    "policy": "Only other differences individually demonstrated to result from TS7 versus TS5 may receive this reasoning, with evidence recorded for each. All others remain actual divergences. No blanket diagnostic exception or rewrite of historical expected/observed values."
+  },
+  "historicalStartingEvidence": {
+    "units": {
+      "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 283,
+      "NONPASS_OBSERVED": 7,
+      "GAP": 64
+    },
+    "supports": {
+      "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 42,
+      "NONPASS_OBSERVED": 4,
+      "GAP": 5
+    },
+    "obligations": {
+      "qualified": 0,
+      "reviewRequired": 178,
+      "GAP": 54,
+      "NONPASS_OBSERVED": 8,
+      "total": 240
+    },
+    "harnessFailedObservations": {
+      "qualificationUnits": 7,
+      "supports": 3,
+      "total": 10
+    },
+    "qualificationPlatforms": [
+      "macOS ARM64"
+    ],
+    "existingThreeOsEvidenceScope": "Four common DEV vectors only; not the 354-unit qualification campaign.",
+    "reservedCases": 23,
+    "reservedVariants": 26,
+    "reservedVariantsRun": 0,
+    "triage": "../qualification/c1-pass2/second-replay-triage.json"
+  },
+  "orderedWork": [
+    {
+      "step": 1,
+      "work": "Record reopening, new budget and owner arbitration, preserving history",
+      "state": "RECORDS_PUBLISHED_DOCUMENTARY_CHECK_AND_REVIEW_PASSED",
+      "checkpoint": "07e4b85eea3e86faa75a91596edef751fcbe3ab7",
+      "canonicalVerification": "Four verify:pr partitions passed locally on the indexed harness checkpoint before final focused corrections; explicit checks cover the later deltas. CI39127225378 succeeded at07e4b85e, previous reopening checkpoint only. See harness-repair-evidence.json for scope and failed prior attempts."
+    },
+    {
+      "step": 2,
+      "work": "Correct the ten harness failed observations (seven units, three supports)",
+      "state": "HARNESS_REPAIRS_VALIDATED_MACOS_DEV_INDEPENDENT_REVIEW_PASSED",
+      "evidence": "worker-case-mode-evidence.json",
+      "localWorkflowContinuation": "local-review-continuation.json"
+    },
+    {
+      "step": 3,
+      "work": "Resolve the 64 GAP qualification units: comparators, recipes, mappings",
+      "state": "IN_PROGRESS_COMPARATORS_RECIPES_NATIVE_OBSERVATION_MAPPINGS",
+      "evidence": "gap-mapping-progress.json"
+    },
+    {
+      "step": 4,
+      "work": "Review the 178 obligations for property and support coverage",
+      "state": "NOT_STARTED"
+    },
+    {
+      "step": 5,
+      "work": "Replay the 354-unit campaign on macOS and natively on Linux/Windows via GitHub Actions",
+      "state": "NOT_STARTED"
+    },
+    {
+      "step": 6,
+      "work": "Execute the 23 reserved cases / 26 variants once, after the preceding campaign",
+      "state": "NOT_STARTED"
+    },
+    {
+      "step": 7,
+      "work": "Decide R0: READY_TS_NATIVE, or STOP_SEMANTIC if unarbitrable native divergences remain",
+      "state": "NOT_STARTED"
+    }
+  ],
+  "currentEvidenceLimits": [
+    "Historical case-alias and early-return defects remain preserved. Current focused repairs pass locally with independent proof review. CI39142147341 at53cd passed32 comparators and7 recipe CLI tests on each ofmacOS/Linux/Windows; not a full campaign or coverage of later engine changes.",
+    "Focused harness repairs are development evidence only; no new full qualification or reserved run. Zero qualified obligations remain the last observed state.",
+    "The owner arbitration records a decision, not a new upstream root-cause experiment or an automatic support/obligation PASS.",
+    "No current READY_TS_NATIVE or STOP_SEMANTIC decision. T01 and substantial ports remain outside this resumption.",
+    "Reserved payload is not accessed during registration or harness correction."
+  ],
+  "publicationPolicy": {
+    "normalPushes": "rust/365-t00; complete coherent milestones only after green local verify:pr under the pinned environment",
+    "pullRequestBodyUpdates": 386,
+    "githubComments": "PROHIBITED_EVERYWHERE",
+    "mergeReleaseDeploy": false,
+    "regularPushes": true,
+    "pushRequiresGreenLocalVerifyPr": true,
+    "manualCiLaunches": "PROHIBITED; includes workflow_dispatch",
+    "furtherWorkflowEdits": "PROHIBITED"
+  },
+  "verificationPolicy": {
+    "bun": "1.4.3",
+    "GIT_CONFIG_GLOBAL": "unset for verify:pr",
+    "dependencies": "Exact versions and committed locks",
+    "actions": "Full commit SHA references",
+    "localPlatform": "macOS ARM64",
+    "requiredCampaignTargets": [
+      "macOS",
+      "Linux",
+      "Windows"
+    ],
+    "decisionRequired": "Stop and explain in the terminal when an owner decision is necessary.",
+    "windowsRustTests": "Run if possible using an available permitted non-manual route; no Windows success inferred without a green exact-SHA test result.",
+    "currentOwnerCiRules": "owner-ci-rules-20261019.json"
+  },
+  "claimAudit": "claim-audit.md",
+  "activeCorrectionPass": "correction-pass1-registration.json",
+  "additionalVersionAttributions": [
+    {
+      "id": "T00-ARB-003",
+      "record": "../arbitrations.json",
+      "scope": [
+        "N17c-importhelpers-es5-actual-emission::base"
+      ],
+      "rawComparisonRemains": "NONPASS_PROJECTED_UNIT",
+      "qualificationCredit": 0,
+      "evidence": "gap-mapping-evidence.json"
+    },
+    {
+      "id": "T00-ARB-004",
+      "record": "../arbitrations.json",
+      "scope": [
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "rawComparisonRemains": "NONPASS_PROJECTED_UNIT",
+      "qualificationCredit": 0,
+      "evidence": "gap-reader-dialect-evidence.json"
+    }
+  ]
+}

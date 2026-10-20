@@ -1,0 +1,133 @@
+{
+  "scope": "Post-freeze verifier corrections and publication checks. Files with green in historical names include failed runs; only explicit actual results below determine status. No qualification credit.",
+  "files": [
+    {
+      "rawName": "native-local-cache-clean.log",
+      "rawSha256": "7b2c06739cf1809f20bfc7aa1d19c3d18201e39615f3e195ae7a0ae77c652c88",
+      "rawBytes": 38,
+      "encodedPath": "validation-history/native-local-cache-clean.log.b64",
+      "encodedSha256": "0264114bfebef833548d99e8441ee3818fb03771e6442056d87b446b33728b47"
+    },
+    {
+      "rawName": "native-cache-rebound-debug.log",
+      "rawSha256": "a056989fa5f1f5d32fd3de7e4f5938dcce515c87532546b5f471aa9dcba27e96",
+      "rawBytes": 1191,
+      "encodedPath": "validation-history/native-cache-rebound-debug.log.b64",
+      "encodedSha256": "fad686d0b920fb6a4aaf1b2ea6f74bc2541aa23864da81eb1058228cb5d75fb1"
+    },
+    {
+      "rawName": "native-deadline-isolated-debug-green.log",
+      "rawSha256": "a3185a1f36e09d4804722dc2fbf103e2446ad8167fc4c26f67412bd99a01adbe",
+      "rawBytes": 4359,
+      "encodedPath": "validation-history/native-deadline-isolated-debug-green.log.b64",
+      "encodedSha256": "4e8c84aba3702dca35f25d887256ee3304fd4921d91bcfcdb22f9250a3b42ed0"
+    },
+    {
+      "rawName": "native-optimized-validation-delta.log",
+      "rawSha256": "b2900be9ae3bbd1447db7481610a588f97200899834c354bf2c5245024267359",
+      "rawBytes": 926,
+      "encodedPath": "validation-history/native-optimized-validation-delta.log.b64",
+      "encodedSha256": "5d208d9a1be7f6022e6e932ebe2b97a6e18ac78542cc63094013ca0a1ce1aa12"
+    },
+    {
+      "rawName": "native-receiver-ready-debug.log",
+      "rawSha256": "11f04a4a9d576f4e05c6de9c908a9a793eb3ba5b697ec8e4a724a3563b35b4df",
+      "rawBytes": 3886,
+      "encodedPath": "validation-history/native-receiver-ready-debug.log.b64",
+      "encodedSha256": "85ab9939fbdc826f4c8df722de8e69c1291bb02b0674adb9a6ea146f8c0c701a"
+    },
+    {
+      "rawName": "native-receiver-ready-release.log",
+      "rawSha256": "fe5327462128a764d53389a1ac9b6a7267b1876d887861d31685d87eae87afba",
+      "rawBytes": 925,
+      "encodedPath": "validation-history/native-receiver-ready-release.log.b64",
+      "encodedSha256": "4bdbca52cb19282399e79794778d404a0584c2962ff1778276f44d7784b8878b"
+    },
+    {
+      "rawName": "native-receiver-ready-clippy.log",
+      "rawSha256": "a49cecc7e437563605b53cb0d1477f59737b1e0aa4372e756c5746b80b8da212",
+      "rawBytes": 190,
+      "encodedPath": "validation-history/native-receiver-ready-clippy.log.b64",
+      "encodedSha256": "19b1efdebd9ff847c78682f6aa3e86064450d5ddee650dbcb994e968f8f9bbb7"
+    },
+    {
+      "rawName": "verify-stage5-1.log",
+      "rawSha256": "f352f92106839a7bb04d04fa98ba206ff09fa1cdfbe43f7e5c41682cb96c66bd",
+      "rawBytes": 540,
+      "encodedPath": "validation-history/verify-stage5-1.log.b64",
+      "encodedSha256": "69c2f08210d42e97363fd6fb67946ec8e427e5c9ab7806c166199da026806d2f"
+    },
+    {
+      "rawName": "verify-stage5-2.log",
+      "rawSha256": "dea64c619f7fac321f6f11403cf60584ac2066d269d5df41a233aa179f536760",
+      "rawBytes": 508,
+      "encodedPath": "validation-history/verify-stage5-2.log.b64",
+      "encodedSha256": "f898dcc00f82867396aeb5f06cacdb1ed17b2b354198370bfe7e18249a7bccf6"
+    },
+    {
+      "rawName": "verify-stage5-3.log",
+      "rawSha256": "1821e18051f301d826980655ca6a4bf19915e76608e7d59fff1fa997cd1b716d",
+      "rawBytes": 503,
+      "encodedPath": "validation-history/verify-stage5-3.log.b64",
+      "encodedSha256": "68eb018eaefdeb997334e4760a7d35ccba5d5c36452bfaad4eb755a094f10365"
+    },
+    {
+      "rawName": "verify-stage5-4.log",
+      "rawSha256": "4accd382112a4abc6ecfbefc4668b2f8493725e4883df9f6bdef86cc43f6c8d7",
+      "rawBytes": 612,
+      "encodedPath": "validation-history/verify-stage5-4.log.b64",
+      "encodedSha256": "44ee94fb34389c2a65a1441556fcac633025997b73f62e31a6bfc7aec89d8d6d"
+    },
+    {
+      "rawName": "verify-stage5-corrected-1.log",
+      "rawSha256": "9cee7f17029d31272652e08c448b5a6e7c9501e5332cb171545d822fabc208ec",
+      "rawBytes": 493,
+      "encodedPath": "validation-history/verify-stage5-corrected-1.log.b64",
+      "encodedSha256": "fa4508bf770dba99a08ea3e239d6c05e14afb80e014fce09e75541befbf4e435"
+    },
+    {
+      "rawName": "verify-stage5-corrected-2.log",
+      "rawSha256": "fef3547b507b3263d2657a2001f02326f1bb6bcb18058d4d99b66cd292592051",
+      "rawBytes": 550,
+      "encodedPath": "validation-history/verify-stage5-corrected-2.log.b64",
+      "encodedSha256": "147948648472a6d95a3cdae188a1c7f3d5f0dd6e03b3bb8ac8d4d99428849310"
+    },
+    {
+      "rawName": "verify-stage5-corrected-3.log",
+      "rawSha256": "e56e1e011d4e4b4ad091ca0064dee647e8ee86486538628b8bf18fdb028a4b22",
+      "rawBytes": 602,
+      "encodedPath": "validation-history/verify-stage5-corrected-3.log.b64",
+      "encodedSha256": "94b4cfd7c661d51628ee57bccd85c41b57cb28c508ef74de1fc179e1053b05b8"
+    },
+    {
+      "rawName": "verify-stage5-corrected-4.log",
+      "rawSha256": "acefb0b2dd5eaf1f9f90d0925e4567d33c58d4a70918cd4752caf54fd572805c",
+      "rawBytes": 602,
+      "encodedPath": "validation-history/verify-stage5-corrected-4.log.b64",
+      "encodedSha256": "b805be13c900e8ec80fe27628b3b56ac6cc8234946ec8f46a7a2400273d55a3e"
+    },
+    {
+      "rawName": "verify-stage5-corrected-cancellation.json",
+      "rawSha256": "423d831893b257ad279143acdb88924951de52f0f4ee11cc5e2f954c55c45e72",
+      "rawBytes": 409,
+      "encodedPath": "validation-history/verify-stage5-corrected-cancellation.json.b64",
+      "encodedSha256": "20a812bfc29d13686374630a840d2b90d6677ebf35a31e625d6639129eef221c"
+    }
+  ],
+  "results": {
+    "verify-stage5-1.log": "exit0",
+    "verify-stage5-2.log": "exit1",
+    "verify-stage5-3.log": "exit1",
+    "verify-stage5-4.log": "exit1",
+    "verify-stage5-corrected-1.log": "cancelled during oracle edit",
+    "verify-stage5-corrected-2.log": "cancelled during oracle edit",
+    "verify-stage5-corrected-3.log": "cancelled during oracle edit",
+    "verify-stage5-corrected-4.log": "cancelled during oracle edit",
+    "native-cache-rebound-debug.log": "exit101",
+    "native-deadline-isolated-debug-green.log": "exit101 despite filename",
+    "native-optimized-validation-delta.log": "exit0 for intermediate6a775 verification source",
+    "native-receiver-ready-debug.log": "exit0, finalb832,2/2,157.27s",
+    "native-receiver-ready-release.log": "exit0, finalb832,3/3,1.36s+5.70s",
+    "native-receiver-ready-clippy.log": "exit0 alltargets"
+  }
+}

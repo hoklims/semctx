@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "historicalSelectedArtifacts": {
+    "pass1": [
+      {
+        "role": "optimized candidate",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-r0-probe",
+        "sourcePath": "tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "sha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+        "bytes": 31252624
+      },
+      {
+        "role": "independent #383 supervisor",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-gates",
+        "sourcePath": "tools/gates/target/release/semctx-gates",
+        "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+        "bytes": 1157952
+      },
+      {
+        "role": "capturedSDK",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/sdk/sdk-input.json",
+        "sourcePath": "tools/rust-ts-r0/sdk/sdk-input.json",
+        "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+        "bytes": 3218481
+      }
+    ],
+    "pass2": [
+      {
+        "role": "optimized candidate",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-r0-probe",
+        "sourcePath": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/target/release/semctx-r0-probe",
+        "sha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+        "bytes": 32743824
+      },
+      {
+        "role": "independent #383 supervisor",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-gates",
+        "sourcePath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-gates",
+        "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+        "bytes": 1157952
+      },
+      {
+        "role": "capturedSDK",
+        "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/sdk/sdk-input.json",
+        "sourcePath": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/sdk/sdk-input.json",
+        "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+        "bytes": 3218481
+      }
+    ]
+  },
+  "sourceManifestSha256": {
+    "pass1": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208",
+    "pass2": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5"
+  },
+  "observerSources": {
+    "v1": {
+      "path": "session/qualification-adapter/qualification_replay.rs",
+      "sha256": "d300daf678f851b8720322d0caed9bce10a6504fdc565e769044ec53f8862786"
+    },
+    "v2": {
+      "path": "session/qualification-adapter/v2/qualification_replay.rs",
+      "sha256": "137f7c15567765a3505969f80735b3d6226650efe80536c6d763421d7b7cc604"
+    }
+  },
+  "rebuiltBinaryEqualityClaim": false,
+  "nativeQueriesByPublicationTask": 0
+}

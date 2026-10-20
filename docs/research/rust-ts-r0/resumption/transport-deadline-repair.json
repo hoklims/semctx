@@ -1,0 +1,67 @@
+{
+  "status": "LOCAL_REPAIR_PASS_REMOTE_VALIDATION_REQUIRED",
+  "base_head": "9db591eba20607e00392e1c7ccc04a4ca7e040d9",
+  "scope": "Existing native transport observer only; no C1 runtime changes, new GAP credit, obligation qualification or R0 decision.",
+  "failure": {
+    "environment": "GitHub Actions windows-latest",
+    "run": "https://github.com/hoklims/semctx/actions/runs/39254767084",
+    "job_id": 118067429343,
+    "artifact": "native-r0-development-windows-latest",
+    "path": "transport-9108-1792415598058493800/T-nonzero/truncated-3.json",
+    "sha256": "30d2888ebacd91f33a3936c07d21509fa5fe6265aa8559f898b58c3fb26fc7ce",
+    "timeout_ms": 20000,
+    "outcome": {
+      "duration_ms": 20014,
+      "exit_code": 124,
+      "kind": "timeout",
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stdout_bytes": 0,
+      "stdout_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "limit": "The truncated-3 inner report was absent. The outer timeout is observed; the interrupted inner execution duration and cause are unknown."
+  },
+  "repair": {
+    "source": "tools/rust-ts-r0/tests/support/transport_process.rs",
+    "source_sha256": "550ab94a4cca6c2ffeea028115395304ab3c00aca23898503bdb880c11b7a848",
+    "inner_c1_timeout_ms": 20000,
+    "direct_and_inner_receiver_max_duration_ms": 20000,
+    "batch_proxy_outer_timeout_and_receiver_max_duration_ms": 60000,
+    "reason": "The batch proxy runs C1 with a 20-second deadline plus before/after file hashing and report serialization. Its surrounding process needs a separate budget. Both the process supervisor and receiver must use that outer budget.",
+    "unchanged_checks": "Inner kind=success and exit=0, complete capture and exact identities remain required. Outer expected exit, truncation/empty-output rejection, cancellation, controls and ownership refusal remain checked; no retry or skip."
+  },
+  "red": {
+    "environment": "macOS arm64, Rust1.95.0; GIT_CONFIG_GLOBAL absent",
+    "command": "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --test native_transport_flow native_transport_accepts_current_directory_aliases_with_dot_and_parent -- --exact --nocapture",
+    "exit_code": 101,
+    "observed": "proxy duration policy control: LateResult",
+    "control_scope": "A copy of an actual healthy inner Outcome has duration_ms set to 20001. This is a private receiver-policy control, not observed native elapsed time or frozen-unit credit.",
+    "log_sha256": "a8985b22c135252e5f0eca19ea793182d1e7d68eb2edfba7d9cd47ae746d214f"
+  },
+  "validation": {
+    "environment": "macOS27.0.1 ARM64, Rust1.95.0, Bun1.4.3; GIT_CONFIG_GLOBAL absent",
+    "command": "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --test native_transport_flow -- --nocapture",
+    "local_transport_tests": {
+      "passed": 3,
+      "failed": 0,
+      "exit_code": 0,
+      "duration_seconds": 258.9,
+      "log_sha256": "7d1f7ce848069742d7ce39386df208bdac2b47d769934c189e8518401ef2e15d"
+    },
+    "clippy_all_targets_qualification_observer": "PASS -D warnings",
+    "fmt": "PASS",
+    "documentation_integrity": "PASS",
+    "remote_current_candidate": "NOT_EXECUTED",
+    "full_verify_pr_current_candidate": "NOT_RUN; affected transport checks only"
+  },
+  "limitations": [
+    "The repair does not establish why the interrupted Windows inner process was slow. An inner timeout or failure must still fail the test.",
+    "No full 354-unit campaign or reserved execution was performed.",
+    "Mapping count remains 47/64; 17 GAP and 0/240 formally qualified obligations."
+  ],
+  "evidence_retention": "Compact failure outcome retained here; full existing Actions artifacts and local diagnostics retain their original identities. No additional Base64 archive.",
+  "local_correction_pass": 1,
+  "review_scope": "Two fresh independent final reviews of source and compact record; adversarial pass covers six source-only attempts and claims no executed adversarial proof."
+}

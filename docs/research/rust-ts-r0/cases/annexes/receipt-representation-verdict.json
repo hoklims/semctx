@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "proposalAuthor": "/root",
+  "independentAuditor": "/root/r0_batch_claim_audit",
+  "interval": {
+    "startedAt": "2026-10-17T17:28:50.345088+02:00",
+    "endedAt": "2026-10-17T17:30:12.761881+02:00",
+    "activeDurationSeconds": 82.417
+  },
+  "auditedProposal": {
+    "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/receipt-representation.v1.json",
+    "sha256": "fd352cd391db61effcce10ab3a551327baebf0f3ccf61cf866f1dcb4ef2fd53c",
+    "author": "/root",
+    "status": "PRIVATE_T00_REPRESENTATION_PROPOSAL_FOR_INDEPENDENT_REVIEW"
+  },
+  "authoredGuardSource": {
+    "path": "/private/tmp/semctx-t00-qualified-freeze-20261017/qualified-case-supplement.json",
+    "sha256": "18a10278c7077c098a3ddb21e8d64b3acdbd218a6a605c4bfa56753685817fc3",
+    "caseId": "QRECEIPT-01-consumer-ownership-authority-guards",
+    "variantCount": 20,
+    "uniqueVariantIds": 20,
+    "status": "SOURCE_BACKED_CONSUMER_EXPECTATION_MATRIX_NOT_FROZEN_NOT_EXECUTED"
+  },
+  "ledger": {
+    "path": "/private/tmp/semctx-t00-20261017/receipt-representation-claim-ledger.md",
+    "sha256": "55063406f05a9e914efb8194cbabc7e01d8639e392bc54dabb0dac72e252a06e"
+  },
+  "authority": {
+    "issue": "https://github.com/hoklims/semctx/issues/365",
+    "sections": ["2.1", "4.2"],
+    "publicAbiAuthorized": false,
+    "fullT02PortAuthorized": false,
+    "newMirrorGateAuthorized": false
+  },
+  "checks": {
+    "proposalShaMatchesAnchoredSha": true,
+    "schemaVersion": 1,
+    "fixtureEqualityBindings": 6,
+    "fixtureEqualityBindingsUseLowercaseSha256Shape": true,
+    "fixtureLabelsClaimActualArtifactIdentity": false,
+    "actualOptimizedArtifactDeferredToStage5": true,
+    "producerJsonCarriesAuthority": false,
+    "receiverContextConstructedOutsideProducerDeserialization": true,
+    "receiverObservesActualExecutableProcessInputFactsAndFreshness": true,
+    "qreceiptVariantsNeverInferGlobalAdmission": true,
+    "qreceiptProducerOwnershipCannotOverrideGuard": true,
+    "stableFailureWireCodesSelected": false,
+    "unforgeabilityClaimed": false,
+    "digestAloneClaimedAsAuthority": false,
+    "nativeBehavioralOracleRun": false,
+    "nativeCandidateKnown": false,
+    "reservedOrHoldoutAccessed": false,
+    "trackedFilesModifiedByAuditor": false
+  },
+  "classification": {
+    "R01": "target",
+    "R02": "target",
+    "R03": "target",
+    "R04": "target",
+    "R05": "target",
+    "R06": "target",
+    "R07": "target",
+    "R08": "target",
+    "X01": "contradicted",
+    "X02": "contradicted"
+  },
+  "heldClaims": [],
+  "debtClaims": [],
+  "blockingFindings": [],
+  "verdict": "reconciled_target_only",
+  "conclusion": "The proposal is an adequate private T00 receipt representation target. It keeps producer JSON non-authoritative, binds future authority to receiver-owned observations, uses fixture SHA values only as equality classes, defers actual optimized artifact identity to stage 5, and preserves the distinction between receipt-context availability and global admission. It proves no native behavior today."
+}

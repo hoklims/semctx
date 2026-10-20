@@ -1,0 +1,123 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_FROZEN_RETAINED_ANALYSIS_TRANSPORT_BOUNDARY_LIMITED_PASSES_MACOS_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/retained_runtime_claim_auditor",
+  "claimLedger": "gap-retained-runtime-claim-audit.md",
+  "authority": {
+    "frozenUnits": "cases/qualification/scenarios.json#/execution_units/352-353: P01-retained-source::plane-a-runtime-consistent and N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch.",
+    "obligation": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6; adopted association is not execution proof or formal qualification.",
+    "historicalBoundary": "At3e94997f plane-a-runtime.ts134–148 calls analyzeRepositoryAsync; analyze.ts116–125,411–419 asserts snapshot before extraction and propagates SOURCE_SNAPSHOT_MISMATCH. Whole composePlaneARuntime/service/worker policy is outside this proof."
+  },
+  "sourceAnchor": {
+    "base": "9da7e451a1e1e2b36fdb10b0b753e896f3648b35",
+    "localCommitAtRecording": "e59bcae350d44c27617f05683894d7ccedf42ea3",
+    "publicationAtRecording": "Local e59bcae3 not pushed; no CI credit from the parent.",
+    "files": {
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "7852ad6bb0e2fd7f270b12eb5dd3e3bb179a9134cedffbad7912ab4108ddf352",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "5391073ad0307b5c0076b941126bd99c239c27f7a9f5569ce4cd3f61db9ef47f",
+      "tools/rust-ts-r0/qualification/retained_runtime_replay.rs": "819f574ada3d063ba77c6634bee52c3ad2eed4432a8dd3589c6d716e981d611d",
+      "tools/rust-ts-r0/src/main.rs": "c3979e6167c4318d6b82c526d940443de4a28db95c73322176e28658ba8b25b6",
+      "tools/rust-ts-r0/src/retained_discovery_observations.rs": "020b8e0a0eec9cefd39b40c84fd24899d0f5a6decb8c9479c2490827a5899236",
+      "tools/rust-ts-r0/tests/native_development_flow.rs": "5aca6703ddc92ee4241c1abbe6f1fb699807f615ba1be8eae723cc92a96d029c"
+    },
+    "patchSha256": "6aa3610b236ec2fb78414c74495f1dbc615bf88539c2f004bb6c99b7ae8e1dc7",
+    "scope": "Six committed blobs verified against anchor; concurrent T-reader-error and later working-tree changes are excluded, even where qualification_replay.rs changes again."
+  },
+  "artifacts": {
+    "producerSha256": "d7c8fafaaeacd200f01ad05a0aefbd7a6d7027a5c8b98962cd92d2d4b9191931",
+    "observerSha256": "f52219cc4118799c11ea4703416f6fd210950648bb029ac4bbf871aa95948af7",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "fixtureSha256": "f1f9c68cd703992e54fa12e5701a8056a32f36c7621a94608cc6c5e2e000aa8d",
+    "canonicalRecipeSha256": "fc722cd475a18dda3320adac0abe385a64ccd967f185f0ac8c439763ac0ab558",
+    "provenance": "Immutable artifacts/descriptors and before/after identities; no independent complete source→binary reconstruction."
+  },
+  "focusedReplay": {
+    "oracle": "gap_retained_runtime_propagates_snapshot_rejection_and_keeps_captured_analysis",
+    "units": [
+      {"unitId": "P01-retained-source::plane-a-runtime-consistent", "checks": 9, "nativeContexts": 3, "state": "PASS_FROZEN_RETAINED_RUNTIME_BOUNDARY", "resultSha256": "be9b35cbee2d67a0a85ab944cdfee0ed899029e94bf88bc312276cf57b1785dc"},
+      {"unitId": "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch", "checks": 3, "nativeContexts": 3, "state": "PASS_FROZEN_RETAINED_RUNTIME_BOUNDARY", "resultSha256": "c40e886de692f522e500acfbf675180d1bca35730d1fa9ccd860f6e3767b8865"}
+    ],
+    "projectedChecks": 12,
+    "nativeContexts": 6,
+    "contextOrder": "healthy_before→subject→healthy_after per unit; P analyzed/analyzed/analyzed, N analyzed/rejected/analyzed. Controls are not extra frozen units.",
+    "positive": "Five bound native leaf projections plus four runtime assertions: captured leaf retained,physical transient excluded,no mismatch. Canonical post-capture physical inventory is materialized and checked.",
+    "negative": "Actual nonzero/exit1,stdout empty,stderr47bytes exact JSON error SOURCE_SNAPSHOT_MISMATCH: entry.ts; no successful analysis result.",
+    "failureBinding": "Error JSON has only error, no embedded descriptor/SDK/artifact identity. Identity comes from caller argv/cwd,hash-bound saved descriptor,complete stdout/stderr and product/helper/SDK hashes around invocation.",
+    "projectorLimit": "global_admission_inferred=false belongs to the projected replay/expectation; no independent native admission attestation,graph ownership or public assembled consumer.",
+    "resultsSha256": "bf9f312d6b1ce96f4291bc357e9d2767e46891d43228ba955b03a3b1b75358bc"
+  },
+  "oracles": {
+    "environment": "macOS27.0.1/DarwinARM64;Bun1.4.3;GIT_CONFIG_GLOBAL absent,GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1.",
+    "redGreen": "Native RED was bad arity before the private operation existed; mapping RED was unmapped recipe. Same targeted paths GREEN; no broad semantic defect inferred from those RED logs.",
+    "localChecks": "3native tests,focused mapping,14-poison comparator,61total comparators,8Python tests,Clippy,Ruff PASS. Unfiltered release49lib+248bin+26integrations=323PASS, separate from frozen replay.",
+    "independentSpec": "Canonical P/N pass; consistent metadata substituted into N refuses its expected-negative check; false leaf expectation in P fails; exact restorations pass.",
+    "adversarial": "20bounded experiments:15replays,4direct native errors,1controlled comparator; no demonstrated false PASS under canonical recipes. Restored canonical P/N PASS.",
+    "windows": "cargo check --locked --release --target x86_64-pc-windows-gnu --all-targets --all-features PASS on Darwin; no current Linux/Windows runtime execution."
+  },
+  "trustBoundary": {
+    "canonicalRecipe": "Exact SHA externally verified; focused repair_units verifies frozen source refs, not recipe hash or complete policy.",
+    "demonstratedLimit": "Adverse09 deletes physical_live_after_capture and still obtains P/N PASS without mounting physical divergence. Only canonical externally verified inventory supports the retained/live claim. No self-authenticating runner or full freeze claimed.",
+    "baseCiAsProvided": "ROOT reported CI39322421229 for pushed9da7e451 with LinuxSUCCESS and macOS/Windows in progress at that receipt. This is a dated parent-base observation, not CI for e59bcae3 or concurrent T-reader work.",
+    "notEstablished": "Public assembled PlaneA/composePlaneARuntime,workers policy,graph ownership,globaladmission,general equivalence,atomic/coherentcapture,allOSreads/fullSDK,full354/reserved/R0."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 60,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 59,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+    "residualStaticGapUnits": 4,
+    "recipesWithoutKnownGaps": 350,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Cumulative checkpoints across distinct artifacts;350 is static preparation, not one current campaign."
+  },
+  "residualStaticUnitIds": [
+    "T-reader-error::base",
+    "N19-excluded-dependent-blocks::base",
+    "P19-qualified-inherited-esnext-bundler::base",
+    "ORD-DIALECT-CAPABILITY::base"
+  ],
+  "limits": [
+    "No qualification credit from the two units; the associated PlaneA obligation remains unqualified.",
+    "No budget8fdc/CI/publication-rule change or counter reset; no new permission inferred.",
+    "No reserved payload read/executed by these documentary tasks; no global access-history claim.",
+    "Compact selected hashes/projections only; temporary raw evidence may expire, no archive."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "runtime-source-anchor-v1.json": "9b06c18df63e4a04f9397a5b882f5bcbc4cb22dc4639eb5183013119e478f8c0",
+    "runtime-source-v1.patch": "6aa3610b236ec2fb78414c74495f1dbc615bf88539c2f004bb6c99b7ae8e1dc7",
+    "fixture-runtime-v1.json": "f1f9c68cd703992e54fa12e5701a8056a32f36c7621a94608cc6c5e2e000aa8d",
+    "runtime-recipes-v2/replay-recipes.json": "fc722cd475a18dda3320adac0abe385a64ccd967f185f0ac8c439763ac0ab558",
+    "runtime-recipes-v2/preparation-summary.json": "3927afea75b9ab30a746dae79696f43051cc7e18bccd473e7822f29e73bcfe9b",
+    "runtime-spec-proof-v1.md": "8a83daba636905433bd166bae1e79198ba790183575089d7c6fd05aa66c2448a",
+    "runtime-standards-v1.md": "3e51caf906b0a6d16a0a27c1ff1e2cd538052b78ecc061f605388c6baf39e509",
+    "runtime-adversarial-v1.md": "e9311b2564fa37fbc53f57d61a1a9e569a4a97d98ce88fde85e1a682283d6957",
+    "runtime-native-red-v1.log": "ae713f04c36875ca23df8a6c4333fe6c08e2eac4532f50bde5d7abf761e9e26e",
+    "runtime-native-green-v1.log": "3bffe186d76eb0fe727781531ac91190a7387d649fd12d2eb360bedb795c6930",
+    "runtime-mapping-red-v1.log": "3524ee04cee3dc1da18285501f617f26c35fcab3d22ea97c5e800fde2d1441c6",
+    "runtime-mapping-green-v1.log": "ced1141050483307428091f25d8819630a13348b87ed4beac7d2e09aa0d8a322",
+    "runtime-comparator-green-v1.log": "05511d46eb32ee06576fff04f33d3bd1fc2c64cfb6e1e02f818f5b49f24e2a71",
+    "runtime-all-comparators-v1.log": "c4aefa4607baa50bd5e3838523b6badc19d9125830a80953da1e76f8e5cfffc4",
+    "runtime-clippy-v1.log": "085596c038fce116797fab6453df3a8bd4e69ed8a2ebff0013eaf38057e0ae7f",
+    "runtime-ruff-v1.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "runtime-python-v1.log": "5f441a4e55108dc16665bf7d5bcfbf9755930c1c2a307109c3559a96b02719db",
+    "runtime-all-release-v1.log": "5884d64f3c470bfc4182b3bec2718ab09a76a5558b6794a49bb8220be8860502",
+    "runtime-windows-crosscheck-v1.log": "70296a3ebe437787a2e12a12f970e01fbc64ace9512e663c8575b6d8f567a094",
+    "runtime-spec-proof-v1-hashes-before.json": "ef7d7457b0a380881283f407925af255592499c900339287b957218921965e8d",
+    "runtime-spec-proof-v1-hashes-after.json": "ef7d7457b0a380881283f407925af255592499c900339287b957218921965e8d",
+    "runtime-adversarial-v1/recipe-attacks-summary.json": "fef68fd0b028c7c3f39b2318ea23e2bab9a6ec5566f237334ba114a88d143daa",
+    "runtime-adversarial-v1/native-attacks-summary.json": "21beccecd3ef0cfe5095ec8fc7e3d04aaafed886f0d2c2cb585905f02ac1b77e",
+    "runtime-adversarial-v1/qualification-restoration-summary.json": "cadc9e7f11af54c30d6084841057f4ff00c446cc08034abee2bf0ddc6b4f485b"
+  }
+}

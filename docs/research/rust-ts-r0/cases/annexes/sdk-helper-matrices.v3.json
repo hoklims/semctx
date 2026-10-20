@@ -1,0 +1,2332 @@
+{
+  "schema_version": 1,
+  "author": "/root/qualification383",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "created_at_utc": "2026-10-17T14:47:00.024185+00:00",
+  "status": "SOURCE_AUTHORED_MATRICES_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+  "matrix_count": 13,
+  "variant_case_count": 61,
+  "helpers_with_proposed_activating_control_pairs": 25,
+  "helpers_runtime_closed": 0,
+  "all_240_obligations_closed": false,
+  "sdk_required_closure_manifest": "sdk-required-closure.v3.json",
+  "matrices": [
+    {
+      "id": "V3-SDK-01",
+      "title": "Object.assign runtime provenance and mutation",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "mutationFactory",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8d9e972b12",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 391
+          },
+          "consumer": "inspectSemanticDependencies > mutationFactory",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "inspectMutationUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-11b7179a64",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 399
+          },
+          "consumer": "inspectSemanticDependencies > inspectMutationUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 390,
+          "end_line": 435,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L390"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es2015.core.d.ts",
+        "lib.dom.d.ts"
+      ],
+      "prerequisites": [
+        "Use actual published ObjectConstructor.assign; local Object must remain a retained runtime binding, never granted SDK provenance by its spelling. Literal source then:0 is control only for SOURCE_SDK_MUTATION_UNSUPPORTED."
+      ],
+      "variants": [
+        {
+          "label": "SDK then callback mutation",
+          "files": {
+            "main.ts": "export function main(){return Object.assign({}, {then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-01"
+        },
+        {
+          "label": "SDK primitive then data control",
+          "files": {
+            "main.ts": "export function main(){return Object.assign({}, {then:0});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SDK_MUTATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-02"
+        },
+        {
+          "label": "immutable SDK alias",
+          "files": {
+            "main.ts": "const assign=Object.assign; export function main(){return assign({}, {then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-03"
+        },
+        {
+          "label": "destructured SDK alias",
+          "files": {
+            "main.ts": "const {assign}=Object; export function main(){return assign({}, {then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-04"
+        },
+        {
+          "label": "local runtime homonym",
+          "files": {
+            "main.ts": "const Object={assign(a:unknown,b:unknown){return a;}}; export function main(){return Object.assign({}, {then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SDK_MUTATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-05"
+        },
+        {
+          "label": "SDK global target",
+          "files": {
+            "main.ts": "export function main(){return Object.assign(globalThis,{navigator:1});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-01-06",
+          "authority_coordinates": [
+            {
+              "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+              "line": 1088,
+              "end_line": 1099,
+              "role": "implemented historical source, SDK global provenance requires default-library VariableDeclaration",
+              "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1088"
+            },
+            {
+              "package": "typescript",
+              "version": "5.9.3",
+              "archive_url": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+              "archive_member": "package/lib/lib.dom.d.ts",
+              "line": 38511,
+              "source": "declare var navigator: Navigator;",
+              "sha256": "080941d9f9ff9307f7e27a83bcd888b7c8270716c39af943532438932ec1d0b9",
+              "role": "published SDK bytes inspected; VariableDeclaration meets historical predicate, unlike setTimeout FunctionDeclaration at39150"
+            }
+          ]
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "mutationFactory",
+          "activating_case": "V3-SDK-01-01",
+          "control_case": "V3-SDK-01-05",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectMutationUse",
+          "activating_case": "V3-SDK-01-01",
+          "control_case": "V3-SDK-01-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-02",
+      "title": "Data versus accessor/protocol descriptors",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "dataDescriptor",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2a2fbe0952",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 452
+          },
+          "consumer": "inspectSemanticDependencies > dataDescriptor",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "descriptorFactory",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6136c4e53b",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 436
+          },
+          "consumer": "inspectSemanticDependencies > descriptorFactory",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "inspectDescriptorUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-31fc45d836",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 504
+          },
+          "consumer": "inspectSemanticDependencies > inspectDescriptorUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 436,
+          "end_line": 529,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L436"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es5.d.ts",
+        "lib.es2015.reflect.d.ts",
+        "lib.es2015.symbol.d.ts",
+        "lib.dom.d.ts"
+      ],
+      "prerequisites": [
+        "dataDescriptor tests property names only, not whether value is callable. Protocol-key checks occur before SDK global/callable checks. Plain descriptor does not prove complete admission. Source-factory alias recursion is const-only."
+      ],
+      "variants": [
+        {
+          "label": "SDK accessor descriptor",
+          "files": {
+            "main.ts": "function get(){return 1;} export function main(){return Object.defineProperty({},'x',{get});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-01"
+        },
+        {
+          "label": "SDK plain data descriptor",
+          "files": {
+            "main.ts": "export function main(){return Object.defineProperty({},'x',{value:1,writable:true});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED",
+              "SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-02"
+        },
+        {
+          "label": "immutable descriptor alias",
+          "files": {
+            "main.ts": "const define=Object.defineProperty; function get(){return 1;} export function main(){return define({},'x',{get});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-03"
+        },
+        {
+          "label": "destructured descriptor alias",
+          "files": {
+            "main.ts": "const {defineProperty:define}=Reflect; function get(){return 1;} export function main(){return define({},'x',{get});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-04"
+        },
+        {
+          "label": "local descriptor homonym",
+          "files": {
+            "main.ts": "const Object={defineProperty(a:unknown,k:string,d:unknown){return a;}}; function get(){return 1;} export function main(){return Object.defineProperty({},'x',{get});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED",
+              "SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-05"
+        },
+        {
+          "label": "protocol key despite data descriptor",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Object.defineProperty({},Symbol.iterator,{value:helper});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-06"
+        },
+        {
+          "label": "then key despite primitive data descriptor",
+          "files": {
+            "main.ts": "export function main(){return Object.defineProperty({},'then',{value:0});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROTOCOL_DESCRIPTOR_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-07"
+        },
+        {
+          "label": "actual SDK callable member descriptor",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Object.defineProperty(Array.prototype,'map',{value:helper});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-08"
+        },
+        {
+          "label": "actual SDK global descriptor",
+          "files": {
+            "main.ts": "export function main(){return Object.defineProperty(globalThis,'navigator',{value:1});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-02-09",
+          "authority_coordinates": [
+            {
+              "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+              "line": 1088,
+              "end_line": 1099,
+              "role": "implemented historical source, SDK global provenance requires default-library VariableDeclaration",
+              "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1088"
+            },
+            {
+              "package": "typescript",
+              "version": "5.9.3",
+              "archive_url": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+              "archive_member": "package/lib/lib.dom.d.ts",
+              "line": 38511,
+              "source": "declare var navigator: Navigator;",
+              "sha256": "080941d9f9ff9307f7e27a83bcd888b7c8270716c39af943532438932ec1d0b9",
+              "role": "published SDK bytes inspected; VariableDeclaration meets historical predicate, unlike setTimeout FunctionDeclaration at39150"
+            }
+          ]
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "dataDescriptor",
+          "activating_case": "V3-SDK-02-01",
+          "control_case": "V3-SDK-02-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        },
+        {
+          "helper": "descriptorFactory",
+          "activating_case": "V3-SDK-02-01",
+          "control_case": "V3-SDK-02-05",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectDescriptorUse",
+          "activating_case": "V3-SDK-02-01",
+          "control_case": "V3-SDK-02-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-03",
+      "title": "Reflect.set protocol and runtime origin",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "sdkReflectSet",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc046ebdd3",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 530
+          },
+          "consumer": "inspectSemanticDependencies > sdkReflectSet",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "inspectReflectSetUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f5feb10ae",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 538
+          },
+          "consumer": "inspectSemanticDependencies > inspectReflectSetUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 530,
+          "end_line": 555,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L530"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es2015.reflect.d.ts",
+        "lib.es5.d.ts"
+      ],
+      "prerequisites": [
+        "Do not infer SOURCE_PROTOCOL_MUTATION_UNSUPPORTED from arbitrary property set. then with primitive value follows explicit safe branch."
+      ],
+      "variants": [
+        {
+          "label": "SDK then callback set",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Reflect.set({},'then',helper);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-03-01"
+        },
+        {
+          "label": "SDK primitive then set control",
+          "files": {
+            "main.ts": "export function main(){return Reflect.set({},'then',0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-03-02"
+        },
+        {
+          "label": "destructured actual SDK set",
+          "files": {
+            "main.ts": "const {set}=Reflect; function helper(){return 1;} export function main(){return set({},'then',helper);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-03-03"
+        },
+        {
+          "label": "local Reflect homonym",
+          "files": {
+            "main.ts": "const Reflect={set(t:unknown,k:string,v:unknown){return true;}}; function helper(){return 1;} export function main(){return Reflect.set({},'then',helper);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-03-04"
+        },
+        {
+          "label": "SDK callable set",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Reflect.set(Array.prototype,'map',helper);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-03-05"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "sdkReflectSet",
+          "activating_case": "V3-SDK-03-01",
+          "control_case": "V3-SDK-03-04",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectReflectSetUse",
+          "activating_case": "V3-SDK-03-01",
+          "control_case": "V3-SDK-03-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-04",
+      "title": "Promise.resolve assimilation",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "sdkPromiseResolve",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9a0dde3e97",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 556
+          },
+          "consumer": "inspectSemanticDependencies > sdkPromiseResolve",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "inspectPromiseResolveUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6732afcf32",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 564
+          },
+          "consumer": "inspectSemanticDependencies > inspectPromiseResolveUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 556,
+          "end_line": 576,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L556"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1005,
+          "end_line": 1026,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1005"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es2015.promise.d.ts",
+        "lib.es5.d.ts"
+      ],
+      "prerequisites": [
+        "safeAwaitValue at1005–1026 does not classify arbitrary object literal as safe even without then. Actual SDK constructor namespace required; annotations cannot manufacture runtime origin."
+      ],
+      "variants": [
+        {
+          "label": "SDK thenable assimilation",
+          "files": {
+            "main.ts": "export function main(){return Promise.resolve({then(resolve: (x:number)=>void){resolve(1);}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-04-01"
+        },
+        {
+          "label": "SDK primitive assimilation control",
+          "files": {
+            "main.ts": "export function main(){return Promise.resolve(1);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-04-02"
+        },
+        {
+          "label": "SDK const resolve alias",
+          "files": {
+            "main.ts": "const resolve=Promise.resolve; export function main(){return resolve({then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-04-03"
+        },
+        {
+          "label": "local Promise homonym",
+          "files": {
+            "main.ts": "const Promise={resolve(v:unknown){return v;}}; export function main(){return Promise.resolve({then(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-04-04"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "sdkPromiseResolve",
+          "activating_case": "V3-SDK-04-01",
+          "control_case": "V3-SDK-04-04",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectPromiseResolveUse",
+          "activating_case": "V3-SDK-04-01",
+          "control_case": "V3-SDK-04-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-05",
+      "title": "Builtin module origin and cluster launcher",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "builtinModuleValue",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2902b9cd1a",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 586
+          },
+          "consumer": "inspectSemanticDependencies > builtinModuleValue",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "clusterLauncherValue",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c12fefd1ef",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 617
+          },
+          "consumer": "inspectSemanticDependencies > clusterLauncherValue",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        },
+        {
+          "name": "inspectBuiltinProcessUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8183520e54",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 624
+          },
+          "consumer": "inspectSemanticDependencies > inspectBuiltinProcessUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 586,
+          "end_line": 632,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L586"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 25,
+          "end_line": 27,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L25"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [],
+      "prerequisites": [
+        "builtinModuleValue is declaration/import-spelling based, not default-SDK based. Node declarations are not TypeScript default SDK. The listed import-root witnesses need no fabricated default SDK declarations: unresolved external import status remains an independent unknown; freeze only named semantic reason projection. cluster control calls touch to force checker path."
+      ],
+      "variants": [
+        {
+          "label": "cluster launcher runtime origin",
+          "files": {
+            "main.ts": "import * as cluster from 'node:cluster'; export function main(){return cluster.fork();}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-01"
+        },
+        {
+          "label": "cluster nonlauncher control",
+          "files": {
+            "main.ts": "import * as cluster from 'node:cluster'; function touch(){return 1;} export function main(){touch();return cluster.isPrimary;}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-02"
+        },
+        {
+          "label": "destructured const module launcher",
+          "files": {
+            "main.ts": "import * as cluster from 'node:cluster'; const {fork:launch}=cluster; export function main(){return launch();}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-03"
+        },
+        {
+          "label": "local cluster homonym",
+          "files": {
+            "main.ts": "const cluster={fork(){return 1;}}; export function main(){return cluster.fork();}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-04"
+        },
+        {
+          "label": "node child process immutable alias",
+          "files": {
+            "main.ts": "import * as cp from 'node:child_process'; const proc=cp; export function main(){return proc.spawn('x');}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-05"
+        },
+        {
+          "label": "type-only child process control",
+          "files": {
+            "main.ts": "import type * as cp from 'node:child_process'; function touch(){return 1;} export function main(){return touch();}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROCESS_LAUNCH_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-06"
+        },
+        {
+          "label": "node vm use",
+          "files": {
+            "main.ts": "import * as vm from 'node:vm'; export function main(){return vm.runInNewContext('1');}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_RUNTIME_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-05-07"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "builtinModuleValue",
+          "activating_case": "V3-SDK-05-01",
+          "control_case": "V3-SDK-05-04",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "clusterLauncherValue",
+          "activating_case": "V3-SDK-05-01",
+          "control_case": "V3-SDK-05-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        },
+        {
+          "helper": "inspectBuiltinProcessUse",
+          "activating_case": "V3-SDK-05-01",
+          "control_case": "V3-SDK-05-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-06",
+      "title": "Default Array.sort coercion",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "inspectDefaultSort",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-ba896a915c",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 633
+          },
+          "consumer": "inspectSemanticDependencies > inspectDefaultSort",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 633,
+          "end_line": 644,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L633"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es5.d.ts"
+      ],
+      "prerequisites": [
+        "Only default comparator or primitive undefined comparator follows default-sort branch. Explicit comparator may independently produce SDK_CALLBACK; do not call that variant admitted."
+      ],
+      "variants": [
+        {
+          "label": "actual SDK default object sort",
+          "files": {
+            "main.ts": "export function main(){return [{}].sort();}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SORT_COERCION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-06-01"
+        },
+        {
+          "label": "actual SDK primitive literal default sort",
+          "files": {
+            "main.ts": "export function main(){return [2,1].sort();}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SORT_COERCION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-06-02"
+        },
+        {
+          "label": "local sort homonym",
+          "files": {
+            "main.ts": "const data={sort(){return 1;}}; export function main(){return data.sort();}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SORT_COERCION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-06-03"
+        },
+        {
+          "label": "explicit comparator bypasses default-sort branch",
+          "files": {
+            "main.ts": "function compare(a:unknown,b:unknown){return 0;} export function main(){return [{}].sort(compare);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SORT_COERCION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-06-04"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "inspectDefaultSort",
+          "activating_case": "V3-SDK-06-01",
+          "control_case": "V3-SDK-06-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-07",
+      "title": "JSON.stringify literal-data serialization",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "sdkSerializer",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-67641b2308",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 911
+          },
+          "consumer": "inspectSemanticDependencies > sdkSerializer",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-opaque-ownership"
+          ]
+        },
+        {
+          "name": "inspectSerializerUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-5f0b7ed090",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 919
+          },
+          "consumer": "inspectSemanticDependencies > inspectSerializerUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-opaque-ownership"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 911,
+          "end_line": 931,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L911"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 825,
+          "end_line": 837,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L825"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es5.d.ts"
+      ],
+      "prerequisites": [
+        "literalData825–837 excludes methods/accessors/spreads/computed names. Even nonliteral benign object may be refused; no runtime execution or historical output used as oracle."
+      ],
+      "variants": [
+        {
+          "label": "actual SDK toJSON value",
+          "files": {
+            "main.ts": "export function main(){return JSON.stringify({toJSON(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SERIALIZATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-07-01"
+        },
+        {
+          "label": "actual SDK finite literal data control",
+          "files": {
+            "main.ts": "export function main(){return JSON.stringify({a:[1,true,null]});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SERIALIZATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-07-02"
+        },
+        {
+          "label": "destructured SDK serializer",
+          "files": {
+            "main.ts": "const {stringify}=JSON; export function main(){return stringify({toJSON(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SERIALIZATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-07-03"
+        },
+        {
+          "label": "local JSON homonym",
+          "files": {
+            "main.ts": "const JSON={stringify(v:unknown){return 'x';}}; export function main(){return JSON.stringify({toJSON(){return 1;}});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SERIALIZATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-07-04"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "sdkSerializer",
+          "activating_case": "V3-SDK-07-01",
+          "control_case": "V3-SDK-07-04",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectSerializerUse",
+          "activating_case": "V3-SDK-07-01",
+          "control_case": "V3-SDK-07-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-opaque-ownership"
+      ]
+    },
+    {
+      "id": "V3-SDK-08",
+      "title": "Proxy.revocable provenance",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "proxyFactory",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-eca1c5be74",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 948
+          },
+          "consumer": "inspectSemanticDependencies > proxyFactory",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 948,
+          "end_line": 954,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L948"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1317,
+          "end_line": 1317,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1317"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es2015.proxy.d.ts"
+      ],
+      "prerequisites": [
+        "Default SDK declaration parent must be ProxyConstructor. Named helper produces reason on runtime reference, not only successful call."
+      ],
+      "variants": [
+        {
+          "label": "actual SDK proxy revocable",
+          "files": {
+            "main.ts": "export function main(){return Proxy.revocable({},{});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROXY_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-08-01"
+        },
+        {
+          "label": "local Proxy homonym",
+          "files": {
+            "main.ts": "const Proxy={revocable(t:unknown,h:unknown){return t;}}; export function main(){return Proxy.revocable({},{});}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_PROXY_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-08-02"
+        },
+        {
+          "label": "destructured SDK proxy factory",
+          "files": {
+            "main.ts": "const {revocable}=Proxy; export function main(){return revocable({},{});}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_PROXY_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-08-03"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "proxyFactory",
+          "activating_case": "V3-SDK-08-01",
+          "control_case": "V3-SDK-08-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-09",
+      "title": "Reflect.apply/construct default-library invocation",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "reflectedInvocation",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e84ff2a6e7",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 955
+          },
+          "consumer": "inspectSemanticDependencies > reflectedInvocation",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-mutation-protocols"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 955,
+          "end_line": 961,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L955"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1327,
+          "end_line": 1328,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1327"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es2015.reflect.d.ts"
+      ],
+      "prerequisites": [
+        "Exact declaration namespace Reflect and default-library status, not property spelling or callable shape."
+      ],
+      "variants": [
+        {
+          "label": "actual SDK Reflect.apply",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Reflect.apply(helper,null,[]);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_REFLECT_INVOCATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-09-01"
+        },
+        {
+          "label": "local Reflect.apply homonym",
+          "files": {
+            "main.ts": "const Reflect={apply(f:unknown,t:unknown,args:unknown){return 1;}}; function helper(){return 1;} export function main(){return Reflect.apply(helper,null,[]);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_REFLECT_INVOCATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-09-02"
+        },
+        {
+          "label": "actual SDK Reflect.construct",
+          "files": {
+            "main.ts": "class Target{} export function main(){return Reflect.construct(Target,[]);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_REFLECT_INVOCATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-09-03"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "reflectedInvocation",
+          "activating_case": "V3-SDK-09-01",
+          "control_case": "V3-SDK-09-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-mutation-protocols"
+      ]
+    },
+    {
+      "id": "V3-SDK-10",
+      "title": "Service worker registration SDK origin",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "serviceWorkerLoader",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e2d30a418f",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 932
+          },
+          "consumer": "inspectSemanticDependencies > serviceWorkerLoader",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-opaque-ownership"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 932,
+          "end_line": 940,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L932"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1302,
+          "end_line": 1302,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1302"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.dom.d.ts"
+      ],
+      "prerequisites": [
+        "SDK serviceWorker member or register declaration owned by default-library ServiceWorkerContainer; fixture does not execute browser API."
+      ],
+      "variants": [
+        {
+          "label": "actual navigator service worker register",
+          "files": {
+            "main.ts": "export function main(){return navigator.serviceWorker.register('worker.js');}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_SERVICE_WORKER_LOADER_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-10-01"
+        },
+        {
+          "label": "local service worker homonym",
+          "files": {
+            "main.ts": "const navigator={serviceWorker:{register(s:string){return s;}}}; export function main(){return navigator.serviceWorker.register('worker.js');}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_SERVICE_WORKER_LOADER_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-10-02"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "serviceWorkerLoader",
+          "activating_case": "V3-SDK-10-01",
+          "control_case": "V3-SDK-10-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-opaque-ownership"
+      ]
+    },
+    {
+      "id": "V3-SDK-11",
+      "title": "Worklet addModule SDK property declaration",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "workletLoader",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-33a3fb5b2a",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 941
+          },
+          "consumer": "inspectSemanticDependencies > workletLoader",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-opaque-ownership"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 941,
+          "end_line": 947,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L941"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1303,
+          "end_line": 1303,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1303"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.dom.d.ts"
+      ],
+      "prerequisites": [
+        "This helper deliberately asks property-of-receiver-type and requires default-library interface Worklet. Unlike sdkValue constructor origin, local variable annotated Worklet reaches this source branch. Do not normalize that historical distinction."
+      ],
+      "variants": [
+        {
+          "label": "real default SDK Worklet member type",
+          "files": {
+            "main.ts": "declare const worklet:Worklet; export function main(){return worklet.addModule('worklet.js');}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_WORKLET_LOADER_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-11-01"
+        },
+        {
+          "label": "local Worklet-like method",
+          "files": {
+            "main.ts": "const worklet={addModule(s:string){return s;}}; export function main(){return worklet.addModule('worklet.js');}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_WORKLET_LOADER_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-11-02"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "workletLoader",
+          "activating_case": "V3-SDK-11-01",
+          "control_case": "V3-SDK-11-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-opaque-ownership"
+      ]
+    },
+    {
+      "id": "V3-SDK-12",
+      "title": "Timers callable callback versus runtime evaluation",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "sdkTimer",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c75330e406",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1028
+          },
+          "consumer": "inspectSemanticDependencies > sdkTimer",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        },
+        {
+          "name": "timerValue",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9608b6f244",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1036
+          },
+          "consumer": "inspectSemanticDependencies > timerValue",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        },
+        {
+          "name": "unsafeHandler",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-4d491c2735",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1049
+          },
+          "consumer": "inspectSemanticDependencies > unsafeHandler",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        },
+        {
+          "name": "inspectTimerUse",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-248f377bb9",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1056
+          },
+          "consumer": "inspectSemanticDependencies > inspectTimerUse",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1028,
+          "end_line": 1075,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1028"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.dom.d.ts"
+      ],
+      "prerequisites": [
+        "sdkTimer requires nonempty all-default-library declarations named setTimeout/setInterval. No @types/node augmentation is in input. A callable handler is still refused with CALLBACK, so it is only an evaluation-reason control."
+      ],
+      "variants": [
+        {
+          "label": "actual SDK string handler",
+          "files": {
+            "main.ts": "export function main(){return setTimeout('run()',0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [
+              "SOURCE_TIMER_CALLBACK_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-01"
+        },
+        {
+          "label": "actual SDK callable handler control for evaluation",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return setTimeout(helper,0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_CALLBACK_UNSUPPORTED"
+            ],
+            "excludes": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-02"
+        },
+        {
+          "label": "local timer homonym",
+          "files": {
+            "main.ts": "function setTimeout(h:unknown,n:number){return 1;} export function main(){return setTimeout('run()',0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED",
+              "SOURCE_TIMER_CALLBACK_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-03"
+        },
+        {
+          "label": "const timer alias",
+          "files": {
+            "main.ts": "const later=setTimeout; export function main(){return later('run()',0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-04"
+        },
+        {
+          "label": "destructured global timer alias",
+          "files": {
+            "main.ts": "const {setTimeout:later}=globalThis; export function main(){return later('run()',0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-05"
+        },
+        {
+          "label": "union handler string arm",
+          "files": {
+            "main.ts": "export function main(handler:string|(()=>void)){return setInterval(handler,0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-06"
+        },
+        {
+          "label": "type-parameter handler",
+          "files": {
+            "main.ts": "export function main<T extends ()=>void>(handler:T){return setTimeout(handler,0);}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-12-07"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "sdkTimer",
+          "activating_case": "V3-SDK-12-01",
+          "control_case": "V3-SDK-12-03",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "timerValue",
+          "activating_case": "V3-SDK-12-04",
+          "control_case": "V3-SDK-12-03",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "unsafeHandler",
+          "activating_case": "V3-SDK-12-01",
+          "control_case": "V3-SDK-12-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        },
+        {
+          "helper": "inspectTimerUse",
+          "activating_case": "V3-SDK-12-01",
+          "control_case": "V3-SDK-12-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-runtime-boundaries"
+      ]
+    },
+    {
+      "id": "V3-SDK-13",
+      "title": "Import.meta callable members versus primitive and local homonym",
+      "author": "/root/qualification383",
+      "authored_at_utc": "2026-10-17T14:47:00.024185+00:00",
+      "status": "SOURCE_AUTHORED_PROPOSAL_NOT_REVIEWED_NOT_FROZEN_NOT_EXECUTED",
+      "helper_obligations": [
+        {
+          "name": "importMetaMember",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-76bfe07fba",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1148
+          },
+          "consumer": "inspectSemanticDependencies > importMetaMember",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        },
+        {
+          "name": "inspectImportMetaMember",
+          "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc9e45d4da",
+          "source": {
+            "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+            "line": 1162
+          },
+          "consumer": "inspectSemanticDependencies > inspectImportMetaMember",
+          "missing_discriminator": "The named helper branch needs an activating specimen plus a relevant control; generic same-family P/N does not provide that discriminator.",
+          "inventory_family_ids": [
+            "qualified-runtime-boundaries"
+          ]
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 1148,
+          "end_line": 1175,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L1148"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 173,
+          "end_line": 199,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L173"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 102,
+          "end_line": 115,
+          "role": "implemented historical source; independent reading, no execution",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/semantic-dependency-diagnostics.ts#L102"
+        }
+      ],
+      "sdk_declarations_required_for_named_discriminator": [
+        "lib.es5.d.ts"
+      ],
+      "prerequisites": [
+        "globals.d.ts explicitly participates in program roots; this is a retained augmentation, never relabelled SDK bytes. import.meta.require exception is only this reason; other loader refusals/admission remain unknown. Primitive property returned within function is no call, but import.meta syntax itself forces checker."
+      ],
+      "variants": [
+        {
+          "label": "actual import.meta callable member",
+          "files": {
+            "main.ts": "export function main(){return import.meta.invoke();}",
+            "globals.d.ts": "interface ImportMeta {invoke():number;url:string;require(name:string):unknown;}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-13-01"
+        },
+        {
+          "label": "actual import.meta primitive member",
+          "files": {
+            "main.ts": "export function main(){return import.meta.url;}",
+            "globals.d.ts": "interface ImportMeta {invoke():number;url:string;require(name:string):unknown;}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-13-02"
+        },
+        {
+          "label": "destructured import.meta callable alias",
+          "files": {
+            "main.ts": "const {invoke}=import.meta; export function main(){return invoke();}",
+            "globals.d.ts": "interface ImportMeta {invoke():number;url:string;require(name:string):unknown;}"
+          },
+          "expected_reason_projection": {
+            "contains": [
+              "SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED"
+            ],
+            "excludes": [],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-13-03"
+        },
+        {
+          "label": "local importMeta homonym",
+          "files": {
+            "main.ts": "const importMeta={invoke(){return 1;}}; export function main(){return importMeta.invoke();}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-13-04"
+        },
+        {
+          "label": "require exception in this helper only",
+          "files": {
+            "main.ts": "export function main(){return import.meta.require('x');}",
+            "globals.d.ts": "interface ImportMeta {invoke():number;url:string;require(name:string):unknown;}"
+          },
+          "expected_reason_projection": {
+            "contains": [],
+            "excludes": [
+              "SOURCE_IMPORT_META_CALLABLE_UNSUPPORTED"
+            ],
+            "exact_set": null,
+            "global_admission_inferred": false
+          },
+          "precondition": null,
+          "all_unlisted_reasons_and_facts": "UNKNOWN; no complete reason set or admission inferred",
+          "case_id": "V3-SDK-13-05"
+        }
+      ],
+      "pair_registry": [
+        {
+          "helper": "importMetaMember",
+          "activating_case": "V3-SDK-13-01",
+          "control_case": "V3-SDK-13-04",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "runtime/default-library or module provenance"
+        },
+        {
+          "helper": "inspectImportMetaMember",
+          "activating_case": "V3-SDK-13-01",
+          "control_case": "V3-SDK-13-02",
+          "basis": "named helper and downstream reason branch inspected in source; shared case only closes proposed projection if independently reviewed; no runtime closure claimed",
+          "discriminator_kind": "downstream observable reason branch"
+        }
+      ],
+      "full_expected_fact_set_frozen": false,
+      "inventory_family_ids": [
+        "qualified-runtime-boundaries"
+      ]
+    }
+  ],
+  "limits": [
+    "Named reason projections only. Other reasons and complete facts remain unknown.",
+    "Pair registry is a proposal requiring independent review; static reach is not runtime proof.",
+    "No public qualification corpus or held-out files accessed; no composition selected or run."
+  ],
+  "effort_intervals": [
+    {
+      "start_utc": "2026-10-17T14:42:51Z",
+      "end_utc": "2026-10-17T14:48:30.837394+00:00",
+      "wall_seconds": 339.837394,
+      "kind": "conservative active wall interval; no known host sleep",
+      "author": "/root/qualification383",
+      "limit_seconds": 720
+    },
+    {
+      "start_utc": "2026-10-17T15:01:19Z",
+      "end_utc": "2026-10-17T15:01:48.062375+00:00",
+      "wall_seconds": 29.062375,
+      "kind": "source-backed correction after independent review; conservative active wall interval",
+      "author": "/root/qualification383",
+      "limit_seconds": 300
+    }
+  ],
+  "verification_performed": {
+    "method": "Python JSON/reference/immutability assertions, published archive bytes hashed; no implementation or tests executed",
+    "unchanged_v2_non_E03_cases": 111,
+    "case_ids_unique": true,
+    "pair_references_resolve": true,
+    "named_helper_pair_count": 25,
+    "required_SDK_bytes_match_manifest": true,
+    "environment": "Darwin arm64 external scratch"
+  }
+}

@@ -1,0 +1,1222 @@
+{
+  "schema_version": 1,
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "PROPOSED_MISSING_EXPECTATIONS_NO_FREEZE_NO_EXECUTION",
+  "author": "/root/ordinary_ts_inventory",
+  "effort": {
+    "started_utc": "2026-10-17T15:09:46Z",
+    "finished_utc": "2026-10-17T15:17:14.215959+00:00",
+    "budget_active_minutes": 10
+  },
+  "case_count": 19,
+  "cases": [
+    {
+      "id": "ORD-OUTLINE-DEFAULT-OWNERS",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel",
+      "input": {
+        "variants": [
+          {
+            "source": "export default function named() {}"
+          },
+          {
+            "source": "export default function() {}"
+          },
+          {
+            "source": "export default local.member;"
+          }
+        ],
+        "relPath": "src/x.ts"
+      },
+      "expected_projection": {
+        "variants": [
+          {
+            "kind": "function",
+            "declaredNames": [
+              "named"
+            ],
+            "referencedNames": [],
+            "exportedNames": [
+              "default",
+              "named"
+            ],
+            "executesOnLoad": false
+          },
+          {
+            "kind": "function",
+            "declaredNames": [
+              "default"
+            ],
+            "referencedNames": [],
+            "exportedNames": [
+              "default"
+            ],
+            "executesOnLoad": false
+          },
+          {
+            "kind": "export",
+            "declaredNames": [
+              "default"
+            ],
+            "referencedNames": [
+              "local"
+            ],
+            "exportedNames": [
+              "default",
+              "local"
+            ],
+            "executesOnLoad": false
+          }
+        ],
+        "all_statement_coordinates": {
+          "startLine": 1,
+          "endLine": 1,
+          "leadingStartLine": 1
+        },
+        "all_hasSyntaxErrors": false,
+        "all_absent_statement_fields": [
+          "moduleSpecifier",
+          "importBindings",
+          "loadsModule",
+          "sideEffectImport"
+        ],
+        "digest": "not projected"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 155,
+          "end_line": 205,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Covers named/anonymous default and export-assignment property-root peeling absent from the existing 56 outline fixtures.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel",
+      "input": {
+        "variants": [
+          "enum E { a = run() }",
+          "enum E { a = 1 }",
+          "namespace N { run(); }",
+          "namespace N {}",
+          "interface I { field: unknown; method(): void; }"
+        ],
+        "relPath": "src/x.ts"
+      },
+      "expected_projection": {
+        "variants": [
+          {
+            "kind": "enum",
+            "declaredNames": [
+              "E"
+            ],
+            "referencedNames": [
+              "run"
+            ],
+            "executesOnLoad": true
+          },
+          {
+            "kind": "enum",
+            "declaredNames": [
+              "E"
+            ],
+            "referencedNames": [],
+            "executesOnLoad": false
+          },
+          {
+            "kind": "namespace",
+            "declaredNames": [
+              "N"
+            ],
+            "referencedNames": [
+              "run"
+            ],
+            "executesOnLoad": true
+          },
+          {
+            "kind": "namespace",
+            "declaredNames": [
+              "N"
+            ],
+            "referencedNames": [],
+            "executesOnLoad": false
+          },
+          {
+            "kind": "interface",
+            "declaredNames": [
+              "I"
+            ],
+            "referencedNames": [],
+            "executesOnLoad": false
+          }
+        ],
+        "all_coordinates": [
+          1,
+          1,
+          1
+        ],
+        "all_exportedNames": [],
+        "all_hasSyntaxErrors": false,
+        "all_absent": [
+          "loadsModule",
+          "importBindings",
+          "moduleSpecifier",
+          "sideEffectImport"
+        ],
+        "digest": "not projected"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 104,
+          "end_line": 137,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 164,
+          "end_line": 169,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 319,
+          "end_line": 328,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Isolates enum initializer some and namespace body recursion; interface member/signature names are not references.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-OUTLINE-EVALUATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel",
+      "input": {
+        "assignment_variants": [
+          "const value = (counter = 1);",
+          "const value = (counter += 1);",
+          "const value = (counter -= 1);",
+          "const value = (counter *= 1);",
+          "const value = (counter **= 1);",
+          "const value = (counter /= 1);",
+          "const value = (counter %= 1);",
+          "const value = (counter <<= 1);",
+          "const value = (counter >>= 1);",
+          "const value = (counter >>>= 1);",
+          "const value = (counter &= 1);",
+          "const value = (counter |= 1);",
+          "const value = (counter ^= 1);",
+          "const value = (counter ||= 1);",
+          "const value = (counter &&= 1);",
+          "const value = (counter ??= 1);"
+        ],
+        "other_variants": [
+          "const value = counter + 1;",
+          "const value = counter++;",
+          "const value = --counter;",
+          "const value = new Model();",
+          "const value = tag`text`;",
+          "const value = await task;",
+          "const value = delete object.key;",
+          "const value = { nested: run() };",
+          "const value = { nested: function() { run(); } };",
+          "const value = (1 as typeof run);"
+        ],
+        "existing_deferred_controls": [
+          "OL-C18",
+          "OL-C16"
+        ]
+      },
+      "expected_projection": {
+        "assignment_executesOnLoad": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "other_executesOnLoad": [
+          false,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "all_kind": "variable",
+        "all_declaredNames": [
+          "value"
+        ],
+        "all_coordinates": [
+          1,
+          1,
+          1
+        ],
+        "all_hasSyntaxErrors": false,
+        "projection_scope": "executesOnLoad, declaredNames, kind and line coordinates; referencedNames/digest intentionally not added as invented full projection"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 237,
+          "end_line": 291,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 329,
+          "end_line": 334,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Adds missing assignment/update/new/tagged/await/delete/nested traversal discriminators; class/deferred-arrow fixtures are reused. Yield branch has no independently accepted file-scope specimen here and stays a reachability question.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-OUTLINE-SCRIPT-KIND",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel",
+      "input": {
+        "source": "const view = <Panel item={source} />;",
+        "relPath_variants": [
+          "src/view.tsx",
+          "src/view.ts"
+        ]
+      },
+      "expected_projection": {
+        "tsx": {
+          "hasSyntaxErrors": false,
+          "statements_projection": [
+            {
+              "kind": "variable",
+              "declaredNames": [
+                "view"
+              ],
+              "referencedNames": [
+                "Panel",
+                "source"
+              ],
+              "executesOnLoad": false,
+              "startLine": 1,
+              "endLine": 1,
+              "leadingStartLine": 1
+            }
+          ]
+        },
+        "ts": {
+          "hasSyntaxErrors": true,
+          "recovered_statement_projection": "not asserted"
+        }
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 83,
+          "end_line": 85,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 122,
+          "end_line": 122,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 395,
+          "end_line": 419,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Same source bytes distinguish TSX suffix handling and JSX attribute-name suppression from ordinary TS parsing; malformed recovery is not a complete outline oracle.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-OUTLINE-COMMENT-CONTROLS",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel",
+      "input": {
+        "before": "// @ts-ignore\nconst value = 1;\n// ordinary\n/** @invariant INV-1 */\nconst other = 2;",
+        "after": "// ordinary first\nconst value = 1;\n// ordinary\n/** ordinary doc */\nconst other = 2;",
+        "relPath": "src/comments.ts"
+      },
+      "expected_projection": {
+        "before": {
+          "directiveLines": [
+            1
+          ],
+          "markerLines": [
+            4
+          ]
+        },
+        "after": {
+          "directiveLines": [],
+          "markerLines": []
+        },
+        "both_statement_line_triples": [
+          [
+            2,
+            2,
+            1
+          ],
+          [
+            5,
+            5,
+            3
+          ]
+        ],
+        "same_statement_digest_pairs": [
+          true,
+          true
+        ],
+        "both_hasSyntaxErrors": false
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 144,
+          "end_line": 146,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 214,
+          "end_line": 235,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 389,
+          "end_line": 432,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Directive/marker flags change while comments do not change token digests; preceding ordinary and JSDoc comment range starts are counted independently. Final caller classification is not inferred.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-OUTLINE-PRIVATE-DIGEST",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineTopLevel digest relation",
+      "input": {
+        "before": "class C { #first = 1; }",
+        "after": "class C { #second = 1; }"
+      },
+      "expected_projection": {
+        "first_statement_digest_equal": false,
+        "exact_digest_bytes": "not specified"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 217,
+          "end_line": 234,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "PrivateIdentifier text branch was absent; raw-template/operator/whitespace relations already exist in historical test56–82 and are reused rather than duplicated.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-LINK-NO-ARG",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "outlineModuleLinks",
+      "input": {
+        "source": "const value = require();",
+        "relPath": "src/x.ts"
+      },
+      "expected_projection": {
+        "links_exact": [
+          {
+            "kind": "require",
+            "specifier": null,
+            "line": 1,
+            "whole": true
+          }
+        ]
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 457,
+          "end_line": 478,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Missing first argument reaches undefined literal control; existing N10 covers a supplied computed argument instead.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-RETAINED-SYSTEM",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "retainedCompilerSystem observable reads",
+      "input": {
+        "logical_root": "R, materialized as native absolute disposable root",
+        "snapshot": {
+          "R/src/a.ts": "retained",
+          "R/tsconfig.json": "{}"
+        },
+        "live_files": {
+          "R/src/a.ts": "changed",
+          "R/src/not-retained.ts": "live-only"
+        },
+        "queries": [
+          "readFile(R/src/a.ts)",
+          "readFile(R/src/not-retained.ts)",
+          "fileExists(R/src/a.ts)",
+          "fileExists(R/src/not-retained.ts)",
+          "directoryExists(R/src)",
+          "directoryExists(R/missing)",
+          "readDirectory(R)"
+        ]
+      },
+      "expected_projection": {
+        "results": [
+          "retained",
+          {
+            "state": "undefined"
+          },
+          true,
+          false,
+          true,
+          false,
+          []
+        ],
+        "SDK_fallback_projection": "not asserted; standard-library fallback remains separately recorded historical behavior",
+        "cache_implementation_identity": "not an R0 requirement"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 16,
+          "end_line": 45,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 318,
+          "end_line": 329,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Retained versus live-only source/absence/directory behavior is observable to resolver; no WeakMap or public Rust API port is prescribed.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-WORKSPACE-SYSTEM-READS",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "workspaceLinkedSystem injected System contract",
+      "input": {
+        "reuse_case": "P11-workspace-config-link",
+        "system": "ordinary pinned baseline System over materialized files",
+        "boundary": "R",
+        "virtual": "R/domains/registry/api/node_modules/@fixture/config/tsconfig/node.json",
+        "physical": "R/tooling/config/tsconfig/node.json",
+        "outside": "O/outside.json, O outside R",
+        "variants": [
+          "uninstalled workspace link",
+          "same fixture plus virtual file containing installed bytes"
+        ]
+      },
+      "expected_projection": {
+        "uninstalled": {
+          "fileExists_virtual": true,
+          "readFile_virtual": "exact bytes of P11 tooling/config/tsconfig/node.json",
+          "directoryExists_virtual_parent": true,
+          "realpath_virtual": "native canonical physical path",
+          "resolver_inputs_physical": "exact read bytes"
+        },
+        "installed": {
+          "readFile_virtual": "installed bytes",
+          "realpath_virtual": "native canonical virtual physical path"
+        },
+        "boundary_control": {
+          "fileExists_outside": false,
+          "readFile_outside": {
+            "state": "undefined"
+          },
+          "directoryExists_outside": false,
+          "realpath_outside": "unchanged input path",
+          "resolver_inputs_outside": {
+            "state": "undefined"
+          }
+        }
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/workspace-links.ts",
+          "line": 337,
+          "end_line": 399,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Adds exact per-System observable/causal-read projections to existing P11 semantic config resolution. Existing historical installed-precedence refusal still corroborates the alternative branch; component APIs need equivalent behavior, not a Rust method-for-method port.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-QUALIFIED-ELIGIBILITY",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "createQualifiedPathEligibility",
+      "input": {
+        "git_fixture": "disposable repository with local .gitignore dist/; host-global excludes not used",
+        "files": {
+          ".gitignore": "dist/\n",
+          "src/main.ts": "export const main=1;",
+          "dist/tsconfig.json": "{\"extends\":\"./base\"}",
+          "dist/base.json": "{}",
+          "dist/noise.ts": "export const noise=1;",
+          "dist/.gitignore": "noise.ts\n"
+        },
+        "configuration_constructor": "createGlobSelectionConfig(R), preserving all defaults; include only src/**/*.ts; baseline analysisProfile modelo-suite-static-v1",
+        "queries": [
+          "src/main.ts",
+          "dist/tsconfig.json",
+          "dist/base.json",
+          "dist/noise.ts",
+          "dist/.gitignore",
+          "node_modules/pkg/x.ts"
+        ]
+      },
+      "expected_projection": {
+        "eligible_results": [
+          true,
+          true,
+          true,
+          false,
+          true,
+          false
+        ],
+        "git_command_failure_control": {
+          "input": "No Git eligibility result: Git command exits nonzero",
+          "error_code": "IO_ERROR",
+          "message": "qualified discovery could not establish Git source eligibility"
+        }
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 196,
+          "end_line": 233,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Relative extends metadata below an ignored output directory remains causal while unselected generated source does not. This fixes only source eligibility expectations, not a new capture service.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-CALLABLE-TYPE-ORIGIN",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "retainedCallableCoordinate",
+      "input": {
+        "files": {
+          "dep.ts": "export function helper() {} export default function main() {}"
+        },
+        "consumer_variants": [
+          "import {helper} from \"./dep\"; const observed=helper;",
+          "import { type helper } from \"./dep\"; const observed=helper;",
+          "import type main from \"./dep\"; const observed=main;",
+          "import type * as ns from \"./dep\"; const observed=ns.helper;"
+        ],
+        "expression": "observed initializer in each variant",
+        "snapshot": "same retained map including dep and consumer"
+      },
+      "expected_projection": {
+        "coordinate_variants": [
+          {
+            "relPath": "dep.ts",
+            "symbolPath": "helper"
+          },
+          {
+            "state": "undefined"
+          },
+          {
+            "state": "undefined"
+          },
+          {
+            "state": "undefined"
+          }
+        ],
+        "semantic_type_errors": "not a syntax failure; no general admission asserted",
+        "unasserted_named_clause_level_typeOnly": "Whole-clause import type {helper} is not this inline ImportSpecifier flag witness. Its owning-consumer outcome needs separate review; no global admission or private coordinate result is inferred."
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1224,
+          "end_line": 1236,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Receiver origin checks directly cover inline ImportSpecifier.isTypeOnly, default ImportClause.isTypeOnly and NamespaceImport.parent.isTypeOnly before callable acceptance. Value import control retains actual declaration. Whole-clause named type-only is deliberately not silently equated to inline type-only.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-IMPORT-NAME-PROJECTIONS",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "extractTypeScript import name field",
+      "input": {
+        "reuse_outline_source_case_ids": [
+          "OL-M01",
+          "OL-M02",
+          "OL-M03",
+          "OL-M05",
+          "OL-M06"
+        ],
+        "relative_import_target": "./mod may remain unresolved; structural import record is still projected",
+        "variants": [
+          "retained canonical mode",
+          "historical no-snapshot mode"
+        ]
+      },
+      "expected_projection": {
+        "retained_import_names_by_source_case": {
+          "OL-M01": [],
+          "OL-M02": [],
+          "OL-M03": [
+            "value"
+          ],
+          "OL-M05": [
+            "default"
+          ],
+          "OL-M06": [
+            "ns"
+          ]
+        },
+        "historical_default_import_name_for_OL_M05": [
+          "Default"
+        ],
+        "runtime_coverage_from_structural_import_alone": false
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Reuses authored import source bytes; adds only extractor names/type-erasure/canonical-alias expectations absent from outline importBindings. No duplicate source corpus is created.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-RUNTIME-NAMED-VALUE",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "extractTypeScript binding target runtimeUsed",
+      "input": {
+        "reuse_case": "N07-shadow-is-not-runtime-import",
+        "replace_consumer_source": "import {FLAG} from \"./dep\"; export const observed=FLAG;"
+      },
+      "expected_projection": {
+        "binding_target_projection": [
+          {
+            "importer": "consumer.ts",
+            "target": [
+              "dep.ts",
+              "FLAG"
+            ],
+            "unmodeledReason": "VALUE_DECLARATION"
+          }
+        ],
+        "control_existing_case": "N07-shadow-is-not-runtime-import runtimeUsed false",
+        "binding_target_field_absences": [
+          {
+            "index": 0,
+            "fields": [
+              "runtimeUsed"
+            ]
+          }
+        ]
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1086,
+          "end_line": 1105,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 540,
+          "end_line": 544,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented baseline emits false only for unused binding; positive omits field"
+        }
+      ],
+      "basis": "Direct named runtime read is the missing activating counterpart to the existing unused/type-erased/shadowed historical false cases.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-WORKER-REQUEST-REFUSAL",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "index-worker self.onmessage request validation",
+      "input": {
+        "variants": [
+          null,
+          {},
+          {
+            "schemaVersion": 2,
+            "jobId": "j",
+            "repoRoot": "R",
+            "rootAbsPaths": [],
+            "emitAbsPaths": []
+          },
+          {
+            "schemaVersion": 1,
+            "jobId": 9,
+            "repoRoot": "R",
+            "rootAbsPaths": [],
+            "emitAbsPaths": []
+          },
+          {
+            "schemaVersion": 1,
+            "jobId": "j",
+            "repoRoot": "R",
+            "rootAbsPaths": [
+              3
+            ],
+            "emitAbsPaths": []
+          }
+        ],
+        "existing_valid_control": "P13-worker-preserves-facts"
+      },
+      "expected_projection": {
+        "response_exact_each": {
+          "schemaVersion": 1,
+          "jobId": "unbound",
+          "ok": false,
+          "error": "malformed extraction request"
+        },
+        "extraction_started": false
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/index-worker.ts",
+          "line": 14,
+          "end_line": 50,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "Existing N13 rejects parent-side response evidence, not malformed child-side requests. This supplies the actually missing request refusal projection, without new process protocol.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-WORKER-EMIT-SUBSET",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "index-worker restrictToEmitRoots",
+      "input": {
+        "reuse_case": "P13-worker-preserves-facts",
+        "request_root_set": [
+          "a.ts",
+          "b.ts"
+        ],
+        "emit_set": [
+          "a.ts"
+        ],
+        "jobId": "j"
+      },
+      "expected_projection": {
+        "response_projection": {
+          "schemaVersion": 1,
+          "jobId": "j",
+          "ok": true,
+          "extraction": {
+            "modules": [
+              "a.ts"
+            ],
+            "symbols_projection": [
+              {
+                "name": "leaf",
+                "kind": "function",
+                "relPath": "a.ts"
+              }
+            ],
+            "imports": [],
+            "calls": []
+          }
+        },
+        "forbidden_emitted_paths": [
+          "b.ts"
+        ]
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/index-worker.ts",
+          "line": 20,
+          "end_line": 29,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/index-worker.ts",
+          "line": 53,
+          "end_line": 80,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "P13 emits both requested roots. This adds the missing distinction between semantic context roots and actual emitted source roots.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "id": "ORD-DIALECT-CAPABILITY",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "MISSING_EXPECTATION_PROPOSAL_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "boundary": "analyzeRepository CapabilityProfile scope",
+      "input": {
+        "reuse_source_fixture": "P04-small-complete-symbol-set",
+        "configuration_constructor": "createGlobSelectionConfig(R), preserve defaults; include entry.ts; successful ordinary analysis"
+      },
+      "expected_projection": {
+        "every_typescript_or_javascript_capability_scope_dialectVersion": "5.9.3",
+        "compiler_package_version_input": "pinned TypeScript5.9.3",
+        "declarative_scope": "Producer dialect identity observation, not a numeric enum-value mirror test"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 9,
+          "end_line": 10,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        },
+        {
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 510,
+          "end_line": 525,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ],
+      "basis": "TYPESCRIPT_DIALECT_VERSION is consumed in capability scopes, a real output property distinct from implementation-identity hashes.",
+      "independence": "Authored from exact source predicates and manually specified observations, without producer output or generated golden. Existing source fixtures are referenced by ID instead of duplicated.",
+      "unasserted": [
+        "Full admission/final impact",
+        "Complete parser/compiler diagnostics unless explicitly projected",
+        "Native equivalence or execution coverage"
+      ]
+    },
+    {
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_PAIR_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "source_status": "Implemented exact baseline, corroborated by main /root; not new architectural authority.",
+      "independence": "Inputs and expected relations/fields authored by source reasoning before any producer observation. No generated golden or runtime/native execution.",
+      "native_state": "unknown",
+      "not_asserted": [
+        "All syntax branches",
+        "Universal parity",
+        "Global qualified admission",
+        "Public Rust API or method-for-method port"
+      ],
+      "id": "ORD-CANONICAL-IDENTITY-PAIR",
+      "boundary": "exact canonicalTypeScriptFileKey source projection under a controlled System dependency; logical test primitive only",
+      "input": {
+        "fake_system": {
+          "useCaseSensitiveFileNames": true,
+          "realpath_results": {
+            "/Repo/alias.ts": "/Repo/src/Value.ts",
+            "/Repo/src/Value.ts": "/Repo/src/Value.ts",
+            "/Repo/src/Other.ts": "/Repo/src/Other.ts"
+          }
+        },
+        "queries": [
+          "/Repo/alias.ts",
+          "/Repo/src/Value.ts",
+          "/Repo/src/Other.ts"
+        ],
+        "host_filesystem_queries": "none prescribed; fake dependency makes the expected identity relation controllable"
+      },
+      "expected_projection": {
+        "canonical_keys": [
+          "/Repo/src/Value.ts",
+          "/Repo/src/Value.ts",
+          "/Repo/src/Other.ts"
+        ],
+        "positive_relation": "alias query and real-target query have the same key",
+        "counter_relation": "Value.ts and Other.ts have distinct keys"
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 318,
+          "end_line": 330,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+        }
+      ],
+      "scope": "Canonical dependency identity used by extraction/partition consumers. No public function/signature/export is proposed; no need to enumerate casefold/failure permutations for this relevant pair."
+    },
+    {
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_PAIR_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "source_status": "Implemented exact baseline, corroborated by main /root; not new architectural authority.",
+      "independence": "Inputs and expected relations/fields authored by source reasoning before any producer observation. No generated golden or runtime/native execution.",
+      "native_state": "unknown",
+      "not_asserted": [
+        "All syntax branches",
+        "Universal parity",
+        "Global qualified admission",
+        "Public Rust API or method-for-method port"
+      ],
+      "id": "ORD-FUNCTION-VARIABLE-PAIR",
+      "boundary": "extractTypeScript ordinary retained extraction",
+      "input": {
+        "logical_root": "R, native absolute disposable root",
+        "variants": [
+          {
+            "files": {
+              "main.ts": "export const value = () => 1;"
+            }
+          },
+          {
+            "files": {
+              "main.ts": "export const value = 1;"
+            }
+          }
+        ],
+        "roots": [
+          "main.ts"
+        ],
+        "snapshot": "exact supplied source bytes for each separate variant"
+      },
+      "expected_projection": {
+        "positive_variant_symbols_matching_main_value": [
+          {
+            "relPath": "main.ts",
+            "name": "value",
+            "kind": "function",
+            "scope": []
+          }
+        ],
+        "counter_variant_symbols_matching_main_value": [],
+        "projection": "Only declared callable symbol ownership versus ordinary-data omission is asserted; no data symbol is fabricated."
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1047,
+          "end_line": 1049,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+        },
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 479,
+          "end_line": 506,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+        }
+      ],
+      "scope": "Arrow-variable true case plus ordinary-data counter is enough for the named usage expectation. FunctionExpression and all other callable forms remain uncredited additional combinations."
+    },
+    {
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_PAIR_NOT_FROZEN_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "source_status": "Implemented exact baseline, corroborated by main /root; not new architectural authority.",
+      "independence": "Inputs and expected relations/fields authored by source reasoning before any producer observation. No generated golden or runtime/native execution.",
+      "native_state": "unknown",
+      "not_asserted": [
+        "All syntax branches",
+        "Universal parity",
+        "Global qualified admission",
+        "Public Rust API or method-for-method port"
+      ],
+      "id": "ORD-CALLABLE-DECLARATION-PAIR",
+      "boundary": "existing retainedCallableCoordinate internal policy seam, not a package/public API proposal",
+      "input": {
+        "logical_root": "R, native absolute disposable root",
+        "variants": [
+          {
+            "files": {
+              "main.ts": "export const value = () => 1; export const observed = value;"
+            }
+          },
+          {
+            "files": {
+              "main.ts": "export const value = 1; export const observed = value;"
+            }
+          }
+        ],
+        "expression_selection": "Identifier value in observed initializer",
+        "context": "Exact retained baseline source Program/checker over corresponding source map; receiver has no import/type-only origin"
+      },
+      "expected_projection": {
+        "positive_coordinate": {
+          "relPath": "main.ts",
+          "symbolPath": "value"
+        },
+        "counter_coordinate": {
+          "state": "undefined"
+        },
+        "reason_for_counter": "Data VariableDeclaration fails declaration-kind acceptance after passing the separate non-type-only receiver guard."
+      },
+      "source_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1225,
+          "end_line": 1236,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+        }
+      ],
+      "scope": "Directly discriminates callable declaration acceptance from noncallable value rejection. This counter reaches the named gate, unlike the previous type-only negatives which exit earlier."
+    }
+  ],
+  "original_236_cases_modified": false,
+  "heldout_accessed": false,
+  "native_targets_exercised": [],
+  "effort_intervals": [
+    {
+      "started_utc": "2026-10-17T15:25:34Z",
+      "finished_utc": "2026-10-17T15:26:47.057266+00:00",
+      "budget_minutes": 4,
+      "work": "Existing-case property review followed by at most three missing pair records; no producer execution."
+    }
+  ]
+}

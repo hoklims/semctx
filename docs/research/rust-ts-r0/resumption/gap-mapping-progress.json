@@ -1,0 +1,1319 @@
+{
+  "recordVersion": 1,
+  "startedUtc": "2026-10-18T15:10:36.832726+00:00",
+  "state": "ORIGINAL_MACOS_CAMPAIGN_EXECUTED_RAW_NONPASS_PROPERTY_REVIEW_OPEN",
+  "additionalC1Pass": 1,
+  "passStillOpen": true,
+  "ownerBudgetChanged": false,
+  "startingGapUnits": 64,
+  "startingGapCases": 50,
+  "qualificationCredit": 0,
+  "firstBatch": {
+    "units": [
+      "N21-actual-sdk-map-callback::base",
+      "P16-explicit-esm-boundary::base",
+      "V2-F04-augmentation-is-distinct-from-module-marker::base",
+      "N17b-classic-factory-is-real-generated-call::base",
+      "N17c-importhelpers-es5-actual-emission::base"
+    ],
+    "scope": "Map the prescribed JS variant, expose the native SourceFile module marker and already computed real emission observation. No semantic fallback, frozen source edits or expected-value adaptation.",
+    "nativeSources": [
+      "tools/rust-ts-r0/src/main.rs",
+      "tools/rust-ts-r0/src/runtime_configuration.rs"
+    ],
+    "harnessSources": [
+      "tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs"
+    ],
+    "failurePaths": [
+      "SourceFile unavailability does not become an observed marker.",
+      "Emission not requested and emission unavailable remain distinct from actual observed output.",
+      "Missing or unsupported native observations cannot satisfy comparators."
+    ],
+    "state": "FIVE_EXECUTABLE_MAPPINGS_REVIEWED_NOT_A_QUALIFICATION_CAMPAIGN",
+    "nativeArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+    "developmentResults": {
+      "NONPASS_PROJECTED_UNIT": 1,
+      "nonpassUnit": "N17c-importhelpers-es5-actual-emission::base",
+      "mismatch": "__generator absent from actual emitted text",
+      "attribution": "T00-ARB-003; raw comparator remains NONPASS",
+      "PASS_FROZEN_PROJECTED_UNIT": 4
+    },
+    "ownedDefectCorrected": {
+      "cause": "JSX node.pos included leading trivia; generated factory call starts at get_start_of_node. Normalize authored JSX start before comparing native synthetic-call ranges.",
+      "red": "semctx-t00-imported-factory-return-red.log",
+      "green": "semctx-t00-imported-factory-trivia-green.log",
+      "nativeFrozenReplay": "N17b now PASS with unchanged source and assertion"
+    },
+    "checks": {
+      "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "nativeBinTests": {
+        "exitCode": 0,
+        "passed": 179
+      },
+      "observerComparatorTests": {
+        "exitCode": 0,
+        "passed": 32
+      },
+      "recipeCliTests": {
+        "exitCode": 0,
+        "passed": 7
+      },
+      "format": {
+        "exitCode": 0
+      },
+      "clippyAllTargetsQualificationObserver": {
+        "exitCode": 0
+      },
+      "ruff": {
+        "exitCode": 0
+      },
+      "fiveUnitResearchReplay": {
+        "exitCode": 101,
+        "reason": "One frozen expected property differs; no test or assertion weakened."
+      },
+      "verifyPrFourPartitions": {
+        "state": "PASSED",
+        "logs": [
+          {
+            "shard": "1/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 1/4",
+            "exitCode": 0,
+            "stdoutSha256": "f352f92106839a7bb04d04fa98ba206ff09fa1cdfbe43f7e5c41682cb96c66bd",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"1/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.04s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 1/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "2/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 2/4",
+            "exitCode": 0,
+            "stdoutSha256": "5cac3e0bf4fd8171de3e333995c18855c15941fc9c6b89da2c7c174cd0485ea5",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"2/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.05s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 2/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "3/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 3/4",
+            "exitCode": 0,
+            "stdoutSha256": "acc175b6e1415f7b2e12f216f46b89c414258e964243ee95db31e45ea30a488c",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"3/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on artifact directory\n    Finished `release` profile [optimized] target(s) in 0.05s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 3/4`\n[verify:pr] PASS  all checks\n"
+          },
+          {
+            "shard": "4/4",
+            "command": "env -u GIT_CONFIG_GLOBAL bun run verify:pr --test-shard 4/4",
+            "exitCode": 0,
+            "stdoutSha256": "f7bb2695c37b9ba946f8227db7a96b6b87fc0f039691f75f1fc73d127d2060ac",
+            "retainedStdout": "$ cargo run --manifest-path tools/gates/Cargo.toml --locked --release -- verify-pr --test-shard \"4/4\"\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Finished `release` profile [optimized] target(s) in 0.04s\n     Running `tools/gates/target/release/semctx-gates verify-pr --test-shard 4/4`\n[verify:pr] PASS  all checks\n"
+          }
+        ],
+        "environment": "macOS27.0.1 arm64; Bun1.4.3; Rust1.95.0; GIT_CONFIG_GLOBAL unset; SEMCTX_VERIFY_BASE4e80d36c258cd63a871bf98fe0dcce0e7f1c2739; native evidence isolated by shard",
+        "scopeLimit": "Started before final result documentation and the Windows test-fixture correction. Runtime engine unchanged during execution. That fixture delta passed32 explicit comparator tests, formatting and Clippy; final documentation parser rerun separately."
+      }
+    },
+    "independentReview": {
+      "standards": "/root/gap_batch1_standards",
+      "specProof": "/root/gap_batch1_spec_proof",
+      "base": "c6a4241cb98ebb266e7601aa3ed1e00ffca9955e",
+      "reviewedDiffSha256": "755fdca58c3d6d47d673105fcb591f2d236af590fda9a6e02960b820fa9f2bd6",
+      "verdict": "PROOF_ADEQUATE for mechanism; no new demonstrated defect; no qualification or merge verdict",
+      "negativeWitnesses": 18,
+      "nativeObservationsReproduced": 6,
+      "candidateStableDuringReview": true,
+      "subsequentDelta": "Evidence/result documentation and bounded version attribution only; executable mappings unchanged."
+    },
+    "researchCheckpointAuthority": "Owner explicitly requests regular same-branch T00 pushes, including negative research observations. No claim that the five-unit research replay is green; normal repository gates remain required and no merge is authorized.",
+    "windowsCiDiscovery": {
+      "run": "https://github.com/hoklims/semctx/actions/runs/39139069855",
+      "head": "c6a4241cb98ebb266e7601aa3ed1e00ffca9955e",
+      "macosObserver": "32 comparator tests and7 Python CLI tests passed",
+      "linuxObserver": "32 comparator tests and7 Python CLI tests passed",
+      "windowsObserver": "31 comparator tests passed; post-capture test failed before Python invocation",
+      "cause": "Test directly constructed backslash file keys; production materialize and physical mutation lookup use slash keys.",
+      "correction": "Test now invokes real materialize before exercising post-capture mutation. Product comparison unchanged.",
+      "remoteFixedResult": {
+        "state": "PASSED",
+        "head": "53cd6fd97f32efec884a549ba0fca31d40d25fa9",
+        "run": "https://github.com/hoklims/semctx/actions/runs/39142147341",
+        "conclusion": "success",
+        "perOsObserverComparators": 32,
+        "perOsRecipeCliTests": 7,
+        "scope": "macOS/Linux/Windows fixture and harness tests; not full354-unit qualification or subsequent engine"
+      },
+      "independentDeltaReview": {
+        "standards": "/root/gap_batch1_standards",
+        "specProof": "/root/gap_batch1_spec_proof",
+        "verdict": "PROOF_ADEQUATE for fixture delta, local only; Windows after correction pending",
+        "localComparatorsPassed": 32,
+        "formatAndClippyExitCode": 0
+      },
+      "runConclusion": "failure: Windows native lane, therefore semctx-required; all other lanes passed"
+    }
+  },
+  "discoveryFindings": [
+    {
+      "cases": [
+        "P11-workspace-config-link",
+        "N11-registry-range-is-not-workspace"
+      ],
+      "missingObservation": "Explicit configured resolution query and exact captured empty directories; inserting an import/sentinel into frozen source inputs would be invalid."
+    },
+    {
+      "cases": [
+        "P19-qualified-inherited-esnext-bundler",
+        "N19-excluded-dependent-blocks"
+      ],
+      "missingObservation": "Actual prescribed Git/init/index/public verify flow; raw subject or fact-batch admission does not prove public verdict/exit. Investigate this boundary separately; no credit inferred."
+    }
+  ],
+  "independentReading": [
+    "/root/gap_component_reading"
+  ],
+  "reservedPayloadAccessed": false,
+  "next": "Reconcile static240property/supportreviews and proposedremaps without automaticcredit; await ownerdecision before any prospectivewitness adoption; Linux/Windowsoriginal354+51campaign,reserved23cases/26variants andR0remain pending. MacOSoriginalcampaign is executed,rawNONPASS preserved;0/240qualified.",
+  "updatedUtc": "2026-10-19T23:06:46.589059+00:00",
+  "staticGapUnitsRemaining": 0,
+  "documentaryReconciliation": {
+    "state": "DOCUMENTARY_RECONCILIATION_PASSED",
+    "frozenScenarioBytesUnchanged": true,
+    "frozenUnitCanonicalSha256": "b20495e215061259a7ab26dd30532d1823de4df7621b9ce3edb81324b35655ed",
+    "recipeStillRequiresGenerator": true,
+    "rawComparisonStillNonpass": true,
+    "focusedPasses": 4,
+    "qualificationCredit": 0,
+    "archiveManifestEntriesVerified": 197,
+    "nativeOutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+    "nativeEqualsTs593Es2015NotEs5": true,
+    "independentAuditor": "/root/es5_version_claim_audit",
+    "finalArchiveEncodedSha256": "f57606e212ec65870931800741ef4a2e44015a47979a36c1b4249436419093d6",
+    "result": "Final reconciliation conforms; no remaining finding. Historical180-entry observation explicitly scoped to the pre-extension archive."
+  },
+  "secondBatch": {
+    "registeredUtc": "2026-10-18T15:47:47.426884+00:00",
+    "state": "THREE_NEW_MAPPINGS_AND_UNEQUAL_CONTROL_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "V2-F01-empty-config-no-input-diagnostic::base",
+      "V2-C03-object-literal-caller-unmodeled::base",
+      "P09-outline-logical-set::digest-relation-01"
+    ],
+    "scope": "Use existing actual component/assembly/outline APIs; require complete empty configuration reasons, explicit unmodeled-caller refusal with absent caller coordinate/no calls edge, and the prescribed comment-only digest relation.",
+    "inputInstantiation": "P09 frozen edit permits changing comment text or whitespace only; concrete after source changes the single /** Keys. */ comment to /** Digest comment changed. */ before querying. Sources and assertions in the frozen corpus are unchanged.",
+    "absenceInterpretation": "V2-C03 frozen callerSymbolPath=\"absent\" is mapped only at this property to the existing $field_absent predicate, supported by baseline ts-symbols.ts573\u2013587 and native Option omission. A literal field containing \"absent\" must fail.",
+    "failurePaths": [
+      "An unmapped recipe cannot pass the focused replay helper.",
+      "Non-empty/unsupported/unexecuted configuration observation must not pass the empty-reason assertion.",
+      "A fabricated caller coordinate or call edge must fail.",
+      "Changing initializer is the separate frozen unequal-digest control; comment-only edit must preserve digests."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-existing-components-evidence.json",
+    "newProjectedPasses": 3,
+    "existingControlPasses": 1,
+    "nativeEngineChanged": false,
+    "finalRecipeSha256": "93f7110fdaf265bc9ba0d503472807c96cc03bf0a5160ebc50bfa298e3797abf",
+    "metadataCorrection": "prepared_state now refreshed after all mappings; CLI red/green witness; final recipe delta changes only10 metadata states. Checks/expected/source/gaps unchanged."
+  },
+  "thirdBatch": {
+    "registeredUtc": "2026-10-18T15:58:06.944433+00:00",
+    "state": "NATIVE_FROZEN_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "V2-F02-outside-inherited-config::base"
+    ],
+    "scope": "Materialize only the explicitly declared outside_root_retained_files setup in an isolated input envelope, preserve it in the native captured request, and compare the existing native retained configuration refusal. No general escape-path allowance or engine fallback.",
+    "failurePaths": [
+      "Only a direct sibling filename via ../name is accepted; absolute, deeper traversal and nested paths refuse.",
+      "Exclusive sibling creation cannot overwrite existing files or harness evidence. The caller gives it a separate input envelope.",
+      "Non-string setup data refuses; conflicting capture keys refuse; a failed setup cannot become a native PASS.",
+      "The request retains the sibling input bytes; the configuration component must actually emit the frozen outside-repository reason with executed=true and unsupported=[]."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-sibling-evidence.json",
+    "newProjectedPasses": 1,
+    "nativeEngineChanged": false,
+    "finalRecipeSha256": "de79213ae805640780d52f8e17f37ff7dd75618fdd26545826f386284449889c"
+  },
+  "fourthBatch": {
+    "registeredUtc": "2026-10-18T16:08:46.540799+00:00",
+    "state": "TWO_NATIVE_FROZEN_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N02-legacy-ignores-config::base",
+      "V2-E08-ordinary-conditional-package-exports::base"
+    ],
+    "scope": "Raw import and named configuration observations under separate ordinary/retained requests, with the explicitly registered owned native resolution correction.",
+    "inputInstantiation": "N02 second invocation changes only compilerOptions.paths[#shared] from ./shared.ts to ./unresolved-after-config.ts in the captured live config. The frozen relation authorizes changing live configuration metadata; selected source and roots unchanged.",
+    "absenceInterpretation": "Only N02 resolvedRelPath=\"absent\" is interpreted as the existing field-absence predicate; a present value, including the literal absent, must fail.",
+    "failurePaths": [
+      "A missing/non-string resolved link cannot satisfy E08 ordered links.",
+      "Retained configuration reasons require a separate retained invocation with executed=true and unsupported=[].",
+      "N02 cannot pass if imports differ after the declared live config change."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "scopeExpansionAfterNativeReplay": {
+      "recordedUtc": "2026-10-18T16:23:03.449990+00:00",
+      "reason": "N02 passes, but E08 lacks both native resolved import paths. A separate native regression reproduces it: checker symbol absent; global options give CommonJS mode to both imports.",
+      "ownedFix": "Use a source-configured native frontend for ordinary JS resolution, then join actual native module paths to the corresponding literal spans. Other extraction profiles keep their existing path; no guessed module resolver or TS fallback.",
+      "failurePaths": [
+        "Missing native source context is an error, never an empty successful lookup.",
+        "Native program or configured resolver errors propagate; no empty-success substitution.",
+        "Observed unresolved module stays absent; a requested lookup map never falls back to checker guesses.",
+        "Require/import conditions remain distinct for the same specifier on the same source line."
+      ],
+      "nativeEngineChanged": true,
+      "arbitrationRequired": false,
+      "budgetPassUnchanged": 1
+    },
+    "evidence": "gap-ordinary-config-evidence.json",
+    "newProjectedPasses": 2,
+    "nativeEngineChanged": true,
+    "finalRecipeSha256": "d6c5c84861c0833684e68b37972d918c69ebe211d92e82e98edf25cec0e310af"
+  },
+  "fifthBatch": {
+    "registeredUtc": "2026-10-18T16:48:39.305802+00:00",
+    "state": "SIX_NATIVE_FROZEN_PRIVATE_COMPONENT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "ORD-CALLABLE-TYPE-ORIGIN::variant-01",
+      "ORD-CALLABLE-TYPE-ORIGIN::variant-02",
+      "ORD-CALLABLE-TYPE-ORIGIN::variant-03",
+      "ORD-CALLABLE-TYPE-ORIGIN::variant-04",
+      "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+      "ORD-CALLABLE-DECLARATION-PAIR::variant-02"
+    ],
+    "scope": "Expose actual existing retained_callable_coordinate results for named variable initializers under the retained Program/checker; map six frozen private component variants, no public admission inference or native policy rewrite.",
+    "inputInstantiation": "The type-origin corpus supplies consumer bytes and dep.ts without a consumer filename. Instantiate consumer.ts beside dep.ts, selected as the component root, preserving exact supplied bytes. Declaration pair retains authored main.ts.",
+    "failurePaths": [
+      "Ordinary requests do not claim retained component execution.",
+      "A missing initializer is distinct from an executed callable lookup returning undefined.",
+      "Type-only receiver and noncallable declaration negatives must stay undefined; positive imported/arrow declarations must resolve actual native coordinates.",
+      "Missing/ambiguous observed variable or unexecuted/unsupported component cannot pass comparison."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-callable-evidence.json",
+    "newProjectedPasses": 6,
+    "finalRecipeSha256": "876000e69de3dd31d57bd6428f08503610f890e27dc2d918465703d5bd79298b",
+    "nativeArtifactSha256": "3a673a26dd8420b5e6058f95ddfaa2a484bdc9c3206d6456bbe44671c896345f",
+    "nativePolicyChanged": false,
+    "newObservationAdded": true,
+    "reviewCorrection": "Real native error-propagation test added after initial PROOF_WEAK, two removal mutants rejected; no product code change in correction."
+  },
+  "sixthBatch": {
+    "registeredUtc": "2026-10-18T17:06:52.048954+00:00",
+    "state": "TWO_NATIVE_FROZEN_COMPONENT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P26-independent-relative-comparator::base",
+      "N26-comparator-does-not-guess-dynamic-or-bare::base"
+    ],
+    "scope": "Standalone native parser primitive for the historical extractRelativeImportSpecifiers helper, forced TSX parse and syntactic traversal only. Two frozen component cases, no pilot execution, candidate comparison, runtime dependency or admission claim.",
+    "operationAuthority": "Frozen scenarios; historical3e94997 scripts/pilot/baselines.ts19-37 defines the source-level operation. AcceptedADR0019 pilot ordering and baseline identities are unchanged; this is component qualification, not a pilot result.",
+    "failurePaths": [
+      "Malformed/missing/unknown primitive request fields refuse through the existing typed boundary.",
+      "Only string literals on import/export declarations or the first argument of import() contribute; require, bare package, computed and template sources do not become relative suggestions.",
+      "Order and duplicates are retained; a second import() argument does not suppress the first literal in this distinct syntactic operation.",
+      "Missing/unexecuted/unsupported primitive observation cannot satisfy frozen comparisons."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "evidence": "gap-relative-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "cae92703e98bb39ca61856dbb6f3c2b25de26e63829a15858bf9ec86b46e018f",
+    "nativeArtifactSha256": "f040df206fd956f2f905168e2983f2feb816418c007d8474a94629f012b50637",
+    "ownedDefectsCorrected": [
+      "Nil native AST node guard",
+      "Focused test name accidentally matched comparator_ CI filter"
+    ]
+  },
+  "seventhBatch": {
+    "registeredUtc": "2026-10-18T17:32:05.778089+00:00",
+    "state": "TWO_NATIVE_FROZEN_EXPLICIT_QUERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P11-workspace-config-link::base",
+      "N11-registry-range-is-not-workspace::base"
+    ],
+    "scope": "Private configured-resolution observation with an explicit containing file/specifier and captured empty directories. Reuse existing native factory and ordinary configuration observation; no frozen import added, no main Request/batch identity or worker protocol extension.",
+    "operationAuthority": "Frozen P11/N11; historical3e94997 packages/ts-analyzer/src/ts-symbols.ts227-310. Resolution mode omitted, configuration workspace links allowed while final source resolution must not synthesize source package links.",
+    "failurePaths": [
+      "Malformed, relative/outside, ambiguous canonical keys and file/directory collisions refuse before resolution.",
+      "Foreign SDK, case mode mismatch and absent captured containing file refuse.",
+      "Empty directory inventory is bound to the private descriptor and survives workspace profile cloning.",
+      "Native resolution error differs from unresolved without error; outside result cannot become a fabricated relative path.",
+      "Ordinary configuration reasons remain a separately named actual component; N11 requires6053, not transport failure.",
+      "Configuration inheritance retains workspace links, final source resolution does not fabricate source package links."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "scopeExpansionAfterRegression": {
+      "recordedUtc": "2026-10-18T17:35:12.103004+00:00",
+      "observed": "Configured native final source resolution returns /repo/packages/physical-source-dev/index.ts through a virtual workspace package path which is not physically captured. The historical owned resolver admits virtual links only during configuration inheritance.",
+      "red": "semctx-t00-gap-explicit-source-link-bound-red.log",
+      "positiveControl": "The same capture really exposes the configuration/workspace alias; consumer is a declared workspace member. Earlier green used a non-member consumer and is not a regression witness.",
+      "correction": "Keep workspace configuration lookup, but restrict the final source resolver host to physically captured paths under the existing workspace/root/SDK admission boundary.",
+      "classification": "Owned adapter defect; no TS7-vs-TS5 arbitration requested or applied",
+      "additionalC1Pass": 1
+    },
+    "prerequisiteCorrection": {
+      "state": "NATIVE_REGRESSION_AND_BOUNDARIES_PASS_MACOS_DEV_REVIEWED",
+      "failure": "Virtual source package alias returned as an actual resolved module",
+      "restoredControls": [
+        "Physical installed source package resolves",
+        "Virtual configuration inheritance selects the real physical target",
+        "Outside-root and nested-repository source targets remain refused"
+      ],
+      "qualificationCredit": 0,
+      "gapUnitsNewlyMapped": 0,
+      "evidence": "source-host-boundary-evidence.json",
+      "independentNegativeWitness": "Source host substitution removed in disposable copy:101; restored0; candidate stable",
+      "review": "PROOF_ADEQUATE bounded to source-host fix"
+    },
+    "additionalFindings": [
+      {
+        "classification": "Owned adapter operation chosen from pinned upstream glob implementation",
+        "observation": "Actual C1 workspace queries match tooling/* and literal domains/registry/api but miss domains/*/*. Pinned ts_goport Glob Star consumes the slash then expects a Slash token. No compiler version arbitration.",
+        "red": "semctx-t00-explicit-query-workspace-glob-red.log",
+        "correctionScope": "Owned workspace patterns already limited to literal segments, * and **; use segment matching for this supported subset."
+      },
+      {
+        "classification": "Owned configuration reason classification",
+        "observation": "Missing inherited package configuration6053 is replaced by outside-repository solely because of false directory_exists on strict-ancestor node_modules search folders. Actual outside file/read probes still need refusal.",
+        "red": "semctx-t00-explicit-query-ancestor-probe-red.log",
+        "correctionScope": "Workspace profile only: exclude false directory_exists for exact strict-ancestor node_modules from reason replacement; retain retained-profile behavior, every other outside probe and physical confinement."
+      }
+    ],
+    "implementationNotes": [
+      "The CLI omission red and lost empty-directory red are real test failures, now corrected.",
+      "Initial scalar-number typesVersions fixture returned unresolved; scalar string and non-string array element are the actual error witnesses.",
+      "Initial P11/N11 replay retained missing operation binding and glob/reason failures. Bind inspectModuleConfiguration explicitly; no comparator relaxation.",
+      "A real capture-alias test exposed phantom parent directories from raw dot/dotdot paths. Normalize file and directory names before constructing parent inventories; directory probe comparisons are canonical."
+    ],
+    "evidence": "gap-configured-query-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "30b62a268a9265d62e2f3cb8c1f58ea7527418a7dab0b1be0f98c880b64dda77",
+    "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892"
+  },
+  "eighthBatch": {
+    "registeredUtc": "2026-10-18T18:24:53.504565+00:00",
+    "state": "TWO_REAL_NATIVE_PROCESS_FAULT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "T-timeout::base",
+      "T-output-limit::base"
+    ],
+    "scope": "Real existing raw C1 invocation under the reused native #383 supervisor, with healthy frozen P16 input/control before and after each process fault. The external-fault units keep their empty source maps; P16 is an explicitly linked ancillary runnable control, not new source or semantic credit for these units.",
+    "nativeArtifactReuse": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892, unchanged producer sources since reviewed3cc870b4; no new qualification freeze",
+    "registeredFaultLimits": {
+      "T-timeout::base": {
+        "timeout_ms": 1,
+        "output_cap": 8388608
+      },
+      "T-output-limit::base": {
+        "timeout_ms": 20000,
+        "output_cap": 64
+      }
+    },
+    "failurePaths": [
+      "Malformed, unknown, zero, oversized or non-integral explicit execution limits refuse instead of falling back to defaults.",
+      "A wrong fault kind, missing/altered capture, outcome identity mismatch, or failed before/after health control cannot satisfy the fault unit.",
+      "Captured prefix identity is distinct from the supervisor full-stream hash when output is truncated; exposed fields are retained without inventing lower-level errors.",
+      "A deadline may occur during startup, before a final report. No claim that source analysis had already started.",
+      "Cancellation, malformed JSON, reader finalization and the controlled-refusal/nonzero branches remain separate GAP units until real mechanisms exist."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "ownedHarnessCorrection": {
+      "red": "semctx-t00-process-budget-unhonored-red.log",
+      "observed": "The existing raw recipe runner ignored explicit execution limits; all six requested native invocations completed successfully instead of observing the two intended faults.",
+      "correction": "Strict explicit limit parsing and actual forwarding to the existing supervisor; bind the original in-memory Outcome identity to its persisted capture. Defaults remain20s/8MiB.",
+      "green": "semctx-t00-process-budget-native-green.log",
+      "observations": "timeout15ms with no captured bytes; output_limit with64 retained stdout bytes out of125831 observed, exit0; four surrounding native controls pass. Raw actual outcome data remains authoritative, not these summary samples."
+    },
+    "evidence": "gap-process-fault-evidence.json",
+    "newProjectedPasses": 2,
+    "finalRecipeSha256": "557c227935f42a812b09ff74c65e628eb414a529a17e172b23819f69c8b20bcd",
+    "localReviewCorrection": "Initial independent proof review found impossible non-truncated count/prefix data accepted after coherent identity rebinding. Require full retained length=count and matching hash when count<=cap. Both stdout and stderr regressions ship; truncated hashes remain supervisor observations."
+  },
+  "ninthBatch": {
+    "registeredUtc": "2026-10-18T18:48:20.498910+00:00",
+    "state": "STATIC_BINDING_CONTROL_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-01-static-binding-control::base"
+    ],
+    "scope": "Use existing complete native assembly integrity map plus its actual test node and raw static bindingTargets. No producer change, guessed graph relation, frozen input rewrite or admission inference.",
+    "failurePaths": [
+      "Missing/malformed whole integrity map or unknown/ambiguous test node refuses, rather than substituting empty reasons.",
+      "Only a missing owner entry in an actual complete map denotes no reasons. Actual reasons remain exact observed strings.",
+      "Missing/extra/wrong static binding target or missing required graph relations cannot satisfy frozen checks. Other valid graph relations remain permitted by the frozen contains assertion."
+    ],
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892",
+    "recipesSha256": "0a68716b1f0d7073b99b597f971a2f61a7f5bdbc24b65135d609ace8bead29bf",
+    "evidence": "gap-static-binding-evidence.json",
+    "newProjectedPasses": 1
+  },
+  "tenthBatch": {
+    "registeredUtc": "2026-10-18T19:09:55.075830+00:00",
+    "state": "TWO_PRIVATE_VARIANTS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-06-defined-bindingTargets-private-consumer-control::variant-01",
+      "QDYN-06-defined-bindingTargets-private-consumer-control::variant-02"
+    ],
+    "scope": "Run the existing native assembly consumer with explicitly supplied bindingTargets arrays on native extraction. This is the frozen private consumer control, never a public-extractor reachability claim. Preserve original extraction and separate controlled extraction/graph observations.",
+    "failurePaths": [
+      "Missing/null/malformed bindingTargets or unknown descriptor fields refuse; an empty defined array remains distinct from absent bindings.",
+      "Actual import selector must identify one native extracted import, without creating or guessing a missing row.",
+      "Actual native test dynamic-import scan and unique native symbol coordinates govern resulting reasons/coverage.",
+      "Main raw/batch/worker Request identities stay unchanged; separate private descriptor, SDK and artifact identities bind the new observation."
+    ],
+    "scopeDiscoveryFindings": {
+      "nativeRetainedScopeMissing": true,
+      "gitFixturePrerequisite": "Frozen sources/qualified-cases.json common_materialization_prerequisites already prescribes init/add/commit for QDYN03-05/QSCOPE01-02; no owner decision needed.",
+      "nativeBoundary": "Same frozen prerequisite explicitly keeps Git out of minimal native batch analysis runtime and supplies captured/discovered inventory. Full scope requires capture/discovery boundary, not a SOURCE_* to DEPENDENCY_SCOPE_* relabel."
+    },
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "a9b1a1ffd4b39fab8e3beea099e76483e806d6eef95ac10a5f93858a921df997",
+    "nativePhase": "Prior private API prerequisite unchanged; both frozen variants now execute with exact arrays, reason map and actual graph coordinates. No public reachability or admission inferred.",
+    "newMappingsCredited": 2,
+    "evidence": "gap-controlled-consumer-evidence.json",
+    "mappingPhase": {
+      "registeredUtc": "2026-10-18T19:36:26.435426+00:00",
+      "state": "TWO_PRIVATE_VARIANTS_PASS_MACOS_DEV_REVIEWED",
+      "newMappingsCredited": 2,
+      "qualificationCredit": 0,
+      "passStillOpen": true,
+      "frozenAssertionsChanged": false,
+      "failurePaths": [
+        "Swapped descriptor/SDK/artifact, original-native binding or exact extraction delta refuses.",
+        "Missing complete reason map, unique test/helper coordinate, actual dynamic tuple or either requested array value cannot receive a private consumer pass.",
+        "Actual invocation uses existing #383 supervisor, with nonzero/malformed outputs refused and retained separately."
+      ],
+      "localCorrectionPassesUsed": 1,
+      "correction": "R10-F01: ship tests on the actual Outcome decoder for nonzero and malformed stdout. No runtime refusal or C1 budget change."
+    },
+    "nativePrerequisiteEvidence": "controlled-assembly-evidence.json",
+    "newProjectedPasses": 2,
+    "recipesSha256": "b6f6ea482e4d63f69c15aa5899845c71fe71f162f3d59d9a18b934be6a1a16a0"
+  },
+  "eleventhBatch": {
+    "registeredUtc": "2026-10-18T19:55:42.735023+00:00",
+    "state": "CONTROLLED_SYSTEM_CANONICAL_FILE_KEY_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "ORD-CANONICAL-IDENTITY-PAIR::base"
+    ],
+    "scope": "Frozen canonicalTypeScriptFileKey component with supplied controlled System realpath results and case flag. Existing semantic_key is a distinct native lexical operation and cannot prove the alias relation. No physical-host path equivalence or whole extraction/partition identity claim.",
+    "failurePaths": [
+      "Unknown/missing/malformed descriptor fields refuse.",
+      "A missing controlled realpath observation refuses instead of reading the host filesystem or assuming lexical identity.",
+      "Empty/NUL controlled path or result refuses as unavailable component context.",
+      "Exact normalization replaces backslashes and strips one leading ./, without resolving ..; JS casefold follows the controlled System flag."
+    ],
+    "newMappingsCredited": 1,
+    "qualificationCredit": 0,
+    "reservedPayloadAccessed": false,
+    "nativeArtifactSha256": "c1de5d6d33b11acdfe22c4dc8b4131be057916a0c33098f107f3f9dbf2387c9b",
+    "recipesSha256": "a7683f88a8850ab4ffb8e195977546f68d559bbcfb751ff503a31cdcea5c1a9b",
+    "nativePhase": "Native controlled-System primitive and frozen3query alias/counter component replay reviewed. Current195binary/45library/3native-process-flow/39comparator/7Python tests pass on macOS. No qualification credit.",
+    "preparationCorrection": "The first placement was skipped by the raw-request-only loop and left this unit GAP. Move component mapping to its own loop; static317/354 mapped and actual native component replay now pass. Initial output retained, not counted as pass.",
+    "testDiscovery": "Initial --bin filter found0 tests; the owning --lib target then ran the real failing unknown-operation test, before implementation. Zero discovery is retained separately and is not the red witness.",
+    "evidence": "gap-canonical-system-evidence.json",
+    "newProjectedPasses": 1
+  },
+  "twelfthBatch": {
+    "registeredUtc": "2026-10-18T20:29:31.884945+00:00",
+    "state": "TWO_FROZEN_RETAINED_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "scope": "At least one native nondeclaration TS/JS source root; String text capture only. Canonical root/capture keys use the existing measured-case normalizer; discovery coordinates must be canonical portable relative paths. Declaration annex roots do not belong to the supplied source inventory. No autodiscovery, role/language remapping, whole retained scope, capture atomicity or complete public Plane-A runtime claim.",
+    "units": [
+      "N01-snapshot-metadata-mismatch::base",
+      "P01-retained-source::analyze-snapshot-consistent"
+    ],
+    "runtimeVariantsRemainSeparate": true,
+    "newMappingsCredited": 2,
+    "qualificationCredit": 0,
+    "nativeArtifactSha256": "823470486f99c432353eaceb7e74d896286f35b912a369af634ae0d49ab58329",
+    "evidence": "gap-retained-discovery-evidence.json",
+    "nativePhase": "Native capture-versus-supplied-inventory guard reviewed;198binary/45library/4native-process-flow/39comparator tests pass on macOS. Frozen recipes and consumer replay still pending.",
+    "nativePrerequisiteEvidence": "retained-discovery-evidence.json",
+    "newProjectedPasses": 2,
+    "mappingPhase": {
+      "registeredUtc": "2026-10-18T20:45:32.228125+00:00",
+      "state": "TWO_FROZEN_RETAINED_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+      "newMappingsCredited": 2,
+      "qualificationCredit": 0,
+      "passStillOpen": true,
+      "recipesSha256": "25d3ff13082a732938eec320a95b59a9739a3893b2fe7e5f88888a169c2eabe2",
+      "currentChecks": "42comparators,7Python,2actualnativeunits/9projections;fmt/clippy/Ruff PASS. Producer198/45/4 reused unchanged, not rerun.",
+      "sourceFaultsRejectedThenRestored": 2,
+      "scope": "Only N01 base and P01 analyze-snapshot-consistent; Plane-A variants remain separate GAP; full dispatcher inspected, not exercised."
+    }
+  },
+  "thirteenthBatch": {
+    "registeredUtc": "2026-10-18T21:12:57.409781+00:00",
+    "state": "FROZEN_MISSING_RETAINED_TEST_COMPONENT_PAIR_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QDYN-07-missing-retained-test-text-public-refusal::base"
+    ],
+    "scope": "One coupled QDYN07 public-guard/private-scan unit. Shared strict AST scanner; physically present test excluded only from retained text; no public reachability or full Plane-A claim.",
+    "evidence": "gap-missing-test-evidence.json",
+    "nativeArtifactSha256": "322aed26fea42c4609f94e2e0f63a42aaff85cb4bdeafe1c0bd84d1d73221abd",
+    "recipesSha256": "381642f7aecb3ecb7c6b63c5d8c4077135359a4e7047dcba52e6853f134f7b40",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "199BIN,47LIB,4nativeflows,44comparators,7Python,1newunit/2calls/7checks plus5carryoverunits;fmt/clippy/Ruff PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Missing/foreign descriptor, SDK, artifact or Outcome identity refuses before credit.",
+      "Public semantic refusal requires executed=false, guard=false, the exact error, and no native_analysis; no successful extraction or SDK consumption is claimed.",
+      "Private scan rejects malformed maps, duplicate test paths, unsupported script kinds and noncanonical portable relative paths; empty retained text remains present.",
+      "Missing private test text skips parsing without disk fallback. Real retained text uses the same native AST predicate and line calculation as existing assembly.",
+      "Foreign retained map, missing/duplicate discovery owner, different test role, invalid omission, changed physical bytes, escape or reserved descriptor alias prevents the paired unit from passing.",
+      "Nonzero, timeout, output-limit, cancellation, capture errors, unknown process states and malformed stdout remain NONPASS."
+    ],
+    "reservedPayloadAccessed": false,
+    "fullDispatcher": "Inspected,not executed."
+  },
+  "fourteenthBatch": {
+    "registeredUtc": "2026-10-18T21:34:38.110305+00:00",
+    "state": "FROZEN_OPAQUE_CALLBACK_GRAPH_OWNERSHIP_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P23-opaque-inline-call-has-graph-owner::base"
+    ],
+    "scope": "Actual P23 raw module-configuration observations before fact extraction, with the real graph and after exact edge removal; not before compiler initialization or a complete public/batch/worker lifecycle.",
+    "evidence": "gap-opaque-ownership-evidence.json",
+    "nativeArtifactSha256": "c1cc73d0ffdb6dbe5bc31d14b0972c3aeb6a3689c6462990c309edfbe5436a81",
+    "recipesSha256": "be93119ad85d55b0adc5202809eaa67473e28ad428a421fb302b4c835fe8873b",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "202BIN,47LIB,4nativeflows,45comparators,7Python,1newunit/1process/15checks plus6carryoverunits;fmt/clippy/Ruff PASS macOS.",
+    "mappingCorrection": "First native replay passed15 genuine checks but generated4 invalid completeness targets beneath scalar observationScope/globalAdmissionInferred. Treat only the three named phase children as nested observations; all15 real checks remain and final replay passes. Both recipes and raw outcomes retained.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Missing, null or non-object native phase is an error, never a substituted successful empty reason list.",
+      "Ordinary and retained-nonqualified valid modes report executed=false with no three phases. Qualified-without-retained still fails SOURCE_SNAPSHOT_REQUIRED before subjects.",
+      "Missing/foreign graph identity, incomplete root observation, wrong scope, ambiguous subject or absent graph inventory cannot bind the control.",
+      "Logical calls require actual unique endpoint nodes and unique grouped symbol coordinates; dangling or missing endpoints refuse.",
+      "Every reason phase separately requires executed=true and unsupported=[]; root completeness cannot replace phase completeness.",
+      "Nonzero, timeout, output-limit, cancellation, capture errors, malformed stdout or wrong actual input/artifact remain NONPASS."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "3inspections total,2additional;unmeasured."
+  },
+  "fifteenthBatch": {
+    "registeredUtc": "2026-10-18T21:57:38.834865+00:00",
+    "state": "FROZEN_UNSELECTED_INTERMEDIATE_MODULE_COMPONENT_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N12-unselected-intermediate-connects::base"
+    ],
+    "scope": "Actual loaded-module connectivity through unselected middle.ts, projecting selected a.ts,b.ts; separate actual emitted-root exclusion. No workers2/full preflight/P12 claim.",
+    "evidence": "gap-loaded-partition-evidence.json",
+    "nativeArtifactSha256": "9ad2a4f915df2f4770111c28fdeacf137934314243ba7f355bc8c4c83b327c29",
+    "recipesSha256": "fd63866fb9bdd630b2519d7a2d7402a9c477b6b0b9621153fbf809f753f67958",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "207BIN,47LIB,4nativeflows,45comparators,7Python,1newunit/1process/9checks plus6carryoverunits/9processes/36checks plus1relation;fmt/clippy/Ruff PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "failurePaths": [
+      "Native module-resolution error, unavailable selected root, duplicate selected root or selected root outside loaded repository inventory produces executed=false/unsupported with the actual error and no invented dependencyComponents.",
+      "Actual nil source or malformed import literal refuses the component; unresolved native target or target outside loaded repository graph adds no edge.",
+      "Valid retained/qualified modes report component not executed. Qualified without retained still fails SOURCE_SNAPSHOT_REQUIRED earlier.",
+      "Missing observation, absent or incomplete component, wrong graph projection, unwanted emitted intermediate, or wrong actual input/artifact cannot pass N12.",
+      "Nonzero, timeout, output-limit, cancellation, capture error or malformed stdout remain NONPASS under the existing runner."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "Additional actual module graph traversal in ordinary raw analysis; unmeasured.",
+    "documentaryCorrection": "Final independent reconciliation counted actual process outcomes: N02=2,E08=2,P23=1,N01/P01=2,QDYN07=2, total9, not7. Six units,36checks and1N02relation PASS. Only documentation/context changed; native four-source anchor unchanged."
+  },
+  "sixteenthBatch": {
+    "registeredUtc": "2026-10-18T22:27:49.854047+00:00",
+    "state": "FROZEN_NATIVE_PARALLEL_EQUIVALENCE_UNIT_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P12-parallel-equivalence::base"
+    ],
+    "scope": "Actual native explicit1/2 workers and direct complete extraction byte relation on the same frozen P12 workspace; private fact boundary only.",
+    "evidence": "gap-native-parallel-evidence.json",
+    "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+    "recipesSha256": "12fb90f599e1c0141832be5d796f24ac8de31e1b1fab43890ddbdea24f677fd6",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "qualificationCredit": 0,
+    "currentChecks": "207BIN,47LIB,4nativeflows+4parallel integrations,47comparators,7Python;P12 5processes,12controllerchecks+1directcheck+2byte relations;6carryoverunits/10processes;fmt/clippy/Ruff/Zizmor PASS macOS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaultProfiles": "Product dev/debug; comparator,replay and integrations test/debug. Author release4b evidence remains separate.",
+    "failurePaths": [
+      "Missing,foreign,null or incomplete controller execution/descriptor/artifact/SDK/scope cannot bind.",
+      "Invalid0/9/fractional/auto worker counts refuse without jobs; private schema offers explicit counts, not auto.",
+      "Native unsafe/connected DEV preflight fixtures execute a single Program before dispatch; this does not cover every configuration/syntax variant.",
+      "Missing shared declarations, unsuccessful reported reads, unknown frontend, malformed/nonzero/incomplete worker outcome, changed producer/helper, wrong SDK, reused PID, omitted/duplicate/foreign emit roots or wrong ordered merge refuse.",
+      "A foreign-SDK worker failure requests cancellation and returns executed=false with no extraction or serial fallback; no universal completed sibling-termination guarantee.",
+      "Complete byte comparison refuses reordered arrays, missing required arrays and any differing extra field."
+    ],
+    "reservedPayloadAccessed": false,
+    "cost": "Additional preflight and actual child processes; no isolated performance measurement."
+  },
+  "seventeenthBatch": {
+    "registeredUtc": "2026-10-18T22:59:09.263678+00:00",
+    "state": "THREE_FROZEN_NATIVE_TRANSPORT_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "T-nonzero::base",
+      "T-invalid-json::base",
+      "T-cancelled::base"
+    ],
+    "scope": "Actual native transport faults and declared exit3 proxy convention with complete real C1 refusal control; no semantic credit.",
+    "evidence": "gap-native-transport-evidence.json",
+    "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+    "transportFixtureSha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+    "recipesSha256": "5621e61f2dd0996d7ca9d908d8301e41c2b4224f83cba8b113f366f14a958b41",
+    "newMappingsCredited": 3,
+    "newProjectedPasses": 3,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "projectedChecks": [
+        19,
+        8,
+        8
+      ],
+      "nativeBinaryTests": 207,
+      "nativeLibraryTests": 47,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 4,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 1
+      },
+      "comparatorTests": 47,
+      "recipeCliTests": 7,
+      "gatesSuite": "18LIB,5cli,25planning,13process,7rust_product PASS; final extracted fixture process13 PASS again.",
+      "qualificationSuite": "16LIB,21fixture,10stderr,2adapter,3lifecycle PASS; four existing ignored unit fixture entries remain explicitly not executed.",
+      "format": "PASS all3manifests",
+      "clippy": "PASS gates,C1 all-targets(+qualification feature),qualification -Dwarnings",
+      "ruff": "PASS",
+      "zizmorOffline": "PASS",
+      "completeVerifyPr": "Not rerun; four prior local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Declared proxy exit3 accepts complete actual C1 refused batch only with expected reason; revalidate refuses ownership. Undeclared exit3 and wrong expected reason are rejected.",
+      "Actual stdout truncation or omission is rejected as MalformedOutput; exit0 transport success remains distinct from malformed JSON classification.",
+      "Actual unexpected native exit7 is ProcessFailure.",
+      "Cancellation is requested only after owned child reports a living descendant; actual cancelled Outcome retains capture. No universal termination guarantee.",
+      "Missing tool/input/identity, invalid inner C1 refusal, changed tools or inconsistent captures fail closed.",
+      "Existing MCP test finalizes its displaced reader after owned-child cleanup and before shared reader-stop from session drop."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Auxiliary native processes and tool/input hashing; no isolated performance measurement."
+  },
+  "eighteenthBatch": {
+    "registeredUtc": "2026-10-18T23:44:21.033403+00:00",
+    "state": "FOUR_FROZEN_NATIVE_DISCOVERY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "P08-discovery-language-and-role::base",
+      "N08-disabled-language::base",
+      "P03-confined-relative-source::discovery-confinement",
+      "N03-relative-escape::discovery-confinement"
+    ],
+    "scope": "Private actual ordinary filesystem discovery on exact frozen files/configurations: selected roles/languages, disabled candidate without source read, exact static relative import admission/refusal before analysis.",
+    "evidence": "gap-native-discovery-evidence.json",
+    "nativeArtifactSha256": "83166c43fde48e7442d18185f5bf4a956a9be58bc75aed02d5b4943edb37e2ce",
+    "recipesSha256": "436ec69fed9897a2ac114b69927e8814fa4162963936595d1531a9608e10d5fb",
+    "newMappingsCredited": 4,
+    "newProjectedPasses": 4,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 210,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 4,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 50,
+      "recipeCliTests": 7,
+      "frozenUnitChecks": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "carryovers": "Four repair_* tests cover the7original units and3supports; three existing frozen transport units also pass on current artifact.",
+      "clippy": "PASS all-targets with qualification-observer and-Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "zizmorOffline": "PASS",
+      "completeVerifyPr": "Not rerun; prior four local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Invalid descriptors/config/unsupportedglob and unavailable root refuse.",
+      "Source permission failure retainsREAD_FAILED candidate;32MiBsource capture overflow refuses complete observation.",
+      "Resolver package.json read failure or separate32MiBcapture overflow refuses without fallback. Permission tests are Unix/macOS only.",
+      "Actual existing outside package-main source and Unix external file link are refused; outside file bytes are not read in named cases.",
+      "Reported positive probe paths normalize separators,driveverbatimprefix,dot/parent segments before confinement.",
+      "Actual transport cwd uses existing filesystem canonical paths; real./child/.. is accepted,foreign/missing/null refused,argument/tool/input hashes still exact."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Physical walk, bounded source/metadata capture, native resolution and hashing; no isolated performance measurement."
+  },
+  "nineteenthBatch": {
+    "registeredUtc": "2026-10-19T00:24:43.517451+00:00",
+    "state": "FOUR_FROZEN_LEGACY_IDENTITY_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "N25-crlf-implementation-identity-input::base",
+      "P25-byte-identity-relocation::identity-relation-01",
+      "P25-byte-identity-relocation::identity-relation-02",
+      "P25-byte-identity-relocation::identity-relation-03"
+    ],
+    "scope": "Privatehistoricalidentity component only. Realfullbaseline and completeSDKfiles; frozenidentity plusrelocation/sourceonebyte/SDKonebyte relations andCRLFrefusal. NoTypeScriptcompilerexecution, C1produceridentity, current7fixedpolicy, qualification or globaladmission.",
+    "evidence": "gap-legacy-identity-evidence.json",
+    "nativeArtifactSha256": "642089cbef1794bacb92eb7dcb709ec578fec64373b5723bb484817c83ab3237",
+    "recipesSha256": "0293a0557205954bac3a04345cf38455c726052ee2dab7b82c3311abeed61df5",
+    "newMappingsCredited": 4,
+    "newProjectedPasses": 4,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 211,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 7,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 52,
+      "recipeCliTests": 7,
+      "frozenUnits": 4,
+      "frozenNativeProcesses": 7,
+      "projectedChecks": 5,
+      "carryovers": "7originalunits+3supports,4discoveryunits,3transportunits oncurrentoptimizedartifact",
+      "clippy": "PASS all-targets qualification-observer -Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "completeVerifyPr": "Not rerun; four prior local partitions only63397c7b, notcurrentcandidate."
+    },
+    "failurePaths": [
+      "Unavailableimplementation/SDKroots,directories,fixedinputs,SDKentry/librarydirectory,invalidSDKJSON/name/versionand64MiBaggregatecapturelimitrefusewithoutidentity.",
+      "Unix/macOSpermissionfailuresandexternalimplementation/SDKlinksrefuse. Linux-onlynonUTF8filenamefixture notrunlocally; APFScreationfailurepreserved.",
+      "Comparatorrejects foreignproducer/request/manifest, omitted/duplicate/changedreads, ambiguousbyteplansandoutsidepaths.",
+      "SourceCRLFrefusal appliesidentityinputs only, not analyzeduser-sourceCRLF."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individualauthorattestationonly",
+    "cost": "Completefilesystemmaterializationandboundedbytehashing; noisolatedperformance measurement"
+  },
+  "twentiethBatch": {
+    "registeredUtc": "2026-10-19T00:47:26.870530+00:00",
+    "state": "TWO_FROZEN_RETAINED_SCOPE_SYNTAX_UNITS_PASS_MACOS_DEV_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "units": [
+      "QSCOPE-01-import-type-refusal::base",
+      "QSCOPE-02-external-import-equals-refusal::base"
+    ],
+    "scope": "Private native Program AST syntax subset only: ImportType, external import-equals and export-equals. Two frozen contains-constraints pass, with no native product projection credit. No complete retained-scope function, links, closure, Git eligibility, admission, public command, campaign or performance equivalence.",
+    "evidence": "gap-retained-scope-evidence.json",
+    "nativeArtifactSha256": "b3eb4646e1477b963c84440492cf3384f29e276a0627c4b9a0279388f77766e0",
+    "recipesSha256": "5675f26deeb3bde872cdace5d876df4a406d4649fe61b5e966caf0eaf87ba480",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "qualificationCredit": 0,
+    "currentChecks": {
+      "environment": "macOS27.0.1 arm64 (Darwin27.0.0), Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+      "nativeLibraryTests": 47,
+      "nativeBinaryTests": 211,
+      "nativeIntegrationTargets": {
+        "native_common_portability": 1,
+        "native_development_flow": 8,
+        "native_discovery_flow": 7,
+        "native_parallel_flow": 4,
+        "native_transport_flow": 3
+      },
+      "comparatorTests": 53,
+      "recipeCliTests": 7,
+      "frozenUnits": 2,
+      "frozenNativeProcesses": 2,
+      "projectedChecks": 8,
+      "carryovers": "7 original units + 3 supports, 4 legacy identity units, 4 discovery units and 3 transport units pass on current optimized artifact.",
+      "clippy": "PASS all-targets qualification-observer -Dwarnings",
+      "format": "PASS C1",
+      "ruff": "PASS",
+      "completeVerifyPr": "Not rerun; previous complete four local partitions remain attributed only to63397c7b."
+    },
+    "failurePaths": [
+      "Nonretained inputs return executed=false and COMPONENT_RETAINED_INPUTS_NOT_ENABLED; one invalid source returns executed=false and RETAINED_SCOPE_SYNTAX_PARSE_FAILED. Actual native DEV processes exercise both.",
+      "Missing/non-SourceFile defensive guard is implemented but not directly exercised; current inspect_subject rejects a missing native source before this call. No behavioral guarantee for that internal branch is claimed.",
+      "Internal import alias, type-only import declaration and quoted syntax remain without these reasons in three actual native DEV controls. Export-equals is a DEV positive only.",
+      "Comparator requires same-observation executed=true, unsupported=[] and source-operation binding before crediting reasons. Missing/null guards and missing binding refuse."
+    ],
+    "reservedPayloadAccessed": false,
+    "reservedNonaccessScope": "Individual author attestation only.",
+    "cost": "Native Program AST visitor; no isolated performance measurement."
+  },
+  "priorTopLevelCheckpoint": {
+    "state": "STEP3_FORTY_SIX_GAPS_MAPPED_FORTY_FIVE_PASS_ONE_VERSION_ATTRIBUTED_NONPASS",
+    "updatedUtc": "2026-10-19T00:47:26.870530+00:00",
+    "staticGapUnitsRemaining": 18,
+    "next": "Continue the remaining18 static GAP units, then178-obligation review, full3OS campaign, reserved run and R0."
+  },
+  "twentyFirstBatch": {
+    "state": "N03_BASE_LIMITED_PASS_MACOS_REVIEWED",
+    "evidence": "gap-source-confinement-evidence.json",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "cumulativeMappedOriginalGapUnits": 47,
+    "cumulativeLimitedFocusedPass": 46,
+    "existingVersionAttributedNonpass": 1,
+    "residualStaticGapUnits": 17,
+    "recipesWithoutKnownGaps": 337,
+    "qualificationCredit": 0,
+    "reconciliation": "Adds the existing README/source-confinement checkpoint omitted from this JSON; original twentiethBatch and prior top-level snapshot retained."
+  },
+  "twentySecondBatch": {
+    "registeredUtc": "2026-10-19T15:38:56.306518+00:00",
+    "state": "FIVE_LIMITED_FROZEN_QDYN_PROJECTIONS_PASS_MACOS_REVIEWED",
+    "evidence": "gap-dynamic-import-evidence.json",
+    "units": [
+      "QDYN-02-one-literal-dynamic-refusal::base",
+      "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+      "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+      "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+      "QDYN-05-unresolved-literal-target::base"
+    ],
+    "nativeArtifactSha256": "507dbc29ad5e28256efb6921ac5deffa3a7082320cf9ab15c29340d1bc77451c",
+    "recipesSha256": "34dc44a230338a9bcef15d8fb83d66607a72aa6421e1e9748fc0cce55c384d50",
+    "newMappingsCredited": 5,
+    "newProjectedPasses": 5,
+    "projectedChecks": 39,
+    "realNativeProcesses": 5,
+    "relatedCarryoverPasses": 5,
+    "remainingOwnedAdapterGap": "Undeclared bare unresolved import remains analyzed without baseline reason; resolve before complete retained-scope parity/R0; outside original64 GAP count.",
+    "qualificationCredit": 0,
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 52,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 51,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 12,
+      "recipesWithoutKnownGaps": 342,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "NOT_PERFORMED; historical classification, not recomputed after these mappings",
+      "campaign354ThreeOS": "NOT_PERFORMED_ON_THIS_CANDIDATE",
+      "reservedReplay": "NOT_EXECUTED_BY_THIS_FOCUSED_REPLAY",
+      "R0": "PENDING",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "UNUSED",
+      "scope": "Cumulative mapping checkpoints across different producer artifacts; not a current single-artifact campaign."
+    },
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false
+  },
+  "reservedNonaccessScope": "Historical and current per-actor attestations only; this focused replay contains public frozen requests. No exhaustive global access-history guarantee.",
+  "twentyThirdBatch": {
+    "registeredUtc": "2026-10-19T18:32:28.111607+00:00",
+    "state": "THREE_FROZEN_E03_LIMITED_PASSES_MACOS_PRIVATE_CONSUMER_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-a-then-b",
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a",
+      "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control"
+    ],
+    "evidence": "gap-ambiguous-exports-evidence.json",
+    "nativeArtifactSha256": "ea5a0b6a1b441d6d8cd2c2b174435c4dfe4b2ad404e9004ec7b36916e865f4ad",
+    "nativeProducerChanged": false,
+    "recipesSha256": "153a263f88812b34dbf08672a46052554fca14b09e1e55f3d86151f32ff3912b",
+    "newMappingsCredited": 3,
+    "newProjectedPasses": 3,
+    "projectedRawChecks": 18,
+    "realNativeProcesses": 6,
+    "consumerObservations": 3,
+    "qualificationCredit": 0,
+    "policyScope": "Canonical recipe separately hash-checked; focused path is not self-authenticating and accepts changed policy/checks in adversarial mutation25. Full-campaign recipe hash guard remains unexecuted.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 55,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 54,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 9,
+      "recipesWithoutKnownGaps": 345,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "NOT_PERFORMED; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reservedReplay": "PENDING; not read or executed by documentary author/auditor",
+      "R0": "PENDING",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across different artifacts, not one current campaign."
+    }
+  },
+  "twentyFourthBatch": {
+    "registeredUtc": "2026-10-19T19:03:39.045533+00:00",
+    "state": "ONE_FROZEN_QUALIFIED_PATH_ELIGIBILITY_COMPONENT_LIMITED_PASS_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "ORD-QUALIFIED-ELIGIBILITY::base"
+    ],
+    "evidence": "gap-qualified-eligibility-evidence.json",
+    "nativeArtifactSha256": "9f67f55fe6199e6cf2f4726b3e175589a6e374ec3424ecfe8b7883ef70f5cca5",
+    "recipesSha256": "760ca2459f8928f10844d796e40af631fdc5bcd538fef6921fc1aa2b13a674dc",
+    "newMappingsCredited": 1,
+    "newProjectedPasses": 1,
+    "frozenAssertions": 2,
+    "projectedChecks": 10,
+    "contexts": 2,
+    "qualificationCredit": 0,
+    "policyScope": "Canonical recipe separately hash-verified; focused runner does not authenticate policy. Git predicate/metadata and ordinary nonzero branch only, not full historical preamble/environment parity.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 56,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 55,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 8,
+      "recipesWithoutKnownGaps": 346,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints on distinct artifacts, not a current single-artifact campaign."
+    }
+  },
+  "twentyFifthBatch": {
+    "registeredUtc": "2026-10-19T20:12:25.700828+00:00",
+    "state": "TWO_FROZEN_WORKSPACE_SYSTEM_COMPONENT_LIMITED_PASSES_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "ORD-WORKSPACE-SYSTEM-READS::variant-01",
+      "ORD-WORKSPACE-SYSTEM-READS::variant-02"
+    ],
+    "evidence": "gap-workspace-system-evidence.json",
+    "nativeArtifactSha256": "9f67f55fe6199e6cf2f4726b3e175589a6e374ec3424ecfe8b7883ef70f5cca5",
+    "recipesSha256": "f0f3907617b01f160e4b13d6af73314aad5a7253dd6c1e4359cb6823af1e01e9",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "frozenAssertionsPerUnit": 12,
+    "projectedChecksPerUnit": 17,
+    "projectedChecks": 34,
+    "nativeContexts": 4,
+    "queriesPerContext": 9,
+    "qualificationCredit": 0,
+    "policyScope": "Separately hash-verified canonical recipe; causal read/probe projections only, no separate native cache/store, focused-policy authentication or concurrent Program/memory proof.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 58,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 57,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 6,
+      "recipesWithoutKnownGaps": 348,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across distinct artifacts; static preparation is not one current campaign."
+    }
+  },
+  "twentySixthBatch": {
+    "registeredUtc": "2026-10-19T21:07:36.940793+00:00",
+    "state": "TWO_FROZEN_RETAINED_ANALYSIS_TRANSPORT_BOUNDARY_LIMITED_PASSES_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "P01-retained-source::plane-a-runtime-consistent",
+      "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch"
+    ],
+    "evidence": "gap-retained-runtime-evidence.json",
+    "localSourceCommit": "e59bcae350d44c27617f05683894d7ccedf42ea3",
+    "nativeArtifactSha256": "d7c8fafaaeacd200f01ad05a0aefbd7a6d7027a5c8b98962cd92d2d4b9191931",
+    "recipesSha256": "fc722cd475a18dda3320adac0abe385a64ccd967f185f0ac8c439763ac0ab558",
+    "newMappingsCredited": 2,
+    "newProjectedPasses": 2,
+    "projectedChecks": 12,
+    "checksPerUnit": [
+      9,
+      3
+    ],
+    "nativeContexts": 6,
+    "qualificationCredit": 0,
+    "policyScope": "Private retained-analysis success/rejection transport only,canonicalrecipe externally hash-verified. No full public composition/admission,embedded error identity or concurrent T-reader credit.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 60,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 59,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+      "residualStaticGapUnits": 4,
+      "recipesWithoutKnownGaps": 350,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative checkpoints across distinct artifacts;350 is static preparation, not one current campaign."
+    }
+  },
+  "twentySeventhBatch": {
+    "registeredUtc": "2026-10-19T21:21:16.289279+00:00",
+    "state": "READER_COMPONENT_LIMITED_PASS_AND_DIALECT_IDENTITY_RAW_VERSION_NONPASS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "T-reader-error::base",
+      "ORD-DIALECT-CAPABILITY::base"
+    ],
+    "evidence": "gap-reader-dialect-evidence.json",
+    "localSourceCommit": "b09896d4d8daaed1280f7f48ab14f3a11307c095",
+    "nativeArtifactSha256": "aefaecbee4677e1c72f3a150532c4dda363a5b09b20a55392507f54bf1bb8b39",
+    "recipesSha256": "2507d8c2b53baec54f474bfcbfe3f48704c7134c779b380d656eb78c7e5ca272",
+    "newMappingsCredited": 2,
+    "newLimitedProjectedPasses": 1,
+    "newVersionAttributedRawNonpassUnits": 1,
+    "readerChecks": 6,
+    "readerContexts": 3,
+    "dialectMismatches": 2,
+    "qualificationCredit": 0,
+    "individualVersionAttribution": "T00-ARB-004,compileridentityonly; rawexpectations/NONPASSunchanged",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 62,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 60,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 2,
+      "recipesWithoutKnownGaps": 352,
+      "unitDenominator": 354,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Cumulative multi-artifact checkpoints;352 is static preparation,not campaign passage."
+    }
+  },
+  "twentyEighthBatch": {
+    "registeredUtc": "2026-10-19T22:00:49.411262+00:00",
+    "state": "TWO_FROZEN_NATIVE_QUALIFIED_FLOW_BOUNDARY_LIMITED_PASSES_V5_MACOS_REVIEWED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "units": [
+      "P19-qualified-inherited-esnext-bundler::base",
+      "N19-excluded-dependent-blocks::base"
+    ],
+    "evidence": "gap-qualified-flow-evidence.json",
+    "sourceCommit": "ba7b172923ed6351618e981ad3b3938d016d6c7e",
+    "nativeArtifactSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "recipesSha256": "cf56817edec5accb6b76a661a4b7b111dacf82288e2598ba865ab1750e227a09",
+    "newMappingsCredited": 2,
+    "newLimitedProjectedPasses": 2,
+    "frozenChecks": 6,
+    "qualificationCredit": 0,
+    "scope": "Minimal nativeGit/index/retainedReceiver/config/closure/admissionCLI0or3 only;notfullBun/SQLite/universal/atomiccapture. v1\u2013v4owneddefects and exactRED/GREEN retained in evidence.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 64,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 0,
+      "recipesWithoutKnownGaps": 354,
+      "unitDenominator": 354,
+      "historicalSupportGapsUnreevaluatedInThisLot": 5,
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Original64UNITGAP mappings complete across distinct artifacts;354static recipes and zeroUNITGAP are not a campaign,not support completion,not obligationqualification."
+    },
+    "historicalSupportGapCheckpoint": {
+      "count": 5,
+      "supportIds": [
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen"
+      ],
+      "state": "HISTORICAL_GAPS_NOT_REEVALUATED_OR_CREDITED_BY_P19_N19",
+      "summary": "qualification/c1-pass2/second-replay-summary.json",
+      "summarySha256": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386",
+      "reportPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/report.json",
+      "reportSha256": "6cbabcfd91b0a2b278b107e9e9bc7486753f33a4783e74baef993956e2a05fd8",
+      "limit": "Last C1pass2 support checkpoint only; no claim about concurrent later support WIP or a new support execution."
+    }
+  },
+  "staticSupportGapPlansRemaining": 0,
+  "supportPlansMapped": 51,
+  "twentyNinthBatch": {
+    "registeredUtc": "2026-10-19T22:13:07.098116+00:00",
+    "state": "FIVE_FROZEN_IDENTITY_SUPPORT_LIMITED_PASSES_MACOS_STATIC_GAPS_CLOSED",
+    "additionalC1Pass": 1,
+    "passStillOpen": true,
+    "ownerBudgetChanged": false,
+    "supportIds": [
+      "IDENTITY::I-relocation",
+      "IDENTITY::I-sdk-supplied-vs-consumed",
+      "IDENTITY::I-request-separation",
+      "IDENTITY::I-capture-mismatch",
+      "IDENTITY::complete-baseline-specimen"
+    ],
+    "evidence": "gap-identity-supports-evidence.json",
+    "sourceCommit": "20e3f2330bb5d0a89ec55c80004a0da6a09ef3aa",
+    "nativeArtifactSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "recipesSha256": "17d2eafd1f9de378306bc2e79ea7c908a7a0dd95d3cbf90839e68a3715e8f2e0",
+    "newUnitMappingsCredited": 0,
+    "newSupportMappingsCredited": 5,
+    "newLimitedSupportPasses": 5,
+    "nativeContexts": 21,
+    "qualificationCredit": 0,
+    "scope": "Fivefocusedidentitysupports only;21contexts,not51supportcampaign. Samecapturedanalysiswithin eachtrio,notall6; SDKjoinedpathsnotallSDKconsumption; baselinecompiler_executedfalse.",
+    "progress": {
+      "originalGapUnits": 64,
+      "mappedOriginalGapUnits": 64,
+      "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+      "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+      "versionAttributedNonpassUnitIds": [
+        "N17c-importhelpers-es5-actual-emission::base",
+        "ORD-DIALECT-CAPABILITY::base"
+      ],
+      "residualStaticGapUnits": 0,
+      "recipesWithoutKnownGaps": 354,
+      "unitDenominator": 354,
+      "supportPlansMapped": 51,
+      "supportDenominator": 51,
+      "residualStaticSupportGaps": 0,
+      "newLimitedSupportPasses": 5,
+      "supportCampaign51": "NOT_EXECUTED_ON_ONE_CURRENT_CANDIDATE",
+      "qualifiedObligations": 0,
+      "obligationDenominator": 240,
+      "historicalReviewRequiredObligations": 178,
+      "review178": "PENDING; historical classification not recomputed",
+      "campaign354ThreeOS": "PENDING",
+      "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+      "R0": "UNDECIDED",
+      "ownerAdditionalPass1": "OPEN",
+      "ownerAdditionalPass2": "NOT_STARTED",
+      "scope": "Zero UNIT/SUPPORTGAP is static mapping only. Five limitedsupportPASS do not execute/qualify all354units or51supports. UnitPASS totals remain cumulative across artifacts."
+    }
+  },
+  "thirtiethBatch": {
+    "state": "STEP4_ABSENCE_V2_AND_ORIGINAL_MACOS_CAMPAIGN_RAW_RECEIPT",
+    "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+    "evidence": "step4-macos-campaign-evidence.json",
+    "claimAudit": "step4-macos-campaign-claim-audit.md",
+    "newUnitMappingsCredited": 0,
+    "newSupportMappingsCredited": 0,
+    "qualificationCredit": 0,
+    "outlineRecipesExtended": 56,
+    "originalMacosCampaign": {
+      "units": 354,
+      "rawUnitPass": 352,
+      "rawUnitNonpass": 2,
+      "supports": 51,
+      "rawSupportPass": 50,
+      "rawSupportNonpass": 1,
+      "testExitCode": 101
+    },
+    "staticReviews": {
+      "reviewed": 240,
+      "qualified": 0,
+      "historical178PlansGaps": [
+        94,
+        84
+      ],
+      "other62PlansGaps": [
+        44,
+        18
+      ],
+      "postCorrectionClosureTotal": "NOT_ADOPTED"
+    },
+    "prospectiveWitnessDecision": "REQUESTED_NOT_RECEIVED",
+    "campaignLinuxWindows": "PENDING",
+    "reserved23Cases26Variants": "NOT_READ_NOT_EXECUTED",
+    "R0": "UNDECIDED",
+    "history": "All preceding focused checkpoints and pending statuses remain dated historical records; this receipt supersedes their current macOS campaign/static-reading status only."
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_REAL_NATIVE_PROCESS_FAULT_UNITS_PASS_MACOS_DEV_NOT_QUALIFICATION",
+  "sourceHead": "3cc870b4427ed85e8a438b0c36bc9c4fa672f57d",
+  "initialReviewedDiffSha256": "31c36a853d6a61c8a5caf16c63363d1b851f60b4a90ce67c43a31f689650db4c",
+  "correctedReviewedDiffSha256": "d7c213d93b49be3a641e1e1475a73cdaacd95ff6b94dd4e32716767d8b7761e4",
+  "archive": {
+    "path": "gap-process-fault-evidence.tar.gz.b64",
+    "bytes": 1295380,
+    "sha256": "b523da528bb5dd8165037d30cc003b08727e78af0763ebca43545464dd838eda",
+    "decodedSha256": "080cc368894f8d1d34379420c9412de4537c23452b0b0046696dbf656d95de98",
+    "files": 464
+  },
+  "units": [
+    "T-timeout::base",
+    "T-output-limit::base"
+  ],
+  "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/main.rs": "4c6c5d98b706703e6a277b2931fba424a2264a7513be0c3832cc64410887f1b9",
+    "tools/rust-ts-r0/src/configured_resolution_observations.rs": "0322d8355e79f27a9bf47fae4ec8fa41f54195e113c3bb5d3c0b480c140c76ef",
+    "tools/rust-ts-r0/src/component_observations.rs": "dc05fa17dd3baf4aee3ee0151636784438bc11abb93b1131b2a2f4ea2916a482",
+    "tools/rust-ts-r0/src/captured_system_observations.rs": "3f571889b2c4fec33cfb4a8ccdf347905ee46a28efd85e73197edaec8112f171",
+    "tools/rust-ts-r0/src/configured_resolver.rs": "f8d4ecad98e9cedb210831bf399ce3a46318a2396d7cd9fa1d48b7796ddc8828",
+    "tools/rust-ts-r0/src/configuration.rs": "f50a77417ed576356542443582564a975b9f4949f8985b55f210f5dbcbd04008"
+  },
+  "artifactReuse": "Same reviewed C1 artifact/source as3cc870b4. Producer sources unchanged; no new freeze. Prior192 binary/43 library results retain their original provenance, not fresh execution here.",
+  "recipesSha256": "557c227935f42a812b09ff74c65e628eb414a529a17e172b23819f69c8b20bcd",
+  "nativeResults": "raw/gap-process-count-final-evidence/units-T-timeout/repair-results.json",
+  "nativeFacts": [
+    {
+      "caseDirectory": "unit-000",
+      "pass": true,
+      "before": true,
+      "after": true,
+      "kind": "timeout",
+      "duration_ms": 15,
+      "exit_code": null,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "capturedStdoutBytes": 0,
+      "capturedStderrBytes": 0
+    },
+    {
+      "caseDirectory": "unit-001",
+      "pass": true,
+      "before": true,
+      "after": true,
+      "kind": "output_limit",
+      "duration_ms": 109,
+      "exit_code": 0,
+      "stdout_bytes": 126935,
+      "stderr_bytes": 0,
+      "capturedStdoutBytes": 64,
+      "capturedStderrBytes": 0
+    }
+  ],
+  "qualificationCredit": 0,
+  "authority": "Frozen external-native-qualification T units leave injection mechanism unassigned and source files empty. P16 is explicitly ancillary before/fault/after runnable control, with unchanged source/expectations; no semantic credit transferred. AcceptedADR0037.",
+  "mechanism": "Existing native #383 process supervisor executes real C1. Strict positive execution limits within existing20s/8MiB maxima are forwarded, not silently defaulted. Timeout1ms may occur during startup, before any final report. Output cap64 retains bounded prefix and reports actual full-stream count/hash. Original in-memory Outcome identity binds the saved capture; before/after ordinary health controls must pass.",
+  "ownedCorrections": [
+    "Explicit execution limits were ignored in the original raw recipe runner; real requested faults instead completed successfully. Actual forwarding now produces distinct timeout/output_limit outcomes.",
+    "Initial independent proof review found impossible non-truncated count/prefix data accepted after coherent identity rebinding. Require full retained length=count and matching hash when count<=cap. Both stdout and stderr regressions ship; truncated hashes remain supervisor observations."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64; Rust1.95.0; Bun1.4.3; Python3.10.22; GIT_CONFIG_GLOBAL unset; GOPORT_LIB_PARSE_SNAPSHOT=0 GOPORT_LIB_SNAPSHOT=0 RUST_TEST_THREADS=1",
+    "observerComparators": 36,
+    "recipeCliTests": 7,
+    "focusedFaultUnits": 2,
+    "nativeHealthControls": 4,
+    "formatClippyRuffExitCode": 0,
+    "newFullVerifyPr": false,
+    "scope": "Affected harness checks only; no fresh producer192/library43 claimed. Four complete verify:pr partitions remain bound to63397c7b. Linux/Windows fault recipes not yet exercised."
+  },
+  "review": {
+    "standards": "/root/gap_batch8_standards",
+    "initialSpecProof": "/root/gap_batch8_spec_proof",
+    "finalIndependent": "/root/gap_batch8_final_review",
+    "initialVerdict": "PROOF_WEAK: one confirmed P2 complete-stream length consistency finding",
+    "finalVerdict": "PROOF_ADEQUATE",
+    "localCorrectionPasses": 1,
+    "initialActualMutationsRejectedThenRestored": [
+      "Ignore real execution budgets",
+      "Remove in-memory/persisted outcome identity binding",
+      "Remove before/after health predicates"
+    ],
+    "reports": [
+      "review/standards/report.json",
+      "review/spec-proof/report.json",
+      "review/final-review/report.json"
+    ],
+    "scope": "Private recipe, supervisor budget, capture projection and health-control mechanisms only; no merge verdict.",
+    "finalActualMutationsRejectedThenRestored": [
+      "Remove complete-stream length equality",
+      "Remove outcome identity binding",
+      "Remove before/after health predicate",
+      "Allow zero timeout",
+      "Ignore actual execution budgets"
+    ],
+    "firstAnalysisExposure": "Final runtime reviewer saw confirmedFinding metadata in corrected-anchor before first analysis; full prior report/conclusions read afterward. This is disclosed, not a blind-review claim."
+  },
+  "retainedFailures": [
+    "Original unmapped unit refused before invocation.",
+    "Pre-forwarding native replay completed all six calls successfully and correctly failed fault expectations.",
+    "Independent impossible count capture and author regression failed before correction.",
+    "Independent initial disposable build omitted builtin-modules.json; setup-only failure retained, no candidate edit."
+  ],
+  "limits": [
+    "23 of64 initial GAP units mapped;22 limited PASS and unchanged version-attributed N17c NONPASS;41 static GAP units remain.",
+    "All240 obligations remain unqualified;178-obligation review, full354 campaign, reserved execution and R0 pending.",
+    "Cancellation, malformed JSON, controlled/nonzero and reader/finalization are distinct unmapped fault cases.",
+    "Only macOS native fault replay; no new native Linux/Windows result inferred from earlier CI.",
+    "Additional C1 pass1 remains OPEN; no budget reset, no duration invented and no new compiler-version arbitration.",
+    "For truncated streams, completeness is not independently reconstructed from prefix/hash; original Outcome identity binds actual supervisor capture. Selected C1 prefix is valid ASCII/UTF8. A lossy multibyte boundary can lengthen text beyond cap and conservatively refuse; arbitrary truncated UTF8 is not qualified."
+  ]
+}

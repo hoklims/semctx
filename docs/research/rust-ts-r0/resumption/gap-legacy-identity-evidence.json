@@ -1,0 +1,113 @@
+{
+  "recordVersion": 1,
+  "state": "FOUR_FROZEN_LEGACY_IDENTITY_UNITS_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "3b35e80e61f94c073b4ff31f132d95b2d7fb0070",
+  "reviewedDiffSha256": "9a024682440e5f98f1e9852c7dadcc404b1ac6f7e29053d1ae8a8780bb666916",
+  "archive": {
+    "path": "gap-legacy-identity-evidence.tar.gz.b64",
+    "bytes": 22913900,
+    "sha256": "6f2519615c12d24a58798821dce4503ab82db4a4d576f2cb18fd8f9f8583cd74",
+    "decodedSha256": "525408d43ce50a943dfaf34b8b6ece5695ff91f434325c56b28c6cbfda2ce324",
+    "files": 663
+  },
+  "units": [
+    "N25-crlf-implementation-identity-input::base",
+    "P25-byte-identity-relocation::identity-relation-01",
+    "P25-byte-identity-relocation::identity-relation-02",
+    "P25-byte-identity-relocation::identity-relation-03"
+  ],
+  "authority": "Frozen354 corpus identityunits/annexes, historicalbaseline3e94997f sixfixedinput algorithm, acceptedADR0037; sameownerT00/C1additionalpass1.",
+  "nativeArtifactSha256": "642089cbef1794bacb92eb7dcb709ec578fec64373b5723bb484817c83ab3237",
+  "nativeEngineSourceCount": 35,
+  "sourceHashScope": "DEV35Rustsource manifest only, not completebuildclosure or qualificationfreeze",
+  "recipesSha256": "0293a0557205954bac3a04345cf38455c726052ee2dab7b82c3311abeed61df5",
+  "inputs": {
+    "path": "inputs/identity-inputs.json",
+    "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+    "bytes": 60975636,
+    "baselineFiles": 1249,
+    "sdkPackageFiles": 132,
+    "identityImplementationReadsPerSuccess": 290,
+    "identityCompilerReadsPerSuccess": 102,
+    "sdkArchiveSha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+    "sdkProvenance": "Exactarchive labelledTypeScript5.9.3,132files equal installedpackage and frozencompilerdigest; retainedfetchlog doesnotindependentlyproveregistryorigin/signature."
+  },
+  "scope": "Privatehistoricalidentity component only. Realfullbaseline and completeSDKfiles; frozenidentity plusrelocation/sourceonebyte/SDKonebyte relations andCRLFrefusal. NoTypeScriptcompilerexecution, C1produceridentity, current7fixedpolicy, qualification or globaladmission.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64,Rust1.95.0,Bun1.4.3,Python3.10.22;GIT_CONFIG_GLOBAL unset",
+    "nativeLibraryTests": 47,
+    "nativeBinaryTests": 211,
+    "nativeIntegrationTargets": {
+      "native_common_portability": 1,
+      "native_development_flow": 7,
+      "native_discovery_flow": 7,
+      "native_parallel_flow": 4,
+      "native_transport_flow": 3
+    },
+    "comparatorTests": 52,
+    "recipeCliTests": 7,
+    "frozenUnits": 4,
+    "frozenNativeProcesses": 7,
+    "projectedChecks": 5,
+    "carryovers": "7originalunits+3supports,4discoveryunits,3transportunits oncurrentoptimizedartifact",
+    "clippy": "PASS all-targets qualification-observer -Dwarnings",
+    "format": "PASS C1",
+    "ruff": "PASS",
+    "completeVerifyPr": "Not rerun; four prior local partitions only63397c7b, notcurrentcandidate."
+  },
+  "failurePaths": [
+    "Unavailableimplementation/SDKroots,directories,fixedinputs,SDKentry/librarydirectory,invalidSDKJSON/name/versionand64MiBaggregatecapturelimitrefusewithoutidentity.",
+    "Unix/macOSpermissionfailuresandexternalimplementation/SDKlinksrefuse. Linux-onlynonUTF8filenamefixture notrunlocally; APFScreationfailurepreserved.",
+    "Comparatorrejects foreignproducer/request/manifest, omitted/duplicate/changedreads, ambiguousbyteplansandoutsidepaths.",
+    "SourceCRLFrefusal appliesidentityinputs only, not analyzeduser-sourceCRLF."
+  ],
+  "review": {
+    "author_task": "/root",
+    "auditor_task": "/root/legacy_identity_claims",
+    "claimLedger": "review/final/claims/ledger.md",
+    "claimContext": "review/final/claims/context.json",
+    "initialStandards": "review/standards/report.md",
+    "specProof": "review/spec-proof/report.txt",
+    "finalIndependent": "review/final/reviewer/report.md",
+    "sourceAnchor": {
+      "base": "3b35e80e61f94c073b4ff31f132d95b2d7fb0070",
+      "diff_sha256": "9a024682440e5f98f1e9852c7dadcc404b1ac6f7e29053d1ae8a8780bb666916",
+      "files": {
+        "tools/rust-ts-r0/qualification/legacy_identity_replay.rs": "3c33b61832e6a5630974be6ffc753b4a65bf088321fae2327c859aa5b6c12225",
+        "tools/rust-ts-r0/qualification/prepare_recipes.py": "a925f1c3359256e17f08662749d90f1efe1c0e614baa602291405d529ac2bede",
+        "tools/rust-ts-r0/qualification/qualification_replay.rs": "520d838b26c4abe719585ad2d04d7ce8448f69dab885b871e93fc2dc7268a9f5",
+        "tools/rust-ts-r0/src/baseline_identity.rs": "54d0a2c6059253878f84715487ca1bf5619c6bb630514f5c5021ae914fed8784",
+        "tools/rust-ts-r0/src/discovery_resolution.rs": "cf5f02d9b40c7fd174ced51b9b0e7d6f83948e91f4f457ac73650c8697c297e5",
+        "tools/rust-ts-r0/src/lib.rs": "0bf0b70f2e7af7f03c9fc4b9f1cb08b45b21ea05152ac5460a38df1d85098bdc",
+        "tools/rust-ts-r0/src/primitive_observations.rs": "6d8deeff4f1de93213283022bf8790152789fa54dbcd05b9a5b83a59995a1a09",
+        "tools/rust-ts-r0/tests/native_development_flow.rs": "d98cb243f3941aaf77588a8bd6bb8920853935e0840c2e0bad4f52bdb03ea926",
+        "tools/rust-ts-r0/tests/support/legacy_identity_flow.rs": "8cfeec87ab325470d595f6acff6dd80a752f4dbe24b4aa11fdbc704a43e65226"
+      }
+    },
+    "compiledFaultsRejectedThenRestored": 3,
+    "faultScope": "IndependentdebugCRLFrealnative, readmapcomparatorunit, driveformatterunit; each0\u2192101\u21920. NotWindowsruntimeproof or faultsagainstimmutableoptimizedproducer.",
+    "sourceWitnessArchiveSha256": "504724b30c8d6a583afbb45b39aa63417bb5a09cc916abe2c5bc457ccaafb18b",
+    "localCorrectionPass": 1,
+    "localCorrectionPassState": "CLOSED_VALIDATED_FRESH_REVIEW",
+    "maxLocalCorrectionPasses": 2,
+    "verdictScope": "No demonstrated source defect. FinalmacOScomponentreviewadequate; wholeWindowsaffectedproofweakpendingcurrentremoteexecution.",
+    "deliveryContextCorrection": "Countonly: archived reconciliation nowthreecontradictedrows, full25rowledger unchanged. Initialdeliveryfindingandoriginalcontext preserved; source9anchor/producer/recipes unchanged."
+  },
+  "priorHeadCi": {
+    "head": "3b35e80e61f94c073b4ff31f132d95b2d7fb0070",
+    "run": 39177952992,
+    "nativeLinux": "success",
+    "nativeWindows": "failure:2discoverytests slashverbatimdrive root failsresolverprobe",
+    "nativeMacos": "inprogressatsnapshot",
+    "candidateRemoteProof": "Windowsdrivepathadaptercorrectedlocal; no currentWindows/Linuxnativeexecution or repairedWindowsguarantee."
+  },
+  "limits": [
+    "44of64initialGAPmapped:43limitedPASS+N17cversionattributedNONPASS;20staticGAP;334of354recipeswithoutknownGAP;0/240qualified. No fullcampaignaggregate.",
+    "178obligationreview,full354threeOScampaign,reserved23cases26variantsonce,R0 and#365remainincomplete.",
+    "SupportedmacOS/Linux/Windows; thisbatchauthorprooflocalmacOSonly. LinuxnonUTF8fixtureunexercised; currentWindowsruntimeunobserved.",
+    "Historical290/102readidentitypolicy not current7fixedpolicy, C1produceridentity or TS7-versusTS5arbitration.",
+    "NoSDKcompilerexecution, publicPlaneA/CLI/MCP, globaladmission, atomiccapture, performance, completebuildclosure or qualificationfreeze guarantee.",
+    "Owneradditionalpass1OPEN,pass2unused;3-4daysownerprovidedunmeasuredplanningestimate.",
+    "Reservednonaccessindividualattestationonly,notforensicproof."
+  ]
+}

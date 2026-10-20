@@ -1,0 +1,32 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "reviewer": "/root/native_verifier_independent_review",
+  "recorded_utc": "2026-10-17T19:25:17.978427+00:00",
+  "scope": "Final execution-evidence annex only, reusing the static scope and limitations of the preserved bis review. Adequate for the controlled macOS debug DEV deadline-validation delta only.",
+  "preserved_prior_snapshot": {
+    "path": "/private/tmp/semctx-t00-20261017/native-deadline-isolation-review-bis.json",
+    "sha256": "1e7cb82c6405137682bd163a491801b4e546a9229ac33437cc567d2b9ad799ca",
+    "status": "Unmodified; its missing-completed-run observation remains historically correct."
+  },
+  "test": {
+    "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/tests/native_development_flow.rs",
+    "sha256": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb",
+    "post_freeze_validation_delta": true,
+    "historical_frozen_manifest_oracle_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561"
+  },
+  "final_run": {
+    "path": "/private/tmp/semctx-t00-20261017/evidence/native-receiver-ready-debug.log",
+    "sha256": "11f04a4a9d576f4e05c6de9c908a9a793eb3ba5b697ec8e4a724a3563b35b4df",
+    "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 157.27s",
+    "exit_code": 0,
+    "exit_code_provenance": "Reported by root as completed exit0; reviewer independently verified final libtest summary and exact unchanged b832 source.",
+    "duration_seconds": 157.27,
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 0
+  },
+  "conclusion": "The essential completed-execution gap in the bis snapshot is closed. No source or behavior was re-reviewed or changed for this annex. Process20s and consumer-ready20s remain separate bounds; no end-to-end20s, public request-lifecycle/T02, R0, qualification, Linux/Windows or optimized-frozen-artifact proof is inferred.",
+  "new_queries_builds_cargo_or_source_edits_by_reviewer": 0,
+  "previous_reports_or_freeze_manifest_overwritten": false
+}

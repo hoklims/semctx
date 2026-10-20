@@ -1,0 +1,76 @@
+{
+  "verdict": "PROOF_WEAK",
+  "reviewer": "/root/native_verifier_independent_review",
+  "recorded_utc": "2026-10-17T19:23:34.707734+00:00",
+  "scope": "Specific read-only3-minute second validation delta review. Static oracle-boundary assessment plus whatever execution evidence is complete at this snapshot; no PR/R0/T02/full public lifecycle verdict.",
+  "anchors": {
+    "test_before_sha256": "6a77547bf05ab94dcf47f176e869ff751b29b5e130bffbcc5eaf8585c37880b9",
+    "test_before_git_blob": "8ad459b4",
+    "test_after_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/tests/native_development_flow.rs",
+    "test_after_sha256": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb",
+    "delta_sha256": "19b57091ea6b82c905025fe04260ecbea8a21f73e284bee0de4423511625a6a8",
+    "historical_frozen_validation_source_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+    "receiver_source_sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d",
+    "main_context_sha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46"
+  },
+  "static_assessment": {
+    "decision": "Acceptable boundary for this controlled prototype, provided the guarantee is explicitly split into supervised native-process duration and a consumer acceptance window starting after expected bindings are prepared. It does not prove an end-to-end20-second deadline from request dispatch.",
+    "mechanism": "ready_receiver prepares Expected including bindings, then assigns deadline=Instant::now()+budget immediately before Receiver::new. This removes witness preparation/hashing from the consumer acceptance window rather than increasing its20/30-second numeric budget.",
+    "anchors": [
+      "tools/rust-ts-r0/tests/native_development_flow.rs:353-408",
+      "tools/rust-ts-r0/tests/native_development_flow.rs:429-430",
+      "tools/rust-ts-r0/tests/native_development_flow.rs:485-495",
+      "tools/rust-ts-r0/tests/native_development_flow.rs:879-914",
+      "tools/rust-ts-r0/tests/native_development_flow.rs:997-1013"
+    ],
+    "preserved": [
+      "process::run_with_helper native timeout20_000",
+      "Receiver expected.max_duration_ms20_000",
+      "positive consumer window20seconds",
+      "independent poison window30seconds",
+      "explicit past-deadline LateResult negative",
+      "current request, input/source, hash and freshness mutation guards",
+      "same Receiver issuer for receipt/revalidate pair",
+      "frozen semantic fixture and expected values"
+    ],
+    "no_retry_skip_or_assertion_removed": true,
+    "what_is_no_longer_claimed": "The positive tests no longer establish that a result must be accepted/rejected by20seconds after native dispatch, inclusive of artifact hashing, observation preparation, semantic checks and receipt construction. A future assembled request lifecycle needs its own deadline anchored to that lifecycle; this helper cannot prove it.",
+    "contract_alignment": "No certain contradiction was found with the supplied controlled-prototype scope. The local private-batch contract draft80-90 demands rejecting cancelled/timed-out/late/foreign results and reusing #383 supervision, but states no20-second dispatch-to-admission bound. Draft/target ledgers are corroboration, not architectural authority; #365 full remote content was not independently fetched in this bounded review, so complete issue compliance is not certified.",
+    "independent_standards_review": {
+      "reviewer": "/root/native_verifier_independent_review/deadline_test_standards",
+      "result": "No oracle disabled outside the declared temporal-boundary move; assertions, explicit LateResult and same issuer retained, no retry/skip."
+    }
+  },
+  "execution_evidence": {
+    "path": "/private/tmp/semctx-t00-20261017/evidence/native-receiver-ready-debug.log",
+    "snapshot_sha256": "1f40816941eb85ff159ada83e9bec17a944c41f888a66d712b00f122c653c74d",
+    "complete_two_case_success_at_snapshot": false,
+    "complete_failure_at_snapshot": false,
+    "snapshot_status": "Still running: expected caught semantic-poison panics visible, no final libtest result yet",
+    "provenance": "Run launched and owned by root. Reviewer only reads retained log; no new native query/build/Cargo invocation."
+  },
+  "findings": [
+    {
+      "severity": "essential-evidence-missing",
+      "title": "The final b832 validation delta has no completed green execution in the reviewed snapshot",
+      "impact": "Static boundary design can be accepted, but the earlier red6a775 run and historical greenf20 cannot establish current execution truth. Keep overall proof weak until this exact delta finishes green.",
+      "scope": "Execution evidence gap; not a demonstrated source defect in ready_receiver."
+    }
+  ],
+  "freeze_handling": {
+    "old_review": "/private/tmp/semctx-t00-20261017/native-deadline-isolation-review.json",
+    "historical_f20_preserved": true,
+    "instruction": "Attach b832 as a second separately hashed post-freeze validation delta. Do not replace historical f20 in the frozen manifest or imply the frozen binary was rebuilt.",
+    "frozen_candidate_not_queried_or_modified_by_reviewer": true
+  },
+  "checks": {
+    "specific_delta_inspected_in_full": true,
+    "targeted_index_and_worktree_whitespace": "pass",
+    "source_hashes_unchanged_during_review": true,
+    "SUT_pin_SDK_semantic_source_mutation_by_this_delta": "None in the inspected test-only delta; existing main/component changes remain outside this review.",
+    "reviewer_source_edits": 0,
+    "reviewer_queries_builds_cargo": 0
+  },
+  "environment": "Retained macOS arm64 debug DEV execution only. Linux/Windows, frozen optimized execution, qualification/reserved and full public request/capture/ownership lifecycle are uncredited.",
+  "recommendation": "Keep the explicit separation between process20s and ready-consumer20s. Add the final exact-source run result when complete; do not promote static acceptance to a green full-pipeline proof prematurely."
+}

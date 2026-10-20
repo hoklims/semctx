@@ -1,0 +1,264 @@
+{
+  "task": "C1 pass2 captured filesystem and workspace configuration boundary",
+  "scope": "Scratch CaptureFs section and captured_system_observations.rs only; no tracked checkout/index/GitHub edits; no frozen qualification/reserved native query; no product selection/freeze",
+  "source_identities": {
+    "captured_system_observations_sha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f",
+    "capture_fs_fragment_sha256": "f8cb889516b34898f4463c64f035b04bd789f7d6b85c739bb5fd3ed257fd42d4",
+    "patch_sha256": "b11a11e53daabbe1ebbf328a6df0e5bedd88f685500e91cd585d1d8958d9313f",
+    "main_owned_before_sha256": "807d31bcdef17b1b84d1c21c409628fec2f897be4383e0c7932197d3709d1acb",
+    "main_owned_after_sha256": "5d764cef355042565af795d401b6753317bc1f996feaa8d36908e624015ea011",
+    "main_patch_excludes_concurrent_root_changes": true
+  },
+  "api_file": "/private/tmp/semctx-t00-20261017/pass2-captured-system/api.json",
+  "api_sha256": "98b2122a46583ce5cd5e06b60d9057d9e475afcf96bcf0bfa76fcfdaa7caaf75",
+  "implementation": "The observation endpoint calls the actual Fs methods used by native analysis. Lazy workspace lookups resolve physical captured bytes; no expected-value table or source-prefix substitute.",
+  "profile_correction": "Retained CompilerInputSnapshot uses CaptureFs::new, without synthetic workspace links. Ordinary module configuration uses workspace_profile on the same captures. Root owns the analyze/worker/inspect_subject wiring and its independent regression evidence.",
+  "development_tests": {
+    "final_log": "system-complete-final.log",
+    "exit_code": 0,
+    "passed": 18,
+    "failed": 0,
+    "duration_seconds": 0.02,
+    "scope": "Pure Fs/observer plus native configuration::inspect through physical base and relative extends; SDK exception and role-preserving clone; query schema, aliases, confinement, fallback and literal package-name matching"
+  },
+  "red_evidence": [
+    {
+      "log": "workspace-red.log",
+      "failure": "Real Fs file_exists false before workspace mapping implementation"
+    },
+    {
+      "log": "observer-red.log",
+      "failure": "Endpoint did not execute retained observation"
+    },
+    {
+      "log": "sdk-scope-red.log",
+      "failure": "Unrelated captured /sdk file was incorrectly admitted through SDK prefix"
+    },
+    {
+      "log": "root-boundary-red.log",
+      "failure": "Filesystem root / did not contain a captured descendant"
+    },
+    {
+      "log": "range-grammar-red.log",
+      "failure": "Split comparator > =2.0.0 was incorrectly accepted"
+    },
+    {
+      "log": "member-version-red.log",
+      "failure": "Partial member version 2 was incorrectly accepted"
+    }
+  ],
+  "static_checks": [
+    {
+      "log": "clippy-complete-final.log",
+      "command": "cargo clippy --locked --bin semctx-r0-probe -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "log": "fmt-complete-final.log",
+      "command": "rustfmt --check --edition2024 --config skip_children=true captured_system_observations.rs capture_fs.fragment.rs",
+      "exit_code": 0
+    }
+  ],
+  "native_cli_development": {
+    "request": "native-dev-request.json",
+    "outcome": "native-dev-complete-outcome.json",
+    "exit_code": 0,
+    "executed": true,
+    "unsupported": [],
+    "producer_artifact_id": "sha256:cbef19cf181a14331901f58c599fb5104247314a162c770f37e4d8006cf19b99",
+    "request_descriptor_id": "sha256:83ea6e21f3ad60c7c352a8ce5f12dfe06f710586d9d010be35853c18d12a86df",
+    "scope": "Actual unoptimized native --observe-system endpoint over fresh DEV input; not selected artifact or qualification"
+  },
+  "baseline_evidence": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3",
+    "bun": "1.4.3",
+    "source_archive": "/private/tmp/semctx-t00-20261017/pass2-js-hole/baseline-public-dev/packages.tar",
+    "script": "baseline-dev.ts",
+    "results": "baseline-complete-dev.jsonl",
+    "scope": "Controlled fresh materialized DEV workspace; exact legacy wrapper, not current checkout; pnpm positive is deliberately an unsupported capability in current port"
+  },
+  "logs": [
+    {
+      "name": "clippy-attempt1.log",
+      "sha256": "3206e76f13a48b90525d0046a542a1f3fb353f1782fef6923a40f4c9f884d170",
+      "bytes": 5616
+    },
+    {
+      "name": "clippy-attempt2.log",
+      "sha256": "96f3c6f899a72a3d4bcaa2d625a663b3628c105bb15c43951ad10c4e9b087aa8",
+      "bytes": 213
+    },
+    {
+      "name": "clippy-complete-final.log",
+      "sha256": "c74bae2bdf41dd53fa54f1e0436c0ac6f222050de99a24757ba3ac5def07acf4",
+      "bytes": 159
+    },
+    {
+      "name": "clippy-final-stable.log",
+      "sha256": "096dd28cf3497b1ff1075c29679fff4feee2afbe2a7843efc1e5bd641c6c145b",
+      "bytes": 213
+    },
+    {
+      "name": "clippy-final.log",
+      "sha256": "bd6f17f495a2a01221d4e5cbc70da1da13a6b619878b4a8754d179c719755515",
+      "bytes": 632
+    },
+    {
+      "name": "fmt-complete-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "fmt-final-green.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "fmt-final.log",
+      "sha256": "f9371fbf3f4dcce4c0fc8d70add0ccc3ccaaec23d3534d2cbe279bc353195f6b",
+      "bytes": 977
+    },
+    {
+      "name": "member-version-red.log",
+      "sha256": "61f4dbd150346660c2e94084f7f55bc54ec2634c797208cef51011f30caa47d6",
+      "bytes": 901
+    },
+    {
+      "name": "native-configuration.log",
+      "sha256": "d449ac1e33c40b370cecefde62786f11ff450a979b1d3086e5466dc267cd74eb",
+      "bytes": 880
+    },
+    {
+      "name": "native-dev-cli.log",
+      "sha256": "e2952ab0d8caea0af6b842a1c6dd8655e64d08bf111b183e7f227562b77fb6e9",
+      "bytes": 316
+    },
+    {
+      "name": "native-dev-complete-cli.log",
+      "sha256": "345eea3deef0c8f897bec04c9ad3986e7ec38c3d146534c1232f3bb49c2bf1fb",
+      "bytes": 373
+    },
+    {
+      "name": "native-dev-final-cli.log",
+      "sha256": "e9d55c8bfca2e99e23810b202a88e061972295acacc49592fc4ad55a660bd8e2",
+      "bytes": 316
+    },
+    {
+      "name": "observer-green-attempt1.log",
+      "sha256": "66a80cc02d9021749c12c416d237e2a7537f56416a441f6ea61821fa7fb5ef2c",
+      "bytes": 992
+    },
+    {
+      "name": "observer-red.log",
+      "sha256": "a21ee4b0a03605f25db318c392d2c199e3745ec92cca9ff5fc6267693829daf3",
+      "bytes": 1735
+    },
+    {
+      "name": "range-grammar-red.log",
+      "sha256": "e2e60a5d846acc6f8ec06ac55a78ef0cb991cc1b217753d7bea6eb121f984526",
+      "bytes": 1037
+    },
+    {
+      "name": "root-boundary-red.log",
+      "sha256": "96774933ddb403ccd24a39b6335bb04f9b7a6ccaf79b510402bd573787cd3812",
+      "bytes": 995
+    },
+    {
+      "name": "sdk-scope-red.log",
+      "sha256": "a0a756f29e61833e466b1527a523d097e48cdffde8d0a86a0d5233c75ad8d50c",
+      "bytes": 998
+    },
+    {
+      "name": "sdk-scope-test-setup-root.log",
+      "sha256": "51882d2e0cede8b4e7fe77d3b2d6102c8344c90b2c6ea7b1ee2eb7b424433c32",
+      "bytes": 998
+    },
+    {
+      "name": "system-complete-final.log",
+      "sha256": "dd2279c011452dbd7d42c255b8e9bd6ae2294da207683a36c3a0784d5eadf604",
+      "bytes": 2488
+    },
+    {
+      "name": "system-dev-suite-attempt1.log",
+      "sha256": "384af32a72980518d7beb775c71debfb806afaf8e05c3edcffd2b774d45ff2c2",
+      "bytes": 1939
+    },
+    {
+      "name": "system-final-green.log",
+      "sha256": "f0bdcc667835b313481f06f7a71880b8ff6de3f5e98811c3539b67d4483cb2e2",
+      "bytes": 2141
+    },
+    {
+      "name": "system-final-stable.log",
+      "sha256": "f4f0063995b2168c2937f4daa39e734e468f88c0de6a1011979c94293dab58bd",
+      "bytes": 2264
+    },
+    {
+      "name": "system-lazy-scoped-green.log",
+      "sha256": "6dcfe284476ebe4c74fca69e36289556651372fc9f7d95b16bec8ba7f7c9d426",
+      "bytes": 2058
+    },
+    {
+      "name": "system-profile-clone-green.log",
+      "sha256": "3f00a2d765899036136151a6bc2032ab2180f46fb5ee7648da79708027c01a12",
+      "bytes": 960
+    },
+    {
+      "name": "system-scope-green.log",
+      "sha256": "5c5df44dfc0bc30bca2e91ff383061d22ba8bf0d65d9fb9c85abb365472a9dc3",
+      "bytes": 1922
+    },
+    {
+      "name": "workspace-green-attempt1.log",
+      "sha256": "b4e74c2e66b106d3013441f252b9aa00d50f762efd05706191c2b36efd0934e4",
+      "bytes": 1127
+    },
+    {
+      "name": "workspace-lazy-green.log",
+      "sha256": "02837ce50f43500983b0c15a924253fdc558660c0bf38f7d8afc5c313a1317b6",
+      "bytes": 1127
+    },
+    {
+      "name": "workspace-red.log",
+      "sha256": "0fcb336245bc56bc49ef54fc329199f3011058ae881b2fd1a249a7fd0014bbd7",
+      "bytes": 1324
+    }
+  ],
+  "limitations": [
+    "pnpm-workspace.yaml declarations",
+    "workspace glob constructs beyond the named subset",
+    "prerelease/build semver features",
+    "workspace read_directory",
+    "No complete symlink/junction/permission topology model",
+    "No independent reviewer claim; request root independent review",
+    "No Windows/Linux execution in this subtask",
+    "No qualification/holdout/R0/READY claim",
+    "Full canonical checks remain root-owned after integration and staging"
+  ],
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "architecture": "arm64",
+    "rustup_toolchain": "1.95.0",
+    "CARGO_HOME": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "1"
+  },
+  "concurrent_failures_not_counted_green": [
+    "system-profile-clone-green.log: root input identity/batch concurrent double ? compile failure",
+    "clippy-final.log: same concurrent phase, check actual log before deriving a result"
+  ],
+  "sdk_test_setup_not_regression": "sdk-scope-test-setup-root.log initially failed before query because root / containment validation was incomplete; actual SDK admission regression is sdk-scope-red.log with /sdk prefix",
+  "dependencies_added": [],
+  "comments_added": [],
+  "effort": {
+    "start_utc": "2026-10-17 19:44:00 UTC",
+    "closed_utc": "2026-10-17 20:15:13 UTC",
+    "charged_seconds": 1873,
+    "initial_cap_minutes": 45,
+    "separate_prior_task_charged_seconds": 738,
+    "no_budget_reset": true
+  }
+}

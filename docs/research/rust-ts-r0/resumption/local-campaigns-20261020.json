@@ -1,0 +1,73 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-20",
+  "scope": "C1 / rust/365-t00 / PR386; original local 354-unit / 51-support campaigns only.",
+  "authority": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/resumption/owner-execution-decisions-20261020.json", "sha256": "ec7367674deacfa54a002d6af75b0df65645af323029ea380da615dedf980b61"},
+  "sourceRecorded": {"head": "43a9cf5a63fe40669eed4163f6a746091b3f635b", "tree": "f8c9bbc78e17007027ee48d2927002df33cff5e5", "headAfterBothRuns": "43a9cf5a63fe40669eed4163f6a746091b3f635b", "treeCleanAfterBothRuns": true, "limit": "Operational post-run receipts and recorded build context; no cryptographic commit-to-binary attestation."},
+  "behavioralOracle": "qualification_replay_requires_explicit_optimized_freeze",
+  "rawEvidenceRetention": "Local temporary paths and isolated Docker volumes; these hashes identify observed files and do not provide durable retention.",
+  "commonSources": {
+    "sourceIndex": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/index.json", "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1"},
+    "scenarios": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/scenarios.json", "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906"},
+    "supports": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/support.json", "sha256": "a0ea3216c1d23dbac8e8ca79cbfe1bc5a028203b73144c779ec600b933421619"},
+    "obligation_map": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/obligations.json", "sha256": "60e3cf74c75f2733476ddfc721b54a4b7cd9e5e7dbff6745205b0eaed6d0fba5"},
+    "input_index": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/allocation/input-index.json", "sha256": "2b661e61877daf5a4ce14ab76a3ce31f0703f288b01b0853cbc3a8b448c0cded"},
+    "allocation": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/allocation/policy.json", "sha256": "a732cdb98b48621910ea2c7e7bc6044fa0f33146f096d923a371743609b978df"},
+    "legacy_identity": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/annexes/private-identity-expectations.json", "sha256": "47930accda6b9ee8eae24799152cc5d9f8496b006db425684f70e1b74eca856a"},
+    "baseline_identity": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/annexes/baseline-analyzer-identity.expected.json", "sha256": "7a46c92b9437a6b706b1ddcd320df70a5a73c790077cfc90a87126fe1f3cf15c"}
+  },
+  "campaigns": [
+    {
+      "lane": "macos-v1",
+      "environmentRecorded": {"os": "macOS 27.0.1 (26A434)", "kernel": "Darwin 27.0.0", "architecture": "arm64", "rustc": "1.95.0 (59807616e 2026-04-14)", "cargo": "1.95.0 (f2d3ce0bd 2026-03-21)", "bun": "1.4.3", "python": "3.10.22", "container": false},
+      "result": {"exitCode": 0, "aggregate": "PASS 1/1", "elapsedSeconds": 141.31, "reportTimestampUnixMs": 1792482182285, "rawUnits": {"PASS": 352, "NONPASS": 2}, "rawSupports": {"PASS": 50, "NONPASS": 1}, "associatedUnitsAllPassed": 239, "qualifiedObligations": 0, "obligationDenominator": 240},
+      "files": {
+        "freeze": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/freeze.json", "sha256": "988b1057caa2631b8973170c838de3ba077e220be477315c6a1d35e7be92ebac"},
+        "report": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/evidence/report.json", "sha256": "703eb465516a5291b46286d20aa3b8dd25b38931d851721be9b4a3eac41d32ca"},
+        "log": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/campaign.log", "sha256": "198f1f3cc50285846d3211d4b52fabbcac822dde7fd06ee605554b4e76969a8c"},
+        "executionReceipt": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/execution-receipt.json", "sha256": "4b0fdbec4c60df75a7a6d5c45d2f7bf432d78efa33b2165a10b4c7a4abbd0087"},
+        "environment": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/environment-before-campaign.json", "sha256": "396b237f26f7066d4f0eeb19f778219caddf3c29b0cd79c5931904ccc62c0034"},
+        "observerBuildLog": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-observer-build.jsonl", "sha256": "aa43ac32d269591118879a9a45a0026950be6ee9da87fa15f6a9f25f91a320b3"},
+        "producer": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/semctx-r0-probe", "sha256": "5ccf4c1a85dff8eb78387ebb0a28e6511450e497bc2c2739611df614f388f097"},
+        "helper": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/semctx-gates", "sha256": "79a5c6ea1eb4298209fe5a94dc68cc00eb84dd825a12a8c9ceffa504657c4438"},
+        "fixture": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/semctx-gates-fixture", "sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87"},
+        "observer": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/qualification_replay-f9e27f9b0849f013", "sha256": "23fe02c76aca253680d67d63a9d43c753577a6124a074d164f295dfd34c73653"},
+        "sdk": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/sdk-input.json", "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"},
+        "recipes": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-campaign-recipes/replay-recipes.json", "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068"},
+        "identityInputs": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-v1/t00-original-campaign/identity-inputs.json", "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"}
+      }
+    },
+    {
+      "lane": "linux-v1",
+      "environmentRecorded": {"os": "Debian GNU/Linux 12 (bookworm)", "kernel": "7.2.9-orbstack-00391-g2b298d05fbd4", "architecture": "aarch64", "rustc": "1.95.0 (59807616e 2026-04-14)", "cargo": "1.95.0 (f2d3ce0bd 2026-03-21)", "python": "3.11.2", "gcc": "12.2.0", "glibc": "2.36", "image": "rust@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1", "imageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977", "containerId": "90f194e7a6db418def44420f845947b879b4db1e907ac1dbeed31dff0362ef4c", "network": "none", "uidLimit": "Pre-run snapshot records 501:20; Config.User is empty and campaign argv is not retained, so campaign process UID is not attested."},
+      "result": {"exitCode": 0, "aggregate": "PASS 1/1", "elapsedSeconds": 165.69, "reportTimestampUnixMs": 1792482206805, "rawUnits": {"PASS": 352, "NONPASS": 2}, "rawSupports": {"PASS": 50, "NONPASS": 1}, "associatedUnitsAllPassed": 239, "qualifiedObligations": 0, "obligationDenominator": 240},
+      "files": {
+        "freeze": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/freeze.json", "sha256": "c556c8499bc33544fc6febbe17a9e953ea0c9e9d844b2609e9b37c452913f259"},
+        "report": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/evidence/report.json", "sha256": "175d9d1391b26937a2731d2c39fc9f25104685bfd27cde563f05ff98cfdaad7b"},
+        "log": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/campaign.log", "sha256": "e6494999dde9247bb4f861d34e779c796f23cbf51cd1e0eb867871e52d8fde81"},
+        "executionReceipt": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/execution-receipt.json", "sha256": "49a5287cfa02a392e6795b219fe73cc08ee4686e33cb594d909f89cc61d3ad48"},
+        "environment": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/environment-before-campaign.txt", "sha256": "4858e37eee9e8624db6f0828720dd7d844ef163c2556100fbe94f3971c5c0de0"},
+        "observerBuildLog": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-observer-build.jsonl", "sha256": "d689b86c19694845924716bd144ef1c4746ca73056c142ebc65e72538a356cb1"},
+        "preparation": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/preparation-receipt.json", "sha256": "a3ed6f56bb191c4f27afa3abcae3f69f61175b6fc84e4112a231021fd787b37a"},
+        "imageInspect": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/image-inspect.json", "sha256": "c79ee4d20486b95dd55a3d6a2a6040e593b9032ad6bf7b4f5dcff956d2f0c460"},
+        "containerInspect": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/container-inspect.json", "sha256": "74fa6f9cd56cedab70ebaa8119ec8d68d5bf6cc6379ff2aac0f85bc6bb8a51a3"},
+        "producerBuildLog": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/build-producer-v1.log", "sha256": "479fc270a794d6c3b57cb2622abd165ce50a3e0078f3be6f658fa3d8dc8221ba"},
+        "producer": {"campaignPath": "/work/evidence/t00-original-campaign/semctx-r0-probe", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/semctx-r0-probe", "sha256": "9f3fc79fbc05c6ea8072f9cf3713e2e98e3ccee1c7417f7988aab36a1a2b76f6"},
+        "helper": {"campaignPath": "/work/evidence/t00-original-campaign/semctx-gates", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/semctx-gates", "sha256": "80a9e2477e7e847f9e1fc25a6f3c249d56051996fb8f6079e8bcde8a5b753e15"},
+        "fixture": {"campaignPath": "/work/evidence/t00-original-campaign/semctx-gates-fixture", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/semctx-gates-fixture", "sha256": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434"},
+        "observer": {"campaignPath": "/work/evidence/t00-original-campaign/qualification_replay-3e8b4fe2e7321767", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/qualification_replay-3e8b4fe2e7321767", "sha256": "837e3ef07cd9c9baab7b3add52040eb6141d7b832e8daf3b0ed50a6d3b619bd4"},
+        "sdk": {"campaignPath": "/work/evidence/t00-original-campaign/sdk-input.json", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/sdk-input.json", "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"},
+        "recipes": {"campaignPath": "/work/evidence/t00-campaign-recipes/replay-recipes.json", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-campaign-recipes/replay-recipes.json", "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068"},
+        "identityInputs": {"campaignPath": "/work/evidence/t00-original-campaign/identity-inputs.json", "path": "/private/tmp/semctx-t00-owner-oct20/linux-v1/t00-original-campaign/identity-inputs.json", "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"}
+      }
+    }
+  ],
+  "preservedRawFailures": [
+    {"kind": "unit", "id": "N17c-importhelpers-es5-actual-emission::base", "state": "NONPASS_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-003", "qualification_credit": 0, "recipe_signature": "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/assertions/independent_emission_facts", "target": ["subjects", {"path": "main.ts"}, "runtimeConfiguration", "emission", "observation", "output_text"]}]},
+    {"kind": "unit", "id": "ORD-DIALECT-CAPABILITY::base", "state": "NONPASS_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-004", "qualification_credit": 0, "recipe_signature": "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/assertions/every_typescript_or_javascript_capability_scope_dialectVersion + /assertions/declarative_scope", "target": []}, {"expected_origin": "/assertions/compiler_package_version_input", "target": ["native_compiler_version"]}]},
+    {"kind": "support", "id": "ENC::UTF16LE-lone-high-surrogate::ordinary", "state": "NONPASS_PRIMITIVE_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-002", "qualification_credit": 0, "recipe_signature": "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/payload/vector/mode_syntax_error_codes", "target": ["source_parsing_observation", "diagnostics"]}]}
+  ],
+  "adjacentLocalVerification": {"receipt": {"path": "/private/tmp/semctx-t00-owner-oct20/restack-verify-pr-v1-environment.json", "sha256": "8a986155d352e58222b92dcb9e5c507e6cf6282a18de7d1a952f5db394964587"}, "command": "bun run verify:pr", "state": "PASS", "environment": "macOS 27.0.1 / Darwin 27.0.0 ARM64; Bun 1.4.3; Rust 1.95.0; Python 3.10.22; GIT_CONFIG_GLOBAL absent", "head": "43a9cf5a63fe40669eed4163f6a746091b3f635b", "tree": "f8c9bbc78e17007027ee48d2927002df33cff5e5", "log": {"path": "/private/tmp/semctx-t00-owner-oct20/restack-verify-pr-v1.log", "sha256": "ebbb2d07af603d05a63d5035c5bd152bf2315c19923d20d907048488bd4d293f"}},
+  "limits": ["No new owner decision, mapping adoption, qualification credit, waiver or R0 decision.", "Both reports retain qualified=false and R0_decision=NOT_MADE_BY_ADAPTER; all 240 obligations remain unqualified.", "Aggregate PASS accepts the three existing individually classified raw NONPASS; raw outcomes and frozen expectations remain unchanged.", "Hash checks bind producer/helper/SDK/recipes and exercised fixture/identity inputs plus immutable corpus; source_head, platform and observer self-hash are recorded, not checked by replay().", "No mandatory root-read, complete capture, all-SDK consumption, universal parity or public-product equivalence claim.", "Windows original campaign not yet executed at this local checkpoint; final Windows CI remains prospective under the owner decision.", "Normal PR CI run 39388257809 was created; this record establishes no green remote CI result.", "Reserved 23 cases / 26 variants and rejected prospective witnesses are outside these execution receipts; no exhaustive historical absence is claimed.", "Earlier receipts, owner counters and historical results remain unchanged."],
+  "audit": {"authorTask": "/root/local_campaigns_oct20_author", "auditorTask": "/root/local_campaigns_oct20_author/local_campaigns_oct20_auditor", "agentType": "design-claim-auditor", "forkTurns": "none", "ledger": "local-campaigns-20261020-claim-audit.md"}
+}

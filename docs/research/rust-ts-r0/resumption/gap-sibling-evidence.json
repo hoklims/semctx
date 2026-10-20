@@ -1,0 +1,60 @@
+{
+  "recordVersion": 1,
+  "state": "DECLARED_SIBLING_SETUP_DEV_NOT_QUALIFICATION",
+  "sourceHead": "a6bc41b5e1dfd8caadc85c539884273320dbb33a",
+  "reviewedDiffSha256": "c16e563c5f4ec55518a4441d7782b710c85d3e2b5046145e61d9d7f36f509416",
+  "archive": {
+    "path": "gap-sibling-evidence.tar.gz.b64",
+    "bytes": 782581,
+    "sha256": "202af02d2878ff0b2b22416bebee2cd8a8a3d25bc9c1d758501d9841f5e6d84c",
+    "decodedSha256": "eb800a393081c2ea4568c3168c6f13ed9d460206f298e3288db03f3de2117fc3",
+    "files": 57
+  },
+  "unitId": "V2-F02-outside-inherited-config::base",
+  "nativeArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+  "recipesSha256": "de79213ae805640780d52f8e17f37ff7dd75618fdd26545826f386284449889c",
+  "nativeResults": "raw/units-V2-F02-outside-inherited-config/repair-results.json",
+  "result": "PASS_FROZEN_PROJECTED_UNIT",
+  "qualificationCredit": 0,
+  "mechanism": "Consume only the explicitly declared retained sibling map into native request.files. Separate input envelope prevents sibling writes targeting harness evidence; only direct ../filename, strings and exclusive file creation are accepted. All other relative-source confinement checks remain.",
+  "checks": {
+    "macosEnvironment": "macOS27.0.1 arm64, Rust1.95.0, Python3.10.22, Ruff0.16.10, Bun1.4.3, GIT_CONFIG_GLOBAL unset",
+    "nativeFrozenUnit": {
+      "exitCode": 0,
+      "passed": 1
+    },
+    "observerComparators": {
+      "exitCode": 0,
+      "passed": 33
+    },
+    "recipeCliTests": {
+      "exitCode": 0,
+      "passed": 7
+    },
+    "formatClippyRuff": {
+      "exitCode": 0
+    },
+    "redWitness": "logs/semctx-t00-gap-sibling-materialization-red.log: successful old materialize omitted the declared sibling; subsequent required file read fails"
+  },
+  "review": {
+    "author": "/root",
+    "standards": "/root/gap_batch3_standards",
+    "specProof": "/root/gap_batch3_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to mechanism/macOS DEV",
+    "oracleFaultsRefused": 5,
+    "inputBindingWitnesses": "Changed/removed sibling bytes rejected",
+    "setupWitnesses": "Three invalid/non-direct setups rejected before native invocation",
+    "materializationMutation": "Copied evaluator with sibling materialization removed fails actual test(exit101), restored passes",
+    "reports": [
+      "review/standards/report.json",
+      "review/spec-proof/report.txt"
+    ],
+    "candidateStable": true
+  },
+  "limits": [
+    "No engine change, global qualification credit or full354-unit campaign.",
+    "No Linux/Windows execution of this new mapping yet.",
+    "Expected source/configuration refusal unchanged.",
+    "Reserved payload remains unaccessed."
+  ]
+}

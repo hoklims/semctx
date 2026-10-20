@@ -1,0 +1,191 @@
+{
+  "author": "/root/qualification383",
+  "status": "F1_FUNCTIONAL_CORRECTION_GREEN_FRESH_REVIEW_PENDING_EDITORIAL_FINAL_BYTES_PENDING_ROOT_BARRIER",
+  "effort_interval": {
+    "start_utc": "2026-10-17T18:17:43+00:00",
+    "end_utc": "2026-10-17T18:28:14.256398+00:00",
+    "wall_seconds_conservative": 631
+  },
+  "owned_repository_files": [
+    "tests/native_development_flow.rs"
+  ],
+  "producer_src_writes": [],
+  "fixture_sha256_unchanged": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+  "test_before_sha256": "8a6715dbf9b883f4ca16a5b7a686ed5834686f50b750d4a76fcf41cd223b5f79",
+  "functional_green_source_sha256_reconstructed_from_editorial_delta": "6b3b8d73aa822113732a9416614f7de3bfbafcd79941ec681ca68eda8d503665",
+  "final_source_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+  "final_source_index_identical": true,
+  "final_editorial_delta": "Only completion-proof label InvalidEndpoint -> InvalidFact:forged-endpoint-payload, aligning it with the corrected receiver rejection. Final-byte rerun stopped at parent request; functional GREEN refers to reconstructed pre-label source, not final bytes. Root full portable barrier pending.",
+  "functional_run": {
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 0,
+    "duration_seconds": 131.45,
+    "log": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/corrected-run2.log",
+    "log_sha256": "e63e58caba856ad902e7835d09b9478bac7438705e0848a03c611917627489a2"
+  },
+  "oracle_red_green": {
+    "scope": "Exact old/corrected semantic-oracle function excerpts against same actual retained native DEV batch; no new producer query; payload-kind-only mutation with refreshed facts/graph digests.",
+    "results": [
+      {
+        "label": "old",
+        "exit_code": 101,
+        "actual_native_outcome": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-22125-1792261275344727000/native-0.json",
+        "fixture": "/private/tmp/semctx-t00-native-composition1-20261017/tests/fixtures/native-development-flow/cases.json"
+      },
+      {
+        "label": "corrected",
+        "exit_code": 0,
+        "actual_native_outcome": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-22125-1792261275344727000/native-0.json",
+        "fixture": "/private/tmp/semctx-t00-native-composition1-20261017/tests/fixtures/native-development-flow/cases.json"
+      }
+    ]
+  },
+  "native_outcomes": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/native-0.json",
+      "sha256": "5bddfb20a00acd58115938bd52ee6a7fcc749b1312488cbc4b464b94e420323e",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 5763,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/real-native-empty-path.json",
+      "sha256": "94482a2e96daeb1bc45c99b1541713b9a89a206ac94f03f00c4eb5173b2db3a0",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 5139,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/real-native-failure.json",
+      "sha256": "2ff6ee807f42f388bc1b5fa87f3d06c71c4b0560cc9cbcffce731b45665ae593",
+      "kind": "nonzero",
+      "exit_code": 1,
+      "duration_ms": 13,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/real-native-output-cap.json",
+      "sha256": "65400582f2ffcfc4def3573eba04ffb8fb686a80cca3b0049dc97367578bdb77",
+      "kind": "output_limit",
+      "exit_code": null,
+      "duration_ms": 5154,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/real-native-timeout.json",
+      "sha256": "fc35292442a3391023704ca8ed6dedae85c4098a251a609b25a7dea0fd84b486",
+      "kind": "timeout",
+      "exit_code": null,
+      "duration_ms": 13,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261465714242000/native-1.json",
+      "sha256": "15326dc7b673ef8b388f9020520b9e395576389df39b542ee9437a1607e7b5a7",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 4510,
+      "producer_sha256": "sha256:2a70294052d1e2693948a214e9c1f67befcb6171af0c54382e1702c1d444bc88",
+      "helper_sha256": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8"
+    }
+  ],
+  "input_provenance": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/input-provenance-0.json",
+      "sha256": "8465932e97c84782fb96087a3bd63dd0d6b1fd069281c970b2e6d683c1ce9a33",
+      "successful_read_paths": 65,
+      "sdk_read_paths": 63,
+      "supplied_sdk_files": 100,
+      "required_sdk_paths_present": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261465714242000/input-provenance-1.json",
+      "sha256": "762be0474d697050db21f33ec3627973976c8e47bc9d1b51dd811e3470c75370",
+      "successful_read_paths": 64,
+      "sdk_read_paths": 63,
+      "supplied_sdk_files": 100,
+      "required_sdk_paths_present": true
+    }
+  ],
+  "coherent_payload_and_input_poison_evidence": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/outcomes/run-23499-1792261349885617000/coherent-payload-and-input-poisons.json",
+      "sha256": "17edcb5ac5b62b2e1c258fc56d90128512c50fbec9fa3c33d1ad873e87144dae",
+      "results": [
+        {
+          "disposition": "receiver-and-semantic-oracle-rejected",
+          "facts_hash_refreshed": "sha256:44e9304c01cc5cb0c7623be632710d9015fb7b022f0b6a2f9ce9ae634935f9db",
+          "freshness_seal_refreshed": true,
+          "graph_hash_refreshed": "sha256:1c88a9f114a227ce9d82af82cd2e1aa3583f2bfce0a451ef6b5ce88308af4acf",
+          "mutation": "edge-kind"
+        },
+        {
+          "disposition": "receiver-and-semantic-oracle-rejected",
+          "facts_hash_refreshed": "sha256:f956bbe600082cdfd8c05a38f13755fa1c64a251bb6beacaae85cfb19a491bc8",
+          "freshness_seal_refreshed": true,
+          "graph_hash_refreshed": "sha256:28b3909d13b95a32a4d3c16eb869a58d83ca3f738b98bd4b95d708b522da4178",
+          "mutation": "node-id-changed"
+        },
+        {
+          "disposition": "receiver-and-semantic-oracle-rejected",
+          "facts_hash_refreshed": "sha256:1ba1427da651097c12b9b7c8995c0aad39b20ef85f7e6ad72b09552dd7b55816",
+          "freshness_seal_refreshed": true,
+          "graph_hash_refreshed": "sha256:2f89e4f56f0d12cebe02da6bd13f8b52b08225a30b6e454a26d22ba68568936c",
+          "mutation": "node-id-missing"
+        },
+        {
+          "disposition": "receiver-and-semantic-oracle-rejected",
+          "facts_hash_refreshed": "sha256:eab0fac15913c56dd31b07bafe1185f7cf1f031b399a28a9c54a69be8eda4c74",
+          "freshness_seal_refreshed": true,
+          "graph_hash_refreshed": "sha256:996f05626fc28c90657b6b791bb9e421717421530552170b0fdaa689d52b53da",
+          "mutation": "function-evidence-lines"
+        },
+        {
+          "disposition": "structurally-valid-semantic-oracle-rejected",
+          "facts_hash_refreshed": "sha256:4128edd35fad93def4fbfca066010f83e659972b6a34c1f9850d9f9d3ec95e61",
+          "freshness_seal_refreshed": true,
+          "graph_hash_refreshed": "sha256:6345d5b1fc7f58d4a97617880c9128801079670b49fa81b6bf59b2310abee90a",
+          "mutation": "call-evidence-in-range"
+        },
+        {
+          "disposition": "independent-byte-join-rejected",
+          "mutation": "read-hash"
+        },
+        {
+          "disposition": "independent-byte-join-rejected",
+          "mutation": "read-foreign-path"
+        },
+        {
+          "disposition": "independent-byte-join-rejected",
+          "mutation": "nonread-content"
+        }
+      ]
+    }
+  ],
+  "editorial_rerun_stop": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/editorial-rerun-stopped.json",
+  "correction_scope": [
+    "Semantic oracle observes actual graph payload node ids, edge kind/from/to, endpoint closure and exact graph source-line evidence. Private fact UTF16/line range assertions remain separate.",
+    "Transport Edge.id remains distinct from legacy payload edge.id; no producer semantic ID algorithm reused.",
+    "Five actual-batch payload poisons recompute facts_id,graph_id and receiver facts seals before negative checks. Four reject at receiver/semantic boundary; in-range wrong call line is structurally accepted but rejected by frozen semantic oracle.",
+    "Every reported successful read_file joins independently to captured Request/Sdk UTF8 bytes; absent/non-read probes require content_id None. Source roots and two ES2022 default libraries must be observed.",
+    "Three byte-provenance poisons reject forged hash, successful foreign-path read and consumed-content claim on non-read probe.",
+    "case_sensitive is a scalar observation with empty path; current observed bool and captured_cwd are checked against request metadata."
+  ],
+  "limits": [
+    "macOS arm64 debug DEV only; no native Windows/Linux/release qualification or R0 decision.",
+    "Captured-Fs read observations are reported by the pinned native artifact and joined to supplied bytes; no OS-sandbox, exhaustive ambient-read exclusion or coherent acquisition proof.",
+    "63 SDK paths are reported read out of100 supplied in each DEV case; all100-consumed is not claimed.",
+    "Qualification/reserved source reads/runs:0.",
+    "Independent fresh delta review and root full barrier are pending."
+  ],
+  "comments_added": []
+}

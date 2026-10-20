@@ -1,0 +1,91 @@
+{
+  "recordVersion": 1,
+  "state": "FROZEN_MISSING_RETAINED_TEST_COMPONENT_PAIR_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "bd7ac73e206a90510e89d8f6fbceaa8bb4925e7e",
+  "reviewedDiffSha256": "d15bb5e2e55bc3ba29004a817f5dd36cf618d13f3794fc75de731699ff520b6c",
+  "archive": {
+    "path": "gap-missing-test-evidence.tar.gz.b64",
+    "bytes": 1396055,
+    "sha256": "f9168c2b54de6cde079fd62b8183c3facaff96dac3043334c46b04215ec81740",
+    "decodedSha256": "99ec8c7b5e7b50bbd99514bd57eaf328c0b0cc2a6851f8c626aa846d66a95a58",
+    "files": 256
+  },
+  "units": [
+    "QDYN-07-missing-retained-test-text-public-refusal::base"
+  ],
+  "nativeArtifactSha256": "322aed26fea42c4609f94e2e0f63a42aaff85cb4bdeafe1c0bd84d1d73221abd",
+  "nativeEngineSourceCount": 29,
+  "recipesSha256": "381642f7aecb3ecb7c6b63c5d8c4077135359a4e7047dcba52e6853f134f7b40",
+  "authority": "Frozen public QDYN07 case in allocation/input-index.json and qualification/scenarios.json. Accepted ADR0037; owner-authorized same T00/C1/pass1.",
+  "mechanism": "Share the existing strict native AST test-import scanner with the private supplied-map primitive. Physically preserve all three frozen files while omitting the test only from captured text. Execute the bounded native retained-discovery guard, then separately invoke the private scan with the identical retained map and actual test roles. The actual public guard refuses SOURCE_SNAPSHOT_MISMATCH before analysis; the private scan skips missing retained text despite the physical file.",
+  "binding": "Existing actual process runners bind descriptor, supplied SDK, executable and persisted Outcome identities. The pair comparator joins the saved public/private descriptors, retained maps and test roles. Omitted physical bytes are checked and copied into the private process cwd; absence from a supplied map does not imply filesystem absence.",
+  "failurePaths": [
+    "Missing/foreign descriptor, SDK, artifact or Outcome identity refuses before credit.",
+    "Public semantic refusal requires executed=false, guard=false, the exact error, and no native_analysis; no successful extraction or SDK consumption is claimed.",
+    "Private scan rejects malformed maps, duplicate test paths, unsupported script kinds and noncanonical portable relative paths; empty retained text remains present.",
+    "Missing private test text skips parsing without disk fallback. Real retained text uses the same native AST predicate and line calculation as existing assembly.",
+    "Foreign retained map, missing/duplicate discovery owner, different test role, invalid omission, changed physical bytes, escape or reserved descriptor alias prevents the paired unit from passing.",
+    "Nonzero, timeout, output-limit, cancellation, capture errors, unknown process states and malformed stdout remain NONPASS."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22; snapshots0 RUST_TEST_THREADS1 GIT_CONFIG_GLOBAL unset",
+    "nativeBinaryTests": 199,
+    "nativeLibraryTests": 47,
+    "nativeProcessFlows": 4,
+    "currentObserverComparators": 44,
+    "currentRecipeCliTests": 7,
+    "currentNewFrozenUnits": 1,
+    "currentNewNativeCalls": 2,
+    "currentNewProjectedChecks": 7,
+    "currentCarryoverFrozenUnits": 5,
+    "carryoverUnits": [
+      "QDYN06 variant-01",
+      "QDYN06 variant-02",
+      "QDYN01 base",
+      "N01 base",
+      "P01 analyze-snapshot-consistent"
+    ],
+    "formatClippyRuffExitCode": 0,
+    "fullVerifyPrRerun": false,
+    "redWitnesses": [
+      "Owning LIB unknown primitive test executed and failed before implementation.",
+      "Frozen QDYN07 replay remained GAP before its mapping."
+    ],
+    "setupFailureDistinctFromRed": "First comparator compilation failed E0425 after an incomplete helper insertion; no comparator executed. Corrected insertion precedes the final44-comparator PASS log."
+  },
+  "review": {
+    "standards": "review/standards/report.json",
+    "specProofAdversarial": "review/spec-proof/report.txt",
+    "specProofLedger": "review/spec-proof/ledger.json",
+    "boundedVerdict": "PROOF_ADEQUATE for this one frozen native DEV component pair only",
+    "standardsFreshChecks": "Format and five targeted owning tests PASS.",
+    "specFreshChecks": "199 BIN,47 LIB,44 comparators and actual QDYN07 PASS;8 native script kinds and line endings observed;5 adverse descriptors refused.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaults": [
+      "Compiled disk fallback with separately bound mutant fixture makes actual QDYN07 NONPASS/exit101; restore actual paired replay PASS.",
+      "Compiled analyze-before-guard source makes one owning ordering test fail/exit101; restore the same executed test PASS."
+    ],
+    "candidateUnchangedDuringReview": true,
+    "claimAudit": {
+      "author_task": "/root",
+      "auditor_task": "/root/gap_batch13_claims",
+      "ledger": "claims/design-claim-ledger.md",
+      "provenance": "Full named read-only child final response persisted verbatim by parent.",
+      "reconciliation": "Public guard means the bounded native retained-discovery API, not the complete Plane-A runtime. The single new frozen unit has two native calls and seven checks; five carryover units are separate regressions. No global admission or full campaign follows. Remaining steps are authorized work recorded under #365; no completion claim. Budget is owner planning only. Reserved no-access is actor attestation, not a forensic access guarantee. E0425 is setup failure, not behavioral RED. This documentary result requires final parser and independent reconciliation."
+    }
+  },
+  "workflowRecurrence": "Reuse the existing focused replay commands and standard archive/manifest primitives. No standalone packaging utility or new CI lane is shipped.",
+  "newMappingsCredited": 1,
+  "newProjectedPasses": 1,
+  "qualificationCredit": 0,
+  "limits": [
+    "30 of64 initial GAP units mapped:29 limited PASS and N17c version-attributed NONPASS;34 static GAP units remain;0/240 qualified obligations.",
+    "320 of354 prepared recipes have no known static GAP; this is not a new full-campaign PASS aggregate. Historical283 PASS/7 NONPASS/64 GAP retain their original provenance.",
+    "The public guard label identifies the bounded native retained-discovery API; no complete public Plane-A runtime, autodiscovery, full retained scope, capture atomicity or global admission is proved.",
+    "The shared scanner and private invocation do not establish public reachability after the guard refuses.",
+    "Full replay dispatch is routed by source inspection only; the full campaign path is not executed here.",
+    "Current evidence is macOS DEV only. Linux/Windows,178-obligation review,full354campaign,reserved execution andR0 remain pending.",
+    "Additional C1 pass1 remains OPEN,pass2 unused. The owner3-4day estimate is neither a measured cumulative duration nor an exact new deadline.",
+    "No new compiler-version arbitration is introduced. Reserved payload no-access statements are actor attestations."
+  ]
+}
