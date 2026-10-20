@@ -703,3 +703,8 @@ Exact file/environment identities and the [complete grouped audit](local-campaig
 bound these receipts; local paths/volumes and hashes provide no durable retention.
 Windows campaign, reserved 23/26 and R0 remain pending; no green remote CI follows.
 These execution receipts preserve all earlier snapshots and adopt no new mapping or witness.
+
+The [post-path-fix local receipts](local-campaigns-5fc644c6.json) record HEAD `5fc644c6`: ORIGINAL 354/51 aggregate PASS in 139.38 s (macOS ARM64) and 163.09 s (Linux ARM64).
+Raw results remain 352/354 unit PASS and 50/51 support PASS, with three existing arbitrated NONPASS; formal credit stays 0/240.
+The [complete independent audit](local-campaigns-5fc644c6-claim-audit.md) limits source/process provenance and temporary retention; Windows final CI, reserved 23/26 and R0 remain pending; these local receipts establish no remote CI result.
+Historical `43a9cf5a` receipts, owner decisions/counters and the current corpus are unchanged.

@@ -1,0 +1,71 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-20",
+  "scope": "C1 / rust/365-t00 / PR386; additive local ORIGINAL 354/51 replays recorded after the path-fix checkpoint.",
+  "authority": {"path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/resumption/owner-execution-decisions-20261020.json", "sha256": "ec7367674deacfa54a002d6af75b0df65645af323029ea380da615dedf980b61"},
+  "historicalReference": {"path": "docs/research/rust-ts-r0/resumption/local-campaigns-20261020.json", "sha256": "fde28a715834cec589ca1cd7512fad2e755c04eff760eab64bfbb9c96ccc8c77", "reusedFields": ["commonSources"], "limit": "Historical 43a9cf5a record unchanged; only these immutable corpus source identities are reused."},
+  "sourceRecorded": {"head": "5fc644c63f818ad564d270cb992587294114c7e3", "summary": {"path": "/private/tmp/semctx-t00-owner-oct20/path-fix-local-campaigns-v3-summary.json", "sha256": "71689cde19aa676d1025d5cb170fc41a41cc08b253c4e38a52a562fcc9e10342"}, "limit": "HEAD recorded in both freezes and operational summary; no commit-to-binary attestation or causal attribution to the path fix."},
+  "behavioralOracle": "qualification_replay_requires_explicit_optimized_freeze",
+  "campaigns": [
+    {
+      "lane": "macos-path-v3",
+      "environmentRecorded": {"observedAtUTC": "2026-10-20T08:52:14.514321+00:00", "head": "5fc644c63f818ad564d270cb992587294114c7e3", "treeClean": true, "OS": "macOS-27.0.1-arm64-arm-64bit-Mach-O", "arch": "arm64", "image": null, "cargo": "1.95.0", "rust": "1.95.0", "python": "3.10.22 via pinned venv", "runnerSHA256": "6868921823ef4344469e956b8032dd371412f785bb94f7d54d494f2699e8ce6b", "limits": "Command metadata, not execution truth; frozen current corpus only; no prospective/holdout."},
+      "result": {"exitCode": 0, "aggregate": "PASS 1/1", "elapsedSeconds": 139.38, "reportTimestampUnixMs": 1792486474672, "rawUnits": {"PASS": 352, "NONPASS": 2}, "rawSupports": {"PASS": 50, "NONPASS": 1}, "associatedUnitsAllPassed": 239, "qualifiedObligations": 0, "obligationDenominator": 240},
+      "files": {
+        "freeze": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/freeze.json", "sha256": "c59fc3ccd90b1dbcc2526eaf33dbae4c307a9742eb8acde4122f7b39014dd222"},
+        "report": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/evidence/report.json", "sha256": "9ee604ceb4e23fb82beecb1785ed787797988b0416613345e4d1ba53e8b8dfe2"},
+        "log": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/campaign.log", "sha256": "1a4a6f79ecf8662ec2b3e4cb7be0938d710e9de53cc7e702b00cab5a146f8577"},
+        "environment": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/environment-before.json", "sha256": "b86a648856cc9ab1bb1454d730482b540701a3a6fc766a581be46d9289803a32"},
+        "observerBuildLog": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-observer-build.jsonl", "sha256": "fa6f67ecf1d60b25a579c744b2ca5a1fabe83637e22f0c920cb550d8fb11a700"},
+        "observerBuildStderr": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/observer-build.stderr", "sha256": "3997fc6790b8063b86c119e91f87ac7395ac6cf26135da637dcb229006bc32dc"},
+        "preparationLog": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/prepare.log", "sha256": "349f7ba33855dd172904adfdec5dbca6b2375ac8b461f2b362f6515c97eee51b"},
+        "producer": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/semctx-r0-probe", "sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1"},
+        "helper": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/semctx-gates", "sha256": "79a5c6ea1eb4298209fe5a94dc68cc00eb84dd825a12a8c9ceffa504657c4438"},
+        "fixture": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/semctx-gates-fixture", "sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87"},
+        "observer": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/qualification_replay-f9e27f9b0849f013", "sha256": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727"},
+        "sdk": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/sdk-input.json", "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"},
+        "recipes": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-campaign-recipes/replay-recipes.json", "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068"},
+        "identityInputs": {"path": "/private/tmp/semctx-t00-owner-oct20/macos-path-v3/t00-original-campaign/identity-inputs.json", "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"}
+      }
+    },
+    {
+      "lane": "linux-path-v3",
+      "environmentRecorded": {"observedDuringUTC": "2026-10-20T08:55:20.906113+00:00", "OS": "Linux-7.2.9-orbstack-00391-g2b298d05fbd4-aarch64-with-glibc2.36", "arch": "aarch64", "rustc": "rustc 1.95.0 (59807616e 2026-04-14)", "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)", "python": "3.11.2"},
+      "result": {"exitCode": 0, "aggregate": "PASS 1/1", "elapsedSeconds": 163.09, "reportTimestampUnixMs": 1792486498519, "rawUnits": {"PASS": 352, "NONPASS": 2}, "rawSupports": {"PASS": 50, "NONPASS": 1}, "associatedUnitsAllPassed": 239, "qualifiedObligations": 0, "obligationDenominator": 240},
+      "files": {
+        "freeze": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/freeze.json", "sha256": "4ea913ffac45b546833e2cd1edfab091dd19fcd2e6452ac3ed569be591595325"},
+        "report": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/evidence/report.json", "sha256": "d1dff1bc4266066c1118f3b551911deed71b5879bf6cf293cd401a3a694d29d7"},
+        "log": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-campaign.log", "sha256": "36749db9b0d77b0a4cbdcfce7e65bbcd2f6c31944a0a9f3c6d569f518ccd0b12"},
+        "environment": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-environment.json", "sha256": "57b312661f5e0cb6547a15861488f1164324b83b2cbc46cfc8672c2071ce481a"},
+        "observerBuildLog": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-observer-build.jsonl", "sha256": "b55a906e0e1b64030234a20fda2d1105d6c1f97aa792ac28c26af15e66161343"},
+        "observerBuildStderr": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/observer-build.stderr", "sha256": "9576f1f7e73fc2bb1ec2336aae60cb485c591eadc60a1b998573411c34057e08"},
+        "preparationLog": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-prepare.log", "sha256": "349f7ba33855dd172904adfdec5dbca6b2375ac8b461f2b362f6515c97eee51b"},
+        "producer": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/semctx-r0-probe", "sha256": "b708c68bb94757b5cd8dc7ebeb7092c286824625ff277cd06ac71133d4ce226c", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/semctx-r0-probe"},
+        "helper": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/semctx-gates", "sha256": "80a9e2477e7e847f9e1fc25a6f3c249d56051996fb8f6079e8bcde8a5b753e15", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/semctx-gates"},
+        "fixture": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/semctx-gates-fixture", "sha256": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/semctx-gates-fixture"},
+        "observer": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/qualification_replay-3e8b4fe2e7321767", "sha256": "ab498b6957205d0cdbd08f6b2bebb9adc2ae53915dfaad8a187066adc63ab80f", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/qualification_replay-3e8b4fe2e7321767"},
+        "sdk": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/sdk-input.json", "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/sdk-input.json"},
+        "recipes": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-campaign-recipes/replay-recipes.json", "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068", "campaignPath": "/work/evidence/path-v3/t00-campaign-recipes/replay-recipes.json"},
+        "identityInputs": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3/t00-original-campaign/identity-inputs.json", "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177", "campaignPath": "/work/evidence/path-v3/t00-original-campaign/identity-inputs.json"}
+      },
+      "dockerContextRecorded": {"image": "rust@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1", "imageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977", "containerId": "90f194e7a6db418def44420f845947b879b4db1e907ac1dbeed31dff0362ef4c", "containerName": "/semctx-t00-oct20-linux-v1", "imageOS": "linux", "imageArchitecture": "arm64", "imageVariant": "v8", "networkMode": "none", "configUser": "", "containerStartedAt": "2026-10-20T07:10:16.04193735Z", "invocationTranscribed": ["docker", "exec", "--user", "501:20", "--workdir", "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility", "-e", "RUNNER_TEMP=/work/evidence/path-v3", "semctx-t00-oct20-linux-v1", "python3", "/work/evidence/local-runner-v1.py"], "recordedAfterUTC": "2026-10-20T09:08:14.860818+00:00", "files": {"containerInspect": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-container-inspect-current.json", "sha256": "74fa6f9cd56cedab70ebaa8119ec8d68d5bf6cc6379ff2aac0f85bc6bb8a51a3"}, "imageInspect": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-image-inspect-current.json", "sha256": "c79ee4d20486b95dd55a3d6a2a6040e593b9032ad6bf7b4f5dcff956d2f0c460"}, "invocationContext": {"path": "/private/tmp/semctx-t00-owner-oct20/linux-path-v3-invocation-context-receipt.json", "sha256": "7ae22a5ddf6aac2469de4f5e4415e853d36fcc7d26d57f33ee677a9230e64376"}}, "limit": "Post-run recorded Docker context; inspect files are byte-identical to prior linux-v1 receipts and do not prove collection time. Invocation argv/user is a later transcription of observed tool output, not independent process truth. No PID/exec-ID/UID or process-to-image/network attestation."}
+    }
+  ],
+  "preservedRawFailures": [
+    {"kind": "unit", "id": "N17c-importhelpers-es5-actual-emission::base", "state": "NONPASS_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-003", "qualification_credit": 0, "recipe_signature": "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/assertions/independent_emission_facts", "target": ["subjects", {"path": "main.ts"}, "runtimeConfiguration", "emission", "observation", "output_text"]}]},
+    {"kind": "unit", "id": "ORD-DIALECT-CAPABILITY::base", "state": "NONPASS_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-004", "qualification_credit": 0, "recipe_signature": "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/assertions/every_typescript_or_javascript_capability_scope_dialectVersion + /assertions/declarative_scope", "target": []}, {"expected_origin": "/assertions/compiler_package_version_input", "target": ["native_compiler_version"]}]},
+    {"kind": "support", "id": "ENC::UTF16LE-lone-high-surrogate::ordinary", "state": "NONPASS_PRIMITIVE_PROJECTED_UNIT", "arbitration": {"id": "T00-ARB-002", "qualification_credit": 0, "recipe_signature": "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed", "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"}, "mismatches": [{"expected_origin": "/payload/vector/mode_syntax_error_codes", "target": ["source_parsing_observation", "diagnostics"]}]}
+  ],
+  "limits": [
+    "Formal qualification remains 0/240; qualified=false and R0_decision=NOT_MADE_BY_ADAPTER in both reports.",
+    "Aggregate PASS accepts three existing individually classified raw NONPASS with zero credit; no new mapping, witness, waiver or owner decision.",
+    "Exact optimized ORIGINAL test selected; reserved 23/26 and rejected 14 pairs/3 complements are outside these receipts; no exhaustive historical absence claim.",
+    "Producer/helper/SDK/recipes and exercised fixture/identity-input hashes plus immutable corpus are checked; source_head, platform and observer self-hash are recorded, not checked by replay().",
+    "No process PID/exec-ID/UID or commit-to-binary attestation; Docker argv/user is recorded as a post-run transcription, not independently attested. Logs record the selected test outcome.",
+    "No mandatory root-read, complete capture, all-SDK consumption, universal parity or public-product equivalence claim.",
+    "Local temporary artifacts/hashes are not durable retention.",
+    "Windows original campaign remains pending the final CI milestone. These local receipts establish no remote CI result. No workflow change applied.",
+    "Historical 43a9cf5a receipts and owner counters remain unchanged."
+  ],
+  "audit": {"authorTask": "/root/pathfix_campaign_records_author", "auditorTask": "/root/pathfix_campaign_records_author/pathfix_claim_auditor", "agentType": "design-claim-auditor", "forkTurns": "none", "ledger": "local-campaigns-5fc644c6-claim-audit.md"}
+}
