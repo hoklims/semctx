@@ -683,8 +683,7 @@ fn safe_relative(path: &str) -> bool {
         && path.as_bytes().get(1).is_none_or(|c| *c != b':')
 }
 fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Value, String> {
-    let cwd = root
-        .canonicalize()
+    let cwd = std::path::absolute(root)
         .map_err(|e| e.to_string())?
         .to_string_lossy()
         .replace('\\', "/");
@@ -729,7 +728,12 @@ fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Va
                 .ok_or("outside capture requires a direct sibling filename")?;
             let text = text.as_str().ok_or("sibling capture must be string")?;
             let target = parent.join(name);
-            let key = target.to_string_lossy().replace('\\', "/");
+            let key = Path::new(&cwd)
+                .parent()
+                .ok_or("missing logical input envelope")?
+                .join(name)
+                .to_string_lossy()
+                .replace('\\', "/");
             if files.contains_key(&key) {
                 return Err("sibling capture conflicts with prepared source".into());
             }
@@ -4617,18 +4621,24 @@ fn comparator_materialized_sibling_capture_preserves_bytes_and_refuses_escape_or
     let envelope = test_root.join("input-envelope");
     let root = envelope.join("workspace");
     fs::create_dir_all(&root).unwrap();
+    #[cfg(unix)]
+    let root = {
+        let alias = test_root.join("envelope-alias");
+        std::os::unix::fs::symlink(&envelope, &alias).unwrap();
+        alias.join("workspace")
+    };
     let source = "export const siblingCaptureDev = 229;";
     let outside = "{\"compilerOptions\":{\"module\":\"ESNext\"}}";
     let template = json!({"files":{"main.ts":source},"roots":["main.ts"],"outside_root_retained_files":{"../adjacent.json":outside}});
     let request = materialize(&template, &root, true).unwrap();
     let path = envelope.join("adjacent.json");
     assert_eq!(fs::read_to_string(&path).unwrap(), outside);
-    let key = path
-        .canonicalize()
+    let key = std::path::absolute(root.parent().unwrap().join("adjacent.json"))
         .unwrap()
         .to_string_lossy()
         .replace('\\', "/");
     assert_eq!(request["files"][&key], outside);
+    assert_eq!(fs::read_to_string(&key).unwrap(), outside);
     assert!(request.get("outside_root_retained_files").is_none());
     let mut conflicting = template.clone();
     conflicting["outside_root_retained_files"]["../adjacent.json"] = json!("changed");
