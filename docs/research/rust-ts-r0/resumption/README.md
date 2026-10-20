@@ -691,3 +691,15 @@ current corpus and do not adopt or execute the drafts; old proposals remain hist
 Other [CI rules](owner-ci-rules-20261019.json), [continuation](owner-continuation-20261019.json),
 counters and historical limits remain unchanged. No new execution or qualification
 is claimed. The [complete grouped audit](owner-execution-decisions-20261020-claim-audit.md) records authority and limits.
+
+
+The [20 October local campaign receipts](local-campaigns-20261020.json) record the
+original 354/51 replay at recorded HEAD `43a9cf5a` on macOS ARM64 and local
+OrbStack/Docker Linux ARM64: aggregate PASS in 141.31 s and 165.69 s respectively.
+Each retains 352/354 raw unit PASS and 50/51 raw support PASS; N17c, ORD-DIALECT
+and UTF16-surrogate remain NONPASS under T00-ARB-003/004/002 with zero credit.
+239/240 obligations have associated units PASS; all 240 remain unqualified.
+Exact file/environment identities and the [complete grouped audit](local-campaigns-20261020-claim-audit.md)
+bound these receipts; local paths/volumes and hashes provide no durable retention.
+Windows campaign, reserved 23/26 and R0 remain pending; no green remote CI follows.
+These execution receipts preserve all earlier snapshots and adopt no new mapping or witness.
