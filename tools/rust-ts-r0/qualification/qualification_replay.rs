@@ -1,6 +1,9 @@
 use semctx_gates::process;
 use semctx_r0_probe::identity;
 mod ambiguous_exports_replay;
+#[cfg(test)]
+#[path = "existing_semantic_reason_comparator_tests.rs"]
+mod comparator_existing_semantic_reasons;
 mod identity_support_replay;
 mod legacy_identity_replay;
 mod obligation_closure;

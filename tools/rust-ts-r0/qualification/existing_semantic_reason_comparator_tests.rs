@@ -1,10 +1,13 @@
 use super::*;
 
 fn document() -> Value {
-    serde_json::from_slice(
-        &std::fs::read(std::env::var("SEMANTIC_REASON_TEST_DOCUMENT").unwrap()).unwrap(),
-    )
-    .unwrap()
+    match std::env::var_os("SEMANTIC_REASON_TEST_DOCUMENT") {
+        Some(path) => serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap(),
+        None => serde_json::from_str(include_str!(
+            "../../../docs/research/rust-ts-r0/resumption/existing-semantic-reason-assertions-20261021.json"
+        ))
+        .unwrap(),
+    }
 }
 fn checks(assertion: &Value) -> Vec<Value> {
     let mut result = assertion["checks"].as_array().unwrap().clone();
