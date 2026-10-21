@@ -16,6 +16,9 @@ export default tseslint.config(
       "examples/**",
       "graphify-out/**",
       "packages/python-analyzer/test/corpus/**",
+      "docs/research/rust-ts-r0/cases/supplement-v2/**",
+      "docs/research/rust-ts-r0/cases/supplement-sdk-assignment-20261021/**",
+      "docs/research/rust-ts-r0/cases/supplement-coercion-20261021/**",
     ],
   },
   eslint.configs.recommended,
@@ -53,5 +56,13 @@ export default tseslint.config(
   {
     files: ["**/*.{cjs,js,mjs}"],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    files: ["tools/rust-ts-r0/qualification/*.cjs"],
+    rules: {
+      // Baseline oracles load the pinned CommonJS TypeScript runtime and
+      // transpiled baseline modules. Keep the other JavaScript checks active.
+      "@typescript-eslint/no-require-imports": "off",
+    },
   },
 );

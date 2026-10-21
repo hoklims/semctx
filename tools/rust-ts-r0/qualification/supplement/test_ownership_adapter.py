@@ -28,6 +28,8 @@ class OwnershipTests(unittest.TestCase):
             'subjects': [{'path': 'main.ts', 'opaqueCallbackOwnership': {
                 'executed': True, 'unsupported': [], 'globalAdmissionInferred': False,
                 'observationScope': 'native_module_configuration_graph_ownership',
+                'graphBeforeEdgeRemoval': copy.deepcopy(graph),
+                'graphAfterEdgeRemoval': copy.deepcopy(dict(graph, edges=[])),
                 'graphBeforeEdgeRemovalId': o.digest(graph),
                 'graphAfterEdgeRemovalId': o.digest(dict(graph, edges=[])),
                 'beforeAnalysis': phase(['opaque']), 'afterAnalysis': phase([]),
@@ -68,6 +70,8 @@ class OwnershipTests(unittest.TestCase):
             else:
                 value['assembly']['edges'][0]['evidence'][0]['startLine'] = 2
             component = value['subjects'][0]['opaqueCallbackOwnership']
+            component['graphBeforeEdgeRemoval'] = copy.deepcopy(value['assembly'])
+            component['graphAfterEdgeRemoval'] = copy.deepcopy(dict(value['assembly'], edges=[]))
             component['graphBeforeEdgeRemovalId'] = o.digest(value['assembly'])
             component['graphAfterEdgeRemovalId'] = o.digest(dict(value['assembly'], edges=[]))
             with self.assertRaisesRegex(o.Gap, 'RETAINED_GRAPH_NOT_NATIVE_PHASE'):
@@ -126,6 +130,8 @@ class OwnershipTests(unittest.TestCase):
         self.assertEqual(o.compare_ownership(plan, self.outcome(native), binding, {'1': []})['status'], 'MISMATCH')
         native['assembly']['nodes'][1]['metadata'] = {'scope': 'different'}
         component = native['subjects'][0]['opaqueCallbackOwnership']
+        component['graphBeforeEdgeRemoval'] = copy.deepcopy(native['assembly'])
+        component['graphAfterEdgeRemoval'] = copy.deepcopy(dict(native['assembly'], edges=[]))
         component['graphBeforeEdgeRemovalId'] = o.digest(native['assembly'])
         component['graphAfterEdgeRemovalId'] = o.digest(dict(native['assembly'], edges=[]))
         # The fixture input_graph aliases the synthetic assembly; detach its old view.
@@ -133,6 +139,23 @@ class OwnershipTests(unittest.TestCase):
         plan['operations'][0]['input_graph']['nodes'][1].pop('metadata')
         with self.assertRaisesRegex(o.Gap, 'RETAINED_GRAPH_NOT_NATIVE_PHASE'):
             o.project_ownership(plan, native)
+
+
+    def test_phase_graph_payload_is_distinct_from_later_assembly_annotations(self):
+        plan, native, _ = self.fixture()
+        native['assembly']['nodes'][0]['metadata'] = {'staticExports': 'later annotation'}
+        self.assertEqual(o.project_ownership(plan, native)['1']['projection'], [])
+        for change in ('hash', 'swapped', 'graph'):
+            plan, native, _ = self.fixture()
+            component = native['subjects'][0]['opaqueCallbackOwnership']
+            if change == 'hash':
+                component['graphBeforeEdgeRemovalId'] = o.digest('foreign')
+            elif change == 'swapped':
+                component['graphBeforeEdgeRemoval'], component['graphAfterEdgeRemoval'] = component['graphAfterEdgeRemoval'], component['graphBeforeEdgeRemoval']
+            else:
+                component['graphBeforeEdgeRemoval']['nodes'][0]['name'] = 'foreign'
+            with self.subTest(change=change), self.assertRaises(o.Gap):
+                o.project_ownership(plan, native)
 
 
 if __name__ == '__main__':

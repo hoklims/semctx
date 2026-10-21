@@ -29,6 +29,7 @@ fn check_unit(
         "capture_request",
         "discovered_sources",
         "physical_live_after_capture",
+        "physical_uncaptured_files",
         "checks",
     ] {
         if recipe[field] != pinned[field] {

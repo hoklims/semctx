@@ -41,6 +41,9 @@ def prepare(frozen, public_registry=None):
     rows = source_rows(frozen, indexed)
     for row in rows:
         row['recipes'] = [materialize_checks(row, frozen, indexed)]
+        if row['id'] == 'source::reference-outside':
+            row['recipes'][0]['surface'] = 'source_component_cli'
+            row['integration_status'] = 'EXPLICIT_SOURCE_COMPONENT_MODE_UNEXECUTED'
         if row['id'] == 'source::computed-dts':
             row['recipes'][0]['surface'] = 'declaration_root_cli'
             row['gaps'] = [gap for gap in row['gaps'] if gap != 'UNKNOWN_NATIVE_DECLARATION_ONLY_ROOT_SUBJECT']

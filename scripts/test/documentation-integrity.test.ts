@@ -99,6 +99,20 @@ afterEach(() => {
 });
 
 describe("documentation integrity", () => {
+  test("keeps only the exact frozen third-party README outside authored link checks", () => {
+    const root = fixture();
+    const archived = "docs/research/rust-ts-r0/cases/supplement-sdk-assignment-20261021/vendor/zod/README.md";
+    const bytes = readFileSync(join(import.meta.dir, "../..", archived));
+    const absolute = join(root, archived);
+    mkdirSync(dirname(absolute), { recursive: true });
+    writeFileSync(absolute, bytes);
+    expect(checkDocumentation(root)).toEqual([]);
+    write(root, "docs/research/rust-ts-r0/cases/README.md", "[broken](#missing)\n");
+    expect(checkDocumentation(root).some((problem) => problem.file.endsWith("cases/README.md"))).toBe(true);
+    writeFileSync(absolute, Buffer.concat([bytes, Buffer.from("\n[broken](#missing)\n")]));
+    expect(checkDocumentation(root).some((problem) => problem.file === archived)).toBe(true);
+  });
+
   test("derives the current release date from its valid changelog heading", () => {
     expect(checkDocumentation(fixture())).toEqual([]);
   });

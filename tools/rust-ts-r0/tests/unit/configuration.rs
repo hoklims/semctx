@@ -1,6 +1,36 @@
 use super::*;
 
 #[test]
+fn configuration_discovery_root_candidates_have_one_separator() {
+    for (source, root, expected) in [
+        (
+            "/repo/main.ts",
+            "/repo",
+            vec!["/repo/tsconfig.json", "/tsconfig.json"],
+        ),
+        (
+            "C:/repo/main.ts",
+            "C:/repo",
+            vec!["C:/repo/tsconfig.json", "C:/tsconfig.json"],
+        ),
+    ] {
+        let fs = Rc::new(CaptureFs::new(BTreeMap::new(), true));
+        let result = inspect(fs.clone(), source, root).unwrap();
+        assert!(result.raw.is_none());
+        let log = fs.log.borrow();
+        let paths = log
+            .iter()
+            .filter(|probe| probe.operation == "configuration_discovery_file_exists")
+            .map(|probe| probe.path.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            paths, expected,
+            "configuration probe must describe the actual local root path"
+        );
+    }
+}
+
+#[test]
 fn parses_inherited_options_from_captured_configuration_and_rejects_invalid_text() {
     let fs = Rc::new(CaptureFs::new(
         BTreeMap::from([

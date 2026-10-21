@@ -154,4 +154,4 @@ def materialize_checks(row, root, indexed):
                 guard = {'target': component+[field], 'expected': expected, 'mode': 'eq', 'actual_transform': 'none', 'expected_origin': 'component completeness required by adapter; not an invented baseline output'}
                 if guard not in checks:
                     checks.append(guard)
-    return {'unit_id': row['id'], 'case_id': row['id'], 'surface': 'raw_cli', 'requests': [row['template']], 'checks': checks, 'gaps': [], 'relations': [], 'physical_live_after_capture': row.get('physical_only_files', {}), 'supplement_unmapped_properties': row['gaps'] + row.get('unmapped_expected_fields', [])}
+    return {'unit_id': row['id'], 'case_id': row['id'], 'surface': 'raw_cli', 'requests': [row['template']], 'checks': checks, 'gaps': [], 'relations': [], 'physical_uncaptured_files': row.get('physical_only_files', {}), 'physical_live_after_capture': {}, 'supplement_unmapped_properties': row['gaps'] + row.get('unmapped_expected_fields', [])}

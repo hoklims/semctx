@@ -28,3 +28,15 @@ Pure controls run in the existing CI job with:
 ```sh
 python -m unittest discover -s tools/rust-ts-r0/qualification/supplement -p 'test_*.py'
 ```
+
+Physical uncaptured source files are materialized separately from captured-Map
+mutations. A directory recipe restores only the empty `.git` marker explicitly
+created by the frozen workspace test, with pinned setup authority and a typed
+receipt; the recorder did not capture an independent directory listing.
+
+The source-component observation mode records the actual confinement refusal
+without extracting outside the repository. Ownership observations include the
+actual graph at each existing before/after edge-removal hash. The mixed JS/TS
+consumer accepts the observed single-Program fallback only with its exact
+request, SDK, roots, read provenance, mode and reason; parallel partition
+consumers still require actual parallel execution.

@@ -1,5 +1,5 @@
 use semctx_gates::process;
-use semctx_r0_probe::identity;
+use semctx_r0_probe::{identity, source_text};
 mod ambiguous_exports_replay;
 #[cfg(test)]
 #[path = "existing_semantic_reason_comparator_tests.rs"]
@@ -7,7 +7,9 @@ mod comparator_existing_semantic_reasons;
 mod identity_support_replay;
 mod legacy_identity_replay;
 mod obligation_closure;
+mod observation_comparator_scope;
 mod parallel_replay;
+mod physical_uncaptured_replay;
 mod qualified_flow_replay;
 mod qualified_public_replay;
 mod reader_error_replay;
@@ -950,7 +952,11 @@ fn version_arbitration(recipe: &Value, observations: &[Value], bindings_verified
 }
 
 fn raw_recipe_observation_mode(recipe: &Value) -> Option<&'static str> {
-    (recipe["surface"] == "declaration_root_cli").then_some("--observe-declaration-roots")
+    match recipe["surface"].as_str() {
+        Some("declaration_root_cli") => Some("--observe-declaration-roots"),
+        Some("source_component_cli") => Some("--observe-source-components"),
+        _ => None,
+    }
 }
 
 #[test]
@@ -1082,6 +1088,95 @@ fn declaration_root_observation_binding(observed: &Value, request: &Value) -> Re
     Ok(())
 }
 
+fn source_component_observation_binding(observed: &Value, request: &Value) -> Result<(), String> {
+    if observed["observation_mode"] != "source_components"
+        || observed["status"] != "source_root_component_observation_not_qualification"
+        || observed["extraction_executed"] != false
+        || observed["global_admission_inferred"] != false
+        || observed["raw_extraction"]["imports"] != json!([])
+        || observed["assembly"] != json!({"nodes":[],"edges":[]})
+        || request["retained"] != true
+        || request["qualified"] != false
+        || request["roles"] != json!({})
+        || request["selection"] != json!({})
+        || request["disabled"] != json!([])
+    {
+        return Err("source component observation mode/profile differs".into());
+    }
+    let guard = &observed["confinementObservation"];
+    if guard["executed"] != true
+        || !matches!(guard["state"].as_str(), Some("clear" | "refused"))
+        || (guard["state"] == "clear" && (!guard["error"].is_null() || !guard["code"].is_null()))
+        || (guard["state"] == "refused"
+            && (guard["code"] != "REFERENCE_OUTSIDE_REPOSITORY"
+                || !guard["error"]
+                    .as_str()
+                    .is_some_and(|e| e.starts_with("REFERENCE_OUTSIDE_REPOSITORY: "))))
+    {
+        return Err("source component actual confinement guard absent or foreign".into());
+    }
+    let roots = request["roots"]
+        .as_array()
+        .filter(|r| !r.is_empty())
+        .ok_or("source component roots absent")?;
+    let subjects = observed["subjects"]
+        .as_array()
+        .ok_or("source component subjects absent")?;
+    if subjects.len() != roots.len() {
+        return Err("source component subject cardinality differs".into());
+    }
+    let mut seen = BTreeSet::new();
+    for root in roots {
+        let path = root.as_str().ok_or("source component root nontext")?;
+        let (_, location) = verifier_location(
+            value_text(request, "cwd")?,
+            path,
+            request["case_sensitive"]
+                .as_bool()
+                .ok_or("source component case missing")?,
+            "repository",
+        )?;
+        if location["domain"] != "repository"
+            || !seen.insert(path)
+            || ![".ts", ".tsx", ".mts", ".cts"]
+                .iter()
+                .any(|s| path.ends_with(s))
+            || [".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|s| path.ends_with(s))
+        {
+            return Err("source component root outside profile".into());
+        }
+        let source = request["files"][path]
+            .as_str()
+            .ok_or("captured component text missing")?;
+        let matches = subjects
+            .iter()
+            .filter(|s| s["path"] == location["path"])
+            .collect::<Vec<_>>();
+        if matches.len() != 1 {
+            return Err("source component path cardinality differs".into());
+        }
+        let subject = matches[0];
+        let context = &subject["componentRootSource"];
+        if subject["role"] != "component"
+            || subject["selection"] != "selected"
+            || subject["admission"] != "not_evaluated"
+            || subject["observationScope"] != "source_root_component"
+            || context["requestedPath"] != path
+            || context["sourcePath"] != path
+            || context["sourceTextId"] != identity::digest_bytes(source.as_bytes())
+            || context["executed"] != true
+            || context["unsupported"] != json!([])
+            || subject["sourceFileObservation"]["executed"] != true
+            || subject["sourceFileObservation"]["unsupported"] != json!([])
+        {
+            return Err("source component actual SourceFile binding differs".into());
+        }
+    }
+    Ok(())
+}
+
 fn run_raw_recipe(
     recipe: &Value,
     dir: &Path,
@@ -1093,11 +1188,7 @@ fn run_raw_recipe(
 ) -> Result<Value, String> {
     let (sdk_path, sdk) = sdk_input;
     let (timeout_ms, output_cap) = raw_execution_limits(recipe)?;
-    if let Err(error) = validate_component_checks(
-        recipe["checks"]
-            .as_array()
-            .ok_or("missing credited raw checks")?,
-    ) {
+    if let Err(error) = observation_comparator_scope::validate(recipe) {
         return Ok(
             json!({"state":"NOT_EXECUTABLE_INCOMPLETE_COMPONENT_COMPARATOR","error":error,"pass":false}),
         );
@@ -1137,6 +1228,16 @@ fn run_raw_recipe(
         };
         let request_path = subdir.join("request.json");
         save(&request_path, &request)?;
+        let uncaptured_setup = physical_uncaptured_replay::apply(
+            &request,
+            &recipe["physical_uncaptured_files"],
+            &root,
+            &request_path,
+        )?;
+        save(
+            &subdir.join("physical-uncaptured-setup.json"),
+            &uncaptured_setup,
+        )?;
         let setup = apply_physical_post_capture(
             &request,
             &recipe["physical_live_after_capture"],
@@ -1181,7 +1282,9 @@ fn run_raw_recipe(
                 );
             }
         };
-        if raw_recipe_observation_mode(recipe).is_some() {
+        if recipe["surface"] == "source_component_cli" {
+            source_component_observation_binding(&observed, &request)?;
+        } else if raw_recipe_observation_mode(recipe).is_some() {
             if let Err(error) = declaration_root_observation_binding(&observed, &request) {
                 return Ok(
                     json!({"state":"INVALID_DECLARATION_ROOT_OBSERVATION_BINDING","error":error,"observation":index,"pass":false}),
@@ -4994,6 +5097,7 @@ fn repair_version_arbitrations_preserve_raw_failures_and_frozen_expectations() {
             "relations",
             "gaps",
             "physical_live_after_capture",
+            "physical_uncaptured_files",
         ] {
             let mut poison = recipe.clone();
             poison[field] = json!("foreign or missing contract");
@@ -6958,4 +7062,47 @@ fn comparator_existing_ordinary_callee_endpoint_poison_is_rejected() {
         poisoned[0]["calleeRelPath"] = value;
         assert!(!compare(&poisoned, &absent, "indexed_field_absences").unwrap());
     }
+}
+
+#[test]
+fn comparator_source_component_context_does_not_admit_extraction_or_substituted_source() {
+    let request = json!({"cwd":"/repo","roots":["/repo/main.ts"],"files":{"/repo/main.ts":"export {};"},
+        "retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[],"case_sensitive":true});
+    let actual = json!({"observation_mode":"source_components","status":"source_root_component_observation_not_qualification",
+        "extraction_executed":false,"global_admission_inferred":false,"raw_extraction":{"imports":[]},"assembly":{"nodes":[],"edges":[]},
+        "confinementObservation":{"executed":true,"state":"refused","code":"REFERENCE_OUTSIDE_REPOSITORY","error":"REFERENCE_OUTSIDE_REPOSITORY: ../missing.ts"},
+        "subjects":[{"path":"main.ts","role":"component","selection":"selected","admission":"not_evaluated","observationScope":"source_root_component",
+            "componentRootSource":{"requestedPath":"/repo/main.ts","sourcePath":"/repo/main.ts","sourceTextId":identity::digest_bytes(b"export {};"),"executed":true,"unsupported":[]},
+            "sourceFileObservation":{"executed":true,"unsupported":[]}}]});
+    assert!(source_component_observation_binding(&actual, &request).is_ok());
+    for (pointer, value) in [
+        ("/extraction_executed", json!(true)),
+        ("/global_admission_inferred", json!(true)),
+        ("/confinementObservation/code", json!("UNEXPECTED_ERROR")),
+        (
+            "/subjects/0/componentRootSource/sourcePath",
+            json!("/repo/other.ts"),
+        ),
+        (
+            "/subjects/0/componentRootSource/sourceTextId",
+            json!(identity::digest_bytes(b"different")),
+        ),
+        ("/subjects/0/sourceFileObservation/executed", json!(false)),
+        ("/subjects/0/role", json!("source")),
+    ] {
+        let mut poison = actual.clone();
+        *poison.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            source_component_observation_binding(&poison, &request).is_err(),
+            "{pointer}"
+        );
+    }
+    assert_eq!(
+        raw_recipe_observation_mode(&json!({"surface":"source_component_cli"})),
+        Some("--observe-source-components")
+    );
+    assert_eq!(
+        raw_recipe_observation_mode(&json!({"surface":"raw_cli"})),
+        None
+    );
 }

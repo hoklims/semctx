@@ -3,6 +3,7 @@ import json
 import re
 from pathlib import Path
 import public_adapter as a
+import directory_closure
 
 
 class Gap(ValueError):
@@ -117,6 +118,7 @@ def prepare_operation(frozen_root, row_id, sequence, case_root, sdk_directory, c
         'request_ref': a.ref(root / rel, '/operations/' + str(vector['operations'].index(operation)) + '/request'),
         'expected_ref': a.ref(root / rel, '/operations/' + str(vector['operations'].index(operation)) + '/normalizedProjection'),
         'program_refs': [a.ref(root / rel, '/actualSemanticPrograms/' + str(vector['actualSemanticPrograms'].index(p))) for p in programs]}
+    result.update(directory_closure.prepare(root, row_id, sequence, replacements))
     if name == 'extractRelativeImportSpecifiers':
         result.update(mode='--observe-primitives', surface='primitive_cli', request={
             'operation': 'relative_import_specifiers', 'source': args[0], 'filename': args[1]})
@@ -245,6 +247,7 @@ def prepare_operation(frozen_root, row_id, sequence, case_root, sdk_directory, c
             result['request']['qualified'] = config.get('analysisProfile') == 'modelo-suite-static-v1'
         if name == 'resolveTypeScriptModule':
             result['specifier'] = args[0]
+    directory_closure.attach_request(result)
     return result
 
 
@@ -256,6 +259,7 @@ def materialize_physical(prepared):
     destination = Path(prepared['case_root']).resolve()
     if destination.exists():
         raise Gap('PHYSICAL_CASE_ROOT_MUST_BE_FRESH')
+    directory_closure.validate(prepared)
     plans = prepared['physical_setup']
     validated = []
     for item in plans:
@@ -282,7 +286,8 @@ def materialize_physical(prepared):
         if link is not None:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.symlink_to(link, target_is_directory=link.is_dir())
-    return {'status': 'MATERIALIZED_INPUTS_ONLY', 'files': len(validated), 'native_queries': 0}
+    directory_records = directory_closure.materialize(prepared)
+    return {'status': 'MATERIALIZED_INPUTS_ONLY', 'files': len(validated), 'empty_directories': directory_records, 'native_queries': 0}
 
 
 def normalize(value, prepared):
@@ -325,6 +330,34 @@ def rust_consumer_value(prepared, native, kind):
     return receipt['value']
 
 
+def public_extraction(native):
+    """Select the baseline public DTO; native-only exact ranges remain in RAW."""
+    result = {**native}
+    if 'symbols' in native:
+        result['symbols'] = [{key: value for key, value in symbol.items()
+                              if key not in ('startUtf16', 'endUtf16')}
+                             for symbol in native['symbols']]
+    return result
+
+
+def public_repository_graph(assembly, prepared):
+    """Normalize only the repository node's verified path-derived display name."""
+    result = {**assembly, 'nodes': [{**node} for node in assembly['nodes']]}
+    root = a.normalize_path(prepared['repository_root']).rstrip('/')
+    for node in result['nodes']:
+        if node.get('kind') != 'repository':
+            continue
+        if (a.normalize_path(node.get('metadata', {}).get('root', '')) != root
+                or node.get('name') != root.rsplit('/', 1)[-1]):
+            raise Gap('REPOSITORY_DISPLAY_NAME_NOT_BOUND_TO_ACTUAL_ROOT')
+        origins = [a.normalize_path(old).rstrip('/') for old, new in prepared['relocations']
+                   if a.normalize_path(new).rstrip('/') == root]
+        if len(origins) != 1:
+            raise Gap('REPOSITORY_DISPLAY_ROOT_RELOCATION_NOT_UNIQUE')
+        node['name'] = normalize(origins[0].rsplit('/', 1)[-1], prepared)
+    return result
+
+
 def project_operation(prepared, native, graph_projector=None):
     """Project actual native facts only. No expectation argument is accepted."""
     name = prepared['baseline_function']
@@ -336,9 +369,9 @@ def project_operation(prepared, native, graph_projector=None):
     elif name == 'extractRelativeImportSpecifiers':
         result = native['specifiers']
     elif name == 'extractTypeScriptParallel':
-        result = {k: native[k] for k in ('extraction', 'parallelism')}
+        result = {'extraction': public_extraction(native['extraction']), 'parallelism': native['parallelism']}
     elif name == 'extractTypeScript':
-        result = native['raw_extraction']
+        result = public_extraction(native['raw_extraction'])
     elif name in ('analyzeRepository', 'analyzeRepositoryAsync'):
         raw = native['analysis'] if name == 'analyzeRepositoryAsync' else native
         assembly = raw['assembly']
@@ -353,7 +386,7 @@ def project_operation(prepared, native, graph_projector=None):
             raise Gap('ASSEMBLY_UNRESOLVED_ENDPOINT_WITHOUT_PROVENANCE')
         if graph_projector is None:
             raise Gap('GRAPH_LOCALE_COLLATION_REQUIRES_PUBLIC_GRAPH_PROJECTION_CJS')
-        graph = graph_projector(assembly)
+        graph = graph_projector(public_repository_graph(assembly, prepared))
         result = {'graph': graph, 'unresolvedReferences': []}
         if name == 'analyzeRepositoryAsync':
             result = {'analysis': result, 'parallelism': native['parallel']['parallelism']}

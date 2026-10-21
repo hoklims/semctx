@@ -110,7 +110,7 @@ fn repository_reads(observed: &Value, prepared: &Value) -> Result<(), String> {
             .canonicalize()
             .map_err(|error| error.to_string())?;
         if !path.starts_with(&root)
-            || known.get(&path).map(String::as_str) != read["content_id"].as_str()
+            || known.get(&path).map(String::as_str) != read["raw_bytes_sha256"].as_str()
         {
             return Err("discovery read not joined to frozen physical bytes/root".into());
         }
@@ -119,6 +119,37 @@ fn repository_reads(observed: &Value, prepared: &Value) -> Result<(), String> {
         return Err("discovery resolution probes absent".into());
     }
     Ok(())
+}
+
+fn discovery_binding(observed: &Value, prepared: &Value, artifact: &str) -> Result<Value, String> {
+    let request = &prepared["request"];
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["producer_artifact_id"] != format!("sha256:{artifact}")
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("discovery header incomplete or foreign".into());
+    }
+    // Discovery canonicalizes a directory alias before observing files.
+    // Its descriptor still binds the original request spelling.
+    let requested_root = Path::new(value_text(request, "repositoryRoot")?)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    let observed_root = Path::new(value_text(observed, "repositoryRoot")?)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    let envelope = Path::new(value_text(prepared, "case_root")?)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    if requested_root != observed_root
+        || !observed_root.starts_with(&envelope)
+        || observed["observation_scope"] != "native_ordinary_repository_discovery"
+    {
+        return Err("discovery canonical root is foreign or outside frozen case".into());
+    }
+    repository_reads(observed, prepared)?;
+    Ok(json!({"physical_reads_byte_joined":true}))
 }
 
 fn bind_native(
@@ -169,19 +200,7 @@ fn bind_native(
         "configured_resolution_cli" => {
             configured_query_complete_binding(observed, request, sdk, artifact)
         }
-        "repository_discovery_cli" => {
-            if observed["request_descriptor_id"] != identity::digest(request)
-                || observed["producer_artifact_id"] != format!("sha256:{artifact}")
-                || observed["repositoryRoot"] != request["repositoryRoot"]
-                || observed["executed"] != true
-                || observed["unsupported"] != json!([])
-                || observed["global_admission_inferred"] != false
-            {
-                return Err("discovery header incomplete or foreign".into());
-            }
-            repository_reads(observed, prepared)?;
-            Ok(json!({"physical_reads_byte_joined":true}))
-        }
+        "repository_discovery_cli" => discovery_binding(observed, prepared, artifact),
         _ => Err(format!("native binding surface not exposed: {surface}")),
     }?;
     Ok(
@@ -634,4 +653,50 @@ pub(super) fn run(fixture: &Value, out: &Path) -> Result<Value, String> {
         )?;
     }
     read_json(&report)
+}
+
+#[cfg(test)]
+mod discovery_binding_tests {
+    use super::*;
+    #[test]
+    fn comparator_discovery_canonical_root_and_raw_byte_read_are_bound() {
+        let root = std::env::temp_dir().join(format!(
+            "public-discovery-binding-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(root.join("nested")).unwrap();
+        fs::write(root.join("source.ts"), b"export {};").unwrap();
+        let root = root.canonicalize().unwrap();
+        let requested = root.join("nested/..");
+        let request = json!({"repositoryRoot":requested});
+        let prepared = json!({"request":request,"surface":"repository_discovery_cli","repository_root":requested,"case_root":root,
+            "physical_setup":[{"path":root.join("source.ts"),"blob_ref":{"sha256":sha(b"export {};")}}]});
+        let observed = json!({"request_descriptor_id":identity::digest(&request),"producer_artifact_id":"sha256:actual-comparator-artifact",
+            "repositoryRoot":root,"executed":true,"unsupported":[],"global_admission_inferred":false,"observation_scope":"native_ordinary_repository_discovery",
+            "reads":[{"path":root.join("source.ts"),"raw_bytes_sha256":identity::digest_bytes(b"export {};")}],"resolution_probes":[]});
+        assert!(discovery_binding(&observed, &prepared, "actual-comparator-artifact").is_ok());
+        for pointer in [
+            "/reads/0/raw_bytes_sha256",
+            "/request_descriptor_id",
+            "/producer_artifact_id",
+        ] {
+            let mut poison = observed.clone();
+            *poison.pointer_mut(pointer).unwrap() = json!("foreign");
+            assert!(
+                discovery_binding(&poison, &prepared, "actual-comparator-artifact").is_err(),
+                "{pointer}"
+            );
+        }
+        let mut poison = observed.clone();
+        poison["repositoryRoot"] = json!(root.parent().unwrap());
+        assert!(discovery_binding(&poison, &prepared, "actual-comparator-artifact").is_err());
+        let mut poison = observed.clone();
+        poison["reads"][0]["path"] = json!(root.join("nested"));
+        assert!(discovery_binding(&poison, &prepared, "actual-comparator-artifact").is_err());
+        fs::remove_dir_all(root).unwrap();
+    }
 }

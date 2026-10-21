@@ -73,3 +73,18 @@ child/descendant readiness marker before requesting cancellation. The reader-err
 capture_error, child cleanup and finalize-timeout behavior remain unproved here. Ordinary Cargo discovery includes the
 native transport integration test; focused qualification uses
 `gap_real_native_refusal_truncation_and_owned_cancellation`.
+
+The separate supplemental runtime and immutable witnesses are described in
+[supplement/README.md](supplement/README.md). Source-component and declaration-root
+observation modes do not run extraction. Their comparator accepts only the
+explicit source/compiler component fields and refuses extraction checks or
+relations before launching a producer.
+
+For PR386, the existing Windows CI job acquires the original and supplemental
+campaigns after owner review of the native Mac/Linux observations. The required
+`T00_NATIVE_REVIEW_SHA256` repository variable identifies that external review;
+an absent or placeholder reference fails acquisition. The event HEAD, clean
+source inventory, locked builds and actual artifacts are recorded independently.
+The reference authorizes acquisition and does not prove prior results. Raw
+differences remain available; scoped noncontract digest/message observations
+never rewrite the frozen expectations or supply qualification credit.

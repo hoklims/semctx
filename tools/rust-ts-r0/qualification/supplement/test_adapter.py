@@ -55,6 +55,8 @@ class DraftAdapterTests(unittest.TestCase):
         row = next(row for row in self.document['rows'] if row['id'] == 'source::computed-dts')
         self.assertNotIn('main.ts', row['template']['files'])
         self.assertIn('main.ts', row['physical_only_files'])
+        self.assertEqual(row['recipes'][0]['physical_uncaptured_files'], row['physical_only_files'])
+        self.assertEqual(row['recipes'][0]['physical_live_after_capture'], {})
         self.assertEqual(row['recipes'][0]['surface'], 'declaration_root_cli')
         self.assertIn('main.d.ts', row['template']['roots'])
         self.assertTrue(all(path.endswith('.d.ts') for path in row['template']['roots']))

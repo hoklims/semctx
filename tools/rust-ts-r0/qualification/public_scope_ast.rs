@@ -2,6 +2,14 @@
 //! Uses the same pinned ts_goport parser as C1, including malformed ASTs. It is
 //! consumer-owned evidence, never a claim that C1 emitted unexposed AST fields.
 use super::*;
+#[path = "consumer_retained_aliases.rs"]
+mod consumer_retained_aliases;
+#[path = "../src/retained_manifest.rs"]
+#[expect(
+    dead_code,
+    reason = "shared metadata module also exports configuration helpers outside this scope consumer"
+)]
+mod consumer_retained_manifest;
 use ts_goport::{
     ast,
     astdata::SyntaxKind as K,
@@ -44,6 +52,110 @@ fn visit(node: Node, path: &str, reasons: &mut Vec<String>) {
         visit(child, path, reasons);
         false
     });
+}
+
+fn external_policy(request: &Value) -> Result<Value, String> {
+    let root = value_text(request, "cwd")?;
+    let sensitive = request["case_sensitive"]
+        .as_bool()
+        .ok_or("external policy case absent")?;
+    let inventory: Value =
+        serde_json::from_str(include_str!("../builtin-modules.json")).map_err(|e| e.to_string())?;
+    let mut names = BTreeSet::new();
+    let mut packages = serde_json::Map::new();
+    let mut aliases = vec![];
+    let mut receipts = vec![];
+    let _program = ts_goport::core::enter_program(None);
+    for (path, text) in request["files"]
+        .as_object()
+        .ok_or("captured metadata map absent")?
+    {
+        let (_, location) = verifier_location(root, path, sensitive, "repository")?;
+        if location["domain"] != "repository" {
+            continue;
+        }
+        let relative = value_text(&location, "path")?;
+        let filename = relative.rsplit('/').next().unwrap_or(relative);
+        if filename != "package.json"
+            && !(filename.starts_with("tsconfig") && filename.ends_with(".json"))
+        {
+            continue;
+        }
+        let text = text.as_str().ok_or("captured metadata text absent")?;
+        let parsed = consumer_retained_manifest::inspect(path, text);
+        receipts.push(json!({"path":relative,"content_id":identity::digest_bytes(text.as_bytes()),"parsed":parsed.is_some()}));
+        // Baseline parseConfigFileTextToJson errors are skipped; configuration
+        // components independently retain the error. Never invent declarations.
+        let Some(parsed) = parsed else {
+            continue;
+        };
+        if filename == "package.json" {
+            if let Some(name) = parsed.name {
+                names.insert(name);
+            }
+            packages.insert(
+                relative.rsplit_once('/').map(|p| p.0).unwrap_or("").into(),
+                json!(parsed.external_packages),
+            );
+        }
+        aliases.extend(parsed.aliases);
+    }
+    Ok(
+        json!({"workspace_names":names,"external_packages":packages,"aliases":aliases,
+        "builtins":inventory["modules"],"builtin_inventory_id":identity::digest(&inventory),"metadata_reads":receipts}),
+    )
+}
+
+fn is_external(policy: &Value, specifier: &str, from: &str) -> Result<bool, String> {
+    let builtins = policy["builtins"]
+        .as_array()
+        .ok_or("consumer builtin inventory absent")?;
+    if builtins.iter().any(|p| p.as_str() == Some(specifier)) {
+        return Ok(true);
+    }
+    let aliases = policy["aliases"]
+        .as_array()
+        .ok_or("captured aliases absent")?;
+    if specifier.starts_with('.')
+        || specifier.starts_with('/')
+        || aliases.iter().any(|alias| {
+            alias.as_str().is_some_and(|alias| {
+                consumer_retained_aliases::matches_port_strings(alias, specifier)
+            })
+        })
+    {
+        return Ok(false);
+    }
+    let package = specifier
+        .split('/')
+        .take(if specifier.starts_with('@') { 2 } else { 1 })
+        .collect::<Vec<_>>()
+        .join("/");
+    if policy["workspace_names"]
+        .as_array()
+        .ok_or("captured workspace names absent")?
+        .iter()
+        .any(|v| v.as_str() == Some(package.as_str()))
+    {
+        return Ok(false);
+    }
+    if !safe_relative(from) {
+        return Err("scope importer outside repository".into());
+    }
+    let mut directory = from.rsplit_once('/').map(|p| p.0).unwrap_or("");
+    loop {
+        if policy["external_packages"]
+            .get(directory)
+            .and_then(Value::as_array)
+            .is_some_and(|v| v.iter().any(|p| p.as_str() == Some(package.as_str())))
+        {
+            return Ok(true);
+        }
+        if directory.is_empty() {
+            return Ok(false);
+        }
+        directory = directory.rsplit_once('/').map(|p| p.0).unwrap_or("");
+    }
 }
 
 pub(super) fn observe(
@@ -123,9 +235,52 @@ pub(super) fn observe(
         "syntax_only":true,"semantic_program_substituted":false,"consumer_artifact_id":consumer_id,
         "request_descriptor_id":identity::digest(request),"input_manifest_id":raw["input_manifest_id"],"sdk_input_id":identity::digest(sdk),
         "source_parser_contract":"standalone native syntax parser; references and dependency visitor mirror baseline ts.createSourceFile Latest; semantic options/SDK remain bound to the independent actual C1 Program receipt",
-        "sources":sources,"global_admission_inferred":false});
+        "sources":sources,"retained_external_policy":external_policy(request)?,"global_admission_inferred":false});
     result["ast_receipt_id"] = json!(identity::digest(&result));
     Ok(result)
+}
+
+fn confinement_reasons(raw: &Value, broad: &Value) -> Result<Vec<String>, String> {
+    if raw["observation_mode"] != "source_components" {
+        return Ok(vec![]);
+    }
+    let guard = &raw["confinementObservation"];
+    if guard["executed"] != true {
+        return Err("actual source component confinement guard missing".into());
+    }
+    if guard["state"] == "clear" {
+        if !guard["code"].is_null()
+            || !guard["error"].is_null()
+            || raw["extraction_executed"] != false
+        {
+            return Err("source scope clear guard has contradictory fields".into());
+        }
+        return Ok(vec![]);
+    }
+    if guard["state"] != "refused"
+        || guard["code"] != "REFERENCE_OUTSIDE_REPOSITORY"
+        || !guard["error"]
+            .as_str()
+            .is_some_and(|e| e.starts_with("REFERENCE_OUTSIDE_REPOSITORY: "))
+        || raw["extraction_executed"] != false
+        || broad["executed"] != true
+        || broad["unsupported"] != json!([])
+    {
+        return Err("source scope confinement refusal is incomplete or foreign".into());
+    }
+    // Baseline catches this extraction refusal, leaving no analyzed source files.
+    // Unreadable here is an analysis result, not a fabricated physical I/O error.
+    let mut reasons = vec!["DEPENDENCY_SCOPE_OUTSIDE_REPOSITORY".to_string()];
+    for file in broad["files"]
+        .as_array()
+        .ok_or("actual broad files missing")?
+    {
+        let path = value_text(file, "relPath")?;
+        if file["language"] == "typescript" {
+            reasons.push(format!("DEPENDENCY_SCOPE_UNREADABLE:{path}"));
+        }
+    }
+    Ok(reasons)
 }
 
 pub(super) fn project(
@@ -158,7 +313,7 @@ pub(super) fn project(
         .as_array()
         .ok_or("native scope subjects absent")?;
     let mut links = vec![];
-    let mut reasons = vec![];
+    let mut reasons = confinement_reasons(raw, broad)?;
     let mut unresolved = vec![];
     let mut external = BTreeSet::new();
     for import in imports {
@@ -194,24 +349,13 @@ pub(super) fn project(
         reasons.push("DEPENDENCY_SCOPE_INPUT_CHANGED".to_string());
     }
     for import in imports {
-        if import["resolvedRelPath"].is_string() {
-            continue;
-        }
         let from = value_text(import, "fromRelPath")?;
         let spec = value_text(import, "moduleSpecifier")?;
-        let subject = subjects
-            .iter()
-            .find(|s| s["path"] == from)
-            .ok_or("native unresolved scope subject missing")?;
-        let marker = format!("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{from}:{spec}");
-        let actual = subject["reasons"]
-            .as_array()
-            .ok_or("native scope reason inventory missing")?;
-        if actual.contains(&json!(marker)) {
-            reasons.push(marker);
-            unresolved.push(json!({"path":from,"specifier":spec}));
-        } else {
+        if is_external(&ast_receipt["retained_external_policy"], spec, from)? {
             external.insert(spec.to_string());
+        } else if !import["resolvedRelPath"].is_string() {
+            reasons.push(format!("DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{from}:{spec}"));
+            unresolved.push(json!({"path":from,"specifier":spec}));
         }
     }
     if broad["executed"] != true || broad["unsupported"] != json!([]) {
@@ -318,6 +462,28 @@ pub(super) fn project(
 mod comparator_tests {
     use super::*;
     #[test]
+    fn comparator_scope_external_status_uses_captured_metadata_not_absent_native_marker() {
+        let mut request = json!({"cwd":"/case","case_sensitive":true,"files":{
+            "/case/package.json":"{\"dependencies\":{\"opaque\":\"1.0.0\",\"@hidden/inbound\":\"workspace:*\"}}"}});
+        let policy = external_policy(&request).unwrap();
+        assert!(!is_external(&policy, "@hidden/inbound", "hidden.ts").unwrap());
+        assert!(is_external(&policy, "opaque/subpath", "src/main.ts").unwrap());
+        assert!(is_external(&policy, "node:fs", "main.ts").unwrap());
+        assert!(!is_external(&policy, "./opaque", "main.ts").unwrap());
+        request["files"]["/case/package.json"] =
+            json!("{\"name\":\"opaque\",\"dependencies\":{\"opaque\":\"1\"}}");
+        assert!(!is_external(&external_policy(&request).unwrap(), "opaque", "main.ts").unwrap());
+        request["files"]["/case/package.json"] =
+            json!("{\"dependencies\":{\"@hidden/inbound\":\"1\"}}");
+        request["files"]["/case/tsconfig.json"] =
+            json!("{\"compilerOptions\":{\"paths\":{\"@hidden/*\":[\"src/*\"]}}}");
+        let policy = external_policy(&request).unwrap();
+        assert!(!is_external(&policy, "@hidden/inbound", "main.ts").unwrap());
+        assert!(is_external(&policy, "opaque", "../main.ts").is_err());
+        request["files"] = json!({});
+        assert!(!is_external(&external_policy(&request).unwrap(), "opaque", "main.ts").unwrap());
+    }
+    #[test]
     fn actual_native_ast_exposes_reference_literal_without_regex() {
         let parsed = parse_source_file(
             &SourceFileParseOptions {
@@ -350,4 +516,30 @@ mod comparator_tests {
         visit(parsed.root, "a.ts", &mut reasons);
         assert!(reasons.contains(&"DEPENDENCY_SCOPE_COMPUTED_IMPORT:a.ts".to_string()));
     }
+}
+
+#[test]
+fn comparator_source_scope_refusal_is_an_analysis_boundary_not_a_physical_failure() {
+    let raw = json!({"observation_mode":"source_components","extraction_executed":false,
+        "confinementObservation":{"executed":true,"state":"refused","code":"REFERENCE_OUTSIDE_REPOSITORY","error":"REFERENCE_OUTSIDE_REPOSITORY: ../missing.ts"}});
+    let broad = json!({"executed":true,"unsupported":[],"files":[{"relPath":"main.ts","language":"typescript"}]});
+    assert_eq!(
+        confinement_reasons(&raw, &broad).unwrap(),
+        vec![
+            "DEPENDENCY_SCOPE_OUTSIDE_REPOSITORY",
+            "DEPENDENCY_SCOPE_UNREADABLE:main.ts"
+        ]
+    );
+    for (pointer, value) in [
+        ("/extraction_executed", json!(true)),
+        ("/confinementObservation/executed", json!(false)),
+        ("/confinementObservation/code", json!("OTHER_ERROR")),
+    ] {
+        let mut poison = raw.clone();
+        *poison.pointer_mut(pointer).unwrap() = value;
+        assert!(confinement_reasons(&poison, &broad).is_err());
+    }
+    let mut poison = broad.clone();
+    poison["executed"] = json!(false);
+    assert!(confinement_reasons(&raw, &poison).is_err());
 }

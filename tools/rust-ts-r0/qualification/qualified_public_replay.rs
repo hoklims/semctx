@@ -255,7 +255,13 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
         let request_path = dir.join("analysis-request.json");
         save(&request_path, &request)?;
         observations["request_descriptor"] = request.clone();
-        let mode = if kind == "retained-scope" {
+        let source_component_mode = kind == "retained-scope"
+            && recipe["source_component_observation"] == true
+            && recipe["unit_id"] == "source::reference-outside"
+            && source_scope_replay::allows_unborn_head(recipe);
+        let mode = if source_component_mode {
+            Some("--observe-source-components")
+        } else if kind == "retained-scope" {
             None
         } else {
             Some("--batch")
@@ -271,6 +277,9 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
         let outcome = invoke(&argv, &root, &dir.join("index-process.json"), helper, &pins)?;
         let observed = json_success(&outcome)?;
         if kind == "retained-scope" {
+            if source_component_mode {
+                source_component_observation_binding(&observed, &request)?;
+            }
             observation_bound_to_request(&observed, &request, &read_json(sdk_path)?, artifact_sha)?;
             let sdk = read_json(sdk_path)?;
             let ast = scope_ast::observe(

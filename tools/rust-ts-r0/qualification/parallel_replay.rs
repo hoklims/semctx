@@ -95,6 +95,70 @@ fn verify_controller_header(
     Ok(())
 }
 
+fn verify_mixed_fallback(
+    observed: &Value,
+    descriptor: &Value,
+    capture: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    verify_controller_header(observed, descriptor, sdk, artifact_sha)?;
+    let roots = descriptor["rootAbsPaths"]
+        .as_array()
+        .ok_or("mixed fallback roots absent")?;
+    let paths = roots
+        .iter()
+        .map(|p| p.as_str().ok_or("non-text fallback root"))
+        .collect::<Result<Vec<_>, _>>()?;
+    let javascript = paths.iter().any(|p| {
+        [".js", ".jsx", ".mjs", ".cjs"]
+            .iter()
+            .any(|s| p.ends_with(s))
+    });
+    let typescript = paths.iter().any(|p| {
+        [".ts", ".tsx", ".mts", ".cts"]
+            .iter()
+            .any(|s| p.ends_with(s))
+            && ![".d.ts", ".d.mts", ".d.cts"].iter().any(|s| p.ends_with(s))
+    });
+    let expected = json!({"requested":2,"used":1,"mode":"preflight-fallback","reason":"mixed JavaScript/TypeScript extraction requires one semantic Program"});
+    if descriptor["workers"] != 2
+        || descriptor["repoRoot"] != capture["cwd"]
+        || descriptor["rootAbsPaths"] != capture["roots"]
+        || !javascript
+        || !typescript
+        || observed["parallelism"] != expected
+        || observed["jobs"] != json!([])
+        || !observed["helperArtifactId"].is_null()
+        || !observed["preflight"].is_null()
+    {
+        return Err("mixed fallback is not the exact observed two-requested single Program".into());
+    }
+    let request = json!({"schemaVersion":1,"jobId":"parallel-single","repoRoot":capture["cwd"],"rootAbsPaths":roots,"emitAbsPaths":roots});
+    if observed["singleRequest"] != request
+        || observed["singleObservation"]["ok"] != true
+        || observed["singleObservation"]["schemaVersion"] != 1
+        || observed["singleObservation"]["jobId"] != "parallel-single"
+        || observed["singleObservation"]["sdk_input_id"] != identity::digest(sdk)
+        || observed["singleObservation"]["extraction"] != observed["extraction"]
+    {
+        return Err(
+            "mixed fallback extraction is foreign to actual single native observation".into(),
+        );
+    }
+    worker_read_provenance(
+        &observed["singleObservation"],
+        &request,
+        capture["files"]
+            .as_object()
+            .ok_or("mixed fallback source inventory absent")?,
+        sdk,
+        capture["case_sensitive"]
+            .as_bool()
+            .ok_or("mixed fallback case mode absent")?,
+    )
+}
+
 pub(super) fn verify_parallel(
     observed: &Value,
     descriptor: &Value,
@@ -118,6 +182,9 @@ pub(super) fn verify_parallel(
         .as_u64()
         .ok_or("parallel worker count absent")?;
     let jobs = observed["jobs"].as_array().ok_or("parallel jobs absent")?;
+    if count == 2 && observed["parallelism"]["mode"] == "preflight-fallback" {
+        return verify_mixed_fallback(observed, descriptor, capture, sdk, artifact_sha);
+    }
     if count == 1 {
         if !jobs.is_empty()
             || observed["parallelism"] != json!({"requested":1,"used":1,"mode":"single"})
@@ -472,5 +539,126 @@ mod tests {
             assert!(extraction_relation(&expected, &missing).is_err());
         }
         assert!(extraction_relation(&Value::Null, &Value::Null).is_err());
+    }
+}
+
+#[cfg(test)]
+mod mixed_fallback_comparator_tests {
+    use super::*;
+    #[test]
+    fn comparator_mixed_fallback_requires_physical_reads_and_exact_native_context() {
+        // Explicit synthetic verifier carrier, never a C1 or qualification run.
+        let temp = std::env::temp_dir().canonicalize().unwrap();
+        let root = temp.join(format!(
+            "semctx-mixed-fallback-comparator-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir(&root).unwrap();
+        fs::write(root.join("CaseProbe"), b"case").unwrap();
+        let sensitive = !root.join("caseprobe").exists();
+        fs::remove_file(root.join("CaseProbe")).unwrap();
+        let native_root = root.to_string_lossy().replace('\\', "/");
+        let cwd = native_root
+            .strip_prefix("//?/")
+            .unwrap_or(&native_root)
+            .to_owned();
+        let mut files = serde_json::Map::new();
+        let mut reads = vec![];
+        let mut probes = vec![
+            json!({"operation":"case_sensitive","path":"","found":sensitive,"content_id":null}),
+        ];
+        for (name, text) in [
+            ("main.ts", "export const main = 1;"),
+            ("bridge.js", "export const bridge = 2;"),
+        ] {
+            let path = format!("{cwd}/{name}");
+            fs::write(root.join(name), text.as_bytes()).unwrap();
+            files.insert(path.clone(), json!(text));
+            let canonical = Path::new(&path)
+                .canonicalize()
+                .unwrap()
+                .to_string_lossy()
+                .replace('\\', "/");
+            reads.push(json!({"path":path,"canonical_path":canonical,"raw_bytes_sha256":identity::digest_bytes(text.as_bytes()),"decoded_port_text_sha256":identity::digest_bytes(text.as_bytes())}));
+            probes.push(json!({"operation":"read_file","path":path,"found":true,"content_id":identity::digest_bytes(text.as_bytes())}));
+        }
+        let sdk = json!({"files":{"/sdk/lib/lib.es5.d.ts":"declare const es5: number;","/sdk/lib/lib.es2022.full.d.ts":"declare const es2022: number;"}});
+        for (path, text) in sdk["files"].as_object().unwrap() {
+            probes.push(json!({"operation":"read_file","path":path,"found":true,"content_id":identity::digest_bytes(text.as_str().unwrap().as_bytes())}));
+        }
+        let roots = files.keys().cloned().collect::<Vec<_>>();
+        let capture = json!({"cwd":cwd,"roots":roots,"case_sensitive":sensitive,"files":files});
+        let descriptor = json!({"repoRoot":cwd,"rootAbsPaths":roots,"workers":2});
+        let single = json!({"schemaVersion":1,"jobId":"parallel-single","repoRoot":cwd,"rootAbsPaths":roots,"emitAbsPaths":roots});
+        let extraction =
+            json!({"modules":["bridge.js","main.ts"],"symbols":[],"imports":[],"calls":[]});
+        let frontend_roots = roots
+            .iter()
+            .map(|path| json!({"path":path,"loaded":true,"parseDiagnosticCodes":[]}))
+            .collect::<Vec<_>>();
+        let worker = json!({"schemaVersion":1,"jobId":"parallel-single","ok":true,"sdk_input_id":identity::digest(&sdk),"extraction":extraction,
+            "frontendCapabilityObservation":{"executed":true,"unsupported":[],"resolutionErrors":{},"workspaceIssues":[],"roots":frontend_roots},
+            "compiler_probes":probes,"read_observations":reads});
+        let observed = json!({"request_descriptor_id":identity::digest(&descriptor),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:synthetic-verifier-carrier",
+            "executed":true,"unsupported":[],"globalAdmissionInferred":false,"observationScope":"native_type_script_parallel_extraction",
+            "parallelism":{"requested":2,"used":1,"mode":"preflight-fallback","reason":"mixed JavaScript/TypeScript extraction requires one semantic Program"},
+            "jobs":[],"singleRequest":single,"singleObservation":worker,"extraction":extraction});
+        let check = |value: &Value, request: &Value, input: &Value, libraries: &Value| {
+            verify_parallel(
+                value,
+                request,
+                input,
+                &json!({}),
+                libraries,
+                "synthetic-verifier-carrier",
+                "synthetic-helper-carrier",
+            )
+        };
+        let result = check(&observed, &descriptor, &capture, &sdk);
+        assert!(result.is_ok());
+        let actual = result.unwrap();
+        assert_eq!(actual["state"], "JOINED_REPORTED_NATIVE_WORKER_READS_ONLY");
+        for (pointer, value) in [
+            ("/request_descriptor_id", json!("foreign")),
+            ("/sdk_input_id", json!("foreign")),
+            ("/parallelism/mode", json!("unknown-fallback")),
+            ("/parallelism/reason", json!("unknown preflight")),
+            (
+                "/singleObservation/read_observations/0/raw_bytes_sha256",
+                json!("sha256:foreign"),
+            ),
+            (
+                "/singleObservation/compiler_probes/1/content_id",
+                json!("sha256:foreign"),
+            ),
+        ] {
+            let mut poison = observed.clone();
+            *poison.pointer_mut(pointer).unwrap() = value;
+            assert!(
+                check(&poison, &descriptor, &capture, &sdk).is_err(),
+                "{pointer}"
+            );
+        }
+        let mut helper = observed.clone();
+        helper["helperArtifactId"] = json!("sha256:foreign");
+        assert!(check(&helper, &descriptor, &capture, &sdk).is_err());
+        let mut library = sdk.clone();
+        library["files"]["/sdk/lib/lib.es5.d.ts"] = json!("foreign");
+        assert!(check(&observed, &descriptor, &capture, &library).is_err());
+        let ts_roots = json!([format!("{cwd}/main.ts")]);
+        let mut not_mixed = descriptor.clone();
+        not_mixed["rootAbsPaths"] = ts_roots.clone();
+        let mut not_mixed_capture = capture.clone();
+        not_mixed_capture["roots"] = ts_roots;
+        let mut not_mixed_observed = observed.clone();
+        not_mixed_observed["request_descriptor_id"] = json!(identity::digest(&not_mixed));
+        let error = check(&not_mixed_observed, &not_mixed, &not_mixed_capture, &sdk).unwrap_err();
+        assert!(error.contains("mixed fallback"));
+        assert!(root.starts_with(&temp));
+        fs::remove_dir_all(root).unwrap();
     }
 }

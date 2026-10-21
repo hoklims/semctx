@@ -325,6 +325,8 @@ pub fn opaque_callback_ownership(
         "beforeAnalysis":phase(before)?,
         "afterAnalysis":phase(after)?,
         "afterGraphEdgesRemoved":phase(removed)?,
+        "graphBeforeEdgeRemoval":graph,
+        "graphAfterEdgeRemoval":removed_graph,
         "graphBeforeEdgeRemovalId":identity::digest(graph),
         "graphAfterEdgeRemovalId":identity::digest(removed_graph),
         "observationScope":"native_module_configuration_graph_ownership",
@@ -383,4 +385,30 @@ pub fn retained_callable_initializers(
         })
         .collect::<Vec<_>>();
     serde_json::json!({"executed":true,"unsupported":[],"variables":variables})
+}
+
+#[cfg(test)]
+mod ownership_phase_receipt_tests {
+    use super::*;
+    #[test]
+    fn comparator_ownership_phase_graph_payloads_keep_the_hash_epoch() {
+        let subject = serde_json::json!({"moduleConfigurationObservations":{"retainedWithoutSource":{"executed":true,"unsupported":[],"reasons":[]}}});
+        let mut graph =
+            serde_json::json!({"nodes":[{"id":"m","metadata":{}}],"edges":[{"id":"e"}]});
+        let removed = serde_json::json!({"nodes":[{"id":"m","metadata":{}}],"edges":[]});
+        let result =
+            opaque_callback_ownership(&subject, &subject, &subject, &graph, &removed).unwrap();
+        assert_eq!(result["graphBeforeEdgeRemoval"], graph);
+        assert_eq!(result["graphAfterEdgeRemoval"], removed);
+        assert_eq!(
+            result["graphBeforeEdgeRemovalId"],
+            identity::digest(&result["graphBeforeEdgeRemoval"])
+        );
+        assert_eq!(
+            result["graphAfterEdgeRemovalId"],
+            identity::digest(&result["graphAfterEdgeRemoval"])
+        );
+        graph["nodes"][0]["metadata"] = serde_json::json!({"staticExports":"later annotation"});
+        assert_ne!(result["graphBeforeEdgeRemoval"], graph);
+    }
 }

@@ -161,7 +161,7 @@ pub(super) fn dispatch(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Va
     let sdk = read_json(sdk_path)?;
     match value_text(recipe, "surface")? {
         "source_scope_cli" => source_scope_replay::run(recipe, dir, fixture),
-        "raw_cli" | "declaration_root_cli" => run_raw_recipe(
+        "raw_cli" | "declaration_root_cli" | "source_component_cli" => run_raw_recipe(
             recipe,
             dir,
             artifact,

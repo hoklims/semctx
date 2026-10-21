@@ -71,6 +71,9 @@ def invocation_key(prepared, operation, vector):
         'request': request, 'physical_epoch': prepared['physical_setup'],
         'auxiliary_requests': prepared.get('auxiliary_requests', []),
         'actual_programs': [program for program in vector['actualSemanticPrograms'] if program['parent'] == operation['sequence']]}
+    if prepared.get('physical_empty_directories'):
+        basis['physical_empty_directories'] = prepared['physical_empty_directories']
+        basis['directory_setup_authority'] = prepared['directory_setup_authority']
     # Parent IDs in actual Program records deliberately prevent sharing different semantic epochs.
     return digest(json.dumps(basis, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
 

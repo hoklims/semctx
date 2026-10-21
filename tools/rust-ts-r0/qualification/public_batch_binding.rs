@@ -2,6 +2,67 @@
 //! C1 batch::{input,capture,snapshot,scope}_manifest; no expected output is read.
 use super::*;
 
+fn captured_configuration_exists(
+    request: &Value,
+    sdk: &Value,
+    key: &str,
+    sensitive: bool,
+) -> Result<bool, String> {
+    let mut known = false;
+    for files in [&request["files"], &sdk["files"]] {
+        for candidate in files.as_object().ok_or("batch input files absent")?.keys() {
+            let matches = verifier_absolute_key(candidate, sensitive)? == key;
+            known |= matches;
+        }
+    }
+    Ok(known)
+}
+
+fn validate_input_probe(probe: &Value, request: &Value, sdk: &Value) -> Result<(), String> {
+    if probe["context"] != "captured-filesystem" || !probe["found"].is_boolean() {
+        return Err("batch read inventory has a foreign capture context".into());
+    }
+    let sensitive = request["case_sensitive"]
+        .as_bool()
+        .ok_or("batch request case mode absent")?;
+    let operation = value_text(probe, "operation")?;
+    let path = value_text(probe, "path")?;
+    match operation {
+        "captured_cwd" => {
+            if probe["found"] != true
+                || !probe["content_id"].is_null()
+                || verifier_absolute_key(path, sensitive)?
+                    != verifier_absolute_key(value_text(request, "cwd")?, sensitive)?
+            {
+                return Err("batch captured cwd differs from exact request".into());
+            }
+        }
+        "case_sensitive" => {
+            if !path.is_empty()
+                || probe["found"] != json!(sensitive)
+                || !probe["content_id"].is_null()
+            {
+                return Err("batch case probe differs from exact request".into());
+            }
+        }
+        "configuration_discovery_file_exists" => {
+            let key = verifier_absolute_key(path, sensitive)?;
+            if !probe["content_id"].is_null() {
+                return Err("configuration existence probe claims content bytes".into());
+            }
+            if probe["found"] == true
+                && !captured_configuration_exists(request, sdk, &key, sensitive)?
+            {
+                return Err("positive configuration probe has no captured file".into());
+            }
+        }
+        "read_file" | "file_exists" | "directory_exists" | "directory_entries" | "realpath"
+        | "stat" => {}
+        _ => return Err("batch read inventory has a foreign capture operation".into()),
+    }
+    Ok(())
+}
+
 pub(super) fn validate_batch(
     batch: &Value,
     request: &Value,
@@ -185,19 +246,8 @@ pub(super) fn validate_batch(
     let probes = batch["input_observations"]
         .as_array()
         .ok_or("batch read inventory absent")?;
-    if probes.iter().any(|p| {
-        p["context"] != "captured-filesystem"
-            || ![
-                "read_file",
-                "file_exists",
-                "directory_exists",
-                "directory_entries",
-                "realpath",
-                "stat",
-            ]
-            .contains(&p["operation"].as_str().unwrap_or(""))
-    }) {
-        return Err("batch read inventory has a foreign capture context".into());
+    for probe in probes {
+        validate_input_probe(probe, request, sdk)?;
     }
     let joined_reads = join_successful_reads(&json!({"capture_probes":probes}), request, sdk)?;
     let refused = reports
@@ -277,5 +327,43 @@ mod comparator_tests {
         assert!(validate_batch(&batch, &req, &sdk, "artifact").is_ok());
         batch["input_observations"][0]["content_id"] = json!("sha256:foreign");
         assert!(validate_batch(&batch, &req, &sdk, "artifact").is_err());
+    }
+}
+
+#[cfg(test)]
+mod capture_probe_tests {
+    use super::*;
+    #[test]
+    fn comparator_batch_native_context_probes_require_exact_request_values() {
+        let request =
+            json!({"cwd":"/dev","case_sensitive":false,"files":{"/dev/config.json":"{}"}});
+        let sdk = json!({"files":{"/sdk/lib/lib.d.ts":"declare const x:number;"}});
+        let probes = [
+            json!({"context":"captured-filesystem","operation":"captured_cwd","path":"/dev","found":true,"content_id":null}),
+            json!({"context":"captured-filesystem","operation":"case_sensitive","path":"","found":false,"content_id":null}),
+            json!({"context":"captured-filesystem","operation":"configuration_discovery_file_exists","path":"/dev/config.json","found":true,"content_id":null}),
+            json!({"context":"captured-filesystem","operation":"configuration_discovery_file_exists","path":"/missing/config.json","found":false,"content_id":null}),
+        ];
+        for probe in &probes {
+            assert!(validate_input_probe(probe, &request, &sdk).is_ok());
+            let mut poison = probe.clone();
+            poison["context"] = json!("foreign");
+            assert!(validate_input_probe(&poison, &request, &sdk).is_err());
+        }
+        for (index, field, value) in [
+            (0, "path", json!("/foreign")),
+            (0, "found", json!(false)),
+            (1, "found", json!(true)),
+            (1, "path", json!("/dev")),
+            (2, "path", json!("/foreign/config.json")),
+            (3, "content_id", json!("sha256:foreign")),
+        ] {
+            let mut poison = probes[index].clone();
+            poison[field] = value;
+            assert!(
+                validate_input_probe(&poison, &request, &sdk).is_err(),
+                "{index}:{field}"
+            );
+        }
     }
 }

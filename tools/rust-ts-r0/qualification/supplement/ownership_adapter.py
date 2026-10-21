@@ -220,12 +220,29 @@ def _normalize_reasons(reasons, plan):
     return result
 
 
+def bound_ownership_phase_graphs(component):
+    """Select exact graph bytes recorded at the existing native phase hashes."""
+    before = component.get('graphBeforeEdgeRemoval')
+    after = component.get('graphAfterEdgeRemoval')
+    if (not isinstance(before, dict) or not isinstance(after, dict)
+            or not isinstance(before.get('nodes'), list) or not isinstance(before.get('edges'), list)
+            or not isinstance(after.get('nodes'), list) or not isinstance(after.get('edges'), list)
+            or component.get('graphBeforeEdgeRemovalId') != digest(before)
+            or component.get('graphAfterEdgeRemovalId') != digest(after)
+            or after != dict(before, edges=[])):
+        raise Gap('OPAQUE_OWNERSHIP_PHASE_GRAPH_PAYLOAD_UNBOUND')
+    return before, after
+
+
 def project_ownership(plan, native):
     """Select existing real C1 phases. This function never accepts expected values."""
     _validate_native(plan, native)
-    graph = native['assembly']
-    removed = dict(graph, edges=[])
     subjects = native['subjects']
+    components = [s.get('opaqueCallbackOwnership') for s in subjects
+                  if isinstance(s.get('opaqueCallbackOwnership'), dict) and s['opaqueCallbackOwnership'].get('executed') is True]
+    if not components:
+        raise Gap('OPAQUE_OWNERSHIP_PHASE_GRAPH_PAYLOAD_UNBOUND')
+    graph, removed = bound_ownership_phase_graphs(components[0])
     paths = [subject['path'] for subject in subjects]
     if len(set(paths)) != len(paths):
         raise Gap('DUPLICATED_NATIVE_OWNERSHIP_SUBJECT')
@@ -249,7 +266,9 @@ def project_ownership(plan, native):
                     or component.get('observationScope') != 'native_module_configuration_graph_ownership'
                     or component.get('globalAdmissionInferred') is not False
                     or component.get('graphBeforeEdgeRemovalId') != digest(graph)
-                    or component.get('graphAfterEdgeRemovalId') != digest(removed)):
+                    or component.get('graphAfterEdgeRemovalId') != digest(removed)
+                    or component.get('graphBeforeEdgeRemoval') != graph
+                    or component.get('graphAfterEdgeRemoval') != removed):
                 raise Gap('OPAQUE_OWNERSHIP_GRAPH_BINDING_MISSING')
             observed = component[phase]
             if observed.get('executed') is not True or observed.get('unsupported') != [] or not isinstance(observed.get('reasons'), list):

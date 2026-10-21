@@ -28,6 +28,8 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
     }
     let mut native_recipe = recipe.clone();
     native_recipe["surface"] = json!("qualified_flow_cli");
+    native_recipe["source_component_observation"] =
+        json!(recipe["unit_id"] == "source::reference-outside");
     let observed = qualified_flow_replay::run(&native_recipe, dir, fixture)?;
     if observed["observed"]["scope_ast_receipt"]["kind"] != "rust-consumer-native-ast-v1"
         || observed["observed"]["scope_ast_receipt"]["input_manifest_id"]
