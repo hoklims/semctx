@@ -38,7 +38,7 @@ def validate(registry, frozen, abi_freeze, fixture=None):
                 raise ValueError('expected value differs from frozen reference')
         for extra in row['recipes'][1:]:
             if extra['surface']=='snapshot_boundary_cli':
-                if extra['expected_nodes']!=resolve(frozen,indexed,extra['expected_nodes_ref']) or extra['expected_error_code']!=resolve(frozen,indexed,extra['expected_error_ref']).split(':',1)[0]:
+                if extra['expected_nodes']!=resolve(frozen,indexed,extra['expected_nodes_ref']) or extra['expected_error']!=resolve(frozen,indexed,extra['expected_error_ref']) or extra['expected_error_code']!=extra['expected_error'].split(':',1)[0]:
                     raise ValueError('snapshot consumer expectation differs from frozen reference')
     fixture_state = 'NOT_SUPPLIED_NO_CANDIDATE_ACCESS'
     if fixture is not None:

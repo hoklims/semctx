@@ -29,3 +29,15 @@ fn integer_property_order_and_number_rendering_follow_javascript_json() {
         "{\"2\":0,\"10\":1,\"01\":1e-7}"
     );
 }
+
+#[test]
+fn native_engine_source_metadata_matches_the_locked_dependency() {
+    let manifest = include_str!("../../Cargo.toml");
+    let dependency = manifest
+        .lines()
+        .find(|line| line.starts_with("ts_goport = "))
+        .unwrap();
+    assert!(dependency.contains(&format!("rev = \"{ENGINE_REVISION}\"")));
+    assert!(dependency.contains("git = \"https://github.com/hoklims/ts-rust.git\""));
+    assert_ne!(ENGINE_REVISION, ENGINE_UPSTREAM_REVISION);
+}

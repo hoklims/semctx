@@ -764,7 +764,7 @@ pub(super) fn run(
     }
     Ok(
         json!({"state":"BOUND_WORKING_TREE_CONSUMER_OBSERVED","observed":{"consumer_kind":"t00-public-working-tree-admission-v1",
-        "source_baseline":"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b","portable_projection":projected,
+        "source_baseline":"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b","portable_projection":projected,"repository_root":root,
         "actual_evidence_path":dir.join("working-tree-actual-evidence.json"),"consumer_artifact_sha256":consumer_sha},
         "pass":false,"qualified":false,"global_admission_inferred":false,"R0":null}),
     )

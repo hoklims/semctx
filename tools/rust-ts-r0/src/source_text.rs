@@ -23,7 +23,8 @@ pub fn from_units(units: &[u16]) -> String {
             }
         }
     }
-    ts_goport::scanner_util::go_string_from_bytes(bytes)
+    let port = ts_goport::scanner_util::go_string_from_bytes(bytes);
+    ts_goport::scanner_util::fuse_surrogate_bytes(&port).into_owned()
 }
 
 pub fn to_units(text: &str) -> Vec<u16> {

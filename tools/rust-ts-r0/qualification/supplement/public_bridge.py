@@ -42,9 +42,32 @@ def complete_success_capture(outcome):
 
 
 def lifecycle_projection_guard(prepared, observed):
-    """Full verification stays unavailable; strict Rust receipts govern mapped29."""
+    """Select only the full DTO emitted by the bound Rust working-tree consumer."""
     if prepared['public_flow_kind']=='public-verify':
-        raise ValueError('FULL_PUBLIC_VERIFICATION_DTO_NOT_REGISTERED')
+        artifact = observed.get('consumer_artifact_sha256')
+        context = observed.get('_rust_full_admission_context', {})
+        if (prepared.get('adapter') != 'full_admission_adapter'
+                or observed.get('consumer_kind') != 't00-public-working-tree-admission-v1'
+                or observed.get('source_baseline') != '3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b'
+                or not isinstance(observed.get('portable_projection'), dict)
+                or not isinstance(artifact, str) or len(artifact) != 64
+                or any(c not in '0123456789abcdef' for c in artifact)
+                or context.get('consumer_artifact_sha256') != artifact):
+            raise ValueError('BOUND_FULL_PUBLIC_VERIFICATION_DTO_REQUIRED')
+
+
+def bound_lifecycle_observation(prepared, evidence):
+    from public_runtime import native_canonical
+    binding = evidence['binding']
+    if (binding.get('source_recipe_id') != 'sha256:'+digest(native_canonical(prepared).encode('utf-8'))
+            or binding.get('capture_stream_sha256') != prepared['source_capture_stream_sha256']):
+        raise ValueError('LIFECYCLE_RECIPE_OR_CAPTURE_BINDING_DIFFERS')
+    observed = copy.deepcopy(evidence['lifecycle_observed'])
+    if prepared['public_flow_kind'] == 'public-verify':
+        observed['_rust_full_admission_context'] = {
+            'consumer_artifact_sha256': binding.get('consumer_artifact_sha256')}
+        lifecycle_projection_guard(prepared, observed)
+    return observed
 
 
 def map_handles(value):
@@ -241,7 +264,11 @@ def project(document, outcome_root, module_dir, node, graph_module):
             records[key] = {'status': 'UNKNOWN', 'reason': evidence.get('error', 'NATIVE_BINDING_REJECTED')}
             continue
         if invocation['prepared']['surface']=='qualified_flow_cli':
-            records[key]={'status':'BOUND_ACTUAL_NATIVE_FACTS','native':evidence['lifecycle_observed'],'native_invocation_id':evidence['native_invocation_id'],'binding':evidence['binding']}
+            try:
+                native = bound_lifecycle_observation(invocation['prepared'], evidence)
+                records[key]={'status':'BOUND_ACTUAL_NATIVE_FACTS','native':native,'native_invocation_id':evidence['native_invocation_id'],'binding':evidence['binding']}
+            except (KeyError, ValueError, TypeError, AttributeError) as error:
+                records[key]={'status':'UNKNOWN','reason':str(error)}
             continue
         outcome = evidence['outcome']
         try:

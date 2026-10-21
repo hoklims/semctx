@@ -148,10 +148,10 @@ fn context(
     reads: Value,
 ) -> Result<NativeContext, String> {
     if request["retained"] != true
-        || request["qualified"] != false
+        || request["qualified"] != true
         || request["roots"].as_array().is_none_or(|r| r.len() != 1)
     {
-        return Err("token consumer requires one retained ordinary root".into());
+        return Err("token consumer requires one retained ownership-observation root".into());
     }
     require_native_reads(raw, request, &reads)?;
     let subjects = raw["subjects"]
@@ -471,7 +471,7 @@ mod comparator_tests {
         let native = dev();
         let request = json!({"id":"token-dev-constructor","cwd":"/dev","sdk_directory":"/sdk",
             "case_sensitive":true,"roots":["/dev/dev.ts"],"files":{"/dev/dev.ts":"DEVELOPMENT ONLY"},
-            "utf16_files":{},"raw_files":{},"retained":true,"qualified":false});
+            "utf16_files":{},"raw_files":{},"retained":true,"qualified":true});
         let sdk = json!({"version":"DEV-ONLY","archive_sha256":"DEV-ARCHIVE","files":{"/sdk/lib.d.ts":"DEV SDK ONLY"}});
         let graph = &native.state.graph;
         let mut removed = graph.clone();
@@ -488,6 +488,14 @@ mod comparator_tests {
                 "graphBeforeEdgeRemovalId":identity::digest(graph),"graphAfterEdgeRemovalId":identity::digest(&removed)}}]});
         let healthy = carrier(&raw);
         assert!(observe(&healthy, &request, &sdk, "dev-artifact").is_ok());
+        let mut ordinary = request.clone();
+        ordinary["qualified"] = json!(false);
+        assert_eq!(
+            context(&raw, &ordinary, json!({}), json!({}))
+                .err()
+                .as_deref(),
+            Some("token consumer requires one retained ownership-observation root")
+        );
         assert!(observe(&healthy, &request, &sdk, "foreign-artifact").is_err());
         let mut other = request.clone();
         other["cwd"] = json!("/other");

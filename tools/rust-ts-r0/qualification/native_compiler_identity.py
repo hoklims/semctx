@@ -6,7 +6,8 @@ import os
 from pathlib import Path
 import subprocess
 
-REVISION = '780dc512d64f40afebffa6a7028207649fb7ed1c'
+REVISION = 'd1f3c0c442ab71a2fce7a01980ed892bd27b9842'
+UPSTREAM_BASE_REVISION = '780dc512d64f40afebffa6a7028207649fb7ed1c'
 SOURCE = 'crates/ts_goport/src/core.rs'
 
 
@@ -30,6 +31,21 @@ def record_native_compiler_source(output, env):
     if len(candidates) != 1:
         raise ValueError('exactly one unchanged pinned upstream compiler source required')
     source, blob, actual = candidates[0]
+    checkout = source.parents[3]
+    command = ['git', '-C', str(checkout)]
+    parent = subprocess.check_output(command+['rev-parse', 'HEAD^'], env=env).decode().strip()
+    if parent != UPSTREAM_BASE_REVISION:
+        raise ValueError('engine correction is not based on the frozen upstream source')
+    patch_sources = []
+    for relative in ['crates/ts_goport/src/frontend/scanner/scanner_p1.rs',
+                     'crates/ts_goport/src/frontend/scanner/t00_utf16_source_tests.rs']:
+        committed = subprocess.check_output(command+['show', 'HEAD:'+relative], env=env)
+        data = (checkout/relative).read_bytes()
+        if committed != data:
+            raise ValueError('cached corrected engine source differs from its Git blob')
+        patch_sources.append({'path': relative, 'git_blob': subprocess.check_output(
+            command+['rev-parse', 'HEAD:'+relative], env=env).decode().strip(),
+            'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)})
     lines = actual.decode('utf-8').splitlines()
     start = next(i for i, line in enumerate(lines) if 'pub(crate) const VERSION: &str' in line)
     version = lines[start:start+4]
@@ -38,7 +54,9 @@ def record_native_compiler_source(output, env):
         raise ValueError('pinned upstream compiler version expression differs')
     output = Path(output)
     (output/'upstream-compiler-core.rs').write_bytes(actual)
-    receipt = {'upstream_revision': REVISION, 'path': SOURCE, 'cache_path': str(source),
+    receipt = {'upstream_revision': REVISION, 'engine_source_revision': REVISION,
+               'upstream_base_revision': UPSTREAM_BASE_REVISION, 'fork_patch_source_bindings': patch_sources,
+               'path': SOURCE, 'cache_path': str(source),
                'git_blob': blob, 'git_blob_matches_actual_bytes': True,
                'source_sha256': hashlib.sha256(actual).hexdigest(), 'source_bytes': len(actual),
                'version_expression_first_line': start+1, 'version_expression': version,

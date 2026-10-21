@@ -3,6 +3,8 @@
 use super::*;
 #[path = "public_batch_binding.rs"]
 mod batch_binding;
+#[path = "ordinary_physical_capture.rs"]
+mod ordinary_physical_capture;
 #[path = "public_working_tree_replay.rs"]
 mod public_working_tree_replay;
 #[path = "public_scope_ast.rs"]
@@ -217,7 +219,36 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
         }
         let queries = recipe["native_system_queries"].as_array().ok_or("System queries absent")?.iter().map(|q|
             json!({"operation":q["operation"],"path":format!("{cwd}/{}",q["path"].as_str().unwrap_or(""))})).collect::<Vec<_>>();
-        let system = json!({"profile":"workspace","root":cwd,"case_sensitive":case_sensitive,"files":{},"sdk_directory":null,"queries":queries});
+        // Ordinary physical System input: source bytes are acquired from the actual
+        // isolated workspace, never copied from recipe/expected output. Retained
+        // scope and SDK capture contexts keep their existing independent paths.
+        let physical_names = recipe["native_system_queries"]
+            .as_array()
+            .ok_or("System queries absent")?
+            .iter()
+            .map(|q| {
+                if q["operation"] != "read_file" {
+                    return Err("ordinary physical collector supports read_file only".to_string());
+                }
+                Ok(value_text(q, "path")?.to_string())
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        let physical = ordinary_physical_capture::capture(&root, &physical_names)?;
+        let physical_pins = |pins: &[ordinary_physical_capture::PhysicalPin]| {
+            pins.iter().map(|p|
+            json!({"path":p.absolute,"relative":p.relative,"present":p.bytes.is_some(),
+                "bytes":p.bytes.as_ref().map(|b|b.len()),"content_sha256":p.bytes.as_ref().map(|b|identity::digest_bytes(b))})
+        ).collect::<Vec<_>>()
+        };
+        let physical_before = physical_pins(&physical.pins);
+        let system = json!({"root":cwd,"profile":"workspace","case_sensitive":case_sensitive,
+            "files":physical.files,"utf16_files":{},"raw_files":{},"sdk_directory":null,"queries":queries});
+        save(
+            &dir.join("system-physical-capture-before.json"),
+            &json!({"kind":"ordinary-physical-system-input-v1", "context":"ordinary_workspace_only",
+            "request_descriptor_id":identity::digest(&system),"pins":physical_before,"retained_map_modified":false,
+            "claim":"bounded sequential physical acquisition, not atomic OS sandboxing"}),
+        )?;
         let path = dir.join("system.json");
         save(&path, &system)?;
         let outcome = invoke(
@@ -230,6 +261,12 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
             &dir.join("system-process.json"),
             helper,
             &pins,
+        )?;
+        let physical_after = physical.observe_unchanged()?;
+        save(
+            &dir.join("system-physical-capture-after.json"),
+            &json!({"kind":"ordinary-physical-system-input-v1", "context":"ordinary_workspace_only",
+            "request_descriptor_id":identity::digest(&system),"pins":physical_pins(&physical_after),"matched_before":true,"retained_map_modified":false}),
         )?;
         let system_observed = json_success(&outcome)?;
         if system_observed["request_descriptor_id"] != identity::digest(&system)

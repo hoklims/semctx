@@ -45,6 +45,54 @@ class FullPlanTests(unittest.TestCase):
         self.assertIs(f.project_full_admission({}, {'consumer_kind': 't00-public-working-tree-admission-v1',
             'source_baseline': '3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b', 'portable_projection': actual}), actual)
 
+    def test_public_bridge_routes_only_bound_actual_full_consumer_dto(self):
+        # Synthetic formatter input only: no native query or qualification credit.
+        prepared = self.plan['recipes'][0]
+        observed = {'consumer_kind': 't00-public-working-tree-admission-v1',
+                    'source_baseline': '3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b',
+                    'consumer_artifact_sha256': 'a'*64,
+                    'repository_root': prepared['repository_root'],
+                    '_rust_full_admission_context': {'consumer_artifact_sha256': 'a'*64},
+                    'portable_projection': {'verdict': 'BLOCK'}}
+        try:
+            public_bridge.lifecycle_projection_guard(prepared, observed)
+        except ValueError as error:
+            self.fail('Bound full consumer DTO was rejected: '+str(error))
+        self.assertIs(lifecycle.project_lifecycle(prepared, observed), observed['portable_projection'])
+        for field, poison in [('consumer_kind', 'component-only'), ('source_baseline', 'foreign'),
+                              ('consumer_artifact_sha256', 'b'*64), ('portable_projection', None)]:
+            changed = copy.deepcopy(observed)
+            changed[field] = poison
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                public_bridge.lifecycle_projection_guard(prepared, changed)
+        foreign = copy.deepcopy(prepared)
+        foreign['adapter'] = 'lifecycle_adapter'
+        with self.assertRaises(ValueError):
+            public_bridge.lifecycle_projection_guard(foreign, observed)
+        changed = copy.deepcopy(observed)
+        del changed['_rust_full_admission_context']
+        with self.assertRaises(ValueError):
+            public_bridge.lifecycle_projection_guard(prepared, changed)
+
+    def test_public_bridge_joins_recipe_capture_and_consumer_before_projection(self):
+        from public_runtime import native_canonical
+        prepared = copy.deepcopy(self.plan['recipes'][0])
+        prepared['source_capture_stream_sha256'] = 'c'*64
+        observed = {'consumer_kind': 't00-public-working-tree-admission-v1',
+                    'source_baseline': '3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b',
+                    'consumer_artifact_sha256': 'a'*64, 'portable_projection': {'verdict': 'BLOCK'}}
+        evidence = {'lifecycle_observed': observed, 'binding': {
+            'source_recipe_id': 'sha256:'+public_bridge.digest(native_canonical(prepared).encode('utf-8')),
+            'capture_stream_sha256': 'c'*64, 'consumer_artifact_sha256': 'a'*64}}
+        self.assertEqual(public_bridge.bound_lifecycle_observation(prepared, evidence)['portable_projection'],
+                         observed['portable_projection'])
+        self.assertNotIn('_rust_full_admission_context', observed)
+        for key in ['source_recipe_id', 'capture_stream_sha256', 'consumer_artifact_sha256']:
+            changed = copy.deepcopy(evidence)
+            changed['binding'][key] = 'foreign'
+            with self.subTest(binding=key), self.assertRaises(ValueError):
+                public_bridge.bound_lifecycle_observation(prepared, changed)
+
 
     def test_actual_public_planner_keeps_full_consumer_tag_and_legacy_default(self):
         with tempfile.TemporaryDirectory() as temporary:

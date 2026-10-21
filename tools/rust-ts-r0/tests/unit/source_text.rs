@@ -32,3 +32,22 @@ fn lone_surrogates_and_astral_pairs_keep_javascript_utf16_width() {
     ];
     assert_eq!(to_units(&from_units(&markers)), markers);
 }
+
+#[test]
+fn utf16_source_surrogates_preserve_scanner_units_and_original_bytes() {
+    use ts_goport::scanner_util::{GoUnit, go_string_bytes, go_unit_at};
+    for (unit, bytes) in [(0xd801, [0xed, 0xa0, 0x81]), (0xdc02, [0xed, 0xb0, 0x82])] {
+        let text = from_units(&[unit]);
+        assert!(
+            matches!(go_unit_at(&text,0).0,GoUnit::Surrogate(value) if value == u32::from(unit))
+        );
+        assert_eq!(&*go_string_bytes(&text), bytes.as_slice());
+        assert_eq!(to_units(&text), [unit]);
+        assert_eq!(
+            ts_goport::ast::compute_position_map(&text).utf8_to_utf16(text.len() as i32),
+            1
+        );
+    }
+    let scalar = from_units(&[0xfffd]);
+    assert!(matches!(go_unit_at(&scalar, 0).0, GoUnit::Char('\u{fffd}')));
+}

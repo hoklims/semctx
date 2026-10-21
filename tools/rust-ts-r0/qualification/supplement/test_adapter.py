@@ -78,6 +78,31 @@ class DraftAdapterTests(unittest.TestCase):
                 self.assertIsNone(row['parameters']['case_sensitive'])
                 self.assertEqual(context['options'], row['parameters']['compiler_options_ts'])
 
+    def test_snapshot_full_error_and_prefix_are_both_frozen(self):
+        row = next(row for row in self.document['rows'] if row['id'] == 'source::snapshot')
+        recipe = next(r for r in row['recipes'] if r['surface'] == 'snapshot_boundary_cli')
+        expected = resolve(FROZEN, self.indexed, recipe['expected_error_ref'])
+        self.assertEqual(recipe.get('expected_error'), expected)
+        self.assertEqual(recipe['expected_error_code'], expected.split(':', 1)[0])
+        with tempfile.TemporaryDirectory() as directory:
+            registry = Path(directory)/'registry.json'
+            abi = Path(directory)/'abi-freeze.json'
+            def check(document):
+                registry.write_text(json.dumps(document), encoding='utf-8')
+                abi.write_text(json.dumps({'manifest_sha256': MANIFEST_SHA, 'execution_enabled': False, 'files': {'registry.json': digest(registry.read_bytes())}}), encoding='utf-8')
+                return validate(registry, FROZEN, abi)
+            check(self.document)
+            for error in [recipe['expected_error_code'], expected+' changed suffix', None]:
+                bad = copy.deepcopy(self.document)
+                item = next(r for row in bad['rows'] if row['id']=='source::snapshot' for r in row['recipes'] if r['surface']=='snapshot_boundary_cli')
+                if error is None: item.pop('expected_error', None)
+                else: item['expected_error'] = error
+                with self.assertRaises((ValueError, KeyError)): check(bad)
+            bad = copy.deepcopy(self.document)
+            item = next(r for row in bad['rows'] if row['id']=='source::snapshot' for r in row['recipes'] if r['surface']=='snapshot_boundary_cli')
+            item['expected_error_code'] = 'OTHER_PREFIX'
+            with self.assertRaises(ValueError): check(bad)
+
     def test_no_program_is_invented_for_early_baseline_returns(self):
         row = next(row for row in self.document['rows'] if row['id'] == 'source::snapshot')
         self.assertFalse(row['baseline_program_created'])

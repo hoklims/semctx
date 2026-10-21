@@ -171,7 +171,7 @@ dependencies = [
 [[package]]
 name = "goport_core"
 version = "7.0.0-dev"
-source = "git+https://github.com/pingdotgg/ts-rust.git?rev=780dc512d64f40afebffa6a7028207649fb7ed1c#780dc512d64f40afebffa6a7028207649fb7ed1c"
+source = "git+https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c442ab71a2fce7a01980ed892bd27b9842"
 dependencies = [
  "bumpalo",
  "flate2",
@@ -192,7 +192,7 @@ dependencies = [
 [[package]]
 name = "goport_lsproto"
 version = "7.0.0-dev"
-source = "git+https://github.com/pingdotgg/ts-rust.git?rev=780dc512d64f40afebffa6a7028207649fb7ed1c#780dc512d64f40afebffa6a7028207649fb7ed1c"
+source = "git+https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c442ab71a2fce7a01980ed892bd27b9842"
 dependencies = [
  "goport_util",
  "indexmap",
@@ -202,7 +202,7 @@ dependencies = [
 [[package]]
 name = "goport_util"
 version = "7.0.0-dev"
-source = "git+https://github.com/pingdotgg/ts-rust.git?rev=780dc512d64f40afebffa6a7028207649fb7ed1c#780dc512d64f40afebffa6a7028207649fb7ed1c"
+source = "git+https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c442ab71a2fce7a01980ed892bd27b9842"
 dependencies = [
  "indexmap",
  "lzma-rust2",
@@ -699,7 +699,7 @@ checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
 [[package]]
 name = "ts_goport"
 version = "7.0.0-dev"
-source = "git+https://github.com/pingdotgg/ts-rust.git?rev=780dc512d64f40afebffa6a7028207649fb7ed1c#780dc512d64f40afebffa6a7028207649fb7ed1c"
+source = "git+https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c442ab71a2fce7a01980ed892bd27b9842"
 dependencies = [
  "bumpalo",
  "flate2",

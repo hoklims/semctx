@@ -81,9 +81,9 @@ def prepare(package):
             'baseline_program_options': BASELINE_OPTIONS, 'baseline_program_records_joined': 21,
             'baseline_retained_map_bytes_joined': True,
             'baseline_actual_program_records': 21, 'native_queries': 0, 'planned_native_queries': 1,
-            'request_template': {'id': 'independent-token-guards', 'cwd': '$ROOT',
+            'request_template': {'id': 'independent-token-guards', 'cwd': '$ROOT', 'sdk_directory': '/sdk/lib',
                 'roots': ['main.ts'], 'files': files, 'options': OPTIONS, 'retained': True,
-                'qualified': False, 'roles': {}, 'selection': {}, 'disabled': [],
+                'qualified': True, 'roles': {}, 'selection': {}, 'disabled': [],
                 'utf16_files': {}, 'raw_files': {}},
             'qualified': False, 'qualification_credit': 0}
 

@@ -231,7 +231,7 @@ pub(super) fn observe(
     {
         return Err("native AST consumer artifact differs from frozen permit".into());
     }
-    let mut result = json!({"kind":"rust-consumer-native-ast-v1","engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c",
+    let mut result = json!({"kind":"rust-consumer-native-ast-v1","engine_revision":identity::ENGINE_REVISION,"engine_upstream_revision":identity::ENGINE_UPSTREAM_REVISION,
         "syntax_only":true,"semantic_program_substituted":false,"consumer_artifact_id":consumer_id,
         "request_descriptor_id":identity::digest(request),"input_manifest_id":raw["input_manifest_id"],"sdk_input_id":identity::digest(sdk),
         "source_parser_contract":"standalone native syntax parser; references and dependency visitor mirror baseline ts.createSourceFile Latest; semantic options/SDK remain bound to the independent actual C1 Program receipt",

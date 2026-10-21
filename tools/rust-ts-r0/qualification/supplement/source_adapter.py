@@ -94,7 +94,7 @@ def source_rows(root, indexed):
         row['provenance_only_fields'] = ['compilerBindingOrigins: auxiliary standalone Program, not the actual configuration use site', 'compilerOptions: auxiliary Program input; actual use-site context is authoritative where present']
         row['unmapped_expected_fields'] = []
         if name == 'snapshot':
-            row['snapshot_boundary'] = {'refusal_ref': reference(indexed, original_path, base+'/absentSnapshot'), 'graph_nodes_ref': reference(indexed, original_path, base+'/validCaptureNodes'), 'workspace_name': name, 'request_operation': 'qualified analyzeRepository with/without retained inputs', 'refusal_projection': 'Exact SOURCE_SNAPSHOT_REQUIRED code before the baseline explanatory colon; stderr/stdout/exit remain raw. Refusal carries no useful compiler facts.'}
+            row['snapshot_boundary'] = {'refusal_ref': reference(indexed, original_path, base+'/absentSnapshot'), 'graph_nodes_ref': reference(indexed, original_path, base+'/validCaptureNodes'), 'workspace_name': name, 'request_operation': 'qualified analyzeRepository with/without retained inputs', 'refusal_projection': 'Exact complete frozen SOURCE_SNAPSHOT_REQUIRED error string, including its explanatory suffix; the code prefix remains provenance only. stderr/stdout/exit remain raw and refusal carries no useful compiler facts.'}
         if 'scope' in baseline:
             row['gaps'].append('UNKNOWN_NATIVE_LIFECYCLE_MAPPING')
             row['unmapped_expected_fields'].append('scope: whole inspectRetainedQualifiedScope result, not syntax-only observation')

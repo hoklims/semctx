@@ -51,7 +51,7 @@ def prepare(frozen, public_registry=None):
             row['integration_status'] = 'EXPLICIT_DECLARATION_ROOT_COMPONENT_MODE_IMPLEMENTED_NOT_NATIVE_EXECUTED'
         if 'snapshot_boundary' in row:
             boundary=row['snapshot_boundary']
-            row['recipes'].append({'surface':'snapshot_boundary_cli','unit_id':row['id'], 'template':row['template'], 'workspace_name':boundary['workspace_name'], 'expected_error_code':resolve(frozen,indexed,boundary['refusal_ref']).split(':',1)[0], 'expected_error_ref':boundary['refusal_ref'], 'expected_nodes':resolve(frozen,indexed,boundary['graph_nodes_ref']), 'expected_nodes_ref':boundary['graph_nodes_ref'], 'source_capture_stream_sha256':'sha256:'+indexed['observed/primary/source-50/source-50.operations.jsonl']['sha256']})
+            row['recipes'].append({'surface':'snapshot_boundary_cli','unit_id':row['id'], 'template':row['template'], 'workspace_name':boundary['workspace_name'], 'expected_error':resolve(frozen,indexed,boundary['refusal_ref']), 'expected_error_code':resolve(frozen,indexed,boundary['refusal_ref']).split(':',1)[0], 'expected_error_ref':boundary['refusal_ref'], 'expected_nodes':resolve(frozen,indexed,boundary['graph_nodes_ref']), 'expected_nodes_ref':boundary['graph_nodes_ref'], 'source_capture_stream_sha256':'sha256:'+indexed['observed/primary/source-50/source-50.operations.jsonl']['sha256']})
         row['operation_mappings'] = [{'baseline_operation': check['operation'], 'entrypoint': row['entrypoint'], 'selector': check['target'], 'expected_ref': check['expected_ref']} for check in row['checks']]
         row['execution_enabled'] = False
     attach_source_scopes({"rows": rows}, frozen)

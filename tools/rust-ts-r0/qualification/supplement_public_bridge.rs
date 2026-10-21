@@ -343,13 +343,13 @@ fn lifecycle_invocation(prepared: &Value, fixture: &Value, dir: &Path) -> Result
             }
         }
     }
-    let binding = json!({"source_recipe_id":identity::digest(prepared),"producer_artifact_id":format!("sha256:{}",value_text(fixture,"artifact_sha256")?),"sdk_input_id":identity::digest(&sdk),"capture_stream_sha256":prepared["source_capture_stream_sha256"],"actual_process_receipts":receipts});
+    let binding = json!({"source_recipe_id":identity::digest(prepared),"producer_artifact_id":format!("sha256:{}",value_text(fixture,"artifact_sha256")?),"sdk_input_id":identity::digest(&sdk),"capture_stream_sha256":prepared["source_capture_stream_sha256"],"consumer_artifact_sha256":value_text(fixture,"public_consumer_artifact_sha256")?,"actual_process_receipts":receipts});
     let evidence = json!({"binding_verified":true,"binding":binding,"lifecycle_observed":observed,"native_invocation_id":identity::digest(&json!({"consumer":result,"receipts":receipts}))});
     save(&dir.join("bridge-evidence.json"), &evidence)?;
     Ok(evidence)
 }
 
-fn snapshot_refusal_matches(outcome: &Value, code: &str) -> bool {
+fn snapshot_refusal_matches(outcome: &Value, expected_error: &str) -> bool {
     capture_integrity(outcome).is_ok()
         && outcome["kind"] == "nonzero"
         && outcome["exit_code"] == 1
@@ -357,7 +357,7 @@ fn snapshot_refusal_matches(outcome: &Value, code: &str) -> bool {
         && outcome["stderr"]
             .as_str()
             .and_then(|text| serde_json::from_str::<Value>(text).ok())
-            == Some(json!({"error":code}))
+            == Some(json!({"error":expected_error}))
 }
 
 pub(super) fn snapshot_boundary(
@@ -393,45 +393,49 @@ pub(super) fn snapshot_boundary(
     };
     prepared["request"]["retained"] = json!(false);
     let refused = native_invocation(&prepared, fixture, &dir.join("absent-capture"))?;
-    let refusal = snapshot_refusal_matches(
-        &refused["outcome"],
-        value_text(recipe, "expected_error_code")?,
-    );
-    let result = json!({"state":if graph&&refusal{"SNAPSHOT_CONSUMER_BOUNDARY_OBSERVATIONS_MATCH"}else{"RAW_SNAPSHOT_BOUNDARY_NONPASS"},"pass":graph&&refusal,"captured_graph_match":graph,"controlled_refusal_match":refusal,"expected_error_ref":recipe["expected_error_ref"],"expected_nodes_ref":recipe["expected_nodes_ref"],"valid_capture_invocation":captured["native_invocation_id"],"absent_capture_invocation":refused["native_invocation_id"],"refusal_binding_kind":"EXTERNAL_EXACT_INVOCATION_AND_BYTE_CAPTURE_ONLY_NO_USEFUL_NATIVE_FACTS","qualification_credit":0});
+    let refusal =
+        snapshot_refusal_matches(&refused["outcome"], value_text(recipe, "expected_error")?);
+    let result = json!({"state":if graph&&refusal{"SNAPSHOT_CONSUMER_BOUNDARY_OBSERVATIONS_MATCH"}else{"RAW_SNAPSHOT_BOUNDARY_NONPASS"},"pass":graph&&refusal,"captured_graph_match":graph,"controlled_refusal_match":refusal,"expected_error":recipe["expected_error"],"expected_error_code":recipe["expected_error_code"],"expected_error_ref":recipe["expected_error_ref"],"expected_nodes_ref":recipe["expected_nodes_ref"],"valid_capture_invocation":captured["native_invocation_id"],"absent_capture_invocation":refused["native_invocation_id"],"refusal_binding_kind":"EXTERNAL_EXACT_INVOCATION_AND_BYTE_CAPTURE_ONLY_NO_USEFUL_NATIVE_FACTS","qualification_credit":0});
     save(&dir.join("result.json"), &result)?;
     Ok(result)
 }
 
 #[test]
 fn comparator_snapshot_refusal_cannot_pass_from_useful_stdout_or_other_error() {
-    let good = comparator_capture(
-        "nonzero",
-        1,
-        "",
-        "{\"error\":\"SOURCE_SNAPSHOT_REQUIRED\"}\n",
-    );
-    assert!(snapshot_refusal_matches(&good, "SOURCE_SNAPSHOT_REQUIRED"));
-    let useful = comparator_capture(
-        "nonzero",
-        1,
-        "{\"assembly\":{}}",
-        "{\"error\":\"SOURCE_SNAPSHOT_REQUIRED\"}\n",
-    );
+    let expected = "SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs";
+    let capture = |error: &str, stdout: &str| {
+        comparator_capture(
+            "nonzero",
+            1,
+            stdout,
+            &format!("{}\n", json!({"error":error})),
+        )
+    };
+    let good = capture(expected, "");
+    assert!(snapshot_refusal_matches(&good, expected));
+    for error in [
+        "SOURCE_SNAPSHOT_REQUIRED",
+        "SOURCE_SNAPSHOT_REQUIRED: changed explanatory suffix",
+        "OTHER",
+    ] {
+        assert!(!snapshot_refusal_matches(&capture(error, ""), expected));
+    }
     assert!(!snapshot_refusal_matches(
-        &useful,
-        "SOURCE_SNAPSHOT_REQUIRED"
+        &capture(expected, "{\"assembly\":{}}"),
+        expected
     ));
-    let wrong = comparator_capture("nonzero", 1, "", "{\"error\":\"OTHER\"}");
-    assert!(!snapshot_refusal_matches(
-        &wrong,
-        "SOURCE_SNAPSHOT_REQUIRED"
-    ));
-    let mut failed = good;
-    failed["kind"] = json!("timeout");
-    assert!(!snapshot_refusal_matches(
-        &failed,
-        "SOURCE_SNAPSHOT_REQUIRED"
-    ));
+    for (field, value) in [
+        ("kind", json!("timeout")),
+        ("kind", json!("capture_error")),
+        ("exit_code", json!(0)),
+        ("stderr_bytes", json!(0)),
+        ("stderr_hash", json!("foreign")),
+        ("stdout", json!("truncated-useful")),
+    ] {
+        let mut bad = good.clone();
+        bad[field] = value;
+        assert!(!snapshot_refusal_matches(&bad, expected));
+    }
 }
 
 #[cfg(test)]

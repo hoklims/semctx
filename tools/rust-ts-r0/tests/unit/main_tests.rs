@@ -2357,7 +2357,9 @@ fn development_review_boundary_rejects_qualified_without_retained_capture() {
         &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
     )
     .unwrap();
-    assert!(matches!(analyze(request,sdk),Err(error) if error=="SOURCE_SNAPSHOT_REQUIRED"));
+    assert!(
+        matches!(analyze(request,sdk),Err(error) if error=="SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs")
+    );
 }
 
 #[test]

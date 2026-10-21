@@ -1190,7 +1190,7 @@ fn analyze_internal(
         validate_source_component_roots(&request)?;
     }
     if request.qualified && !request.retained {
-        return Err("SOURCE_SNAPSHOT_REQUIRED".into());
+        return Err("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs".into());
     }
     if request.id.is_empty() {
         return Err("empty request identity".into());
@@ -1400,7 +1400,7 @@ fn analyze_internal(
         return Ok(
             serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,
             "input_manifest_id":input_identity,"producer_artifact_id":artifact,
-            "engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,
+            "engine_revision":identity::ENGINE_REVISION,"engine_upstream_revision":identity::ENGINE_UPSTREAM_REVISION,"native_compiler_version":core::version(),"sdk_version":sdk.version,
             "subjects":subjects,"complete":true,"global_admission_inferred":false,
             "extraction_executed":false,"raw_extraction":{"imports":[]},"assembly":{"nodes":[],"edges":[]},
             "confinementObservation":confinement,"capture_probes":fs.log.borrow().clone(),
@@ -1768,7 +1768,7 @@ fn analyze_internal(
         .into_iter()
         .map(|(path, line, specifier)| format!("{path}:{line}:{specifier}"))
         .collect::<Vec<_>>();
-    let mut observed = serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"});
+    let mut observed = serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":identity::ENGINE_REVISION,"engine_upstream_revision":identity::ENGINE_UPSTREAM_REVISION,"native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"});
     if declaration_roots {
         observed["observation_mode"] = serde_json::json!("declaration_roots");
         observed["status"] =

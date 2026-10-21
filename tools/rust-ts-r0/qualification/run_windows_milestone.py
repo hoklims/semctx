@@ -21,6 +21,7 @@ from additional_digest_dispositions import IDS as DIGEST_IDS, additional_digest_
 from configuration_6046_disposition import configuration_6046_disposition
 from prepare_token_family import prepare as prepare_token_family
 from native_compiler_identity import record_native_compiler_source
+from native_build_identity import NativeBuildIdentity
 
 AUTHORITY = 'owner-reviewed-macos-linux-authorizes-windows-observation'
 SDK_SHA = 'f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5'
@@ -229,13 +230,20 @@ def main():
     run(repo, out, 'rustc-version', ['rustc', '--version', '--verbose'], env, timeout=30)
     run(repo, out, 'cargo-version', ['cargo', '--version'], env, timeout=30)
     run(repo, out, 'python-version', [sys.executable, '--version'], env, timeout=30)
-    run(repo, out, 'helper-build', ['cargo', 'build', '--locked', '--offline', '--release', '--bins', '--manifest-path', 'tools/gates/Cargo.toml'], env)
-    run(repo, out, 'observer-build', ['cargo', 'test', '--locked', '--offline', '--release', '--features', 'qualification-observer', '--test', 'qualification_replay', '--no-run', '--message-format=json', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], env)
+    builds = NativeBuildIdentity(repo, out, env, args.expected_head, Path(__file__))
+    def execute_build(label, argv, build_env):
+        return run(repo, out, label, argv, build_env)
+    builds.run('helper-build', ['cargo', 'build', '--locked', '--offline', '--release', '--bins', '--manifest-path', 'tools/gates/Cargo.toml'], execute_build)
+    builds.bind_artifact('helper', 'helper-build', repo/'tools/gates/target/release/semctx-gates.exe')
+    builds.bind_artifact('transport_fixture', 'helper-build', repo/'tools/gates/target/release/semctx-gates-fixture.exe')
+    builds.run( 'observer-build', ['cargo', 'test', '--locked', '--offline', '--release', '--features', 'qualification-observer', '--test', 'qualification_replay', '--no-run', '--message-format=json', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], execute_build)
     messages = [json.loads(line) for line in (out/'observer-build.stdout').read_text().splitlines()]
     observers = [m['executable'] for m in messages if m.get('reason') == 'compiler-artifact'
                  and m.get('target', {}).get('name') == 'qualification_replay' and m.get('executable')]
     require(len(observers) == 1, 'one actual observer Cargo artifact required')
-    run(repo, out, 'standalone-restore', ['cargo', 'build', '--locked', '--offline', '--release', '--bin', 'semctx-r0-probe', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], env)
+    builds.bind_artifact('qualification_observer', 'observer-build', Path(observers[0]))
+    builds.run( 'standalone-restore', ['cargo', 'build', '--locked', '--offline', '--release', '--bin', 'semctx-r0-probe', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], execute_build)
+    builds.bind_artifact('artifact', 'standalone-restore', repo/'tools/rust-ts-r0/target/release/semctx-r0-probe.exe')
     run(repo, out, 'recipes', [sys.executable, str(repo/'tools/rust-ts-r0/qualification/prepare_recipes.py'), '--output', str(out/'recipes')], env)
     run(repo, out, 'registry', [sys.executable, str(runtime/'prepare_registry.py'), '--frozen', str(frozen), '--public-registry', str(runtime/'public-registry.draft.json'), '--output', str(out/'registry-draft')], env)
     registry = load(out/'registry-draft/registry.json')
@@ -263,6 +271,8 @@ def main():
         shutil.copy2(path, copied)
         require(sha(copied) == sha(path), 'frozen binary differs')
         fixture[name+'_path'], fixture[name+'_sha256'] = str(copied), sha(copied)
+    build_binding = builds.finalize(fixture)
+    fixture.update(build_environment_path=build_binding['path'], build_environment_sha256=build_binding['sha256'])
     for name, path in {'sdk': out/'sdk-input.json', 'recipes': out/'recipes/replay-recipes.json', 'legacy_identity_inputs': out/'legacy-identity-inputs.json'}.items():
         fixture[name+'_path'], fixture[name+'_sha256'] = str(path), sha(path)
     run(repo, out, 'fixture-fragment', [sys.executable, str(runtime/'write_verifier_fixture_fields.py'), '--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')], env)

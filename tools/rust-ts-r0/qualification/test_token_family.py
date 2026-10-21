@@ -34,8 +34,9 @@ class TokenFamilyAuthorityTests(unittest.TestCase):
         self.assertEqual(result['counts'], {'issuance': 13, 'revalidation': 7, 'map_identity': 1})
         self.assertEqual(set(result['request_template']['files']), {'main.ts', 'package.json'})
         self.assertTrue(result['request_template']['retained'])
-        self.assertFalse(result['request_template']['qualified'])
+        self.assertTrue(result['request_template']['qualified'])
         self.assertEqual(result['request_template']['roots'], ['main.ts'])
+        self.assertEqual(result['request_template'].get('sdk_directory'), '/sdk/lib')
         for name, text in result['request_template']['files'].items():
             self.assertEqual(token.digest(text.encode()), result['source_pins'][name]['sha256'])
         self.assertEqual(result['expected_sha256'], token.EXPECTED_SHA)

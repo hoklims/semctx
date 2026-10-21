@@ -17,7 +17,7 @@ fn validate(plan: &Value, enabled: bool) -> Result<(), String> {
         || plan["execution_enabled"] != enabled
         || plan["candidate_execution_authorized"] != enabled
         || plan["request_template"]["retained"] != true
-        || plan["request_template"]["qualified"] != false
+        || plan["request_template"]["qualified"] != true
         || plan["request_template"]["roots"] != json!(["main.ts"])
         || plan["request_template"]["files"]
             .as_object()
@@ -29,10 +29,10 @@ fn validate(plan: &Value, enabled: bool) -> Result<(), String> {
     {
         return Err("independent token family authority or denominator differs".into());
     }
-    let canonical_request = json!({"id":"independent-token-guards","cwd":"$ROOT","roots":["main.ts"],
+    let canonical_request = json!({"id":"independent-token-guards","cwd":"$ROOT","sdk_directory":"/sdk/lib","roots":["main.ts"],
         "files":plan["request_template"]["files"],"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler",
         "allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},
-        "retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+        "retained":true,"qualified":true,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
     if plan["request_template"] != canonical_request
         || plan["baseline_program_options"]
             != json!({"target":9,"module":99,"moduleResolution":100,"allowJs":true,"jsx":1,"skipLibCheck":true,"noEmit":true,"strict":false})
@@ -165,7 +165,7 @@ fn comparator_token_family_refuses_disabled_foreign_or_changed_source_plan() {
         "baseline_program_options":{"target":9,"module":99,"moduleResolution":100,"allowJs":true,"jsx":1,"skipLibCheck":true,"noEmit":true,"strict":false},
         "baseline_program_records_joined":21,"baseline_retained_map_bytes_joined":true,
         "planned_native_queries":1,"native_queries":0,"execution_enabled":true,"candidate_execution_authorized":true,
-        "request_template":{"id":"independent-token-guards","cwd":"$ROOT","retained":true,"qualified":false,"roots":["main.ts"],"files":files,
+        "request_template":{"id":"independent-token-guards","cwd":"$ROOT","sdk_directory":"/sdk/lib","retained":true,"qualified":true,"roots":["main.ts"],"files":files,
         "options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},
         "roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}},
         "source_pins":source_pins,"expected":read_json(&root.join("expected.json")).unwrap()});
@@ -182,6 +182,7 @@ fn comparator_token_family_refuses_disabled_foreign_or_changed_source_plan() {
         "/expected/mapIdentity",
         "/request_template/id",
         "/request_template/cwd",
+        "/request_template/sdk_directory",
         "/request_template/options/allowJs",
         "/request_template/options/moduleResolution",
         "/request_template/roles",

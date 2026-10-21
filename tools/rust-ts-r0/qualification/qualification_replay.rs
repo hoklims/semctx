@@ -933,7 +933,7 @@ fn version_arbitration(recipe: &Value, observations: &[Value], bindings_verified
         || (id != "T00-ARB-002"
             && (observed["native_compiler_version"] != "7.1.0-dev"
                 || observed["sdk_version"] != "5.9.3"
-                || observed["engine_revision"] != "780dc512d64f40afebffa6a7028207649fb7ed1c"))
+                || observed["engine_revision"] != identity::ENGINE_REVISION))
     {
         return Value::Null;
     }
