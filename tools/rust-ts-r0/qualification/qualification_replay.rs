@@ -6599,3 +6599,93 @@ fn repair_outline_required_absences_reject_extra_native_projection_fields() {
         }
     }
 }
+
+#[test]
+fn repair_outline_module_links_whole_existing_inputs() {
+    let ids = [
+        "OL-M06::base",
+        "OL-M07::base",
+        "OL-M13::base",
+        "OL-M14::base",
+        "OL-M21::base",
+        "OL-M23::base",
+        "OL-M24::base",
+        "OL-M25::base",
+    ];
+    repair_units(&ids);
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("units-OL-M06");
+    for (index, id) in ids.iter().enumerate() {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|recipe| recipe["unit_id"] == *id)
+            .unwrap();
+        let outcome: process::Outcome = serde_json::from_value(
+            read_json(&out.join(format!("unit-{index:03}/process-outcome.json"))).unwrap(),
+        )
+        .unwrap();
+        let original: Value = serde_json::from_str(&outcome.stdout).unwrap();
+        let checks = recipe["checks"].as_array().unwrap();
+        let source = "src/specimen.ts";
+        let link = &original["outlines"][source]["moduleLinks"][0];
+        let type_only = matches!(index, 1 | 3 | 6 | 7);
+        assert_eq!(
+            link.get("whole"),
+            if type_only { None } else { Some(&json!(true)) }
+        );
+        for replacement in [json!(true), json!(false), Value::Null] {
+            if !type_only && replacement == json!(true) {
+                continue;
+            }
+            let mut poisoned = original.clone();
+            poisoned["outlines"][source]["moduleLinks"][0]["whole"] = replacement;
+            assert!(
+                checks
+                    .iter()
+                    .any(|check| evaluate(&poisoned, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+                "whole mutation accepted: {id}"
+            );
+        }
+        let mut poisoned = original;
+        poisoned["outlines"][source]["moduleLinks"][0]
+            .as_object_mut()
+            .unwrap()
+            .remove("whole");
+        if !type_only {
+            assert!(
+                checks
+                    .iter()
+                    .any(|check| evaluate(&poisoned, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+                "missing whole accepted: {id}"
+            );
+        }
+    }
+}
+
+#[test]
+fn comparator_outline_whole_distinguishes_presence_from_false_or_null() {
+    let expected = json!([{"kind":"import","specifier":"./mod","line":1}]);
+    let absences = json!([{"index":0,"fields":["whole"]}]);
+    assert!(compare(&expected, &expected, "ordered_projected_eq").unwrap());
+    assert!(compare(&expected, &absences, "indexed_field_absences").unwrap());
+    for value in [json!(true), json!(false), Value::Null] {
+        let mut poisoned = expected.clone();
+        poisoned[0]["whole"] = value;
+        assert!(!compare(&poisoned, &absences, "indexed_field_absences").unwrap());
+    }
+    let mut value_link = expected.clone();
+    value_link[0]["whole"] = json!(true);
+    assert!(!compare(&expected, &value_link, "ordered_projected_eq").unwrap());
+    for value in [json!(false), Value::Null] {
+        let mut poisoned = value_link.clone();
+        poisoned[0]["whole"] = value;
+        assert!(!compare(&poisoned, &value_link, "ordered_projected_eq").unwrap());
+    }
+}

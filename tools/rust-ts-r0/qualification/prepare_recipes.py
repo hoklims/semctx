@@ -1300,6 +1300,22 @@ def complete_component_fields(recipe):
             if not any(x['target']==path and x.get('expected')==expected and x.get('mode')=='eq' and x.get('observation',0)==observation for x in recipe.get('checks',[])+additions):
                 additions.append(check(path,expected,'eq','actual named component completeness',observation=observation))
     recipe.setdefault('checks',[]).extend(additions)
+derived_path = ROOT / 'docs/research/rust-ts-r0/resumption/outline-link-whole-assertions-20261021.json'
+derived = json.loads(derived_path.read_text(encoding='utf-8'))
+for index, assertion in enumerate(derived['assertions']):
+    recipe = next(row for row in recipes if row['unit_id'] == assertion['unit_id'])
+    source = assertion['source_path']
+    if (recipe['frozen_unit_pointer'] != assertion['frozen_unit_pointer']
+            or recipe['frozen_unit_sha256'] != assertion['frozen_unit_sha256']
+            or hashlib.sha256(recipe['requests'][0]['files'][source].encode()).hexdigest()
+            != assertion['input_source_sha256']):
+        raise ValueError('derived outline assertion does not match existing frozen input')
+    origin = derived_path.relative_to(ROOT).as_posix() + f'#/assertions/{index}'
+    target = ['outlines', source, 'moduleLinks']
+    recipe['checks'].append(check(target, assertion['module_links'], 'ordered_projected_eq', origin+'/module_links'))
+    if assertion['indexed_field_absences']:
+        recipe['checks'].append(check(target, assertion['indexed_field_absences'], 'indexed_field_absences', origin+'/indexed_field_absences'))
+
 for recipe in recipes:
     complete_component_fields(recipe)
     recipe['prepared_state']='MAPPED_REQUIRES_PASS2_DTO_FREEZE_AND_REVIEW' if not recipe['gaps'] else 'PARTIAL_OR_NOT_EXECUTABLE_EXPLICIT_GAPS'

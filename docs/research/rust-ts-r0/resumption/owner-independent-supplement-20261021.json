@@ -1,0 +1,37 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-21",
+  "authority": {
+    "owner": "Mainteneur utilisateur de cette conversation",
+    "source": "Choix explicite du mainteneur après présentation des lacunes de couverture des entrées gelées.",
+    "exactUserChoice": "Créer un lot minimal de témoins indépendants, gelé séparément avant toute correction du candidat, pour combler uniquement les lacunes démontrées (recommandé)."
+  },
+  "state": "AUTHORIZED_MINIMAL_SUPPLEMENT_NOT_YET_FROZEN_OR_EXECUTED",
+  "supersedes": {
+    "record": "owner-execution-and-custody-20261020.json",
+    "scope": "L'interdiction de nouveau cas est levée uniquement pour ce lot complémentaire minimal couvrant des lacunes démontrées. Les autres limites restent applicables."
+  },
+  "scope": {
+    "purpose": "Fournir des témoins positifs et contre-exemples pertinents aux propriétés requises dont les entrées gelées ne permettent pas la qualification.",
+    "independentAuthor": "/root/independent_gap_witnesses",
+    "sourceOfTruth": "Baseline produit 3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b et oracle TypeScript 5.9.3, sans consultation du prototype ou de ses résultats.",
+    "freezeOrder": "Attentes, entrées, dénominateur complémentaire et identités gelés séparément avant toute correction du producteur en réponse à ces témoins.",
+    "admission": "Le gel devra être vérifié avant exécution. Une proposition, une association statique ou cette autorisation n'accorde aucun crédit."
+  },
+  "preserved": {
+    "originalQualificationUnits": 354,
+    "originalSupportUnits": 51,
+    "obligations": 240,
+    "originalInputsAndExpectations": "UNCHANGED",
+    "historicalOutcomesAndCounters": "UNCHANGED",
+    "reservedCorpus": "Les 23 cas et 26 variantes restent indépendants, privés et distincts de ce complément.",
+    "previousRejectedDrafts": "Les 14 paires prospectives et 3 compléments précédemment rejetés ne sont pas adoptés automatiquement."
+  },
+  "limits": [
+    "Aucune réécriture du gel initial ou requalification rétroactive des campagnes historiques.",
+    "Lot minimal limité aux lacunes démontrées, sans extension implicite du profil produit.",
+    "Aucune observation du candidat par l'auteur indépendant des attentes.",
+    "Aucun crédit automatique, aucune décision R0 et aucune fusion établis par cet enregistrement.",
+    "Ordre natif macOS et Linux ARM64 avant le jalon Windows CI conservé; pas de lancement manuel de CI."
+  ]
+}

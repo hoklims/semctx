@@ -203,6 +203,34 @@ class LocalEvidenceArchiveTest(unittest.TestCase):
 
 
 class RecipeOutputTest(unittest.TestCase):
+    def test_existing_outline_units_compare_complete_links_and_type_only_absence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = pathlib.Path(directory) / 'recipes'
+            result = self.invoke('--output', str(output))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            recipes = json.loads((output / 'replay-recipes.json').read_text(encoding='utf-8'))
+            root = pathlib.Path(__file__).resolve().parents[3]
+            derived_path = 'docs/research/rust-ts-r0/resumption/outline-link-whole-assertions-20261021.json'
+            derived = json.loads((root / derived_path).read_text(encoding='utf-8'))
+            for case in ['M06', 'M07', 'M13', 'M14', 'M21', 'M23', 'M24', 'M25']:
+                row = next(row for row in recipes['recipes'] if row['unit_id'] == f'OL-{case}::base')
+                links = [check for check in row['checks']
+                         if check['target'] == ['outlines', 'src/specimen.ts', 'moduleLinks']]
+                self.assertEqual(len(links), 2 if case in ['M07', 'M14', 'M24', 'M25'] else 1)
+                self.assertEqual(links[0]['mode'], 'ordered_projected_eq')
+                self.assertEqual(len(links[0]['expected']), 1)
+                index, assertion = next((index, assertion)
+                                        for index, assertion in enumerate(derived['assertions'])
+                                        if assertion['unit_id'] == row['unit_id'])
+                self.assertEqual(links[0]['expected'], assertion['module_links'])
+                self.assertEqual(links[0]['expected_origin'], f'{derived_path}#/assertions/{index}/module_links')
+                if len(links) == 2:
+                    self.assertNotIn('whole', links[0]['expected'][0])
+                    self.assertEqual(links[1]['mode'], 'indexed_field_absences')
+                    self.assertEqual(links[1]['expected'], [{'index': 0, 'fields': ['whole']}])
+                else:
+                    self.assertIs(links[0]['expected'][0]['whole'], True)
+
     def invoke(self, *arguments):
         return subprocess.run(
             [sys.executable, str(pathlib.Path(__file__).with_name('prepare_recipes.py')), *arguments],
@@ -278,6 +306,9 @@ class RecipeOutputTest(unittest.TestCase):
                 relocated / 'docs/research/rust-ts-r0/cases',
                 ignore=shutil.ignore_patterns('reserved'),
             )
+            derived = pathlib.Path('docs/research/rust-ts-r0/resumption/outline-link-whole-assertions-20261021.json')
+            (relocated / derived).parent.mkdir(parents=True)
+            shutil.copyfile(root / derived, relocated / derived)
             reproduction = pathlib.Path('docs/research/rust-ts-r0/qualification/reproduction')
             (relocated / reproduction).mkdir(parents=True)
             name = 'qualifier-reproduction.tar.gz.b64'
