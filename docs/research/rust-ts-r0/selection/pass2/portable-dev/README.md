@@ -1,5 +1,7 @@
 # Portable C1 pass2 DEV evidence
 
+Current public C1 evidence custody is superseded by the [21 October restoration](../../../evidence/README.md). Earlier local-only statements below describe the 20 October checkpoint.
+
 This archive preserves textual DEV observations, source snapshots and historical
 verification attempts. Reports are copied byte for byte. The path map binds each
 original absolute path to its safe relative archive member, byte count and SHA256.

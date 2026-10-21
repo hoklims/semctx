@@ -1,5 +1,7 @@
 # T00 reopened: C1, R0 pending
 
+Current public C1 evidence custody is superseded by the [21 October restoration](../evidence/README.md). Earlier local-only statements below describe the 20 October checkpoint.
+
 Sébastien reopened T00 on 2026-10-18 from `STOP_BUDGET`. Work continues on
 `rust/365-t00`, PR [#386](https://github.com/hoklims/semctx/pull/386), from
 `6270bc10765d697a4311150e3e1a4aea8a726335`. This is the same T00; no new branch,

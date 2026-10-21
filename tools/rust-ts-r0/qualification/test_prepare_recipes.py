@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import pathlib
@@ -76,17 +77,59 @@ class LocalEvidenceArchiveTest(unittest.TestCase):
         result = self.invoke('--source-dir', str(self.source), '--verify', source_environment='/missing')
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_source_and_action_are_required_without_defaulting_to_a_url_or_current_directory(self):
-        for arguments, environment in [
-            (('--verify',), None), (('--verify',), ''),
-            (('--source-dir', '', '--verify'), None),
-            (('--source-dir', 'https://example.test', '--verify'), None),
-            (('--source-dir', str(self.source)), None),
-            (('--source-dir', str(self.source), '--verify', '--output', str(self.output)), None),
-            (('--base-url', 'https://example.test', '--verify'), None),
-        ]:
-            with self.subTest(arguments=arguments, environment=environment):
-                result = self.invoke(*arguments, source_environment=environment)
+    def test_repository_archive_is_verified_and_restored_without_a_private_directory(self):
+        self.entry['repository_path'] = 'docs/research/rust-ts-r0/evidence/sample.tar.gz.b64'
+        self.save_index([self.entry])
+        checkout = self.root / 'checkout'
+        script = checkout / 'tools/rust-ts-r0/qualification/fetch_evidence.py'
+        script.parent.mkdir(parents=True)
+        shutil.copyfile(pathlib.Path(__file__).with_name('fetch_evidence.py'), script)
+        archive = checkout / self.entry['repository_path']
+        archive.parent.mkdir(parents=True)
+        archive.write_bytes(base64.encodebytes(b'abc'))
+        for content, succeeds in [(base64.encodebytes(b'abc'), True),
+                                  (b'YWJj!\n', False), (base64.encodebytes(b'abd'), False),
+                                  (base64.encodebytes(b'abcd'), False), (None, False)]:
+            if content is None:
+                archive.unlink()
+            else:
+                archive.write_bytes(content)
+            for action in [('--verify',), ('--output', str(self.output))]:
+                with self.subTest(content=content, action=action):
+                    environment = dict(os.environ)
+                    environment.pop('SEMCTX_T00_EVIDENCE_DIRECTORY', None)
+                    result = subprocess.run(
+                        [sys.executable, str(script), '--index', str(self.index), *action],
+                        capture_output=True, text=True, timeout=10, check=False, env=environment,
+                    )
+                    self.assertEqual(result.returncode == 0, succeeds, result.stderr)
+                    if self.output.exists():
+                        if succeeds:
+                            self.assertEqual((self.output / 'sample.tar.gz').read_bytes(), b'abc')
+                        else:
+                            self.assertEqual(list(self.output.iterdir()), [])
+                        shutil.rmtree(self.output)
+
+    def test_repository_path_cannot_escape_the_evidence_tree(self):
+        for path in [None, '/tmp/sample.tar.gz.b64', '../sample.tar.gz.b64',
+                     'docs/research/rust-ts-r0/../../../sample.tar.gz.b64',
+                     'docs/research/rust-ts-r0/..\\sample.tar.gz.b64',
+                     'docs/research/rust-ts-r0/sample.tar.gz']:
+            self.entry['repository_path'] = path
+            self.save_index([self.entry])
+            result = self.invoke('--output', str(self.output))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("invalid repository archive path", result.stderr)
+            self.assertFalse(self.output.exists())
+
+    def test_invalid_source_or_action_is_refused(self):
+        for arguments in [('--source-dir', '', '--verify'),
+                          ('--source-dir', 'https://example.test', '--verify'),
+                          ('--source-dir', str(self.source)),
+                          ('--source-dir', str(self.source), '--verify', '--output', str(self.output)),
+                          ('--base-url', 'https://example.test', '--verify')]:
+            with self.subTest(arguments=arguments):
+                result = self.invoke(*arguments)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertFalse(self.output.exists())
 

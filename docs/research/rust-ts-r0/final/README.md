@@ -1,5 +1,7 @@
 # Historical T00 / R0 decision: STOP_BUDGET
 
+Current public C1 evidence custody is superseded by the [21 October restoration](../evidence/README.md). Earlier local-only statements below describe the 20 October checkpoint.
+
 This is the preserved pre-reopening dossier. On 2026-10-18 the owner
 [reopened the same T00 for C1](../resumption/README.md), with two additional
 correction passes and approximately 3–4 days. The decision and claim audit below

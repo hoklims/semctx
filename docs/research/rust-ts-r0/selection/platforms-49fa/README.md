@@ -1,5 +1,7 @@
 # Observations CI natives — head `49fa983`
 
+Current public C1 evidence custody is superseded by the [21 October restoration](../../evidence/README.md). Earlier local-only statements below describe the 20 October checkpoint.
+
 Cette archive publie les observations locales déjà collectées du [run39103858448](https://github.com/hoklims/semctx/actions/runs/39103858448), head `49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9`. Elle n’effectue aucune nouvelle requête ni exécution.
 
 Les rapports indépendants constatent les quatre mêmes variantes **DEVELOPMENT** sur les builds optimisés natifs Linux/x86_64, macOS/ARM64 et Windows/x86_64 : JS valide, JS malformé, TS BOM+CRLF+astral et contrôle de ligne. Les Outcomes de transport, les contrôles receiver, les requêtes, les projections et les captures source sont conservés. Le contrôle de PATH vide est propre à Unix et n’est pas crédité à Windows. Les archives de tests produit sont également retenues.

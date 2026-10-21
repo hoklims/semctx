@@ -1,12 +1,469 @@
 {
   "schema_version": 1,
-  "state": "LOCAL_ONLY_OWNER_CUSTODY",
+  "state": "REPOSITORY_EVIDENCE_RESTORED",
   "source_commit": "dec0bd9522d0672e6f58fb539a83356716af4e0c",
-  "local_backup_root": "/Users/sebastien/semctx-evidence/t00/20261020",
   "backup_manifest_sha256": "c50ccbc087400785121108c066cc46fc0f21b3c88780e7bd5122f67308970c47",
   "citation_scope": "Literal filename/path references in tracked md/json/py/rs/toml/yml at source_commit; not an exhaustive semantic dependency graph.",
   "historical_paths": "original_path and cited_by refer to source_commit before relocation. Historical JSON record bytes are retained except explicit link metadata changes; resolve removed payload paths through this index.",
   "entries": [
+    {
+      "id": "resumption--controlled-assembly-evidence",
+      "path": "resumption--controlled-assembly-evidence.tar.gz",
+      "sha256": "594d308ae21b024fc6965b46311e1c2ae82ed013a4c7b1d3bdb7498d46b40fcd",
+      "size_bytes": 1278731,
+      "original_path": "docs/research/rust-ts-r0/resumption/controlled-assembly-evidence.tar.gz.b64",
+      "original_sha256": "f3e7cf0a6856383a1aa1562523826da18792f98a38068c05864157ace1880666",
+      "original_size_bytes": 1727410,
+      "archive_members": 180,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/controlled-assembly-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/controlled-assembly-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-callable-evidence",
+      "path": "resumption--gap-callable-evidence.tar.gz",
+      "sha256": "54085e56a0b804c8cbb96f7950a75509da17eda2ff42a65fe9a9c9ef78be8954",
+      "size_bytes": 983780,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-callable-evidence.tar.gz.b64",
+      "original_sha256": "71ae227d1e70c9adaab2362b07da3b2ebfee50890f837539a1dc0f4ff583776a",
+      "original_size_bytes": 1328968,
+      "archive_members": 250,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-callable-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-callable-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-canonical-system-evidence",
+      "path": "resumption--gap-canonical-system-evidence.tar.gz",
+      "sha256": "c99475c8da9f79b449a91f3f5809ce2ea387606ef4e5e4cc0cc90016591114b4",
+      "size_bytes": 799686,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-canonical-system-evidence.tar.gz.b64",
+      "original_sha256": "8a6be0e821f4035d0b170b6f8b825cb523d073c2885f9ad42c0b851dff61bf60",
+      "original_size_bytes": 1080278,
+      "archive_members": 134,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-canonical-system-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-canonical-system-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-configured-query-evidence",
+      "path": "resumption--gap-configured-query-evidence.tar.gz",
+      "sha256": "63cc061f85b7be3b7fc958713f6f499658644702abedbe06a808e11f76985a72",
+      "size_bytes": 2318368,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-configured-query-evidence.tar.gz.b64",
+      "original_sha256": "ad61e71c392c9ba63528225c437f36038c0e87bdeeb533aaaf4b9a32967d5c8f",
+      "original_size_bytes": 3131834,
+      "archive_members": 318,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-configured-query-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-configured-query-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-controlled-consumer-evidence",
+      "path": "resumption--gap-controlled-consumer-evidence.tar.gz",
+      "sha256": "b6676c61e24f2a77002ee1f3a630b55255ee30f230ad7c96df071eb28bd3a5e8",
+      "size_bytes": 1846375,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-controlled-consumer-evidence.tar.gz.b64",
+      "original_sha256": "de18a8bdaac933948d52b10147fb6ac6407e5fd8d300432645ffc497c89af0bb",
+      "original_size_bytes": 2494229,
+      "archive_members": 268,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-controlled-consumer-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-controlled-consumer-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-existing-components-evidence",
+      "path": "resumption--gap-existing-components-evidence.tar.gz",
+      "sha256": "81aabcf5a1957e69691806a308ef6203e1b5df201c2ee7a0eeaf2199d7e5ff70",
+      "size_bytes": 1116726,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-existing-components-evidence.tar.gz.b64",
+      "original_sha256": "8df15c9f7809cbce1f11bc74aa5f03bdc9a1d0d965557d58c30ea86fb1629682",
+      "original_size_bytes": 1488969,
+      "archive_members": 171,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-existing-components-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-existing-components-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-legacy-identity-evidence",
+      "path": "resumption--gap-legacy-identity-evidence.tar.gz",
+      "sha256": "525408d43ce50a943dfaf34b8b6ece5695ff91f434325c56b28c6cbfda2ce324",
+      "size_bytes": 16962236,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-legacy-identity-evidence.tar.gz.b64",
+      "original_sha256": "6f2519615c12d24a58798821dce4503ab82db4a4d576f2cb18fd8f9f8583cd74",
+      "original_size_bytes": 22913900,
+      "archive_members": 663,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-legacy-identity-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-legacy-identity-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-loaded-partition-evidence",
+      "path": "resumption--gap-loaded-partition-evidence.tar.gz",
+      "sha256": "70d51a4b88038d05cf95a5a7a4e51b3a388ea60b8d47e8b52e904e5af377b09b",
+      "size_bytes": 1058353,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-loaded-partition-evidence.tar.gz.b64",
+      "original_sha256": "49f4971260b42633dc9b88ac0dfa93c228c755d37c6f8e08b34db8b862513009",
+      "original_size_bytes": 1429708,
+      "archive_members": 214,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-loaded-partition-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-loaded-partition-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-mapping-evidence",
+      "path": "resumption--gap-mapping-evidence.tar.gz",
+      "sha256": "958d4c546d9c01d4e1d7d743aa34572240ba95120030f7f07547c7e1f9df20e8",
+      "size_bytes": 824092,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-mapping-evidence.tar.gz.b64",
+      "original_sha256": "f57606e212ec65870931800741ef4a2e44015a47979a36c1b4249436419093d6",
+      "original_size_bytes": 1098793,
+      "archive_members": 198,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-mapping-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-mapping-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-missing-test-evidence",
+      "path": "resumption--gap-missing-test-evidence.tar.gz",
+      "sha256": "99ec8c7b5e7b50bbd99514bd57eaf328c0b0cc2a6851f8c626aa846d66a95a58",
+      "size_bytes": 1033442,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-missing-test-evidence.tar.gz.b64",
+      "original_sha256": "f9168c2b54de6cde079fd62b8183c3facaff96dac3043334c46b04215ec81740",
+      "original_size_bytes": 1396055,
+      "archive_members": 256,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-missing-test-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-missing-test-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-native-discovery-evidence",
+      "path": "resumption--gap-native-discovery-evidence.tar.gz",
+      "sha256": "a3859c9b76f17746c6bfb5be4aaa681fc3cd98fb9fa7624dda3db95f1e83782c",
+      "size_bytes": 1782747,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-discovery-evidence.tar.gz.b64",
+      "original_sha256": "39c399770e9ec03e7deef893873292edcb5efa607f6596114d1f9ac8621cae5c",
+      "original_size_bytes": 2408273,
+      "archive_members": 358,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-native-discovery-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-native-discovery-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-native-parallel-evidence",
+      "path": "resumption--gap-native-parallel-evidence.tar.gz",
+      "sha256": "520470250c56d9224731fe8d9b1f4d6ea021f704a3c8bbdda8576b940217a4b8",
+      "size_bytes": 2652348,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-parallel-evidence.tar.gz.b64",
+      "original_sha256": "6c9963df2da3b2186c887d151cbe9570ad3040186d3eb49f35f13175992c1f8a",
+      "original_size_bytes": 3582997,
+      "archive_members": 436,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-native-parallel-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-native-parallel-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-native-transport-evidence",
+      "path": "resumption--gap-native-transport-evidence.tar.gz",
+      "sha256": "4d30b9c093426005442b38ae0dc5edf7296be63e8cc99988249f299cf6c317f6",
+      "size_bytes": 304239,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-transport-evidence.tar.gz.b64",
+      "original_sha256": "e2093d8f181c26cdeb705379306b77562f86650c43859816cca49f1a13de4d48",
+      "original_size_bytes": 410990,
+      "archive_members": 142,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-native-transport-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-native-transport-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-opaque-ownership-evidence",
+      "path": "resumption--gap-opaque-ownership-evidence.tar.gz",
+      "sha256": "5d8030f4e7a8004b5cfbac24bc1882c49bde56964681aa04b1b31de45bf91764",
+      "size_bytes": 1460099,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-opaque-ownership-evidence.tar.gz.b64",
+      "original_sha256": "35c43c9056c3b83fffc71f3d35ec94b3455909cb8ff4a9621a0f3ca474cc6c24",
+      "original_size_bytes": 1972416,
+      "archive_members": 194,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-opaque-ownership-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-opaque-ownership-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-ordinary-config-evidence",
+      "path": "resumption--gap-ordinary-config-evidence.tar.gz",
+      "sha256": "ddba10694b7fd0efa0bc4bfdfcc43f51d265d49a9d889cf648b44739ce8d406b",
+      "size_bytes": 447550,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-ordinary-config-evidence.tar.gz.b64",
+      "original_sha256": "4572fbdb09bcdcb6df6e9002e3bd56951a3306959cde8f52adbc3a1df4c08bad",
+      "original_size_bytes": 604588,
+      "archive_members": 159,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-ordinary-config-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-ordinary-config-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-process-fault-evidence",
+      "path": "resumption--gap-process-fault-evidence.tar.gz",
+      "sha256": "080cc368894f8d1d34379420c9412de4537c23452b0b0046696dbf656d95de98",
+      "size_bytes": 958915,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-process-fault-evidence.tar.gz.b64",
+      "original_sha256": "b523da528bb5dd8165037d30cc003b08727e78af0763ebca43545464dd838eda",
+      "original_size_bytes": 1295380,
+      "archive_members": 464,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-process-fault-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-process-fault-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-relative-evidence",
+      "path": "resumption--gap-relative-evidence.tar.gz",
+      "sha256": "55779d9b35465f3715cb7df3e22b2907c59b4f6d82579e556573d346d87b6a8e",
+      "size_bytes": 249553,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-relative-evidence.tar.gz.b64",
+      "original_sha256": "8b8df7d0e8db10c363e8766b272ef62d8418b3f60810e35cce1650d4c72ee3ba",
+      "original_size_bytes": 337119,
+      "archive_members": 80,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-relative-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-relative-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-retained-discovery-evidence",
+      "path": "resumption--gap-retained-discovery-evidence.tar.gz",
+      "sha256": "bc4d92a4d86bb17ba4c333fbeaaab45ecb157fa9b920fd0c52cd32dc4cfdbc07",
+      "size_bytes": 740696,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.tar.gz.b64",
+      "original_sha256": "ebb918bf6c2cad434a86840c3b6d0c3020a8ac069f287399b40811ed05e383fe",
+      "original_size_bytes": 1000591,
+      "archive_members": 135,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-retained-scope-evidence",
+      "path": "resumption--gap-retained-scope-evidence.tar.gz",
+      "sha256": "290d36fadef8a9e57828dae3064b7cd86e93dc6242649657faec1930b704172a",
+      "size_bytes": 3941749,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-retained-scope-evidence.tar.gz.b64",
+      "original_sha256": "955016ac49ace54146159e5fcf60379756a6341ec4fd56c98d5195c9d02761fd",
+      "original_size_bytes": 5324822,
+      "archive_members": 695,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-retained-scope-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-retained-scope-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-sibling-evidence",
+      "path": "resumption--gap-sibling-evidence.tar.gz",
+      "sha256": "eb800a393081c2ea4568c3168c6f13ed9d460206f298e3288db03f3de2117fc3",
+      "size_bytes": 586933,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-sibling-evidence.tar.gz.b64",
+      "original_sha256": "202af02d2878ff0b2b22416bebee2cd8a8a3d25bc9c1d758501d9841f5e6d84c",
+      "original_size_bytes": 782581,
+      "archive_members": 57,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-sibling-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-sibling-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-source-confinement-evidence",
+      "path": "resumption--gap-source-confinement-evidence.tar.gz",
+      "sha256": "46d1fc1896679f41517774b75e8b7a267d78cb63810693ef0412a420d3d258b1",
+      "size_bytes": 846807,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.tar.gz.b64",
+      "original_sha256": "912b648ac3ddc34edfb041fa562f5fa2f711083c5f7f2e13d8868fdf31b82772",
+      "original_size_bytes": 1143933,
+      "archive_members": 196,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--gap-static-binding-evidence",
+      "path": "resumption--gap-static-binding-evidence.tar.gz",
+      "sha256": "31a0c13f79020dc459a2dad6d3550bd9e44787a70f1c8f2cb5ca5a225d8a9fe9",
+      "size_bytes": 416147,
+      "original_path": "docs/research/rust-ts-r0/resumption/gap-static-binding-evidence.tar.gz.b64",
+      "original_sha256": "7fc6fe943e0db75feae8cf1129a37134b207310a45800d6a5d8c5e8042241da3",
+      "original_size_bytes": 562165,
+      "archive_members": 60,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-static-binding-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/gap-static-binding-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--harness-repair-evidence",
+      "path": "resumption--harness-repair-evidence.tar.gz",
+      "sha256": "3d0bb542bd7c49641ab1d4a364a259cf903579ab700e266682d4e7d20b8a1fa2",
+      "size_bytes": 675647,
+      "original_path": "docs/research/rust-ts-r0/resumption/harness-repair-evidence.tar.gz.b64",
+      "original_sha256": "0e35203e9e455dd5ccc0ec44a78707c0b2dc7c96dfcb369bb408f649aa6db970",
+      "original_size_bytes": 912718,
+      "archive_members": 353,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/harness-repair-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/harness-repair-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--retained-discovery-evidence",
+      "path": "resumption--retained-discovery-evidence.tar.gz",
+      "sha256": "560affd723237c65d24398e1dbee675a33a50f104a029cf2a64e12bd63a8c3ef",
+      "size_bytes": 704744,
+      "original_path": "docs/research/rust-ts-r0/resumption/retained-discovery-evidence.tar.gz.b64",
+      "original_sha256": "c533542adde2b3945e0dfc6729fc0af9821174726a64d578d3ba77ae01a6e24b",
+      "original_size_bytes": 952024,
+      "archive_members": 160,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.json",
+        "docs/research/rust-ts-r0/resumption/retained-discovery-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/retained-discovery-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--source-host-boundary-evidence",
+      "path": "resumption--source-host-boundary-evidence.tar.gz",
+      "sha256": "d02255e48c821b289a2d5a61ee2bbd05e7050cf122440f07239832f2e2b409aa",
+      "size_bytes": 70829,
+      "original_path": "docs/research/rust-ts-r0/resumption/source-host-boundary-evidence.tar.gz.b64",
+      "original_sha256": "e9134315fbc4458c64278db7a22ee40d76bf1800c6f35dfea81ded1232799a04",
+      "original_size_bytes": 95683,
+      "archive_members": 33,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/source-host-boundary-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/source-host-boundary-evidence.tar.gz.b64"
+    },
+    {
+      "id": "resumption--worker-case-mode-evidence",
+      "path": "resumption--worker-case-mode-evidence.tar.gz",
+      "sha256": "883676b89733184a9b41c8c6ba02c1330e925ce2ea761f3ed1337f89136191a2",
+      "size_bytes": 412331,
+      "original_path": "docs/research/rust-ts-r0/resumption/worker-case-mode-evidence.tar.gz.b64",
+      "original_sha256": "94d00fe089abbeaf14dc11c147d53c76ce5009fcc2f8c1b78e3d81bc2dd58400",
+      "original_size_bytes": 557010,
+      "archive_members": 232,
+      "cited_by": [
+        "docs/research/rust-ts-r0/resumption/worker-case-mode-evidence.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/resumption/worker-case-mode-evidence.tar.gz.b64"
+    },
+    {
+      "id": "selection--ci-dispatch--canonical-final--canonical-logs",
+      "path": "selection--ci-dispatch--canonical-final--canonical-logs.tar.gz",
+      "sha256": "560adddd07613299695d5b181c2afe21707d7f35e9fbd873a2f4ceb811d8f845",
+      "size_bytes": 298829,
+      "original_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-final/canonical-logs.tar.gz.b64",
+      "original_sha256": "c991abc1a6ac9906ad54d11e759730cd11f593ec6324a4d860a70d0f96f8a65a",
+      "original_size_bytes": 403683,
+      "archive_members": 5,
+      "cited_by": [
+        "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-final/record.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-final/canonical-logs.tar.gz.b64"
+    },
+    {
+      "id": "selection--ci-dispatch--canonical-pass2--canonical-logs",
+      "path": "selection--ci-dispatch--canonical-pass2--canonical-logs.tar.gz",
+      "sha256": "27b476c2765d375812e80910f9010a8651fe2590bd0e832c24eb7b3b8ba402a2",
+      "size_bytes": 299329,
+      "original_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-pass2/canonical-logs.tar.gz.b64",
+      "original_sha256": "85a34eafb2fdf4f8d01f02ee920087c5507c4e1d0bf6dc9e760231eecde1b9f1",
+      "original_size_bytes": 399109,
+      "archive_members": 6,
+      "cited_by": [
+        "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-pass2/record.json",
+        "docs/research/rust-ts-r0/selection/platforms-49fa/gate-plan.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-pass2/canonical-logs.tar.gz.b64"
+    },
+    {
+      "id": "selection--pass2--portable-dev--portable-dev",
+      "path": "selection--pass2--portable-dev--portable-dev.tar.gz",
+      "sha256": "f26de633b7c5b5f3397190325d8e23560d8b64f2cb922c72061dc0854f83615c",
+      "size_bytes": 2608612,
+      "original_path": "docs/research/rust-ts-r0/selection/pass2/portable-dev/portable-dev.tar.gz.b64",
+      "original_sha256": "b86762dc78af6d91721272f404944353682aa452a5a75686b90955a33c077266",
+      "original_size_bytes": 3523918,
+      "archive_members": 529,
+      "cited_by": [
+        "docs/research/rust-ts-r0/selection/pass2/portable-dev/README.md",
+        "docs/research/rust-ts-r0/selection/pass2/portable-dev/record.json",
+        "docs/research/rust-ts-r0/selection/platforms-49fa/gate-plan.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/selection/pass2/portable-dev/portable-dev.tar.gz.b64"
+    },
+    {
+      "id": "selection--platforms-49fa--ci-49fa-evidence",
+      "path": "selection--platforms-49fa--ci-49fa-evidence.tar.gz",
+      "sha256": "53120a0b24a18256ebdb529983dd3782ef6a0caf44723571fdad691db5304193",
+      "size_bytes": 3417631,
+      "original_path": "docs/research/rust-ts-r0/selection/platforms-49fa/ci-49fa-evidence.tar.gz.b64",
+      "original_sha256": "9ef859e0fa67e2a1e4b95814679690678535f9762ece06669973786645b54767",
+      "original_size_bytes": 4616803,
+      "archive_members": 253,
+      "cited_by": [
+        "docs/research/rust-ts-r0/selection/platforms-49fa/README.md",
+        "docs/research/rust-ts-r0/selection/platforms-49fa/publication-integrity.json",
+        "docs/research/rust-ts-r0/selection/platforms-49fa/record.json"
+      ],
+      "repository_path": "docs/research/rust-ts-r0/selection/platforms-49fa/ci-49fa-evidence.tar.gz.b64"
+    },
+    {
+      "id": "macos-unit-extraction-20261020",
+      "path": "macos-unit-extraction-20261020.tar.gz",
+      "sha256": "6d8696d6a2b5f8f03ad5e62ff3bf63d701f9e4c0cd333887af6f1b2dfd3177e9",
+      "size_bytes": 34960376,
+      "repository_path": "docs/research/rust-ts-r0/evidence/macos-unit-extraction-20261020.tar.gz.b64",
+      "members_manifest": "docs/research/rust-ts-r0/evidence/macos-unit-extraction-20261020-members.json",
+      "archive_members": 1841,
+      "source_directory": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1"
+    },
+    {
+      "id": "linux-unit-extraction-20261020",
+      "path": "linux-unit-extraction-20261020.tar.gz",
+      "sha256": "5fa014480a121de3770a640081b32e8fae3c3872752d005476294ba1e87d061c",
+      "size_bytes": 35290975,
+      "repository_path": "docs/research/rust-ts-r0/evidence/linux-unit-extraction-20261020.tar.gz.b64",
+      "members_manifest": "docs/research/rust-ts-r0/evidence/linux-unit-extraction-20261020-members.json",
+      "archive_members": 1840,
+      "source_directory": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1"
+    },
+    {
+      "id": "unit-extraction-reproduction-20261020",
+      "path": "unit-extraction-reproduction-20261020.tar.gz",
+      "repository_path": "docs/research/rust-ts-r0/evidence/unit-extraction-reproduction-20261020.tar.gz.b64",
+      "sha256": "e0df7e12525e3ab5d0d6d55f577eecde4ece48642e34ed7ba8e80420d59c4b22",
+      "size_bytes": 11686,
+      "archive_members": 9,
+      "scope": "Unmodified historical runner and build/execution/context logs; not a new runner or a source-to-binary attestation."
+    }
+  ],
+  "superseding_decision": "../resumption/owner-evidence-publication-20261021.json",
+  "excluded_entries": [
     {
       "id": "composition2--initial--evidence",
       "path": "composition2--initial--evidence.tar.gz",
@@ -108,402 +565,6 @@
       "archive_members": 23,
       "cited_by": [
         "docs/research/rust-ts-r0/composition2/pass2-replay/record.json"
-      ]
-    },
-    {
-      "id": "resumption--controlled-assembly-evidence",
-      "path": "resumption--controlled-assembly-evidence.tar.gz",
-      "sha256": "594d308ae21b024fc6965b46311e1c2ae82ed013a4c7b1d3bdb7498d46b40fcd",
-      "size_bytes": 1278731,
-      "original_path": "docs/research/rust-ts-r0/resumption/controlled-assembly-evidence.tar.gz.b64",
-      "original_sha256": "f3e7cf0a6856383a1aa1562523826da18792f98a38068c05864157ace1880666",
-      "original_size_bytes": 1727410,
-      "archive_members": 180,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/controlled-assembly-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-callable-evidence",
-      "path": "resumption--gap-callable-evidence.tar.gz",
-      "sha256": "54085e56a0b804c8cbb96f7950a75509da17eda2ff42a65fe9a9c9ef78be8954",
-      "size_bytes": 983780,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-callable-evidence.tar.gz.b64",
-      "original_sha256": "71ae227d1e70c9adaab2362b07da3b2ebfee50890f837539a1dc0f4ff583776a",
-      "original_size_bytes": 1328968,
-      "archive_members": 250,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-callable-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-canonical-system-evidence",
-      "path": "resumption--gap-canonical-system-evidence.tar.gz",
-      "sha256": "c99475c8da9f79b449a91f3f5809ce2ea387606ef4e5e4cc0cc90016591114b4",
-      "size_bytes": 799686,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-canonical-system-evidence.tar.gz.b64",
-      "original_sha256": "8a6be0e821f4035d0b170b6f8b825cb523d073c2885f9ad42c0b851dff61bf60",
-      "original_size_bytes": 1080278,
-      "archive_members": 134,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-canonical-system-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-configured-query-evidence",
-      "path": "resumption--gap-configured-query-evidence.tar.gz",
-      "sha256": "63cc061f85b7be3b7fc958713f6f499658644702abedbe06a808e11f76985a72",
-      "size_bytes": 2318368,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-configured-query-evidence.tar.gz.b64",
-      "original_sha256": "ad61e71c392c9ba63528225c437f36038c0e87bdeeb533aaaf4b9a32967d5c8f",
-      "original_size_bytes": 3131834,
-      "archive_members": 318,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-configured-query-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-controlled-consumer-evidence",
-      "path": "resumption--gap-controlled-consumer-evidence.tar.gz",
-      "sha256": "b6676c61e24f2a77002ee1f3a630b55255ee30f230ad7c96df071eb28bd3a5e8",
-      "size_bytes": 1846375,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-controlled-consumer-evidence.tar.gz.b64",
-      "original_sha256": "de18a8bdaac933948d52b10147fb6ac6407e5fd8d300432645ffc497c89af0bb",
-      "original_size_bytes": 2494229,
-      "archive_members": 268,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-controlled-consumer-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-existing-components-evidence",
-      "path": "resumption--gap-existing-components-evidence.tar.gz",
-      "sha256": "81aabcf5a1957e69691806a308ef6203e1b5df201c2ee7a0eeaf2199d7e5ff70",
-      "size_bytes": 1116726,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-existing-components-evidence.tar.gz.b64",
-      "original_sha256": "8df15c9f7809cbce1f11bc74aa5f03bdc9a1d0d965557d58c30ea86fb1629682",
-      "original_size_bytes": 1488969,
-      "archive_members": 171,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-existing-components-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-legacy-identity-evidence",
-      "path": "resumption--gap-legacy-identity-evidence.tar.gz",
-      "sha256": "525408d43ce50a943dfaf34b8b6ece5695ff91f434325c56b28c6cbfda2ce324",
-      "size_bytes": 16962236,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-legacy-identity-evidence.tar.gz.b64",
-      "original_sha256": "6f2519615c12d24a58798821dce4503ab82db4a4d576f2cb18fd8f9f8583cd74",
-      "original_size_bytes": 22913900,
-      "archive_members": 663,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-legacy-identity-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-loaded-partition-evidence",
-      "path": "resumption--gap-loaded-partition-evidence.tar.gz",
-      "sha256": "70d51a4b88038d05cf95a5a7a4e51b3a388ea60b8d47e8b52e904e5af377b09b",
-      "size_bytes": 1058353,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-loaded-partition-evidence.tar.gz.b64",
-      "original_sha256": "49f4971260b42633dc9b88ac0dfa93c228c755d37c6f8e08b34db8b862513009",
-      "original_size_bytes": 1429708,
-      "archive_members": 214,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-loaded-partition-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-mapping-evidence",
-      "path": "resumption--gap-mapping-evidence.tar.gz",
-      "sha256": "958d4c546d9c01d4e1d7d743aa34572240ba95120030f7f07547c7e1f9df20e8",
-      "size_bytes": 824092,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-mapping-evidence.tar.gz.b64",
-      "original_sha256": "f57606e212ec65870931800741ef4a2e44015a47979a36c1b4249436419093d6",
-      "original_size_bytes": 1098793,
-      "archive_members": 198,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-mapping-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-missing-test-evidence",
-      "path": "resumption--gap-missing-test-evidence.tar.gz",
-      "sha256": "99ec8c7b5e7b50bbd99514bd57eaf328c0b0cc2a6851f8c626aa846d66a95a58",
-      "size_bytes": 1033442,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-missing-test-evidence.tar.gz.b64",
-      "original_sha256": "f9168c2b54de6cde079fd62b8183c3facaff96dac3043334c46b04215ec81740",
-      "original_size_bytes": 1396055,
-      "archive_members": 256,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-missing-test-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-native-discovery-evidence",
-      "path": "resumption--gap-native-discovery-evidence.tar.gz",
-      "sha256": "a3859c9b76f17746c6bfb5be4aaa681fc3cd98fb9fa7624dda3db95f1e83782c",
-      "size_bytes": 1782747,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-discovery-evidence.tar.gz.b64",
-      "original_sha256": "39c399770e9ec03e7deef893873292edcb5efa607f6596114d1f9ac8621cae5c",
-      "original_size_bytes": 2408273,
-      "archive_members": 358,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-native-discovery-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-native-parallel-evidence",
-      "path": "resumption--gap-native-parallel-evidence.tar.gz",
-      "sha256": "520470250c56d9224731fe8d9b1f4d6ea021f704a3c8bbdda8576b940217a4b8",
-      "size_bytes": 2652348,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-parallel-evidence.tar.gz.b64",
-      "original_sha256": "6c9963df2da3b2186c887d151cbe9570ad3040186d3eb49f35f13175992c1f8a",
-      "original_size_bytes": 3582997,
-      "archive_members": 436,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-native-parallel-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-native-transport-evidence",
-      "path": "resumption--gap-native-transport-evidence.tar.gz",
-      "sha256": "4d30b9c093426005442b38ae0dc5edf7296be63e8cc99988249f299cf6c317f6",
-      "size_bytes": 304239,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-native-transport-evidence.tar.gz.b64",
-      "original_sha256": "e2093d8f181c26cdeb705379306b77562f86650c43859816cca49f1a13de4d48",
-      "original_size_bytes": 410990,
-      "archive_members": 142,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-native-transport-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-opaque-ownership-evidence",
-      "path": "resumption--gap-opaque-ownership-evidence.tar.gz",
-      "sha256": "5d8030f4e7a8004b5cfbac24bc1882c49bde56964681aa04b1b31de45bf91764",
-      "size_bytes": 1460099,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-opaque-ownership-evidence.tar.gz.b64",
-      "original_sha256": "35c43c9056c3b83fffc71f3d35ec94b3455909cb8ff4a9621a0f3ca474cc6c24",
-      "original_size_bytes": 1972416,
-      "archive_members": 194,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-opaque-ownership-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-ordinary-config-evidence",
-      "path": "resumption--gap-ordinary-config-evidence.tar.gz",
-      "sha256": "ddba10694b7fd0efa0bc4bfdfcc43f51d265d49a9d889cf648b44739ce8d406b",
-      "size_bytes": 447550,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-ordinary-config-evidence.tar.gz.b64",
-      "original_sha256": "4572fbdb09bcdcb6df6e9002e3bd56951a3306959cde8f52adbc3a1df4c08bad",
-      "original_size_bytes": 604588,
-      "archive_members": 159,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-ordinary-config-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-process-fault-evidence",
-      "path": "resumption--gap-process-fault-evidence.tar.gz",
-      "sha256": "080cc368894f8d1d34379420c9412de4537c23452b0b0046696dbf656d95de98",
-      "size_bytes": 958915,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-process-fault-evidence.tar.gz.b64",
-      "original_sha256": "b523da528bb5dd8165037d30cc003b08727e78af0763ebca43545464dd838eda",
-      "original_size_bytes": 1295380,
-      "archive_members": 464,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-process-fault-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-relative-evidence",
-      "path": "resumption--gap-relative-evidence.tar.gz",
-      "sha256": "55779d9b35465f3715cb7df3e22b2907c59b4f6d82579e556573d346d87b6a8e",
-      "size_bytes": 249553,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-relative-evidence.tar.gz.b64",
-      "original_sha256": "8b8df7d0e8db10c363e8766b272ef62d8418b3f60810e35cce1650d4c72ee3ba",
-      "original_size_bytes": 337119,
-      "archive_members": 80,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-relative-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-retained-discovery-evidence",
-      "path": "resumption--gap-retained-discovery-evidence.tar.gz",
-      "sha256": "bc4d92a4d86bb17ba4c333fbeaaab45ecb157fa9b920fd0c52cd32dc4cfdbc07",
-      "size_bytes": 740696,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.tar.gz.b64",
-      "original_sha256": "ebb918bf6c2cad434a86840c3b6d0c3020a8ac069f287399b40811ed05e383fe",
-      "original_size_bytes": 1000591,
-      "archive_members": 135,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-retained-scope-evidence",
-      "path": "resumption--gap-retained-scope-evidence.tar.gz",
-      "sha256": "290d36fadef8a9e57828dae3064b7cd86e93dc6242649657faec1930b704172a",
-      "size_bytes": 3941749,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-retained-scope-evidence.tar.gz.b64",
-      "original_sha256": "955016ac49ace54146159e5fcf60379756a6341ec4fd56c98d5195c9d02761fd",
-      "original_size_bytes": 5324822,
-      "archive_members": 695,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-retained-scope-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-sibling-evidence",
-      "path": "resumption--gap-sibling-evidence.tar.gz",
-      "sha256": "eb800a393081c2ea4568c3168c6f13ed9d460206f298e3288db03f3de2117fc3",
-      "size_bytes": 586933,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-sibling-evidence.tar.gz.b64",
-      "original_sha256": "202af02d2878ff0b2b22416bebee2cd8a8a3d25bc9c1d758501d9841f5e6d84c",
-      "original_size_bytes": 782581,
-      "archive_members": 57,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-sibling-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-source-confinement-evidence",
-      "path": "resumption--gap-source-confinement-evidence.tar.gz",
-      "sha256": "46d1fc1896679f41517774b75e8b7a267d78cb63810693ef0412a420d3d258b1",
-      "size_bytes": 846807,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.tar.gz.b64",
-      "original_sha256": "912b648ac3ddc34edfb041fa562f5fa2f711083c5f7f2e13d8868fdf31b82772",
-      "original_size_bytes": 1143933,
-      "archive_members": 196,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--gap-static-binding-evidence",
-      "path": "resumption--gap-static-binding-evidence.tar.gz",
-      "sha256": "31a0c13f79020dc459a2dad6d3550bd9e44787a70f1c8f2cb5ca5a225d8a9fe9",
-      "size_bytes": 416147,
-      "original_path": "docs/research/rust-ts-r0/resumption/gap-static-binding-evidence.tar.gz.b64",
-      "original_sha256": "7fc6fe943e0db75feae8cf1129a37134b207310a45800d6a5d8c5e8042241da3",
-      "original_size_bytes": 562165,
-      "archive_members": 60,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-static-binding-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--harness-repair-evidence",
-      "path": "resumption--harness-repair-evidence.tar.gz",
-      "sha256": "3d0bb542bd7c49641ab1d4a364a259cf903579ab700e266682d4e7d20b8a1fa2",
-      "size_bytes": 675647,
-      "original_path": "docs/research/rust-ts-r0/resumption/harness-repair-evidence.tar.gz.b64",
-      "original_sha256": "0e35203e9e455dd5ccc0ec44a78707c0b2dc7c96dfcb369bb408f649aa6db970",
-      "original_size_bytes": 912718,
-      "archive_members": 353,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/harness-repair-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--retained-discovery-evidence",
-      "path": "resumption--retained-discovery-evidence.tar.gz",
-      "sha256": "560affd723237c65d24398e1dbee675a33a50f104a029cf2a64e12bd63a8c3ef",
-      "size_bytes": 704744,
-      "original_path": "docs/research/rust-ts-r0/resumption/retained-discovery-evidence.tar.gz.b64",
-      "original_sha256": "c533542adde2b3945e0dfc6729fc0af9821174726a64d578d3ba77ae01a6e24b",
-      "original_size_bytes": 952024,
-      "archive_members": 160,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/gap-retained-discovery-evidence.json",
-        "docs/research/rust-ts-r0/resumption/retained-discovery-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--source-host-boundary-evidence",
-      "path": "resumption--source-host-boundary-evidence.tar.gz",
-      "sha256": "d02255e48c821b289a2d5a61ee2bbd05e7050cf122440f07239832f2e2b409aa",
-      "size_bytes": 70829,
-      "original_path": "docs/research/rust-ts-r0/resumption/source-host-boundary-evidence.tar.gz.b64",
-      "original_sha256": "e9134315fbc4458c64278db7a22ee40d76bf1800c6f35dfea81ded1232799a04",
-      "original_size_bytes": 95683,
-      "archive_members": 33,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/source-host-boundary-evidence.json"
-      ]
-    },
-    {
-      "id": "resumption--worker-case-mode-evidence",
-      "path": "resumption--worker-case-mode-evidence.tar.gz",
-      "sha256": "883676b89733184a9b41c8c6ba02c1330e925ce2ea761f3ed1337f89136191a2",
-      "size_bytes": 412331,
-      "original_path": "docs/research/rust-ts-r0/resumption/worker-case-mode-evidence.tar.gz.b64",
-      "original_sha256": "94d00fe089abbeaf14dc11c147d53c76ce5009fcc2f8c1b78e3d81bc2dd58400",
-      "original_size_bytes": 557010,
-      "archive_members": 232,
-      "cited_by": [
-        "docs/research/rust-ts-r0/resumption/worker-case-mode-evidence.json"
-      ]
-    },
-    {
-      "id": "selection--ci-dispatch--canonical-final--canonical-logs",
-      "path": "selection--ci-dispatch--canonical-final--canonical-logs.tar.gz",
-      "sha256": "560adddd07613299695d5b181c2afe21707d7f35e9fbd873a2f4ceb811d8f845",
-      "size_bytes": 298829,
-      "original_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-final/canonical-logs.tar.gz.b64",
-      "original_sha256": "c991abc1a6ac9906ad54d11e759730cd11f593ec6324a4d860a70d0f96f8a65a",
-      "original_size_bytes": 403683,
-      "archive_members": 5,
-      "cited_by": [
-        "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-final/record.json"
-      ]
-    },
-    {
-      "id": "selection--ci-dispatch--canonical-pass2--canonical-logs",
-      "path": "selection--ci-dispatch--canonical-pass2--canonical-logs.tar.gz",
-      "sha256": "27b476c2765d375812e80910f9010a8651fe2590bd0e832c24eb7b3b8ba402a2",
-      "size_bytes": 299329,
-      "original_path": "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-pass2/canonical-logs.tar.gz.b64",
-      "original_sha256": "85a34eafb2fdf4f8d01f02ee920087c5507c4e1d0bf6dc9e760231eecde1b9f1",
-      "original_size_bytes": 399109,
-      "archive_members": 6,
-      "cited_by": [
-        "docs/research/rust-ts-r0/selection/ci-dispatch/canonical-pass2/record.json",
-        "docs/research/rust-ts-r0/selection/platforms-49fa/gate-plan.json"
-      ]
-    },
-    {
-      "id": "selection--pass2--portable-dev--portable-dev",
-      "path": "selection--pass2--portable-dev--portable-dev.tar.gz",
-      "sha256": "f26de633b7c5b5f3397190325d8e23560d8b64f2cb922c72061dc0854f83615c",
-      "size_bytes": 2608612,
-      "original_path": "docs/research/rust-ts-r0/selection/pass2/portable-dev/portable-dev.tar.gz.b64",
-      "original_sha256": "b86762dc78af6d91721272f404944353682aa452a5a75686b90955a33c077266",
-      "original_size_bytes": 3523918,
-      "archive_members": 529,
-      "cited_by": [
-        "docs/research/rust-ts-r0/selection/pass2/portable-dev/README.md",
-        "docs/research/rust-ts-r0/selection/pass2/portable-dev/record.json",
-        "docs/research/rust-ts-r0/selection/platforms-49fa/gate-plan.json"
-      ]
-    },
-    {
-      "id": "selection--platforms-49fa--ci-49fa-evidence",
-      "path": "selection--platforms-49fa--ci-49fa-evidence.tar.gz",
-      "sha256": "53120a0b24a18256ebdb529983dd3782ef6a0caf44723571fdad691db5304193",
-      "size_bytes": 3417631,
-      "original_path": "docs/research/rust-ts-r0/selection/platforms-49fa/ci-49fa-evidence.tar.gz.b64",
-      "original_sha256": "9ef859e0fa67e2a1e4b95814679690678535f9762ece06669973786645b54767",
-      "original_size_bytes": 4616803,
-      "archive_members": 253,
-      "cited_by": [
-        "docs/research/rust-ts-r0/selection/platforms-49fa/README.md",
-        "docs/research/rust-ts-r0/selection/platforms-49fa/publication-integrity.json",
-        "docs/research/rust-ts-r0/selection/platforms-49fa/record.json"
       ]
     },
     {
