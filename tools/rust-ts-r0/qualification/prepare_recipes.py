@@ -8,6 +8,7 @@ import json
 import pathlib
 import re
 import tarfile
+from sdk_origin_recipe import append_sdk_origin_checks
 
 SOURCE = pathlib.Path(__file__).resolve().parent
 ROOT = SOURCE.parents[2]
@@ -1315,6 +1316,15 @@ for index, assertion in enumerate(derived['assertions']):
     recipe['checks'].append(check(target, assertion['module_links'], 'ordered_projected_eq', origin+'/module_links'))
     if assertion['indexed_field_absences']:
         recipe['checks'].append(check(target, assertion['indexed_field_absences'], 'indexed_field_absences', origin+'/indexed_field_absences'))
+
+from ordinary_existing_assertions import append_existing_assertions
+ordinary_path = SOURCE / 'ordinary-existing-assertions.json'
+ordinary_assertions = json.loads(ordinary_path.read_text(encoding='utf-8'))
+append_existing_assertions(recipes, ordinary_assertions, ordinary_path.relative_to(ROOT).as_posix())
+
+sdk_origin_path = ROOT / 'docs/research/rust-ts-r0/resumption/sdk-origin-assertions-20261021.json'
+sdk_origin_document = json.loads(sdk_origin_path.read_text(encoding='utf-8'))
+append_sdk_origin_checks(recipes, sdk_origin_document, sdk_origin_path.relative_to(ROOT).as_posix())
 
 for recipe in recipes:
     complete_component_fields(recipe)

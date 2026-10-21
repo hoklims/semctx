@@ -299,7 +299,9 @@ class RecipeOutputTest(unittest.TestCase):
             relocated = pathlib.Path(directory) / 'clone'
             observer = relocated / 'tools/rust-ts-r0/qualification'
             observer.mkdir(parents=True)
-            for name in ['prepare_recipes.py', 'reason-routing-audit.json', 'coupled-mapping-scope.json']:
+            for name in ['prepare_recipes.py', 'reason-routing-audit.json', 'coupled-mapping-scope.json',
+                         'ordinary_existing_assertions.py', 'ordinary-existing-assertions.json',
+                         'sdk_origin_recipe.py']:
                 shutil.copyfile(source / name, observer / name)
             shutil.copytree(
                 root / 'docs/research/rust-ts-r0/cases',
@@ -309,18 +311,21 @@ class RecipeOutputTest(unittest.TestCase):
             derived = pathlib.Path('docs/research/rust-ts-r0/resumption/outline-link-whole-assertions-20261021.json')
             (relocated / derived).parent.mkdir(parents=True)
             shutil.copyfile(root / derived, relocated / derived)
+            sdk_origin = pathlib.Path('docs/research/rust-ts-r0/resumption/sdk-origin-assertions-20261021.json')
+            shutil.copyfile(root / sdk_origin, relocated / sdk_origin)
             reproduction = pathlib.Path('docs/research/rust-ts-r0/qualification/reproduction')
             (relocated / reproduction).mkdir(parents=True)
             name = 'qualifier-reproduction.tar.gz.b64'
             shutil.copyfile(root / reproduction / name, relocated / reproduction / name)
             script = (
-                'import runpy, sys\n'
+                'import pathlib, runpy, sys\n'
                 f'forbidden = {forbidden!r}\n'
                 'def deny_historical_reads(event, args):\n'
                 '    if event == "open" and args[0] in forbidden:\n'
                 '        raise PermissionError("historical author path accessed")\n'
                 'sys.addaudithook(deny_historical_reads)\n'
                 'script = sys.argv.pop(1)\n'
+                'sys.path.insert(0, str(pathlib.Path(script).parent))\n'
                 'runpy.run_path(script, run_name="__main__")\n'
             )
             result = subprocess.run(

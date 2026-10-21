@@ -11,6 +11,7 @@ mod reader_error_replay;
 mod receiver_context;
 mod repository_replay;
 mod retained_runtime_replay;
+mod sdk_origin_assertions;
 mod source_confinement_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
@@ -1076,7 +1077,28 @@ fn run_raw_recipe(
         let capability = native_product_capability(&observed, &request, &scope);
         let reads = join_successful_reads(&observed, &request, sdk);
         boundaries.push(json!({"observation":index,"native_product_capability":match capability {Ok(v)=>v,Err(e)=>json!({"state":"NATIVE_PRODUCT_CONTEXT_UNKNOWN_OR_UNIMPLEMENTED","error":e})},"read_provenance":match reads {Ok(v)=>v,Err(e)=>json!({"state":"READ_PROVENANCE_REJECTED","error":e})}}));
-        observations.push(observed);
+        // Comparator-only evidence enrichment after the existing request/artifact binding.
+        // The native response is neither changed on disk nor credited with a new output field.
+        let mut evaluation_context = observed;
+        if recipe["checks"].as_array().is_some_and(|checks| {
+            checks.iter().any(|c| {
+                c["target"]
+                    .as_array()
+                    .is_some_and(|target| target.first() == Some(&json!("_sdk_origin_assertion")))
+            })
+        }) {
+            evaluation_context["_sdk_origin_assertion"] = match sdk_origin_assertions::project(
+                &evaluation_context,
+                &request,
+                sdk,
+            ) {
+                Ok(projection) => projection,
+                Err(error) => {
+                    json!({"state":"SDK_ORIGIN_READ_OR_DECLARATION_BINDING_REJECTED","error":error})
+                }
+            };
+        }
+        observations.push(evaluation_context);
     }
     let checks=recipe["checks"].as_array().ok_or("missing checks")?.iter().map(|c| {
         let i=c.get("observation").and_then(Value::as_u64).unwrap_or(0) as usize;
@@ -4025,7 +4047,9 @@ fn native_product_capability(
     for check in checks {
         let target = check["target"].as_array().ok_or("missing product target")?;
         match target.first().and_then(Value::as_str) {
-            Some("raw_extraction" | "assembly" | "calls") => whole_program = true,
+            Some("raw_extraction" | "assembly" | "calls" | "_sdk_origin_assertion") => {
+                whole_program = true
+            }
             Some("outlines") => {
                 if target.last().and_then(Value::as_str) == Some("hasSyntaxErrors")
                     && check["expected"] == true
@@ -4554,6 +4578,34 @@ fn repair_units(ids: &[&str]) {
         "repair observations: {}",
         serde_json::to_string(&results).unwrap()
     );
+}
+
+#[test]
+fn repair_sdk_origin_declarations_existing_inputs() {
+    repair_units(&[
+        "V3-SDK-02-01::base",
+        "V3-SDK-02-05::base",
+        "V3-SDK-01-01::base",
+        "V3-SDK-01-05::base",
+        "V3-SDK-08-01::base",
+        "V3-SDK-08-02::base",
+        "V3-SDK-09-01::base",
+        "V3-SDK-09-02::base",
+        "V3-SDK-04-01::base",
+        "V3-SDK-04-04::base",
+        "V3-SDK-03-01::base",
+        "V3-SDK-03-04::base",
+    ]);
+}
+
+#[test]
+fn repair_existing_ordinary_consumer_assertions() {
+    repair_units(&[
+        "P04-small-complete-symbol-set::base",
+        "P07-namespace-real-owner::base",
+        "P21-local-sdk-shaped-callback-method::base",
+        "N21-actual-sdk-map-callback::base",
+    ]);
 }
 
 #[test]
@@ -6687,5 +6739,51 @@ fn comparator_outline_whole_distinguishes_presence_from_false_or_null() {
         let mut poisoned = value_link.clone();
         poisoned[0]["whole"] = value;
         assert!(!compare(&poisoned, &value_link, "ordered_projected_eq").unwrap());
+    }
+}
+
+#[test]
+fn comparator_existing_ordinary_jsdoc_absence_is_not_null_or_false() {
+    let symbols = json!([{"name":"leaf"},{"name":"Shape"},{"name":"Flag"}]);
+    let absent = json!([{"index":1,"fields":["jsdoc"]},{"index":2,"fields":["jsdoc"]}]);
+    assert!(compare(&symbols, &absent, "indexed_field_absences").unwrap());
+    for index in [1, 2] {
+        for value in [Value::Null, json!(false), json!(""), json!("wrong")] {
+            let mut poisoned = symbols.clone();
+            poisoned[index]["jsdoc"] = value;
+            assert!(!compare(&poisoned, &absent, "indexed_field_absences").unwrap());
+        }
+    }
+}
+
+#[test]
+fn comparator_existing_ordinary_callee_endpoint_poison_is_rejected() {
+    let call = json!([{"callerRelPath":"lib.test.js","calleeName":"helper",
+        "calleeRelPath":"lib.mjs","calleeSymbolPath":"helper","line":1}]);
+    assert!(compare(&call, &call, "unordered_projected_eq").unwrap());
+    for (field, value) in [
+        ("calleeRelPath", json!("wrong.mjs")),
+        ("calleeSymbolPath", json!("unused")),
+        ("calleeName", json!("unused")),
+        ("calleeRelPath", Value::Null),
+    ] {
+        let mut poisoned = call.clone();
+        poisoned[0][field] = value;
+        assert!(!compare(&poisoned, &call, "unordered_projected_eq").unwrap());
+    }
+    let local = json!([{"callerRelPath":"main.ts","callerSymbolPath":"run",
+        "calleeName":"map","calleeRelPath":"main.ts","calleeSymbolPath":"map",
+        "calleeUnmodeledReason":"OBJECT_LITERAL_MEMBER","line":1}]);
+    assert!(compare(&local, &local, "unordered_projected_eq").unwrap());
+    let mut wrong_owner = local.clone();
+    wrong_owner[0]["calleeSymbolPath"] = json!("Array.map");
+    assert!(!compare(&wrong_owner, &local, "unordered_projected_eq").unwrap());
+    let sdk = json!([{"calleeName":"map","calleeSymbolPath":"Array.map"}]);
+    let absent = json!([{"index":0,"fields":["calleeRelPath"]}]);
+    assert!(compare(&sdk, &absent, "indexed_field_absences").unwrap());
+    for value in [Value::Null, json!(false), json!("main.ts")] {
+        let mut poisoned = sdk.clone();
+        poisoned[0]["calleeRelPath"] = value;
+        assert!(!compare(&poisoned, &absent, "indexed_field_absences").unwrap());
     }
 }
