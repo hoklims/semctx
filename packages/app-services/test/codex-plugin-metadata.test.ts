@@ -272,6 +272,40 @@ describe("Codex declarative plugin inventory", () => {
     });
   }
 
+  test("Codex sidecar observations distinguish inodes whose numeric values collide", () => {
+    const { home, repo } = fixture();
+    snapshot(home);
+    writeFileSync(join(home, "config.toml"),
+      "[marketplaces.semctx-stable]\nsource_type = 'git'\nsource = 'hoklims/semctx'\nref = 'stable'\nsparse_paths = []\n");
+    const file = join(home, ".tmp", "marketplaces", "semctx-stable", ".codex-marketplace-install.json");
+    const native = JSON.stringify({ source_type: "git", source: "hoklims/semctx", ref_name: "stable",
+      sparse_paths: [], revision: "1".repeat(40) });
+    writeFileSync(file, native);
+    const first = 9007199254740992n;
+    const second = first + 1n;
+    expect(Number(first)).toBe(Number(second));
+    let replaced = false;
+    const nativeLstat = fs.lstatSync;
+    const probe = spyOn(fs, "lstatSync").mockImplementation(((path, options) => {
+      const stats = nativeLstat(path, options);
+      if (String(path) === file) {
+        const ino = replaced ? second : first;
+        Object.defineProperty(stats, "ino", { value: options?.bigint === true ? ino : Number(ino) });
+      }
+      return stats;
+    }) as typeof fs.lstatSync);
+    try {
+      expect(readFixtureInventory(repo, home, undefined, home)).not.toBeNull();
+      expect(readFixtureInventory(repo, home, () => {
+        renameSync(file, `${file}.previous`);
+        writeFileSync(file, native);
+        replaced = true;
+      }, home)).toBeNull();
+    } finally {
+      probe.mockRestore();
+    }
+  });
+
   test("a fresh profile is provably empty and never creates profile files", () => {
     const { home, repo } = fixture();
     expect(readFixtureInventory(repo, home, undefined, home)).toEqual({ marketplaces: [], plugins: [] });

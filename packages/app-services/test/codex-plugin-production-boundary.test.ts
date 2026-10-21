@@ -215,7 +215,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
       }
     }
     const missing = () => Object.assign(new Error("synthetic absence"), { code: "ENOENT" });
-    const stat = (path) => {
+    const stat = (path, options) => {
       const physical = resolve(String(path));
       // The home marketplace is the last part of a snapshot. Swap its cancelled ancestor
       // only after that snapshot has captured the selected raw home traversal.
@@ -225,7 +225,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
         && physical === join(osHome, ".cursor-plugin")) systemPhase = 1;
       if (!dirs.has(physical) && !files.has(physical)) throw missing();
       if (physical === cancelled) rawHits += 1;
-      return {
+      const observed = {
         dev: 1, ino: identities.get(physical)
           + (physical === cancelled ? phase * 1000 : 0)
           + (((systemPolicy === "root-drift" && physical === knownFolder)
@@ -237,6 +237,10 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
         isFile: () => files.has(physical) || (physical === cancelled && fallbackFault === "regular"),
         isSymbolicLink: () => physical === cancelled && fallbackFault === "link",
       };
+      if (options?.bigint === true) {
+        for (const key of ["dev", "ino", "mode", "size"]) observed[key] = BigInt(observed[key]);
+      }
+      return observed;
     };
     const realpath = (path) => { stat(path); return resolve(String(path)); };
     realpath.native = realpath;
@@ -265,7 +269,7 @@ function productionFixture(source: RawHomeSource, drift: boolean, orphan: boolea
         descriptors.set(descriptor, { path: physical, offset: 0 });
         return descriptor;
       },
-      fstatSync: (descriptor) => stat(descriptors.get(descriptor).path),
+      fstatSync: (descriptor, options) => stat(descriptors.get(descriptor).path, options),
       readSync: (descriptor, buffer, offset, length, position) => {
         const opened = descriptors.get(descriptor), bytes = files.get(opened.path);
         const start = position ?? opened.offset, count = Math.max(0, Math.min(length, bytes.length - start));
