@@ -19,6 +19,8 @@ from pathlib import Path
 
 from additional_digest_dispositions import IDS as DIGEST_IDS, additional_digest_dispositions
 from configuration_6046_disposition import configuration_6046_disposition
+from prepare_token_family import prepare as prepare_token_family
+from native_compiler_identity import record_native_compiler_source
 
 AUTHORITY = 'owner-reviewed-macos-linux-authorizes-windows-observation'
 SDK_SHA = 'f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5'
@@ -172,6 +174,23 @@ def supplement_counts(report, additional_sources=(), diagnostic_assessment=None)
             'additional_digest_representations': len(disposed_sources), 'additional_message_representations': len(disposed_public)}
 
 
+def token_nonpass(report):
+    if not isinstance(report, dict) or report.get('state') != 'TOKEN_GUARD_OBSERVATIONS_MATCH' or report.get('pass') is not True:
+        return 1
+    actual = report.get('actual', {})
+    require(report.get('counts') == {'issuance': 13, 'revalidation': 7, 'map_identity': 1}, 'token report denominator differs')
+    require(actual.get('counts') == {'issuance': 13, 'revalidation': 7, 'mapIdentity': 1}, 'actual token consumer denominator differs')
+    require(len(actual.get('issuance', [])) == 13 and len(actual.get('revalidation', [])) == 7,
+            'actual token observations are incomplete')
+    require(len({row['name'] for row in actual['issuance']}) == 13
+            and len({row['name'] for row in actual['revalidation']}) == 7, 'token result identities duplicated')
+    require(report.get('native_queries') == 1 and report.get('baseline_actual_program_records') == 21,
+            'native query count confused with historical baseline Programs')
+    require(actual.get('mapIdentity', {}).get('identical_map_content') is True
+            and actual['mapIdentity'].get('same_map_identity') is False, 'Map identity contrast absent')
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo', type=Path, required=True)
@@ -191,9 +210,11 @@ def main():
     save(out/'source-before.json', before)
     env = os.environ.copy()
     env.pop('GIT_CONFIG_GLOBAL', None)
+    env.pop('GOPORT_BUILD_VERSION', None)
     env.update(RUSTUP_TOOLCHAIN='1.95.0', RUST_TEST_THREADS='1', GOPORT_LIB_PARSE_SNAPSHOT='0',
                GOPORT_LIB_SNAPSHOT='0', CARGO_NET_OFFLINE='true', PYTHONDONTWRITEBYTECODE='1')
     require(not env.get('CARGO_TARGET_DIR'), 'unexpected Cargo target override')
+    record_native_compiler_source(out, env)
     runtime, cases = repo/RREL, repo/'docs/research/rust-ts-r0/cases'
     frozen = cases/'supplement-v2'
     runtime_manifest = load(runtime/'runtime-manifest.json')
@@ -231,6 +252,8 @@ def main():
     addenda = prepare_addenda(cases)
     require(addenda['counts']['addenda'] == 8 and len(addenda['rows']) == 8, 'addenda denominator differs')
     save(out/'addenda.disabled.json', addenda)
+    token_family = prepare_token_family(cases/'supplement-token-guards-20261021')
+    save(out/'token-family.disabled.json', token_family)
     binaries = out/'frozen-binaries'
     binaries.mkdir()
     fixture = {'optimized_frozen': True, 'source_head': args.expected_head, 'source_clean': True, 'cases_path': str(cases), 'platform': 'windows'}
@@ -245,15 +268,22 @@ def main():
     run(repo, out, 'fixture-fragment', [sys.executable, str(runtime/'write_verifier_fixture_fields.py'), '--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')], env)
     fixture.update(load(out/'fragment.disabled.json'))
     fixture['public_consumer_artifact_sha256'] = fixture['qualification_observer_sha256']
+    fixture.update(token_execution_enabled=False, token_family_path=str(out/'token-family.disabled.json'),
+                   token_family_sha256=sha(out/'token-family.disabled.json'))
     save(out/'fixture.disabled.json', fixture)
     save(out/'registry.enabled.json', enable(registry))
     save(out/'addenda.enabled.json', enable(addenda))
+    token_family.update(execution_enabled=True, candidate_execution_authorized=True)
+    save(out/'token-family.enabled.json', token_family)
     fixture.update(candidate_execution_authorized=True, public_lifecycle_execution_enabled=True,
-                   supplement_addenda_path=str(out/'addenda.enabled.json'), supplement_addenda_sha256=sha(out/'addenda.enabled.json'))
+                   supplement_addenda_path=str(out/'addenda.enabled.json'), supplement_addenda_sha256=sha(out/'addenda.enabled.json'),
+                   token_execution_enabled=True, token_family_path=str(out/'token-family.enabled.json'),
+                   token_family_sha256=sha(out/'token-family.enabled.json'))
     save(out/'fixture.enabled.json', fixture)
     permit = {'source_head': args.expected_head, 'platform': 'windows', 'candidate_execution_authorized': True,
               'fixture_sha256': sha(out/'fixture.enabled.json'), 'registry_sha256': sha(out/'registry.enabled.json'),
               'addenda_sha256': fixture['supplement_addenda_sha256'], 'root_authority': args.root_authority,
+              'token_execution_authorized': True, 'token_family_sha256': fixture['token_family_sha256'],
               'prior_native_review_reference_sha256': args.prerequisite_proof_sha256,
               'scope': 'Authorized observation acquisition only; no automatic qualification or R0.'}
     save(out/'root-execution-permit.json', permit)
@@ -272,7 +302,7 @@ def main():
     require(after == before, 'source drift during native campaigns')
     for name in artifacts:
         require(sha(fixture[name+'_path']) == fixture[name+'_sha256'], 'frozen artifact drift')
-    reports = ['original-evidence/report.json', 'original-evidence/obligation-closure.json', 'supplement-evidence/source-results.json', 'supplement-evidence/addenda-results.json', 'supplement-evidence/public/public-report.json', 'supplement-evidence/supplement-report.json']
+    reports = ['original-evidence/report.json', 'original-evidence/obligation-closure.json', 'supplement-evidence/source-results.json', 'supplement-evidence/addenda-results.json', 'supplement-evidence/public/public-report.json', 'supplement-evidence/supplement-report.json', 'supplement-evidence/token-results.json', 'supplement-evidence/token-guards/process-outcome.json', 'supplement-evidence/token-guards/token-report.json']
     original_report = out/'original-evidence/report.json'
     supplement_report = out/'supplement-evidence/supplement-report.json'
     observed = None
@@ -283,6 +313,7 @@ def main():
         save(out/'additional-digest-representations.json', digest_dispositions)
         save(out/'configuration-message-representation.json', diagnostic)
         observed = supplement_counts(raw_supplement, digest_dispositions, diagnostic)
+        observed['token_nonpass'] = token_nonpass(raw_supplement.get('token_guards'))
     original_counts = None
     if original_report.is_file():
         raw = load(original_report)
@@ -295,7 +326,7 @@ def main():
         'attempts': 1, 'qualified': False, 'qualification_credit': 0, 'R0_decision': None,
         'root_prior_review_reference_sha256': args.prerequisite_proof_sha256, 'prior_native_review_independently_verified_by_this_runner': False})
     require(original['exit_code'] == 0 and supplement['exit_code'] == 0, 'native acquisition failed; raw evidence retained')
-    required_counts = ('source_nonpass', 'digest_nonpass', 'addenda_nonpass', 'public_nonpass')
+    required_counts = ('source_nonpass', 'digest_nonpass', 'addenda_nonpass', 'public_nonpass', 'token_nonpass')
     require(original_counts is not None and observed is not None and not any(observed[key] for key in required_counts),
             'supplement contains unknown/nonmatching required observations; inspect raw evidence and scoped dispositions')
 

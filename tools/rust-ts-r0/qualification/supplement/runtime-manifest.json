@@ -11,8 +11,8 @@
     },
     {
       "path": "directory_closure.py",
-      "sha256": "2a8f0d4e492505cab71dcfb84dffc130890634eae20267612e69a4055c39b96f",
-      "bytes": 5233
+      "sha256": "3b911e8225fdbd442a9be44f007b57986b3fe16f6ac5ee289dfdfeaa83aaed71",
+      "bytes": 12112
     },
     {
       "path": "full_admission_adapter.py",
@@ -56,8 +56,8 @@
     },
     {
       "path": "public_bridge.py",
-      "sha256": "cb17c69468839be550efaf412cde932a1196b349c8a6e6a75441a39c6bcb30c6",
-      "bytes": 22978
+      "sha256": "902243d949bda9177553eeac585f45ec99ddd3437b98412005d4c503b72d9a42",
+      "bytes": 23248
     },
     {
       "path": "public_graph_projection.cjs",
@@ -66,8 +66,8 @@
     },
     {
       "path": "public_runtime.py",
-      "sha256": "2d0e4543351fefe62e5ff0f4f8d6ecd0896cb215c2b926cb060edcba69db67c7",
-      "bytes": 28323
+      "sha256": "9cd48fadd3eb3666852829f3042d71c9304382c3222624d4ded509d0bfe328f5",
+      "bytes": 28733
     },
     {
       "path": "source_adapter.py",
@@ -85,19 +85,24 @@
       "bytes": 8370
     },
     {
+      "path": "test_directory_alias_closure.py",
+      "sha256": "5c20d6848ef7b56868674ce74db0f68fefa9d3db4eabda29aaa3ebd8840397d0",
+      "bytes": 7526
+    },
+    {
       "path": "test_directory_closure.py",
-      "sha256": "bff215e5bcf8fdcd29f22c9ed28508e8837fd97d602833237036c006f5936326",
-      "bytes": 3119
+      "sha256": "a853d614948375d3021c1b197002466d6452b7797f357bd646b644f83ea07a68",
+      "bytes": 3707
     },
     {
       "path": "test_first_binding_dto.py",
-      "sha256": "e8284bfacb9dbaf54bc1900a519c87799637248911464bf6d0fddc013e528be6",
-      "bytes": 1815
+      "sha256": "f8cace5e31faa13c70eab1b66738177c986286d8598705dffc2675971006bc8f",
+      "bytes": 2579
     },
     {
       "path": "test_full_admission_plan.py",
-      "sha256": "9c36c4b1a9c52b0d3a3918306267714faa712e453c98beeffe33d0b3cf520309",
-      "bytes": 2118
+      "sha256": "c114fdb4b50e820ef56a41364ec01e970c9e40fcfb35c6422195ac5a03ed10e3",
+      "bytes": 4487
     },
     {
       "path": "test_lifecycle_adapter.py",
@@ -126,8 +131,8 @@
     },
     {
       "path": "test_public_runtime.py",
-      "sha256": "231faff187499d5f629c91adbbad712ab663e057084bff33661504ca37e44a00",
-      "bytes": 8578
+      "sha256": "5476e9fcded2b6599b7235f5fb753dde91660244b0b84c8c762ef6cbbd256932",
+      "bytes": 8614
     },
     {
       "path": "test_runtime_consumers.py",

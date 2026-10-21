@@ -1,0 +1,13 @@
+{
+  "status": "INDEPENDENT_BASELINE_WITNESS_FROZEN_NO_NATIVE_QUALIFICATION",
+  "frozenAt": "2026-10-21T21:06:25.758Z",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "manifestSha256": "58036fdf209e27bb8d37027b29afc3b8646c3671dfd9e09dfa22f0421b46f3e5",
+  "fileCount": 1904,
+  "baselineExit": 0,
+  "verifyExit": 0,
+  "obligationCredit": false,
+  "nativeExecution": "NOT_OBSERVED",
+  "implementationAccess": "NONE",
+  "original354and51": "UNMODIFIED"
+}

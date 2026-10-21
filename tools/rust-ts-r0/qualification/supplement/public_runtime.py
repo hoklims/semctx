@@ -236,6 +236,8 @@ def prepare_operation(frozen_root, row_id, sequence, case_root, sdk_directory, c
             'root': move(repository), 'sdk_directory': sdk_directory, 'case_sensitive': case_sensitive,
             'files': files, 'directories': sorted({p.rsplit('/', 1)[0] for p in files}),
             'containing_file': move(target), 'specifier': args[0]})
+        if not retained and (len(args) <= 6 or undefined(args[6])):
+            result['request']['repository_boundary'] = {'mode': 'absent'}
     else:
         result.update(surface='raw_cli', mode=None, request={
             'id': row_id + ':' + str(sequence), 'cwd': move(repository), 'sdk_directory': sdk_directory,
@@ -282,12 +284,14 @@ def materialize_physical(prepared):
             target.parent.mkdir(parents=True, exist_ok=True)
             with target.open('xb') as stream:
                 stream.write(raw)
+    prelink_directory_records = directory_closure.materialize_prelinks(prepared)
     for target, _raw, link in validated:
         if link is not None:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.symlink_to(link, target_is_directory=link.is_dir())
     directory_records = directory_closure.materialize(prepared)
-    return {'status': 'MATERIALIZED_INPUTS_ONLY', 'files': len(validated), 'empty_directories': directory_records, 'native_queries': 0}
+    return {'status': 'MATERIALIZED_INPUTS_ONLY', 'files': len(validated), 'empty_directories': directory_records,
+            'prelink_empty_directories': prelink_directory_records, 'native_queries': 0}
 
 
 def normalize(value, prepared):
@@ -364,8 +368,9 @@ def project_operation(prepared, native, graph_projector=None):
     if native.get('unsupported') or native.get('executed') is False:
         raise Gap('NATIVE_COMPONENT_UNSUPPORTED')
     if name == 'discoverRepository':
+        file_fields = ('relPath', 'role', 'content') if prepared['request']['config']['version'] == 1 else ('relPath', 'role', 'language', 'content')
         result = {'candidates': [{k: c[k] for k in ('relPath', 'selectionDecision', 'analysisOutcome', 'reason') if k in c} for c in native['candidates']],
-            'files': [{k: f[k] for k in ('relPath', 'role', 'language', 'content')} for f in native['files']]}
+            'files': [{k: f[k] for k in file_fields} for f in native['files']]}
     elif name == 'extractRelativeImportSpecifiers':
         result = native['specifiers']
     elif name == 'extractTypeScriptParallel':

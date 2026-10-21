@@ -26,3 +26,11 @@ class FirstBindingDtoTests(unittest.TestCase):
         self.assertEqual(actual,{'symbols':[{'name':'actual','startLine':1,'declarations':[{'startUtf16':2}]}],'calls':[]})
         self.assertEqual(facts,original)
         self.assertEqual(r.public_extraction({'modules':['actual']}),{'modules':['actual']})
+    def test_legacy_files_follow_discovery_dto_without_language_but_v2_keeps_it(self):
+        native = {'candidates': [], 'files': [{'relPath': 'docs/guide.md', 'role': 'document', 'language': 'markdown', 'content': '# Guide\n'}]}
+        before = copy.deepcopy(native)
+        prepared = {'baseline_function': 'discoverRepository', 'request': {'config': {'version': 1}}, 'relocations': [], 'path_normalization': {'roots': []}}
+        self.assertEqual(r.project_operation(prepared, native), {'candidates': [], 'files': [{'relPath': 'docs/guide.md', 'role': 'document', 'content': '# Guide\n'}]})
+        prepared['request']['config']['version'] = 2
+        self.assertEqual(r.project_operation(prepared, native), native)
+        self.assertEqual(native, before)

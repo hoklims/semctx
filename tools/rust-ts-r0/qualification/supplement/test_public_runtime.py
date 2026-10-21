@@ -17,7 +17,7 @@ class RuntimeTests(unittest.TestCase):
     def test_discovery_projection_keeps_denominator_and_failure(self):
         native = {'executed': True, 'unsupported': [], 'candidates': [
             {'relPath': 'main.ts', 'selectionDecision': 'selected', 'analysisOutcome': 'failed', 'reason': 'ESCAPE', 'language': 'typescript'}], 'files': []}
-        result = r.project_operation(self.prepared('discoverRepository'), native)
+        result = r.project_operation(self.prepared('discoverRepository', request={'config': {'version': 2}}), native)
         self.assertEqual(result['candidates'], [{'relPath': 'main.ts', 'selectionDecision': 'selected', 'analysisOutcome': 'failed', 'reason': 'ESCAPE'}])
 
     def test_native_bindings_projection_keeps_full_members(self):

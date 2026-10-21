@@ -55,6 +55,15 @@ class FrozenDirectoryClosureTests(unittest.TestCase):
                 runtime.materialize_physical(prepared)
             self.assertFalse(destination.exists())
 
+    def test_absent_configured_boundary_is_explicit_and_only_for_the_live_call(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            retained = self.prepare(2, Path(temporary)/'retained')
+            live = self.prepare(3, Path(temporary)/'live')
+            self.assertNotIn('repository_boundary', retained['request'])
+            self.assertEqual(live['request']['repository_boundary'], {'mode': 'absent'})
+            self.assertFalse(live['retained'])
+            self.assertTrue(any(path.endswith('/pnpm-workspace.yaml') for path in live['request']['files']))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,64 @@
+{
+  "status": "V3_FROZEN_PACKAGING_EXPLICIT_GIT_FIXTURE_REPLAY_EXPECTED_MATCH",
+  "frozenAt": "2026-10-21T21:24:43.852Z",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3648,
+      "sha256": "26a5c1422047c19a11325fd678f7111932c482e914ca422b520a5fdd6f2fffae"
+    },
+    {
+      "path": "baseline-authority.json",
+      "bytes": 1441,
+      "sha256": "a6cad108dd5d1748183ce57404152befdc4949a79d57bae088d5f4758deea483"
+    },
+    {
+      "path": "expected.json",
+      "bytes": 1562,
+      "sha256": "9b268653eb2c6d6fd06fa8104fc1fffd52960a0da68a12c0414496caae85a675"
+    },
+    {
+      "path": "freeze.json",
+      "bytes": 463,
+      "sha256": "b6e3c1276924f61723ecfd88732f172e229a63d7b653a4a869be7cbae59b2650"
+    },
+    {
+      "path": "index.json",
+      "bytes": 2065,
+      "sha256": "fbb7de0779844bcf157939d1f6cdf51188e2efc76809a9c6cb4a6d946a957905"
+    },
+    {
+      "path": "lot.tar.gz.b64",
+      "bytes": 11672765,
+      "sha256": "4aed40e337737277a019728c2c4cf6848765f8d85c758862a7289c2d38469645"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 351317,
+      "sha256": "58036fdf209e27bb8d37027b29afc3b8646c3671dfd9e09dfa22f0421b46f3e5"
+    },
+    {
+      "path": "unpack.mjs",
+      "bytes": 9170,
+      "sha256": "eb7459ca40544dc8e8e670a14fd034b6f50101d8f9bf39ec3d58cd390250b76d"
+    },
+    {
+      "path": "v3-replay-evidence.tar.gz.b64",
+      "bytes": 18361,
+      "sha256": "212894abd60f9d4ed37cb055473f20cfe66b45cc42d45379269c4ea718812a6a"
+    }
+  ],
+  "originalManifestSha256": "58036fdf209e27bb8d37027b29afc3b8646c3671dfd9e09dfa22f0421b46f3e5",
+  "validation": {
+    "baselineExecutionCount": 1,
+    "gitInitExit": 0,
+    "baselineExit": 0,
+    "verifyExit": 0,
+    "issuance": 13,
+    "revalidation": 7,
+    "mapIdentityContrasts": 1,
+    "actualProgramRecords": 21
+  },
+  "nativeExecution": "NOT_OBSERVED",
+  "obligationCredit": false
+}

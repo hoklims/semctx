@@ -36,6 +36,8 @@ def authority(root):
 
 
 def prepare(root, row_id, sequence, relocations):
+    if row_id == ALIAS_ROW:
+        return alias_prepare(root, sequence, relocations)
     if row_id != ROW:
         return {}
     proof, vector = authority(root)
@@ -58,6 +60,7 @@ def attach_request(prepared):
 
 
 def validate(prepared):
+    alias_validate(prepared)
     if prepared.get('row_id') != ROW:
         if prepared.get('physical_empty_directories') or prepared.get('directory_setup_authority'):
             raise ValueError('DIRECTORY_SETUP_OUTSIDE_EXACT_FROZEN_VECTOR')
@@ -98,4 +101,112 @@ def materialize(prepared):
             raise ValueError('DIRECTORY_SETUP_NOT_FRESH_EMPTY_DIRECTORY')
         records.append({'path': str(target), 'kind': 'directory', 'empty': True,
                         'authority': prepared['directory_setup_authority']})
+    return records
+
+
+# The recorder preserves both directory links, but not their empty target.
+# This is a separate frozen setup kind, never a generic link/directory API.
+ALIAS_ROW = 'directory-alias-03'
+ALIAS_SOURCE = 'v1-preserved/authority/packages/ts-analyzer/test/discovery-missing-import-alias.test.ts'
+ALIAS_SOURCE_SHA = '831a47b07d71525991bca471bbcff80c6b6de7545e1fe709f8989df58dd44212'
+ALIAS_VECTOR = 'public-vectors/directory-alias-03.json'
+ALIAS_VECTOR_SHA = '32eb0b6da710f9d6e40f399581b7dac9aa0be1f612fb121ef452c6c6bc635bb0'
+CAPTURE_SHA = 'f35139003a1bf954dbfc151e68ece3a5fef7edb95a5dc3d925af6da2b8212e79'
+
+
+def alias_authority(root):
+    root = Path(root).resolve()
+    manifest = json.loads(sealed(root/'manifest-sha256.json', MANIFEST))
+    entries = {row['path']: row for row in manifest['files']}
+    for relative, pin in [(ALIAS_SOURCE, ALIAS_SOURCE_SHA), (ALIAS_VECTOR, ALIAS_VECTOR_SHA), ('capture.ts', CAPTURE_SHA)]:
+        if entries[relative]['sha256'] != pin:
+            raise ValueError('PRELINK_DIRECTORY_MANIFEST_MEMBER_DIFFERS')
+        sealed(root/relative, pin)
+    source = sealed(root/ALIAS_SOURCE, ALIAS_SOURCE_SHA).decode('utf-8').splitlines()
+    if source[36].strip() != 'const outside = join(parent, "outside"); mkdirSync(outside);' or 'symlinkSync(outside, join(physical, "external")' not in source[37]:
+        raise ValueError('PRELINK_DIRECTORY_CALLER_DIFFERS')
+    proof = {'kind': 'frozen_caller_empty_existing_symlink_target',
+        'manifest_path': str(root/'manifest-sha256.json'), 'manifest_sha256': MANIFEST,
+        'source_path': str(root/ALIAS_SOURCE), 'source_sha256': ALIAS_SOURCE_SHA,
+        'source_lines': [37, 38], 'vector_path': str(root/ALIAS_VECTOR), 'vector_sha256': ALIAS_VECTOR_SHA,
+        'capture_path': str(root/'capture.ts'), 'capture_sha256': CAPTURE_SHA,
+        'directory_listing_captured': False, 'additional_symlinks_created': 0}
+    return proof, json.loads(sealed(root/ALIAS_VECTOR, ALIAS_VECTOR_SHA))
+
+
+def alias_prepare(root, sequence, relocations):
+    proof, vector = alias_authority(root)
+    if sequence != 8 or len(relocations) != 1 or relocations[0][0] != vector['pathNormalization']['roots'][0]['raw']:
+        raise ValueError('PRELINK_DIRECTORY_OPERATION_OR_FIXTURE_DIFFERS')
+    if len(vector['operations']) != 1 or vector['operations'][0]['sequence'] != 8 or vector['operations'][0]['baselineFunction'] != 'discoverRepository':
+        raise ValueError('PRELINK_DIRECTORY_OPERATION_DIFFERS')
+    relocated = relocations[0][1].rstrip('/')
+    return {'physical_prelink_empty_directories': [relocated+'/outside'], 'prelink_directory_setup_authority': proof}
+
+
+def alias_validate(prepared):
+    if prepared.get('row_id') != ALIAS_ROW:
+        if prepared.get('physical_prelink_empty_directories') or prepared.get('prelink_directory_setup_authority'):
+            raise ValueError('PRELINK_DIRECTORY_OUTSIDE_EXACT_FROZEN_VECTOR')
+        return []
+    proof = prepared.get('prelink_directory_setup_authority')
+    if not isinstance(proof, dict) or 'manifest_path' not in proof:
+        raise ValueError('PRELINK_DIRECTORY_AUTHORITY_MISSING')
+    root = Path(proof['manifest_path']).parent
+    expected = alias_prepare(root, prepared['sequence'], prepared['relocations'])
+    if proof != expected['prelink_directory_setup_authority'] or prepared.get('physical_prelink_empty_directories') != expected['physical_prelink_empty_directories']:
+        raise ValueError('PRELINK_DIRECTORY_AUTHORITY_OR_PATH_DIFFERS')
+    if prepared['baseline_function'] != 'discoverRepository' or prepared['surface'] != 'repository_discovery_cli':
+        raise ValueError('PRELINK_DIRECTORY_FUNCTION_OR_SURFACE_DIFFERS')
+    relocated = prepared['relocations'][0][1].rstrip('/')
+    if relocated != prepared['case_root'].rstrip('/')+'/fixture-000':
+        raise ValueError('PRELINK_DIRECTORY_FIXTURE_LAYOUT_DIFFERS')
+    destination = Path(prepared['case_root']).resolve()
+    if not Path(relocated).resolve().is_relative_to(destination) or Path(relocated).resolve() == destination:
+        raise ValueError('PRELINK_DIRECTORY_ESCAPES_CASE')
+    # Bind the already captured links and sole file exactly; do not add a link,
+    # silently retarget one, or allow an extra file to precreate the empty target.
+    _proof, vector = alias_authority(root)
+    closure = vector['operations'][0]['request']['fixtureClosure']
+    expected_physical = []
+    for entry in closure:
+        path = relocated+'/'+entry['path']
+        if 'symlink' in entry:
+            target = entry['symlink'].replace('\\', '/')
+            original = prepared['relocations'][0][0]
+            if not target.startswith(original+'/'):
+                raise ValueError('PRELINK_DIRECTORY_FROZEN_LINK_UNBOUND')
+            expected_physical.append({'path': path, 'symlink': relocated+target[len(original):]})
+        else:
+            expected_physical.append({'path': path, 'blob_ref': {'path': str(root/'public-vectors'/entry['materializedBlob']), 'sha256': entry['sha256']}, 'size': entry['size']})
+    if prepared['physical_setup'] != expected_physical:
+        raise ValueError('PRELINK_DIRECTORY_CAPTURED_CLOSURE_DIFFERS')
+    return expected['physical_prelink_empty_directories']
+
+
+def materialize_prelinks(prepared):
+    paths = alias_validate(prepared)
+    destination = Path(prepared['case_root']).resolve()
+    owner = Path(prepared['case_root']).absolute()
+    records = []
+    for spelling in paths:
+        target = Path(spelling)
+        if not target.resolve().is_relative_to(destination) or target.resolve() == destination:
+            raise ValueError('PRELINK_DIRECTORY_ESCAPES_CASE')
+        current = target.parent
+        if owner.is_symlink() or getattr(owner.lstat(), 'st_file_attributes', 0) & 0x400:
+            raise ValueError('PRELINK_DIRECTORY_CASE_NOT_OWNED_DIRECTORY')
+        while current != owner:
+            if not current.is_relative_to(owner):
+                raise ValueError('PRELINK_DIRECTORY_PARENT_ESCAPES_CASE')
+            metadata = current.lstat()
+            if current.is_symlink() or getattr(metadata, 'st_file_attributes', 0) & 0x400 or not current.is_dir():
+                raise ValueError('PRELINK_DIRECTORY_PARENT_NOT_OWNED_DIRECTORY')
+            current = current.parent
+        target.mkdir(parents=False, exist_ok=False)
+        metadata = target.lstat()
+        if target.is_symlink() or getattr(metadata, 'st_file_attributes', 0) & 0x400 or not target.is_dir() or list(target.iterdir()):
+            raise ValueError('PRELINK_DIRECTORY_NOT_FRESH_EMPTY_DIRECTORY')
+        records.append({'path': str(target), 'kind': 'directory', 'empty': True,
+            'purpose': 'existing_captured_symlink_target', 'authority': prepared['prelink_directory_setup_authority']})
     return records

@@ -231,7 +231,9 @@ pub fn commands(lane: &Lane, base: &str) -> Result<Vec<Action>> {
                 "routing regressions",
                 &["bun", "test", "--timeout", "60000"],
             );
-            routing.argv.extend(ROUTING.iter().map(|s| (*s).to_owned()));
+            routing
+                .argv
+                .extend(ROUTING.iter().map(|s| format!("./{s}")));
             a.push(routing);
             a
         }
@@ -559,7 +561,7 @@ mod tests {
             "scripts/test/rust-prerequisites.test.ts",
         ] {
             assert!(
-                routing.argv.iter().any(|arg| arg == path),
+                routing.argv.iter().any(|arg| arg == &format!("./{path}")),
                 "required routing oracle not invoked: {path}"
             );
         }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { commandsForLane, runCiGate, spawnCiCommand } from "../ci-gate";
@@ -98,7 +98,7 @@ describe("CI gate runner", () => {
       "diff hygiene", "compatibility", "documentation", "quality", "routing regressions",
     ]);
     expect(commands[0]?.argv).toEqual(["git", "diff", "--check", "base-sha...HEAD"]);
-    expect(commands.at(-1)?.argv).toContain("scripts/test/governance-files.test.ts");
+    expect(commands.at(-1)?.argv).toContain("./scripts/test/governance-files.test.ts");
   });
 
   test("full lane invokes the unchanged canonical gate; smoke is added only when selected", () => {
@@ -114,7 +114,7 @@ describe("CI gate runner", () => {
     expect(() => commandsForLane(lane("focused", "windows-latest", "apps/cli/test"), "base", () => false)).toThrow();
     expect(commandsForLane(lane("focused", "macos-15", "plugins"), "base", () => true).map((command) => command.argv))
       .toEqual([
-        ["bun", "test", "--timeout", "60000", "plugins"],
+        ["bun", "test", "--timeout", "60000", "./plugins"],
         ["bun", "run", "plugin:check"],
         ["python", "scripts/verify-index-routing.py"],
       ]);
@@ -129,7 +129,7 @@ describe("CI gate runner", () => {
       ]);
     expect(commandsForLane(lane("focused", "macos-15", "plugins", "false", "2/2"), "base", () => true).map((command) => command.argv))
       .toEqual([
-        ["bun", "test", "--timeout", "60000", "--shard=2/2", "--timings=scripts/ci-test-timings.json", "plugins"],
+        ["bun", "test", "--timeout", "60000", "--shard=2/2", "--timings=scripts/ci-test-timings.json", "./plugins"],
         ["bun", "run", "plugin:check"],
         ["python", "scripts/verify-index-routing.py"],
       ]);
@@ -177,4 +177,36 @@ describe("CI gate runner", () => {
       expect(code).toBe(19);
     },
   );
+});
+
+
+test("routing and focused paths exclude nested authority copies", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-test-target-closure-"));
+  try {
+    const makeTest = (relative: string, marker: string): void => {
+      const target = join(root, relative);
+      mkdirSync(join(target, ".."), { recursive: true });
+      writeFileSync(target, `import {test,expect} from "bun:test"; test("meaningful target test",()=>{expect(3*3).toBe(9); console.log(${JSON.stringify(marker)});});\n`);
+    };
+    const routing = commandsForLane(lane("contract", "ubuntu-latest"), "base", () => true).at(-1)!;
+    for (const path of routing.argv.slice(4)) {
+      const relative = path.replace(/^\.\//, "");
+      makeTest(relative, `OWNED_TARGET:${relative}`);
+      makeTest(`docs/research/cases/authority/${relative}`, "FOREIGN_TEST_EXECUTED:routing-copy");
+    }
+    makeTest("plugins/owned.test.ts", "OWNED_TARGET:plugins");
+    makeTest("docs/research/cases/authority/plugins/foreign.test.ts", "FOREIGN_TEST_EXECUTED:plugin-copy");
+    for (const command of [routing, commandsForLane(lane("focused", "windows-latest", "plugins"), "base", () => true)[0]!]) {
+      const child = Bun.spawnSync([process.execPath, ...command.argv.slice(1)], {
+        cwd: root, stdout: "pipe", stderr: "pipe", timeout: 10_000, maxBuffer: 1024 * 1024,
+      });
+      const output = `${child.stdout.toString()}\n${child.stderr.toString()}`;
+      expect(child.exitedDueToTimeout).toBe(false);
+      expect(child.exitCode).toBe(0);
+      expect(output).toContain("OWNED_TARGET:");
+      expect(output).not.toContain("FOREIGN_TEST_EXECUTED");
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

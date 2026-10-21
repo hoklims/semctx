@@ -9,12 +9,15 @@ pub struct WorkspaceIssue {
 
 #[derive(Clone, Default)]
 struct Links {
+    declaration_root: Option<String>,
     aliases: BTreeMap<String, String>,
     unsupported: BTreeSet<String>,
     refusals: BTreeSet<String>,
 }
 
 pub struct Workspace {
+    configured_without_boundary: bool,
+    configured_declaration_root: RefCell<Option<String>>,
     pub root: String,
     sdk_directory: Option<String>,
     sdk_files: BTreeSet<String>,
@@ -325,6 +328,7 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
     else {
         return result;
     };
+    result.declaration_root = Some(workspace_root.clone());
     let Some((include, exclude)) = workspace_globs(values, fs.sensitive, &mut result.unsupported)
     else {
         return result;
@@ -409,6 +413,8 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
 impl Workspace {
     pub fn build(fs: &CaptureFs, root: &str, sdk_directory: Option<&str>) -> Self {
         Self {
+            configured_without_boundary: false,
+            configured_declaration_root: RefCell::new(None),
             root: fs.key(root),
             sdk_directory: sdk_directory.map(|path| fs.key(path)),
             sdk_files: BTreeSet::new(),
@@ -419,6 +425,11 @@ impl Workspace {
             refusals: RefCell::new(BTreeSet::new()),
             issues: RefCell::new(vec![]),
         }
+    }
+    /// Only the explicit configured-query component may request an absent
+    /// analyzed boundary. The immutable capture envelope still confines reads.
+    pub(super) fn without_configured_repository_boundary(&mut self) {
+        self.configured_without_boundary = true;
     }
     pub fn enable_sdk(&mut self, keys: BTreeSet<String>) -> Result<(), String> {
         if keys.is_empty() {
@@ -458,14 +469,38 @@ impl Workspace {
             detail: detail.into(),
         });
     }
+    fn declaration_boundary(&self, fs: &CaptureFs, consumer: &str) -> String {
+        if !self.configured_without_boundary {
+            return self.root.clone();
+        }
+        let mut directory = consumer;
+        while within(&self.root, directory) {
+            let marker = fs.key(&format!("{directory}/.git"));
+            if fs.files.contains_key(&marker) || fs.dirs.contains(&marker) {
+                return directory.into();
+            }
+            if directory == self.root {
+                break;
+            }
+            directory = parent(directory);
+        }
+        self.root.clone()
+    }
     fn links(&self, fs: &CaptureFs, consumer: &str, requested: &str, name: Option<&str>) -> Links {
         let key = format!("{consumer}\0{}", name.unwrap_or("*"));
         let cached = self.cache.borrow().get(&key).cloned();
         let mut links = cached.unwrap_or_else(|| {
-            let links = links_for(fs, consumer, &self.root, name);
+            let declaration_boundary = self.declaration_boundary(fs, consumer);
+            let links = links_for(fs, consumer, &declaration_boundary, name);
             self.cache.borrow_mut().insert(key, links.clone());
             links
         });
+        if self.configured_without_boundary
+            && self.configured_declaration_root.borrow().is_none()
+            && links.declaration_root.is_some()
+        {
+            *self.configured_declaration_root.borrow_mut() = links.declaration_root.clone();
+        }
         if name.is_none() && !links.aliases.is_empty() {
             links.unsupported.clear();
             links.refusals.clear();
@@ -488,7 +523,17 @@ impl Workspace {
             self.issue(path, "refusal", "WORKSPACE_PATH_OUTSIDE_ROOT");
             return None;
         }
-        if nested_repository(fs, &self.root, &key) {
+        let configured_root = self.configured_declaration_root.borrow();
+        let physical_boundary = if self.configured_without_boundary {
+            configured_root.as_deref()
+        } else {
+            Some(self.root.as_str())
+        };
+        if physical_boundary.is_some_and(|root| !within(root, &key)) {
+            self.issue(path, "refusal", "WORKSPACE_PATH_OUTSIDE_ROOT");
+            return None;
+        }
+        if physical_boundary.is_some_and(|root| nested_repository(fs, root, &key)) {
             self.issue(path, "refusal", "WORKSPACE_NESTED_REPOSITORY");
             return None;
         }
@@ -530,7 +575,12 @@ impl Workspace {
                 } else {
                     continue;
                 };
-                if !within(member, &target) || nested_repository(fs, &self.root, &target) {
+                let boundary = if self.configured_without_boundary {
+                    member.as_str()
+                } else {
+                    self.root.as_str()
+                };
+                if !within(member, &target) || nested_repository(fs, boundary, &target) {
                     continue;
                 }
                 if fs.files.contains_key(&target) || fs.dirs.contains(&target) {

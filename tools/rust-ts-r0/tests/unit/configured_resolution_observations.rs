@@ -155,3 +155,117 @@ fn explicit_query_keeps_unresolved_distinct_from_native_resolution_failure_and_r
         }
     }
 }
+
+#[test]
+fn configured_optional_boundary_preserves_physical_capture_and_git_declaration_stop() {
+    // DEV input, derived from the baseline optional-root API contract.
+    let mut value = descriptor();
+    value["root"] = serde_json::json!("/capture");
+    value["containing_file"] = serde_json::json!("/capture/repo/pkg/src/main.ts");
+    value["specifier"] = serde_json::json!("#shared");
+    value["directories"] = serde_json::json!(["/capture/repo/.git"]);
+    value["repository_boundary"] = serde_json::json!({"mode":"absent"});
+    value["files"] = serde_json::json!({
+        "/capture/pnpm-workspace.yaml":"packages:\n  - 'repo/*'\n",
+        "/capture/repo/pkg/package.json":"{\"name\":\"consumer\",\"devDependencies\":{\"config\":\"workspace:*\"}}",
+        "/capture/repo/pkg/tsconfig.json":"{\"extends\":\"config/tsconfig.json\"}",
+        "/capture/repo/pkg/src/main.ts":"export const main = 1;",
+        "/capture/repo/pkg/src/leaf.ts":"export const leaf = 2;",
+        "/capture/repo/config/package.json":"{\"name\":\"config\",\"version\":\"1.0.0\"}",
+        "/capture/repo/config/tsconfig.json":"{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"#shared\":[\"shared.ts\"]}}}",
+        "/capture/repo/config/shared.ts":"export const shared = 3;"
+    });
+    let libraries = sdk();
+    let parsed: Request = serde_json::from_value(value.clone()).unwrap();
+    let captured = capture(&parsed, &libraries).unwrap();
+    assert!(
+        captured
+            .files
+            .contains_key(&captured.key("/capture/pnpm-workspace.yaml"))
+    );
+    assert!(captured.read_file("/capture/repo/pkg/tsconfig.json").1);
+    let observed = run(value.clone(), &libraries);
+    assert_eq!(observed["executed"], true, "{observed}");
+    assert_eq!(observed["unsupported"], serde_json::json!([]), "{observed}");
+    assert_eq!(observed["resolved_file_name"], serde_json::Value::Null);
+    assert!(
+        observed["configuration"]["reasons"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|r| r
+                .as_str()
+                .unwrap()
+                .starts_with("SOURCE_CONFIGURATION_INVALID:6053:"))
+    );
+    assert!(
+        observed["workspaceMappings"]
+            .as_object()
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        observed["probes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|p| p["operation"] == "read_file"
+                && p["path"] == "/capture/repo/pkg/tsconfig.json"
+                && p["found"] == true
+                && p["content_id"].is_string())
+    );
+    let config_text = value["files"]["/capture/repo/pkg/tsconfig.json"]
+        .as_str()
+        .unwrap();
+    assert!(
+        observed["probes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|p| p["operation"] == "read_file"
+                && p["path"] == "/capture/repo/pkg/tsconfig.json"
+                && p["content_id"] == identity::digest_bytes(config_text.as_bytes()))
+    );
+    value["specifier"] = serde_json::json!("./leaf");
+    let positive = run(value.clone(), &libraries);
+    assert_eq!(positive["executed"], true, "{positive}");
+    assert_eq!(positive["resolved_relative_path"], "repo/pkg/src/leaf.ts");
+    value["files"]["/capture/repo/package.json"] =
+        serde_json::json!("{\"private\":true,\"workspaces\":[\"pkg\",\"config\"]}");
+    value["specifier"] = serde_json::json!("#shared");
+    let inner = run(value.clone(), &libraries);
+    assert_eq!(inner["executed"], true, "{inner}");
+    assert_eq!(inner["unsupported"], serde_json::json!([]), "{inner}");
+    assert_eq!(
+        inner["resolved_relative_path"], "repo/config/shared.ts",
+        "{inner}"
+    );
+    for source_or_directory in [true, false] {
+        let mut outside = value.clone();
+        if source_or_directory {
+            outside["files"]["/outside/escape.ts"] = serde_json::json!("foreign");
+        } else {
+            outside["directories"]
+                .as_array_mut()
+                .unwrap()
+                .push(serde_json::json!("/outside"));
+        }
+        assert_eq!(run(outside, &libraries)["executed"], false);
+    }
+    let mut explicit = value.clone();
+    explicit
+        .as_object_mut()
+        .unwrap()
+        .remove("repository_boundary");
+    assert_eq!(run(explicit, &libraries)["executed"], false);
+    value["repository_boundary"] = serde_json::json!({"mode":"capture_root"});
+    assert_eq!(run(value.clone(), &libraries)["executed"], false);
+    for boundary in [
+        serde_json::Value::Null,
+        serde_json::json!({"mode":"unknown"}),
+        serde_json::json!({"mode":"absent","surprise":true}),
+    ] {
+        value["repository_boundary"] = boundary;
+        assert_eq!(run(value.clone(), &libraries)["executed"], false);
+    }
+}

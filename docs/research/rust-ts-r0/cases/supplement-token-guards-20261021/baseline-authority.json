@@ -1,0 +1,23 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "archive": "baseline.tar",
+  "additionalArchive": "cli-package.tar",
+  "sourceAuthority": "git archive from exact baseline; authority/ untouched",
+  "runtime": "runtime/ copy of authority; sole body insertion is passive actual Program observation at semantic-dependency-diagnostics.ts const { program, retained } = context",
+  "dependencies": {
+    "typescript": "5.9.3",
+    "zod": "3.25.76"
+  },
+  "vendorOrigin": "copied without network from accepted public cases/supplement-sdk-assignment-20261021/vendor",
+  "fixtureAuthority": [
+    "packages/ts-analyzer/test/opaque-inline-ownership.test.ts:8-24",
+    "packages/app-services/test/qualified-inline-graph-binding.test.ts:14-44"
+  ],
+  "expectationAuthority": [
+    "packages/app-services/src/qualified-analysis.ts:14-27",
+    "packages/app-services/src/qualified-analysis.ts:96-102",
+    "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts:10-14"
+  ],
+  "rawProgramProvenance": "raw-observations.json revalidation[].actualProgramRecords: actual retained use-site Program roots/options/currentDirectory/input bytes, source and SDK file sizes/hashes/default-library flags; distinct from graph and issuance observations",
+  "mechanismScope": "Single source fixture composed with independent scalar changes. No Rust API design, no native execution, no full app-service lifecycle qualification, no obligation credit."
+}

@@ -1,0 +1,90 @@
+{
+  "issuance": [
+    {
+      "name": "fresh-valid",
+      "issued": true
+    },
+    {
+      "name": "dirty-known-only",
+      "issued": true
+    },
+    {
+      "name": "missing-seal",
+      "issued": false
+    },
+    {
+      "name": "stale",
+      "issued": false
+    },
+    {
+      "name": "dirty-other-reason",
+      "issued": false
+    },
+    {
+      "name": "invalid-binding",
+      "issued": false
+    },
+    {
+      "name": "incomplete-build",
+      "issued": false
+    },
+    {
+      "name": "check-changed",
+      "issued": false
+    },
+    {
+      "name": "expected-input-mismatch",
+      "issued": false
+    },
+    {
+      "name": "seal-repositoryGraphHash",
+      "issued": false
+    },
+    {
+      "name": "seal-indexedRepositoryGraphHash",
+      "issued": false
+    },
+    {
+      "name": "seal-analysisInputHash",
+      "issued": false
+    },
+    {
+      "name": "seal-indexedAnalysisInputHash",
+      "issued": false
+    }
+  ],
+  "revalidation": [
+    {
+      "name": "issued-token",
+      "refusal": false
+    },
+    {
+      "name": "cloned-token",
+      "refusal": true
+    },
+    {
+      "name": "forged-token",
+      "refusal": true
+    },
+    {
+      "name": "graph-digest-mismatch",
+      "refusal": true
+    },
+    {
+      "name": "consumed-digest-mismatch",
+      "refusal": true
+    },
+    {
+      "name": "expected-input-mismatch",
+      "refusal": true
+    },
+    {
+      "name": "check-changed",
+      "refusal": true
+    }
+  ],
+  "mapIdentity": {
+    "issuedTokenSameMapRefusal": false,
+    "issuedTokenClonedMapRefusal": true
+  }
+}

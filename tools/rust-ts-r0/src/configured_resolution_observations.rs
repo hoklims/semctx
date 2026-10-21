@@ -2,9 +2,23 @@ use super::*;
 use ts_goport::frontend::module::ResolverOptions;
 
 #[derive(Deserialize)]
+#[serde(tag = "mode", rename_all = "snake_case", deny_unknown_fields)]
+enum RepositoryBoundary {
+    CaptureRoot {},
+    Absent {},
+}
+impl Default for RepositoryBoundary {
+    fn default() -> Self {
+        Self::CaptureRoot {}
+    }
+}
+
+#[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Request {
     root: String,
+    #[serde(default)]
+    repository_boundary: RepositoryBoundary,
     sdk_directory: String,
     case_sensitive: bool,
     files: BTreeMap<String, String>,
@@ -116,10 +130,15 @@ fn capture(request: &Request, sdk: &Sdk) -> Result<Rc<CaptureFs>, String> {
         return Err("CONFIGURED_QUERY_FILE_DIRECTORY_COLLISION".into());
     }
     let fs = fs.with_sdk_keys(sdk.files.keys().map(String::as_str))?;
-    Ok(Rc::new(fs.workspace_profile(
-        &request.root,
-        Some(&request.sdk_directory),
-    )?))
+    let mut profile = fs.workspace_profile(&request.root, Some(&request.sdk_directory))?;
+    if matches!(request.repository_boundary, RepositoryBoundary::Absent {}) {
+        profile
+            .workspace
+            .as_mut()
+            .ok_or("CONFIGURED_QUERY_WORKSPACE_MISSING")?
+            .without_configured_repository_boundary();
+    }
+    Ok(Rc::new(profile))
 }
 
 fn observe(value: serde_json::Value, sdk: &Sdk) -> Result<serde_json::Value, String> {

@@ -568,7 +568,7 @@ mod tests {
     }
 
     #[test]
-    fn property_closure_inventory_cannot_fall_back_to_live_checkout() {
+    fn comparator_property_closure_inventory_cannot_fall_back_to_live_checkout() {
         let result = sidecar(
             &json!({"cases_path":"does-not-exist"}),
             Path::new("missing-evidence"),
@@ -580,7 +580,7 @@ mod tests {
     }
 
     #[test]
-    fn property_closure_inventory_requires_all_frozen_ids_and_coordinates() {
+    fn comparator_property_closure_inventory_requires_all_frozen_ids_and_coordinates() {
         let freeze = json!({"cases_path":Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/research/rust-ts-r0/cases")});
         let document = verified_inventory(&freeze).unwrap();
         assert!(inventory_summary(&document).is_ok());
@@ -609,7 +609,7 @@ mod tests {
     }
 
     #[test]
-    fn property_closure_missing_old_candidate_and_removed_pair_fail_closed() {
+    fn comparator_property_closure_missing_old_candidate_and_removed_pair_fail_closed() {
         let head = repository_head(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")).unwrap();
         assert!(candidate_binding(&json!({"optimized_frozen":true}), &head).is_err());
         assert!(candidate_binding(&json!({"optimized_frozen":true,"source_head":"37cdaed802d63132cb8b7d738d7b79344c0124f0"}), &head).is_err());

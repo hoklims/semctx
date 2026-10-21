@@ -377,7 +377,10 @@ fn supplement_replay_requires_bound_root_authority() {
         .unwrap();
     }
     let public = public_bridge::run(&fixture, &out.join("public")).unwrap();
-    save(&out.join("supplement-report.json"), &json!({"rows":rows,"digest_pairs":digest_pairs,"addenda":addenda_results,"public":public,"original_units":354,"original_supports":51,"qualified":false,"qualification_credit":0,"R0_decision":null})).unwrap();
+    let token = token_family_replay::run(&fixture, &permit, &out.join("token-guards"))
+        .unwrap_or_else(|error| json!({"state":"UNKNOWN_TOKEN_GUARD_OBSERVATION","pass":false,"error":error,"qualification_credit":0}));
+    save(&out.join("token-results.json"), &token).unwrap();
+    save(&out.join("supplement-report.json"), &json!({"rows":rows,"digest_pairs":digest_pairs,"addenda":addenda_results,"public":public,"token_guards":token,"original_units":354,"original_supports":51,"qualified":false,"qualification_credit":0,"R0_decision":null})).unwrap();
 }
 
 #[test]

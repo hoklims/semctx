@@ -22,6 +22,8 @@ mod source_confinement_replay;
 #[path = "source_scope_replay.rs"]
 mod source_scope_replay;
 mod supplement_replay;
+mod t00_token_consumer;
+mod token_family_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
 mod workspace_system_replay;

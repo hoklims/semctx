@@ -1,6 +1,11 @@
-from _supplement_test_paths import FROZEN
+from _supplement_test_paths import FROZEN, RUNTIME
 """Read-only public input preflight. Never queries the native candidate."""
 import unittest
+import copy
+from pathlib import Path
+import tempfile
+import public_bridge
+import lifecycle_adapter_29_strict as lifecycle
 import full_admission_adapter as f
 from public_runtime import Gap
 
@@ -39,6 +44,37 @@ class FullPlanTests(unittest.TestCase):
         actual = {'verdict': 'BLOCK', 'admission': {'status': 'rejected'}}
         self.assertIs(f.project_full_admission({}, {'consumer_kind': 't00-public-working-tree-admission-v1',
             'source_baseline': '3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b', 'portable_projection': actual}), actual)
+
+
+    def test_actual_public_planner_keeps_full_consumer_tag_and_legacy_default(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            planned = public_bridge.plan(ROOT, RUNTIME, Path(temporary)/'planned', '/sdk/lib', True,
+                                         ownership_module_dir=RUNTIME, lifecycle_module_dir=RUNTIME)
+        invocations = [row['prepared'] for row in planned['invocations']]
+        full = [value for value in invocations if value.get('public_flow_kind') == 'public-verify']
+        self.assertEqual(len(full), 5)
+        self.assertEqual([(value['index_epoch_sequence'], value['sequence']) for value in full],
+                         [(15, 29), (77, 92), (164, 178), (232, 246), (297, 311)])
+        for value in full:
+            self.assertEqual(value['adapter'], 'full_admission_adapter')
+            self.assertEqual(value['consumer_entrypoint'], 't00_admission_consumer::working_tree_projection')
+            self.assertEqual(value['index_epoch_files'], value['current_epoch_files'])
+            self.assertFalse(value['index_snapshot_template']['qualified'])
+            self.assertTrue(value['qualified_selected_template']['qualified'])
+            self.assertTrue(value['qualified_broad_template']['qualified'])
+            self.assertFalse(value['execution_enabled'])
+        legacy = [value for value in invocations if value.get('surface') == 'qualified_flow_cli'
+                  and value.get('public_flow_kind') != 'public-verify']
+        self.assertTrue(legacy)
+        self.assertTrue(all(value['adapter'] == 'lifecycle_adapter' for value in legacy))
+        # Synthetic formatter carrier only; actual Rust acquisition stays separate.
+        actual = {'consumer_kind':'t00-public-working-tree-admission-v1',
+                  'source_baseline':'3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b',
+                  'portable_projection':{'verdict':'WARN','admission':{'status':'rejected'}}}
+        self.assertEqual(lifecycle.project_lifecycle(full[0], actual), actual['portable_projection'])
+        foreign = copy.deepcopy(full[0]); foreign['adapter'] = 'lifecycle_adapter'
+        with self.assertRaises((Gap, KeyError)):
+            lifecycle.project_lifecycle(foreign, actual)
 
 
 if __name__ == '__main__':

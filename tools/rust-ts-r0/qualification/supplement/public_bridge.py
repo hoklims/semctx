@@ -74,6 +74,9 @@ def invocation_key(prepared, operation, vector):
     if prepared.get('physical_empty_directories'):
         basis['physical_empty_directories'] = prepared['physical_empty_directories']
         basis['directory_setup_authority'] = prepared['directory_setup_authority']
+    if prepared.get('physical_prelink_empty_directories'):
+        basis['physical_prelink_empty_directories'] = prepared['physical_prelink_empty_directories']
+        basis['prelink_directory_setup_authority'] = prepared['prelink_directory_setup_authority']
     # Parent IDs in actual Program records deliberately prevent sharing different semantic epochs.
     return digest(json.dumps(basis, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
 
@@ -162,7 +165,7 @@ def plan(frozen, module_dir, output, sdk_directory, case_sensitive, ownership_mo
                         key='lifecycle-'+draft['invocation_group_id']
                         actual_root=str((output/'invocations'/key/'input').resolve()).replace('\\','/')
                         prepared=lifecycle.prepare_lifecycle(frozen,row['id'],sequence,actual_root,sdk_directory,case_sensitive)
-                        prepared['adapter']='lifecycle_adapter'
+                        prepared.setdefault('adapter','lifecycle_adapter')
                         prepared['lifecycle_module_dir']=str(Path(lifecycle_module_dir).resolve())
                         for request in prepared['requests']:
                             request['id']='supplement-'+key
