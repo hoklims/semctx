@@ -734,3 +734,9 @@ with zero credit. Rebuilt identities and the bounded historical projection compa
 are recorded; the complete local gate and exact-head CI are pending at this cutoff.
 Formal qualification stays 0/240; Windows final CI, reserved 23/26 and R0 remain pending.
 Historical records, frozen inputs, expectations and owner counters are unchanged.
+
+The [21 October format correction](format-ci-repair-20261021.json) removes only
+the initial empty line from 27 extracted unit modules. The complete CI formatting
+and Clippy command sequence passes locally on macOS and Linux with Rust 1.95.0.
+Its byte identities and owner-local execution paths are recorded separately from
+the historical extraction campaigns; no new obligation or R0 credit is claimed.
