@@ -3,6 +3,7 @@ use semctx_r0_probe::identity;
 mod ambiguous_exports_replay;
 mod identity_support_replay;
 mod legacy_identity_replay;
+mod obligation_closure;
 mod parallel_replay;
 mod qualified_flow_replay;
 mod reader_error_replay;
@@ -3141,6 +3142,10 @@ fn replay() -> Result<Value, String> {
     let obligation_results=obligations["obligations"].as_array().ok_or("missing obligation map")?.iter().map(|o|{let ids=o["qualification_execution_unit_ids"].as_array().unwrap();let passed=ids.iter().all(|id|results_by_id.get(id.as_str().unwrap())==Some(&true));json!({"obligation_id":o["obligation_id"],"associated_units_all_passed":passed,"state":"REQUIRES_PROPERTY_AND_SUPPORT_REVIEW","qualified":false})}).collect::<Vec<_>>();
     let report = json!({"phase":"stage6_qualification","platform":std::env::consts::OS,"architecture":std::env::consts::ARCH,"timestamp_unix_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis(),"denominators":{"records":268,"units":354,"supports":51,"obligations":240},"units":results,"supports":support_results,"obligations":obligation_results,"qualified":false,"R0_decision":"NOT_MADE_BY_ADAPTER","source_expectations_unchanged":true,"artifact_sha256":artifact_sha,"helper_sha256":helper_sha});
     save(&out.join("report.json"), &report)?;
+    save(
+        &out.join("obligation-closure.json"),
+        &obligation_closure::sidecar(&freeze, &out),
+    )?;
     Ok(report)
 }
 
@@ -4534,6 +4539,16 @@ fn repair_units(ids: &[&str]) {
         results.push(json!({"unit_id":id,"result":result}));
     }
     save(&out.join("repair-results.json"), &json!(results)).unwrap();
+    if ids.len() == 2
+        && ids.contains(&"P01-retained-source::analyze-snapshot-consistent")
+        && ids.contains(&"N01-snapshot-metadata-mismatch::base")
+    {
+        save(
+            &out.join("obligation-closure.json"),
+            &obligation_closure::sidecar(&fixture, &out),
+        )
+        .unwrap();
+    }
     assert!(
         results.iter().all(|r| r["result"]["pass"] == true),
         "repair observations: {}",
