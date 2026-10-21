@@ -301,7 +301,7 @@ class RecipeOutputTest(unittest.TestCase):
             observer.mkdir(parents=True)
             for name in ['prepare_recipes.py', 'reason-routing-audit.json', 'coupled-mapping-scope.json',
                          'ordinary_existing_assertions.py', 'ordinary-existing-assertions.json',
-                         'sdk_origin_recipe.py']:
+                         'sdk_origin_recipe.py', 'existing_semantic_reason_assertions.py']:
                 shutil.copyfile(source / name, observer / name)
             shutil.copytree(
                 root / 'docs/research/rust-ts-r0/cases',
@@ -313,6 +313,8 @@ class RecipeOutputTest(unittest.TestCase):
             shutil.copyfile(root / derived, relocated / derived)
             sdk_origin = pathlib.Path('docs/research/rust-ts-r0/resumption/sdk-origin-assertions-20261021.json')
             shutil.copyfile(root / sdk_origin, relocated / sdk_origin)
+            semantic_reasons = pathlib.Path('docs/research/rust-ts-r0/resumption/existing-semantic-reason-assertions-20261021.json')
+            shutil.copyfile(root / semantic_reasons, relocated / semantic_reasons)
             reproduction = pathlib.Path('docs/research/rust-ts-r0/qualification/reproduction')
             (relocated / reproduction).mkdir(parents=True)
             name = 'qualifier-reproduction.tar.gz.b64'

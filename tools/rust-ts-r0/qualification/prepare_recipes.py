@@ -8,6 +8,7 @@ import json
 import pathlib
 import re
 import tarfile
+from existing_semantic_reason_assertions import append_existing_semantic_reason_assertions
 from sdk_origin_recipe import append_sdk_origin_checks
 
 SOURCE = pathlib.Path(__file__).resolve().parent
@@ -1325,6 +1326,10 @@ append_existing_assertions(recipes, ordinary_assertions, ordinary_path.relative_
 sdk_origin_path = ROOT / 'docs/research/rust-ts-r0/resumption/sdk-origin-assertions-20261021.json'
 sdk_origin_document = json.loads(sdk_origin_path.read_text(encoding='utf-8'))
 append_sdk_origin_checks(recipes, sdk_origin_document, sdk_origin_path.relative_to(ROOT).as_posix())
+
+semantic_reason_path = ROOT / 'docs/research/rust-ts-r0/resumption/existing-semantic-reason-assertions-20261021.json'
+semantic_reason_document = json.loads(semantic_reason_path.read_text(encoding='utf-8'))
+append_existing_semantic_reason_assertions(recipes, semantic_reason_document, semantic_reason_path.relative_to(ROOT).as_posix(), add_bound_check)
 
 for recipe in recipes:
     complete_component_fields(recipe)

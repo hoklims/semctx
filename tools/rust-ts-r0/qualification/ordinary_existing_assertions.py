@@ -26,6 +26,24 @@ def append_existing_assertions(recipes, frozen, origin):
         additions = copy.deepcopy(assertion['checks'])
         for check_index, check in enumerate(additions):
             check['expected_origin'] = f'{origin}#/assertions/{index}/checks/{check_index}/expected'
+            if check['target'][-1:] == ['reasons']:
+                if (check['target'][:1] != ['subjects']
+                        or check['target'][2:] != ['moduleConfigurationObservations', 'retainedWithoutSource', 'reasons']):
+                    raise ValueError('unmapped ordinary baseline reason operation')
+                source = 'packages/ts-analyzer/src/javascript-diagnostics.ts'
+                source_sha = frozen['baseline_sources'][source]
+                if not isinstance(source_sha, str) or len(source_sha) != 64:
+                    raise ValueError('missing ordinary baseline operation authority')
+                check['operation_binding'] = {
+                    'status': 'VERIFIED_SOURCE_OPERATION',
+                    'target': copy.deepcopy(check['target']),
+                    'baseline_operation': 'inspectModuleConfiguration retained snapshot without supplied SourceFile',
+                    'authority': {
+                        'baseline': frozen['baseline'], 'source_path': source, 'source_sha256': source_sha,
+                        'frozen_unit_pointer': assertion['frozen_unit_pointer'],
+                        'derived_assertion': f'{origin}#/assertions/{index}/checks/{check_index}',
+                    },
+                }
         pending.append((recipe, additions))
     # Validate all entries before mutating any recipe.
     for recipe, additions in pending:

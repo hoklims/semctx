@@ -59,5 +59,20 @@ class ExistingAssertionTests(unittest.TestCase):
         self.frozen['baseline'] = 'candidate'
         with self.assertRaises(ValueError): append_existing_assertions(self.recipes, self.frozen, 'frozen.json')
 
+    def test_reason_checks_bind_the_executed_baseline_operation(self):
+        append_existing_assertions(self.recipes, self.frozen, 'frozen.json')
+        reasons = [check for recipe in self.recipes for check in recipe['checks']
+                   if check.get('target', [])[-1:] == ['reasons']]
+        self.assertEqual(len(reasons), 2)
+        for check in reasons:
+            binding = check['operation_binding']
+            self.assertEqual(binding['status'], 'VERIFIED_SOURCE_OPERATION')
+            self.assertEqual(binding['target'], check['target'])
+            self.assertEqual(binding['baseline_operation'],
+                             'inspectModuleConfiguration retained snapshot without supplied SourceFile')
+            self.assertEqual(binding['authority']['source_sha256'],
+                             self.frozen['baseline_sources'][binding['authority']['source_path']])
+            self.assertTrue(binding['authority']['derived_assertion'].startswith('frozen.json#/assertions/'))
+
 
 if __name__ == '__main__': unittest.main()

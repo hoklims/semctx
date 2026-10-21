@@ -4609,6 +4609,26 @@ fn repair_existing_ordinary_consumer_assertions() {
 }
 
 #[test]
+fn repair_ordinary_reason_operation_binding() {
+    repair_units(&[
+        "P21-local-sdk-shaped-callback-method::base",
+        "N21-actual-sdk-map-callback::base",
+    ]);
+}
+
+#[test]
+fn repair_existing_semantic_reason_assertions() {
+    repair_units(&[
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+        "V2-G11-constrained-sdk-generic-literal-input::base",
+        "V2-G12-constrained-sdk-generic-unknown-input::base",
+        "V3-SDK-02-02::base",
+        "V3-SDK-02-08::base",
+    ]);
+}
+
+#[test]
 fn gap_workspace_system_reads_preserve_link_precedence_and_outside_boundary() {
     repair_units(&[
         "ORD-WORKSPACE-SYSTEM-READS::variant-01",

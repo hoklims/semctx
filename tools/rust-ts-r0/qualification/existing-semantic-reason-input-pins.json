@@ -1,0 +1,209 @@
+{
+  "origin_recipe_sha256": "76ddb2643b21be44bf0cbe7af65818289d964460910bc27bcb72dce8d314b995",
+  "rows": [
+    {
+      "unit_id": "V2-G11-constrained-sdk-generic-literal-input::base",
+      "frozen_unit_pointer": "/execution_units/92",
+      "frozen_unit_sha256": "6fdf9cb572d52e9dc0318504cfa83d85704ff7acbb57285bb9043322b004a44e",
+      "requests": [
+        {
+          "id": "V2-G11-constrained-sdk-generic-literal-input::base",
+          "files": {
+            "main.ts": "export function run(){return Promise.all([1]);}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    },
+    {
+      "unit_id": "V2-G12-constrained-sdk-generic-unknown-input::base",
+      "frozen_unit_pointer": "/execution_units/93",
+      "frozen_unit_sha256": "12f6678a99364ca999870b0d177b5bd2a252aa8445f7158f7954fa10abc3da25",
+      "requests": [
+        {
+          "id": "V2-G12-constrained-sdk-generic-unknown-input::base",
+          "files": {
+            "main.ts": "export function run<T extends readonly number[]>(values:T){return Promise.all(values);}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    },
+    {
+      "unit_id": "V3-SDK-02-02::base",
+      "frozen_unit_pointer": "/execution_units/127",
+      "frozen_unit_sha256": "eeaa08d17e0190cabf1d2105ca9fcbc83f66fa158d4aa5d62567d7cd06b45deb",
+      "requests": [
+        {
+          "id": "V3-SDK-02-02::base",
+          "files": {
+            "main.ts": "export function main(){return Object.defineProperty({},'x',{value:1,writable:true});}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    },
+    {
+      "unit_id": "V3-SDK-02-08::base",
+      "frozen_unit_pointer": "/execution_units/133",
+      "frozen_unit_sha256": "6c4e8192dcb80f0e139e177ad70a7143c3c7406ab08826aa097a70a15499bb90",
+      "requests": [
+        {
+          "id": "V3-SDK-02-08::base",
+          "files": {
+            "main.ts": "function helper(){return 1;} export function main(){return Object.defineProperty(Array.prototype,'map',{value:helper});}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+      "frozen_unit_pointer": "/execution_units/308",
+      "frozen_unit_sha256": "6b9840d68e6c2f49de47369b6a8afc49f9533cffec4167c06d595c06ce94ba16",
+      "requests": [
+        {
+          "id": "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+          "files": {
+            "main.ts": "export const value = () => 1; export const observed = value;"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+      "frozen_unit_pointer": "/execution_units/309",
+      "frozen_unit_sha256": "c9c07c70b3620c28c590de89914abd737377edf260a84e783bc11c7769dcc5c6",
+      "requests": [
+        {
+          "id": "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+          "files": {
+            "main.ts": "export const value = 1; export const observed = value;"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ]
+    }
+  ]
+}
