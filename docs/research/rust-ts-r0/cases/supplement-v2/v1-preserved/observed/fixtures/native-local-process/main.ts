@@ -1,0 +1,1 @@
+const process = { getBuiltinModule(value) { return value; } }; export function known() { return process.getBuiltinModule(1); }

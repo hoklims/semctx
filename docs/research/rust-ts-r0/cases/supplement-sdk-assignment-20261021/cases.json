@@ -1,0 +1,38 @@
+[
+  {
+    "id": "binary-global",
+    "path": "inputs/binary-global.ts",
+    "positive": true,
+    "branch": "binary identifier"
+  },
+  {
+    "id": "binary-local",
+    "path": "inputs/binary-local.ts",
+    "positive": false,
+    "branch": "binary identifier"
+  },
+  {
+    "id": "array-global",
+    "path": "inputs/array-global.ts",
+    "positive": true,
+    "branch": "array element"
+  },
+  {
+    "id": "array-local",
+    "path": "inputs/array-local.ts",
+    "positive": false,
+    "branch": "array element"
+  },
+  {
+    "id": "object-global",
+    "path": "inputs/object-global.ts",
+    "positive": true,
+    "branch": "object shorthand"
+  },
+  {
+    "id": "object-local",
+    "path": "inputs/object-local.ts",
+    "positive": false,
+    "branch": "object shorthand"
+  }
+]

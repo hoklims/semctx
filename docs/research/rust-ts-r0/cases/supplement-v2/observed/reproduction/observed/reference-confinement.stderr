@@ -1,0 +1,9 @@
+
+packages\ts-analyzer\test\discovery-selection.test.ts:
+(pass) versioned source selection > records relative imports and reference paths escaping the repository as failed [56.76ms]
+
+ 1 pass
+ 34 filtered out
+ 0 fail
+ 8 expect() calls
+Ran 1 test across 1 file. [210.00ms]

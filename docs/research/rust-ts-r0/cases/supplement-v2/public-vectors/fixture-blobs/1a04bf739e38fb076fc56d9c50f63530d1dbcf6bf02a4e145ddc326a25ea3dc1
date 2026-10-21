@@ -1,0 +1,2 @@
+/// <reference path="../build/generated.ts" />
+export function main() { return 2; }

@@ -1,0 +1,11 @@
+{"id":"directory-alias","status":"BASELINE_OBSERVED","passed":3,"expectedTests":3}
+{"id":"reference-confinement","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}
+{"id":"native-inert","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}
+{"id":"mixed-fallback","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}
+{"id":"external-partition","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}
+{"id":"namespace-owners","status":"BASELINE_OBSERVED","passed":3,"expectedTests":3}
+{"id":"runtime-erased","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}
+{"id":"workspace-boundaries","status":"BASELINE_OBSERVED","passed":3,"expectedTests":3}
+{"id":"opaque-ownership","status":"BASELINE_OBSERVED","passed":7,"expectedTests":7}
+{"id":"scope-admission","status":"BASELINE_OBSERVED","passed":3,"expectedTests":3}
+{"id":"pilot-builtin","status":"BASELINE_OBSERVED","passed":1,"expectedTests":1}

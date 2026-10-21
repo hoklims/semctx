@@ -95,7 +95,7 @@ fn verify_controller_header(
     Ok(())
 }
 
-fn verify_parallel(
+pub(super) fn verify_parallel(
     observed: &Value,
     descriptor: &Value,
     capture: &Value,

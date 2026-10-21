@@ -1,0 +1,1 @@
+import type { _resolveFilename as Native } from 'node:module'; export type Alias = Native;

@@ -1,0 +1,1 @@
+import {FLAG} from './dep';export function run(FLAG:boolean){return FLAG;}

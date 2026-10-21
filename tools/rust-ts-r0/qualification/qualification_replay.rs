@@ -9,6 +9,7 @@ mod legacy_identity_replay;
 mod obligation_closure;
 mod parallel_replay;
 mod qualified_flow_replay;
+mod qualified_public_replay;
 mod reader_error_replay;
 #[path = "../tests/support/receiver_context.rs"]
 mod receiver_context;
@@ -16,6 +17,9 @@ mod repository_replay;
 mod retained_runtime_replay;
 mod sdk_origin_assertions;
 mod source_confinement_replay;
+#[path = "source_scope_replay.rs"]
+mod source_scope_replay;
+mod supplement_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
 mod workspace_system_replay;
@@ -945,6 +949,139 @@ fn version_arbitration(recipe: &Value, observations: &[Value], bindings_verified
     json!({"id":id,"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","recipe_signature":signature,"qualification_credit":0})
 }
 
+fn raw_recipe_observation_mode(recipe: &Value) -> Option<&'static str> {
+    (recipe["surface"] == "declaration_root_cli").then_some("--observe-declaration-roots")
+}
+
+#[test]
+fn comparator_declaration_cli_flag_is_selected_only_by_its_distinct_surface() {
+    assert_eq!(
+        raw_recipe_observation_mode(&json!({"surface":"declaration_root_cli"})),
+        Some("--observe-declaration-roots")
+    );
+    for surface in [
+        "raw_cli",
+        "qualified_flow_cli",
+        "--observe-declaration-roots",
+    ] {
+        assert_eq!(
+            raw_recipe_observation_mode(
+                &json!({"surface":surface,"mode":"--observe-declaration-roots"})
+            ),
+            None
+        );
+    }
+}
+
+#[test]
+fn comparator_declaration_binding_refuses_wrong_mode_substituted_source_and_missing_execution() {
+    let request = json!({"cwd":"/repo","roots":["/repo/main.d.ts"],"files":{"/repo/main.d.ts":"export {};"},"retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[]});
+    let observed = json!({"observation_mode":"declaration_roots","status":"declaration_root_component_observation_not_qualification","global_admission_inferred":false,"subjects":[{"path":"main.d.ts","role":"declaration","selection":"selected","observationScope":"declaration_root_component","admission":"not_evaluated","sourceFileObservation":{"executed":true,"unsupported":[]},"declarationRootSource":{"requestedPath":"/repo/main.d.ts","sourcePath":"/repo/main.d.ts","sourceTextId":identity::digest_bytes(b"export {};"),"executed":true,"unsupported":[]}}]});
+    assert!(declaration_root_observation_binding(&observed, &request).is_ok());
+    for (pointer, replacement) in [
+        ("/observation_mode", json!("ordinary")),
+        ("/subjects/0/path", json!("main.ts")),
+        ("/subjects/0/role", json!("source")),
+        ("/subjects/0/admission", json!("admitted")),
+        (
+            "/subjects/0/declarationRootSource/sourcePath",
+            json!("/repo/main.ts"),
+        ),
+        (
+            "/subjects/0/declarationRootSource/sourceTextId",
+            json!("sha256:foreign"),
+        ),
+        ("/subjects/0/declarationRootSource/executed", json!(false)),
+        ("/subjects/0/sourceFileObservation/executed", json!(false)),
+        (
+            "/subjects/0/sourceFileObservation/unsupported",
+            json!(["not implemented"]),
+        ),
+    ] {
+        let mut poisoned = observed.clone();
+        *poisoned.pointer_mut(pointer).unwrap() = replacement;
+        assert!(
+            declaration_root_observation_binding(&poisoned, &request).is_err(),
+            "accepted {pointer}"
+        );
+    }
+    let mut missing = observed.clone();
+    missing["subjects"] = json!([]);
+    assert!(declaration_root_observation_binding(&missing, &request).is_err());
+    let mut duplicate = observed.clone();
+    duplicate["subjects"]
+        .as_array_mut()
+        .unwrap()
+        .push(observed["subjects"][0].clone());
+    assert!(declaration_root_observation_binding(&duplicate, &request).is_err());
+}
+
+fn declaration_root_observation_binding(observed: &Value, request: &Value) -> Result<(), String> {
+    if observed["observation_mode"] != "declaration_roots"
+        || observed["status"] != "declaration_root_component_observation_not_qualification"
+        || observed["global_admission_inferred"] != false
+        || request["retained"] != true
+        || request["qualified"] != false
+        || request["roles"] != json!({})
+        || request["selection"] != json!({})
+        || request["disabled"] != json!([])
+    {
+        return Err("declaration observation mode or component contract differs".into());
+    }
+    let roots = request["roots"]
+        .as_array()
+        .filter(|roots| !roots.is_empty())
+        .ok_or("missing requested declaration roots")?;
+    let subjects = observed["subjects"]
+        .as_array()
+        .ok_or("missing declaration observations")?;
+    if subjects.len() != roots.len() {
+        return Err("declaration observation inventory differs".into());
+    }
+    let prefix = format!("{}/", value_text(request, "cwd")?);
+    let mut unique = BTreeSet::new();
+    for root in roots {
+        let root = root.as_str().ok_or("invalid declaration root")?;
+        let relative = root
+            .strip_prefix(&prefix)
+            .ok_or("declaration root outside request")?;
+        if !unique.insert(relative)
+            || ![".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|suffix| relative.ends_with(suffix))
+        {
+            return Err("invalid declaration root kind or duplicate".into());
+        }
+        let source = request["files"][root]
+            .as_str()
+            .ok_or("missing captured declaration text")?;
+        let matching = subjects
+            .iter()
+            .filter(|subject| subject["path"] == relative)
+            .collect::<Vec<_>>();
+        if matching.len() != 1 {
+            return Err("declaration observation path cardinality differs".into());
+        }
+        let subject = matching[0];
+        let context = &subject["declarationRootSource"];
+        if subject["role"] != "declaration"
+            || subject["selection"] != "selected"
+            || subject["observationScope"] != "declaration_root_component"
+            || subject["admission"] != "not_evaluated"
+            || context["requestedPath"] != root
+            || context["sourcePath"] != root
+            || context["sourceTextId"] != identity::digest_bytes(source.as_bytes())
+            || context["executed"] != true
+            || context["unsupported"] != json!([])
+            || subject["sourceFileObservation"]["executed"] != true
+            || subject["sourceFileObservation"]["unsupported"] != json!([])
+        {
+            return Err("declaration observation lacks actual requested source context".into());
+        }
+    }
+    Ok(())
+}
+
 fn run_raw_recipe(
     recipe: &Value,
     dir: &Path,
@@ -1008,11 +1145,12 @@ fn run_raw_recipe(
         )?;
         save(&subdir.join("physical-post-capture-setup.json"), &setup)?;
         let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
-        let argv = vec![
-            artifact.to_string_lossy().into_owned(),
-            request_path.to_string_lossy().into_owned(),
-            sdk_path.to_string_lossy().into_owned(),
-        ];
+        let mut argv = vec![artifact.to_string_lossy().into_owned()];
+        if let Some(mode) = raw_recipe_observation_mode(recipe) {
+            argv.push(mode.into());
+        }
+        argv.push(request_path.to_string_lossy().into_owned());
+        argv.push(sdk_path.to_string_lossy().into_owned());
         let outcome = process::run_with_helper(&argv, &root, timeout_ms, output_cap, helper)
             .map_err(|e| e.to_string())?;
         let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
@@ -1043,6 +1181,17 @@ fn run_raw_recipe(
                 );
             }
         };
+        if raw_recipe_observation_mode(recipe).is_some() {
+            if let Err(error) = declaration_root_observation_binding(&observed, &request) {
+                return Ok(
+                    json!({"state":"INVALID_DECLARATION_ROOT_OBSERVATION_BINDING","error":error,"observation":index,"pass":false}),
+                );
+            }
+        } else if observed.get("observation_mode").is_some() {
+            return Ok(
+                json!({"state":"INVALID_NATIVE_OBSERVATION_MODE","observation":index,"pass":false}),
+            );
+        }
         let binding = match observation_bound_to_request(&observed, &request, sdk, artifact_sha) {
             Ok(v) => v,
             Err(error) => {

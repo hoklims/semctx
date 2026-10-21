@@ -1,0 +1,1 @@
+export function main(object) { return 'known' in object; }

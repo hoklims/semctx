@@ -111,6 +111,9 @@ fn projection(
 }
 
 pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, String> {
+    if recipe.get("public_flow_kind").is_some() {
+        return super::qualified_public_replay::run(recipe, dir, fixture);
+    }
     if recipe["surface"] != "qualified_flow_cli"
         || recipe["gaps"].as_array().is_none_or(|g| !g.is_empty())
     {

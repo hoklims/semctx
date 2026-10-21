@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "semctx-t00-qualification-supplement-v2",
+  "author": "independent_gap_witnesses / Codex native independent author",
+  "frozenAtUtc": "2026-10-21T16:21:50.952Z",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "candidateObserved": false,
+  "original354unchanged": true,
+  "v1FrozenUnchanged": true,
+  "status": "FROZEN_BASELINE_WITH_EXPLICIT_MAPPING_GAPS",
+  "manifest": {
+    "path": "manifest-sha256.json",
+    "sha256": "923a03767cd5f675c66f4a35b458dcd6f38554fe3c41f90f5a83eebc7292ddc6",
+    "size": 96713,
+    "fileCount": 503
+  },
+  "counts": {
+    "preservedSourceVariants": 50,
+    "additionalActivationSources": 7,
+    "digestSources": 10,
+    "totalSourceVariants": 67,
+    "digestPairs": 5,
+    "publicInvocations": 11,
+    "publicTests": 25,
+    "publicStructuredVectors": 25,
+    "publicCapturedOperations": 677,
+    "negativeWitnesses": 5,
+    "actualSemanticProgramRecords": 124
+  },
+  "unknown": [
+    {
+      "id": "scope-admission-01",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    },
+    {
+      "id": "scope-admission-02",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    },
+    {
+      "id": "scope-admission-03",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    }
+  ],
+  "reproductionProjectionHashes": {
+    "source50ProjectionSha256": "39492e38f634ca86bc7b6be6b342d44828fd791d2d52134a6ba624baa0c7126c",
+    "additionsSha256": "a0725aa55768527d9746d473e01e5e8dac192042f6262bc6e1cc0d7434338930",
+    "publicProjectionSha256": "8b4bec44d3da099fea512831de00aa23d5b03ea4913a163287d95ddaa98b6f3f"
+  }
+}

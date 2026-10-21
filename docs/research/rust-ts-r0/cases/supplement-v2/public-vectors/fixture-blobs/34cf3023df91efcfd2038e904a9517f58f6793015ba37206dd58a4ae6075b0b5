@@ -1,0 +1,1 @@
+import * as api from './barrel.mjs'; const { facade: renamed } = api; expect(renamed).toBeDefined();

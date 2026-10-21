@@ -1,0 +1,1 @@
+function helper() { return {}; } const alias = helper; export async function main() { return await alias(); }

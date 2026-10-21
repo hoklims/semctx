@@ -1,0 +1,1590 @@
+[
+  {
+    "id": "snapshot",
+    "group": "snapshot",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "absentSnapshot": "SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs",
+    "validCaptureNodes": [
+      {
+        "kind": "module",
+        "name": "main.ts",
+        "filePath": "main.ts"
+      },
+      {
+        "kind": "repository",
+        "name": "snapshot"
+      },
+      {
+        "kind": "function",
+        "name": "main",
+        "filePath": "main.ts"
+      }
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "native-type-only",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "native-typeof",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "globalThis",
+        "start": 28,
+        "origins": []
+      },
+      {
+        "name": "process",
+        "start": 39,
+        "origins": []
+      }
+    ]
+  },
+  {
+    "id": "native-module-unknown",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": [
+        "prototype"
+      ]
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "native-process-unknown",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": [
+        "process.binding"
+      ]
+    },
+    "configuration": [
+      "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+      "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "process",
+        "start": 22,
+        "origins": []
+      }
+    ]
+  },
+  {
+    "id": "native-getbuiltin",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": [
+        "process.getBuiltinModule"
+      ]
+    },
+    "configuration": [
+      "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "globalThis",
+        "start": 10,
+        "origins": []
+      },
+      {
+        "name": "process",
+        "start": 21,
+        "origins": []
+      }
+    ]
+  },
+  {
+    "id": "native-local-process",
+    "group": "native",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "process",
+        "start": 6,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "process",
+        "start": 96,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "guard-dominates",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "guard-absent",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "guard-written-forof",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "guard-written-increment",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_COERCION_UNSUPPORTED",
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "helper-primitive",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "helper-object",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "helper-async",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "helper-written",
+    "group": "primitive",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "heritage-internal",
+    "group": "heritage",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "heritage-external",
+    "group": "heritage",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "computed-runtime",
+    "group": "property",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "computed-declare",
+    "group": "property",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "computed-dts",
+    "group": "property",
+    "inputFiles": [
+      "main.d.ts",
+      "package.json",
+      "types.d.ts"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "global-sdk",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+      "SOURCE_TIMER_EVALUATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "globalThis",
+        "start": 0,
+        "origins": []
+      }
+    ]
+  },
+  {
+    "id": "global-local",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "globalThis",
+        "start": 6,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "globalThis",
+        "start": 44,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wasm-sdk",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_WASM_INSTANTIATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "WebAssembly",
+        "start": 37,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "ModuleDeclaration",
+            "sdk": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wasm-local",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "WebAssembly",
+        "start": 6,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "WebAssembly",
+        "start": 95,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "write-sdk",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_DOCUMENT_WRITE_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "document",
+        "start": 0,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "VariableDeclaration",
+            "sdk": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "write-local",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "document",
+        "start": 6,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "document",
+        "start": 49,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "script-sdk",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "document",
+        "start": 0,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "VariableDeclaration",
+            "sdk": true
+          }
+        ]
+      },
+      {
+        "name": "document",
+        "start": 26,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "VariableDeclaration",
+            "sdk": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "script-nonscript",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "document",
+        "start": 0,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "VariableDeclaration",
+            "sdk": true
+          }
+        ]
+      },
+      {
+        "name": "document",
+        "start": 26,
+        "origins": [
+          {
+            "file": "lib.dom.d.ts",
+            "kind": "VariableDeclaration",
+            "sdk": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "script-local",
+    "group": "sdk",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": [
+      {
+        "name": "document",
+        "start": 6,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "document",
+        "start": 102,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      },
+      {
+        "name": "document",
+        "start": 128,
+        "origins": [
+          {
+            "file": "main.ts",
+            "kind": "VariableDeclaration",
+            "sdk": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "assign-unsafe",
+    "group": "assignment",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED",
+      "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+      "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "assign-primitive",
+    "group": "assignment",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "async-alias-call",
+    "group": "async",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "sync-alias-call",
+    "group": "async",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_ASYNC_RETURN_UNSUPPORTED",
+      "SOURCE_AWAIT_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "callable-constructor",
+    "group": "constructor",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "local-constructor",
+    "group": "constructor",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "date-copy",
+    "group": "date",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "date-object",
+    "group": "date",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_COERCION_UNSUPPORTED",
+      "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "nested-array-literal",
+    "group": "nested",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "nested-array-opaque",
+    "group": "nested",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_ITERATION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "in-unknown",
+    "group": "membership",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_COERCION_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "in-literal",
+    "group": "membership",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "sdk-callback-helpers",
+    "group": "sdkhelper",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    ],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "local-callback-helpers",
+    "group": "sdkhelper",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "reference-unretained",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+    ],
+    "scope": {
+      "links": [],
+      "reasons": [
+        "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:main.ts:./generated.ts",
+        "DEPENDENCY_SCOPE_CONFIGURATION:main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "reference-retained",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json",
+      "generated.ts"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+    ],
+    "scope": {
+      "links": [],
+      "reasons": [
+        "DEPENDENCY_SCOPE_CONFIGURATION:main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "reference-outside",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [
+      "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+    ],
+    "scope": {
+      "links": [],
+      "reasons": [
+        "DEPENDENCY_SCOPE_OUTSIDE_REPOSITORY",
+        "DEPENDENCY_SCOPE_UNREADABLE:main.ts",
+        "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:main.ts:../outside.ts",
+        "DEPENDENCY_SCOPE_CONFIGURATION:main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "optional-opaque",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "scope": {
+      "links": [],
+      "reasons": [],
+      "externalModuleSpecifiers": [
+        "optional"
+      ],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "excluded-parse",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json",
+      "hidden.ts"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "scope": {
+      "links": [
+        [
+          "hidden.ts",
+          "main.ts"
+        ]
+      ],
+      "reasons": [
+        "DEPENDENCY_SCOPE_PARSE_FAILED:hidden.ts:SOURCE_PARSE_ERROR:1005:'}' expected.",
+        "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_AMBIENT_FUNCTION_UNSUPPORTED"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "excluded-computed",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json",
+      "hidden.ts"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "scope": {
+      "links": [],
+      "reasons": [
+        "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_GLOBAL_SCRIPT_UNSUPPORTED",
+        "DEPENDENCY_SCOPE_COMPUTED_IMPORT:hidden.ts"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": []
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  },
+  {
+    "id": "excluded-unresolved",
+    "group": "scope",
+    "inputFiles": [
+      "main.ts",
+      "package.json",
+      "hidden.ts"
+    ],
+    "native": {
+      "commonJsUnsupported": false,
+      "unmodeledMembers": []
+    },
+    "configuration": [],
+    "scope": {
+      "links": [],
+      "reasons": [
+        "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:hidden.ts:@hidden/inbound",
+        "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+      ],
+      "externalModuleSpecifiers": [],
+      "unresolvedImports": [
+        {
+          "path": "hidden.ts",
+          "specifier": "@hidden/inbound"
+        }
+      ]
+    },
+    "compilerOptions": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    },
+    "compilerBindingOrigins": []
+  }
+]

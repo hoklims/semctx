@@ -1,0 +1,11 @@
+
+packages\app-services\test\qualified-analysis.test.ts:
+(pass) round2 unretained generated reference returns structured rejected admission [7250.90ms]
+(pass) manifest optional dependencies are admitted as opaque external boundaries [12275.00ms]
+(pass) excluded parse-failed or computed importers cannot silently disappear from dependency scope [25330.20ms]
+
+ 3 pass
+ 46 filtered out
+ 0 fail
+ 12 expect() calls
+Ran 3 tests across 1 file. [45.09s]

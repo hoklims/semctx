@@ -1,0 +1,2 @@
+def outil():
+    return 1

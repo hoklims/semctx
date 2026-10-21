@@ -1,0 +1,18 @@
+{
+  "id": "scope-admission",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/app-services/test/qualified-analysis.test.ts"
+  },
+  "argv": [
+    "test",
+    "--timeout",
+    "60000",
+    "packages/app-services/test/qualified-analysis.test.ts",
+    "--test-name-pattern",
+    "unretained generated reference|manifest optional dependencies|excluded parse-failed or computed"
+  ],
+  "exitCode": 1,
+  "stdoutBytes": 28,
+  "stderrBytes": 402
+}

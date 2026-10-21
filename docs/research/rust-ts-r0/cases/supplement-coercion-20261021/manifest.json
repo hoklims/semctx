@@ -1,0 +1,100 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "scope": "T00 coordinate 61:0 coercingBinary PlusToken; exactly two baseline-only witnesses",
+  "cases": 2,
+  "dependency": {
+    "manifestSha256": "a302eb10889e2c14f38f5736894a44d817b7fc14362fa569100a8fb3c820db1d"
+  },
+  "files": [
+    {
+      "path": "cases.json",
+      "size": 327,
+      "sha256": "73c25e81580f3e146b258c3cd7bde4c5178c09301e8d2b6fc5bc3b097fe61a60"
+    },
+    {
+      "path": "commands.json",
+      "size": 2543,
+      "sha256": "ba1115bfdde2f3cd15364c75ebd6bd8a0a44e109792296c89073fcd7b43c9b13"
+    },
+    {
+      "path": "dependency.json",
+      "size": 401,
+      "sha256": "a2b83311de90d23ae982a3b778766635a2762f8b5d3f69af5f8a285bde2c22fc"
+    },
+    {
+      "path": "expected.json",
+      "size": 74200,
+      "sha256": "3d30b5f01d59e886ec8427b13602f7a33ced27baa5520f3a0848b1e180f37e6e"
+    },
+    {
+      "path": "finalize.ts",
+      "size": 3400,
+      "sha256": "17805b0e5f2a61b9bac45692d8a713de1b0c1ab607d76946377eb83aeea5c602"
+    },
+    {
+      "path": "inputs/binary-object.ts",
+      "size": 21,
+      "sha256": "5d9980a299d8e51cf40d1251cf442737915ae625f4d89061881d39ac1459dc7e"
+    },
+    {
+      "path": "inputs/binary-primitive.ts",
+      "size": 18,
+      "sha256": "01d6642469ea12b0748d31d2a9ade2393e10dfb48c053a8629933e74d529aaab"
+    },
+    {
+      "path": "instrumentation.json",
+      "size": 5889,
+      "sha256": "32f670a640c041fe004e405fa4da9f57467957d9ef603264d7ebc021e1e7f434"
+    },
+    {
+      "path": "observer.ts",
+      "size": 1767,
+      "sha256": "ccadc80358ea93d7431493cc48776aafe1dfc4eeb5614402cc942701c72f3d22"
+    },
+    {
+      "path": "prepare.ts",
+      "size": 2490,
+      "sha256": "c2d09ecdf6124ba6329fac62ed7880390029dcd8e8a0b6b60e53fb4f4682de2f"
+    },
+    {
+      "path": "primary/normalized.json",
+      "size": 74200,
+      "sha256": "3d30b5f01d59e886ec8427b13602f7a33ced27baa5520f3a0848b1e180f37e6e"
+    },
+    {
+      "path": "primary/raw.json",
+      "size": 96724,
+      "sha256": "25ea043bf74a38d4dbc4a0633efb42985530ae54821e1dfb97d2bafab8a679f2"
+    },
+    {
+      "path": "README.md",
+      "size": 3025,
+      "sha256": "4d481c576d3c0eec57b8b70997ff5d49fc78cf32126bbd4f7776226a26ab4645"
+    },
+    {
+      "path": "reproduction/normalized.json",
+      "size": 74200,
+      "sha256": "3d30b5f01d59e886ec8427b13602f7a33ced27baa5520f3a0848b1e180f37e6e"
+    },
+    {
+      "path": "reproduction/raw.json",
+      "size": 96874,
+      "sha256": "ec6d002020e4dd44e528bb3f2562bd45125a80613f835bc76c45eb269aa9930d"
+    },
+    {
+      "path": "run.ts",
+      "size": 4743,
+      "sha256": "8cfd4f7d5e6b783a051ac6725042f95c13925f72b162898f894891d53d41eee3"
+    },
+    {
+      "path": "verify.ts",
+      "size": 483,
+      "sha256": "ce4151dec6baaa6eb0879acbc89547102bfce66fa2ce223c4fa2954980627ec8"
+    },
+    {
+      "path": "wrong-expected.json",
+      "size": 74155,
+      "sha256": "988b2cfcdceeee8f4adc008593e480aa7a460e7f669f92216ac2f97a97e8c3eb"
+    }
+  ]
+}

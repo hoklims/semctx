@@ -1,0 +1,4 @@
+
+packages\ts-analyzer\test\create-require.test.ts:
+
+error: regex "T00_IMPOSSIBLE_MATCH_ZERO" matched 0 tests. Searched 1 file (skipping 118 tests) [154.00ms]

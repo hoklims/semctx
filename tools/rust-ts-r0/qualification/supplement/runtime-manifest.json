@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "VERIFIER_RUNTIME_ONLY_NOT_C1_ANALYSIS_ENGINE",
+  "candidate_execution_authorized": false,
+  "frozen_manifest_sha256": "923a03767cd5f675c66f4a35b458dcd6f38554fe3c41f90f5a83eebc7292ddc6",
+  "files": [
+    {
+      "path": "_supplement_test_paths.py",
+      "sha256": "fb5674ce974ca836f991764153ef9eee3f287e144de6c2b426cd2601c234dcfe",
+      "bytes": 937
+    },
+    {
+      "path": "full_admission_adapter.py",
+      "sha256": "ed51a3af5df739d25014bfb3e51f21ad882cc5e9c74883fe3893729b064f61ef",
+      "bytes": 6328
+    },
+    {
+      "path": "lifecycle_adapter_29_frozen.py",
+      "sha256": "3d7766a464cfec5792e22d159f1f21432c5fe04fc7699979cc2803344900356f",
+      "bytes": 20620
+    },
+    {
+      "path": "lifecycle_adapter_29_strict.py",
+      "sha256": "590a6156ff1f939d53863ec426c4644b1b1423e2671866f82272c7daaa801473",
+      "bytes": 2686
+    },
+    {
+      "path": "ownership_adapter.py",
+      "sha256": "c31f3ff22ff65190c25587b9052aed3a87d93395e226c6acbc4c6302a3213ab0",
+      "bytes": 16647
+    },
+    {
+      "path": "preflight.py",
+      "sha256": "4a6dc55232694ffa334d0cfe6df0626c86c07922ad168fa6c3a4104b6ce49371",
+      "bytes": 4519
+    },
+    {
+      "path": "prepare_registry.py",
+      "sha256": "e278d053d482de177c3cd006b500ad7bf78d6b6fa47af435f1b7b13effdbcc9b",
+      "bytes": 8954
+    },
+    {
+      "path": "public-registry.draft.json",
+      "sha256": "2bcb0763c98ea212b18de8ece45ba8d3e410dbdefb51385a0d7ed96230386a38",
+      "bytes": 2314435
+    },
+    {
+      "path": "public_adapter.py",
+      "sha256": "7d784fdca3268b60edd7e1db0d115f013449a4b2f4073b1a8ce1ea02fed0d45f",
+      "bytes": 13793
+    },
+    {
+      "path": "public_bridge.py",
+      "sha256": "d9610f2c895c2856af64feadaa4a3863daf4a49ef6301adf1a24ff4e22cff0cd",
+      "bytes": 22759
+    },
+    {
+      "path": "public_graph_projection.cjs",
+      "sha256": "d9792d5f5926d280044c28db79f0e19145b08b17b336958550483895c5c04b7c",
+      "bytes": 1029
+    },
+    {
+      "path": "public_runtime.py",
+      "sha256": "64720efeb173ff92c65185e07dbb7506076240e5b165dbdced49f4ddbd5b91ed",
+      "bytes": 26590
+    },
+    {
+      "path": "source_adapter.py",
+      "sha256": "c1e2be4e676f511098dc4a9d1244c61e85c24583095af16b98eadecd7ff44681",
+      "bytes": 12042
+    },
+    {
+      "path": "source_scope_addenda.py",
+      "sha256": "ca0331c96e11abdf7f9779754936f67c6451fcba27450dda7d293dd8c81098f4",
+      "bytes": 9637
+    },
+    {
+      "path": "test_adapter.py",
+      "sha256": "57d3db2914b64c3421c719ce8e665edb37c36ed7047b5780f8424df36d660d1a",
+      "bytes": 8190
+    },
+    {
+      "path": "test_full_admission_plan.py",
+      "sha256": "9c36c4b1a9c52b0d3a3918306267714faa712e453c98beeffe33d0b3cf520309",
+      "bytes": 2118
+    },
+    {
+      "path": "test_lifecycle_adapter.py",
+      "sha256": "d9942f40fc6c0d332c930c134ffdaf446937d073b6d40931d2aa88f88290a94b",
+      "bytes": 8712
+    },
+    {
+      "path": "test_ownership_adapter.py",
+      "sha256": "98715c3e79b9b271a19bf3f869e802461409e272331bbcf6d4048125135369af",
+      "bytes": 8170
+    },
+    {
+      "path": "test_portable_references.py",
+      "sha256": "aea1949449a0f5cc0f5707e07bdfef394b7a7622d2717cfbe7b4e22a569d7691",
+      "bytes": 1652
+    },
+    {
+      "path": "test_public_adapter.py",
+      "sha256": "88c61b0f995fc649357a767ff00904b30da3bb2d7a98fc5f2cd09bbd76428cb1",
+      "bytes": 4887
+    },
+    {
+      "path": "test_public_bridge.py",
+      "sha256": "52a9839dacdaa2131b843e1dbf38643b2ed7758d8cf63ccf659f8cabf5c6ed17",
+      "bytes": 5997
+    },
+    {
+      "path": "test_public_runtime.py",
+      "sha256": "231faff187499d5f629c91adbbad712ab663e057084bff33661504ca37e44a00",
+      "bytes": 8578
+    },
+    {
+      "path": "test_runtime_consumers.py",
+      "sha256": "77084182a6150446bc7a7a74e3311add376faea0ee0e2cc77a0fb3cdab4f0e41",
+      "bytes": 3440
+    },
+    {
+      "path": "test_source_scope_addenda.py",
+      "sha256": "8d07c0b34d7fbd6205f957a37a916d77202515b8a094101ef27cc7fdff4db172",
+      "bytes": 3941
+    },
+    {
+      "path": "write_verifier_fixture_fields.py",
+      "sha256": "b389a524f4a616416bb63c38759866033dba220c4b14bd5ac37f826aeaa07aa4",
+      "bytes": 2097
+    }
+  ],
+  "consumer_build_provenance_claimed": false,
+  "qualification_credit": 0
+}

@@ -1,0 +1,1101 @@
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, isAbsolute, join, posix, resolve } from "node:path";
+import { canonicalSourceText, digestCanonical, getPlaneASidecar, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
+import { SemctxError, type SemctxConfig, type VerifyReport } from "@semantic-context/core";
+import { loadConfig } from "@semantic-context/repository-store";
+import { discoverRepository, isPathSelected } from "@semantic-context/ts-analyzer";
+import {
+  GraphIndex,
+  analyzeDiff,
+  analyzeLostGuards,
+  diffRemovesBaseLines,
+  parseUnifiedDiffChanges,
+  buildVerifyReport,
+  computeCoChanges,
+  parseUnifiedDiffScopePaths,
+  parseNameStatusLog,
+  type CoChange,
+  type VerifyReportGitMeta,
+  type VerifyResult,
+} from "@semantic-context/context-engine";
+import { analyzeAndBuildClaims, analyzeRetainedRepository } from "./indexing";
+import { openReadyRepository } from "./readiness";
+import { evaluateCapturedPlaneA, indexHealth, type IndexHealthReportV1 } from "./index-health";
+import { controlStatusWithSemanticInputs } from "./control";
+import {
+  readUnresolvedReferenceBinding,
+  type UnresolvedReferenceBindingReason,
+} from "./unresolved-references";
+import { CONTROL_INDEX_SNAPSHOT_META_KEY, fingerprintRepositoryFacts, parseIndexedControlSnapshot } from "./freshness";
+import { CLEAN_CONTROL_WORKING_DIFF_HASH, type ControlFreshnessReason, type ControlFreshnessStatusReport } from "@semantic-context/control-model";
+import { fingerprintVerificationSource, retainedGitBlobObjectIds, retainedWorkingTreeFilterPaths } from "./verification-state";
+import { isQualified, qualifiedAdmission, QUALIFIED_BUILD_META, bindOpaqueCallbackGraph, inspectRetainedQualifiedScope } from "./qualified-analysis";
+import { canonicalRepositoryRoot, captureQualifiedAnalysisInputs, isQualifiedRepositoryInputPath } from "./freshness";
+
+/**
+ * `head` names the commit the analysed post-image belongs to. It is optional everywhere and means
+ * different things by kind: for the Git-backed kinds it selects and labels the ref (default `HEAD`),
+ * and semctx itself computes the diff against the resolved object id, so the attribution is proved
+ * by construction. For `file` and `provided` it is a caller *assertion* about hunks semctx did not
+ * compute: it labels the source and is checked against the indexed commit, but it never demonstrates
+ * that the analysed content came from that commit. Those sources stay diagnostic either way.
+ */
+export type VerifySource =
+  | { kind: "working-tree"; head?: string }
+  | { kind: "staged"; head?: string }
+  | { kind: "range"; base: string; head?: string }
+  | { kind: "file"; path: string; head?: string }
+  | { kind: "provided"; diffText: string; head?: string };
+
+export interface VerifyComputation {
+  result: VerifyResult;
+  report: VerifyReport;
+  git: VerifyReportGitMeta;
+  coChanges: CoChange[];
+  /** Exact resolved HEAD plus diff bytes consumed by working-tree analysis; absent for other sources. */
+  analyzedSourceHash: string | null;
+  /** Exact in-memory inputs consumed by analysis, independent of persisted metadata claims. */
+  analyzedRepositoryFactsHash: string;
+  analyzedConfigHash: string;
+  analyzedIndexSnapshotHash: string;
+  analyzedSemanticInputHashes: string[];
+}
+
+/**
+ * Provenance of the analysed post-image, and how it was obtained.
+ *
+ * `commits` carries resolved object ids, never refs: an OID cannot be moved under the analysis, so
+ * the commit that selected the hunks is the same commit the gate compares the index against. More
+ * than one entry means the caller named a head that is not the one the diff was taken against,
+ * which is itself a coordinate break — no index can be bound to both. Only semctx's own `git diff`
+ * produces this kind, which is what makes the attribution a proof rather than a claim.
+ *
+ * `declared` carries the same resolved object ids for a diff semctx did *not* compute. Resolving the
+ * ref proves the ref exists; it proves nothing about where the analysed bytes came from. A caller
+ * can name any commit alongside any post-image, so this kind is diagnostic and never authorizes.
+ *
+ * `absent` is a diff semctx did not compute and the caller did not attribute (`--from-file` or MCP
+ * text with no `--head`). Nothing ties those hunks to any repository state, so no conclusion drawn
+ * from them can authorize either.
+ */
+export type SourceIdentity =
+  | { kind: "absent" }
+  | { kind: "declared"; commits: readonly string[] }
+  | { kind: "commits"; commits: readonly string[] };
+
+const ABSENT_IDENTITY: SourceIdentity = { kind: "absent" };
+
+export interface ResolvedVerifySource {
+  diffText: string | null;
+  git: VerifyReportGitMeta;
+  includeCoChanges: boolean;
+  identity: SourceIdentity;
+  /** Frozen object id the co-change history is walked from; refs are never re-read after capture. */
+  coChangeHead: string | null;
+  analyzedSourceHash?: string;
+}
+
+type VerifyCaptureBarrier = () => void;
+
+let verifyCaptureBarrierForTesting: VerifyCaptureBarrier | undefined;
+let verifyAnalysisBarrierForTesting: VerifyCaptureBarrier | undefined;
+let verifyControlBarrierForTesting: VerifyCaptureBarrier | undefined;
+
+/** Internal one-shot boundary after the lifecycle inputs have actually been consumed. */
+export function __setVerifyControlBarrierForTesting(barrier: VerifyCaptureBarrier | undefined): void {
+  verifyControlBarrierForTesting = barrier;
+}
+
+/** Internal one-shot boundary after analysis, for deterministic index A-B-A regression tests. */
+export function __setVerifyAnalysisBarrierForTesting(barrier: VerifyCaptureBarrier | undefined): void {
+  verifyAnalysisBarrierForTesting = barrier;
+}
+
+/**
+ * Internal deterministic injection point between ref resolution and hunk capture. Intentionally
+ * absent from the package root exports so production consumers cannot depend on test orchestration.
+ */
+export function __setVerifyCaptureBarrierForTesting(barrier: VerifyCaptureBarrier | undefined): void {
+  verifyCaptureBarrierForTesting = barrier;
+}
+
+function crossVerifyCaptureBarrier(): void {
+  const barrier = verifyCaptureBarrierForTesting;
+  verifyCaptureBarrierForTesting = undefined;
+  barrier?.();
+}
+
+function git(root: string, args: string[]): { code: number; out: string; err: string } {
+  const proc = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+  return {
+    code: proc.exitCode ?? 1,
+    out: new TextDecoder().decode(proc.stdout),
+    err: new TextDecoder().decode(proc.stderr),
+  };
+}
+
+function validateRef(ref: string, role: "base" | "head"): void {
+  if (ref.startsWith("-")) {
+    throw new SemctxError("GIT_ERROR", `invalid ${role} ref "${ref}": refs must not start with "-"`, { [role]: ref });
+  }
+}
+
+function requireRef(root: string, ref: string, role: "base" | "head"): string {
+  validateRef(ref, role);
+  const resolved = git(root, ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`, "--"]);
+  if (resolved.code === 0) return resolved.out.trim();
+  if (role === "base") {
+    throw new SemctxError(
+      "GIT_BASE_UNAVAILABLE",
+      `base ref "${ref}" is not available locally. In CI, check out with full history (fetch-depth: 0); semctx never fetches implicitly.`,
+      { base: ref },
+    );
+  }
+  throw new SemctxError("GIT_ERROR", `head ref "${ref}" does not exist locally.`, { head: ref });
+}
+
+/** Identity a caller attributed to a diff semctx did not compute. Declared or nothing: defaulting it
+ *  to `HEAD` would manufacture a provenance the caller never claimed. The ref is still resolved, so
+ *  an unresolvable head fails loudly and a wrong one is still named as a coordinate break — but the
+ *  result is `declared`, because resolving a ref cannot show that these hunks came from it. */
+function declaredIdentity(root: string, head: string | undefined): SourceIdentity {
+  if (head === undefined) return ABSENT_IDENTITY;
+  return { kind: "declared", commits: [requireRef(root, head, "head")] };
+}
+
+export function resolveSource(root: string, source: VerifySource, dryRun: boolean): ResolvedVerifySource {
+  if (source.kind === "provided") {
+    const identity = declaredIdentity(root, source.head);
+    return {
+      diffText: dryRun ? null : source.diffText,
+      git: {
+        base: null,
+        head: identity.kind === "declared" ? identity.commits[0]! : "(provided)",
+        mergeBase: null,
+        range: null,
+      },
+      includeCoChanges: false,
+      identity,
+      coChangeHead: null,
+    };
+  }
+  if (source.kind === "file") {
+    const identity = declaredIdentity(root, source.head);
+    return {
+      diffText: dryRun ? null : readFileSync(source.path, "utf8"),
+      git: {
+        base: null,
+        head: identity.kind === "declared" ? identity.commits[0]! : "(from-file)",
+        mergeBase: null,
+        range: null,
+      },
+      includeCoChanges: false,
+      identity,
+      coChangeHead: null,
+    };
+  }
+  const head = source.head ?? "HEAD";
+  validateRef(head, "head");
+  if (source.kind === "range") {
+    // Resolve both endpoints to object ids first, then compute merge-base and diff from those ids
+    // alone. A branch that moves after this point cannot re-associate the hunks with another commit.
+    const baseSha = requireRef(root, source.base, "base");
+    const headSha = requireRef(root, head, "head");
+    const meta = (mergeBase: string): VerifyReportGitMeta => ({
+      base: source.base,
+      head,
+      mergeBase,
+      range: `${mergeBase.slice(0, 12)}..${headSha.slice(0, 12)}`,
+    });
+    const identity: SourceIdentity = { kind: "commits", commits: [headSha] };
+    crossVerifyCaptureBarrier();
+    const merge = git(root, ["merge-base", "--", baseSha, headSha]);
+    if (merge.code !== 0 || merge.out.trim() === "") {
+      throw new SemctxError("GIT_ERROR", `could not compute a merge-base between "${source.base}" and "${head}"`, { stderr: merge.err.trim() });
+    }
+    const mergeBase = merge.out.trim();
+    if (dryRun) return { diffText: null, git: meta(mergeBase), includeCoChanges: true, identity, coChangeHead: headSha };
+    const diff = git(root, [
+      "diff", "--relative", "--unified=0", "--no-color", "--no-ext-diff", "--no-textconv", mergeBase, headSha, "--",
+    ]);
+    if (diff.code !== 0) throw new SemctxError("GIT_ERROR", "git diff failed", { stderr: diff.err.trim() });
+    return { diffText: diff.out, git: meta(mergeBase), includeCoChanges: true, identity, coChangeHead: headSha };
+  }
+  const meta: VerifyReportGitMeta = { base: null, head, mergeBase: null, range: null };
+  if (dryRun) {
+    // A dry run computes no hunks, so it freezes nothing — but a head the caller named and Git
+    // cannot resolve is still an error the caller must see before planning around it.
+    if (source.head !== undefined) requireRef(root, source.head, "head");
+    return { diffText: null, git: meta, includeCoChanges: true, identity: ABSENT_IDENTITY, coChangeHead: null };
+  }
+  // Freeze the anchors *before* capturing hunks. `git diff [--staged] <oid>` then measures the
+  // working tree or index against that exact commit rather than against whatever `HEAD` points at
+  // by the time the process reaches the diff.
+  const headSha = requireRef(root, head, "head");
+  const checkedOutSha = requireRef(root, "HEAD", "head");
+  crossVerifyCaptureBarrier();
+  const args = source.kind === "staged"
+    ? ["diff", "--staged", "--relative", "--unified=0", "--no-color", "--no-ext-diff", "--no-textconv", headSha, "--"]
+    : ["diff", "--relative", "--unified=0", "--no-color", "--no-ext-diff", "--no-textconv", headSha, "--"];
+  const diff = git(root, args);
+  if (diff.code !== 0) throw new SemctxError("GIT_ERROR", "git diff failed (is this a git repository?)", { stderr: diff.err.trim() });
+  // The checked-out commit is load-bearing too: the working tree it materialized is the post-image.
+  // A caller naming a different head has already broken the coordinate system it reports against.
+  const identity: SourceIdentity = { kind: "commits", commits: [...new Set([headSha, checkedOutSha])] };
+  return {
+    diffText: diff.out,
+    git: meta,
+    includeCoChanges: true,
+    identity,
+    coChangeHead: headSha,
+    ...(source.kind === "working-tree"
+      ? { analyzedSourceHash: fingerprintVerificationSource(headSha, diff.out) }
+      : {}),
+  };
+}
+
+/** Internal observation boundary, absent from the package public index. */
+export function historicalCoChanges(root: string, files: readonly string[], head: string): CoChange[] {
+  if (files.length === 0) return [];
+  const log = git(root, ["log", "--no-merges", "--name-status", "--find-renames", "--format=%x1e", "-n", "400", head, "--"]);
+  if (log.code !== 0) {
+    throw new SemctxError("GIT_ERROR", "cannot observe co-change history", { head, stderr: log.err.trim() });
+  }
+  return computeCoChanges(parseNameStatusLog(log.out), files);
+}
+
+export function planVerify(root: string, source: VerifySource): VerifyReportGitMeta {
+  return resolveSource(root, source, true).git;
+}
+
+function applyAnalysisHealthPreflight(
+  result: VerifyResult,
+  changedScopePaths: readonly string[],
+  health: IndexHealthReportV1,
+  currentCandidates: ReturnType<typeof discoverRepository>["candidates"],
+  isCurrentlySelected: (path: string) => boolean,
+): VerifyResult {
+  const persistedByPath = new Map(health.candidates.map((candidate) => [candidate.path, candidate]));
+  const evaluationsByCandidate = new Map<string, typeof health.evaluations.decisions>();
+  for (const decision of health.evaluations.decisions) {
+    const group = evaluationsByCandidate.get(decision.candidateIdentity) ?? [];
+    evaluationsByCandidate.set(decision.candidateIdentity, [...group, decision]);
+  }
+  const currentByPath = new Map(currentCandidates.map((candidate) => [candidate.relPath, candidate]));
+  const blockingPaths: string[] = [];
+  const partialNegativePaths: string[] = [];
+
+  for (const path of changedScopePaths) {
+    const persisted = persistedByPath.get(path);
+    const current = currentByPath.get(path);
+    const selectedNow =
+      current?.selectionDecision === "selected"
+      || (current === undefined && isCurrentlySelected(path));
+    const wasSelected = persisted?.selectionDecision === "selected";
+    if (!selectedNow && !wasSelected) continue;
+    const evaluations = persisted === undefined
+      ? []
+      : evaluationsByCandidate.get(persisted.candidateIdentity) ?? [];
+    const hasLoadBearingGateFailure =
+      evaluations.length === 0
+      || evaluations.some((decision) =>
+        decision.decisionKind === "pre_subject"
+        || decision.gates.discoveryAndScope === "failed"
+        || decision.gates.bindingAndIntegrity === "failed"
+        || decision.gates.currentFreshness === "failed"
+        || decision.gates.capabilityMatch === "failed"
+        || decision.gates.taskRelativeAuthority === "failed");
+
+    if (
+      health.binding.status !== "valid"
+      || !health.freshness.canRunHighRiskControl
+      || persisted === undefined
+      || persisted.analysisOutcome !== "analyzed"
+      || hasLoadBearingGateFailure
+    ) {
+      blockingPaths.push(path);
+      continue;
+    }
+    if (
+      evaluations.some((decision) =>
+        decision.decisionKind === "exact_subject"
+        && decision.gates.negativeCompleteness === "failed")
+      || !persisted.negativeEvidenceEligible
+      || persisted.analysisReasons.length > 0
+    ) {
+      partialNegativePaths.push(path);
+    }
+  }
+
+  const findings = [...result.findings];
+  const unknowns = [...result.unknowns];
+  const nodeIdsFor = (paths: readonly string[]): string[] => {
+    const selected = new Set(paths);
+    return result.impactedNodes
+      .filter((node) => node.filePath !== undefined && selected.has(node.filePath))
+      .map((node) => node.id);
+  };
+
+  if (blockingPaths.length > 0) {
+    const paths = [...new Set(blockingPaths)].sort();
+    findings.push({
+      rule: "analysis_scope_incomplete",
+      severity: "block",
+      message: `selected changed scope lacks a current admissible analyzer: ${paths.join(", ")}`,
+      nodeIds: nodeIdsFor(paths),
+    });
+    unknowns.push(
+      `Analysis is insufficient for selected changed scope: ${paths.join(", ")}. Re-index after resolving disabled, unsupported, failed, stale, or invalid binding state.`,
+    );
+  }
+  if (partialNegativePaths.length > 0) {
+    const paths = [...new Set(partialNegativePaths)].sort();
+    findings.push({
+      rule: "analysis_scope_incomplete",
+      severity: "warn",
+      message: `Plane-A analysis is partial for negative impact/test conclusions: ${paths.join(", ")}`,
+      nodeIds: nodeIdsFor(paths),
+    });
+    unknowns.push(
+      `No complete negative reference, dependency, test-link, or impact conclusion is available for: ${paths.join(", ")}.`,
+    );
+  }
+
+  return {
+    ...result,
+    verdict: findings.some((finding) => finding.severity === "block")
+      ? "BLOCK"
+      : findings.some((finding) => finding.severity === "warn")
+        ? "WARN"
+        : "PASS",
+    findings,
+    unknowns: [...new Set(unknowns)],
+  };
+}
+
+/** A reason the index binding could not be proven. Local to this gate: it extends the public
+ *  freshness vocabulary with the source-identity break only `verify` can observe, without widening
+ *  `ControlFreshnessReason`, which is a published enum with its own ordering contract. */
+export type IndexBindingBreak =
+  | ControlFreshnessReason
+  | "SOURCE_IDENTITY_ABSENT"
+  | "SOURCE_IDENTITY_UNPROVEN"
+  | "ANALYZED_COMMIT_MISMATCH"
+  | "FRESHNESS_PROBE_FAILED"
+  | `UNRESOLVED_REFERENCE_${UnresolvedReferenceBindingReason}`;
+
+/**
+ * Admissibility of every freshness reason for an impact conclusion. Impacted nodes are a join
+ * between line ranges frozen at indexing time (`nodeLineRange` over stored evidence) and hunks
+ * measured against the analysed source, so a reason is admissible only when it provably leaves both
+ * sides of that join intact.
+ *
+ * Exhaustive by type, and that is the point: a new `ControlFreshnessReason` is a compile error here
+ * rather than a silently authorizing verdict. `breaking` is the default a reader should assume —
+ * every `admissible` entry carries the argument that earns it.
+ */
+const INDEX_BINDING_ADMISSIBILITY: Readonly<Record<ControlFreshnessReason, "admissible" | "breaking">> = {
+  // No binding proof exists at all. Repairable by `semctx index`, so blocking cannot deadlock.
+  REPOSITORY_NOT_INITIALIZED: "breaking",
+  REPOSITORY_NOT_INDEXED: "breaking",
+  INDEX_SNAPSHOT_MISSING: "breaking",
+  INDEX_SNAPSHOT_INVALID: "breaking",
+  STORE_SCHEMA_UNAVAILABLE: "breaking",
+  // The binding exists and contradicts the source being analysed.
+  REPOSITORY_ROOT_MISMATCH: "breaking",
+  HEAD_MISMATCH: "breaking",
+  REPOSITORY_GRAPH_MISMATCH: "breaking",
+  STORE_SCHEMA_MISMATCH: "breaking",
+  // No commit was captured on either side, so nothing states which source state the stored line
+  // ranges belong to. A repository semctx cannot place in Git history is a repository whose impact
+  // conclusions have no anchor, and an unanchored conclusion never authorizes.
+  GIT_STATE_UNAVAILABLE: "breaking",
+  // Analysing an uncommitted diff is the normal case: the working tree differing from the indexed
+  // state is what `verify diff` exists to measure, not a coordinate break.
+  WORKING_DIFF_MISMATCH: "admissible",
+  WORKING_TREE_DIRTY: "admissible",
+  ANALYSIS_INPUT_MISMATCH: "admissible",
+  // Authored Plane-B state. It leaves every Plane-A line range intact, and blocking would refuse
+  // the very `verify diff --record` that repairs a stale evidence baseline while `semctx index`
+  // refuses to run against one — the two would deadlock.
+  SEMANTIC_MODEL_INVALID: "admissible",
+  SEMANTIC_LIFECYCLE_INVALID: "admissible",
+  SEMANTIC_MODEL_MISMATCH: "admissible",
+  // Same tool, different build metadata: no stored line range moves.
+  TOOL_VERSION_MISMATCH: "admissible",
+};
+
+function withUnknown(result: VerifyResult, unknown: string): VerifyResult {
+  return { ...result, unknowns: [...new Set([...result.unknowns, unknown])] };
+}
+
+function refuseImpact(result: VerifyResult, breaks: readonly IndexBindingBreak[]): VerifyResult {
+  const reasons = [...new Set(breaks)].join(", ");
+  return {
+    ...result,
+    verdict: "BLOCK",
+    findings: [
+      ...result.findings,
+      {
+        rule: "index_binding_stale",
+        severity: "block",
+        message: `impact was computed against an index bound to a different source state: ${reasons}`,
+        nodeIds: [],
+      },
+    ],
+    unknowns: [...new Set([
+      ...result.unknowns,
+      `No impact conclusion holds while the index binding is broken (${reasons}). Re-run \`semctx index\`, then verify again.`,
+    ])],
+  };
+}
+
+/** What the binding probe observed: the breaks found, and the freshness it read (null if it failed). */
+export interface IndexBindingObservation {
+  breaks: IndexBindingBreak[];
+  freshness: ControlFreshnessStatusReport | null;
+}
+
+/**
+ * Observe whether the index is provably bound to the exact source the diff was taken from. Pure
+ * observation: `applyIndexBindingGate` turns it into a verdict, `runChangeImpact` into facts.
+ * Breaks are ordered as they are discovered, and `FRESHNESS_PROBE_FAILED` ends the list when the
+ * probe throws.
+ */
+export function observeIndexBinding(
+  root: string,
+  store: ReturnType<typeof openReadyRepository>,
+  identity: SourceIdentity,
+  observeSemanticInput: (hash: string) => void,
+): IndexBindingObservation {
+  const breaks: IndexBindingBreak[] = [];
+  // A diff nobody attributed to a commit cannot be joined with line ranges frozen at one. This is
+  // checked before the freshness probe so it stands on its own: a perfectly FRESH index still
+  // proves nothing about hunks that belong to no known source state.
+  if (identity.kind === "absent") breaks.push("SOURCE_IDENTITY_ABSENT");
+  // A caller-declared head is an assertion about hunks semctx did not compute, so it is exactly as
+  // strong as the caller. Naming the indexed commit alongside an arbitrary post-image would
+  // otherwise satisfy every check below and certify a join the caller alone vouched for.
+  if (identity.kind === "declared") breaks.push("SOURCE_IDENTITY_UNPROVEN");
+
+  // Independent of the freshness probe on purpose: the record's tie to the index it describes is a
+  // property of the store, and it must fail closed even if the probe itself is healthy.
+  const registry = readUnresolvedReferenceBinding(store);
+  if (registry.status === "unbound") breaks.push(`UNRESOLVED_REFERENCE_${registry.reason}`);
+
+  // Read the indexed commit from the persisted snapshot rather than from the freshness seal. The
+  // seal is withheld whenever any input is unsealed — including reasons this gate deliberately
+  // admits — while the commit the index was built at is a stored fact that survives all of them.
+  // `HEAD_MISMATCH` still covers drift of the checked-out HEAD through the freshness path.
+  let indexedCommit: string | null | undefined;
+  try {
+    indexedCommit = parseIndexedControlSnapshot(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY))?.headCommit;
+  } catch {
+    indexedCommit = undefined;
+  }
+  // Applied to a declared identity too: a caller who also names the wrong commit gets that named
+  // separately, so the two failures stay distinguishable and neither hides the other. Absence or
+  // invalidity of the snapshot is already named by the freshness and registry bindings; a mismatch
+  // exists only when there are two actual commit identities to compare.
+  if (
+    identity.kind !== "absent"
+    && indexedCommit !== undefined
+    && indexedCommit !== null
+    && identity.commits.some((commit) => commit !== indexedCommit)
+  ) {
+    breaks.push("ANALYZED_COMMIT_MISMATCH");
+  }
+
+  let freshness: ControlFreshnessStatusReport;
+  try {
+    const observed = controlStatusWithSemanticInputs(root);
+    freshness = observed.status;
+    observed.semanticInputHashes.forEach(observeSemanticInput);
+    const afterControl = verifyControlBarrierForTesting;
+    verifyControlBarrierForTesting = undefined;
+    afterControl?.();
+  } catch {
+    // The probe annotates the verification rather than driving it, so it must not throw through —
+    // but a binding that cannot be probed is a binding that is not proven, and an unproven binding
+    // never authorizes an impact conclusion.
+    return { breaks: [...breaks, "FRESHNESS_PROBE_FAILED"], freshness: null };
+  }
+
+  breaks.push(
+    ...freshness.reasons.filter((reason) => INDEX_BINDING_ADMISSIBILITY[reason] === "breaking"),
+  );
+  return { breaks, freshness };
+}
+
+/**
+ * Refuse an impact verdict computed against an index that is not provably bound to the exact source
+ * the diff was taken from. Fail-closed in both directions: an unproven binding blocks, and the
+ * commit carrying the coordinates must be the commit the diff was analysed against.
+ */
+function applyIndexBindingGate(
+  root: string,
+  store: ReturnType<typeof openReadyRepository>,
+  result: VerifyResult,
+  identity: SourceIdentity,
+  observeSemanticInput: (hash: string) => void,
+): VerifyResult {
+  const { breaks, freshness } = observeIndexBinding(root, store, identity, observeSemanticInput);
+  if (freshness === null || breaks.length > 0) return refuseImpact(result, breaks);
+
+  if (!freshness.canRunHighRiskControl) {
+    const detail = freshness.reasons.length > 0 ? `${freshness.verdict}: ${freshness.reasons.join(", ")}` : freshness.verdict;
+    const remedy = freshness.reasons.includes("SEMANTIC_LIFECYCLE_INVALID")
+      ? " Run semctx semantic check; for EVIDENCE_BASELINE_STALE, recover with semctx index --record."
+      : "";
+    return withUnknown(result, `Could not confirm index binding (${detail}); impact is reported without a freshness proof.${remedy}`);
+  }
+  return result;
+}
+
+/**
+ * Re-read the indexed record of authored references that named an absent target. The gap was
+ * observed while building the index this verdict is drawn from, so it belongs in the verdict: an
+ * index that cannot say whether such a gap exists is itself an unknown, not a clean bill.
+ */
+function discloseUnresolvedReferences(
+  store: ReturnType<typeof openReadyRepository>,
+  result: VerifyResult,
+): VerifyResult {
+  const recorded = readUnresolvedReferenceBinding(store);
+  if (recorded.status === "unbound") {
+    return withUnknown(
+      result,
+      `This index's authored reference record is not bound to it (${recorded.reason}); whether an authored reference names an absent target is unknown. Re-run \`semctx index\`.`,
+    );
+  }
+  if (recorded.references.length === 0) return result;
+  const named = recorded.references
+    .map((reference) => `${reference.from} -(${reference.kind})-> ${reference.missing}`)
+    .join("; ");
+  return withUnknown(
+    result,
+    `Authored references name targets this repository does not contain: ${named}.`,
+  );
+}
+
+/** Compare retained repository inputs with the actual selected Git post-image. */
+function qualifiedPostImageInputs(root: string, retained: ReturnType<typeof captureQualifiedAnalysisInputs>, source: VerifySource, identity: SourceIdentity): string[] {
+  if (identity.kind !== "commits" || identity.commits.length !== 1) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const format = git(root, ["rev-parse", "--show-object-format"]);
+  const algorithm = format.out.trim();
+  if (format.code !== 0 || (algorithm !== "sha1" && algorithm !== "sha256")) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const inventory = git(root, source.kind === "staged"
+    ? ["ls-files", "--stage", "-z"] : ["ls-tree", "-r", "-z", identity.commits[0]!]);
+  if (inventory.code !== 0) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  const blobs = new Map<string, string>();
+  const directories = new Set(["."]);
+  for (const item of inventory.out.split("\0").filter(Boolean)) {
+    const separator = item.indexOf("\t");
+    const fields = item.slice(0, separator).split(" ");
+    if (separator < 0 || fields.length !== 3) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+    if (source.kind === "staged" ? fields[2] !== "0" : fields[1] !== "blob") continue;
+    const path = item.slice(separator + 1);
+    blobs.set(path, source.kind === "staged" ? fields[1]! : fields[2]!);
+    for (let directory = posix.dirname(path); directory !== "."; directory = posix.dirname(directory)) directories.add(directory);
+  }
+  const version = git(root, ["--version"]);
+  const components = /^git version (\d+)\.(\d+)(?:\.|$)/.exec(version.out.trim());
+  if (version.code !== 0 || components === null) return ["QUALIFIED_POST_IMAGE_UNBOUND"];
+  if (Number(components[1]) < 2 || (Number(components[1]) === 2 && Number(components[2]) < 41)) {
+    throw new SemctxError("UNSUPPORTED", "qualified staged/range verification requires Git >= 2.41 (--attr-source)", { version: version.out.trim() });
+  }
+  let objectIds: Map<string, string>;
+  try { objectIds = retainedGitBlobObjectIds(root, identity.commits[0]!, retained.files); }
+  catch (error) {
+    if (!(error instanceof SemctxError) || error.code !== "GIT_ERROR") throw error;
+    const reason = error.details["qualifiedPostImageReason"];
+    if (reason !== "QUALIFIED_POST_IMAGE_ATTRIBUTES_UNBOUND" && reason !== "QUALIFIED_POST_IMAGE_CONVERSION_FAILED") throw error;
+    return [reason];
+  }
+  const reasons: string[] = [];
+  const retainedPaths = new Set(retained.files.map(file => file.path));
+  for (const file of retained.files) {
+    const expected = blobs.get(file.path);
+    if (expected === undefined) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_ABSENT:${file.path}`);
+    else {
+      const actual = objectIds.get(file.path);
+      if (actual !== expected) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_MISMATCH:${file.path}`);
+    }
+  }
+  for (const path of blobs.keys()) {
+    if (isQualifiedRepositoryInputPath(path) && !retainedPaths.has(path)) reasons.push(`QUALIFIED_POST_IMAGE_INPUT_UNRETAINED:${path}`);
+  }
+  for (const workspace of retained.workspaceRoots) {
+    if (!directories.has(workspace)) reasons.push(`QUALIFIED_POST_IMAGE_WORKSPACE_ABSENT:${workspace}`);
+  }
+  return reasons;
+}
+
+/** The qualified closure requires materialized relevant tracked inputs; ordinary analysis is unchanged. */
+function qualifiedCheckoutReasons(root: string): string[] {
+  const reasons: string[] = [];
+  const sparse = git(root, ["config", "--bool", "core.sparseCheckout"]);
+  if (sparse.code === 0 && sparse.out.trim() === "true") reasons.push("QUALIFIED_SPARSE_CHECKOUT_UNSUPPORTED");
+  else if (sparse.code !== 0 && sparse.code !== 1) reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE");
+  const flags = git(root, ["ls-files", "-v", "-z"]);
+  if (flags.code !== 0) return [...reasons, "QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"];
+  for (const record of flags.out.split("\0").filter(Boolean)) {
+    if (!/^[A-Za-z] /.test(record)) { reasons.push("QUALIFIED_CHECKOUT_INVENTORY_UNAVAILABLE"); continue; }
+    const path = record.slice(2);
+    if (/^[Ss] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_SKIP_WORKTREE_UNSUPPORTED:${path}`);
+    if (/^[a-z] /.test(record) && isQualifiedRepositoryInputPath(path)) reasons.push(`QUALIFIED_ASSUME_UNCHANGED_UNSUPPORTED:${path}`);
+  }
+  return reasons;
+}
+
+interface CommitTreeAnalysis {
+  index: GraphIndex;
+  sidecar: PlaneASidecarV1;
+}
+
+/** Read committed blob bytes without Git checkout filters, links or changes to the live index. */
+function analyzeCommitTree(root: string, commit: string, config: SemctxConfig,
+  retained?: { diffText: string; currentObligations: readonly string[] },
+): CommitTreeAnalysis {
+  const scratch = canonicalRepositoryRoot(mkdtempSync(join(tmpdir(), "semctx-base-")));
+  try {
+    const listed = Bun.spawnSync(["git", "ls-tree", "-r", "-z", commit], {
+      cwd: root, stdout: "pipe", stderr: "pipe",
+    });
+    if (listed.exitCode !== 0) {
+      throw new SemctxError("GIT_ERROR", `cannot read the base tree ${commit.slice(0, 12)}`, {
+        stderr: new TextDecoder().decode(listed.stderr).trim(),
+      });
+    }
+    const entries: Array<{ path: string; oid: string; mode: string }> = [];
+    const blobId = (bytes: Uint8Array, oid: string): string => createHash(oid.length === 64 ? "sha256" : "sha1")
+      .update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
+    const destinations = new Set<string>();
+    for (const record of new TextDecoder("utf-8", { fatal: true }).decode(listed.stdout).split("\0")) {
+      if (record === "") continue;
+      const match = /^(\d{6}) (blob|commit) ([0-9a-f]{40,64})\t([\s\S]+)$/.exec(record);
+      if (match === null) throw new SemctxError("GIT_ERROR", "invalid base tree entry");
+      const [, mode, , oid, path] = match;
+      if (path === undefined || isAbsolute(path) || path.includes(":") || path.includes("\\")
+        || path.split("/").some((part) => part === "" || part === "." || part === ".." || part.toLowerCase() === ".git")) {
+        throw new SemctxError("GIT_ERROR", "unsafe base tree path", { path });
+      }
+      if (mode !== "100644" && mode !== "100755") {
+        if (retained || isPathSelected(config, path)) {
+          throw new SemctxError("GIT_ERROR", "selected base tree links and gitlinks are unsupported", { path, mode });
+        }
+        continue;
+      }
+      const destinationKey = process.platform === "win32" ? path.toLowerCase() : path;
+      if (destinations.has(destinationKey)
+        || (process.platform === "win32" && path.split("/").some((part) => /[. ]$/.test(part)))) {
+        throw new SemctxError("GIT_ERROR", "base tree paths alias on this filesystem", { path });
+      }
+      destinations.add(destinationKey);
+      entries.push({ path, oid: oid!, mode: mode! });
+    }
+    const blobs = Bun.spawnSync(["git", "cat-file", "--batch"], {
+      cwd: root,
+      stdin: new TextEncoder().encode(entries.map((entry) => `${entry.oid}\n`).join("")),
+      stdout: "pipe", stderr: "pipe",
+    });
+    if (blobs.exitCode !== 0) throw new SemctxError("GIT_ERROR", "cannot read base tree blobs");
+    let offset = 0;
+    for (const entry of entries) {
+      const newline = blobs.stdout.indexOf(10, offset);
+      const header = newline < 0 ? "" : new TextDecoder().decode(blobs.stdout.subarray(offset, newline));
+      const match = /^([0-9a-f]{40,64}) blob (\d+)$/.exec(header);
+      const size = match === null ? NaN : Number(match[2]);
+      offset = newline + 1;
+      if (match?.[1] !== entry.oid || !Number.isSafeInteger(size) || size < 0
+        || offset + size >= blobs.stdout.byteLength || blobs.stdout[offset + size] !== 10) {
+        throw new SemctxError("GIT_ERROR", "invalid base blob response", { path: entry.path });
+      }
+      const bytes = blobs.stdout.subarray(offset, offset + size);
+      if (blobId(bytes, entry.oid) !== entry.oid) throw new SemctxError("GIT_ERROR", "base blob bytes do not match immutable object", { path: entry.path });
+      const destination = join(scratch, entry.path);
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(destination, bytes);
+      offset += size + 1;
+    }
+    if (offset !== blobs.stdout.byteLength) throw new SemctxError("GIT_ERROR", "unexpected base blob response");
+    const scratchConfig = { ...config, repositoryRoot: scratch };
+    if (!retained) {
+      const analysis = analyzeAndBuildClaims(scratchConfig).analysis;
+      const sidecar = getPlaneASidecar(analysis);
+      if (sidecar === undefined) throw new SemctxError("GIT_ERROR", "base analysis has no discovery ledger");
+      return { index: new GraphIndex(analysis.graph), sidecar };
+    }
+    // The private index marks immutable HEAD inventory as tracked, including ignored output paths.
+    // No checkout/filter runs, and neither the live repository nor its index is modified.
+    if (Object.keys(process.env).some((name) => /^(?:GIT_DIR|GIT_WORK_TREE|GIT_INDEX_FILE|GIT_COMMON_DIR|GIT_OBJECT_DIRECTORY|GIT_ALTERNATE_OBJECT_DIRECTORIES|GIT_CONFIG|GIT_CONFIG_SYSTEM|GIT_CONFIG_GLOBAL|GIT_CONFIG_COUNT|GIT_CONFIG_PARAMETERS|GIT_CONFIG_KEY_\d+|GIT_CONFIG_VALUE_\d+)$/i.test(name))) {
+      throw new SemctxError("GIT_ERROR", "qualified base capture has overriding Git environment");
+    }
+    const scratchGit = (args: string[], stdin?: Uint8Array): void => {
+      const result = Bun.spawnSync(["git", "-c", "core.autocrlf=false", "-c", "core.fsmonitor=false", ...args], {
+        cwd: scratch, stdin, stdout: "pipe", stderr: "pipe",
+        env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null" },
+      });
+      if (result.exitCode !== 0) throw new SemctxError("GIT_ERROR", "qualified base private index failed");
+    };
+    scratchGit(["init", "-q", "--template=", `--object-format=${entries[0]?.oid.length === 64 ? "sha256" : "sha1"}`]);
+    scratchGit(["config", "core.fsmonitor", "false"]);
+    scratchGit(["config", "core.worktree", scratch]);
+    scratchGit(["config", "core.bare", "false"]);
+    scratchGit(["update-index", "--info-only", "-z", "--index-info"], new TextEncoder().encode(
+      entries.map((entry) => `${entry.mode} ${entry.oid}\t${entry.path}\0`).join(""),
+    ));
+    const current = captureQualifiedAnalysisInputs(config);
+    // An ignored current policy is still the explicit paired authority. Do not keep HEAD policy.
+    rmSync(join(scratch, ".semctx/config.json"), { force: true });
+    if (current.configurationInput.state === "present") {
+      mkdirSync(join(scratch, ".semctx"), { recursive: true });
+      writeFileSync(join(scratch, ".semctx/config.json"), current.configurationInput.bytes);
+    }
+    const before = captureQualifiedAnalysisInputs(scratchConfig);
+    if (digestCanonical(before.configurationInput) !== digestCanonical(current.configurationInput)) {
+      throw new SemctxError("GIT_ERROR", "qualified base did not capture the exact current raw policy");
+    }
+    const assertManifestBinding = (): void => {
+      for (const entry of entries) {
+        if (entry.path === ".semctx/config.json") continue;
+        if (blobId(readFileSync(join(scratch, entry.path)), entry.oid) !== entry.oid) {
+          throw new SemctxError("GIT_ERROR", "qualified base materialization differs from immutable HEAD", { path: entry.path });
+        }
+      }
+    };
+    assertManifestBinding();
+    const entryByPath = new Map(entries.map(entry => [entry.path, entry]));
+    for (const file of before.files) {
+      const entry = entryByPath.get(file.path);
+      if (entry === undefined || blobId(file.bytes, entry.oid) !== entry.oid) {
+        throw new SemctxError("GIT_ERROR", `qualified base consumed an unbound HEAD input: ${file.path}`);
+      }
+    }
+    const compilerInputs = new Map(before.files.map((file) => [resolve(scratch, file.path), Buffer.from(file.bytes).toString("utf8")]));
+    const discovery = discoverRepository(scratchConfig);
+    if (discovery.files.some((file) => compilerInputs.get(resolve(file.absPath)) !== file.content)) {
+      throw new SemctxError("GIT_ERROR", "qualified base discovery is not bound to retained inputs");
+    }
+    const captured = analyzeRetainedRepository(scratchConfig, discovery, compilerInputs);
+    assertManifestBinding();
+    if (before.digest !== captureQualifiedAnalysisInputs(scratchConfig).digest
+      || current.digest !== captureQualifiedAnalysisInputs(config).digest) {
+      throw new SemctxError("GIT_ERROR", "qualified base retained inputs or current authority changed");
+    }
+    const graph = captured.analysis.graph;
+    const scope = inspectRetainedQualifiedScope({ config: scratchConfig, graph, consumedInputs: before,
+      expectedInputHash: before.digest, checkChanged: false, retainedCompilerInputs: compilerInputs });
+    const inventory = new Set(entries.map(entry => entry.path));
+    const parsed = parseUnifiedDiffChanges(retained.diffText);
+    const obligated = new Set(parsed.files.filter(file => file.status !== "added").map(file => file.oldPath ?? file.filePath));
+    for (const block of parsed.unscoped) for (const path of block.paths) obligated.add(path);
+    // Add current dependency obligations that existed in HEAD. Head-only additions have no old image.
+    for (const path of retained.currentObligations) if (inventory.has(path)) obligated.add(path);
+    const links: [string, string][] = [...scope.links];
+    const byId = new Map(graph.nodes.map(node => [node.id, node]));
+    const provenancePaths = (nodeId: string): string[] => {
+      const node = byId.get(nodeId);
+      return node === undefined ? [] : [...new Set([
+        ...(node.filePath === undefined ? [] : [node.filePath]), ...node.evidence.map(evidence => evidence.filePath),
+      ])];
+    };
+    for (const edge of graph.edges) {
+      if (!["constrained_by", "tested_by", "covers", "verifies", "documents", "declares", "related_to"].includes(edge.kind)) continue;
+      const paths = [...new Set([...provenancePaths(edge.from), ...provenancePaths(edge.to), ...edge.evidence.map(evidence => evidence.filePath)])];
+      for (const from of paths) for (const to of paths) if (from !== to) links.push([from, to]);
+    }
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      for (const [from, to] of links) {
+        if (!obligated.has(from) && !obligated.has(to)) continue;
+        for (const path of [from, to]) if (!obligated.has(path)) { obligated.add(path); expanded = true; }
+      }
+    }
+    // Missing old links cannot prove an unsupported broad importer is irrelevant.
+    // Preserve the existing qualified broad scope guard; only factual ledger use is scoped below.
+    if (scope.reasons.length > 0) throw new SemctxError("GIT_ERROR", scope.reasons.join(", "));
+    const evaluations = evaluateCapturedPlaneA(captured.sidecar, captured.workspaceProjection,
+      config.version, digestCanonical(scratchConfig));
+    for (const path of [...obligated].sort()) {
+      const candidate = discovery.candidates.filter(candidate => candidate.relPath === path);
+      const ledger = captured.sidecar.discoveryLedger.filter(entry => entry.scope.selectedPaths.length === 1 && entry.scope.selectedPaths[0] === path);
+      if (candidate.length !== 1 || ledger.length !== 1 || candidate[0]!.selectionDecision !== "selected"
+        || ledger[0]!.selectionDecision !== "selected" || ledger[0]!.analysisOutcome !== "analyzed"
+        || ledger[0]!.analysisReasons.length > 0) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation is not analyzed: ${path}; ${ledger.flatMap(entry => [...entry.selectionReasons, ...entry.analysisReasons]).join(", ")}`);
+      }
+      const file = discovery.files.find(file => file.relPath === path);
+      const entry = ledger[0]!;
+      const expectedSource = file === undefined ? null : digestCanonical({ relPath: file.relPath, role: file.role,
+        language: file.language ?? null, content: canonicalSourceText(file.content) });
+      if (entry.scope.sourceStateDigest !== expectedSource || captured.sidecar.producerConfigurationDigest !== digestCanonical(scratchConfig)) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation has an unbound source/policy: ${path}`);
+      }
+      const decisions = evaluations.decisions.filter(decision => decision.candidateIdentity === entry.candidateIdentity);
+      // UNSEALED is honest for this ephemeral repository. Immutable raw-manifest/capture checks above
+      // supply temporal authority, independently of current-store seals and negative completeness.
+      if (decisions.length === 0 || decisions.some(decision => decision.decisionKind === "pre_subject"
+        || [decision.gates.discoveryAndScope, decision.gates.bindingAndIntegrity,
+          decision.gates.capabilityMatch, decision.gates.taskRelativeAuthority].some(gate => gate !== "passed"))) {
+        throw new SemctxError("GIT_ERROR", `qualified base obligation has no admissible factual producer: ${path}; ${decisions.flatMap(decision => decision.reasons.map(reason => reason.code)).join(", ")}`);
+      }
+    }
+    assertManifestBinding();
+    if (before.digest !== captureQualifiedAnalysisInputs(scratchConfig).digest
+      || current.digest !== captureQualifiedAnalysisInputs(config).digest) {
+      throw new SemctxError("GIT_ERROR", "qualified base inputs changed during obligated-scope evaluation");
+    }
+    return { index: new GraphIndex(captured.analysis.graph), sidecar: captured.sidecar };
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+/**
+ * A committed range is indexed at its head, so a guard the change deletes, strips or moves is not in
+ * the graph the head-side analysis reads. Recover those from the merge-base and add them as findings.
+ */
+function applyLostGuards(
+  root: string,
+  config: SemctxConfig,
+  result: VerifyResult,
+  headIndex: GraphIndex,
+  mergeBase: string,
+  diffText: string,
+): VerifyResult {
+  if (!diffRemovesBaseLines(diffText)) return result;
+  if (isQualified(config)) {
+    const paths = parseUnifiedDiffScopePaths(diffText).join(", ");
+    return {
+      ...result,
+      verdict: "BLOCK",
+      findings: [...result.findings, {
+        rule: "analysis_scope_incomplete", severity: "block", nodeIds: [],
+        message: `Qualified committed ranges removing base lines are unsupported: ${paths}`,
+      }],
+      unknowns: [...new Set([...result.unknowns,
+        `Qualified base guards were not recovered for: ${paths}. Immutable base source eligibility and compiler inputs are not captured; use refreshed working-tree verification before committing.`,
+      ])],
+    };
+  }
+  const base = analyzeCommitTree(root, mergeBase, config);
+  const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText });
+  const changed = new Set(parseUnifiedDiffScopePaths(diffText));
+  const failed: string[] = [];
+  const excluded: string[] = [];
+  const partial: string[] = [];
+  for (const entry of base.sidecar.discoveryLedger) {
+    const paths = entry.scope.selectedPaths.filter((path) => changed.has(path));
+    if (paths.length === 0) continue;
+    if (entry.selectionDecision === "excluded") {
+      if (!entry.selectionReasons.includes("LEGACY_UNSUPPORTED_EXTENSION")) excluded.push(...paths);
+    } else if (entry.analysisOutcome !== "analyzed") {
+      failed.push(...paths);
+    } else if (config.version === 2) {
+      const profiles = base.sidecar.capabilityProfiles.filter((profile) =>
+        digestCanonical(profile.scope) === digestCanonical(entry.scope));
+      if (entry.analysisReasons.length > 0 || profiles.length === 0
+        || profiles.some((profile) => !profile.negativeEvidenceEligible)) partial.push(...paths);
+    }
+  }
+  const findings = [...result.findings, ...lost.findings];
+  const unknowns = [...result.unknowns, ...lost.unknowns];
+  for (const [paths, severity, detail] of [
+    [failed, "block", "selected base scope lacks an admissible analyzer"],
+    [excluded, "warn", "base scope was excluded by the current configuration; removed guards were not checked"],
+    [partial, "warn", "base analysis has no complete negative test/guard evidence"],
+  ] as const) {
+    if (paths.length === 0) continue;
+    const named = [...new Set(paths)].sort().join(", ");
+    findings.push({ rule: "analysis_scope_incomplete", severity, message: `${detail}: ${named}`, nodeIds: [] });
+    unknowns.push(`${detail}: ${named}.`);
+  }
+  return {
+    ...result,
+    findings,
+    unknowns: [...new Set(unknowns)],
+    verdict: findings.some((f) => f.severity === "block") ? "BLOCK"
+      : findings.some((f) => f.severity === "warn") ? "WARN" : "PASS",
+  };
+}
+
+/** Paired structural comparison under current policy/compiler, not historical policy admission. */
+function applyQualifiedWorkingTreeGuards(
+  root: string, config: SemctxConfig, result: VerifyResult, headIndex: GraphIndex,
+  source: ResolvedVerifySource, captureReasons: string[], currentObligations: readonly string[],
+): VerifyResult {
+  const paths = parseUnifiedDiffScopePaths(source.diffText ?? "");
+  try {
+    if (source.identity.kind !== "commits" || source.identity.commits.length !== 1) {
+      throw new SemctxError("GIT_ERROR", "qualified base capture requires one resolved HEAD");
+    }
+    const base = analyzeCommitTree(root, source.identity.commits[0]!, config, { diffText: source.diffText ?? "", currentObligations });
+    const lost = analyzeLostGuards({ baseIndex: base.index, headIndex, config, diffText: source.diffText ?? "" });
+    const findings = [...result.findings, ...lost.findings];
+    return { ...result, findings, unknowns: [...new Set([...result.unknowns, ...lost.unknowns])],
+      verdict: findings.some((finding) => finding.severity === "block") ? "BLOCK"
+        : findings.some((finding) => finding.severity === "warn") ? "WARN" : "PASS" };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    captureReasons.push(`QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:${paths.join(", ")}:${detail}`);
+    return { ...result, verdict: "BLOCK", findings: [...result.findings, {
+      rule: "analysis_scope_incomplete", severity: "block", nodeIds: [],
+      locations: paths.map((file) => ({ file })),
+      message: `Qualified immutable HEAD guards could not be recovered: ${detail}; ${paths.join(", ")}`,
+    }], unknowns: [...result.unknowns, "Immutable HEAD structural capture was unavailable; no historical policy or runtime execution is claimed."] };
+  }
+}
+
+/** Shared CLI/MCP verification use case. Always returns the ADR-0008 report. */
+export function runVerify(root: string, source: VerifySource): VerifyComputation {
+  const store = openReadyRepository(root);
+  try {
+    const config = loadConfig(root);
+    if (isQualified(config)) {
+      const worktree = git(root, ["rev-parse", "--show-toplevel"]);
+      if (worktree.code !== 0 || canonicalRepositoryRoot(worktree.out.trim()) !== canonicalRepositoryRoot(root)) {
+        throw new SemctxError("INVALID_TASK_INPUT", "qualified analysis root must be the exact Git worktree root");
+      }
+    }
+    const inputBefore = isQualified(config) ? captureQualifiedAnalysisInputs(config).digest : null;
+    const resolved = resolveSource(root, source, false);
+    const graph = store.loadGraph();
+    const claims = store.loadClaims();
+    const analyzedRepositoryFactsHash = fingerprintRepositoryFacts({ graph, claims, evidence: store.loadEvidence() });
+    const analyzedIndexSnapshotHash = digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null);
+    const headIndex = new GraphIndex(graph);
+    const headResult = analyzeDiff({
+      index: headIndex,
+      claims,
+      config,
+      diffText: resolved.diffText ?? "",
+      // Qualified staged/range admission below requires a clean index; dirty snapshots support
+      // working-tree sources only. Legacy working-tree and staged
+      // analysis retains old HEAD coordinates; ranges always use the indexed new side.
+      nodeRangeSide: source.kind === "range" || isQualified(config) ? "new" : "old",
+    });
+    const baseResult = source.kind === "range" && resolved.git.mergeBase !== null
+      ? applyLostGuards(root, config, headResult, headIndex, resolved.git.mergeBase, resolved.diffText ?? "")
+      : headResult;
+    const afterAnalysis = verifyAnalysisBarrierForTesting;
+    verifyAnalysisBarrierForTesting = undefined;
+    afterAnalysis?.();
+    const changedScopePaths = parseUnifiedDiffScopePaths(resolved.diffText ?? "");
+    const analyzedSemanticInputHashes: string[] = [];
+    // Unconditional: the analysis-health preflight below only runs for `config.version === 2`, so a
+    // v1 repository would otherwise carry no index-binding proof at all.
+    const gated = discloseUnresolvedReferences(
+      store,
+      applyIndexBindingGate(root, store, baseResult, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)),
+    );
+    let result = config.version === 2
+      ? applyAnalysisHealthPreflight(
+          gated,
+          changedScopePaths,
+          indexHealth(root),
+          discoverRepository(config).candidates,
+          (path) => isPathSelected(config, path),
+        )
+      : gated;
+    const inputAfter = isQualified(config) ? captureQualifiedAnalysisInputs(loadConfig(root)) : null;
+    const qualifiedPostImageReasons: string[] = isQualified(config) ? qualifiedCheckoutReasons(root) : [];
+    if (isQualified(config) && source.kind === "range" && diffRemovesBaseLines(resolved.diffText ?? "")) {
+      qualifiedPostImageReasons.push("QUALIFIED_BASE_RECOVERY_UNSUPPORTED");
+    }
+    if (isQualified(config) && source.kind === "working-tree") {
+      // Git diff omits these inputs. Do not claim whole-change qualification from
+      // expected paths alone without an actual diff/effect model for their addition.
+      const tracked = git(root, ["ls-files", "--cached", "-z"]);
+      if (tracked.code !== 0) qualifiedPostImageReasons.push("QUALIFIED_WORKING_TREE_UNTRACKED_INPUT_UNBOUND");
+      else {
+        const trackedPaths = new Set(tracked.out.split("\0"));
+        for (const path of inputAfter!.files.map(file => file.path).filter(path => !trackedPaths.has(path)).sort()) {
+          qualifiedPostImageReasons.push(`QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:${path}`);
+        }
+      }
+      try {
+        for (const path of retainedWorkingTreeFilterPaths(root, inputAfter!.files.map(file => file.path))) {
+          qualifiedPostImageReasons.push(`QUALIFIED_WORKING_TREE_FILTER_UNSUPPORTED:${path}`);
+        }
+      } catch {
+        qualifiedPostImageReasons.push("QUALIFIED_WORKING_TREE_FILTER_UNBOUND");
+      }
+    }
+    if (isQualified(config) && (source.kind === "staged" || source.kind === "range")) {
+      let indexed: ReturnType<typeof parseIndexedControlSnapshot> = null;
+      try {
+        indexed = parseIndexedControlSnapshot(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY));
+      } catch {
+        // The binding probe separately reports malformed metadata; never infer a clean tree.
+      }
+      if (indexed?.workingDiffHash === null || indexed === null) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_UNBOUND");
+      else if (indexed.workingDiffHash !== CLEAN_CONTROL_WORKING_DIFF_HASH) qualifiedPostImageReasons.push("QUALIFIED_POST_IMAGE_DIRTY_INDEX");
+      else if (!qualifiedPostImageReasons.includes("QUALIFIED_BASE_RECOVERY_UNSUPPORTED")) {
+        qualifiedPostImageReasons.push(...qualifiedPostImageInputs(root, inputAfter!, source, resolved.identity));
+      }
+    }
+    const qualifiedBinding = isQualified(config) ? observeIndexBinding(root, store, resolved.identity, (hash) => analyzedSemanticInputHashes.push(hash)) : undefined;
+    const qualifiedHealth = isQualified(config) ? indexHealth(root) : undefined;
+    const analysisAdmission = isQualified(config) ? qualifiedAdmission({
+      config, graph, changedPaths: changedScopePaths, health: qualifiedHealth!,
+      sourceHash: digestCanonical({ inputs: inputBefore, sourceIdentity: resolved.identity }), diff: resolved.diffText ?? "", indexSnapshot: analyzedIndexSnapshotHash,
+      bindingReasons: [...qualifiedBinding!.breaks, ...qualifiedPostImageReasons],
+      checkChanged: inputBefore !== inputAfter!.digest,
+      buildState: store.getMeta(QUALIFIED_BUILD_META),
+      sourceCommits: resolved.identity.kind === "absent" ? [] : [...resolved.identity.commits], baseCommit: resolved.git.mergeBase,
+      expectedInputHash: inputBefore!,
+      consumedInputs: inputAfter!,
+      opaqueGraphBinding: bindOpaqueCallbackGraph({ graph, actualFactsHash: analyzedRepositoryFactsHash, freshness: qualifiedBinding!.freshness,
+        consumedHash: inputAfter!.digest, expectedHash: inputBefore!, bindingValid: qualifiedHealth!.binding.status === "valid",
+        buildComplete: store.getMeta(QUALIFIED_BUILD_META) === "complete", checkChanged: inputBefore !== inputAfter!.digest }),
+    }) : undefined;
+    if (analysisAdmission?.status === "admitted" && source.kind === "working-tree" && diffRemovesBaseLines(resolved.diffText ?? "")) {
+      const oldCaptureReasons: string[] = [];
+      result = applyQualifiedWorkingTreeGuards(root, config, result, headIndex, resolved, oldCaptureReasons, analysisAdmission.changeCoverage.expected);
+      if (oldCaptureReasons.length > 0) {
+        analysisAdmission.status = "rejected";
+        analysisAdmission.reasons.push(...oldCaptureReasons);
+        analysisAdmission.binding.status = "invalid";
+        analysisAdmission.binding.reasons.push(...oldCaptureReasons);
+      }
+    }
+    const coChanges = resolved.includeCoChanges && resolved.coChangeHead !== null
+      ? historicalCoChanges(root, result.changedFiles, resolved.coChangeHead)
+      : [];
+    if (analysisAdmission !== undefined) {
+      const finalSource = resolveSource(root, source, false);
+      if (inputBefore !== captureQualifiedAnalysisInputs(loadConfig(root)).digest
+        || finalSource.diffText !== resolved.diffText
+        || finalSource.git.mergeBase !== resolved.git.mergeBase
+        || digestCanonical(finalSource.identity) !== digestCanonical(resolved.identity)
+        || digestCanonical(store.getMeta(CONTROL_INDEX_SNAPSHOT_META_KEY) ?? null) !== analyzedIndexSnapshotHash
+        || store.getMeta(QUALIFIED_BUILD_META) !== "complete") {
+        analysisAdmission.status = "rejected";
+        analysisAdmission.checkFreshness = { status: "changed", reasons: ["CHECK_INPUT_CHANGED"] };
+        analysisAdmission.reasons = [...new Set([...analysisAdmission.reasons, "CHECK_INPUT_CHANGED"])];
+      }
+    }
+    if (analysisAdmission?.status === "rejected") {
+      result = { ...result, verdict: "BLOCK", findings: [...result.findings, {
+        rule: "analysis_scope_incomplete", severity: "block", message: `Qualified analysis rejected: ${analysisAdmission.reasons.join(", ")}`, nodeIds: [],
+      }] };
+    }
+    return {
+      result,
+      report: { ...buildVerifyReport(result, resolved.git, config.blockingRules, coChanges), ...(analysisAdmission === undefined ? {} : { analysisAdmission }) },
+      git: resolved.git,
+      coChanges,
+      analyzedSourceHash: resolved.analyzedSourceHash ?? null,
+      analyzedRepositoryFactsHash,
+      analyzedConfigHash: digestCanonical(config),
+      analyzedIndexSnapshotHash,
+      analyzedSemanticInputHashes,
+    };
+  } finally {
+    store.close();
+  }
+}

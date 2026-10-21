@@ -1,0 +1,1 @@
+import { value } from 'optional'; export function main() { return value(); }

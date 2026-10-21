@@ -1,0 +1,11 @@
+
+packages\ts-analyzer\test\semantic-js-contracts.test.ts:
+(pass) non-call namespace members retain barrel/default owners and reject shadows or unmodeled homonyms [3911.87ms]
+(pass) namespace destructuring preserves leaf/default owners and rejects a local shadow or unmodeled homonym [3547.44ms]
+(pass) unmodeled object members cannot claim namespace test coverage of a global homonym [1270.00ms]
+
+ 3 pass
+ 22 filtered out
+ 0 fail
+ 9 expect() calls
+Ran 3 tests across 1 file. [8.88s]

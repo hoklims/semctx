@@ -1,0 +1,1 @@
+const M = globalThis.process.getBuiltinModule('module');

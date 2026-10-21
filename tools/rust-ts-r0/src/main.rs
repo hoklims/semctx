@@ -668,6 +668,55 @@ fn declared_external(fs: &CaptureFs, path: &str, root: &str, specifier: &str) ->
     }
 }
 
+fn validate_declaration_roots(request: &Request) -> Result<(), String> {
+    if !request.retained
+        || request.qualified
+        || !request.roles.is_empty()
+        || !request.selection.is_empty()
+        || !request.disabled.is_empty()
+    {
+        return Err(
+            "DECLARATION_ROOT_OBSERVATION_REQUIRES_UNQUALIFIED_RETAINED_COMPONENT_INPUTS".into(),
+        );
+    }
+    if request.roots.is_empty() {
+        return Err("DECLARATION_ROOT_OBSERVATION_REQUIRES_ROOTS".into());
+    }
+    let normalizer = CaptureFs::new(BTreeMap::new(), request.case_sensitive);
+    let mut roots = BTreeSet::new();
+    for path in &request.roots {
+        relative_source_path(&request.cwd, path, request.case_sensitive)?;
+        if ![".d.ts", ".d.mts", ".d.cts"]
+            .iter()
+            .any(|suffix| path.ends_with(suffix))
+        {
+            return Err(format!(
+                "DECLARATION_ROOT_OBSERVATION_WRONG_ROOT_KIND:{path}"
+            ));
+        }
+        let key = normalizer.key(path);
+        if !roots.insert(key.clone()) {
+            return Err("DECLARATION_ROOT_OBSERVATION_DUPLICATE_ROOT".into());
+        }
+        if !request
+            .files
+            .keys()
+            .chain(request.utf16_files.keys())
+            .chain(request.raw_files.keys())
+            .any(|captured| normalizer.key(captured) == key)
+        {
+            return Err(format!(
+                "DECLARATION_ROOT_OBSERVATION_MISSING_CAPTURED_ROOT:{path}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+    analyze_internal(request, sdk, false)
+}
+
 #[expect(
     clippy::too_many_arguments,
     reason = "The feasibility probe keeps captured subject inputs explicit at its boundary."
@@ -1085,7 +1134,14 @@ fn inspect_subject(
     clippy::excessive_nesting,
     reason = "The feasibility probe retains explicit captured request and fact assembly branches."
 )]
-fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+fn analyze_internal(
+    request: Request,
+    sdk: Sdk,
+    declaration_roots: bool,
+) -> Result<serde_json::Value, String> {
+    if declaration_roots {
+        validate_declaration_roots(&request)?;
+    }
     if request.qualified && !request.retained {
         return Err("SOURCE_SNAPSHOT_REQUIRED".into());
     }
@@ -1536,6 +1592,48 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             node["metadata"] = subject["graphMetadata"].clone();
         }
     }
+    if declaration_roots {
+        for path in &roots {
+            let relative = relative_source_path(&repository_root, path, case_sensitive)?;
+            let file = program::get_source_file(path);
+            if file.is_nil() {
+                return Err(format!(
+                    "DECLARATION_ROOT_OBSERVATION_SOURCE_NOT_LOADED:{path}"
+                ));
+            }
+            let source_path = ast::source_file_file_name(file);
+            let source_text = ast::source_file_text(file);
+            let (captured_text, found) = fs.read_file(path);
+            if !found
+                || fs.key(source_path) != fs.key(path)
+                || captured_text.as_str() != &*source_text
+            {
+                return Err(format!(
+                    "DECLARATION_ROOT_OBSERVATION_SOURCE_CONTEXT_DIFFERS:{path}"
+                ));
+            }
+            let mut subject = inspect_subject(
+                fs.clone(),
+                path,
+                &repository_root,
+                &request.sdk_directory,
+                project_files.clone(),
+                assembly.clone(),
+                retained,
+                qualified,
+            )?;
+            subject["path"] = serde_json::json!(relative);
+            subject["role"] = serde_json::json!("declaration");
+            subject["selection"] = serde_json::json!("selected");
+            subject["observationScope"] = serde_json::json!("declaration_root_component");
+            subject["declarationRootSource"] = serde_json::json!({
+                "requestedPath":path,"sourcePath":source_path,
+                "sourceTextId":identity::digest_bytes(source_text.as_bytes()),
+                "executed":true,"unsupported":[],
+            });
+            subjects.push(subject);
+        }
+    }
     let artifact_identity = identity::digest_bytes(
         &std::fs::read(std::env::current_exe().map_err(|error| error.to_string())?)
             .map_err(|error| error.to_string())?,
@@ -1544,9 +1642,13 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         .into_iter()
         .map(|(path, line, specifier)| format!("{path}:{line}:{specifier}"))
         .collect::<Vec<_>>();
-    Ok(
-        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
-    )
+    let mut observed = serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"});
+    if declaration_roots {
+        observed["observation_mode"] = serde_json::json!("declaration_roots");
+        observed["status"] =
+            serde_json::json!("declaration_root_component_observation_not_qualification");
+    }
+    Ok(observed)
 }
 fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
     let Some(mode) = args.get(1).map(String::as_str).filter(|mode| {
@@ -1694,9 +1796,21 @@ fn main() {
             return Ok(observed);
         }
         let batch_mode = args.get(1).is_some_and(|value| value == "--batch");
-        let first = if batch_mode { 2 } else { 1 };
+        let declaration_roots = args
+            .get(1)
+            .is_some_and(|value| value == "--observe-declaration-roots");
+        let first = if batch_mode || declaration_roots {
+            2
+        } else {
+            1
+        };
         if args.len() != first + 2 {
-            return Err("expected [--batch] REQUEST.json SDK.json".into());
+            return Err(if declaration_roots {
+                "expected --observe-declaration-roots REQUEST.json SDK.json"
+            } else {
+                "expected [--batch] REQUEST.json SDK.json"
+            }
+            .into());
         }
         let request: Request = serde_json::from_slice(
             &std::fs::read(&args[first]).map_err(|error| error.to_string())?,
@@ -1706,7 +1820,11 @@ fn main() {
             &std::fs::read(&args[first + 1]).map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
-        let observed = analyze(request.clone(), sdk.clone())?;
+        let observed = if declaration_roots {
+            analyze_internal(request.clone(), sdk.clone(), true)?
+        } else {
+            analyze(request.clone(), sdk.clone())?
+        };
         if batch_mode {
             serde_json::to_value(batch::build(&request, &sdk, &observed)?)
                 .map_err(|error| error.to_string())
@@ -1735,3 +1853,7 @@ mod tests;
 #[cfg(test)]
 #[path = "../tests/unit/main_pass2_javascript.rs"]
 mod pass2_javascript_development;
+
+#[cfg(test)]
+#[path = "../tests/unit/declaration_root.rs"]
+mod declaration_root_tests;

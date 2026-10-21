@@ -1,0 +1,1 @@
+import * as api from './barrel.mjs'; expect(api.facade).toBeDefined();

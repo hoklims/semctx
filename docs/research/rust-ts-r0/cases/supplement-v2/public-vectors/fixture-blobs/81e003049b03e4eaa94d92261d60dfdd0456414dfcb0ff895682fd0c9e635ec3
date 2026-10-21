@@ -1,0 +1,2 @@
+def vendor():
+    return 0

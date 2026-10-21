@@ -1,0 +1,11 @@
+
+packages\ts-analyzer\test\workspace-configuration-links.test.ts:
+(pass) an installed dependency keeps precedence over the workspace link [144.14ms]
+(pass) a workspace declared above the repository boundary receives no link [61.34ms]
+(pass) legacy TS-only extraction does not consume live workspace configuration [1124.24ms]
+
+ 3 pass
+ 55 filtered out
+ 0 fail
+ 5 expect() calls
+Ran 3 tests across 1 file. [1.50s]

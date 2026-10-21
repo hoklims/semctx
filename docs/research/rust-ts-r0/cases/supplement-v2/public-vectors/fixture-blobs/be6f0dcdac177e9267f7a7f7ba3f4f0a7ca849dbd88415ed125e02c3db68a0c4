@@ -1,0 +1,1 @@
+import type * as api from './lib.mjs'; export type Fn = typeof api.helper;

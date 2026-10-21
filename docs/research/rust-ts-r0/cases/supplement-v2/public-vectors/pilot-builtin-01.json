@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "pilot-builtin-01",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "extractRelativeImportSpecifiers keeps only relative specifiers",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "scripts/test/impact-pilot.test.ts"
+  },
+  "rawStream": {
+    "file": "pilot-builtin.operations.jsonl",
+    "sha256": "e85f8c6e7cda4bd80d06ba465d99aee348656688f460101b718c8339b602fc5e"
+  },
+  "pathNormalization": {
+    "roots": [],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "parent": null,
+      "baselineFunction": "extractRelativeImportSpecifiers",
+      "request": {
+        "operation": "pilot.relative-specifiers",
+        "arguments": [
+          "\n      import { a } from \"./a\";\n      import \"./b\";\n      export * from \"../c\";\n      import fs from \"node:fs\";\n      const load = async () => import(\"./d\");\n    ",
+          "file.ts"
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": [
+          "./a",
+          "./b",
+          "../c",
+          "./d"
+        ]
+      },
+      "normalizedProjection": [
+        "./a",
+        "./b",
+        "../c",
+        "./d"
+      ],
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

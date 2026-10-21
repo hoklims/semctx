@@ -1,0 +1,166 @@
+[
+  {
+    "id": "source-50",
+    "argv": [
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observe.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed"
+    ],
+    "exitCode": 0,
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "stdoutSha256": "62eccde5501d90d9c2a50fa1f305cba9d1ca3c07a51a07e1d907d22fd4dbff80",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "additional-17",
+    "argv": [
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\additions.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed"
+    ],
+    "exitCode": 0,
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "public-25",
+    "argv": [
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\public-witnesses.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed"
+    ],
+    "exitCode": 0,
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/portable-reproduction-proof/runtime/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "stdoutSha256": "a8df4ddadd60b453421d036e53f5a519a223f26fe000c1ded951419de2f52ff8",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

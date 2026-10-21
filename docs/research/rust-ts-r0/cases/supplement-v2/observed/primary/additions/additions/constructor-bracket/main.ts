@@ -1,0 +1,1 @@
+function helper() { return 1; } const observed = helper['constructor']; export {};

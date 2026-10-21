@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "id": "external-partition-01",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "does not connect independent roots through the same external node_modules package",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/parallel-extraction.test.ts"
+  },
+  "rawStream": {
+    "file": "external-partition.operations.jsonl",
+    "sha256": "fa23554aeca26d17cc52be58f9635787b528d3bf799dd29f7cc9a49a335c1554"
+  },
+  "pathNormalization": {
+    "roots": [
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+        "token": "$FIXTURE/0"
+      }
+    ],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "parent": null,
+      "baselineFunction": "__partitionTypeScriptRootsForTesting",
+      "request": {
+        "operation": "typescript.partition-roots",
+        "arguments": [
+          [
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-parallel-ts-VEQ0qD\\a.ts",
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-parallel-ts-VEQ0qD\\b.ts"
+          ],
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-parallel-ts-VEQ0qD",
+          2
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "a.ts",
+            "size": 65,
+            "sha256": "db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYSA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "b.ts",
+            "size": 65,
+            "sha256": "09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYiA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/index.d.ts",
+            "size": 36,
+            "sha256": "e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd",
+            "bytesBase64": "ZXhwb3J0IGRlY2xhcmUgY29uc3QgbWFya2VyOiBudW1iZXIK",
+            "materializedBlob": "fixture-blobs/e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/package.json",
+            "size": 47,
+            "sha256": "cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115",
+            "bytesBase64": "eyJuYW1lIjoic2hhcmVkLXBhY2thZ2UiLCJ0eXBlcyI6ImluZGV4LmQudHMifQo=",
+            "materializedBlob": "fixture-blobs/cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": [
+          [
+            "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/b.ts"
+          ],
+          [
+            "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/a.ts"
+          ]
+        ]
+      },
+      "normalizedProjection": [
+        [
+          "$FIXTURE/0/b.ts"
+        ],
+        [
+          "$FIXTURE/0/a.ts"
+        ]
+      ],
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 2,
+      "parent": 1,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "shared-package",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/a.ts",
+          99,
+          {
+            "$undefined": true
+          },
+          {
+            "$undefined": true
+          },
+          {
+            "$undefined": true
+          },
+          "c:/users/hokli/documents/codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-veq0qd"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "a.ts",
+            "size": 65,
+            "sha256": "db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYSA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "b.ts",
+            "size": 65,
+            "sha256": "09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYiA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/index.d.ts",
+            "size": 36,
+            "sha256": "e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd",
+            "bytesBase64": "ZXhwb3J0IGRlY2xhcmUgY29uc3QgbWFya2VyOiBudW1iZXIK",
+            "materializedBlob": "fixture-blobs/e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/package.json",
+            "size": 47,
+            "sha256": "cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115",
+            "bytesBase64": "eyJuYW1lIjoic2hhcmVkLXBhY2thZ2UiLCJ0eXBlcyI6ImluZGV4LmQudHMifQo=",
+            "materializedBlob": "fixture-blobs/cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/node_modules/shared-package/index.d.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/node_modules/shared-package/index.d.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 3,
+      "parent": 1,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "shared-package",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/b.ts",
+          99,
+          {
+            "$undefined": true
+          },
+          {
+            "$undefined": true
+          },
+          {
+            "$undefined": true
+          },
+          "c:/users/hokli/documents/codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-veq0qd"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "a.ts",
+            "size": 65,
+            "sha256": "db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYSA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/db612f40e254635999d91e6b47412c006601c33f2ae66e2ac8932a12b73001ee"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "b.ts",
+            "size": 65,
+            "sha256": "09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44",
+            "bytesBase64": "aW1wb3J0IHsgbWFya2VyIH0gZnJvbSAnc2hhcmVkLXBhY2thZ2UnOyBleHBvcnQgY29uc3QgYiA9IG1hcmtlcgo=",
+            "materializedBlob": "fixture-blobs/09b55afb072b39637d0555199cfbf6a8775abefff61a0073ebfe99022700ae44"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/index.d.ts",
+            "size": 36,
+            "sha256": "e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd",
+            "bytesBase64": "ZXhwb3J0IGRlY2xhcmUgY29uc3QgbWFya2VyOiBudW1iZXIK",
+            "materializedBlob": "fixture-blobs/e04f1aacf31769d13e3c43ac1384d11055e7e7ff8cd51bd614257483c36b8acd"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD",
+            "path": "node_modules/shared-package/package.json",
+            "size": 47,
+            "sha256": "cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115",
+            "bytesBase64": "eyJuYW1lIjoic2hhcmVkLXBhY2thZ2UiLCJ0eXBlcyI6ImluZGV4LmQudHMifQo=",
+            "materializedBlob": "fixture-blobs/cc1cf86482fcab0856ed75798124f2e176fa4b29eb1cf468085e44364869d115"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-parallel-ts-VEQ0qD/node_modules/shared-package/index.d.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/node_modules/shared-package/index.d.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

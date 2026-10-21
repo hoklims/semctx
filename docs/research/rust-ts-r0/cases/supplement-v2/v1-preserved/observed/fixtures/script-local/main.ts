@@ -1,0 +1,1 @@
+const document = { createElement(value) { return {}; }, body: { appendChild(value) { return 1; } } }; document.body.appendChild(document.createElement('script')); export {};

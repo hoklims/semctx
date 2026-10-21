@@ -1,0 +1,1 @@
+import { Base } from 'opaque'; export class Child extends Base {}

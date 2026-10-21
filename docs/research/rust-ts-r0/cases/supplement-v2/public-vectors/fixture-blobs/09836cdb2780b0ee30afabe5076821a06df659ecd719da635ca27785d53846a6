@@ -1,0 +1,2 @@
+/// <reference path='../../semctx-selection-dxAsDZ-outside/types.d.ts' />
+export const value = externalType;

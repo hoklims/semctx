@@ -1,0 +1,1 @@
+export type Getter = typeof globalThis.process.getBuiltinModule;

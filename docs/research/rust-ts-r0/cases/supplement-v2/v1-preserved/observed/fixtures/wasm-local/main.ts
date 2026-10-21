@@ -1,0 +1,1 @@
+const WebAssembly = { instantiate(value) { return 1; } }; export function main(bytes) { return WebAssembly.instantiate(bytes); }

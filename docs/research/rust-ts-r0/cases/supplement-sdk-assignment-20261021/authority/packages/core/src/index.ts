@@ -1,0 +1,17 @@
+/** Public surface of @semantic-context/core. */
+export * from "./ids";
+export * from "./errors";
+export * from "./schemas";
+export * from "./repository-schemas";
+export * from "./config-defaults";
+export * from "./verify-report";
+export * from "./change-impact";
+export * from "./canonical";
+export * from "./feedback-report";
+export * from "./support-report";
+
+export type * from "./types/graph";
+export type * from "./types/task-frame";
+export type * from "./types/claim";
+export type * from "./types/config";
+export type * from "./types/context-pack";

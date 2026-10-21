@@ -1,0 +1,1 @@
+declare const key: string; export declare class Model { [key]: number; }

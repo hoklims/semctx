@@ -1,0 +1,484 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "results": [
+    {
+      "id": "constructor-dot",
+      "source": "function helper() { return 1; } const observed = helper.constructor; export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "function helper() { return 1; } const observed = helper.constructor; export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "constructor-bracket",
+      "source": "function helper() { return 1; } const observed = helper['constructor']; export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "function helper() { return 1; } const observed = helper['constructor']; export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "callback-call",
+      "source": "[1].map.call([1], value => value); export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "[1].map.call([1], value => value); export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "callback-apply",
+      "source": "[1].map.apply([1], [value => value]); export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "[1].map.apply([1], [value => value]); export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "callback-bind",
+      "source": "[1].map.bind([1], value => value); export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "[1].map.bind([1], value => value); export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "sdk-math-primitive",
+      "source": "Math.max = 1; export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "Math.max = 1; export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": []
+    },
+    {
+      "id": "sdk-math-callable",
+      "source": "Math.max = () => 1; export {};",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "source": "main.ts",
+        "retainedFiles": [
+          [
+            "main.ts",
+            "Math.max = () => 1; export {};"
+          ]
+        ],
+        "repositoryRoot": "$FIXTURE",
+        "optionsContract": "baseline retained semantic Program (recorded by actual-use instrumentation)"
+      },
+      "configuration": [
+        "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+      ]
+    },
+    {
+      "id": "digest-operator-before",
+      "source": "function f() { count++; }",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "function f() { count++; }",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "function",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "f"
+            ],
+            "referencedNames": [
+              "count"
+            ],
+            "digest": "cd3e4e42eb1dcf0a222f8e4560410c7b",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "cd3e4e42eb1dcf0a222f8e4560410c7b"
+    },
+    {
+      "id": "digest-operator-after",
+      "source": "function f() { count--; }",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "function f() { count--; }",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "function",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "f"
+            ],
+            "referencedNames": [
+              "count"
+            ],
+            "digest": "cd4eb2dba864481add81264898162602",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "cd4eb2dba864481add81264898162602"
+    },
+    {
+      "id": "digest-keyword-flags-before",
+      "source": "let x = 1;",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "let x = 1;",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "x"
+            ],
+            "referencedNames": [],
+            "digest": "fc926c702ed6fdf5d7db15c6e1d2923e",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "fc926c702ed6fdf5d7db15c6e1d2923e"
+    },
+    {
+      "id": "digest-keyword-flags-after",
+      "source": "var x = 1;",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "var x = 1;",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "x"
+            ],
+            "referencedNames": [],
+            "digest": "86ac472db87cfc992a870b33960ccb27",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "86ac472db87cfc992a870b33960ccb27"
+    },
+    {
+      "id": "digest-type-keyword-before",
+      "source": "export { foo };",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "export { foo };",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "export",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [],
+            "referencedNames": [
+              "foo"
+            ],
+            "digest": "0c6a1e0af7e171366a95f126fb451875",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [
+          "foo"
+        ],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "0c6a1e0af7e171366a95f126fb451875"
+    },
+    {
+      "id": "digest-type-keyword-after",
+      "source": "export type { foo };",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "export type { foo };",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "export",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [],
+            "referencedNames": [
+              "foo"
+            ],
+            "digest": "9d33cd50307f6d23a44a1f8ce40dae41",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [
+          "foo"
+        ],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "9d33cd50307f6d23a44a1f8ce40dae41"
+    },
+    {
+      "id": "digest-raw-template-before",
+      "source": "const p = String.raw`a\\d`;",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "const p = String.raw`a\\d`;",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "p"
+            ],
+            "referencedNames": [
+              "String"
+            ],
+            "digest": "a3e4be3806a33736c0963c6c49569839",
+            "executesOnLoad": true
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "a3e4be3806a33736c0963c6c49569839"
+    },
+    {
+      "id": "digest-raw-template-after",
+      "source": "const p = String.raw`a\\x64`;",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "const p = String.raw`a\\x64`;",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "p"
+            ],
+            "referencedNames": [
+              "String"
+            ],
+            "digest": "f6e52e1c2818690061c6c827db545452",
+            "executesOnLoad": true
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "f6e52e1c2818690061c6c827db545452"
+    },
+    {
+      "id": "digest-trivia-before",
+      "source": "const a = f(1, 2);",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "const a = f(1, 2);",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "a"
+            ],
+            "referencedNames": [
+              "f"
+            ],
+            "digest": "576db4e431f3a536681b0370cd437185",
+            "executesOnLoad": true
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "576db4e431f3a536681b0370cd437185"
+    },
+    {
+      "id": "digest-trivia-after",
+      "source": "const a = f(\n  1,\n  2,\n)",
+      "request": {
+        "operation": "typescript.outline-top-level",
+        "source": "const a = f(\n  1,\n  2,\n)",
+        "relativePath": "main.ts"
+      },
+      "outline": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 1,
+            "endLine": 4,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "a"
+            ],
+            "referencedNames": [
+              "f"
+            ],
+            "digest": "576db4e431f3a536681b0370cd437185",
+            "executesOnLoad": true
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "digest": "576db4e431f3a536681b0370cd437185"
+    }
+  ],
+  "digestPairs": [
+    {
+      "id": "digest-operator",
+      "relation": "different",
+      "observedBefore": "cd3e4e42eb1dcf0a222f8e4560410c7b",
+      "observedAfter": "cd4eb2dba864481add81264898162602"
+    },
+    {
+      "id": "digest-keyword-flags",
+      "relation": "different",
+      "observedBefore": "fc926c702ed6fdf5d7db15c6e1d2923e",
+      "observedAfter": "86ac472db87cfc992a870b33960ccb27"
+    },
+    {
+      "id": "digest-type-keyword",
+      "relation": "different",
+      "observedBefore": "0c6a1e0af7e171366a95f126fb451875",
+      "observedAfter": "9d33cd50307f6d23a44a1f8ce40dae41"
+    },
+    {
+      "id": "digest-raw-template",
+      "relation": "different",
+      "observedBefore": "a3e4be3806a33736c0963c6c49569839",
+      "observedAfter": "f6e52e1c2818690061c6c827db545452"
+    },
+    {
+      "id": "digest-trivia",
+      "relation": "equal",
+      "observedBefore": "576db4e431f3a536681b0370cd437185",
+      "observedAfter": "576db4e431f3a536681b0370cd437185"
+    }
+  ]
+}

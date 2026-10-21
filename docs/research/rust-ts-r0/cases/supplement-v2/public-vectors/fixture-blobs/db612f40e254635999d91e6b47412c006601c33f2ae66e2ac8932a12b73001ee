@@ -1,0 +1,1 @@
+import { marker } from 'shared-package'; export const a = marker

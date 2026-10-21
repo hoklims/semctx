@@ -1,0 +1,1 @@
+export function leaf() { return 1; }

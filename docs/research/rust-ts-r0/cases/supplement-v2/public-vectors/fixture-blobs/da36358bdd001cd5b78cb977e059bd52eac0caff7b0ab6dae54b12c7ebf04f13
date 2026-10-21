@@ -1,0 +1,2 @@
+def ignored():
+    return 0

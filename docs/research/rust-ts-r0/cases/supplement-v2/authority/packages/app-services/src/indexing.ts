@@ -1,0 +1,426 @@
+import { SemctxError, attachSuppressedError, type Claim, type SemctxConfig } from "@semantic-context/core";
+import { resolve } from "node:path";
+import { buildClaims, GraphIndex, parseObservedDiffHunks } from "@semantic-context/context-engine";
+import { loadConfig, openStore, SCHEMA_VERSION } from "@semantic-context/repository-store";
+import { SealedAttestationIndexV1Schema, type ControlFreshnessSeal } from "@semantic-context/control-model";
+import { loadSemanticModel } from "@semantic-context/semantic-engine";
+import {
+  createDiscoveryPathExclusion,
+  discoverRepository,
+  sourceLanguage,
+  type AnalysisResult,
+  type DiscoveredFile,
+  type DiscoveryResult,
+  type IndexWorkerSelection,
+  type TypeScriptParallelism,
+} from "@semantic-context/ts-analyzer";
+import { digestCanonical, type PlaneASidecarV1 } from "@semantic-context/plane-a-internal";
+import {
+  analyzeWorkspaceSync,
+  type WorkspaceArtifact,
+  type WorkspaceProjection,
+} from "@semantic-context/workspace-analyzer-internal";
+import {
+  CONTROL_INDEX_SNAPSHOT_META_KEY,
+  CONTROL_FRESHNESS_TOOL_VERSION,
+  PLANE_A_INDEX_SNAPSHOT_META_KEY,
+  buildControlFreshnessSeal,
+  canonicalRepositoryRoot,
+  captureGitState,
+  captureTrackedWorkingDiff,
+  controlRepositoryIdentity,
+  fingerprintAnalysisInputs,
+  captureQualifiedAnalysisInputs,
+  fingerprintRepositoryFacts,
+  fingerprintSemanticModel,
+  type IndexedControlSnapshot,
+} from "./freshness";
+import {
+  CONTROL_OBSERVED_HUNK_INDEX_META_KEY,
+  createObservedHunkIndex,
+} from "./control-evidence";
+import { CONTROL_ATTESTATION_INDEX_META_KEY } from "./control-queries";
+import { inspectSemanticLifecycle } from "./semantic-check";
+import { analyzePlaneARuntime, analyzePlaneARuntimeAsync } from "./plane-a-runtime";
+import { isQualified, QUALIFIED_BUILD_META } from "./qualified-analysis";
+import {
+  createPlaneAIndexSnapshot,
+} from "./index-health";
+import {
+  UNRESOLVED_REFERENCE_INDEX_META_KEY,
+  createUnresolvedReferenceIndex,
+} from "./unresolved-references";
+
+export interface RepositoryAnalysis {
+  analysis: AnalysisResult;
+  claims: Claim[];
+}
+
+export interface RepositoryIndex extends RepositoryAnalysis {
+  freshnessSeal: ControlFreshnessSeal;
+  /** Operational telemetry only; deliberately excluded from graph facts and freshness seals. */
+  parallelism?: TypeScriptParallelism;
+  /** Diagnostic only: rebuilding does not replace an already stale evidence baseline. */
+  staleEvidenceBaseline?: true;
+}
+
+interface InternalRepositoryAnalysis extends RepositoryAnalysis {
+  sidecar: PlaneASidecarV1;
+  workspaceProjection: WorkspaceProjection;
+}
+
+interface PreparedRepositoryIndex {
+  repositoryRoot: string;
+  configBefore: SemctxConfig;
+  gitBefore: ReturnType<typeof captureGitState>;
+  repositoryIdentity: string;
+  observedHunksBefore: ReturnType<typeof parseObservedDiffHunks>;
+  discoveryBefore?: DiscoveryResult;
+  analysisInputHash: string;
+  discoveryLedgerDigest: string;
+  compilerInputs?: ReadonlyMap<string, string>;
+  lifecycleBefore: ReturnType<typeof inspectSemanticLifecycle>;
+  semanticModelHash: string;
+}
+
+type IndexRepositoryCaptureBarrier = () => void;
+
+let indexRepositoryCaptureBarrierForTesting: IndexRepositoryCaptureBarrier | undefined;
+
+/**
+ * Internal deterministic TOCTOU injection point. Intentionally absent from the package root
+ * exports so production consumers cannot depend on test orchestration.
+ */
+export function __setIndexRepositoryCaptureBarrierForTesting(
+  barrier: IndexRepositoryCaptureBarrier | undefined,
+): void {
+  indexRepositoryCaptureBarrierForTesting = barrier;
+}
+
+function crossIndexRepositoryCaptureBarrier(): void {
+  const barrier = indexRepositoryCaptureBarrierForTesting;
+  indexRepositoryCaptureBarrierForTesting = undefined;
+  barrier?.();
+}
+
+function discoveryForFiles(files: readonly DiscoveredFile[]): DiscoveryResult {
+  return {
+    files: [...files],
+    candidates: [...files]
+      .map((file) => ({
+        relPath: file.relPath,
+        language: file.language ?? sourceLanguage(file.relPath),
+        selectionDecision: "selected" as const,
+        reason: "SELECTED" as const,
+      }))
+      .sort((left, right) =>
+        left.relPath < right.relPath ? -1 : left.relPath > right.relPath ? 1 : 0),
+  };
+}
+
+/** Private caller-owned retained snapshot; does not persist or qualify historical policy. */
+export function analyzeRetainedRepository(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+  compilerInputs: ReadonlyMap<string, string>,
+): InternalRepositoryAnalysis {
+  return analyzeAndBuildClaimsInternal(config, discovery, compilerInputs);
+}
+
+function analyzeAndBuildClaimsInternal(
+  config: SemctxConfig,
+  discovery: DiscoveryResult,
+  compilerInputs?: ReadonlyMap<string, string>,
+): InternalRepositoryAnalysis {
+  const runtime = analyzePlaneARuntime(config, discovery, compilerInputs);
+  return {
+    analysis: runtime.analysis,
+    claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
+    sidecar: runtime.sidecar,
+    workspaceProjection: runtime.workspaceProjection,
+  };
+}
+
+/** Application boundary for filesystem analysis followed by graph-derived claim construction. */
+export function analyzeAndBuildClaims(config: SemctxConfig, files?: readonly DiscoveredFile[]): RepositoryAnalysis {
+  const discovery = files === undefined ? discoverRepository(config) : discoveryForFiles(files);
+  const { analysis, claims } = analyzeAndBuildClaimsInternal(config, discovery);
+  return { analysis, claims };
+}
+
+function workspaceArtifacts(analysis: AnalysisResult): WorkspaceArtifact[] {
+  return analysis.graph.nodes
+    .filter((node): node is typeof node & {
+      filePath: string;
+      kind: WorkspaceArtifact["kind"];
+    } =>
+      node.filePath !== undefined
+      && (
+        node.kind === "module"
+        || node.kind === "test"
+        || node.kind === "document"
+        || node.kind === "migration"
+      ))
+    .map((node) => ({ id: node.id, kind: node.kind, filePath: node.filePath }))
+    .sort((left, right) =>
+      left.id < right.id ? -1 : left.id > right.id ? 1 : 0);
+}
+
+/** Rebuild and persist Plane A. Store lifetime is owned by the application service. */
+export function indexRepository(root: string, indexedAt: string): RepositoryIndex {
+  const prepared = prepareRepositoryIndex(root, indexedAt);
+  const indexed = analyzeAndBuildClaimsInternal(prepared.configBefore, prepared.discoveryBefore!, prepared.compilerInputs);
+  prepared.discoveryBefore = undefined;
+  return completeRepositoryIndex(root, indexedAt, prepared, indexed);
+}
+
+export async function indexRepositoryAsync(
+  root: string,
+  indexedAt: string,
+  workers: IndexWorkerSelection = "auto",
+): Promise<RepositoryIndex> {
+  const prepared = prepareRepositoryIndex(root, indexedAt);
+  const runtime = await analyzePlaneARuntimeAsync(prepared.configBefore, prepared.discoveryBefore!, workers, prepared.compilerInputs);
+  const indexed: InternalRepositoryAnalysis = {
+    analysis: runtime.analysis,
+    claims: buildClaims(new GraphIndex(runtime.analysis.graph)),
+    sidecar: runtime.sidecar,
+    workspaceProjection: runtime.workspaceProjection,
+  };
+  prepared.discoveryBefore = undefined;
+  return {
+    ...completeRepositoryIndex(root, indexedAt, prepared, indexed),
+    parallelism: runtime.parallelism,
+  };
+}
+
+function prepareRepositoryIndex(root: string, indexedAt: string): PreparedRepositoryIndex {
+  if (!Number.isFinite(Date.parse(indexedAt)) || new Date(indexedAt).toISOString() !== indexedAt) {
+    throw new SemctxError("INVALID_TASK_INPUT", "indexedAt must be a canonical ISO-8601 timestamp", { indexedAt });
+  }
+  const repositoryRoot = canonicalRepositoryRoot(root);
+  const configBefore = loadConfig(root);
+  if (isQualified(configBefore)) {
+    const buildStore = openStore(root);
+    try { buildStore.setMeta(QUALIFIED_BUILD_META, "incomplete"); } finally { buildStore.close(); }
+  }
+  const gitBefore = captureGitState(root);
+  const repositoryIdentity = controlRepositoryIdentity(root);
+  const trackedDiffBefore = captureTrackedWorkingDiff(root);
+  const observedHunksBefore = parseObservedDiffHunks({
+    repositoryIdentity,
+    diffBytes: trackedDiffBefore,
+  });
+  const discoveryBefore: DiscoveryResult = discoverRepository(configBefore);
+  const qualifiedInputs = isQualified(configBefore) ? captureQualifiedAnalysisInputs(configBefore) : undefined;
+  const compilerInputs = qualifiedInputs === undefined ? undefined : new Map(qualifiedInputs.files.map((file) => [resolve(repositoryRoot, file.path), Buffer.from(file.bytes).toString("utf8")]));
+  if (compilerInputs !== undefined && discoveryBefore.files.some((file) => compilerInputs.get(resolve(file.absPath)) !== file.content)) {
+    throw new SemctxError("INVALID_TASK_INPUT", "source discovery changed before the qualified compiler input capture");
+  }
+  const analysisInputHash = qualifiedInputs?.digest ?? fingerprintAnalysisInputs(configBefore, discoveryBefore.files);
+  const discoveryLedgerDigest = digestCanonical(discoveryBefore.candidates);
+  const semanticBefore = loadSemanticModel(root);
+  const lifecycleBefore = inspectSemanticLifecycle(root, semanticBefore.model.changes);
+  const semanticModelHash = fingerprintSemanticModel(semanticBefore.model);
+  const errors = semanticBefore.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
+  const lifecycleErrors = lifecycleBefore.filter((finding) => finding.severity === "error");
+  // EVIDENCE_BASELINE_STALE keeps its error severity for semantic-check/status/evidence consumers
+  // (ADR 0025); only ordinary indexing treats it as repairable rather than blocking, so a stale
+  // baseline can be rebuilt without deadlocking on the very operation that repairs it. Every other
+  // lifecycle error (including a malformed baseline or active-change pointer) still blocks.
+  const blockingLifecycleErrors = lifecycleErrors.filter((finding) => finding.code !== "EVIDENCE_BASELINE_STALE");
+  if (errors.length > 0 || semanticBefore.duplicateIds.length > 0 || blockingLifecycleErrors.length > 0) {
+    throw new SemctxError("CONFIG_INVALID", "semantic model cannot be sealed during indexing", {
+      diagnostics: errors,
+      duplicateIds: semanticBefore.duplicateIds,
+      lifecycleFindings: blockingLifecycleErrors,
+    });
+  }
+  return {
+    repositoryRoot,
+    configBefore,
+    gitBefore,
+    repositoryIdentity,
+    observedHunksBefore,
+    discoveryBefore,
+    analysisInputHash,
+    discoveryLedgerDigest,
+    compilerInputs,
+    lifecycleBefore,
+    semanticModelHash,
+  };
+}
+
+function completeRepositoryIndex(
+  root: string,
+  indexedAt: string,
+  prepared: PreparedRepositoryIndex,
+  indexed: InternalRepositoryAnalysis,
+): RepositoryIndex {
+  const {
+    repositoryRoot,
+    gitBefore,
+    repositoryIdentity,
+    observedHunksBefore,
+    analysisInputHash,
+    discoveryLedgerDigest,
+    lifecycleBefore,
+    semanticModelHash,
+  } = prepared;
+  // The caller drops the full-source discovery corpus before this second TOCTOU capture.
+  crossIndexRepositoryCaptureBarrier();
+  const configAfter = loadConfig(root);
+  const discoveryAfter = discoverRepository(configAfter);
+  const analysisInputHashAfter = fingerprintAnalysisInputs(configAfter, discoveryAfter.files);
+  const discoveryLedgerDigestAfter = digestCanonical(discoveryAfter.candidates);
+  const workspaceProjectionDigest = digestCanonical(indexed.workspaceProjection);
+  const workspaceProjectionAfter = analyzeWorkspaceSync({
+    repositoryRoot: configAfter.repositoryRoot,
+    repositoryId: indexed.workspaceProjection.repositoryId,
+    artifacts: workspaceArtifacts(indexed.analysis),
+    excludePath: createDiscoveryPathExclusion(configAfter),
+  });
+  const workspaceProjectionDigestAfter = digestCanonical(workspaceProjectionAfter);
+  const semanticAfter = loadSemanticModel(root);
+  const lifecycleAfter = inspectSemanticLifecycle(root, semanticAfter.model.changes);
+  const semanticModelHashAfter = fingerprintSemanticModel(semanticAfter.model);
+  const gitAfter = captureGitState(root);
+  const trackedDiffAfter = captureTrackedWorkingDiff(root);
+  const observedHunksAfter = parseObservedDiffHunks({
+    repositoryIdentity,
+    diffBytes: trackedDiffAfter,
+  });
+  const observedIndex = createObservedHunkIndex(
+    repositoryIdentity,
+    gitAfter.workingDiffHash,
+    observedHunksAfter,
+  );
+  const observedIndexBefore = createObservedHunkIndex(
+    repositoryIdentity,
+    gitBefore.workingDiffHash,
+    observedHunksBefore,
+  );
+  if (
+    gitBefore.headCommit !== gitAfter.headCommit
+    || gitBefore.workingDiffHash !== gitAfter.workingDiffHash
+    || analysisInputHash !== analysisInputHashAfter
+    || discoveryLedgerDigest !== discoveryLedgerDigestAfter
+    || workspaceProjectionDigest !== workspaceProjectionDigestAfter
+    || semanticModelHash !== semanticModelHashAfter
+    || observedIndexBefore.indexHash !== observedIndex.indexHash
+    || JSON.stringify(lifecycleBefore) !== JSON.stringify(lifecycleAfter)
+  ) {
+    throw new SemctxError("GIT_ERROR", "repository inputs changed while the index was being built", {
+      before: gitBefore,
+      after: gitAfter,
+      analysisInputHash,
+      analysisInputHashAfter,
+      discoveryLedgerDigest,
+      discoveryLedgerDigestAfter,
+      workspaceProjectionDigest,
+      workspaceProjectionDigestAfter,
+      semanticModelHash,
+      semanticModelHashAfter,
+      lifecycleBefore,
+      lifecycleAfter,
+    });
+  }
+  const store = openStore(root);
+  try {
+    const attestationValue = store.getMeta(CONTROL_ATTESTATION_INDEX_META_KEY);
+    const parsedAttestations = attestationValue === undefined
+      ? null
+      : SealedAttestationIndexV1Schema.safeParse(JSON.parse(attestationValue));
+    const attestationSetHash = parsedAttestations?.success === true
+      ? parsedAttestations.data.attestationSetHash
+      : null;
+    const repositoryGraphHash = fingerprintRepositoryFacts({
+      graph: indexed.analysis.graph,
+      claims: indexed.claims,
+      evidence: indexed.analysis.evidence,
+    });
+    // The gap belongs to the indexed state, so it is written with it and hashed into the same
+    // snapshot: a later reader sees the same diagnostic, and a tampered record fails its own hash.
+    const unresolvedReferenceIndex = createUnresolvedReferenceIndex(
+      indexed.analysis.unresolvedReferences,
+    );
+    const planeAIndexSnapshot = createPlaneAIndexSnapshot({
+      capturedAt: indexedAt,
+      repositoryGraphHash,
+      unresolvedReferenceIndexHash: unresolvedReferenceIndex.indexHash,
+      sidecar: indexed.sidecar,
+      workspace: indexed.workspaceProjection,
+    });
+    const planeAIndexSnapshotHash = digestCanonical(planeAIndexSnapshot);
+    const snapshot: IndexedControlSnapshot = {
+      schemaVersion: 2,
+      capturedAt: indexedAt,
+      repositoryRoot,
+      headCommit: gitAfter.headCommit,
+      repositoryGraphHash,
+      semanticModelHash: semanticModelHashAfter,
+      analysisInputHash: analysisInputHashAfter,
+      workingDiffHash: gitAfter.workingDiffHash,
+      storeSchemaVersion: SCHEMA_VERSION,
+      toolVersion: CONTROL_FRESHNESS_TOOL_VERSION,
+      observedHunkIndexHash: observedIndex.indexHash,
+      attestationSetHash,
+      // Unconditional, at either config version: this is the only field that authorizes a given
+      // Plane-A snapshot, and through it the unresolved-reference record hashed inside it. Binding
+      // it for v2 alone left a v1 index unable to tell its own snapshot from a rewritten one.
+      planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}`,
+    };
+    store.replaceIndex({
+      graph: indexed.analysis.graph,
+      evidence: indexed.analysis.evidence,
+      claims: indexed.claims,
+      metadata: {
+        indexed_at: indexedAt,
+        indexed_commit: snapshot.headCommit ?? "",
+        indexed_repository_graph_hash: snapshot.repositoryGraphHash,
+        [PLANE_A_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(planeAIndexSnapshot),
+        [UNRESOLVED_REFERENCE_INDEX_META_KEY]: JSON.stringify(unresolvedReferenceIndex),
+        [CONTROL_OBSERVED_HUNK_INDEX_META_KEY]: JSON.stringify(observedIndex),
+        [CONTROL_INDEX_SNAPSHOT_META_KEY]: JSON.stringify(snapshot),
+        ...(isQualified(configAfter) ? { [QUALIFIED_BUILD_META]: "complete" } : {}),
+      },
+    });
+    const result = {
+      ...(lifecycleAfter.some((finding) => finding.code === "EVIDENCE_BASELINE_STALE")
+        ? { staleEvidenceBaseline: true as const } : {}),
+      ...indexed,
+      freshnessSeal: buildControlFreshnessSeal({
+        repositoryRoot,
+        headAtCapture: gitAfter.headCommit,
+        repositoryFacts: {
+          graph: indexed.analysis.graph,
+          claims: indexed.claims,
+          evidence: indexed.analysis.evidence,
+        },
+        semanticModel: semanticAfter.model,
+        analysisInputHash: analysisInputHashAfter,
+        workingDiffHash: gitAfter.workingDiffHash,
+        indexedSnapshot: snapshot,
+        storeSchemaVersion: SCHEMA_VERSION,
+        planeAIndexSnapshotHash: planeAIndexSnapshotHash as `sha256:${string}`,
+      }),
+    };
+    store.close();
+    return result;
+  } catch (error) {
+    const operationError = error instanceof SyntaxError
+      ? new SemctxError("STORE_ERROR", "invalid persisted control attestation index", {
+        cause: error.message,
+      })
+      : error;
+    let cleanupFailure: unknown;
+    try {
+      store.close();
+    } catch (closeError) {
+      cleanupFailure = closeError;
+    }
+    throw cleanupFailure === undefined
+      ? operationError
+      : attachSuppressedError(operationError, cleanupFailure);
+  }
+}

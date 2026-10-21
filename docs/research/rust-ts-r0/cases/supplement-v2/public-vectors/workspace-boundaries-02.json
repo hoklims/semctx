@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "workspace-boundaries-02",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "a workspace declared above the repository boundary receives no link",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/workspace-configuration-links.test.ts"
+  },
+  "rawStream": {
+    "file": "workspace-boundaries.operations.jsonl",
+    "sha256": "9f1874ff220245da664685b1fda0d5f7590b4559ea769ec1a519963aefb7176c"
+  },
+  "pathNormalization": {
+    "roots": [
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+        "token": "$FIXTURE/0"
+      }
+    ],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 2,
+      "parent": null,
+      "baselineFunction": "inspectModuleConfiguration",
+      "request": {
+        "operation": "module-configuration.inspect",
+        "arguments": [
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk/repo/domains/registry/api/src/registry.ts",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk/repo"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "pnpm-workspace.yaml",
+            "size": 54,
+            "sha256": "67de37a545654d0f54d9c5be1ec7f23874379f6271a16b34f720d2b9c301f97f",
+            "bytesBase64": "cGFja2FnZXM6CiAgLSAicmVwby90b29saW5nLyoiCiAgLSAicmVwby9kb21haW5zLyovKiIK",
+            "materializedBlob": "fixture-blobs/67de37a545654d0f54d9c5be1ec7f23874379f6271a16b34f720d2b9c301f97f"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/package.json",
+            "size": 84,
+            "sha256": "d90d4b32f534d6cd3b4939dd6eb9bb8548b8236b20b84268cf5c18f31918dc57",
+            "bytesBase64": "eyJuYW1lIjoiQGZpeHR1cmUvcmVnaXN0cnktYXBpIiwiZGV2RGVwZW5kZW5jaWVzIjp7IkBmaXh0dXJlL2NvbmZpZyI6IndvcmtzcGFjZToqIn19",
+            "materializedBlob": "fixture-blobs/d90d4b32f534d6cd3b4939dd6eb9bb8548b8236b20b84268cf5c18f31918dc57"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/src/registry.ts",
+            "size": 27,
+            "sha256": "0bf39fb9c31ca2eb8baa85d7dbeafd2c02b0530c7074d21167da4082c309cc67",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHJlZ2lzdHJ5ID0gMTsK",
+            "materializedBlob": "fixture-blobs/0bf39fb9c31ca2eb8baa85d7dbeafd2c02b0530c7074d21167da4082c309cc67"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/tsconfig.json",
+            "size": 48,
+            "sha256": "c8d0674406514023dcd5cfd99a3c7ccfb28918842ebcf89f99fa1a751bc393d4",
+            "bytesBase64": "eyJleHRlbmRzIjoiQGZpeHR1cmUvY29uZmlnL3RzY29uZmlnL25vZGUuanNvbiJ9",
+            "materializedBlob": "fixture-blobs/c8d0674406514023dcd5cfd99a3c7ccfb28918842ebcf89f99fa1a751bc393d4"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/package.json",
+            "size": 148,
+            "sha256": "69e69c5fe29425fa72af74a929d88c03d80752dd5d619a787f8cfd1a4192d37b",
+            "bytesBase64": "eyJuYW1lIjoiQGZpeHR1cmUvY29uZmlnIiwidmVyc2lvbiI6IjEuMC4wIiwiZXhwb3J0cyI6eyIuL3RzY29uZmlnL25vZGUuanNvbiI6Ii4vdHNjb25maWcvbm9kZS5qc29uIiwiLi90c2NvbmZpZy9iYXNlLmpzb24iOiIuL3RzY29uZmlnL2Jhc2UuanNvbiJ9fQ==",
+            "materializedBlob": "fixture-blobs/69e69c5fe29425fa72af74a929d88c03d80752dd5d619a787f8cfd1a4192d37b"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/base.json",
+            "size": 118,
+            "sha256": "6817935bb3743f99073521654637684151866428d99584b1108c6bb7d344aa36",
+            "bytesBase64": "eyJjb21waWxlck9wdGlvbnMiOnsic3RyaWN0Ijp0cnVlLCJtb2R1bGUiOiJFU05leHQiLCJtb2R1bGVSZXNvbHV0aW9uIjoiQnVuZGxlciIsInBhdGhzIjp7IiNzaGFyZWQiOlsiLi9zaGFyZWQudHMiXX19fQ==",
+            "materializedBlob": "fixture-blobs/6817935bb3743f99073521654637684151866428d99584b1108c6bb7d344aa36"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/node.json",
+            "size": 59,
+            "sha256": "e244313ca004dcc76613a0e0e0cf63cb53eb23c03bcd85ef27d609db382eca3c",
+            "bytesBase64": "eyJleHRlbmRzIjoiLi9iYXNlLmpzb24iLCJjb21waWxlck9wdGlvbnMiOnsibm9FbWl0Ijp0cnVlfX0=",
+            "materializedBlob": "fixture-blobs/e244313ca004dcc76613a0e0e0cf63cb53eb23c03bcd85ef27d609db382eca3c"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/shared.ts",
+            "size": 25,
+            "sha256": "82b40360d811a664d6203f13b541ad87b6cee6a0b9d5313537476eb01640ffa8",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHNoYXJlZCA9IDE7Cg==",
+            "materializedBlob": "fixture-blobs/82b40360d811a664d6203f13b541ad87b6cee6a0b9d5313537476eb01640ffa8"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": [
+          "SOURCE_CONFIGURATION_INVALID:6053:File '@fixture/config/tsconfig/node.json' not found."
+        ]
+      },
+      "normalizedProjection": [
+        "SOURCE_CONFIGURATION_INVALID:6053:File '@fixture/config/tsconfig/node.json' not found."
+      ],
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 3,
+      "parent": null,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "#shared",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk/repo/domains/registry/api/src/registry.ts",
+          {
+            "$undefined": true
+          },
+          true
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "pnpm-workspace.yaml",
+            "size": 54,
+            "sha256": "67de37a545654d0f54d9c5be1ec7f23874379f6271a16b34f720d2b9c301f97f",
+            "bytesBase64": "cGFja2FnZXM6CiAgLSAicmVwby90b29saW5nLyoiCiAgLSAicmVwby9kb21haW5zLyovKiIK",
+            "materializedBlob": "fixture-blobs/67de37a545654d0f54d9c5be1ec7f23874379f6271a16b34f720d2b9c301f97f"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/package.json",
+            "size": 84,
+            "sha256": "d90d4b32f534d6cd3b4939dd6eb9bb8548b8236b20b84268cf5c18f31918dc57",
+            "bytesBase64": "eyJuYW1lIjoiQGZpeHR1cmUvcmVnaXN0cnktYXBpIiwiZGV2RGVwZW5kZW5jaWVzIjp7IkBmaXh0dXJlL2NvbmZpZyI6IndvcmtzcGFjZToqIn19",
+            "materializedBlob": "fixture-blobs/d90d4b32f534d6cd3b4939dd6eb9bb8548b8236b20b84268cf5c18f31918dc57"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/src/registry.ts",
+            "size": 27,
+            "sha256": "0bf39fb9c31ca2eb8baa85d7dbeafd2c02b0530c7074d21167da4082c309cc67",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHJlZ2lzdHJ5ID0gMTsK",
+            "materializedBlob": "fixture-blobs/0bf39fb9c31ca2eb8baa85d7dbeafd2c02b0530c7074d21167da4082c309cc67"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/domains/registry/api/tsconfig.json",
+            "size": 48,
+            "sha256": "c8d0674406514023dcd5cfd99a3c7ccfb28918842ebcf89f99fa1a751bc393d4",
+            "bytesBase64": "eyJleHRlbmRzIjoiQGZpeHR1cmUvY29uZmlnL3RzY29uZmlnL25vZGUuanNvbiJ9",
+            "materializedBlob": "fixture-blobs/c8d0674406514023dcd5cfd99a3c7ccfb28918842ebcf89f99fa1a751bc393d4"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/package.json",
+            "size": 148,
+            "sha256": "69e69c5fe29425fa72af74a929d88c03d80752dd5d619a787f8cfd1a4192d37b",
+            "bytesBase64": "eyJuYW1lIjoiQGZpeHR1cmUvY29uZmlnIiwidmVyc2lvbiI6IjEuMC4wIiwiZXhwb3J0cyI6eyIuL3RzY29uZmlnL25vZGUuanNvbiI6Ii4vdHNjb25maWcvbm9kZS5qc29uIiwiLi90c2NvbmZpZy9iYXNlLmpzb24iOiIuL3RzY29uZmlnL2Jhc2UuanNvbiJ9fQ==",
+            "materializedBlob": "fixture-blobs/69e69c5fe29425fa72af74a929d88c03d80752dd5d619a787f8cfd1a4192d37b"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/base.json",
+            "size": 118,
+            "sha256": "6817935bb3743f99073521654637684151866428d99584b1108c6bb7d344aa36",
+            "bytesBase64": "eyJjb21waWxlck9wdGlvbnMiOnsic3RyaWN0Ijp0cnVlLCJtb2R1bGUiOiJFU05leHQiLCJtb2R1bGVSZXNvbHV0aW9uIjoiQnVuZGxlciIsInBhdGhzIjp7IiNzaGFyZWQiOlsiLi9zaGFyZWQudHMiXX19fQ==",
+            "materializedBlob": "fixture-blobs/6817935bb3743f99073521654637684151866428d99584b1108c6bb7d344aa36"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/node.json",
+            "size": 59,
+            "sha256": "e244313ca004dcc76613a0e0e0cf63cb53eb23c03bcd85ef27d609db382eca3c",
+            "bytesBase64": "eyJleHRlbmRzIjoiLi9iYXNlLmpzb24iLCJjb21waWxlck9wdGlvbnMiOnsibm9FbWl0Ijp0cnVlfX0=",
+            "materializedBlob": "fixture-blobs/e244313ca004dcc76613a0e0e0cf63cb53eb23c03bcd85ef27d609db382eca3c"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-workspace-boundary-9FAlEk",
+            "path": "repo/tooling/config/tsconfig/shared.ts",
+            "size": 25,
+            "sha256": "82b40360d811a664d6203f13b541ad87b6cee6a0b9d5313537476eb01640ffa8",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHNoYXJlZCA9IDE7Cg==",
+            "materializedBlob": "fixture-blobs/82b40360d811a664d6203f13b541ad87b6cee6a0b9d5313537476eb01640ffa8"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "$undefined": true
+        }
+      },
+      "normalizedProjection": {
+        "$undefined": true
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

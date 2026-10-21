@@ -1,0 +1,14 @@
+[
+  {
+    "id": "binary-object",
+    "path": "inputs/binary-object.ts",
+    "positive": true,
+    "branch": "coercingBinary PlusToken, object left operand"
+  },
+  {
+    "id": "binary-primitive",
+    "path": "inputs/binary-primitive.ts",
+    "positive": false,
+    "branch": "coercingBinary PlusToken, primitive operands"
+  }
+]

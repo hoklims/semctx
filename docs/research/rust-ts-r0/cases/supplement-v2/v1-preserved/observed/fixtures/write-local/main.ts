@@ -1,0 +1,1 @@
+const document = { write(value) { return 1; } }; document.write('<script>1</script>'); export {};

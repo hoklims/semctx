@@ -1,0 +1,837 @@
+{
+  "schemaVersion": 1,
+  "id": "runtime-erased-01",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "unused, erased and shadowed import occurrences do not prove runtime use",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/runtime-value-imports.test.ts"
+  },
+  "rawStream": {
+    "file": "runtime-erased.operations.jsonl",
+    "sha256": "6f47afe330448a4aeb8f277a62d7e268b87b89d47822048bf08b887bae39fc70"
+  },
+  "pathNormalization": {
+    "roots": [
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+        "token": "$FIXTURE/0"
+      }
+    ],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "parent": null,
+      "baselineFunction": "extractTypeScript",
+      "request": {
+        "operation": "typescript.extract",
+        "arguments": [
+          [
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts"
+          ],
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu",
+          {
+            "$mapIdentity": 1,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(){return 1;}"
+              ]
+            ]
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 59,
+            "sha256": "cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bigpe3JldHVybiAxO30=",
+            "materializedBlob": "fixture-blobs/cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      "normalizedProjection": {
+        "modules": [
+          "dep.ts",
+          "consumer.ts"
+        ],
+        "symbols": [
+          {
+            "name": "run",
+            "kind": "function",
+            "relPath": "consumer.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "consumer.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "FLAG"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "FLAG",
+                "runtimeUsed": false,
+                "unmodeledReason": "VALUE_DECLARATION"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 2,
+      "parent": 1,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 2,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(){return 1;}"
+              ]
+            ]
+          },
+          {
+            "$undefined": true
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 59,
+            "sha256": "cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bigpe3JldHVybiAxO30=",
+            "materializedBlob": "fixture-blobs/cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 3,
+      "parent": 1,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 2,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(){return 1;}"
+              ]
+            ]
+          },
+          {
+            "inputs": {
+              "$mapIdentity": 3,
+              "$map": []
+            },
+            "declarations": {
+              "$mapIdentity": 4,
+              "$map": []
+            },
+            "members": {
+              "$mapIdentity": 5,
+              "$map": []
+            },
+            "links": {
+              "$mapIdentity": 6,
+              "$map": []
+            }
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 59,
+            "sha256": "cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bigpe3JldHVybiAxO30=",
+            "materializedBlob": "fixture-blobs/cb96c8e0d6d361823f3cdc7a6e8f0d6d3c15de95b907b5dc61b83bb6e153ec34"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 4,
+      "parent": null,
+      "baselineFunction": "extractTypeScript",
+      "request": {
+        "operation": "typescript.extract",
+        "arguments": [
+          [
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts"
+          ],
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu",
+          {
+            "$mapIdentity": 7,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export type Mode=typeof FLAG;export function run(){return 1;}"
+              ]
+            ]
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 88,
+            "sha256": "f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IHR5cGUgTW9kZT10eXBlb2YgRkxBRztleHBvcnQgZnVuY3Rpb24gcnVuKCl7cmV0dXJuIDE7fQ==",
+            "materializedBlob": "fixture-blobs/f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "Mode",
+              "kind": "type",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      "normalizedProjection": {
+        "modules": [
+          "dep.ts",
+          "consumer.ts"
+        ],
+        "symbols": [
+          {
+            "name": "Mode",
+            "kind": "type",
+            "relPath": "consumer.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "run",
+            "kind": "function",
+            "relPath": "consumer.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "consumer.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "FLAG"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "FLAG",
+                "runtimeUsed": false,
+                "unmodeledReason": "VALUE_DECLARATION"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 5,
+      "parent": 4,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 8,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export type Mode=typeof FLAG;export function run(){return 1;}"
+              ]
+            ]
+          },
+          {
+            "$undefined": true
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 88,
+            "sha256": "f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IHR5cGUgTW9kZT10eXBlb2YgRkxBRztleHBvcnQgZnVuY3Rpb24gcnVuKCl7cmV0dXJuIDE7fQ==",
+            "materializedBlob": "fixture-blobs/f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 6,
+      "parent": 4,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 8,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export type Mode=typeof FLAG;export function run(){return 1;}"
+              ]
+            ]
+          },
+          {
+            "inputs": {
+              "$mapIdentity": 9,
+              "$map": []
+            },
+            "declarations": {
+              "$mapIdentity": 10,
+              "$map": []
+            },
+            "members": {
+              "$mapIdentity": 11,
+              "$map": []
+            },
+            "links": {
+              "$mapIdentity": 12,
+              "$map": []
+            }
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 88,
+            "sha256": "f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IHR5cGUgTW9kZT10eXBlb2YgRkxBRztleHBvcnQgZnVuY3Rpb24gcnVuKCl7cmV0dXJuIDE7fQ==",
+            "materializedBlob": "fixture-blobs/f2cf64aa2f47c2f948e70f3e060566d67b6dec5f06ceec8acdd01afe65432528"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 7,
+      "parent": null,
+      "baselineFunction": "extractTypeScript",
+      "request": {
+        "operation": "typescript.extract",
+        "arguments": [
+          [
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+            "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts"
+          ],
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu",
+          {
+            "$mapIdentity": 13,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(FLAG:boolean){return FLAG;}"
+              ]
+            ]
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 74,
+            "sha256": "31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bihGTEFHOmJvb2xlYW4pe3JldHVybiBGTEFHO30=",
+            "materializedBlob": "fixture-blobs/31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      "normalizedProjection": {
+        "modules": [
+          "dep.ts",
+          "consumer.ts"
+        ],
+        "symbols": [
+          {
+            "name": "run",
+            "kind": "function",
+            "relPath": "consumer.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "consumer.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "FLAG"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "FLAG",
+                "runtimeUsed": false,
+                "unmodeledReason": "VALUE_DECLARATION"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 8,
+      "parent": 7,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 14,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(FLAG:boolean){return FLAG;}"
+              ]
+            ]
+          },
+          {
+            "$undefined": true
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 74,
+            "sha256": "31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bihGTEFHOmJvb2xlYW4pe3JldHVybiBGTEFHO30=",
+            "materializedBlob": "fixture-blobs/31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 9,
+      "parent": 7,
+      "baselineFunction": "resolveTypeScriptModule",
+      "request": {
+        "operation": "typescript.resolve-module",
+        "arguments": [
+          "./dep",
+          "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/consumer.ts",
+          {
+            "$undefined": true
+          },
+          true,
+          {
+            "$mapIdentity": 14,
+            "$map": [
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\dep.ts",
+                "export const FLAG=true;"
+              ],
+              [
+                "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu\\consumer.ts",
+                "import {FLAG} from './dep';export function run(FLAG:boolean){return FLAG;}"
+              ]
+            ]
+          },
+          {
+            "inputs": {
+              "$mapIdentity": 15,
+              "$map": []
+            },
+            "declarations": {
+              "$mapIdentity": 16,
+              "$map": []
+            },
+            "members": {
+              "$mapIdentity": 17,
+              "$map": []
+            },
+            "links": {
+              "$mapIdentity": 18,
+              "$map": []
+            }
+          },
+          "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-import-use-B5yiUu"
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "consumer.ts",
+            "size": 74,
+            "sha256": "31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab",
+            "bytesBase64": "aW1wb3J0IHtGTEFHfSBmcm9tICcuL2RlcCc7ZXhwb3J0IGZ1bmN0aW9uIHJ1bihGTEFHOmJvb2xlYW4pe3JldHVybiBGTEFHO30=",
+            "materializedBlob": "fixture-blobs/31d229e15681ddb9fb8df4e054503069f63151e15e0f81bdb64109727f7df3ab"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu",
+            "path": "dep.ts",
+            "size": 23,
+            "sha256": "a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IEZMQUc9dHJ1ZTs=",
+            "materializedBlob": "fixture-blobs/a54b1ce4e25721afba62f1cfff56a74190b58232b0b0021fcf177ddec9193fc6"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-import-use-B5yiUu/dep.ts"
+      },
+      "normalizedProjection": "$FIXTURE/0/dep.ts",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

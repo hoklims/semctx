@@ -1,0 +1,1 @@
+import * as api from './lib.mjs'; function ordinary(api) { expect(api.helper).toBeDefined(); }

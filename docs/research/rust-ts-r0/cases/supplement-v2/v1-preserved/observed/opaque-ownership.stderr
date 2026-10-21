@@ -1,0 +1,14 @@
+
+packages\ts-analyzer\test\opaque-inline-ownership.test.ts:
+(pass) opaque inline ownership register(() => helper()) [649.93ms]
+(pass) opaque inline ownership register(() => helper) [528.16ms]
+(pass) opaque inline ownership helper(); register(() => helper) [525.23ms]
+(pass) opaque inline ownership register(() => unknown) [534.04ms]
+(pass) opaque inline ownership register(() => 1) [473.97ms]
+(pass) actual test binding ownership preserves the unchanged public Vitest callback [533.68ms]
+(pass) anonymous default declaration owns its already modeled inline call [481.94ms]
+
+ 7 pass
+ 0 fail
+ 17 expect() calls
+Ran 7 tests across 1 file. [3.87s]

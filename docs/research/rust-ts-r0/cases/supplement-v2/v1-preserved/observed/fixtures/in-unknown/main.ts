@@ -1,0 +1,1 @@
+export function main(key, object) { return key in object; }
