@@ -1933,13 +1933,18 @@ fn main() {
         let source_components = args
             .get(1)
             .is_some_and(|value| value == "--observe-source-components");
-        let first = if batch_mode || declaration_roots || source_components {
+        let retained_scope = args
+            .get(1)
+            .is_some_and(|value| value == "--observe-retained-scope");
+        let first = if batch_mode || declaration_roots || source_components || retained_scope {
             2
         } else {
             1
         };
         if args.len() != first + 2 {
-            return Err(if source_components {
+            return Err(if retained_scope {
+                "expected --observe-retained-scope REQUEST.json SDK.json"
+            } else if source_components {
                 "expected --observe-source-components REQUEST.json SDK.json"
             } else if declaration_roots {
                 "expected --observe-declaration-roots REQUEST.json SDK.json"
@@ -1956,6 +1961,9 @@ fn main() {
             &std::fs::read(&args[first + 1]).map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
+        if retained_scope {
+            return retained_scope::observe(&request, &sdk);
+        }
         let observed = if source_components {
             analyze_internal(request.clone(), sdk.clone(), false, true)?
         } else if declaration_roots {

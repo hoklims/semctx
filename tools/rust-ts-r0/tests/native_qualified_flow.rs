@@ -324,6 +324,127 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             } else {
                 assert!(actual.stdout.is_empty());
             }
+            if label == "included-nearest-config" {
+                let observed = invoke(
+                    vec![
+                        producer.to_string_lossy().into_owned(),
+                        "--observe-retained-scope".into(),
+                        request_path.to_string_lossy().into_owned(),
+                        sdk.to_string_lossy().into_owned(),
+                    ],
+                    &root,
+                    &helper,
+                    &dir.join("retained-scope-invocation.json"),
+                );
+                assert_eq!(observed.exit_code, Some(0), "{observed:?}");
+                assert!(observed.stderr.is_empty(), "{observed:?}");
+                let component: Value = serde_json::from_str(&observed.stdout).unwrap();
+                assert_eq!(
+                    component["status"],
+                    "retained_scope_component_observation_not_qualification"
+                );
+                assert_eq!(
+                    component["observation_scope"],
+                    "retained_capture_components"
+                );
+                for field in [
+                    "negative_evidence_eligible",
+                    "ownership_authorized",
+                    "index_receipt_consumed",
+                    "global_admission_inferred",
+                ] {
+                    assert_eq!(component[field], false, "{field}");
+                }
+                assert_eq!(component["qualification_credit"], 0);
+                for field in ["analysisAdmission", "verdict", "receipt"] {
+                    assert!(component.get(field).is_none(), "{field}");
+                }
+                assert_eq!(component["request_id"], identity::digest(&request));
+                for field in ["input_manifest_id", "producer_artifact_id"] {
+                    assert_eq!(component[field], indexed[field], "{field}");
+                    assert_eq!(
+                        component["current_analysis"][field], indexed[field],
+                        "{field}"
+                    );
+                }
+                let sdk_value: Value = serde_json::from_slice(&fs::read(&sdk).unwrap()).unwrap();
+                assert_eq!(component["sdk_input_id"], identity::digest(&sdk_value));
+                assert!(
+                    component["current_analysis"]["subjects"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|subject| subject["outcome"] == "unsupported")
+                );
+                assert_eq!(
+                    component["scope"],
+                    json!({
+                        "captured_paths":[".gitignore","base.json","src/selected.ts","src/tsconfig.json","tsconfig.json"],
+                        "selected_roots":["src/selected.ts"],
+                        "source_roots":["src/selected.ts"],
+                        "declaration_roots":[]
+                    })
+                );
+                assert_eq!(
+                    component["retained_scope"]["projection"],
+                    json!({
+                        "links":[],
+                        "reasons":[
+                            "DEPENDENCY_SCOPE_CONFIGURATION:src/selected.ts:SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:NodeNext",
+                            "DEPENDENCY_SCOPE_CONFIGURATION:src/selected.ts:SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:NodeNext"
+                        ],
+                        "externalModuleSpecifiers":[],
+                        "unresolvedImports":[]
+                    })
+                );
+                assert_eq!(
+                    component["retained_scope"]["input_manifest_id"],
+                    component["input_manifest_id"]
+                );
+                assert_eq!(
+                    component["retained_scope"]["full_analysis"]["input_manifest_id"],
+                    component["input_manifest_id"]
+                );
+                for (field, value) in [
+                    ("retained", json!(false)),
+                    ("roles", json!({"src/selected.ts":"source"})),
+                    ("selection", json!({"src/selected.ts":"excluded"})),
+                    ("disabled", json!(["src/selected.ts"])),
+                    (
+                        "utf16_files",
+                        json!({format!("{cwd}/src/selected.ts"):[65]}),
+                    ),
+                    (
+                        "raw_files",
+                        json!({format!("{cwd}/src/selected.ts"):{"bytes":[65],"profile":"retained_utf8"}}),
+                    ),
+                    ("roots", json!([])),
+                    ("files", {
+                        let mut captured = request["files"].clone();
+                        captured[format!("{cwd}/src/selected.ts")] =
+                            json!("export const altered=1;");
+                        captured
+                    }),
+                ] {
+                    let mut invalid = request.clone();
+                    invalid[field] = value;
+                    let path = dir.join(format!("invalid-scope-{field}.json"));
+                    fs::write(&path, serde_json::to_vec_pretty(&invalid).unwrap()).unwrap();
+                    let refused = invoke(
+                        vec![
+                            producer.to_string_lossy().into_owned(),
+                            "--observe-retained-scope".into(),
+                            path.to_string_lossy().into_owned(),
+                            sdk.to_string_lossy().into_owned(),
+                        ],
+                        &root,
+                        &helper,
+                        &dir.join(format!("invalid-scope-{field}-invocation.json")),
+                    );
+                    assert_eq!(refused.exit_code, Some(1), "{field}: {refused:?}");
+                    assert!(refused.stdout.is_empty(), "{field}: {refused:?}");
+                }
+            }
             continue;
         }
         assert_eq!(
@@ -333,6 +454,30 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         );
         assert!(actual.stderr.is_empty(), "{actual:?}");
         let report: Value = serde_json::from_str(&actual.stdout).unwrap();
+        if label == "retained-declaration-outside" {
+            let observed = invoke(
+                vec![
+                    producer.to_string_lossy().into_owned(),
+                    "--observe-retained-scope".into(),
+                    request_path.to_string_lossy().into_owned(),
+                    sdk.to_string_lossy().into_owned(),
+                ],
+                &root,
+                &helper,
+                &dir.join("refused-declaration-scope-invocation.json"),
+            );
+            assert_eq!(observed.exit_code, Some(0), "{observed:?}");
+            let component: Value = serde_json::from_str(&observed.stdout).unwrap();
+            assert_eq!(component["negative_evidence_eligible"], false);
+            assert_eq!(component["ownership_authorized"], false);
+            assert_eq!(component["global_admission_inferred"], false);
+            assert_eq!(component["qualification_credit"], 0);
+            let declaration = &component["retained_scope"]["declaration_analysis"];
+            assert_eq!(declaration["observation_mode"], "retained_scope_components");
+            assert_eq!(declaration["extraction_executed"], false);
+            assert_eq!(declaration["confinementObservation"]["state"], "refused");
+            assert_eq!(declaration["raw_extraction"]["imports"], json!([]));
+        }
         let scope = &report["retained_scope"];
         for field in [
             "links",

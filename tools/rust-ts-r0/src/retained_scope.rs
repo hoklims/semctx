@@ -572,6 +572,85 @@ pub(super) fn inspect(
     )
 }
 
+/// Observe only the retained capture. This path grants neither index admission
+/// nor negative evidence, including when an underlying extraction was refused.
+pub(super) fn observe(request: &Request, sdk: &Sdk) -> Result<Value, String> {
+    if !request.retained
+        || request.roots.is_empty()
+        || !request.roles.is_empty()
+        || !request.selection.is_empty()
+        || !request.disabled.is_empty()
+        || !request.raw_files.is_empty()
+        || !request.utf16_files.is_empty()
+    {
+        return Err("unsupported retained scope observation context".into());
+    }
+    let root = Path::new(&request.cwd)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    let mut paths = Vec::with_capacity(request.files.len());
+    let mut captured_paths = vec![];
+    let mut source_roots = vec![];
+    let mut declaration_roots = vec![];
+    for (path, content) in &request.files {
+        let relative = relative_source_path(&request.cwd, path, request.case_sensitive)?;
+        let physical = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
+        if !physical.starts_with(&root)
+            || std::fs::read(&physical).map_err(|e| e.to_string())? != content.as_bytes()
+        {
+            return Err("retained scope bytes differ from current capture".into());
+        }
+        paths.push(physical);
+        if declaration(path) {
+            declaration_roots.push(relative.clone());
+        } else if source(path) {
+            source_roots.push(relative.clone());
+        }
+        captured_paths.push(relative);
+    }
+    let mut selected_roots = vec![];
+    for path in &request.roots {
+        if !source(path) || !request.files.contains_key(path) {
+            return Err("retained scope selected root differs".into());
+        }
+        let relative = relative_source_path(&request.cwd, path, request.case_sensitive)?;
+        if selected_roots.contains(&relative) {
+            return Err("retained scope selected root repeats".into());
+        }
+        selected_roots.push(relative);
+    }
+    let observed = analyze(request.clone(), sdk.clone())?;
+    let current = batch::build(request, sdk, &observed)?;
+    let broad = repository_discovery::qualified(
+        json!({"repositoryRoot":request.cwd,"config":{"version":2,"include":["**/*"],"exclude":[],"languages":{"typescript":"on","javascript":"on","python":"on","markdown":"on","sql":"on"},"migrationsDirs":[]}}),
+        &paths,
+    );
+    let retained_scope = inspect(
+        request,
+        sdk,
+        &batch::graph_from_facts(&current.facts),
+        &broad,
+        &current.input_manifest_id,
+    )?;
+    Ok(json!({
+        "schema_version":1,
+        "status":"retained_scope_component_observation_not_qualification",
+        "observation_scope":"retained_capture_components",
+        "negative_evidence_eligible":false,
+        "ownership_authorized":false,
+        "index_receipt_consumed":false,
+        "global_admission_inferred":false,
+        "qualification_credit":0,
+        "request_id":observed["request_id"],
+        "input_manifest_id":current.input_manifest_id,
+        "sdk_input_id":identity::digest(&serde_json::to_value(sdk).map_err(|e|e.to_string())?),
+        "producer_artifact_id":observed["producer_artifact_id"],
+        "scope":{"captured_paths":captured_paths,"selected_roots":selected_roots,"source_roots":source_roots,"declaration_roots":declaration_roots},
+        "current_analysis":observed,
+        "retained_scope":retained_scope
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
