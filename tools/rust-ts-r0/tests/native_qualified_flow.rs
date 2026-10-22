@@ -44,6 +44,21 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             true,
         ),
         (
+            "retained-declaration-indexed-ts",
+            Some("declare const ambientFlag: boolean;\n"),
+            true,
+        ),
+        (
+            "retained-declaration-indexed-mts",
+            Some("declare const ambientFlag: boolean;\n"),
+            true,
+        ),
+        (
+            "retained-declaration-indexed-cts",
+            Some("declare const ambientFlag: boolean;\n"),
+            true,
+        ),
+        (
             "retained-reached-body",
             Some(
                 "export { selectedFactory } from './src/selected';\nexport function monitor(name:string) { return import(name); }\n",
@@ -104,7 +119,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         let root = dir.join("workspace");
         fs::create_dir_all(root.join("src")).unwrap();
         let mut files = json!({"src/selected.ts":"export function selectedFactory() { return 179; }\n","base.json":"{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}","tsconfig.json":"{\"extends\":\"./base.json\"}",".gitignore":".semctx/\n"});
-        let outside_path = if label.starts_with("retained-declaration") {
+        let outside_path = if label == "retained-declaration-indexed-mts" {
+            "ambient.d.mts"
+        } else if label == "retained-declaration-indexed-cts" {
+            "ambient.d.cts"
+        } else if label.starts_with("retained-declaration") {
             "ambient.d.ts"
         } else if label == "retained-reached-body" || label == "retained-mixed-outside" {
             "monitor.ts"
@@ -209,7 +228,13 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             .iter()
             .map(|(p, t)| (format!("{cwd}/{p}"), t.clone()))
             .collect::<serde_json::Map<_, _>>();
-        let request = json!({"id":format!("development-qualified-{label}"),"cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"files":captured,"roots":[format!("{cwd}/src/selected.ts")],"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":true,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+        let mut roots = vec![format!("{cwd}/src/selected.ts")];
+        let mut include = vec!["src/**/*.ts".to_string()];
+        if label.starts_with("retained-declaration-indexed-") {
+            roots.push(format!("{cwd}/{outside_path}"));
+            include.push(outside_path.to_string());
+        }
+        let request = json!({"id":format!("development-qualified-{label}"),"cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"files":captured,"roots":roots,"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":true,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
         let request_path = dir.join("index-request.json");
         fs::write(&request_path, serde_json::to_vec_pretty(&request).unwrap()).unwrap();
         let index = invoke(
@@ -224,6 +249,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             &dir.join("index-invocation.json"),
         );
         assert_eq!(index.kind, "success", "{index:?}");
+        if label.starts_with("retained-declaration-indexed-") {
+            let batch: Value = serde_json::from_str(&index.stdout).unwrap();
+            assert_eq!(batch["subjects"].as_array().unwrap().len(), 1);
+            assert_eq!(batch["subjects"][0]["subject_id"], "src/selected.ts");
+        }
         let head = invoke(
             vec![
                 "git".into(),
@@ -236,7 +266,7 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             &dir.join("indexed-head.json"),
         );
         assert_eq!(head.kind, "success");
-        let descriptor = json!({"repositoryRoot":cwd,"processHelper":helper,"include":["src/**/*.ts"],"exclude":["node_modules","dist",".semctx",".git","coverage"],"index":{"analysis":request,"outcome":index,"baseCommit":head.stdout.trim()}});
+        let descriptor = json!({"repositoryRoot":cwd,"processHelper":helper,"include":include,"exclude":["node_modules","dist",".semctx",".git","coverage"],"index":{"analysis":request,"outcome":index,"baseCommit":head.stdout.trim()}});
         let descriptor_path = dir.join("verify-request.json");
         fs::write(
             &descriptor_path,
@@ -317,11 +347,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         }
         if label.starts_with("retained-") {
             let reason = if label.starts_with("retained-declaration") {
-                "DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:ambient.d.ts"
+                format!("DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:{outside_path}")
             } else if label == "retained-mixed-outside" {
-                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:monitor.ts:../outside.ts"
+                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:monitor.ts:../outside.ts".into()
             } else {
-                "DEPENDENCY_SCOPE_COMPUTED_IMPORT:monitor.ts"
+                "DEPENDENCY_SCOPE_COMPUTED_IMPORT:monitor.ts".into()
             };
             assert!(
                 scope["projection"]["reasons"]
@@ -335,7 +365,8 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                     .unwrap()
                     .contains(&json!(reason))
             );
-            if label == "retained-declaration" {
+            if label == "retained-declaration" || label.starts_with("retained-declaration-indexed-")
+            {
                 assert_eq!(
                     scope["declaration_analysis"]["observation_mode"],
                     "declaration_roots"
@@ -389,6 +420,37 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                 .iter()
                 .any(|p| p.as_str().is_some_and(|p| p.ends_with("/base.json")))
         );
+        if label == "retained-declaration-indexed-ts" {
+            for name in ["missing-selected-subject", "foreign-selected-subject"] {
+                let mut changed = descriptor.clone();
+                let mut batch: Value = serde_json::from_str(&index.stdout).unwrap();
+                if name == "missing-selected-subject" {
+                    batch["subjects"] = json!([]);
+                } else {
+                    let mut foreign = batch["subjects"][0].clone();
+                    foreign["subject_id"] = json!("foreign.ts");
+                    batch["subjects"].as_array_mut().unwrap().push(foreign);
+                }
+                let stdout = serde_json::to_string(&batch).unwrap();
+                changed["index"]["outcome"]["stdout_bytes"] = json!(stdout.len());
+                changed["index"]["outcome"]["stdout_hash"] =
+                    json!(identity::digest_bytes(stdout.as_bytes()).trim_start_matches("sha256:"));
+                changed["index"]["outcome"]["stdout"] = json!(stdout);
+                let path = dir.join(format!("{name}-descriptor.json"));
+                fs::write(&path, serde_json::to_vec_pretty(&changed).unwrap()).unwrap();
+                let mut bad_argv = argv.clone();
+                bad_argv[3] = path.to_string_lossy().into_owned();
+                let rejected = invoke(
+                    bad_argv,
+                    &root,
+                    &helper,
+                    &dir.join(format!("{name}-invocation.json")),
+                );
+                assert_eq!(rejected.exit_code, Some(1), "{name}: {rejected:?}");
+                assert!(rejected.stdout.is_empty());
+                assert!(rejected.stderr.contains("SubjectMismatch"));
+            }
+        }
         if rejected && !label.starts_with("retained-") {
             assert_eq!(report["verdict"], "BLOCK");
             assert!(

@@ -135,6 +135,11 @@ fn receive_index(
     let subjects = request
         .roots
         .iter()
+        .filter(|path| {
+            ![".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|suffix| path.ends_with(suffix))
+        })
         .map(|path| {
             let relative = relative_source_path(&request.cwd, path, request.case_sensitive)?;
             let source = request
