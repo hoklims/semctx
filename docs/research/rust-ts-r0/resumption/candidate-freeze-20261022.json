@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "state": "PROVISIONAL_UNTIL_STEP_C_COMPLETE",
+  "state": "FINAL_CANDIDATE_FROZEN_STEP_C_REVIEW_COMPLETE_HOLDOUT_UNOPENED",
   "recordedUTC": "2026-10-22T06:16:48.273298+00:00",
   "sourceCommit": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
   "sourceTree": "9bebc1c716938bfc422716fe1022e5cf19083d24",
@@ -207,5 +207,19 @@
   "rebuildNotes": [
     "Offline builds only. Default macOS cache lacked ts-rust; old temporary cache had lost Git metadata and pinned registry versions. Existing complete Linux Git/registry caches restored to the historical macOS CARGO_HOME; no lock/dependency/source changes or downloads.",
     "A preliminary isolated-CARGO_HOME build embedded its new cache path in all four macOS executables, changing their digests. Those unused binaries are retained outside the repository in candidate-path-trial. Final artifacts were rebuilt with the historical cache path before any campaign."
-  ]
+  ],
+  "finalizedUTC": "2026-10-22T06:24:09.685073+00:00",
+  "finalization": {
+    "sourceCommitUnchanged": true,
+    "producerHelperAndComparatorBytesUnchanged": true,
+    "currentCampaignsCompleted": [
+      "macos-arm64",
+      "linux-aarch64"
+    ],
+    "formalR0Qualified": 0,
+    "registeredFiniteProjectionsGreen": 86,
+    "holdoutOpened": false,
+    "holdoutInvocationComparatorContract": "ABSENT_BLOCKING_BEFORE_ACCESS",
+    "policy": "No producer, helper, expectation, threshold or comparison-rule change is permitted after any future reserved access; this freeze does not supply the missing reserved invocation/comparison contract."
+  }
 }
