@@ -1,5 +1,83 @@
 use super::*;
 use std::collections::BTreeMap;
+use ts_goport::program;
+
+#[test]
+fn sdk_metadata_uses_program_path_identity_without_trusting_user_lib_names() {
+    let bytes = std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json"))
+        .expect("captured SDK fixture");
+    let sdk: crate::Sdk = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(sdk.version, "5.9.3");
+    assert_eq!(sdk.files.len(), 100);
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    for sdk_directory in ["/sdk/lib", "/PublicSdk/Lib"] {
+        let mut files: BTreeMap<String, String> = sdk
+            .files
+            .iter()
+            .map(|(path, text)| (path.replacen("/sdk/lib", sdk_directory, 1), text.clone()))
+            .collect();
+        files.insert(
+            "/repo/caption.ts".into(),
+            "export function caption() { return String(23); }".into(),
+        );
+        files.insert(
+            "/repo/lib.es5.d.ts".into(),
+            "export declare function userString(value: number): string;".into(),
+        );
+        let frontend = crate::native_frontend_with_options(
+            std::rc::Rc::new(crate::CaptureFs::new(files, sensitive)),
+            "/repo",
+            sdk_directory,
+            vec!["/repo/caption.ts".into(), "/repo/lib.es5.d.ts".into()],
+            false,
+            crate::compiler_options(),
+        );
+        let _scope = crate::native_program::NativeProgram::enter(&frontend.program);
+        program::bind_all();
+        let source = program::get_source_file("/repo/caption.ts");
+        let sdk_source = program::get_source_file(&format!("{sdk_directory}/lib.es5.d.ts"));
+        let user_source = program::get_source_file("/repo/lib.es5.d.ts");
+        assert!(
+            source.is_some(),
+            "public source missing (case_sensitive={sensitive})"
+        );
+        assert!(
+            user_source.is_some(),
+            "user declaration missing (case_sensitive={sensitive})"
+        );
+        assert!(
+            sdk_source.is_some(),
+            "SDK declaration missing (case_sensitive={sensitive}); loaded {:?}",
+            frontend
+                .program
+                .get_source_files()
+                .iter()
+                .map(|file| file.path().0.clone())
+                .collect::<Vec<_>>()
+        );
+        program::with_type_checker_for_file(source, move |checker| {
+            let inputs = QualifiedInputs {
+                case_sensitive: sensitive,
+                ..Default::default()
+            };
+            let scan = Scan {
+                checker,
+                inputs: &inputs,
+                source,
+                result: QualifiedScan::default(),
+                callback_cache: BTreeMap::new(),
+            };
+            assert!(
+                !scan.sdk(user_source),
+                "user .d.ts must not gain SDK identity"
+            );
+            assert!(
+                scan.sdk(sdk_source),
+                "captured SDK must keep default-library identity (case_sensitive={sensitive})"
+            );
+        });
+    }
+}
 
 fn scan_code(source: &str) -> QualifiedScan {
     scan_code_with_proof_state(source, false, false)

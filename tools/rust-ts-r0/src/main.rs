@@ -1557,7 +1557,7 @@ fn analyze_internal(
                     let name = ast::source_file_file_name(owner).to_string();
                     let positions = ast::source_file_get_position_map(owner);
                     declarations.push(Declaration {
-                        default_library: program::is_source_file_default_library(&name),
+                        default_library: native_program::is_source_file_default_library(&name),
                         file: name,
                         start_utf16: positions
                             .utf8_to_utf16(astnav::get_start_of_node(decl, owner, false)),

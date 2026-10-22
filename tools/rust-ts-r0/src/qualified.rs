@@ -7,7 +7,6 @@ use ts_goport::{
     checker::Checker,
     core::{Node, SignatureId, SymbolId, TypeId},
     flags::{ModifierFlags, NodeFlags, SignatureKind, SymbolFlags, TypeFlags},
-    program,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize)]
@@ -238,7 +237,7 @@ impl Scan<'_> {
     }
     fn sdk(&self, node: Node) -> bool {
         node.is_some()
-            && program::is_source_file_default_library(ast::source_file_file_name(
+            && crate::native_program::is_source_file_default_library(ast::source_file_file_name(
                 ast::get_source_file_of_node(node),
             ))
     }

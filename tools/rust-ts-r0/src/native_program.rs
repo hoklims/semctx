@@ -1,6 +1,15 @@
 use std::rc::Rc;
 use ts_goport::{ast, core, frontend::compiler, program};
 
+pub(super) fn is_source_file_default_library(file_name: &str) -> bool {
+    let path = ts_goport::frontend::tspath::to_path(
+        file_name,
+        program::get_current_directory(),
+        program::use_case_sensitive_file_names(),
+    );
+    program::is_source_file_default_library(path.as_str())
+}
+
 pub(super) fn frontend(
     options: compiler::ProgramOptions,
     fs: &crate::CaptureFs,
