@@ -53,8 +53,8 @@
       "sha256": "e1b98db92f75411057812209c6b7b58573f1953180ca0d3a89062a5fb3b4db09"
     },
     "scope-map.json.gz": {
-      "bytes": 367714,
-      "sha256": "403335e0ad899e587c67f20491b1e506e85648b8bb8530f68198db82c62523f3"
+      "bytes": 367716,
+      "sha256": "3e435524a86a0d99d792bcfe3513e4535d5a540acc050a3514515c0ddb926e3c"
     },
     "token_inputs.py": {
       "bytes": 6052,
@@ -62,5 +62,5 @@
     }
   },
   "kind": "PRE_QUERY_SOURCE_PIN_UPDATE_WITH_TYPE_STRICT_COMPARATOR",
-  "scope_map_sha256": "403335e0ad899e587c67f20491b1e506e85648b8bb8530f68198db82c62523f3"
+  "scope_map_sha256": "3e435524a86a0d99d792bcfe3513e4535d5a540acc050a3514515c0ddb926e3c"
 }
