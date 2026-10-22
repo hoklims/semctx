@@ -25,6 +25,7 @@ mod repository_discovery;
 mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
+mod retained_scope;
 mod runtime_configuration;
 mod source_text;
 mod worker_observations;

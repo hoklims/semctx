@@ -317,6 +317,13 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let current_observation = analyze(request.clone(), sdk.clone())?;
     let current = batch::build(request, &sdk, &current_observation)?;
     let _receipt = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
+    let retained_scope = retained_scope::inspect(
+        request,
+        &sdk,
+        &batch::graph_from_facts(&current.facts),
+        &broad,
+        &current.input_manifest_id,
+    )?;
     let mut broad_request = request.clone();
     broad_request.roots = broad["files"]
         .as_array()
@@ -334,30 +341,33 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             Ok(path.to_string())
         })
         .collect::<Result<Vec<_>, String>>()?;
-    let broad_observation = analyze(broad_request.clone(), sdk.clone())?;
+    let broad_observation = match analyze(broad_request.clone(), sdk.clone()) {
+        Ok(observation) => observation,
+        Err(error) if retained_scope::confinement_code(&error).is_some() => {
+            let mut components = broad_request.clone();
+            components.qualified = false;
+            retained_scope::components_after_refusal(&components, &sdk, &error)?
+        }
+        Err(error) => return Err(error),
+    };
     if batch::input_manifest(request, &sdk)? != batch::input_manifest(&broad_request, &sdk)? {
         return Err("broad and selected analysis consumed different inputs".into());
     }
     let mut links = BTreeSet::new();
-    let mut unresolved = vec![];
-    for import in broad_observation["raw_extraction"]["imports"]
+    for link in retained_scope["projection"]["links"]
         .as_array()
-        .ok_or("native broad imports missing")?
+        .ok_or("retained scope links missing")?
     {
-        let from = import["fromRelPath"]
-            .as_str()
-            .ok_or("native importer missing")?;
-        if let Some(to) = import["resolvedRelPath"].as_str() {
-            links.insert((from.to_string(), to.to_string()));
-        } else {
-            unresolved.push((
-                from.to_string(),
-                import["moduleSpecifier"]
-                    .as_str()
-                    .ok_or("native import specifier missing")?
-                    .to_string(),
-            ));
-        }
+        links.insert((
+            link[0]
+                .as_str()
+                .ok_or("retained scope importer missing")?
+                .to_string(),
+            link[1]
+                .as_str()
+                .ok_or("retained scope target missing")?
+                .to_string(),
+        ));
     }
     let mut expected = diff
         .stdout
@@ -382,7 +392,16 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let subjects = current_observation["subjects"]
         .as_array()
         .ok_or("native selected subjects missing")?;
-    let mut reasons = vec![];
+    let mut reasons = retained_scope["projection"]["reasons"]
+        .as_array()
+        .ok_or("retained scope reasons missing")?
+        .iter()
+        .map(|r| {
+            r.as_str()
+                .map(str::to_string)
+                .ok_or("invalid retained scope reason")
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     let mut coverage = vec![];
     for path in &expected {
         let candidate = candidates.iter().find(|c| c["relPath"] == *path);
@@ -406,11 +425,6 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     }
     if !coverage.iter().any(|c| c["status"] == "analyzed") {
         reasons.push("ZERO_ANALYZED_OBLIGATIONS".into());
-    }
-    for (from, specifier) in unresolved {
-        if expected.contains(&from) {
-            reasons.push(format!("UNRESOLVED_IMPORT:{from}:{specifier}"));
-        }
     }
     for subject in broad_observation["subjects"]
         .as_array()
@@ -443,10 +457,12 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .as_array()
         .and_then(|v| v.first())
         .ok_or("selected native configuration absent")?;
-    Ok(Verification {
+    let mut verification = Verification {
         report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
         admission,
-    })
+    };
+    verification.report["retained_scope"] = retained_scope;
+    Ok(verification)
 }
 
 pub(super) fn command(args: &[String]) -> Result<Verification, String> {

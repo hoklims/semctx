@@ -39,6 +39,30 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
     let contexts = vec![
         ("inherited-positive", None, false),
         (
+            "retained-declaration",
+            Some("declare const ambientFlag: boolean;\n"),
+            true,
+        ),
+        (
+            "retained-reached-body",
+            Some(
+                "export { selectedFactory } from './src/selected';\nexport function monitor(name:string) { return import(name); }\n",
+            ),
+            true,
+        ),
+        (
+            "retained-declaration-outside",
+            Some(
+                "/// <reference path=\"../outside.d.ts\" />\ndeclare const ambientFlag: boolean;\n",
+            ),
+            true,
+        ),
+        (
+            "retained-mixed-outside",
+            Some("/// <reference path=\"../outside.ts\" />\nexport const monitor=1;\n"),
+            true,
+        ),
+        (
             "excluded-dependent",
             Some("export { selectedFactory } from './src/selected';\n"),
             true,
@@ -80,7 +104,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         let root = dir.join("workspace");
         fs::create_dir_all(root.join("src")).unwrap();
         let mut files = json!({"src/selected.ts":"export function selectedFactory() { return 179; }\n","base.json":"{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}","tsconfig.json":"{\"extends\":\"./base.json\"}",".gitignore":".semctx/\n"});
-        let outside_path = if label.starts_with("output-") {
+        let outside_path = if label.starts_with("retained-declaration") {
+            "ambient.d.ts"
+        } else if label == "retained-reached-body" || label == "retained-mixed-outside" {
+            "monitor.ts"
+        } else if label.starts_with("output-") {
             fs::create_dir_all(root.join("dist")).unwrap();
             "dist/outside.ts"
         } else {
@@ -88,6 +116,9 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         };
         if let Some(outside) = outside {
             files[outside_path] = json!(outside);
+        }
+        if label == "retained-mixed-outside" {
+            files["util.js"] = json!("export const okay=1;\n");
         }
         if label.contains("symlink-nearest-config") {
             files["config-target.json"] = json!(
@@ -272,6 +303,71 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         );
         assert!(actual.stderr.is_empty(), "{actual:?}");
         let report: Value = serde_json::from_str(&actual.stdout).unwrap();
+        let scope = &report["retained_scope"];
+        for field in [
+            "links",
+            "reasons",
+            "externalModuleSpecifiers",
+            "unresolvedImports",
+        ] {
+            assert!(
+                scope["projection"][field].is_array(),
+                "missing producer scope {field}"
+            );
+        }
+        if label.starts_with("retained-") {
+            let reason = if label.starts_with("retained-declaration") {
+                "DEPENDENCY_SCOPE_DECLARATION_UNSUPPORTED:ambient.d.ts"
+            } else if label == "retained-mixed-outside" {
+                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:monitor.ts:../outside.ts"
+            } else {
+                "DEPENDENCY_SCOPE_COMPUTED_IMPORT:monitor.ts"
+            };
+            assert!(
+                scope["projection"]["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(reason))
+            );
+            assert!(
+                report["analysisAdmission"]["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(reason))
+            );
+            if label == "retained-declaration" {
+                assert_eq!(
+                    scope["declaration_analysis"]["observation_mode"],
+                    "declaration_roots"
+                );
+                assert_eq!(
+                    scope["input_manifest_id"],
+                    scope["declaration_analysis"]["input_manifest_id"]
+                );
+            } else if label == "retained-reached-body" {
+                assert!(
+                    scope["projection"]["links"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&json!(["monitor.ts", "src/selected.ts"]))
+                );
+            }
+            if label.ends_with("-outside") {
+                let analysis = if label.starts_with("retained-declaration") {
+                    &scope["declaration_analysis"]
+                } else {
+                    &scope["full_analysis"]
+                };
+                assert_eq!(analysis["confinementObservation"]["state"], "refused");
+                assert_eq!(analysis["extraction_executed"], false);
+                assert!(
+                    scope["projection"]["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&json!("DEPENDENCY_SCOPE_OUTSIDE_REPOSITORY"))
+                );
+            }
+        }
         assert_eq!(
             report["analysisAdmission"]["status"],
             if rejected { "rejected" } else { "admitted" }
@@ -293,7 +389,7 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                 .iter()
                 .any(|p| p.as_str().is_some_and(|p| p.ends_with("/base.json")))
         );
-        if rejected {
+        if rejected && !label.starts_with("retained-") {
             assert_eq!(report["verdict"], "BLOCK");
             assert!(
                 report["analysisAdmission"]["changeCoverage"]["files"]
