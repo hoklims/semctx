@@ -1,0 +1,3374 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "typescript_version": "5.9.3",
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "sourceIdentities": [
+      {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+      },
+      {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+      },
+      {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+      },
+      {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+      },
+      {
+        "path": "scripts/pilot/baselines.ts",
+        "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+      }
+    ],
+    "inputs_sha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+  },
+  "units": [
+    {
+      "oracle_full_value": [
+        "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-constant-member-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-constant-member-activate",
+          "files": {
+            "main.ts": "const key=\"then\";const p={};p[key]=()=>1;export function run(){return 1}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        62,
+        131
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-constant-member-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-constant-member-control",
+          "files": {
+            "main.ts": "const key=\"plain\";const p={};p[key]=()=>1;export function run(){return 1}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        62,
+        131
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-property-key-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-property-key-activate",
+          "files": {
+            "main.ts": "const key={toString(){return \"x\"}};const p={x:1};export function run(){return p[key]}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        101
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-property-key-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-property-key-control",
+          "files": {
+            "main.ts": "const key=\"x\";const p={x:1};export function run(){return p[key]}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        101
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-function-helper-own-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-function-helper-own-activate",
+          "files": {
+            "main.ts": "function f(){};export function run(){return f.call(null)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        67
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-function-helper-own-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-function-helper-own-control",
+          "files": {
+            "main.ts": "const f={call(_x){return 1}};export function run(){return f.call(null)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        67
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+        "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-internal-callable-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-internal-callable-activate",
+          "files": {
+            "main.ts": "const f=()=>1;export const x=f.call"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        88
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-internal-callable-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-internal-callable-control",
+          "files": {
+            "main.ts": "const f=Function;export const x=f.call"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        88
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-constructor-origin-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-constructor-origin-activate",
+          "files": {
+            "main.ts": "function f(){};export const x=f.constructor"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-constructor-origin-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-constructor-origin-control",
+          "files": {
+            "main.ts": "const f={constructor:()=>1};export const x=f.constructor"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-heritage-origin-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-heritage-origin-activate",
+          "files": {
+            "main.ts": "class A{};export class B extends A{}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-heritage-origin-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-heritage-origin-control",
+          "files": {
+            "main.ts": "export class B extends Error{}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-callback-signature-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-callback-signature-activate",
+          "files": {
+            "main.ts": "export function run(){return [1].map.call([1],()=>1)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        113
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-callback-signature-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-callback-signature-control",
+          "files": {
+            "main.ts": "export function run(){return [1].at.call([1],()=>1)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        113
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+          "files": {
+            "main.ts": "Math={...Math};export function run(){return 1}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-global-assignment-origin-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-global-assignment-origin-control",
+          "files": {
+            "main.ts": "let local=Math;local={...Math};export function run(){return 1}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_COERCION_UNSUPPORTED",
+        "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-binding-write-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-binding-write-activate",
+          "files": {
+            "main.ts": "import {register} from \"opaque\";function run(x){x++;if(typeof x!==\"string\")throw Error();register(x)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_COERCION_UNSUPPORTED",
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        56
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-binding-write-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-binding-write-control",
+          "files": {
+            "main.ts": "import {register} from \"opaque\";function run(x){if(typeof x!==\"string\")throw Error();register(x)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        56
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-js-global-member-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-js-global-member-activate",
+          "files": {
+            "main.js": "globalThis.Math={};Object.defineProperties(globalThis,{Math:{value:{}}});"
+          },
+          "roots": [
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.js"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-js-global-member-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-js-global-member-control",
+          "files": {
+            "main.js": "globalThis.own={};Object.defineProperties(globalThis,{own:{value:{}}});"
+          },
+          "roots": [
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.js"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+          "files": {
+            "main.ts": "const {Date:D}=window;export function run(){return new D(1)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        125
+      ]
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_CONSTRUCTION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+          "files": {
+            "main.ts": "const window={Date:class{}};const {Date:D}=window;export function run(){return new D(1)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        125
+      ]
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-site-0",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-site-0",
+          "files": {
+            "main.ts": "import {D} from \"./dep\";export function run(){return new D(1)}",
+            "dep.ts": "export {Date as D}"
+          },
+          "roots": [
+            "main.ts",
+            "dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "oracle_full_value": [],
+      "unit_id": "PUBLIC-SEM-completion-site-1",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-site-1",
+          "files": {
+            "main.ts": "import {Date as D} from \"./dep\";export function run(){return new D(1)}",
+            "dep.ts": "export {Date}"
+          },
+          "roots": [
+            "main.ts",
+            "dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-site-2",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-site-2",
+          "files": {
+            "main.ts": "export function run(){const s=document[\"createElement\"](\"script\");document.head.appendChild(s)}"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "oracle_full_value": [
+        "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+      ],
+      "unit_id": "PUBLIC-SEM-completion-site-3",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-SEM-completion-site-3",
+          "files": {
+            "main.js": "globalThis.Math={};Object.defineProperties(globalThis,{Math:{value:{}}});"
+          },
+          "roots": [
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "subjects",
+              {
+                "path": "main.js"
+              },
+              "semanticObservation",
+              "reasons"
+            ],
+            "baseline_operation": "inspectSemanticDependencies",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.js"
+            },
+            "semanticObservation",
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    }
+  ]
+}
