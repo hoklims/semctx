@@ -3,6 +3,91 @@ use std::collections::BTreeMap;
 use ts_goport::program;
 
 #[test]
+fn call_provenance_observes_runtime_value_namespace_and_immutable_sdk_aliases() {
+    let homonym = "export type Converter = { readonly note: string };\nexport function Converter(seed: number) { return seed; }\nexport function render() { return Converter(17); }\n";
+    let timer = "const repeat = globalThis.setInterval;\nexport function begin() { return repeat(\"2+2\", 5); }\n";
+    let observed = serde_json::to_value(scan_code(homonym)).unwrap();
+    let trace = &observed["call_provenance_observation"];
+    assert_eq!(
+        trace["executed"], true,
+        "live checker call provenance missing: {observed}"
+    );
+    let call = &trace["calls"][0];
+    assert_eq!(call["originChain"][0]["symbol"]["name"], "Converter");
+    assert_eq!(
+        call["originChain"][0]["symbol"]["valueDeclaration"]["kind"],
+        "FunctionDeclaration"
+    );
+    assert_eq!(
+        call["call"]["sourceDigest"],
+        crate::identity::digest_bytes(homonym.as_bytes())
+    );
+    assert_eq!(call["call"]["file"], "/repo/qualified-development.ts");
+    assert_eq!(
+        call["call"]["startUtf16"],
+        homonym.find("Converter(17)").unwrap()
+    );
+    assert_eq!(
+        call["call"]["endUtf16"],
+        homonym.find("Converter(17)").unwrap() + "Converter(17)".len()
+    );
+
+    let observed = serde_json::to_value(scan_code(timer)).unwrap();
+    let chain = observed["call_provenance_observation"]["calls"][0]["originChain"]
+        .as_array()
+        .unwrap();
+    assert_eq!(chain.len(), 2, "{observed}");
+    assert_eq!(chain[0]["symbol"]["name"], "repeat");
+    assert_eq!(
+        chain[0]["symbol"]["valueDeclaration"]["kind"],
+        "VariableDeclaration"
+    );
+    assert_eq!(chain[0]["followedImmutableInitializer"], true);
+    assert_eq!(chain[1]["symbol"]["name"], "setInterval");
+    assert_eq!(
+        chain[1]["symbol"]["valueDeclaration"]["defaultLibrary"],
+        true
+    );
+    assert!(
+        chain[1]["symbol"]["valueDeclaration"]["sourceDigest"]
+            .as_str()
+            .unwrap()
+            .starts_with("sha256:")
+    );
+
+    for source in [
+        "type Converter = (value:number)=>number; export function render(){ return Converter(17); }",
+        "let repeat = globalThis.setInterval; export function begin(){return repeat('2+2',5);}",
+        "const globalThis={setInterval(value:string, delay:number){return delay;}}; const repeat=globalThis.setInterval; export function begin(){return repeat('2+2',5);}",
+    ] {
+        let observed = serde_json::to_value(scan_code(source)).unwrap();
+        let chain = observed["call_provenance_observation"]["calls"][0]["originChain"]
+            .as_array()
+            .unwrap();
+        assert!(
+            !chain
+                .iter()
+                .any(|step| step["symbol"]["valueDeclaration"]["defaultLibrary"] == true),
+            "{observed}"
+        );
+        if source.starts_with("type ") {
+            assert!(
+                chain[0]["symbol"]["valueDeclaration"].is_null(),
+                "{observed}"
+            );
+        }
+        if source.starts_with("let ") {
+            assert_eq!(
+                chain.len(),
+                1,
+                "mutable alias must not be followed: {observed}"
+            );
+            assert_eq!(chain[0]["followedImmutableInitializer"], false);
+        }
+    }
+}
+
+#[test]
 fn sdk_metadata_uses_program_path_identity_without_trusting_user_lib_names() {
     let bytes = std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json"))
         .expect("captured SDK fixture");

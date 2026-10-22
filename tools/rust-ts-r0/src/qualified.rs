@@ -34,6 +34,7 @@ pub struct QualifiedInputs {
 pub struct QualifiedScan {
     pub reasons: BTreeSet<String>,
     pub unsupported: BTreeSet<String>,
+    pub call_provenance_observation: serde_json::Value,
 }
 
 pub fn inspect_semantic_dependencies(
@@ -62,6 +63,7 @@ pub fn inspect_semantic_dependencies(
         scan.inspect_exports();
         scan.visit(source);
     }
+    scan.result.call_provenance_observation = scan.call_provenance();
     scan.result
 }
 
@@ -212,6 +214,103 @@ pub fn is_ordinary_native_process_member(name: &str) -> bool {
 }
 
 impl Scan<'_> {
+    fn provenance_node(
+        &self,
+        node: Node,
+        reads: &mut BTreeMap<String, serde_json::Value>,
+    ) -> serde_json::Value {
+        if node.is_nil() {
+            return serde_json::Value::Null;
+        }
+        let source = ast::get_source_file_of_node(node);
+        if source.is_nil() {
+            return serde_json::Value::Null;
+        }
+        let file = ast::source_file_file_name(source);
+        let read = reads.entry(file.to_string()).or_insert_with(|| {
+            serde_json::json!({
+                "file": file,
+                "sourceDigest": crate::identity::digest_bytes(ast::source_file_text(source).as_bytes()),
+                "defaultLibrary": self.sdk(source),
+            })
+        });
+        let map = ast::source_file_get_position_map(source);
+        serde_json::json!({
+            "file": file,
+            "sourceDigest": read["sourceDigest"],
+            "defaultLibrary": read["defaultLibrary"],
+            "kind": format!("{:?}", node.kind()),
+            "startUtf16": map.utf8_to_utf16(astnav::get_start_of_node(node, source, false)),
+            "endUtf16": map.utf8_to_utf16(node.end()),
+        })
+    }
+
+    fn provenance_symbol(
+        &self,
+        symbol: SymbolId,
+        reads: &mut BTreeMap<String, serde_json::Value>,
+    ) -> serde_json::Value {
+        if symbol.is_nil() {
+            return serde_json::Value::Null;
+        }
+        let value_declaration = self.checker.sym(symbol).value_declaration;
+        let declarations = self
+            .symbol_origins(symbol)
+            .into_iter()
+            .map(|node| self.provenance_node(node, reads))
+            .collect::<Vec<_>>();
+        let mut observed = serde_json::json!({
+            "name": self.symbol_name(symbol),
+            "valueDeclaration": self.provenance_node(value_declaration, reads),
+            "declarations": declarations,
+        });
+        observed["identity"] = serde_json::json!(crate::identity::digest(&observed));
+        observed
+    }
+
+    fn call_provenance(&mut self) -> serde_json::Value {
+        let mut reads = BTreeMap::new();
+        let source = self.provenance_node(self.source, &mut reads);
+        let mut nodes = Vec::new();
+        crate::calls(self.source, &mut nodes);
+        let mut calls = Vec::new();
+        for call in nodes {
+            let mut value = unwrap(call.expression());
+            let mut seen = HashSet::new();
+            let mut chain = Vec::new();
+            let mut cycle = false;
+            loop {
+                if !seen.insert(value) {
+                    cycle = true;
+                    break;
+                }
+                let symbol = self.symbol(value);
+                // Match actual_seen: only a checker-bound const declaration can advance.
+                let initializer = self
+                    .symbol_origins(symbol)
+                    .into_iter()
+                    .find(|origin| is_const(*origin) && origin.initializer().is_some())
+                    .map(|origin| origin.initializer());
+                chain.push(serde_json::json!({
+                    "expression": self.provenance_node(value, &mut reads),
+                    "symbol": self.provenance_symbol(symbol, &mut reads),
+                    "followedImmutableInitializer": initializer.is_some(),
+                }));
+                let Some(initializer) = initializer else {
+                    break;
+                };
+                value = unwrap(initializer);
+            }
+            calls.push(serde_json::json!({
+                "call": self.provenance_node(call, &mut reads),
+                "originChain": chain,
+                "stoppedAtCycle": cycle,
+            }));
+        }
+        serde_json::json!({"executed":true,"source":source,"calls":calls,
+            "readBindings":reads.into_values().collect::<Vec<_>>()})
+    }
+
     fn reason(&mut self, reason: &str) {
         self.result.reasons.insert(reason.into());
     }
