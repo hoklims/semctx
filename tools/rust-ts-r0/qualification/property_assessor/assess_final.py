@@ -81,8 +81,8 @@ def read_process(path,host,allowed_codes=(0,),request_file=None):
 def parsed_outcome(path,host):
     o=read(str(path))
     for stream in ('stdout','stderr'):
-        b=o[stream].encode();assert o[stream+'_bytes']==len(b) and o[stream+'_hash'].removeprefix('sha256:')==sha(b),'capture bytes differ'
-    assert o['kind']=='success' and o['exit_code']==0,'process is not successful; refused-result carrier requires independent adapter'
+        b=o[stream].encode();assert type(o[stream+'_bytes']) is int and o[stream+'_bytes']==len(b) and o[stream+'_hash'].removeprefix('sha256:')==sha(b),'capture bytes differ'
+    assert type(o['exit_code']) is int and o['kind']=='success' and o['exit_code']==0,'process is not successful; refused-result carrier requires independent adapter'
     raw=json.loads(o['stdout']);folder=path.parent
     art=read(str(folder/'artifact-observation.json'))
     assert art['before']==art['after'],'artifact changed during process'

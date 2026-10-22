@@ -66,8 +66,8 @@
     },
     {
       "path": "public_runtime.py",
-      "sha256": "9cd48fadd3eb3666852829f3042d71c9304382c3222624d4ded509d0bfe328f5",
-      "bytes": 28733
+      "sha256": "881e27fc2615246289b8132cb56b1fbdef49d361e2e8724162a8f91e0d52e456",
+      "bytes": 28841
     },
     {
       "path": "source_adapter.py",
@@ -131,8 +131,8 @@
     },
     {
       "path": "test_public_runtime.py",
-      "sha256": "5476e9fcded2b6599b7235f5fb753dde91660244b0b84c8c762ef6cbbd256932",
-      "bytes": 8614
+      "sha256": "64282d5161e48bedc40eb6885b2c71ff33edc76c3ebb14194f78866b97d1414a",
+      "bytes": 9292
     },
     {
       "path": "test_runtime_consumers.py",

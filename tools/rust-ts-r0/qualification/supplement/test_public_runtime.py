@@ -95,6 +95,17 @@ class RuntimeTests(unittest.TestCase):
             'stderr_bytes': 0, 'stderr_hash': a.digest(b'')}
         with patch.object(r, 'resolve_ref', return_value={'modules': ['actual.ts']}):
             self.assertEqual(r.compare_native(prepared, outcome, binding)['status'], 'MATCH')
+            for field, value, reason in [
+                ('exit_code', False, 'NATIVE_PROCESS_NOT_SUCCESS'),
+                ('exit_code', 0.0, 'NATIVE_PROCESS_NOT_SUCCESS'),
+                ('stderr_bytes', False, 'INCOMPLETE_RAW_CAPTURE'),
+                ('stdout_bytes', float(outcome['stdout_bytes']), 'INCOMPLETE_RAW_CAPTURE'),
+            ]:
+                with self.subTest(field=field, value=value):
+                    poisoned = dict(outcome, **{field: value})
+                    actual = r.compare_native(prepared, poisoned, binding)
+                    self.assertEqual(actual['status'], 'UNKNOWN')
+                    self.assertEqual(actual['reason'], reason)
         with patch.object(r, 'resolve_ref', return_value={'modules': ['expected.ts']}):
             self.assertEqual(r.compare_native(prepared, outcome, binding)['status'], 'MISMATCH')
         outcome['stdout_bytes'] -= 1

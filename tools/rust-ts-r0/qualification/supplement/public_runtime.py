@@ -457,13 +457,13 @@ def compare_native(prepared, process_outcome, binding, graph_projector=None):
                     'capture_stream_sha256', 'input_manifest_id']
         if any(not isinstance(binding.get(k), str) or not re.fullmatch(r'sha256:[0-9a-f]{64}', binding[k]) for k in required):
             raise Gap('INCOMPLETE_EXPECTED_BINDING')
-        if process_outcome.get('kind') != 'success' or process_outcome.get('exit_code') != 0:
+        if type(process_outcome.get('exit_code')) is not int or process_outcome.get('kind') != 'success' or process_outcome.get('exit_code') != 0:
             raise Gap('NATIVE_PROCESS_NOT_SUCCESS')
         for stream in ('stdout', 'stderr'):
             text = process_outcome[stream]
             raw = text.encode('utf-8')
             expected_hash = 'sha256:' + a.digest(raw)
-            if process_outcome[stream + '_bytes'] != len(raw) or process_outcome[stream + '_hash'] not in (expected_hash, expected_hash[7:]):
+            if type(process_outcome[stream + '_bytes']) is not int or process_outcome[stream + '_bytes'] != len(raw) or process_outcome[stream + '_hash'] not in (expected_hash, expected_hash[7:]):
                 raise Gap('INCOMPLETE_RAW_CAPTURE')
         if process_outcome['stderr']:
             raise Gap('NATIVE_STDERR_NONEMPTY')
