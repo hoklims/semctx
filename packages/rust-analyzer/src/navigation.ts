@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -143,8 +143,9 @@ export async function resolveRustNavigation(input: {
         }
       }
     }
-    const sysrootSource = join(directory, "sysroot-source");
-    cpSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"), sysrootSource, { recursive: true });
+    const sysrootSource = realpathSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"));
+    // The library's own Cargo configuration is content-bound; only its ancestors are ambient.
+    assertNoAmbientCargoConfiguration(dirname(sysrootSource));
     client = new RustLspClient([config.rustAnalyzerPath], { cwd: root, budgetMs: config.budgetMs, env: environment });
     parseRustAnalyzerInitializeResponse(await client.request("initialize", {
       processId: null, rootUri: pathToFileURL(root).href,
