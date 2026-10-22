@@ -69,8 +69,13 @@ def transform(v,name):
                 if role+'RelPath'in x and role+'SymbolPath'in x:q[role]=[x[role+'RelPath'],x[role+'SymbolPath']]
         out.append(q)
     return out
+def exact(a,e):
+    if type(a)!=type(e):return False
+    if isinstance(e,dict):return a.keys()==e.keys() and all(exact(a[k],v) for k,v in e.items())
+    if isinstance(e,list):return len(a)==len(e) and all(exact(x,y) for x,y in zip(a,e,strict=True))
+    return a==e
 def compare(a,e,m):
-    if m=='eq':return type(a)==type(e) and a==e
+    if m=='eq':return exact(a,e)
     if m=='neq':return a!=e
     if m=='contains_text':return e in a
     if m=='ordered_projected_eq':return projected(a,e)
