@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 type Step = { name?: string; uses?: string; run?: string; if?: string; "continue-on-error"?: boolean; with?: Record<string, unknown>; env?: Record<string, string> };
-type Job = { needs?: string | string[]; if?: string; "continue-on-error"?: boolean; steps?: Step[]; strategy?: { matrix?: { os?: string[] } }; env?: Record<string, string>; defaults?: { run?: { shell?: string } } };
+type Job = { needs?: string | string[]; if?: string; "continue-on-error"?: boolean; "timeout-minutes"?: number | string; steps?: Step[]; strategy?: { matrix?: { os?: string[] } }; env?: Record<string, string>; defaults?: { run?: { shell?: string } } };
 type Workflow = { jobs: Record<string, Job> };
 
 const source = readFileSync(join(import.meta.dir, "../../.github/workflows/ci.yml"), "utf8");
@@ -56,6 +56,7 @@ function wiringProblems(text: string): string[] {
   if (!commands(required).includes("aggregate --root")) problems.push("receipt aggregation is missing");
   if (!commands(required).includes("semctx-qualification verify --reports")) problems.push("qualification admission is missing");
   if (JSON.stringify([...(native.strategy?.matrix?.os ?? [])].sort()) !== JSON.stringify(["macos-15", "ubuntu-latest", "windows-latest"])) problems.push("native OS coverage is incomplete");
+  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || 20 }}") problems.push("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
   const nativeCommands = commands(native);
   if (!nativeCommands.includes("rust-test --root")) problems.push("new native product crates may escape testing");
   for (const crate of ["gates", "qualification"]) {
@@ -101,5 +102,13 @@ describe("Rust gate invocation and admission", () => {
     const inert = source.replace("run: tools/qualification/target/release/semctx-qualification verify --reports", "run: echo tools/qualification/target/release/semctx-qualification verify --reports");
     expect(inert).not.toBe(source);
     expect(wiringProblems(inert).length).toBeGreaterThan(0);
+  });
+
+  test("rejects an insufficient Windows budget or an extension to every native OS", () => {
+    const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}";
+    expect(source.includes(timeout)).toBe(true);
+    for (const replacement of ["timeout-minutes: 20", "timeout-minutes: 60", "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || 20 }}"]) {
+      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
+    }
   });
 });
