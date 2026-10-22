@@ -1,0 +1,35 @@
+{
+  "R0_decision": null,
+  "Windows_assessor_sha256": "b98f4c3cebcc2f49c1374c2c45c373d0e5da6ee201903d8929d2db881eb32de4",
+  "all_non_source_protocol_fields_exactly_unchanged": true,
+  "current_scope_sha256": "de5cd5a5221210db688b39a0d5b300cbf498c018d7c3186e7112149a14b22c8f",
+  "kind": "TYPED_CAPTURE_EVALUATOR_CONTENT_SUCCESSOR_NO_OUTCOMES",
+  "legacy_corrected_scope_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "native_assessor_sha256": "d0d7e39ebbe11ebfb46d86ea74935f85b39923058a27dca0f5a008f76962a3fa",
+  "native_queries": 0,
+  "parent_head": "d270226a365fe90d2f1477db9a655a89a2f65ca8",
+  "previous_native_scope_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "previous_windows_protocol_sha256": "5067e4e537f182aed74bb6a3684b1e2e731c4f558f399667cb10b91d7537460f",
+  "qualification_credit": 0,
+  "reviewed_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_content_head": "92fc7a186b465c9c401880920be097b264366c23",
+  "source_delta": [
+    {
+      "after": {
+        "sha256": "881e27fc2615246289b8132cb56b1fbdef49d361e2e8724162a8f91e0d52e456",
+        "source_epoch": "COMMITTED_TYPED_ADMISSION_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "9cd48fadd3eb3666852829f3042d71c9304382c3222624d4ded509d0bfe328f5",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/qualification/supplement/public_runtime.py"
+    }
+  ],
+  "source_mode": "EXACT_CLEAN_COMMITTED_TYPED_ADMISSION_SUCCESSOR",
+  "source_pin_install_commit_pending": false,
+  "source_pins_byte_identical_to_parent": 138,
+  "source_pins_changed_from_parent": 1,
+  "source_tree": "1cc6888fe8eb4f950b10a3e19c645c66d302bf65",
+  "verifier_inventory_unchanged": 139
+}
