@@ -1,0 +1,114 @@
+"""Finite public byte assembly only; never run archived scripts or extract TARs."""
+import argparse
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path, PurePosixPath
+
+ALLOWED = {'work/windows-as-expression-transport/DRAFT-FREEZE-V3.json': ('transport-v3/DRAFT-FREEZE-V3.json', 'transport-v3/DRAFT-FREEZE-V3.json.gz', 'gzip'), 'work/windows-as-expression-transport/v3-delta.json': ('transport-v3/v3-delta.json', 'transport-v3/v3-delta.json.gz', 'gzip'), 'work/windows-as-expression-transport/controls-v3.receipt.json': ('transport-v3/controls-v3.receipt.json', 'transport-v3/controls-v3.receipt.json.gz', 'gzip'), 'work/windows-as-expression-transport/controls-v3.stdout': ('transport-v3/controls-v3.stdout', 'transport-v3/controls-v3.stdout.gz', 'gzip'), 'work/windows-as-expression-transport/controls-v3.stderr': ('transport-v3/controls-v3.stderr', 'transport-v3/controls-v3.stderr.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-red.receipt.json': ('transport-v3/v3-defect-red.receipt.json', 'transport-v3/v3-defect-red.receipt.json.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-red.stdout': ('transport-v3/v3-defect-red.stdout', 'transport-v3/v3-defect-red.stdout.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-red.stderr': ('transport-v3/v3-defect-red.stderr', 'transport-v3/v3-defect-red.stderr.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-green.receipt.json': ('transport-v3/v3-defect-green.receipt.json', 'transport-v3/v3-defect-green.receipt.json.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-green.stdout': ('transport-v3/v3-defect-green.stdout', 'transport-v3/v3-defect-green.stdout.gz', 'gzip'), 'work/windows-as-expression-transport/v3-defect-green.stderr': ('transport-v3/v3-defect-green.stderr', 'transport-v3/v3-defect-green.stderr.gz', 'gzip'), 'work/windows-as-expression-transport/test_public_as_expression_witness.py': ('transport-v3/test_public_as_expression_witness.py', 'transport-v3/test_public_as_expression_witness.py.source', 'identity'), 'work/windows-as-expression-transport/caller.rs': ('transport-v3/caller.rs', 'transport-v3/caller.rs.source', 'identity'), 'work/windows-as-expression-transport/freeze_windows_driver_successor.py': ('transport-v3/freeze_windows_driver_successor.py', 'transport-v3/freeze_windows_driver_successor.py.source', 'identity'), 'work/windows-as-expression-transport/README.md': ('transport-v3/README.md', 'transport-v3/README.md', 'identity'), 'work/windows-as-expression-peer/PUBLIC.json': ('peer-v2/PUBLIC.json', 'peer-v2/PUBLIC.json.gz', 'gzip'), 'work/windows-as-expression-peer/PUBLIC.md': ('peer-v2/PUBLIC.md', 'peer-v2/PUBLIC.md', 'identity'), 'work/windows-as-v3-peer-review/PUBLIC.json': ('peer-v3/PUBLIC.json', 'peer-v3/PUBLIC.json.gz', 'gzip'), 'work/windows-as-v3-peer-review/PUBLIC.md': ('peer-v3/PUBLIC.md', 'peer-v3/PUBLIC.md', 'identity'), 'work/windows-v3-root-adoption.json': ('root-adoption/windows-v3-root-adoption.json', 'root-adoption/windows-v3-root-adoption.json.gz', 'gzip'), 'work/windows-as-dev-real.py': ('root-dev/windows-as-dev-real.py', 'root-dev/windows-as-dev-real.py.source', 'identity'), 'work/windows-as-dev-real-v3/public-dev-receipt.json': ('root-dev/public-dev-receipt.json', 'root-dev/public-dev-receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/input-pins.json': ('root-dev/input-pins.json', 'root-dev/input-pins.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/compile.receipt.json': ('root-dev/compile.receipt.json', 'root-dev/compile.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/compile.stdout': ('root-dev/compile.stdout', 'root-dev/compile.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/compile.stderr': ('root-dev/compile.stderr', 'root-dev/compile.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/wrong-pin.receipt.json': ('root-dev/wrong-pin.receipt.json', 'root-dev/wrong-pin.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/wrong-pin.stdout': ('root-dev/wrong-pin.stdout', 'root-dev/wrong-pin.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/wrong-pin.stderr': ('root-dev/wrong-pin.stderr', 'root-dev/wrong-pin.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/success.receipt.json': ('root-dev/success.receipt.json', 'root-dev/success.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/success.stdout': ('root-dev/success.stdout', 'root-dev/success.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/success.stderr': ('root-dev/success.stderr', 'root-dev/success.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/success.spec.json': ('root-dev/success.spec.json', 'root-dev/success.spec.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/success-capture/process-outcome.json': ('root-dev/success-capture/process-outcome.json', 'root-dev/success-capture/process-outcome.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/success-capture/capture-storage.json': ('root-dev/success-capture/capture-storage.json', 'root-dev/success-capture/capture-storage.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/success-capture/stdout.raw': ('root-dev/success-capture/stdout.raw', 'root-dev/success-capture/stdout.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/success-capture/stderr.raw': ('root-dev/success-capture/stderr.raw', 'root-dev/success-capture/stderr.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero.receipt.json': ('root-dev/nonzero.receipt.json', 'root-dev/nonzero.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero.stdout': ('root-dev/nonzero.stdout', 'root-dev/nonzero.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero.stderr': ('root-dev/nonzero.stderr', 'root-dev/nonzero.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero.spec.json': ('root-dev/nonzero.spec.json', 'root-dev/nonzero.spec.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero-capture/process-outcome.json': ('root-dev/nonzero-capture/process-outcome.json', 'root-dev/nonzero-capture/process-outcome.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero-capture/capture-storage.json': ('root-dev/nonzero-capture/capture-storage.json', 'root-dev/nonzero-capture/capture-storage.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero-capture/stdout.raw': ('root-dev/nonzero-capture/stdout.raw', 'root-dev/nonzero-capture/stdout.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/nonzero-capture/stderr.raw': ('root-dev/nonzero-capture/stderr.raw', 'root-dev/nonzero-capture/stderr.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8.receipt.json': ('root-dev/invalid-utf8.receipt.json', 'root-dev/invalid-utf8.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8.stdout': ('root-dev/invalid-utf8.stdout', 'root-dev/invalid-utf8.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8.stderr': ('root-dev/invalid-utf8.stderr', 'root-dev/invalid-utf8.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8.spec.json': ('root-dev/invalid-utf8.spec.json', 'root-dev/invalid-utf8.spec.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8-capture/process-outcome.json': ('root-dev/invalid-utf8-capture/process-outcome.json', 'root-dev/invalid-utf8-capture/process-outcome.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8-capture/capture-storage.json': ('root-dev/invalid-utf8-capture/capture-storage.json', 'root-dev/invalid-utf8-capture/capture-storage.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8-capture/stdout.raw': ('root-dev/invalid-utf8-capture/stdout.raw', 'root-dev/invalid-utf8-capture/stdout.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/invalid-utf8-capture/stderr.raw': ('root-dev/invalid-utf8-capture/stderr.raw', 'root-dev/invalid-utf8-capture/stderr.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap.receipt.json': ('root-dev/over-cap.receipt.json', 'root-dev/over-cap.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap.stdout': ('root-dev/over-cap.stdout', 'root-dev/over-cap.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap.stderr': ('root-dev/over-cap.stderr', 'root-dev/over-cap.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap.spec.json': ('root-dev/over-cap.spec.json', 'root-dev/over-cap.spec.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap-capture/process-outcome.json': ('root-dev/over-cap-capture/process-outcome.json', 'root-dev/over-cap-capture/process-outcome.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap-capture/capture-storage.json': ('root-dev/over-cap-capture/capture-storage.json', 'root-dev/over-cap-capture/capture-storage.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap-capture/stdout.raw': ('root-dev/over-cap-capture/stdout.raw', 'root-dev/over-cap-capture/stdout.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/over-cap-capture/stderr.raw': ('root-dev/over-cap-capture/stderr.raw', 'root-dev/over-cap-capture/stderr.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout.receipt.json': ('root-dev/timeout.receipt.json', 'root-dev/timeout.receipt.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout.stdout': ('root-dev/timeout.stdout', 'root-dev/timeout.stdout.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout.stderr': ('root-dev/timeout.stderr', 'root-dev/timeout.stderr.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout.spec.json': ('root-dev/timeout.spec.json', 'root-dev/timeout.spec.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout-capture/process-outcome.json': ('root-dev/timeout-capture/process-outcome.json', 'root-dev/timeout-capture/process-outcome.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout-capture/capture-storage.json': ('root-dev/timeout-capture/capture-storage.json', 'root-dev/timeout-capture/capture-storage.json.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout-capture/stdout.raw': ('root-dev/timeout-capture/stdout.raw', 'root-dev/timeout-capture/stdout.raw.gz', 'gzip'), 'work/windows-as-dev-real-v3/timeout-capture/stderr.raw': ('root-dev/timeout-capture/stderr.raw', 'root-dev/timeout-capture/stderr.raw.gz', 'gzip')}
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def encode(data, codec):
+    if codec == "identity":
+        return data
+    result = io.BytesIO()
+    with gzip.GzipFile(fileobj=result, mode="wb", filename="", mtime=0, compresslevel=9) as stream:
+        stream.write(data)
+    return result.getvalue()
+
+
+def safe_relative(value):
+    if type(value) is not str or not value or "\\" in value or ":" in value or any(ord(c) < 32 for c in value):
+        raise ValueError("unsafe path")
+    path = PurePosixPath(value)
+    if path.is_absolute() or path.as_posix() != value or any(p in (".", "..") or p.endswith((".", " ")) for p in path.parts):
+        raise ValueError("noncanonical path")
+    return path
+
+
+def no_alias(path):
+    if path.absolute() != path.resolve() or any(p.is_symlink() or p.is_junction() for p in (path, *path.parents)):
+        raise ValueError("alias refused")
+
+
+def validate(source_root, manifest, manifest_sha, output):
+    if output.exists() or output.is_symlink():
+        raise FileExistsError("new output required")
+    no_alias(source_root)
+    no_alias(manifest)
+    no_alias(output.parent)
+    if not output.parent.is_dir() or output == source_root or output in source_root.parents:
+        raise ValueError("invalid output")
+    raw = manifest.read_bytes()
+    if sha(raw) != manifest_sha:
+        raise ValueError("external manifest pin mismatch")
+    data = json.loads(raw)
+    if data.get("schema_version") != 1 or type(data.get("schema_version")) is not int or data.get("kind") != "FINITE_WINDOWS_TRANSPORT_PUBLIC_ASSETS" or data.get("source_head") != "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3":
+        raise ValueError("manifest identity mismatch")
+    rows = data["assets"]
+    if type(rows) is not list or len(rows) != len(ALLOWED):
+        raise ValueError("finite asset count mismatch")
+    seen = set()
+    destinations = set()
+    encoded = []
+    for row in rows:
+        source_key = safe_relative(row["source_path"]).as_posix()
+        logical = safe_relative(row["logical_path"]).as_posix()
+        stored = safe_relative(row["stored_path"]).as_posix()
+        if source_key in seen or stored.casefold() in destinations or ALLOWED.get(source_key) != (logical, stored, row["codec"]):
+            raise ValueError("asset outside literal public allowlist")
+        if row["codec"] == "gzip" and Path(source_key).suffix in (".gz", ".zip", ".xz", ".bz2"):
+            raise ValueError("recompression of archive refused")
+        source = source_root / source_key
+        no_alias(source)
+        payload = source.read_bytes()
+        if type(row["decoded_bytes"]) is not int or len(payload) != row["decoded_bytes"] or sha(payload) != row["decoded_sha256"]:
+            raise ValueError("source pin mismatch")
+        result = encode(payload, row["codec"])
+        if type(row["stored_bytes"]) is not int or len(result) != row["stored_bytes"] or sha(result) != row["stored_sha256"]:
+            raise ValueError("encoded pin mismatch")
+        if (gzip.decompress(result) if row["codec"] == "gzip" else result) != payload:
+            raise ValueError("decode mismatch")
+        seen.add(source_key)
+        destinations.add(stored.casefold())
+        encoded.append((row, result))
+    if seen != set(ALLOWED):
+        raise ValueError("incomplete public asset set")
+    return raw, encoded
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-root", required=True, type=Path)
+    parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--manifest-sha256", required=True)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--validate-only", action="store_true")
+    args = parser.parse_args()
+    output = args.output.absolute()
+    raw, encoded = validate(args.source_root.absolute(), args.manifest.absolute(), args.manifest_sha256, output)
+    if args.validate_only:
+        print(json.dumps({"state": "VALIDATED_NO_OUTPUT_CREATED", "assets": len(encoded)}))
+        return
+    output.mkdir(exist_ok=False)
+    for row, result in encoded:
+        target = output / row["stored_path"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("xb") as stream:
+            stream.write(result)
+        actual = target.read_bytes()
+        decoded = gzip.decompress(actual) if row["codec"] == "gzip" else actual
+        if sha(actual) != row["stored_sha256"] or sha(decoded) != row["decoded_sha256"] or len(decoded) != row["decoded_bytes"]:
+            raise ValueError("published readback mismatch; partial output retained")
+    with (output / "additional-publication-manifest.json").open("xb") as stream:
+        stream.write(raw)
+    print(json.dumps({"state": "COPIED_PUBLIC_ASSETS_ONLY", "assets": len(encoded), "qualification_credit": 0, "R0_decision": None}))
+
+
+if __name__ == "__main__":
+    main()

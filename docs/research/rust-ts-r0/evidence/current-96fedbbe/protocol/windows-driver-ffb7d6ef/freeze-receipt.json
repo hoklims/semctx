@@ -1,0 +1,128 @@
+{
+  "R0_decision": null,
+  "additional_helper_binding": {
+    "bytes": 21247,
+    "git_blob_id": "b56b59c73f7fb5eaa54a5e4ca41e72aa13bceab8",
+    "path": "tools/rust-ts-r0/qualification/public_as_expression_witness.py",
+    "sha256": "ab9b10ecbc0aa322dc0138b5682f37bca160eedfaab93622160be9e1e3a02228",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "archive_bytes": 430917,
+  "archive_sha256": "7b596e81ac8b07ccf396ecca548630ff56bc0fae72fb6420caf2f1ae1c7502c2",
+  "frozen_witness_binding": {
+    "bytes": 4285,
+    "git_blob_id": "4a7baf55cbfc24b76e2772072d1edcab78ae0516",
+    "path": "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/manifest.frozen.json",
+    "sha256": "c63f6c126b5a91155fb379034a1c756f3f2f0de487e5bfc628529a5a506f550b",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "kind": "WINDOWS_DRIVER_ONLY_SUCCESSOR_NO_QUERIES",
+  "limits": "Content/source freeze only; independent review and root authorization remain required before acquisition.",
+  "native_queries": 0,
+  "opaque_capsule_binding": {
+    "bytes": 477113,
+    "git_blob_id": "0437e1776f803f501544e3cc60784a24291acdb1",
+    "path": "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/capsule.tar.gz",
+    "sha256": "8e69b0e77961542118cb0b721c455ff90a02288014318ff4185e44961cf9bc6c",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "parent_windows_protocol_sha256": "7fca4576486e69bc1bc16b062099152c6c763444267f4f3f45da4f65c73769f8",
+  "qualification_credit": 0,
+  "runner_binding": {
+    "bytes": 25012,
+    "git_blob_id": "2a3a03856ef6e33a65d1356014f8037cff047407",
+    "path": "tools/rust-ts-r0/qualification/run_windows_milestone.py",
+    "sha256": "147be1d63805505691b86d269e762efed042a93422ae22429d2d59b7a96f70f1",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "unchanged_native_protocol_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "unchanged_native_source_pins": 139,
+  "unchanged_package_files": {
+    "README.md": {
+      "bytes": 6470,
+      "sha256": "9a534443d49bdca1140b052f5d97f38ea52c69569fa5e8c39269adc7c3df4d92"
+    },
+    "WINDOWS-README.md": {
+      "bytes": 2412,
+      "sha256": "3df702f9cef871bbc12e034dc11324729a51d12e1512c1e5a25de582ce79a901"
+    },
+    "additional_digest_dispositions.py": {
+      "bytes": 9394,
+      "sha256": "9138a21378ea488d66e1ab1b129b9ab0f14b5ef1b3d92e43460184b6c1005cce"
+    },
+    "assess_final.py": {
+      "bytes": 38575,
+      "sha256": "01b6c5d7a5c9668f61d2493d97ea18428d6235d3f4676d624a2b13c38c5ca6c9"
+    },
+    "check_protocol.py": {
+      "bytes": 1681,
+      "sha256": "adaa7927379f27f363550d6efb0d5e19fd39b0415d8da459c59559a22130c7c2"
+    },
+    "configuration_6046_disposition.py": {
+      "bytes": 13012,
+      "sha256": "1eb4cabe6a5a7de5d027744b5f43c482f38e036d3129758b0ef9e1419bd62374"
+    },
+    "final_join.py": {
+      "bytes": 6140,
+      "sha256": "c2a6f52c039738cc0e3b5472b3eb11de07632bd5f27f16bf58cb51de888b7275"
+    },
+    "n12-baseline-oracle.json": {
+      "bytes": 7633,
+      "sha256": "8f4c0803242c41df2d48595e60e303cb35fc8a9b7179d5bec18f722c31959559"
+    },
+    "nonqualified_carriers.py": {
+      "bytes": 30190,
+      "sha256": "8572cd6abd4457cd36876e00fed528b0e8b19fc29b4ba918472ec7ef178a098d"
+    },
+    "package-manifest.json": {
+      "bytes": 3117,
+      "sha256": "8de68816a69bf5531d6c4661b1dab66cac3daf71b2b1aa6285e1fbf0ceb67551"
+    },
+    "physical_system_carrier.py": {
+      "bytes": 5251,
+      "sha256": "34d4bddf8a4fe5467779f8d3d3353d434816e8762f0d7867c48d5db04167cf4d"
+    },
+    "poison_controls.py": {
+      "bytes": 6135,
+      "sha256": "d6f67abc5de0998ae5de2ee229b6e95703e87b2961bf8b622cf2ba739b12a4c0"
+    },
+    "qualified_carriers.py": {
+      "bytes": 28383,
+      "sha256": "8d7050765b9a797f5d87aef81fff32131e20c7f3633a3c703b96d53bf25929d9"
+    },
+    "raw_compare.py": {
+      "bytes": 7559,
+      "sha256": "52b62e26ec0e53cb74e07697b444c665dbd9cc15dacf5a0d1f67b57c891d0993"
+    },
+    "remaining_carriers.py": {
+      "bytes": 32947,
+      "sha256": "92c640da6decf363d0f122325811b9095dadecad6f226d109d7b4ad9cd7ea895"
+    },
+    "scope-map.json.gz": {
+      "bytes": 367719,
+      "sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3"
+    },
+    "source-freeze-receipt.json": {
+      "bytes": 1785,
+      "sha256": "11c2a4cbe3b172c3d4ae587528822c441a4a2bc8bb6fce2eda66b0c7f938d6e7"
+    },
+    "source-package-manifest.json": {
+      "bytes": 2301,
+      "sha256": "e16b723069dac127a524007ac5c3fe6afa4862a2ee5c299d5b3087c8a8f26287"
+    },
+    "test_windows_transport.py": {
+      "bytes": 8495,
+      "sha256": "29546c1a65b33f90460f30beccec576bd7dca32c7d5f0db96a96d58583e15088"
+    },
+    "token_inputs.py": {
+      "bytes": 6052,
+      "sha256": "a5eccbd3094532ef4951efead383de39bc0bdd3a647084f740021f0658beec67"
+    },
+    "windows_transport.py": {
+      "bytes": 10960,
+      "sha256": "73f8523e8862cff7f0d0871920363606dc1fe16aef419503bbd6bcff66db444b"
+    }
+  },
+  "verified_original_member_count": 23,
+  "windows_protocol_sha256": "5067e4e537f182aed74bb6a3684b1e2e731c4f558f399667cb10b91d7537460f"
+}

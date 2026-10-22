@@ -37,6 +37,25 @@ the Windows protocol is
 `7fca4576486e69bc1bc16b062099152c6c763444267f4f3f45da4f65c73769f8`.
 Their frozen packages and receipts are under `protocol/`.
 
+The later Windows driver source is committed at
+`ffb7d6ef1df04813705543066f50476f998059cc`. Its separate
+[driver freeze](protocol/windows-driver-ffb7d6ef/freeze-receipt.json) has protocol
+`5067e4e537f182aed74bb6a3684b1e2e731c4f558f399667cb10b91d7537460f`.
+It inherits every original evaluator and transport module byte. The
+[source comparison](protocol/windows-driver-ffb7d6ef/native-source-equivalence.json)
+checks all 139 native source pins against both commits. Only the Windows Python
+driver and its new public-witness helper changed outside documentation; Rust
+sources, build manifests and locks remain identical.
+
+[Windows driver preparation](windows-driver-preparation/README.md) retains the
+two component reviews, the defect-specific failing and passing controls, 18
+synthetic controls, and the lead's actual harmless Windows process checks. The
+small Rust caller compiled successfully; valid output was accepted, and nonzero
+exit, malformed UTF-8, excessive output, timeout and a wrong tool pin were
+refused. These are transport checks, with zero native candidate queries. The
+first final Windows campaign remains pending. Component reviews retain their
+original `PROOF_WEAK` verdicts; canonical aggregate admission is separate.
+
 [publication-storage-index.json](publication-storage-index.json) records every
 asset's codec, encoded and decoded digests, and sizes. Its SHA256 is
 `a5d91d14286d3471c74bbcfd3a04527db04b725cd60eca30bf7fd9521b57d146`.

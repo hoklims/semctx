@@ -1,0 +1,127 @@
+"""Freeze an explicitly pinned new Windows driver; native evaluator is unchanged."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import zipfile
+
+from public_as_expression_witness import inspect_capsule
+
+PARENT = '7fca4576486e69bc1bc16b062099152c6c763444267f4f3f45da4f65c73769f8'
+NATIVE = '309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3'
+OLD_RUNNER = 'd97763aaa87d3ff3469c102f812b250d2100c1c190bb335eb0df9788b6ab0142'
+WITNESS = 'c63f6c126b5a91155fb379034a1c756f3f2f0de487e5bfc628529a5a506f550b'
+RUNNER = 'tools/rust-ts-r0/qualification/run_windows_milestone.py'
+HELPER = 'tools/rust-ts-r0/qualification/public_as_expression_witness.py'
+CASE = 'docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/manifest.frozen.json'
+CAPSULE_PATH = 'docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/capsule.tar.gz'
+CAPSULE_SHA = '8e69b0e77961542118cb0b721c455ff90a02288014318ff4185e44961cf9bc6c'
+
+
+def need(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def encode(value):
+    return (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+
+
+def git(repo, *args):
+    return subprocess.check_output(['git', '-C', str(repo), *args])
+
+
+def committed_binding(repo, head, path, expected):
+    need(re.fullmatch('[0-9a-f]{64}', expected) is not None, 'external source SHA required')
+    entry = git(repo, 'ls-tree', head, '--', path).decode().strip()
+    need(re.fullmatch(r'100(?:644|755) blob [0-9a-f]{40}\t'+re.escape(path), entry) is not None,
+         'regular committed source required')
+    raw = git(repo, 'show', head+':'+path)
+    need(digest(raw) == expected, 'committed source differs from external pin: '+path)
+    return {'path': path, 'source_content_head': head, 'sha256': expected, 'bytes': len(raw),
+            'git_blob_id': entry.split()[2]}
+
+
+def build(args):
+    need(not args.output.exists(), 'new output required; no overwrite')
+    need(re.fullmatch('[0-9a-f]{40}', args.source_head) is not None, 'exact committed driver HEAD required')
+    need(git(args.repo, 'remote', 'get-url', 'origin').decode().strip() == args.expected_origin,
+         'explicit repository origin differs')
+    need(git(args.repo, 'rev-parse', args.source_head+'^{commit}').decode().strip() == args.source_head,
+         'driver source HEAD differs')
+    parent_raw = (args.parent_package/'windows-transport-protocol.json').read_bytes()
+    need(digest(parent_raw) == PARENT, 'exact externally known parent Windows protocol required')
+    parent = json.loads(parent_raw)
+    need(parent['windows_runner_source_sha256'] == OLD_RUNNER and
+         parent['unchanged_scope_map_sha256'] == NATIVE and parent['unchanged_source_pins'] == 139,
+         'parent driver/native relationship differs')
+    files = {}
+    for name, pin in parent['package_files'].items():
+        need(Path(name).name == name, 'unsafe package entry')
+        raw = (args.parent_package/name).read_bytes()
+        need(digest(raw) == pin['sha256'] and len(raw) == pin['bytes'], 'parent package bytes differ')
+        files[name] = raw
+    runner = committed_binding(args.repo, args.source_head, RUNNER, args.runner_sha256)
+    helper = committed_binding(args.repo, args.source_head, HELPER, args.helper_sha256)
+    case = committed_binding(args.repo, args.source_head, CASE, WITNESS)
+    capsule = committed_binding(args.repo, args.source_head, CAPSULE_PATH, CAPSULE_SHA)
+    need(digest(Path(__file__).with_name('public_as_expression_witness.py').read_bytes()) == args.helper_sha256,
+         'reviewed storage inspector differs from committed helper')
+    members = inspect_capsule(git(args.repo, 'show', args.source_head+':'+CAPSULE_PATH),
+                              git(args.repo, 'show', args.source_head+':'+CASE))
+    need(len(members) == 23, 'additional frozen file count differs')
+    protocol = copy.deepcopy(parent)
+    protocol.update(previous_windows_transport_protocol_sha256=PARENT,
+                    windows_driver_source_head=args.source_head,
+                    windows_runner_source_sha256=args.runner_sha256,
+                    windows_runner_source_binding=runner,
+                    additional_public_witness={'helper_source_binding': helper, 'manifest_source_binding': case,
+                        'capsule_source_binding': capsule, 'verified_original_members': 23,
+                        'ignored_controller_data_members': 10,
+                        'property_coordinate': {'obligation_index': 221, 'property_index': 1},
+                        'phase_count': 2, 'original_denominators_changed': False,
+                        'qualification_credit': 0, 'scope': 'Independent two-context public extraction witness only'})
+    # Every old evaluator/transport byte remains exactly the inherited package.
+    files['windows-transport-protocol.json'] = encode(protocol)
+    args.output.mkdir()
+    package = args.output/'package'
+    package.mkdir()
+    for name, raw in files.items():
+        (package/name).write_bytes(raw)
+    archive = args.output/'windows-assessor.zip'
+    with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as bundle:
+        for name, raw in sorted(files.items()):
+            info = zipfile.ZipInfo(name, (2026, 10, 22, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            bundle.writestr(info, raw)
+    receipt = {'kind': 'WINDOWS_DRIVER_ONLY_SUCCESSOR_NO_QUERIES', 'parent_windows_protocol_sha256': PARENT,
+               'windows_protocol_sha256': digest(files['windows-transport-protocol.json']),
+               'unchanged_native_protocol_sha256': NATIVE, 'unchanged_native_source_pins': 139,
+               'unchanged_package_files': parent['package_files'], 'runner_binding': runner,
+               'additional_helper_binding': helper, 'frozen_witness_binding': case,
+               'opaque_capsule_binding': capsule, 'verified_original_member_count': 23,
+               'archive_sha256': digest(archive.read_bytes()), 'archive_bytes': archive.stat().st_size,
+               'native_queries': 0, 'qualification_credit': 0, 'R0_decision': None,
+               'limits': 'Content/source freeze only; independent review and root authorization remain required before acquisition.'}
+    (args.output/'freeze-receipt.json').write_bytes(encode(receipt))
+    print(json.dumps(receipt))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--repo', required=True, type=Path)
+    parser.add_argument('--expected-origin', required=True)
+    parser.add_argument('--source-head', required=True)
+    parser.add_argument('--parent-package', required=True, type=Path)
+    parser.add_argument('--runner-sha256', required=True)
+    parser.add_argument('--helper-sha256', required=True)
+    parser.add_argument('--output', required=True, type=Path)
+    build(parser.parse_args())
