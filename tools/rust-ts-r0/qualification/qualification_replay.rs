@@ -1550,7 +1550,9 @@ fn worker_negative_boundary_directory_probes(
         return Err("worker repository coordinate is not canonical".into());
     }
     let root = verifier_absolute_key(raw_root, case_sensitive)?;
-    let volume_root = if root.starts_with('/') {
+    let volume_root = if root.starts_with("//?/") {
+        &root[..7]
+    } else if root.starts_with('/') {
         "/"
     } else {
         &root[..3]
@@ -4100,10 +4102,24 @@ fn validate_component_checks(checks: &[Value]) -> Result<(), String> {
 }
 fn verifier_absolute_key(path: &str, sensitive: bool) -> Result<String, String> {
     let path = path.replace('\\', "/");
-    if path.starts_with("//") {
+    // A local drive's canonical Windows spelling is distinct from UNC/device
+    // namespaces. Preserve this prefix for logical locations and raw bindings.
+    let verbatim = path.strip_prefix("//?/");
+    if path.starts_with("//")
+        && !verbatim.is_some_and(|rest| {
+            rest.as_bytes().first().is_some_and(u8::is_ascii_alphabetic)
+                && rest.as_bytes().get(1) == Some(&b':')
+                && rest.as_bytes().get(2) == Some(&b'/')
+                && !rest[3..]
+                    .chars()
+                    .any(|c| c.is_control() || matches!(c, ':' | '?' | '*'))
+        })
+    {
         return Err("UNC identity requires a separately verified native path recipe".into());
     }
-    let (prefix, rest) = if let Some(rest) = path.strip_prefix('/') {
+    let (prefix, rest) = if let Some(rest) = verbatim {
+        (format!("//?/{}", &rest[..3]), &rest[3..])
+    } else if let Some(rest) = path.strip_prefix('/') {
         ("/".to_string(), rest)
     } else if path.as_bytes().get(1) == Some(&b':') && path.as_bytes().get(2) == Some(&b'/') {
         (path[..3].to_string(), &path[3..])
@@ -4140,9 +4156,14 @@ fn verifier_location(
     };
     let location = match relative {
         Some(relative) => json!({"domain":domain,"path":relative}),
-        None => json!({"domain":"external","path":path}),
+        // CaptureFs uses one leading slash even for drive-letter locations.
+        // This is a serialization view; request and observation hashes stay raw.
+        None => json!({"domain":"external","path":format!("/{}",path.trim_start_matches('/'))}),
     };
-    Ok((path, location))
+    // The two local-drive spellings can denote the same physical source. Refuse
+    // duplicate aliases without changing their namespace-sensitive locations.
+    let collision_key = path.strip_prefix("//?/").unwrap_or(&path).to_owned();
+    Ok((collision_key, location))
 }
 fn verifier_logical_input(request: &Value, sdk: &Value) -> Result<Value, String> {
     let sensitive = request["case_sensitive"]
@@ -7107,4 +7128,156 @@ fn comparator_source_component_context_does_not_admit_extraction_or_substituted_
         raw_recipe_observation_mode(&json!({"surface":"raw_cli"})),
         None
     );
+}
+
+#[test]
+fn comparator_windows_verbatim_identity_binds_actual_native_request() {
+    let physical = std::env::temp_dir().join(format!(
+        "semctx-verbatim-identity-dev-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&physical).unwrap();
+    let root = if cfg!(windows) {
+        physical
+            .canonicalize()
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/")
+    } else {
+        "//?/C:/verbatim-identity-dev".to_string()
+    };
+    let source = format!("{root}/src/main.ts");
+    let request = json!({"id":"DEV-WINDOWS-VERBATIM-IDENTITY","cwd":root,"sdk_directory":"/sdk/lib","case_sensitive":ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),"roots":[source],"files":{source:"export const actualNativeIdentity = 41;"},"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+    let sdk = json!({"version":"5.9.3","archive_sha256":"10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3","files":{}});
+    let request_path = physical.join("request.json");
+    let sdk_path = physical.join("sdk.json");
+    save(&request_path, &request).unwrap();
+    save(&sdk_path, &sdk).unwrap();
+    let artifact = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    let helper = PathBuf::from(
+        std::env::var_os("SEMCTX_PROCESS_HELPER").expect("existing native helper required"),
+    );
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--batch".into(),
+        request_path.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let before = sha(&fs::read(artifact).unwrap());
+    let outcome = process::run_with_helper(&argv, &physical, 20000, 8388608, &helper).unwrap();
+    save(&physical.join("actual-process.json"),&json!({"argv":argv,"cwd":physical,"artifact_sha256":before,"request_id":identity::digest(&request),"sdk_id":identity::digest(&sdk),"outcome":outcome})).unwrap();
+    assert_eq!(
+        outcome.kind, "success",
+        "actual native DEV process failed: {}",
+        outcome.stderr
+    );
+    assert_eq!(outcome.exit_code, Some(0));
+    assert_eq!(sha(&fs::read(artifact).unwrap()), before);
+    let batch: Value = serde_json::from_str(&outcome.stdout).unwrap();
+    let logical = verifier_logical_input(&request, &sdk)
+        .expect("native Windows drive-verbatim input must have a verified logical identity");
+    assert_eq!(
+        batch["input_manifest_id"],
+        identity::digest(&logical),
+        "supervisor must reconstruct the actual native input identity"
+    );
+    println!("DEV_WINDOWS_VERBATIM_IDENTITY_ROOT:{}", physical.display());
+}
+
+#[test]
+fn comparator_windows_verbatim_identity_rejects_foreign_path_forms_and_aliases() {
+    assert_eq!(
+        verifier_absolute_key("//?/C:/repo/dir/../main.ts", false).unwrap(),
+        "//?/c:/repo/main.ts"
+    );
+    assert_eq!(
+        verifier_absolute_key("C:/repo/main.ts", false).unwrap(),
+        "c:/repo/main.ts"
+    );
+    assert_eq!(
+        verifier_absolute_key("/repo/main.ts", true).unwrap(),
+        "/repo/main.ts"
+    );
+    for path in [
+        "//server/share/file.ts",
+        "//?/UNC/server/share/file.ts",
+        "//./C:/repo/file.ts",
+        "//?/1:/repo/file.ts",
+        "//?/C:relative",
+        "//?/C:/../../outside.ts",
+    ] {
+        assert!(
+            verifier_absolute_key(path, false).is_err(),
+            "unsupported identity accepted: {path}"
+        );
+    }
+    let sdk = json!({"version":"DEV","archive_sha256":"DEV","files":{}});
+    let mut request = json!({"cwd":"//?/C:/repo","sdk_directory":"/sdk/lib","case_sensitive":false,"files":{"//?/C:/repo/main.ts":"export const value = 1;"},"utf16_files":{},"raw_files":{}});
+    request["utf16_files"] = json!({"C:/repo/MAIN.ts":[1]});
+    assert!(
+        verifier_logical_input(&request, &sdk).is_err(),
+        "verbatim/drive source alias accepted"
+    );
+}
+
+#[test]
+fn comparator_windows_verbatim_identity_external_domains_bind_actual_native_request() {
+    let physical = std::env::temp_dir().join(format!(
+        "semctx-external-identity-dev-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&physical).unwrap();
+    let request = json!({"id":"DEV-WINDOWS-EXTERNAL-IDENTITY","cwd":"C:/dev-native-identity","sdk_directory":"/sdk/lib","case_sensitive":ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),"roots":["C:/dev-native-identity/main.ts"],"files":{"C:/dev-native-identity/main.ts":"export const actualNativeIdentity = 41;","D:/dev-external/foreign.ts":"export const foreignCapturedValue = 73;"},"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":false,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+    let sdk = json!({"version":"5.9.3","archive_sha256":"10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3","files":{}});
+    let rp = physical.join("request.json");
+    let sp = physical.join("sdk.json");
+    save(&rp, &request).unwrap();
+    save(&sp, &sdk).unwrap();
+    let artifact = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    let helper = PathBuf::from(
+        std::env::var_os("SEMCTX_PROCESS_HELPER").expect("existing native helper required"),
+    );
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--batch".into(),
+        rp.to_string_lossy().into_owned(),
+        sp.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &physical, 20000, 8388608, &helper).unwrap();
+    save(&physical.join("actual-process.json"),&json!({"argv":argv,"artifact_sha256":sha(&fs::read(artifact).unwrap()),"request_id":identity::digest(&request),"sdk_id":identity::digest(&sdk),"outcome":outcome})).unwrap();
+    assert_eq!(
+        outcome.kind, "success",
+        "actual native DEV failed: {}",
+        outcome.stderr
+    );
+    assert_eq!(outcome.exit_code, Some(0));
+    let batch: Value = serde_json::from_str(&outcome.stdout).unwrap();
+    let logical = verifier_logical_input(&request, &sdk).unwrap();
+    assert_eq!(
+        batch["input_manifest_id"],
+        identity::digest(&logical),
+        "external identity must match actual native encoding"
+    );
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    let (_, mixed) =
+        verifier_location("//?/C:/repo", "C:/repo/main.ts", sensitive, "repository").unwrap();
+    assert_eq!(
+        mixed,
+        json!({"domain":"external","path":if sensitive {"/C:/repo/main.ts"} else {"/c:/repo/main.ts"}})
+    );
+    let (_, verbatim) =
+        verifier_location("//?/C:/repo", "//?/D:/outside.ts", sensitive, "repository").unwrap();
+    assert_eq!(
+        verbatim,
+        json!({"domain":"external","path":if sensitive {"/?/D:/outside.ts"} else {"/?/d:/outside.ts"}})
+    );
+    println!("DEV_WINDOWS_EXTERNAL_IDENTITY_ROOT:{}", physical.display());
 }

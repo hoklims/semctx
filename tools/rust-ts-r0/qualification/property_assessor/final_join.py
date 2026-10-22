@@ -49,7 +49,8 @@ def validate_host_epoch(host, expected_head, platform):
     require(receipts, 'actual source/build command receipts missing')
     for pin in receipts:
         receipt, reference = read_pin(pin)
-        require(receipt.get('exitCode') == 0 and receipt.get('timedOut') is False, 'required native build command failed/missing exit')
+        code = receipt.get('exitCode')
+        require(type(code) is int and code == 0 and receipt.get('timedOut') is False, 'required native build command failed/missing exit')
         references['build.' + str(len(references))] = reference
     byte_joins = []
     for key in ['artifact', 'helper', 'sdk', 'qualification_observer']:

@@ -1,5 +1,6 @@
 """Finite v2 carriers: raw bindings first, frozen consumer fields second. No queries."""
 import copy,json,hashlib
+from physical_system_carrier import physical_system_contract
 from pathlib import Path
 import qualified_carriers as q
 from raw_compare import projected,transform
@@ -205,7 +206,9 @@ def public_verify(host,row,operation):
         ordinary,query=raws['discovery'];eligibility,eq=raws['eligibility'];system,sq=raws['system'];paths=[c['relPath'] for c in ordinary['candidates']]
         require(query=={'repositoryRoot':observed['repository_root'],'config':config} and ordinary['executed'] is True and ordinary['unsupported']==[] and len(paths)==len(set(paths)),'full public discovery config/denominator differs')
         require(eq['repositoryRoot']==observed['repository_root'] and eq['include']==config['include'] and eq['exclude']==config['exclude'] and eq['queries']==paths and eligibility['queries']==paths and eligibility['eligibility_established'] is True and len(eligibility['eligible_results'])==len(paths),'full public eligibility config/denominator differs')
-        require(sq=={'profile':'workspace','root':observed['repository_root'],'case_sensitive':evidence['ordinary_index_request']['case_sensitive'],'files':{},'sdk_directory':None,'queries':[{'operation':'read_file','path':observed['repository_root']+'/'+p} for p in paths]} and len(system['results'])==len(paths),'full public physical read query differs')
+        before_path=folder/(name+'-system-physical-capture-before.json');after_path=folder/(name+'-system-physical-capture-after.json')
+        physical_system_contract(sq,system,read(before_path),read(after_path),paths,observed['repository_root'],evidence['ordinary_index_request']['case_sensitive'],host['fixture']['artifact_sha256'])
+        refs.extend([pin(before_path),pin(after_path)])
         candidates=[];files=[]
         for c,eligible in zip(ordinary['candidates'],eligibility['eligible_results'],strict=True):
             c=copy.deepcopy(c);path=c['relPath'];matches=[r for r in system['results'] if r['path']==observed['repository_root']+'/'+path];require(len(matches)==1 and type(eligible) is bool,'full public physical read/eligibility ambiguous');r=matches[0]

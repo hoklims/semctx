@@ -387,12 +387,55 @@ impl Collector<'_> {
             .iter()
             .map(|p| json!({"operation":"read_file","path":format!("{cwd}/{p}")}))
             .collect::<Vec<_>>();
-        let system_query = json!({"profile":"workspace","root":cwd,"case_sensitive":sensitive,"files":{},"sdk_directory":null,"queries":queries});
+        // System observations consume the supplied capture only. Acquire ordinary
+        // workspace bytes from disk, separately from retained and SDK inputs.
+        let physical = if paths.is_empty() {
+            None
+        } else {
+            Some(ordinary_physical_capture::capture(self.root, &paths)?)
+        };
+        let physical_pins = |pins: &[ordinary_physical_capture::PhysicalPin]| {
+            pins.iter().map(|p|
+                json!({"path":p.absolute,"relative":p.relative,"present":p.bytes.is_some(),
+                    "bytes":p.bytes.as_ref().map(|b|b.len()),"content_sha256":p.bytes.as_ref().map(|b|identity::digest_bytes(b))})
+            ).collect::<Vec<_>>()
+        };
+        let physical_before = physical
+            .as_ref()
+            .map(|p| physical_pins(&p.pins))
+            .unwrap_or_default();
+        let physical_files = physical
+            .as_ref()
+            .map(|p| p.files.clone())
+            .unwrap_or_default();
+        let system_query = json!({"profile":"workspace","root":cwd,"case_sensitive":sensitive,
+            "files":physical_files,"utf16_files":{},"raw_files":{},"sdk_directory":null,"queries":queries});
+        save(
+            &self
+                .dir
+                .join(format!("{name}-system-physical-capture-before.json")),
+            &json!({"kind":"ordinary-physical-system-input-v1","context":"ordinary_workspace_only",
+                "request_descriptor_id":identity::digest(&system_query),"pins":physical_before,"retained_map_modified":false,
+                "claim":"bounded sequential physical acquisition, not atomic OS sandboxing"}),
+        )?;
         let system = self.query(
             &format!("{name}-system"),
             Some("--observe-system"),
             &system_query,
             false,
+        )?;
+        let physical_after = physical
+            .as_ref()
+            .map(|p| p.observe_unchanged())
+            .transpose()?
+            .unwrap_or_default();
+        save(
+            &self
+                .dir
+                .join(format!("{name}-system-physical-capture-after.json")),
+            &json!({"kind":"ordinary-physical-system-input-v1","context":"ordinary_workspace_only",
+                "request_descriptor_id":identity::digest(&system_query),"pins":physical_pins(&physical_after),
+                "matched_before":true,"retained_map_modified":false}),
         )?;
         if system["request_descriptor_id"] != identity::digest(&system_query)
             || system["producer_artifact_id"] != format!("sha256:{artifact}")
@@ -822,5 +865,119 @@ mod collector_tests {
         let missing = json!({"build/generated.ts":"export const y=2;"});
         assert!(request_from_capture(&template, &missing, &root, true, "missing").is_err());
         fs::remove_dir(&root).unwrap();
+    }
+
+    fn physical_dev_root(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "semctx-working-tree-physical-{label}-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        root
+    }
+
+    #[test]
+    fn comparator_working_tree_discovery_reads_actual_physical_sources() {
+        let base = physical_dev_root("discovery");
+        let root = base.join("workspace");
+        let dir = base.join("observations");
+        fs::create_dir_all(root.join("src")).unwrap();
+        fs::create_dir_all(&dir).unwrap();
+        let content = "export function actualDiskSource() { return 27; }\n";
+        fs::write(root.join("src/main.ts"), content).unwrap();
+        let git = std::process::Command::new("git")
+            .args(["init", "--quiet"])
+            .arg(&root)
+            .output()
+            .unwrap();
+        assert!(
+            git.status.success(),
+            "DEV Git fixture setup failed: {:?}",
+            git
+        );
+        let artifact = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+        let helper = PathBuf::from(
+            std::env::var_os("SEMCTX_PROCESS_HELPER")
+                .expect("SEMCTX_PROCESS_HELPER must identify the already compiled native helper"),
+        );
+        let artifact_sha = sha(&fs::read(artifact).unwrap());
+        let helper_sha = sha(&fs::read(&helper).unwrap());
+        let fixture = json!({"artifact_sha256":artifact_sha});
+        let collector = Collector {
+            root: &root,
+            dir: &dir,
+            fixture: &fixture,
+            artifact,
+            helper: &helper,
+            sdk_path: Path::new("unused-sdk"),
+            pins: vec![(artifact, &artifact_sha), (&helper, &helper_sha)],
+        };
+        let config = json!({"version":1,"include":["**/*.ts"],"exclude":[],
+            "languages":{"typescript":"on"},"migrationsDirs":[]});
+        let retained = json!({"src/main.ts":content});
+        let retained_before = retained.clone();
+        let observed = collector
+            .discovery("selected", &config, &retained, false)
+            .expect("actual discovered sources require ordinary physical System inputs");
+        assert_eq!(observed["files"][0]["content"], content);
+        assert_eq!(observed["files"][0]["relPath"], "src/main.ts");
+        assert_eq!(
+            retained, retained_before,
+            "physical input must not relabel the retained map"
+        );
+        let request = read_json(&dir.join("selected-system-request.json")).unwrap();
+        let cwd = root
+            .canonicalize()
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/");
+        assert_eq!(request["files"][format!("{cwd}/src/main.ts")], content);
+        assert_eq!(request["sdk_directory"], Value::Null);
+        let before = read_json(&dir.join("selected-system-physical-capture-before.json")).unwrap();
+        let after = read_json(&dir.join("selected-system-physical-capture-after.json")).unwrap();
+        assert_eq!(before["pins"], after["pins"]);
+        assert_eq!(after["matched_before"], true);
+        assert_eq!(before["retained_map_modified"], false);
+        let forged_retained = json!({"src/main.ts":"forged retained bytes"});
+        assert_eq!(
+            collector
+                .discovery("mismatched", &config, &forged_retained, false)
+                .unwrap_err(),
+            "native physical bytes differ from actual retained capture"
+        );
+        let actual_request = read_json(&dir.join("mismatched-system-request.json")).unwrap();
+        assert_eq!(
+            actual_request["files"][format!("{cwd}/src/main.ts")],
+            content
+        );
+        println!("DEV_WORKING_TREE_ROOT:{}", base.display());
+    }
+
+    #[test]
+    fn comparator_working_tree_physical_capture_refuses_post_query_drift() {
+        let root = physical_dev_root("drift");
+        fs::write(root.join("main.ts"), b"actual before").unwrap();
+        let physical = ordinary_physical_capture::capture(&root, &["main.ts".into()]).unwrap();
+        assert_eq!(physical.files.values().next().unwrap(), "actual before");
+        fs::write(root.join("main.ts"), b"actual after!").unwrap();
+        assert_eq!(
+            physical.observe_unchanged().unwrap_err(),
+            "ORDINARY_PHYSICAL_INPUT_CHANGED"
+        );
+    }
+
+    #[test]
+    fn comparator_working_tree_physical_capture_refuses_escaped_query() {
+        let root = physical_dev_root("escape");
+        assert_eq!(
+            ordinary_physical_capture::capture(&root, &["../outside.ts".into()])
+                .err()
+                .unwrap(),
+            "ORDINARY_PHYSICAL_QUERY_OUTSIDE_ROOT"
+        );
     }
 }

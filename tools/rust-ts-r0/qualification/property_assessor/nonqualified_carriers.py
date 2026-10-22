@@ -3,7 +3,7 @@ import json,posixpath
 API=None
 def configure(api):
     global API;API=api
-SURFACES={'workspace_system_cli','parallel_cli','retained_runtime_cli','missing_retained_test_cli','legacy_identity_cli','repository_eligibility_cli','captured_system_cli','source_confinement_cli'}
+SURFACES={'workspace_system_cli','parallel_cli','retained_runtime_cli','missing_retained_test_cli','legacy_identity_cli','repository_eligibility_cli','repository_discovery_cli','captured_system_cli','source_confinement_cli'}
 def handles(surface):return surface in SURFACES
 def digest(v):return 'sha256:'+API.sha(API.canonical(v).encode())
 def move(root,name):return posixpath.normpath(posixpath.join(root,name.replace('\\','/')))
@@ -153,6 +153,77 @@ def eligibility(host,recipe,base,ordinal):
     if ordinal==0:assert raw['git_outcome']['kind']=='success' and raw['git_outcome']['exit_code']==0 and raw['eligibility_established'] is True
     else:assert raw['eligibility_established'] is False and raw['error']=={'code':'IO_ERROR','message':'qualified discovery could not establish Git source eligibility'}
     return raw,request,refs
+
+def discovery_key(path):
+    assert isinstance(path,str),'discovery path is not text'
+    path=path.replace('\\','/')
+    if path.startswith('//?/') and len(path)>6 and path[4].isascii() and path[4].isalpha() and path[5:7]==':/':path=path[4:]
+    assert not path.startswith('//'),'discovery UNC path needs a separate native recipe'
+    if path.startswith('/'):prefix,rest='/',path[1:]
+    else:
+        assert len(path)>2 and path[1:3]==':/','discovery path must be absolute'
+        prefix,rest=path[:3],path[3:]
+    parts=[]
+    for part in rest.split('/'):
+        if part in ('','.'):continue
+        if part=='..':
+            assert parts,'discovery path escapes its native root'
+            parts.pop()
+        else:parts.append(part)
+    return prefix+'/'.join(parts)
+
+def discovery(host,recipe,base,index):
+    # Independent equivalent of repository_replay.rs::project. Never import
+    # result.json, its observation, or any native/report PASS label.
+    raw,request,refs=API.read_process(base/'process-outcome.json',host)
+    frame=API.read(str(base/'artifact-observation.json'));outcome=API.read(str(base/'process-outcome.json'))
+    root=request['repositoryRoot'];root_key=discovery_key(root);prefix=root_key.rstrip('/')+'/'
+    output=posixpath.dirname(posixpath.dirname(discovery_key(host['fixture']['artifact_path'])))
+    native_base=output+f'/original-evidence/unit-{index:03d}'
+    assert root_key==native_base+'/workspace' and discovery_key(frame['cwd'])==root_key,'discovery native workspace binding differs'
+    argv=frame['argv']
+    assert isinstance(argv,list) and len(argv)==3 and discovery_key(argv[0])==discovery_key(host['fixture']['artifact_path']) and argv[1]=='--discover-repository' and discovery_key(argv[2])==native_base+'/request.json','discovery invocation argv differs'
+    assert frame['sdk_required_or_consumed'] is False and type(frame['timeout_ms']) is int and frame['timeout_ms']==20000 and type(frame['output_cap']) is int and frame['output_cap']==8388608,'discovery supervisor bounds differ'
+    assert type(outcome['duration_ms']) is int and 0<=outcome['duration_ms']<=frame['timeout_ms'] and all(outcome[s+'_bytes']<=frame['output_cap'] for s in ('stdout','stderr')),'discovery actual process exceeded capture bounds'
+    assert outcome['stderr']=='','discovery success has unexpected stderr'
+    assert request=={'repositoryRoot':root,'config':recipe['discovery_config']},'discovery request/config differs from frozen recipe'
+    assert raw['executed'] is True and raw['unsupported']==[] and raw['request_descriptor_id']==digest(request) and raw['producer_artifact_id']=='sha256:'+host['fixture']['artifact_sha256'] and raw['repositoryRoot']==root and raw['observation_scope']=='native_ordinary_repository_discovery' and raw['global_admission_inferred'] is False,'discovery observation incomplete or foreign'
+    sources=recipe['physical_files'];assert isinstance(sources,dict) and all(isinstance(k,str) and isinstance(v,str) for k,v in sources.items()),'discovery frozen source map differs'
+    assert all(k and not k.startswith(('/','\\')) and '..' not in k.replace('\\','/').split('/') and (len(k)<2 or k[1]!=':') for k in sources),'discovery authored source escapes root'
+    candidates=raw['candidates'];assert isinstance(candidates,list),'discovery candidates are not an array'
+    paths=[c['relPath'] for c in candidates]
+    assert all(isinstance(path,str) for path in paths) and len(paths)==len(set(paths)) and set(paths)==set(sources),'discovery candidate denominator differs'
+    files=raw['files'];assert isinstance(files,list),'discovery selected files are not an array'
+    selected=set();projection=[]
+    for file in files:
+        path=file['relPath'];matches=[c for c in candidates if c['relPath']==path]
+        assert len(matches)==1,'discovery selected file has no unique candidate'
+        candidate=matches[0]
+        assert path not in selected and sources.get(path)==file['content'] and file['absPath']==root+'/'+path and candidate['selectionDecision']=='selected' and candidate['reason']=='SELECTED' and 'analysisOutcome' not in candidate and file['language']==candidate['language'],'discovery selected source or candidate binding differs'
+        selected.add(path);projection.append({'path':path,'role':file['role'],'language':file['language']})
+    wanted={c['relPath'] for c in candidates if c['reason']=='SELECTED' and c['selectionDecision']=='selected' and 'analysisOutcome' not in c}
+    assert selected==wanted,'discovery selected file inventory is incomplete'
+    expected=recipe['expected_read_paths'];assert isinstance(expected,list) and all(isinstance(x,str) for x in expected),'discovery expected read denominator absent'
+    reads=raw['reads'];assert isinstance(reads,list),'discovery raw reads are not an array'
+    seen=set()
+    for read in reads:
+        path=read['path'];assert isinstance(path,str) and path.startswith(root+'/'),'discovery reported a foreign read'
+        relative=path[len(root)+1:];assert relative in sources,'discovery reported unknown source bytes'
+        assert relative not in seen and read['raw_bytes_sha256']==digest_bytes(sources[relative]) and 'error' not in read,'discovery read bytes, identity or uniqueness differs'
+        seen.add(relative)
+    assert seen==set(expected),'discovery reported read denominator differs'
+    probes=raw['resolution_probes'];assert isinstance(probes,list),'discovery resolution probes are not an array'
+    for probe in probes:
+        operation,path,found=probe['operation'],probe['path'],probe['found']
+        assert operation in ('read_file','file_exists','directory_exists','directory_entries','stat','realpath') and type(found) is bool,'discovery native probe operation/outcome differs'
+        key=discovery_key(path)
+        assert not found or key==root_key or key.startswith(prefix),'discovery positive native probe outside root'
+        if operation=='read_file' and found:
+            assert key.startswith(prefix) and key[len(prefix):] in sources,'discovery native metadata bytes unknown'
+            assert probe['raw_bytes_sha256']==digest_bytes(sources[key[len(prefix):]]),'discovery native metadata read bytes differ'
+        else:assert 'raw_bytes_sha256' not in probe,'discovery non-read probe invents source bytes'
+    outside=any(c['reason'] in ('IMPORT_OUTSIDE_REPOSITORY','REFERENCE_OUTSIDE_REPOSITORY','SOURCE_LINK_OUTSIDE_REPOSITORY') for c in candidates)
+    return {'selected_files_projection':projection,'candidate_reasons':[c['reason'] for c in candidates],'candidates':candidates,'selected_discovered_files_contains_main':'src/main.ts' in selected,'outside_repository_failure':outside,'raw_read_denominator_checked':True,'global_admission_inferred':False},request,refs
 def load_original(host,recipe,index,definition):
     base=host['root']/'original-evidence'/f'unit-{index:03d}';ordinal=definition.get('observation',0);surface=recipe['surface']
     if surface=='workspace_system_cli':return system_context(host,recipe,base,ordinal)
@@ -161,6 +232,7 @@ def load_original(host,recipe,index,definition):
     if surface=='missing_retained_test_cli':return missing_test(host,recipe,base,definition)
     if surface=='legacy_identity_cli':return legacy(host,recipe,base,ordinal)
     if surface=='repository_eligibility_cli':return eligibility(host,recipe,base,ordinal)
+    if surface=='repository_discovery_cli':return discovery(host,recipe,base,index)
     if surface=='source_confinement_cli':
         raw,request,refs=API.read_process(base/'process-outcome.json',host,(1,));API.verify_request_template(request,recipe['requests'][0]);assert raw is None
         outcome=API.read(str(base/'process-outcome.json'));error=json.loads(outcome['stderr']);assert set(error)=={'error'} and isinstance(error['error'],str) and error['error'].startswith(('IMPORT_OUTSIDE_REPOSITORY:','REFERENCE_OUTSIDE_REPOSITORY:','SOURCE_LINK_OUTSIDE_REPOSITORY:'))
