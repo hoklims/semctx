@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "state": "CONTRACT_RUNNER_CANDIDATE_FROZEN_HOLDOUT_UNOPENED",
+  "recordedUTC": "2026-10-22T13:32:46.840451+00:00",
+  "candidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "candidateFreezePath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/resumption/candidate-freeze-suite-20261022.json",
+  "candidateFreezeSha256": "240d8baa1387d41badf346c2fecde1af040d602cf573f7218647eb7b8f134ab7",
+  "runnerPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/qualification/holdout_runner.mjs",
+  "runnerSha256": "46c03349e79b4580506a5f1a9615eb8a1bcf12aa84f52343d76beba7a4644a22",
+  "contractPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/qualification/suite-20261022/holdout-contract.md",
+  "contractSha256": "64523b89ef3d953afe901c398a9f0e5b94fb4573a58952e77db7b20fe9a951b4",
+  "receiptSha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a",
+  "testsSha256": "c8920cd82af64d86ed77bf5fbc57671abcb5c9370031c6a5fe0013f0a9ad19cf",
+  "runtimeVersion": "1.4.3",
+  "runtimeSha256": {
+    "macos": "2d1f1e69a98217d7d573d8297aaac9b196a81c0ccb082724902d5be1f1cf27a2",
+    "linux": "029ece746ac9f970c76d8f48bdd1b1d0c52f3636b74d19f546f5e7c1165c0abe"
+  },
+  "linuxRuntimeArchiveSha256": "efa9813da5ed72423bf847f916e8d2c47c0d776add972354026a75e10da9aa21",
+  "linuxRuntimePath": "/work/evidence/qualification-20261022/runner-runtime/bun",
+  "platformFreezePaths": {
+    "macos": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/freeze.json",
+    "linux": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/freeze.json"
+  },
+  "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+  "linuxNetwork": "none",
+  "inputProtocolCompatibility": "UNKNOWN_PUBLIC_RECEIPT_HAS_NO_PRIVATE_SERIALIZATION_SCHEMA",
+  "reservedPayloadAccessed": false,
+  "rule": "No producer, helper, contract or runner modification after opening. Input nonconformance never triggers adaptation or rerun.",
+  "r0Decision": null
+}
