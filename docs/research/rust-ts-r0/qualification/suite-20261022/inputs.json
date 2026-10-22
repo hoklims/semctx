@@ -4090,7 +4090,7 @@
       "operation": "semantic",
       "origin": {
         "kind": "authored TS documentation control",
-        "oracle": "TypeScript 5.9.3 baseline inspectJavaScriptSource"
+        "oracle": "TypeScript 5.9.3 baseline inspectSemanticDependencies"
       },
       "obligation_indices": [
         7,
@@ -4261,6 +4261,38 @@
       },
       "obligation_indices": [
         221
+      ]
+    },
+    {
+      "id": "SUITE-extract-unwrap-as-legacy",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport function run() { return (leaf as () => number)(); }\n"
+      },
+      "operation": "extraction",
+      "retained": false,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        221
+      ]
+    },
+    {
+      "id": "SUITE-jsdoc-closest-reason-control",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** older */\n/** closest @contract use */\nexport function leaf() { return 1; }\n"
+      },
+      "operation": "configuration",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "TypeScript 5.9.3 baseline inspectModuleConfiguration"
+      },
+      "obligation_indices": [
+        185
       ]
     }
   ],

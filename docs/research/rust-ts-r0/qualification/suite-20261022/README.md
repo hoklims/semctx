@@ -1,7 +1,7 @@
 # Suite Phase A — 2026-10-22
 
 This supplement is separate from the immutable 354 qualification units and 51
-supports. It adds 319 units whose expected values are produced by the original
+supports. It adds 321 units whose expected values are produced by the original
 baseline `3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b` with TypeScript 5.9.3.
 No reserved payload was used to author these inputs, contracts or comparisons.
 
