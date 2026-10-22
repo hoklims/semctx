@@ -335,6 +335,16 @@ impl Collector<'_> {
         capture: &Value,
         sensitive: bool,
     ) -> Result<Value, String> {
+        self.discovery_with_eligibility(name, config, config, capture, sensitive)
+    }
+    fn discovery_with_eligibility(
+        &self,
+        name: &str,
+        config: &Value,
+        eligibility_config: &Value,
+        capture: &Value,
+        sensitive: bool,
+    ) -> Result<Value, String> {
         let cwd = self
             .root
             .canonicalize()
@@ -344,13 +354,14 @@ impl Collector<'_> {
         let query = json!({"repositoryRoot":cwd,"config":config});
         let ordinary = self.query(
             &format!("{name}-discovery"),
-            Some("--discover-repository"),
+            Some("--discover-qualified-repository"),
             &query,
             false,
         )?;
         let artifact = value_text(self.fixture, "artifact_sha256")?;
         if ordinary["request_descriptor_id"] != identity::digest(&query)
             || ordinary["producer_artifact_id"] != format!("sha256:{artifact}")
+            || ordinary["observation_scope"] != "native_qualified_physical_discovery"
             || ordinary["executed"] != true
             || ordinary["unsupported"] != json!([])
         {
@@ -363,7 +374,7 @@ impl Collector<'_> {
             .map(|c| value_text(c, "relPath").map(str::to_owned))
             .collect::<Result<Vec<_>, _>>()?;
         let eligibility_query = json!({"repositoryRoot":cwd,"processHelper":self.helper,
-            "include":config["include"],"exclude":config["exclude"],"queries":paths});
+            "include":eligibility_config["include"],"exclude":eligibility_config["exclude"],"queries":paths});
         let eligibility = self.query(
             &format!("{name}-eligibility"),
             Some("--observe-path-eligibility"),
@@ -643,9 +654,10 @@ pub(super) fn run(
     let qualified_broad = collector.query("qualified-broad", None, &broad_request, true)?;
     observation_bound_to_request(&qualified_broad, &broad_request, &sdk, artifact_sha)?;
     join_successful_reads(&qualified_broad, &broad_request, &sdk)?;
-    let broad_discovery = collector.discovery(
+    let broad_discovery = collector.discovery_with_eligibility(
         "broad",
         &recipe["broad_discovery_config"],
+        &recipe["selected_discovery_config"],
         &current_capture,
         sensitive,
     )?;
@@ -916,7 +928,7 @@ mod collector_tests {
             sdk_path: Path::new("unused-sdk"),
             pins: vec![(artifact, &artifact_sha), (&helper, &helper_sha)],
         };
-        let config = json!({"version":1,"include":["**/*.ts"],"exclude":[],
+        let config = json!({"version":2,"include":["**/*.ts"],"exclude":[],
             "languages":{"typescript":"on"},"migrationsDirs":[]});
         let retained = json!({"src/main.ts":content});
         let retained_before = retained.clone();
@@ -979,5 +991,214 @@ mod collector_tests {
                 .unwrap(),
             "ORDINARY_PHYSICAL_QUERY_OUTSIDE_ROOT"
         );
+    }
+
+    #[test]
+    fn comparator_working_tree_qualified_discovery_retains_excluded_output_row() {
+        let base = physical_dev_root("qualified-output");
+        let root = base.join("workspace");
+        let dir = base.join("observations");
+        fs::create_dir_all(root.join("src")).unwrap();
+        fs::create_dir_all(root.join("build")).unwrap();
+        fs::create_dir_all(&dir).unwrap();
+        let main = "export function actualSource() { return 37; }\n";
+        let generated = "export const actualGenerated = 43;\n";
+        fs::write(root.join("src/main.ts"), main).unwrap();
+        fs::write(root.join("build/generated.ts"), generated).unwrap();
+        fs::write(root.join(".gitignore"), "build/\n").unwrap();
+        assert!(
+            std::process::Command::new("git")
+                .args(["init", "--quiet"])
+                .arg(&root)
+                .status()
+                .unwrap()
+                .success()
+        );
+        let artifact = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+        let helper = PathBuf::from(
+            std::env::var_os("SEMCTX_PROCESS_HELPER").expect("existing native helper required"),
+        );
+        let artifact_sha = sha(&fs::read(artifact).unwrap());
+        let helper_sha = sha(&fs::read(&helper).unwrap());
+        let fixture = json!({"artifact_sha256":artifact_sha});
+        let collector = Collector {
+            root: &root,
+            dir: &dir,
+            fixture: &fixture,
+            artifact,
+            helper: &helper,
+            sdk_path: Path::new("unused-sdk"),
+            pins: vec![(artifact, &artifact_sha), (&helper, &helper_sha)],
+        };
+        let config = json!({"version":2,"include":["src/**/*.ts"],"exclude":[],"languages":{"typescript":"on"},"migrationsDirs":[]});
+        let capture =
+            json!({"src/main.ts":main,"build/generated.ts":generated,".gitignore":"build/\n"});
+        let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+        let selected = collector
+            .discovery("selected", &config, &capture, sensitive)
+            .unwrap();
+        let row = selected["candidates"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["relPath"] == "build/generated.ts");
+        assert!(
+            row.is_some(),
+            "qualified physical discovery must retain the actual excluded output candidate"
+        );
+        let row = row.unwrap();
+        assert_eq!(row["reason"], "IGNORED_GENERATED_OUTPUT");
+        assert_eq!(row["selectionDecision"], "excluded");
+        assert_eq!(selected["files"].as_array().unwrap().len(), 1);
+        assert_eq!(selected["files"][0]["relPath"], "src/main.ts");
+
+        let broad_config = json!({"version":2,"include":["**/*"],"exclude":[],"languages":{"typescript":"on","javascript":"on","python":"on","markdown":"on","sql":"on"},"migrationsDirs":[]});
+        let broad = collector
+            .discovery_with_eligibility("broad", &broad_config, &config, &capture, sensitive)
+            .unwrap();
+        let row = broad["candidates"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["relPath"] == "build/generated.ts")
+            .unwrap();
+        assert_eq!(
+            row["reason"], "IGNORED_GENERATED_OUTPUT",
+            "broad walk must retain the original selector's eligibility"
+        );
+        assert!(
+            !broad["files"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|file| file["relPath"] == "build/generated.ts")
+        );
+        let broad_selector = collector
+            .discovery("selector-control", &broad_config, &capture, sensitive)
+            .unwrap();
+        assert!(
+            broad_selector["files"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|file| file["relPath"] == "build/generated.ts"),
+            "counterexample must expose why broad selector cannot replace original eligibility"
+        );
+        let cwd = root
+            .canonicalize()
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/");
+        let descriptor = json!({"repositoryRoot":cwd,"config":broad_config});
+        let ordinary = collector
+            .query(
+                "ordinary-control",
+                Some("--discover-repository"),
+                &descriptor,
+                false,
+            )
+            .unwrap();
+        assert_eq!(
+            ordinary["observation_scope"],
+            "native_ordinary_repository_discovery"
+        );
+        assert!(
+            !ordinary["candidates"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|row| row["relPath"] == "build/generated.ts"),
+            "ordinary default must keep its output-directory exclusion"
+        );
+        println!("DEV_QUALIFIED_OUTPUT_ROOT:{}", base.display());
+    }
+
+    #[test]
+    fn comparator_working_tree_qualified_discovery_refuses_source_link_targets() {
+        let base = physical_dev_root("qualified-link");
+        let root = base.join("workspace");
+        let outside = base.join("outside");
+        let dir = base.join("observations");
+        fs::create_dir_all(root.join("src")).unwrap();
+        fs::create_dir_all(&outside).unwrap();
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(
+            outside.join("never-read.ts"),
+            "export const externalPrivateDev = 79;",
+        )
+        .unwrap();
+        let link = root.join("src/escape.ts");
+        #[cfg(windows)]
+        {
+            let win32 = |path: &Path| {
+                let text = path.to_string_lossy().replace('/', "\\");
+                text.strip_prefix("\\\\?\\").unwrap_or(&text).to_owned()
+            };
+            let output = std::process::Command::new("cmd")
+                .args(["/d", "/c", "mklink", "/J"])
+                .arg(win32(&link))
+                .arg(win32(&outside))
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "DEV junction setup failed: {:?}",
+                output
+            );
+        }
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(&outside, &link).unwrap();
+        let artifact = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+        let helper = PathBuf::from(
+            std::env::var_os("SEMCTX_PROCESS_HELPER").expect("existing native helper required"),
+        );
+        let artifact_sha = sha(&fs::read(artifact).unwrap());
+        let helper_sha = sha(&fs::read(&helper).unwrap());
+        let fixture = json!({"artifact_sha256":artifact_sha});
+        let collector = Collector {
+            root: &root,
+            dir: &dir,
+            fixture: &fixture,
+            artifact,
+            helper: &helper,
+            sdk_path: Path::new("unused-sdk"),
+            pins: vec![(artifact, &artifact_sha), (&helper, &helper_sha)],
+        };
+        let query = json!({"repositoryRoot":root.canonicalize().unwrap().to_string_lossy().replace('\\',"/"),"config":{"version":2,"include":["**/*"],"exclude":[],"languages":{"typescript":"on"},"migrationsDirs":[]}});
+        let observed = collector
+            .query(
+                "qualified-link",
+                Some("--discover-qualified-repository"),
+                &query,
+                false,
+            )
+            .unwrap();
+        assert_eq!(observed["executed"], true);
+        let row = observed["candidates"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["relPath"] == "src/escape.ts")
+            .unwrap();
+        assert_eq!(row["reason"], "SOURCE_LINK_OUTSIDE_REPOSITORY");
+        assert_eq!(row["analysisOutcome"], "failed");
+        assert_eq!(observed["reads"], json!([]));
+        assert_eq!(observed["files"], json!([]));
+        let mut legacy = query.clone();
+        legacy["config"]["version"] = json!(1);
+        let refused = collector
+            .query(
+                "qualified-legacy",
+                Some("--discover-qualified-repository"),
+                &legacy,
+                false,
+            )
+            .unwrap();
+        assert_eq!(refused["executed"], false);
+        assert_eq!(
+            refused["unsupported"],
+            json!(["QUALIFIED_DISCOVERY_CONFIG_VERSION_REQUIRED"])
+        );
+        println!("DEV_QUALIFIED_LINK_ROOT:{}", base.display());
     }
 }

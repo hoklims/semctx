@@ -281,10 +281,14 @@ pub(super) fn qualified_metadata_paths(root: &Path) -> Result<Vec<PathBuf>, Stri
 fn observe_paths(
     value: serde_json::Value,
     retained_paths: Option<&[PathBuf]>,
+    qualified_physical: bool,
 ) -> Result<serde_json::Value, String> {
     let descriptor: Descriptor =
         serde_json::from_value(value).map_err(|e| format!("DISCOVERY_REQUEST_INVALID:{e}"))?;
     let config = &descriptor.config;
+    if qualified_physical && config.version != 2 {
+        return Err("QUALIFIED_DISCOVERY_CONFIG_VERSION_REQUIRED".into());
+    }
     if ![1, 2].contains(&config.version) {
         return Err("DISCOVERY_CONFIG_VERSION_UNSUPPORTED".into());
     }
@@ -321,8 +325,11 @@ fn observe_paths(
     } else {
         walk(
             &root,
-            |name| HARD_IGNORED.contains(&name) || OUTPUT_DIRECTORIES.contains(&name),
-            |_| true,
+            |name| {
+                HARD_IGNORED.contains(&name)
+                    || !qualified_physical && OUTPUT_DIRECTORIES.contains(&name)
+            },
+            |marker| !qualified_physical || marker.is_file() || marker.file_type().is_symlink(),
             false,
         )?
     };
@@ -430,15 +437,21 @@ fn observe_paths(
             .collect::<Vec<_>>()
     });
     Ok(
-        serde_json::json!({"executed":true,"unsupported":[],"files":files,"candidates":candidates,"reads":reads,"resolution_probes":resolution_probes,"repositoryRoot":path_text(&root)?,"observation_scope":if retained_paths.is_some(){"native_qualified_retained_discovery"}else{"native_ordinary_repository_discovery"},"global_admission_inferred":false}),
+        serde_json::json!({"executed":true,"unsupported":[],"files":files,"candidates":candidates,"reads":reads,"resolution_probes":resolution_probes,"repositoryRoot":path_text(&root)?,"observation_scope":if qualified_physical{"native_qualified_physical_discovery"}else if retained_paths.is_some(){"native_qualified_retained_discovery"}else{"native_ordinary_repository_discovery"},"global_admission_inferred":false}),
     )
 }
 pub(super) fn run(descriptor: serde_json::Value) -> serde_json::Value {
-    observe_paths(descriptor, None).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
+    observe_paths(descriptor, None, false).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
 }
 
 pub(super) fn qualified(descriptor: serde_json::Value, paths: &[PathBuf]) -> serde_json::Value {
-    observe_paths(descriptor, Some(paths)).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
+    observe_paths(descriptor, Some(paths), false).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
+}
+
+/// Explicit qualified physical enumeration; eligibility is a separate bound component.
+/// Output directories remain observable candidates, never implied admissions.
+pub(super) fn qualified_physical(descriptor: serde_json::Value) -> serde_json::Value {
+    observe_paths(descriptor, None, true).unwrap_or_else(|error|serde_json::json!({"executed":false,"unsupported":[error],"global_admission_inferred":false}))
 }
 
 #[cfg(test)]

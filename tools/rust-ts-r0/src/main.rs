@@ -1782,6 +1782,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             *mode,
             "--observe-primitives"
                 | "--discover-repository"
+                | "--discover-qualified-repository"
                 | "--observe-path-eligibility"
                 | "--extract-worker"
                 | "--extract-parallel"
@@ -1874,6 +1875,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                     .ok_or("controlled assembly SDK input missing")?,
             ),
             "--discover-repository" => repository_discovery::run(descriptor.clone()),
+            "--discover-qualified-repository" => {
+                repository_discovery::qualified_physical(descriptor.clone())
+            }
             "--observe-path-eligibility" => qualified_path_eligibility::run(descriptor.clone()),
             "--observe-primitives" => {
                 semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
