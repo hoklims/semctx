@@ -28,7 +28,7 @@
     "rust": "1.95.0 (59807616e 2026-04-14)",
     "cargo": "1.95.0 (f2d3ce0bd 2026-03-21)",
     "bun": "1.4.3",
-    "macos": "27.0.1 arm64; Python 3.9.6",
+    "macos": "27.0.1 arm64; Python 3.15.0",
     "linux": "OrbStack Docker aarch64; Python 3.11.2",
     "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
     "linuxImageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977",
@@ -217,9 +217,34 @@
       "linux-aarch64"
     ],
     "formalR0Qualified": 0,
-    "registeredFiniteProjectionsGreen": 86,
+    "registeredFiniteProjectionsGreen": 82,
     "holdoutOpened": false,
     "holdoutInvocationComparatorContract": "ABSENT_BLOCKING_BEFORE_ACCESS",
     "policy": "No producer, helper, expectation, threshold or comparison-rule change is permitted after any future reserved access; this freeze does not supply the missing reserved invocation/comparison contract."
+  },
+  "metadataCorrection": {
+    "recordedUTC": "2026-10-22T06:27:39.884511+00:00",
+    "field": "toolchain.macos Python version",
+    "previous": "3.9.6",
+    "observed": "Python 3.15.0",
+    "evidence": "python3 --version on the same shell used for prepare/freeze/campaign orchestration",
+    "definitiveArtifactFreezeCommitUnchanged": "84c46592",
+    "producerHelperFixtureObserverSdkRecipesChanged": false,
+    "reservedArchiveOnlyHashedNoPayloadInspected": true
+  },
+  "documentaryReviewCorrection": {
+    "recordedUTC": "2026-10-22T06:33:19.844777+00:00",
+    "previousProvisionalProjectionCount": 86,
+    "reconciledProjectionCount": 82,
+    "downgradedRegistryIndices": [
+      156,
+      158,
+      230,
+      231
+    ],
+    "cause": "Per-property evidence join omitted existing case/unit observations and treated four historical-only property branches as green.",
+    "artifactFreezeCommitUnchanged": "84c46592",
+    "producerHelperFixtureObserverSdkRecipesOrComparisonRulesChanged": false,
+    "reservedPayloadOpened": false
   }
 }
