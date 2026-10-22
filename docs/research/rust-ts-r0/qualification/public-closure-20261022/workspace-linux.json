@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "platform": "linux",
+  "oracleSha256": "9e0225f5a1395cf308ad6ed5ca9bde10f64264af8893126910d8444f55334612",
+  "freezeSha256": "9dfa73a875fa588c10711eea017e2c0ff7e7421f96fc3f3c15a7a3d9053b3ae3",
+  "artifactSha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+  "sdkSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "units": [
+    {
+      "id": "uninstalled-workspace-default",
+      "pass": true,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:1b15d93babdf3ea6370bb74d364f4d77a4d19c8dd34c0d7bd33a9d7aceb9e462",
+          "expected": "sha256:1b15d93babdf3ea6370bb74d364f4d77a4d19c8dd34c0d7bd33a9d7aceb9e462",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+          "expected": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-contentId",
+          "actual": "sha256:610d2f126a194e0412ecb0ce7b4fadada8ae8593f133c11e7458af558473d421",
+          "expected": "sha256:610d2f126a194e0412ecb0ce7b4fadada8ae8593f133c11e7458af558473d421",
+          "pass": true
+        },
+        {
+          "name": "query-1-successful-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/uninstalled-workspace-default/repository/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-context",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-request-binding",
+          "actual": "sha256:893ed43f822b80b11d54299fc8f5fdd0a456bddddba76502d5f115cc417c3a5d",
+          "expected": "sha256:893ed43f822b80b11d54299fc8f5fdd0a456bddddba76502d5f115cc417c3a5d",
+          "pass": true
+        },
+        {
+          "name": "configured-producer",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "configured-owning-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-reasons",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "installed-invalid-module",
+      "pass": false,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:0fe6e6da1f07d0ec13dc2a273203e652c088a84431cc491c796b9937212efa77",
+          "expected": "sha256:0fe6e6da1f07d0ec13dc2a273203e652c088a84431cc491c796b9937212efa77",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": "{\"compilerOptions\":{\"module\":\"invalid-public-module\"}}",
+          "expected": "{\"compilerOptions\":{\"module\":\"invalid-public-module\"}}",
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-contentId",
+          "actual": "sha256:0466dd2081c9b9bf6fc1ae8725370032d6167c981668d24af79dd8b9506860d1",
+          "expected": "sha256:0466dd2081c9b9bf6fc1ae8725370032d6167c981668d24af79dd8b9506860d1",
+          "pass": true
+        },
+        {
+          "name": "query-1-successful-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-context",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-request-binding",
+          "actual": "sha256:182432f747d2c382bb6e9903c935601beaa9b43153083c93d39bf9c4da478c74",
+          "expected": "sha256:182432f747d2c382bb6e9903c935601beaa9b43153083c93d39bf9c4da478c74",
+          "pass": true
+        },
+        {
+          "name": "configured-producer",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "configured-owning-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-reasons",
+          "actual": [
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+          ],
+          "expected": [
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+          ],
+          "pass": false
+        },
+        {
+          "name": "configured-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "above-repository-declaration-blocked",
+      "pass": true,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:5a785d696822652f0d5094d1a34fb93ccde06eb75d56d5330fd5083ac5917de7",
+          "expected": "sha256:5a785d696822652f0d5094d1a34fb93ccde06eb75d56d5330fd5083ac5917de7",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/work/evidence/qualification-20261022/public-closure/workspace/oracle-world-linux/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "above-repository-no-alias",
+          "actual": {},
+          "expected": {},
+          "pass": true
+        },
+        {
+          "name": "above-repository-no-successful-read",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "above-repository-oracle-inputs-contained",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "pass": false,
+  "formalR0Qualified": false
+}

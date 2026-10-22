@@ -1,0 +1,668 @@
+{
+  "schemaVersion": 1,
+  "verifierSha256": "0630f366202f16be37cf9d997d8ed410e4cde8d4aaaef009a3cdae39d4ec36c0",
+  "environment": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "scope": "Offline independent audit of 28 public retained native stdout observations; native production not rerun; Linux physical bytes verified from retained archive; no OS isolation or atomic capture claim",
+  "units": [
+    {
+      "host": "mac",
+      "unit": "PUBLIC-parallel-two-components",
+      "rawSha256": "90f73bfb62313cc6a79c69926c3760776c1700914d2b588a709099d633b118e4",
+      "requestSha256": "e145406ec8eec6a72106153ef9661d2cb649ec90601c9f2a0067bbfbf9f7bbc5",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-parallel-mixed-js",
+      "rawSha256": "aaa1caf2d218ff96305847148972d6faf2b165a3f535ce1e29e69646817bc574",
+      "requestSha256": "c2b37152c8a9634072b2e03c72fc91b60b06168c66a13a45cf95586959c464d3",
+      "pass": true,
+      "mode": {
+        "mode": "preflight-fallback",
+        "reason": "mixed JavaScript/TypeScript extraction requires one semantic Program",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-parallel-connected-through-unselected",
+      "rawSha256": "d769f48aded506e39405376b956fce55b4a28495796d371b6e28dc8d71cd9c5e",
+      "requestSha256": "08b4d5c726398655441e1d97896eab377c3f2f930ac278467e2f4a37e288ae49",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "reason": "TypeScript root module graph has one connected component",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-parallel-single-control",
+      "rawSha256": "c1ff6e8cfa3aad00cb61498e0356c8562fd1c731f3f559d7d4f6943f5d854efc",
+      "requestSha256": "5505242c5b263b0eb5a5e2077edc2a34622007952452113856de57966fa0427b",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-separate-1",
+      "rawSha256": "20e382a5c51d0085e14ae8959b831719d6b02e5d9f661f53e41e81d09c4f87e5",
+      "requestSha256": "010fafd719f4fa93396c7b78a12982c7855d3546e0ee1a8ac422c5adc4c4d4f4",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-separate-2",
+      "rawSha256": "a6ed99a6e78a19c6fe3201675285e4c985e4738e5f949f941a0835e0ef00b555",
+      "requestSha256": "7768e2b68aceaec3c38c1c0d07a8fe93cae02550f83c6f469b7c2cc363c1c02b",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        },
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-connected-1",
+      "rawSha256": "cfa03c9620e4fdff3f6190c07b636447d844510600c0e52014a566da387730d8",
+      "requestSha256": "e74d4bfb946d27228ddbb8a6bf689e03eda6b75606155b346ee32f6b07c2df3f",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-connected-2",
+      "rawSha256": "c80a769964214ea58c0fd56eb2ebac57ecc48662fe25134e0d233938e15e8e3c",
+      "requestSha256": "e19401bef4850666bac12ecf37817d3ae1f8eba5c59b75b1fab42a251703cdd4",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "reason": "TypeScript root module graph has one connected component",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-missing-1",
+      "rawSha256": "97b227f7cfe2224c692973024ec8e6d062c599e84328572cbc87c72968379017",
+      "requestSha256": "16fa2c4da2b1822ba8574b59ae7b0341c516fdc6f1a83e53c37c00c5aed05585",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-missing-2",
+      "rawSha256": "ab9ce1c15ff66adcbf9de83de17b3b11e90a74884dc615bfbdcb08716ca57bdd",
+      "requestSha256": "7b81bbf6091c963f5f603a17b6b77c3a9481130d47a96501db177d05d112e8e0",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        },
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-declaration-root-1",
+      "rawSha256": "58099051313d8b82b771236d32b493d0d779d77561bed3fe42240ad5a88d9e6b",
+      "requestSha256": "d8b38cb76f891e9614d52405294656aceb8650c083823a5048429b71d9ac5640",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-declaration-root-2",
+      "rawSha256": "622b68e1666b7896e4ac3d26e9ebb81e84454733ee643884c1aaf6b449c489f1",
+      "requestSha256": "08b773c080449d3958c6ca400ce2ea1cab8713e13049a10b83dd08fcafe65a91",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-dynamic-1",
+      "rawSha256": "4b4301c67f399b6e9d980fb3a1636d0dc85d3b6b3ae3eceb85b2d3c6ac6f8f24",
+      "requestSha256": "dc82740e9969f6184093596733b29d791ff23a60e6ace10eae4c84c8c7556151",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "mac",
+      "unit": "PUBLIC-symbolsparallel-dynamic-2",
+      "rawSha256": "7f79f145c89bf25c7e39f7abc04d76e72a318564de182de43b4af7d981ca9b0f",
+      "requestSha256": "308cb2fefc76edf8f76f7fa35ed89b8672772966ba52dd4ce7787f2d8d38cb90",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 20
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-parallel-two-components",
+      "rawSha256": "b9c138b3452e83f5854529f87f9c08240c412707ef033f9aafe3af5327857b88",
+      "requestSha256": "0355d86b731a570740a2cc89856d6eb0227d2fb460e84d39e2263cf675fea477",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-parallel-mixed-js",
+      "rawSha256": "25e6e08f64972153d0196a475543602e2033b9b606794a4d91fbf333ac1fb51d",
+      "requestSha256": "a912fd2389ac25533a0bba18e187bfeb9aff95ce10463e0c053fd9ecd69bd7f8",
+      "pass": true,
+      "mode": {
+        "mode": "preflight-fallback",
+        "reason": "mixed JavaScript/TypeScript extraction requires one semantic Program",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-parallel-connected-through-unselected",
+      "rawSha256": "de3a552a572a0baac7ed2dab453ddefb697d87f1d65d7bab90630e9eeb3e614c",
+      "requestSha256": "a379098333faca3a481dff87e753417efcde1cb87c64c39b2097ee0c966064d9",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "reason": "TypeScript root module graph has one connected component",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-parallel-single-control",
+      "rawSha256": "c349641905ac7e6bc1ca08310193c6981ff3f0227f1f64af703a6e0fcceb806b",
+      "requestSha256": "25e8636883036e7e53a54ed18d8fe1089eb188dd19b5f3958e19596b3e4f3610",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-separate-1",
+      "rawSha256": "592c33e496e9ea48fab1b6f07cc83e8a18ecd66ecdf913e3e63876023123912a",
+      "requestSha256": "5bc991181b3e8d1d1cd24948d78523c273847676588f8bb5b11badb9879d086e",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-separate-2",
+      "rawSha256": "a51f98ed1e9a6384af199854b56a43771f35fa2b23f7ef3e0114234de646cbde",
+      "requestSha256": "badfab389ecc94766fda723060852353ed74a61041956b8ba770f8edc72567a4",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        },
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-connected-1",
+      "rawSha256": "b1692d9678a03dadb9b1898570c74e538ff3a3fe393906d9f099b2b203a49dbb",
+      "requestSha256": "5ce3f3056c5b04e0b4d9f5f6d02f3e58ccb243e3063d1addb21acc207844b5b4",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-connected-2",
+      "rawSha256": "c6ab2b28bec9dc9fda7ae15e55345da4c726ef85f1607481fb9b4a463db4e08f",
+      "requestSha256": "931f11115903bf505c19fd0cb3c36a438e9cd2bc7fc23b4bd9ea07107c7898f1",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "reason": "TypeScript root module graph has one connected component",
+        "requested": 2,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-missing-1",
+      "rawSha256": "42b75ee72db7ba4dc2b02438cbda15740266808684cff57c97036ad013598abd",
+      "requestSha256": "4ce677f7e499585c83723294c3e0d441a5048d4c98f0e0963aff8812301b644a",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-missing-2",
+      "rawSha256": "f9757b76849c3cd6442cbe9c1d1528816490454bc41366d62d4b2cdbd8437378",
+      "requestSha256": "828dc92b29ba3677768bda613ef30425422c2c856aef2c1412418b98e6c38705",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        },
+        {
+          "sourceFiles": 2,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-declaration-root-1",
+      "rawSha256": "82a852924c88bf81a48f2320d8cd48e35aae58c673f426911e76af4d083c1344",
+      "requestSha256": "8836ecbcc109add2d66f8627a9ae4c2103bff9f03c0372d25df4f0ecf942c82b",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-declaration-root-2",
+      "rawSha256": "23714ee81c07e80f72d96b9ad8e39c21282410d698c2e3d75ad1920d4fbcaab9",
+      "requestSha256": "f6fc3404165737a1452bacc17325c7f1db8b0a61a520991b84edbdd0fdfe6712",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-dynamic-1",
+      "rawSha256": "9a92fb32e71290d3ebe13892159746ac455cd0e4a3b5ad0184d45267528e20b8",
+      "requestSha256": "9b8f69489536e437724acb9a37e8508f386b8f2d5c1b234b19e43d68b7c0fd6e",
+      "pass": true,
+      "mode": {
+        "mode": "single",
+        "requested": 1,
+        "used": 1
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 66,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    },
+    {
+      "host": "linux",
+      "unit": "PUBLIC-symbolsparallel-dynamic-2",
+      "rawSha256": "212e4cf56e8b7306f8a8e2c45ba983c3f0de76ea3c488d55d8b1b47b08e278f9",
+      "requestSha256": "9fce5d71dac2ff9049390c1f7d837a92838e133d7ce3bd8d9cd7ea81117c1844",
+      "pass": true,
+      "mode": {
+        "mode": "parallel",
+        "requested": 2,
+        "used": 2
+      },
+      "provenance": [
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 64,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        },
+        {
+          "sourceFiles": 3,
+          "successfulCompilerReads": 65,
+          "sdkSuccessfulReads": 63,
+          "negativeBoundaryIssues": 16
+        }
+      ]
+    }
+  ],
+  "negativeWitnesses": [
+    {
+      "fault": "request-binding",
+      "rejected": true,
+      "reason": "child request/transport"
+    },
+    {
+      "fault": "sdk-read",
+      "rejected": true,
+      "reason": "missing baseline SDK read"
+    },
+    {
+      "fault": "negative-boundary",
+      "rejected": true,
+      "reason": "issue lacks exclusive negative probes"
+    },
+    {
+      "fault": "child-outcome",
+      "rejected": true,
+      "reason": "child stream bytes"
+    },
+    {
+      "fault": "root-partition",
+      "rejected": true,
+      "reason": "child request/transport"
+    },
+    {
+      "fault": "merge-output",
+      "rejected": true,
+      "reason": "complete extraction comparison"
+    }
+  ],
+  "restoredPass": true,
+  "formalR0Qualified": false
+}

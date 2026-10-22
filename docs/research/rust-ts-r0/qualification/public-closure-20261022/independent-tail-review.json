@@ -1,0 +1,46 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "baseCommit": "38008d22f36b5c8846f3bc367e0a75d17ae70fb2",
+  "scope": "Data-only tail semantic and identity additions; no broad previous-code reassessment",
+  "dataFileHashes": {
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-tail-semantic-linux.json": "c96440d47cd048c6c1475702690a27c2f00376abdd1cae1919eb8597e29856c6",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-tail-semantic-macos.json": "a51ef06218a3df0cd474e58c530de139992fdea344af333178606ef38e5b1f4e",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-evidence.md": "1d41342e6689edf289f2e31c5637c4b03ae7702834c2a65d13ea4bf66952db57",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-linux.json": "a93be180f14aae8a8e14919704090bbade3a28dc81e98afcfc01f70a4c091754",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-macos.json": "d967e971253eb4763a7f2841321a1ededb1438bfcc101d26b70518398bd1fa32",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-activation.json": "ebf9acda2acd8b2e0590ddf7f7d429995837a97a224ae5ba6d45c9c34f08ff22",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-evidence.md": "700a857a033e3ddefb4fe468a6913377223d85b40ecb0b6eb4e65d42f45e458b",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-inputs.json": "e6baaf6e1684deaf571af64e049a3de61dfb732acc0d995765959e4ce24c4d5c",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-manifest.json": "5f8b015ddb8acf7d70150b048fc1696f20d96ae9e6d0274167afa7d342e398fb",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-pairs.json": "4fc039b098e2aa871a1e363fc14674f0f782d674592fce929329db5a6e97cfa8",
+    "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-proof-map.json": "7de9d139843430aa67dc6ec7c83ba6b9546f6b32611d93626be2ba9654484fde"
+  },
+  "independentReports": {
+    "semantic-review.json": "02223f176d8e5925eab88776c74435004685858ab9b6e5d667c06b0c12cf5508",
+    "native-review.json": "abb2936c4102a3627a07dda5391b6c327ca70e0e24ae39dea2891c49e3e774d2",
+    "identity-review.json": "e84f04822a4c9a00bb26c832d642dc319fe3343f3a7269d8c9f1c8f99737c84e"
+  },
+  "semantic": {
+    "manifestAndActivationRegenerated": 22,
+    "completeNativeObservationsIndependentlyBound": 44,
+    "focalReasonPairs": 11,
+    "row84Sites": "128/128",
+    "row134Sites": "164/164",
+    "row82Sites": "27/29"
+  },
+  "identity": {
+    "casesPerPlatform": 18,
+    "fullIdentitiesEqual": 9,
+    "sharedRefusalOutcomes": 4,
+    "policyDifferences": 5,
+    "row229Qualified": false,
+    "sourceSha256": "cfbf37a7affe4829b40d962ce91130b71ae4b6572db2384597a1c18b388d0e0d",
+    "gitBlob": "5cb90f86095332e0af182b1579a49958e7fc2b31",
+    "macosRawReportSha256": "41d867885ae7915fcce64fdfde0d3bed5248a60f7c74b7ed41305f29dcd5c9bb",
+    "linuxRawReportSha256": "893f748b62ec3a89839f6903d879bbc912fa9a8dde04a8dc51af84ef19855390"
+  },
+  "standards": "No blocking data/documentation finding; exact source/input/report binding and bounded claims checked",
+  "environment": "Independent regeneration macOS arm64 Bun1.4.3 TS5.9.3; macOS/Linux actual retained native processes checked offline; Linux raw copied read-only from existing container; Windows not exercised",
+  "formalR0QualificationInferred": false,
+  "candidateFilesModifiedByReviewer": false
+}
