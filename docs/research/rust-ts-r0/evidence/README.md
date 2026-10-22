@@ -1,5 +1,11 @@
 # T00 evidence restored for review
 
+The [current source-96 dossier](current-96fedbbe/README.md) adds complete Mac and
+Linux captures, their current property assessments and public regression.
+Its compressed storage preserves original decoded identities. The restoration
+census below describes the older archives; it is not a current qualification or
+reserved-execution result.
+
 The owner's [21 October decision](../resumption/owner-evidence-publication-20261021.json)
 supersedes local-only custody for public C1 evidence. Historical custody records retain
 their original scope. The reserved corpus remains private and blind.

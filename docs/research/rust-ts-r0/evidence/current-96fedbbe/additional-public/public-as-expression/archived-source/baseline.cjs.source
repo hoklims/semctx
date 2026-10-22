@@ -1,0 +1,67 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const H=b=>crypto.createHash('sha256').update(b).digest('hex');
+const tsPath='C:/maintenence/semctx.codex-t00-review-20261021/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.js';
+const extractorPath='C:/maintenence/semctx.codex-t00-review-20261021/packages/ts-analyzer/src/ts-symbols.ts';
+const ts=require(tsPath),production=require(extractorPath);
+if(ts.version!=='5.9.3'||Bun.version!=='1.4.3'||H(fs.readFileSync(extractorPath))!=='9e025956b492b77cd13c59e9b5196c76506367db484180f28824ccd508665d7f')throw Error('reference source/runtime differs');
+const sdkRaw=fs.readFileSync(path.join(__dirname,'sdk.frozen.json')),sdk=JSON.parse(sdkRaw);
+const sdkByName=new Map(Object.entries(sdk.files).map(([p,t])=>[path.basename(p),t]));
+if(sdkByName.size!==100||sdk.version!=='5.9.3')throw Error('SDK census/version differs');
+const originalCreate=production.extractionContext.createProgram;
+const originalSystem={readFile:ts.sys.readFile,fileExists:ts.sys.fileExists,getDirectories:ts.sys.getDirectories,directoryExists:ts.sys.directoryExists};
+const norm=p=>path.resolve(p).replaceAll('\\','/').toLowerCase();
+const compilerLib=norm(production.typeScriptLibraryDirectory());
+function allowed(p){const k=norm(p);return active&&(k===norm(active.sourcePath)||(k.startsWith(compilerLib+'/')&&sdkByName.has(path.basename(p))));}
+let active=null;
+ts.sys.readFile=function(p,...args){if(active&&!allowed(p)){active.boundedSystemRefusals.push({operation:'readFile',file:p});return undefined;}const value=originalSystem.readFile.call(this,p,...args);if(active&&value!==undefined)active.readBindings.push({file:p,sha256:H(Buffer.from(value))});return value;};
+ts.sys.fileExists=function(p){return active&&!allowed(p)?false:originalSystem.fileExists.call(this,p);};
+ts.sys.getDirectories=function(p){if(active){active.boundedSystemRefusals.push({operation:'getDirectories',file:p});return [];}return originalSystem.getDirectories.call(this,p);};
+ts.sys.directoryExists=function(p){if(!active)return originalSystem.directoryExists.call(this,p);const k=norm(p);return (norm(active.sourcePath).startsWith(k+'/')||compilerLib===k||compilerLib.startsWith(k+'/'))&&originalSystem.directoryExists.call(this,p);};
+production.extractionContext.createProgram=function(roots,snapshot,...args){
+ const program=originalCreate.call(this,roots,snapshot,...args);
+ if(!active)throw Error('unbound reference Program');
+ active.actualProgramSnapshotPresent=snapshot!==undefined;
+ active.programConsumedFiles=program.getSourceFiles().map(sf=>{
+  const physical=fs.readFileSync(sf.fileName),text=Buffer.from(sf.text),name=path.basename(sf.fileName);
+  if(!physical.equals(text))throw Error('Program text differs from physical source');
+  const isSource=roots.includes(sf.fileName),wanted=isSource?active.sourceText:sdkByName.get(name);
+  if(wanted===undefined||!text.equals(Buffer.from(wanted)))throw Error('Program consumed foreign or differently encoded input '+sf.fileName);
+  return {file:sf.fileName,sha256:H(text),defaultLibrary:program.isSourceFileDefaultLibrary(sf),sourceRoot:isSource};
+ });
+ const diagnostics=[...program.getSyntacticDiagnostics(),...program.getSemanticDiagnostics()].map(d=>({code:d.code,startUtf16:d.start,file:d.file?.fileName}));
+ if(diagnostics.length)throw Error('reference diagnostics '+JSON.stringify(diagnostics));
+ active.diagnostics=diagnostics;
+ const sf=program.getSourceFile(roots[0]),calls=[];
+ function node(n){return {kind:ts.SyntaxKind[n.kind],file:n.getSourceFile().fileName,startUtf16:n.getStart(),endUtf16:n.end};}
+ function visit(n){if(ts.isCallExpression(n))calls.push({call:node(n),expression:node(n.expression),text:n.getText(sf)});ts.forEachChild(n,visit);}visit(sf);
+ active.typedSyntaxCalls=calls;
+ return program;
+};
+const contexts={};
+try{
+ for(const context of ['legacy','retained']){
+  const requestRaw=fs.readFileSync(path.join(__dirname,'request.'+context+'.local.json')),request=JSON.parse(requestRaw);
+  const source=request.roots[0],text=request.files[source];
+  if(!fs.readFileSync(source).equals(Buffer.from(text)))throw Error('source differs');
+  active={context,sourcePath:source,sourceText:text,requestSha256:H(requestRaw),readBindings:[],boundedSystemRefusals:[]};
+  const snapshot=context==='retained'?new Map(Object.entries(request.files)):undefined;
+  const result=production.extractTypeScript(request.roots,request.cwd,snapshot);
+  active.productionExtraction=result;
+  if(active.actualProgramSnapshotPresent!==(context==='retained'))throw Error('wrong actual snapshot context');
+  if(active.typedSyntaxCalls.length!==1)throw Error('one exact syntax Call required');
+  delete active.sourceText;
+  contexts[context]=active;
+ }
+}finally{production.extractionContext.createProgram=originalCreate;Object.assign(ts.sys,originalSystem);active=null;}
+const wanted={callerRelPath:'entry.ts',callerSymbolPath:'caller',calleeName:'helper',calleeRelPath:'entry.ts',calleeSymbolPath:'helper',line:2};
+if(contexts.legacy.productionExtraction.calls.length!==0||JSON.stringify(contexts.retained.productionExtraction.calls)!==JSON.stringify([wanted]))throw Error('actual reference contradicts the historical contrast; STOP');
+if(JSON.stringify(contexts.legacy.typedSyntaxCalls)!==JSON.stringify(contexts.retained.typedSyntaxCalls))throw Error('syntax differs across contexts');
+const output={schema:1,kind:'PUBLIC_AS_EXPRESSION_TWO_CONTEXT_REFERENCE_NOT_CANDIDATE',typescript:ts.version,bun:Bun.version,
+ typescriptModuleSha256:H(fs.readFileSync(tsPath)),extractorSourceSha256:H(fs.readFileSync(extractorPath)),
+ extractorGitBlob:'2400cdd94c0903195df82c2b2c387bcbaa1513b0',sdkDescriptorSha256:H(sdkRaw),
+ referenceSystem:'Both production calls use the same bounded ts.sys: source root and exact SDK libraries only; no automatic ambient type-directory enumeration. The suppliedSnapshot argument alone differs.',contexts,
+ candidateQueries:0,hostActions:0,candidateBuilds:0,qualificationCredit:0};
+const target=path.join(__dirname,'baseline.actual.json');fs.writeFileSync(target,JSON.stringify(output,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({baselineSha256:H(fs.readFileSync(target)),calls:{legacy:0,retained:1},programs:2,
+ consumedFiles:Object.fromEntries(Object.entries(contexts).map(([k,v])=>[k,v.programConsumedFiles.length])),candidateQueries:0}));

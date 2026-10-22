@@ -1,0 +1,55 @@
+{
+  "head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "platform": "macos",
+  "protocol": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "node": "/Users/hokli/.local/bin/node",
+  "node_sha256": "b468fb9c67427c9d3aec07ee1105e63020923a631a9a2a00beb71a7ba3768bfd",
+  "PATH": "/Users/hokli/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "commands": [
+    {
+      "argv": [
+        "/Users/hokli/.local/bin/python3.13",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-make_host_manifest.py",
+        "build",
+        "--repo",
+        "/Users/hokli/semctx-t00-review-20261021",
+        "--prepared",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+        "--prepared-summary",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/prepared-two-os-summary.json",
+        "--raw-root",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+        "--platform",
+        "macos",
+        "--output",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/macos-hosts.native.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "0007af7c73861c6be9312be49f71040355aff65373d073b82338c21cac1c886d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/hokli/.local/bin/python3.13",
+        "/Users/hokli/semctx-t00-review-20261021/tools/rust-ts-r0/qualification/property_assessor/assess_final.py",
+        "--repo",
+        "/Users/hokli/semctx-t00-review-20261021",
+        "--manifest",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/macos-hosts.native.json",
+        "--protocol-sha256",
+        "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+        "--output",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-macos.native.json",
+        "--cache-dir",
+        "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessor-cache-macos"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "dfd8f9a67d0bee6bcd4249267070832f1bcf5d5171b61f653f47d2072efb1879",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "candidate_queries": 0,
+  "owned_caffeinate_stopped": true,
+  "qualified_obligations": 0,
+  "R0_decision": null
+}

@@ -1,0 +1,90 @@
+{
+  "kind": "PUBLIC_FINITE_EXECUTION_REVIEW_STORAGE",
+  "schema_version": 1,
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "assets": [
+    {
+      "logical_path": "raw-reference-authentication.json",
+      "stored_path": "raw-reference-authentication.json.gz",
+      "source_path": "r0-execution-joins-96fedbbe/public-raw-reference-authentication.json",
+      "decoded_sha256": "0a64b6991934801776ba72a1691e76b82ba873284504d54520dd32f3c781a97c",
+      "decoded_bytes": 19123302,
+      "stored_sha256": "54758fd28e2cfce0ab80a6d541735733f47c78595f8ec8b9cbb9c720a2cba7dc",
+      "stored_bytes": 516256,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "source-execution-group-review.json",
+      "stored_path": "source-execution-group-review.json.gz",
+      "source_path": "r0-execution-joins-96fedbbe/public-source-execution-group-review.json",
+      "decoded_sha256": "3170e923a45aefdf1796cff753af5e1afc2ed009e2f60ddebacb594ace606d51",
+      "decoded_bytes": 164406,
+      "stored_sha256": "18afe4db9c20b16226d6d86f04017ab03cc35d9e3b586c2a7a9e81f555c38127",
+      "stored_bytes": 22707,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "qualified-outline-finite-review.json",
+      "stored_path": "qualified-outline-finite-review.json.gz",
+      "source_path": "r0-adequacy-qualified-outline-96/public-finite-adequacy-review.json",
+      "decoded_sha256": "24f4e35345c64b47a11b69d07bc583bc6440e23534fb196e6ecbc3b0dce5bd3f",
+      "decoded_bytes": 2159463,
+      "stored_sha256": "0068b7a549196a2d5a8ae3c5af0588b5186df6f60c0b9a030e366f9d03414327",
+      "stored_bytes": 107034,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "other-finite-review.json",
+      "stored_path": "other-finite-review.json.gz",
+      "source_path": "r0-adequacy-other-96/public-finite-adequacy-220.json",
+      "decoded_sha256": "2b3b21e41c26ad11371eecfc9758bb208db9b6f7ef10a263c2ad3d601f0eff78",
+      "decoded_bytes": 2436881,
+      "stored_sha256": "6020bcaf3e7e9f7aa8ba6fdba5e7aa5257d2d1cd70c867bb8421ab0fe1888580",
+      "stored_bytes": 99906,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "token-guard-finite-review.json",
+      "stored_path": "token-guard-finite-review.json.gz",
+      "source_path": "r0-adequacy-other-96/public-token-guard-adequacy-3.json",
+      "decoded_sha256": "f684b856668c239a72ca19934851931841ef5b445c0cec9176f5f79d25516bed",
+      "decoded_bytes": 19498,
+      "stored_sha256": "736b1c283988b0c9934cbb669884faf0dec8f858d0a295e344ce33dc9caa6e83",
+      "stored_bytes": 3101,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "existing-native-factory-fields.json",
+      "stored_path": "existing-native-factory-fields.json.gz",
+      "source_path": "r0-adequacy-other-96/public-existing-native-factory-fields.json",
+      "decoded_sha256": "222ca5c550595b1b21052e1a18d15a484f0eeac72d5bc21ec8c30223e7a88cba",
+      "decoded_bytes": 3600,
+      "stored_sha256": "97fc9f577d032e91f4ba56c4d13c9465072e826d10d324e048d449deca82cf79",
+      "stored_bytes": 1129,
+      "codec": "gzip"
+    },
+    {
+      "logical_path": "root-finite-adequacy-394.json",
+      "stored_path": "root-finite-adequacy-394.json.gz",
+      "source_path": "root-public-dossier-96/root-finite-adequacy-394.json",
+      "decoded_sha256": "235490bfbab03622927a55bd0e83cf1ceaf6651b28c90314656d30a4b91ac2fb",
+      "decoded_bytes": 1213175,
+      "stored_sha256": "d6a9d84247b48dd850004c4a36d6fc37e427e1454972762d282d406860b0b22a",
+      "stored_bytes": 62764,
+      "codec": "gzip"
+    }
+  ],
+  "root_accepted_finite_selections": 394,
+  "pending_coordinates": [
+    [
+      221,
+      1
+    ]
+  ],
+  "formal_qualified_obligations": 0,
+  "qualification_credit": 0,
+  "R0_decision": null,
+  "limits": "Two native hosts only; finite selection review and custody are not qualification or terminal proof admission.",
+  "previous_storage_index_sha256": "2339207d9c496268a0adbbe96f47b1e7c85fe63eb54ce50216d7ac3addfbcb66",
+  "previous_storage_index_archive": "execution-review/index.initial.json.gz"
+}

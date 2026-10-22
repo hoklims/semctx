@@ -1,0 +1,24 @@
+{
+  "kind": "OPAQUE_PREQUERY_PUBLIC_WITNESS_PACKAGE",
+  "capsule": {
+    "path": "capsule.tar.gz",
+    "sha256": "8e69b0e77961542118cb0b721c455ff90a02288014318ff4185e44961cf9bc6c",
+    "bytes": 477113
+  },
+  "original_manifest": {
+    "path": "manifest.frozen.json",
+    "sha256": "c63f6c126b5a91155fb379034a1c756f3f2f0de487e5bfc628529a5a506f550b",
+    "bytes": 4285
+  },
+  "archive_regular_members": 33,
+  "whitelisted_original_members": 23,
+  "ignored_controller_data_members": 10,
+  "materialization": "Only the23 original members plus external manifest, outside checkout; no TAR extraction.",
+  "executable_imports": [
+    "read_public.py",
+    "identity_scope_reader.py"
+  ],
+  "candidate_queries": 0,
+  "qualification_credit": 0,
+  "R0_decision": null
+}

@@ -17,11 +17,14 @@ import tarfile
 import time
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 from additional_digest_dispositions import IDS as DIGEST_IDS, additional_digest_dispositions
 from configuration_6046_disposition import configuration_6046_disposition
 from prepare_token_family import prepare as prepare_token_family
 from native_compiler_identity import record_native_compiler_source
 from native_build_identity import NativeBuildIdentity
+from public_as_expression_witness import acquire as acquire_public_as_expression
 
 AUTHORITY = 'owner-reviewed-macos-linux-authorizes-windows-observation'
 SDK_SHA = 'f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5'
@@ -68,7 +71,9 @@ def snapshot(repo, expected):
     require(git(repo, 'rev-parse', 'HEAD') == expected, 'source HEAD differs from event')
     require(not git(repo, 'status', '--porcelain=v1', '--untracked-files=all'), 'source is dirty')
     names = git(repo, 'ls-files', 'tools/gates', 'tools/rust-ts-r0', 'rust-toolchain.toml').splitlines()
-    return {'source_head': expected, 'status': '', 'files': {p: sha(repo/p) for p in names}}
+    all_names = git(repo, 'ls-files').splitlines()
+    return {'source_head': expected, 'status': '', 'files': {p: sha(repo/p) for p in names},
+            'all_tracked_files': {p: sha(repo/p) for p in all_names}}
 
 
 def run(repo, out, label, argv, env, timeout=900, required=True):
@@ -209,6 +214,19 @@ def main():
     before = snapshot(repo, args.expected_head)
     out.mkdir(parents=True)
     save(out/'source-before.json', before)
+    try:
+        execute_acquisition(args, repo, out, before)
+    finally:
+        try:
+            after = snapshot(repo, args.expected_head)
+            save(out/'source-after-finally.json', after)
+            require(after == before, 'source drift during Windows milestone')
+        except Exception as error:
+            save(out/'source-postflight-error.json', {'error': str(error), 'qualification_credit': 0})
+            raise
+
+
+def execute_acquisition(args, repo, out, before):
     env = os.environ.copy()
     env.pop('GIT_CONFIG_GLOBAL', None)
     env.pop('GOPORT_BUILD_VERSION', None)
@@ -307,6 +325,10 @@ def main():
     env.update(SEMCTX_SUPPLEMENT_REGISTRY=str(out/'registry.enabled.json'), SEMCTX_SUPPLEMENT_FIXTURE=str(out/'fixture.enabled.json'),
                SEMCTX_SUPPLEMENT_PERMIT=str(out/'root-execution-permit.json'), SEMCTX_SUPPLEMENT_EVIDENCE=str(supplement_out))
     supplement = run(repo, out, 'supplement-native', [fixture['qualification_observer_path'], supplement_name, '--ignored', '--exact', '--nocapture'], env, required=False, timeout=1800)
+    additional_as_expression = acquire_public_as_expression(
+        repo, out, fixture, env, run,
+        lambda: require(snapshot(repo, args.expected_head) == before, 'source drift during additional witness'),
+        authorized=args.execute_native_campaigns is True)
     after = snapshot(repo, args.expected_head)
     save(out/'source-after.json', after)
     require(after == before, 'source drift during native campaigns')
@@ -334,6 +356,7 @@ def main():
         'supplement_exit_code': supplement['exit_code'], 'reports': {p: sha(out/p) for p in reports if (out/p).is_file()},
         'original_raw_counts': original_counts, 'supplement_observation_nonpass': observed,
         'attempts': 1, 'qualified': False, 'qualification_credit': 0, 'R0_decision': None,
+        'additional_as_expression_witness': {'path': str(additional_as_expression), 'sha256': sha(additional_as_expression)},
         'root_prior_review_reference_sha256': args.prerequisite_proof_sha256, 'prior_native_review_independently_verified_by_this_runner': False})
     require(original['exit_code'] == 0 and supplement['exit_code'] == 0, 'native acquisition failed; raw evidence retained')
     required_counts = ('source_nonpass', 'digest_nonpass', 'addenda_nonpass', 'public_nonpass', 'token_nonpass')

@@ -1,0 +1,16 @@
+{
+  "regular_members": 25872,
+  "directory_members": 7952,
+  "links_retained_only_in_archive": 24,
+  "total_members": 33848,
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "export_receipt_sha256": "9b7f529e422e80bacee8b7be813999e4c8c34daddf506e16523550b0cdbe6d2e",
+  "archive_sha256": "e166221f6b1bf627f54cba684dde503ffe8a9c498bbb735b74fdcb06e6dbbd84",
+  "archive_bytes": 192146864,
+  "all_regular_captures_and_streams_extracted": true,
+  "all_four_native_binary_hashes_verified": true,
+  "actual_raw_directory": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3\\complete-macos-import-f1\\raw\\evidence",
+  "candidate_queries_during_import": 0,
+  "qualified_obligations": 0,
+  "R0_decision": null
+}

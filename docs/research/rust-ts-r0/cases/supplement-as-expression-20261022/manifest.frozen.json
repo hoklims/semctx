@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "kind": "PUBLIC_AS_EXPRESSION_INDEPENDENT_PREQUERY_FREEZE",
+  "source_head_at_freeze": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "files": [
+    {
+      "path": "baseline.actual.json",
+      "sha256": "3b78cf0daad9c0c8782f75c4ffd22247aaa82257e89bc88e742f5ee3ba82e899",
+      "bytes": 79805
+    },
+    {
+      "path": "baseline.cjs",
+      "sha256": "1c1474610cc1da46d3364102d4b5f9c2827c730a1de1c3caf3bc7c9ea82e6695",
+      "bytes": 6413
+    },
+    {
+      "path": "expected-oracle.json",
+      "sha256": "e735077c8e4a2331cae55b3e3779225ba971537d70a8834fc9937675f46ccb2f",
+      "bytes": 2787
+    },
+    {
+      "path": "fixture/repo/entry.ts",
+      "sha256": "1d10934ea61fbeb306efbbebb2ec02dd2af73dc13226eef776814d99ecb7409e",
+      "bytes": 105
+    },
+    {
+      "path": "freeze.py",
+      "sha256": "a38c6deeee2775b5935f233e1274d4e48b007844a0c516f97fdfa61284128038",
+      "bytes": 5537
+    },
+    {
+      "path": "historical-authority.json",
+      "sha256": "98c4fe8e299e6ee98ac485aadfd3d53cdb957fdc9c41a29505cfa77767e0f531",
+      "bytes": 422
+    },
+    {
+      "path": "historical-semantic-js-contracts.test.ts",
+      "sha256": "39f6372cf882cbab92f6df059fb4d6d9cc33a4984aea9f9763bba0eed510ef95",
+      "bytes": 12745
+    },
+    {
+      "path": "history/ambient-type-refusal.json",
+      "sha256": "9d5a5b162454c1b3a3ac1a13aa0de33d3a101b214f2b60144c76e411f1b5b694",
+      "bytes": 374
+    },
+    {
+      "path": "history/baseline-ambient-v1.cjs",
+      "sha256": "362975a68de614c6436d8c5752863d8e820f9c6f9edb9d4362979111aca6783d",
+      "bytes": 5094
+    },
+    {
+      "path": "history/initial-source-crlf.bin",
+      "sha256": "0a301445af5853833d5f846939525ba5c6a676e82664f734aabc41139c910ffe",
+      "bytes": 107
+    },
+    {
+      "path": "history/pre-reference-newline-failure.json",
+      "sha256": "e2b9371592f1a4a6e2b3c3c828af5c5dc0b166d0b9c045eea8e0da21e071147f",
+      "bytes": 282
+    },
+    {
+      "path": "identity_scope_reader.py",
+      "sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "bytes": 12186
+    },
+    {
+      "path": "materialize_native.py",
+      "sha256": "dcfc445721fd99adfe44c8c712286cc2fbb98b815276b998382b3fb656975594",
+      "bytes": 2571
+    },
+    {
+      "path": "native-plan.disabled.json",
+      "sha256": "35699d826cc62404d57d5e2c3b350e2f10259ec265e9f9345d6558a928ff51c4",
+      "bytes": 5825
+    },
+    {
+      "path": "prepare_local.py",
+      "sha256": "e4701013145579ad1f733497a9e448b903ece0dd82a0525b988ca4668d816909",
+      "bytes": 2553
+    },
+    {
+      "path": "prepare_oracle.py",
+      "sha256": "bf346661473f6a468b3981a747b9cdd399a2761149554d4dbcdbd036402f231e",
+      "bytes": 1713
+    },
+    {
+      "path": "read_public.py",
+      "sha256": "c4e62e6ce82b2e6675f572c8ceb115d70d0d66c8ad8df59ea12ed6ef7579c4b8",
+      "bytes": 5802
+    },
+    {
+      "path": "reader-controls.json",
+      "sha256": "f1502496bce799af8177dc4d4025bdc96bb548cd6e9f18ba19bae5fa967ddafa",
+      "bytes": 5759
+    },
+    {
+      "path": "reader_controls.py",
+      "sha256": "3e310b92ecd334ae29a702bc1c9fc7ea4134eca89f0680542079cb812d7116bd",
+      "bytes": 4764
+    },
+    {
+      "path": "README.md",
+      "sha256": "eb9f7364323800c2b8078756062615f2d8d48bd72d24695ce3b47c36288637cf",
+      "bytes": 4464
+    },
+    {
+      "path": "request.legacy.local.json",
+      "sha256": "e6270f0094a851d013e637cf687a389913f846764faad7f1706ded2bb215c590",
+      "bytes": 1050
+    },
+    {
+      "path": "request.retained.local.json",
+      "sha256": "fb2e5be2a72989fe691cd28e6e77b9f8a3b1ea311fa69cf0a484d871f83669b1",
+      "bytes": 1051
+    },
+    {
+      "path": "sdk.frozen.json",
+      "sha256": "3a7e9a3cb0763754e51f5ec9bc06e77a53e5a4757b47c8e47adc18b702d3f8ac",
+      "bytes": 3230004
+    }
+  ],
+  "baseline_sha256": "3b78cf0daad9c0c8782f75c4ffd22247aaa82257e89bc88e742f5ee3ba82e899",
+  "oracle_sha256": "e735077c8e4a2331cae55b3e3779225ba971537d70a8834fc9937675f46ccb2f",
+  "reader_sha256": "c4e62e6ce82b2e6675f572c8ceb115d70d0d66c8ad8df59ea12ed6ef7579c4b8",
+  "controls_sha256": "f1502496bce799af8177dc4d4025bdc96bb548cd6e9f18ba19bae5fa967ddafa",
+  "candidate_queries": 0,
+  "candidate_builds": 0,
+  "host_actions": 0,
+  "git_commits": 0,
+  "qualification_credit": 0,
+  "R0_decision": null
+}

@@ -1,0 +1,26 @@
+"""Freeze exact values from actual TypeScript reference executions only."""
+import hashlib
+import json
+from pathlib import Path
+import shutil
+
+HERE = Path(__file__).resolve().parent
+raw = (HERE / 'baseline.actual.json').read_bytes()
+assert hashlib.sha256(raw).hexdigest() == '3b78cf0daad9c0c8782f75c4ffd22247aaa82257e89bc88e742f5ee3ba82e899'
+baseline = json.loads(raw)
+assert baseline['contexts']['legacy']['productionExtraction']['calls'] == []
+assert len(baseline['contexts']['retained']['productionExtraction']['calls']) == 1
+request = json.loads((HERE / 'request.retained.local.json').read_text())
+source = next(iter(request['files'].values()))
+oracle = {'schema': 1, 'kind': 'PUBLIC_AS_EXPRESSION_TWO_CONTEXT_ORACLE',
+          'baseline_sha256': hashlib.sha256(raw).hexdigest(),
+          'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
+          'syntax_call': baseline['contexts']['retained']['typedSyntaxCalls'][0],
+          'extractions': {k: v['productionExtraction'] for k, v in baseline['contexts'].items()},
+          'reference_system': baseline['referenceSystem'],
+          'scope': 'The exact captured source, these two explicit contexts and canonical call projection only. Legacy empty calls are not a global absence claim.',
+          'candidate_queries': 0, 'qualification_credit': 0, 'R0_decision': None}
+(HERE / 'expected-oracle.json').write_text(json.dumps(oracle, indent=2) + '\n', encoding='utf-8')
+shutil.copyfile(HERE.parent / 'public-scoped-call-witness/identity_scope_reader.py', HERE / 'identity_scope_reader.py')
+print(json.dumps({'oracle_sha256': hashlib.sha256((HERE / 'expected-oracle.json').read_bytes()).hexdigest(),
+                  'candidate_queries': 0}))

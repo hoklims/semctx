@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "kind": "FINITE_PUBLIC_BYTE_COPY_MANIFEST",
+  "files": [
+    {
+      "source_path": "work/native-96fedbbe-portable/PORTABLE-PUBLIC-INDEX.json",
+      "destination": "portable-public-index.original.json",
+      "sha256": "8bbaa3ec83ca5a0e37bd64cac5c91215e4f3ff80ace91b37484d9a1d4c036b96",
+      "bytes": 9911
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/macos/manifest.json.gz",
+      "destination": "macos/manifest.json.gz",
+      "sha256": "0f05602549bc7cf5c8f20f7f3d0821e757ed54fd56fe222e6ee362a96c5e3a76",
+      "bytes": 3973298
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/macos/pack.json",
+      "destination": "macos/pack.json",
+      "sha256": "9ff02caa05b430231e86f8771f0f8fdbd9f6f89958f990cba9e126aa876acecb",
+      "bytes": 1521
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/macos/capture.part0001",
+      "destination": "macos/capture.part0001",
+      "sha256": "697567f3dc50eb3ddf41b328feb0183ffb9311d4756a5ef4ce6734d0483c889d",
+      "bytes": 24000000
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/macos/capture.part0002",
+      "destination": "macos/capture.part0002",
+      "sha256": "2670c7f68aaa72f71a8c00773296a7a16bbee244d77ffa30cc44d5d955dd07f5",
+      "bytes": 24000000
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/macos/capture.part0003",
+      "destination": "macos/capture.part0003",
+      "sha256": "5421747e53521518ebcbe40b88ee5739b3c57f2184fbf6c8d383e00d96fe0ee7",
+      "bytes": 10974966
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-import-receipt.json",
+      "destination": "macos-custody/complete-import-receipt.json",
+      "sha256": "ab12c0567a6c81b371c2ec32f7f77d96c4523c8bcaaa33ac20a9334360ea8e5a",
+      "bytes": 785
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-export-receipt.json",
+      "destination": "macos-custody/complete-export-receipt.json",
+      "sha256": "9b7f529e422e80bacee8b7be813999e4c8c34daddf506e16523550b0cdbe6d2e",
+      "bytes": 10631728
+    },
+    {
+      "source_path": "work/native-96fedbbe-prepared-export/prepared-macos.tar.gz",
+      "destination": "preparation/prepared-macos.tar.gz",
+      "sha256": "2ecc609bd08977b3add1dfdda4f761e53dfae6c6d5962d80a490fc7f9fca7c54",
+      "bytes": 930566
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/linux/manifest.json.gz",
+      "destination": "linux/manifest.json.gz",
+      "sha256": "c17d70ec53a3d5d1510067a89cd161047bef832c0e5081e16438ced23cb449e7",
+      "bytes": 3972966
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/linux/pack.json",
+      "destination": "linux/pack.json",
+      "sha256": "ccf90c62ebf8e947eb01f5355452fdeecaba1b603c67a5a4326ba420c9713f22",
+      "bytes": 1521
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/linux/capture.part0001",
+      "destination": "linux/capture.part0001",
+      "sha256": "4eae7135d11c4157a5fa01dd6ff91f13c9e893c49978eeadda47b7617aeba60c",
+      "bytes": 24000000
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/linux/capture.part0002",
+      "destination": "linux/capture.part0002",
+      "sha256": "cd887463c390650a6886a413619abb0f2ccf85ed890c92834f07a66ead19dab7",
+      "bytes": 24000000
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable/linux/capture.part0003",
+      "destination": "linux/capture.part0003",
+      "sha256": "7f102244ab9dbbcaecb2ed521f986367e764fdb0b81e359c3b0b45f6d16422c9",
+      "bytes": 11069485
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-import-receipt.json",
+      "destination": "linux-custody/complete-import-receipt.json",
+      "sha256": "41c92bafe635f6de1769bebd0ee54e80d438817b8d530d46f921514d3223c81c",
+      "bytes": 877
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-export-receipt.json",
+      "destination": "linux-custody/complete-export-receipt.json",
+      "sha256": "4c1d9235428cdde5d4df2cd536dcba32dae81e1f8a10eb3e5c7b20d95ed502b8",
+      "bytes": 10629805
+    },
+    {
+      "source_path": "work/native-96fedbbe-prepared-export/prepared-linux.tar.gz",
+      "destination": "preparation/prepared-linux.tar.gz",
+      "sha256": "0cf3c71c79a448549fef5963de728689729aebe48b7c3e3504ffdf2bfab128a0",
+      "bytes": 916590
+    },
+    {
+      "source_path": "work/native-96fedbbe-assessment/download-v1/assessment-macos.native.json",
+      "destination": "macos-custody/assessment-macos.native.json",
+      "sha256": "f07710107109f559681c14bcbe3b7b742d748a329c094192ca0ce5e2d17e7380",
+      "bytes": 47239571
+    },
+    {
+      "source_path": "work/native-96fedbbe-assessment/download-v1/public-download-receipt.json",
+      "destination": "macos-custody/public-download-receipt.json",
+      "sha256": "55bb13526bf979977879bf10f29dab2a8cb87b3745b6591148648582db11f186",
+      "bytes": 1619
+    },
+    {
+      "source_path": "work/native-96fedbbe-assessment/download-v1/macos-hosts.native.json",
+      "destination": "macos-custody/macos-hosts.native.json",
+      "sha256": "4707e948bba58380a1c6c40c969ae1f7a38fe53d5678d08f5a6195d03d2ce1dd",
+      "bytes": 12408
+    },
+    {
+      "source_path": "work/native-96fedbbe-assessment/download-v1/macos-assessment-driver.receipt.json",
+      "destination": "macos-custody/macos-assessment-driver.receipt.json",
+      "sha256": "606615dd2eef0d47a5bf8a65b1bfa9a0c13e6686749e02504f4a61b6a5e2673f",
+      "bytes": 2832
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/assessment-linux.native.json",
+      "destination": "linux-custody/assessment-linux.native.json",
+      "sha256": "5bd9f1014e1872dd4bd1ffcf5706e2e78cde7839eb0644ec0b3258fe0091f71b",
+      "bytes": 45463312
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/transport-receipt.json",
+      "destination": "linux-custody/transport-receipt.json",
+      "sha256": "0c86a13fbd1598acace65285a38be4541c9dfda7f38328c05301519af8cc2a2e",
+      "bytes": 5748
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/linux-hosts.native.json",
+      "destination": "linux-custody/linux-hosts.native.json",
+      "sha256": "42568d8f5869e83c1ac2165de79b2cc14821f3006b079b549c7942986c3a4b11",
+      "bytes": 11120
+    },
+    {
+      "source_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/linux-assessment-driver.receipt.json",
+      "destination": "linux-custody/linux-assessment-driver.receipt.json",
+      "sha256": "c663ff3d6621c6c4200b0003c4a60c6858b3e5e12249a98ff0c14f74edfaecf1",
+      "bytes": 3266
+    },
+    {
+      "source_path": "work/retained-scope-observer-fix/native-freeze-c01cb627/freeze-receipt.json",
+      "destination": "protocol/native/freeze-receipt.json",
+      "sha256": "11c2a4cbe3b172c3d4ae587528822c441a4a2bc8bb6fce2eda66b0c7f938d6e7",
+      "bytes": 1785
+    },
+    {
+      "source_path": "work/retained-scope-observer-fix/native-freeze-c01cb627/native-assessor.zip",
+      "destination": "protocol/native/native-assessor.zip",
+      "sha256": "30fb1d2033423ae069e790d5e701d28038fd98857b9f22d4f42ffb2dd56b2f48",
+      "bytes": 417183
+    },
+    {
+      "source_path": "work/retained-scope-observer-fix/windows-freeze-c01cb627/freeze-receipt.json",
+      "destination": "protocol/windows/freeze-receipt.json",
+      "sha256": "e22527ec51a3965ed23fa09d09c5db8baeaf96331f96c55b8cfea8b071e9a110",
+      "bytes": 2191
+    },
+    {
+      "source_path": "work/retained-scope-observer-fix/windows-freeze-c01cb627/windows-assessor.zip",
+      "destination": "protocol/windows/windows-assessor.zip",
+      "sha256": "d98a7b4d003f812c97b3c71ea2d23ec90780bba3bc1cdecc3c90aa75ca20158d",
+      "bytes": 430553
+    },
+    {
+      "source_path": "work/native-96fedbbe-prepared-export/prepared-two-os-summary.json",
+      "destination": "preparation/prepared-two-os-summary.json",
+      "sha256": "cc4dc66acdc64eb1f5e7e1d05158475126757663ba84e282f87ee1ab8fb2902d",
+      "bytes": 13124
+    },
+    {
+      "source_path": "work/public-native-regression-96fedbbe/PUBLIC-96-FINAL-PROOF-INDEX.json",
+      "destination": "public-regression/final-proof-index.original.json",
+      "sha256": "1d9920b5ef80dab084e8ccf07d18e60687824cab329dce8adb394a383abe7031",
+      "bytes": 4626
+    },
+    {
+      "source_path": "work/public-native-regression-96fedbbe/execution-v3/PUBLIC-96-RAW-ADJUDICATION.json",
+      "destination": "public-regression/PUBLIC-96-RAW-ADJUDICATION.json",
+      "sha256": "11630b7ee0fb290d99c83e05229e5343044d1822b14c0cde250058e42e264ea8",
+      "bytes": 3066
+    },
+    {
+      "source_path": "work/public-native-regression-96fedbbe/execution-v3/raw-archives/PUBLIC-96-MACOS-RAW.tar.gz",
+      "destination": "public-regression/PUBLIC-96-MACOS-RAW.tar.gz",
+      "sha256": "5edb4208bd7c27f848647755312561ed5bde724b6a9fccb69a2728af7d87fcbf",
+      "bytes": 2825659
+    },
+    {
+      "source_path": "work/public-native-regression-96fedbbe/execution-v3/raw-archives/PUBLIC-96-LINUX-RAW.tar.gz",
+      "destination": "public-regression/PUBLIC-96-LINUX-RAW.tar.gz",
+      "sha256": "d29b144ba1a8faec1e2270f264446ae017dd91b8b245c2c761e34b52ac2d7d76",
+      "bytes": 2780857
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "destination": "public-scoped-method/PUBLIC-ACTUAL-TWO-HOST.json",
+      "sha256": "bfcf5090773c5dbd3c1c119d0040f7cda2b362a56feec8fa7c19b84143449052",
+      "bytes": 10503
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/manifest.frozen.json",
+      "destination": "public-scoped-method/manifest.frozen.json",
+      "sha256": "8acf4b937dd802db423cd248aba24f7e9f40d7cfa215a2fcfc3dcf68fe5e1cb0",
+      "bytes": 3236
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/expected-oracle.json",
+      "destination": "public-scoped-method/expected-oracle.json",
+      "sha256": "5318b863fe629beb19b3b40984615882cec45a681122b691c0b4eb3072f82e24",
+      "bytes": 1754
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/identity_scope_reader.py",
+      "destination": "public-scoped-method/identity_scope_reader.py",
+      "sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "bytes": 12186
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/baseline.actual.json",
+      "destination": "public-scoped-method/baseline.actual.json",
+      "sha256": "356c34b175412ce4d7bb2d2dc42419e8e2bd9aa7ef6341df2de547cef3e8fb26",
+      "bytes": 19062
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/baseline.cjs",
+      "destination": "public-scoped-method/baseline.cjs",
+      "sha256": "388a5764652819d3b2bc6343e1709ba167a9be181055480e8470c1376dc64643",
+      "bytes": 4789
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/staging-v1/raw-macos-one-shot.tar.gz",
+      "destination": "public-scoped-method/raw-macos-one-shot.tar.gz",
+      "sha256": "36199481735fb5c38af7c86611141ebac2c01838acb315b816d216945ae98300",
+      "bytes": 932691
+    },
+    {
+      "source_path": "work/public-scoped-call-witness/staging-v1/raw-linux-one-shot.tar.gz",
+      "destination": "public-scoped-method/raw-linux-one-shot.tar.gz",
+      "sha256": "4fdc590fc258af727406c253bd805d45a3b5bae51f28a8ffe5af06c7de60283e",
+      "bytes": 916547
+    },
+    {
+      "source_path": "work/r0-source-selection-96fedbbe/root-source-review-v1/current-source-mechanisms.json",
+      "destination": "source-selection/current-source-mechanisms.original.json",
+      "sha256": "26cf1b43b1e262730ab6741348f9c9fb9415f7b55312a005c77f6b44f73fc9a6",
+      "bytes": 2699352
+    },
+    {
+      "source_path": "work/r0-terminal-ledger-preparation-v3/current-96-draft-v1.json",
+      "destination": "draft-ledger/current-96-draft-v1.original.json",
+      "sha256": "d74e5eeb9858735d3383813587496c03984dbc606f29226293c4a0cf354b9fa5",
+      "bytes": 13948945
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable-index/build_index.py",
+      "destination": "portable-index-join/build_index.py",
+      "sha256": "9b1ac6f8e0efd81625b047d0ad2a37a96413cb567706c13a3aaa71fbef6bf381",
+      "bytes": 9326
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable-index/join-validation.json",
+      "destination": "portable-index-join/join-validation.json",
+      "sha256": "797f90a9cbca5beeb013cecdef17a009277bfef32971b84b2b1d385ec50fac6f",
+      "bytes": 5033
+    },
+    {
+      "source_path": "work/portable-public-capture-delivery/capture_pack.py",
+      "destination": "capture-tool/capture_pack.py",
+      "sha256": "07b7dbedaa22cdc06afd28be7f9896f9c87ba7eebeaad4a7ca690738098b91ec",
+      "bytes": 31078
+    },
+    {
+      "source_path": "work/portable-public-capture-delivery/test_capture_pack.py",
+      "destination": "capture-tool/test_capture_pack.py",
+      "sha256": "8fe88699ca4b2974f137580592733a5f590ea20063224f1bdc1f6b90630a7395",
+      "bytes": 17547
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable-index/assemble.py",
+      "destination": "assemble.py",
+      "sha256": "8c562fc9283671e1dbcaf73ed69f6400f800eba6040d2c2b34040b91c06881e4",
+      "bytes": 10977
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable-index/README.md",
+      "destination": "README.md",
+      "sha256": "45b180e91d6772476b6a16c6fb4cee462e2139a075d7fca5f21de09e2897f22d",
+      "bytes": 5373
+    },
+    {
+      "source_path": "work/native-96fedbbe-portable-index/publication-location-map.json",
+      "destination": "publication-location-map.json",
+      "sha256": "7c0f21e9151a37cd60dba8d89f2a1ae01249d42b38379b756f3071288d952836",
+      "bytes": 10731
+    }
+  ],
+  "total_file_bytes": 266972069,
+  "qualification_credit": 0,
+  "R0_decision": null
+}

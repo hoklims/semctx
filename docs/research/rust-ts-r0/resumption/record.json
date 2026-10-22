@@ -226,6 +226,7 @@
     "currentOwnerCiRules": "owner-ci-rules-20261019.json"
   },
   "claimAudit": "claim-audit.md",
+  "currentDeliveryAuthority": "owner-delivery-decision-20261022.json",
   "activeCorrectionPass": "correction-pass1-registration.json",
   "additionalVersionAttributions": [
     {

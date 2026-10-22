@@ -1,0 +1,219 @@
+{
+  "expected_source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "evaluation_protocol_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "hosts": {
+    "macos": {
+      "raw_root": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+      "original": {
+        "report": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/original-evidence/report.json",
+          "sha256": "817ba6c121661d58bc8e7d1d4f16760be01d7a38f3dcead03c0654942eea91bf",
+          "bytes": 6292282
+        },
+        "freeze": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/original-evidence/freeze-manifest.json",
+          "sha256": "7d9a5fbfe37392f55197075df3cd62594a7b3b67e2236dddb6b27df828f9573f",
+          "bytes": 11092
+        },
+        "recipes": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/original-recipes/replay-recipes.json",
+          "sha256": "d6eb0487e88ada681c7e02dab5110f55f57077fc3c992032d137e3bff6457be8",
+          "bytes": 2403254
+        }
+      },
+      "supplement": {
+        "report": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/evidence/supplement-report.json",
+          "sha256": "66e9baf5a6016a7da9cbc284fd538d5ec509f8c30b65b64dce0ff69826dfdb8e",
+          "bytes": 5480646
+        },
+        "fixture": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/fixture.enabled.json",
+          "sha256": "7e16d12818bf3c5a8230fc544a7d63d960c21f7df79e5ed22c5e3813673e1e1e",
+          "bytes": 11093
+        },
+        "registry": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/registry.enabled.json",
+          "sha256": "93c8c566efb017bbb5b868aa50da9d49c9f39349066829397c82d30d20d4e2d8",
+          "bytes": 3486404
+        },
+        "addenda": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/addenda.enabled.json",
+          "sha256": "27f9c91f0bf5569346937bb00857c213e1808131a5a4af1406460e8dd0e35793",
+          "bytes": 63362
+        },
+        "plan": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/public-plan.json",
+          "sha256": "8b65150e7366605fb2a9b36b80f472d76c843d21751a8f7f7d7637ec704d7f15",
+          "bytes": 15680997
+        },
+        "evidence_root": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/evidence"
+      },
+      "source": {
+        "before": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/source-before.json",
+          "sha256": "99ac0d6d2584f97bed518d52fce83ffe9228abc721082a50669db21d729a8ba6",
+          "bytes": 29031
+        },
+        "after": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/source-after.json",
+          "sha256": "99ac0d6d2584f97bed518d52fce83ffe9228abc721082a50669db21d729a8ba6",
+          "bytes": 29031
+        }
+      },
+      "build_receipts": [
+        {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/helper-build.receipt.json",
+          "sha256": "15f175538947bfd8ed6240e1d1dacbf1eb83b960502cb85250b6a7e5456aa3ce",
+          "bytes": 267
+        },
+        {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/observer-build.receipt.json",
+          "sha256": "bd901419626233f941585afb489cf09bc481651b177e5ef97eb6756b72b89138",
+          "bytes": 393
+        },
+        {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/standalone-restore.receipt.json",
+          "sha256": "85318a17561ef023084e787e3d218463a5c092ba146766d975556b79630605a9",
+          "bytes": 294
+        }
+      ],
+      "artifact_files": {
+        "artifact": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/frozen-binaries/semctx-r0-probe",
+          "sha256": "47f68c66bb694511cff1263c713c83971d384846f920832f78c21530d0fe2d3d",
+          "bytes": 34410688
+        },
+        "helper": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/frozen-binaries/semctx-gates",
+          "sha256": "dc65066aea7ffaf4d1fc6bdee88cf6da04c17e8dae5f84949ea5a0101cb5b337",
+          "bytes": 1208480
+        },
+        "transport_fixture": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/frozen-binaries/semctx-gates-fixture",
+          "sha256": "f48b76802c09d2cbeda8a256e3a5e22206ec492085bb9296cf1f2df3535c1e2e",
+          "bytes": 772224
+        },
+        "qualification_observer": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/frozen-binaries/qualification_replay-70c7351ccc0a208d",
+          "sha256": "99d1000c05f1c1e1d4bf294e69518ab216d11c2e1ce324593eb35a746869dca0",
+          "bytes": 16203584
+        },
+        "sdk": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/sdk-input.json",
+          "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+          "bytes": 3218886
+        }
+      },
+      "legacy_identity_inputs": {
+        "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/legacy-identity-inputs.json",
+        "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+        "bytes": 60975636
+      },
+      "token_family": {
+        "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/token-family.enabled.json",
+        "sha256": "a7e1df93cf4220d4f739c944213a5db144c5318508d66640bb0b978ef2c0adb1",
+        "bytes": 3840
+      },
+      "native_compiler_identity": {
+        "receipt": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/native-compiler-source-identity.json",
+          "sha256": "53dd84ad6426d2f1a3a26640931163ac62c988a4763e87d087743de33c088305",
+          "bytes": 1691
+        },
+        "core": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/upstream-compiler-core.rs",
+          "sha256": "93b01fb584dc9f9547290e31172858f4ef8efc3aaf9b60134c468c18b84fc38b",
+          "bytes": 190643
+        },
+        "build_environment": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/build_environment.json",
+          "sha256": "8c744e7f1ebca66bc704fd1bac1cc6239393d9494a3268c57d8dcef5059043ca",
+          "bytes": 72874
+        }
+      },
+      "toolchain_receipts": {
+        "node-version": {
+          ".receipt.json": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/node-version.receipt.json",
+            "sha256": "35a210a1f6fa71f4484e2db375df9fa677cd91150413fdbd6bdf830a28e6c97a",
+            "bytes": 223
+          },
+          ".stdout": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/node-version.stdout",
+            "sha256": "2b796b748c85883d00cfea9775eaa143435f0dc06c69311b444cf0dfc98214bc",
+            "bytes": 9
+          },
+          ".stderr": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/node-version.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        },
+        "rustc-version": {
+          ".receipt.json": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/rustc-version.receipt.json",
+            "sha256": "dacd1e0415d6c8d4057d8301b9a1fff335de568b4d4bbdcc9d7f2c1433311665",
+            "bytes": 131
+          },
+          ".stdout": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/rustc-version.stdout",
+            "sha256": "e61cba8ded8c60e985f759f74a221c4773649021477d00b44c7af411eb8c218c",
+            "bytes": 192
+          },
+          ".stderr": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/rustc-version.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        },
+        "cargo-version": {
+          ".receipt.json": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/cargo-version.receipt.json",
+            "sha256": "c0bc6678d3ea6c4242ceb415e81318c0325981979c223c6d49a091460b419a20",
+            "bytes": 114
+          },
+          ".stdout": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/cargo-version.stdout",
+            "sha256": "c10ec31b8c6e6e2693cf65fc1971b41edbc3da1ae7db6f9f3f36c4823f8dcab5",
+            "bytes": 36
+          },
+          ".stderr": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/cargo-version.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        },
+        "python-version": {
+          ".receipt.json": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/python-version.receipt.json",
+            "sha256": "24618f7ad56c92a63e08ed151399d49e936388396b7339021886b1aa8109d7cf",
+            "bytes": 142
+          },
+          ".stdout": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/python-version.stdout",
+            "sha256": "8a078b480fefb612930032cc46f81bc6d76b152bac4903485d0c5771f32219ad",
+            "bytes": 15
+          },
+          ".stderr": {
+            "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/python-version.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        }
+      },
+      "prepared_custody": {
+        "summary": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/prepared-two-os-summary.json",
+          "sha256": "cc4dc66acdc64eb1f5e7e1d05158475126757663ba84e282f87ee1ab8fb2902d",
+          "bytes": 13124
+        },
+        "receipt": {
+          "path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-macos-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/preparation-receipt.json",
+          "sha256": "f17aafd007b5c0526f2ae46967ff31eceaaca193c4138dd7a112120266ff1da9",
+          "bytes": 32235
+        }
+      }
+    }
+  }
+}

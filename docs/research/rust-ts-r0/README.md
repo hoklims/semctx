@@ -11,6 +11,13 @@ The approximate3–4day estimate remains planning context. C2 is abandoned for t
 pending. This record does not change the
 accepted language profiles or declare `READY_TS_NATIVE`.
 
+The [current source-bound native dossier](evidence/current-96fedbbe/README.md)
+contains the complete Mac and Linux raw captures and current 395-property /
+51-support assessments, preserving scoped raw differences. The public regression
+has 38 phases plus two separate method observations. Windows, completed reserved
+results and terminal R0 acceptance remain pending; formal credit remains 0/240.
+
+The following paragraph is the earlier qualified-path eligibility checkpoint.
 The [qualified-path eligibility tranche](resumption/gap-qualified-eligibility-evidence.json)
 adds one frozen component mapping: two assertions become ten checks across a real
 Git context and a real nonrepository refusal. The six eligible results, exact
@@ -37,9 +44,16 @@ The baseline remains its exact commit, not this branch's newer analyzer. Changes
 between those sources must be inventoried separately rather than silently changing
 expected results.
 
-The owner authorized execution, commits and incremental normal pushes on
+The [current direct delivery decision](resumption/owner-delivery-decision-20261022.json)
+authorizes review, bounded corrections and merging PR386 after T00 and its
+required gates are complete. It also permits one final Windows acquisition in
+the existing CI job with a 60-minute Windows limit; Linux and macOS retain
+20 minutes. It authorizes no T01, release or deployment and supplies no technical
+qualification credit.
+
+Historically, the owner authorized execution, commits and incremental normal pushes on
 `rust/365-t00`, and PR-description updates. No merge, release, deployment or push
-to another owner's branch is authorized. One historical owner-requested bug comment is linked in the arbitration.
+to another owner's branch was authorized by that earlier decision. One historical owner-requested bug comment is linked in the arbitration.
 The resumed session strictly prohibits every new GitHub comment, including#365;
 progress is published only in the PR386 description.
 

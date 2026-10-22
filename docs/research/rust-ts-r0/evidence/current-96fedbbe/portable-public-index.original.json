@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "state": "CURRENT_96_PUBLIC_PORTABLE_BYTES_JOINED_TO_EXISTING_PACK_AND_VERIFY",
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "reviewed_tool": {
+    "path": "work/portable-public-capture-delivery/capture_pack.py",
+    "sha256": "07b7dbedaa22cdc06afd28be7f9896f9c87ba7eebeaad4a7ca690738098b91ec",
+    "bytes": 31078
+  },
+  "platforms": {
+    "macos": {
+      "source_archive": {
+        "sha256": "e166221f6b1bf627f54cba684dde503ffe8a9c498bbb735b74fdcb06e6dbbd84",
+        "bytes": 192146864,
+        "local_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-evidence.tar.gz",
+        "identity_source": "existing_verified_import_receipt",
+        "rehashed_in_this_join": false
+      },
+      "import_receipt": {
+        "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-import-receipt.json",
+        "sha256": "ab12c0567a6c81b371c2ec32f7f77d96c4523c8bcaaa33ac20a9334360ea8e5a",
+        "bytes": 785
+      },
+      "export_receipt": {
+        "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-export-receipt.json",
+        "sha256": "9b7f529e422e80bacee8b7be813999e4c8c34daddf506e16523550b0cdbe6d2e",
+        "bytes": 10631728
+      },
+      "package_directory": "work/native-96fedbbe-portable/macos",
+      "pack_receipt": {
+        "path": "work/native-96fedbbe-portable/macos/pack.json",
+        "sha256": "9ff02caa05b430231e86f8771f0f8fdbd9f6f89958f990cba9e126aa876acecb",
+        "bytes": 1521
+      },
+      "manifest": {
+        "path": "work/native-96fedbbe-portable/macos/manifest.json.gz",
+        "sha256": "0f05602549bc7cf5c8f20f7f3d0821e757ed54fd56fe222e6ee362a96c5e3a76",
+        "bytes": 3973298
+      },
+      "parts": [
+        {
+          "name": "capture.part0001",
+          "bytes": 24000000,
+          "sha256": "697567f3dc50eb3ddf41b328feb0183ffb9311d4756a5ef4ce6734d0483c889d"
+        },
+        {
+          "name": "capture.part0002",
+          "bytes": 24000000,
+          "sha256": "2670c7f68aaa72f71a8c00773296a7a16bbee244d77ffa30cc44d5d955dd07f5"
+        },
+        {
+          "name": "capture.part0003",
+          "bytes": 10974966,
+          "sha256": "5421747e53521518ebcbe40b88ee5739b3c57f2184fbf6c8d383e00d96fe0ee7"
+        }
+      ],
+      "part_count": 3,
+      "packed_blob_bytes": 58974966,
+      "unique_blobs": 42679,
+      "member_count": 33848,
+      "regular_members": 25872,
+      "directory_members": 7952,
+      "links_retained_as_archive_data": 24,
+      "exact_uncompressed_tar": {
+        "sha256": "d00122da6e3af7277454b25b62db8a88bac280dbb6aa68e27fe28fdab0687b48",
+        "bytes": 1213265920
+      },
+      "tree_restoration_policy": {
+        "structural_metadata_preflight": false,
+        "refusal": "unsafe link target",
+        "exact_tar_restore_only": true,
+        "native_extraction_not_run": true
+      },
+      "original_gzip_reconstructed": false,
+      "native_extraction_run": false,
+      "offline_assessor_rerun_from_portable_package": false,
+      "prior_pack_and_verify_execution": {
+        "exit_codes": {
+          "pack": 0,
+          "verify": 0
+        },
+        "provenance": "parent-reported actual tool history; existing pack.json",
+        "separate_raw_process_logs_or_receipts": null,
+        "reexecuted_by_this_join": false
+      },
+      "assessment": {
+        "path": "work/native-96fedbbe-assessment/download-v1/assessment-macos.native.json",
+        "sha256": "f07710107109f559681c14bcbe3b7b742d748a329c094192ca0ce5e2d17e7380",
+        "bytes": 47239571
+      },
+      "assessment_custody": {
+        "mode": "separate_exact_scp_custody",
+        "receipt": {
+          "path": "work/native-96fedbbe-assessment/download-v1/public-download-receipt.json",
+          "sha256": "55bb13526bf979977879bf10f29dab2a8cb87b3745b6591148648582db11f186",
+          "bytes": 1619
+        },
+        "assessment_present_in_source_archive": false
+      },
+      "native_row_counts": {
+        "properties": 395,
+        "supports": 51,
+        "RELEVANT_PASS": 446,
+        "raw_NONPASS_comparisons_preserved": 5,
+        "rows_with_raw_NONPASS": 4
+      }
+    },
+    "linux": {
+      "source_archive": {
+        "sha256": "162c9980c87fc0520c8aec12f452027b80beed81eaa800ec2421d38cf3be6539",
+        "bytes": 195461669,
+        "local_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-evidence.tar.gz",
+        "identity_source": "existing_verified_import_receipt",
+        "rehashed_in_this_join": false
+      },
+      "import_receipt": {
+        "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-import-receipt.json",
+        "sha256": "41c92bafe635f6de1769bebd0ee54e80d438817b8d530d46f921514d3223c81c",
+        "bytes": 877
+      },
+      "export_receipt": {
+        "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-export-receipt.json",
+        "sha256": "4c1d9235428cdde5d4df2cd536dcba32dae81e1f8a10eb3e5c7b20d95ed502b8",
+        "bytes": 10629805
+      },
+      "package_directory": "work/native-96fedbbe-portable/linux",
+      "pack_receipt": {
+        "path": "work/native-96fedbbe-portable/linux/pack.json",
+        "sha256": "ccf90c62ebf8e947eb01f5355452fdeecaba1b603c67a5a4326ba420c9713f22",
+        "bytes": 1521
+      },
+      "manifest": {
+        "path": "work/native-96fedbbe-portable/linux/manifest.json.gz",
+        "sha256": "c17d70ec53a3d5d1510067a89cd161047bef832c0e5081e16438ced23cb449e7",
+        "bytes": 3972966
+      },
+      "parts": [
+        {
+          "name": "capture.part0001",
+          "bytes": 24000000,
+          "sha256": "4eae7135d11c4157a5fa01dd6ff91f13c9e893c49978eeadda47b7617aeba60c"
+        },
+        {
+          "name": "capture.part0002",
+          "bytes": 24000000,
+          "sha256": "cd887463c390650a6886a413619abb0f2ccf85ed890c92834f07a66ead19dab7"
+        },
+        {
+          "name": "capture.part0003",
+          "bytes": 11069485,
+          "sha256": "7f102244ab9dbbcaecb2ed521f986367e764fdb0b81e359c3b0b45f6d16422c9"
+        }
+      ],
+      "part_count": 3,
+      "packed_blob_bytes": 59069485,
+      "unique_blobs": 42686,
+      "member_count": 33862,
+      "regular_members": 25853,
+      "directory_members": 7985,
+      "links_retained_as_archive_data": 24,
+      "exact_uncompressed_tar": {
+        "sha256": "c535e68e5c10d0ec960e354bdcbf9503f8ae28962f6bcf93801589533bd0e07f",
+        "bytes": 1240176640
+      },
+      "tree_restoration_policy": {
+        "structural_metadata_preflight": false,
+        "refusal": "unsafe link target",
+        "exact_tar_restore_only": true,
+        "native_extraction_not_run": true
+      },
+      "original_gzip_reconstructed": false,
+      "native_extraction_run": false,
+      "offline_assessor_rerun_from_portable_package": false,
+      "prior_pack_and_verify_execution": {
+        "exit_codes": {
+          "pack": 0,
+          "verify": 0
+        },
+        "provenance": "parent-reported actual tool history; existing pack.json",
+        "separate_raw_process_logs_or_receipts": null,
+        "reexecuted_by_this_join": false
+      },
+      "assessment": {
+        "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/assessment-linux.native.json",
+        "sha256": "5bd9f1014e1872dd4bd1ffcf5706e2e78cde7839eb0644ec0b3258fe0091f71b",
+        "bytes": 45463312
+      },
+      "assessment_custody": {
+        "mode": "verified_native_export_transport",
+        "receipt": {
+          "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/transport-receipt.json",
+          "sha256": "0c86a13fbd1598acace65285a38be4541c9dfda7f38328c05301519af8cc2a2e",
+          "bytes": 5748
+        }
+      },
+      "native_row_counts": {
+        "properties": 395,
+        "supports": 51,
+        "RELEVANT_PASS": 446,
+        "raw_NONPASS_comparisons_preserved": 5,
+        "rows_with_raw_NONPASS": 4
+      }
+    }
+  },
+  "public_diagnostic_evidence_refs": [
+    {
+      "path": "work/public-native-regression-96fedbbe/PUBLIC-96-FINAL-PROOF-INDEX.json",
+      "sha256": "1d9920b5ef80dab084e8ccf07d18e60687824cab329dce8adb394a383abe7031",
+      "bytes": 4626
+    },
+    {
+      "path": "work/public-native-regression-96fedbbe/execution-v3/PUBLIC-96-RAW-ADJUDICATION.json",
+      "sha256": "11630b7ee0fb290d99c83e05229e5343044d1822b14c0cde250058e42e264ea8",
+      "bytes": 3066
+    },
+    {
+      "path": "work/public-scoped-call-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "sha256": "bfcf5090773c5dbd3c1c119d0040f7cda2b362a56feec8fa7c19b84143449052",
+      "bytes": 10503
+    }
+  ],
+  "public_diagnostic_counts_reported_by_bound_aggregates": {
+    "public_regression": 38,
+    "scoped_method": 2
+  },
+  "qualified_obligations": 0,
+  "R0_decision": null,
+  "missing_before_terminal_delivery": [
+    "Windows native acquisition",
+    "completed old exposed reserved regression",
+    "fresh sealed reserved run",
+    "root property and support adequacy",
+    "fresh canonical proof audit",
+    "exact delivery-head CI"
+  ],
+  "limits": [
+    "Part and manifest bytes were freshly hashed by this join; no pack conversion or full reconstruction verifier was rerun.",
+    "The original gzip identities are inherited from exact verified import receipts; only their current byte sizes were checked here.",
+    "Unsafe fixture links are preserved as archive data; full native tree restoration and offline reassessment are not claimed.",
+    "Raw version discrepancies remain under their individually scoped arbitrations; 446 RELEVANT_PASS is not qualification.",
+    "All historical captures retain their original source identity; this record does not retag them."
+  ]
+}

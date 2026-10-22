@@ -1,0 +1,118 @@
+"""Independent named-default Call reader; checker and canonical names stay distinct."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+from identity_scope_reader import digest,digest_bytes,equal,key,need,relative,validate_observation
+
+HERE=Path(__file__).resolve().parent
+EXPECTED=json.loads((HERE/'expected-oracle.json').read_bytes())
+LOCAL=json.loads((HERE/'request.local.json').read_bytes())
+SDK=json.loads((HERE/'sdk.frozen.json').read_bytes())
+ARTIFACT={'macos':'47f68c66bb694511cff1263c713c83971d384846f920832f78c21530d0fe2d3d',
+          'linux':'8918644a583367162d3e826b5349c9144aa1ef75190319db1ff69506ac30c624'}
+
+
+def baseline_relative(path):
+    return relative(LOCAL['cwd'],path,False)
+
+
+def check_inputs(lane,request,sdk,physical=True):
+    need(request['id']==EXPECTED['id'] and request['case_sensitive'] is (lane=='linux'),'request identity/case differs')
+    need(request['qualified'] is True and request['retained'] is True,'retained qualified context differs')
+    for field in ('roles','selection','utf16_files','raw_files'):
+        need(type(request[field]) is dict and not request[field],'unsupported '+field)
+    need(type(request['disabled']) is list and not request['disabled'],'disabled source')
+    need(equal(request['options'],LOCAL['options']),'options differ')
+    sources={relative(request['cwd'],p,request['case_sensitive']):(p,t) for p,t in request['files'].items()}
+    need(set(sources)=={'entry.ts','target.ts'} and len(request['files'])==len(request['roots'])==2,'source capture census differs')
+    need({relative(request['cwd'],p,request['case_sensitive']) for p in request['roots']}==set(sources),'root inventory differs')
+    local_sources={baseline_relative(p):t for p,t in LOCAL['files'].items()}
+    for rel,(p,t) in sources.items():
+        need(t==local_sources[rel] and hashlib.sha256(t.encode()).hexdigest()==EXPECTED['source_sha256_by_path'][rel],'source bytes differ')
+    need(type(sdk) is dict and set(sdk)=={'version','archive_sha256','files'},'SDK shape differs')
+    need(sdk['version']==SDK['version']=='5.9.3' and sdk['archive_sha256']==SDK['archive_sha256'],'SDK identity differs')
+    def values(s):
+        names={p.replace('\\','/').rsplit('/',1)[-1]:t for p,t in s['files'].items()}
+        need(len(names)==len(s['files'])==100,'SDK census/duplicate basename differs')
+        return names
+    need(values(sdk)==values(SDK),'SDK values differ')
+    for p in sdk['files']:
+        need(relative(request['sdk_directory'],p,request['case_sensitive'])==p.replace('\\','/').rsplit('/',1)[-1],'SDK root differs')
+    if physical:
+        for p,t in {**request['files'],**sdk['files']}.items():need(Path(p).read_bytes()==t.encode(),'physical capture differs')
+    return sources
+
+
+def read(lane,request,sdk,observed,physical=True):
+    sources=check_inputs(lane,request,sdk,physical);sensitive=request['case_sensitive']
+    validate_observation(observed,request,sdk,'sha256:'+ARTIFACT[lane])
+    need(len(observed['calls'])==1,'raw Call census differs')
+    raw=observed['calls'][0]
+    need(relative(request['cwd'],raw['file'],sensitive)=='entry.ts','raw Call source differs')
+    for actual,wanted in [('start_utf16','startUtf16'),('end_utf16','endUtf16')]:
+        need(type(raw[actual]) is int and raw[actual]==EXPECTED['call'][wanted],'raw Call UTF16 range differs')
+    need(raw['symbol_name']==EXPECTED['resolved_checker_name'],'unaliased top-level checker name differs')
+    wanted_decls=sorted((baseline_relative(d['file']),d['startUtf16'],d['endUtf16'],d['defaultLibrary']) for d in EXPECTED['declarations'])
+    actual_decls=[]
+    for d in raw['declarations']:
+        need(type(d['start_utf16']) is int and type(d['end_utf16']) is int and type(d['default_library']) is bool,'raw declaration types differ')
+        actual_decls.append((relative(request['cwd'],d['file'],sensitive),d['start_utf16'],d['end_utf16'],d['default_library']))
+    need(sorted(actual_decls)==wanted_decls,'raw declaration owner/inventory differs')
+    subject_map={row['path']:row for row in observed['subjects']}
+    need(set(subject_map)==set(sources),'subject inventory differs')
+    for subject in subject_map.values():
+        need(subject['callProvenanceObservation']['executed'] is True and type(subject['callProvenanceObservation']['calls']) is list,'provenance completeness differs')
+    need(sum(len(row['callProvenanceObservation']['calls']) for row in subject_map.values())==1,'provenance Call census differs')
+    provenance=subject_map['entry.ts']['callProvenanceObservation']
+    need(len(provenance['calls'])==1,'entry Call absent')
+    texts={key(p,sensitive):t for p,t in {**request['files'],**sdk['files']}.items()}
+    sdk_paths={key(p,sensitive) for p in sdk['files']}
+    reads={}
+    for row in provenance['readBindings']:
+        p=key(row['file'],sensitive)
+        need(p in texts and p not in reads,'foreign/duplicate provenance read')
+        need(row['sourceDigest']==digest_bytes(texts[p].encode()),'provenance read digest differs')
+        need(type(row['defaultLibrary']) is bool and (not row['defaultLibrary'] or p in sdk_paths),'SDK read classification differs')
+        reads[p]=row
+    def node(value,wanted=None):
+        need(type(value) is dict and set(value)=={'file','kind','sourceDigest','defaultLibrary','startUtf16','endUtf16'},'node shape differs')
+        p=key(value['file'],sensitive)
+        need(p in reads and value['sourceDigest']==reads[p]['sourceDigest'],'node source/read binding differs')
+        need(type(value['defaultLibrary']) is bool and value['defaultLibrary'] is reads[p]['defaultLibrary'],'node SDK classification differs')
+        need(type(value['startUtf16']) is int and type(value['endUtf16']) is int and 0<=value['startUtf16']<=value['endUtf16']<=len(texts[p].encode('utf-16-le'))//2,'node range invalid')
+        if wanted is not None:
+            need(relative(request['cwd'],value['file'],sensitive)==baseline_relative(wanted['file']),'node declaration owner differs')
+            need((value['kind'],value['startUtf16'],value['endUtf16'],value['defaultLibrary'])==(wanted['kind'],wanted['startUtf16'],wanted['endUtf16'],wanted['defaultLibrary']),'node declaration coordinate differs')
+    node(provenance['source'])
+    need(provenance['source']['kind']=='SourceFile' and relative(request['cwd'],provenance['source']['file'],sensitive)=='entry.ts','entry provenance source differs')
+    call=provenance['calls'][0];node(call['call'],EXPECTED['call'])
+    need(call['stoppedAtCycle'] is False and len(call['originChain'])==1,'origin chain differs')
+    step=call['originChain'][0];node(step['expression'],EXPECTED['expression'])
+    need(step['followedImmutableInitializer'] is False,'unexpected immutable initializer hop')
+    symbol=step['symbol']
+    need(type(symbol) is dict and set(symbol)=={'name','valueDeclaration','declarations','identity'},'symbol DTO shape differs')
+    need(symbol['identity']==digest({k:v for k,v in symbol.items() if k!='identity'}),'native per-step symbol hash differs')
+    need(symbol['name']==EXPECTED['resolved_checker_name']==raw['symbol_name'],'resolved checker name differs')
+    node(symbol['valueDeclaration'],EXPECTED['value_declaration'])
+    need(len(symbol['declarations'])==len(EXPECTED['declarations']),'provenance declaration census differs')
+    for actual,wanted in zip(symbol['declarations'],EXPECTED['declarations'],strict=True):node(actual,wanted)
+    canonical=observed['raw_extraction']['calls']
+    need(equal(canonical,[EXPECTED['canonical_call']]),'canonical Call differs')
+    need(symbol['name']!=canonical[0]['calleeName'] and canonical[0]['calleeName']==canonical[0]['calleeSymbolPath'].split('.')[-1],'targeted checker/canonical-name distinction missing')
+    return {'state':'PASS_PUBLIC_NAMED_DEFAULT_COMPONENT_ONLY','resolved_checker_name':symbol['name'],
+            'top_level_checker_name':raw['symbol_name'],'canonical_callee_name':canonical[0]['calleeName'],
+            'canonical_target':canonical[0]['calleeSymbolPath'],'same_call_utf16':[raw['start_utf16'],raw['end_utf16']],
+            'value_declaration_kind':symbol['valueDeclaration']['kind'],'native_symbol_identity':symbol['identity'],
+            'subject_outcomes_preserved':{name:row.get('outcome') for name,row in subject_map.items()},
+            'qualification_credit':0,'global_admission_inferred':False,'old_reader_red_established':False}
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--lane',choices=['macos','linux'],required=True)
+    parser.add_argument('--request',type=Path,required=True);parser.add_argument('--sdk',type=Path,required=True)
+    parser.add_argument('--observed',type=Path)
+    args=parser.parse_args();request=json.loads(args.request.read_bytes());sdk=json.loads(args.sdk.read_bytes())
+    result=read(args.lane,request,sdk,json.loads(args.observed.read_bytes())) if args.observed else {'inputs_validated':bool(check_inputs(args.lane,request,sdk)),'candidate_queries':0}
+    print(json.dumps(result))

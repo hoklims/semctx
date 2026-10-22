@@ -1,0 +1,73 @@
+{
+  "head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "platform": "linux",
+  "protocol": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "node": "/work/evidence/toolchains/node-v24.22.0/bin/node",
+  "node_sha256": "719a43d185f3b6a59d8fcbba1ff06b93c75f76fb0bb9916f81d33921615d4cb5",
+  "PATH": "/work/evidence/toolchains/node-v24.22.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "commands": [
+    {
+      "argv": [
+        "/Users/hokli/Applications/OrbStack.app/Contents/MacOS/xbin/docker",
+        "exec",
+        "--user",
+        "501:20",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "-e",
+        "PATH=/work/evidence/toolchains/node-v24.22.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "semctx-t00-review-20261021-linux-native-evidence",
+        "python3",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-make_host_manifest.py",
+        "build",
+        "--repo",
+        "/Users/hokli/semctx-t00-review-20261021",
+        "--prepared",
+        "/work/evidence/native-corrected-v1-linux-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+        "--prepared-summary",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/prepared-two-os-summary.json",
+        "--raw-root",
+        "/work/evidence/native-corrected-v1-linux-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+        "--platform",
+        "linux",
+        "--output",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-hosts.native.json"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "7ca812f6d372baa6d37b40371b5ba027433b25af31dd6444f024c6257dcd2ecd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/Users/hokli/Applications/OrbStack.app/Contents/MacOS/xbin/docker",
+        "exec",
+        "--user",
+        "501:20",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "-e",
+        "PATH=/work/evidence/toolchains/node-v24.22.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "semctx-t00-review-20261021-linux-native-evidence",
+        "python3",
+        "/Users/hokli/semctx-t00-review-20261021/tools/rust-ts-r0/qualification/property_assessor/assess_final.py",
+        "--repo",
+        "/Users/hokli/semctx-t00-review-20261021",
+        "--manifest",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-hosts.native.json",
+        "--protocol-sha256",
+        "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+        "--output",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-linux.native.json",
+        "--cache-dir",
+        "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessor-cache-linux"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "c04929e8a44473ceda1a8a114ceff27cadf041932f130b32a07455634ba58424",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "candidate_queries": 0,
+  "owned_caffeinate_stopped": true,
+  "qualified_obligations": 0,
+  "R0_decision": null
+}

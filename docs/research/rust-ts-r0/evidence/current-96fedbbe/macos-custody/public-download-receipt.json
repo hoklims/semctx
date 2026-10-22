@@ -1,0 +1,30 @@
+{
+  "kind": "EXACT_PUBLIC_MAC_ASSESSMENT_CUSTODY_NO_REWRITE",
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "files": [
+    {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-macos.native.json",
+      "local_path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\native-96fedbbe-assessment\\download-v1\\assessment-macos.native.json",
+      "sha256": "f07710107109f559681c14bcbe3b7b742d748a329c094192ca0ce5e2d17e7380",
+      "bytes": 47239571,
+      "scp_exit_code": 0
+    },
+    {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/macos-hosts.native.json",
+      "local_path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\native-96fedbbe-assessment\\download-v1\\macos-hosts.native.json",
+      "sha256": "4707e948bba58380a1c6c40c969ae1f7a38fe53d5678d08f5a6195d03d2ce1dd",
+      "bytes": 12408,
+      "scp_exit_code": 0
+    },
+    {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/macos-assessment-driver.receipt.json",
+      "local_path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\native-96fedbbe-assessment\\download-v1\\macos-assessment-driver.receipt.json",
+      "sha256": "606615dd2eef0d47a5bf8a65b1bfa9a0c13e6686749e02504f4a61b6a5e2673f",
+      "bytes": 2832,
+      "scp_exit_code": 0
+    }
+  ],
+  "native_queries": 0,
+  "qualification_credit": 0,
+  "R0_decision": null
+}
