@@ -11,6 +11,7 @@ mod receiver_context;
 mod repository_replay;
 mod retained_runtime_replay;
 mod source_confinement_replay;
+mod suite_replay;
 #[path = "../tests/support/transport_process.rs"]
 mod transport_process;
 mod workspace_system_replay;
@@ -137,6 +138,43 @@ fn clone_field(object: &mut serde_json::Map<String, Value>, value: &Value, to: &
 fn transform(actual: &Value, name: &str) -> Result<Value, String> {
     if name == "none" {
         return Ok(actual.clone());
+    }
+    if name == "baseline_raw_extraction" {
+        let mut projected = actual.clone();
+        let object = projected
+            .as_object_mut()
+            .ok_or("missing native extraction")?;
+        for key in ["modules", "symbols", "imports", "calls"] {
+            let rows = object
+                .get_mut(key)
+                .and_then(Value::as_array_mut)
+                .ok_or("missing extraction collection")?;
+            if key == "symbols" {
+                for row in rows.iter_mut() {
+                    let fields = row.as_object_mut().ok_or("malformed native symbol")?;
+                    fields.remove("startUtf16");
+                    fields.remove("endUtf16");
+                }
+            }
+            rows.sort_by_key(Value::to_string);
+        }
+        return Ok(projected);
+    }
+    if name == "outline_without_digest_bytes" {
+        let mut outline = actual.clone();
+        let statements = outline["statements"]
+            .as_array_mut()
+            .ok_or("missing native outline statements")?;
+        for statement in statements {
+            if statement["digest"].as_str().is_none_or(str::is_empty) {
+                return Err("missing native structural digest".into());
+            }
+            statement
+                .as_object_mut()
+                .ok_or("malformed native statement")?
+                .remove("digest");
+        }
+        return Ok(outline);
     }
     if name == "native_capability_dialect_versions" {
         let version = value_text(actual, "native_compiler_version")?;
