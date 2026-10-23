@@ -1298,7 +1298,19 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     let mut outlines = BTreeMap::new();
     let captured_files = std::sync::Arc::new(fs.files.clone());
     let case_sensitive = fs.sensitive;
-    for path in &roots {
+    let program_order = program::source_files()
+        .into_iter()
+        .enumerate()
+        .map(|(index, file)| (fs.key(ast::source_file_file_name(file)), index))
+        .collect::<BTreeMap<_, _>>();
+    let mut extraction_roots = roots.clone();
+    extraction_roots.sort_by_key(|path| {
+        program_order
+            .get(&fs.key(path))
+            .copied()
+            .unwrap_or(usize::MAX)
+    });
+    for path in &extraction_roots {
         if [".d.ts", ".d.mts", ".d.cts"]
             .iter()
             .any(|extension| path.ends_with(extension))
@@ -1575,6 +1587,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 | "--extract-worker"
                 | "--extract-parallel"
                 | "--consume-worker"
+                | "--observe-worker-emission"
                 | "--observe-system"
                 | "--observe-configured-resolution"
                 | "--observe-controlled-assembly"
@@ -1672,6 +1685,9 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 sdk.as_ref().ok_or("worker SDK input missing")?,
             ),
             "--consume-worker" => worker_observations::consume_worker(&descriptor),
+            "--observe-worker-emission" => {
+                worker_observations::observe_emission(descriptor.clone())
+            }
             "--observe-configured-resolution" => configured_resolution_observations::run(
                 descriptor.clone(),
                 sdk.as_ref().ok_or("configured query SDK input missing")?,

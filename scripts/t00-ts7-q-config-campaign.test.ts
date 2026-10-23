@@ -100,3 +100,11 @@ test("real-process runner retains nonzero exit, exact streams and command eviden
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("candidate extraction oracle is optional for old campaigns and authenticated when supplied", () => {
+  const item = { path: "/tmp/binary", sha256: "a".repeat(64), bytes: 1 };
+  const cell = { producer: item, helper: item, observer: item, sdk: item, oracle: item, oracleLibraries: item };
+  const manifest = { schemaVersion: 1, sourceCommit: "b".repeat(40), platforms: { macos: { ...cell, extractionOracle: item } } };
+  expect(parseManifest(manifest, "macos").artifacts.extractionOracle).toEqual(item);
+  expect(() => parseManifest({ ...manifest, platforms: { macos: { ...cell, extractionOracle: { ...item, sha256: "foreign" } } } }, "macos")).toThrow("extractionOracle");
+});

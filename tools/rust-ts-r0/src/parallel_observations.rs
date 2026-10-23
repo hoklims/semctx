@@ -69,6 +69,22 @@ fn preflight(root: &str, roots: &[String]) -> Result<Preflight, String> {
     );
     let _current = native_program::NativeProgram::enter(&frontend);
     program::bind_all();
+    if roots
+        .iter()
+        .all(|path| frontend.get_source_file(path).is_some())
+        && roots.iter().any(|path| {
+            relative_source_path(&fs.key(root), &fs.key(path), true)
+                .is_ok_and(|relative| relative.split('/').any(|part| part == "node_modules"))
+        })
+    {
+        let reason = "extraction root is outside the repository module graph boundary";
+        return Ok(Preflight {
+            components: vec![],
+            emit_order: vec![],
+            observation: json!({"safe":false,"unsafeReason":reason,"noLib":true,"types":[],"read_observations":reads,"compiler_probes":fs.log.borrow().clone()}),
+            unsafe_reason: Some(reason.into()),
+        });
+    }
     let component = partition_observations::observe(&frontend, &fs, root, roots);
     if component["executed"] != true || component["unsupported"] != json!([]) {
         return Err(format!(
@@ -277,6 +293,10 @@ fn execute(
         .iter()
         .map(|p| worker_observations::absolute_worker_path(p))
         .collect::<Result<_, _>>()?;
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    for path in &request.root_abs_paths {
+        relative_source_path(&request.repo_root, path, sensitive)?;
+    }
     if request.workers == 1 || request.root_abs_paths.len() <= 1 {
         return serial(&request, sdk, None);
     }
@@ -430,3 +450,7 @@ pub fn run(descriptor: &Value, sdk: &Sdk, sdk_path: &Path, helper: &Path) -> Val
     value["observationScope"] = json!("native_type_script_parallel_extraction");
     value
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/parallel_observations.rs"]
+mod tests;

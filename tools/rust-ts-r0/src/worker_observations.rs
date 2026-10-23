@@ -176,13 +176,13 @@ fn extract(
     let _current = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let mut extraction = ordinary::Extraction::default();
-    let mut extracted_roots = BTreeSet::new();
-    for path in &roots {
-        if !extracted_roots.insert(fs.key(path)) {
-            continue;
-        }
-        let source = program::get_source_file(path);
-        if source.is_nil() {
+    let root_keys = roots
+        .iter()
+        .map(|path| fs.key(path))
+        .collect::<BTreeSet<_>>();
+    for source in program::source_files() {
+        let path = ast::source_file_file_name(source);
+        if !root_keys.contains(&fs.key(path)) {
             continue;
         }
         let relative = relative_source_path(&root, path, sensitive)?;
@@ -302,6 +302,36 @@ fn restrict(
         }
     }
     Ok(value)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct EmissionRequest {
+    extraction: ordinary::Extraction,
+    emit_abs_paths: Vec<String>,
+    repo_root: String,
+}
+
+pub fn observe_emission(descriptor: serde_json::Value) -> serde_json::Value {
+    let result = (|| {
+        let request: EmissionRequest = serde_json::from_value(descriptor)
+            .map_err(|error| format!("malformed emission request: {error}"))?;
+        let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+        restrict(
+            request.extraction,
+            &request.emit_abs_paths,
+            &request.repo_root,
+            sensitive,
+        )
+    })();
+    match result {
+        Ok(extraction) => {
+            serde_json::json!({"executed":true,"unsupported":[],"extraction":extraction,"observationScope":"worker_emit_root_projection"})
+        }
+        Err(error) => {
+            serde_json::json!({"executed":false,"unsupported":[error],"observationScope":"worker_emit_root_projection"})
+        }
+    }
 }
 
 fn parse_request(request: &serde_json::Value) -> Option<WorkerRequest> {
