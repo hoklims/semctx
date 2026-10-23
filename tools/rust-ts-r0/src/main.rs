@@ -6,6 +6,8 @@ mod captured;
 mod captured_confinement;
 mod captured_system_observations;
 mod component_observations;
+mod config_live_observations;
+mod config_source_observations;
 mod configuration;
 mod configured_resolution_observations;
 mod configured_resolver;
@@ -13,6 +15,7 @@ mod configured_resolver;
 mod development;
 mod input_identity;
 mod javascript;
+mod named_configuration;
 mod native_program;
 mod ordinary;
 mod outline;
@@ -108,6 +111,7 @@ struct Probe {
 }
 struct CaptureFs {
     captured: Captured,
+    named_cache: named_configuration::Cache,
     workspace: Option<captured_system_observations::Workspace>,
     sdk_keys: BTreeSet<String>,
     files: BTreeMap<String, String>,
@@ -147,6 +151,7 @@ impl CaptureFs {
     fn new(files: BTreeMap<String, String>, sensitive: bool) -> Self {
         let mut result = Self {
             captured: Captured::new(BTreeMap::new()),
+            named_cache: Default::default(),
             workspace: None,
             sdk_keys: BTreeSet::new(),
             files: BTreeMap::new(),
@@ -1570,6 +1575,8 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
         matches!(
             *mode,
             "--observe-primitives"
+                | "--observe-configuration-live"
+                | "--observe-named-configuration"
                 | "--discover-repository"
                 | "--observe-path-eligibility"
                 | "--extract-worker"
@@ -1580,6 +1587,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                 | "--observe-controlled-assembly"
                 | "--analyze-retained-discovery"
                 | "--analyze-retained-runtime"
+                | "--observe-configuration-source"
         )
     }) else {
         return Ok(None);
@@ -1593,6 +1601,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             | "--observe-controlled-assembly"
             | "--analyze-retained-discovery"
             | "--analyze-retained-runtime"
+            | "--observe-configuration-source"
     ) {
         args.len() == 4
     } else if mode == "--observe-system" {
@@ -1612,6 +1621,7 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
                     | "--observe-controlled-assembly"
                     | "--analyze-retained-discovery"
                     | "--analyze-retained-runtime"
+                    | "--observe-configuration-source"
             ) {
                 " SDK.json"
             } else if mode == "--observe-system" {
@@ -1643,6 +1653,13 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
         refusal
     } else {
         match mode {
+            "--observe-configuration-live" => config_live_observations::run(descriptor.clone()),
+            "--observe-named-configuration" => named_configuration::run(descriptor.clone()),
+            "--observe-configuration-source" => config_source_observations::run(
+                descriptor.clone(),
+                sdk.as_ref()
+                    .ok_or("configuration source SDK input missing")?,
+            ),
             "--extract-parallel" => parallel_observations::run(
                 &descriptor,
                 sdk.as_ref().ok_or("parallel SDK input missing")?,

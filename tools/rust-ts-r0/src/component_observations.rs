@@ -13,6 +13,7 @@ pub struct ModuleConfigurationObservations {
     pub retained_without_source: Observation,
     pub retained_with_source: Observation,
     pub ordinary_without_snapshot: Observation,
+    pub ordinary_with_source: Observation,
 }
 
 pub struct ModuleConfigurationInputs<'a> {
@@ -234,6 +235,20 @@ pub fn ordinary_module_configuration(
     observed(ordinary, unsupported)
 }
 
+fn source_default_reasons(source: core::Node) -> Vec<String> {
+    if source.is_nil() {
+        return vec![];
+    }
+    let mut reasons = vec![];
+    if javascript::has_unsupported_default_expression(source) {
+        reasons.push("SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED".into());
+    }
+    if javascript::has_semantic_jsdoc_import(source) {
+        reasons.push("SOURCE_JSDOC_IMPORT_UNSUPPORTED".into());
+    }
+    reasons
+}
+
 pub fn module_configuration(
     inputs: ModuleConfigurationInputs<'_>,
 ) -> ModuleConfigurationObservations {
@@ -246,11 +261,27 @@ pub fn module_configuration(
         inputs.ordinary_configuration,
         inputs.ordinary_unsupported.clone(),
     );
+    let source_available = inputs.source.is_some();
+    let ordinary_source_reasons = if ordinary_without_snapshot
+        .reasons
+        .iter()
+        .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY")
+    {
+        ordinary_without_snapshot.reasons.clone()
+    } else {
+        source_default_reasons(inputs.source)
+            .into_iter()
+            .chain(ordinary_without_snapshot.reasons.iter().cloned())
+            .collect()
+    };
+    let ordinary_with_source =
+        observed(ordinary_source_reasons, inputs.ordinary_unsupported.clone());
     if !inputs.retained {
         return ModuleConfigurationObservations {
             retained_without_source: not_executed(),
             retained_with_source: not_executed(),
             ordinary_without_snapshot,
+            ordinary_with_source,
         };
     }
     if outside {
@@ -264,20 +295,22 @@ pub fn module_configuration(
                 BTreeSet::new(),
             ),
             ordinary_without_snapshot,
+            ordinary_with_source,
         };
     }
-    let mut reasons = inputs.named_reasons.to_vec();
-    if javascript::has_unsupported_default_expression(inputs.source) {
-        reasons.push("SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED".into());
+    let mut reasons = if source_available {
+        inputs.named_reasons.to_vec()
+    } else {
+        vec![]
+    };
+    reasons.extend(source_default_reasons(inputs.source));
+    if source_available {
+        reasons.extend(javascript::inspect_unmodeled_invocations(inputs.source));
+        if inputs.javascript.native.common_js_unsupported {
+            reasons.push("SOURCE_COMMONJS_UNSUPPORTED".into());
+        }
+        reasons.extend(inputs.semantic.reasons.iter().cloned());
     }
-    if javascript::has_semantic_jsdoc_import(inputs.source) {
-        reasons.push("SOURCE_JSDOC_IMPORT_UNSUPPORTED".into());
-    }
-    reasons.extend(javascript::inspect_unmodeled_invocations(inputs.source));
-    if inputs.javascript.native.common_js_unsupported {
-        reasons.push("SOURCE_COMMONJS_UNSUPPORTED".into());
-    }
-    reasons.extend(inputs.semantic.reasons.iter().cloned());
     reasons.extend(
         configuration
             .reasons
@@ -287,8 +320,12 @@ pub fn module_configuration(
     );
     let has_configuration = !configuration.consumed.is_empty();
     let configuration_parsed = configuration.raw.is_some();
-    let mut unsupported = inputs.semantic.unsupported.clone();
-    if !has_configuration || configuration_parsed {
+    let mut unsupported = if source_available {
+        inputs.semantic.unsupported.clone()
+    } else {
+        BTreeSet::new()
+    };
+    if source_available && (!has_configuration || configuration_parsed) {
         reasons.extend(inputs.runtime.reasons.iter().cloned());
         unsupported.extend(inputs.runtime.unsupported.iter().cloned());
     }
@@ -307,14 +344,17 @@ pub fn module_configuration(
         }
     }
     let retained_without_source = observed(reasons.clone(), unsupported.clone());
-    reasons.extend(javascript::inspect_qualified_module_scope(
-        inputs.source,
-        inputs.path,
-    ));
+    if source_available {
+        reasons.extend(javascript::inspect_qualified_module_scope(
+            inputs.source,
+            inputs.path,
+        ));
+    }
     ModuleConfigurationObservations {
         retained_without_source,
         retained_with_source: observed(reasons, unsupported),
         ordinary_without_snapshot,
+        ordinary_with_source,
     }
 }
 

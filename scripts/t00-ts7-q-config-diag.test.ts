@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { compilerDiagnostics } from "./t00-ts7-q-config-cr";
-import { assessConfigurationPair, compareConfigurationObservation } from "./t00-ts7-q-config-diag";
+import { assessConfigurationPair, compareConfigurationObservation, projectConfigurationObservation } from "./t00-ts7-q-config-diag";
 
 describe("configuration diagnostic witness qualification", () => {
   test("accepts exact owning component reasons with a clean execution", () => {
@@ -18,6 +18,17 @@ describe("configuration diagnostic witness qualification", () => {
     expect(compilerDiagnostics(`tsconfig.json(1,1): error TS5102: Option 'baseUrl' has been removed. Please remove it from your configuration.\n  Use '"paths": {"*": ["./src/*"]}' instead.\n`)).toEqual([
       { code: 5102, message: `Option 'baseUrl' has been removed. Please remove it from your configuration. Use '"paths": {"*": ["./src/*"]}' instead.` },
     ]);
+  });
+
+  test("a malformed reason cannot disappear inside a semantic or runtime projection", () => {
+    expect(compareConfigurationObservation(projectConfigurationObservation({ executed: true, reasons: [42], unsupported: [] }, ["SOURCE_"]), [])).toBe(false);
+  });
+
+  test("semantic composition excludes only the named configuration layer and retains unexpected semantic reasons", () => {
+    const observed = { executed: true, reasons: ["SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS", "SOURCE_REFERENCE_PATH_UNSUPPORTED", "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"], unsupported: [] };
+    const projected = projectConfigurationObservation(observed, ["SOURCE_"], ["SOURCE_CONFIGURATION_"]);
+    expect(compareConfigurationObservation(projected, ["SOURCE_REFERENCE_PATH_UNSUPPORTED"])).toBe(false);
+    expect(compareConfigurationObservation(projected, ["SOURCE_REFERENCE_PATH_UNSUPPORTED", "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"])).toBe(true);
   });
 
   test("a passing activation cannot qualify a missing control", () => {

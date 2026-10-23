@@ -150,11 +150,12 @@ async function main(): Promise<void> {
   const selected = selectIndices(options.shard);
   const { runConfigurationResolution } = await import("./t00-ts7-q-config-cr");
   const { enrichConfigurationDiagnostics } = await import("./t00-ts7-q-config-diag");
+  const { enrichNamedConfigurations } = await import("./t00-ts7-q-config-named");
   const { runConfigurationProgram } = await import("./t00-ts7-q-config-program");
   const { runProgramEmissionWorkers } = await import("./t00-ts7-q-config-pew");
   const configurationRows = await runConfigurationResolution(context, selected.filter(index => configurationResolution.has(index)));
   const results = [
-    ...await enrichConfigurationDiagnostics(context, configurationRows),
+    ...await enrichNamedConfigurations(context, await enrichConfigurationDiagnostics(context, configurationRows)),
     ...await runConfigurationProgram(context, selected.filter(index => index === 167 || index === 171)),
     ...await runProgramEmissionWorkers(context, selected.filter(index => !configurationResolution.has(index) && index !== 167 && index !== 171)),
   ].sort((a, b) => a.index - b.index);

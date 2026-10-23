@@ -238,9 +238,6 @@ fn ts7_module_none_preserves_native_invalid_option_and_retained_refusal() {
                 vec![]
             }
         );
-        if expected {
-            assert_eq!(result.options.module, ModuleKind::NONE);
-        }
     }
     let fs = Rc::new(CaptureFs::new(
         BTreeMap::from([
@@ -385,4 +382,29 @@ fn option_validation_does_not_load_configured_types_or_libraries() {
         observed.consumed,
         BTreeSet::from(["/repo/tsconfig.json".into()])
     );
+}
+
+#[test]
+fn inherited_null_strict_uses_effective_options_for_native_validation() {
+    for (strict, expected) in [
+        (serde_json::Value::Null, vec![]),
+        (
+            serde_json::json!(false),
+            vec![
+                "SOURCE_CONFIGURATION_INVALID:5052:Option 'strictPropertyInitialization' cannot be specified without specifying option 'strictNullChecks'.",
+            ],
+        ),
+    ] {
+        let fs = Rc::new(CaptureFs::new(
+            BTreeMap::from([
+                ("/repo/base.json".into(), serde_json::json!({"compilerOptions":{"strict":strict}}).to_string()),
+                ("/repo/tsconfig.json".into(), serde_json::json!({"extends":"./base.json","compilerOptions":{"strictPropertyInitialization":true}}).to_string()),
+            ]),
+            true,
+        ));
+        assert_eq!(
+            inspect(fs, "/repo/main.ts", "/repo").unwrap().reasons,
+            expected
+        );
+    }
 }

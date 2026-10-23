@@ -80,7 +80,7 @@ class ProgramWitnesses {
   }
   async analyze(name: string, root: string, files: Record<string, string>, roots: string[], retained: boolean): Promise<Observation> {
     const request = resolve(this.directory, name + ".request.json");
-    const descriptor = { id: "program-" + name, cwd: root, sdk_directory: "/sdk/lib", case_sensitive: this.ctx.platform === "linux", roots, files, retained, qualified: false, options };
+    const descriptor = { id: "program-" + name, cwd: root, sdk_directory: "/sdk/lib", case_sensitive: this.ctx.platform === "linux", roots, files, retained, qualified: false, options, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {} };
     const input = save(request, descriptor);
     const result = await this.ctx.run("program-" + name, [this.ctx.producer, request, this.ctx.sdk]);
     let value: Value;
