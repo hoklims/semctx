@@ -427,3 +427,31 @@ pub fn retained_callable_initializers(
         .collect::<Vec<_>>();
     serde_json::json!({"executed":true,"unsupported":[],"variables":variables})
 }
+
+pub fn retained_function_owners(
+    source: core::Node,
+    root: &str,
+    retained: bool,
+) -> serde_json::Value {
+    if !retained {
+        return serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"functions":[],"ownerAbsenceCases":[]});
+    }
+    let mut nodes = Vec::new();
+    all_nodes(source, &mut nodes);
+    let functions = nodes.into_iter().filter(|node| node.kind() == SyntaxKind::FunctionDeclaration).map(|node| {
+        let coordinate = ordinary::retained_function_owner_coordinate(node, root).map(|(path, symbol)| serde_json::json!({"relPath":path,"symbolPath":symbol}));
+        serde_json::json!({"bodyPresent":node.body().is_some(),"namePresent":node.name().is_some(),"coordinate":coordinate})
+    }).collect::<Vec<_>>();
+    let factory = ast::NodeFactory::new();
+    let owner_absence_cases = [(false,false),(false,true),(true,false),(true,true)].map(|(body, name)| {
+        let declaration = factory.new_function_declaration(
+            ast::ModifierList::NIL, core::Node::NIL,
+            if name {factory.new_identifier("named")} else {core::Node::NIL},
+            ast::NodeList::NIL, ast::NodeList::NIL, core::Node::NIL, core::Node::NIL,
+            if body {factory.new_block(ast::NodeList::NIL,false)} else {core::Node::NIL},
+        );
+        ast::set_node_parent(declaration, source);
+        serde_json::json!({"bodyPresent":body,"namePresent":name,"ownerEligible":ordinary::retained_function_owner_coordinate(declaration,root).is_some()})
+    });
+    serde_json::json!({"executed":true,"unsupported":[],"functions":functions,"ownerAbsenceCases":owner_absence_cases})
+}

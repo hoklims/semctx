@@ -368,6 +368,37 @@ mod tests {
     }
 
     #[test]
+    fn jsdoc_tags_and_nested_attachments_are_semantic_without_exported_variables() {
+        let _program = ts_goport::core::enter_program(None);
+        for source in [
+            "/** @type {import('./types').Shape} */ let value; export {};",
+            "/** @typedef {import('./types').Shape} Shape */ let value; export {};",
+            "/** @import { Shape } from './types' */ let value; export {};",
+            "export function outer() {\n/** @type {import('./types').Shape} */\nlet value; return value;\n}",
+        ] {
+            let observation = observe(&json!({"filename":"main.js","source":source})).unwrap();
+            assert_eq!(observation["jsdocImport"], true);
+            assert_eq!(
+                observation["moduleConfigurationReasons"],
+                json!(["SOURCE_JSDOC_IMPORT_UNSUPPORTED"])
+            );
+            assert_eq!(observation["parsingReasons"], json!([]));
+            assert_eq!(
+                observe(&json!({"filename":"main.ts","source":source})).unwrap()["jsdocImport"],
+                false
+            );
+        }
+        for source in [
+            "/** import('./types') is prose */ let value; export {};",
+            "/** @type {number} */ let value; export {};",
+        ] {
+            let observation = observe(&json!({"filename":"main.js","source":source})).unwrap();
+            assert_eq!(observation["jsdocImport"], false);
+            assert_eq!(observation["moduleConfigurationReasons"], json!([]));
+        }
+    }
+
+    #[test]
     fn parser_recovery_is_distinct_from_a_type_error() {
         let _program = ts_goport::core::enter_program(None);
         assert_eq!(

@@ -818,6 +818,8 @@ fn inspect_subject(
     } else {
         runtime_configuration::RuntimeConfiguration::default()
     };
+    let retained_function_owners =
+        component_observations::retained_function_owners(file, &repository, retained);
     let retained_scope_syntax = component_observations::retained_scope_syntax(
         file,
         &relative,
@@ -1090,7 +1092,7 @@ fn inspect_subject(
     });
     let capability_scope = serde_json::json!({"language":if ast::is_in_js_file(file){"javascript"}else{"typescript"},"dialectVersion":core::version(),"compilerIdentity":{"version":core::version(),"sourceRevision":"780dc512d64f40afebffa6a7028207649fb7ed1c"}});
     Ok(
-        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"capabilityScope":capability_scope,"retainedScopeSyntaxObservation":retained_scope_syntax,"retainedCallableInitializers":callable_initializers,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
+        serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"capabilityScope":capability_scope,"retainedScopeSyntaxObservation":retained_scope_syntax,"retainedCallableInitializers":callable_initializers,"retainedFunctionOwners":retained_function_owners,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
 }
 

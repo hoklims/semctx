@@ -72,3 +72,16 @@ test("unordered extraction compares full multisets while retaining nested order 
   expect(comparisonMatches([first], [{ ...first, runtimeUsed: false }], "unordered")).toBe(false);
   expect(() => comparisonMatches(null, [], "unordered")).toThrow();
 });
+
+test("campaign projection preserves triage relations and predicates alongside checker comparisons", () => {
+  expect(projectComparison([{ digest: "same" }, { digest: "same" }], "outline-digest-relation")).toBe(true);
+  expect(projectComparison([{ digest: "first" }, { digest: "second" }], "outline-digest-relation")).toBe(false);
+  expect(projectComparison(["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"], "opaque-callback-reason")).toBe(true);
+  expect(projectComparison([], "opaque-callback-reason")).toBe(false);
+  expect(projectComparison(["SOURCE_CONSTRUCTION_UNSUPPORTED"], "construction-reason")).toBe(true);
+  expect(projectComparison([], "construction-reason")).toBe(false);
+  expect(projectComparison([{ kind: "calls" }, { kind: "imports" }], "call-edge-count")).toBe(1);
+  expect(projectComparison([], "call-edge-count")).toBe(0);
+  expect(() => projectComparison([{ digest: "only" }], "outline-digest-relation")).toThrow();
+  expect(() => projectComparison([{}], "call-edge-count")).toThrow();
+});

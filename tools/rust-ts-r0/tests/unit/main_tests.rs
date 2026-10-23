@@ -2778,3 +2778,54 @@ fn loaded_module_partition_reports_late_require_resolution_errors() {
     );
     assert!(observed.get("dependencyComponents").is_none());
 }
+
+#[test]
+fn retained_function_owner_observation_distinguishes_bodies_names_and_disabled_mode() {
+    let text = "export function ownerTriage() {} declare function signatureTriage(): void; export default function() {}";
+    let mut request = component_request("functionOwnerTriage", "/repo/main.ts", text);
+    request.retained = true;
+    let observed = analyze(request.clone(), component_sdk()).unwrap();
+    assert_eq!(
+        observed["subjects"][0]["retainedFunctionOwners"],
+        serde_json::json!({
+            "executed":true,"unsupported":[],"ownerAbsenceCases":[
+                {"bodyPresent":false,"namePresent":false,"ownerEligible":false},
+                {"bodyPresent":false,"namePresent":true,"ownerEligible":false},
+                {"bodyPresent":true,"namePresent":false,"ownerEligible":false},
+                {"bodyPresent":true,"namePresent":true,"ownerEligible":true}
+            ],"functions":[
+                {"bodyPresent":true,"namePresent":true,"coordinate":{"relPath":"main.ts","symbolPath":"ownerTriage"}},
+                {"bodyPresent":false,"namePresent":true,"coordinate":null},
+                {"bodyPresent":true,"namePresent":false,"coordinate":{"relPath":"main.ts","symbolPath":"default"}}
+            ]
+        })
+    );
+    request.retained = false;
+    let observed = analyze(request, component_sdk()).unwrap();
+    assert_eq!(
+        observed["subjects"][0]["retainedFunctionOwners"],
+        serde_json::json!({
+            "executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"functions":[],"ownerAbsenceCases":[]
+        })
+    );
+}
+
+#[test]
+fn raw_array_binding_holes_keep_ordered_names_without_missing_node_crashes() {
+    let source = "const [firstTriage,,[deepTriage],...tailTriage] = sourceTriage; export function leafTriage() {}";
+    let mut request = component_request("bindingHolesTriage", "/repo/main.ts", source);
+    request.retained = true;
+    let observed = analyze(request, component_sdk()).unwrap();
+    let statements = &observed["outlines"]["main.ts"]["outline"]["statements"];
+    assert_eq!(
+        statements[0]["declaredNames"],
+        serde_json::json!(["firstTriage", "deepTriage", "tailTriage"])
+    );
+    assert!(
+        observed["raw_extraction"]["symbols"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|symbol| symbol["name"] == "leafTriage")
+    );
+}

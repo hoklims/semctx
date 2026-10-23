@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { logicalCallEdges } from "./t00-ts7-q-syntax-checker-graph.js";
+import { comparisonValue } from "./t00-ts7-q-syntax-core.js";
 import type { CampaignCase } from "./t00-ts7-q-syntax-types.js";
 
 interface CampaignModule {
@@ -33,21 +34,14 @@ export function combineCampaignCases(modules: CampaignModule[]) {
 export function projectComparison(value: unknown, transform?: CampaignCase["checks"][number]["transform"]): unknown {
   if (!transform) return value;
   if (transform === "logical-call-edges") return logicalCallEdges(value);
-  if (!Array.isArray(value)) throw new Error("comparison transform requires array");
   if (transform === "native-reasons") {
-    if (!value.every((entry: unknown) => typeof entry === "string"))
+    if (!Array.isArray(value) || !value.every((entry: unknown) => typeof entry === "string"))
       throw new Error("native reasons must be strings");
     return (value as string[]).filter(reason => reason === "JAVASCRIPT_COMMONJS_UNSUPPORTED" ||
       reason.startsWith("JAVASCRIPT_NATIVE_MODULE_MEMBER_UNSUPPORTED:") ||
       reason === "JAVASCRIPT_DYNAMIC_EVALUATION_UNSUPPORTED");
   }
-  return value.map((entry: unknown) => {
-    if (entry === null || typeof entry !== "object" || Array.isArray(entry))
-      throw new Error("outline statement must be object");
-    const statement = { ...entry } as Record<string, unknown>;
-    delete statement.digest;
-    return statement;
-  });
+  return comparisonValue(value, transform);
 }
 
 export function comparisonMatches(actual: unknown, expected: unknown, comparison?: "unordered"): boolean {
