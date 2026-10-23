@@ -128,6 +128,8 @@ fn node_range(symbol: &Value) -> Result<Option<wire::SourceRange>, String> {
 }
 
 pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Batch, String> {
+    let native_sdk = sdk_compatibility::classify(sdk, &request.sdk_directory)?
+        == sdk_compatibility::Compatibility::Native;
     let reports = observed["subjects"]
         .as_array()
         .ok_or("missing subject observations")?;
@@ -154,7 +156,7 @@ pub fn build(request: &Request, sdk: &Sdk, observed: &Value) -> Result<wire::Bat
                 .map(|kind| wire::Coverage {
                     fact_kind: (*kind).into(),
                     complete: true,
-                    negative_evidence_eligible: request.qualified && request.retained,
+                    negative_evidence_eligible: request.qualified && request.retained && native_sdk,
                 })
                 .collect()
         } else {

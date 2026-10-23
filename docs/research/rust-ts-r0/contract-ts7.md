@@ -29,8 +29,8 @@ libraries. Its provenance-declared archive SHA256 is
 `10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3`;
 the committed `sdk-input.json` SHA256 is
 `d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654`.
-These bytes must not be relabeled TS7. Retaining this SDK or replacing it with the
-pinned port's libraries is an unresolved owner decision. Compiler identity alone
+These bytes must not be relabeled TS7. The owner selected replacement by the pinned port's 115 libraries (option B,
+2026-10-23); their acquisition and inventory checks belong to the SDK lot. Compiler identity alone
 does not establish SDK compatibility or actual library consumption.
 
 The [dialect oracle](oracle-ts7.json) executes the pinned upstream `tsgo` CLI separately from the
@@ -58,10 +58,37 @@ historical oracle; changing its version guard or relabeling its outputs is inval
 
 ## Configuration and TS5 degradation
 
-TS5 projects must have a degraded mode under the owner's decision. Its project
-identification rule, supported analysis/admission surface and diagnostic code,
-message and emission point remain unresolved. No implementation or qualification
-of that mode is claimed until those choices are approved and exercised.
+The owner decision of 2026-10-23 identifies TS5 from the explicitly supplied SDK,
+never from project source syntax or dependency declarations. The historical
+`5.9.3` / archive SHA256 pair above maps to `typescript` in the committed
+[SDK provenance](../../../tools/rust-ts-r0/provenance.json); this descriptor
+recognition does not authenticate its library payload.
+For other stable TS5 releases, the captured `package.json` immediately above
+`sdk_directory` must name `typescript` and match the descriptor's version.
+An optional package manifest must also agree for the historical descriptor.
+Ambiguous, malformed, foreign or contradictory identities are refused before
+analysis with `SDK_IDENTITY_UNRECOGNIZED` or `SDK_IDENTITY_INCONSISTENT`; no SDK
+fallback is permitted. These identity declarations alone do not authenticate
+library payloads; the SDK lot owns the native library inventory checks.
+
+The public request, `--batch` and `verify working-tree` commands emit one JSON
+line on stderr before analysis: `code: "TS5_DEGRADED_ANALYSIS"`,
+`severity: "warning"`, and the exact message:
+
+> Projet TypeScript 5 analysé avec ts_goport 7.1.0-dev ; compatibilité TS5 non garantie et admission qualifiée indisponible
+
+Diagnostic analysis, existing source diagnostics and extracted facts remain
+available. Batch coverage cannot supply eligible negative evidence for TS5.
+Qualified verification rejects TS5 with `analysisAdmission.status: "rejected"`,
+reason `TS5_DEGRADED_ANALYSIS`, `verdict: "BLOCK"` and exit 3, including with
+`--fail-on none`. The diagnostic observation remains in `selected_analysis`;
+`indexed_extraction_received: false` records that this rejection does not consume
+or certify the submitted index. An unsupported analysis option still produces an error/exit 1 after the warning,
+with no admission. A SDK declaration naming TypeScript `7.1.0-dev` emits no TS5
+warning and remains subject to the existing admission checks. Native SDK
+inventory validation and the new SDK descriptor schema require integration with
+the SDK lot before qualification.
+This behavior contract grants no qualification credit to the 240 obligations.
 
 The [lot 4 findings](qualification/lots-20261023/lot4/findings.json) distinguish
 parser behavior from Semctx policy on the previous candidate. Fresh independent
@@ -78,7 +105,7 @@ and exit codes on macOS arm64 and Linux aarch64:
 | `module: amd/system/umd` | Parser acceptance does not imply compiler support: compilation exits 2 with TS5095 and TS5108. Semctx's retained-profile rejection is separate. |
 | `target: es2025/es2026` | Compilation of each simple control exits 0 with the oracle's TS7 libraries; no compatibility claim for the T00 SDK follows. |
 
-There is no approved TS5 diagnostic fallback, TS5-compatible emission promise or
+The approved diagnostic mode supplies no TS5-compatible emission promise or
 permission to accept incompatible qualified module settings. Preserve explicit
 Semctx configuration refusals and distinguish them from compiler code 6046.
 

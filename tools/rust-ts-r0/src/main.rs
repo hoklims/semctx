@@ -26,6 +26,7 @@ mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
 mod runtime_configuration;
+mod sdk_compatibility;
 mod source_text;
 mod worker_observations;
 use captured::Captured;
@@ -1086,6 +1087,7 @@ fn inspect_subject(
     reason = "The feasibility probe retains explicit captured request and fact assembly branches."
 )]
 fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+    sdk_compatibility::classify(&sdk, &request.sdk_directory)?;
     if request.qualified && !request.retained {
         return Err("SOURCE_SNAPSHOT_REQUIRED".into());
     }
@@ -1103,11 +1105,6 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         if std::env::var(variable).as_deref() != Ok("0") {
             return Err(format!("captured SDK requires {variable}=0"));
         }
-    }
-    if sdk.version != "5.9.3"
-        || sdk.archive_sha256 != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
-    {
-        return Err("foreign SDK descriptor".into());
     }
     let request_identity =
         identity::digest(&serde_json::to_value(&request).map_err(|error| error.to_string())?);
@@ -1198,8 +1195,16 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         }
     }
     let project_files = std::sync::Arc::new(files.clone());
-    let sdk_keys = sdk.files.keys().cloned().collect::<Vec<_>>();
+    let sdk_keys = sdk
+        .files
+        .keys()
+        .filter(|path| !path.ends_with("/package.json"))
+        .cloned()
+        .collect::<Vec<_>>();
     for (path, text) in sdk.files {
+        if path.ends_with("/package.json") {
+            continue;
+        }
         if files
             .insert(path, ts_goport::scanner_util::go_string_from_utf8(text))
             .is_some()
@@ -1706,6 +1711,7 @@ fn main() {
             &std::fs::read(&args[first + 1]).map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
+        sdk_compatibility::warn(sdk_compatibility::classify(&sdk, &request.sdk_directory)?);
         let observed = analyze(request.clone(), sdk.clone())?;
         if batch_mode {
             serde_json::to_value(batch::build(&request, &sdk, &observed)?)
