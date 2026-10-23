@@ -27,7 +27,7 @@ export function compareRuntimeReasons(value: unknown, expected: string[]): boole
   return observation["executed"] === true && isDeepStrictEqual(observation["unsupported"], []) && strings(observation["reasons"]) && isDeepStrictEqual(observation["reasons"].filter(reason => runtimeReasons.has(reason)).sort(), [...expected].sort());
 }
 
-type Fixture = { name: string; source: string; extension?: string; options?: Value; inherited?: boolean; leafOptions?: Value; retained?: boolean; group: "helper" | "jsx" | "parse" };
+type Fixture = { name: string; source: string; extension?: string; options?: Value; inherited?: boolean; leafOptions?: Value; retained?: boolean; group: "helper" | "jsx" | "tsx" | "parse" };
 const fixtures: Fixture[] = [
   { name: "async-imported", source: "export async function run() { return 1; }\n", options: { target: "es2015", importHelpers: true }, group: "helper" },
   { name: "async-inherited", source: "export async function run() { return 1; }\n", options: { target: "es2015", importHelpers: true }, inherited: true, group: "helper" },
@@ -51,6 +51,14 @@ const fixtures: Fixture[] = [
   { name: "no-jsx", source: 'export const text = "<section />";\n', options: { jsx: "react-jsx" }, group: "jsx" },
   { name: "authored-factory", source: "export const view = React.createElement('section');\n", options: { jsx: "react" }, group: "jsx" },
   { name: "ordinary-classic", source: "export const view = <section />;\n", options: { jsx: "react" }, retained: false, group: "jsx" },
+  { name: "tsx-automatic-pragma", extension: "tsx", source: "/** @jsxRuntime automatic */\nexport const view = <section />;\n", group: "tsx" },
+  { name: "tsx-classic-pragma", extension: "tsx", source: "/** @jsxRuntime classic */\nexport const view = <section />;\n", options: { jsx: "react-jsx" }, group: "tsx" },
+  { name: "tsx-import-source", extension: "tsx", source: "/** @jsxImportSource custom */\nexport const view = <section />;\n", group: "tsx" },
+  { name: "tsx-last-automatic", extension: "tsx", source: "/** @jsxRuntime classic */\n/** @jsxRuntime automatic */\nexport const view = <section />;\n", options: { jsx: "react" }, group: "tsx" },
+  { name: "tsx-no-jsx", extension: "tsx", source: "export function plain() { return 1; }\n", options: { jsx: "react-jsx" }, group: "tsx" },
+  { name: "tsx-fragment", extension: "tsx", source: "export const view = <><section /></>;\n", options: { jsx: "react", jsxFactory: "h", jsxFragmentFactory: "Fragment" }, group: "tsx" },
+  { name: "tsx-preserve", extension: "tsx", source: "export const view = <section />;\n", group: "tsx" },
+  { name: "tsx-element", extension: "tsx", source: "export const view = /* trivia */ <section><span /></section>;\n", options: { jsx: "react" }, group: "tsx" },
   { name: "parse-failed", source: "export const broken = ;\n", extension: "js", group: "parse" },
   { name: "parse-corrected", source: "export const broken = 1;\n", extension: "js", group: "parse" },
   { name: "parse-typescript-in-js", source: "export const value: number = 1;\n", extension: "js", group: "parse" },
@@ -94,8 +102,7 @@ export async function runEmitHelpers(ctx: CampaignContext, selected: number[]): 
         const subjects = producer["subjects"];
         const subject = Array.isArray(subjects) && subjects.length === 1 ? record(subjects[0]) : {};
         actual = subject["javascriptObservation"];
-        const configuration = record(subject["moduleConfigurationObservations"])[fixture.retained === false ? "ordinaryWithoutSnapshot" : "retainedWithoutSource"];
-        pass = observation["fileName"] === file && oracleRun.exitCode === 0 && producerRun.exitCode === 0 && producer["native_compiler_version"] === "7.1.0-dev" && compareRuntimeReasons(actual, expected) && compareRuntimeReasons(configuration, expected);
+        pass = observation["fileName"] === file && oracleRun.exitCode === 0 && producerRun.exitCode === 0 && producer["native_compiler_version"] === "7.1.0-dev" && compareRuntimeOwners(subject, expected, fixture.group === "tsx" ? "moduleConfiguration" : fixture.retained === false ? "ordinaryJavaScript" : "javascript");
         diagnostics = observation["diagnostics"] as unknown[];
         const parseReasons = diagnostics.map(item => { const diagnostic = record(item); if (!Number.isInteger(diagnostic["code"]) || typeof diagnostic["message"] !== "string") throw Error("invalid oracle diagnostic"); return `JAVASCRIPT_PARSE_ERROR:${String(diagnostic["code"])}:${diagnostic["message"].replaceAll("\n", " ")}`; }).sort();
         const js = record(actual);
@@ -108,17 +115,23 @@ export async function runEmitHelpers(ctx: CampaignContext, selected: number[]): 
       rows.push({ ...comparison, evidence });
     }
   }
-  const helper = rows.filter(row => row.group === "helper"), jsx = rows.filter(row => row.group === "jsx"), parse = rows.filter(row => row.group === "parse");
+  const helper = rows.filter(row => row.group === "helper"), jsx = rows.filter(row => row.group === "jsx"), tsx = rows.filter(row => row.group === "tsx"), parse = rows.filter(row => row.group === "parse");
   return definitions.map(definition => {
     const index = Number(definition["index"]);
-    const relevant = index <= 14 ? helper : index === 16 ? parse : index === 15 ? [...jsx, ...parse] : jsx;
-    const complete = relevant.length === fixtures.filter(fixture => index <= 14 ? fixture.group === "helper" : index === 16 ? fixture.group === "parse" : index === 15 ? fixture.group !== "helper" : fixture.group === "jsx").length;
-    const witnessesPass = complete && relevant.every(row => index === 16 ? row.parsePass : row.pass && row.parsePass);
+    const relevant = index <= 14 ? helper : index === 16 ? parse : index === 15 ? [...jsx, ...parse] : [...jsx, ...tsx];
+    const complete = relevant.length === fixtures.filter(fixture => index <= 14 ? fixture.group === "helper" : index === 16 ? fixture.group === "parse" : index === 15 ? ["jsx", "parse"].includes(fixture.group) : ["jsx", "tsx"].includes(fixture.group)).length;
+    const witnessesPass = complete && relevant.every(row => index === 16 ? row.parsePass : row.pass && (row.group === "tsx" || row.parsePass));
     const activating = index <= 14 ? helper.some(row => row.expected.includes("SOURCE_CONFIGURATION_HELPERS_UNSUPPORTED")) : index === 16 ? parse.some(row => row.diagnostics.length > 0) : jsx.some(row => row.expected.includes("SOURCE_CLASSIC_JSX_RUNTIME_UNSUPPORTED")) && jsx.some(row => row.expected.includes("SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED"));
+    const typescriptWitnesses = index < 20 || tsx.some(row => row.expected.includes("SOURCE_CLASSIC_JSX_RUNTIME_UNSUPPORTED")) && tsx.some(row => row.expected.includes("SOURCE_AUTOMATIC_JSX_RUNTIME_UNSUPPORTED")) && tsx.some(row => row.expected.length === 0);
     const control = relevant.some(row => index === 16 ? row.diagnostics.length === 0 : row.expected.length === 0);
-    const properties: ObligationResult["properties"] = [{ property: "owning consumer observable rule(s) in canonical family/call-path contract", status: ctx.emitHelpersOracle === undefined ? "not_qualified" : witnessesPass && activating && control ? "pass" : "fail", reason: ctx.emitHelpersOracle === undefined ? "Missing authenticated emitHelpersOracle API artifact." : "Independent TS7 API observations projected through the owning-operation contract, with activation and controls; finite supported-target witnesses only." }];
+    const properties: ObligationResult["properties"] = [{ property: "owning consumer observable rule(s) in canonical family/call-path contract", status: ctx.emitHelpersOracle === undefined ? "not_qualified" : witnessesPass && activating && control && typescriptWitnesses ? "pass" : "fail", reason: ctx.emitHelpersOracle === undefined ? "Missing authenticated emitHelpersOracle API artifact." : "Independent TS7 API observations projected through the owning-operation contract, with activation and controls; finite supported-target witnesses only." }];
     if (index <= 14) properties.push({ property: "historical J04/J05 ES5 witnesses", status: "not_qualified", reason: "Historical units require removed ES5 lowering; supported-target variants do not replace them. Contract decision required; ARB-003 retains zero credit." });
     const qualified = properties.every(property => property.status === "pass");
     return { index, id: String(definition["id"]), status: qualified ? "qualified" : "not_qualified", reason: qualified ? "Finite TS7 API witnesses pass; cross-platform frozen-candidate replay still required." : properties.filter(property => property.status !== "pass").map(property => property.reason).join(" "), properties, evidence: relevant.flatMap(row => row.evidence), durationMs: performance.now() - started };
   });
+}
+
+export function compareRuntimeOwners(value: unknown, expected: string[], owner: "javascript" | "moduleConfiguration" | "ordinaryJavaScript"): boolean {
+  const subject = record(value);
+  return compareRuntimeReasons(record(subject["moduleConfigurationObservations"])[owner === "ordinaryJavaScript" ? "ordinaryWithoutSnapshot" : "retainedWithoutSource"], expected) && (owner === "moduleConfiguration" || compareRuntimeReasons(subject["javascriptObservation"], expected));
 }

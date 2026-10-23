@@ -35,3 +35,13 @@ test("missing API artifact leaves all selected obligations unqualified without e
   expect(results).toHaveLength(8);
   expect(results.every(row => row.status === "not_qualified" && row.properties[0]?.status === "not_qualified")).toBe(true);
 });
+
+import { compareRuntimeOwners } from "./t00-ts7-q-config-emit-helpers";
+
+test("TSX runtime compares its module configuration owner without requiring a JavaScript operation", () => {
+  const expected = ["SOURCE_CLASSIC_JSX_RUNTIME_UNSUPPORTED"];
+  const subject = { moduleConfigurationObservations: { retainedWithoutSource: { executed: true, reasons: expected, unsupported: [] } }, javascriptObservation: { executed: false, reasons: [], unsupported: ["COMPONENT_JAVASCRIPT_SOURCE_REQUIRED"] } };
+  expect(compareRuntimeOwners(subject, expected, "moduleConfiguration")).toBe(true);
+  expect(compareRuntimeOwners(subject, expected, "javascript")).toBe(false);
+  expect(compareRuntimeOwners({ ...subject, moduleConfigurationObservations: {} }, expected, "moduleConfiguration")).toBe(false);
+});
