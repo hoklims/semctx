@@ -231,7 +231,7 @@ fn development_factory_uses_sdk59_node10_classic_and_null_effective_modes() {
 }
 
 #[test]
-fn development_modern_base_url_and_paths_use_inherited_sdk59_base() {
+fn development_modern_base_url_resolution_preserves_ts7_removed_option_diagnostic() {
     for (resolution, module) in [
         ("bundler", "esnext"),
         ("node16", "node16"),
@@ -261,10 +261,15 @@ fn development_modern_base_url_and_paths_use_inherited_sdk59_base() {
             assert!(error.is_none());
             assert_eq!(found.unwrap().resolved_file_name, expected, "{resolution}");
         }
-        assert!(
-            !observations.borrow().reasons[path]
+        assert_eq!(
+            observations.borrow().reasons[path]
                 .iter()
-                .any(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
+                .filter(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
+                .map(String::as_str)
+                .collect::<Vec<_>>(),
+            vec![
+                "SOURCE_CONFIGURATION_INVALID:5102:Option 'baseUrl' has been removed. Please remove it from your configuration. Use '\"paths\": {\"*\": [\"../lookups/*\"]}' instead."
+            ]
         );
         let cleared = "/repo/t00DevelopmentModernAA/cleared/t00DevelopmentEntryAA.ts";
         let (found, _, error) = resolver.resolve_module_name(

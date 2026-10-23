@@ -1,5 +1,60 @@
 use super::*;
 
+fn localized_diagnostic(diagnostic: &core::Diagnostic) -> String {
+    std::iter::once(
+        diagnostic
+            .localize(&ts_goport::locale::DEFAULT)
+            .replace('\n', " "),
+    )
+    .chain(diagnostic.message_chain().iter().map(localized_diagnostic))
+    .collect::<Vec<_>>()
+    .join(" ")
+}
+
+fn invalid_configuration_reason(diagnostic: &core::Diagnostic) -> String {
+    format!(
+        "SOURCE_CONFIGURATION_INVALID:{}:{}",
+        diagnostic.code(),
+        localized_diagnostic(diagnostic)
+    )
+}
+
+fn compiler_option_diagnostics(
+    parsed: &tsoptions::ParsedCommandLine,
+    repository: &str,
+    sensitive: bool,
+) -> Vec<core::Diagnostic> {
+    let mut options = compiler_options();
+    let raw = match &parsed.raw {
+        tsoptions::CompilerOptionsValue::Map(raw) => Some(raw),
+        _ => None,
+    };
+    tsoptions::merge_compiler_options(&mut options, Some(parsed.compiler_options()), raw);
+    let mut config = tsoptions::new_parsed_command_line(
+        Rc::new(options),
+        vec![],
+        None,
+        ComparePathsOptions {
+            use_case_sensitive_file_names: sensitive,
+            current_directory: repository.into(),
+        },
+    );
+    config.config_file = parsed.config_file.clone();
+    let validation_fs = Rc::new(CaptureFs::new(BTreeMap::new(), sensitive));
+    let host = compiler::new_compiler_host(repository, validation_fs, repository, None, None, None);
+    compiler::new_program(compiler::ProgramOptions {
+        host,
+        config: Rc::new(config),
+        use_source_of_project_reference: false,
+        single_threaded: Tristate::True,
+        typings_location: String::new(),
+        project_name: String::new(),
+        create_module_resolver: None,
+        skip_module_resolution: true,
+    })
+    .program_diagnostics
+}
+
 pub struct Configuration {
     pub options: Rc<CompilerOptions>,
     pub raw: Option<tsoptions::CompilerOptionsValue>,
@@ -68,13 +123,7 @@ pub fn merge_configured_options(
             },
         );
         for error in errors {
-            reasons.insert(format!(
-                "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                error.code(),
-                error
-                    .localize(&ts_goport::locale::DEFAULT)
-                    .replace('\n', " ")
-            ));
+            reasons.insert(invalid_configuration_reason(&error));
         }
         if module_none {
             for error in tsoptions::parse_compiler_options(
@@ -82,13 +131,7 @@ pub fn merge_configured_options(
                 tsoptions::CompilerOptionsValue::ModuleKind(ModuleKind::NONE),
                 &mut merged,
             ) {
-                reasons.insert(format!(
-                    "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                    error.code(),
-                    error
-                        .localize(&ts_goport::locale::DEFAULT)
-                        .replace('\n', " ")
-                ));
+                reasons.insert(invalid_configuration_reason(&error));
             }
         }
     }
@@ -198,16 +241,6 @@ fn contained(fs: &CaptureFs, repository: &str, path: &str) -> bool {
     candidate == root || candidate.starts_with(&format!("{root}/"))
 }
 
-fn module_none_value(raw: &tsoptions::CompilerOptionsValue) -> bool {
-    let tsoptions::CompilerOptionsValue::Map(raw) = raw else {
-        return false;
-    };
-    let Some(tsoptions::CompilerOptionsValue::Map(options)) = raw.get("compilerOptions") else {
-        return false;
-    };
-    matches!(options.get("module"),Some(tsoptions::CompilerOptionsValue::String(value)) if value.eq_ignore_ascii_case("none"))
-}
-
 fn negative_ancestor_package_directory(fs: &CaptureFs, repository: &str, probe: &Probe) -> bool {
     if fs.workspace.is_none() || probe.operation != "directory_exists" || probe.found {
         return false;
@@ -259,20 +292,28 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
         return Err("configuration disappeared from capture".into());
     }
     let _empty = core::enter_program(None);
-    let (json, mut diagnostics) = tsoptions::parse_config_file_text_to_json(
+    let source_file = tsoptions::new_tsconfig_source_file_from_file_path(
         &config,
         ts_goport::frontend::tspath::Path(config.clone()),
         &text,
     );
+    let (_, mut diagnostics) =
+        tsoptions::convert_config_file_to_object(source_file.source_file, None);
+    diagnostics.extend(
+        ts_goport::frontend::parser::parsed_source_file_diagnostics(source_file.source_file)
+            .iter()
+            .cloned(),
+    );
     let lineage = ConfigurationLineage::default();
     let parsed = if diagnostics.is_empty() {
-        Some(tsoptions::parse_json_config_file_content(
-            &json,
+        Some(tsoptions::parse_json_source_file_config_file_content(
+            source_file,
             &Host {
                 fs: fs.clone(),
                 cwd: repository.into(),
             },
             &ts_goport::frontend::tspath::get_directory_path(&config),
+            None,
             None,
             &config,
             &[],
@@ -283,6 +324,11 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     };
     if let Some(parsed) = &parsed {
         diagnostics.extend(parsed.get_config_file_parsing_diagnostics());
+        diagnostics.extend(compiler_option_diagnostics(
+            parsed,
+            repository,
+            fs.sensitive,
+        ));
     }
     let raw = parsed.as_ref().map(|parsed| parsed.raw.clone());
     let mut raw_chain = lineage.0.into_inner();
@@ -291,27 +337,8 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     }
     let mut reasons = BTreeSet::new();
     for diagnostic in diagnostics {
-        let diagnostic_path = if diagnostic.file().is_nil() {
-            config.as_str()
-        } else {
-            ast::source_file_file_name(diagnostic.file())
-        };
-        let removed_module_none = diagnostic.code() == 6046
-            && diagnostic
-                .message_args()
-                .first()
-                .is_some_and(|option| option == "--module")
-            && raw_chain.iter().any(|(path, raw)| {
-                fs.key(path) == fs.key(diagnostic_path) && module_none_value(raw)
-            });
-        if diagnostic.code() != 18003 && !removed_module_none {
-            reasons.insert(format!(
-                "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                diagnostic.code(),
-                diagnostic
-                    .localize(&ts_goport::locale::DEFAULT)
-                    .replace('\n', " ")
-            ));
+        if diagnostic.code() != 18003 {
+            reasons.insert(invalid_configuration_reason(&diagnostic));
         }
     }
     let options = parsed

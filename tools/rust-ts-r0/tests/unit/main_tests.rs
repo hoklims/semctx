@@ -2142,11 +2142,16 @@ fn component_observation_distinguishes_explicit_module_none_from_omission() {
     let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
     assert_eq!(
         modes["retainedWithoutSource"]["reasons"],
-        serde_json::json!(["SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+            "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None",
+        ])
     );
     assert_eq!(
         modes["ordinaryWithoutSnapshot"]["reasons"],
-        serde_json::json!([])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+        ])
     );
     request
         .files
