@@ -220,7 +220,7 @@
     "These ten compiler controls do not qualify Semctx configuration observations, graphs, admission or degraded TS5 support.",
     "The reference shares upstream compiler implementation with the producer; only Semctx process/adapter independence is established.",
     "Builds succeeded once per platform; bit-identical repeat-build reproducibility is not claimed.",
-    "Current Semctx captured SDK remains TS5.9.3; its replacement is undecided."
+    "The integrated TS7 producer captures the same 115 pinned libraries. This oracle build does not itself install a Semctx SDK; the explicit TS5 SDK remains a diagnostic-only degraded input, without qualified admission."
   ],
   "evidenceIntegrity": {
     "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/evidence-integrity.json",
