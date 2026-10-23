@@ -26,6 +26,7 @@ mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
 mod runtime_configuration;
+mod sdk_inventory;
 mod source_text;
 mod worker_observations;
 use captured::Captured;
@@ -88,7 +89,8 @@ fn retained_default() -> bool {
 #[serde(deny_unknown_fields)]
 struct Sdk {
     version: String,
-    archive_sha256: String,
+    source_revision: String,
+    library_manifest_sha256: String,
     files: BTreeMap<String, String>,
 }
 #[derive(Clone, Serialize)]
@@ -1075,7 +1077,7 @@ fn inspect_subject(
         "external_module": ast::is_external_module(file),
         "unsupported": [],
     });
-    let capability_scope = serde_json::json!({"language":if ast::is_in_js_file(file){"javascript"}else{"typescript"},"dialectVersion":core::version()});
+    let capability_scope = serde_json::json!({"language":if ast::is_in_js_file(file){"javascript"}else{"typescript"},"dialectVersion":core::version(),"compilerIdentity":{"version":core::version(),"sourceRevision":"780dc512d64f40afebffa6a7028207649fb7ed1c"}});
     Ok(
         serde_json::json!({"path":path,"outcome":outcome,"reasons":reasons,"unimplemented":unimplemented,"parseDiagnostics":parsing,"sourceFileObservation":source_file_observation,"capabilityScope":capability_scope,"retainedScopeSyntaxObservation":retained_scope_syntax,"retainedCallableInitializers":callable_initializers,"semanticObservation":semantic_observation,"sourceParsingObservation":source_parsing_observation,"moduleConfigurationObservations":module_configuration_observations,"javascriptObservation":javascript_observation,"javascript":javascript,"graphMetadata":graph_metadata,"runtimeConfiguration":runtime,"configurationConsumed":configuration.consumed,"admission":"not_evaluated","semanticContextProbes":semantic_fs.log.borrow().clone(),"resolutionObservations":resolution}),
     )
@@ -1104,11 +1106,11 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             return Err(format!("captured SDK requires {variable}=0"));
         }
     }
-    if sdk.version != "5.9.3"
-        || sdk.archive_sha256 != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
-    {
+    if !sdk.matches_reference() {
         return Err("foreign SDK descriptor".into());
     }
+    sdk.validate_libraries(&request.sdk_directory)?;
+    let sdk_identity = sdk.capability_identity();
     let request_identity =
         identity::digest(&serde_json::to_value(&request).map_err(|error| error.to_string())?);
     let input_identity = identity::digest(&batch::input_manifest(&request, &sdk)?);
@@ -1456,6 +1458,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             retained,
             qualified,
         )?;
+        subject["capabilityScope"]["sdkIdentity"] = sdk_identity.clone();
         subject["opaqueCallbackOwnership"] = if retained && qualified {
             let mut removed_graph = assembly.clone();
             removed_graph["edges"] = serde_json::json!([]);

@@ -16,8 +16,8 @@ pub fn with_sdk_project<T>(
     let bytes = std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json"))
         .expect("explicit captured SDK fixture");
     let sdk: Sdk = serde_json::from_slice(&bytes).expect("captured SDK descriptor");
-    assert_eq!(sdk.version, "5.9.3");
-    assert_eq!(sdk.files.len(), 100);
+    assert_eq!(sdk.version, "7.1.0-dev");
+    assert_eq!(sdk.files.len(), 115);
     for (path, text) in sdk.files {
         assert!(files.insert(path, text).is_none(), "foreign SDK overlap");
     }

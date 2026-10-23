@@ -46,7 +46,17 @@ fn fixture(label: &str) -> (PathBuf, PathBuf, PathBuf) {
     )
     .unwrap();
     fs::write(sdk.join("lib/typescript.js"), "module.exports={};").unwrap();
-    fs::write(sdk.join("lib/lib.d.ts"), "declare const value: number;").unwrap();
+    let manifest: Value = serde_json::from_str(include_str!(
+        "../../../docs/research/rust-ts-r0/cases/upstream/typescript/sdk-manifest.json"
+    ))
+    .unwrap();
+    for library in manifest["libraries"].as_array().unwrap() {
+        fs::write(
+            sdk.join(library["path"].as_str().unwrap()),
+            "declare const value: number;",
+        )
+        .unwrap();
+    }
     (base, root, sdk)
 }
 

@@ -310,8 +310,10 @@ fn captured_system_observer_refuses_unknown_shapes_and_incomplete_sdk_fallback()
         assert!(!observed["unsupported"].as_array().unwrap().is_empty());
     }
     let sdk = Sdk {
-        version: "5.9.3".into(),
-        archive_sha256: "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3".into(),
+        version: "7.1.0-dev".into(),
+        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
+        library_manifest_sha256: "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+            .into(),
         files: BTreeMap::from([(
             "/sdk/lib/t00-dev.d.ts".into(),
             "declare const t00SdkCaptureDev: number;".into(),
@@ -361,8 +363,10 @@ fn captured_system_profile_clone_preserves_exact_sdk_roles_and_read_evidence() {
 #[test]
 fn captured_system_sdk_exemption_uses_only_descriptor_file_keys() {
     let sdk = Sdk {
-        version: "5.9.3".into(),
-        archive_sha256: "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3".into(),
+        version: "7.1.0-dev".into(),
+        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
+        library_manifest_sha256: "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+            .into(),
         files: BTreeMap::from([(
             "/sdk/lib/t00-exact-sdk-dev.d.ts".into(),
             "declare const t00ExactSdkDev: number;".into(),

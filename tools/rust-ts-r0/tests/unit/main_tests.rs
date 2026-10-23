@@ -2583,3 +2583,76 @@ fn development_driver_reports_ambiguous_exports_without_arbitrary_call_edge() {
             .any(|edge| edge["kind"] == "calls")
     );
 }
+
+#[test]
+fn captured_sdk_missing_extra_and_changed_libraries_are_refused_before_analysis() {
+    let request = component_request(
+        "sdkInventoryDev",
+        "/repo/source.ts",
+        "export const sdkInventoryDev = 419;",
+    );
+    for (mutation, expected) in [
+        ("missing", "SDK_LIBRARY_MISSING:lib.es5.d.ts"),
+        ("extra", "SDK_LIBRARY_UNEXPECTED:lib.foreign.d.ts"),
+        ("bytes", "SDK_LIBRARY_CONTENT_MISMATCH:lib.es5.d.ts"),
+        ("same-size", "SDK_LIBRARY_CONTENT_MISMATCH:lib.es5.d.ts"),
+        ("version", "foreign SDK descriptor"),
+        ("revision", "foreign SDK descriptor"),
+        ("manifest", "foreign SDK descriptor"),
+    ] {
+        let mut sdk = component_sdk();
+        match mutation {
+            "version" => sdk.version = "foreign-version".into(),
+            "revision" => sdk.source_revision = "foreign-revision".into(),
+            "manifest" => sdk.library_manifest_sha256 = "foreign-manifest".into(),
+            "missing" => {
+                sdk.files.remove("/sdk/lib/lib.es5.d.ts");
+            }
+            "extra" => {
+                sdk.files.insert(
+                    "/sdk/lib/lib.foreign.d.ts".into(),
+                    "declare const foreign: number;".into(),
+                );
+            }
+            "same-size" => {
+                sdk.files
+                    .get_mut("/sdk/lib/lib.es5.d.ts")
+                    .unwrap()
+                    .replace_range(0..1, " ");
+            }
+            _ => {
+                sdk.files.insert(
+                    "/sdk/lib/lib.es5.d.ts".into(),
+                    "declare const replacement: number;".into(),
+                );
+            }
+        }
+        assert_eq!(analyze(request.clone(), sdk).unwrap_err(), expected);
+    }
+}
+
+#[test]
+fn analyzed_capability_distinguishes_compiler_and_sdk_content_identity() {
+    let observed = analyze(
+        component_request(
+            "sdkCapabilityDev",
+            "/repo/source.ts",
+            "export const sdkCapabilityDev = 421;",
+        ),
+        component_sdk(),
+    )
+    .unwrap();
+    let scope = &observed["subjects"][0]["capabilityScope"];
+    assert_eq!(scope["compilerIdentity"]["version"], "7.1.0-dev");
+    assert_eq!(
+        scope["compilerIdentity"]["sourceRevision"],
+        "780dc512d64f40afebffa6a7028207649fb7ed1c"
+    );
+    assert_eq!(scope["sdkIdentity"]["version"], "7.1.0-dev");
+    assert_eq!(
+        scope["sdkIdentity"]["libraryManifestSha256"],
+        "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+    );
+    assert_eq!(scope["sdkIdentity"]["inventoryValidated"], true);
+    assert_eq!(scope["sdkIdentity"]["allLibrariesConsumptionProven"], false);
+}

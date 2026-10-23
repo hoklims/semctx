@@ -3,7 +3,8 @@ fn fixture(root: &str, sdk_root: &str) -> (Request, Sdk) {
     let request = serde_json::from_value(json!({"id":"logicalIdentityDev","cwd":root,"sdk_directory":sdk_root,"case_sensitive":true,"roots":[format!("{root}/source.ts")],"files":{format!("{root}/source.ts"):"export const identityDev = 383;"},"options":{}})).unwrap();
     let sdk = Sdk {
         version: "5.9.3".into(),
-        archive_sha256: "archive-dev".into(),
+        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
+        library_manifest_sha256: "archive-dev".into(),
         files: BTreeMap::from([(
             format!("{sdk_root}/lib.dev.d.ts"),
             "declare const sdkDev: number;".into(),
@@ -56,7 +57,7 @@ fn content_and_sdk_mutations_change_consumed_bindings() {
         batch::snapshot_manifest(&a, &sa).unwrap(),
         batch::snapshot_manifest(&b, &sa).unwrap()
     );
-    for mutation in ["bytes", "version", "archive"] {
+    for mutation in ["bytes", "version", "source", "manifest"] {
         let mut sb = sa.clone();
         match mutation {
             "bytes" => {
@@ -66,7 +67,8 @@ fn content_and_sdk_mutations_change_consumed_bindings() {
                 );
             }
             "version" => sb.version = "foreign-version".into(),
-            _ => sb.archive_sha256 = "foreign-archive".into(),
+            "source" => sb.source_revision = "foreign-source".into(),
+            _ => sb.library_manifest_sha256 = "foreign-manifest".into(),
         }
         assert_ne!(
             batch::input_manifest(&a, &sa).unwrap(),

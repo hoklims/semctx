@@ -46,6 +46,14 @@ struct Package {
     name: String,
     version: String,
 }
+#[derive(Deserialize)]
+struct LibraryInventory {
+    libraries: Vec<LibraryPath>,
+}
+#[derive(Deserialize)]
+struct LibraryPath {
+    path: String,
+}
 #[derive(Default)]
 struct Capture {
     reads: Vec<Value>,
@@ -179,7 +187,7 @@ impl Capture {
         if package.name != "typescript" || package.version != "5.9.3" {
             return Err("LEGACY_IDENTITY_SDK_VERSION_MISMATCH".into());
         }
-        let mut library_paths = vec!["../package.json".to_owned()];
+        let mut library_paths = vec![];
         for entry in entries(&sdk, "lib")? {
             let name = entry
                 .file_name()
@@ -189,6 +197,32 @@ impl Capture {
                 library_paths.push(name);
             }
         }
+        let inventory: LibraryInventory = serde_json::from_str(include_str!(
+            "../../../docs/research/rust-ts-r0/cases/upstream/typescript/sdk-manifest.json"
+        ))
+        .map_err(|e| format!("LEGACY_IDENTITY_SDK_INVENTORY_INVALID:{e}"))?;
+        let expected = inventory
+            .libraries
+            .into_iter()
+            .map(|library| {
+                library
+                    .path
+                    .strip_prefix("lib/")
+                    .map(str::to_owned)
+                    .ok_or_else(|| "LEGACY_IDENTITY_SDK_INVENTORY_INVALID:library path".to_owned())
+            })
+            .collect::<Result<BTreeSet<_>, _>>()?;
+        let actual = library_paths.iter().cloned().collect::<BTreeSet<_>>();
+        let missing = expected.difference(&actual).collect::<Vec<_>>();
+        let extra = actual.difference(&expected).collect::<Vec<_>>();
+        if !missing.is_empty() || !extra.is_empty() {
+            return Err(format!(
+                "LEGACY_IDENTITY_SDK_INVENTORY_MISMATCH:missing={};extra={}",
+                json!(missing),
+                json!(extra)
+            ));
+        }
+        library_paths.push("../package.json".to_owned());
         library_paths.sort_by_key(|p| p.encode_utf16().collect::<Vec<_>>());
         let entry = identity::digest_bytes(&self.read(&sdk, "lib/typescript.js", "compiler")?);
         let mut libraries = vec![];

@@ -149,9 +149,9 @@ pub(super) fn run(tools: &Tools<'_>, dir: &Path, scenario: &str) -> Result<Value
     let sdk: Value = serde_json::from_slice(&fs::read(tools.sdk).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     require(
-        sdk["version"] == "5.9.3"
-            && sdk["archive_sha256"]
-                == "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+        sdk["version"] == "7.1.0-dev"
+            && sdk["library_manifest_sha256"]
+                == "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad",
         "transport SDK identity differs",
     )?;
     let direct = vec![

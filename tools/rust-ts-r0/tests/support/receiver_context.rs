@@ -154,8 +154,8 @@ pub(super) fn bindings_and_observation_for_case(
         })
         .collect::<Vec<_>>();
     libraries.sort_by_key(identity::canonical_json);
-    let input = json!({"domain":"T00-logical-input-v2","project":project,
-        "sdk":{"domain":"T00-logical-sdk-v2","version":sdk["version"],"archive_sha256":sdk["archive_sha256"],"files":libraries}});
+    let input = json!({"domain":"T00-logical-input-v3","project":project,
+        "sdk":{"domain":"T00-logical-sdk-v3","version":sdk["version"],"source_revision":sdk["source_revision"],"library_manifest_sha256":sdk["library_manifest_sha256"],"files":libraries}});
     let capture = json!({"domain":"T00-logical-capture-v2","repository_root":"T00_REPOSITORY_ROOT","case_sensitive":sensitive,"project":project});
     let subjects = case["expected_subject_ids"]
         .as_array()

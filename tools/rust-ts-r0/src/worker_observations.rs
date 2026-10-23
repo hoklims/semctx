@@ -108,11 +108,10 @@ fn extract(
     sdk: &Sdk,
     started: &mut bool,
 ) -> Result<serde_json::Value, String> {
-    if sdk.version != "5.9.3"
-        || sdk.archive_sha256 != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
-    {
+    if !sdk.matches_reference() {
         return Err("foreign SDK descriptor".into());
     }
+    sdk.validate_libraries("/sdk/lib")?;
     for variable in ["GOPORT_LIB_PARSE_SNAPSHOT", "GOPORT_LIB_SNAPSHOT"] {
         if std::env::var(variable).as_deref() != Ok("0") {
             return Err(format!("captured SDK requires {variable}=0"));

@@ -1,8 +1,10 @@
 use super::*;
 fn empty_sdk() -> Sdk {
     Sdk {
-        version: "5.9.3".into(),
-        archive_sha256: "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3".into(),
+        version: "7.1.0-dev".into(),
+        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
+        library_manifest_sha256: "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+            .into(),
         files: BTreeMap::new(),
     }
 }
@@ -27,9 +29,13 @@ fn malformed_worker_protocol_refuses_before_repository_or_compiler_access() {
 }
 #[test]
 fn missing_worker_repository_is_an_explicit_bound_failure() {
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+    )
+    .unwrap();
     let result = run(
         serde_json::json!({"schemaVersion":1,"jobId":"dev-worker-missing","repoRoot":"/absent/dev-worker-never-read","rootAbsPaths":[],"emitAbsPaths":[]}),
-        &empty_sdk(),
+        &sdk,
     );
     assert_eq!(result["ok"], false);
     assert_eq!(result["jobId"], "dev-worker-missing");
@@ -148,6 +154,10 @@ fn captured_worker_reads_are_sorted_and_oversized_files_are_refused_before_readi
 #[test]
 fn native_worker_refuses_lossy_utf8_capture_paths_before_extraction() {
     use std::os::unix::{ffi::OsStringExt, fs::symlink};
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+    )
+    .unwrap();
     for canonical_alias in [false, true] {
         let root = std::env::temp_dir().join(format!(
             "semctx-worker-utf8-dev-{}-{}-{canonical_alias}",
@@ -170,7 +180,7 @@ fn native_worker_refuses_lossy_utf8_capture_paths_before_extraction() {
         }
         let result = run(
             serde_json::json!({"schemaVersion":1,"jobId":"worker-utf8-development","repoRoot":root,"rootAbsPaths":[],"emitAbsPaths":[]}),
-            &empty_sdk(),
+            &sdk,
         );
         std::fs::remove_dir_all(&root).unwrap();
         assert_eq!(result["ok"], false, "{result}");
@@ -182,6 +192,10 @@ fn native_worker_refuses_lossy_utf8_capture_paths_before_extraction() {
 #[cfg(unix)]
 #[test]
 fn native_worker_refuses_literal_backslash_capture_aliases_before_extraction() {
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+    )
+    .unwrap();
     let root = std::env::temp_dir().join(format!(
         "semctx-worker-separator-dev-{}-{}",
         std::process::id(),
@@ -195,7 +209,7 @@ fn native_worker_refuses_literal_backslash_capture_aliases_before_extraction() {
     std::fs::write(&replacement, "valid replacement-character spelling").unwrap();
     let valid = run(
         serde_json::json!({"schemaVersion":1,"jobId":"worker-unicode-development","repoRoot":root,"rootAbsPaths":[],"emitAbsPaths":[]}),
-        &empty_sdk(),
+        &sdk,
     );
     assert_eq!(valid["ok"], true, "{valid}");
     assert_eq!(
@@ -207,7 +221,7 @@ fn native_worker_refuses_literal_backslash_capture_aliases_before_extraction() {
     std::fs::write(root.join("part\\leaf.ts"), "literal-backslash bytes").unwrap();
     let result = run(
         serde_json::json!({"schemaVersion":1,"jobId":"worker-separator-development","repoRoot":root,"rootAbsPaths":[],"emitAbsPaths":[]}),
-        &empty_sdk(),
+        &sdk,
     );
     std::fs::remove_dir_all(&root).unwrap();
     assert_eq!(result["ok"], false, "{result}");
@@ -349,4 +363,59 @@ fn native_worker_emits_only_requested_roots_and_keeps_cross_file_call_target() {
     assert!(result.get("frontendCapabilityObservation").is_none());
     assert!(result.get("extraction").is_none());
     std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
+fn native_worker_refuses_incomplete_foreign_or_changed_sdk_before_extraction() {
+    let root = std::env::temp_dir().join(format!(
+        "semctx-worker-sdk-inventory-dev-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    std::fs::create_dir_all(&root).unwrap();
+    let source = root.join("source.ts");
+    std::fs::write(&source, "export const sdkInventoryWorkerDev = 431;").unwrap();
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+    )
+    .unwrap();
+    let request = serde_json::json!({"schemaVersion":1,"jobId":"sdk-worker-dev","repoRoot":root,"rootAbsPaths":[source],"emitAbsPaths":[source]});
+    let control = run(request.clone(), &sdk);
+    let observations = ["missing", "extra", "bytes"].map(|mutation| {
+        let mut mutated = sdk.clone();
+        let expected = match mutation {
+            "missing" => {
+                mutated.files.remove("/sdk/lib/lib.es5.d.ts");
+                "SDK_LIBRARY_MISSING:lib.es5.d.ts"
+            }
+            "extra" => {
+                mutated.files.insert(
+                    "/sdk/lib/lib.foreign.d.ts".into(),
+                    "declare const foreign: number;".into(),
+                );
+                "SDK_LIBRARY_UNEXPECTED:lib.foreign.d.ts"
+            }
+            _ => {
+                mutated
+                    .files
+                    .get_mut("/sdk/lib/lib.es5.d.ts")
+                    .unwrap()
+                    .replace_range(0..1, " ");
+                "SDK_LIBRARY_CONTENT_MISMATCH:lib.es5.d.ts"
+            }
+        };
+        (run(request.clone(), &mutated), expected)
+    });
+    std::fs::remove_dir_all(root).unwrap();
+    assert_eq!(control["ok"], true, "{control}");
+    assert_eq!(control["extraction_started"], true);
+    for (observed, expected) in observations {
+        assert_eq!(observed["ok"], false, "{expected}: {observed}");
+        assert_eq!(observed["error"], expected);
+        assert_eq!(observed["extraction_started"], false);
+        assert!(observed.get("extraction").is_none());
+    }
 }

@@ -24,14 +24,15 @@ The last row records the port's declaration, not an independent comparison with
 the Go implementation. `GOPORT_BUILD_VERSION` must be absent when building the
 reference; the executed compiler must report the pinned runtime version.
 
-The current captured T00 SDK is still TypeScript **5.9.3**, with 100 declaration
-libraries. Its provenance-declared archive SHA256 is
-`10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3`;
-the committed `sdk-input.json` SHA256 is
-`d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654`.
-These bytes must not be relabeled TS7. Retaining this SDK or replacing it with the
-pinned port's libraries is an unresolved owner decision. Compiler identity alone
-does not establish SDK compatibility or actual library consumption.
+The owner selected the pinned port's **115 declaration libraries** as the T00
+SDK to qualify. `tools/rust-ts-r0/sdk/sdk-input.json` captures their exact UTF-8
+bytes from `crates/ts_goport/libs` at the Rust revision above. The canonical
+`library-manifest.json` has SHA256
+`b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad`,
+identical to the oracle SDK manifest. `provenance.json` records the descriptor
+hash, source revision, sizes and notices; this SDK has no npm archive identity.
+Compiler and SDK identities remain separate. Inventory validation does not
+establish that every library was consumed or that an obligation is qualified.
 
 The [dialect oracle](oracle-ts7.json) executes the pinned upstream `tsgo` CLI separately from the
 Semctx producer, with explicit inputs and SDK, snapshots disabled and network
@@ -43,8 +44,9 @@ session-specific `CARGO_TARGET_DIR`. Set `GOPORT_LIB_PARSE_SNAPSHOT=0` and
 
 The compiler was built and ten configurations executed on macOS arm64 and Linux
 aarch64 with network access denied during execution. The oracle uses 115 libraries
-from its own pinned upstream, with identical bytes on both platforms; this does
-not replace Semctx's captured SDK. The manifest pins both binaries, the complete
+from its own pinned upstream, with identical bytes on both platforms. The producer
+now captures those same library bytes; the oracle record describes its earlier
+execution and is not a fresh producer qualification. The manifest pins both binaries, the complete
 source/SDK manifests and exact raw observations. These are successful builds,
 not a claim of bit-identical repeated builds. `--showConfig` is excluded as a
 diagnostic oracle because it silently omits invalid options in these controls.
@@ -76,7 +78,7 @@ and exit codes on macOS arm64 and Linux aarch64:
 | `target: es5` | Parser acceptance does not imply compiler support: compilation exits 2 with TS5108, `Option 'target=ES5' has been removed. Please remove it from your configuration.` |
 | `module: none` | Compilation exits 2 with the full module TS6046 diagnostic. |
 | `module: amd/system/umd` | Parser acceptance does not imply compiler support: compilation exits 2 with TS5095 and TS5108. Semctx's retained-profile rejection is separate. |
-| `target: es2025/es2026` | Compilation of each simple control exits 0 with the oracle's TS7 libraries; no compatibility claim for the T00 SDK follows. |
+| `target: es2025/es2026` | Compilation of each simple control exits 0 with the oracle's TS7 libraries; no producer qualification follows from this oracle control. |
 
 There is no approved TS5 diagnostic fallback, TS5-compatible emission promise or
 permission to accept incompatible qualified module settings. Preserve explicit
@@ -88,7 +90,9 @@ The owner selected confined acquisition, no Bun or foreign-SDK fallback, an
 explicit complete SDK and an aggregate **67,108,864-byte** capture limit.
 These are requirements, not automatic qualification credit.
 
-Source inspection shows that the current native primitive reports acquisition failures in stdout JSON as
+The historical `baseline_analyzer_identity` primitive identifies the TS5.9.3
+package and its 100 standard libraries; it neither executes nor identifies the
+TS7 compiler. Its acquisition failures are reported in stdout JSON as
 `identity_success: false` with `error`, while the observation process exits 0.
 It does not execute the compiler. Malformed/missing request fields fail earlier
 with stderr JSON and exit 1. The following source-observed diagnostics are not a
@@ -104,6 +108,7 @@ fresh qualification of the primitive:
 | SDK entry missing | `LEGACY_IDENTITY_READ_FAILED:lib/typescript.js:<OS error>` | Explicit entry read; no fallback. |
 | SDK package malformed | `LEGACY_IDENTITY_SDK_INVALID:<serde error>` | Package decoding. |
 | SDK package name/version mismatch | `LEGACY_IDENTITY_SDK_VERSION_MISMATCH` | Before library enumeration; current predicate requires `typescript` / `5.9.3`. |
+| Standard library missing or extra | `LEGACY_IDENTITY_SDK_INVENTORY_MISMATCH:missing=<JSON array>;extra=<JSON array>` | Before entry/library reads, comparing sorted `lib*.d.ts` names with the historical published SDK manifest. Compiler API declarations such as `typescript.d.ts` are outside that inventory. |
 | SDK not specified | `PRIMITIVE_INVALID_REQUEST:missing field ` followed by backtick-delimited `compiler_package_root` | Request decoding, stderr/exit 1. |
 | Aggregate capture exceeds 64 MiB | `LEGACY_IDENTITY_CAPTURE_LIMIT` | Read limited to remaining bytes plus one, before recording that read or returning identity. |
 
@@ -126,12 +131,24 @@ installed alternative, and aggregate captures of exactly 67,108,864 bytes
 (accepted) and 67,108,865 bytes (refused). These regression tests do not qualify
 obligation 229 or execute the compiler.
 
-Acquisition still does not check the library set against a canonical complete
-SDK inventory; that requirement belongs to the separate SDK lot. Missing
-individual libraries therefore have no current diagnostic. A changed SDK payload
-changes its digest; this identity primitive does not authenticate that payload
-against the published archive. No-fallback must not be advertised as
-authentication of every explicit SDK.
+The TS7 analysis and extraction-worker paths validate their captured SDK before
+compiler execution: exact
+version, source revision and manifest identity, then the complete 115-file set
+and each file's byte length/SHA256. Its stable errors are
+`SDK_LIBRARY_MISSING:<name>`, `SDK_LIBRARY_UNEXPECTED:<name>` and
+`SDK_LIBRARY_CONTENT_MISMATCH:<name>`. The first missing name is reported before
+extras, in sorted order. These errors abort analysis; no capability is emitted.
+Analyzed capabilities distinguish the executed compiler's version/revision from
+the validated SDK's version/revision/library manifest. Logical input and SDK
+identities use v3 domains for this changed descriptor; historical v2 verification
+expectations remain historical and must not be reused as TS7 evidence.
+
+Historical TS5 acquisition observes payload digests
+without authenticating their bytes against the archive. Its inventory check does
+not change that scope. TS7 payload validation and TS5 identity acquisition are
+different boundaries; neither grants qualification of obligation 229 by itself.
+The targeted `--observe-system` and `--observe-configured-resolution` primitives
+retain partial SDK fixtures and are outside this complete-inventory guarantee.
 
 ## Requalification
 

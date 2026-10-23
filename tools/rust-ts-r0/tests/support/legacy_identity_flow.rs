@@ -24,6 +24,18 @@ fn directory(label: &str) -> PathBuf {
     fs::create_dir_all(&path).unwrap();
     path
 }
+fn sdk_library_paths() -> Vec<String> {
+    let manifest: Value = serde_json::from_str(include_str!(
+        "../../../../docs/research/rust-ts-r0/cases/upstream/typescript/sdk-manifest.json"
+    ))
+    .unwrap();
+    manifest["libraries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|library| library["path"].as_str().unwrap().to_owned())
+        .collect()
+}
 fn fixture(evidence: &Path) -> (PathBuf, PathBuf) {
     let root = evidence.join("implementation");
     for (path, bytes) in [
@@ -59,7 +71,12 @@ fn fixture(evidence: &Path) -> (PathBuf, PathBuf) {
         "module.exports={version:'5.9.3'};\n",
     )
     .unwrap();
-    fs::write(sdk.join("lib/lib.d.ts"), "declare const value: number;\n").unwrap();
+    for name in ["typescript.d.ts", "tsserverlibrary.d.ts"] {
+        fs::write(sdk.join("lib").join(name), "export {};\n").unwrap();
+    }
+    for path in sdk_library_paths() {
+        fs::write(sdk.join(path), "declare const value: number;\n").unwrap();
+    }
     (root, sdk)
 }
 fn observe(evidence: &Path, root: &Path, sdk: &Path, label: &str) -> Value {
@@ -135,8 +152,9 @@ fn native_legacy_identity_accepts_exact_aggregate_capture_limit_and_refuses_one_
     .iter()
     .map(|path| fs::metadata(root.join(path)).unwrap().len())
     .chain(
-        ["package.json", "lib/typescript.js", "lib/lib.d.ts"]
-            .iter()
+        sdk_library_paths()
+            .into_iter()
+            .chain(["package.json".to_owned(), "lib/typescript.js".to_owned()])
             .map(|path| fs::metadata(sdk.join(path)).unwrap().len()),
     )
     .sum();
@@ -158,8 +176,11 @@ fn native_legacy_identity_requires_explicit_sdk_without_fallback_to_valid_instal
     let (root, sdk) = fixture(&evidence);
     let installed = root.join("node_modules/typescript");
     fs::create_dir_all(installed.join("lib")).unwrap();
-    for path in ["package.json", "lib/typescript.js", "lib/lib.d.ts"] {
-        fs::copy(sdk.join(path), installed.join(path)).unwrap();
+    for path in sdk_library_paths()
+        .into_iter()
+        .chain(["package.json".to_owned(), "lib/typescript.js".to_owned()])
+    {
+        fs::copy(sdk.join(&path), installed.join(path)).unwrap();
     }
     let control = observe(&evidence, &root, &installed, "valid-installed-sdk");
     assert_eq!(control["identity_success"], true, "{control}");
@@ -405,4 +426,75 @@ fn native_legacy_identity_refuses_non_utf8_filesystem_names() {
     let observed = observe(&evidence, &root, &sdk, "non-utf8-name");
     assert_eq!(observed["identity_success"], false);
     assert_eq!(observed["error"], "LEGACY_IDENTITY_PATH_NOT_UTF8");
+}
+
+#[test]
+fn native_legacy_identity_refuses_incomplete_and_foreign_library_inventories() {
+    for label in ["missing", "extra", "replacement", "empty"] {
+        let evidence = directory(label);
+        let (root, sdk) = fixture(&evidence);
+        let mut missing = vec![];
+        let mut extra = vec![];
+        if matches!(label, "missing" | "replacement") {
+            for name in ["lib.es2020.d.ts", "lib.es2015.d.ts"] {
+                fs::remove_file(sdk.join("lib").join(name)).unwrap();
+                missing.push(name.to_owned());
+            }
+        }
+        if matches!(label, "extra" | "replacement") {
+            for name in ["lib.zz-foreign.d.ts", "lib.aa-foreign.d.ts"] {
+                fs::write(
+                    sdk.join("lib").join(name),
+                    "declare const foreign: string;\n",
+                )
+                .unwrap();
+                extra.push(name.to_owned());
+            }
+        }
+        if label == "empty" {
+            for entry in fs::read_dir(sdk.join("lib")).unwrap() {
+                let entry = entry.unwrap();
+                let name = entry.file_name().into_string().unwrap();
+                if name.starts_with("lib") && name.ends_with(".d.ts") {
+                    fs::remove_file(entry.path()).unwrap();
+                    missing.push(name);
+                }
+            }
+            assert_eq!(missing.len(), 100);
+        }
+        missing.sort();
+        extra.sort();
+        let observed = observe(&evidence, &root, &sdk, label);
+        assert_eq!(observed["identity_success"], false, "{observed}");
+        assert_eq!(
+            observed["error"],
+            format!(
+                "LEGACY_IDENTITY_SDK_INVENTORY_MISMATCH:missing={};extra={}",
+                serde_json::to_string(&missing).unwrap(),
+                serde_json::to_string(&extra).unwrap()
+            )
+        );
+        assert!(observed.get("identity").is_none());
+        assert!(
+            observed["reads"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|read| { read["domain"] != "compiler" || read["path"] == "package.json" })
+        );
+        if label == "replacement" {
+            for name in &extra {
+                fs::remove_file(sdk.join("lib").join(name)).unwrap();
+            }
+            for name in extra.iter().rev() {
+                fs::write(
+                    sdk.join("lib").join(name),
+                    "declare const foreign: string;\n",
+                )
+                .unwrap();
+            }
+            let reordered = observe(&evidence, &root, &sdk, "reordered");
+            assert_eq!(reordered["error"], observed["error"]);
+        }
+    }
 }

@@ -710,10 +710,7 @@ fn observe(request: serde_json::Value, sdk: Option<&Sdk>) -> Result<serde_json::
     }
     match (sdk, request.sdk_directory.as_deref()) {
         (Some(sdk), Some(directory)) => {
-            if sdk.version != "5.9.3"
-                || sdk.archive_sha256
-                    != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
-            {
+            if !sdk.matches_reference() {
                 return Err("CAPTURED_SYSTEM_FOREIGN_SDK".into());
             }
             if !absolute(directory) {

@@ -7,8 +7,9 @@ unchanged. See [the research record](../../docs/research/rust-ts-r0/README.md).
 
 The pinned native compiler receives captured source/configuration/package/SDK
 text through an immutable filesystem. Its checker version is 7.1.0-dev; the
-provided declarations are TypeScript 5.9.3. The [TS7 research contract](../../docs/research/rust-ts-r0/contract-ts7.md)
-records the owner's new reference decision and the unresolved compatibility choices.
+provided declarations are the 115 libraries from the pinned TS7 source revision.
+The [TS7 research contract](../../docs/research/rust-ts-r0/contract-ts7.md) records
+the owner's reference decision and the remaining qualification limits.
 Historical TS5.9.3 expectations remain historical evidence.
 Owned adapters close selected differences. Their DEV tests establish their
 stated observations, not universal compiler equivalence.
@@ -38,7 +39,7 @@ directory defaults to ignored `development-evidence/`; `SEMCTX_NATIVE_EVIDENCE`
 can place it outside the checkout.
 
 `sdk/sdk-input.json` contains the captured declarations, not a JavaScript runtime.
-[provenance.json](provenance.json) names their package/archive and notices.
+[provenance.json](provenance.json) names their source revision, library manifest and notices.
 Input read observations identify text actually returned by the captured
 filesystem; the independent verifier must compare them with its own inputs.
 This instrumentation does not establish absence of arbitrary operating-system
@@ -77,10 +78,10 @@ captured input-read manifest does not attest their identity. The compiler still
 uses captured source/SDK inputs. The [N03/P03 record](../../docs/research/rust-ts-r0/resumption/gap-source-confinement-evidence.json)
 bounds the observed refusal and positive control to their exact macOS DEV replay.
 
-Private input, capture and snapshot bindings use the versioned logical-v2
-manifests in `src/input_identity.rs`. Repository and SDK paths inside their declared
+Private input and SDK bindings use logical-v3 manifests; capture and snapshot
+bindings retain their existing domains in `src/input_identity.rs`. Repository and SDK paths inside their declared
 roots are relative content names; external paths stay in a disjoint physical
-namespace. SDK version, archive, exact files and source representations remain
+namespace. SDK version, source revision, library manifest, exact files and source representations remain
 bound. Request descriptors and execution scope retain physical paths. The native
 receiver DEV flow exercises relocation, changed bytes, old stdout and scope-only
 poisons; this is not the full T02 identity port.
