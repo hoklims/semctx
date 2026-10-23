@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
-import { readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
+import { comparisonValue, readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
 import type { CampaignCase, CandidateManifest, FileRef, PlatformArtifacts } from "./t00-ts7-q-syntax-types.js";
 
 const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
@@ -133,14 +133,6 @@ async function materialize(item: CampaignCase, root: string): Promise<Record<str
     ...template, files: absolute, roots };
 }
 
-function comparisonValue(value: unknown, transform: CampaignCase["checks"][number]["transform"]): unknown {
-  if (!transform) return value;
-  return array(value).map(entry => {
-    const statement = { ...object(entry) };
-    delete statement.digest;
-    return statement;
-  });
-}
 
 async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtifacts) {
   const started = performance.now();

@@ -8,7 +8,7 @@ export interface CampaignCase {
     name: string;
     actual: (string | number)[];
     expected: (string | number)[];
-    transform?: "outline-statements-without-digest";
+    transform?: "outline-statements-without-digest" | "outline-digest-relation" | "opaque-callback-reason" | "construction-reason" | "call-edge-count";
   }[];
   gaps?: Record<number, string>;
 }

@@ -1229,6 +1229,7 @@ fn collect_namespace_references(
         ))
     } else if node.kind() == SyntaxKind::BindingElement
         && node.dot_dot_dot_token().is_nil()
+        && !node.name().is_nil()
         && node.name().kind() == SyntaxKind::Identifier
         && node.parent().kind() == SyntaxKind::ObjectBindingPattern
         && node.parent().parent().kind() == SyntaxKind::VariableDeclaration

@@ -11,6 +11,9 @@ use ts_goport::{
     scanner_util,
 };
 
+#[path = "extraction_callable.rs"]
+mod callable;
+
 fn function_value(node: Node) -> bool {
     matches!(node.kind(), K::ArrowFunction | K::FunctionExpression)
 }
@@ -192,7 +195,7 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
             names.push(name.clone());
             json!({"relPath":path,"symbolPath":names.join(".")})
         });
-        out["functionOwners"].as_array_mut().unwrap().push(json!({"bodyPresent":!node.body().is_nil(),"namePresent":name.is_some(),"coordinate":coordinate}));
+        out["functionOwners"].as_array_mut().unwrap().push(json!({"bodyPresent":!node.body().is_nil(),"namePresent":!node.name().is_nil(),"coordinate":coordinate}));
     }
     if node.kind() == K::CallExpression {
         if retained && node.expression().kind() == K::ImportKeyword {
@@ -244,6 +247,11 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
 }
 
 pub fn observe(input: &Value) -> Result<Value, String> {
+    if input["callableInitializers"].as_bool() == Some(true)
+        || input["completeExtraction"].as_bool() == Some(true)
+    {
+        return callable::observe(input);
+    }
     let files = input["files"]
         .as_object()
         .ok_or("extraction oracle requires files object")?;
@@ -285,6 +293,15 @@ pub fn observe(input: &Value) -> Result<Value, String> {
             json!({"bodyPresent":!declaration.body().is_nil(),"namePresent":!declaration.name().is_nil(),"ownerEligible":!declaration.body().is_nil() && owner_name(declaration).is_some()})
         });
         result["ownerAbsenceCases"] = json!(cases);
+    }
+    if let Some(path) = input["historicalConsumerFile"].as_str() {
+        let source = files
+            .get(path)
+            .and_then(Value::as_str)
+            .ok_or("historical consumer file missing")?;
+        let request = json!({"source":source,"filename":path});
+        result["outline"] = crate::outline::observe(&request)?;
+        result["syntax"] = crate::syntax::observe(&request)?;
     }
     Ok(result)
 }
