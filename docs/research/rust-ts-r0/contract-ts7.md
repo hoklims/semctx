@@ -96,7 +96,9 @@ fresh qualification of the primitive:
 
 | Restriction or failure | Native diagnostic | Emission point |
 | --- | --- | --- |
-| Explicitly read symlink escapes its root | `LEGACY_IDENTITY_OUTSIDE_ROOT:<relative>` | After canonicalization, before opening the target. Implementation reads use the repository root; SDK reads use the explicit SDK root. |
+| Read path, traversed directory or enumerated symlink escapes its root | `LEGACY_IDENTITY_OUTSIDE_ROOT:<relative>` | After canonicalization, before opening the target or enumerating its directory. Implementation acquisition uses the repository root; SDK acquisition uses the explicit SDK root, which may be outside the repository. Every symlink encountered in package, recursive source or SDK-library enumeration is checked, including otherwise ignored entries. |
+| Enumerated symlink or explicitly read file is dangling or cyclic | `LEGACY_IDENTITY_READ_FAILED:<relative>:<OS error>` | Canonicalization fails closed; no identity is returned. |
+| Traversed directory unavailable, including a dangling or cyclic directory link | `LEGACY_IDENTITY_DIRECTORY_READ_FAILED:<relative>:<OS error>` | Directory canonicalization or enumeration fails; no identity is returned. |
 | SDK root missing | `LEGACY_IDENTITY_SDK_UNAVAILABLE:<OS error>` | SDK root canonicalization, after implementation capture. |
 | SDK package missing | `LEGACY_IDENTITY_READ_FAILED:package.json:<OS error>` | Explicit SDK read; no fallback. |
 | SDK entry missing | `LEGACY_IDENTITY_READ_FAILED:lib/typescript.js:<OS error>` | Explicit entry read; no fallback. |
@@ -109,12 +111,27 @@ Source inspection shows that the capture count includes implementation, package,
 package bytes reused in the manifest are not counted twice. OS and serde suffixes
 are environment-dependent; campaigns retain their exact native bytes.
 
-Two requirements remain unimplemented: recursive discovery silently ignores
-source symlinks, and acquisition does not check the library set against a canonical
-complete SDK inventory. Missing individual libraries therefore have no current
-diagnostic. A changed SDK payload changes its digest; this identity primitive
-does not authenticate that payload against the published archive. No-fallback
-must not be advertised as authentication of every explicit SDK.
+Internal symlinks remain accepted: explicitly read files and traversed directory
+paths resolve within their acquisition root. Symlinks encountered by recursive
+source or package discovery remain excluded from the captured file set and are
+not traversed, preserving the existing identity; an internal directory alias or
+cycle therefore adds no bytes. SDK library aliases are read within the SDK root.
+This is the acquisition scope, not a scan of every repository path or a guarantee
+against concurrent filesystem mutation.
+
+`native_identity_confinement` exercises recursive and explicit escapes, internal
+aliases and unresolvable links. `native_development_flow::legacy_identity_flow`
+exercises an explicit SDK without Bun, missing/invalid/omitted SDKs with a valid
+installed alternative, and aggregate captures of exactly 67,108,864 bytes
+(accepted) and 67,108,865 bytes (refused). These regression tests do not qualify
+obligation 229 or execute the compiler.
+
+Acquisition still does not check the library set against a canonical complete
+SDK inventory; that requirement belongs to the separate SDK lot. Missing
+individual libraries therefore have no current diagnostic. A changed SDK payload
+changes its digest; this identity primitive does not authenticate that payload
+against the published archive. No-fallback must not be advertised as
+authentication of every explicit SDK.
 
 ## Requalification
 

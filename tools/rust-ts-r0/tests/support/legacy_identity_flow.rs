@@ -64,30 +64,15 @@ fn fixture(evidence: &Path) -> (PathBuf, PathBuf) {
 }
 fn observe(evidence: &Path, root: &Path, sdk: &Path, label: &str) -> Value {
     let request = json!({"operation":"baseline_analyzer_identity","repository_root":root,"compiler_package_root":sdk});
-    let path = evidence.join(format!("{label}-request.json"));
-    fs::write(&path, serde_json::to_vec_pretty(&request).unwrap()).unwrap();
-    let producer = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
-    let helper = PathBuf::from(
-        std::env::var_os("SEMCTX_PROCESS_HELPER").expect("compiled process helper required"),
-    );
-    let before = identity::digest_bytes(&fs::read(producer).unwrap());
-    let helper_before = identity::digest_bytes(&fs::read(&helper).unwrap());
-    let argv = vec![
-        producer.to_string_lossy().into_owned(),
-        "--observe-primitives".into(),
-        path.to_string_lossy().into_owned(),
-    ];
-    let outcome = process::run_with_helper(&argv, evidence, 20_000, 8_388_608, &helper).unwrap();
-    let after = identity::digest_bytes(&fs::read(producer).unwrap());
-    let helper_after = identity::digest_bytes(&fs::read(&helper).unwrap());
-    fs::write(evidence.join(format!("{label}-process.json")),serde_json::to_vec_pretty(&json!({"argv":argv,"cwd":evidence,"producer_before":before,"producer_after":after,"helper_before":helper_before,"helper_after":helper_after,"request":request,"outcome":outcome})).unwrap()).unwrap();
-    assert_eq!(before, after);
-    assert_eq!(helper_before, helper_after);
+    let outcome = run_observation(evidence, &request, label, &[]);
     assert_eq!(outcome.kind, "success", "{outcome:?}");
     assert_eq!(outcome.exit_code, Some(0));
     let value: Value = serde_json::from_str(&outcome.stdout).unwrap();
     assert_eq!(value["request_descriptor_id"], identity::digest(&request));
-    assert_eq!(value["producer_artifact_id"], before);
+    assert_eq!(
+        value["producer_artifact_id"],
+        identity::digest_bytes(&fs::read(env!("CARGO_BIN_EXE_semctx-r0-probe")).unwrap())
+    );
     assert_eq!(value["executed"], true);
     assert_eq!(value["unsupported"], json!([]));
     assert_eq!(
@@ -97,6 +82,143 @@ fn observe(evidence: &Path, root: &Path, sdk: &Path, label: &str) -> Value {
     assert_eq!(value["compiler_executed"], false);
     assert_eq!(value["global_admission_inferred"], false);
     value
+}
+fn run_observation(
+    evidence: &Path,
+    request: &Value,
+    label: &str,
+    command_prefix: &[String],
+) -> process::Outcome {
+    let path = evidence.join(format!("{label}-request.json"));
+    fs::write(&path, serde_json::to_vec_pretty(request).unwrap()).unwrap();
+    let producer = Path::new(env!("CARGO_BIN_EXE_semctx-r0-probe"));
+    let helper = PathBuf::from(
+        std::env::var_os("SEMCTX_PROCESS_HELPER").expect("compiled process helper required"),
+    );
+    let before = identity::digest_bytes(&fs::read(producer).unwrap());
+    let helper_before = identity::digest_bytes(&fs::read(&helper).unwrap());
+    let mut argv = command_prefix.to_vec();
+    argv.extend([
+        producer.to_string_lossy().into_owned(),
+        "--observe-primitives".into(),
+        path.to_string_lossy().into_owned(),
+    ]);
+    let outcome = process::run_with_helper(&argv, evidence, 20_000, 8_388_608, &helper).unwrap();
+    let after = identity::digest_bytes(&fs::read(producer).unwrap());
+    let helper_after = identity::digest_bytes(&fs::read(&helper).unwrap());
+    fs::write(evidence.join(format!("{label}-process.json")),serde_json::to_vec_pretty(&json!({"argv":argv,"cwd":evidence,"producer_before":before,"producer_after":after,"helper_before":helper_before,"helper_after":helper_after,"request":request,"outcome":outcome})).unwrap()).unwrap();
+    assert_eq!(before, after);
+    assert_eq!(helper_before, helper_after);
+    outcome
+}
+
+#[test]
+fn native_legacy_identity_accepts_exact_aggregate_capture_limit_and_refuses_one_more_byte() {
+    let evidence = directory("aggregate-capture-limit");
+    let (root, sdk) = fixture(&evidence);
+    fs::write(
+        root.join("packages/app-services/src/analyzer-identity-generated.ts"),
+        b"",
+    )
+    .unwrap();
+    let fixed_bytes: u64 = [
+        "bun.lock",
+        "tsconfig.json",
+        "tsconfig.base.json",
+        "scripts/analyzer-identity.ts",
+        "scripts/build-plugin-runtime.ts",
+        "scripts/build-cli-package.ts",
+        "packages/sample/package.json",
+        "packages/app-services/package.json",
+        "apps/cli/package.json",
+    ]
+    .iter()
+    .map(|path| fs::metadata(root.join(path)).unwrap().len())
+    .chain(
+        ["package.json", "lib/typescript.js", "lib/lib.d.ts"]
+            .iter()
+            .map(|path| fs::metadata(sdk.join(path)).unwrap().len()),
+    )
+    .sum();
+    let source = fs::File::create(root.join("packages/sample/src/value.ts")).unwrap();
+    source.set_len(67_108_864 - fixed_bytes).unwrap();
+    let accepted = observe(&evidence, &root, &sdk, "exact-limit");
+    assert_eq!(accepted["identity_success"], true, "{accepted}");
+    assert!(accepted.get("identity").is_some());
+    source.set_len(67_108_865 - fixed_bytes).unwrap();
+    let rejected = observe(&evidence, &root, &sdk, "one-byte-over-limit");
+    assert_eq!(rejected["identity_success"], false, "{rejected}");
+    assert_eq!(rejected["error"], "LEGACY_IDENTITY_CAPTURE_LIMIT");
+    assert!(rejected.get("identity").is_none());
+}
+
+#[test]
+fn native_legacy_identity_requires_explicit_sdk_without_fallback_to_valid_installed_sdk() {
+    let evidence = directory("no-sdk-fallback");
+    let (root, sdk) = fixture(&evidence);
+    let installed = root.join("node_modules/typescript");
+    fs::create_dir_all(installed.join("lib")).unwrap();
+    for path in ["package.json", "lib/typescript.js", "lib/lib.d.ts"] {
+        fs::copy(sdk.join(path), installed.join(path)).unwrap();
+    }
+    let control = observe(&evidence, &root, &installed, "valid-installed-sdk");
+    assert_eq!(control["identity_success"], true, "{control}");
+    #[cfg(unix)]
+    {
+        let empty_path = evidence.join("empty-path");
+        fs::create_dir(&empty_path).unwrap();
+        let request = json!({"operation":"baseline_analyzer_identity","repository_root":root,"compiler_package_root":installed});
+        let isolated = run_observation(
+            &evidence,
+            &request,
+            "sdk-without-bun-on-path",
+            &[
+                "/usr/bin/env".into(),
+                "-i".into(),
+                format!("PATH={}", empty_path.display()),
+            ],
+        );
+        assert_eq!(isolated.kind, "success", "{isolated:?}");
+        assert_eq!(isolated.exit_code, Some(0));
+        let observed: Value = serde_json::from_str(&isolated.stdout).unwrap();
+        assert_eq!(observed["identity_success"], true, "{observed}");
+        assert_eq!(observed["identity"], control["identity"]);
+        assert_eq!(observed["compiler_executed"], false);
+    }
+    let request = json!({"operation":"baseline_analyzer_identity","repository_root":root});
+    let omitted = run_observation(&evidence, &request, "omitted-sdk", &[]);
+    assert_eq!(omitted.kind, "nonzero", "{omitted:?}");
+    assert_eq!(omitted.exit_code, Some(1));
+    assert_eq!(omitted.stdout, "");
+    let error: Value = serde_json::from_str(&omitted.stderr).unwrap();
+    assert_eq!(
+        error["error"],
+        "PRIMITIVE_INVALID_REQUEST:missing field `compiler_package_root`"
+    );
+    let missing = observe(
+        &evidence,
+        &root,
+        &evidence.join("missing-sdk"),
+        "missing-sdk-no-fallback",
+    );
+    assert_eq!(missing["identity_success"], false, "{missing}");
+    assert!(
+        missing["error"]
+            .as_str()
+            .unwrap()
+            .starts_with("LEGACY_IDENTITY_SDK_UNAVAILABLE:")
+    );
+    assert!(missing.get("identity").is_none());
+    fs::write(sdk.join("package.json"), b"{").unwrap();
+    let invalid = observe(&evidence, &root, &sdk, "invalid-sdk-no-fallback");
+    assert_eq!(invalid["identity_success"], false, "{invalid}");
+    assert!(
+        invalid["error"]
+            .as_str()
+            .unwrap()
+            .starts_with("LEGACY_IDENTITY_SDK_INVALID:")
+    );
+    assert!(invalid.get("identity").is_none());
 }
 #[test]
 fn native_legacy_identity_preserves_relocation_and_detects_source_and_sdk_byte_changes() {
