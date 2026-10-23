@@ -1,5 +1,6 @@
 mod baseline_identity;
 pub mod identity;
+mod native_identity;
 pub mod primitive_observations;
 pub mod receiver;
 pub mod source_text;
