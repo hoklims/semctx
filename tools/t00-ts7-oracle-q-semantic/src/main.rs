@@ -1,9 +1,15 @@
 mod facts;
 mod files;
+mod graph;
+mod graph_query;
+mod syntax;
 use facts::{signature, symbol};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, rc::Rc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 use ts_goport::{
     frontend::{compiler, tsoptions, tspath::ComparePathsOptions},
     prelude::*,
@@ -16,6 +22,8 @@ struct Request {
     #[serde(default)]
     roots: Vec<String>,
     options: Option<Value>,
+    #[serde(default, rename = "factQueries")]
+    fact_queries: Vec<graph_query::Query>,
 }
 #[derive(Deserialize)]
 struct Sdk {
@@ -23,7 +31,13 @@ struct Sdk {
     files: BTreeMap<String, String>,
 }
 
-fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
+fn walk(
+    node: Node,
+    file: Node,
+    checker: &mut Checker,
+    nodes: &mut Vec<Value>,
+    graph: &mut graph::Graph,
+) {
     let start = get_token_pos_of_node(node, file, false);
     let end = node.end();
     let source_text = source_file_text(file);
@@ -36,6 +50,15 @@ fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
         .then(|| format!("{:?}", node.parent().kind()));
     let mut fact = json!({"kind":format!("{:?}",node.kind()),"start":start,"end":end,"text":text,"parentKind":parent_kind});
     fact["parent"] = facts::reference(node.parent(), file);
+    fact["pos"] = json!(node.pos());
+    fact["literalText"] = json!(node.text());
+    fact["isTypeNode"] = json!(is_type_node(node));
+    fact["isExpression"] = json!(is_expression(node));
+    fact["isFunctionLike"] = json!(is_function_like(node));
+    fact["isClassLike"] = json!(is_class_like(node));
+    fact["canHaveModifiers"] = json!(can_have_modifiers(node));
+    fact["isStringLiteralLike"] = json!(is_string_literal_like(node));
+    fact["syntaxValues"] = syntax::values(node);
     fact["flagsBits"] = json!(node.flags().0);
     fact["modifierFlagsBits"] = json!(get_combined_modifier_flags(node).0);
     fact["fields"] = facts::syntax(node, file);
@@ -58,13 +81,15 @@ fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
         let property = checker.get_property_of_type_exported(receiver_type, node.name().text());
         fact["receiverPropertySymbol"] = symbol(checker, property);
     }
-    if is_expression(node) || node.kind() == SyntaxKind::Identifier {
+    {
         let id = checker.get_symbol_at_location_exported(node);
         fact["symbol"] = symbol(checker, id);
         if id.is_some() && checker.sym(id).flags.intersects(SymbolFlags::ALIAS) {
             let alias = checker.get_aliased_symbol(id);
             fact["aliasedSymbol"] = symbol(checker, alias);
         }
+    }
+    if is_expression(node) || node.kind() == SyntaxKind::Identifier {
         let type_id = checker.get_type_at_location(node);
         if type_id.is_some() {
             fact["type"] = facts::type_fact(checker, type_id);
@@ -81,9 +106,10 @@ fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
         let id = checker.get_resolved_signature_exported(node);
         fact["signature"] = signature(checker, id);
     }
+    graph.annotate(checker, node, &mut fact);
     nodes.push(fact);
     node.for_each_child(|child| {
-        walk(child, file, checker, nodes);
+        walk(child, file, checker, nodes, graph);
         false
     });
 }
@@ -92,6 +118,18 @@ fn run(request_path: &str, sdk_path: &str) -> Result<Value, String> {
     let request: Request =
         serde_json::from_slice(&std::fs::read(request_path).map_err(|error| error.to_string())?)
             .map_err(|error| error.to_string())?;
+    let mut query_ids = BTreeSet::new();
+    if request.fact_queries.len() > 128 {
+        return Err("FACT_QUERY_COUNT_LIMIT".into());
+    }
+    for query in &request.fact_queries {
+        if query.id.is_empty() || !query_ids.insert(query.id.clone()) {
+            return Err("FACT_QUERY_ID_INVALID_OR_DUPLICATE".into());
+        }
+        if query.route.steps.len() > 128 {
+            return Err("FACT_QUERY_ROUTE_LIMIT".into());
+        }
+    }
     if let Some(options) = &request.options {
         let defaults = json!({"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","strict":false,"allowJs":true,"checkJs":false,"jsx":"Preserve","skipLibCheck":true,"noEmit":true});
         let Some(options) = options.as_object() else {
@@ -179,22 +217,72 @@ fn run(request_path: &str, sdk_path: &str) -> Result<Value, String> {
     })?;
     let mut loaded_files = Vec::new();
     let mut output = Vec::new();
+    let mut source_metadata = Vec::new();
+    let mut source_paths: BTreeSet<String> = input_paths.iter().cloned().collect();
+    for query in &request.fact_queries {
+        if !input_paths.contains(&query.file)
+            || !source_files()
+                .iter()
+                .any(|file| source_file_file_name(*file) == query.file)
+        {
+            return Err(format!("FACT_QUERY_FILE_NOT_IN_PROGRAM:{}", query.file));
+        }
+    }
     for file in source_files() {
         let path = source_file_file_name(file).to_string();
         loaded_files.push(path.clone());
+        let info = source_file_info(file);
+        let references: Vec<Value> = info.referenced_files.iter().map(|reference| json!({"fileName":reference.file_name,"pos":reference.range.pos(),"end":reference.range.end()})).collect();
+        let mut source_node = facts::reference(file, file);
+        source_node["path"] = json!(path);
+        source_node["pos"] = json!(file.pos());
+        source_node["anchor"] = json!(graph_query::Anchor::of(file));
+        source_node["route"] = json!(graph_query::Route::node(file));
+        let metadata = json!({"sourceNode":source_node,"path":path,"text":source_file_text(file).to_string(),"isDeclarationFile":info.is_declaration_file,"defaultLibrary":is_source_file_default_library(&info.path),"referencedFiles":references});
+        source_metadata.push(metadata.clone());
         if input_paths.contains(&path) {
-            let nodes = with_type_checker_for_file(file, move |checker| {
+            let queries: Vec<_> = request
+                .fact_queries
+                .iter()
+                .filter(|query| query.file == path)
+                .cloned()
+                .collect();
+            let (nodes, graph) = with_type_checker_for_file(file, move |checker| {
                 let mut nodes = Vec::new();
-                walk(file, file, checker, &mut nodes);
-                nodes
-            });
-            output.push(json!({"path":path,"nodes":nodes}));
+                let mut graph = graph::Graph::default();
+                walk(file, file, checker, &mut nodes, &mut graph);
+                graph.finish(checker, &queries).map(|graph| (nodes, graph))
+            })?;
+            if let Some(paths) = graph["sourcePaths"].as_array() {
+                source_paths.extend(paths.iter().filter_map(Value::as_str).map(str::to_string));
+            }
+            let mut file_facts = metadata;
+            file_facts["nodes"] = json!(nodes);
+            file_facts["factsGraph"] = graph;
+            output.push(file_facts);
         }
     }
     output.sort_by(|left, right| left["path"].as_str().cmp(&right["path"].as_str()));
     loaded_files.sort();
+    source_metadata.retain(|file| {
+        file["path"]
+            .as_str()
+            .is_some_and(|path| source_paths.contains(path))
+    });
+    source_metadata.sort_by(|left, right| left["path"].as_str().cmp(&right["path"].as_str()));
+    let mut jsx_names = BTreeMap::new();
+    for file in &output {
+        for node in file["nodes"].as_array().expect("captured authored nodes") {
+            if let Some(name) = node["literalText"].as_str().filter(|name| !name.is_empty()) {
+                jsx_names.insert(
+                    name.to_string(),
+                    ts_goport::scanner_util::is_intrinsic_jsx_name(name),
+                );
+            }
+        }
+    }
     Ok(
-        json!({"schemaVersion":1,"compilerVersion":ts_goport::core::version(),"revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdkLibraries":115,"loadedFiles":loaded_files,"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","strict":false,"allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true},"files":output}),
+        json!({"intrinsicJsxNames":jsx_names,"compilerConstants":syntax::constants(),"sourceFiles":source_metadata,"schemaVersion":1,"compilerVersion":ts_goport::core::version(),"revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","sdkLibraries":115,"loadedFiles":loaded_files,"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","strict":false,"allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true},"files":output}),
     )
 }
 

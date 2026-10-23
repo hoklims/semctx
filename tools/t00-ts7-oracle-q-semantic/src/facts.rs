@@ -8,59 +8,7 @@ pub fn reference(node: Node, file: Node) -> Value {
     json!({"kind":format!("{:?}",node.kind()),"start":get_token_pos_of_node(node,file,false),"end":node.end()})
 }
 
-fn references(nodes: NodeSlice, file: Node) -> Value {
-    Value::Array(nodes.iter().map(|node| reference(node, file)).collect())
-}
-
-pub fn syntax(node: Node, file: Node) -> Value {
-    let mut fields = json!({
-        "name":reference(node.name(),file),
-        "expression":reference(node.expression(),file),
-        "initializer":reference(node.initializer(),file),
-        "body":reference(node.body(),file),
-        "type":reference(node.type_(),file),
-        "propertyName":reference(node.property_name(),file),
-        "arguments":references(node.arguments(),file),
-        "parameters":references(node.parameters(),file),
-        "members":references(node.members(),file),
-        "properties":references(node.properties(),file),
-        "elements":references(node.elements(),file),
-        "modifiers":references(node.modifiers().nodes(),file),
-        "statements":references(node.statements(),file)
-    });
-    if matches!(
-        node.kind(),
-        SyntaxKind::BinaryExpression | SyntaxKind::QualifiedName
-    ) {
-        fields["left"] = reference(node.left(), file);
-        fields["right"] = reference(node.right(), file);
-    }
-    if node.kind() == SyntaxKind::BinaryExpression {
-        fields["operatorToken"] = reference(node.operator_token(), file);
-    }
-    if matches!(
-        node.kind(),
-        SyntaxKind::PrefixUnaryExpression | SyntaxKind::PostfixUnaryExpression
-    ) {
-        fields["operand"] = reference(node.operand(), file);
-    }
-    if node.kind() == SyntaxKind::ElementAccessExpression {
-        fields["argumentExpression"] = reference(node.argument_expression(), file);
-    }
-    if node.kind() == SyntaxKind::VariableStatement {
-        fields["declarationList"] = reference(node.declaration_list(), file);
-    }
-    if node.kind() == SyntaxKind::VariableDeclarationList {
-        fields["declarations"] = references(node.declarations().nodes(), file);
-    }
-    if matches!(
-        node.kind(),
-        SyntaxKind::Parameter | SyntaxKind::BindingElement
-    ) {
-        fields["dotDotDotToken"] = reference(node.dot_dot_dot_token(), file);
-    }
-    fields
-}
+pub use crate::syntax::fields as syntax;
 
 pub fn declaration(node: Node) -> Value {
     if node.is_nil() {
