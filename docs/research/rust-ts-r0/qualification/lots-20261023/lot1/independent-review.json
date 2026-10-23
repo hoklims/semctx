@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/independent_proof_review",
+  "authorContextInherited": false,
+  "codeReviewBlockingFindings": 0,
+  "wholeObligationVerdict": "PROOF_WEAK",
+  "qualifiedObligations": 0,
+  "totalObligations": 8,
+  "reason": "Required structured rejection and native receipt/revalidation observations remain absent; partial observations do not qualify complete obligations.",
+  "reports": [
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/audit/review-final.md",
+      "sha256": "f45cd14d27aba95cfaa5a0c7dc24c3a03b6c54ae0734784c521636a2c766f61b",
+      "bytes": 4182
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/audit/review-final.json",
+      "sha256": "0e90b2a4e1f73cd8d0e849375486093d8bcb70d8b8811807724f73caf4be9780",
+      "bytes": 4681
+    }
+  ]
+}

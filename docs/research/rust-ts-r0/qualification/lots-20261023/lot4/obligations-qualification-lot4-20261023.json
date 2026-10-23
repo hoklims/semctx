@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "state": "PUBLIC_LOT4_FINITE_ASSESSMENT_NO_PROMOTIONS",
+  "sourceBase": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "observedCandidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3"
+  },
+  "summary": {
+    "qualified": 0,
+    "notQualified": 4,
+    "terminalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "arbitrationPassingCredit": 0
+  },
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "arbitrationPassingCredit": 0,
+  "independentReview": {
+    "authorTask": "/root",
+    "auditorTask": "/root/proof_claim_audit",
+    "ledger": {
+      "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/independent-claim-audit.md",
+      "sha256": "add7b4494bb4c28405e7bc4ff8964d257d3c7e1ae78dabbda25dfc08d4fddb5c",
+      "bytes": 14046
+    }
+  },
+  "obligations": [
+    {
+      "index": 4,
+      "id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+      "consumer": "assertSnapshotInputs",
+      "familyIds": [
+        "ordinary-program"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite public macOS arm64 and Linux aarch64 only; not terminal R0. Additional PUBLIC proof only after the previous reserved experiment ended; it does not reopen or rerun that experiment and cannot restore holdout independence. Original354/51 and prior321 observations remain immutable.",
+        "reason": "The true baseline analyzeRepository now executes all six snapshot branches. Its ordinary missing-snapshot success differs from the retained-only native endpoint refusal; complete native owner assembly remains unestablished. Guard, extraction and tiny-graph matches are partial only.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/4/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/findings.json",
+            "sha256": "8c5e624aeb13346c37162352ba4536134e5acba1b400da5694961c47b77235c4",
+            "bytes": 14496
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/independent-claim-audit.md",
+            "sha256": "add7b4494bb4c28405e7bc4ff8964d257d3c7e1ae78dabbda25dfc08d4fddb5c",
+            "bytes": 14046
+          }
+        ]
+      },
+      "observedCandidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "platformResults": {
+        "macos": {
+          "status": "not_qualified",
+          "properties": {
+            "consistentOrdinary": "matched",
+            "consistentQualified": "matched",
+            "mismatchOrdinary": "matched",
+            "mismatchQualified": "matched",
+            "qualifiedMissingRefusal": "matched",
+            "ordinaryMissingBypass": "diverged",
+            "completeOwningBoundary": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/macos"
+          }
+        },
+        "linux": {
+          "status": "not_qualified",
+          "properties": {
+            "consistentOrdinary": "matched",
+            "consistentQualified": "matched",
+            "mismatchOrdinary": "matched",
+            "mismatchQualified": "matched",
+            "qualifiedMissingRefusal": "matched",
+            "ordinaryMissingBypass": "diverged",
+            "completeOwningBoundary": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/linux"
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 168,
+      "id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0",
+      "consumer": "<dialect-version>",
+      "familyIds": [
+        "producer-compiler-identity"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite public macOS arm64 and Linux aarch64 only; not terminal R0. Additional PUBLIC proof only after the previous reserved experiment ended; it does not reopen or rerun that experiment and cannot restore holdout independence. Original354/51 and prior321 observations remain immutable.",
+        "reason": "The observed embedded compiler and capability identity is truthfully 7.1.0-dev versus frozen 5.9.3. ORD-DIALECT-CAPABILITY has two exact MISMATCH results on both platforms, NONPASS under ARB-004 with zero credit; a product decision is required.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/168/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/findings.json",
+            "sha256": "8c5e624aeb13346c37162352ba4536134e5acba1b400da5694961c47b77235c4",
+            "bytes": 14496
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/independent-claim-audit.md",
+            "sha256": "add7b4494bb4c28405e7bc4ff8964d257d3c7e1ae78dabbda25dfc08d4fddb5c",
+            "bytes": 14046
+          }
+        ]
+      },
+      "observedCandidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "platformResults": {
+        "macos": {
+          "status": "not_qualified",
+          "properties": {
+            "actualCompilerVersion": "7.1.0-dev",
+            "sdkVersion": "5.9.3",
+            "executedCapabilityVersion": "7.1.0-dev",
+            "expectedVersion": "5.9.3",
+            "compilerVersionCheck": "MISMATCH",
+            "capabilityVersionCheck": "MISMATCH",
+            "unit": "NONPASS_PROJECTED_UNIT",
+            "arbitration": "T00-ARB-004",
+            "qualificationCredit": 0
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/macos"
+          }
+        },
+        "linux": {
+          "status": "not_qualified",
+          "properties": {
+            "actualCompilerVersion": "7.1.0-dev",
+            "sdkVersion": "5.9.3",
+            "executedCapabilityVersion": "7.1.0-dev",
+            "expectedVersion": "5.9.3",
+            "compilerVersionCheck": "MISMATCH",
+            "capabilityVersionCheck": "MISMATCH",
+            "unit": "NONPASS_PROJECTED_UNIT",
+            "arbitration": "T00-ARB-004",
+            "qualificationCredit": 0
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/linux"
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 229,
+      "id": "T00-OBL-scripts-analyzer-identity-ts-analyzeridentity-530b120929",
+      "consumer": "analyzerIdentity",
+      "familyIds": [
+        "producer-compiler-identity"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite public macOS arm64 and Linux aarch64 only; not terminal R0. Additional PUBLIC proof only after the previous reserved experiment ended; it does not reopen or rerun that experiment and cannot restore holdout independence. Original354/51 and prior321 observations remain immutable.",
+        "reason": "Both platforms yield nine exact identities, four shared refusal outcomes and five acquisition divergences. Fixed-file confinement, explicit SDK versus Bun fallback, runtime versus package version and aggregate capture cap have no accepted replacement policy. Foreign SDK fallback receives zero credit.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/229/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/findings.json",
+            "sha256": "8c5e624aeb13346c37162352ba4536134e5acba1b400da5694961c47b77235c4",
+            "bytes": 14496
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/independent-claim-audit.md",
+            "sha256": "add7b4494bb4c28405e7bc4ff8964d257d3c7e1ae78dabbda25dfc08d4fddb5c",
+            "bytes": 14046
+          }
+        ]
+      },
+      "observedCandidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "platformResults": {
+        "macos": {
+          "status": "not_qualified",
+          "properties": {
+            "cases": 18,
+            "completeIdentityMatches": 9,
+            "sharedRefusalOutcomes": 4,
+            "successRefusalDivergences": 5,
+            "foreignSdkObservations": 2,
+            "foreignSdkCredit": 0,
+            "reportedReads": "matched",
+            "successfulReadDenominators": "nonempty_complete",
+            "nativeCompilerExecuted": false,
+            "completeAcquisitionEquivalence": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/macos"
+          }
+        },
+        "linux": {
+          "status": "not_qualified",
+          "properties": {
+            "cases": 18,
+            "completeIdentityMatches": 9,
+            "sharedRefusalOutcomes": 4,
+            "successRefusalDivergences": 5,
+            "foreignSdkObservations": 2,
+            "foreignSdkCredit": 0,
+            "reportedReads": "matched",
+            "successfulReadDenominators": "nonempty_complete",
+            "nativeCompilerExecuted": false,
+            "completeAcquisitionEquivalence": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/linux"
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 235,
+      "id": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "consumer": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "familyIds": [
+        "ordinary-program"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite public macOS arm64 and Linux aarch64 only; not terminal R0. Additional PUBLIC proof only after the previous reserved experiment ended; it does not reopen or rerun that experiment and cannot restore holdout independence. Original354/51 and prior321 observations remain immutable.",
+        "reason": "The actual public TS analyzeAndBuildClaims owner executes; native extraction and a small complete graph agree on positive retained controls. Ordinary missing input still diverges. Public composition, workers, ownership/provenance and qualified admission are not established; retained control has different acquisition/admission inputs.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/235/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/findings.json",
+            "sha256": "8c5e624aeb13346c37162352ba4536134e5acba1b400da5694961c47b77235c4",
+            "bytes": 14496
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/independent-claim-audit.md",
+            "sha256": "add7b4494bb4c28405e7bc4ff8964d257d3c7e1ae78dabbda25dfc08d4fddb5c",
+            "bytes": 14046
+          }
+        ]
+      },
+      "observedCandidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "platformResults": {
+        "macos": {
+          "status": "not_qualified",
+          "properties": {
+            "publicBaselineOwnerExecuted": true,
+            "ordinaryMissingOutcome": "diverged",
+            "qualifiedMissingRefusal": "matched",
+            "positiveExtractionAndTinyGraph": "matched",
+            "retainedControlHasEquivalentAcquisitionInputs": false,
+            "publicComposition": "not_established",
+            "workerSelection": "not_exercised",
+            "compositionOwnershipAndProvenance": "not_established",
+            "qualifiedAdmission": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/macos"
+          }
+        },
+        "linux": {
+          "status": "not_qualified",
+          "properties": {
+            "publicBaselineOwnerExecuted": true,
+            "ordinaryMissingOutcome": "diverged",
+            "qualifiedMissingRefusal": "matched",
+            "positiveExtractionAndTinyGraph": "matched",
+            "retainedControlHasEquivalentAcquisitionInputs": false,
+            "publicComposition": "not_established",
+            "workerSelection": "not_exercised",
+            "compositionOwnershipAndProvenance": "not_established",
+            "qualifiedAdmission": "not_established"
+          },
+          "evidence": {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot4/campaign-summary.json",
+            "sha256": "4aa5924db89d25eda5c890d1cac8caa136fce7452181e985c789c77e8428dbef",
+            "bytes": 15548,
+            "jsonPointer": "/lanes/linux"
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    }
+  ]
+}

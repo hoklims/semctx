@@ -45,6 +45,12 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         ("forged-source-role", None, false),
         ("forged-test-role", None, false),
         ("extra-role-key", None, false),
+        ("external-dependencies", None, false),
+        ("external-devDependencies", None, false),
+        ("external-peerDependencies", None, false),
+        ("external-optionalDependencies", None, false),
+        ("external-builtin", None, false),
+        ("undeclared-external-control", None, true),
         (
             "excluded-dependent",
             Some("export { selectedFactory } from './src/selected';\n"),
@@ -136,6 +142,13 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                 "{\"compilerOptions\":{\"module\":\"NodeNext\",\"moduleResolution\":\"NodeNext\"}}"
             );
         }
+        if let Some(field) = label
+            .strip_prefix("external-")
+            .filter(|field| *field != "builtin")
+        {
+            files["package.json"] =
+                json!(json!({"name":"qualified-fixture",(field):{"optional":"1.0.0"}}).to_string());
+        }
         for (path, text) in files.as_object().unwrap() {
             fs::write(root.join(path), text.as_str().unwrap()).unwrap();
         }
@@ -176,6 +189,16 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
         }
         files["src/selected.ts"] = json!("export function selectedFactory() { return 191; }\n");
+        if label.starts_with("external-") || label == "undeclared-external-control" {
+            let specifier = if label == "external-builtin" {
+                "node:path"
+            } else {
+                "optional"
+            };
+            files["src/selected.ts"] = json!(format!(
+                "import {{ value }} from '{specifier}'; export function selectedFactory() {{ return value(); }}\n"
+            ));
+        }
         fs::write(
             root.join("src/selected.ts"),
             files["src/selected.ts"].as_str().unwrap(),
@@ -304,6 +327,17 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
             continue;
         }
+        if label == "undeclared-external-control" {
+            assert_eq!(actual.exit_code, Some(1), "{actual:?}");
+            assert!(actual.stdout.is_empty(), "{actual:?}");
+            assert!(
+                actual
+                    .stderr
+                    .contains("indexed extraction rejected: UnexpectedOutcome"),
+                "{actual:?}"
+            );
+            continue;
+        }
         if label.ends_with("nearest-config") {
             let indexed: Value =
                 serde_json::from_str(descriptor["index"]["outcome"]["stdout"].as_str().unwrap())
@@ -354,6 +388,18 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             if rejected { "rejected" } else { "admitted" }
         );
         assert_eq!(report["indexed_extraction_received"], true);
+        if label.starts_with("external-") {
+            let specifier = if label == "external-builtin" {
+                "node:path"
+            } else {
+                "optional"
+            };
+            assert_eq!(
+                report["analysisAdmission"]["externalModuleSpecifiers"],
+                json!([specifier])
+            );
+            assert!(report["analysisAdmission"]["limitations"].as_array().unwrap().iter().any(|limitation| limitation.as_str() == Some(&format!("Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): {specifier}. Their runtime behavior and APIs are not qualified."))));
+        }
         assert_eq!(
             report["request_descriptor_id"],
             identity::digest(&descriptor)

@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "state": "PUBLIC_LOT4_OBSERVATIONS_ONLY",
+  "sourceBase": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "candidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "candidateFreezeCommit": "26263033",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3",
+    "sourceAuthentication": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/baseline-authentication.json",
+      "sha256": "234273154f17f1bb07f68e2b70de17906d109f36e449e87a972e2948da7e0e9d",
+      "bytes": 261905
+    },
+    "filesEqualGitBlobs": 949
+  },
+  "scope": "Four obligations only; finite public macOS arm64 and Linux aarch64, no terminal R0",
+  "producerOrHelperChanged": false,
+  "rebuilt": false,
+  "earlier209ObligationsRecampaigned": false,
+  "summary": {
+    "qualified": 0,
+    "notQualified": 4,
+    "terminalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "arbitrationPassingCredit": 0
+  },
+  "environment": {
+    "macos": "27.0.1 (26A434), arm64",
+    "linux": "OrbStack aarch64; t00-lot4-linux",
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxImageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977",
+    "linuxNetwork": "none",
+    "rust": "1.95.0 (59807616e 2026-04-14)",
+    "bun": "1.4.3",
+    "freshLinuxBoundaryAndSnapshotReplayFilesystem": "native Linux container overlay under /tmp; copied to host with original execution paths retained",
+    "identityAndDialectFilesystem": "isolated host fixture directories mounted under /lot4 on Linux; no case-sensitivity equivalence claim"
+  },
+  "lanes": {
+    "macos": {
+      "producerSha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+      "helperSha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+      "qualificationObserverSha256": "d79891fb82b399dfcce6fbe8a9faa595ac9a9a9919c25ba57d2de914d40d94ab",
+      "sdkInputSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+      "freezeDescriptor": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/macos-inputs/freeze.json",
+        "sha256": "0332039c4a8ec3e0e5b92eced0f10f9700d28851fcb63296cd660be1bd3d7376",
+        "bytes": 1821
+      },
+      "existingFrozenUnits": {
+        "matched": 8,
+        "nonpass": 1,
+        "testsPassed": 3,
+        "testsFailed": 1,
+        "dialectCheckMismatches": 2,
+        "arbitrationCredit": 0,
+        "unitReports": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-macos/units-N01-snapshot-metadata-mismatch/repair-results.json",
+            "sha256": "df5440a47866ff27c4560b3b51c1903a359f62738853ae389b9447d6da46059f",
+            "bytes": 7283
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-macos/units-P01-retained-source/repair-results.json",
+            "sha256": "e1a7c5ff6bf3d22ded5ef5a45e720260d899f8af2c8f27b40f9c82ee46752bab",
+            "bytes": 1340242
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-macos/units-N25-crlf-implementation-identity-input/repair-results.json",
+            "sha256": "29a5dfb3b02ac6fe95cdcb50c76fbf51dc4408a2344196f8dfb074b4965a250f",
+            "bytes": 2449
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-macos/units-ORD-DIALECT-CAPABILITY/repair-results.json",
+            "sha256": "66967ff04df06305edb5913f914d3d4793a4493c425476c9fc094064734d11d4",
+            "bytes": 4750
+          }
+        ]
+      },
+      "identityAcquisition": {
+        "cases": 18,
+        "fullIdentityEqual": 9,
+        "bothRefuse": 4,
+        "successOutcomeDivergences": 5,
+        "foreignSdkObservations": 2
+      },
+      "identityReadAudit": "all reported reads match captured files; nine nonempty complete successful denominators; foreign SDK credit zero",
+      "ownerBoundaries": {
+        "cases": 9,
+        "comparisons": 91,
+        "partialUnitMatches": 7,
+        "successRefusalDivergences": 2,
+        "completeNativeOwnerBoundaryEstablished": false,
+        "report": {
+          "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/macos-v3/report.json",
+          "sha256": "346a3d28cd8f0e98366efedc92cac3462d418576faad1db6cd1a6e8177a40a98",
+          "bytes": 71530
+        }
+      },
+      "dialectDiagnosticCases": 4,
+      "qualifiedObligations": []
+    },
+    "linux": {
+      "producerSha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+      "helperSha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+      "qualificationObserverSha256": "8f40281fe2dff8a89b59cd2cc39a2e543d978fcb2a0a90870f50d36a2e703f9b",
+      "sdkInputSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+      "freezeDescriptor": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/linux-inputs/freeze.json",
+        "sha256": "b561db849b43b660157540a350e3c2c453bac167849b53b39897d254e06e357b",
+        "bytes": 1283
+      },
+      "existingFrozenUnits": {
+        "matched": 8,
+        "nonpass": 1,
+        "testsPassed": 3,
+        "testsFailed": 1,
+        "dialectCheckMismatches": 2,
+        "arbitrationCredit": 0,
+        "unitReports": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-linux-nativefs/units-N01-snapshot-metadata-mismatch/repair-results.json",
+            "sha256": "52a16ce1480f2fe5f946de19531226370f8003c22f593e579fbc7929e8008871",
+            "bytes": 7246
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-linux-nativefs/units-P01-retained-source/repair-results.json",
+            "sha256": "617db858e3b4b31ed070531105a3e10b4ab151736d3269b669e276fb62347c45",
+            "bytes": 1230022
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-linux/units-N25-crlf-implementation-identity-input/repair-results.json",
+            "sha256": "29a5dfb3b02ac6fe95cdcb50c76fbf51dc4408a2344196f8dfb074b4965a250f",
+            "bytes": 2449
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-linux-nativefs/units-ORD-DIALECT-CAPABILITY/repair-results.json",
+            "sha256": "d945da9f1c77649f17cdd5ed416dfd79ec5b6c96d26357275f8686f6b4bec645",
+            "bytes": 4713
+          }
+        ]
+      },
+      "identityAcquisition": {
+        "cases": 18,
+        "fullIdentityEqual": 9,
+        "bothRefuse": 4,
+        "successOutcomeDivergences": 5,
+        "foreignSdkObservations": 2
+      },
+      "identityReadAudit": "all reported reads match captured files; nine nonempty complete successful denominators; foreign SDK credit zero",
+      "ownerBoundaries": {
+        "cases": 9,
+        "comparisons": 91,
+        "partialUnitMatches": 7,
+        "successRefusalDivergences": 2,
+        "completeNativeOwnerBoundaryEstablished": false,
+        "report": {
+          "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/linux-v3/report.json",
+          "sha256": "768446b083155a0171e0e58e891e279ffd415e8e566033558e5d6e949afa76cd",
+          "bytes": 67710
+        }
+      },
+      "dialectDiagnosticCases": 4,
+      "qualifiedObligations": []
+    }
+  },
+  "arbitrations": [
+    {
+      "id": "T00-ARB-002",
+      "state": "historical NONPASS; not rerun in this lot",
+      "qualificationCredit": 0
+    },
+    {
+      "id": "T00-ARB-003",
+      "state": "historical NONPASS; not rerun in this lot",
+      "qualificationCredit": 0
+    },
+    {
+      "id": "T00-ARB-004",
+      "state": "NONPASS_PROJECTED_UNIT; rerun on both platforms",
+      "qualificationCredit": 0
+    }
+  ],
+  "excludedAttempts": [
+    "boundaries/macos-v1: incomplete fixture configuration; public owner setup failure",
+    "boundaries/macos-v2 and boundaries/linux-v2: superseded by nine-case v3; no final evidence credit",
+    "early suite-a imports, NODE_PATH and custom tsconfig experiments: abandoned; final v3 uses exact archived baseline and its frozen dependencies",
+    "existing-linux snapshot/dialect first attempt on case-insensitive host bind: context failure, not ARB-004; rerun on native Linux filesystem",
+    "initial rustc invocation from /repo tried channel metadata resolution offline; version verified from / with installed exact toolchain, no build involved"
+  ],
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "authorities": {
+    "previousAssessment": {
+      "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+      "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+      "bytes": 1263092
+    },
+    "consumerContracts": {
+      "path": "docs/research/rust-ts-r0/qualification/suite-20261022/consumer-contracts.json",
+      "sha256": "542ad02af413804d971eb46c440cbcb37abb42780729eac4cf044729e4848f31",
+      "bytes": 3608442
+    }
+  },
+  "artifacts": [
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/baseline-authentication.json",
+      "sha256": "234273154f17f1bb07f68e2b70de17906d109f36e449e87a972e2948da7e0e9d",
+      "bytes": 261905
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-replay/replay.py",
+      "sha256": "8cfc5128c3eb781f0f5dd411d7b8014eeda476a54bcfd10997456aa1f3c8727d",
+      "bytes": 10506
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-replay/audit.py",
+      "sha256": "04dddd5fede3b24f1fdbfa242d449e23c7fb52c991abdcd660ac277b74f1c0c3",
+      "bytes": 4085
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-macos/authentication.json",
+      "sha256": "ca6ece1872080a597793b3c09332f87881400339f9039e84a8a94615165217a4",
+      "bytes": 2280
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-macos/report.json",
+      "sha256": "106111afa49162a36e1d318ff73bf06716498679272d7db21aaa7be4e5e1d8aa",
+      "bytes": 1526957
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-macos/manifest.json",
+      "sha256": "01ae92193d8fe3995d6f2b013ebe135c72b0bc2ab318f12b3353974909f4dbd9",
+      "bytes": 22062
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-macos/read-audit.json",
+      "sha256": "98301140b1eeed31425adbd2a7886571d7a021167701e8e013c4752edc216e62",
+      "bytes": 6673
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-macos/assessment.json",
+      "sha256": "d6a798869bbbc8446acd6725a4be3ed0adb229ee6424f702559606cd67298156",
+      "bytes": 9984
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-linux/report.json",
+      "sha256": "9bc5952ff93f1e37669a930043f690bb099dfad20fa36fdba6ac5df72bdc5789",
+      "bytes": 1517274
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-linux/manifest.json",
+      "sha256": "2339be5fc357f3c6916d7af8cef70521038ddb213adb642dc603a7202d9364f6",
+      "bytes": 22059
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/identity-linux/read-audit.json",
+      "sha256": "8f3a55c3a66d9cc49edbdf84a40c204a3ea42a8acd00d7350b4af97b0b96a7d2",
+      "bytes": 6566
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/capture.mjs",
+      "sha256": "d0bd3513cec1dfdbf2310ca930c2bf2fb1225eb5d8297d2078178f743753847e",
+      "bytes": 11481
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/macos-v3/report.json",
+      "sha256": "346a3d28cd8f0e98366efedc92cac3462d418576faad1db6cd1a6e8177a40a98",
+      "bytes": 71530
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/manifest-macos-final.json",
+      "sha256": "fbfddc8335375ccc1639ceeaf4e9204c0a0ef5f5d6a0130598f2ae2f809cb15b",
+      "bytes": 10403
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/linux-v3/report.json",
+      "sha256": "768446b083155a0171e0e58e891e279ffd415e8e566033558e5d6e949afa76cd",
+      "bytes": 67710
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/boundaries/manifest-linux-final.json",
+      "sha256": "1ab68dcb9c3600913734750eb57a0cac99de8fbb9426fb1d5d103a0096a06218",
+      "bytes": 10249
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/source-manifest.json",
+      "sha256": "3c395b3e874b4c5fc21d5f16541beaed713637df70c90f18dad9fb5ec7e0aead",
+      "bytes": 19313
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/diagnostic.md",
+      "sha256": "3d4520eef08c07d9a9fce89bac387009ba1e4eeee020587f0b61921cc31db4ef",
+      "bytes": 13097
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/manifest.json",
+      "sha256": "16b5849de87fe53f7c7f1fe333eeab4a3e0096aa861c81c42678d92e0d06f061",
+      "bytes": 13195
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/campaign-references.json",
+      "sha256": "582524d640e99d420c2a48fdb18977b4453ecb568c7a5d2dcc536ae250af1200",
+      "bytes": 2442
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/native-macos-observations.json",
+      "sha256": "e2b07f5e80ba6079ed06d6ad3b3c6a32750111b1f95231ec9e5e4c1b8f8755e2",
+      "bytes": 7874
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/linux/native-linux-observations.json",
+      "sha256": "7792508e1dc48798ffa4ad7dc6712f558bbdbd1caf536573e306db66483a89f2",
+      "bytes": 7056
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/baseline-macos-observations.json",
+      "sha256": "95d09753771ba4724aaa770eef916f170f558c20e0fd4805b46a8435f9e30fec",
+      "bytes": 1584
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/baseline-linux-observations.json",
+      "sha256": "e948e9c184819c8879e1f1292da509809e300d733fccb9df807bd372d1517e96",
+      "bytes": 1538
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/linux-nativefs-focused-test-executions.json",
+      "sha256": "d99421fa844f18b6cc19d50bd7e9be27a72513c699e1c42b5886b05678febf61",
+      "bytes": 2850
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/linux-legacy-test-execution.json",
+      "sha256": "025535743df0bd664a69f255c3807e035bce93bf34cb6476dea08ea200ef1083",
+      "bytes": 882
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/dialect/linux-container-inspect.json",
+      "sha256": "8b334d297814104c8f469a8e032d8f8e1195256c0012ff4f053af44e2a38f2d5",
+      "bytes": 8559
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-macos-manifest.json",
+      "sha256": "a952b594a2b87e8617f3a47b22c7a4b50b3c6ee98e8817629ac763ce083fafb1",
+      "bytes": 2458234
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot4/existing-linux-manifest.json",
+      "sha256": "0258429ce989d8a188fc112b5941cc1dc2055504cfc120ecd7510106374a2c0a",
+      "bytes": 2603050
+    }
+  ]
+}
