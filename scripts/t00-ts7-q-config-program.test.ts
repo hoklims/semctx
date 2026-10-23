@@ -68,8 +68,10 @@ test("failed independent compiler observations leave every Program property unqu
   const out = mkdtempSync(resolve(tmpdir(), "semctx-program-control-"));
   const sdk = resolve(out, "sdk.json");
   writeFileSync(sdk, JSON.stringify({ files: Object.fromEntries(Array.from({ length: 115 }, (_, i) => [`/sdk/lib/lib.fake${i}.d.ts`, ""])) }));
+  const producer = resolve(out, "producer");
+  writeFileSync(producer, "controlled producer bytes");
   const ctx: CampaignContext = {
-    producer: process.execPath, helper: "helper", oracle: "oracle", sdk, out, platform: "macos",
+    producer, helper: "helper", oracle: "oracle", sdk, out, platform: "macos",
     run: async name => ({ exitCode: name.startsWith("program-oracle-") ? 2 : 0, stdout: name.startsWith("program-oracle-") ? "unrelated compiler failure" : JSON.stringify(target), stderr: "", evidence: [] }),
   };
   try {
