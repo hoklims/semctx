@@ -703,6 +703,231 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             assert_eq!(failed.exit_code, Some(1));
             assert!(failed.stdout.is_empty());
         }
+        if label == "inherited-positive" {
+            assert_eq!(actual.exit_code, Some(0), "SETUP: positive control failed");
+            assert_eq!(
+                report["analysisAdmission"]["status"], "admitted",
+                "SETUP: positive control was not admitted"
+            );
+
+            let dev = dir.join("final-git-identity-dev");
+            let state = dev.join("state");
+            fs::create_dir_all(&state).unwrap();
+
+            let git_ok = |name: &str, tail: Vec<String>| {
+                let mut command = vec!["git".to_string()];
+                command.extend(tail);
+                let result = invoke(command, &root, &helper, &dev.join(format!("{name}.json")));
+                assert_eq!(result.kind, "success", "SETUP: git {name}: {result:?}");
+                assert_eq!(result.exit_code, Some(0), "SETUP: git {name}");
+                result
+            };
+
+            let a = descriptor["index"]["baseCommit"]
+                .as_str()
+                .unwrap()
+                .to_string();
+
+            let tree_a = git_ok("tree-a", vec!["rev-parse".into(), format!("{a}^{{tree}}")])
+                .stdout
+                .trim()
+                .to_string();
+
+            // Create an unattached commit: no working-file or index modification.
+            let b = git_ok(
+                "create-b",
+                vec![
+                    "-c".into(),
+                    "user.name=NativeFixture".into(),
+                    "-c".into(),
+                    "user.email=native@example.test".into(),
+                    "commit-tree".into(),
+                    tree_a.clone(),
+                    "-p".into(),
+                    a.clone(),
+                    "-m".into(),
+                    "DEV final Git identity drift; identical tree".into(),
+                ],
+            )
+            .stdout
+            .trim()
+            .to_string();
+
+            assert_ne!(a, b, "SETUP: commits must differ");
+            let tree_b = git_ok("tree-b", vec!["rev-parse".into(), format!("{b}^{{tree}}")]);
+            assert_eq!(tree_b.stdout.trim(), tree_a, "SETUP: trees differ");
+
+            let diff_before = git_ok(
+                "diff-before",
+                vec![
+                    "diff".into(),
+                    "--name-only".into(),
+                    "-z".into(),
+                    "HEAD".into(),
+                    "--".into(),
+                ],
+            )
+            .stdout;
+
+            let config_path = dev.join("git-drift-config.rs");
+            let source_path = dev.join("git-drift-proxy.rs");
+            let proxy = dev.join(format!("git-drift-proxy{}", std::env::consts::EXE_SUFFIX));
+
+            // Debug string formatting produces escaped Rust string literals.
+            let config = format!(
+                "const HELPER: &str = {:?};\n\
+                 const ROOT: &str = {:?};\n\
+                 const FROM: &str = {:?};\n\
+                 const TO: &str = {:?};\n\
+                 const STATE: &str = {:?};\n",
+                helper.to_str().expect("SETUP: helper path must be UTF-8"),
+                root.to_str().expect("SETUP: root path must be UTF-8"),
+                a,
+                b,
+                state.to_str().expect("SETUP: state path must be UTF-8"),
+            );
+            fs::write(&config_path, config).unwrap();
+            fs::write(&source_path, FINAL_GIT_IDENTITY_PROXY).unwrap();
+
+            let compiler = std::env::var_os("RUSTC")
+                .unwrap_or_else(|| "rustc".into())
+                .into_string()
+                .expect("SETUP: rustc path must be UTF-8");
+
+            let compiled = invoke(
+                vec![
+                    compiler,
+                    "--edition=2024".into(),
+                    "--crate-name".into(),
+                    "semctx_git_drift_proxy".into(),
+                    source_path.to_string_lossy().into_owned(),
+                    "-o".into(),
+                    proxy.to_string_lossy().into_owned(),
+                ],
+                &dev,
+                &helper,
+                &dev.join("compile.json"),
+            );
+            assert_eq!(
+                compiled.kind, "success",
+                "SETUP: proxy compilation failed: {compiled:?}"
+            );
+            assert_eq!(compiled.exit_code, Some(0), "SETUP: rustc failed");
+            assert!(proxy.is_file(), "SETUP: proxy executable absent");
+
+            let immutable = [&helper, &proxy, &config_path, &source_path]
+                .into_iter()
+                .map(|path| (path.clone(), fs::read(path).unwrap()))
+                .collect::<Vec<_>>();
+
+            let captured = descriptor["index"]["analysis"]["files"]
+                .as_object()
+                .unwrap()
+                .iter()
+                .map(|(path, text)| {
+                    let expected = text.as_str().unwrap().as_bytes().to_vec();
+                    assert_eq!(
+                        fs::read(path).unwrap(),
+                        expected,
+                        "SETUP: capture already differs"
+                    );
+                    (path.clone(), expected)
+                })
+                .collect::<Vec<_>>();
+
+            let mut drift_descriptor = descriptor.clone();
+            drift_descriptor["processHelper"] =
+                json!(proxy.to_str().expect("SETUP: proxy path must be UTF-8"));
+            let drift_path = dev.join("descriptor.json");
+            fs::write(
+                &drift_path,
+                serde_json::to_vec_pretty(&drift_descriptor).unwrap(),
+            )
+            .unwrap();
+
+            let mut drift_argv = argv.clone();
+            drift_argv[3] = drift_path.to_string_lossy().into_owned();
+            let drift = invoke(drift_argv, &root, &helper, &dev.join("verify-drift.json"));
+
+            // Premises first: none of these failures is a valid RED.
+            assert!(
+                !state.join("failure").exists(),
+                "SETUP: proxy/delegate/injection failed"
+            );
+            assert!(
+                !drift.stderr.contains("DEV_GIT_DRIFT_SETUP"),
+                "SETUP: proxy failed: {}",
+                drift.stderr
+            );
+            assert!(
+                matches!(drift.kind.as_str(), "success" | "nonzero"),
+                "SETUP: incomplete process outcome: {drift:?}"
+            );
+            assert_eq!(
+                fs::read_to_string(state.join("injected")).unwrap(),
+                format!("{a}\n{b}\n"),
+                "SETUP: designated injection did not complete"
+            );
+
+            let after_head = git_ok(
+                "head-after",
+                vec!["rev-parse".into(), "--verify".into(), "HEAD".into()],
+            );
+            assert_eq!(after_head.stdout.trim(), b, "SETUP: HEAD did not move");
+
+            let diff_after = git_ok(
+                "diff-after",
+                vec![
+                    "diff".into(),
+                    "--name-only".into(),
+                    "-z".into(),
+                    "HEAD".into(),
+                    "--".into(),
+                ],
+            );
+            assert_eq!(
+                diff_after.stdout, diff_before,
+                "SETUP: this witness must isolate HEAD identity"
+            );
+
+            for (path, bytes) in &immutable {
+                assert_eq!(
+                    fs::read(path).unwrap(),
+                    *bytes,
+                    "SETUP: tool/config changed"
+                );
+            }
+            for (path, bytes) in &captured {
+                assert_eq!(fs::read(path).unwrap(), *bytes, "SETUP: capture changed");
+            }
+
+            // Restore A before the original stale-file control below.
+            git_ok(
+                "restore-a",
+                vec!["update-ref".into(), "HEAD".into(), a.clone(), b.clone()],
+            );
+
+            // Designated assertion: current uncorrected code is expected to fail here.
+            assert_eq!(
+                drift.exit_code,
+                Some(1),
+                "VERIFY_FINAL_GIT_IDENTITY_ADMITTED: verification did not refuse HEAD drift"
+            );
+            assert!(
+                drift.stdout.is_empty(),
+                "VERIFY_FINAL_GIT_IDENTITY_ADMITTED: drift emitted an admission report"
+            );
+            let refusal: Value = serde_json::from_str(drift.stderr.trim())
+                .expect("VERIFY_FINAL_GIT_IDENTITY_REFUSAL: expected structured refusal");
+            assert_eq!(
+                refusal,
+                json!({
+                    "error":
+                        "qualified index no longer refers to the current Git commit"
+                }),
+                "VERIFY_FINAL_GIT_IDENTITY_REFUSAL: unrelated failure is not detection"
+            );
+        }
         fs::write(
             root.join("src/selected.ts"),
             "export function staleFactory(){return 193;}\n",
@@ -716,3 +941,93 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         );
     }
 }
+
+const FINAL_GIT_IDENTITY_PROXY: &str = r#"
+use std::{
+    env,
+    ffi::OsStr,
+    fs::{self, OpenOptions},
+    io,
+    path::Path,
+    process::{self, Command, Stdio},
+};
+
+include!("git-drift-config.rs");
+
+fn setup_error(message: &str) -> ! {
+    let _ = fs::write(Path::new(STATE).join("failure"), message);
+    eprintln!("DEV_GIT_DRIFT_SETUP: {message}");
+    process::exit(125);
+}
+
+fn main() {
+    let args = env::args_os().skip(1).collect::<Vec<_>>();
+
+    // Do not consume the supervisor ACK: the real helper receives it unchanged.
+    let status = Command::new(HELPER)
+        .args(&args)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .status()
+        .unwrap_or_else(|e| setup_error(&format!("delegate spawn: {e}")));
+
+    let code = status
+        .code()
+        .unwrap_or_else(|| setup_error("delegate terminated without an exit code"));
+
+    if code != 0 {
+        fs::write(
+            Path::new(STATE).join("failure"),
+            format!("delegate exit: {code}"),
+        )
+        .unwrap_or_else(|e| setup_error(&format!("record delegate failure: {e}")));
+        process::exit(code);
+    }
+
+    let trigger = ["__exec", "git", "ls-files", "--cached", "-z", "--"];
+    if args.len() == trigger.len()
+        && args
+            .iter()
+            .zip(trigger)
+            .all(|(actual, expected)| actual.as_os_str() == OsStr::new(expected))
+    {
+        let claim = match OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(Path::new(STATE).join("claimed"))
+        {
+            Ok(file) => file,
+            Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
+                process::exit(code);
+            }
+            Err(e) => setup_error(&format!("claim injection: {e}")),
+        };
+        drop(claim);
+
+        // This occurs after the real inventory command has completed successfully.
+        // Capture update-ref output separately; never contaminate inventory output.
+        let changed = Command::new("git")
+            .args(["-C", ROOT, "update-ref", "HEAD", TO, FROM])
+            .stdin(Stdio::null())
+            .output()
+            .unwrap_or_else(|e| setup_error(&format!("update-ref spawn: {e}")));
+
+        if !changed.status.success() {
+            setup_error(&format!(
+                "update-ref failed: {:?}; {}",
+                changed.status.code(),
+                String::from_utf8_lossy(&changed.stderr),
+            ));
+        }
+
+        fs::write(
+            Path::new(STATE).join("injected"),
+            format!("{FROM}\n{TO}\n"),
+        )
+        .unwrap_or_else(|e| setup_error(&format!("record injection: {e}")));
+    }
+
+    process::exit(code);
+}
+"#;

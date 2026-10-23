@@ -2585,3 +2585,115 @@ fn development_driver_reports_ambiguous_exports_without_arbitrary_call_edge() {
             .any(|edge| edge["kind"] == "calls")
     );
 }
+
+// Independent supplemental DEV witness; preparation is source-only.
+// Harness v2: existing main_tests.rs; inputs and expectations unchanged.
+fn supplemental_retained_reference_observation(reference: &str) -> serde_json::Value {
+    let mut request = component_request(
+        "supplementalRetainedReferenceDev",
+        "/scope/entry.ts",
+        "export const retainedReferenceEntryDev = 953;",
+    );
+    let sdk = component_sdk();
+    request.cwd = "/scope".into();
+    request.files = BTreeMap::from([
+        (
+            "/scope/entry.ts".into(),
+            "export const retainedReferenceEntryDev = 953;".into(),
+        ),
+        (
+            "/scope/observer.ts".into(),
+            format!(
+                "/// <reference path=\"{reference}\" />\nexport const retainedReferenceObserverDev = 967;"
+            ),
+        ),
+        (
+            "/scope/shared.ts".into(),
+            "export const retainedReferenceSharedDev = 971;".into(),
+        ),
+    ]);
+    request.roots = vec!["/scope/entry.ts".into()];
+    request.retained = true;
+    request.qualified = true;
+    let input_id = identity::digest(&batch::input_manifest(&request, &sdk).unwrap());
+    let observed = retained_scope::inspect(
+        &request,
+        &sdk,
+        &serde_json::json!({"nodes":[],"edges":[]}),
+        &serde_json::json!({
+            "executed":true,
+            "unsupported":[],
+            "files":[],
+            "candidates":[]
+        }),
+        &input_id,
+    )
+    .expect("RETAINED_REFERENCE_SETUP_INSPECT");
+    assert_eq!(
+        observed["input_manifest_id"], input_id,
+        "RETAINED_REFERENCE_SETUP_INPUT_BINDING"
+    );
+    assert_eq!(
+        observed["full_analysis"]["complete"], true,
+        "RETAINED_REFERENCE_SETUP_COMPLETE"
+    );
+    observed
+}
+
+#[test]
+fn supplemental_retained_reference_exact_match_control() {
+    let observed = supplemental_retained_reference_observation("./shared.ts");
+    let source = observed["sources"]
+        .as_array()
+        .expect("RETAINED_REFERENCE_SETUP_SOURCES")
+        .iter()
+        .find(|source| source["path"] == "observer.ts")
+        .expect("RETAINED_REFERENCE_SETUP_OBSERVER");
+    let references = source["references"]
+        .as_array()
+        .expect("RETAINED_REFERENCE_SETUP_REFERENCES");
+    assert_eq!(references.len(), 1, "RETAINED_REFERENCE_SETUP_COUNT");
+    assert_eq!(references[0]["file_name"], "./shared.ts");
+    assert_eq!(
+        references[0]["retained"], true,
+        "RETAINED_REFERENCE_EXACT_MATCH_CONTROL"
+    );
+    assert!(
+        !observed["projection"]["reasons"]
+            .as_array()
+            .expect("RETAINED_REFERENCE_SETUP_REASONS")
+            .contains(&serde_json::json!(
+                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:observer.ts:./shared.ts"
+            )),
+        "RETAINED_REFERENCE_EXACT_REASON_CONTROL"
+    );
+}
+
+#[test]
+fn supplemental_retained_reference_case_variant_is_unretained() {
+    let observed = supplemental_retained_reference_observation("./Shared.ts");
+    let source = observed["sources"]
+        .as_array()
+        .expect("RETAINED_REFERENCE_SETUP_SOURCES")
+        .iter()
+        .find(|source| source["path"] == "observer.ts")
+        .expect("RETAINED_REFERENCE_SETUP_OBSERVER");
+    let references = source["references"]
+        .as_array()
+        .expect("RETAINED_REFERENCE_SETUP_REFERENCES");
+    assert_eq!(references.len(), 1, "RETAINED_REFERENCE_SETUP_COUNT");
+    assert_eq!(references[0]["file_name"], "./Shared.ts");
+    assert!(
+        observed["projection"]["reasons"]
+            .as_array()
+            .expect("RETAINED_REFERENCE_SETUP_REASONS")
+            .contains(&serde_json::json!(
+                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:observer.ts:./Shared.ts"
+            )),
+        "RETAINED_REFERENCE_CASE_VARIANT_REASON"
+    );
+    assert_eq!(
+        references[0]["retained"], false,
+        "RETAINED_REFERENCE_CASE_VARIANT_MEMBERSHIP"
+    );
+}

@@ -187,3 +187,135 @@ fn javascript_operation_does_not_add_explicit_source_scope_refusal() {
         serde_json::json!(["SOURCE_GLOBAL_SCRIPT_UNSUPPORTED"])
     );
 }
+
+// Independent supplemental DEV witness for the ordinary configuration boundary.
+// Frozen against 763f6dc0; source-only preparation, not an execution result.
+const CONFIGURATION_BOUNDARY_SOURCE: &str =
+    "export function configurationBoundaryDev() { return 947; }";
+const CONFIGURATION_BOUNDARY_CONFIG: &str =
+    r#"{"compilerOptions":{"module":"CommonJS","moduleResolution":"Node10"}}"#;
+
+fn configuration_boundary_observation(retained: bool) -> (Request, Sdk, serde_json::Value) {
+    let request: Request = serde_json::from_value(serde_json::json!({
+        "id":"supplementalConfigurationBoundaryDev",
+        "cwd":"/repo",
+        "sdk_directory":"/sdk/lib",
+        "case_sensitive":ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+        "roots":["/repo/configurationBoundaryDev.js"],
+        "files":{
+            "/repo/configurationBoundaryDev.js":CONFIGURATION_BOUNDARY_SOURCE,
+            "/repo/tsconfig.json":CONFIGURATION_BOUNDARY_CONFIG
+        },
+        "retained":retained,
+        "qualified":false,
+        "options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false}
+    }))
+    .expect("CONFIGURATION_BOUNDARY_SETUP_REQUEST");
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json"))
+            .expect("CONFIGURATION_BOUNDARY_SETUP_SDK_READ"),
+    )
+    .expect("CONFIGURATION_BOUNDARY_SETUP_SDK_PARSE");
+    let observed =
+        analyze(request.clone(), sdk.clone()).expect("CONFIGURATION_BOUNDARY_SETUP_ANALYZE");
+    (request, sdk, observed)
+}
+
+#[test]
+fn supplemental_ordinary_js_configuration_boundary_subject() {
+    let (_, _, observed) = configuration_boundary_observation(false);
+    let subject = &observed["subjects"][0];
+    assert_eq!(subject["path"], "configurationBoundaryDev.js");
+    assert_eq!(subject["parseDiagnostics"], serde_json::json!([]));
+    assert_eq!(subject["unimplemented"], serde_json::json!([]));
+    assert!(
+        subject["configurationConsumed"]
+            .as_array()
+            .expect("CONFIGURATION_BOUNDARY_SETUP_CONSUMED")
+            .contains(&serde_json::json!("/repo/tsconfig.json")),
+        "CONFIGURATION_BOUNDARY_SETUP_CONFIGURATION_NOT_CONSUMED"
+    );
+    let operation = &subject["javascriptObservation"];
+    assert_eq!(operation["executed"], true);
+    assert_eq!(operation["parseFailed"], false);
+    assert_eq!(operation["unsupported"], serde_json::json!([]));
+    assert_eq!(
+        operation["reasons"],
+        serde_json::json!([]),
+        "CONFIGURATION_BOUNDARY_SETUP_ORDINARY_COMPONENT"
+    );
+    assert_eq!(
+        subject["reasons"],
+        serde_json::json!([]),
+        "CONFIGURATION_BOUNDARY_ORDINARY_SUBJECT_REASONS"
+    );
+    assert_eq!(
+        subject["outcome"], "analyzed",
+        "CONFIGURATION_BOUNDARY_ORDINARY_SUBJECT_OUTCOME"
+    );
+}
+
+#[test]
+fn supplemental_retained_js_configuration_boundary_control() {
+    let (_, _, observed) = configuration_boundary_observation(true);
+    let subject = &observed["subjects"][0];
+    let expected = serde_json::json!([
+        "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
+        "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10"
+    ]);
+    assert_eq!(subject["parseDiagnostics"], serde_json::json!([]));
+    assert_eq!(subject["unimplemented"], serde_json::json!([]));
+    assert_eq!(subject["javascriptObservation"]["executed"], true);
+    assert_eq!(subject["javascriptObservation"]["parseFailed"], false);
+    assert_eq!(
+        subject["javascriptObservation"]["unsupported"],
+        serde_json::json!([])
+    );
+    assert_eq!(
+        subject["javascriptObservation"]["reasons"], expected,
+        "CONFIGURATION_BOUNDARY_RETAINED_COMPONENT_CONTROL"
+    );
+    assert_eq!(
+        subject["reasons"], expected,
+        "CONFIGURATION_BOUNDARY_RETAINED_SUBJECT_CONTROL"
+    );
+    assert_eq!(
+        subject["outcome"], "unsupported",
+        "CONFIGURATION_BOUNDARY_RETAINED_OUTCOME_CONTROL"
+    );
+}
+
+#[test]
+fn supplemental_ordinary_js_configuration_boundary_batch() {
+    let (request, sdk, observed) = configuration_boundary_observation(false);
+    let batch =
+        batch::build(&request, &sdk, &observed).expect("CONFIGURATION_BOUNDARY_SETUP_BATCH");
+    assert!(
+        batch.complete,
+        "CONFIGURATION_BOUNDARY_SETUP_BATCH_INCOMPLETE"
+    );
+    assert_eq!(batch.subjects.len(), 1);
+    assert_eq!(
+        batch.terminal,
+        wire::Terminal::Complete,
+        "CONFIGURATION_BOUNDARY_ORDINARY_BATCH_TERMINAL"
+    );
+    assert_eq!(
+        batch.subjects[0].outcome,
+        Some(wire::AnalysisOutcome::Analyzed),
+        "CONFIGURATION_BOUNDARY_ORDINARY_BATCH_OUTCOME"
+    );
+    assert!(
+        !batch.subjects[0].coverage.is_empty()
+            && batch.subjects[0]
+                .coverage
+                .iter()
+                .all(|coverage| coverage.complete),
+        "CONFIGURATION_BOUNDARY_ORDINARY_BATCH_COVERAGE"
+    );
+    assert!(
+        batch.diagnostics.is_empty(),
+        "CONFIGURATION_BOUNDARY_ORDINARY_BATCH_DIAGNOSTICS:{:?}",
+        batch.diagnostics
+    );
+}

@@ -259,7 +259,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .map(str::to_string)
         .collect::<BTreeSet<_>>();
     let (metadata, _) = qualified_path_eligibility::metadata(&root)?;
-    required_paths.extend(metadata);
+    required_paths.extend(metadata.iter().cloned());
     let path_key = |path: String| {
         if request.case_sensitive {
             path
@@ -441,6 +441,39 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         {
             reasons.push(format!("DEPENDENCY_SCOPE_UNSUPPORTED:{}", subject["path"]));
         }
+    }
+    let final_diff = git(
+        &root,
+        &spec.process_helper,
+        &["diff", "--name-only", "-z", "HEAD", "--"],
+    )?;
+    if final_diff.stdout != diff.stdout {
+        return Err("qualified Git diff changed during verification".into());
+    }
+    let final_status = git(
+        &root,
+        &spec.process_helper,
+        &["ls-files", "--others", "--exclude-standard", "-z"],
+    )?;
+    if final_status.stdout != status.stdout {
+        return Err("untracked input outside the bounded indexed capture".into());
+    }
+    let final_authored = git(
+        &root,
+        &spec.process_helper,
+        &["ls-files", "--cached", "-z", "--"],
+    )?;
+    let (final_metadata, _) = qualified_path_eligibility::metadata(&root)?;
+    if final_authored.stdout != authored.stdout || final_metadata != metadata {
+        return Err("qualified input inventory changed during verification".into());
+    }
+    let final_head = git(
+        &root,
+        &spec.process_helper,
+        &["rev-parse", "--verify", "HEAD"],
+    )?;
+    if final_head.stdout.trim() != spec.index.base_commit {
+        return Err("qualified index no longer refers to the current Git commit".into());
     }
     if identity::digest_bytes(&fs::read(&spec.process_helper).map_err(|e| e.to_string())?)
         != helper_before

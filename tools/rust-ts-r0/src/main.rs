@@ -1002,8 +1002,14 @@ fn inspect_subject(
         unimplemented.extend(runtime.unsupported.iter().cloned());
     }
     let mut reasons = if qualified || is_js {
-        configuration
-            .reasons
+        let configuration_reasons = if retained {
+            &configuration.reasons
+        } else {
+            &module_configuration_observations
+                .ordinary_without_snapshot
+                .reasons
+        };
+        configuration_reasons
             .iter()
             .cloned()
             .collect::<BTreeSet<_>>()

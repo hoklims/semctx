@@ -626,3 +626,99 @@ fn supplemental_casefold_qualified_callback_owner() {
         "CASEFOLD_CALLBACK_OWNER:{folded:?}"
     );
 }
+
+// Independent supplemental DEV witness; preparation is source-only.
+// Const callee aliases and awaited-value aliases have different frozen contracts.
+#[test]
+fn supplemental_safe_await_direct_and_value_alias_controls() {
+    for (name, source) in [
+        (
+            "direct-resolve",
+            "export async function run(){ await Promise.resolve(7); }",
+        ),
+        (
+            "direct-reject",
+            "export async function run(){ await Promise.reject(7); }",
+        ),
+        (
+            "awaited-value-alias",
+            "const pending=Promise.resolve(7); export async function run(){ await pending; }",
+        ),
+    ] {
+        let observed = scan_code(source);
+        assert!(
+            observed.unsupported.is_empty(),
+            "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:{name}:{observed:?}"
+        );
+        assert_eq!(
+            observed.reasons,
+            BTreeSet::new(),
+            "SAFE_AWAIT_DIRECT_OR_VALUE_CONTROL:{name}"
+        );
+    }
+}
+
+#[test]
+fn supplemental_safe_await_const_resolve_callee_alias_refuses() {
+    let observed =
+        scan_code("const settle=Promise.resolve; export async function run(){ await settle(7); }");
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:resolve:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from(["SOURCE_AWAIT_UNSUPPORTED".to_string()]),
+        "SAFE_AWAIT_CONST_RESOLVE_CALLEE_ALIAS"
+    );
+}
+
+#[test]
+fn supplemental_safe_await_const_reject_callee_alias_refuses() {
+    let observed =
+        scan_code("const settle=Promise.reject; export async function run(){ await settle(7); }");
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:reject:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from(["SOURCE_AWAIT_UNSUPPORTED".to_string()]),
+        "SAFE_AWAIT_CONST_REJECT_CALLEE_ALIAS"
+    );
+}
+
+// Separate supplemental DEV witness; does not modify the callee-alias freeze.
+#[test]
+fn supplemental_safe_await_computed_resolve_callee_refuses() {
+    let observed = scan_code(r#"export async function run(){ await Promise["resolve"](7); }"#);
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ELEMENT_SETUP_UNSUPPORTED:resolve:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from([
+            "SOURCE_AWAIT_UNSUPPORTED".to_string(),
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED".to_string(),
+        ]),
+        "SAFE_AWAIT_COMPUTED_RESOLVE_CALLEE"
+    );
+}
+
+#[test]
+fn supplemental_safe_await_computed_reject_callee_refuses() {
+    let observed = scan_code(r#"export async function run(){ await Promise["reject"](7); }"#);
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ELEMENT_SETUP_UNSUPPORTED:reject:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from([
+            "SOURCE_AWAIT_UNSUPPORTED".to_string(),
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED".to_string(),
+        ]),
+        "SAFE_AWAIT_COMPUTED_REJECT_CALLEE"
+    );
+}

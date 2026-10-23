@@ -1247,8 +1247,8 @@ impl Scan<'_> {
             if self.async_value(value.expression(), &mut HashSet::new()) {
                 return true;
             }
-            let callee = self.actual(value.expression());
-            if member(callee) {
+            let callee = unwrap(value.expression());
+            if callee.kind() == K::PropertyAccessExpression && self.sdk_value(callee).is_some() {
                 let receiver = self.sdk_value(callee.expression());
                 if self.symbol_name(receiver) == "Promise" {
                     let name = self.static_name(callee);

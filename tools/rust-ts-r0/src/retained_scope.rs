@@ -459,7 +459,9 @@ pub(super) fn inspect(
             ));
         }
     }
-    let normalizer = CaptureFs::new(BTreeMap::new(), request.case_sensitive);
+    // Retained references use the original input Map's exact membership, even
+    // when the filesystem used for compiler resolution is case-insensitive.
+    let normalizer = CaptureFs::new(BTreeMap::new(), true);
     let keys = request
         .files
         .keys()
