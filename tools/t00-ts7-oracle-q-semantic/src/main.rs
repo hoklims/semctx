@@ -1,4 +1,6 @@
+mod facts;
 mod files;
+use facts::{signature, symbol};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, rc::Rc};
@@ -21,36 +23,6 @@ struct Sdk {
     files: BTreeMap<String, String>,
 }
 
-fn declaration(node: Node) -> Value {
-    if !node.is_some() {
-        return Value::Null;
-    }
-    let file = get_source_file_of_node(node);
-    let path = source_file_file_name(file);
-    json!({"path":path,"start":get_token_pos_of_node(node,file,false),"end":node.end(),"kind":format!("{:?}",node.kind()),"sdk":path.starts_with("/sdk/lib/")})
-}
-
-fn symbol(checker: &Checker, id: SymbolId) -> Value {
-    if !id.is_some() {
-        return Value::Null;
-    }
-    let data = checker.sym(id);
-    let declarations: Vec<Value> = data
-        .declarations
-        .iter()
-        .map(|node| declaration(*node))
-        .collect();
-    json!({"name":data.name.to_string(),"flags":format!("{:?}",data.flags),"declarations":declarations})
-}
-
-fn signature(checker: &mut Checker, id: SignatureId) -> Value {
-    if !id.is_some() {
-        return Value::Null;
-    }
-    let declaration = declaration(checker.sig(id).declaration);
-    json!({"text":checker.signature_to_string(id),"declaration":declaration})
-}
-
 fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
     let start = get_token_pos_of_node(node, file, false);
     let end = node.end();
@@ -63,6 +35,29 @@ fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
         .is_some()
         .then(|| format!("{:?}", node.parent().kind()));
     let mut fact = json!({"kind":format!("{:?}",node.kind()),"start":start,"end":end,"text":text,"parentKind":parent_kind});
+    fact["parent"] = facts::reference(node.parent(), file);
+    fact["flagsBits"] = json!(node.flags().0);
+    fact["modifierFlagsBits"] = json!(get_combined_modifier_flags(node).0);
+    fact["fields"] = facts::syntax(node, file);
+    let mut children = Vec::new();
+    node.for_each_child(|child| {
+        children.push(facts::reference(child, file));
+        false
+    });
+    fact["children"] = json!(children);
+    if matches!(
+        node.kind(),
+        SyntaxKind::PrefixUnaryExpression
+            | SyntaxKind::PostfixUnaryExpression
+            | SyntaxKind::TypeOperator
+    ) {
+        fact["operator"] = json!(format!("{:?}", node.operator()));
+    }
+    if node.kind() == SyntaxKind::PropertyAccessExpression {
+        let receiver_type = checker.get_type_at_location(node.expression());
+        let property = checker.get_property_of_type_exported(receiver_type, node.name().text());
+        fact["receiverPropertySymbol"] = symbol(checker, property);
+    }
     if is_expression(node) || node.kind() == SyntaxKind::Identifier {
         let id = checker.get_symbol_at_location_exported(node);
         fact["symbol"] = symbol(checker, id);
@@ -72,13 +67,7 @@ fn walk(node: Node, file: Node, checker: &mut Checker, nodes: &mut Vec<Value>) {
         }
         let type_id = checker.get_type_at_location(node);
         if type_id.is_some() {
-            let flags = format!("{:?}", checker.ty(type_id).flags);
-            let signatures = checker.get_signatures_of_type_exported(type_id, SignatureKind::CALL);
-            let call_signatures: Vec<Value> = signatures
-                .into_iter()
-                .map(|id| signature(checker, id))
-                .collect();
-            fact["type"] = json!({"text":checker.type_to_string(type_id),"flags":flags,"callSignatures":call_signatures});
+            fact["type"] = facts::type_fact(checker, type_id);
         }
     }
     if node.kind() == SyntaxKind::ShorthandPropertyAssignment {
