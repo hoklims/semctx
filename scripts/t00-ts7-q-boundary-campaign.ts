@@ -192,4 +192,3 @@ if (import.meta.main) {
   try { await campaign(process.argv.slice(2)); }
   catch (error) { process.stderr.write(String(error) + "\n"); process.exitCode = 1; }
 }
-
