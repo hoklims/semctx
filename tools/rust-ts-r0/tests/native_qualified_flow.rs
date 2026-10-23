@@ -38,6 +38,13 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
     fs::create_dir_all(&evidence).unwrap();
     let contexts = vec![
         ("inherited-positive", None, false),
+        ("literal-test", None, true),
+        ("static-test", None, false),
+        ("excluded-test-role", None, true),
+        ("missing-test-role", None, false),
+        ("forged-source-role", None, false),
+        ("forged-test-role", None, false),
+        ("extra-role-key", None, false),
         ("external-dependencies", None, false),
         ("external-devDependencies", None, false),
         ("external-peerDependencies", None, false),
@@ -86,7 +93,26 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         let root = dir.join("workspace");
         fs::create_dir_all(root.join("src")).unwrap();
         let mut files = json!({"src/selected.ts":"export function selectedFactory() { return 179; }\n","base.json":"{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}","tsconfig.json":"{\"extends\":\"./base.json\"}",".gitignore":".semctx/\n"});
-        let outside_path = if label.starts_with("output-") {
+        if matches!(
+            label,
+            "literal-test" | "static-test" | "missing-test-role" | "forged-source-role"
+        ) {
+            files["src/main.test.ts"] = json!(if label == "static-test" {
+                "import { selectedFactory } from './selected'; export function check() { return selectedFactory(); }\n"
+            } else {
+                "export async function check() { return import('./selected'); }\n"
+            });
+        }
+        if label == "excluded-test-role" {
+            files["outside.test.ts"] =
+                json!("export async function check() { return import('./src/selected'); }\n");
+        }
+        if label == "static-test" {
+            files["test_helper.py"] = json!("def test_value(): return 1\n");
+        }
+        let outside_path = if label == "excluded-test-role" {
+            "outside.test.ts"
+        } else if label.starts_with("output-") {
             fs::create_dir_all(root.join("dist")).unwrap();
             "dist/outside.ts"
         } else {
@@ -201,7 +227,26 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             .iter()
             .map(|(p, t)| (format!("{cwd}/{p}"), t.clone()))
             .collect::<serde_json::Map<_, _>>();
-        let request = json!({"id":format!("development-qualified-{label}"),"cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"files":captured,"roots":[format!("{cwd}/src/selected.ts")],"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":true,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+        let mut request = json!({"id":format!("development-qualified-{label}"),"cwd":cwd,"sdk_directory":"/sdk/lib","case_sensitive":sensitive,"files":captured,"roots":[format!("{cwd}/src/selected.ts")],"options":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false},"retained":true,"qualified":true,"roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}});
+        if files.get("src/main.test.ts").is_some() {
+            request["roots"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!(format!("{cwd}/src/main.test.ts")));
+            if label != "missing-test-role" {
+                request["roles"]["src/main.test.ts"] = json!(if label == "forged-source-role" {
+                    "source"
+                } else {
+                    "test"
+                });
+            }
+        }
+        if label == "forged-test-role" {
+            request["roles"]["src/selected.ts"] = json!("test");
+        }
+        if label == "extra-role-key" {
+            request["roles"]["src/absent.ts"] = json!("test");
+        }
         let request_path = dir.join("index-request.json");
         fs::write(&request_path, serde_json::to_vec_pretty(&request).unwrap()).unwrap();
         let index = invoke(
@@ -215,6 +260,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             &helper,
             &dir.join("index-invocation.json"),
         );
+        if label == "extra-role-key" {
+            assert_ne!(index.exit_code, Some(0));
+            assert!(index.stdout.is_empty());
+            continue;
+        }
         assert_eq!(index.kind, "success", "{index:?}");
         let head = invoke(
             vec![
@@ -250,6 +300,33 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             &helper,
             &dir.join("verify-invocation.json"),
         );
+        if label == "literal-test" {
+            assert_ne!(actual.exit_code, Some(0), "{label}: {actual:?}");
+            let indexed: Value = serde_json::from_str(&index.stdout).unwrap();
+            assert!(
+                indexed["diagnostics"].as_array().unwrap().iter().any(
+                    |diagnostic| diagnostic["subject_id"] == "src/main.test.ts"
+                        && diagnostic["code"]
+                            == "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"
+                ),
+                "{indexed}"
+            );
+            continue;
+        }
+        if matches!(
+            label,
+            "missing-test-role" | "forged-source-role" | "forged-test-role"
+        ) {
+            assert_eq!(actual.exit_code, Some(1), "{label}: {actual:?}");
+            assert!(actual.stdout.is_empty());
+            assert!(
+                actual
+                    .stderr
+                    .contains("roles disagree with current discovery"),
+                "{actual:?}"
+            );
+            continue;
+        }
         if label == "undeclared-external-control" {
             assert_eq!(actual.exit_code, Some(1), "{actual:?}");
             assert!(actual.stdout.is_empty(), "{actual:?}");
@@ -348,6 +425,22 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                     .iter()
                     .any(|r| r["path"] == outside_path && r["status"] == "excluded")
             );
+        }
+        if label == "excluded-test-role" {
+            assert_eq!(
+                report["broad_analysis"]["assembly"]["integrityReasons"]["outside.test.ts"],
+                json!(["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"])
+            );
+        }
+        if label == "static-test" {
+            let edges = report["broad_analysis"]["assembly"]["edges"]
+                .as_array()
+                .unwrap();
+            for kind in ["tested_by", "covers"] {
+                assert!(edges.iter().any(|edge| edge["kind"] == kind
+                    && (edge["from"] == "test:src/main.test.ts"
+                        || edge["to"] == "test:src/main.test.ts")));
+            }
         }
         if label == "inherited-positive" {
             let mut variants = vec![];

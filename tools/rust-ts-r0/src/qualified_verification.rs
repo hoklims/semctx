@@ -202,7 +202,6 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         || !request.retained
         || !request.selection.is_empty()
         || !request.disabled.is_empty()
-        || !request.roles.is_empty()
         || !request.utf16_files.is_empty()
         || !request.raw_files.is_empty()
         || request.roots.is_empty()
@@ -314,6 +313,29 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     {
         return Err("indexed extraction does not cover current selection".into());
     }
+    for file in selected_files {
+        let relative = file["relPath"].as_str().ok_or("selected path absent")?;
+        if [".d.ts", ".d.mts", ".d.cts"]
+            .iter()
+            .any(|extension| relative.ends_with(extension))
+        {
+            continue;
+        }
+        let discovered_role = if file["role"] == "test" {
+            "test"
+        } else {
+            "source"
+        };
+        if request
+            .roles
+            .get(relative)
+            .map(String::as_str)
+            .unwrap_or("source")
+            != discovered_role
+        {
+            return Err("indexed extraction roles disagree with current discovery".into());
+        }
+    }
     let current_observation = analyze(request.clone(), sdk.clone())?;
     let current = batch::build(request, &sdk, &current_observation)?;
     let _receipt = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
@@ -334,6 +356,22 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             Ok(path.to_string())
         })
         .collect::<Result<Vec<_>, String>>()?;
+    broad_request.roles = broad["files"]
+        .as_array()
+        .ok_or("broad sources missing")?
+        .iter()
+        .filter(|file| {
+            file["role"] == "test"
+                && matches!(file["language"].as_str(), Some("typescript" | "javascript"))
+        })
+        .filter_map(|file| file["relPath"].as_str())
+        .filter(|relative| {
+            ![".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|extension| relative.ends_with(extension))
+        })
+        .map(|relative| (relative.to_string(), "test".to_string()))
+        .collect();
     let broad_observation = analyze(broad_request.clone(), sdk.clone())?;
     if batch::input_manifest(request, &sdk)? != batch::input_manifest(&broad_request, &sdk)? {
         return Err("broad and selected analysis consumed different inputs".into());
