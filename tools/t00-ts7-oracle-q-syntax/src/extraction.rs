@@ -11,11 +11,11 @@ use ts_goport::{
     scanner_util,
 };
 
-fn function_value(node: Node) -> bool {
-    matches!(node.kind(), K::ArrowFunction | K::FunctionExpression)
+pub(crate) fn function_value(node: Node) -> bool {
+    node.is_some() && matches!(node.kind(), K::ArrowFunction | K::FunctionExpression)
 }
 
-fn owner_name(node: Node) -> Option<String> {
+pub(crate) fn owner_name(node: Node) -> Option<String> {
     match node.kind() {
         K::FunctionDeclaration | K::ClassDeclaration => {
             if !node.name().is_nil() {
@@ -37,7 +37,7 @@ fn owner_name(node: Node) -> Option<String> {
     }
 }
 
-fn scope(node: Node, interfaces: bool) -> Vec<String> {
+pub(crate) fn scope(node: Node, interfaces: bool) -> Vec<String> {
     let mut names = Vec::new();
     let mut parent = node.parent();
     while !parent.is_nil() {
@@ -55,7 +55,7 @@ fn scope(node: Node, interfaces: bool) -> Vec<String> {
     names
 }
 
-fn unwrap(mut node: Node) -> Node {
+pub(crate) fn unwrap(mut node: Node) -> Node {
     while matches!(
         node.kind(),
         K::ParenthesizedExpression
@@ -69,7 +69,7 @@ fn unwrap(mut node: Node) -> Node {
     node
 }
 
-fn object_member_ancestor(node: Node) -> bool {
+pub(crate) fn object_member_ancestor(node: Node) -> bool {
     let mut ancestor = node.parent();
     while !ancestor.is_nil() {
         if matches!(
@@ -102,7 +102,7 @@ fn object_member_ancestor(node: Node) -> bool {
     false
 }
 
-fn line(source: Node, position: i32) -> i32 {
+pub(crate) fn line(source: Node, position: i32) -> i32 {
     scanner_util::get_ecma_line_and_utf16_character_of_position(source, position).0 + 1
 }
 
@@ -115,7 +115,7 @@ fn doc(text: &str, node: Node) -> Option<String> {
         .map(str::to_string)
 }
 
-fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Value> {
+pub(crate) fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Value> {
     let (kind, name, start_node) = match node.kind() {
         K::FunctionDeclaration => ("function", owner_name(node)?, node),
         K::ClassDeclaration => ("class", owner_name(node)?, node),
@@ -148,7 +148,7 @@ fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Val
     Some(result)
 }
 
-fn import_names(node: Node) -> Vec<String> {
+pub(crate) fn import_names(node: Node) -> Vec<String> {
     let clause = node.import_clause();
     if clause.is_nil() || clause.is_type_only() {
         return vec![];
