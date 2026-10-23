@@ -86,10 +86,10 @@ fn explicit_query_refuses_ambiguous_or_unconfined_capture_and_foreign_sdk() {
         assert!(observed.get("resolved_relative_path").is_none());
     }
     let mut foreign = sdk();
-    foreign.version = "7.1.0-dev".into();
+    foreign.version = "foreign-version".into();
     assert_eq!(run(original.clone(), &foreign)["executed"], false);
     let mut foreign = sdk();
-    foreign.archive_sha256 = "wrong".into();
+    foreign.library_manifest_sha256 = "wrong".into();
     assert_eq!(run(original.clone(), &foreign)["executed"], false);
     let mut foreign = sdk();
     foreign.files.clear();

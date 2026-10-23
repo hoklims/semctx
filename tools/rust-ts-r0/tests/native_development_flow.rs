@@ -457,7 +457,7 @@ fn assert_input_provenance(request: &Value, sdk: &Value, batch: &wire::Batch) ->
         })
         .cloned()
         .collect::<Vec<_>>();
-    json!({"successful_read_paths":consumed,"sdk_read_paths":sdk_reads,"supplied_sdk_files":sdk["files"].as_object().unwrap().len(),"observations":batch.input_observations.len(),"claim":"Native reported captured-Fs observations joined to supplied bytes; no all100-consumed, OS sandbox or coherent acquisition claim."})
+    json!({"successful_read_paths":consumed,"sdk_read_paths":sdk_reads,"supplied_sdk_files":sdk["files"].as_object().unwrap().len(),"observations":batch.input_observations.len(),"claim":"Native reported captured-Fs observations joined to supplied bytes; no all-libraries-consumed, OS sandbox or coherent acquisition claim."})
 }
 
 fn coherent_payload_poisons(
@@ -948,10 +948,10 @@ fn run_native_fixture(target_index: usize) {
         .map(PathBuf::from)
         .unwrap_or_else(|| crate_root.join("sdk/sdk-input.json"));
     let sdk: Value = serde_json::from_slice(&fs::read(&sdk_path).unwrap()).unwrap();
-    assert_eq!(sdk["version"], "5.9.3");
+    assert_eq!(sdk["version"], "7.1.0-dev");
     assert_eq!(
-        sdk["archive_sha256"],
-        "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+        sdk["library_manifest_sha256"],
+        "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
     );
     let options = json!({"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false});
     for (index, case) in fixtures["cases"].as_array().unwrap().iter().enumerate() {
@@ -1246,11 +1246,21 @@ fn retained_native_boundary(mode: &str) {
             assert_eq!(observed["unsupported"], json!([]));
             assert_eq!(
                 observed["native_analysis"]["subjects"][0]["capabilityScope"],
-                json!({"language":"typescript","dialectVersion":ts_goport::core::version()})
-            );
-            assert_ne!(
-                observed["native_analysis"]["subjects"][0]["capabilityScope"]["dialectVersion"],
-                sdk["version"]
+                json!({
+                    "language":"typescript",
+                    "dialectVersion":ts_goport::core::version(),
+                    "compilerIdentity":{
+                        "version":ts_goport::core::version(),
+                        "sourceRevision":"780dc512d64f40afebffa6a7028207649fb7ed1c"
+                    },
+                    "sdkIdentity":{
+                        "version":sdk["version"],
+                        "sourceRevision":sdk["source_revision"],
+                        "libraryManifestSha256":sdk["library_manifest_sha256"],
+                        "inventoryValidated":true,
+                        "allLibrariesConsumptionProven":false
+                    }
+                })
             );
             assert_eq!(
                 observed["native_analysis"]["raw_extraction"]["modules"],

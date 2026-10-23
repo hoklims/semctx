@@ -9,24 +9,33 @@
     "native_runtime": "Rust; SDK JS was a development oracle and is not invoked by this candidate"
   },
   "sdk": {
-    "package": "typescript",
-    "version": "5.9.3",
-    "archive_sha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
-    "descriptor_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
-    "libraries": 100,
-    "published_bytes_comparison": "All100 text payloads matched the frozen published SDK manifest before first native query. This is not a claim that all100 were consumed.",
+    "version": "7.1.0-dev",
+    "source_repository": "https://github.com/pingdotgg/ts-rust",
+    "source_revision": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "source_path": "crates/ts_goport/libs",
+    "library_manifest": {
+      "path": "sdk/library-manifest.json",
+      "bytes": 16871,
+      "sha256": "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+    },
+    "descriptor_sha256": "11a59ed615b5245c83aa8563bf4d820c9a98c6c7845b9879c0a382e07707b160",
+    "libraries": 115,
+    "library_bytes": 3861561,
+    "source_bytes_comparison": "All 115 library payloads match the pinned source and TS7 oracle manifest byte for byte. Inventory and content validation do not establish consumption of every library.",
     "notices": [
       {
         "path": "sdk/LICENSE.txt",
-        "published_sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47",
+        "source_path": "licenses/TypeScript-LICENSE.txt",
+        "source_sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47",
         "stored_sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
-        "transformation": "CRLF\u2192LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+        "transformation": "CRLF→LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
       },
       {
         "path": "sdk/ThirdPartyNoticeText.txt",
-        "published_sha256": "1af3c68039c57e539422da82a4faada506ce6d0ea6f90e0b699d02dbcdb7a90c",
-        "stored_sha256": "f7d7409c091d9d5c09a8bafbc4a27dc30ce2da6e19b7c0f91c59754a7c4b195b",
-        "transformation": "CRLF\u2192LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+        "source_path": "licenses/TypeScript-NOTICE.txt",
+        "source_sha256": "317cd4d9d8a4de4971222bd232bc45c010424bf0dae61be830e49532e62e4d33",
+        "stored_sha256": "e913e58502e5c4a029ab7a964bc653860beb83b2537201595369777f914f2ca4",
+        "transformation": "CRLF→LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
       }
     ]
   },
@@ -41,7 +50,7 @@
   "limits": [
     "DEV evidence only at this checkpoint",
     "No complete frozen qualification or reserved execution",
-    "Native Linux and Windows execution pending",
+    "Cross-platform qualification remains pending; native Windows execution is outside this lot",
     "Receiver supplied freshness state is a controlled private proof boundary, not full indexing acquisition",
     "Input observations need independent comparison with captured bytes; descriptor labels alone establish no SDK authenticity"
   ]

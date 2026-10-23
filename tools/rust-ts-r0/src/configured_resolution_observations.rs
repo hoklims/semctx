@@ -31,10 +31,7 @@ fn capture(request: &Request, sdk: &Sdk) -> Result<Rc<CaptureFs>, String> {
             return Err(format!("captured SDK requires {variable}=0"));
         }
     }
-    if sdk.version != "5.9.3"
-        || sdk.archive_sha256 != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
-        || sdk.files.is_empty()
-    {
+    if !sdk.matches_reference() || sdk.files.is_empty() {
         return Err("CONFIGURED_QUERY_FOREIGN_OR_EMPTY_SDK".into());
     }
     if request.files.is_empty()

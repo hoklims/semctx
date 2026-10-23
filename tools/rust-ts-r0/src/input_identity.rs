@@ -46,7 +46,7 @@ pub fn input(request: &Request, sdk: &Sdk) -> Result<Value, String> {
     }
     files.sort_by_key(identity::canonical_json);
     Ok(
-        json!({"domain":"T00-logical-input-v2","project":project,"sdk":{"domain":"T00-logical-sdk-v2","version":sdk.version,"archive_sha256":sdk.archive_sha256,"files":files}}),
+        json!({"domain":"T00-logical-input-v3","project":project,"sdk":{"domain":"T00-logical-sdk-v3","version":sdk.version,"source_revision":sdk.source_revision,"library_manifest_sha256":sdk.library_manifest_sha256,"files":files}}),
     )
 }
 pub fn capture(request: &Request) -> Result<Value, String> {
