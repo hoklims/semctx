@@ -32,6 +32,16 @@ export function selectShard<T extends { index: number }>(rows: T[], shard = "1/1
   return rows.toSorted((a, b) => a.index - b.index).filter((_, position) => position % count === index - 1);
 }
 
+export function selectIndices<T extends { index: number }>(rows: T[], range?: string): T[] {
+  if (range === undefined) return rows;
+  const match = /^(\d+)-(\d+)$/.exec(range);
+  if (!match) throw Error("INVALID_INDICES: expected first-last");
+  const first = Number(match[1]), last = Number(match[2]);
+  const selected = rows.filter(row => row.index >= first && row.index <= last);
+  if (!Number.isSafeInteger(last) || first > last || selected.length === 0 || selected.length !== last - first + 1 || new Set(selected.map(row => row.index)).size !== selected.length) throw Error("INVALID_INDICES: range must name existing obligations exactly once");
+  return selected;
+}
+
 export function verifyArtifact(value: unknown): Artifact {
   const input = record(value);
   if (typeof input["path"] !== "string" || !isAbsolute(input["path"]) || typeof input["sha256"] !== "string" || !/^[a-f0-9]{64}$/.test(input["sha256"])) throw Error("INVALID_ARTIFACT");

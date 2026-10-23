@@ -4,7 +4,15 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { selectShard, verifyArtifact, compareReasons, semanticObservation, verifyProducerCompletion } from "./t00-ts7-q-semantic-core";
+import { selectIndices, selectShard, verifyArtifact, compareReasons, semanticObservation, verifyProducerCompletion } from "./t00-ts7-q-semantic-core";
+
+test("bounded repetition selects only existing obligations and rejects gaps or duplicate indices", () => {
+  const rows = [{ index: 49 }, { index: 50 }, { index: 51 }];
+  expect(selectIndices(rows, "50-51")).toEqual(rows.slice(1));
+  expect(selectIndices(rows)).toEqual(rows);
+  for (const range of ["50-52", "51-50", "50", "-1-50", "0-9007199254740992"]) expect(() => selectIndices(rows, range)).toThrow("INVALID_INDICES");
+  expect(() => selectIndices([{ index: 50 }, { index: 50 }], "50-51")).toThrow("INVALID_INDICES");
+});
 
 test("shards partition obligations deterministically without omissions", () => {
   const rows = [{ index: 49 }, { index: 50 }, { index: 51 }, { index: 52 }];
