@@ -45,6 +45,7 @@ impl Repo {
     }
     fn run(&self) -> Output {
         Command::new(env!("CARGO_BIN_EXE_semctx-gates"))
+            .env("CARGO_TARGET_DIR", self.root.join("target"))
             .arg("rust-test")
             .arg("--root")
             .arg(&self.root)
