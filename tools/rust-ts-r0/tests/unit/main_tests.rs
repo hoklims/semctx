@@ -2656,3 +2656,125 @@ fn analyzed_capability_distinguishes_compiler_and_sdk_content_identity() {
     assert_eq!(scope["sdkIdentity"]["inventoryValidated"], true);
     assert_eq!(scope["sdkIdentity"]["allLibrariesConsumptionProven"], false);
 }
+
+#[test]
+fn loaded_module_partition_resolves_typescript_require_in_commonjs_mode() {
+    for (source, connected) in [
+        (
+            "const value = require('./cjs'); export { value };",
+            Some("cjs.ts"),
+        ),
+        (
+            "const value = require('#choice'); export { value };",
+            Some("cjs.ts"),
+        ),
+        ("export { value } from '#choice';", Some("esm.ts")),
+        (
+            "const path = './cjs'; require(path); object.require('./cjs'); require('./absent'); export {};",
+            None,
+        ),
+    ] {
+        let mut request = component_request("requirePartitionDev", "/repo/source.ts", source);
+        request.retained = false;
+        request
+            .roots
+            .extend(["/repo/cjs.ts".into(), "/repo/esm.ts".into()]);
+        request.files.extend([
+            ("/repo/cjs.ts".into(), "export const value = 1;".into()),
+            ("/repo/esm.ts".into(), "export const value = 2;".into()),
+            ("/repo/package.json".into(), r##"{"type":"module","imports":{"#choice":{"import":"./esm.ts","require":"./cjs.ts"}}}"##.into()),
+        ]);
+        let observed = analyze(request, component_sdk()).unwrap();
+        let partition = &observed["partitionObservation"];
+        assert_eq!(partition["executed"], true, "{partition}");
+        let expected = match connected {
+            Some("cjs.ts") => serde_json::json!([["cjs.ts", "source.ts"], ["esm.ts"]]),
+            Some("esm.ts") => serde_json::json!([["cjs.ts"], ["esm.ts", "source.ts"]]),
+            _ => serde_json::json!([["cjs.ts"], ["esm.ts"], ["source.ts"]]),
+        };
+        assert_eq!(partition["dependencyComponents"], expected, "{source}");
+        let targets = partition["resolvedEdges"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|edge| edge["to"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            targets,
+            connected.into_iter().collect::<Vec<_>>(),
+            "{source}"
+        );
+    }
+}
+
+#[test]
+fn loaded_module_partition_refuses_require_when_resolver_is_unavailable() {
+    let fs = Rc::new(CaptureFs::new(
+        BTreeMap::from([(
+            "/repo/a.ts".into(),
+            "require('./missing'); export {};".into(),
+        )]),
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    ));
+    let mut options = compiler_options();
+    options.no_lib = Tristate::True;
+    let mut frontend = native_frontend_with_options(
+        fs.clone(),
+        "/repo",
+        "/sdk/lib",
+        vec!["/repo/a.ts".into()],
+        false,
+        options,
+    );
+    Rc::get_mut(&mut frontend.program)
+        .unwrap()
+        .processed_files
+        .resolver = None;
+    let _current = native_program::NativeProgram::enter(&frontend.program);
+    program::bind_all();
+    let observed =
+        partition_observations::observe(&frontend.program, &fs, "/repo", &["/repo/a.ts".into()]);
+    assert_eq!(observed["executed"], false);
+    assert_eq!(
+        observed["unsupported"],
+        serde_json::json!(["PARTITION_MODULE_RESOLVER_UNAVAILABLE"])
+    );
+    assert!(observed.get("dependencyComponents").is_none());
+}
+
+#[test]
+fn loaded_module_partition_reports_late_require_resolution_errors() {
+    let fs = Rc::new(CaptureFs::new(
+        BTreeMap::from([
+            (
+                "/repo/a.ts".into(),
+                "require('./target'); export {};".into(),
+            ),
+            ("/repo/target.ts".into(), "export const value = 1;".into()),
+        ]),
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    ));
+    let mut options = compiler_options();
+    options.no_lib = Tristate::True;
+    let frontend = native_frontend_with_options(
+        fs.clone(),
+        "/resolver-root",
+        "/sdk/lib",
+        vec!["/repo/a.ts".into()],
+        true,
+        options,
+    );
+    assert!(frontend.program.module_resolution_error.is_none());
+    let _current = native_program::NativeProgram::enter(&frontend.program);
+    program::bind_all();
+    let observed =
+        partition_observations::observe(&frontend.program, &fs, "/repo", &["/repo/a.ts".into()]);
+    assert_eq!(observed["executed"], false, "{observed}");
+    assert!(
+        observed["unsupported"][0]
+            .as_str()
+            .unwrap()
+            .starts_with("PARTITION_MODULE_RESOLUTION_ERROR:")
+    );
+    assert!(observed.get("dependencyComponents").is_none());
+}

@@ -1,5 +1,20 @@
 use super::*;
 
+fn require_specifiers(node: core::Node, literals: &mut Vec<core::Node>) {
+    if node.kind() == SyntaxKind::CallExpression
+        && node.expression().kind() == SyntaxKind::Identifier
+        && node.expression().text() == "require"
+        && !node.arguments().is_empty()
+        && ast::is_string_literal_like(node.arguments().get(0))
+    {
+        literals.push(node.arguments().get(0));
+    }
+    node.for_each_child(|child| {
+        require_specifiers(child, literals);
+        false
+    });
+}
+
 fn components(
     frontend: &compiler::NewProgram,
     fs: &CaptureFs,
@@ -50,6 +65,7 @@ fn components(
         .collect::<BTreeMap<_, BTreeSet<String>>>();
     let mut edges = BTreeSet::new();
     for (from, (relative, source)) in &loaded {
+        let mut links = Vec::new();
         for literal in &source.imports {
             if literal.is_nil() || !ast::is_string_literal_like(*literal) {
                 return Err("PARTITION_NATIVE_MODULE_SPECIFIER_UNAVAILABLE".into());
@@ -60,17 +76,43 @@ fn components(
             else {
                 continue;
             };
-            let target = fs.key(&resolved.resolved_file_name);
+            links.push((
+                literal.text().to_owned(),
+                resolved.resolved_file_name.clone(),
+            ));
+        }
+        let mut requires = Vec::new();
+        require_specifiers(source.root, &mut requires);
+        for literal in requires {
+            let resolver = frontend
+                .resolver
+                .as_ref()
+                .ok_or("PARTITION_MODULE_RESOLVER_UNAVAILABLE")?;
+            let (resolved, _trace, error) = resolver.resolve_module_name(
+                literal.text(),
+                ast::source_file_file_name(source.root),
+                ModuleKind::COMMON_JS,
+                None,
+            );
+            if let Some(error) = error {
+                return Err(format!("PARTITION_MODULE_RESOLUTION_ERROR:{error}"));
+            }
+            if let Some(resolved) = resolved.filter(|target| !target.resolved_file_name.is_empty())
+            {
+                links.push((
+                    literal.text().to_owned(),
+                    resolved.resolved_file_name.clone(),
+                ));
+            }
+        }
+        for (specifier, resolved_path) in links {
+            let target = fs.key(&resolved_path);
             let Some((target_relative, _)) = loaded.get(&target) else {
                 continue;
             };
             adjacent.get_mut(from).unwrap().insert(target.clone());
             adjacent.get_mut(&target).unwrap().insert(from.clone());
-            edges.insert((
-                relative.clone(),
-                literal.text().to_owned(),
-                target_relative.clone(),
-            ));
+            edges.insert((relative.clone(), specifier, target_relative.clone()));
         }
     }
     let mut visited = BTreeSet::new();
