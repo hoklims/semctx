@@ -95,12 +95,26 @@ pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> 
     observed(reasons.into_iter().collect(), BTreeSet::new())
 }
 
+pub struct RetainedImportScope {
+    pub unresolved_import_reasons: BTreeMap<String, BTreeSet<Vec<u16>>>,
+    pub external_module_specifiers: Vec<String>,
+}
+
 pub fn unresolved_import_reasons(
     imports: &[ordinary::Import],
     files: &BTreeMap<String, String>,
     root: &str,
     sensitive: bool,
 ) -> Result<BTreeMap<String, BTreeSet<Vec<u16>>>, String> {
+    Ok(retained_import_scope(imports, files, root, sensitive)?.unresolved_import_reasons)
+}
+
+pub fn retained_import_scope(
+    imports: &[ordinary::Import],
+    files: &BTreeMap<String, String>,
+    root: &str,
+    sensitive: bool,
+) -> Result<RetainedImportScope, String> {
     let mut workspace_names = BTreeSet::new();
     let mut external_packages = BTreeMap::new();
     let mut aliases = vec![];
@@ -139,12 +153,11 @@ pub fn unresolved_import_reasons(
         aliases.extend(manifest.aliases);
     }
     let mut reasons: BTreeMap<String, BTreeSet<Vec<u16>>> = BTreeMap::new();
-    for import in imports
-        .iter()
-        .filter(|import| import.resolved_rel_path.is_none())
-    {
+    let mut external_module_specifiers = BTreeSet::new();
+    for import in imports {
         let specifier = &import.module_specifier;
         if builtins.contains(specifier.as_str()) {
+            external_module_specifiers.insert(specifier.clone());
             continue;
         }
         let local_path = specifier.starts_with('.') || specifier.starts_with('/');
@@ -176,7 +189,9 @@ pub fn unresolved_import_reasons(
                 directory = parent;
             }
         }
-        if !external {
+        if external {
+            external_module_specifiers.insert(specifier.clone());
+        } else if import.resolved_rel_path.is_none() {
             let mut reason = format!(
                 "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:{}:",
                 import.from_rel_path
@@ -190,7 +205,12 @@ pub fn unresolved_import_reasons(
                 .insert(reason);
         }
     }
-    Ok(reasons)
+    let mut external_module_specifiers = external_module_specifiers.into_iter().collect::<Vec<_>>();
+    external_module_specifiers.sort_by_key(|specifier| source_text::to_units(specifier));
+    Ok(RetainedImportScope {
+        unresolved_import_reasons: reasons,
+        external_module_specifiers,
+    })
 }
 
 pub fn ordinary_module_configuration(

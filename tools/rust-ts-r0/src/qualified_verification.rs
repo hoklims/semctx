@@ -338,25 +338,19 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     if batch::input_manifest(request, &sdk)? != batch::input_manifest(&broad_request, &sdk)? {
         return Err("broad and selected analysis consumed different inputs".into());
     }
+    let imports: Vec<ordinary::Import> =
+        serde_json::from_value(broad_observation["raw_extraction"]["imports"].clone())
+            .map_err(|error| format!("native broad imports invalid: {error}"))?;
+    let import_scope = component_observations::retained_import_scope(
+        &imports,
+        &broad_request.files,
+        &request.cwd,
+        request.case_sensitive,
+    )?;
     let mut links = BTreeSet::new();
-    let mut unresolved = vec![];
-    for import in broad_observation["raw_extraction"]["imports"]
-        .as_array()
-        .ok_or("native broad imports missing")?
-    {
-        let from = import["fromRelPath"]
-            .as_str()
-            .ok_or("native importer missing")?;
-        if let Some(to) = import["resolvedRelPath"].as_str() {
-            links.insert((from.to_string(), to.to_string()));
-        } else {
-            unresolved.push((
-                from.to_string(),
-                import["moduleSpecifier"]
-                    .as_str()
-                    .ok_or("native import specifier missing")?
-                    .to_string(),
-            ));
+    for import in &imports {
+        if let Some(to) = &import.resolved_rel_path {
+            links.insert((import.from_rel_path.clone(), to.clone()));
         }
     }
     let mut expected = diff
@@ -407,9 +401,15 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     if !coverage.iter().any(|c| c["status"] == "analyzed") {
         reasons.push("ZERO_ANALYZED_OBLIGATIONS".into());
     }
-    for (from, specifier) in unresolved {
-        if expected.contains(&from) {
-            reasons.push(format!("UNRESOLVED_IMPORT:{from}:{specifier}"));
+    for (from, diagnostics) in &import_scope.unresolved_import_reasons {
+        if expected.contains(from) {
+            for diagnostic in diagnostics {
+                reasons.push(String::from_utf16_lossy(diagnostic).replacen(
+                    "DEPENDENCY_SCOPE_",
+                    "",
+                    1,
+                ));
+            }
         }
     }
     for subject in broad_observation["subjects"]
@@ -443,8 +443,17 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .as_array()
         .and_then(|v| v.first())
         .ok_or("selected native configuration absent")?;
+    let external = &import_scope.external_module_specifiers;
+    let opaque_limitation = format!(
+        "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): {}. Their runtime behavior and APIs are not qualified.",
+        if external.is_empty() {
+            "none".into()
+        } else {
+            external.join(", ")
+        }
+    );
     Ok(Verification {
-        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
+        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons,"externalModuleSpecifiers":external,"limitations":[opaque_limitation]},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
         admission,
     })
 }
