@@ -69,7 +69,7 @@ function observe(witness: SemanticWitness, label: string, files: Record<string, 
   }));
   const roots = Object.keys(absoluteFiles).filter(path => /\.[cm]?[jt]sx?$/.test(path)).sort();
   const compilerOptions = { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, jsx: "Preserve", skipLibCheck: true, noEmit: true, strict: false };
-  const request = { id: witness.id + ":" + label, cwd: "/project", sdk_directory: "/sdk/lib", case_sensitive: true, roots, files: absoluteFiles, options: compilerOptions, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {} };
+  const request = { id: witness.id + ":" + label, cwd: "/project", sdk_directory: "/sdk/lib", case_sensitive: process.platform !== "darwin", roots, files: absoluteFiles, options: compilerOptions, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {} };
   const evidence = [save(resolve(directory, "producer-request.json"), request), save(resolve(directory, "oracle-request.json"), { files: absoluteFiles, roots })];
   const oracle = invoke([artifacts["semanticOracle"]!.path, evidence[1]!.path, artifacts["sdk"]!.path]);
   const producer = invoke([artifacts["producer"]!.path, evidence[0]!.path, artifacts["sdk"]!.path]);
