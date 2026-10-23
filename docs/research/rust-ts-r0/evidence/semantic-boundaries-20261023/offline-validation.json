@@ -1,0 +1,83 @@
+{
+  "R0_decision": null,
+  "all_non_source_scope_fields_equal": true,
+  "check_definitions": 590,
+  "frozen_case_files": 1386,
+  "frozen_counts": {
+    "properties": 395,
+    "rows": 446,
+    "supports": 51
+  },
+  "identical_native_windows_source_members": 139,
+  "kind": "ACTUAL_OFFLINE_PACKAGE_SOURCE_AND_PUBLIC_CORPUS_PREFLIGHT_ONLY",
+  "native_queries": 0,
+  "packages": {
+    "current_native": {
+      "all_python_code_identical_to_predecessor": true,
+      "manifest": {
+        "bytes": 2297,
+        "sha256": "9945c60ea1a52cd441ba36d6f09ed12468bf2f2146fb9e1c2d9db7691b46a107"
+      },
+      "members": 16,
+      "zip": {
+        "bytes": 417098,
+        "sha256": "2d6a8da39d81487de84f25eed62e373f5224abb0957adf6621f46f8961ad2781"
+      }
+    },
+    "current_windows": {
+      "all_python_code_identical_to_predecessor": true,
+      "manifest": {
+        "bytes": 3117,
+        "sha256": "fbdb6a497b623ef7c27a271e3ad8d448887f72507d395e9205b02c0601ddbeb7"
+      },
+      "members": 22,
+      "zip": {
+        "bytes": 432269,
+        "sha256": "c44d2fd2028be3ec0509b6d9663e700a4dc856e177e63e5acfc3fe60c6618f31"
+      }
+    }
+  },
+  "preflights": [
+    {
+      "actual_exit_code": 0,
+      "actual_exit_observation": "ROOT unified exec completion chunk 83c4ae",
+      "stdout": {
+        "bytes": 25677,
+        "sha256": "180e60f54d5829a5d65714b3c5a06753c42b6a654ab7b05be8bddd37b09c34ce"
+      },
+      "variant": "native"
+    },
+    {
+      "actual_exit_code": 0,
+      "actual_exit_observation": "ROOT unified exec completion chunk c93cc2",
+      "stdout": {
+        "bytes": 25678,
+        "sha256": "049c8e501171df82ffb4ce8984ae414de9d5ecad7741ced9385055f18476da3b"
+      },
+      "variant": "windows"
+    }
+  ],
+  "qualification_credit": 0,
+  "scope_map_sha256": "23109f8f6c8b609a8111f8bc7ba2c55bccf8559b9282c3acc409aa632b39f1c4",
+  "source_delta_paths": [
+    "tools/rust-ts-r0/src/main.rs",
+    "tools/rust-ts-r0/src/qualified.rs",
+    "tools/rust-ts-r0/src/qualified_verification.rs",
+    "tools/rust-ts-r0/src/retained_scope.rs",
+    "tools/rust-ts-r0/tests/native_qualified_flow.rs",
+    "tools/rust-ts-r0/tests/unit/main_pass2_javascript.rs",
+    "tools/rust-ts-r0/tests/unit/main_tests.rs",
+    "tools/rust-ts-r0/tests/unit/qualified.rs"
+  ],
+  "source_freeze_receipt": {
+    "bytes": 5552,
+    "sha256": "03b7af9706e77685f139f581defb3682b51310a5511f81bf5a074fb303baae04"
+  },
+  "source_head": "1fd566c87718f576e35816a4361eebb8bb28eb58",
+  "unchanged_source_pins": 131,
+  "windows_package_verification": {
+    "actual_exit_code": 0,
+    "actual_exit_observation": "ROOT unified exec completion chunk 2cfb1b"
+  },
+  "windows_protocol_sha256": "7821619b79557ab28e382c36e4aca9feb620d44601e84929f03728fbedacda3f"
+}
