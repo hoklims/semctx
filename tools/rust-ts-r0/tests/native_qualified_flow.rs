@@ -17,6 +17,66 @@ fn invoke(argv: Vec<String>, root: &Path, helper: &Path, evidence: &Path) -> pro
     outcome
 }
 
+fn assert_refusal_tampering_rejected(
+    descriptor: &Value,
+    indexed_stdout: &str,
+    argv: &[String],
+    root: &Path,
+    helper: &Path,
+    dir: &Path,
+) {
+    for variant in [
+        "reason",
+        "terminal",
+        "facts",
+        "identity",
+        "incomplete",
+        "transport",
+        "truncated",
+    ] {
+        let mut changed = descriptor.clone();
+        let mut batch: Value = serde_json::from_str(indexed_stdout).unwrap();
+        match variant {
+            "reason" => {
+                batch["diagnostics"][0]["code"] = json!("FORGED_REASON");
+                batch["diagnostics"][0]["message"] = json!("FORGED_REASON");
+                batch["diagnostics"][0]["code_utf16"] = Value::Null;
+                batch["diagnostics"][0]["message_utf16"] = Value::Null;
+            }
+            "terminal" => batch["terminal"] = json!("complete"),
+            "facts" => {
+                batch["facts"].as_array_mut().unwrap().remove(0);
+            }
+            "identity" => batch["request_id"] = json!("foreign-request"),
+            "incomplete" => batch["complete"] = json!(false),
+            _ => {}
+        }
+        let stdout = serde_json::to_string(&batch).unwrap();
+        changed["index"]["outcome"]["stdout_bytes"] = json!(stdout.len());
+        changed["index"]["outcome"]["stdout_hash"] =
+            json!(identity::digest_bytes(stdout.as_bytes()).trim_start_matches("sha256:"));
+        changed["index"]["outcome"]["stdout"] = json!(stdout);
+        if variant == "transport" {
+            changed["index"]["outcome"]["exit_code"] = json!(1);
+        }
+        if variant == "truncated" {
+            changed["index"]["outcome"]["stdout_bytes"] = json!(1);
+        }
+        let path = dir.join(format!("refused-{variant}-descriptor.json"));
+        fs::write(&path, serde_json::to_vec_pretty(&changed).unwrap()).unwrap();
+        let mut bad_argv = argv.to_vec();
+        bad_argv[3] = path.to_string_lossy().into_owned();
+        let failed = invoke(
+            bad_argv,
+            root,
+            helper,
+            &dir.join(format!("refused-{variant}-invocation.json")),
+        );
+        assert_eq!(failed.exit_code, Some(1), "{variant}: {failed:?}");
+        assert!(failed.stdout.is_empty(), "{variant}: {failed:?}");
+    }
+}
+
 #[test]
 fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_none() {
     let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -311,7 +371,6 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                 ),
                 "{indexed}"
             );
-            continue;
         }
         if matches!(
             label,
@@ -327,15 +386,35 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
             continue;
         }
-        if label == "undeclared-external-control" {
-            assert_eq!(actual.exit_code, Some(1), "{actual:?}");
-            assert!(actual.stdout.is_empty(), "{actual:?}");
+        if matches!(label, "literal-test" | "undeclared-external-control") {
+            assert_eq!(actual.exit_code, Some(3), "{label}: {actual:?}");
+            assert!(actual.stderr.is_empty(), "{actual:?}");
+            let report: Value = serde_json::from_str(&actual.stdout).unwrap();
+            assert_eq!(report["analysisAdmission"]["status"], "rejected");
+            assert_eq!(report["verdict"], "BLOCK");
+            assert_eq!(report["indexed_extraction_received"], true);
+            let reason = if label == "literal-test" {
+                "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"
+            } else {
+                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/selected.ts:optional"
+            };
             assert!(
-                actual
-                    .stderr
-                    .contains("indexed extraction rejected: UnexpectedOutcome"),
-                "{actual:?}"
+                report["analysisAdmission"]["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(reason)),
+                "{report}"
             );
+            if label == "undeclared-external-control" {
+                assert_refusal_tampering_rejected(
+                    &descriptor,
+                    &index.stdout,
+                    &argv,
+                    &root,
+                    &helper,
+                    &dir,
+                );
+            }
             continue;
         }
         if label.ends_with("nearest-config") {
@@ -360,6 +439,8 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                         && sensitive
                     {
                         0
+                    } else if label.starts_with("included") {
+                        3
                     } else {
                         1
                     }
@@ -371,6 +452,11 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             if actual.exit_code == Some(0) {
                 let report: Value = serde_json::from_str(&actual.stdout).unwrap();
                 assert_eq!(report["analysisAdmission"]["status"], "admitted");
+            } else if actual.exit_code == Some(3) {
+                let report: Value = serde_json::from_str(&actual.stdout).unwrap();
+                assert_eq!(report["analysisAdmission"]["status"], "rejected");
+                assert_eq!(report["verdict"], "BLOCK");
+                assert!(actual.stderr.is_empty());
             } else {
                 assert!(actual.stdout.is_empty());
             }
@@ -494,6 +580,18 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                 json!(identity::digest_bytes(stdout.as_bytes()).trim_start_matches("sha256:"));
             wrong_facts["index"]["outcome"]["stdout"] = json!(stdout);
             variants.push(("substituted-facts".into(), wrong_facts));
+            let mut forged_refusal = descriptor.clone();
+            let mut batch: Value = serde_json::from_str(&index.stdout).unwrap();
+            batch["terminal"] = json!("refused");
+            batch["subjects"][0]["outcome"] = json!("unsupported");
+            batch["subjects"][0]["coverage"] = json!([]);
+            batch["diagnostics"] = json!([{"subject_id":"src/selected.ts","code":"FORGED_REASON","message":"FORGED_REASON"}]);
+            let stdout = serde_json::to_string(&batch).unwrap();
+            forged_refusal["index"]["outcome"]["stdout_bytes"] = json!(stdout.len());
+            forged_refusal["index"]["outcome"]["stdout_hash"] =
+                json!(identity::digest_bytes(stdout.as_bytes()).trim_start_matches("sha256:"));
+            forged_refusal["index"]["outcome"]["stdout"] = json!(stdout);
+            variants.push(("forged-refusal".into(), forged_refusal));
             for (name, changed) in variants {
                 let path = dir.join(format!("{name}-descriptor.json"));
                 fs::write(&path, serde_json::to_vec_pretty(&changed).unwrap()).unwrap();

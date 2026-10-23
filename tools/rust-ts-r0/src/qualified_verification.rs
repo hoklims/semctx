@@ -1,3 +1,6 @@
+mod base_capture;
+mod base_scope;
+
 use super::*;
 use semctx_gates::process;
 use semctx_r0_probe::receiver::*;
@@ -46,7 +49,7 @@ impl Verification {
 }
 
 fn git(root: &Path, helper: &Path, args: &[&str]) -> Result<process::Outcome, String> {
-    let mut argv = vec!["git".into()];
+    let mut argv = vec!["git".into(), "--no-replace-objects".into()];
     argv.extend(args.iter().map(|s| s.to_string()));
     let outcome = process::run_with_helper(&argv, root, 5_000, 8_388_608, helper)
         .map_err(|e| e.to_string())?;
@@ -82,56 +85,189 @@ fn discovery(
     Ok(observed)
 }
 
+struct GitSnapshot<'a> {
+    head: &'a process::Outcome,
+    diff: &'a process::Outcome,
+    authored: &'a process::Outcome,
+    untracked: &'a process::Outcome,
+    metadata: &'a BTreeSet<String>,
+}
+
+fn revalidate_git(
+    root: &Path,
+    spec: &Descriptor,
+    snapshot: &GitSnapshot<'_>,
+) -> Result<(), String> {
+    if git(
+        root,
+        &spec.process_helper,
+        &["rev-parse", "--verify", "HEAD"],
+    )?
+    .stdout
+        != snapshot.head.stdout
+    {
+        return Err("qualified Git commit changed during verification".into());
+    }
+    for (args, before) in [
+        (
+            &["diff", "--name-only", "-z", &spec.index.base_commit, "--"][..],
+            snapshot.diff,
+        ),
+        (&["ls-files", "--cached", "-z", "--"][..], snapshot.authored),
+        (
+            &["ls-files", "--others", "--exclude-standard", "-z"][..],
+            snapshot.untracked,
+        ),
+    ] {
+        if git(root, &spec.process_helper, args)?.stdout != before.stdout {
+            return Err("qualified Git scope changed during verification".into());
+        }
+    }
+    if qualified_path_eligibility::metadata(root)?.0 != *snapshot.metadata {
+        return Err("qualified configuration inventory changed during verification".into());
+    }
+    Ok(())
+}
+
+fn owned_paths(context: &OwnershipContext<'_>) -> Result<BTreeSet<String>, String> {
+    Ok(context.graph()["nodes"]
+        .as_array()
+        .ok_or("qualified graph node inventory missing")?
+        .iter()
+        .filter(|node| matches!(node["kind"].as_str(), Some("module" | "test")))
+        .filter_map(|node| node["filePath"].as_str().map(str::to_string))
+        .collect())
+}
+
+fn removed_base_paths(root: &Path, spec: &Descriptor) -> Result<BTreeSet<String>, String> {
+    let diff = git(
+        root,
+        &spec.process_helper,
+        &[
+            "diff",
+            "--numstat",
+            "--no-renames",
+            "--no-ext-diff",
+            "--no-textconv",
+            "-z",
+            &spec.index.base_commit,
+            "--",
+        ],
+    )?;
+    let mut removed = BTreeSet::new();
+    for record in diff.stdout.split('\0').filter(|record| !record.is_empty()) {
+        let fields = record.splitn(3, '\t').collect::<Vec<_>>();
+        if fields.len() != 3 || fields[2].is_empty() {
+            return Err("invalid immutable base diff statistics".into());
+        }
+        if fields[0] == "-" && fields[1] == "-" {
+            removed.insert(fields[2].to_string());
+            continue;
+        }
+        for value in &fields[..2] {
+            if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+                return Err("invalid immutable base diff statistics".into());
+            }
+        }
+        if fields[1]
+            .parse::<u64>()
+            .map_err(|_| "invalid immutable base removal count")?
+            > 0
+        {
+            removed.insert(fields[2].to_string());
+        }
+    }
+    Ok(removed)
+}
+
+struct ReceivedIndex {
+    receiver: Receiver,
+    receipt: Receipt,
+}
+
+struct Observation {
+    input: Value,
+    capture: Value,
+    graph: Value,
+    snapshot: Value,
+    scope: Value,
+    freshness: Freshness,
+}
+
+impl Observation {
+    fn capture(
+        request: &Request,
+        sdk: &Sdk,
+        indexed: &process::Outcome,
+        current: &wire::Batch,
+    ) -> Result<Self, String> {
+        let input = batch::input_manifest(request, sdk)?;
+        let facts = FactsId::observed_json(
+            &serde_json::to_value(&current.facts).map_err(|e| e.to_string())?,
+        );
+        let input_id = InputId::observed_json(&input);
+        let indexed_batch: wire::Batch =
+            serde_json::from_str(&indexed.stdout).map_err(|e| e.to_string())?;
+        let indexed_facts = FactsId::observed_json(
+            &serde_json::to_value(&indexed_batch.facts).map_err(|e| e.to_string())?,
+        );
+        let same_input = indexed_batch.input_manifest_id == input_id.as_str();
+        Ok(Self {
+            input,
+            capture: batch::capture_manifest(request)?,
+            graph: batch::graph_from_facts(&current.facts),
+            snapshot: batch::snapshot_manifest(request, sdk)?,
+            scope: batch::scope_manifest(request)?,
+            freshness: Freshness {
+                verdict: if facts == indexed_facts && same_input {
+                    FreshnessVerdict::Fresh
+                } else {
+                    FreshnessVerdict::Stale
+                },
+                reasons: vec![],
+                seal: Some(FreshnessSeal {
+                    repository_facts: facts,
+                    indexed_facts,
+                    analysis_input: input_id.clone(),
+                    indexed_input: input_id,
+                }),
+            },
+        })
+    }
+
+    fn state<'a>(
+        &'a self,
+        request: &Request,
+        current: &'a wire::Batch,
+        artifact: &'a [u8],
+    ) -> ObservedState<'a> {
+        ObservedState {
+            artifact_bytes: artifact,
+            input_manifest: &self.input,
+            capture: &self.capture,
+            facts: &current.facts,
+            graph: &self.graph,
+            snapshot: &self.snapshot,
+            scope: &self.scope,
+            profile: batch::profile(request),
+            freshness: &self.freshness,
+            binding_valid: true,
+            build_complete: current.complete,
+            check_changed: false,
+            request_current: true,
+        }
+    }
+}
+
 fn receive_index(
     request: &Request,
     sdk: &Sdk,
     indexed: &process::Outcome,
     current: &wire::Batch,
     artifact: &[u8],
-) -> Result<Receipt, String> {
-    let input = batch::input_manifest(request, sdk)?;
-    let capture = batch::capture_manifest(request)?;
-    let graph = batch::graph_from_facts(&current.facts);
-    let snapshot = batch::snapshot_manifest(request, sdk)?;
-    let scope = batch::scope_manifest(request)?;
-    let facts =
-        FactsId::observed_json(&serde_json::to_value(&current.facts).map_err(|e| e.to_string())?);
-    let input_id = InputId::observed_json(&input);
-    let indexed_batch: wire::Batch =
-        serde_json::from_str(&indexed.stdout).map_err(|e| e.to_string())?;
-    let indexed_facts = FactsId::observed_json(
-        &serde_json::to_value(&indexed_batch.facts).map_err(|e| e.to_string())?,
-    );
-    let same_input = indexed_batch.input_manifest_id == input_id.as_str();
-    let freshness = Freshness {
-        verdict: if facts == indexed_facts && same_input {
-            FreshnessVerdict::Fresh
-        } else {
-            FreshnessVerdict::Stale
-        },
-        reasons: vec![],
-        seal: Some(FreshnessSeal {
-            repository_facts: facts.clone(),
-            indexed_facts,
-            analysis_input: input_id.clone(),
-            indexed_input: input_id,
-        }),
-    };
-    let observed = ObservedState {
-        artifact_bytes: artifact,
-        input_manifest: &input,
-        capture: &capture,
-        facts: &current.facts,
-        graph: &graph,
-        snapshot: &snapshot,
-        scope: &scope,
-        profile: batch::profile(request),
-        freshness: &freshness,
-        binding_valid: true,
-        build_complete: current.complete,
-        check_changed: false,
-        request_current: true,
-    };
+) -> Result<ReceivedIndex, String> {
+    let observation = Observation::capture(request, sdk, indexed, current)?;
+    let observed = observation.state(request, current, artifact);
     let subjects = request
         .roots
         .iter()
@@ -172,7 +308,17 @@ fn receive_index(
         bindings: observed.bindings().map_err(|e| format!("{e:?}"))?,
         profile: batch::profile(request).into(),
         subjects,
-        terminal: ExpectedTerminal::Analyzed,
+        terminal: match current.terminal {
+            wire::Terminal::Complete => ExpectedTerminal::Analyzed,
+            wire::Terminal::Refused => ExpectedTerminal::ControlledRefusal {
+                exit_code: 0,
+                reason_codes: current
+                    .diagnostics
+                    .iter()
+                    .map(wire::Diagnostic::canonical_code)
+                    .collect(),
+            },
+        },
         deadline: Instant::now() + Duration::from_secs(20),
         max_duration_ms: 20_000,
         output_cap: 8_388_608,
@@ -181,10 +327,7 @@ fn receive_index(
     let receipt = receiver
         .receive(indexed, &observed)
         .map_err(|e| format!("indexed extraction rejected: {e:?}"))?;
-    if receipt.disposition() != EvidenceDisposition::Analyzed {
-        return Err("indexed extraction was not analyzed".into());
-    }
-    Ok(receipt)
+    Ok(ReceivedIndex { receiver, receipt })
 }
 
 fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
@@ -240,7 +383,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let diff = git(
         &root,
         &spec.process_helper,
-        &["diff", "--name-only", "-z", "HEAD", "--"],
+        &["diff", "--name-only", "-z", &spec.index.base_commit, "--"],
     )?;
     let status = git(
         &root,
@@ -262,7 +405,14 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         .map(str::to_string)
         .collect::<BTreeSet<_>>();
     let (metadata, _) = qualified_path_eligibility::metadata(&root)?;
-    required_paths.extend(metadata);
+    required_paths.extend(metadata.clone());
+    let git_snapshot = GitSnapshot {
+        head: &head,
+        diff: &diff,
+        authored: &authored,
+        untracked: &status,
+        metadata: &metadata,
+    };
     let path_key = |path: String| {
         if request.case_sensitive {
             path
@@ -347,7 +497,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     }
     let current_observation = analyze(request.clone(), sdk.clone())?;
     let current = batch::build(request, &sdk, &current_observation)?;
-    let _receipt = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
+    let received = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
     let mut broad_request = request.clone();
     broad_request.roots = broad["files"]
         .as_array()
@@ -381,7 +531,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         })
         .map(|relative| (relative.to_string(), "test".to_string()))
         .collect();
-    let broad_observation = analyze(broad_request.clone(), sdk.clone())?;
+    let mut broad_observation = analyze(broad_request.clone(), sdk.clone())?;
     if batch::input_manifest(request, &sdk)? != batch::input_manifest(&broad_request, &sdk)? {
         return Err("broad and selected analysis consumed different inputs".into());
     }
@@ -423,7 +573,50 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let subjects = current_observation["subjects"]
         .as_array()
         .ok_or("native selected subjects missing")?;
-    let mut reasons = vec![];
+    let mut reasons = match received.receipt.disposition() {
+        EvidenceDisposition::Analyzed => vec![],
+        EvidenceDisposition::ControlledRefusal => current
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.code.clone())
+            .collect(),
+    };
+    let ownership_paths = match received.receipt.disposition() {
+        EvidenceDisposition::ControlledRefusal => BTreeSet::new(),
+        EvidenceDisposition::Analyzed => {
+            revalidate_git(&root, &spec, &git_snapshot)?;
+            let mut consumed_request = request.clone();
+            for (path, text) in &mut consumed_request.files {
+                let physical = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
+                if !physical.starts_with(&root) {
+                    return Err("qualified input escaped repository during verification".into());
+                }
+                *text = fs::read_to_string(physical).map_err(|e| e.to_string())?;
+            }
+            let consumed_artifact = fs::read(std::env::current_exe().map_err(|e| e.to_string())?)
+                .map_err(|e| e.to_string())?;
+            let observation =
+                Observation::capture(&consumed_request, &sdk, &spec.index.outcome, &current)?;
+            let state = observation.state(&consumed_request, &current, &consumed_artifact);
+            if git(
+                &root,
+                &spec.process_helper,
+                &["rev-parse", "--verify", "HEAD"],
+            )?
+            .stdout
+                != head.stdout
+            {
+                return Err("qualified Git commit changed during verification".into());
+            }
+            let context = received
+                .receiver
+                .context(Some(&received.receipt), &state)
+                .map_err(|e| format!("indexed ownership rejected: {e:?}"))?;
+            let subjects = scope_received::inspect(&broad_request, &sdk, &context)?;
+            broad_observation["received_subjects"] = json!(subjects);
+            owned_paths(&context)?
+        }
+    };
     let mut coverage = vec![];
     for path in &expected {
         let candidate = candidates.iter().find(|c| c["relPath"] == *path);
@@ -431,7 +624,8 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         let status = match (candidate, subject) {
             (Some(c), _) if c["selectionDecision"] == "excluded" => "excluded",
             (Some(_), Some(s))
-                if s["outcome"] == "analyzed"
+                if ownership_paths.contains(path)
+                    && s["outcome"] == "analyzed"
                     && s["reasons"] == json!([])
                     && s["unimplemented"] == json!([]) =>
             {
@@ -462,6 +656,13 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     for subject in broad_observation["subjects"]
         .as_array()
         .ok_or("broad subject inventory missing")?
+        .iter()
+        .chain(
+            broad_observation["received_subjects"]
+                .as_array()
+                .into_iter()
+                .flatten(),
+        )
     {
         if subject["outcome"] != "analyzed"
             || subject["unimplemented"] != json!([])
@@ -470,14 +671,68 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             reasons.push(format!("DEPENDENCY_SCOPE_UNSUPPORTED:{}", subject["path"]));
         }
     }
+    let base_capture = if reasons.is_empty() {
+        let result = removed_base_paths(&root, &spec).and_then(|removed| {
+            if !removed.is_empty() {
+                let base_obligations = expected.union(&removed).cloned().collect();
+                base_scope::evaluate(&spec, &root, &sdk, &artifact, &base_obligations)
+            } else {
+                Ok(json!({"status":"not_required"}))
+            }
+        });
+        match result {
+            Ok(report) => report,
+            Err(reason) => {
+                reasons.push(format!(
+                    "QUALIFIED_WORKING_TREE_BASE_CAPTURE_UNSUPPORTED:{reason}"
+                ));
+                json!({"status":"unsupported","reason":reason})
+            }
+        }
+    } else {
+        json!({"status":"not_required","reason":"current_admission_rejected"})
+    };
+    revalidate_git(&root, &spec, &git_snapshot)?;
     if identity::digest_bytes(&fs::read(&spec.process_helper).map_err(|e| e.to_string())?)
         != helper_before
     {
         return Err("qualified process helper changed".into());
     }
     for (path, text) in &request.files {
-        if fs::read(path).map_err(|e| e.to_string())? != text.as_bytes() {
+        let physical = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
+        if !physical.starts_with(&root)
+            || fs::read(physical).map_err(|e| e.to_string())? != text.as_bytes()
+        {
             return Err("qualified input changed during verification".into());
+        }
+    }
+    if git(
+        &root,
+        &spec.process_helper,
+        &["rev-parse", "--verify", "HEAD"],
+    )?
+    .stdout
+        != head.stdout
+    {
+        return Err("qualified Git commit changed during verification".into());
+    }
+    if received.receipt.disposition() == EvidenceDisposition::Analyzed {
+        let final_artifact = fs::read(std::env::current_exe().map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+        let observation = Observation::capture(request, &sdk, &spec.index.outcome, &current)?;
+        let state = observation.state(request, &current, &final_artifact);
+        let context = received
+            .receiver
+            .context(Some(&received.receipt), &state)
+            .map_err(|e| format!("indexed ownership rejected: {e:?}"))?;
+        let paths = owned_paths(&context)?;
+        if coverage.iter().any(|file| {
+            file["status"] == "analyzed"
+                && !file["path"]
+                    .as_str()
+                    .is_some_and(|path| paths.contains(path))
+        }) {
+            return Err("validated coverage no longer owns selected subject".into());
         }
     }
     let admission = if reasons.is_empty() {
@@ -500,7 +755,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         }
     );
     Ok(Verification {
-        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons,"externalModuleSpecifiers":external,"limitations":[opaque_limitation]},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
+        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons,"externalModuleSpecifiers":external,"limitations":[opaque_limitation]},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"base_capture":base_capture,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
         admission,
     })
 }
