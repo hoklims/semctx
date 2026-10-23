@@ -189,6 +189,8 @@ fn receive_index(
 
 fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let spec: Descriptor = serde_json::from_value(descriptor.clone()).map_err(|e| e.to_string())?;
+    let compatibility = sdk_compatibility::classify(&sdk, &spec.index.analysis.sdk_directory)?;
+    sdk_compatibility::warn(compatibility);
     let root = spec
         .repository_root
         .canonicalize()
@@ -208,6 +210,13 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         || spec.include.is_empty()
     {
         return Err("unsupported qualified verification context".into());
+    }
+    if compatibility == sdk_compatibility::Compatibility::Ts5Degraded {
+        let observation = analyze(request.clone(), sdk)?;
+        return Ok(Verification {
+            report: json!({"analysisAdmission":{"status":"rejected","changeCoverage":{"expected":[],"files":[]},"reasons":[sdk_compatibility::TS5_DEGRADED_ANALYSIS],"externalModuleSpecifiers":[],"limitations":["TS5 compatibility is not guaranteed; diagnostic analysis only."]},"verdict":"BLOCK","indexed_extraction_received":false,"selected_analysis":observation,"global_admission_inferred":false}),
+            admission: Admission::Rejected,
+        });
     }
     let artifact =
         fs::read(std::env::current_exe().map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;

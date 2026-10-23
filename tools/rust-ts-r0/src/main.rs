@@ -26,6 +26,7 @@ mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
 mod runtime_configuration;
+mod sdk_compatibility;
 mod sdk_inventory;
 mod source_text;
 mod worker_observations;
@@ -89,8 +90,12 @@ fn retained_default() -> bool {
 #[serde(deny_unknown_fields)]
 struct Sdk {
     version: String,
-    source_revision: String,
-    library_manifest_sha256: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    source_revision: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    library_manifest_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    archive_sha256: Option<String>,
     files: BTreeMap<String, String>,
 }
 #[derive(Clone, Serialize)]
@@ -1088,6 +1093,7 @@ fn inspect_subject(
     reason = "The feasibility probe retains explicit captured request and fact assembly branches."
 )]
 fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+    let compatibility = sdk_compatibility::classify(&sdk, &request.sdk_directory)?;
     if request.qualified && !request.retained {
         return Err("SOURCE_SNAPSHOT_REQUIRED".into());
     }
@@ -1106,11 +1112,10 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
             return Err(format!("captured SDK requires {variable}=0"));
         }
     }
-    if !sdk.matches_reference() {
-        return Err("foreign SDK descriptor".into());
+    if compatibility == sdk_compatibility::Compatibility::Native {
+        sdk.validate_libraries(&request.sdk_directory)?;
     }
-    sdk.validate_libraries(&request.sdk_directory)?;
-    let sdk_identity = sdk.capability_identity();
+    let sdk_identity = sdk.capability_identity(compatibility);
     let request_identity =
         identity::digest(&serde_json::to_value(&request).map_err(|error| error.to_string())?);
     let input_identity = identity::digest(&batch::input_manifest(&request, &sdk)?);
@@ -1200,8 +1205,16 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         }
     }
     let project_files = std::sync::Arc::new(files.clone());
-    let sdk_keys = sdk.files.keys().cloned().collect::<Vec<_>>();
+    let sdk_keys = sdk
+        .files
+        .keys()
+        .filter(|path| !path.ends_with("/package.json"))
+        .cloned()
+        .collect::<Vec<_>>();
     for (path, text) in sdk.files {
+        if path.ends_with("/package.json") {
+            continue;
+        }
         if files
             .insert(path, ts_goport::scanner_util::go_string_from_utf8(text))
             .is_some()
@@ -1709,6 +1722,7 @@ fn main() {
             &std::fs::read(&args[first + 1]).map_err(|error| error.to_string())?,
         )
         .map_err(|error| error.to_string())?;
+        sdk_compatibility::warn(sdk_compatibility::classify(&sdk, &request.sdk_directory)?);
         let observed = analyze(request.clone(), sdk.clone())?;
         if batch_mode {
             serde_json::to_value(batch::build(&request, &sdk, &observed)?)

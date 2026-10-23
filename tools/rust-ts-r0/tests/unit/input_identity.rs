@@ -3,8 +3,9 @@ fn fixture(root: &str, sdk_root: &str) -> (Request, Sdk) {
     let request = serde_json::from_value(json!({"id":"logicalIdentityDev","cwd":root,"sdk_directory":sdk_root,"case_sensitive":true,"roots":[format!("{root}/source.ts")],"files":{format!("{root}/source.ts"):"export const identityDev = 383;"},"options":{}})).unwrap();
     let sdk = Sdk {
         version: "5.9.3".into(),
-        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
-        library_manifest_sha256: "archive-dev".into(),
+        source_revision: Some("780dc512d64f40afebffa6a7028207649fb7ed1c".into()),
+        library_manifest_sha256: Some("archive-dev".into()),
+        archive_sha256: None,
         files: BTreeMap::from([(
             format!("{sdk_root}/lib.dev.d.ts"),
             "declare const sdkDev: number;".into(),
@@ -67,8 +68,8 @@ fn content_and_sdk_mutations_change_consumed_bindings() {
                 );
             }
             "version" => sb.version = "foreign-version".into(),
-            "source" => sb.source_revision = "foreign-source".into(),
-            _ => sb.library_manifest_sha256 = "foreign-manifest".into(),
+            "source" => sb.source_revision = Some("foreign-source".into()),
+            _ => sb.library_manifest_sha256 = Some("foreign-manifest".into()),
         }
         assert_ne!(
             batch::input_manifest(&a, &sa).unwrap(),
@@ -113,4 +114,36 @@ fn outside_paths_remain_bound_to_a_disjoint_physical_namespace() {
         batch::input_manifest(&a, &sa).unwrap(),
         batch::input_manifest(&b, &sa).unwrap()
     );
+}
+
+#[test]
+fn ts5_archive_and_package_bytes_are_bound_to_the_logical_input() {
+    let (request, _) = fixture("/repository", "/sdk/lib");
+    let descriptor = json!({
+        "version":"5.9.3",
+        "archive_sha256":"10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+        "files":{
+            "/sdk/lib/lib.dev.d.ts":"declare const sdkDev: number;",
+            "/sdk/package.json":"{\"name\":\"typescript\",\"version\":\"5.9.3\",\"description\":\"one\"}"
+        }
+    });
+    let original: Sdk = serde_json::from_value(descriptor.clone()).unwrap();
+    for archive in [false, true] {
+        let mut changed = descriptor.clone();
+        if archive {
+            changed["archive_sha256"] = json!("0".repeat(64));
+        } else {
+            changed["files"]["/sdk/package.json"] =
+                json!("{\"name\":\"typescript\",\"version\":\"5.9.3\",\"description\":\"two\"}");
+        }
+        let changed: Sdk = serde_json::from_value(changed).unwrap();
+        assert_ne!(
+            batch::input_manifest(&request, &original).unwrap(),
+            batch::input_manifest(&request, &changed).unwrap()
+        );
+        assert_ne!(
+            batch::snapshot_manifest(&request, &original).unwrap(),
+            batch::snapshot_manifest(&request, &changed).unwrap()
+        );
+    }
 }

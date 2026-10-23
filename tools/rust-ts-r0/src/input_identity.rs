@@ -45,9 +45,10 @@ pub fn input(request: &Request, sdk: &Sdk) -> Result<Value, String> {
         files.push(json!({"location":location(&request.sdk_directory,path,request.case_sensitive,"sdk"),"text":text}));
     }
     files.sort_by_key(identity::canonical_json);
-    Ok(
-        json!({"domain":"T00-logical-input-v3","project":project,"sdk":{"domain":"T00-logical-sdk-v3","version":sdk.version,"source_revision":sdk.source_revision,"library_manifest_sha256":sdk.library_manifest_sha256,"files":files}}),
-    )
+    let mut sdk = serde_json::to_value(sdk).map_err(|error| error.to_string())?;
+    sdk["domain"] = json!("T00-logical-sdk-v3");
+    sdk["files"] = json!(files);
+    Ok(json!({"domain":"T00-logical-input-v3","project":project,"sdk":sdk}))
 }
 pub fn capture(request: &Request) -> Result<Value, String> {
     Ok(

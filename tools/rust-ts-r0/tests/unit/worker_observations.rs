@@ -2,9 +2,11 @@ use super::*;
 fn empty_sdk() -> Sdk {
     Sdk {
         version: "7.1.0-dev".into(),
-        source_revision: "780dc512d64f40afebffa6a7028207649fb7ed1c".into(),
-        library_manifest_sha256: "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
-            .into(),
+        source_revision: Some("780dc512d64f40afebffa6a7028207649fb7ed1c".into()),
+        library_manifest_sha256: Some(
+            "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad".into(),
+        ),
+        archive_sha256: None,
         files: BTreeMap::new(),
     }
 }

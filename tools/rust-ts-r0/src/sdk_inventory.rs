@@ -10,9 +10,10 @@ struct Library {
 impl Sdk {
     pub(crate) fn matches_reference(&self) -> bool {
         self.version == "7.1.0-dev"
-            && self.source_revision == "780dc512d64f40afebffa6a7028207649fb7ed1c"
-            && self.library_manifest_sha256
-                == "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+            && self.archive_sha256.is_none()
+            && self.source_revision.as_deref() == Some("780dc512d64f40afebffa6a7028207649fb7ed1c")
+            && self.library_manifest_sha256.as_deref()
+                == Some("b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad")
     }
 
     pub(crate) fn validate_libraries(&self, directory: &str) -> Result<(), String> {
@@ -51,13 +52,24 @@ impl Sdk {
         Ok(())
     }
 
-    pub(crate) fn capability_identity(&self) -> serde_json::Value {
-        serde_json::json!({
-            "version":self.version,
-            "sourceRevision":self.source_revision,
-            "libraryManifestSha256":self.library_manifest_sha256,
-            "inventoryValidated":true,
-            "allLibrariesConsumptionProven":false
-        })
+    pub(crate) fn capability_identity(
+        &self,
+        compatibility: sdk_compatibility::Compatibility,
+    ) -> serde_json::Value {
+        match compatibility {
+            sdk_compatibility::Compatibility::Native => serde_json::json!({
+                "version":self.version,
+                "sourceRevision":self.source_revision,
+                "libraryManifestSha256":self.library_manifest_sha256,
+                "inventoryValidated":true,
+                "allLibrariesConsumptionProven":false
+            }),
+            sdk_compatibility::Compatibility::Ts5Degraded => serde_json::json!({
+                "version":self.version,
+                "archiveSha256":self.archive_sha256,
+                "inventoryValidated":false,
+                "allLibrariesConsumptionProven":false
+            }),
+        }
     }
 }

@@ -2603,8 +2603,8 @@ fn captured_sdk_missing_extra_and_changed_libraries_are_refused_before_analysis(
         let mut sdk = component_sdk();
         match mutation {
             "version" => sdk.version = "foreign-version".into(),
-            "revision" => sdk.source_revision = "foreign-revision".into(),
-            "manifest" => sdk.library_manifest_sha256 = "foreign-manifest".into(),
+            "revision" => sdk.source_revision = Some("foreign-revision".into()),
+            "manifest" => sdk.library_manifest_sha256 = Some("foreign-manifest".into()),
             "missing" => {
                 sdk.files.remove("/sdk/lib/lib.es5.d.ts");
             }
