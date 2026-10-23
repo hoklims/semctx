@@ -201,6 +201,23 @@ retain their unexercised branches; 220/229 need the explicit acquisition boundar
 Refusal admission and post-emission receipt revalidation remain necessary for
 0/1/2/3/232–234/236–238. A version decision closes none of these proof gaps.
 
+For finite JSX runtime comparisons, the API oracle retains raw authored ranges
+and separately exposes the native transformer location. At the pinned revision,
+`JSXTransformer::trivia_skipped_location` skips leading trivia before assigning
+the factory call location (`jsxtransforms/jsx.rs`, lines 383–389, 415–436,
+1073 and 1107). Compare synthesized calls to this independently observed location;
+do not relabel it as the raw authored range. This is an owning-operation comparison,
+not AST coordinate-shape equivalence. Historical ES5 helper witnesses J04/J05
+remain unqualified; supported-target variants neither replace them nor credit ARB-003.
+
+The runtime API oracle uses upstream `noembed`: its real executable directory
+must contain the pinned 115 libraries, in addition to the explicit `sdk_directory`
+request. Before its default-profile `cargo test`, provision those same libraries
+in both `$CARGO_TARGET_DIR/debug/` and `$CARGO_TARGET_DIR/debug/deps/`
+(the CLI and unit-test executable directories). Cargo does not copy these inputs;
+a fresh target without this SDK setup is not a supported test invocation. Then run
+`cargo test --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked --offline -j 2`.
+
 Every obligation stays `not_qualified` until all its cumulative properties and
 negative controls pass on macOS arm64 and Linux aarch64 against the new reference.
 ARB-002/003/004 remain separate, with zero credit. This finite two-platform result
