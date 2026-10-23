@@ -72,13 +72,42 @@ fn assert_refusal_tampering_rejected(
             helper,
             &dir.join(format!("refused-{variant}-invocation.json")),
         );
-        assert_eq!(failed.exit_code, Some(1), "{variant}: {failed:?}");
-        assert!(failed.stdout.is_empty(), "{variant}: {failed:?}");
+        assert_eq!(failed.exit_code, Some(3), "{variant}: {failed:?}");
+        let report: Value = serde_json::from_str(&failed.stdout).unwrap();
+        assert_eq!(report["analysisAdmission"]["status"], "rejected");
+        assert_eq!(report["verdict"], "BLOCK");
+        assert_eq!(report["indexed_extraction_received"], false);
+        assert!(
+            report["analysisAdmission"]["changeCoverage"]["files"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|file| file["status"] != "analyzed")
+        );
     }
 }
 
 #[test]
 fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_none() {
+    verify_contexts(&[]);
+}
+
+#[test]
+fn native_qualified_parse_failure_returns_structured_rejection_without_receipt() {
+    verify_contexts(&["parse-failure"]);
+}
+
+#[test]
+fn native_qualified_rejection_preserves_excluded_subject_diagnostics() {
+    verify_contexts(&["excluded-test-role"]);
+}
+
+#[test]
+fn native_qualified_references_distinguish_absent_and_retained_inputs() {
+    verify_contexts(&["unretained-reference", "retained-reference"]);
+}
+
+fn verify_contexts(only: &[&str]) {
     let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let helper =
         PathBuf::from(std::env::var_os("SEMCTX_PROCESS_HELPER").expect("native process helper"));
@@ -98,6 +127,9 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
     fs::create_dir_all(&evidence).unwrap();
     let contexts = vec![
         ("inherited-positive", None, false),
+        ("parse-failure", None, true),
+        ("unretained-reference", None, true),
+        ("retained-reference", None, true),
         ("literal-test", None, true),
         ("static-test", None, false),
         ("excluded-test-role", None, true),
@@ -149,10 +181,25 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
         contexts
     };
     for (label, outside, rejected) in contexts {
+        if (only.is_empty()
+            && matches!(
+                label,
+                "parse-failure"
+                    | "excluded-test-role"
+                    | "unretained-reference"
+                    | "retained-reference"
+            ))
+            || (!only.is_empty() && !only.contains(&label))
+        {
+            continue;
+        }
         let dir = evidence.join(label);
         let root = dir.join("workspace");
         fs::create_dir_all(root.join("src")).unwrap();
         let mut files = json!({"src/selected.ts":"export function selectedFactory() { return 179; }\n","base.json":"{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}","tsconfig.json":"{\"extends\":\"./base.json\"}",".gitignore":".semctx/\n"});
+        if label == "retained-reference" {
+            files["reference.ts"] = json!("export const reference = 1;\n");
+        }
         if matches!(
             label,
             "literal-test" | "static-test" | "missing-test-role" | "forged-source-role"
@@ -249,6 +296,14 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
         }
         files["src/selected.ts"] = json!("export function selectedFactory() { return 191; }\n");
+        if label.ends_with("-reference") {
+            files["src/selected.ts"] = json!(
+                "/// <reference path=\"../reference.ts\" />\nexport function selectedFactory() { return 191; }\n"
+            );
+        }
+        if label == "parse-failure" {
+            files["src/selected.ts"] = json!("export function selectedFactory( {\n");
+        }
         if label.starts_with("external-") || label == "undeclared-external-control" {
             let specifier = if label == "external-builtin" {
                 "node:path"
@@ -386,15 +441,29 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
             continue;
         }
-        if matches!(label, "literal-test" | "undeclared-external-control") {
+        if matches!(
+            label,
+            "literal-test"
+                | "undeclared-external-control"
+                | "parse-failure"
+                | "unretained-reference"
+                | "retained-reference"
+        ) {
             assert_eq!(actual.exit_code, Some(3), "{label}: {actual:?}");
             assert!(actual.stderr.is_empty(), "{actual:?}");
             let report: Value = serde_json::from_str(&actual.stdout).unwrap();
             assert_eq!(report["analysisAdmission"]["status"], "rejected");
             assert_eq!(report["verdict"], "BLOCK");
-            assert_eq!(report["indexed_extraction_received"], true);
+            assert_eq!(
+                report["indexed_extraction_received"],
+                label != "parse-failure"
+            );
             let reason = if label == "literal-test" {
                 "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"
+            } else if label.ends_with("-reference") {
+                "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+            } else if label == "parse-failure" {
+                "ANALYSIS_SCOPE_INCOMPLETE:src/selected.ts:unsupported"
             } else {
                 "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/selected.ts:optional"
             };
@@ -405,7 +474,26 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                     .contains(&json!(reason)),
                 "{report}"
             );
+            if label.ends_with("-reference") {
+                assert_eq!(
+                    report["analysisAdmission"]["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&json!(
+                            "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/selected.ts:../reference.ts"
+                        )),
+                    label == "unretained-reference",
+                    "{report}"
+                );
+            }
             if label == "undeclared-external-control" {
+                assert!(
+                    !report["analysisAdmission"]["reasons"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&json!("UNRESOLVED_IMPORT:src/selected.ts:optional")),
+                    "{report}"
+                );
                 assert_refusal_tampering_rejected(
                     &descriptor,
                     &index.stdout,
@@ -513,6 +601,15 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             );
         }
         if label == "excluded-test-role" {
+            assert!(
+                report["analysisAdmission"]["reasons"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!(
+                        "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"
+                    )),
+                "{report}"
+            );
             assert_eq!(
                 report["broad_analysis"]["assembly"]["integrityReasons"]["outside.test.ts"],
                 json!(["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/selected.ts"])
@@ -529,6 +626,40 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
             }
         }
         if label == "inherited-positive" {
+            for (label, field, value, rejection) in [
+                ("cancelled", "kind", json!("cancelled"), "ProcessFailure"),
+                ("late", "duration_ms", json!(20_001), "LateResult"),
+            ] {
+                let mut changed = descriptor.clone();
+                changed["index"]["outcome"][field] = value;
+                let path = dir.join(format!("{label}-descriptor.json"));
+                fs::write(&path, serde_json::to_vec_pretty(&changed).unwrap()).unwrap();
+                let mut changed_argv = argv.clone();
+                changed_argv[3] = path.to_string_lossy().into_owned();
+                let rejected = invoke(
+                    changed_argv,
+                    &root,
+                    &helper,
+                    &dir.join(format!("{label}-invocation.json")),
+                );
+                assert_eq!(rejected.exit_code, Some(3), "{label}: {rejected:?}");
+                let report: Value = serde_json::from_str(&rejected.stdout).unwrap();
+                assert_eq!(report["analysisAdmission"]["status"], "rejected");
+                assert_eq!(report["verdict"], "BLOCK");
+                assert_eq!(report["indexed_extraction_received"], false);
+                assert_eq!(
+                    report["analysisAdmission"]["reasons"],
+                    json!([
+                        "ANALYSIS_SCOPE_INCOMPLETE:src/selected.ts:unsupported",
+                        format!("INDEXED_EXTRACTION_REJECTED:{rejection}"),
+                        "ZERO_ANALYZED_OBLIGATIONS"
+                    ])
+                );
+                assert_eq!(
+                    report["analysisAdmission"]["changeCoverage"]["files"],
+                    json!([{"path":"src/selected.ts","status":"unsupported"}])
+                );
+            }
             let mut variants = vec![];
             for (field, value) in [
                 ("kind", json!("timeout")),
@@ -604,10 +735,26 @@ fn native_qualified_verification_consumes_closure_and_rejection_before_fail_on_n
                     &dir.join(format!("{name}-invocation.json")),
                 );
                 assert_ne!(rejected.exit_code, Some(0), "{name}: {rejected:?}");
-                assert!(
-                    rejected.stdout.is_empty(),
-                    "invalid verification emitted a report: {name}"
-                );
+                if name.starts_with("bad-outcome-")
+                    || matches!(name.as_str(), "substituted-facts" | "forged-refusal")
+                {
+                    assert_eq!(rejected.exit_code, Some(3), "{name}: {rejected:?}");
+                    let report: Value = serde_json::from_str(&rejected.stdout).unwrap();
+                    assert_eq!(report["analysisAdmission"]["status"], "rejected");
+                    assert_eq!(report["indexed_extraction_received"], false);
+                    assert!(
+                        report["analysisAdmission"]["changeCoverage"]["files"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .all(|file| file["status"] != "analyzed")
+                    );
+                } else {
+                    assert!(
+                        rejected.stdout.is_empty(),
+                        "invalid verification emitted a report: {name}"
+                    );
+                }
             }
             for (name, argument, bytes) in [
                 ("malformed-descriptor", 3, b"{bad".as_slice()),

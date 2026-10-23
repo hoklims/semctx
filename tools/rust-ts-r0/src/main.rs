@@ -818,8 +818,13 @@ fn inspect_subject(
     } else {
         runtime_configuration::RuntimeConfiguration::default()
     };
-    let retained_scope_syntax =
-        component_observations::retained_scope_syntax(file, &relative, retained);
+    let retained_scope_syntax = component_observations::retained_scope_syntax(
+        file,
+        &relative,
+        retained,
+        &retained_files,
+        case_sensitive,
+    );
     let (semantic, javascript, mut callable_initializers) = program::with_type_checker_for_file(
         file,
         move |checker| {
@@ -1566,6 +1571,19 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     )
 }
 fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
+    #[cfg(feature = "qualification-observer")]
+    if args.get(1).map(String::as_str) == Some("--observe-qualified-receipt") {
+        if args.len() != 4 {
+            return Err("expected --observe-qualified-receipt REQUEST.json SDK.json".into());
+        }
+        let descriptor =
+            serde_json::from_slice(&std::fs::read(&args[2]).map_err(|error| error.to_string())?)
+                .map_err(|error| error.to_string())?;
+        let sdk =
+            serde_json::from_slice(&std::fs::read(&args[3]).map_err(|error| error.to_string())?)
+                .map_err(|error| error.to_string())?;
+        return qualified_verification::receipt_observer::run(descriptor, &sdk).map(Some);
+    }
     let Some(mode) = args.get(1).map(String::as_str).filter(|mode| {
         matches!(
             *mode,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compareAdmission, compareSnapshot, ts5WitnessSdk } from "./t00-ts7-q-boundary-admission";
+import { compareAdmission, compareSnapshot, compareTs5Warning, ts5WitnessSdk } from "./t00-ts7-q-boundary-admission";
 import type { Execution } from "./t00-ts7-q-boundary-common";
 
 const execution = (value: Record<string, unknown>, exitCode = 3): Execution => ({ value, exitCode, stdout: JSON.stringify(value), stderr: "", evidence: [] });
@@ -38,4 +38,21 @@ describe("independent admission observation", () => {
     const result = { ...execution({}, 1), stdout: "", stderr: '{"error":"SOURCE_SNAPSHOT_MISMATCH: src/main.ts"}\n' };
     expect(compareSnapshot("mutation", result, "SOURCE_SNAPSHOT_MISMATCH: src/main.ts").every(property => property.pass)).toBe(true);
   });
+});
+
+test("exact cumulative reasons refuse missing, extra and duplicate causes", () => {
+  const contract = { ...expected, reasons: ["DEPENDENCY_SCOPE_UNSUPPORTED:src/main.ts"] };
+  expect(compareAdmission("cumulative", contract, execution(rejected)).every(property => property.pass)).toBe(true);
+  for (const reasons of [[...contract.reasons, "UNEXPECTED"], [...contract.reasons, ...contract.reasons]]) {
+    expect(compareAdmission("cumulative", contract, execution({ ...rejected, analysisAdmission: { ...rejected.analysisAdmission, reasons } })).every(property => property.pass)).toBe(false);
+  }
+});
+
+test("TS5 warning requires the exact structured stderr record, never a stdout substring", () => {
+  const warning = { code: "TS5_DEGRADED_ANALYSIS", severity: "warning", message: "Projet TypeScript 5 analysé avec ts_goport 7.1.0-dev ; compatibilité TS5 non garantie et admission qualifiée indisponible" };
+  const result = { ...execution(warning), stderr: JSON.stringify(warning) + "\n" };
+  expect(compareTs5Warning("ts5", result).every(item => item.pass)).toBe(true);
+  for (const stderr of ["", warning.message, JSON.stringify({ ...warning, severity: "error" }), JSON.stringify({ ...warning, code: "OTHER" }), JSON.stringify({ ...warning, message: "compatible" }), result.stderr + result.stderr]) {
+    expect(compareTs5Warning("ts5", { ...result, stderr }).every(item => item.pass)).toBe(false);
+  }
 });
