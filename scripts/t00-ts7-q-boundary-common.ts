@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export type Json = Record<string, unknown>;
 export type Evidence = { path: string; sha256: string; bytes: number };
@@ -8,11 +9,12 @@ export type Property = { name: string; pass: boolean; expected: unknown; actual:
 export type Observation = { index: number; properties: Property[]; evidence: Evidence[]; complete: boolean; reason: string };
 export type Execution = { exitCode: number; stdout: string; stderr: string; value: Json; evidence: Evidence[] };
 export type Context = {
-  root: string; sdk: Json; sdk5?: Json; platform: "macos" | "linux"; producerSha256: string; helper: string;
+  root: string; sdk: Json; sdk5?: Json; platform: "macos" | "linux"; producerSha256: string; helperSha256: string; helper: string;
   analysis(files: Record<string, string>, overrides?: Json): Json;
   run(label: string, mode: string, descriptor: Json, withSdk?: boolean, sdkOverride?: Json): Promise<Execution>;
   save(label: string, value: unknown): Promise<Evidence>;
   extractionOracle(label: string, request: Json): Promise<Execution>;
+  applicationRuntime(label: string, request: Json, workers: number): Promise<Execution>;
   oracle(label: string, files: Record<string, string>, options?: Json): Promise<Execution>;
 };
 
@@ -138,7 +140,7 @@ export async function createContext(out: string, platform: "macos" | "linux", as
     return { exitCode, stdout, stderr, value, evidence: [await save(label + "-execution", execution)] };
   };
   return {
-    root, sdk, ...(sdk5 === undefined ? {} : { sdk5 }), platform, producerSha256: assets.producer.sha256, helper: assets.helper.path, save,
+    root, sdk, ...(sdk5 === undefined ? {} : { sdk5 }), platform, producerSha256: assets.producer.sha256, helperSha256: assets.helper.sha256, helper: assets.helper.path, save,
     analysis(files, overrides = {}) {
       return { id: "q-boundary", cwd: root, sdk_directory: "/sdk/lib", case_sensitive: platform === "linux", roots: Object.keys(files).filter(path => /\.[cm]?[jt]sx?$/.test(path) && !/\.d\.[cm]?ts$/.test(path)).map(path => resolve(root, path)).toSorted(), files: Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(root, path), text])), options: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, jsx: "Preserve", skipLibCheck: true, noEmit: true, strict: false }, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {}, ...overrides };
     },
@@ -151,6 +153,17 @@ export async function createContext(out: string, platform: "macos" | "linux", as
       const execution = await execute(id, argv, root);
       execution.evidence.push(request, selectedSdk);
       return execution;
+    },
+    async applicationRuntime(label, input, workers) {
+      await verifyAssets(assets, platform);
+      const id = `${++sequence}-application-${label}`;
+      const request = await save(id + "-request", input);
+      const script = await asset(fileURLToPath(new URL("./t00-ts7-application-runtime.ts", import.meta.url)));
+      const result = await execute(id, [process.execPath, script.path, request.path, assets.sdk.path, assets.producer.path, assets.helper.path, String(workers)], root);
+      await checkAsset(script);
+      await verifyAssets(assets, platform);
+      result.evidence.push(request, script, assets.sdk, assets.producer, assets.helper);
+      return result;
     },
     async extractionOracle(label, input) {
       if (!assets.extractionOracle) throw Error("independent extraction oracle missing from candidate manifest");

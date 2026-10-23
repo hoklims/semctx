@@ -47,9 +47,10 @@ test("relative import qualification rejects failed producer processes with corre
   for (const exitCode of [0, 1, 137]) {
     const execution = { exitCode: 0, stdout: "a.ts successfully resolved", stderr: "", value: {}, evidence: [evidence] };
     const context = {
-      root: "/project", sdk: {}, platform: "macos" as const, producerSha256: "a".repeat(64), helper: "/helper",
+      root: "/project", sdk: {}, platform: "macos" as const, producerSha256: "a".repeat(64), helperSha256: "b".repeat(64), helper: "/helper",
       analysis: () => ({}), save: () => Promise.resolve(evidence), oracle: () => Promise.resolve(execution),
       extractionOracle: () => Promise.resolve({ ...execution, value: { relativeSpecifiers: { "fixture.tsx": sequence, "empty.tsx": [] } } }),
+      applicationRuntime: () => Promise.resolve(execution),
       run: (label: string) => Promise.resolve({ ...execution, exitCode, value: { specifiers: label.includes("no-relative") ? [] : sequence } }),
     };
     const observations = await filesystemObservations(context, [230, 231]);

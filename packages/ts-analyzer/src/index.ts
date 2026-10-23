@@ -1,5 +1,5 @@
 /** Public surface of @semantic-context/ts-analyzer. */
-export { analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons, pathMappingFreshnessInputs } from "./analyze";
+export { createRepositoryAnalyzer, analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons, pathMappingFreshnessInputs } from "./analyze";
 export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
 export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration, hasNodeCreateRequireUse, inspectNativeModuleBindings } from "./javascript-diagnostics";
 export { createWorkspaceLinkResolver } from "./workspace-links";
@@ -72,3 +72,5 @@ export type { ExtractedDoc } from "./docs";
 
 export { extractMigration } from "./migrations";
 export type { ExtractedMigration, MigrationConstraint } from "./migrations";
+
+export type { TypeScriptAnalysisCompiler, AnalysisCompiler } from "./analysis-compiler";

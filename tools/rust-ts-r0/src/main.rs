@@ -1715,9 +1715,19 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
 }
 
 fn main() {
+    let args = std::env::args().collect::<Vec<_>>();
+    if args
+        .get(1)
+        .is_some_and(|mode| mode == "--experimental-application-session")
+    {
+        if let Err(error) = qualified_verification::application_session(&args) {
+            eprintln!("{}", serde_json::json!({"error":error}));
+            std::process::exit(1);
+        }
+        return;
+    }
     let mut exit_code = 0;
     let result = (|| {
-        let args = std::env::args().collect::<Vec<_>>();
         if args.get(1).is_some_and(|mode| mode == "verify") {
             let verified = qualified_verification::command(&args)?;
             exit_code = verified.exit_code();

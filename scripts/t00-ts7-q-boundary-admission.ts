@@ -1,3 +1,4 @@
+import { applicationObservations, compareApplicationRefusal, compareDynamicApplication } from "./t00-ts7-q-boundary-application";
 import { compareExtraction, compareSimpleGraph, compareTestRelations } from "./t00-ts7-q-boundary-extraction";
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -168,7 +169,7 @@ async function receiptObservations(ctx: Context): Promise<{ properties: Property
 
 async function dynamicTestObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
   const properties: Property[] = [], evidence: Evidence[] = [];
-  const vectors = [
+  const vectors: { id: "static" | "literal" | "computed" | "two-arguments" | "unresolved"; source: string; keys: string[]; reasons: Record<string, string[]>; coverage: string[] }[] = [
     { id: "static", source: "import { main } from './main'; export function spec() { return main(); }\n", keys: [], reasons: {}, coverage: ["covers:test:src/main.test.ts:main.test.ts->function:src/main.ts:main", "tested_by:function:src/main.ts:main->test:src/main.test.ts:main.test.ts"] },
     { id: "literal", source: "export async function spec() { return import('./main'); }\n", keys: ["src/main.test.ts:1:./main"], reasons: { "src/main.test.ts": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/main.ts"] }, coverage: [] },
     { id: "computed", source: "const name = './main'; export async function spec() { return import(name); }\n", keys: [], reasons: {}, coverage: [] },
@@ -180,6 +181,10 @@ async function dynamicTestObservations(ctx: Context): Promise<{ properties: Prop
     const analysis: Json = { ...fixture.analysis, roles: { "src/main.ts": "source", "src/main.test.ts": "test" } };
     const independent = await ctx.extractionOracle(`dynamic-test-${vector.id}`, { files: analysis["files"], roots: analysis["roots"], repoRoot: fixture.root, options: analysis["options"], retained: true });
     const independentKeys = list(independent.value["dynamicImports"]).map(record).filter(entry => entry["file"] === "src/main.test.ts").map(entry => `${String(entry["file"])}:${String(entry["line"])}:${String(entry["specifier"])}`).toSorted();
+    const application = await ctx.applicationRuntime(`dynamic-test-${vector.id}`, analysis, 2);
+    const applicationProperties = compareDynamicApplication(`dynamic-test.${vector.id}.application`, { outcome: vector.id === "static" ? "composed" : "ownership-refused", oracle: independent.value, keys: independentKeys, integrityReasons: vector.reasons, ledgerReasons: vector.id === "static" || vector.id === "literal" ? vector.reasons : undefined, coverage: vector.coverage, producerSha256: ctx.producerSha256 }, application);
+    properties.push(...applicationProperties);
+    evidence.push(...application.evidence, await ctx.save(`dynamic-test-${vector.id}-application-comparison`, applicationProperties));
     const analyzed = await ctx.run(`dynamic-test-${vector.id}`, "", analysis, true);
     properties.push(property(`dynamic-test.${vector.id}.independent-exit`, 0, independent.exitCode));
     properties.push(property(`dynamic-test.${vector.id}.independent-keys`, independentKeys, analyzed.value["test_dynamic_import_keys"]));
@@ -208,7 +213,10 @@ async function dynamicTestObservations(ctx: Context): Promise<{ properties: Prop
       delete missingFiles[resolve(fixture.root, "src/main.test.ts")];
       const missing = await ctx.run("dynamic-test-missing-retained-text", "--analyze-retained-runtime", { analysis: { ...analysis, files: missingFiles }, discovered_sources: [{ relPath: "src/main.ts", content: baseline }, { relPath: "src/main.test.ts", content: vector.source }] }, true);
       properties.push(...compareSnapshot("dynamic-test.missing-retained-text", missing, "SOURCE_SNAPSHOT_MISMATCH: src/main.test.ts"));
-      evidence.push(...missing.evidence);
+      const applicationMissing = await ctx.applicationRuntime("dynamic-test-missing-retained-text", { ...analysis, files: missingFiles }, 2);
+      const applicationMissingProperties = compareApplicationRefusal("dynamic-test.missing-retained-text.application", "SOURCE_SNAPSHOT_MISMATCH: src/main.test.ts", applicationMissing);
+      properties.push(...applicationMissingProperties);
+      evidence.push(...missing.evidence, ...applicationMissing.evidence, await ctx.save("dynamic-test-missing-retained-text-application-comparison", applicationMissingProperties));
     }
   }
   return { properties, evidence };
@@ -216,6 +224,7 @@ async function dynamicTestObservations(ctx: Context): Promise<{ properties: Prop
 
 async function assemblyObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
   const dynamic = await dynamicTestObservations(ctx);
+  const application = await applicationObservations(ctx);
   const files = { "src/main.ts": baseline, "src/consumer.ts": "import { main } from './main'; export function consumer() { return main(); }\n" };
   const fixture = await prepare(ctx, "assembly", files);
   const compiler = await ctx.oracle("qa-assembly", files);
@@ -224,6 +233,7 @@ async function assemblyObservations(ctx: Context): Promise<{ properties: Propert
   const extraction = record(analyzed.value["raw_extraction"]), assembly = record(analyzed.value["assembly"]);
   const properties = [
     ...dynamic.properties,
+    ...application.properties,
     property("assembly.independent.exit", 0, independent.exitCode),
     ...compareExtraction("assembly.independent", independent.value, extraction),
     ...compareSimpleGraph("assembly.independent", independent.value, assembly),
@@ -241,7 +251,7 @@ async function assemblyObservations(ctx: Context): Promise<{ properties: Propert
   properties.push(property("ordinary.noSnapshot.exit", 0, ordinary.exitCode), property("ordinary.noSnapshot.modules", independent.value["modules"], record(ordinary.value["raw_extraction"])["modules"]));
   const missing = await ctx.run("qa-qualified-no-snapshot", "--analyze-retained-runtime", { analysis: { ...fixture.analysis, retained: false }, discovered_sources: discovered }, true);
   properties.push(...compareSnapshot("runtime.missing", missing, "SOURCE_SNAPSHOT_REQUIRED"));
-  return { properties, evidence: [...dynamic.evidence, ...fixture.evidence, ...compiler.evidence, ...independent.evidence, ...analyzed.evidence, ...healthy.evidence, ...refused.evidence, ...ordinary.evidence, ...missing.evidence] };
+  return { properties, evidence: [...dynamic.evidence, ...application.evidence, ...fixture.evidence, ...compiler.evidence, ...independent.evidence, ...analyzed.evidence, ...healthy.evidence, ...refused.evidence, ...ordinary.evidence, ...missing.evidence] };
 }
 
 export async function admissionObservations(ctx: Context, indices: number[]): Promise<Observation[]> {
@@ -252,15 +262,15 @@ export async function admissionObservations(ctx: Context, indices: number[]): Pr
   return indices.map(index => {
     const observed = scopeIndices.has(index) ? scope : receiptIndices.has(index) ? receipt : assemblyIndices.has(index) ? assembly : undefined;
     if (observed === undefined) throw Error(`Q_BOUNDARY_ADMISSION_INDEX_UNSUPPORTED:${index}`);
-    const properties = index === 4 ? observed.properties.filter(row => row.name.startsWith("runtime.") || row.name.startsWith("ordinary.") || row.name.startsWith("assembly.independent.") || row.name === "assembly.compiler" || row.name === "assembly.exit") : observed.properties;
+    const properties = index === 4 ? observed.properties.filter(row => row.name.startsWith("runtime.") || row.name.startsWith("ordinary.") || row.name.startsWith("assembly.independent.") || row.name.startsWith("application.") || row.name === "assembly.compiler" || row.name === "assembly.exit") : observed.properties;
     return { index, ...observed, properties, complete: false, reason: index === 4
-      ? "Native snapshot guards and independent complete extraction pass; cumulative public Plane-A composition, worker selection and composed ownership/provenance remain unexercised."
+      ? "Native guards and the experimental application owner execute extraction, composition, workers and provenance; activation/control coverage and all cumulative properties still require independent candidate-bound review."
       : scopeIndices.has(index)
       ? "Préparation partielle : contrôles Git/index/verify et refus exécutés ; ensemble exact cumulatif des raisons, consommation indépendante du reçu au point d'usage et refus TS5 ne sont pas tous démontrés."
       : receiptIndices.has(index)
         ? "Préparation partielle : mutations authentiques du batch natif et processus verify exécutés ; revalidation du reçu après émission, mutation graph/capture post-réception et toutes les gardes cumulatives n'ont pas d'oracle de frontière indépendante dans ce runner."
         : index === 235
-          ? "Native snapshot-runtime transport executes complete extraction, but public Plane-A service worker selection and composed fact ownership/provenance are not exposed by --analyze-retained-runtime (it calls native analyze directly)."
-          : "Independent extraction/graph provenance and test-role controls execute; cumulative public Plane-A composition, worker selection, composed ownership/provenance and post-emission receipt revalidation remain unexercised. Private supplied binding-target joins grant no public composition credit." };
+          ? "Experimental application composition executes actual app-services workers and composed fact provenance; complete cumulative activation/control closure and independent candidate-bound macOS/Linux review remain required."
+          : "Experimental application composition, worker selection, ownership/provenance and receipt revalidation execute alongside native test-role controls; application dynamic-test controls execute, while independent exact reason sets for computed/two-argument/unresolved cases, digest closure and complete cumulative review remain required. Private supplied binding-target joins grant no application composition credit." };
   });
 }
