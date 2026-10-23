@@ -546,3 +546,83 @@ fn navigation_strips_browser_control_whitespace_before_reading_the_scheme() {
     assert!(!unsafe_script_navigation(Some("/relative/path")));
     assert!(!unsafe_script_navigation(Some("1invalid:scheme")));
 }
+
+// Reuse the existing graph-backed callback witness without changing its oracle.
+fn supplemental_casefold_callback_scan(root: &str, case_sensitive: bool) -> QualifiedScan {
+    let path = "C:/repo/a.ts";
+    let text = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} export function run(){ foreign(()=>leaf()); }";
+    let files = BTreeMap::from([(path.to_string(), text.to_string())]);
+    let retained_files = files.clone();
+    let root = root.to_string();
+    crate::development::with_project(files, vec![path.into()], move || {
+        let source = program::get_source_file(path);
+        assert!(source.is_some(), "CASEFOLD_CALLBACK_SETUP_SOURCE_MISSING");
+        assert_eq!(
+            ast::source_file_file_name(source),
+            path,
+            "CASEFOLD_CALLBACK_SETUP_SOURCE_SPELLING"
+        );
+        program::with_type_checker_for_file(source, move |checker| {
+            let retained_path = if case_sensitive {
+                path.to_string()
+            } else {
+                path.to_lowercase()
+            };
+            let mut graph = callback_graph();
+            for node in graph["nodes"].as_array_mut().unwrap() {
+                node["filePath"] = serde_json::json!("a.ts");
+            }
+            for edge in graph["edges"].as_array_mut().unwrap() {
+                edge["evidence"][0]["filePath"] = serde_json::json!("a.ts");
+            }
+            let inputs = QualifiedInputs {
+                repository_root: root,
+                retained_files,
+                graph: Some(graph),
+                retained_paths: BTreeSet::from([retained_path]),
+                case_sensitive,
+                retained_callable_coordinates_observed: true,
+                inline_callback_ownership_observed: true,
+                ..Default::default()
+            };
+            inspect_semantic_dependencies(source, checker, &inputs)
+        })
+    })
+}
+
+#[test]
+fn supplemental_casefold_qualified_callback_owner() {
+    let control = supplemental_casefold_callback_scan("C:/repo", false);
+    assert!(
+        !control
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+            && !control
+                .unsupported
+                .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE")
+            && !control
+                .unsupported
+                .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_SETUP_CONTROL:{control:?}"
+    );
+    let distinct = supplemental_casefold_callback_scan("C:/Repo", true);
+    assert!(
+        distinct
+            .unsupported
+            .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_SENSITIVE_DISTINCT_ROOT:{distinct:?}"
+    );
+    let folded = supplemental_casefold_callback_scan("C:/Repo", false);
+    assert!(
+        !folded
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+            && !folded
+                .unsupported
+                .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE")
+            && !folded
+                .unsupported
+                .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_OWNER:{folded:?}"
+    );
+}

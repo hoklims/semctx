@@ -2151,12 +2151,11 @@ impl Scan<'_> {
             self.unsupported("RETAINED_GRAPH_SHAPE_UNSUPPORTED");
             return None;
         };
-        let source_path = ast::source_file_file_name(self.source).replace('\\', "/");
-        let root = inputs.repository_root.replace('\\', "/");
-        let Some(path) = source_path
-            .strip_prefix(&format!("{}/", root.trim_end_matches('/')))
-            .map(str::to_string)
-        else {
+        let Ok(path) = crate::relative_source_path(
+            &inputs.repository_root,
+            ast::source_file_file_name(self.source),
+            inputs.case_sensitive,
+        ) else {
             self.unsupported("REPOSITORY_RELATIVE_PATH_UNAVAILABLE");
             return None;
         };
@@ -2176,10 +2175,7 @@ impl Scan<'_> {
                 named_owner = true;
                 owner = Self::lookup_graph_coordinate(
                     graph,
-                    crate::ordinary::retained_function_owner_coordinate(
-                        parent,
-                        &inputs.repository_root,
-                    ),
+                    crate::ordinary::retained_function_owner_coordinate(parent, &context),
                 );
                 break;
             }

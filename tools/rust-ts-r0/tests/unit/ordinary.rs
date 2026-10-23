@@ -206,14 +206,14 @@ fn development_callable_coordinate_requires_semantic_callable_and_owner_body() {
             };
             let statements = source.statements();
             assert_eq!(
-                retained_function_owner_coordinate(statements.get(0), "/repo"),
+                retained_function_owner_coordinate(statements.get(0), &context),
                 Some((
                     "t00DevelopmentCoordinatesD.ts".into(),
                     "t00DevelopmentCallableD".into()
                 ))
             );
             assert_eq!(
-                retained_function_owner_coordinate(statements.get(1), "/repo"),
+                retained_function_owner_coordinate(statements.get(1), &context),
                 None
             );
             let mut endpoints = Vec::new();
@@ -449,5 +449,175 @@ fn development_arrow_has_own_scope_and_data_has_no_callable_symbol() {
                     .any(|symbol| symbol.name == "t00DevelopmentDataA")
             );
         },
+    );
+}
+
+// Supplemental DEV witness: frozen independently against 8cb8d67a.
+// This does not add qualification units or change the frozen T00 denominator.
+fn supplemental_casefold_extraction(root: &str, case_sensitive: bool) -> Extraction {
+    let files = BTreeMap::from([
+        (
+            "C:/repo/a.ts".to_string(),
+            "import { remote } from './b'; export function local() {} export function run() { local(); remote(); }".to_string(),
+        ),
+        (
+            "C:/repo/b.ts".to_string(),
+            "export function remote() {}".to_string(),
+        ),
+    ]);
+    let captured = files.clone();
+    let roots = vec!["C:/repo/a.ts".into(), "C:/repo/b.ts".into()];
+    let root = root.to_string();
+    crate::development::with_project(files, roots, move || {
+        let mut result = Extraction::default();
+        for (path, relative) in [("C:/repo/a.ts", "a.ts"), ("C:/repo/b.ts", "b.ts")] {
+            let source = program::get_source_file(path);
+            assert!(source.is_some(), "CASEFOLD_SETUP_SOURCE_MISSING:{path}");
+            assert_eq!(
+                ts_goport::ast::source_file_file_name(source),
+                path,
+                "CASEFOLD_SETUP_SOURCE_SPELLING"
+            );
+            let root = root.clone();
+            let captured = captured.clone();
+            let mut extracted = program::with_type_checker_for_file(source, move |checker| {
+                extract(
+                    source,
+                    checker,
+                    relative,
+                    &ExtractionContext {
+                        repository_root: &root,
+                        static_module_links: true,
+                        retained: true,
+                        javascript_enabled: false,
+                        captured_files: Some(&captured),
+                        case_sensitive,
+                    },
+                )
+            })
+            .expect("CASEFOLD_SETUP_EXTRACTION_FAILED");
+            result.modules.append(&mut extracted.modules);
+            result.symbols.append(&mut extracted.symbols);
+            result.imports.append(&mut extracted.imports);
+            result.calls.append(&mut extracted.calls);
+        }
+        result
+    })
+}
+
+#[test]
+fn supplemental_casefold_ordinary_targets() {
+    let raw = supplemental_casefold_extraction("C:/Repo", false);
+    assert_eq!(raw.modules, vec!["a.ts", "b.ts"]);
+    assert_eq!(
+        raw.calls
+            .iter()
+            .map(|call| (
+                call.callee_name.as_str(),
+                call.callee_rel_path.as_deref(),
+                call.callee_symbol_path.as_deref(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("local", Some("a.ts"), Some("local")),
+            ("remote", Some("b.ts"), Some("remote")),
+        ],
+        "CASEFOLD_TARGET_COORDINATES"
+    );
+    assert_eq!(raw.imports.len(), 1, "CASEFOLD_IMPORT_COUNT");
+    assert_eq!(
+        raw.imports[0].resolved_rel_path.as_deref(),
+        Some("b.ts"),
+        "CASEFOLD_IMPORT_TARGET"
+    );
+    let targets = raw.imports[0]
+        .binding_targets
+        .as_ref()
+        .expect("CASEFOLD_IMPORT_BINDINGS");
+    assert_eq!(
+        targets
+            .iter()
+            .map(|target| (target.rel_path.as_str(), target.symbol_path.as_str()))
+            .collect::<Vec<_>>(),
+        vec![("b.ts", "remote")],
+        "CASEFOLD_IMPORT_BINDING_COORDINATES"
+    );
+}
+
+#[test]
+fn supplemental_casefold_ordinary_assembly() {
+    let raw = supplemental_casefold_extraction("C:/Repo", false);
+    let graph = crate::assembly::assemble(
+        &raw,
+        &BTreeMap::from([
+            ("a.ts".into(), "source".into()),
+            ("b.ts".into(), "source".into()),
+        ]),
+        true,
+        "C:/Repo",
+        &std::collections::BTreeSet::new(),
+    )
+    .expect("CASEFOLD_SETUP_ASSEMBLY_FAILED");
+    let nodes = graph["nodes"].as_array().expect("CASEFOLD_SETUP_NODES");
+    let edges = graph["edges"].as_array().expect("CASEFOLD_SETUP_EDGES");
+    let id = |kind: &str, file: &str, name: Option<&str>| {
+        let matches = nodes
+            .iter()
+            .filter(|node| {
+                node["kind"] == kind
+                    && node["filePath"] == file
+                    && name.is_none_or(|name| node["name"] == name)
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(matches.len(), 1, "CASEFOLD_SETUP_NODE_IDENTITY");
+        matches[0]["id"].as_str().unwrap().to_string()
+    };
+    let run = id("function", "a.ts", Some("run"));
+    let local = id("function", "a.ts", Some("local"));
+    let remote = id("function", "b.ts", Some("remote"));
+    let module_a = id("module", "a.ts", None);
+    let module_b = id("module", "b.ts", None);
+    for (kind, from, to) in [
+        ("calls", &run, &local),
+        ("calls", &run, &remote),
+        ("imports", &module_a, &module_b),
+    ] {
+        assert!(
+            edges
+                .iter()
+                .any(|edge| { edge["kind"] == kind && edge["from"] == *from && edge["to"] == *to }),
+            "CASEFOLD_ASSEMBLED_EDGE_MISSING:{kind}:{from}:{to}"
+        );
+    }
+}
+
+#[test]
+fn supplemental_case_sensitive_coordinates_do_not_collapse() {
+    let same = supplemental_casefold_extraction("C:/repo", true);
+    let distinct = supplemental_casefold_extraction("C:/Repo", true);
+    assert_eq!(
+        same.calls
+            .iter()
+            .map(|call| (
+                call.callee_name.as_str(),
+                call.callee_rel_path.as_deref(),
+                call.callee_symbol_path.as_deref(),
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("local", Some("a.ts"), Some("local")),
+            ("remote", Some("b.ts"), Some("remote")),
+        ],
+        "CASEFOLD_SETUP_SENSITIVE_SAME_ROOT"
+    );
+    assert_eq!(
+        same.imports[0].resolved_rel_path.as_deref(),
+        Some("b.ts"),
+        "CASEFOLD_SETUP_SENSITIVE_SAME_IMPORT"
+    );
+    assert_eq!(
+        distinct.calls[0].callee_rel_path.as_deref(),
+        Some("../repo/a.ts"),
+        "CASEFOLD_SENSITIVE_DISTINCT_ROOT"
     );
 }

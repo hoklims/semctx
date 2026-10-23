@@ -99,7 +99,7 @@ pub struct ExtractionContext<'a> {
 
 pub fn retained_function_owner_coordinate(
     declaration: Node,
-    repository_root: &str,
+    context: &ExtractionContext<'_>,
 ) -> Option<(String, String)> {
     if declaration.kind() != SyntaxKind::FunctionDeclaration || declaration.body().is_nil() {
         return None;
@@ -110,7 +110,11 @@ pub fn retained_function_owner_coordinate(
         return None;
     }
     Some((
-        relative_path(repository_root, ast::source_file_file_name(owner)),
+        relative_path(
+            context.repository_root,
+            ast::source_file_file_name(owner),
+            context.case_sensitive,
+        ),
         scoped_path(&enclosing_scope(declaration, true), &name),
     ))
 }
@@ -637,6 +641,7 @@ impl SymbolWalker<'_, '_> {
                         runtime_companion(path, &self.context)
                             .as_deref()
                             .unwrap_or(path),
+                        self.context.case_sensitive,
                     )
                 })
         } else if symbol.is_some() {
@@ -652,6 +657,7 @@ impl SymbolWalker<'_, '_> {
                         runtime_companion(path, &self.context)
                             .as_deref()
                             .unwrap_or(path),
+                        self.context.case_sensitive,
                     )
                 })
         } else {
@@ -930,9 +936,13 @@ fn resolve_target(
     Target {
         rel_path: if declaration_path(path) {
             runtime_companion(path, context)
-                .map(|path| relative_path(context.repository_root, &path))
+                .map(|path| relative_path(context.repository_root, &path, context.case_sensitive))
         } else {
-            Some(relative_path(context.repository_root, path))
+            Some(relative_path(
+                context.repository_root,
+                path,
+                context.case_sensitive,
+            ))
         },
         symbol_path: Some(scoped_path(
             &enclosing_scope(declaration, context.retained),
@@ -1051,12 +1061,22 @@ fn parse_markers(comment: &str) -> Vec<Marker> {
     markers
 }
 
-fn relative_path(root: &str, path: &str) -> String {
+fn relative_path(root: &str, path: &str, case_sensitive: bool) -> String {
     let root = root.replace('\\', "/");
     let path = path.replace('\\', "/");
     let from: Vec<_> = root.split('/').filter(|part| !part.is_empty()).collect();
     let to: Vec<_> = path.split('/').filter(|part| !part.is_empty()).collect();
-    let common = from.iter().zip(&to).take_while(|(a, b)| a == b).count();
+    let common = from
+        .iter()
+        .zip(&to)
+        .take_while(|(a, b)| {
+            if case_sensitive {
+                a == b
+            } else {
+                a.to_lowercase() == b.to_lowercase()
+            }
+        })
+        .count();
     std::iter::repeat_n("..", from.len() - common)
         .chain(to[common..].iter().copied())
         .collect::<Vec<_>>()
