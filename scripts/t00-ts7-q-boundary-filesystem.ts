@@ -4,6 +4,7 @@ import { basename, dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { Context, Evidence, Execution, Json, Observation, Property } from "./t00-ts7-q-boundary-common";
 import { isolatedEnvironment } from "./t00-ts7-q-boundary-common";
+import { liveCanonicalObservation, liveDiscoveryObservations } from "./t00-ts7-q-boundary-live-fs";
 
 const reference = "contract-ts7.md P2 + owner decisions 2026-10-23; consumer-contracts.json finite observable rules";
 const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
@@ -201,14 +202,8 @@ async function discovery(ctx: Context): Promise<Observation[]> {
   const links = await ctx.run("169-outside-source-link", "--discover-repository", { repositoryRoot: root, config: discoveryConfig });
   evidence.push(...links.evidence, await ctx.save("169-link-oracle", { link: resolve(root, "outside-link.ts"), target: await realpath(resolve(root, "outside-link.ts")), repository: await realpath(root) }));
   const linkProperties = [property("outside-source-symlink-refused", array(links.value.candidates).map(object).some(row => row.relPath === "outside-link.ts" && row.reason === "SOURCE_LINK_OUTSIDE_REPOSITORY" && row.analysisOutcome === "failed"), true)];
-  const missingRequest = ctx.analysis({ "entry.ts": "export const present = 1;\n" });
-  const missing = await ctx.run("169-missing-retained-source", "", { ...missingRequest, files: {} });
-  evidence.push(...missing.evidence);
-  linkProperties.push(property("missing-retained-source-reports-refusal", missing.exitCode !== 0 || JSON.stringify(missing.value).includes("SOURCE_SNAPSHOT_MISSING"), true));
-  return [
-    finish(6, properties, evidence, false, "Direct discovery activates relative static/dynamic imports, references, bare imports and missing in-root source; resolved symlink escape and full JavaScript unresolved-alias owning diagnostics remain unexercised."),
-    finish(169, [...properties, ...linkProperties], evidence, false, "Direct confinement and real outside-source link plus missing retained root are exercised; transitive captured-source traversal/cycles and the exact SOURCE_SNAPSHOT_MISSING extractor refusal remain incomplete."),
-  ];
+  const live = await liveDiscoveryObservations(ctx);
+  return live.map(observation => ({ ...observation, properties: [...properties, ...(observation.index === 169 ? linkProperties : []), ...observation.properties], evidence: [...evidence, ...observation.evidence] }));
 }
 
 async function eligibility(ctx: Context): Promise<Observation> {
@@ -349,7 +344,11 @@ export async function filesystemObservations(ctx: Context, indices: number[]): P
       if (!observations.some(observation => [220, 229].includes(observation.index))) observations.push(...await acquisition(ctx, indices.filter(value => [220, 229].includes(value))));
     } else if ([230, 231].includes(index)) {
       if (!observations.some(observation => [230, 231].includes(observation.index))) observations.push(...await imports(ctx, indices.filter(value => [230, 231].includes(value))));
-    } else if ([136, 170].includes(index)) observations.push(await keys(ctx, index));
+    } else if (index === 170) {
+      const lexical = await keys(ctx, index);
+      const live = await liveCanonicalObservation(ctx);
+      observations.push({ ...live, properties: [...lexical.properties, ...live.properties], evidence: [...lexical.evidence, ...live.evidence] });
+    } else if (index === 136) observations.push(await keys(ctx, index));
     else if (index === 168) observations.push(await identity(ctx));
     else if (index === 5) observations.push(await eligibility(ctx));
   }

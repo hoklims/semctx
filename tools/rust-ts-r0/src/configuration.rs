@@ -226,6 +226,12 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     let config = loop {
         let candidate = format!("{dir}/tsconfig.json");
         let found = fs.files.contains_key(&fs.key(&candidate));
+        #[cfg(any(test, feature = "qualification-observer"))]
+        let found = if fs.live_for(&candidate).is_some() {
+            fs.file_exists(&candidate)
+        } else {
+            found
+        };
         fs.record("configuration_discovery_file_exists", &candidate, found);
         if found {
             break Some(candidate);

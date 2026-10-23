@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { runLiveFilesystem } from "./t00-ts7-q-config-live-fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
@@ -230,8 +231,8 @@ async function workspaceWitness(ctx: CampaignContext, installed: boolean): Promi
 const missing: Record<string, string> = {
   configuration: "Full owning-consumer closure remains unproved: retained source predicates, outside-root configuration reads, live read failures, source-dependent runtime branches and complete activating/control allocation are not covered by these compiler controls.",
   named: "Full named-configuration closure remains unproved: normalized case collisions, malformed chain failure paths, cache lifecycle and independent native read-attribution are not all exercised.",
-  resolution: "Full resolver closure remains unproved: default system selection, repositoryRoot absent, canonical escape, live filesystem failures, directoryExists alternatives and delegate absent/undefined are not observable through the captured resolver endpoint.",
-  workspace: "Full workspace-system closure remains unproved: installed/uninstalled direct operations, above-repository absence, nested repositories, canonical symlink confinement and resolver.inputs need an independent complete live-system oracle.",
+  resolution: "Live filesystem controls supplement the captured endpoint; complete resolver closure still requires default/explicit System selection, omitted repositoryRoot, optional delegate absence/undefined, configuration errors, mode/implied-format and runtime-companion alternatives at the owning resolution boundary.",
+  workspace: "Native live direct operations, installed precedence, above-root/nested/symlink confinement and input attribution have finite controls; complete owning workspace-system closure still requires omitted-boundary and optional-delegate alternatives and exact complete resolver.inputs maps.",
 };
 
 const uncovered: Record<number, string[]> = {
@@ -289,21 +290,23 @@ export async function runConfigurationResolution(ctx: CampaignContext, indices: 
     witnesses.push(await workspaceWitness(ctx, false));
     witnesses.push(await workspaceWitness(ctx, true));
   }
+  const live = needed.has("resolution") || needed.has("workspace") ? await runLiveFilesystem(ctx, libraries) : undefined;
   return indices.map(index => {
     if (!ids[index]) throw new Error(`unknown C/R obligation ${index}`);
     const group = index < 40 ? "configuration" : index < 100 ? "named" : index < 223 ? "resolution" : "workspace";
     const relevant = witnesses.filter(value => value.kind === group || (group === "workspace" && value.name === installedConfiguration.name));
     const gap = index === 198 || index === 204 ? `${missing.resolution} Specifically obligation ${index} retains the lot-3 unexercised live branches; no captured substitute closes them.` : missing[group]!;
     const properties: Property[] = [
+      ...(index >= 198 ? live?.properties ?? [] : []),
       ...relevant.flatMap(value => value.properties.map(result => ({ ...result, evidence: value.evidence }))),
       { property: "owning consumer observable rule(s) in canonical family/call-path contract", status: "not_qualified", reason: gap, evidence: [] },
       ...(uncovered[index] ?? []).map(branch => ({ property: branch, status: "not_qualified" as const, reason: "Independent TS7 activating/control witnesses at this owning boundary are absent; neighboring successful examples receive no closure credit.", evidence: [] })),
       ...(group === "workspace" ? [
         { property: "uninstalled/installed/boundary read, existence, directory, realpath and resolver.inputs observations", status: "not_qualified" as const, reason: missing.workspace!, evidence: [] },
         { property: "installed dependency emits invalid module6046 instead of workspace default", status: "not_qualified" as const, reason: "A fresh independent installed-configuration compiler control is recorded; complete native SDK115 support and live System equivalence remain prerequisites.", evidence: [] },
-        { property: "above-repository link absent", status: "not_qualified" as const, reason: "Captured ancestor-query controls are recorded; live canonical symlinks and absent/delegated methods remain unexercised.", evidence: [] },
+        { property: "above-repository link absent", status: "not_qualified" as const, reason: "Captured and native ancestor-query controls are recorded; complete owning consumer alternatives remain separately unproved.", evidence: [] },
       ] : []),
     ];
-    return { index, id: ids[index]!, status: closeConfigurationResolution(properties), reason: gap, properties, evidence: relevant.flatMap(value => value.evidence), durationMs: relevant.reduce((total, value) => total + value.durationMs, 0) };
+    return { index, id: ids[index]!, status: closeConfigurationResolution(properties), reason: gap, properties, evidence: [...relevant.flatMap(value => value.evidence), ...(index >= 198 ? live?.evidence ?? [] : [])], durationMs: relevant.reduce((total, value) => total + value.durationMs, 0) + (index >= 198 ? live?.durationMs ?? 0 : 0) };
   });
 }

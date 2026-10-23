@@ -83,7 +83,7 @@ export const cases: CampaignCase[] = [
     ["conditional", "function a() {} function b() {} (true ? a : b)(); export {};"],
     ["element", "const value = { a() {} }; value['a'](); export {};"],
     ["tagged", "function tag() {} tag`value`; export {};"],
-  ].flatMap(([name, source]) => ["main.ts", "main.js"].map(filename => raw(`J-invocation-${name}-${filename}`, [19, 48], filename, source!, [scan, scope, parsing]))),
+  ].flatMap(([name, source]) => ["main.ts", "main.js"].map(filename => raw(`J-invocation-${name}-${filename}`, [48], filename, source!, [scan, scope, parsing]))),
   ...["main.ts", "main.tsx", "main.js", "main.jsx"].map(filename => {
     const source = "\uFEFFexport const emoji = '😀';\r\nexport function broken( {\u2028";
     return {
@@ -98,9 +98,7 @@ export const cases: CampaignCase[] = [
 ];
 
 export const gaps: Record<number, string> = Object.fromEntries<string>([
-  [18, "Declared-external manifest ascent, malformed JSON, workspace/self/ancestor confinement and native system read failures require independent retained-system witnesses; omitted from this syntax projection."],
   ...Array.from({ length: 12 }, (_, index): [number, string] => [28 + index, "Native module alias consumer cumulative closure remains unproved: checker symbol declarations/shorthand/export targets, shadowing, wrapper/destructuring origins, namespace escapes and host module resolution need an independent TS7 Program/checker oracle; parser witnesses alone do not qualify these obligations."]),
-  [19, "Tagged/call traversal covered; computed import arity/string controls, with statement, static import/export link resolution and declared-external behavior remain unexercised."],
 ]);
 
 const jsdocWitnesses = ["J-jsdoc-type", "J-jsdoc-typedef", "J-jsdoc-import-tag", "J-jsdoc-prose-control", "J-jsdoc-typescript-control"];
