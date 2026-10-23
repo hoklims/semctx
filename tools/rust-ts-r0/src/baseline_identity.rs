@@ -54,10 +54,35 @@ struct Capture {
 
 fn entries(root: &Path, relative: &str) -> Result<Vec<fs::DirEntry>, String> {
     let error = |error| format!("LEGACY_IDENTITY_DIRECTORY_READ_FAILED:{relative}:{error}");
-    fs::read_dir(root.join(relative))
+    let directory = root.join(relative).canonicalize().map_err(error)?;
+    if !directory.starts_with(root) {
+        return Err(format!("LEGACY_IDENTITY_OUTSIDE_ROOT:{relative}"));
+    }
+    let mut entries = fs::read_dir(directory)
         .map_err(error)?
         .map(|entry| entry.map_err(error))
-        .collect()
+        .collect::<Result<Vec<_>, _>>()?;
+    entries.sort_by_key(|entry| entry.file_name());
+    for entry in &entries {
+        if entry.file_type().map_err(error)?.is_symlink() {
+            let name = entry
+                .file_name()
+                .into_string()
+                .map_err(|_| "LEGACY_IDENTITY_PATH_NOT_UTF8")?;
+            confined_path(root, &format!("{relative}/{name}"))?;
+        }
+    }
+    Ok(entries)
+}
+fn confined_path(root: &Path, relative: &str) -> Result<PathBuf, String> {
+    let actual = root
+        .join(relative)
+        .canonicalize()
+        .map_err(|error| format!("LEGACY_IDENTITY_READ_FAILED:{relative}:{error}"))?;
+    if !actual.starts_with(root) {
+        return Err(format!("LEGACY_IDENTITY_OUTSIDE_ROOT:{relative}"));
+    }
+    Ok(actual)
 }
 fn sources(root: &Path, directory: &str, paths: &mut BTreeSet<String>) -> Result<(), String> {
     let mut pending = vec![directory.to_owned()];
@@ -88,11 +113,7 @@ fn sources(root: &Path, directory: &str, paths: &mut BTreeSet<String>) -> Result
 impl Capture {
     fn read(&mut self, root: &Path, relative: &str, domain: &str) -> Result<Vec<u8>, String> {
         let error = |error| format!("LEGACY_IDENTITY_READ_FAILED:{relative}:{error}");
-        let path = root.join(relative);
-        let actual = path.canonicalize().map_err(error)?;
-        if !actual.starts_with(root) {
-            return Err(format!("LEGACY_IDENTITY_OUTSIDE_ROOT:{relative}"));
-        }
+        let actual = confined_path(root, relative)?;
         let file = fs::File::open(&actual).map_err(error)?;
         let remaining = CAPTURE_LIMIT - self.bytes;
         let mut bytes = vec![];
