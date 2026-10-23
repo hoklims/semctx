@@ -260,7 +260,7 @@ class Witnesses {
     return { ...output, value: {}, evidence: [input, ...this.sdkEvidence, ...output.evidence] };
   }
   analyze(name: string, root: string, files: Record<string, string>, roots: string[], retained = true): Promise<Observation> {
-    return this.observe(name, null, { id: "pew-" + name, cwd: root, sdk_directory: "/sdk/lib", case_sensitive: true, roots, files, retained, qualified: false, options: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", jsx: "Preserve", allowJs: true, skipLibCheck: true, noEmit: true, strict: false } }, true);
+    return this.observe(name, null, { id: "pew-" + name, cwd: root, sdk_directory: "/sdk/lib", case_sensitive: this.ctx.platform === "linux", roots, files, retained, qualified: false, options: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", jsx: "Preserve", allowJs: true, skipLibCheck: true, noEmit: true, strict: false } }, true);
   }
   once(name: string, action: () => Promise<Observation>): Promise<Observation> {
     const previous = this.cache.get(name);
