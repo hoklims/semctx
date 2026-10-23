@@ -1,5 +1,7 @@
 mod base_capture;
 mod base_scope;
+#[cfg(feature = "qualification-observer")]
+pub(super) mod receipt_observer;
 
 use super::*;
 use semctx_gates::process;
@@ -207,7 +209,7 @@ impl Observation {
         );
         let input_id = InputId::observed_json(&input);
         let indexed_batch: wire::Batch =
-            serde_json::from_str(&indexed.stdout).map_err(|e| e.to_string())?;
+            serde_json::from_str(&indexed.stdout).map_err(|_| "MalformedOutput".to_string())?;
         let indexed_facts = FactsId::observed_json(
             &serde_json::to_value(&indexed_batch.facts).map_err(|e| e.to_string())?,
         );
@@ -326,7 +328,7 @@ fn receive_index(
     .map_err(|e| format!("{e:?}"))?;
     let receipt = receiver
         .receive(indexed, &observed)
-        .map_err(|e| format!("indexed extraction rejected: {e:?}"))?;
+        .map_err(|e| format!("{e:?}"))?;
     Ok(ReceivedIndex { receiver, receipt })
 }
 
@@ -497,7 +499,11 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     }
     let current_observation = analyze(request.clone(), sdk.clone())?;
     let current = batch::build(request, &sdk, &current_observation)?;
-    let received = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
+    let (received, receipt_rejection) =
+        match receive_index(request, &sdk, &spec.index.outcome, &current, &artifact) {
+            Ok(received) => (Some(received), None),
+            Err(reason) => (None, Some(format!("INDEXED_EXTRACTION_REJECTED:{reason}"))),
+        };
     let mut broad_request = request.clone();
     broad_request.roots = broad["files"]
         .as_array()
@@ -573,17 +579,19 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     let subjects = current_observation["subjects"]
         .as_array()
         .ok_or("native selected subjects missing")?;
-    let mut reasons = match received.receipt.disposition() {
-        EvidenceDisposition::Analyzed => vec![],
-        EvidenceDisposition::ControlledRefusal => current
+    let mut reasons = match current.terminal {
+        wire::Terminal::Complete => vec![],
+        wire::Terminal::Refused => current
             .diagnostics
             .iter()
             .map(|diagnostic| diagnostic.code.clone())
             .collect(),
     };
-    let ownership_paths = match received.receipt.disposition() {
-        EvidenceDisposition::ControlledRefusal => BTreeSet::new(),
-        EvidenceDisposition::Analyzed => {
+    if let Some(reason) = receipt_rejection {
+        reasons.push(reason);
+    }
+    let ownership_paths = match received.as_ref() {
+        Some(received) if received.receipt.disposition() == EvidenceDisposition::Analyzed => {
             revalidate_git(&root, &spec, &git_snapshot)?;
             let mut consumed_request = request.clone();
             for (path, text) in &mut consumed_request.files {
@@ -616,6 +624,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             broad_observation["received_subjects"] = json!(subjects);
             owned_paths(&context)?
         }
+        _ => BTreeSet::new(),
     };
     let mut coverage = vec![];
     for path in &expected {
@@ -642,17 +651,6 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     if !coverage.iter().any(|c| c["status"] == "analyzed") {
         reasons.push("ZERO_ANALYZED_OBLIGATIONS".into());
     }
-    for (from, diagnostics) in &import_scope.unresolved_import_reasons {
-        if expected.contains(from) {
-            for diagnostic in diagnostics {
-                reasons.push(String::from_utf16_lossy(diagnostic).replacen(
-                    "DEPENDENCY_SCOPE_",
-                    "",
-                    1,
-                ));
-            }
-        }
-    }
     for subject in broad_observation["subjects"]
         .as_array()
         .ok_or("broad subject inventory missing")?
@@ -668,7 +666,23 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             || subject["unimplemented"] != json!([])
             || subject["reasons"] != json!([])
         {
-            reasons.push(format!("DEPENDENCY_SCOPE_UNSUPPORTED:{}", subject["path"]));
+            for key in ["reasons", "unimplemented"] {
+                for reason in subject[key]
+                    .as_array()
+                    .ok_or("broad subject reasons missing")?
+                {
+                    reasons.push(
+                        reason
+                            .as_str()
+                            .ok_or("invalid broad subject reason")?
+                            .to_string(),
+                    );
+                }
+            }
+            let path = subject["path"]
+                .as_str()
+                .ok_or("broad subject path missing")?;
+            reasons.push(format!("DEPENDENCY_SCOPE_UNSUPPORTED:{path}"));
         }
     }
     let base_capture = if reasons.is_empty() {
@@ -716,7 +730,10 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     {
         return Err("qualified Git commit changed during verification".into());
     }
-    if received.receipt.disposition() == EvidenceDisposition::Analyzed {
+    if let Some(received) = received
+        .as_ref()
+        .filter(|received| received.receipt.disposition() == EvidenceDisposition::Analyzed)
+    {
         let final_artifact = fs::read(std::env::current_exe().map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
         let observation = Observation::capture(request, &sdk, &spec.index.outcome, &current)?;
@@ -735,6 +752,8 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             return Err("validated coverage no longer owns selected subject".into());
         }
     }
+    reasons.sort();
+    reasons.dedup();
     let admission = if reasons.is_empty() {
         Admission::Admitted
     } else {
@@ -755,7 +774,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         }
     );
     Ok(Verification {
-        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons,"externalModuleSpecifiers":external,"limitations":[opaque_limitation]},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":true,"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"base_capture":base_capture,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
+        report: json!({"analysisAdmission":{"status":if admitted{"admitted"}else{"rejected"},"changeCoverage":{"expected":expected,"files":coverage},"reasons":reasons,"externalModuleSpecifiers":external,"limitations":[opaque_limitation]},"verdict":if admitted{"NOT_ASSERTED"}else{"BLOCK"},"indexed_extraction_received":received.is_some(),"inherited_configuration":{"executed":configuration["moduleConfigurationObservations"]["retainedWithSource"]["executed"],"consumed":configuration["configurationConsumed"]},"links":links,"changed_git_outcome":diff,"head_git_outcome":head,"selected_discovery":selected,"broad_discovery":broad,"selected_analysis":current_observation,"broad_analysis":broad_observation,"base_capture":base_capture,"request_descriptor_id":identity::digest(&descriptor),"producer_artifact_id":identity::digest_bytes(&artifact),"sdk_input_id":identity::digest(&serde_json::to_value(&sdk).map_err(|e|e.to_string())?),"global_admission_inferred":false}),
         admission,
     })
 }
