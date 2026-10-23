@@ -87,8 +87,8 @@ fn binding_target(checker: &mut Checker, source: Node, name: Node, root: &str) -
                 }
                 true
             });
-        if used {
-            target["runtimeUsed"] = json!(true);
+        if !used {
+            target["runtimeUsed"] = json!(false);
         }
     }
     Some(target)

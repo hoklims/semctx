@@ -287,8 +287,8 @@ mod tests {
         assert_eq!(
             observation["imports"][0]["bindingTargets"],
             json!([
-                {"relPath":"b.ts","symbolPath":"leaf","runtimeUsed":true},
-                {"relPath":"b.ts","symbolPath":"unused"}
+                {"relPath":"b.ts","symbolPath":"leaf"},
+                {"relPath":"b.ts","symbolPath":"unused","runtimeUsed":false}
             ])
         );
         assert_eq!(observation["calls"][0]["calleeRelPath"], "b.ts");
