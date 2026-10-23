@@ -96,16 +96,11 @@ async function keys(ctx: Context, index: number): Promise<Observation> {
         evidence.push(...result.evidence);
         properties.push(property(`${name}-${sensitive}`, result.value.key, sensitive ? actualPath : actualPath.toLowerCase(), "node:fs realpath + finite canonical key contract"));
       }
-      const missing = await ctx.run(`${index}-missing-realpath-${sensitive}`, "--observe-primitives", { operation: "canonical_file_key", path: resolve(root, "missing.ts"), case_sensitive: sensitive, realpath_results: {} });
-      evidence.push(...missing.evidence);
-      const lexical = resolve(root, "missing.ts");
-      properties.push(property(`missing-realpath-falls-back-${sensitive}`, missing.value.key, sensitive ? lexical : lexical.toLowerCase(), "consumer-contracts.json /rows/170: realpath exceptions preserve the lexical path"));
-      properties.push(property(`missing-realpath-success-${sensitive}`, missing.exitCode, 0));
     }
   }
   return finish(index, properties, evidence, false, index === 136
     ? "Finite lexical/case primitive vectors execute; the semantic-dependency owning operation and its retained-context usage pair are not independently composed in this witness."
-    : "Real filesystem alias/target/distinct paths and realpath exception fallback execute; worker/direct extraction parity and selected-root component continuity are not exercised.");
+    : "Real filesystem alias/target/distinct paths execute. The controlled primitive requires successful supplied realpath mappings and cannot activate the compiler realpath-exception fallback; worker/direct extraction parity and selected-root component continuity are also unexercised.");
 }
 
 async function retained(ctx: Context): Promise<Observation[]> {
