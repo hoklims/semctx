@@ -1,0 +1,78 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-parallel-two-components",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.ts": "export function b() { return 2; }",
+        "ambient.d.ts": "declare const ambient: string;"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts",
+        "ambient.d.ts"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        192,
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "id": "PUBLIC-parallel-mixed-js",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.js": "export function b() { return 2; }"
+      },
+      "roots": [
+        "a.ts",
+        "b.js"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        192
+      ]
+    },
+    {
+      "id": "PUBLIC-parallel-connected-through-unselected",
+      "files": {
+        "a.ts": "import { middle } from \"./middle\"; export function a() { return middle(); }",
+        "middle.ts": "import { b } from \"./b\"; export function middle() { return b(); }",
+        "b.ts": "export function b() { return 2; }"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        170,
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "id": "PUBLIC-parallel-single-control",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.ts": "export function b() { return 2; }",
+        "ambient.d.ts": "declare const ambient: string;"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts",
+        "ambient.d.ts"
+      ],
+      "workers": 1,
+      "obligation_indices": [
+        192,
+        210
+      ]
+    }
+  ]
+}

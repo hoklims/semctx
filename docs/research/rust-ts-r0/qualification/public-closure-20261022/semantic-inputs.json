@@ -1,0 +1,3526 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-0",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return new ReadableStream({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:4"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-1",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:8"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-2",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-3",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({}, {highWaterMark:1});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-4",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({start:undefined});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:10"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-5",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function ReadableStream(_source:unknown){return 1;}function helper(){return 1;}export function run(){return ReadableStream({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-6",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const api={create(_source:unknown){return 1;}};function helper(){return 1;}export function run(){return api.create({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:12"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-7",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new URL('./x',import.meta.url);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:17"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-8",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { const [[value]] = [values]; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-9",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const thenable = { then() { return 1; } }; function load() { return thenable; } async function native() { return 1; } export async function start() { return await (load as typeof native)(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:13"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-10",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:19"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-11",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value = { then(resolve) { resolve(1); } }; export async function start() { return await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:20"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-12",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const matcher = { [Symbol.hasInstance](value) { return !!value; } }; export function start(value) { return value instanceof matcher; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:21"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-13",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:29"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-14",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start([value]: number[]) { return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:30"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-15",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { let value; [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:31"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-16",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start(value: unknown) { return await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:32"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-17",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value = { then(resolve) { resolve(1); } }; const promise: Promise<number> = value as unknown as Promise<number>; export async function start() { return await promise; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:33"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-18",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const matcher = { [Symbol.hasInstance](value) { return !!value; } }; const typed: typeof Error = matcher as unknown as typeof Error; export function start(value) { return value instanceof typed; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:34"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-19",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start() { const [value] = [1]; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:41"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-20",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [[1]]; export function start() { const [[value]] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:42"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-21",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:43"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-22",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const ready = Promise.resolve(1); export async function start() { return await ready; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:44"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-23",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await new Promise(resolve => resolve(1)); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:45"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-24",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "async function load() { return 1; } export async function start() { return await load(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:46"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-25",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await import('./dep.mjs'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:47"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-26",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Kind = Error; export function start(value) { return value instanceof Kind; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:48"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-27",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function dep() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:51"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-28",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function* start() { yield* 'abc'; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:59"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-29",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function main() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:70"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-30",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';const source=read();if(typeof source!=='string')throw new TypeError();source.includes('needle');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:6"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-31",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {string} */const source=read();"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:13"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-32",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const source=read() as unknown as typeof globalThis;"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:14"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-33",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {typeof globalThis} */const source=read();"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:14"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-34",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';function hidden(){return 'text';}const source=read();if(typeof source!=='string')throw new TypeError();source.replace('needle',hidden);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:38"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-35",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';function hidden(){return true;}String.prototype.includes=hidden;const source=read();if(typeof source!=='string')throw new TypeError();source.includes('needle');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:48"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-36",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; function helper() { return 1; } export function run() { return register({ handler: helper }); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-37",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { value } from './value'; export function run() { return JSON.stringify(value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:6"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-38",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value = { toJSON() { return 1; } };"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-39",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; register({ nested: { count: 1, values: ['x', 2] } }); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:16"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-40",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return JSON.stringify('data'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:17"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-41",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const JSON = { stringify(value) { return value; } }; export function run() { return JSON.stringify(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:18"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-42",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const register = value => value; export function run() { return register({ value: 1 }); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:19"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-43",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; function helper() { return 1; } const value = { handler: helper }; register(value); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:27"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-44",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; const value = { count: 1 }; register(value); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:28"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-45",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { value } from './value'; const serialize = JSON.stringify; export function run() { return serialize.call(JSON, value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:29"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-46",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){}export function run(){return WebAssembly.instantiateStreaming(fetch('module.wasm'),{env:{hook:helper}});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:19"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-47",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const button=document.createElement('button');button.onclick=helper;export function run(){button.click();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:20"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-48",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const wasm:typeof WebAssembly=WebAssembly;export function run(){return wasm.instantiateStreaming(fetch('module.wasm'),{});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:29"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-49",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const dom:Document=document;export function run(){const script=dom.createElement('script');const alias=script;dom.head.appendChild(alias);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:30"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-50",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const wasm:typeof WebAssembly={instantiateStreaming(){return 1;}} as unknown as typeof WebAssembly;export function run(){return wasm.instantiateStreaming(null as any,{});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:39"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-51",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const button=document.createElement('button');button.onclick=null;export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:46"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-52",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const button=document.createElement('button');button.onclick=1 as any;export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:47"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-53",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const button:{onclick:null|(()=>number)}={onclick:null};button.onclick=helper;export function run(){return button.onclick!();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:48"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-54",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const script=document.createElement('script');script.src='./hidden.js';return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:49"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-55",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const div=document.createElement('div');document.head.appendChild(div);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:50"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-56",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){document.head.prepend('plain data');}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:51"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-57",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const script=document.createElement('script');const div=document.createElement('div');document.head.replaceChild(div,script);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:52"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-58",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return WebAssembly.compileStreaming(fetch('module.wasm'));}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:53"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-59",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const dom:Document={createElement(){return {src:''};},head:{appendChild(){return 1;}}} as unknown as Document;export function run(){const script=dom.createElement('script');dom.head.appendChild(script);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:63"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-60",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toString:hidden};const bound=String.bind(null,value);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:31"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-61",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toString:hidden};const bound=Array.prototype.join.bind([value]);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:41"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-62",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const bound=String.bind(null,'value');export function run(){return bound();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:64"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-63",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const bound=Array.prototype.join.bind([1,2]);export function run(){return bound();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:65"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-64",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Math.random.call(null,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:81"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-65",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Math.abs.call(null,1,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:82"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-66",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Number.call(null,1,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:83"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-67",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={toString:hidden};const bound=String.bind(null,value);export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:84"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-68",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const own={call(_receiver,_value){return 1;}};function hidden(){return 1;}export function run(){return own.call(null,{valueOf:hidden});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:85"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-69",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } Math = { ...Math, random: helper }; export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-70",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 'value'; } const value = {}; value[Symbol.toPrimitive] = helper; export function run() { return String(value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:6"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-71",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} export function run() { return Promise.all([{ then: helper }]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:7"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-72",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){console.log('GLOBAL_CALLED');return 7} Math={...Math,random:helper};if(Math.random()!==7)throw Error('math mismatch');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:14"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-73",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){console.log('THEN_CALLED')} Promise.all([{then:helper}]);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:15"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-74",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let Math = { random() { return 1; } }; Math = { random() { return 2; } }; export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:23"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-75",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Promise.all([1, Promise.resolve(2)]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:24"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-76",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:25"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-77",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function run() { return Promise.all(values); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:32"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-78",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const { all: gather } = Promise; export function run() { return gather.call(Promise, [{ then: helper }]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:33"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-79",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;} [Math]=[{random:helper}]; export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:42"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-80",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;} ({Math}={Math:{random:helper}}); export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:43"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-81",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let Math={random(){return 1;}}; [Math]=[{random(){return 2;}}]; export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:50"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-82",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export interface Box { [key]: number; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:6"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-83",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export type Box = { [key]: number; };"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:7"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-84",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export declare class Box { [key]: number; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:8"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-85",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { toString() { return 'value'; } }; export class Box { [key] = 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:14"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-86",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const p = Promise.resolve(1); const key = 'then'; (p as any)[key] = helper; export async function start() { return p; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:18"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-87",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const resource = { [Symbol.asyncDispose]() {} }; export async function start() { await using owned = resource; return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:23"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-88",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { toString() { return 'value'; } }; export function start() { return { [key]: 1 }; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:24"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-89",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { [Symbol.toPrimitive]() { return 'value'; } }; const target = { value: 1 }; export function start() { const { [key]: value } = target; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:25"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-90",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const p = Promise.resolve(1); p.then = helper; export async function start() { return p; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:26"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-91",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = 'value'; const target = { value: 1 }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:33"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-92",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const target = [1]; export function start() { return target[0]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:34"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-93",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = Symbol.iterator; const target = { [key]() { return 1; } }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:35"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-94",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await Promise.resolve(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:36"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-95",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return import('./dep.mjs'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:37"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-96",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start() { const using = 1; return using; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:38"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-97",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const value: any = []; value.then = helper; export async function start() { await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:56"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-98",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { [Symbol.toPrimitive]() { return 'value'; } }; const target = { value: 1 }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:57"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-99",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const disposable = { [Symbol.dispose]() {} }; export function start() { using resource = disposable; return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:58"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-100",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:65"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-101",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.iterator] = helper; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-102",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; const key = Symbol.iterator; const alias = key; values[alias] = helper; export function start() { for (const value of values) { return value; } }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:6"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-103",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.asyncIterator] = helper; export async function start() { for await (const value of values) { break; } }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:7"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-104",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; const { iterator: key } = Symbol; values[key] = helper; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:8"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-105",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.iterator] = helper; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-106",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:19"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-107",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:20"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-108",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:21"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-109",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const text = 'abc'; export function start() { return [...text]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:22"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-110",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = new Set([1]); export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:23"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-111",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const values = [1]; values['iterator'] = helper; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:24"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-112",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const Symbol = { iterator: 'iterator' }; const values = [1]; values[Symbol.iterator] = helper; export function start() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:25"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-113",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type Key = typeof Symbol.iterator;"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:30"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-114",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(value) { return 1; } export function run() { return [1].map.call([1], helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-115",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(value) { return value; } export function run() { return [1].map(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-116",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function executor() {} export async function run() { await new Promise(executor); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:10"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-117",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.max(1, 2); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:21"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-118",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.max.call(null, 1, 2); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:22"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-119",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const own = { call(callback) { return 1; } }; function helper() { return 1; } export function run() { return own.call(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:23"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-120",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return new Map(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:24"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-121",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run() { return await Promise.resolve(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:25"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-122",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const own = { map(callback) { return callback(); } }; export function run() { return own.map(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:26"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-123",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const own = { map(callback) { return callback(); } }; export function run() { return (own.map as typeof Array.prototype.map)(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:27"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-124",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function executor() {} const Native = Promise; export function run() { return new Native(executor); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:33"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-125",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Object = { setPrototypeOf(value, prototype) { return value; } }; export function run() { return Object.setPrototypeOf(1, null); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:18"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-126",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Reflect = { setPrototypeOf(value, prototype) { return value; } }; export function run() { return Reflect.setPrototypeOf(1, null); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:19"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-127",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type Mutator = typeof Object.setPrototypeOf; export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:20"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-128",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function run() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:21"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-129",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function helper() { return 1; } export function main() { return `value ${helper()}`; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline plain-template-positive.test.ts:12"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-130",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.max(value as any,0);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:4"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-131",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.max(1,2,3);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:8"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-132",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.abs(1);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-133",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-134",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.random(value as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-135",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.abs(1,value as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:10"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-136",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Math={max(_value:unknown,_other:number){return 1;}};function helper(){return 1;}export function run(){return Math.max({valueOf:helper},0);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-137",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Number(value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:4"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-138",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 'one';}const value={toLocaleString:helper};export function run(){return [value].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:5"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-139",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:10"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-140",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(1);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-141",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(true);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-142",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number('2');}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-143",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(2n);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-144",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return Boolean({valueOf:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-145",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1,'one',true,null,undefined].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:12"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-146",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:13"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-147",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].toLocaleString('en-US',{maximumFractionDigits:0});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:13"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-148",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function Number(_value:unknown){return 1;}function helper(){return 1;}export function run(){return Number({valueOf:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:14"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-149",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toLocaleString(){return 'local';}};export function run(){return value.toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:15"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-150",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 'en-US';}export function run(){return [1].toLocaleString([{toString:helper}] as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:20"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-semantic-151",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return [1].toLocaleString('en-US',{minimumFractionDigits:{valueOf:helper}} as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:21"
+    },
+    {
+      "id": "PUBLIC-SEM-existing-SUITE-jsdoc-typescript-control",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {import(\"./types\").Thing} */\nexport const value = 1;\n"
+      },
+      "operation": "semantic",
+      "origin": {
+        "kind": "authored TS documentation control",
+        "oracle": "TypeScript 5.9.3 baseline inspectSemanticDependencies"
+      },
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-coercion-binary-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}}; export function run(){return v+1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        61,
+        100
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-coercion-binary-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=1; export function run(){return v+1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        61,
+        100
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-coercion-unary-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}}; export function run(){return +v}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        97,
+        100
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-coercion-unary-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=1; export function run(){return +v}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        97,
+        100
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-membership-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const k={toString(){return \"x\"}};export function run(){return k in {x:1}}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        62,
+        101,
+        102,
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-membership-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const k=\"x\";export function run(){return k in {x:1}}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        62,
+        101,
+        102,
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-return-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){return {then(){}}}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        53,
+        109
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-return-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        53,
+        109
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-alias-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=()=>({then(){}});export async function run(){return await f()}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        54
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-alias-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=async()=>1;export async function run(){return await f()}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        54
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-binding-nested-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={ [Symbol.iterator](){return null}};export function run(){const [[x]]=[v];return x}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        55,
+        91,
+        94
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-binding-nested-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=[1];export function run(){const [[x]]=[v];return x}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        55,
+        91,
+        94
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-calltype-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].map(()=>1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        58,
+        59,
+        81,
+        113
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-calltype-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].map(undefined)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        58,
+        59,
+        81,
+        113
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callback-dictionary-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({start(){}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        112
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callback-dictionary-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        112
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-function-helper-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){return 1}export function run(){return f.call(null)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        67,
+        88
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-function-helper-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){return 1}export function run(){return f()}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        67,
+        88
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-function-constructor-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){} export function run(){return f.constructor(\"return 1\")()}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-function-constructor-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){} export function run(){return f()}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-iteration-param-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={ [Symbol.iterator](){return null}};export function run(){return new Set(v)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        92,
+        93,
+        114
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-iteration-param-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=[1];export function run(){return new Set(v)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        92,
+        93,
+        114
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-opaque-literal-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const x=()=>1;register({x:x})"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        95,
+        98
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-opaque-literal-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const x=1;register({x:x})"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        95,
+        98
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-callable-mutation-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};Math.abs=f;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        52,
+        110,
+        111
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-callable-mutation-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Math.abs=undefined;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        52,
+        110,
+        111
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-global-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Math={...Math};export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-global-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const own={...Math};export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-global-member-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Object.defineProperties(globalThis,{Math:{value:{}}});export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-global-member-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Object.defineProperties({}, {Math:{value:{}}});export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-destructured-export-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const obj={f(){}};export const {f}=obj"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        50,
+        64,
+        66,
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-destructured-export-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const obj={f:1};export const {f}=obj"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        50,
+        64,
+        66,
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-export-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=()=>1;export const alias=f"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        51,
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-export-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=1;export const alias=f"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        51,
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-date-copy-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new Date({valueOf(){return 1}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        90
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-date-copy-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new Date(new Date())}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        90
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-internal-base-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class A{};export class B extends A{}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-internal-base-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export class B{}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-meta-operation-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {setPrototypeOf}=Reflect;export function run(){return setPrototypeOf({},null)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        120
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-meta-operation-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const setPrototypeOf=(x,y)=>x;export function run(){return setPrototypeOf({},null)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        120
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-meta-map-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties({}, {x:{get(){return 1}}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        75,
+        103
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-meta-map-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties({}, {x:{value:1}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        75,
+        103
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-script-element-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const s=document.createElement(\"script\");document.head.appendChild(s)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        80,
+        119,
+        121,
+        126
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-script-element-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const s=document.createElement(\"div\");document.head.appendChild(s)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        80,
+        119,
+        121,
+        126
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-apply-coercion-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const x={valueOf(){return 1}};export function run(){return Math.abs.apply(null,[x])}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        82,
+        118
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-apply-coercion-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const x=1;export function run(){return Math.abs.apply(null,[x])}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        82,
+        118
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-runtime-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const D=Date;export function run(){return new D({valueOf(){return 1}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        51,
+        129
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-sdk-runtime-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const D=Date;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        51,
+        129
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-protocol-mutation-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const k=Symbol.toPrimitive;const v={};v[k]=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        123
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-protocol-mutation-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const k=\"plain\";const v={};v[k]=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        123
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-runtime-primitive-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register,read} from \"opaque\";const x=read();register(x)"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        56,
+        107
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-runtime-primitive-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register,read} from \"opaque\";const x=read();if(typeof x!==\"string\"){throw Error()}register(x)"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        56,
+        107
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-returned-primitive-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function f(){return {}};register(f())"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        106
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-returned-primitive-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function f(){return 1};register(f())"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        106
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-runtime-property-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key={toString(){return \"x\"}};export class X{[key]=1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        108
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-runtime-property-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key:unique symbol;export declare class X{[key]:number}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        108
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-promise-combinator-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const all=Promise.all;return all([{then(){}}])}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        71
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-promise-combinator-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const all=Promise.all;return all([1])}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        71
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-syntax-decorator-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function dec(x){return x};@dec export class X{}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        84,
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-syntax-decorator-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function dec(x){return x};export class X{}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        84,
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-source-reference-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/// <reference path=\"./absent.ts\"/>\nexport function run(){}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        49
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-source-reference-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        49
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-coercing-operator-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}};export function run(){return v+1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        61
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-coercing-operator-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}};export function run(){return v===1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        61
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-unary-operator-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}};export function run(){return +v}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        97
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-unary-operator-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v={valueOf(){return 1}};export function run(){return !v}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        97
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-owner-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){return {then(){}}}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        53
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-async-owner-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return {then(){}}}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        53
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-export-initializer-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=()=>1;export const alias=f"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        50
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-export-initializer-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const alias=()=>1"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        50
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-assignment-operator-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};Math.abs=f;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        52
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-assignment-operator-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};Math.abs===f;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        52
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callback-parameter-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].map(()=>1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        58,
+        59
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callback-parameter-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].at(()=>1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        58,
+        59
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-property-name-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key={toString(){return \"x\"}};export function run(){return Object.defineProperties({}, {[key]:{value:1}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        103
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-property-name-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key=\"x\";export function run(){return Object.defineProperties({}, {[key]:{value:1}})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        103
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-member-name-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const p={};p.then=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-member-name-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const p={};p.plain=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-opaque-callee-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare let f:(x:unknown)=>unknown;export function run(){return f(()=>1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        98
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-opaque-callee-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let f=(x:unknown)=>x;export function run(){return f(()=>1)}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        98
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-union-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export let f:number|(()=>number);export const alias=f;"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-callable-union-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export let f:number|string;export const alias=f;"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        99
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-numeric-options-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const x={valueOf(){return 1}};export function run(){return [1].toLocaleString(\"en-US\",{minimumFractionDigits:x})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        82
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-numeric-options-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const x=0;export function run(){return [1].toLocaleString(\"en-US\",{minimumFractionDigits:x})}"
+      },
+      "origin": "Independent public boundary construction; exact TypeScript 5.9.3 baseline owns expected full reasons",
+      "obligation_indices": [
+        82
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-site-0",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};const own={constructor:1};export const x=f[\"constructor\"];"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-1",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const fn=(function(){});export const x=fn.constructor;"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-2",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const x=(()=>1).call(null);"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-3",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};export const x=(f as any).call(null);"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-4",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(value:Function){return [1].map(value as any)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-5",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(value:string|(()=>void)){return [1].map(value)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-6",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const p=1; export function run(){return new ReadableStream({start:p})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-7",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {f as g} from \"./dep\";export async function run(){return await g()}",
+        "dep.ts": "export async function f(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-8",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {f as g} from \"./dep\";import {register} from \"opaque\";register(g())",
+        "dep.ts": "export function f(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-9",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const f:undefined|(()=>number)=undefined;export const alias=f;"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-10",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=`value ${1}`;export function run(){return +v}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-11",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=1+2;export function run(){return +v}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-12",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=-1;export function run(){return +v}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-13",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const v=!{};export function run(){return +v}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-14",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const x=1;register({\"text\":1,2:3,x})"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-15",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const minimumFractionDigits=0;return [1].toLocaleString(\"en-US\",{minimumFractionDigits})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-16",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties({}, {\"x\":{value:1},2:{value:3}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-17",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const x=1;export function run(){return Object.defineProperties({}, {x})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-18",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.create(null,{x:{value:1}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-19",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.create({})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-20",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {defineProperties:d}=Object;export function run(){return (d as typeof d)({}, {x:{value:1}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-21",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {setPrototypeOf:s}=Object;export function run(){return s({},null)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-22",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {setPrototypeOf:s}=Reflect;export function run(){return s({},null)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-23",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties({}, {[Symbol.iterator]:{value:()=>1}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-24",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties([], {join:{value:()=>1}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-25",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const m={};return Object.defineProperties({}, {...m})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-26",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Object.defineProperties({}, {x:{...{value:1}}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-27",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const create=Object.create;export function run(){return (create!)({}, {x:{value:1}})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-28",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.abs.apply(null,null)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-29",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.abs.apply(null)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-30",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(args:number[]){return Math.abs.apply(null,args)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-31",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.max.apply(null,[...[1]])}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-32",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.abs.bind(null)(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-33",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new globalThis.Date(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-34",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return globalThis.Math.abs(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-35",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {Date}=globalThis;export function run(){return new Date(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-36",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const D=Date;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-37",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {\"Date\":D}=globalThis;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-38",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {Promise:P}=globalThis;export function run(){return new P(()=>1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-39",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function A(){};export class B extends A{}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-40",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const A=class {};export class B extends A{}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-41",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const A=(()=>class {})();export class B extends A{}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-42",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const A=1;const B=2;export class C extends (true ? A : B){}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-43",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const A=1;const B=class {};export class C extends (true ? A : B){}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-44",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read,register} from \"opaque\";let x=read();x++;register(x)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-45",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read,register} from \"opaque\";const x=read();for(x of []){};register(x)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-46",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read,register} from \"opaque\";const x=read();for(x in {}){};register(x)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-47",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read,register} from \"opaque\";const x=read();({x}={x:1});register(x)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-48",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const f=()=>1;register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-49",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const f=function(){return 1};register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-50",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const o={f(){return 1}};register(o.f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-51",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function f(){function g(){};if(true)return 1;return undefined};register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-52",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";async function f(){return 1};register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-53",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";const f=(x)=>1;register(f(1))"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-54",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const r=(x)=>x;export function run(){return r(()=>1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-55",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const r=function(x){return x};export function run(){return r(()=>1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-56",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as sdk from \"./dep\";export const x=sdk.Date;",
+        "dep.ts": "export const Date=globalThis.Date"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-57",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {x} from \"./dep\";export {x as y};",
+        "dep.ts": "export const x=()=>1"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-58",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Promise.resolve(1) instanceof Promise}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-59",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new Date(new Date(1))}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-60",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new Date(new Date(1),2)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-61",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const x=(Promise.all!) as typeof Promise.all;export function run(){return x([1])}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-62",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";let f=()=>1;register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-63",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";let f=function(){return 1};register(f())"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-64",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";let f=()=>1;f(()=>1)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-65",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";let f=function(){};f(()=>1)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-66",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function run(x){x++;if(typeof x!==\"string\")throw Error();register(x)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-67",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function run(x){x--;if(typeof x!==\"string\")throw Error();register(x)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-68",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register,read} from \"opaque\";const {x}=read();register(x)"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-69",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){setTimeout(()=>1,1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-70",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){setInterval(function(){},1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-71",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const minimumFractionDigits=0;return [].toLocaleString(\"en-US\",{minimumFractionDigits})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-72",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const minimumFractionDigits=0;return [1].toLocaleString(\"en-US\",{minimumFractionDigits})}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-73",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Date.constructor}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-74",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return (class {}).constructor}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-75",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new Date().constructor}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-76",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export let f:number|(()=>number);export const alias=f;"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-77",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const f= Math.random() ? (()=>1) : 1;"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-78",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};[...Math]=[];export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-79",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};({Math:Math}={Math:{}});export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-80",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};({...Math}={});export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-81",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};[Math=1]=[];export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-82",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Object.defineProperties(globalThis,{Math:{value:{}}});export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-83",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Object.defineProperties(window,{Math:{value:{}}});export function run(){return 1}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-84",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return (new Date()).toISOString()}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-85",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {Date:D}=window;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-86",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {Date:D}=self;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-87",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {\"Date\":D}=window;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-88",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {Date as D} from \"./dep\";export function run(){return new D(1)}",
+        "dep.ts": "export const Date=globalThis.Date"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-89",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {Math as M} from \"./dep\";export function run(){return M.abs(1)}",
+        "dep.ts": "export const Math=globalThis.Math"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-site-90",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const a=Promise.all;return ((a as typeof a)!) ([1])}"
+      },
+      "origin": "Independent public API-site boundary witness, exact TypeScript 5.9.3 full reasons",
+      "obligation_indices": []
+    }
+  ],
+  "digestPairs": []
+}

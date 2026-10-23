@@ -1,0 +1,202 @@
+{
+  "units": [
+    {
+      "unit_id": "PUBLIC-symbolsparallel-separate-1",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-separate-2",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-connected-1",
+      "files": {
+        "main.ts": "import { beta } from \"./other\"; export function alpha() { beta(); }\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-connected-2",
+      "files": {
+        "main.ts": "import { beta } from \"./other\"; export function alpha() { beta(); }\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-missing-1",
+      "files": {
+        "main.ts": "import { absent } from \"./missing\"; absent(); export {};\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-missing-2",
+      "files": {
+        "main.ts": "import { absent } from \"./missing\"; absent(); export {};\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-declaration-root-1",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n",
+        "shape.d.ts": "export interface Shape {value: number}\n"
+      },
+      "roots": [
+        "main.ts",
+        "shape.d.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-declaration-root-2",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n",
+        "shape.d.ts": "export interface Shape {value: number}\n"
+      },
+      "roots": [
+        "main.ts",
+        "shape.d.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-dynamic-1",
+      "files": {
+        "main.ts": "import(\"./other\"); export {};\n",
+        "other.ts": "export function beta() {}\n",
+        "third.ts": "export function gamma() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts",
+        "third.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-dynamic-2",
+      "files": {
+        "main.ts": "import(\"./other\"); export {};\n",
+        "other.ts": "export function beta() {}\n",
+        "third.ts": "export function gamma() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts",
+        "third.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ]
+    }
+  ]
+}

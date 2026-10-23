@@ -1,0 +1,49 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "candidate": "38008d22f36b5c8846f3bc367e0a75d17ae70fb2 plus tail semantic data",
+  "manifestSha256": "5f8b015ddb8acf7d70150b048fc1696f20d96ae9e6d0274167afa7d342e398fb",
+  "inputsSha256": "e6baaf6e1684deaf571af64e049a3de61dfb732acc0d995765959e4ce24c4d5c",
+  "activationSha256": "ebf9acda2acd8b2e0590ddf7f7d429995837a97a224ae5ba6d45c9c34f08ff22",
+  "independentRegeneration": {
+    "manifestExact": true,
+    "activationExactAfterExplicitFreshRootSubstitution": true,
+    "fullOutputEquality": 22,
+    "focalReasonToggles": 11
+  },
+  "unionCounts": [
+    {
+      "index": 82,
+      "total": 29,
+      "previous": 27,
+      "union": 27
+    },
+    {
+      "index": 84,
+      "total": 128,
+      "previous": 96,
+      "union": 128
+    },
+    {
+      "index": 134,
+      "total": 164,
+      "previous": 132,
+      "union": 164
+    }
+  ],
+  "nativeReports": [
+    {
+      "platform": "macos",
+      "reportSha256": "a51ef06218a3df0cd474e58c530de139992fdea344af333178606ef38e5b1f4e",
+      "units": 22,
+      "pass": 22
+    },
+    {
+      "platform": "linux",
+      "reportSha256": "c96440d47cd048c6c1475702690a27c2f00376abdd1cae1919eb8597e29856c6",
+      "units": 22,
+      "pass": 22
+    }
+  ],
+  "formalQualificationInferred": false,
+  "environment": "Independent regeneration macOS arm64 Bun1.4.3 TS5.9.3; native macOS/Linux reports checked read-only"
+}

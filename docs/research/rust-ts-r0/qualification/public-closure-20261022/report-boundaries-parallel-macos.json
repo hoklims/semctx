@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "platform": "darwin",
+  "manifestSha256": "7b46cc5034fb52f31bddce5ee9246ee2539217bfb0946de02113c9bc3596e983",
+  "fixtureSha256": "5b306e39d87fe0c09c748c4be07a0581c41b057ef5317a0712cba95b75762fd9",
+  "units": [
+    {
+      "id": "PUBLIC-parallel-two-components",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true,
+        "helperBinding": true
+      },
+      "pass": true,
+      "rawSha256": "90f73bfb62313cc6a79c69926c3760776c1700914d2b588a709099d633b118e4",
+      "requestSha256": "e145406ec8eec6a72106153ef9661d2cb649ec90601c9f2a0067bbfbf9f7bbc5"
+    },
+    {
+      "id": "PUBLIC-parallel-mixed-js",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "aaa1caf2d218ff96305847148972d6faf2b165a3f535ce1e29e69646817bc574",
+      "requestSha256": "c2b37152c8a9634072b2e03c72fc91b60b06168c66a13a45cf95586959c464d3"
+    },
+    {
+      "id": "PUBLIC-parallel-connected-through-unselected",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "d769f48aded506e39405376b956fce55b4a28495796d371b6e28dc8d71cd9c5e",
+      "requestSha256": "08b4d5c726398655441e1d97896eab377c3f2f930ac278467e2f4a37e288ae49"
+    },
+    {
+      "id": "PUBLIC-parallel-single-control",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "c1ff6e8cfa3aad00cb61498e0356c8562fd1c731f3f559d7d4f6943f5d854efc",
+      "requestSha256": "5505242c5b263b0eb5a5e2077edc2a34622007952452113856de57966fa0427b"
+    }
+  ],
+  "formalR0Qualified": false
+}

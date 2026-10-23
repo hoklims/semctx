@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "environment": "macos ARM64; Bun1.4.3; TypeScript5.9.3",
+  "candidateHead": "76e80479",
+  "scope": "Seven newly authored PUBLIC fixtures and one corrupted-index public receiver control; existing historical fixtures not replayed. Source calls real inspectRetainedQualifiedScope and indexRepository/runVerify; frozen native --batch plus verify working-tree --fail-on none. No source CLI process observation.",
+  "oracle": {
+    "file": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/oracle-output-full.json",
+    "sha256": "d12cd712bf5be790f8f338a21f6d0f1b3de37bc75aceb2660f8640a9a783998c",
+    "sourceQualifiedAnalysisSha256": "da89277683016b7a956cc7b0fd91708f1dd1abc6d45a375449810790ebdface5",
+    "typescript": "5.9.3"
+  },
+  "frozenProducer": {
+    "optimized_frozen": true,
+    "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+    "source_head": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+    "platform": "macOS",
+    "artifact_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+    "artifact_sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+    "helper_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-gates",
+    "helper_sha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+    "transport_fixture_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-gates-fixture",
+    "transport_fixture_sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+    "qualification_observer_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/qualification_replay-f9e27f9b0849f013",
+    "qualification_observer_sha256": "d79891fb82b399dfcce6fbe8a9faa595ac9a9a9919c25ba57d2de914d40d94ab",
+    "sdk_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/sdk-input.json",
+    "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+    "recipes_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-campaign-recipes/replay-recipes.json",
+    "recipes_sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+    "legacy_identity_inputs_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/identity-inputs.json",
+    "legacy_identity_inputs_sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+  },
+  "units": [
+    {
+      "id": "inherited-positive",
+      "sourceScope": {
+        "links": [],
+        "reasons": [],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": []
+      },
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "admitted",
+      "nativeCliExit": 0,
+      "admissionMatch": true,
+      "nativeReasons": [],
+      "nativeError": null,
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": true,
+        "producerBound": true,
+        "indexedExtractionReceived": true,
+        "globalAdmissionNotInferred": true,
+        "sdkInputBound": true
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/inherited-positive",
+      "oracleGraphRetained": true,
+      "coverageMatch": true,
+      "linksMatch": true,
+      "corruptedIndexRefused": true,
+      "configurationConsumed": {
+        "consumed": [
+          "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/inherited-positive/workspace/base.json",
+          "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/inherited-positive/workspace/tsconfig.json"
+        ],
+        "executed": true
+      }
+    },
+    {
+      "id": "unretained-reference",
+      "sourceScope": {
+        "links": [],
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/main.ts:../build/generated.ts",
+          "DEPENDENCY_SCOPE_CONFIGURATION:src/main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+        ],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": []
+      },
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null,
+      "nativeCliExit": 1,
+      "admissionMatch": false,
+      "nativeReasons": null,
+      "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n",
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": false,
+        "producerBound": false,
+        "indexedExtractionReceived": false,
+        "globalAdmissionNotInferred": false,
+        "sdkInputBound": false
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/unretained-reference",
+      "oracleGraphRetained": true,
+      "coverageMatch": false
+    },
+    {
+      "id": "declared-optional",
+      "sourceScope": {
+        "links": [],
+        "reasons": [],
+        "externalModuleSpecifiers": [
+          "optional"
+        ],
+        "unresolvedImports": []
+      },
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "rejected",
+      "nativeCliExit": 3,
+      "admissionMatch": false,
+      "nativeReasons": [
+        "UNRESOLVED_IMPORT:src/main.ts:optional"
+      ],
+      "nativeError": null,
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": true,
+        "producerBound": true,
+        "indexedExtractionReceived": true,
+        "globalAdmissionNotInferred": true,
+        "sdkInputBound": true
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/declared-optional",
+      "oracleGraphRetained": true,
+      "coverageMatch": true,
+      "sourceOpaqueLimitation": [
+        "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): optional. Their runtime behavior and APIs are not qualified."
+      ]
+    },
+    {
+      "id": "undeclared-optional",
+      "sourceScope": {
+        "links": [],
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.ts:optional"
+        ],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": [
+          {
+            "path": "src/main.ts",
+            "specifier": "optional"
+          }
+        ]
+      },
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null,
+      "nativeCliExit": 1,
+      "admissionMatch": false,
+      "nativeReasons": null,
+      "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n",
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": false,
+        "producerBound": false,
+        "indexedExtractionReceived": false,
+        "globalAdmissionNotInferred": false,
+        "sdkInputBound": false
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/undeclared-optional",
+      "oracleGraphRetained": true,
+      "coverageMatch": false
+    },
+    {
+      "id": "excluded-dependent",
+      "sourceScope": {
+        "links": [
+          [
+            "hidden.ts",
+            "src/main.ts"
+          ]
+        ],
+        "reasons": [],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": []
+      },
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected",
+      "nativeCliExit": 3,
+      "admissionMatch": true,
+      "nativeReasons": [
+        "ANALYSIS_SCOPE_INCOMPLETE:hidden.ts:excluded"
+      ],
+      "nativeError": null,
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": true,
+        "producerBound": true,
+        "indexedExtractionReceived": true,
+        "globalAdmissionNotInferred": true,
+        "sdkInputBound": true
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/excluded-dependent",
+      "oracleGraphRetained": true,
+      "coverageMatch": true,
+      "linksMatch": true
+    },
+    {
+      "id": "excluded-computed",
+      "sourceScope": {
+        "links": [],
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:hidden.ts"
+        ],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": []
+      },
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected",
+      "nativeCliExit": 3,
+      "admissionMatch": true,
+      "nativeReasons": [
+        "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+      ],
+      "nativeError": null,
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": true,
+        "producerBound": true,
+        "indexedExtractionReceived": true,
+        "globalAdmissionNotInferred": true,
+        "sdkInputBound": true
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/excluded-computed",
+      "oracleGraphRetained": true,
+      "coverageMatch": true
+    },
+    {
+      "id": "excluded-unresolved",
+      "sourceScope": {
+        "links": [],
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:hidden.ts:./absent",
+          "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+        ],
+        "externalModuleSpecifiers": [],
+        "unresolvedImports": [
+          {
+            "path": "hidden.ts",
+            "specifier": "./absent"
+          }
+        ]
+      },
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected",
+      "nativeCliExit": 3,
+      "admissionMatch": true,
+      "nativeReasons": [
+        "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+      ],
+      "nativeError": null,
+      "binding": {
+        "captureComplete": true,
+        "requestDescriptorBound": true,
+        "producerBound": true,
+        "indexedExtractionReceived": true,
+        "globalAdmissionNotInferred": true,
+        "sdkInputBound": true
+      },
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/scope/macos-final-guard/excluded-unresolved",
+      "oracleGraphRetained": true,
+      "coverageMatch": true
+    }
+  ],
+  "rows": [
+    {
+      "index": 0,
+      "status": "not_qualified",
+      "reason": "Structured unretained-reference admission unavailable; declared opaque external package admission contradicts exact TS5.9.3 source; complete finite per-property receiver equivalence therefore fails."
+    },
+    {
+      "index": 1,
+      "status": "not_qualified",
+      "reason": "Structured unretained-reference admission unavailable; declared opaque external package admission contradicts exact TS5.9.3 source; complete finite per-property receiver equivalence therefore fails."
+    },
+    {
+      "index": 233,
+      "status": "not_qualified",
+      "reason": "Structured unretained-reference admission unavailable; declared opaque external package admission contradicts exact TS5.9.3 source; complete finite per-property receiver equivalence therefore fails."
+    },
+    {
+      "index": 236,
+      "status": "not_qualified",
+      "reason": "Structured unretained-reference admission unavailable; declared opaque external package admission contradicts exact TS5.9.3 source; complete finite per-property receiver equivalence therefore fails."
+    },
+    {
+      "index": 237,
+      "status": "not_qualified",
+      "reason": "Structured unretained-reference admission unavailable; declared opaque external package admission contradicts exact TS5.9.3 source; complete finite per-property receiver equivalence therefore fails."
+    }
+  ],
+  "formalR0Credit": 0,
+  "arbCredit": 0
+}
