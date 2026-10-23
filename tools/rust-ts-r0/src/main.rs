@@ -26,6 +26,7 @@ mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
 mod runtime_configuration;
+mod scope_received;
 mod source_text;
 mod worker_observations;
 use captured::Captured;

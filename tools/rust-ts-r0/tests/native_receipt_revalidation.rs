@@ -112,7 +112,7 @@ fn public_verification_refuses_changes_after_receipt_issuance() {
         } else {
             "rev-parse"
         };
-        fs::write(&wrapper, format!("#!/bin/sh\nif [ \"$2\" = git ] && [ \"$3\" = {trigger} ]; then\n  if [ -f {} ]; then\n    {}\n  else\n    touch {}\n  fi\nfi\nexec {} \"$@\"\n", quoted(&counter), effect, quoted(&counter), quoted(&helper))).unwrap();
+        fs::write(&wrapper, format!("#!/bin/sh\nif [ \"$2\" = git ] && [ \"$4\" = {trigger} ]; then\n  if [ -f {} ]; then\n    {}\n  else\n    touch {}\n  fi\nfi\nexec {} \"$@\"\n", quoted(&counter), effect, quoted(&counter), quoted(&helper))).unwrap();
         fs::set_permissions(&wrapper, fs::Permissions::from_mode(0o755)).unwrap();
         let descriptor = json!({"repositoryRoot":root,"processHelper":wrapper,"include":["src/**/*.ts"],"exclude":["node_modules",".git"],"index":{"analysis":request,"outcome":indexed,"baseCommit":head.trim()}});
         let descriptor_path = evidence.join("verify.json");

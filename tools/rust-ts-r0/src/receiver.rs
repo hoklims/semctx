@@ -488,6 +488,15 @@ impl OwnershipContext<'_> {
     pub fn graph(&self) -> &Value {
         self.current.graph
     }
+    pub fn input_manifest(&self) -> &Value {
+        self.current.input_manifest
+    }
+    pub fn capture_manifest(&self) -> &Value {
+        self.current.capture
+    }
+    pub fn scope_manifest(&self) -> &Value {
+        self.current.scope
+    }
     pub fn absence_evidence_eligible(&self, subject: &SubjectId, kind: &str) -> bool {
         self.receipt
             .absence
