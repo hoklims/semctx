@@ -7,7 +7,9 @@ unchanged. See [the research record](../../docs/research/rust-ts-r0/README.md).
 
 The pinned native compiler receives captured source/configuration/package/SDK
 text through an immutable filesystem. Its checker version is 7.1.0-dev; the
-provided declarations and the reference behavior are TypeScript 5.9.3.
+provided declarations are TypeScript 5.9.3. The [TS7 research contract](../../docs/research/rust-ts-r0/contract-ts7.md)
+records the owner's new reference decision and the unresolved compatibility choices.
+Historical TS5.9.3 expectations remain historical evidence.
 Owned adapters close selected differences. Their DEV tests establish their
 stated observations, not universal compiler equivalence.
 
