@@ -550,6 +550,8 @@ fn no_receiver_can_adopt_another_receivers_receipt() {
 fn freshness_revalidates_all_four_seal_values_and_exact_allowed_reasons() {
     for change in 0..7 {
         let mut f = Fixture::new();
+        let receiver = Receiver::new(f.expected()).unwrap();
+        let receipt = receiver.receive(&outcome(&f.batch()), &f.state()).unwrap();
         match change {
             0 => f.freshness.seal = None,
             1 => {
@@ -574,6 +576,10 @@ fn freshness_revalidates_all_four_seal_values_and_exact_allowed_reasons() {
             5 | 6 => Rejection::UnacceptableFreshness,
             _ => Rejection::SealMismatch,
         };
+        assert_eq!(
+            receiver.context(Some(&receipt), &f.state()).err(),
+            Some(reason.clone())
+        );
         rejects_batch(&f, &f.batch(), reason);
     }
     for reasons in [
@@ -1197,4 +1203,25 @@ fn canonical_graph_members_are_required_and_legacy_edge_id_differs_from_transpor
         f.rebind_graph();
         rejects_batch(&f, &f.batch(), Rejection::InvalidFact);
     }
+}
+
+#[test]
+fn issued_receipt_expires_before_ownership_consumption() {
+    let fixture = Fixture::new();
+    let mut expected = fixture.expected();
+    expected.deadline = Instant::now() + Duration::from_secs(1);
+    let deadline = expected.deadline;
+    let receiver = Receiver::new(expected).unwrap();
+    let state = fixture.state();
+    let receipt = receiver
+        .receive(&outcome(&fixture.batch()), &state)
+        .unwrap();
+    assert!(receiver.context(Some(&receipt), &state).is_ok());
+    std::thread::sleep(
+        deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
+    );
+    assert_eq!(
+        receiver.context(Some(&receipt), &state).err(),
+        Some(Rejection::LateResult)
+    );
 }
