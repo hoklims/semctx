@@ -181,6 +181,38 @@ different boundaries; neither grants qualification of obligation 229 by itself.
 The targeted `--observe-system` and `--observe-configured-resolution` primitives
 retain partial SDK fixtures and are outside this complete-inventory guarantee.
 
+## Native TS7 identity acquisition
+
+`native_analyzer_identity` takes explicit `repository_root` and
+`compiler_package_root` paths and preserves the P2 confinement and aggregate
+67,108,864-byte limit above. Historical TS5 acquisition remains separately routed
+through `baseline_analyzer_identity`. A native
+package is a local composition, not an npm package: its `package.json` declares
+`name: "ts_goport"`, `version: "7.1.0-dev"` and
+`sourceRevision: "780dc512d64f40afebffa6a7028207649fb7ed1c"`; `lib/tsgo` is the
+native entry, adjacent to the complete 115 `lib*.d.ts` names. Missing, extra or
+foreign inventory names refuse; there is no SDK or Bun fallback.
+
+The adopted implementation input domain retains the six fixed baseline inputs,
+package manifests and recursive `.ts`/`.js`/`.mjs` source selection, excluding the
+generated analyzer identity. Native identity schema 2 hashes those files and
+`compiler: {version, sourceRevision, digest}`. The compiler digest hashes
+`{entry, libraries}`: the entry's byte SHA256 and UTF-16-sorted library
+`{path, digest}` pairs, including `../package.json`. Package bytes count once.
+The identity digest hashes compact JSON in the stated field order, before adding
+its `digest` field; absolute paths do not enter it.
+
+Acquisition observes payload bytes and reports `compiler_executed: false` and
+`sdk_payload_authenticated: false`; a changed library or entry receives a changed
+identity rather than a claim of authenticity. A qualification witness must
+independently bind its positive package to the pinned TS7 binary and SDK bytes,
+execute that native entry with its adjacent default libraries, and compare a
+live independently computed manifest. Native acquisition errors use the
+`NATIVE_IDENTITY_` prefix with the historical P2 failure categories, except the
+retained `Noncanonical CRLF analyzer input:` diagnostic. Malformed or omitted
+request fields still use `PRIMITIVE_INVALID_REQUEST`. These acquisitions
+are neither analysis admission nor compiler execution evidence.
+
 ## Requalification
 
 All 240 obligations require fresh evidence on the integrated candidate. The 209

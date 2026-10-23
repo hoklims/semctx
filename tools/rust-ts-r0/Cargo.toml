@@ -8,6 +8,11 @@ license = "Apache-2.0"
 [features]
 qualification-observer = []
 
+[[bin]]
+name = "semctx-r0-identity-receiver"
+path = "src/bin/identity_receiver.rs"
+required-features = ["qualification-observer"]
+
 [[test]]
 name = "qualification_replay"
 path = "qualification/qualification_replay.rs"

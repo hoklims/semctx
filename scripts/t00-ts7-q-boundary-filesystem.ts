@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, realpath, rm, symlink, truncate, writeFile } from "node:fs/promises";
+import { mkdir, readFile, realpath, symlink, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { Context, Evidence, Execution, Json, Observation, Property } from "./t00-ts7-q-boundary-common";
 import { isolatedEnvironment } from "./t00-ts7-q-boundary-common";
+import { identityObservations } from "./t00-ts7-q-boundary-identity";
 
 const reference = "contract-ts7.md P2 + owner decisions 2026-10-23; consumer-contracts.json finite observable rules";
 const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
@@ -52,20 +53,6 @@ async function fixtureEvidence(ctx: Context, label: string, files: Record<string
 
 function finish(index: number, properties: Property[], evidence: Evidence[], complete: boolean, reason: string): Observation {
   return { index, properties, evidence, complete, reason };
-}
-
-async function identity(ctx: Context): Promise<Observation> {
-  const files = { "entry.ts": "export const identitySubject: number = 7;\n" };
-  const oracle = await ctx.oracle("168-compiler-version", files, { args: ["--version"] });
-  const compiler = await ctx.oracle("168-compiler-execution", files);
-  const observed = await ctx.run("168-capability", "", ctx.analysis(files));
-  return finish(168, [
-    property("independent-ts7-executable", oracle.stdout.trim(), "Version 7.1.0-dev", "pinned independent tsgo --version"),
-    property("independent-ts7-fixture-compiles", compiler.exitCode, 0, "pinned independent tsgo --noEmit with pinned 115-library SDK"),
-    ...dialectProperties(observed.value, `sha256:${ctx.producerSha256}`),
-    property("exact-subject-denominator", array(observed.value.subjects).map(subject => object(subject).path), ["entry.ts"]),
-  ], [...oracle.evidence, ...compiler.evidence, ...observed.evidence], false,
-  "Executed TS7 identity and nonempty analyzed capability are exercised; the 16 cumulative IDENTITY supports and complete-baseline specimen have not all been independently replayed here.");
 }
 
 async function keys(ctx: Context, index: number): Promise<Observation> {
@@ -267,77 +254,6 @@ async function imports(ctx: Context, indices: number[]): Promise<Observation[]> 
   ], evidence, false, "Literal imports/reexports/import(), nested traversal, duplicate order and bare/node:fs/require/computed/template negatives execute; TS7 CLI resolution is not an independent AST visitation oracle, so 230/231 cannot yet receive qualification credit."));
 }
 
-async function acquisition(ctx: Context, indices: number[]): Promise<Observation[]> {
-  const implementation = {
-    "bun.lock": "lock\n", "tsconfig.json": "{}\n", "tsconfig.base.json": "{}\n",
-    "scripts/analyzer-identity.ts": "export {};\n", "scripts/build-plugin-runtime.ts": "export {};\n", "scripts/build-cli-package.ts": "export {};\n",
-    "packages/sample/package.json": '{"name":"sample"}\n', "packages/sample/src/index.ts": "export const source = 1;\n",
-    "apps/cli/package.json": '{"name":"cli"}\n', "apps/cli/src/index.ts": "export {};\n",
-  };
-  const sdkFiles = Object.fromEntries(Object.entries(object(ctx.sdk.files)).map(([path, text]) => [`lib/${basename(path)}`, String(text)]));
-  const sdk = {
-    ...sdkFiles,
-    "package.json": JSON.stringify({ name: "typescript", version: "7.1.0-dev" }),
-    "lib/typescript.js": "throw new Error('byte-acquisition specimen, not executable TypeScript');\n",
-  };
-  const properties: Property[] = [];
-  const evidence: Evidence[] = [await fixtureEvidence(ctx, "229-implementation", implementation), await fixtureEvidence(ctx, "229-explicit-sdk", sdk)];
-  type Vector = { name: string; error?: string; mutate?: (root: string, sdkRoot: string) => Promise<void>; missingSdk?: boolean };
-  const external = resolve(ctx.root, "filesystem-acquisition-external.ts");
-  await writeFile(external, "export const forbidden = 1;\n");
-  const unlink = async (root: string, path: string) => rm(resolve(root, path));
-  const vectors: Vector[] = [
-    { name: "complete-explicit-sdk" },
-    { name: "relocated-complete-sdk" },
-    { name: "source-byte-change", mutate: async root => writeFile(resolve(root, "packages/sample/src/index.ts"), "export const source = 2;\n") },
-    { name: "sdk-byte-change", mutate: async (_root, sdkRoot) => writeFile(resolve(sdkRoot, "lib/lib.es5.d.ts"), "export {};\n") },
-    { name: "fixed-outside-link", error: "LEGACY_IDENTITY_OUTSIDE_ROOT:", mutate: async root => { await unlink(root, "tsconfig.json"); await symlink(external, resolve(root, "tsconfig.json")); } },
-    { name: "source-outside-link", error: "OUTSIDE_ROOT", mutate: async root => symlink(external, resolve(root, "packages/sample/src/outside.ts")) },
-    { name: "missing-package", error: "LEGACY_IDENTITY_READ_FAILED:package.json:", mutate: async (_root, sdkRoot) => unlink(sdkRoot, "package.json") },
-    { name: "missing-entry", error: "LEGACY_IDENTITY_READ_FAILED:lib/typescript.js:", mutate: async (_root, sdkRoot) => unlink(sdkRoot, "lib/typescript.js") },
-    { name: "malformed-package", error: "LEGACY_IDENTITY_SDK_INVALID:", mutate: async (_root, sdkRoot) => writeFile(resolve(sdkRoot, "package.json"), "{") },
-    { name: "foreign-version", error: "LEGACY_IDENTITY_SDK_VERSION_MISMATCH", mutate: async (_root, sdkRoot) => writeFile(resolve(sdkRoot, "package.json"), '{"name":"typescript","version":"5.9.4"}') },
-    { name: "foreign-name", error: "LEGACY_IDENTITY_SDK_VERSION_MISMATCH", mutate: async (_root, sdkRoot) => writeFile(resolve(sdkRoot, "package.json"), '{"name":"foreign","version":"7.1.0-dev"}') },
-    { name: "missing-library", error: "SDK", mutate: async (_root, sdkRoot) => unlink(sdkRoot, "lib/lib.es5.d.ts") },
-    { name: "library-outside-link", error: "LEGACY_IDENTITY_OUTSIDE_ROOT:", mutate: async (_root, sdkRoot) => { await unlink(sdkRoot, "lib/lib.es5.d.ts"); await symlink(external, resolve(sdkRoot, "lib/lib.es5.d.ts")); } },
-    { name: "over-capture-limit", error: "LEGACY_IDENTITY_CAPTURE_LIMIT", mutate: async root => { const file = resolve(root, "packages/sample/src/large.ts"); await writeFile(file, ""); await truncate(file, 67_108_865); } },
-    { name: "crlf-source", error: "Noncanonical CRLF analyzer input:", mutate: async root => writeFile(resolve(root, "packages/sample/src/index.ts"), "export {};\r\n") },
-    { name: "missing-fixed-input", error: "LEGACY_IDENTITY_READ_FAILED:tsconfig.json:", mutate: async root => unlink(root, "tsconfig.json") },
-    { name: "missing-sdk-root", error: "LEGACY_IDENTITY_SDK_UNAVAILABLE:", mutate: async (_root, sdkRoot) => rm(sdkRoot, { recursive: true }) },
-    { name: "sdk-not-specified", missingSdk: true },
-  ];
-  const successful: Record<string, Json> = {};
-  for (const vector of vectors) {
-    const root = resolve(ctx.root, `filesystem-acquisition-${vector.name}`, "repository");
-    const sdkRoot = resolve(ctx.root, `filesystem-acquisition-${vector.name}`, "sdk");
-    await materialize(root, implementation);
-    await materialize(sdkRoot, sdk);
-    await vector.mutate?.(root, sdkRoot);
-    const descriptor: Json = { operation: "baseline_analyzer_identity", repository_root: root };
-    if (!vector.missingSdk) descriptor.compiler_package_root = sdkRoot;
-    const observed = await ctx.run(`229-${vector.name}`, "--observe-primitives", descriptor);
-    evidence.push(...observed.evidence);
-    if (vector.missingSdk) {
-      properties.push(property("sdk-not-specified-refused", observed.exitCode !== 0, true));
-      properties.push(property("sdk-not-specified-diagnostic", observed.stderr.includes("compiler_package_root"), true));
-    } else if (vector.error) {
-      properties.push(property(`${vector.name}-identity-refused`, observed.value.identity_success, false));
-      properties.push(property(`${vector.name}-reason`, String(observed.value.error).includes(vector.error) && (vector.name !== "missing-library" || !String(observed.value.error).includes("VERSION_MISMATCH")), true));
-    } else {
-      properties.push(property(`${vector.name}-identity-acquired`, observed.value.identity_success, true));
-      properties.push(property(`${vector.name}-compiler-not-executed`, observed.value.compiler_executed, false));
-      successful[vector.name] = object(observed.value.identity);
-    }
-  }
-  properties.push(property("relocation-same-byte-identity", successful["complete-explicit-sdk"]?.digest !== undefined && successful["complete-explicit-sdk"]?.digest === successful["relocated-complete-sdk"]?.digest, true));
-  properties.push(property("source-byte-affects-identity", successful["source-byte-change"]?.digest !== undefined && successful["source-byte-change"]?.digest !== successful["complete-explicit-sdk"]?.digest, true));
-  properties.push(property("sdk-byte-affects-identity", successful["sdk-byte-change"]?.digest !== undefined && successful["sdk-byte-change"]?.digest !== successful["complete-explicit-sdk"]?.digest, true));
-  evidence.push(await ctx.save("229-specimen-limitations", { acquisitionVectors: vectors.map(vector => vector.name), libraryCount: Object.keys(sdkFiles).length, sourceOfLibraries: "explicit candidate SDK; exact comparison against the independent TS7 inventory is reported separately and can fail during rehearsal", entry: "synthetic opaque non-executable byte-acquisition specimen", captureLimit: 67_108_864 }));
-  return indices.map(index => finish(index, properties, evidence, false, index === 229
-    ? "18 isolated native acquisition controls execute against explicit candidate library bytes; the independent TS7 inventory comparison is separate. Complete independent live identity manifest, 20 cumulative supports, exact 64-MiB acceptance boundary and authentic native-SDK package/entry composition remain unproved; synthetic entry is only a byte-acquisition specimen."
-    : "Explicit TS7 SDK acquisition and missing/foreign/incomplete SDK controls execute; consumed default-library identity and native P2 library-directory replacement are not yet independently composed. Synthetic JS entry is not a TS7 runtime."));
-}
-
 export async function filesystemObservations(ctx: Context, indices: number[]): Promise<Observation[]> {
   const observations: Observation[] = [];
   for (const index of indices) {
@@ -345,12 +261,11 @@ export async function filesystemObservations(ctx: Context, indices: number[]): P
       if (!observations.some(observation => [216, 217, 218, 219].includes(observation.index))) observations.push(...(await retained(ctx)).filter(observation => indices.includes(observation.index)));
     } else if ([6, 169].includes(index)) {
       if (!observations.some(observation => [6, 169].includes(observation.index))) observations.push(...(await discovery(ctx)).filter(observation => indices.includes(observation.index)));
-    } else if ([220, 229].includes(index)) {
-      if (!observations.some(observation => [220, 229].includes(observation.index))) observations.push(...await acquisition(ctx, indices.filter(value => [220, 229].includes(value))));
+    } else if ([168, 220, 229].includes(index)) {
+      if (!observations.some(observation => [168, 220, 229].includes(observation.index))) observations.push(...await identityObservations(ctx, indices.filter(value => [168, 220, 229].includes(value))));
     } else if ([230, 231].includes(index)) {
       if (!observations.some(observation => [230, 231].includes(observation.index))) observations.push(...await imports(ctx, indices.filter(value => [230, 231].includes(value))));
     } else if ([136, 170].includes(index)) observations.push(await keys(ctx, index));
-    else if (index === 168) observations.push(await identity(ctx));
     else if (index === 5) observations.push(await eligibility(ctx));
   }
   return observations.sort((a, b) => a.index - b.index);
