@@ -188,3 +188,127 @@ fn comparator_suite_baseline_extraction_preserves_facts_but_ignores_native_only_
     );
     assert!(transform(&json!({"symbols":[]}), "baseline_raw_extraction").is_err());
 }
+
+// SOURCE_ONLY compatibility V2: synthetic validator inputs, no native execution.
+// This checks accepted metadata shapes, never executed-source provenance.
+fn compat_v2_five_source_metadata() -> Value {
+    json!([
+        {"path":"packages/ts-analyzer/src/top-level-outline.ts","sha256":"2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"},
+        {"path":"packages/ts-analyzer/src/javascript-diagnostics.ts","sha256":"24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"},
+        {"path":"packages/ts-analyzer/src/semantic-dependency-diagnostics.ts","sha256":"a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"},
+        {"path":"packages/ts-analyzer/src/ts-symbols.ts","sha256":"259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"},
+        {"path":"scripts/pilot/baselines.ts","sha256":"c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"}
+    ])
+}
+
+#[test]
+fn comparator_compat_v2_optional_opaque_source_metadata() {
+    let mut manifest = json!({
+        "schema_version":1,
+        "oracle":{
+            "typescript_version":"5.9.3",
+            "baseline":"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+            "sourceIdentities":compat_v2_five_source_metadata()
+        },
+        "units":[{
+            "unit_id":"compat-v2-synthetic-primitive",
+            "surface":"primitive_cli",
+            "primitive_requests":[{"operation":"canonical_json","value":{"synthetic":17}}],
+            "checks":[{
+                "observation":0,"target":["canonical_json"],"mode":"eq",
+                "expected":"{\"synthetic\":17}",
+                "expected_origin":"typescript-5.9.3","actual_transform":"none"
+            }],
+            "gaps":[]
+        }]
+    });
+    assert!(
+        validate_manifest(&manifest).is_ok(),
+        "INCONCLUSIVE_SETUP: existing five-source metadata control must pass"
+    );
+    manifest["oracle"]
+        .as_object_mut()
+        .unwrap()
+        .remove("sourceIdentities");
+    let absent = validate_manifest(&manifest);
+    manifest["oracle"]["sourceIdentities"] = json!([{
+        "path":"packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "sha256":"24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+    }]);
+    let subset = validate_manifest(&manifest);
+    assert!(
+        absent.is_ok() && subset.is_ok(),
+        "TARGET_RED: optional opaque metadata rejected: absent={absent:?}; one_source={subset:?}"
+    );
+}
+
+#[test]
+fn comparator_compat_v2_diagnostics_envelope_without_suite_metadata() {
+    // Same envelope/check construction as diagnostics-oracle.mjs.
+    // Unit content and input/instrumentation hashes below are synthetic.
+    let mut manifest = json!({
+        "schema_version":1,
+        "oracle":{
+            "baseline":"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+            "typescript_version":"5.9.3",
+            "source_sha256":"24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+            "input_sha256":"1".repeat(64),
+            "instrumented_sha256":"2".repeat(64),
+            "case_sensitive":true
+        },
+        "units":[{
+            "unit_id":"compat-v2-diagnostics-parsing",
+            "surface":"raw_cli",
+            "requests":[{
+                "id":"compat-v2-diagnostics-parsing",
+                "files":{"main.ts":"export const stable = 3;"},
+                "roots":["main.ts"],
+                "options":{
+                    "target":"ES2022","module":"ESNext","moduleResolution":"Bundler",
+                    "allowJs":true,"jsx":"Preserve","skipLibCheck":true,
+                    "noEmit":true,"strict":false
+                },
+                "retained":true,"qualified":false,"sdk_directory":"/sdk/lib",
+                "roles":{},"selection":{},"disabled":[],"utf16_files":{},"raw_files":{}
+            }],
+            "checks":[],"gaps":[],"physical_live_after_capture":{},
+            "independent_input_origin":"independent synthetic compatibility V2",
+            "obligation_indices":[]
+        }]
+    });
+    let checks = [
+        ("reasons", json!([])),
+        ("executed", json!(true)),
+        ("unsupported", json!([]))
+    ].into_iter().map(|(field, expected)| {
+        let target = json!(["subjects",{"path":"main.ts"},"sourceParsingObservation",field]);
+        json!({
+            "observation":0,"target":target,"mode":"eq","expected":expected,
+            "expected_origin":"typescript-5.9.3","actual_transform":"none",
+            "operation_binding":{
+                "status":"VERIFIED_SOURCE_OPERATION","target":target,
+                "baseline_operation":"inspectSourceParsing",
+                "authority":{
+                    "baseline":"3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+                    "typescript":"5.9.3",
+                    "sourceSha256":"24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+                    "inputSha256":"1".repeat(64)
+                }
+            }
+        })
+    }).collect::<Vec<_>>();
+    validate_component_checks(&checks)
+        .expect("INCONCLUSIVE_SETUP: parsing binding and completeness checks must pass");
+    manifest["units"][0]["checks"] = json!(checks);
+    let mut with_five = manifest.clone();
+    with_five["oracle"]["sourceIdentities"] = compat_v2_five_source_metadata();
+    assert!(
+        validate_manifest(&with_five).is_ok(),
+        "INCONCLUSIVE_SETUP: diagnostics envelope with five-source metadata must pass"
+    );
+    assert!(manifest["oracle"].get("sourceIdentities").is_none());
+    assert!(
+        validate_manifest(&manifest).is_ok(),
+        "TARGET_RED: actual diagnostics envelope shape rejected without optional suite metadata"
+    );
+}

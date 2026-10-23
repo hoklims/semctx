@@ -73,7 +73,8 @@ export function jointHoldoutAggregate(receipt, left, right) {
 
 function comparisonCompleted(result, unit) {
   const known = row => ["PASS_PROJECTED_PROPERTY", "MISMATCH"].includes(row?.result?.state);
-  return Array.isArray(result.checks) && result.checks.length === unit.checks.length && result.checks.every((row, index) => known(row) && isDeepStrictEqual(row.target, unit.checks[index].target) && (row.observation ?? 0) === (unit.checks[index].observation ?? 0)) && Array.isArray(result.relations) && result.relations.length === (unit.relations ?? []).length && result.relations.every(known);
+  const relationFields = ["left_observation", "right_observation", "target", "transform", "expected_equal"];
+  return Array.isArray(result.checks) && result.checks.length === unit.checks.length && result.checks.every((row, index) => known(row) && isDeepStrictEqual(row.target, unit.checks[index].target) && (row.observation ?? 0) === (unit.checks[index].observation ?? 0)) && Array.isArray(result.relations) && result.relations.length === (unit.relations ?? []).length && result.relations.every((row, index) => known(row) && relationFields.every(field => isDeepStrictEqual(row[field], unit.relations[index][field])));
 }
 
 async function sealPrivateTree(path) {

@@ -1,7 +1,7 @@
-import { validatePublicUnits, rawContextChecks, publicDigest } from "./public-native-context.mjs";
+import { validatePublicUnits, rawContextChecks, publicDigest, publicFixturePath } from "./public-native-context.mjs";
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 
@@ -24,12 +24,12 @@ if (before[0].sha256 !== freeze.artifact_sha256 || before[1].sha256 !== freeze.s
 await mkdir(outputRoot);
 const reports = [];
 for (const input of inputs.units) {
-  const directory = resolve(outputRoot,input.id);
-  const root = resolve(directory,'repository');
+  const directory = publicFixturePath(outputRoot,input.id);
+  const root = publicFixturePath(directory,'repository');
   await mkdir(root,{recursive:true});
   const files = {};
-  for (const [name,text] of Object.entries(input.files)) { const path=resolve(root,name); await writeFile(path,text); files[path]=text; }
-  for (const [name,text] of Object.entries(input.outside)) await writeFile(resolve(directory,name),text);
+  for (const [name,text] of Object.entries(input.files)) { const path=publicFixturePath(root,name); await mkdir(dirname(path),{recursive:true}); await writeFile(path,text); files[path]=text; }
+  for (const [name,text] of Object.entries(input.outside)) { const path=publicFixturePath(directory,name); await mkdir(dirname(path),{recursive:true}); await writeFile(path,text); }
   const config = {version:2,repositoryRoot:root,include:['**/*.js'],exclude:[],languages:{javascript:'on',typescript:'on'},migrationsDirs:[],selectionMode:'explicit-v1'};
   const expected = discovery.discoverRepository(config);
   const expectedReasons = input.diagnostic ? diagnostics.inspectJavaScriptSource(resolve(root,'main.js'),input.files['main.js'],root).reasons : undefined;

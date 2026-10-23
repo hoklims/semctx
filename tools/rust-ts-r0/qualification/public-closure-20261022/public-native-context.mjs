@@ -1,8 +1,17 @@
 import { createHash } from "node:crypto";
-import { posix } from "node:path";
+import { isAbsolute, posix, relative, resolve, sep, win32 } from "node:path";
 
 const canonical = value => JSON.stringify(value, (_key, field) => field && !Array.isArray(field) && typeof field === "object" ? Object.fromEntries(Object.entries(field).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : field);
 export const publicDigest = value => "sha256:" + createHash("sha256").update(canonical(value)).digest("hex");
+
+export function publicFixturePath(root, path) {
+  if (typeof path !== "string" || path.length === 0 || path.includes("\0") || path.includes("\\") || path.includes(":") || isAbsolute(path) || win32.isAbsolute(path)) throw new Error("PUBLIC_PROOF_INPUT_INVALID: relative fixture path required");
+  const base = resolve(root);
+  const destination = resolve(base, path);
+  const inside = relative(base, destination);
+  if (inside === "" || inside === ".." || inside.startsWith(".." + sep) || isAbsolute(inside)) throw new Error("PUBLIC_PROOF_INPUT_INVALID: fixture path leaves its root");
+  return destination;
+}
 
 export function validatePublicUnits(input) {
   if (!Array.isArray(input?.units) || input.units.length === 0) throw new Error("PUBLIC_PROOF_INPUT_INVALID: empty units");
@@ -10,6 +19,14 @@ export function validatePublicUnits(input) {
   for (const unit of input.units) {
     if (!unit || typeof unit.id !== "string" || !/^[a-zA-Z0-9_-]+$/.test(unit.id) || ids.has(unit.id)) throw new Error("PUBLIC_PROOF_INPUT_INVALID: duplicate or invalid unit id");
     ids.add(unit.id);
+    for (const field of ["files", "outside"]) {
+      if (unit[field] === undefined) continue;
+      if (unit[field] === null || typeof unit[field] !== "object" || Array.isArray(unit[field])) throw new Error("PUBLIC_PROOF_INPUT_INVALID: fixture file map required");
+      for (const [path, text] of Object.entries(unit[field])) {
+        publicFixturePath(resolve("public-proof-fixture"), path);
+        if (typeof text !== "string") throw new Error("PUBLIC_PROOF_INPUT_INVALID: fixture text required");
+      }
+    }
   }
 }
 

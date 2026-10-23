@@ -2,8 +2,10 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
+import time
 
 def sha(path):
     return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
@@ -24,8 +26,8 @@ def validate_oracle(oracle):
     units = oracle.get('units')
     if not isinstance(units, list) or not units:
         raise ValueError('WORKSPACE_ORACLE_INVALID: empty units')
-    ids = [unit.get('id') for unit in units]
-    if any(not isinstance(name, str) or not name or '/' in name or name in {'.', '..'} for name in ids) or len(set(ids)) != len(ids):
+    ids = [unit.get('id') if isinstance(unit, dict) else None for unit in units]
+    if any(not isinstance(name, str) or re.fullmatch(r'[A-Za-z0-9_-]+', name) is None for name in ids) or len(set(ids)) != len(ids):
         raise ValueError('WORKSPACE_ORACLE_INVALID: duplicate or invalid unit id')
     for unit in units:
         queries, results = unit.get('queries'), unit.get('results')
@@ -36,6 +38,43 @@ def validate_oracle(oracle):
                 raise ValueError('WORKSPACE_ORACLE_INVALID: query shape')
             if any(result.get(key) != query[key] for key in ['operation', 'path']) or 'value' not in result:
                 raise ValueError('WORKSPACE_ORACLE_INVALID: result/query binding')
+
+
+def capture_process(command, output_directory, prefix, environment=None):
+    started = time.monotonic()
+    code, error, timed_out = None, None, False
+    stdout, stderr = b'', b''
+    try:
+        process = subprocess.run(command, capture_output=True, timeout=40,
+                                 check=False, env=environment)
+        code, stdout, stderr = process.returncode, process.stdout, process.stderr
+    except subprocess.TimeoutExpired as failure:
+        stdout, stderr = failure.stdout or b'', failure.stderr or b''
+        error, timed_out = str(failure), True
+    except OSError as failure:
+        error = str(failure)
+    stdout_path = output_directory / (prefix + '-stdout.bin')
+    stderr_path = output_directory / (prefix + '-stderr.bin')
+    for path, raw in [(stdout_path, stdout), (stderr_path, stderr)]:
+        with path.open('xb') as stream:
+            stream.write(raw)
+    observed = None
+    if code == 0 and error is None:
+        try:
+            observed = json.loads(stdout.decode('utf-8'))
+            if not isinstance(observed, dict):
+                raise ValueError('native observation must be an object')
+        except (UnicodeDecodeError, ValueError) as failure:
+            observed, error = None, str(failure)
+    record = {'argv': command, 'cwd': os.getcwd(), 'timeout_seconds': 40,
+              'exit_code': code, 'timed_out': timed_out, 'error': error,
+              'seconds': time.monotonic() - started,
+              'stdout': {'path': str(stdout_path), 'sha256': sha(stdout_path), 'bytes': len(stdout)},
+              'stderr': {'path': str(stderr_path), 'sha256': sha(stderr_path), 'bytes': len(stderr)}}
+    with (output_directory / (prefix + '-process.json')).open('x', encoding='utf-8') as stream:
+        json.dump(record, stream, indent=2)
+        stream.write('\n')
+    return observed, record
 
 
 def main():
@@ -55,9 +94,11 @@ def main():
         request = {'profile':'workspace', 'root':root, 'case_sensitive':oracle['authority']['caseSensitive'], 'files':unit['files'], 'queries':unit['queries']}
         request_path = output_directory / (unit['id'] + '-system-request.json')
         request_path.write_text(json.dumps(request, indent=2) + '\n')
-        process = subprocess.run([freeze['artifact_path'], '--observe-system', str(request_path)], capture_output=True, text=True, timeout=40, check=True)
-        observed = json.loads(process.stdout)
-        (output_directory / (unit['id'] + '-system-observed.json')).write_text(process.stdout)
+        observed, process = capture_process([freeze['artifact_path'], '--observe-system', str(request_path)], output_directory, unit['id'] + '-system')
+        if observed is None:
+            reports.append({'id': unit['id'], 'pass': False, 'state': 'PROCESS_NONPASS_OR_INCOMPLETE', 'process': process, 'checks': []})
+            continue
+        (output_directory / (unit['id'] + '-system-observed.json')).write_bytes((output_directory / (unit['id'] + '-system-stdout.bin')).read_bytes())
         checks = []
         def check(name, actual, expected, *, destination=checks):
             destination.append({'name':name, 'actual':actual, 'expected':expected, 'pass':actual == expected})
@@ -86,9 +127,11 @@ def main():
             configured_path = output_directory / (unit['id'] + '-configuration-request.json')
             configured_path.write_text(json.dumps(configured, indent=2) + '\n')
             environment = dict(os.environ, GOPORT_LIB_PARSE_SNAPSHOT='0', GOPORT_LIB_SNAPSHOT='0')
-            process = subprocess.run([freeze['artifact_path'],'--observe-configured-resolution',str(configured_path),freeze['sdk_path']], capture_output=True,text=True,timeout=40,check=True,env=environment)
-            configuration = json.loads(process.stdout)
-            (output_directory / (unit['id'] + '-configuration-observed.json')).write_text(process.stdout)
+            configuration, process = capture_process([freeze['artifact_path'],'--observe-configured-resolution',str(configured_path),freeze['sdk_path']], output_directory, unit['id'] + '-configuration', environment)
+            if configuration is None:
+                reports.append({'id': unit['id'], 'pass': False, 'state': 'PROCESS_NONPASS_OR_INCOMPLETE', 'process': process, 'checks': checks})
+                continue
+            (output_directory / (unit['id'] + '-configuration-observed.json')).write_bytes((output_directory / (unit['id'] + '-configuration-stdout.bin')).read_bytes())
             check('configured-context', configuration_context_valid(configuration, json.loads(pathlib.Path(freeze['sdk_path']).read_bytes())), True)
             check('configured-request-binding', configuration.get('request_descriptor_id'), 'sha256:' + hashlib.sha256(json.dumps(configured, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()).hexdigest())
             check('configured-producer', configuration.get('producer_artifact_id'), 'sha256:' + freeze['artifact_sha256'])
@@ -105,7 +148,8 @@ def main():
     summary = {'schemaVersion':1,'platform':sys.platform,'oracleSha256':sha(oracle_path),'freezeSha256':sha(freeze_path),'artifactSha256':freeze['artifact_sha256'],'sdkSha256':freeze['sdk_sha256'],'units':reports,'pass':all(r['pass'] for r in reports),'formalR0Qualified':False}
     (output_directory / 'result.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({'pass':summary['pass'],'units':[{ 'id':u['id'],'pass':u['pass'],'failures':[c for c in u['checks'] if not c['pass']]} for u in reports]}, indent=2))
+    return 0 if summary['pass'] else 1
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

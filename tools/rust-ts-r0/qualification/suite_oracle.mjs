@@ -6,17 +6,25 @@ import { resolve, dirname } from "node:path";
 const [baselineRoot, inputPath, outputPath, workRoot] = process.argv.slice(2);
 if (!baselineRoot || !inputPath || !outputPath || !workRoot) throw new Error("expected baseline inputs output fresh-work-root");
 if (ts.version !== "5.9.3") throw new Error("oracle requires TypeScript 5.9.3");
+// Raw Git blobs at3e94997; these five source pins do not seal transitive imports.
+const frozenSources = {
+  "packages/ts-analyzer/src/top-level-outline.ts": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647",
+  "packages/ts-analyzer/src/javascript-diagnostics.ts": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+  "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782",
+  "packages/ts-analyzer/src/ts-symbols.ts": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e",
+  "scripts/pilot/baselines.ts": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9",
+};
+const verifyBaselineSources = async () => Promise.all(Object.entries(frozenSources).map(async ([path, expected]) => {
+  const sha256 = createHash("sha256").update(await readFile(resolve(baselineRoot, path))).digest("hex");
+  if (sha256 !== expected) throw new Error("SOURCE_BASELINE_IDENTITY_MISMATCH: " + path);
+  return { path, sha256 };
+}));
+const sourceIdentities = await verifyBaselineSources();
 const outline = await import(resolve(baselineRoot, "packages/ts-analyzer/src/top-level-outline.ts"));
 const diagnostics = await import(resolve(baselineRoot, "packages/ts-analyzer/src/javascript-diagnostics.ts"));
 const semantic = await import(resolve(baselineRoot, "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts"));
 const symbols = await import(resolve(baselineRoot, "packages/ts-analyzer/src/ts-symbols.ts"));
 const pilot = await import(resolve(baselineRoot, "scripts/pilot/baselines.ts"));
-const sourceFiles = ["top-level-outline.ts", "javascript-diagnostics.ts", "semantic-dependency-diagnostics.ts", "ts-symbols.ts"];
-const sourceIdentities = await Promise.all(sourceFiles.map(async name => {
-  const path = resolve(baselineRoot, "packages/ts-analyzer/src", name);
-  return { path: `packages/ts-analyzer/src/${name}`, sha256: createHash("sha256").update(await readFile(path)).digest("hex") };
-}));
-sourceIdentities.push({ path: "scripts/pilot/baselines.ts", sha256: createHash("sha256").update(await readFile(resolve(baselineRoot, "scripts/pilot/baselines.ts"))).digest("hex") });
 const inputBytes = await readFile(inputPath);
 const inputs = JSON.parse(inputBytes.toString());
 await mkdir(workRoot);
@@ -103,4 +111,5 @@ for (const [index, pair] of (inputs.digestPairs ?? []).entries()) {
   const relations = [{ left_observation: 0, right_observation: 1, target: ["outlines", "main.ts", "outline", "statements", 0, "digest"], transform: "none", expected_equal: before.statements[0].digest === after.statements[0].digest, origin: pair.origin }];
   units.push({ unit_id: `SUITE-digest-pair-${index}`, surface: "raw_cli", requests, checks, relations, gaps: [], physical_live_after_capture: {}, independent_input_origin: pair.origin, obligation_indices: [166], oracle_full_values: [before, after] });
 }
+await verifyBaselineSources();
 await writeFile(outputPath, JSON.stringify({ schema_version: 1, oracle: { typescript_version: ts.version, baseline: "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b", sourceIdentities, inputs_sha256: createHash("sha256").update(inputBytes).digest("hex") }, units }, null, 2) + "\n");

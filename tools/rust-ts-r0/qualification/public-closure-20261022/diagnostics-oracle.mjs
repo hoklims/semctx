@@ -37,13 +37,26 @@ for (const range of sortedRanges) {
   add(range.start, `globalThis.__publicDiagnosticsTrace(${JSON.stringify(range.ids)},(`);
   add(range.end, "))");
 }
+const sourceEdits = [...edits].map(([start, content]) => ({ start, end: start, content }));
+const dependencyBindings = [];
+for (const declaration of parsed.statements) {
+  if (!ts.isImportDeclaration(declaration) || !ts.isStringLiteral(declaration.moduleSpecifier) || declaration.importClause?.isTypeOnly) continue;
+  const specifier = declaration.moduleSpecifier.text;
+  if (specifier.startsWith("node:")) continue;
+  let path;
+  if (specifier === "typescript") path = resolve(baselineRoot, "node_modules/typescript/lib/typescript.js");
+  else if (specifier.startsWith(".")) path = resolve(dirname(sourcePath), specifier + (/\.[cm]?[jt]sx?$/.test(specifier) ? "" : ".ts"));
+  else throw new Error("unsupported baseline instrumentation import: " + specifier);
+  dependencyBindings.push({ path, sha256: sha256(await readFile(path)) });
+  sourceEdits.push({ start: declaration.moduleSpecifier.getStart(parsed), end: declaration.moduleSpecifier.end, content: JSON.stringify(path) });
+}
 let instrumentedText = text;
-for (const [at, value] of [...edits.entries()].sort(([a], [b]) => b - a)) instrumentedText = instrumentedText.slice(0, at) + value + instrumentedText.slice(at);
-const instrumentedPath = resolve(dirname(sourcePath), "diagnostics-public-closure-instrumented.ts");
-await writeFile(instrumentedPath, instrumentedText);
+for (const edit of sourceEdits.sort((a, b) => b.start - a.start || b.end - a.end)) instrumentedText = instrumentedText.slice(0, edit.start) + edit.content + instrumentedText.slice(edit.end);
+await mkdir(workRoot);
+const instrumentedPath = resolve(workRoot, "diagnostics-public-closure-instrumented.ts");
+await writeFile(instrumentedPath, instrumentedText, { flag: "wx" });
 const baseline = await import(sourcePath);
 const instrumented = await import(instrumentedPath);
-await mkdir(workRoot);
 const units = [];
 const activations = [];
 for (const [ordinal, input] of inputs.units.entries()) {
@@ -81,5 +94,7 @@ for (const [ordinal, input] of inputs.units.entries()) {
   activations.push({ unit_id: input.id, operation: input.operation, mode: input.mode, sites: Object.fromEntries([...observedSites].sort()), values: Object.fromEntries([...values].map(([id, values]) => [id, [...values].map(value => JSON.parse(value))])), oracle_output: expected, instrumented_output_identical: true });
 }
 const identity = { baseline: "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b", typescript_version: ts.version, source_sha256: sha256(sourceBytes), input_sha256: sha256(inputBytes), instrumented_sha256: sha256(instrumentedText), case_sensitive: ts.sys.useCaseSensitiveFileNames };
+if (sha256(await readFile(sourcePath)) !== identity.source_sha256) throw new Error("baseline diagnostics source changed during instrumentation");
+for (const binding of dependencyBindings) if (sha256(await readFile(binding.path)) !== binding.sha256) throw new Error("baseline instrumentation dependency changed");
 await writeFile(outputPath, JSON.stringify({ schema_version: 1, oracle: identity, units }, null, 2) + "\n");
-await writeFile(evidencePath, JSON.stringify({ schemaVersion: 1, authority: identity, instrumentation: "Record and return each exact original expression value (or complete call result when the expression is its callee); all original bytes including JSDoc and pragmas retained. Complete outputs must equal the uninstrumented operation.", sites: sites.map(site => ({ ...site, activating_units: activations.filter(unit => unit.sites[site.id]).map(unit => unit.unit_id) })), units: activations }, null, 2) + "\n");
+await writeFile(evidencePath, JSON.stringify({ schemaVersion: 1, authority: identity, dependencyBindings, instrumentation: "Record and return each exact original expression value (or complete call result when the expression is its callee). The fresh work directory owns the instrumented copy; import specifiers bind its original dependencies. Other original bytes including JSDoc and pragmas are retained. Complete outputs must equal the uninstrumented operation.", sites: sites.map(site => ({ ...site, activating_units: activations.filter(unit => unit.sites[site.id]).map(unit => unit.unit_id) })), units: activations }, null, 2) + "\n");

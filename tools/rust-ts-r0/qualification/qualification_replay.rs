@@ -895,6 +895,18 @@ fn evaluate_relation(observations: &[Value], relation: &Value) -> Value {
         Err(error) => json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":error}),
     }
 }
+fn relation_report(observations: &[Value], relation: &Value) -> Value {
+    json!({
+        "left_observation": relation["left_observation"],
+        "right_observation": relation["right_observation"],
+        "target": relation["target"],
+        "transform": relation["transform"],
+        "expected_equal": relation["expected_equal"],
+        "origin": relation["origin"],
+        "result": evaluate_relation(observations, relation)
+    })
+}
+
 fn raw_execution_limits(recipe: &Value) -> Result<(u64, usize), String> {
     let Some(limits) = recipe.get("execution_limits") else {
         return Ok((20_000, 8_388_608));
@@ -1405,7 +1417,7 @@ fn run_raw_recipe(
         .and_then(Value::as_array)
         .map(|rs| {
             rs.iter()
-                .map(|r| json!({"origin":r["origin"],"result":evaluate_relation(&observations,r)}))
+                .map(|r| relation_report(&observations, r))
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
@@ -2977,7 +2989,7 @@ fn run_primitive_recipe(
         .and_then(Value::as_array)
         .map(|rs| {
             rs.iter()
-                .map(|r| json!({"origin":r["origin"],"result":evaluate_relation(&observations,r)}))
+                .map(|r| relation_report(&observations, r))
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
@@ -7318,4 +7330,161 @@ fn comparator_windows_verbatim_identity_external_domains_bind_actual_native_requ
         json!({"domain":"external","path":if sensitive {"/?/D:/outside.ts"} else {"/?/d:/outside.ts"}})
     );
     println!("DEV_WINDOWS_EXTERNAL_IDENTITY_ROOT:{}", physical.display());
+}
+
+// SOURCE ONLY: append to qualification/qualification_replay.rs.
+// Uses the existing public fixture/evidence environment, but never opens its
+// cases/recipes/SDK fields. ROOT must supply the real pinned CLI and helper.
+// Exactly two synthetic native primitive calls when ROOT separately runs it.
+
+#[test]
+fn comparator_native_relation_report_preserves_exact_descriptor_dev() {
+    let fixture_path = PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("DEV_SETUP_REQUIRED: public tool fixture"),
+    );
+    let fixture = read_json(&fixture_path).expect("DEV_SETUP_REQUIRED: tool fixture JSON");
+    let artifact = PathBuf::from(
+        value_text(&fixture, "artifact_path").expect("DEV_SETUP_REQUIRED: actual CLI path"),
+    );
+    let helper = PathBuf::from(
+        value_text(&fixture, "helper_path").expect("DEV_SETUP_REQUIRED: actual helper path"),
+    );
+    let artifact_sha = exact_hash(
+        &artifact,
+        value_text(&fixture, "artifact_sha256").expect("DEV_SETUP_REQUIRED: CLI pin"),
+    )
+    .expect("DEV_SETUP_REQUIRED: actual CLI pin mismatch");
+    let helper_sha = exact_hash(
+        &helper,
+        value_text(&fixture, "helper_sha256").expect("DEV_SETUP_REQUIRED: helper pin"),
+    )
+    .expect("DEV_SETUP_REQUIRED: actual helper pin mismatch");
+    let dir = PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_EVIDENCE")
+            .expect("DEV_SETUP_REQUIRED: fresh evidence parent"),
+    )
+    .join("synthetic-native-relation-carrier");
+    assert!(!dir.exists(), "DEV_SETUP_REQUIRED: evidence must be fresh");
+    fs::create_dir(&dir).expect("DEV_SETUP_REQUIRED: exclusive evidence directory");
+
+    let relation = json!({
+        "left_observation": 0,
+        "right_observation": 1,
+        "target": ["canonical_json"],
+        "transform": "none",
+        "expected_equal": false,
+        "origin": "independent-public-dev-literal"
+    });
+    let recipe = json!({
+        "unit_id": "synthetic-native-relation-carrier",
+        "surface": "primitive_cli",
+        "primitive_requests": [
+            {"operation":"canonical_json","value":{"synthetic":1}},
+            {"operation":"canonical_json","value":{"synthetic":2}}
+        ],
+        "checks": [
+            {"observation":0,"target":["canonical_json"],"mode":"eq",
+             "expected":"{\"synthetic\":1}","actual_transform":"none",
+             "expected_origin":"independent-public-dev-literal"},
+            {"observation":1,"target":["canonical_json"],"mode":"eq",
+             "expected":"{\"synthetic\":2}","actual_transform":"none",
+             "expected_origin":"independent-public-dev-literal"}
+        ],
+        "relations": [relation.clone()],
+        "gaps": []
+    });
+    let report = run_primitive_recipe(
+        &recipe,
+        &dir,
+        &artifact,
+        &helper,
+        &artifact_sha,
+        &helper_sha,
+    )
+    .expect("DEV_NATIVE_PRECONDITION: producer failed before carrier comparison");
+
+    // These controls must all pass before the descriptor-specific assertion.
+    // A build/setup/process/capability/comparison failure is not the witness RED.
+    assert_eq!(
+        report["state"], "PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT",
+        "DEV_NATIVE_PRECONDITION: unexpected producer state"
+    );
+    assert_eq!(
+        report["pass"], true,
+        "DEV_NATIVE_PRECONDITION: unit not PASS"
+    );
+    assert_eq!(
+        report["gaps"],
+        json!([]),
+        "DEV_NATIVE_PRECONDITION: unexpected gap"
+    );
+    let checks = report["checks"]
+        .as_array()
+        .expect("DEV_NATIVE_PRECONDITION: checks missing");
+    assert_eq!(
+        checks.len(),
+        2,
+        "DEV_NATIVE_PRECONDITION: wrong check count"
+    );
+    for check in checks {
+        assert_eq!(
+            check["result"]["state"], "PASS_PROJECTED_PROPERTY",
+            "DEV_NATIVE_PRECONDITION: exact native value comparison failed"
+        );
+    }
+    for observation in 0..2 {
+        let subdir = dir.join(format!("observation-{observation:03}"));
+        let outcome = read_json(&subdir.join("process-outcome.json"))
+            .expect("DEV_NATIVE_PRECONDITION: actual process outcome missing");
+        assert_eq!(
+            outcome["kind"], "success",
+            "DEV_NATIVE_PRECONDITION: process kind"
+        );
+        assert_eq!(
+            outcome["exit_code"], 0,
+            "DEV_NATIVE_PRECONDITION: process exit"
+        );
+        let binding = read_json(&subdir.join("verified-descriptor-binding.json"))
+            .expect("DEV_NATIVE_PRECONDITION: real descriptor binding missing");
+        assert_eq!(
+            binding["operation"], "canonical_json",
+            "DEV_NATIVE_PRECONDITION: wrong native operation"
+        );
+        assert_eq!(
+            binding["artifact_sha256"], artifact_sha,
+            "DEV_NATIVE_PRECONDITION: wrong native artifact"
+        );
+        assert_eq!(
+            binding["request_descriptor_id"],
+            identity::digest(&recipe["primitive_requests"][observation]),
+            "DEV_NATIVE_PRECONDITION: wrong request identity"
+        );
+    }
+    let relations = report["relations"]
+        .as_array()
+        .expect("DEV_NATIVE_PRECONDITION: relation results missing");
+    assert_eq!(
+        relations.len(),
+        1,
+        "DEV_NATIVE_PRECONDITION: wrong relation count"
+    );
+    assert_eq!(
+        relations[0]["result"]["state"], "PASS_PROJECTED_PROPERTY",
+        "DEV_NATIVE_PRECONDITION: actual boolean relation did not pass"
+    );
+
+    // Exercise the returned production carrier, not a future serialization helper.
+    for field in [
+        "left_observation",
+        "right_observation",
+        "target",
+        "transform",
+        "expected_equal",
+    ] {
+        assert_eq!(
+            relations[0].get(field),
+            relation.get(field),
+            "DESCRIPTOR_MISSING: {field}"
+        );
+    }
 }

@@ -1,4 +1,4 @@
-import { validatePublicUnits, rawContextChecks } from "./public-native-context.mjs";
+import { validatePublicUnits, rawContextChecks, publicFixturePath } from "./public-native-context.mjs";
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -33,17 +33,21 @@ if (before[0].sha256 !== freeze.artifact_sha256 || before[1].sha256 !== freeze.s
 await mkdir(outputRoot);
 const reports = [];
 for (const unit of inputs.units) {
-  const directory = resolve(outputRoot,unit.id);
-  const root = resolve(directory,'repository');
+  const directory = publicFixturePath(outputRoot,unit.id);
+  const root = publicFixturePath(directory,'repository');
   await mkdir(root,{recursive:true});
   const files = {};
   for (const [path,text] of Object.entries(unit.files)) {
-    const target = resolve(root,path);
+    const target = publicFixturePath(root,path);
     await mkdir(dirname(target),{recursive:true});
     await writeFile(target,text);
     files[target] = text;
   }
-  for (const [path,text] of Object.entries(unit.outside)) await writeFile(resolve(directory,path),text);
+  for (const [path,text] of Object.entries(unit.outside)) {
+    const target = publicFixturePath(directory,path);
+    await mkdir(dirname(target),{recursive:true});
+    await writeFile(target,text);
+  }
   const roots = Object.keys(files);
   const retained = unit.retained ? new Map(Object.entries(files)) : undefined;
   let expected;

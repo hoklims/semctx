@@ -210,3 +210,138 @@ test("the CLI publishes a bound joint aggregate without private unit IDs", () =>
     if (process.platform !== "win32") expect(statSync(join(setup.outputDirectory, "aggregate.json")).mode & 0o777).toBe(0o600);
   } finally { rmSync(setup.root, { recursive: true, force: true }); }
 });
+
+// SOURCE ONLY. Append to scripts/t00-holdout-runner.test.ts at the pinned
+// f3886d95 version. Reuses its public synthetic fixture, imports and helpers.
+// No real holdout is read and no native observer is launched by this fixture.
+
+test.each([
+  "exact",
+  "foreign-target",
+  "swapped-observations",
+  "foreign-equality",
+  "foreign-transform",
+] as const)("frozen relation identity is enforced: %s", async variant => {
+  const setup = fixture();
+  try {
+    const input = JSON.parse(readFileSync(setup.inputPath, "utf8")) as {
+      units: Array<{
+        unit_id: string;
+        primitive_requests: Array<Record<string, unknown>>;
+        checks: Array<Record<string, unknown>>;
+        relations?: Array<{
+          left_observation: number;
+          right_observation: number;
+          target: string[];
+          transform: string;
+          expected_equal: boolean;
+        }>;
+      }>;
+    };
+    // First observation remains the existing public synthetic import.
+    // The second has a different literal import, so equality is false.
+    input.units[0]!.primitive_requests.push({
+      operation: "relative_import_specifiers",
+      source: 'import "./synthetic-second";',
+      filename: "second.ts",
+    });
+    input.units[0]!.relations = [{
+      left_observation: 0,
+      right_observation: 1,
+      target: ["specifiers"],
+      transform: "none",
+      expected_equal: false,
+    }];
+    writeFileSync(setup.inputPath, JSON.stringify(input));
+
+    // This public fixture is frozen before invoking the injected observer.
+    // Only the response relation below changes between variants.
+    const frozenReceipt = JSON.parse(readFileSync(setup.receiptPath, "utf8"));
+    frozenReceipt.privateCommitments.expectationsSha256 = digest(readFileSync(setup.inputPath));
+    writeFileSync(setup.receiptPath, JSON.stringify(frozenReceipt));
+    const frozen = JSON.parse(readFileSync(setup.freezePath, "utf8"));
+    frozen.receiptSha256 = digest(readFileSync(setup.receiptPath));
+    writeFileSync(setup.freezePath, JSON.stringify(frozen));
+
+    const requestBytes = readFileSync(setup.inputPath);
+    const requestPin = digest(requestBytes);
+    let invocations = 0;
+    const result = await runFrozenHoldout(setup, async (command, environment) => {
+      invocations++;
+      expect(command).toEqual([
+        setup.lane.qualification_observer_path!,
+        "suite_replay::suite_phase_a_replay_requires_frozen_manifest",
+        "--exact",
+        "--nocapture",
+      ]);
+      const observedInput = readFileSync(environment.SEMCTX_SUITE_MANIFEST!);
+      expect(observedInput.equals(requestBytes)).toBe(true);
+      expect(environment.SEMCTX_SUITE_SHA256).toBe(requestPin);
+      const manifest = JSON.parse(observedInput.toString("utf8")) as typeof input;
+      const report = {
+        artifact_sha256: setup.lane.artifact_sha256,
+        helper_sha256: setup.lane.helper_sha256,
+        manifest_sha256: requestPin,
+        units: manifest.units.map((unit, index) => {
+          const relations = (unit.relations ?? []).map(relation => ({
+            ...relation,
+            target: [...relation.target],
+            result: { state: "PASS_PROJECTED_PROPERTY" },
+          }));
+          if (index === 0) {
+            expect(relations).toHaveLength(1);
+            switch (variant) {
+              case "foreign-target":
+                relations[0]!.target = ["otherSpecifiers"];
+                break;
+              case "swapped-observations":
+                relations[0]!.left_observation = 1;
+                relations[0]!.right_observation = 0;
+                break;
+              case "foreign-equality":
+                relations[0]!.expected_equal = true;
+                break;
+              case "foreign-transform":
+                relations[0]!.transform = "foreign";
+                break;
+              case "exact":
+                break;
+            }
+          }
+          return {
+            unit_id: unit.unit_id,
+            result: {
+              pass: true,
+              checks: unit.checks.map(check => ({
+                ...check,
+                result: { state: "PASS_PROJECTED_PROPERTY" },
+              })),
+              relations,
+            },
+          };
+        }),
+      };
+      mkdirSync(environment.SEMCTX_SUITE_EVIDENCE!);
+      writeFileSync(join(environment.SEMCTX_SUITE_EVIDENCE!, "report.json"), JSON.stringify(report));
+      return 0;
+    });
+
+    expect(invocations).toBe(1);
+    expect(digest(readFileSync(setup.inputPath))).toBe(requestPin);
+    if (variant === "exact") {
+      expect(result.state).toBe("REPORTED");
+      expect(result.variantsCompared).toBe(26);
+      expect(result.variantsPass).toBe(26);
+      expect(existsSync(join(setup.outputDirectory, "execution-failure.json"))).toBe(false);
+    } else {
+      expect(result.state).toBe("EXECUTION_UNAVAILABLE");
+      expect(result.variantsCompared).toBe(0);
+      expect(result.variantsPass).toBe(0);
+      // A TypeError/import/setup error is not the intended refusal.
+      const refusal = JSON.parse(readFileSync(join(setup.outputDirectory, "execution-failure.json"), "utf8"));
+      expect(refusal.error).toBe("Error: PASS_WITHOUT_COMPLETE_COMPARISON");
+    }
+  } finally {
+    rmSync(setup.root, { recursive: true, force: true });
+  }
+});
