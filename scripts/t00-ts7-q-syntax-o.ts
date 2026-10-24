@@ -204,6 +204,7 @@ specimens.push(
 );
 
 export const coverageGaps: Record<number, string> = {
+  166: "Décision propriétaire en attente : relations de digest TS7 ou octets identiques au digest historique TS5 ; aucun crédit avant arbitrage explicite.",
   145: "Les contrôles couvrent les expressions immédiates et différées sauf un témoin positif indépendant YieldExpression accepté à portée fichier; l'obligation cumulative reste non qualifiée.",
 };
 

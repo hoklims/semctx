@@ -1,6 +1,7 @@
 # T00 — TS7 reference contract
 
-Status: partially specified research contract, owner decisions of 2026-10-23.
+Status: partially specified research contract, owner decisions of 2026-10-23 and
+2026-10-24. The 2026-10-24 scope changes below still require Guillaume’s validation.
 This contract applies to the T00 experiment only. It does not migrate the delivered
 profiles in accepted ADRs [0034](../../adr/0034-javascript-static-esm.md) and
 [0035](../../adr/0035-qualified-static-analysis-admission.md), grant admission,
@@ -114,6 +115,40 @@ and exit codes on macOS arm64 and Linux aarch64:
 The approved diagnostic mode supplies no TS5-compatible emission promise or
 permission to accept incompatible qualified module settings. Preserve explicit
 Semctx configuration refusals and distinguish them from compiler code 6046.
+
+## Owner scope decisions of 2026-10-24
+
+Sébastien authorized the following experimental scope changes. **Guillaume must
+still validate both changes** before they can be presented as maintainer-approved
+contract changes. A local qualification result under this scope does not supply
+that validation or authorize delivery.
+
+For obligation **49**, API checkpoints **49:2, 49:4 and 49:5**, which require
+invocation without a captured snapshot or source path, are outside the Rust
+producer’s scope. Its stdin boundary supplies source text and a captured snapshot.
+This explicit boundary limitation does not qualify the remaining in-scope
+properties. The obligation stays in the 240-row denominator; excluding these
+three checkpoints grants no PASS by itself. Historical inventories remain unchanged.
+
+For obligations **12–14**, the contract covers targets supported by the pinned
+TS7 compiler. The historical **J04/J05 ES5 witnesses are explicitly replaced by
+the ES2015 variants** prepared by emit-helpers: enabled/disabled helper imports,
+inherited and leaf-overridden options, native-target control and manual-import
+controls. Qualification requires fresh activation and control comparisons against
+the independent TS7 API oracle on the frozen candidate on both platforms.
+**ARB-003 and `__generator` retain zero credit.** No ES5 compatibility promise is made.
+
+Obligations **145** (`yield`) and **166** (structural digest) remain pending a
+separate owner decision and are not qualified in this campaign. The unresolved
+choices concern a recovered immediate YieldExpression with TS1163 versus an
+accepted program, and TS7 digest equality/difference relations versus identical
+historical TS5 digest bytes. Neither choice is inferred from existing tests.
+
+The resumed wave-2 delivery includes only the committed semantic tranche **52**
+in addition to the previously prepared **61/97/102**. Other committed preparatory
+contract matrices are not activated for promotion. Their obligations retain
+baseline witnesses and remain unqualified until a separately delivered closure.
+Uncommitted live-fs, extraction and semantic continuation work is excluded.
 
 ## Obligation 229 — P2 acquisition
 
@@ -239,8 +274,9 @@ and separately exposes the native transformer location. At the pinned revision,
 the factory call location (`jsxtransforms/jsx.rs`, lines 383–389, 415–436,
 1073 and 1107). Compare synthesized calls to this independently observed location;
 do not relabel it as the raw authored range. This is an owning-operation comparison,
-not AST coordinate-shape equivalence. Historical ES5 helper witnesses J04/J05
-remain unqualified; supported-target variants neither replace them nor credit ARB-003.
+not AST coordinate-shape equivalence. The 2026-10-24 owner decision above replaces
+J04/J05 ES5 witnesses with the tested ES2015 variants for obligations 12–14, subject
+to Guillaume’s validation; neither ARB-003 nor `__generator` receives credit.
 
 The runtime API oracle uses upstream `noembed`: its real executable directory
 must contain the pinned 115 libraries, in addition to the explicit `sdk_directory`

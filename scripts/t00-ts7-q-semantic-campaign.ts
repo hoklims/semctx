@@ -199,7 +199,7 @@ export function campaign(argv: string[]): void {
   const results = selected.map(witness => {
     const start = performance.now();
     const matrix = operatorWitnesses.filter(row => row.index === witness.index);
-    const contractMatrix = matrix.length === 0 ? contractWitnesses.filter(row => row.index === witness.index) : [];
+    const contractMatrix = witness.index === 52 ? contractWitnesses.filter(row => row.index === witness.index) : [];
     const projectedMatrix = [...matrix, ...contractMatrix];
     const scenarios: SemanticWitness[] = projectedMatrix.length === 0 ? [witness, ...semanticWitnessesAFocal.filter(row => row.index === witness.index)] : projectedMatrix.map(row => ({
       ...witness, id: witness.id + ":" + row.idSuffix, files: row.files, controlFiles: row.controlFiles,
