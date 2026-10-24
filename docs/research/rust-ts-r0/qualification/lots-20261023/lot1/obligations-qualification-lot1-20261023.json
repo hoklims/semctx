@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 1,
+  "state": "PUBLIC_FINITE_LOT_ASSESSMENT_NO_PROMOTION",
+  "sourceBase": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3"
+  },
+  "summary": {
+    "qualified": 0,
+    "not_qualified": 8,
+    "formalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "prior209RecampaignedOnCandidate": false
+  },
+  "arbitrationCredit": 0,
+  "obligations": [
+    {
+      "index": 0,
+      "id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-bd751ded9d",
+      "consumer": "inspectRetainedQualifiedScope",
+      "familyIds": [
+        "qualified-scope-projection"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "La dépendance optionnelle déclarée concorde après correction. La référence non retenue produit encore CLI1 (SOURCE_REFERENCE_PATH_UNSUPPORTED puis UnexpectedOutcome) sans admission structurée, au lieu du rejet TS5.9.3 avec raison exacte. Sept témoins de refus n’exposent aucune admission native ; les listes complètes de raisons de périmètre et d’imports non résolus ne sont pas publiées.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/0/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        },
+        "linux": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 1,
+      "id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-visit-04b87875b6",
+      "consumer": "inspectRetainedQualifiedScope > visit",
+      "familyIds": [
+        "qualified-scope-projection"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Même refus triple-slash sans admission structurée ; les contrôles import-type/import-equals/computed/two-arguments/unresolved sont arrêtés CLI1 avant la projection du visiteur. La propriété cumulative et sa consommation complète ne sont pas fermées.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/1/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        },
+        "linux": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 232,
+      "id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-bindopaquecallbackgraph-44b96ab139",
+      "consumer": "T00-OBL-packages-app-services-src-qualified-analysis-ts-bindopaquecallbackgraph-44b96ab139",
+      "familyIds": [
+        "qualified-opaque-ownership"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Les 12 comparaisons de phases et les captures réelles concordent, mais aucun reçu natif possédé par le consommateur ni sa revalidation après émission n’est observé. Le helper ne reconsomme ni ne revalide le Receipt après receive_index ; trois alternatives donnent CLI1 sans admission.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/232/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        },
+        "linux": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 233,
+      "id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-qualifiedadmission-5e3c15f48a",
+      "consumer": "T00-OBL-packages-app-services-src-qualified-analysis-ts-qualifiedadmission-5e3c15f48a",
+      "familyIds": [
+        "qualified-scope-projection"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "qualifiedAdmission ne peut être comparée complètement : référence non retenue et six autres refus sans admission native ; raisons complètes différentes pour les importeurs exclus computed/unresolved et absence des listes complètes de périmètre.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/233/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        },
+        "linux": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 234,
+      "id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-scope-token-revalidation-and-opaque-ow-b3c8039572",
+      "consumer": "T00-OBL-packages-app-services-src-qualified-analysis-ts-scope-token-revalidation-and-opaque-ow-b3c8039572",
+      "familyIds": [
+        "qualified-opaque-ownership"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Les 16 variantes de tokens TS par cas ne sont pas appariées à une revalidation native après émission. Le reçu natif n’est pas exposé/reconsommé ; phases et refus de processus ne suffisent pas à fermer provenance et mutations après émission.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/234/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        },
+        "linux": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 236,
+      "id": "T00-OBL-packages-app-services-src-verify-ts-immutable-base-capture-inspectretainedqualifiedsco-ee99401afd",
+      "consumer": "T00-OBL-packages-app-services-src-verify-ts-immutable-base-capture-inspectretainedqualifiedsco-ee99401afd",
+      "familyIds": [
+        "qualified-scope-projection"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Les témoins working-tree ne ferment pas la capture immuable de base : le helper refuse tout index non Analyzed avant l’admission. La référence non retenue n’a pas de raison exacte/admission structurée native et la consommation complète du périmètre reste manquante.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/236/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        },
+        "linux": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 237,
+      "id": "T00-OBL-packages-app-services-src-verify-ts-verify-qualifiedadmission-08496630a9",
+      "consumer": "T00-OBL-packages-app-services-src-verify-ts-verify-qualifiedadmission-08496630a9",
+      "familyIds": [
+        "qualified-scope-projection"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "La composition verify/qualifiedAdmission reste incomplète : sept refus natifs CLI1 sans admission structurée, malgré l’admission optionnelle corrigée et les contrôles hérités/exclus concordants.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/237/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        },
+        "linux": {
+          "inheritedExcludedControls": "partial_public_matches",
+          "unretainedReference": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "declaredOptional": "MATCH_ADMISSION_LIMITATION_AND_EXTERNAL_SPECIFIER",
+          "astRefusalControls": "NONPASS_CLI1_WITHOUT_STRUCTURED_ADMISSION",
+          "completeScopeReceiverInputGuardConsumption": "NOT_ESTABLISHED",
+          "receiverFaultControls": "5/5 refused"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 238,
+      "id": "T00-OBL-packages-app-services-src-verify-ts-verify-admission-arguments-bindopaquecallbackgraph-d6d3e9c98f",
+      "consumer": "T00-OBL-packages-app-services-src-verify-ts-verify-admission-arguments-bindopaquecallbackgraph-d6d3e9c98f",
+      "familyIds": [
+        "qualified-opaque-ownership"
+      ],
+      "candidateObservedCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Le chemin public verify reçoit le batch, sans reconsommer ni revalider le Receipt ; aucune consommation native complète des arguments d’ownership/revalidation après émission n’est établie. Trois contrôles opaques restent CLI1 sans admission structurée.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/238/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/campaign-results.json",
+            "sha256": "fdbd5941cc2e1bf8964557fd2c7103d4b84acea716d7deff2efe5ba4ab1ecf9c",
+            "bytes": 29835
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/evidence-manifest.json",
+            "sha256": "464d9b18cdfd7b973e18ce79a84c62e2a5d7c6f3988062134a72e253a94bdb93",
+            "bytes": 80925
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot1/independent-review.json",
+            "sha256": "c0fb1878c43921ed3d16b824c475719976e9b499a9dd4695d4952c0a05988f60",
+            "bytes": 837
+          }
+        ]
+      },
+      "platformResults": {
+        "macos": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        },
+        "linux": {
+          "ownershipPhases": "12/12 exact reason comparisons",
+          "sourceTokenVariantsObserved": 64,
+          "nativeTokenGuardPairs": 0,
+          "realProcessFaultControls": "4/4 refused",
+          "independentNativeReceiptRepresentation": "NOT_EXPOSED",
+          "nativePostIssuanceRevalidation": "NOT_OBSERVED",
+          "opaqueAlternatives": "3 CLI1 without structured admission"
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    }
+  ]
+}

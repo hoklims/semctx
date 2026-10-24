@@ -62,7 +62,32 @@ pub fn local_verification(
     root: &str,
 ) -> Vec<Action> {
     let mut actions = verification(base, skip_diff, shard, std::env::consts::OS);
-    for manifest in ["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml"] {
+    for manifest in ["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml"]
+        .into_iter()
+        .chain(
+            crate::rust_workspace::EXPERIMENTAL_TOOL_MANIFESTS
+                .iter()
+                .copied(),
+        )
+    {
+        let mut test_args = vec!["cargo", "test", "--manifest-path", manifest, "--locked"];
+        if manifest == "tools/rust-ts-r0-ts7-experimental/Cargo.toml" {
+            test_args.push("--release");
+            test_args.extend([
+                "--config",
+                "env.GOPORT_LIB_PARSE_SNAPSHOT.value='0'",
+                "--config",
+                "env.GOPORT_LIB_PARSE_SNAPSHOT.force=true",
+                "--config",
+                "env.GOPORT_LIB_SNAPSHOT.value='0'",
+                "--config",
+                "env.GOPORT_LIB_SNAPSHOT.force=true",
+                "--config",
+                "env.RUST_TEST_THREADS.value='1'",
+                "--config",
+                "env.RUST_TEST_THREADS.force=true",
+            ]);
+        }
         actions.extend([
             action(
                 "Rust formatting",
@@ -82,10 +107,7 @@ pub fn local_verification(
                     "warnings",
                 ],
             ),
-            action(
-                "Rust tests",
-                &["cargo", "test", "--manifest-path", manifest, "--locked"],
-            ),
+            action("Rust tests", &test_args),
         ]);
     }
     actions.push(action(
@@ -525,7 +547,14 @@ mod tests {
     fn local_full_verification_executes_native_tooling_and_product_discovery() {
         let actions = local_verification("base", false, "", "gate-binary", "source-root");
         for operation in ["fmt", "clippy", "test"] {
-            for manifest in ["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml"] {
+            for manifest in [
+                "tools/gates/Cargo.toml",
+                "tools/qualification/Cargo.toml",
+                "tools/rust-ts-r0-ts7-experimental/Cargo.toml",
+                "tools/t00-ts7-oracle-emit-helpers/Cargo.toml",
+                "tools/t00-ts7-oracle-q-semantic/Cargo.toml",
+                "tools/t00-ts7-oracle-q-syntax/Cargo.toml",
+            ] {
                 assert_eq!(
                     actions
                         .iter()
@@ -536,6 +565,40 @@ mod tests {
                     1,
                     "{operation} {manifest}"
                 );
+                let actual = actions
+                    .iter()
+                    .find(|a| {
+                        a.argv.first().is_some_and(|v| v == "cargo")
+                            && a.argv.get(1).is_some_and(|v| v == operation)
+                            && a.argv.iter().any(|v| v == manifest)
+                    })
+                    .unwrap();
+                let mut expected = vec!["cargo", operation, "--manifest-path", manifest];
+                expected.extend(match operation {
+                    "fmt" => vec!["--check"],
+                    "clippy" => vec!["--locked", "--all-targets", "--", "-D", "warnings"],
+                    "test" if manifest == "tools/rust-ts-r0-ts7-experimental/Cargo.toml" => {
+                        vec![
+                            "--locked",
+                            "--release",
+                            "--config",
+                            "env.GOPORT_LIB_PARSE_SNAPSHOT.value='0'",
+                            "--config",
+                            "env.GOPORT_LIB_PARSE_SNAPSHOT.force=true",
+                            "--config",
+                            "env.GOPORT_LIB_SNAPSHOT.value='0'",
+                            "--config",
+                            "env.GOPORT_LIB_SNAPSHOT.force=true",
+                            "--config",
+                            "env.RUST_TEST_THREADS.value='1'",
+                            "--config",
+                            "env.RUST_TEST_THREADS.force=true",
+                        ]
+                    }
+                    "test" => vec!["--locked"],
+                    _ => unreachable!(),
+                });
+                assert_eq!(actual.argv, expected, "{operation} {manifest}");
             }
         }
         assert_eq!(

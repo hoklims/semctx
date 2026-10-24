@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "author": "/root/stage4_native_source_review",
+  "created_utc": "2026-10-17T16:58:06.331373+00:00",
+  "provenance": "New source-authored DEVELOPMENT controls from independent source review. No qualification or reserved input read, no native execution. Root owns subsequent tests.",
+  "cases": [
+    {
+      "id": "review-development-malformed-import-20261017A",
+      "files": {
+        "/repo/reviewDevelopmentImportOwnerA.ts": "export function reviewDevelopmentFirstA() { return 101; }",
+        "/repo/reviewDevelopmentImportConsumerA.ts": "import { reviewDevelopmentFirstA } from './reviewDevelopmentImportOwnerA'; import { reviewDevelopmentSecondA } from 42; export function reviewDevelopmentRunA() { return reviewDevelopmentFirstA(); }"
+      },
+      "target_file": "reviewDevelopmentImportConsumerA.ts",
+      "expected": {
+        "raw_import_count": 1,
+        "first_import_module_specifier": "./reviewDevelopmentImportOwnerA",
+        "first_import_names": [
+          "reviewDevelopmentFirstA"
+        ],
+        "no_binding_target_named": "reviewDevelopmentSecondA",
+        "parse_success_claim": false
+      },
+      "basis": "Baseline ts-symbols.ts dispatches ImportDeclaration only with StringLiteral moduleSpecifier. Native parser explicitly permits a nonliteral expression during recovery. A rejected second link must not mutate the first record."
+    },
+    {
+      "id": "review-development-named-relay-20261017B",
+      "files": {
+        "/repo/reviewDevelopmentFirstB.ts": "export function reviewDevelopmentClashB() { return 103; }",
+        "/repo/reviewDevelopmentSecondB.ts": "export function reviewDevelopmentClashB() { return 107; }",
+        "/repo/reviewDevelopmentAmbiguousB.ts": "export * from './reviewDevelopmentFirstB'; export * from './reviewDevelopmentSecondB';",
+        "/repo/reviewDevelopmentRelayB.ts": "export { reviewDevelopmentClashB as reviewDevelopmentRelayedB } from './reviewDevelopmentAmbiguousB';",
+        "/repo/reviewDevelopmentConsumerB.ts": "import { reviewDevelopmentRelayedB } from './reviewDevelopmentRelayB'; export function reviewDevelopmentRunB() { return reviewDevelopmentRelayedB(); }"
+      },
+      "target_file": "reviewDevelopmentConsumerB.ts",
+      "expected": {
+        "callee_endpoint": null,
+        "binding_targets": [],
+        "relay_ambiguity_names": [
+          "reviewDevelopmentRelayedB"
+        ]
+      },
+      "variants": [
+        {
+          "name": "concrete-named-control",
+          "replace_file": "/repo/reviewDevelopmentRelayB.ts",
+          "source": "export { reviewDevelopmentClashB as reviewDevelopmentRelayedB } from './reviewDevelopmentFirstB';",
+          "expected": {
+            "callee_rel_path": "reviewDevelopmentFirstB.ts",
+            "callee_symbol_path": "reviewDevelopmentClashB",
+            "relay_ambiguity_names": []
+          }
+        }
+      ],
+      "basis": "Approved correction refuses arbitrary first-origin selection. Renaming through a named relay must preserve ambiguous provenance, while a named reexport directly selecting a concrete source resolves it. Runtime native behavior remains unobserved."
+    }
+  ]
+}

@@ -1,0 +1,1335 @@
+{
+  "schemaVersion": 1,
+  "state": "LOT3_PUBLIC_FINITE_ASSESSMENT",
+  "sourceBase": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3"
+  },
+  "summary": {
+    "qualified": 0,
+    "notQualified": 13,
+    "formalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "arbitrationPassingCredit": 0
+  },
+  "qualificationPolicy": "Owner addendum Phase A scoped to full finite cumulative properties on macOS/Linux; terminal R0 remains separate. Source contracts, historical references, family association and ARB acceptance give no passing credit. Canonical optional additional combinations do not become new exhaustive coverage requirements.",
+  "campaign": {
+    "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+    "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+    "bytes": 12451
+  },
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "obligations": [
+    {
+      "index": 23,
+      "id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-85815f5af7",
+      "consumer": "inspectModuleConfiguration",
+      "familyIds": [
+        "configuration-eligibility"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : diagnostic 6046 target différent dans trois modes. Les trois missing-inherited sont désormais exacts, sans normalisation.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/23/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "target6046 exact",
+          "macos": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "missing-inherited exact",
+          "macos": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "other associated complete configuration reasons",
+          "macos": {
+            "pass": 54,
+            "total": 54,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 54,
+            "total": 54,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 26,
+      "id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-2c85cf784f",
+      "consumer": "inspectModuleConfiguration > <callback@409>",
+      "familyIds": [
+        "configuration-eligibility"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : le callback produit un message 6046 target différent de TS 5.9.3 dans trois modes.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/26/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "target6046 exact",
+          "macos": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "missing-inherited exact",
+          "macos": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "other associated complete configuration reasons",
+          "macos": {
+            "pass": 30,
+            "total": 30,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 30,
+            "total": 30,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 27,
+      "id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-readfile-ef9362fff6",
+      "consumer": "inspectModuleConfiguration > readFile",
+      "familyIds": [
+        "configuration-eligibility"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : lectures inherited exactes, mais le résultat cumulatif conserve les trois NONPASS target 6046.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/27/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "target6046 exact",
+          "macos": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 0,
+            "total": 3,
+            "status": "NONPASS",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "missing-inherited exact",
+          "macos": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 3,
+            "total": 3,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        },
+        {
+          "property": "other associated complete configuration reasons",
+          "macos": {
+            "pass": 30,
+            "total": 30,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-diagnostics-final/result.json",
+              "sha256": "2a5e6f0ec424ed5ec4879ae3735dd905a810d9d9f95b1ab3d07aef6143824c78",
+              "bytes": 206554
+            }
+          },
+          "linux": {
+            "pass": 30,
+            "total": 30,
+            "status": "PASS_FINITE",
+            "evidence": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-diagnostics-final/result.json",
+              "sha256": "c0e4a66514e11e0fabae8127b866dbac92fe54e07d8cda04d608208d93c63d90",
+              "bytes": 206092
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 198,
+      "id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-39c3d332ed",
+      "consumer": "resolveConfiguredModule",
+      "familyIds": [
+        "ordinary-module-resolution"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "18/18 comparaisons finies par plateforme; argument system par défaut non évalué par les callers. repositoryRoot absent, fuite canonique et erreurs realpath non exercés; aucune fermeture de tous les prédicats.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/198/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/resolution/summary.json",
+            "sha256": "2292c694aa1e5f0936e709920e0a79d1b578e07905bac71d9b55b54f6d2e37f2",
+            "bytes": 51745
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "configuration System selection",
+          "macos": "ORACLE_ONLY",
+          "linux": "ORACLE_ONLY",
+          "activationControls": [
+            [
+              "paths-active/live",
+              "paths-active/snapshot"
+            ]
+          ],
+          "gap": "Baseline site traced; exact candidate endpoint on the listed captures does not prove this live branch or an isolated predicate control.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "nearest config exists",
+          "macos": "ORACLE_ONLY",
+          "linux": "ORACLE_ONLY",
+          "activationControls": [
+            [
+              "paths-active",
+              "no-config-relative"
+            ]
+          ],
+          "gap": "Baseline site traced; exact candidate endpoint on the listed captures does not prove this live branch or an isolated predicate control.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "configuration parsing error",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "activationControls": [
+            [
+              "paths-active",
+              "config-malformed"
+            ]
+          ],
+          "gap": null,
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "inherited paths consumed",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "activationControls": [
+            [
+              "extends-active",
+              "extends-missing"
+            ]
+          ],
+          "gap": null,
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "resolution success versus unresolved",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "activationControls": [
+            [
+              "no-config-relative",
+              "no-config-missing"
+            ],
+            [
+              "paths-active",
+              "paths-control"
+            ],
+            [
+              "package-realpath",
+              "package-missing"
+            ]
+          ],
+          "gap": null,
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "live wrapper selection",
+          "macos": "ORACLE_ONLY",
+          "linux": "ORACLE_ONLY",
+          "activationControls": [
+            [
+              "paths-active/live",
+              "paths-active/snapshot"
+            ]
+          ],
+          "gap": "Baseline site traced; exact candidate endpoint on the listed captures does not prove this live branch or an isolated predicate control.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "realpath file branch",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "activationControls": [
+            [
+              "package-realpath/live",
+              "package-missing/live"
+            ]
+          ],
+          "gap": null,
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "default system argument",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "No invocation omits or supplies undefined fourth argument in either baseline owning caller; not observed. This structural fact does not close the other failure paths.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "undefined repositoryRoot",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "All supplement live invocations pass a repository root; false branch not exercised.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "canonical path escape",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "No canonical escape or realpath error generated; lexical ancestor rejection is observed but is a different predicate.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "realpath directory alternative",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "Line304 directoryExists is never executed; TS package realpath gets an existing declaration file, so fileExists short-circuits. This does not establish impossible reachability under mutation or errors.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "realpath missing delegate/fallback",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "Delegate return observed only on existing regular declaration file, never missing delegate or undefined result.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 204,
+      "id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-realpath-89c966e6ff",
+      "consumer": "resolveConfiguredModule > realpath",
+      "familyIds": [
+        "ordinary-module-resolution"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Branche realpath fichier régulier observée; alternative directoryExists, delegate absent/undefined, symlinks et erreurs live non exercés. Le natif observé utilise une capture.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/204/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/resolution/summary.json",
+            "sha256": "2292c694aa1e5f0936e709920e0a79d1b578e07905bac71d9b55b54f6d2e37f2",
+            "bytes": 51745
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "realpath file branch",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "activationControls": [
+            [
+              "package-realpath/live",
+              "package-missing/live"
+            ]
+          ],
+          "gap": null,
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "realpath directory alternative",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "Line304 directoryExists is never executed; TS package realpath gets an existing declaration file, so fileExists short-circuits. This does not establish impossible reachability under mutation or errors.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        },
+        {
+          "property": "realpath missing delegate/fallback",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "activationControls": [],
+          "gap": "Delegate return observed only on existing regular declaration file, never missing delegate or undefined result.",
+          "scope": "Complete endpoint result on finite captures; source-site traces belong to the baseline, not proof of native live filesystem branch equivalence."
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 209,
+      "id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedfunctionownercoordinate-e0eefa272f",
+      "consumer": "retainedFunctionOwnerCoordinate",
+      "familyIds": [
+        "ordinary-call-endpoints"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "11/12 témoins exacts par plateforme via le caller sémantique réel; aucun couple active body===undefined ou name===undefined. nameless produit un nom vide et échoue productContext : zéro crédit.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/209/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/owner-summary.json",
+            "sha256": "901bbd84892232a7aa3ba11ee94df65e6d8d3849dac2c9ac6f330e70507f70b8",
+            "bytes": 13391
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "named body and relative source path",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "named",
+            "named-reference"
+          ],
+          "reason": null
+        },
+        {
+          "property": "anonymous default mapped to default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "default",
+            "default-reference"
+          ],
+          "reason": null
+        },
+        {
+          "property": "outermost-first function scope",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "nested",
+            "nested-reference"
+          ],
+          "reason": null
+        },
+        {
+          "property": "namespace scope",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "namespace",
+            "namespace-reference"
+          ],
+          "reason": null
+        },
+        {
+          "property": "class/method/function scopes",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "method",
+            "method-reference"
+          ],
+          "reason": null
+        },
+        {
+          "property": "implementation with bodyless overload sibling",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "witnessIds": [
+            "overload"
+          ],
+          "reason": null
+        },
+        {
+          "property": "body===undefined rejection",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "witnessIds": [],
+          "reason": "No activation of the bodyless arm by the actual semantic caller. A signature without a body contains no callback; overload only activates implementation. No direct-native helper comparison exists."
+        },
+        {
+          "property": "name===undefined rejection",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED",
+          "witnessIds": [],
+          "reason": "No activating native/oracle pair. The attempted malformed anonymous function is recovered as an empty Identifier text, not undefined, and native productContext rejects its failed source. No qualification credit."
+        },
+        {
+          "property": "parse-recovered empty-name witness productContext",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "witnessIds": [
+            "nameless"
+          ],
+          "qualificationCredit": 0
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 220,
+      "id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-typescriptlibrarydirectory-e9855a4e4f",
+      "consumer": "typeScriptLibraryDirectory",
+      "familyIds": [
+        "ordinary-program"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Helper/fallback TS 5.9.3 exécuté sur les deux hôtes. Le natif requiert un SDK explicite et ne présente pas de surface équivalente de découverte du répertoire/repli ambiant; identité SDK et présence/absence ne qualifient pas ce helper.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/220/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/owner-summary.json",
+            "sha256": "901bbd84892232a7aa3ba11ee94df65e6d8d3849dac2c9ac6f330e70507f70b8",
+            "bytes": 13391
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "TS 5.9.3 helper directory and library-only fallback",
+          "macos": "ORACLE_ONLY",
+          "linux": "ORACLE_ONLY"
+        },
+        {
+          "property": "native explicit SDK presence/absence and missing descriptor",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "qualificationCredit": 0
+        },
+        {
+          "property": "native equivalent directory discovery / ambient fallback",
+          "macos": "NOT_OBSERVED",
+          "linux": "NOT_OBSERVED"
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 223,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-alloweddirect-ceb2971cc0",
+      "consumer": "workspaceLinkedSystem > allowedDirect",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/223/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 224,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-directoryexists-a6359f415b",
+      "consumer": "workspaceLinkedSystem > directoryExists",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/224/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 225,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-fileexists-9b56596c2d",
+      "consumer": "workspaceLinkedSystem > fileExists",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/225/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 226,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-installed-a300cbc97c",
+      "consumer": "workspaceLinkedSystem > installed",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/226/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 227,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-readfile-1d37d86969",
+      "consumer": "workspaceLinkedSystem > readFile",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/227/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 228,
+      "id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-realpath-98c5b9c944",
+      "consumer": "workspaceLinkedSystem > realpath",
+      "familyIds": [
+        "workspace-system"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite cumulative public consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Dépend de la décision dialecte (lot 4) : propriété cumulative installed-invalid-module NONPASS, diagnostic 6046 natif sans none/amd/system/umd. Les opérations système et le contrôle above-repository sont exacts.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/228/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+            "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+            "bytes": 11402
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot3/campaign.json",
+            "sha256": "54be69ea1f9eb9f53eb0a6a78f26a9edf7c83653f321db0cc8abad75f6c73fc9",
+            "bytes": 12451
+          },
+          {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+            "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+            "bytes": 6291
+          }
+        ]
+      },
+      "observedCandidateCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "propertyResults": [
+        {
+          "property": "uninstalled-workspace-default",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "installed-invalid-module",
+          "macos": "NONPASS",
+          "linux": "NONPASS",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        },
+        {
+          "property": "above-repository-declaration-blocked",
+          "macos": "PASS_FINITE",
+          "linux": "PASS_FINITE",
+          "evidence": {
+            "macos": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/macos-workspace/result.json",
+              "sha256": "e2bbdc6d9abcce415214df2541b97ed23044feec799f114068773a53ba44929b",
+              "bytes": 21028
+            },
+            "linux": {
+              "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/linux-workspace/result.json",
+              "sha256": "2c747249720837059ed82bdbd80d2c2c57fde468bdf2c3f7cd28f8323bdedc4a",
+              "bytes": 19587
+            }
+          }
+        }
+      ],
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    }
+  ]
+}

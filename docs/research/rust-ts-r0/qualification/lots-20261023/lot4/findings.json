@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "scopeIndices": [
+    4,
+    168,
+    229,
+    235
+  ],
+  "sourceReferences": [
+    {
+      "path": "tools/rust-ts-r0/Cargo.toml",
+      "sha256": "c46a63d2c03cd1213e32ecd2a80739d2c8522d43440dcf897c982a56c8ef1dc6",
+      "bytes": 725,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        17
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.lock",
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+      "bytes": 22559,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        699,
+        700,
+        701,
+        702
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/provenance.json",
+      "sha256": "51f6fc05b14ca9f04d7410999e8ee2a608847f72ada973a21d0ed35c61d6780d",
+      "bytes": 2563,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        5,
+        6,
+        7,
+        8,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "91710a4c20d58f4b4d80ad05dc9a784e1d1813f73ee73a02828e547b9854ebe7",
+      "bytes": 64683,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        1078,
+        1548,
+        1639
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/baseline_identity.rs",
+      "sha256": "54d0a2c6059253878f84715487ca1bf5619c6bb630514f5c5021ae914fed8784",
+      "bytes": 8013,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        20,
+        89,
+        92,
+        93,
+        97,
+        105,
+        158,
+        159,
+        187
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/retained_discovery_observations.rs",
+      "sha256": "52044ae2e8f5c50754ace5643a98897267636baff8cf46a82392b384874badba",
+      "bytes": 3758,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        18,
+        22,
+        23,
+        79,
+        83,
+        87,
+        89
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "sha256": "3b4c3b4938b2590edd01c8b2cdb7f553248359226483c34dad0b51a4d43424f3",
+      "bytes": 133562,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        1273,
+        1274,
+        1275,
+        1276,
+        1277,
+        1278,
+        1279,
+        1280,
+        1281
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/qualification_replay.rs",
+      "sha256": "0fd12a113ad34154ad2ee3d76fe6088672856f6b8b7da069915ee9deca4f8a19",
+      "bytes": 280751,
+      "commit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+      "lines": [
+        179,
+        208,
+        910,
+        944,
+        945
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/crates/ts_goport/src/core.rs",
+      "sha256": "93b01fb584dc9f9547290e31172858f4ef8efc3aaf9b60134c468c18b84fc38b",
+      "bytes": 190643,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "crates/ts_goport/src/core.rs",
+      "lines": [
+        4901,
+        4907,
+        4908,
+        4909,
+        4913,
+        4914
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/crates/ts_goport/src/frontend/tsoptions/errors.rs",
+      "sha256": "3b2555563025a75d3d070233610c02484bbf1bfb8b34fe0e7d87ad27cbffbbbb",
+      "bytes": 10491,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "crates/ts_goport/src/frontend/tsoptions/errors.rs",
+      "lines": [
+        31,
+        32,
+        33,
+        35
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/crates/ts_goport/src/frontend/tsoptions/command_line_option.rs",
+      "sha256": "2fbdd809f3e40dbb02afeb599157d99b7dc4f26d1a9aff219d414fa5c9304ff3",
+      "bytes": 13207,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "crates/ts_goport/src/frontend/tsoptions/command_line_option.rs",
+      "lines": [
+        369,
+        371
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/crates/ts_goport/src/frontend/tsoptions/enum_maps.rs",
+      "sha256": "10755d5c47d1c11d59643e454cf1a495330ae0d77c9f7212cda1971e38dafc8b",
+      "bytes": 13778,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "crates/ts_goport/src/frontend/tsoptions/enum_maps.rs",
+      "lines": [
+        228,
+        229
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/UPSTREAM.md",
+      "sha256": "ed7505d89d4a7171f2f8e45f595fbf1af7cba146eb257c1e77c1247b698fd15e",
+      "bytes": 7657,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "UPSTREAM.md",
+      "lines": [
+        3,
+        4,
+        6,
+        10,
+        25,
+        28
+      ]
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/cargo-home/git/checkouts/ts-rust-821df32c0f7e7f9e/780dc51/UPSTREAM.json",
+      "sha256": "49d96d9829ce7b57857105f4390718b4a8556abe7f1046b23288e6a56ec44070",
+      "bytes": 8418,
+      "commit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+      "upstreamRelativePath": "UPSTREAM.json",
+      "lines": [
+        1
+      ]
+    }
+  ],
+  "dialect": {
+    "nativeCompilerVersion": "7.1.0-dev",
+    "declaredCrateVersion": "7.0.0-dev",
+    "sdkVersion": "5.9.3",
+    "origin": "ts_goport::core::version(); VERSION uses build-time GOPORT_BUILD_VERSION or defaults to 7.1.0-dev",
+    "rustUpstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "supplierDeclaredGoSource": {
+      "repository": "microsoft/TypeScript",
+      "commit": "fed0bf24149fb1ed36039212648bafdafc1ea10e",
+      "subdirectory": "tsc/",
+      "independentlyFetchedOrCompared": false,
+      "authority": "UPSTREAM.md and UPSTREAM.json in the pinned Rust checkout; UPSTREAM.json.current is explicitly documented there as stale tooling state"
+    },
+    "pinning": "Cargo.toml exact Git revision and crate version, Cargo.lock exact resolved revision, provenance.json; vendored SDK is separate",
+    "sdkVendoredDescriptor": {
+      "path": "tools/rust-ts-r0/sdk/sdk-input.json",
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "bytes": 3218481
+    },
+    "sdkCampaignDescriptorSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+    "sdkDescriptorJsonEquality": true,
+    "sdkArchiveSha256DeclaredByProvenance": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+    "archiveRehashedInThisLot": false,
+    "unit": "ORD-DIALECT-CAPABILITY::base",
+    "unitChecks": [
+      "nonempty executed selected TS/JS subjects have capabilityScope.dialectVersion equal to native compiler identity and frozen expected [5.9.3]",
+      "native_compiler_version equals frozen expected 5.9.3"
+    ],
+    "notProvedByUnit": "General syntactic or semantic dialect compatibility; changing a version constant cannot prove it"
+  },
+  "lot3DiagnosticImpact": {
+    "indices": [
+      23,
+      26,
+      27,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228
+    ],
+    "module6046": {
+      "cause": "tsoptions filters deprecated_keys from diagnostic enumeration",
+      "oracleOnlyKeys": [
+        "none",
+        "amd",
+        "system",
+        "umd"
+      ],
+      "bothPlatformsConfirmed": true
+    },
+    "target6046": {
+      "cause": "Same filter removes es5; native enum map adds es2025/es2026",
+      "oracleOnlyKeys": [
+        "es5"
+      ],
+      "nativeOnlyKeys": [
+        "es2025",
+        "es2026"
+      ],
+      "bothPlatformsConfirmed": true
+    },
+    "controls": {
+      "amd": "No 6046 on either compiler; native retained configuration separately reports SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:AMD",
+      "es5": "No 6046 on either compiler; no claim of ES5 emission support"
+    },
+    "missingInherited5083": "Different absolute workspace paths previously observed; no 7.x causality established here",
+    "scopeLimit": "Diagnostic causes only. No lot3 file changed; no lot3 obligation promoted; no exhaustive inventory of 240-obligation dialect differences."
+  },
+  "identityAcquisition": {
+    "origin": "Producer baseline_identity.rs primitive; no helper defect established",
+    "compilerExecuted": false,
+    "nativeVersionAuthority": "SDK package.json metadata, not ts_goport compiler",
+    "oracleVersionAuthority": "Imported TypeScript runtime ts.version",
+    "differences": [
+      {
+        "case": "outside-root-fixed-symlink",
+        "classification": "unaccepted policy difference",
+        "cause": "Baseline follows fixed input symlink; producer canonicalizes and refuses target outside repository"
+      },
+      {
+        "case": "missing-sdk-package",
+        "classification": "different acquisition; foreign fallback observation, zero credit",
+        "cause": "Bun baseline resolves a different complete public package; producer refuses explicitly supplied incomplete SDK"
+      },
+      {
+        "case": "missing-sdk-entry",
+        "classification": "different acquisition; foreign fallback observation, zero credit",
+        "cause": "Same fallback boundary, missing lib/typescript.js"
+      },
+      {
+        "case": "sdk-package-version",
+        "classification": "unaccepted version-authority policy difference",
+        "cause": "Baseline hashes package metadata 5.9.4 but reports imported runtime 5.9.3; producer requires package version 5.9.3"
+      },
+      {
+        "case": "capture-over-64mib",
+        "classification": "unaccepted resource policy difference",
+        "cause": "Baseline hashes a 67108865-byte fixed input; producer caps aggregate implementation plus SDK capture at 67108864 bytes"
+      }
+    ],
+    "sharedRefusalLimit": "Four shared refusal outcomes do not prove matching error codes",
+    "authorityLimit": "ADR0035 retained-source regular-file policy and ADR0012 MCP-root confinement do not establish a replacement acquisition policy for this build identity"
+  },
+  "ownerBoundaries": {
+    "snapshot4": "Real TS analyzeRepository owner executed in six cases. Native retained endpoint differs on ordinary missing snapshot and does not establish complete owning assembly. Matching guards and tiny graph remain partial evidence.",
+    "composition235": "Real exported TS analyzeAndBuildClaims executes. Native raw assembly/extraction match on positive controls, but public application composition, workers, graph ownership/provenance, sidecar/workspace/claims and qualified admission remain unestablished.",
+    "retainedPublicControlLimit": "TS ordinary public API without injected snapshot and native retained request have different acquisition/admission inputs; exact small graph/extraction agreement is the sole credited observation.",
+    "absenceLimit": "No claim of global absence or future impossibility of native composition; the exercised endpoint does not close this contract."
+  },
+  "decisionOptions": [
+    {
+      "option": "A",
+      "proposal": "Keep truthful 7.1.0-dev and authorize a distinct dialect/capability contract",
+      "obligations": "168 remains NONPASS against original 5.9.3; no automatic lot3 or 229 closure",
+      "freezeAndEvidence": "Separate approved contract/oracle freeze; preserve original 5.9.3 evidence; recampaign affected obligations; earlier 209 are not evidence against a new oracle",
+      "cost": "Low immediate source cost; real specification and requalification effort",
+      "risk": "Explicit compatibility drift requires owner approval under ADR0010"
+    },
+    {
+      "option": "B",
+      "proposal": "Investigate and then pin an engine genuinely meeting required 5.9.3 behavior",
+      "obligations": "No suitable revision is identified by this lot’s evidence; existence unknown",
+      "freezeAndEvidence": "Engine change means new candidate, builds, hashes, freeze and full integration recampaign; earlier 209 do not transfer",
+      "cost": "Uncertain investigation and possible port/toolchain change",
+      "risk": "Availability and regression risk high; no promised compatible revision"
+    },
+    {
+      "option": "C",
+      "proposal": "Implement explicit 5.9.3 compatibility above native 7.1 while retaining truthful compiler identity",
+      "obligations": "Behavior may converge; strict identity168 remains NONPASS without approved identity/capability contract separation",
+      "freezeAndEvidence": "New producer candidate and full integration recampaign; original expectations preserved",
+      "cost": "Potentially high ongoing maintenance across diagnostics/resolution/transforms",
+      "risk": "Partial emulation and new regressions"
+    },
+    {
+      "option": "D",
+      "proposal": "Retain original 5.9.3 contract and current NONPASS at this checkpoint",
+      "obligations": "0/4 remains qualified; no T00 closure",
+      "freezeAndEvidence": "No candidate/contract change; earlier 209 historical qualifications unchanged",
+      "cost": "Low",
+      "risk": "Blocks terminal progress; makes no compatibility claim"
+    }
+  ],
+  "recommendation": "D for this checkpoint; choose future dialect direction explicitly before implementation. No option has been implemented.",
+  "questions": {
+    "dialect": "Sébastien: choose A (new truthful dialect/capability contract), B (investigate a genuine compatible engine), C (explicit compatibility layer), or D (retain NONPASS unchanged)?",
+    "identity229": "Choose P1 (preserve full baseline acquisition, including fixed symlinks/Bun fallback/runtime version/sizes, then repair and refreeze) or P2 (approve a distinct confined, bounded, explicit-complete-SDK contract). Neither closes 229 before implementation and evidence; independent of dialect choice."
+  },
+  "webReadingLimit": "Agent-Reach unavailable. Public TypeScript documentation consulted with built-in web fallback; no GitHub service accessed, and current docs do not replace the exact 5.9.3 source oracle.",
+  "officialContextOnly": [
+    "https://www.typescriptlang.org/tsconfig/module.html",
+    "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-9.html"
+  ]
+}

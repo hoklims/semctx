@@ -1,0 +1,141 @@
+{
+  "author": "/root/qualification383",
+  "status": "DEV_EXPECTATIONS_FROZEN_BEFORE_FIRST_NATIVE_QUERY",
+  "allocation": "DEVELOPMENT_ONLY_NEVER_QUALIFICATION_OR_RESERVED",
+  "created_utc": "2026-10-17T17:53:18.436505+00:00",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "semantic_id_rule": "Verifier-specific tuple kind|repository-relative path|scope-qualified source name; never producer IDs or producer name.",
+  "cases": [
+    {
+      "id": "DEV-INDEPENDENT-ORBIT-ALIAS-HOMONYM",
+      "qualified": false,
+      "retained": true,
+      "files": {
+        "src/orbit-leaf.ts": "export function orbitLeaf(value: number): number { return value + 7; }\n",
+        "src/orbit-use.ts": "import { orbitLeaf as chosenOrbit } from \"./orbit-leaf\";\nexport function orbitCaller(): number { return chosenOrbit(9); }\nexport function orbitShadow(chosenOrbit: (value: number) => number): number { return chosenOrbit(5); }\n"
+      },
+      "roots": [
+        "src/orbit-leaf.ts",
+        "src/orbit-use.ts"
+      ],
+      "expected_subject_ids": [
+        "src/orbit-leaf.ts",
+        "src/orbit-use.ts"
+      ],
+      "expected_function_projection": [
+        {
+          "semantic_id": "function|src/orbit-leaf.ts|orbitLeaf",
+          "kind": "function",
+          "path": "src/orbit-leaf.ts",
+          "name": "orbitLeaf",
+          "start_utf16": 0,
+          "end_utf16": 70,
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "semantic_id": "function|src/orbit-use.ts|orbitCaller",
+          "kind": "function",
+          "path": "src/orbit-use.ts",
+          "name": "orbitCaller",
+          "start_utf16": 57,
+          "end_utf16": 121,
+          "start_line": 2,
+          "end_line": 2
+        },
+        {
+          "semantic_id": "function|src/orbit-use.ts|orbitShadow",
+          "kind": "function",
+          "path": "src/orbit-use.ts",
+          "name": "orbitShadow",
+          "start_utf16": 122,
+          "end_utf16": 224,
+          "start_line": 3,
+          "end_line": 3
+        }
+      ],
+      "expected_call_projection": [
+        [
+          "function|src/orbit-use.ts|orbitCaller",
+          "function|src/orbit-leaf.ts|orbitLeaf"
+        ]
+      ],
+      "expected_reason_codes": [],
+      "expected_subject_outcomes": {
+        "src/orbit-leaf.ts": "analyzed",
+        "src/orbit-use.ts": "analyzed"
+      },
+      "expected_terminal": "complete",
+      "expected_exit_code": 0,
+      "global_qualified_admission_inferred": false,
+      "uncredited_properties": "All non-function node kinds and non-calls edge kinds are uncredited semantic properties; their actual payloads still participate in receiver identities, endpoint checks and reconstructed graph. No completeness claim beyond this DEV projection.",
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "lines": "455-481,1187-1223",
+          "rule": "Named function extraction; checker-bound aliases follow target declaration; parameter declaration has no extracted function owner, so no invented call edge."
+        }
+      ],
+      "source_bytes": [
+        {
+          "path": "src/orbit-leaf.ts",
+          "utf8_base64": "ZXhwb3J0IGZ1bmN0aW9uIG9yYml0TGVhZih2YWx1ZTogbnVtYmVyKTogbnVtYmVyIHsgcmV0dXJuIHZhbHVlICsgNzsgfQo=",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "utf16_length": 71,
+          "line_count": 2
+        },
+        {
+          "path": "src/orbit-use.ts",
+          "utf8_base64": "aW1wb3J0IHsgb3JiaXRMZWFmIGFzIGNob3Nlbk9yYml0IH0gZnJvbSAiLi9vcmJpdC1sZWFmIjsKZXhwb3J0IGZ1bmN0aW9uIG9yYml0Q2FsbGVyKCk6IG51bWJlciB7IHJldHVybiBjaG9zZW5PcmJpdCg5KTsgfQpleHBvcnQgZnVuY3Rpb24gb3JiaXRTaGFkb3coY2hvc2VuT3JiaXQ6ICh2YWx1ZTogbnVtYmVyKSA9PiBudW1iZXIpOiBudW1iZXIgeyByZXR1cm4gY2hvc2VuT3JiaXQoNSk7IH0K",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "utf16_length": 225,
+          "line_count": 4
+        }
+      ]
+    },
+    {
+      "id": "DEV-INDEPENDENT-ORBIT-DEFAULT-REFUSAL",
+      "qualified": true,
+      "retained": true,
+      "files": {
+        "src/orbit-default.ts": "export default 1729;\n"
+      },
+      "roots": [
+        "src/orbit-default.ts"
+      ],
+      "expected_subject_ids": [
+        "src/orbit-default.ts"
+      ],
+      "expected_function_projection": [],
+      "expected_call_projection": [],
+      "expected_reason_codes": [
+        "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"
+      ],
+      "expected_subject_outcomes": {
+        "src/orbit-default.ts": "unsupported"
+      },
+      "expected_terminal": "refused",
+      "expected_exit_code": 0,
+      "global_qualified_admission_inferred": false,
+      "uncredited_properties": "No admission inferred. Partial repository/module facts, if contractually emitted, do not acquire completeness or ownership; zero invented named function/call facts.",
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "lines": "377-379,443-447",
+          "rule": "ExportAssignment without export-equals is refused as SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED."
+        }
+      ],
+      "source_bytes": [
+        {
+          "path": "src/orbit-default.ts",
+          "utf8_base64": "ZXhwb3J0IGRlZmF1bHQgMTcyOTsK",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "utf16_length": 21,
+          "line_count": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "units": [
+    {
+      "id": "LOT2-SEM-method-signature-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "interface Service { run(): void }; let service: Service; service.run();\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-method-signature-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "interface Service {}; let service: Service; service.run();\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-class-root-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare class Root {}; Root.run();\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-class-root-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Root {}; Root.run();\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-default-import-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type root from \"./dep\"; root.run();\n",
+        "dep.ts": "export default {};"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-default-import-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import root from \"./dep\"; root.run();\n",
+        "dep.ts": "export default {};"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-namespace-import-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type * as root from \"./dep\"; root.run();\n",
+        "dep.ts": "export const value=1;"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-namespace-import-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as root from \"./dep\"; root.run();\n",
+        "dep.ts": "export const value=1;"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-named-import-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { type root } from \"./dep\"; root.run();\n",
+        "dep.ts": "export interface Service { run(): void }; export let root: Service;\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-named-import-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { root } from \"./dep\"; root.run();\n",
+        "dep.ts": "export interface Service { run(): void }; export let root: Service;\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-shorthand-binding-activate",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "global.process={cwd:()=>{}}; global.other={cwd:()=>{}}; const {process}=global; process.cwd();\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-shorthand-binding-control",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "global.process={cwd:()=>{}}; global.other={cwd:()=>{}}; const {other:process}=global; process.cwd();\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-shorthand-options-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const style=\"decimal\"; [1].toLocaleString(undefined,{style});\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        82
+      ]
+    },
+    {
+      "id": "LOT2-SEM-shorthand-options-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const style=\"decimal\"; [1].toLocaleString(undefined,{style: \"decimal\"});\n"
+      },
+      "origin": "Independent lot2 source-level activation experiment; baseline TypeScript 5.9.3 supplies complete expected reasons; no native output supplies expectations.",
+      "obligation_indices": [
+        82
+      ]
+    },
+    {
+      "id": "LOT2-SEM-ambient-property-activate",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "process.cwd = {}; process.cwd();\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-ambient-property-control",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "process.cwd = {}; process.cwd();\n",
+        "global.d.ts": "declare var process: any;\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-ambient-element-activate",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "process[\"cwd\"] = {}; process.cwd();\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    },
+    {
+      "id": "LOT2-SEM-ambient-element-control",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "process[\"cwd\"] = {}; process.cwd();\n",
+        "global.d.ts": "declare var process: any;\n"
+      },
+      "origin": "Independent causal control after public baseline site review; TypeScript5.9.3 baseline supplies complete reasons, never native output.",
+      "obligation_indices": [
+        77
+      ]
+    }
+  ]
+}

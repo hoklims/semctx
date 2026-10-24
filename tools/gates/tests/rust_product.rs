@@ -48,6 +48,7 @@ impl Repo {
             .arg("rust-test")
             .arg("--root")
             .arg(&self.root)
+            .env("CARGO_TARGET_DIR", self.root.join("target"))
             .output()
             .unwrap()
     }
@@ -115,6 +116,7 @@ fn no_product_does_not_qualify_an_absent_port() {
     r.crate_at("tools/gates", "fake_tool", false, true);
     r.crate_at("tools/qualification", "fake_qualification", false, true);
     r.crate_at("tools/rust-ts-r0", "fake_t00_prototype", false, true);
+    experimental_tools(&r);
     r.track();
     let output = r.run();
     assert!(output.status.success());
@@ -127,6 +129,57 @@ fn no_product_does_not_qualify_an_absent_port() {
             .contains("no native product crates yet")
     );
     assert_eq!(value["runs"].as_array().unwrap().len(), 0);
+}
+fn experimental_tools(r: &Repo) {
+    for (directory, name) in [
+        ("rust-ts-r0-ts7-experimental", "fake_ts7_experimental"),
+        ("t00-ts7-oracle-emit-helpers", "fake_ts7_emit_helpers"),
+        ("t00-ts7-oracle-q-semantic", "fake_ts7_semantic"),
+        ("t00-ts7-oracle-q-syntax", "fake_ts7_syntax"),
+    ] {
+        // Deliberately failing tools must never run as product qualification.
+        r.crate_at(&format!("tools/{directory}"), name, false, true);
+    }
+}
+#[test]
+fn experimental_tools_do_not_hide_an_unknown_tool_directory_product() {
+    let r = Repo::new();
+    experimental_tools(&r);
+    r.crate_at("tools/future-product", "future_product", true, true);
+    r.track();
+    let output = r.run();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(
+        value["manifests"],
+        serde_json::json!(["tools/future-product/Cargo.toml"])
+    );
+    assert_eq!(value["runs"].as_array().unwrap().len(), 1);
+
+    r.crate_at("tools/future-product", "future_product", false, true);
+    r.track();
+    let failed = r.run();
+    assert!(!failed.status.success());
+    assert!(String::from_utf8_lossy(&failed.stderr).contains("PRODUCT_INVARIANT"));
+
+    r.write(
+        "tools/future-product/src/lib.rs",
+        "pub fn compiled_only() {}\n",
+    );
+    r.track();
+    let empty = r.run();
+    assert!(!empty.status.success());
+    let value: serde_json::Value = serde_json::from_slice(&empty.stdout).unwrap();
+    assert!(
+        value["message"]
+            .as_str()
+            .unwrap()
+            .contains("execution unproven")
+    );
 }
 #[test]
 fn t00_prototype_is_separate_from_discovered_product_tests() {

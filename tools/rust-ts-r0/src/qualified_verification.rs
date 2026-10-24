@@ -88,7 +88,8 @@ fn receive_index(
     indexed: &process::Outcome,
     current: &wire::Batch,
     artifact: &[u8],
-) -> Result<Receipt, String> {
+    ownership_request: &Request,
+) -> Result<Vec<Value>, String> {
     let input = batch::input_manifest(request, sdk)?;
     let capture = batch::capture_manifest(request)?;
     let graph = batch::graph_from_facts(&current.facts);
@@ -189,7 +190,86 @@ fn receive_index(
     if receipt.disposition() != EvidenceDisposition::Analyzed {
         return Err("indexed extraction was not analyzed".into());
     }
-    Ok(receipt)
+    // Keep the issuer and its receipt alive until the broader subjects consume
+    // ownership from the validated selected graph, never a fresh broad assembly.
+    let context = receiver
+        .context(Some(&receipt), &observed)
+        .map_err(|e| format!("indexed ownership rejected: {e:?}"))?;
+    if !ownership_request.retained
+        || !ownership_request.qualified
+        || batch::input_manifest(ownership_request, sdk)? != input
+        || batch::capture_manifest(ownership_request)? != capture
+    {
+        return Err("received ownership inputs differ from validated capture".into());
+    }
+    let ownership_scope = batch::scope_manifest(ownership_request)?;
+    for field in [
+        "repository_root",
+        "sdk_directory",
+        "retained",
+        "effective_options",
+        "profile",
+    ] {
+        if ownership_scope[field] != scope[field] {
+            return Err("received ownership scope differs from validated capture".into());
+        }
+    }
+    let project = request
+        .files
+        .iter()
+        .map(|(path, text)| {
+            (
+                path.clone(),
+                ts_goport::scanner_util::go_string_from_utf8(text.clone()),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let mut files = project.clone();
+    for (path, text) in &sdk.files {
+        if files
+            .insert(
+                path.clone(),
+                ts_goport::scanner_util::go_string_from_utf8(text.clone()),
+            )
+            .is_some()
+        {
+            return Err("duplicate captured SDK path".into());
+        }
+    }
+    let fs = Rc::new(
+        CaptureFs::new(files, request.case_sensitive)
+            .with_sdk_keys(sdk.files.keys().map(String::as_str))?,
+    );
+    let project = std::sync::Arc::new(project);
+    ownership_request
+        .roots
+        .iter()
+        .filter(|path| {
+            ![".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|suffix| path.ends_with(suffix))
+        })
+        .map(|path| {
+            let mut subject = inspect_subject(
+                fs.clone(),
+                path,
+                &request.cwd,
+                &request.sdk_directory,
+                project.clone(),
+                context.graph().clone(),
+                true,
+                true,
+            )?;
+            subject["path"] = json!(relative_source_path(
+                &request.cwd,
+                path,
+                request.case_sensitive
+            )?);
+            subject["role"] = json!("source");
+            subject["selection"] = json!("selected");
+            Ok(subject)
+        })
+        .collect()
 }
 
 fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
@@ -321,14 +401,6 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     }
     let current_observation = analyze(request.clone(), sdk.clone())?;
     let current = batch::build(request, &sdk, &current_observation)?;
-    let _receipt = receive_index(request, &sdk, &spec.index.outcome, &current, &artifact)?;
-    let retained_scope = retained_scope::inspect(
-        request,
-        &sdk,
-        &batch::graph_from_facts(&current.facts),
-        &broad,
-        &current.input_manifest_id,
-    )?;
     let mut broad_request = request.clone();
     broad_request.roots = broad["files"]
         .as_array()
@@ -346,7 +418,22 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
             Ok(path.to_string())
         })
         .collect::<Result<Vec<_>, String>>()?;
-    let broad_observation = match analyze(broad_request.clone(), sdk.clone()) {
+    let received_subjects = receive_index(
+        request,
+        &sdk,
+        &spec.index.outcome,
+        &current,
+        &artifact,
+        &broad_request,
+    )?;
+    let retained_scope = retained_scope::inspect(
+        request,
+        &sdk,
+        &batch::graph_from_facts(&current.facts),
+        &broad,
+        &current.input_manifest_id,
+    )?;
+    let mut broad_observation = match analyze(broad_request.clone(), sdk.clone()) {
         Ok(observation) => observation,
         Err(error) if retained_scope::confinement_code(&error).is_some() => {
             let mut components = broad_request.clone();
@@ -355,6 +442,7 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
         }
         Err(error) => return Err(error),
     };
+    broad_observation["received_subjects"] = json!(received_subjects);
     if batch::input_manifest(request, &sdk)? != batch::input_manifest(&broad_request, &sdk)? {
         return Err("broad and selected analysis consumed different inputs".into());
     }
@@ -434,6 +522,12 @@ fn verify(descriptor: Value, sdk: Sdk) -> Result<Verification, String> {
     for subject in broad_observation["subjects"]
         .as_array()
         .ok_or("broad subject inventory missing")?
+        .iter()
+        .chain(
+            broad_observation["received_subjects"]
+                .as_array()
+                .ok_or("received broad subject inventory missing")?,
+        )
     {
         if subject["outcome"] != "analyzed"
             || subject["unimplemented"] != json!([])
@@ -513,3 +607,7 @@ pub(super) fn command(args: &[String]) -> Result<Verification, String> {
         .map_err(|e| e.to_string())?;
     verify(descriptor, sdk)
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/received_ownership.rs"]
+mod tests;

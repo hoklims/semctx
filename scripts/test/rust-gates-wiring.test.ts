@@ -7,6 +7,22 @@ type Job = { needs?: string | string[]; if?: string; "continue-on-error"?: boole
 type Workflow = { jobs: Record<string, Job> };
 
 const source = readFileSync(join(import.meta.dir, "../../.github/workflows/ci.yml"), "utf8");
+const experimentalManifests = [
+  "tools/rust-ts-r0-ts7-experimental/Cargo.toml",
+  "tools/t00-ts7-oracle-emit-helpers/Cargo.toml",
+  "tools/t00-ts7-oracle-q-semantic/Cargo.toml",
+  "tools/t00-ts7-oracle-q-syntax/Cargo.toml",
+];
+const nativeCommand = (operation: string, manifest: string): string =>
+  `cargo ${operation} --manifest-path ${manifest}${operation === "fmt" ? " --check" : operation === "clippy" ? " --locked --all-targets -- -D warnings" : " --locked"}${operation === "test" && manifest === "tools/rust-ts-r0-ts7-experimental/Cargo.toml" ? " --release" + producerControls : ""}`;
+const producerControls = [
+  "env.GOPORT_LIB_PARSE_SNAPSHOT.value='0'",
+  "env.GOPORT_LIB_PARSE_SNAPSHOT.force=true",
+  "env.GOPORT_LIB_SNAPSHOT.value='0'",
+  "env.GOPORT_LIB_SNAPSHOT.force=true",
+  "env.RUST_TEST_THREADS.value='1'",
+  "env.RUST_TEST_THREADS.force=true",
+].map(config => ` --config "${config}"`).join("");
 const commands = (job: Job): string => (job.steps ?? []).map(step => (step.run ?? "")
   .split("\n").filter(line => !line.trimStart().startsWith("#")).join("\n")).join("\n");
 
@@ -37,6 +53,12 @@ function wiringProblems(text: string): string[] {
   enforceStep(native, "Execute native Rust tests", [
     "cargo test --manifest-path tools/gates/Cargo.toml --locked",
     "cargo test --manifest-path tools/qualification/Cargo.toml --locked",
+    ...experimentalManifests.map(manifest => nativeCommand("test", manifest)),
+  ]);
+  enforceStep(native, "Check Rust formatting and lints", [
+    ...["fmt", "clippy"].flatMap(operation =>
+      ["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml", "tools/rust-ts-r0/Cargo.toml", ...experimentalManifests]
+        .map(manifest => nativeCommand(operation, manifest))),
   ]);
   enforceStep(native, "Discover and execute native product workspaces", ['cargo run --manifest-path tools/gates/Cargo.toml --locked -- rust-test --root "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/native-product-tests.json"']);
   enforceStep(native, "Qualify the actual CLI and MCP artifacts", ['"$QUALIFICATION_BIN" --cli "$GITHUB_WORKSPACE/apps/cli/dist/index.js" --mcp "$GITHUB_WORKSPACE/plugins/semctx-control/dist/semctx-mcp.js" --runtime "$(bun -p process.execPath)" --out "$RUNNER_TEMP/qualification" --plan "$RUNNER_TEMP/plan/gate-plan.json" --os "$SEMCTX_QUALIFICATION_OS"']);
@@ -57,6 +79,12 @@ function wiringProblems(text: string): string[] {
   if (!commands(required).includes("semctx-qualification verify --reports")) problems.push("qualification admission is missing");
   if (JSON.stringify([...(native.strategy?.matrix?.os ?? [])].sort()) !== JSON.stringify(["macos-15", "ubuntu-latest", "windows-latest"])) problems.push("native OS coverage is incomplete");
   if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || 20 }}") problems.push("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
+  const milestone = (native.steps ?? []).filter(step => step.name === "Acquire the ordered T00 Windows milestone");
+  const milestoneGuard = "matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
+  if (milestone.length !== 1 || milestone[0]?.if !== milestoneGuard
+    || (commands(native).match(/python tools\/rust-ts-r0\/qualification\/run_windows_milestone\.py/g) ?? []).length !== 1) {
+    problems.push("Windows milestone must remain unique and bound to the authorized candidate");
+  }
   const nativeCommands = commands(native);
   if (!nativeCommands.includes("rust-test --root")) problems.push("new native product crates may escape testing");
   for (const crate of ["gates", "qualification"]) {
@@ -73,6 +101,46 @@ function wiringProblems(text: string): string[] {
 }
 
 describe("Rust gate invocation and admission", () => {
+  test("requires release only for experimental producer tests", () => {
+    for (const manifest of experimentalManifests) {
+      const command = nativeCommand("test", manifest);
+      const wrongProfile = command.includes(" --release")
+        ? command.replace(" --release", "") : `${command} --release`;
+      expect(source.includes(command), `missing required profile: ${manifest}`).toBe(true);
+      expect(wiringProblems(source.replace(command, wrongProfile)))
+        .toContain("Execute native Rust tests: expected invocation is not executed");
+    }
+  });
+  test("requires forced live SDK and serial controls only for the producer test route", () => {
+    for (const config of [
+      "env.GOPORT_LIB_PARSE_SNAPSHOT.value='0'",
+  "env.GOPORT_LIB_PARSE_SNAPSHOT.force=true",
+      "env.GOPORT_LIB_SNAPSHOT.value='0'",
+  "env.GOPORT_LIB_SNAPSHOT.force=true",
+      "env.RUST_TEST_THREADS.value='1'",
+  "env.RUST_TEST_THREADS.force=true",
+    ]) {
+      const argument = ` --config "${config}"`;
+      expect(source.includes(argument), `missing producer control: ${config}`).toBe(true);
+      const wrongValue = config.includes(".force=")
+        ? argument.replace("=true", "=false") : argument.replace(/='[01]'/, "='9'");
+      for (const replacement of ["", wrongValue]) {
+        expect(wiringProblems(source.replace(argument, replacement)))
+          .toContain("Execute native Rust tests: expected invocation is not executed");
+      }
+    }
+  });
+  test("rejects every omitted, duplicated or ignored experimental tooling route", () => {
+    for (const manifest of experimentalManifests) {
+      for (const operation of ["fmt", "clippy", "test"]) {
+        const command = nativeCommand(operation, manifest);
+        expect(source.includes(command), `missing ${operation} route: ${manifest}`).toBe(true);
+        for (const replacement of ["true", `${command}\n          ${command}`, `${command} || true`]) {
+          expect(wiringProblems(source.replace(command, replacement)).length, command).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
   test("requires native execution, exact receipt admission and all three operating systems", () => {
     expect(wiringProblems(source)).toEqual([]);
   });
@@ -110,5 +178,17 @@ describe("Rust gate invocation and admission", () => {
     for (const replacement of ["timeout-minutes: 20", "timeout-minutes: 60", "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || 20 }}"]) {
       expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
     }
+  });
+
+  test("rejects removing the unique Windows milestone candidate guard", () => {
+    const guard = "if: matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
+    // The acquisition step has the same guard as its provisioning step: target it by name.
+    const target = `name: Acquire the ordered T00 Windows milestone\n        ${guard}`;
+    expect(source.includes(target)).toBe(true);
+    expect(wiringProblems(source.replace(target, "name: Acquire the ordered T00 Windows milestone\n        if: true")))
+      .toContain("Windows milestone must remain unique and bound to the authorized candidate");
+    const command = "python tools/rust-ts-r0/qualification/run_windows_milestone.py";
+    expect(wiringProblems(source.replace(command, `${command} ${command}`)))
+      .toContain("Windows milestone must remain unique and bound to the authorized candidate");
   });
 });

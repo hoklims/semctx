@@ -219,13 +219,25 @@ jobs:
           cargo fmt --manifest-path tools/gates/Cargo.toml --check
           cargo fmt --manifest-path tools/qualification/Cargo.toml --check
           cargo fmt --manifest-path tools/rust-ts-r0/Cargo.toml --check
+          cargo fmt --manifest-path tools/rust-ts-r0-ts7-experimental/Cargo.toml --check
+          cargo fmt --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --check
+          cargo fmt --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --check
+          cargo fmt --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --check
           cargo clippy --manifest-path tools/gates/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/qualification/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/rust-ts-r0-ts7-experimental/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --locked --all-targets -- -D warnings
       - name: Execute native Rust tests
         run: |
           cargo test --manifest-path tools/gates/Cargo.toml --locked
           cargo test --manifest-path tools/qualification/Cargo.toml --locked
+          cargo test --manifest-path tools/rust-ts-r0-ts7-experimental/Cargo.toml --locked --release --config "env.GOPORT_LIB_PARSE_SNAPSHOT.value='0'" --config "env.GOPORT_LIB_PARSE_SNAPSHOT.force=true" --config "env.GOPORT_LIB_SNAPSHOT.value='0'" --config "env.GOPORT_LIB_SNAPSHOT.force=true" --config "env.RUST_TEST_THREADS.value='1'" --config "env.RUST_TEST_THREADS.force=true"
+          cargo test --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked
+          cargo test --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --locked
+          cargo test --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --locked
       - name: Discover and execute native product workspaces
         env:
           SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
