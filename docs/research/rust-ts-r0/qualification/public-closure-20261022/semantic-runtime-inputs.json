@@ -1,0 +1,31 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-SEM-runtime-binding-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let w=window;export function run(){return new w.Date(1)}"
+      },
+      "origin": "SDK member type remains identical while mutable versus transparent receiver provenance changes sdkRuntimeBinding",
+      "obligation_indices": [
+        125,
+        129
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-runtime-binding-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const w=window;export function run(){return new w.Date(1)}"
+      },
+      "origin": "SDK member type remains identical while mutable versus transparent receiver provenance changes sdkRuntimeBinding",
+      "obligation_indices": [
+        125,
+        129
+      ]
+    }
+  ],
+  "digestPairs": []
+}

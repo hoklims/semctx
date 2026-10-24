@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "preparedUtc": "2026-10-17T20:50:01.748337+00:00",
+  "archive": "qualifier-reproduction.tar.gz.b64",
+  "decodedArchiveSha256": "840c1fb972e0d8ae862ae6dad21874f5b55672e6496439d92e6bf71e2f25f25c",
+  "decodedArchiveBytes": 2343471,
+  "encodedArchiveSha256": "9466e6de7ef0571e86bad358b4e8d4ca17daeb05dac351b06463f70f3499dd8b",
+  "encodedArchiveBytes": 3165742,
+  "members": 155,
+  "originalFileAliases": 104,
+  "gitObjectSourceFiles": 48,
+  "sourceManifestMatches": {
+    "pass1": 39,
+    "pass2": 44
+  },
+  "aliasMapSha256": "4d8eb960a97f446dd8f8e42b09d41143b02c6a0a94187eb873300a14836f755a",
+  "historicalIdentitiesSha256": "2012af8ef4cb17ad62706a020eb5ca9166b9989f2e15e0fa74dbacc22b2bdff0",
+  "nativeQueries": 0,
+  "qualificationCredit": false,
+  "reservedAccess": false,
+  "originalRecordsChanged": false,
+  "trackedFilesOrIndexChanged": false,
+  "commentsAdded": []
+}

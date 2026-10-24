@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "platform": "darwin",
+  "oracleSha256": "159b5ff6bd274142c1eef943db1dc8ee5a17f41204ce55decb2eb8006786877e",
+  "freezeSha256": "5b306e39d87fe0c09c748c4be07a0581c41b057ef5317a0712cba95b75762fd9",
+  "artifactSha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+  "sdkSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "units": [
+    {
+      "id": "uninstalled-workspace-default",
+      "pass": true,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:122947b61c6c3108771361256a9964a3343451986b096defbfb6e9e6bb270b8f",
+          "expected": "sha256:122947b61c6c3108771361256a9964a3343451986b096defbfb6e9e6bb270b8f",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+          "expected": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-contentId",
+          "actual": "sha256:610d2f126a194e0412ecb0ce7b4fadada8ae8593f133c11e7458af558473d421",
+          "expected": "sha256:610d2f126a194e0412ecb0ce7b4fadada8ae8593f133c11e7458af558473d421",
+          "pass": true
+        },
+        {
+          "name": "query-1-successful-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/uninstalled-workspace-default/repository/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-context",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-request-binding",
+          "actual": "sha256:255a365f890ec379dbb8f7959269fb8e090dff773d8539a3a8650842c25d7b44",
+          "expected": "sha256:255a365f890ec379dbb8f7959269fb8e090dff773d8539a3a8650842c25d7b44",
+          "pass": true
+        },
+        {
+          "name": "configured-producer",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "configured-owning-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-reasons",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "installed-invalid-module",
+      "pass": false,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:41d210232f652d15f062bd9ed1911fe7ffc12cb511ebd6e775c6cfb65787088b",
+          "expected": "sha256:41d210232f652d15f062bd9ed1911fe7ffc12cb511ebd6e775c6cfb65787088b",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": "{\"compilerOptions\":{\"module\":\"invalid-public-module\"}}",
+          "expected": "{\"compilerOptions\":{\"module\":\"invalid-public-module\"}}",
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-contentId",
+          "actual": "sha256:0466dd2081c9b9bf6fc1ae8725370032d6167c981668d24af79dd8b9506860d1",
+          "expected": "sha256:0466dd2081c9b9bf6fc1ae8725370032d6167c981668d24af79dd8b9506860d1",
+          "pass": true
+        },
+        {
+          "name": "query-1-successful-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/installed-invalid-module/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "configured-context",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-request-binding",
+          "actual": "sha256:98e06a7094b37576f5d62371c485149cccc7c20841c7c45bf7b345323d5ee71b",
+          "expected": "sha256:98e06a7094b37576f5d62371c485149cccc7c20841c7c45bf7b345323d5ee71b",
+          "pass": true
+        },
+        {
+          "name": "configured-producer",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "configured-owning-read-bound",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "configured-reasons",
+          "actual": [
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+          ],
+          "expected": [
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+          ],
+          "pass": false
+        },
+        {
+          "name": "configured-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "above-repository-declaration-blocked",
+      "pass": true,
+      "checks": [
+        {
+          "name": "system-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "system-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "producer-artifact",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "system-request-binding",
+          "actual": "sha256:71a15bf3bd50b65e55d432847fecddfe3eee9c0275718cc1587d8002de2e079b",
+          "expected": "sha256:71a15bf3bd50b65e55d432847fecddfe3eee9c0275718cc1587d8002de2e079b",
+          "pass": true
+        },
+        {
+          "name": "query-denominator",
+          "actual": 4,
+          "expected": 4,
+          "pass": true
+        },
+        {
+          "name": "query-0-operation",
+          "actual": "file_exists",
+          "expected": "file_exists",
+          "pass": true
+        },
+        {
+          "name": "query-0-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-0-value",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "name": "query-0-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-0-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-1-operation",
+          "actual": "read_file",
+          "expected": "read_file",
+          "pass": true
+        },
+        {
+          "name": "query-1-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-1-value",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "query-1-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-1-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-2-operation",
+          "actual": "directory_exists",
+          "expected": "directory_exists",
+          "pass": true
+        },
+        {
+          "name": "query-2-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config",
+          "pass": true
+        },
+        {
+          "name": "query-2-value",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "name": "query-2-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-2-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "query-3-operation",
+          "actual": "realpath",
+          "expected": "realpath",
+          "pass": true
+        },
+        {
+          "name": "query-3-path",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-value",
+          "actual": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "expected": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/workspace/oracle-world-macos/above-repository-declaration-blocked/repository/node_modules/@public/config/base.json",
+          "pass": true
+        },
+        {
+          "name": "query-3-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "query-3-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "above-repository-no-alias",
+          "actual": {},
+          "expected": {},
+          "pass": true
+        },
+        {
+          "name": "above-repository-no-successful-read",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "above-repository-oracle-inputs-contained",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "pass": false,
+  "formalR0Qualified": false
+}

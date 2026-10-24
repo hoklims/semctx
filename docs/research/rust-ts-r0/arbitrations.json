@@ -1,0 +1,197 @@
+{
+  "recordVersion": 1,
+  "arbitrations": [
+    {
+      "id": "T00-ARB-001",
+      "status": "approved_expectation_pending_native_qualification",
+      "owner": "SebastienElet",
+      "decisionSource": "https://github.com/hoklims/semctx/issues/365#issuecomment-6235210936",
+      "approval": "Sébastien requested recording this bug on365 and correcting it in the Rust implementation.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "separateTypeScriptFixRequested": false,
+      "historicalObservation": {
+        "ambiguousAB": "TS2308; resolved call consumer.run->a.f; qualified admitted with empty reasons; global WARN.",
+        "ambiguousBA": "TS2308; resolved call consumer.run->b.f; qualified admitted with empty reasons; global WARN.",
+        "explicitNamedBControl": "NoTS2308; consumer.run->b.f; qualified admitted."
+      },
+      "expectedRustBehavior": [
+        "Do not emit an arbitrarily resolved call edge for the two ambiguous star-export variants.",
+        "Report the ambiguity and reject the corresponding qualified admission.",
+        "Keep explicit named reexport to b.f valid."
+      ],
+      "comparisonRule": "Record this specific historical correction as an approved divergence. Historical output remains supplementary observation and cannot mint the expected Rust result. All other strict-baseline expectations remain unchanged.",
+      "diagnosticCode": "SOURCE_EXPORT_AMBIGUOUS; fixed before C1 selection in cases/annexes/e03-expectations.json (SHA25636d94cc69dda4d5c1d35129e65a5f45a1b6b2636cbf84954cee4fc0d46c8f1ac), unchanged for qualification",
+      "evidenceEnvironment": {
+        "host": "Darwin arm64",
+        "bun": "1.4.3",
+        "typescriptSDK": "5.9.3",
+        "WindowsLinuxExercised": false
+      },
+      "witnessArchiveSha256": "c9eb16890540767e1c4c09199c7c1fc06997b84b569d139194ac5dad46e3859f",
+      "nativeQualificationRuns": 0,
+      "nativeDevelopmentEvidence": "composition1/record-index.json; ordinary::development_ambiguous_stars_have_no_endpoint_and_explicit_export_resolves and qualified SOURCE_EXPORT_AMBIGUOUS; no qualification credit"
+    },
+    {
+      "id": "T00-ARB-002",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
+      "owner": "Sébastien",
+      "decisionDate": "2026-10-18",
+      "decisionSource": "Owner instruction in the resumed T00 session at 6270bc10765d697a4311150e3e1a4aea8a726335",
+      "approval": "Treat the isolated UTF16 surrogate diagnostic1490 instead of1127 as a TS7-versus-TS5.9.3 version difference; continue C1 within the renewed budget on the same T00/branch/PR.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "scope": {
+        "supportIds": [
+          "ENC::UTF16LE-lone-high-surrogate::ordinary"
+        ],
+        "historicalEnvironment": "macOS ARM64, C1 pass2",
+        "candidateArtifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "baselineTypeScriptVersion": "5.9.3"
+      },
+      "observed": {
+        "decodedUtf16Units": [
+          55357
+        ],
+        "nativeDiagnosticCode": 1490,
+        "frozenExpectedDiagnosticCode": 1127,
+        "syntaxErrorAgrees": true,
+        "historicalDisposition": "NONPASS, preserved unchanged"
+      },
+      "evidence": [
+        {
+          "path": "qualification/c1-pass2/second-replay-triage.json",
+          "bytes": 6273,
+          "sha256": "38ddb512dcfd8b674fb751942e87fdc9f08855edc05841c79b6446ca7bc871cb"
+        },
+        {
+          "path": "selection/pass2/FREEZE.json",
+          "bytes": 2815,
+          "sha256": "b987704e06211f90700af3b18611e7fc2ab922dd05c9bdde721c1aa1e77d6661"
+        }
+      ],
+      "authorityLimit": "Owner-adjudicated classification. The historical triage did not isolate the underlying SDK/internal WTF8 cause; this record does not claim new technical root-cause proof.",
+      "comparisonRule": "Accept only this specific version-attributed code difference under the owner arbitration, preserving raw diagnostics and frozen expectations. No new PASS is granted at registration. Additional TS7-versus-TS5 differences need individual demonstrable evidence; all other differences remain actual divergences.",
+      "automaticExtensionToOtherDiagnostics": false,
+      "historicalExpectationsRewritten": false,
+      "resumption": "resumption/record.json",
+      "previousStatusBeforeOriginalMacosCampaign": "OWNER_APPROVED_VERSION_DIFFERENCE_PENDING_REOPENED_REPLAY",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
+    },
+    {
+      "id": "T00-ARB-003",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
+      "owner": "Sébastien",
+      "decisionDate": "2026-10-18",
+      "decisionSource": "Owner2026-10-18 instruction: extend TS7-versus-TS5 reasoning only to individually demonstrated version differences with evidence. Applied within that delegated scope.",
+      "scope": {
+        "unitIds": [
+          "N17c-importhelpers-es5-actual-emission::base"
+        ],
+        "property": "independent_emission_facts: __generator only",
+        "frozenUnitCanonicalSha256": "b20495e215061259a7ab26dd30532d1823de4df7621b9ce3edb81324b35655ed",
+        "candidateArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "baselineTypeScriptVersion": "5.9.3",
+        "environment": "macOS27.0.1 arm64; no all-OS assertion"
+      },
+      "observed": {
+        "source": "export async function run() { return 1; }",
+        "options": {
+          "target": "ES5",
+          "module": "ESNext",
+          "importHelpers": true
+        },
+        "native": "tslib __awaiter import and generator syntax; __generator absent",
+        "frozenExpected": "tslib import, __awaiter, __generator",
+        "rawDisposition": "NONPASS_PROJECTED_UNIT",
+        "nativeOutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+        "ts593Es2015OutputSha256": "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7",
+        "ts593Es5OutputSha256": "c3b89ee3b637e0ccf6be2e0054c9a0e509d737c03e757c98afbad8dc66d8d6e4"
+      },
+      "mechanism": "Pinned native pipeline falls through to new_es2016_transformer for targets below ES2016; it has no ES2015/generator-lowering pass. TS5.9.3 runs transformES2015 and transformGenerators below ES2015. The exact C1 output equals the controlled TS5.9.3 ES2015 output. Official TS7 intent removes targetES5.",
+      "authorityLimit": "TS7 does not support targetES5. This is an observed internal API effect, not a supported canonical TS7 ES5 output or permission to silently remap all removed targets.",
+      "comparisonRule": "Classify only this omitted __generator as an individually demonstrated version difference. Preserve frozen expectation, recipe, comparator and raw NONPASS. No qualification PASS or R0 credit is granted here; other properties and divergences retain their independent gates.",
+      "automaticExtensionToOtherDifferences": false,
+      "historicalExpectationsRewritten": false,
+      "evidence": "resumption/gap-mapping-evidence.json",
+      "independentClaimAudit": "resumption/es5-version-claim-audit.md",
+      "primaryIntentSources": [
+        "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html",
+        "https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/"
+      ],
+      "previousStatusBeforeOriginalMacosCampaign": "INDIVIDUALLY_DEMONSTRATED_VERSION_DIFFERENCE_PENDING_CAMPAIGN",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
+    },
+    {
+      "id": "T00-ARB-004",
+      "status": "ORIGINAL_MACOS_REPLAY_RAW_NONPASS_VERSION_CLASSIFICATION_UNCHANGED_QUALIFICATION_PENDING",
+      "owner": "Sébastien",
+      "decisionSource": "Existing owner2026-10-18 per-difference rule recorded in T00-ARB-002.comparisonRule; applied within delegated individual-evidence scope,not a new owner approval.",
+      "baselineCommitUnchanged": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "scope": {
+        "unitIds": [
+          "ORD-DIALECT-CAPABILITY::base"
+        ],
+        "property": "Actual compiler identity: native_compiler_version and every observed TS/JS capabilityScope.dialectVersion only.",
+        "frozenUnitCanonicalSha256": "25e9a78de2eda03053d69b9013006b4a30be479a8bcbde25e5e6cf1a969dd80e",
+        "candidateArtifactSha256": "aefaecbee4677e1c72f3a150532c4dda363a5b09b20a55392507f54bf1bb8b39",
+        "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+        "declaredCrateVersion": "=7.0.0-dev",
+        "compilerVersion": "7.1.0-dev",
+        "sdkVersion": "5.9.3",
+        "baselineCompilerPackageVersion": "5.9.3",
+        "environment": "macOSARM64 only; no current nativeLinux/Windows assertion."
+      },
+      "observed": {
+        "nativeCompilerVersion": "7.1.0-dev",
+        "capabilityScopeDialectVersion": "7.1.0-dev",
+        "frozenExpectedCompilerIdentity": "5.9.3",
+        "sdkVersion": "5.9.3",
+        "mismatchedChecks": 2,
+        "rawDisposition": "NONPASS_PROJECTED_UNIT"
+      },
+      "mechanism": "Pinned core::version() defaults to7.1.0-dev independently of SDK5.9.3. Historical ts-symbols derives dialect identity from ts.version; captured baseline compilerpackage is5.9.3. Exact source/package/probe identities retained in the individual evidence.",
+      "comparisonRule": "Classify only this unit’s two compiler-identity mismatches as individually demonstrated TS7/TS5 differences. Preserve frozen5.9.3 expectations,recipe,comparator and rawNONPASS. No automatic PASS,obligationclosure,qualification or R0 credit.",
+      "authorityLimit": "No new owner decision; no extension to unrelated parsing,semantics,transport,setup or other version differences. A private recipeexpected7.1 PASS is not frozenqualification.",
+      "automaticExtensionToOtherDifferences": false,
+      "historicalExpectationsRewritten": false,
+      "qualificationCredit": 0,
+      "evidence": "resumption/gap-reader-dialect-evidence.json",
+      "individualVersionProof": {
+        "path": "/private/tmp/semctx-t00-import-scope-20261019/dialect-individual-version-proof-v1.json",
+        "sha256": "5b203dad2d449108a880f58585e3a568ee92e9b9c4c5008302a136af21b0ca66"
+      },
+      "independentClaimAudit": "resumption/gap-reader-dialect-claim-audit.md",
+      "previousStatusBeforeOriginalMacosCampaign": "INDIVIDUALLY_DEMONSTRATED_COMPILER_IDENTITY_DIFFERENCE_PENDING_CAMPAIGN",
+      "originalMacosCampaignReceipt": {
+        "evidence": "resumption/step4-macos-campaign-evidence.json",
+        "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+        "reportSha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d",
+        "rawDisposition": "NONPASS",
+        "qualificationCredit": 0,
+        "authorityChange": false,
+        "scope": "Existing individual classification only; frozen expectations and raw observations unchanged; no automatic PASS or new approval."
+      }
+    }
+  ]
+}

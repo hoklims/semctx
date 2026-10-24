@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "source_scope": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "primary_paths": [
+      "packages/ts-analyzer/src/analyze.ts",
+      "packages/ts-analyzer/src/ts-symbols.ts",
+      "packages/ts-analyzer/src/discovery.ts",
+      "packages/ts-analyzer/src/top-level-outline.ts",
+      "packages/ts-analyzer/src/workspace-links.ts",
+      "packages/ts-analyzer/src/index-worker.ts",
+      "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "packages/app-services/src/qualified-analysis.ts"
+    ],
+    "direct_helpers_checked": [
+      "packages/ts-analyzer/src/symbol-grouping.ts",
+      "packages/ts-analyzer/src/markers.ts",
+      "packages/ts-analyzer/src/docs.ts",
+      "packages/ts-analyzer/src/migrations.ts",
+      "packages/ts-analyzer/src/index.ts",
+      "packages/app-services/src/index-health.ts",
+      "packages/app-services/src/freshness.ts",
+      "packages/app-services/src/analyzer-identity-generated.ts"
+    ],
+    "started_utc": "2026-10-17T08:19:30Z",
+    "note": "Read-only baseline source analysis; scratch files are data, never repository mutations.",
+    "annex_tool_paths": [
+      "scripts/analyzer-identity.ts",
+      "scripts/pilot/baselines.ts"
+    ],
+    "non_api_packaging_annexes": [
+      {
+        "path": "scripts/build-plugin-runtime.ts",
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "sha256": "3d23e98a731f6f1f66f04193d3f1babdc2d56f46bbbe8805065cd111f1ddc388",
+        "source_anchors": [
+          {
+            "line": 29,
+            "role": "Bun.resolveSync locates TypeScript package entrypoint; no Compiler API method call"
+          },
+          {
+            "line": 31,
+            "role": "Enumerates SDK lib*.d.ts payload files"
+          },
+          {
+            "line": 35,
+            "role": "Absolute and portable TypeScript path preludes for packaging"
+          },
+          {
+            "line": 792,
+            "role": "Copies SDK libraries into portable package payload"
+          }
+        ],
+        "disposition": "packaging/dependency-payload annex; explicit future T01/T10 work; not hidden checker obligation",
+        "R0_semantic_checker_requirement": false,
+        "terminal_runtime_inventory_relevance": "SDK/TypeScript payload remains visible for future delivery/runtime-dependency removal proof; source exclusion cannot prove zero TypeScript runtime",
+        "verified_by": "/root main-thread source finding plus bounded independent source read in this agent"
+      }
+    ]
+  },
+  "declared_root_count": 19,
+  "root_source_hashes": [
+    {
+      "path": "packages/ts-analyzer/src/analyze.ts",
+      "baseline_bytes_match": true,
+      "sha256": "8d9f774cab04662b293bad3ff564303605a862fadb59f4e5d3ca2fcf20c6cea2"
+    },
+    {
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "baseline_bytes_match": true,
+      "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+    },
+    {
+      "path": "packages/ts-analyzer/src/discovery.ts",
+      "baseline_bytes_match": true,
+      "sha256": "08069117cf26c6c2ca743af2bee3aaf6fb8f5959538c92c106150a18f52b881e"
+    },
+    {
+      "path": "packages/ts-analyzer/src/top-level-outline.ts",
+      "baseline_bytes_match": true,
+      "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+    },
+    {
+      "path": "packages/ts-analyzer/src/workspace-links.ts",
+      "baseline_bytes_match": true,
+      "sha256": "2fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e"
+    },
+    {
+      "path": "packages/ts-analyzer/src/index-worker.ts",
+      "baseline_bytes_match": true,
+      "sha256": "f4e5f47a4dad3c615c720b58c7c8e91705c5b6498b1c565105aa45bec9f9b2fa"
+    },
+    {
+      "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "baseline_bytes_match": true,
+      "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+    },
+    {
+      "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "baseline_bytes_match": true,
+      "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+    },
+    {
+      "path": "packages/app-services/src/qualified-analysis.ts",
+      "baseline_bytes_match": true,
+      "sha256": "da89277683016b7a956cc7b0fd91708f1dd1abc6d45a375449810790ebdface5"
+    },
+    {
+      "path": "packages/ts-analyzer/src/symbol-grouping.ts",
+      "baseline_bytes_match": true,
+      "sha256": "a3008c6b9e6aaa898c67d277d9abf943c3f3020fbf18ac80571d6fbbeefc8042"
+    },
+    {
+      "path": "packages/ts-analyzer/src/markers.ts",
+      "baseline_bytes_match": true,
+      "sha256": "1f7347877ea94915f5ba56c69cb6b042355b59ea31bd622f6ce078a5f8b09ffc"
+    },
+    {
+      "path": "packages/ts-analyzer/src/docs.ts",
+      "baseline_bytes_match": true,
+      "sha256": "3033173ef8dd3a522c6d30850fab01d63cc1137476c77b21ecdb0ae11946bab0"
+    },
+    {
+      "path": "packages/ts-analyzer/src/migrations.ts",
+      "baseline_bytes_match": true,
+      "sha256": "c4d18114c702043e8e0374c19f608b862cde284587e98c7d728031458225adf7"
+    },
+    {
+      "path": "packages/ts-analyzer/src/index.ts",
+      "baseline_bytes_match": true,
+      "sha256": "cdf892493cad9aef4e687d333221c9c9abd13786f6a50fa3373cc9f9f1278382"
+    },
+    {
+      "path": "packages/app-services/src/index-health.ts",
+      "baseline_bytes_match": true,
+      "sha256": "1453b28ac3b50ed04ff5e426075c943ff0f42ff7eb7457f3b661380509042392"
+    },
+    {
+      "path": "packages/app-services/src/freshness.ts",
+      "baseline_bytes_match": true,
+      "sha256": "5d3a5c401cf5b1dad8468f8c8607b70acef49ff0793bb7d65750443386e12a22"
+    },
+    {
+      "path": "packages/app-services/src/analyzer-identity-generated.ts",
+      "baseline_bytes_match": true,
+      "sha256": "c532f9ee5d81fe6ecfba68c4256d6127a10e9e2fdce947b6f9b585f41dfe8d04"
+    },
+    {
+      "path": "scripts/analyzer-identity.ts",
+      "baseline_bytes_match": true,
+      "sha256": "cfbf37a7affe4829b40d962ce91130b71ae4b6572db2384597a1c18b388d0e0d"
+    },
+    {
+      "path": "scripts/pilot/baselines.ts",
+      "baseline_bytes_match": true,
+      "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+    }
+  ],
+  "verified_indirect_call_anchors": [
+    {
+      "path": "packages/app-services/src/plane-a-runtime.ts",
+      "line": 143,
+      "callee": "analyzeRepositoryAsync",
+      "source_anchor_matches": true
+    },
+    {
+      "path": "packages/app-services/src/verify.ts",
+      "line": 789,
+      "callee": "inspectRetainedQualifiedScope",
+      "source_anchor_matches": true
+    },
+    {
+      "path": "packages/app-services/src/verify.ts",
+      "line": 1043,
+      "callee": "qualifiedAdmission",
+      "source_anchor_matches": true
+    },
+    {
+      "path": "packages/app-services/src/verify.ts",
+      "line": 1052,
+      "callee": "bindOpaqueCallbackGraph",
+      "source_anchor_matches": true
+    }
+  ],
+  "source_inventory_closure": {
+    "scoped_namespace_and_member_provenance": "all enumerated sites disposed, no unresolved provenance; see provenance-summary.json",
+    "manual_group_attributions": [
+      "ts-symbols module dialect version → producer identity/capability dialect scope (analyze.ts:517)",
+      "ts-symbols module compiler option enum values → ordinary Program options",
+      "isModeledCallCallee → call-domain/eligibility rule",
+      "isFunctionLike → symbol and canonical callable-owner rule",
+      "semantic diagnostics key → platform case-sensitive retained identity",
+      "analyze.assertSnapshotInputs → captured-source consistency",
+      "two dynamic enum name lookups → inspectModuleConfiguration reason formatting"
+    ],
+    "unmapped_groups": [],
+    "source_call_closure_distinct_from_case_closure": true,
+    "root_confirmations_remaining": [],
+    "not_source_inventory_blockers_at_stage2": [
+      "No selected Rust composition: field explicitly unknown, selection comes after case preparation.",
+      "No frozen mandatory case denominator: stage3 responsibility.",
+      "No native Windows/Linux proof: R0 runtime responsibility.",
+      "Comparator disposition remains T01 as directed; it is visible and does not become a hidden semantic-producer requirement."
+    ],
+    "source_site_accounting": {
+      "compiler_namespace_or_member_sites": 3460,
+      "assigned_exactly_once_to_source_group": 3460,
+      "unassigned": 0,
+      "duplicated": 0,
+      "not_a_semantic_case_denominator": true
+    },
+    "global_source_census_confirmation": {
+      "id": "GLOBAL_SOURCE_CENSUS_CONFIRMED",
+      "status": "confirmed",
+      "attributed_to": "/root",
+      "received_from": "current-session main-thread message",
+      "finding": "Runtime/compiler-source census matches scoped primary analyzer/qualified consumers, workspace-links type-only injected System contract and analyzer-identity/pilot tools; remaining imports are tests. build-plugin-runtime separately packages SDK bytes without a Compiler API call.",
+      "verified_declared_roots": 19,
+      "indirect_consumer_source_files": [
+        "packages/app-services/src/plane-a-runtime.ts",
+        "packages/app-services/src/verify.ts"
+      ],
+      "packaging_annex": "scripts/build-plugin-runtime.ts",
+      "does_not_freeze_case_denominator": true
+    },
+    "root_and_indirect_anchor_checks": [
+      {
+        "path": "packages/ts-analyzer/src/analyze.ts",
+        "baseline_bytes_match": true,
+        "sha256": "8d9f774cab04662b293bad3ff564303605a862fadb59f4e5d3ca2fcf20c6cea2"
+      },
+      {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "baseline_bytes_match": true,
+        "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+      },
+      {
+        "path": "packages/ts-analyzer/src/discovery.ts",
+        "baseline_bytes_match": true,
+        "sha256": "08069117cf26c6c2ca743af2bee3aaf6fb8f5959538c92c106150a18f52b881e"
+      },
+      {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "baseline_bytes_match": true,
+        "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+      },
+      {
+        "path": "packages/ts-analyzer/src/workspace-links.ts",
+        "baseline_bytes_match": true,
+        "sha256": "2fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e"
+      },
+      {
+        "path": "packages/ts-analyzer/src/index-worker.ts",
+        "baseline_bytes_match": true,
+        "sha256": "f4e5f47a4dad3c615c720b58c7c8e91705c5b6498b1c565105aa45bec9f9b2fa"
+      },
+      {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "baseline_bytes_match": true,
+        "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+      },
+      {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "baseline_bytes_match": true,
+        "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+      },
+      {
+        "path": "packages/app-services/src/qualified-analysis.ts",
+        "baseline_bytes_match": true,
+        "sha256": "da89277683016b7a956cc7b0fd91708f1dd1abc6d45a375449810790ebdface5"
+      },
+      {
+        "path": "packages/ts-analyzer/src/symbol-grouping.ts",
+        "baseline_bytes_match": true,
+        "sha256": "a3008c6b9e6aaa898c67d277d9abf943c3f3020fbf18ac80571d6fbbeefc8042"
+      },
+      {
+        "path": "packages/ts-analyzer/src/markers.ts",
+        "baseline_bytes_match": true,
+        "sha256": "1f7347877ea94915f5ba56c69cb6b042355b59ea31bd622f6ce078a5f8b09ffc"
+      },
+      {
+        "path": "packages/ts-analyzer/src/docs.ts",
+        "baseline_bytes_match": true,
+        "sha256": "3033173ef8dd3a522c6d30850fab01d63cc1137476c77b21ecdb0ae11946bab0"
+      },
+      {
+        "path": "packages/ts-analyzer/src/migrations.ts",
+        "baseline_bytes_match": true,
+        "sha256": "c4d18114c702043e8e0374c19f608b862cde284587e98c7d728031458225adf7"
+      },
+      {
+        "path": "packages/ts-analyzer/src/index.ts",
+        "baseline_bytes_match": true,
+        "sha256": "cdf892493cad9aef4e687d333221c9c9abd13786f6a50fa3373cc9f9f1278382"
+      },
+      {
+        "path": "packages/app-services/src/index-health.ts",
+        "baseline_bytes_match": true,
+        "sha256": "1453b28ac3b50ed04ff5e426075c943ff0f42ff7eb7457f3b661380509042392"
+      },
+      {
+        "path": "packages/app-services/src/freshness.ts",
+        "baseline_bytes_match": true,
+        "sha256": "5d3a5c401cf5b1dad8468f8c8607b70acef49ff0793bb7d65750443386e12a22"
+      },
+      {
+        "path": "packages/app-services/src/analyzer-identity-generated.ts",
+        "baseline_bytes_match": true,
+        "sha256": "c532f9ee5d81fe6ecfba68c4256d6127a10e9e2fdce947b6f9b585f41dfe8d04"
+      },
+      {
+        "path": "scripts/analyzer-identity.ts",
+        "baseline_bytes_match": true,
+        "sha256": "cfbf37a7affe4829b40d962ce91130b71ae4b6572db2384597a1c18b388d0e0d"
+      },
+      {
+        "path": "scripts/pilot/baselines.ts",
+        "baseline_bytes_match": true,
+        "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+      },
+      {
+        "path": "packages/app-services/src/plane-a-runtime.ts",
+        "line": 143,
+        "callee": "analyzeRepositoryAsync",
+        "source_anchor_matches": true
+      },
+      {
+        "path": "packages/app-services/src/verify.ts",
+        "line": 789,
+        "callee": "inspectRetainedQualifiedScope",
+        "source_anchor_matches": true
+      },
+      {
+        "path": "packages/app-services/src/verify.ts",
+        "line": 1043,
+        "callee": "qualifiedAdmission",
+        "source_anchor_matches": true
+      },
+      {
+        "path": "packages/app-services/src/verify.ts",
+        "line": 1052,
+        "callee": "bindOpaqueCallbackGraph",
+        "source_anchor_matches": true
+      }
+    ]
+  },
+  "packaging_annexes": [
+    {
+      "path": "scripts/build-plugin-runtime.ts",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "sha256": "3d23e98a731f6f1f66f04193d3f1babdc2d56f46bbbe8805065cd111f1ddc388",
+      "source_anchors": [
+        {
+          "line": 29,
+          "role": "Bun.resolveSync locates TypeScript package entrypoint; no Compiler API method call"
+        },
+        {
+          "line": 31,
+          "role": "Enumerates SDK lib*.d.ts payload files"
+        },
+        {
+          "line": 35,
+          "role": "Absolute and portable TypeScript path preludes for packaging"
+        },
+        {
+          "line": 792,
+          "role": "Copies SDK libraries into portable package payload"
+        }
+      ],
+      "disposition": "packaging/dependency-payload annex; explicit future T01/T10 work; not hidden checker obligation",
+      "R0_semantic_checker_requirement": false,
+      "terminal_runtime_inventory_relevance": "SDK/TypeScript payload remains visible for future delivery/runtime-dependency removal proof; source exclusion cannot prove zero TypeScript runtime",
+      "verified_by": "/root main-thread source finding plus bounded independent source read in this agent"
+    }
+  ],
+  "source_read_reproduction": {
+    "git_repository": "hoklims/semctx",
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "command_template": "git show 3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:<repository-relative-path>",
+    "hash_algorithm": "SHA-256 over exact git-show blob bytes, without newline or encoding conversion",
+    "read_only": true,
+    "source_copies_distributed": false
+  },
+  "method": {
+    "source_location": "Main-thread bounded location/census, then scoped agent reading at exact Git baseline.",
+    "static_discovery": "Source AST namespace/member candidates followed by real pinned TypeScript 5.9.3 Program/checker declaration-origin classification; no spelling-only completeness claim.",
+    "program_is_not_runtime_producer": "Discovery Program follows repository tsconfig; its SDK files do not establish analyzer runtime read closure.",
+    "source_sites_accounted": {
+      "compiler_namespace_or_member_sites": 3460,
+      "assigned_exactly_once_to_source_group": 3460,
+      "unassigned": 0,
+      "duplicated": 0,
+      "not_a_semantic_case_denominator": true
+    },
+    "global_census_confirmation": {
+      "id": "GLOBAL_SOURCE_CENSUS_CONFIRMED",
+      "status": "confirmed",
+      "attributed_to": "/root",
+      "received_from": "current-session main-thread message",
+      "finding": "Runtime/compiler-source census matches scoped primary analyzer/qualified consumers, workspace-links type-only injected System contract and analyzer-identity/pilot tools; remaining imports are tests. build-plugin-runtime separately packages SDK bytes without a Compiler API call.",
+      "verified_declared_roots": 19,
+      "indirect_consumer_source_files": [
+        "packages/app-services/src/plane-a-runtime.ts",
+        "packages/app-services/src/verify.ts"
+      ],
+      "packaging_annex": "scripts/build-plugin-runtime.ts",
+      "does_not_freeze_case_denominator": true
+    },
+    "runtime_injection_limit": "System/CompilerHost declaration origin is static contract; injected runtime implementation provenance remains separate.",
+    "recorded_environment_reference": "provenance-summary.json; original Darwin arm64 execution identity and absolute scratch paths preserved verbatim as historical facts."
+  },
+  "dispositions": {
+    "workspace-links.ts": "Type-only TypeScript import plus injected System runtime contract.",
+    "index-worker.ts": "Indirect semantic extraction consumer with no direct Compiler API import.",
+    "analyzer-identity.ts": "Product identity input over implementation/compiler/SDK bytes.",
+    "pilot/baselines.ts": "Comparator benchmark annex; future T01 disposition, not hidden semantic-producer checker requirement.",
+    "scripts/build-plugin-runtime.ts": "Packaging/dependency-payload annex for future T01/T10, no Compiler API method call.",
+    "repository_declarations_vs_sdk": "SDK/default-library declaration context is distinct from eligibility of repository .d.ts changes."
+  }
+}

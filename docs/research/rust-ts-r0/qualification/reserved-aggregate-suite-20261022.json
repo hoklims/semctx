@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "recordedUTC": "2026-10-22T13:40:24.807073+00:00",
+  "freezeCommit": "ccc7a5cf4aa5a058ef18e9d3ed3348d4d0953ee1",
+  "freezeSha256": "daedaf79ef86923cd01ae198981508a722b73460c0f52f54f7d82c78410b2961",
+  "archiveSha256": "849e4bba3fc0e4d0cfd765620042d0e9fe7bd5caed84b6b775335d02997f8040",
+  "publicReceiptSha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a",
+  "commitmentsVerified": 7,
+  "commitmentVerificationOutputSha256": "287e1f83d04d5babad0e7dde2282b0b60e3ab040abf8dbb7451b210580974ca7",
+  "lanes": {
+    "macos": {
+      "schemaVersion": 1,
+      "state": "FORMAT_NONCONFORMING",
+      "variantsTotal": 26,
+      "variantsPass": 0,
+      "variantsFormatFailure": 26,
+      "variantsReported": 0,
+      "variantsCompared": 0,
+      "variantsExecutionUnavailable": 0,
+      "byPrimaryFamily": [
+        {
+          "family": "module_resolution",
+          "total": 8,
+          "pass": 0,
+          "formatFailure": 8,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "symbol_owners_and_values",
+          "total": 3,
+          "pass": 0,
+          "formatFailure": 3,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "consumed_type_information",
+          "total": 2,
+          "pass": 0,
+          "formatFailure": 2,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "call_targets_and_tests",
+          "total": 4,
+          "pass": 0,
+          "formatFailure": 4,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "qualified_refusals",
+          "total": 6,
+          "pass": 0,
+          "formatFailure": 6,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "errors_and_recovery",
+          "total": 2,
+          "pass": 0,
+          "formatFailure": 2,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "identities_and_coordinates",
+          "total": 1,
+          "pass": 0,
+          "formatFailure": 1,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "consumed_input_stability",
+          "total": 0,
+          "pass": 0,
+          "formatFailure": 0,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        }
+      ],
+      "arbitrationCredit": 0,
+      "formalR0ObligationQualified": false,
+      "platform": "macos",
+      "startedUtc": "2026-10-22T13:40:24.546Z",
+      "finishedUtc": "2026-10-22T13:40:24.563Z",
+      "frozenRunnerSha256": "46c03349e79b4580506a5f1a9615eb8a1bcf12aa84f52343d76beba7a4644a22",
+      "contractSha256": "64523b89ef3d953afe901c398a9f0e5b94fb4573a58952e77db7b20fe9a951b4",
+      "candidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "candidateFreezeSha256": "240d8baa1387d41badf346c2fecde1af040d602cf573f7218647eb7b8f134ab7",
+      "publicReceiptSha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a",
+      "inputCommitmentSha256": "7cc912443371dc343ccdacaaeb45af82f67966d61fe746f330a31e7556d75540",
+      "observerInvocationAttempts": 0,
+      "observerProcessInvocations": 0,
+      "observerExitCode": null
+    },
+    "linux": {
+      "schemaVersion": 1,
+      "state": "FORMAT_NONCONFORMING",
+      "variantsTotal": 26,
+      "variantsPass": 0,
+      "variantsFormatFailure": 26,
+      "variantsReported": 0,
+      "variantsCompared": 0,
+      "variantsExecutionUnavailable": 0,
+      "byPrimaryFamily": [
+        {
+          "family": "module_resolution",
+          "total": 8,
+          "pass": 0,
+          "formatFailure": 8,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "symbol_owners_and_values",
+          "total": 3,
+          "pass": 0,
+          "formatFailure": 3,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "consumed_type_information",
+          "total": 2,
+          "pass": 0,
+          "formatFailure": 2,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "call_targets_and_tests",
+          "total": 4,
+          "pass": 0,
+          "formatFailure": 4,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "qualified_refusals",
+          "total": 6,
+          "pass": 0,
+          "formatFailure": 6,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "errors_and_recovery",
+          "total": 2,
+          "pass": 0,
+          "formatFailure": 2,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "identities_and_coordinates",
+          "total": 1,
+          "pass": 0,
+          "formatFailure": 1,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        },
+        {
+          "family": "consumed_input_stability",
+          "total": 0,
+          "pass": 0,
+          "formatFailure": 0,
+          "reported": 0,
+          "compared": 0,
+          "executionUnavailable": 0
+        }
+      ],
+      "arbitrationCredit": 0,
+      "formalR0ObligationQualified": false,
+      "platform": "linux",
+      "startedUtc": "2026-10-22T13:40:24.606Z",
+      "finishedUtc": "2026-10-22T13:40:24.625Z",
+      "frozenRunnerSha256": "46c03349e79b4580506a5f1a9615eb8a1bcf12aa84f52343d76beba7a4644a22",
+      "contractSha256": "64523b89ef3d953afe901c398a9f0e5b94fb4573a58952e77db7b20fe9a951b4",
+      "candidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+      "candidateFreezeSha256": "240d8baa1387d41badf346c2fecde1af040d602cf573f7218647eb7b8f134ab7",
+      "publicReceiptSha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a",
+      "inputCommitmentSha256": "7cc912443371dc343ccdacaaeb45af82f67966d61fe746f330a31e7556d75540",
+      "observerInvocationAttempts": 0,
+      "observerProcessInvocations": 0,
+      "observerExitCode": null
+    }
+  },
+  "joint": {
+    "schemaVersion": 1,
+    "state": "FORMAT_NONCONFORMING",
+    "variantsTotal": 26,
+    "variantsPass": 0,
+    "variantsFormatFailure": 26,
+    "variantsReported": 0,
+    "variantsCompared": 0,
+    "variantsExecutionUnavailable": 0,
+    "byPrimaryFamily": [
+      {
+        "family": "module_resolution",
+        "total": 8,
+        "pass": 0,
+        "formatFailure": 8,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "symbol_owners_and_values",
+        "total": 3,
+        "pass": 0,
+        "formatFailure": 3,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "consumed_type_information",
+        "total": 2,
+        "pass": 0,
+        "formatFailure": 2,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "call_targets_and_tests",
+        "total": 4,
+        "pass": 0,
+        "formatFailure": 4,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "qualified_refusals",
+        "total": 6,
+        "pass": 0,
+        "formatFailure": 6,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "errors_and_recovery",
+        "total": 2,
+        "pass": 0,
+        "formatFailure": 2,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "identities_and_coordinates",
+        "total": 1,
+        "pass": 0,
+        "formatFailure": 1,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      },
+      {
+        "family": "consumed_input_stability",
+        "total": 0,
+        "pass": 0,
+        "formatFailure": 0,
+        "reported": 0,
+        "compared": 0,
+        "executionUnavailable": 0
+      }
+    ],
+    "arbitrationCredit": 0,
+    "formalR0ObligationQualified": false,
+    "platform": "joint",
+    "finishedUtc": "2026-10-22T13:40:24.797Z",
+    "candidateSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+    "candidateFreezeSha256": "240d8baa1387d41badf346c2fecde1af040d602cf573f7218647eb7b8f134ab7",
+    "contractSha256": "64523b89ef3d953afe901c398a9f0e5b94fb4573a58952e77db7b20fe9a951b4",
+    "frozenRunnerSha256": "46c03349e79b4580506a5f1a9615eb8a1bcf12aa84f52343d76beba7a4644a22",
+    "publicReceiptSha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a"
+  },
+  "privateOutputsSha256": {
+    "allDetailedOutputs": "3116d65f7be4ba952d0c56ca57ba8d08e393aa2a1fe8786c62d8adcfaae15663",
+    "linuxNativeOutputs": "5bcab2d018af15e179c54551be5c2ba48a236ba186db6f7dbe8a1e6eff68eb4d"
+  },
+  "protectedRunnerAndContractUnchanged": true,
+  "nativeCandidateChanged": false,
+  "reruns": 0,
+  "r0Decision": null
+}

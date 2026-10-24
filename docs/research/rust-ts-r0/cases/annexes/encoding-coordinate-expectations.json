@@ -1,0 +1,490 @@
+{
+  "status": "INDEPENDENT_SOURCE_AUTHORED_EXPECTATIONS_PENDING_REVIEW_NOT_NATIVE_PROOF",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "profile_distinction": "retained bytes decode UTF8 without BOM stripping; ordinary TypeScript system reads recognize UTF8/UTF16 BOM; retained supplied strings remain exact",
+  "coordinate_convention": "half-open zero-based offsets, UTF16 units vs UTF8 bytes of decoded text, lines1-based; raw byte offset is separately named",
+  "vectors": [
+    {
+      "id": "R01-ascii-lf",
+      "raw_hex": "6578706f72742066756e6374696f6e206628297b7d0a",
+      "raw_sha256": "sha256:aee33a282e2e484f9abb3ddf920d415129454315a25a75a9c57ecfc7cee238e1",
+      "ordinary_decoded_text": "export function f(){}\n",
+      "retained_decoded_text": "export function f(){}\n",
+      "ordinary_coordinates": {
+        "total_utf16": 22,
+        "total_utf8_of_decoded_text": 22,
+        "declaration_utf16": [
+          0,
+          21
+        ],
+        "declaration_utf8_of_decoded_text": [
+          0,
+          21
+        ],
+        "name_utf16": [
+          16,
+          17
+        ],
+        "name_utf8_of_decoded_text": [
+          16,
+          17
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "retained_coordinates": {
+        "total_utf16": 22,
+        "total_utf8_of_decoded_text": 22,
+        "declaration_utf16": [
+          0,
+          21
+        ],
+        "declaration_utf8_of_decoded_text": [
+          0,
+          21
+        ],
+        "name_utf16": [
+          16,
+          17
+        ],
+        "name_utf8_of_decoded_text": [
+          16,
+          17
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "R02-retained-bom",
+      "raw_hex": "efbbbf6578706f72742066756e6374696f6e206628297b7d0a",
+      "raw_sha256": "sha256:089d984e10c10a5399360bcfc805a59f5eb99cd4faa8756ee28e47b48fbc64e8",
+      "ordinary_decoded_text": "export function f(){}\n",
+      "retained_decoded_text": "﻿export function f(){}\n",
+      "ordinary_coordinates": {
+        "total_utf16": 22,
+        "total_utf8_of_decoded_text": 22,
+        "declaration_utf16": [
+          0,
+          21
+        ],
+        "declaration_utf8_of_decoded_text": [
+          0,
+          21
+        ],
+        "name_utf16": [
+          16,
+          17
+        ],
+        "name_utf8_of_decoded_text": [
+          16,
+          17
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "retained_coordinates": {
+        "total_utf16": 23,
+        "total_utf8_of_decoded_text": 25,
+        "declaration_utf16": [
+          1,
+          22
+        ],
+        "declaration_utf8_of_decoded_text": [
+          3,
+          24
+        ],
+        "name_utf16": [
+          17,
+          18
+        ],
+        "name_utf8_of_decoded_text": [
+          19,
+          20
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "R03-ascii-crlf",
+      "raw_hex": "6578706f72742066756e6374696f6e206628297b7d0d0a",
+      "raw_sha256": "sha256:1080791ea1b0c4767a4a9b2a801daadc2deebf3c5f3ca54719718498fa86edbd",
+      "ordinary_decoded_text": "export function f(){}\r\n",
+      "retained_decoded_text": "export function f(){}\r\n",
+      "ordinary_coordinates": {
+        "total_utf16": 23,
+        "total_utf8_of_decoded_text": 23,
+        "declaration_utf16": [
+          0,
+          21
+        ],
+        "declaration_utf8_of_decoded_text": [
+          0,
+          21
+        ],
+        "name_utf16": [
+          16,
+          17
+        ],
+        "name_utf8_of_decoded_text": [
+          16,
+          17
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "retained_coordinates": {
+        "total_utf16": 23,
+        "total_utf8_of_decoded_text": 23,
+        "declaration_utf16": [
+          0,
+          21
+        ],
+        "declaration_utf8_of_decoded_text": [
+          0,
+          21
+        ],
+        "name_utf16": [
+          16,
+          17
+        ],
+        "name_utf8_of_decoded_text": [
+          16,
+          17
+        ],
+        "startLine": 1,
+        "endLine": 1
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "R04-shebang-lf",
+      "raw_hex": "23212f7573722f62696e2f656e76206e6f64650a6578706f72742066756e6374696f6e206628297b7d0a",
+      "raw_sha256": "sha256:f04eefda8252cf55685666110ee95f3f4522117bd1da46cf20ee271ab81b05f9",
+      "ordinary_decoded_text": "#!/usr/bin/env node\nexport function f(){}\n",
+      "retained_decoded_text": "#!/usr/bin/env node\nexport function f(){}\n",
+      "ordinary_coordinates": {
+        "total_utf16": 42,
+        "total_utf8_of_decoded_text": 42,
+        "declaration_utf16": [
+          20,
+          41
+        ],
+        "declaration_utf8_of_decoded_text": [
+          20,
+          41
+        ],
+        "name_utf16": [
+          36,
+          37
+        ],
+        "name_utf8_of_decoded_text": [
+          36,
+          37
+        ],
+        "startLine": 2,
+        "endLine": 2
+      },
+      "retained_coordinates": {
+        "total_utf16": 42,
+        "total_utf8_of_decoded_text": 42,
+        "declaration_utf16": [
+          20,
+          41
+        ],
+        "declaration_utf8_of_decoded_text": [
+          20,
+          41
+        ],
+        "name_utf16": [
+          36,
+          37
+        ],
+        "name_utf8_of_decoded_text": [
+          36,
+          37
+        ],
+        "startLine": 2,
+        "endLine": 2
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "R05-astral-comment-crlf",
+      "raw_hex": "2f2af09f98802a2f0d0a6578706f72742066756e6374696f6e206628297b7d0d0a",
+      "raw_sha256": "sha256:01cd9578d82fdff603d3d0ed6f6b24b361c347516a1d2b77649984e6c377ac90",
+      "ordinary_decoded_text": "/*😀*/\r\nexport function f(){}\r\n",
+      "retained_decoded_text": "/*😀*/\r\nexport function f(){}\r\n",
+      "ordinary_coordinates": {
+        "total_utf16": 31,
+        "total_utf8_of_decoded_text": 33,
+        "declaration_utf16": [
+          8,
+          29
+        ],
+        "declaration_utf8_of_decoded_text": [
+          10,
+          31
+        ],
+        "name_utf16": [
+          24,
+          25
+        ],
+        "name_utf8_of_decoded_text": [
+          26,
+          27
+        ],
+        "startLine": 2,
+        "endLine": 2
+      },
+      "retained_coordinates": {
+        "total_utf16": 31,
+        "total_utf8_of_decoded_text": 33,
+        "declaration_utf16": [
+          8,
+          29
+        ],
+        "declaration_utf8_of_decoded_text": [
+          10,
+          31
+        ],
+        "name_utf16": [
+          24,
+          25
+        ],
+        "name_utf8_of_decoded_text": [
+          26,
+          27
+        ],
+        "startLine": 2,
+        "endLine": 2
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "R06-combined-retained-raw-text",
+      "raw_hex": "efbbbf23212f7573722f62696e2f656e76206e6f64650d0a2f2a2a20f09f9880202a2f0d0a6578706f72742066756e6374696f6e20662829207b0d0a202072657475726e2022c3a9223b0d0a7d0d0a",
+      "raw_sha256": "sha256:490275484e54965b963888185cc0ab6fcd890d6323794cde6de85b13b479b948",
+      "ordinary_decoded_text": "#!/usr/bin/env node\r\n/** 😀 */\r\nexport function f() {\r\n  return \"é\";\r\n}\r\n",
+      "retained_decoded_text": "﻿#!/usr/bin/env node\r\n/** 😀 */\r\nexport function f() {\r\n  return \"é\";\r\n}\r\n",
+      "ordinary_coordinates": {
+        "total_utf16": 73,
+        "total_utf8_of_decoded_text": 76,
+        "declaration_utf16": [
+          32,
+          71
+        ],
+        "declaration_utf8_of_decoded_text": [
+          34,
+          74
+        ],
+        "name_utf16": [
+          48,
+          49
+        ],
+        "name_utf8_of_decoded_text": [
+          50,
+          51
+        ],
+        "startLine": 3,
+        "endLine": 5
+      },
+      "retained_coordinates": {
+        "total_utf16": 74,
+        "total_utf8_of_decoded_text": 79,
+        "declaration_utf16": [
+          33,
+          72
+        ],
+        "declaration_utf8_of_decoded_text": [
+          37,
+          77
+        ],
+        "name_utf16": [
+          49,
+          50
+        ],
+        "name_utf8_of_decoded_text": [
+          53,
+          54
+        ],
+        "startLine": 3,
+        "endLine": 5
+      },
+      "ordinary_syntax_errors": [],
+      "retained_syntax_errors": [
+        18026,
+        1005
+      ],
+      "eligibility": "R06 retained is syntax-recovered only, never analyzed successfully; its coordinate landmarks remain arithmetic support, not accepted facts",
+      "basis": [
+        "published TS readFile8525–8548, scanner12794–12811 and shebang diagnostic18026",
+        "baseline qualified-analysis95–97 and ts-symbols snapshotSystem16–39",
+        "independent Unicode byte/unit and LF arithmetic"
+      ],
+      "observation_matches_authored_text": true
+    },
+    {
+      "id": "UTF16LE",
+      "raw_hex": "fffe6500780070006f00720074002000660075006e006300740069006f006e0020006600280029007b007d000a00",
+      "raw_sha256": "sha256:6b45fe3077372291a8900c066cc88da81ae4a0be26a2966b9e9cb172aaa097d3",
+      "ordinary_decoded_text": "export function f(){}\n",
+      "retained_decoded_text": "��e\u0000x\u0000p\u0000o\u0000r\u0000t\u0000 \u0000f\u0000u\u0000n\u0000c\u0000t\u0000i\u0000o\u0000n\u0000 \u0000f\u0000(\u0000)\u0000{\u0000}\u0000\n\u0000",
+      "ordinary_syntax_error_codes": [],
+      "retained_syntax_error_codes": [
+        1490
+      ],
+      "basis": [
+        "published TS8525–8548",
+        "baseline qualified-analysis95–97",
+        "TS scanner13230–13233 aborts on U+FFFD with1490"
+      ],
+      "retained_is_not_UTF16_decode": true
+    },
+    {
+      "id": "UTF16BE",
+      "raw_hex": "feff006500780070006f00720074002000660075006e006300740069006f006e0020006600280029007b007d000a",
+      "raw_sha256": "sha256:6c6e1f0e18fab5bd218417e8d43422f02fa055e720757d4f5240111bbf432a49",
+      "ordinary_decoded_text": "export function f(){}\n",
+      "retained_decoded_text": "��\u0000e\u0000x\u0000p\u0000o\u0000r\u0000t\u0000 \u0000f\u0000u\u0000n\u0000c\u0000t\u0000i\u0000o\u0000n\u0000 \u0000f\u0000(\u0000)\u0000{\u0000}\u0000\n",
+      "ordinary_syntax_error_codes": [],
+      "retained_syntax_error_codes": [
+        1490
+      ],
+      "basis": [
+        "published TS8525–8548",
+        "baseline qualified-analysis95–97",
+        "TS scanner13230–13233 aborts on U+FFFD with1490"
+      ],
+      "retained_is_not_UTF16_decode": true
+    },
+    {
+      "id": "UTF8-invalid",
+      "raw_hex": "c328",
+      "raw_sha256": "sha256:eddf68639913a3cb8331cdfe7f87559e0beccf2c289c0d90ac4d89b3204004f8",
+      "ordinary_decoded_text": "�(",
+      "retained_decoded_text": "�(",
+      "ordinary_syntax_error_codes": [
+        1490
+      ],
+      "retained_syntax_error_codes": [
+        1490
+      ],
+      "basis": [
+        "published TS8525–8548",
+        "baseline qualified-analysis95–97",
+        "TS scanner13230–13233 aborts on U+FFFD with1490"
+      ],
+      "retained_is_not_UTF16_decode": true
+    },
+    {
+      "id": "UTF16-interior-astral-boundary",
+      "text": "a😀b",
+      "scalar_boundaries": [
+        {
+          "utf16": 0,
+          "utf8": 0
+        },
+        {
+          "utf16": 1,
+          "utf8": 1
+        },
+        {
+          "utf16": 3,
+          "utf8": 5
+        },
+        {
+          "utf16": 4,
+          "utf8": 6
+        }
+      ],
+      "unrepresentable_scalar_boundary_utf16": [
+        2
+      ],
+      "target": "Do not round/split scalar or fabricate UTF8 boundary; exact error representation remains private adapter design, not a public reason code."
+    },
+    {
+      "id": "UTF16LE-odd-tail",
+      "raw_hex": "fffe6500780070006f00720074002000660075006e006300740069006f006e0020006600280029007b007d000a0061",
+      "expected_ordinary_decoded_text": "export function f(){}\n",
+      "ordinary_syntax_error_codes": [],
+      "retained_syntax_error_codes": [
+        1490
+      ],
+      "identity_relation": "Extra unpaired trailing raw byte is dropped by ordinary UTF16 decoder but must still change captured raw-byte identity",
+      "authority": "TS readFile8525–8543 returns Buffer.toString(utf16le,2); independent fixture byte-pair arithmetic; local observation corroborates trailing byte omission"
+    },
+    {
+      "id": "UTF16LE-lone-high-surrogate",
+      "raw_hex": "fffe3dd8",
+      "expected_ordinary_UTF16_code_units": [
+        55357
+      ],
+      "ordinary_syntax_error_codes": [
+        1127
+      ],
+      "retained_syntax_error_codes": [
+        1490
+      ],
+      "boundary_risk": "No Unicode-scalar UTF8 string represents this lone code unit. Lossy U+FFFD conversion changes the TypeScript component parser observation from1127 to1490. Existing ordinary product consumption of that diagnostic is not established and no SOURCE_PARSE_ERROR reason or Rust impossibility is asserted.",
+      "authority": "TS readFile8525–8543; scanner invalid-character branch13234 onward; exact local observation corroborates1127",
+      "typescript_component_observation": {
+        "operation": "ts.sys.readFile -> ts.createSourceFile -> parseDiagnostics",
+        "diagnostic_codes": [
+          1127
+        ],
+        "consumer_credit": "No product reason credit: ordinary baseline Program path does not consume this parse diagnostic; retained product parser paths inspect UTF8-decoded text. This is only SDK decoder/parser and raw UTF16 code-unit support evidence."
+      }
+    }
+  ],
+  "native_windows_linux_observed": false,
+  "ordinary_probe_environment": {
+    "ts": "5.9.3",
+    "bun": "1.4.3",
+    "platform": "darwin",
+    "arch": "arm64"
+  }
+}

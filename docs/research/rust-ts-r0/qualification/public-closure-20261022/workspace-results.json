@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "76e80479",
+  "scope": "Finite public workspace System observations only; existing Phase A credit unchanged.",
+  "obligationIndices": [
+    223,
+    224,
+    225,
+    226,
+    227,
+    228
+  ],
+  "propertyAssessments": [
+    {
+      "propertyIndex": 0,
+      "status": "existing_finite_evidence_only",
+      "reason": "Existing installed/uninstalled/outside-root System proof is not recomputed or upgraded by this supplement."
+    },
+    {
+      "propertyIndex": 1,
+      "status": "nonpass",
+      "reason": "Installed invalid module emits6046 and consumes installed bytes, but full owning diagnostic differs: native allowed-values message omits none, amd, system, umd present in TypeScript5.9.3."
+    },
+    {
+      "propertyIndex": 2,
+      "status": "finite_pass_both_platforms",
+      "units": [
+        "above-repository-declaration-blocked",
+        "uninstalled-workspace-default"
+      ],
+      "exactComparedFields": [
+        "results[*].operation",
+        "results[*].path",
+        "results[*].value",
+        "results[*].executed",
+        "results[*].unsupported",
+        "workspaceMappings for blocked case",
+        "successful reported read absence above root",
+        "oracle resolver.inputs successful entry absence above root"
+      ],
+      "limitation": "No full System equivalence, filesystem sandbox guarantee, Windows execution, reserved execution, remoteCI, admission or formal R0 credit."
+    }
+  ],
+  "platforms": {
+    "macos": {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-macos.json",
+      "sha256": "49b7c9994bfebbff001970443570b0739141a1897c83d1d3acbe2352c0ca4588",
+      "oracleAuthority": {
+        "typescript": "5.9.3",
+        "caseSensitive": false,
+        "workspaceSourceSha256": "2fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e",
+        "diagnosticSourceSha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+        "inputsSha256": "9a88300e37aa015a6868be2d463ff10046fee401d9d667cdde6c544009e719cb"
+      },
+      "pass": false,
+      "units": [
+        {
+          "id": "uninstalled-workspace-default",
+          "pass": true,
+          "failedChecks": []
+        },
+        {
+          "id": "installed-invalid-module",
+          "pass": false,
+          "failedChecks": [
+            "configured-reasons"
+          ]
+        },
+        {
+          "id": "above-repository-declaration-blocked",
+          "pass": true,
+          "failedChecks": []
+        }
+      ]
+    },
+    "linux": {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-linux.json",
+      "sha256": "4f4d9dcdc74ba59f68110fdd387644fe1c04006c55acea1bf786ae01af5e0c2e",
+      "oracleAuthority": {
+        "typescript": "5.9.3",
+        "caseSensitive": true,
+        "workspaceSourceSha256": "2fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e",
+        "diagnosticSourceSha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+        "inputsSha256": "9a88300e37aa015a6868be2d463ff10046fee401d9d667cdde6c544009e719cb"
+      },
+      "pass": false,
+      "units": [
+        {
+          "id": "uninstalled-workspace-default",
+          "pass": true,
+          "failedChecks": []
+        },
+        {
+          "id": "installed-invalid-module",
+          "pass": false,
+          "failedChecks": [
+            "configured-reasons"
+          ]
+        },
+        {
+          "id": "above-repository-declaration-blocked",
+          "pass": true,
+          "failedChecks": []
+        }
+      ]
+    }
+  },
+  "newComments": [],
+  "supportedTargetsNotExercised": [
+    "Windows"
+  ],
+  "formalR0Qualified": false,
+  "checkerRevision": "Nonempty unique oracle units, exact query/result binding, full SDK/component context; corrected before final replay-v3"
+}

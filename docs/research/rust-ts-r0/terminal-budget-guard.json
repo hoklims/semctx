@@ -1,0 +1,33 @@
+{
+  "source": "Independent /root/r0_terminal_budget_audit final message, preserved by root; auditor performed read-only review and did not write a file.",
+  "recordedUtc": "2026-10-18T06:33:20.268239+00:00",
+  "scope": "Terminal criteria guard before actual C2pass2 completion, not an R0 verdict",
+  "authority": "Issue365 section2.4 and2.5 with owner-approved research envelope",
+  "factsAtReview": {
+    "C1CorrectionsConsumed": 2,
+    "C2CorrectionsConsumed": 1,
+    "C2CorrectionsRemaining": 1,
+    "conservativeEffortHours": 26.48,
+    "effortLimitActuallyExhausted": false
+  },
+  "held": [
+    "C1 cannot receive a third producer correction.",
+    "C2pass1 read63unchangedSDK files with274bound identities, but read success is not parsing/synthesis/semantic qualification.",
+    "A real preregistered final C2pass2 probe and explicit nonpassing closure will exhaust both composition and correction limits; STOP_BUDGET can then be supported without pretending5days were spent."
+  ],
+  "rejectedClaims": [
+    "Current READY or current STOP before the last authorized correction is actually closed.",
+    "General mapping correctness from one corrected witness.",
+    "STOP_SEMANTIC from grammar/API absence, panic or cost estimate alone.",
+    "Universal native Rust impossibility from these two bounded compositions.",
+    "Need to expose holdout to a known nonpassing candidate.",
+    "Ability to omit native platform gaps, raw outputs or exact source/input identities from terminal dossier."
+  ],
+  "requiredTerminalEvidence": [
+    "Actual final C2 source/artifact freeze and precise input/expected identity preflight",
+    "One supervised final probe, exact case states including unexercised positive targets and remaining native failures",
+    "Explicit final correction closure and budget counters",
+    "Autonomous dossier preserving both candidates, original raw evidence, pins/locks, commands/reconstruction and all environment limits"
+  ],
+  "auditorConservativeEffortSeconds": 300
+}

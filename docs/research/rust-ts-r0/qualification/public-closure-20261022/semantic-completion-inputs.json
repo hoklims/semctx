@@ -1,0 +1,317 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-SEM-completion-constant-member-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key=\"then\";const p={};p[key]=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        62,
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-constant-member-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key=\"plain\";const p={};p[key]=()=>1;export function run(){return 1}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        62,
+        131
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-property-key-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key={toString(){return \"x\"}};const p={x:1};export function run(){return p[key]}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        101
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-property-key-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key=\"x\";const p={x:1};export function run(){return p[key]}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        101
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-function-helper-own-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};export function run(){return f.call(null)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        67
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-function-helper-own-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f={call(_x){return 1}};export function run(){return f.call(null)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        67
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-internal-callable-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=()=>1;export const x=f.call"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        88
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-internal-callable-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f=Function;export const x=f.call"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        88
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-constructor-origin-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(){};export const x=f.constructor"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-constructor-origin-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const f={constructor:()=>1};export const x=f.constructor"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        89
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-heritage-origin-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class A{};export class B extends A{}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-heritage-origin-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export class B extends Error{}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        86,
+        87
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-callback-signature-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].map.call([1],()=>1)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        113
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-callback-signature-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].at.call([1],()=>1)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        113
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "Math={...Math};export function run(){return 1}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-global-assignment-origin-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let local=Math;local={...Math};export function run(){return 1}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        115,
+        117
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-binding-write-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function run(x){x++;if(typeof x!==\"string\")throw Error();register(x)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        56
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-binding-write-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {register} from \"opaque\";function run(x){if(typeof x!==\"string\")throw Error();register(x)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        56
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-js-global-member-activate",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "globalThis.Math={};Object.defineProperties(globalThis,{Math:{value:{}}});"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-js-global-member-control",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "globalThis.own={};Object.defineProperties(globalThis,{own:{value:{}}});"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        116
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const {Date:D}=window;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        125
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const window={Date:class{}};const {Date:D}=window;export function run(){return new D(1)}"
+      },
+      "origin": "Independent public focal consumer control, exact TypeScript 5.9.3 full reason oracle",
+      "obligation_indices": [
+        125
+      ]
+    },
+    {
+      "id": "PUBLIC-SEM-completion-site-0",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {D} from \"./dep\";export function run(){return new D(1)}",
+        "dep.ts": "export {Date as D}"
+      },
+      "origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-completion-site-1",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {Date as D} from \"./dep\";export function run(){return new D(1)}",
+        "dep.ts": "export {Date}"
+      },
+      "origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-completion-site-2",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const s=document[\"createElement\"](\"script\");document.head.appendChild(s)}"
+      },
+      "origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    },
+    {
+      "id": "PUBLIC-SEM-completion-site-3",
+      "operation": "semantic",
+      "path": "main.js",
+      "files": {
+        "main.js": "globalThis.Math={};Object.defineProperties(globalThis,{Math:{value:{}}});"
+      },
+      "origin": "Independent public rare API site witness; no expectation copied from native",
+      "obligation_indices": []
+    }
+  ],
+  "digestPairs": []
+}

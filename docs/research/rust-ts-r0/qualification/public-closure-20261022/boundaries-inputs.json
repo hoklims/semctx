@@ -1,0 +1,94 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-program-config-true-a",
+      "operation": "extraction",
+      "path": "main.ts",
+      "retained": true,
+      "files": {
+        "main.ts": "import { leaf } from \"@leaf\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return 1; }",
+        "b.ts": "export function leaf() { return \"b\"; }",
+        "tsconfig.json": "{\"compilerOptions\": {\"baseUrl\": \".\", \"paths\": {\"@leaf\": [\"./a.ts\"]}}}"
+      },
+      "origin": "Authored public createProgram retained/ordinary config discriminator; exact TS5.9.3 baseline output",
+      "obligation_indices": [
+        171
+      ]
+    },
+    {
+      "id": "PUBLIC-program-config-true-b",
+      "operation": "extraction",
+      "path": "main.ts",
+      "retained": true,
+      "files": {
+        "main.ts": "import { leaf } from \"@leaf\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return 1; }",
+        "b.ts": "export function leaf() { return \"b\"; }",
+        "tsconfig.json": "{\"compilerOptions\": {\"baseUrl\": \".\", \"paths\": {\"@leaf\": [\"./b.ts\"]}}}"
+      },
+      "origin": "Authored public createProgram retained/ordinary config discriminator; exact TS5.9.3 baseline output",
+      "obligation_indices": [
+        171
+      ]
+    },
+    {
+      "id": "PUBLIC-program-config-false-a",
+      "operation": "extraction",
+      "path": "main.ts",
+      "retained": false,
+      "files": {
+        "main.ts": "import { leaf } from \"@leaf\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return 1; }",
+        "b.ts": "export function leaf() { return \"b\"; }",
+        "tsconfig.json": "{\"compilerOptions\": {\"baseUrl\": \".\", \"paths\": {\"@leaf\": [\"./a.ts\"]}}}"
+      },
+      "origin": "Authored public createProgram retained/ordinary config discriminator; exact TS5.9.3 baseline output",
+      "obligation_indices": [
+        171
+      ]
+    },
+    {
+      "id": "PUBLIC-program-config-false-b",
+      "operation": "extraction",
+      "path": "main.ts",
+      "retained": false,
+      "files": {
+        "main.ts": "import { leaf } from \"@leaf\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return 1; }",
+        "b.ts": "export function leaf() { return \"b\"; }",
+        "tsconfig.json": "{\"compilerOptions\": {\"baseUrl\": \".\", \"paths\": {\"@leaf\": [\"./b.ts\"]}}}"
+      },
+      "origin": "Authored public createProgram retained/ordinary config discriminator; exact TS5.9.3 baseline output",
+      "obligation_indices": [
+        171
+      ]
+    },
+    {
+      "id": "PUBLIC-program-retained-live-source",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { leaf } from \"./a\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return 1; }"
+      },
+      "origin": "Authored retained snapshot versus post-capture physical source control",
+      "obligation_indices": [
+        171
+      ]
+    },
+    {
+      "id": "PUBLIC-program-retained-source-alternative",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { leaf } from \"./a\"; export function entry() { return leaf(); }",
+        "a.ts": "export function leaf() { return \"changed\"; }\nexport function extra() { return 2; }"
+      },
+      "origin": "Authored captured source alternative, observable symbol and coordinate changes",
+      "obligation_indices": [
+        171
+      ]
+    }
+  ]
+}

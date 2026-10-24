@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "fixtureSpecification": "scope-replay.py cases; authored PUBLIC data, no reserved source input",
+  "sourceBaseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "caseIds": [
+    "inherited-positive",
+    "unretained-reference",
+    "declared-optional",
+    "undeclared-optional",
+    "excluded-dependent",
+    "excluded-computed",
+    "excluded-unresolved"
+  ],
+  "tools": [
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/scope-replay.py",
+      "sha256": "8da8c56a62a2879b8a8ccccdeb308005798a158f5d3afdb6f9a8a42096e42997"
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/scope-oracle.mjs",
+      "sha256": "c338cc3dfdcb4a23c0d3f2dc64ba29b9c37476cd62f1d0200c3684e1b553c425"
+    }
+  ],
+  "result": "PARTIAL_PUBLIC_PROOF_WITH_CONCRETE_MISMATCHES",
+  "newlyQualifiedRows": []
+}

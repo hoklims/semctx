@@ -1,0 +1,60 @@
+{
+  "recordVersion": 1,
+  "registeredUtc": "2026-10-18T12:30:03.860533+00:00",
+  "composition": "C1",
+  "additionalCorrectionPass": 1,
+  "historicalC1CorrectionsClosed": 2,
+  "state": "STARTED_HARNESS_REGRESSION_REPRODUCTION",
+  "authority": "Owner 2026-10-18 reopening; same T00/branch/PR, record.json#/budget",
+  "scope": [
+    "Correct the ten historical harness failed observations without modifying frozen expected values or historical evidence.",
+    "Resolve the 64 GAP units with behaviorally relevant comparators, recipes and mappings.",
+    "Review the 178 property/support associations before full three-OS qualification."
+  ],
+  "orderedWorkRule": "Harness corrections first, then GAP mappings, then obligation review, then full 354-unit campaign. No reserved access during these corrections.",
+  "closure": "Focused regression replays are development evidence only. Freeze corrected producer/observer/recipe identities before the ordered full campaign; no additional pass or counter reset is created by individual repairs.",
+  "workingCopy": "/private/tmp/semctx-t00-20261018-resumption/pass1",
+  "historicalHarnessInputs": [
+    {
+      "historicalSource": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepare_recipes.py",
+      "name": "prepare_recipes.py",
+      "bytes": 56160,
+      "sha256": "63a04e3d495334ebada6e8732f862da44a589cfe04636b2521628e59d2fcb014"
+    },
+    {
+      "historicalSource": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/qualification_replay.rs",
+      "name": "qualification_replay.rs",
+      "bytes": 130655,
+      "sha256": "137f7c15567765a3505969f80735b3d6226650efe80536c6d763421d7b7cc604"
+    },
+    {
+      "historicalSource": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-recipes.json",
+      "name": "replay-recipes.json",
+      "bytes": 1679563,
+      "sha256": "6172f34bfc74b2cc8f0755af08400e9fd37b867886221fc99285e239d6ac77ef"
+    }
+  ],
+  "producer": "../selection/pass2/FREEZE.json",
+  "producerArtifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+  "producerRebuiltAtRegistration": false,
+  "frozenExpectationsChanged": false,
+  "reservedPayloadAccessed": false,
+  "additionalPassesStartedIncludingThis": 1,
+  "additionalPassesRemainingAfterThisStart": 1,
+  "validation": "Regression tests must first reject the unfixed harness, then pass with repaired requests/comparator; refusal guard needs negative witnesses and independent adversarial review. No qualification credit from focused checks.",
+  "publication": "Corrected harness source, regression tests and evidence will be published on rust/365-t00 / PR386, no GitHub comments.",
+  "recoveredAuxiliaryInputs": [
+    {
+      "historicalSource": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/reason-routing-audit.json",
+      "name": "reason-routing-audit.json",
+      "bytes": 411981,
+      "sha256": "da2485861d1a5d97d8aa806855b4f4a219f808a4e8c0b7d37b790adc8f1c1691"
+    },
+    {
+      "historicalSource": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/coupled-mapping-scope.json",
+      "name": "coupled-mapping-scope.json",
+      "bytes": 22464,
+      "sha256": "84482bff6c3c848f6ecff8b0578330caf8e93e67c907226856bc8989f173b4d2"
+    }
+  ]
+}

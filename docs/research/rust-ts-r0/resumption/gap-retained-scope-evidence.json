@@ -1,0 +1,94 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_FROZEN_RETAINED_SCOPE_SYNTAX_UNITS_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "efbe306dab8400315970be354c63c1d199590623",
+  "reviewedDiffSha256": "5b1ecb00196d1ddd28ca24fd3cdea6cec2f86f4fcfc1503c4ee390f634697315",
+  "archive": {
+    "path": "gap-retained-scope-evidence.tar.gz.b64",
+    "bytes": 5324822,
+    "sha256": "955016ac49ace54146159e5fcf60379756a6341ec4fd56c98d5195c9d02761fd",
+    "decodedSha256": "290d36fadef8a9e57828dae3064b7cd86e93dc6242649657faec1930b704172a",
+    "files": 695
+  },
+  "units": [
+    "QSCOPE-01-import-type-refusal::base",
+    "QSCOPE-02-external-import-equals-refusal::base"
+  ],
+  "authority": "Frozen354-unit corpus QSCOPE units323/324; baseline3e94997f qualified-analysis.ts visitor branches178-182; acceptedADR0037; owner-authorized T00/C1 additionalpass1.",
+  "scope": "Private native Program AST syntax subset only: ImportType, external import-equals and export-equals. Two frozen contains-constraints pass, with no native product projection credit. No complete retained-scope function, links, closure, Git eligibility, admission, public command, campaign or performance equivalence.",
+  "nativeArtifactSha256": "b3eb4646e1477b963c84440492cf3384f29e276a0627c4b9a0279388f77766e0",
+  "nativeEngineSourceCount": 35,
+  "sourceHashScope": "DEV35source manifest only, not complete build-input closure or qualification freeze.",
+  "recipesSha256": "5675f26deeb3bde872cdace5d876df4a406d4649fe61b5e966caf0eaf87ba480",
+  "checks": {
+    "environment": "macOS27.0.1 arm64 (Darwin27.0.0), Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+    "nativeLibraryTests": 47,
+    "nativeBinaryTests": 211,
+    "nativeIntegrationTargets": {
+      "native_common_portability": 1,
+      "native_development_flow": 8,
+      "native_discovery_flow": 7,
+      "native_parallel_flow": 4,
+      "native_transport_flow": 3
+    },
+    "comparatorTests": 53,
+    "recipeCliTests": 7,
+    "frozenUnits": 2,
+    "frozenNativeProcesses": 2,
+    "projectedChecks": 8,
+    "carryovers": "7 original units + 3 supports, 4 legacy identity units, 4 discovery units and 3 transport units pass on current optimized artifact.",
+    "clippy": "PASS all-targets qualification-observer -Dwarnings",
+    "format": "PASS C1",
+    "ruff": "PASS",
+    "completeVerifyPr": "Not rerun; previous complete four local partitions remain attributed only to63397c7b."
+  },
+  "failurePaths": [
+    "Nonretained inputs return executed=false and COMPONENT_RETAINED_INPUTS_NOT_ENABLED; one invalid source returns executed=false and RETAINED_SCOPE_SYNTAX_PARSE_FAILED. Actual native DEV processes exercise both.",
+    "Missing/non-SourceFile defensive guard is implemented but not directly exercised; current inspect_subject rejects a missing native source before this call. No behavioral guarantee for that internal branch is claimed.",
+    "Internal import alias, type-only import declaration and quoted syntax remain without these reasons in three actual native DEV controls. Export-equals is a DEV positive only.",
+    "Comparator requires same-observation executed=true, unsupported=[] and source-operation binding before crediting reasons. Missing/null guards and missing binding refuse."
+  ],
+  "review": {
+    "author_task": "/root",
+    "auditor_task": "/root/retained_scope_claims",
+    "claimLedger": "review/claims/ledger.md",
+    "supplementaryLedger": "review/claims/supplementary-ledger.md",
+    "claimContext": "review/claims/context.json",
+    "standards": "review/standards/report.md",
+    "specProof": "review/spec-proof/report.txt",
+    "sourceAnchor": {
+      "base": "efbe306dab8400315970be354c63c1d199590623",
+      "diff_sha256": "5b1ecb00196d1ddd28ca24fd3cdea6cec2f86f4fcfc1503c4ee390f634697315",
+      "files": {
+        "tools/rust-ts-r0/src/component_observations.rs": "ca1fac109d8d18afdc88451744e1cc511b52231b3fcd9117f0b732a44ea3936d",
+        "tools/rust-ts-r0/src/main.rs": "94515ccdcbf9bbd15744ec38a4258a7600d5f66ac7c843373c6db4e9dbba1b7e",
+        "tools/rust-ts-r0/tests/native_development_flow.rs": "ef7db79da9cd96b9be22a90d93f2c520413056f3f0089071ab041edc425e7979",
+        "tools/rust-ts-r0/tests/support/retained_scope_flow.rs": "a200d368a945ac80adfa95afc427407158e2e30f110c8ad647efa060eb6f09da",
+        "tools/rust-ts-r0/qualification/qualification_replay.rs": "0d4e04bcc33fe3f93476292199af688763e22ec3ae2dfbf9ca52d363219c3f4d",
+        "tools/rust-ts-r0/qualification/prepare_recipes.py": "aad734436797268978274274a5334c226cde97585b436d9439c6fe94e0a8cbe9"
+      }
+    },
+    "verdict": "No demonstrated defect in exact6 source scope; proof adequate only for named macOS syntax projections.",
+    "sourceFaultWitnesses": 2,
+    "sourceFaultScope": "Independent release source omission of ImportType reason and comparator recognition; owning tests RED then exact restoration GREEN. Not a complete pre-fault baseline cycle or faults against immutable b3eb artifact. Exact faulty diff not retained; injection mechanism relies on independent report.",
+    "independentFrozenReplay": "2 units,2 actual immutable-producer processes,8 checks GREEN; independent helper/SDK/producer bindings verified.",
+    "localCorrectionPasses": 1,
+    "maxLocalCorrectionPasses": 2,
+    "localCorrectionScope": "PROFILE-1: archived context now correctly identifies independent release source-fault builds. Original context and review finding retained. Source6, producer, recipes, raw results and both verbatim ledgers unchanged."
+  },
+  "priorHeadCi": {
+    "head": "efbe306dab8400315970be354c63c1d199590623",
+    "run": 39181198655,
+    "state": "in_progress at retained snapshot",
+    "candidateRemoteProof": "No current batch20 Linux/Windows or exact-head CI claim; prior efbe run remains a distinct source state."
+  },
+  "limits": [
+    "46 initial GAP mappings cumulatively:45 limited projected PASS + N17c version-attributed NONPASS;18 static GAP;336 of354 recipes without known GAP;0/240 qualified. No new full-campaign aggregate.",
+    "QSCOPE02 keeps its prior qualified=false request. Its limited syntax PASS does not prove qualified graph analysis.",
+    "Frozen contains-constraints do not establish complete reason vectors, baseline reason multiplicity/order or full retained-scope equivalence.",
+    "Native DEV uses vendored SDK input; frozen replay uses bound100-file snapshot. Reported successful reads are joined, but all provided SDK files or all OS reads consumed are not claimed.",
+    "Only local macOS ARM64 exercised. Linux/Windows native execution,178-obligation review,full354 three-OS campaign,reserved23cases/26variants once andR0 remain pending.",
+    "Owner additionalC1pass1 OPEN,pass2 unused;3-4days remains unmeasured owner planning estimate.",
+    "Reserved nonaccess is an individual author attestation, not forensic proof. No reserved execution or payload inspection claimed."
+  ]
+}

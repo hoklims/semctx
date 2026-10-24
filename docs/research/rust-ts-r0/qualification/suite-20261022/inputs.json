@@ -1,0 +1,4386 @@
+{
+  "units": [
+    {
+      "id": "SUITE-links-namespace-type-only",
+      "operation": "outline_links",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as ns from './ns';\nimport defaultValue, * as both from './both';\nimport type * as types from './types';\nimport { named } from './named';\nexport * from './all';\nexport type * from './typed';\nexport type { T } from './t';\nimport type legacy = require('./legacy-types');"
+      },
+      "obligation_indices": [
+        156,
+        158
+      ],
+      "origin": "baseline top-level-outline.test.ts:140-162"
+    },
+    {
+      "id": "SUITE-jsdoc-type",
+      "operation": "javascript",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "/** @type {import('./types.mjs').Foo} */ export const value=1;"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9
+      ],
+      "origin": "baseline semantic-js-contracts.test.ts:127-136"
+    },
+    {
+      "id": "SUITE-jsdoc-typedef",
+      "operation": "javascript",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "/** @typedef {import('./types.mjs').Foo} Foo */ export const value=1;"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9
+      ],
+      "origin": "baseline semantic-js-contracts.test.ts:127-136"
+    },
+    {
+      "id": "SUITE-jsdoc-import",
+      "operation": "javascript",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "/** @import { Foo } from './types.mjs' */ export const value=1;"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9
+      ],
+      "origin": "baseline semantic-js-contracts.test.ts:127-136"
+    },
+    {
+      "id": "SUITE-jsdoc-prose",
+      "operation": "javascript",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "/** prose import('./types.mjs') */ export const value=1;"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9
+      ],
+      "origin": "baseline semantic-js-contracts.test.ts:127-136"
+    },
+    {
+      "id": "SUITE-jsdoc-ts-control",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {import('./types').Foo} */ export const value=1;"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9,
+        185
+      ],
+      "origin": "baseline semantic-js-contracts.test.ts:136"
+    },
+    {
+      "id": "SUITE-native-0",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const target = globalThis.exports; target.value = 1;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 12"
+    },
+    {
+      "id": "SUITE-native-1",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const Build = globalThis.Function; new Build('code');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 21"
+    },
+    {
+      "id": "SUITE-native-2",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const { eval: run } = globalThis; run('code');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 21"
+    },
+    {
+      "id": "SUITE-native-3",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const host = globalThis; host['Function']('code');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 22"
+    },
+    {
+      "id": "SUITE-native-4",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "function run(globalThis) { return globalThis.eval('code'); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 31"
+    },
+    {
+      "id": "SUITE-native-5",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { eval: value => value }; const run = globalThis.eval; run('code');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 33"
+    },
+    {
+      "id": "SUITE-native-6",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const load = globalThis.require; const hidden = load('./src/main.mjs');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 42"
+    },
+    {
+      "id": "SUITE-native-7",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const nativeModule = globalThis.module;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 44"
+    },
+    {
+      "id": "SUITE-native-8",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "import M from 'node:module'; const value = M._load('./src/main.mjs', undefined, false);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 66"
+    },
+    {
+      "id": "SUITE-native-9",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const native = process.binding('contextify');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 73"
+    },
+    {
+      "id": "SUITE-native-10",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const hidden = process.mainModule.require('./src/main.mjs');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 77"
+    },
+    {
+      "id": "SUITE-native-11",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const p = Reflect.get(globalThis, 'process'); const M = p.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 79"
+    },
+    {
+      "id": "SUITE-native-12",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const M = globalThis.globalThis.process.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 80"
+    },
+    {
+      "id": "SUITE-native-13",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const M = globalThis.global.process.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 81"
+    },
+    {
+      "id": "SUITE-native-14",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const M = global.globalThis.process.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 82"
+    },
+    {
+      "id": "SUITE-native-15",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const M = global.global.process.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 83"
+    },
+    {
+      "id": "SUITE-native-16",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const g = globalThis['global']['globalThis']; const { getBuiltinModule: get } = g['process']; const M = get('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 84"
+    },
+    {
+      "id": "SUITE-native-17",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const g = globalThis; const p = g['process']; const M = p.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 86"
+    },
+    {
+      "id": "SUITE-native-18",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const M = globalThis.process.getBuiltinModule('module'); const r = M.createRequire(import.meta.url);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 87"
+    },
+    {
+      "id": "SUITE-native-19",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const p = globalThis['process']; const get = p['getBuiltinModule']; const M = get('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 88"
+    },
+    {
+      "id": "SUITE-native-20",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const { getBuiltinModule: get } = globalThis.process; const M = get('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 89"
+    },
+    {
+      "id": "SUITE-native-21",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const { process: p } = globalThis; const M = p.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 90"
+    },
+    {
+      "id": "SUITE-native-22",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const { default: p } = globalThis.process; const M = p.getBuiltinModule('module');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 91"
+    },
+    {
+      "id": "SUITE-native-23",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "import M from 'node:module'; const loader = M.prototype.require;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 98"
+    },
+    {
+      "id": "SUITE-native-24",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const get = process.getBuiltinModule; const M = get('module'); const r = M.createRequire(import.meta.url);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 100"
+    },
+    {
+      "id": "SUITE-native-25",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; export const ordinary = globalThis.process.getBuiltinModule(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 113"
+    },
+    {
+      "id": "SUITE-native-26",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; const { process: p } = globalThis; export const ordinary = p.getBuiltinModule(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 114"
+    },
+    {
+      "id": "SUITE-native-27",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const ordinary = globalThis.process.platform;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 115"
+    },
+    {
+      "id": "SUITE-native-28",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const global = { process: { getBuiltinModule(value) { return value; } } }; export const ordinary = global.process.getBuiltinModule(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 116"
+    },
+    {
+      "id": "SUITE-native-29",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { global: { process: { getBuiltinModule(value) { return value; } } } }; export const ordinary = globalThis.global.process.getBuiltinModule(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 117"
+    },
+    {
+      "id": "SUITE-native-30",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const ordinary = process.env; export function cwd() { return process.cwd(); } export const args = process.argv;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 118"
+    },
+    {
+      "id": "SUITE-native-31",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const process = { mainModule: { require(value) { return value; } } }; export const ordinary = process.mainModule.require(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 119"
+    },
+    {
+      "id": "SUITE-native-32",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const streams = [process.stdout, process.stderr]; export const runtime = process.versions; export const executable = process.execPath; process.exitCode = 0; export function exit() { process.exit(0); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 121"
+    },
+    {
+      "id": "SUITE-native-33",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { require(value) { return value; } }; const load = globalThis.require; export const ordinary = load(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 124"
+    },
+    {
+      "id": "SUITE-native-34",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const process = { binding(value) { return value; } }; export const ordinary = process.binding(1);"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 125"
+    },
+    {
+      "id": "SUITE-native-35",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const process = { getBuiltinModule(value) { return value; } }; export function known() { return process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 169"
+    },
+    {
+      "id": "SUITE-native-36",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function known(process) { return process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 170"
+    },
+    {
+      "id": "SUITE-native-37",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; export function ordinary() { return globalThis.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 179"
+    },
+    {
+      "id": "SUITE-native-38",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function ordinary(globalThis) { return globalThis.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 180"
+    },
+    {
+      "id": "SUITE-native-39",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { process: { getBuiltinModule(value) { return value; } } }; const { process: p } = globalThis; export function ordinary() { return p.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 181"
+    },
+    {
+      "id": "SUITE-native-40",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function ordinary() { return globalThis.process.platform; }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 182"
+    },
+    {
+      "id": "SUITE-native-41",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const global = { process: { getBuiltinModule(value) { return value; } } }; export function ordinary() { return global.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 183"
+    },
+    {
+      "id": "SUITE-native-42",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function ordinary(global) { return global.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 184"
+    },
+    {
+      "id": "SUITE-native-43",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { global: { process: { getBuiltinModule(value) { return value; } } } }; export function ordinary() { return globalThis.global.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 185"
+    },
+    {
+      "id": "SUITE-native-44",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function ordinary(global) { return global.globalThis.process.getBuiltinModule(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 186"
+    },
+    {
+      "id": "SUITE-native-45",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const ordinary = globalThis.console;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 187"
+    },
+    {
+      "id": "SUITE-native-46",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function environment() { return process.env; } export function cwd() { return process.cwd(); } export function args() { return process.argv; }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 188"
+    },
+    {
+      "id": "SUITE-native-47",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const process = { mainModule: { require(value) { return value; } } }; export function ordinary() { return process.mainModule.require(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 189"
+    },
+    {
+      "id": "SUITE-native-48",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export function streams() { return [process.stdout, process.stderr]; } export function runtime() { return process.versions; } export function executable() { return process.execPath; } process.exitCode = 0; export function exit() { process.exit(0); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 191"
+    },
+    {
+      "id": "SUITE-native-49",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const globalThis = { require(value) { return value; } }; const load = globalThis.require; export function ordinary() { return load(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 195"
+    },
+    {
+      "id": "SUITE-native-50",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const process = { binding(value) { return value; } }; export function ordinary() { return process.binding(1); }"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 196"
+    },
+    {
+      "id": "SUITE-native-51",
+      "operation": "native_bindings",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type { _resolveFilename as Native } from 'node:module'; export type Alias = Native;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 201"
+    },
+    {
+      "id": "SUITE-native-52",
+      "operation": "native_bindings",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type { default as p } from 'node:process'; export type Alias = typeof p.getBuiltinModule; export type { getBuiltinModule } from 'node:process';"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 203"
+    },
+    {
+      "id": "SUITE-native-53",
+      "operation": "native_bindings",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type { binding } from 'node:process'; export type Alias = typeof binding;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 205"
+    },
+    {
+      "id": "SUITE-native-54",
+      "operation": "native_bindings",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type Getter = typeof globalThis.process.getBuiltinModule;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 207"
+    },
+    {
+      "id": "SUITE-native-55",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "import M from 'node:module'; const loader = M.prototype.require;"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "baseline create-require.test.ts literal at 209"
+    },
+    {
+      "id": "SUITE-semantic-0",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return new ReadableStream({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:4"
+    },
+    {
+      "id": "SUITE-semantic-1",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:8"
+    },
+    {
+      "id": "SUITE-semantic-2",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-3",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({}, {highWaterMark:1});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-4",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new ReadableStream({start:undefined});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:10"
+    },
+    {
+      "id": "SUITE-semantic-5",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function ReadableStream(_source:unknown){return 1;}function helper(){return 1;}export function run(){return ReadableStream({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-6",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const api={create(_source:unknown){return 1;}};function helper(){return 1;}export function run(){return api.create({start:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:12"
+    },
+    {
+      "id": "SUITE-semantic-7",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return new URL('./x',import.meta.url);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback-dictionary.test.ts:17"
+    },
+    {
+      "id": "SUITE-semantic-8",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { const [[value]] = [values]; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-9",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const thenable = { then() { return 1; } }; function load() { return thenable; } async function native() { return 1; } export async function start() { return await (load as typeof native)(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:13"
+    },
+    {
+      "id": "SUITE-semantic-10",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:19"
+    },
+    {
+      "id": "SUITE-semantic-11",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value = { then(resolve) { resolve(1); } }; export async function start() { return await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:20"
+    },
+    {
+      "id": "SUITE-semantic-12",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const matcher = { [Symbol.hasInstance](value) { return !!value; } }; export function start(value) { return value instanceof matcher; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:21"
+    },
+    {
+      "id": "SUITE-semantic-13",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:29"
+    },
+    {
+      "id": "SUITE-semantic-14",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start([value]: number[]) { return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:30"
+    },
+    {
+      "id": "SUITE-semantic-15",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = { *[Symbol.iterator]() { yield 1; } }; export function start() { let value; [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:31"
+    },
+    {
+      "id": "SUITE-semantic-16",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start(value: unknown) { return await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:32"
+    },
+    {
+      "id": "SUITE-semantic-17",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value = { then(resolve) { resolve(1); } }; const promise: Promise<number> = value as unknown as Promise<number>; export async function start() { return await promise; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:33"
+    },
+    {
+      "id": "SUITE-semantic-18",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const matcher = { [Symbol.hasInstance](value) { return !!value; } }; const typed: typeof Error = matcher as unknown as typeof Error; export function start(value) { return value instanceof typed; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:34"
+    },
+    {
+      "id": "SUITE-semantic-19",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start() { const [value] = [1]; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:41"
+    },
+    {
+      "id": "SUITE-semantic-20",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [[1]]; export function start() { const [[value]] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:42"
+    },
+    {
+      "id": "SUITE-semantic-21",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:43"
+    },
+    {
+      "id": "SUITE-semantic-22",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const ready = Promise.resolve(1); export async function start() { return await ready; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:44"
+    },
+    {
+      "id": "SUITE-semantic-23",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await new Promise(resolve => resolve(1)); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:45"
+    },
+    {
+      "id": "SUITE-semantic-24",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "async function load() { return 1; } export async function start() { return await load(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:46"
+    },
+    {
+      "id": "SUITE-semantic-25",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await import('./dep.mjs'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:47"
+    },
+    {
+      "id": "SUITE-semantic-26",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Kind = Error; export function start(value) { return value instanceof Kind; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:48"
+    },
+    {
+      "id": "SUITE-semantic-27",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function dep() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:51"
+    },
+    {
+      "id": "SUITE-semantic-28",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function* start() { yield* 'abc'; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:59"
+    },
+    {
+      "id": "SUITE-semantic-29",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function main() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline implicit-protocols.test.ts:70"
+    },
+    {
+      "id": "SUITE-semantic-30",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';const source=read();if(typeof source!=='string')throw new TypeError();source.includes('needle');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:6"
+    },
+    {
+      "id": "SUITE-semantic-31",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {string} */const source=read();"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:13"
+    },
+    {
+      "id": "SUITE-semantic-32",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const source=read() as unknown as typeof globalThis;"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:14"
+    },
+    {
+      "id": "SUITE-semantic-33",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {typeof globalThis} */const source=read();"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:14"
+    },
+    {
+      "id": "SUITE-semantic-34",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';function hidden(){return 'text';}const source=read();if(typeof source!=='string')throw new TypeError();source.replace('needle',hidden);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:38"
+    },
+    {
+      "id": "SUITE-semantic-35",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import {read} from 'opaque';function hidden(){return true;}String.prototype.includes=hidden;const source=read();if(typeof source!=='string')throw new TypeError();source.includes('needle');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline guarded-string.test.ts:48"
+    },
+    {
+      "id": "SUITE-semantic-36",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; function helper() { return 1; } export function run() { return register({ handler: helper }); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-37",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { value } from './value'; export function run() { return JSON.stringify(value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:6"
+    },
+    {
+      "id": "SUITE-semantic-38",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value = { toJSON() { return 1; } };"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-39",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; register({ nested: { count: 1, values: ['x', 2] } }); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:16"
+    },
+    {
+      "id": "SUITE-semantic-40",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return JSON.stringify('data'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:17"
+    },
+    {
+      "id": "SUITE-semantic-41",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const JSON = { stringify(value) { return value; } }; export function run() { return JSON.stringify(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:18"
+    },
+    {
+      "id": "SUITE-semantic-42",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const register = value => value; export function run() { return register({ value: 1 }); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:19"
+    },
+    {
+      "id": "SUITE-semantic-43",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; function helper() { return 1; } const value = { handler: helper }; register(value); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:27"
+    },
+    {
+      "id": "SUITE-semantic-44",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { register } from 'opaque'; const value = { count: 1 }; register(value); export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:28"
+    },
+    {
+      "id": "SUITE-semantic-45",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { value } from './value'; const serialize = JSON.stringify; export function run() { return serialize.call(JSON, value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline opaque-data-serialization.test.ts:29"
+    },
+    {
+      "id": "SUITE-semantic-46",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){}export function run(){return WebAssembly.instantiateStreaming(fetch('module.wasm'),{env:{hook:helper}});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:19"
+    },
+    {
+      "id": "SUITE-semantic-47",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const button=document.createElement('button');button.onclick=helper;export function run(){button.click();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:20"
+    },
+    {
+      "id": "SUITE-semantic-48",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const wasm:typeof WebAssembly=WebAssembly;export function run(){return wasm.instantiateStreaming(fetch('module.wasm'),{});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:29"
+    },
+    {
+      "id": "SUITE-semantic-49",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const dom:Document=document;export function run(){const script=dom.createElement('script');const alias=script;dom.head.appendChild(alias);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:30"
+    },
+    {
+      "id": "SUITE-semantic-50",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const wasm:typeof WebAssembly={instantiateStreaming(){return 1;}} as unknown as typeof WebAssembly;export function run(){return wasm.instantiateStreaming(null as any,{});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:39"
+    },
+    {
+      "id": "SUITE-semantic-51",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const button=document.createElement('button');button.onclick=null;export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:46"
+    },
+    {
+      "id": "SUITE-semantic-52",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const button=document.createElement('button');button.onclick=1 as any;export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:47"
+    },
+    {
+      "id": "SUITE-semantic-53",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const button:{onclick:null|(()=>number)}={onclick:null};button.onclick=helper;export function run(){return button.onclick!();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:48"
+    },
+    {
+      "id": "SUITE-semantic-54",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const script=document.createElement('script');script.src='./hidden.js';return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:49"
+    },
+    {
+      "id": "SUITE-semantic-55",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const div=document.createElement('div');document.head.appendChild(div);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:50"
+    },
+    {
+      "id": "SUITE-semantic-56",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){document.head.prepend('plain data');}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:51"
+    },
+    {
+      "id": "SUITE-semantic-57",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){const script=document.createElement('script');const div=document.createElement('div');document.head.replaceChild(div,script);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:52"
+    },
+    {
+      "id": "SUITE-semantic-58",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return WebAssembly.compileStreaming(fetch('module.wasm'));}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:53"
+    },
+    {
+      "id": "SUITE-semantic-59",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const dom:Document={createElement(){return {src:''};},head:{appendChild(){return 1;}}} as unknown as Document;export function run(){const script=dom.createElement('script');dom.head.appendChild(script);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline runtime-code-family.test.ts:63"
+    },
+    {
+      "id": "SUITE-semantic-60",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toString:hidden};const bound=String.bind(null,value);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:31"
+    },
+    {
+      "id": "SUITE-semantic-61",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toString:hidden};const bound=Array.prototype.join.bind([value]);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:41"
+    },
+    {
+      "id": "SUITE-semantic-62",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const bound=String.bind(null,'value');export function run(){return bound();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:64"
+    },
+    {
+      "id": "SUITE-semantic-63",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const bound=Array.prototype.join.bind([1,2]);export function run(){return bound();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:65"
+    },
+    {
+      "id": "SUITE-semantic-64",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Math.random.call(null,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:81"
+    },
+    {
+      "id": "SUITE-semantic-65",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Math.abs.call(null,1,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:82"
+    },
+    {
+      "id": "SUITE-semantic-66",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={valueOf:hidden};export function run(){return Number.call(null,1,value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:83"
+    },
+    {
+      "id": "SUITE-semantic-67",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function hidden(){return 1;}const value={toString:hidden};const bound=String.bind(null,value);export function run(){return 1;}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:84"
+    },
+    {
+      "id": "SUITE-semantic-68",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const own={call(_receiver,_value){return 1;}};function hidden(){return 1;}export function run(){return own.call(null,{valueOf:hidden});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-helper-coercion.test.ts:85"
+    },
+    {
+      "id": "SUITE-semantic-69",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } Math = { ...Math, random: helper }; export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-70",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 'value'; } const value = {}; value[Symbol.toPrimitive] = helper; export function run() { return String(value); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:6"
+    },
+    {
+      "id": "SUITE-semantic-71",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} export function run() { return Promise.all([{ then: helper }]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:7"
+    },
+    {
+      "id": "SUITE-semantic-72",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){console.log('GLOBAL_CALLED');return 7} Math={...Math,random:helper};if(Math.random()!==7)throw Error('math mismatch');"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:14"
+    },
+    {
+      "id": "SUITE-semantic-73",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){console.log('THEN_CALLED')} Promise.all([{then:helper}]);"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:15"
+    },
+    {
+      "id": "SUITE-semantic-74",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let Math = { random() { return 1; } }; Math = { random() { return 2; } }; export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:23"
+    },
+    {
+      "id": "SUITE-semantic-75",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Promise.all([1, Promise.resolve(2)]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:24"
+    },
+    {
+      "id": "SUITE-semantic-76",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.random(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:25"
+    },
+    {
+      "id": "SUITE-semantic-77",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function run() { return Promise.all(values); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:32"
+    },
+    {
+      "id": "SUITE-semantic-78",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const { all: gather } = Promise; export function run() { return gather.call(Promise, [{ then: helper }]); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:33"
+    },
+    {
+      "id": "SUITE-semantic-79",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;} [Math]=[{random:helper}]; export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:42"
+    },
+    {
+      "id": "SUITE-semantic-80",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;} ({Math}={Math:{random:helper}}); export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:43"
+    },
+    {
+      "id": "SUITE-semantic-81",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "let Math={random(){return 1;}}; [Math]=[{random(){return 2;}}]; export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-global-combinator.test.ts:50"
+    },
+    {
+      "id": "SUITE-semantic-82",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export interface Box { [key]: number; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:6"
+    },
+    {
+      "id": "SUITE-semantic-83",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export type Box = { [key]: number; };"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:7"
+    },
+    {
+      "id": "SUITE-semantic-84",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare const key: unique symbol; export declare class Box { [key]: number; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:8"
+    },
+    {
+      "id": "SUITE-semantic-85",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { toString() { return 'value'; } }; export class Box { [key] = 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:14"
+    },
+    {
+      "id": "SUITE-semantic-86",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const p = Promise.resolve(1); const key = 'then'; (p as any)[key] = helper; export async function start() { return p; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:18"
+    },
+    {
+      "id": "SUITE-semantic-87",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const resource = { [Symbol.asyncDispose]() {} }; export async function start() { await using owned = resource; return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:23"
+    },
+    {
+      "id": "SUITE-semantic-88",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { toString() { return 'value'; } }; export function start() { return { [key]: 1 }; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:24"
+    },
+    {
+      "id": "SUITE-semantic-89",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { [Symbol.toPrimitive]() { return 'value'; } }; const target = { value: 1 }; export function start() { const { [key]: value } = target; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:25"
+    },
+    {
+      "id": "SUITE-semantic-90",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const p = Promise.resolve(1); p.then = helper; export async function start() { return p; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:26"
+    },
+    {
+      "id": "SUITE-semantic-91",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = 'value'; const target = { value: 1 }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:33"
+    },
+    {
+      "id": "SUITE-semantic-92",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const target = [1]; export function start() { return target[0]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:34"
+    },
+    {
+      "id": "SUITE-semantic-93",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = Symbol.iterator; const target = { [key]() { return 1; } }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:35"
+    },
+    {
+      "id": "SUITE-semantic-94",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return await Promise.resolve(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:36"
+    },
+    {
+      "id": "SUITE-semantic-95",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function start() { return import('./dep.mjs'); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:37"
+    },
+    {
+      "id": "SUITE-semantic-96",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function start() { const using = 1; return using; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:38"
+    },
+    {
+      "id": "SUITE-semantic-97",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() {} const value: any = []; value.then = helper; export async function start() { await value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:56"
+    },
+    {
+      "id": "SUITE-semantic-98",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const key = { [Symbol.toPrimitive]() { return 'value'; } }; const target = { value: 1 }; export function start() { return target[key]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:57"
+    },
+    {
+      "id": "SUITE-semantic-99",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const disposable = { [Symbol.dispose]() {} }; export function start() { using resource = disposable; return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:58"
+    },
+    {
+      "id": "SUITE-semantic-100",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline property-disposal.test.ts:65"
+    },
+    {
+      "id": "SUITE-semantic-101",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.iterator] = helper; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-102",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; const key = Symbol.iterator; const alias = key; values[alias] = helper; export function start() { for (const value of values) { return value; } }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:6"
+    },
+    {
+      "id": "SUITE-semantic-103",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.asyncIterator] = helper; export async function start() { for await (const value of values) { break; } }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:7"
+    },
+    {
+      "id": "SUITE-semantic-104",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; const { iterator: key } = Symbol; values[key] = helper; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:8"
+    },
+    {
+      "id": "SUITE-semantic-105",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return { next() { return { done: true, value: 1 }; } }; } const values = [1]; values[Symbol.iterator] = helper; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-106",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:19"
+    },
+    {
+      "id": "SUITE-semantic-107",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function start() { const [value] = values; return value; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:20"
+    },
+    {
+      "id": "SUITE-semantic-108",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function* start() { yield* values; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:21"
+    },
+    {
+      "id": "SUITE-semantic-109",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const text = 'abc'; export function start() { return [...text]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:22"
+    },
+    {
+      "id": "SUITE-semantic-110",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = new Set([1]); export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:23"
+    },
+    {
+      "id": "SUITE-semantic-111",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const values = [1]; values['iterator'] = helper; export function start() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:24"
+    },
+    {
+      "id": "SUITE-semantic-112",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const Symbol = { iterator: 'iterator' }; const values = [1]; values[Symbol.iterator] = helper; export function start() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:25"
+    },
+    {
+      "id": "SUITE-semantic-113",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type Key = typeof Symbol.iterator;"
+      },
+      "obligation_indices": [],
+      "origin": "baseline iterator-mutation.test.ts:30"
+    },
+    {
+      "id": "SUITE-semantic-114",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(value) { return 1; } export function run() { return [1].map.call([1], helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-115",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(value) { return value; } export function run() { return [1].map(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-116",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function executor() {} export async function run() { await new Promise(executor); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:10"
+    },
+    {
+      "id": "SUITE-semantic-117",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.max(1, 2); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:21"
+    },
+    {
+      "id": "SUITE-semantic-118",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return Math.max.call(null, 1, 2); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:22"
+    },
+    {
+      "id": "SUITE-semantic-119",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const own = { call(callback) { return 1; } }; function helper() { return 1; } export function run() { return own.call(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:23"
+    },
+    {
+      "id": "SUITE-semantic-120",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run() { return new Map(); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:24"
+    },
+    {
+      "id": "SUITE-semantic-121",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run() { return await Promise.resolve(1); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:25"
+    },
+    {
+      "id": "SUITE-semantic-122",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const own = { map(callback) { return callback(); } }; export function run() { return own.map(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:26"
+    },
+    {
+      "id": "SUITE-semantic-123",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper() { return 1; } const own = { map(callback) { return callback(); } }; export function run() { return (own.map as typeof Array.prototype.map)(helper); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:27"
+    },
+    {
+      "id": "SUITE-semantic-124",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function executor() {} const Native = Promise; export function run() { return new Native(executor); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline sdk-callback.test.ts:33"
+    },
+    {
+      "id": "SUITE-semantic-125",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Object = { setPrototypeOf(value, prototype) { return value; } }; export function run() { return Object.setPrototypeOf(1, null); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:18"
+    },
+    {
+      "id": "SUITE-semantic-126",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Reflect = { setPrototypeOf(value, prototype) { return value; } }; export function run() { return Reflect.setPrototypeOf(1, null); }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:19"
+    },
+    {
+      "id": "SUITE-semantic-127",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type Mutator = typeof Object.setPrototypeOf; export function run() { return 1; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:20"
+    },
+    {
+      "id": "SUITE-semantic-128",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const values = [1]; export function run() { return [...values]; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline prototype-mutation.test.ts:21"
+    },
+    {
+      "id": "SUITE-semantic-129",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function helper() { return 1; } export function main() { return `value ${helper()}`; }"
+      },
+      "obligation_indices": [],
+      "origin": "baseline plain-template-positive.test.ts:12"
+    },
+    {
+      "id": "SUITE-semantic-130",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.max(value as any,0);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:4"
+    },
+    {
+      "id": "SUITE-semantic-131",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.max(1,2,3);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:8"
+    },
+    {
+      "id": "SUITE-semantic-132",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.abs(1);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-133",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Math.random();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-134",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.random(value as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:9"
+    },
+    {
+      "id": "SUITE-semantic-135",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Math.abs(1,value as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:10"
+    },
+    {
+      "id": "SUITE-semantic-136",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Math={max(_value:unknown,_other:number){return 1;}};function helper(){return 1;}export function run(){return Math.max({valueOf:helper},0);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline math-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-137",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}const value={valueOf:helper};export function run(){return Number(value);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:4"
+    },
+    {
+      "id": "SUITE-semantic-138",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 'one';}const value={toLocaleString:helper};export function run(){return [value].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:5"
+    },
+    {
+      "id": "SUITE-semantic-139",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:10"
+    },
+    {
+      "id": "SUITE-semantic-140",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(1);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-141",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(true);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-142",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number('2');}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-143",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return Number(2n);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-144",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return Boolean({valueOf:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:11"
+    },
+    {
+      "id": "SUITE-semantic-145",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1,'one',true,null,undefined].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:12"
+    },
+    {
+      "id": "SUITE-semantic-146",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [].toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:13"
+    },
+    {
+      "id": "SUITE-semantic-147",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function run(){return [1].toLocaleString('en-US',{maximumFractionDigits:0});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:13"
+    },
+    {
+      "id": "SUITE-semantic-148",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function Number(_value:unknown){return 1;}function helper(){return 1;}export function run(){return Number({valueOf:helper});}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:14"
+    },
+    {
+      "id": "SUITE-semantic-149",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={toLocaleString(){return 'local';}};export function run(){return value.toLocaleString();}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:15"
+    },
+    {
+      "id": "SUITE-semantic-150",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 'en-US';}export function run(){return [1].toLocaleString([{toString:helper}] as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:20"
+    },
+    {
+      "id": "SUITE-semantic-151",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function helper(){return 1;}export function run(){return [1].toLocaleString('en-US',{minimumFractionDigits:{valueOf:helper}} as any);}"
+      },
+      "obligation_indices": [],
+      "origin": "baseline number-locale-coercion.test.ts:21"
+    },
+    {
+      "id": "SUITE-outline-0",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { a } from \"./a\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:4"
+    },
+    {
+      "id": "SUITE-outline-1",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import \"./side-effect\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:5"
+    },
+    {
+      "id": "SUITE-outline-2",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const KEYS = [a, 1] as const;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:8"
+    },
+    {
+      "id": "SUITE-outline-3",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function f(value: string): boolean {"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:10"
+    },
+    {
+      "id": "SUITE-outline-4",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export { KEYS as keys };"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:14"
+    },
+    {
+      "id": "SUITE-outline-5",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const = ;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:49"
+    },
+    {
+      "id": "SUITE-outline-6",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const D = -1;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:58"
+    },
+    {
+      "id": "SUITE-outline-7",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const D = +1;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:58"
+    },
+    {
+      "id": "SUITE-outline-8",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(x: number) { return -x; }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:59"
+    },
+    {
+      "id": "SUITE-outline-9",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f(x: number) { return ~x; }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:59"
+    },
+    {
+      "id": "SUITE-outline-10",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f() { count++; }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:60"
+    },
+    {
+      "id": "SUITE-outline-11",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f() { count--; }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:60"
+    },
+    {
+      "id": "SUITE-outline-12",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f() { const lock = acquire(); }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:61"
+    },
+    {
+      "id": "SUITE-outline-13",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function f() { using lock = acquire(); }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:61"
+    },
+    {
+      "id": "SUITE-outline-14",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class C extends B {}"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:63"
+    },
+    {
+      "id": "SUITE-outline-15",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class C implements B {}"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:63"
+    },
+    {
+      "id": "SUITE-outline-16",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "namespace N {}"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:64"
+    },
+    {
+      "id": "SUITE-outline-17",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const p = String.raw`a\\d`;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:65"
+    },
+    {
+      "id": "SUITE-outline-18",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const p = String.raw`a\\x64`;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:65"
+    },
+    {
+      "id": "SUITE-outline-19",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export { foo };"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:66"
+    },
+    {
+      "id": "SUITE-outline-20",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type { foo };"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:66"
+    },
+    {
+      "id": "SUITE-outline-21",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type { S } from \"./s\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:67"
+    },
+    {
+      "id": "SUITE-outline-22",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { S } from \"./s\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:67"
+    },
+    {
+      "id": "SUITE-outline-23",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export = foo;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:68"
+    },
+    {
+      "id": "SUITE-outline-24",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export default foo;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:68"
+    },
+    {
+      "id": "SUITE-outline-25",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "for (x; y;) {}"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:69"
+    },
+    {
+      "id": "SUITE-outline-26",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "for (; x; y) {}"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:69"
+    },
+    {
+      "id": "SUITE-outline-27",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const a = [1, 2];"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:76"
+    },
+    {
+      "id": "SUITE-outline-28",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const a = [1, 2,];"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:76"
+    },
+    {
+      "id": "SUITE-outline-29",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const a = f(1, 2);"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:78"
+    },
+    {
+      "id": "SUITE-outline-30",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const a = f(\n  1,\n  2,\n);"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:78"
+    },
+    {
+      "id": "SUITE-outline-31",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "interface I { a: string; b: number }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:79"
+    },
+    {
+      "id": "SUITE-outline-32",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "interface I { a: string, b: number, }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:79"
+    },
+    {
+      "id": "SUITE-outline-33",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** doc */\nconst a = 1;"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:80"
+    },
+    {
+      "id": "SUITE-outline-34",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** other */\nconst a = 1; // trailing"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:80"
+    },
+    {
+      "id": "SUITE-outline-35",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Ctl { constructor(@Inject(T) svc: unknown) {} }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:87"
+    },
+    {
+      "id": "SUITE-outline-36",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Handler { handle(@Inject(T) svc: unknown) {} }"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:88"
+    },
+    {
+      "id": "SUITE-outline-37",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type { A } from \"./a\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:90"
+    },
+    {
+      "id": "SUITE-outline-38",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { type B } from \"./a\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:91"
+    },
+    {
+      "id": "SUITE-outline-39",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { v } from \"./a\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:92"
+    },
+    {
+      "id": "SUITE-outline-40",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import \"./side\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:93"
+    },
+    {
+      "id": "SUITE-outline-41",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type { T } from \"./t\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:94"
+    },
+    {
+      "id": "SUITE-outline-42",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export * from \"./r\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:95"
+    },
+    {
+      "id": "SUITE-outline-43",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import cjs = require(\"./cjs\");"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:96"
+    },
+    {
+      "id": "SUITE-outline-44",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { a } from \"./a\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:119"
+    },
+    {
+      "id": "SUITE-outline-45",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export { b } from \"./b\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:120"
+    },
+    {
+      "id": "SUITE-outline-46",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export * from \"@demo/pkg\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:121"
+    },
+    {
+      "id": "SUITE-outline-47",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export { local };"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:122"
+    },
+    {
+      "id": "SUITE-outline-48",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const lazy = () => import(\"./lazy\");"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:123"
+    },
+    {
+      "id": "SUITE-outline-49",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const any = (name: string) => import(name);"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:124"
+    },
+    {
+      "id": "SUITE-outline-50",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const legacy = require(\"./legacy\");"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:125"
+    },
+    {
+      "id": "SUITE-outline-51",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import cjs = require(\"./cjs\");"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:126"
+    },
+    {
+      "id": "SUITE-outline-52",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as ns from \"./ns\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:141"
+    },
+    {
+      "id": "SUITE-outline-53",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import def, * as both from \"./both\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:142"
+    },
+    {
+      "id": "SUITE-outline-54",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type * as types from \"./types\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:143"
+    },
+    {
+      "id": "SUITE-outline-55",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import def2, { named } from \"./named\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:144"
+    },
+    {
+      "id": "SUITE-outline-56",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export * as all from \"./all\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:145"
+    },
+    {
+      "id": "SUITE-outline-57",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type * from \"./typed\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:146"
+    },
+    {
+      "id": "SUITE-outline-58",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export type { T } from \"./t\";"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:147"
+    },
+    {
+      "id": "SUITE-outline-59",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import type legacy = require(\"./legacy-types\");"
+      },
+      "obligation_indices": [
+        159,
+        166,
+        186
+      ],
+      "origin": "baseline top-level-outline.test.ts:148"
+    },
+    {
+      "id": "SUITE-relative-node-builtins",
+      "operation": "relative",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import fs from 'node:fs'; import path from 'path'; import { leaf } from './leaf'; export { other } from '../other'; require('./legacy'); import(name);"
+      },
+      "obligation_indices": [
+        230,
+        231
+      ],
+      "origin": "baseline scripts/pilot/baselines.ts exact relative-specifier filter and independent synthetic positive/negative controls"
+    },
+    {
+      "id": "SUITE-native-import-meta-require",
+      "operation": "native_bindings",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "const loader = import.meta.require; export const value = loader('./unknown');"
+      },
+      "obligation_indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "origin": "Independent synthetic import.meta.require value/use control, baseline inspectNativeModuleBindings TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-no-config",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-global",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value=1;"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-cts",
+      "operation": "configuration",
+      "path": "main.cts",
+      "files": {
+        "main.cts": "export const value=1;"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-augmentation",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare global { interface Ambient { x:number } } export {};"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-module-augmentation",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare module \"opaque\" { export const value:number; } export {};"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-supported",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-commonjs",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "tsconfig.json": "{\"compilerOptions\":{\"module\":\"CommonJS\",\"moduleResolution\":\"Node10\"}}"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-invalid-config",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "tsconfig.json": "{\"compilerOptions\":"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-inherited-config",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "tsconfig.json": "{\"extends\":\"./base.json\"}",
+        "base.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-unconsumed-config",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "other/tsconfig.json": "{\"compilerOptions\":{\"module\":\"CommonJS\"}}"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-config-reference-not-consumed",
+      "operation": "configuration",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value=1;",
+        "tsconfig.json": "{\"references\":[{\"path\":\"./other\"}]}",
+        "other/tsconfig.json": "{\"compilerOptions\":{\"module\":\"CommonJS\"}}"
+      },
+      "obligation_indices": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        44,
+        45,
+        46,
+        47,
+        167
+      ],
+      "origin": "Independent synthetic boundary of baseline inspectModuleConfiguration/inspectQualifiedModuleScope/inspectUnconsumedNamedConfigurations TS5.9.3"
+    },
+    {
+      "id": "SUITE-parser-ts-error",
+      "operation": "parsing",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function broken( {"
+      },
+      "obligation_indices": [
+        42,
+        43
+      ],
+      "origin": "Independent syntax-versus-semantic diagnostic control from baseline inspectSourceParsing TS5.9.3"
+    },
+    {
+      "id": "SUITE-parser-mjs-error",
+      "operation": "parsing",
+      "path": "main.mjs",
+      "files": {
+        "main.mjs": "export const value = ;"
+      },
+      "obligation_indices": [
+        42,
+        43
+      ],
+      "origin": "Independent syntax-versus-semantic diagnostic control from baseline inspectSourceParsing TS5.9.3"
+    },
+    {
+      "id": "SUITE-parser-jsx-error",
+      "operation": "parsing",
+      "path": "main.jsx",
+      "files": {
+        "main.jsx": "export const value = <div>"
+      },
+      "obligation_indices": [
+        42,
+        43
+      ],
+      "origin": "Independent syntax-versus-semantic diagnostic control from baseline inspectSourceParsing TS5.9.3"
+    },
+    {
+      "id": "SUITE-parser-type-error-control",
+      "operation": "parsing",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const value: number = \"typed\";"
+      },
+      "obligation_indices": [
+        42,
+        43
+      ],
+      "origin": "Independent syntax-versus-semantic diagnostic control from baseline inspectSourceParsing TS5.9.3"
+    },
+    {
+      "id": "SUITE-jsdoc-typescript-control",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** @type {import(\"./types\").Thing} */\nexport const value = 1;\n"
+      },
+      "operation": "semantic",
+      "origin": {
+        "kind": "authored TS documentation control",
+        "oracle": "TypeScript 5.9.3 baseline inspectSemanticDependencies"
+      },
+      "obligation_indices": [
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "SUITE-extract-legacy-export-clause",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport { leaf };\n"
+      },
+      "operation": "extraction",
+      "retained": false,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        182
+      ]
+    },
+    {
+      "id": "SUITE-extract-retained-export-clause",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport { leaf };\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        182
+      ]
+    },
+    {
+      "id": "SUITE-extract-function-expression-arrow-data",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export const expression = function() { return 1; };\nexport const arrow = () => 2;\nexport const data = 3;\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        183
+      ]
+    },
+    {
+      "id": "SUITE-extract-closest-jsdoc",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** older */\n/** closest @contract use */\nexport function leaf() { return 1; }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        185,
+        186
+      ]
+    },
+    {
+      "id": "SUITE-extract-namespace-value-binding",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as ns from \"./dep\";\nexport function run() { return ns.FLAG; }\n",
+        "dep.ts": "export const FLAG = 1;\nexport function leaf() { return 1; }\nexport function unused() { return 2; }\nexport interface Shape { value: number; }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        190
+      ]
+    },
+    {
+      "id": "SUITE-extract-namespace-destructured",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as ns from \"./dep\";\nconst { leaf } = ns;\nexport function run() { return leaf(); }\n",
+        "dep.ts": "export const FLAG = 1;\nexport function leaf() { return 1; }\nexport function unused() { return 2; }\nexport interface Shape { value: number; }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        191
+      ]
+    },
+    {
+      "id": "SUITE-extract-namespace-dynamic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import * as ns from \"./dep\";\nexport function run(key: string) { return ns[key](); }\n",
+        "dep.ts": "export const FLAG = 1;\nexport function leaf() { return 1; }\nexport function unused() { return 2; }\nexport interface Shape { value: number; }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        191
+      ]
+    },
+    {
+      "id": "SUITE-extract-runtime-controls",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { leaf, unused } from \"./dep\";\nimport type { Shape } from \"./dep\";\nexport function run(leaf: () => number) { return leaf(); }\n",
+        "dep.ts": "export const FLAG = 1;\nexport function leaf() { return 1; }\nexport function unused() { return 2; }\nexport interface Shape { value: number; }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        214
+      ]
+    },
+    {
+      "id": "SUITE-extract-unwrap-parentheses",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport function run() { return (leaf)(); }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        221
+      ]
+    },
+    {
+      "id": "SUITE-extract-unwrap-as",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport function run() { return (leaf as () => number)(); }\n"
+      },
+      "operation": "extraction",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        221
+      ]
+    },
+    {
+      "id": "SUITE-extract-unwrap-as-legacy",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() { return 1; }\nexport function run() { return (leaf as () => number)(); }\n"
+      },
+      "operation": "extraction",
+      "retained": false,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "baseline extractTypeScript TypeScript 5.9.3"
+      },
+      "obligation_indices": [
+        221
+      ]
+    },
+    {
+      "id": "SUITE-jsdoc-closest-reason-control",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** older */\n/** closest @contract use */\nexport function leaf() { return 1; }\n"
+      },
+      "operation": "configuration",
+      "retained": true,
+      "origin": {
+        "kind": "authored finite control",
+        "oracle": "TypeScript 5.9.3 baseline inspectModuleConfiguration"
+      },
+      "obligation_indices": [
+        185
+      ]
+    }
+  ],
+  "digestPairs": [
+    {
+      "before": "export const D = -1;",
+      "after": "export const D = +1;",
+      "origin": "baseline top-level-outline.test.ts:58"
+    },
+    {
+      "before": "function f(x: number) { return -x; }",
+      "after": "function f(x: number) { return ~x; }",
+      "origin": "baseline top-level-outline.test.ts:59"
+    },
+    {
+      "before": "function f() { count++; }",
+      "after": "function f() { count--; }",
+      "origin": "baseline top-level-outline.test.ts:60"
+    },
+    {
+      "before": "function f() { const lock = acquire(); }",
+      "after": "function f() { using lock = acquire(); }",
+      "origin": "baseline top-level-outline.test.ts:61"
+    },
+    {
+      "before": "let x = 1;",
+      "after": "var x = 1;",
+      "origin": "baseline top-level-outline.test.ts:62"
+    },
+    {
+      "before": "class C extends B {}",
+      "after": "class C implements B {}",
+      "origin": "baseline top-level-outline.test.ts:63"
+    },
+    {
+      "before": "namespace N {}",
+      "after": "module N {}",
+      "origin": "baseline top-level-outline.test.ts:64"
+    },
+    {
+      "before": "const p = String.raw`a\\d`;",
+      "after": "const p = String.raw`a\\x64`;",
+      "origin": "baseline top-level-outline.test.ts:65"
+    },
+    {
+      "before": "export { foo };",
+      "after": "export type { foo };",
+      "origin": "baseline top-level-outline.test.ts:66"
+    },
+    {
+      "before": "import type { S } from \"./s\";",
+      "after": "import { S } from \"./s\";",
+      "origin": "baseline top-level-outline.test.ts:67"
+    },
+    {
+      "before": "export = foo;",
+      "after": "export default foo;",
+      "origin": "baseline top-level-outline.test.ts:68"
+    },
+    {
+      "before": "for (x; y;) {}",
+      "after": "for (; x; y) {}",
+      "origin": "baseline top-level-outline.test.ts:69"
+    },
+    {
+      "before": "const a = [1, 2];",
+      "after": "const a = [1, 2,];",
+      "origin": "baseline top-level-outline.test.ts:76"
+    },
+    {
+      "before": "const a = 1;",
+      "after": "const a = 1",
+      "origin": "baseline top-level-outline.test.ts:77"
+    },
+    {
+      "before": "const a = f(1, 2);",
+      "after": "const a = f(\n  1,\n  2,\n);",
+      "origin": "baseline top-level-outline.test.ts:78"
+    },
+    {
+      "before": "interface I { a: string; b: number }",
+      "after": "interface I { a: string, b: number, }",
+      "origin": "baseline top-level-outline.test.ts:79"
+    },
+    {
+      "before": "/** doc */\nconst a = 1;",
+      "after": "/** other */\nconst a = 1; // trailing",
+      "origin": "baseline top-level-outline.test.ts:80"
+    }
+  ]
+}

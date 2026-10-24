@@ -1,0 +1,383 @@
+{
+  "status": "SOURCE_COPY_AND_PORTABLE_ADOPTION_PROPOSAL",
+  "effort_interval_start_utc": "2026-10-17 15:45:46 UTC",
+  "written_utc": "2026-10-17T15:51:16.964936+00:00",
+  "copied_sources": [
+    {
+      "path": "sources/semantic-cases.json",
+      "sha256": "e89b5080b455f84e6a8b8564bcc64c9eec5c9095bfca7fe1d94479af44797306",
+      "bytes": 1000914,
+      "historical_source": "/private/tmp/semctx-t00-qualification-cases-20261017/case-proposals.v3.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/outline-cases.json",
+      "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+      "bytes": 218879,
+      "historical_source": "/private/tmp/semctx-t00-outline-cases-20261017/outline-case-proposals.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/public-cases.json",
+      "sha256": "81ef8c4f90b670bb2f6a61a995555d143730b2bf5e1b0ca2b65d7bbd7c707c0e",
+      "bytes": 45031,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/public-case-proposals.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/ordinary-cases.json",
+      "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+      "bytes": 46771,
+      "historical_source": "/private/tmp/semctx-t00-ordinary-freeze-20261017/new-expectations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/qualified-cases.json",
+      "sha256": "ec5a6f16ced03ba22cfcfefdc1ccdb3df3978659cb1780ee446bce1c644d1fd9",
+      "bytes": 69620,
+      "historical_source": "/private/tmp/semctx-t00-qualified-freeze-20261017/qualified-case-supplement.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/semantic-key-pair.json",
+      "sha256": "eaea3f5df8aacf5dbdc30ae633680f319ba2c7ce17426c4355251c861d616dbc",
+      "bytes": 2263,
+      "historical_source": "/private/tmp/semctx-t00-stage3-freeze-20261017/semantic-key-pair.v2.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "sources/development-cases.json",
+      "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "bytes": 56848,
+      "historical_source": "/private/tmp/semctx-t00-development-20261017/development-cases.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/encoding-coordinate-expectations.json",
+      "sha256": "a3247af341848e9041d4bd6d92d73258104082f2784d77b2e0acdaeb04a9238e",
+      "bytes": 16269,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/encoding-coordinate-expectations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/private-identity-expectations.json",
+      "sha256": "47930accda6b9ee8eae24799152cc5d9f8496b006db425684f70e1b74eca856a",
+      "bytes": 69301,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/private-identity-expectations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/baseline-analyzer-identity.expected.json",
+      "sha256": "7a46c92b9437a6b706b1ddcd320df70a5a73c790077cfc90a87126fe1f3cf15c",
+      "bytes": 47460,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/baseline-analyzer-identity.expected.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/diagnostic-expectations.json",
+      "sha256": "4e40c1f6d9b868bd26a11a73d8b1f7a5250adcfac7b9146b205abbb757495c71",
+      "bytes": 4914,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/diagnostic-expectations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/e03-expectations.json",
+      "sha256": "36d94cc69dda4d5c1d35129e65a5f45a1b6b2636cbf84954cee4fc0d46c8f1ac",
+      "bytes": 3502,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/e03-expectations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/receipt-representation.v1.json",
+      "sha256": "fd352cd391db61effcce10ab3a551327baebf0f3ccf61cf866f1dcb4ef2fd53c",
+      "bytes": 3252,
+      "historical_source": "/private/tmp/semctx-t00-stage3-freeze-20261017/receipt-representation.v1.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/report.json",
+      "sha256": "8dbb33805c012a595dd28d4eedac5b569633f95ee55b8672b23407cc6638d621",
+      "bytes": 9235,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/report.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/encoding-edge-observations.json",
+      "sha256": "6e629b044d22ef133c86b920a62d2e8875a690cea1a9ad0dd153742d71d5751f",
+      "bytes": 700,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/encoding-edge-observations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/typescript-observations.json",
+      "sha256": "acc5093f0854f57d0289d249cdf882b936749f1763f4ae1f0e095cfd35b9d107",
+      "bytes": 11214,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/typescript-observations.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/primitive-inputs.json",
+      "sha256": "eb674c88faa94603371d8ee2b8767fe4a070192980941859c75d78ccbf4952a6",
+      "bytes": 15724,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/primitive-inputs.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/receipt-representation-claim-ledger.md",
+      "sha256": "55063406f05a9e914efb8194cbabc7e01d8639e392bc54dabb0dac72e252a06e",
+      "bytes": 8891,
+      "historical_source": "/private/tmp/semctx-t00-20261017/receipt-representation-claim-ledger.md",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/receipt-representation-verdict.json",
+      "sha256": "cecec9261ee13c8080d778776d6dd261a6edbf6625d43cbe4b19a44a81102894",
+      "bytes": 3029,
+      "historical_source": "/private/tmp/semctx-t00-20261017/receipt-representation-verdict.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/private-batch-contract.draft.md",
+      "sha256": "fc7265215a9f8e1a068ce619aed4203c1ab58d96de3fd0b9c06fd494e2348c8a",
+      "bytes": 7356,
+      "historical_source": "/private/tmp/semctx-t00-20261017/private-batch-contract.draft.md",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/private-batch-claim-ledger.md",
+      "sha256": "a08d417fa696f420ed59f5ef1ff9a51fc7b346fb58f3703334fb25c146acdf10",
+      "bytes": 13595,
+      "historical_source": "/private/tmp/semctx-t00-20261017/private-batch-claim-ledger.md",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/sdk-helper-matrices.v3.json",
+      "sha256": "25f39efcfd998508190783758eb7e5d197f61e4e77aceed7d5d851649400f93e",
+      "bytes": 104578,
+      "historical_source": "/private/tmp/semctx-t00-qualification-cases-20261017/sdk-helper-matrices.v3.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/sdk-required-closure.v3.json",
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+      "bytes": 18368,
+      "historical_source": "/private/tmp/semctx-t00-qualification-cases-20261017/sdk-required-closure.v3.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/nine-obligation-branch-matrix.json",
+      "sha256": "82b344a9dfa6de8aeca820e632fdb057f6c56c3152bab64776841f182da13b63",
+      "bytes": 24977,
+      "historical_source": "/private/tmp/semctx-t00-outline-cases-20261017/nine-obligation-branch-matrix.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "annexes/sdk-and-config-requirements.json",
+      "sha256": "f717eda2a8de08e07db701c79b98e446c95a891751346bfa68b653d8783910ae",
+      "bytes": 13389,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/sdk-and-config-requirements.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "upstream/typescript/sdk-manifest.json",
+      "sha256": "fcc810fa0d69bdcb6fb10d6411a62e8578e84f9982a26cf02e3ec5c64e91747c",
+      "bytes": 17131,
+      "historical_source": "/private/tmp/semctx-t00-20261017/sdk/sdk-manifest.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R01-ascii-lf.ts.source",
+      "sha256": "aee33a282e2e484f9abb3ddf920d415129454315a25a75a9c57ecfc7cee238e1",
+      "bytes": 22,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R01-ascii-lf.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R02-retained-bom.ts.source",
+      "sha256": "089d984e10c10a5399360bcfc805a59f5eb99cd4faa8756ee28e47b48fbc64e8",
+      "bytes": 25,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R02-retained-bom.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R03-ascii-crlf.ts.source",
+      "sha256": "1080791ea1b0c4767a4a9b2a801daadc2deebf3c5f3ca54719718498fa86edbd",
+      "bytes": 23,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R03-ascii-crlf.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R04-shebang-lf.ts.source",
+      "sha256": "f04eefda8252cf55685666110ee95f3f4522117bd1da46cf20ee271ab81b05f9",
+      "bytes": 42,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R04-shebang-lf.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R05-astral-comment-crlf.ts.source",
+      "sha256": "01cd9578d82fdff603d3d0ed6f6b24b361c347516a1d2b77649984e6c377ac90",
+      "bytes": 33,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R05-astral-comment-crlf.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/R06-combined-retained-raw-text.ts.source",
+      "sha256": "490275484e54965b963888185cc0ab6fcd890d6323794cde6de85b13b479b948",
+      "bytes": 79,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/R06-combined-retained-raw-text.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/UTF16BE.ts.source",
+      "sha256": "6c6e1f0e18fab5bd218417e8d43422f02fa055e720757d4f5240111bbf432a49",
+      "bytes": 46,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/UTF16BE.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/UTF16LE.ts.source",
+      "sha256": "6b45fe3077372291a8900c066cc88da81ae4a0be26a2966b9e9cb172aaa097d3",
+      "bytes": 46,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/UTF16LE.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/UTF16LE-lone-high-surrogate.ts.source",
+      "sha256": "8518694a5f19d90bdc04e05e7f37fb2a5eba2336ad438a6d3e87a6b517feccef",
+      "bytes": 4,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/UTF16LE-lone-high-surrogate.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/UTF16LE-odd-tail.ts.source",
+      "sha256": "f4f800de816aa34ef2d9c42fe9f33c332a2697f446ba492c440bb9d8a6d278e8",
+      "bytes": 47,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/UTF16LE-odd-tail.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "inputs/encoding/UTF8-invalid.ts.source",
+      "sha256": "eddf68639913a3cb8331cdfe7f87559e0beccf2c289c0d90ac4d89b3204004f8",
+      "bytes": 2,
+      "historical_source": "/private/tmp/semctx-t00-input-freeze-20261017/UTF8-invalid.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/src/_internal.ts.source",
+      "sha256": "48e4af9f176e4960d039e5d56fadcf5f7c9a4234589a5241b103d006ff5b99ab",
+      "bytes": 519,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_internal.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/src/_path.ts.source",
+      "sha256": "fe4f45fcc9203de691b19ea72135770de3159db2584ff103d49082395c9545cf",
+      "bytes": 9352,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_path.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/src/_glob.ts.source",
+      "sha256": "39e04f05926cfe43503eb77ad4bb38ce4cd6f499d256f5d0a28df15f4185fe12",
+      "bytes": 14751,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/_glob.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/src/index.ts.source",
+      "sha256": "4d797c46a67866a3ea96012dbccbdf5f4eb90caf2e33432690f5cc2dbe411a56",
+      "bytes": 1079,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/index.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/src/utils.ts.source",
+      "sha256": "61363d9fb58e3ccd3722a3f802f69608f167e01fe1042e624b9fff8a4a5bef46",
+      "bytes": 4136,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/src/utils.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/tsconfig.json.source",
+      "sha256": "47b4c0280e48e40f6b94c8531f8ac808b6ca455c351f6188bf8f6a16a6ee1e72",
+      "bytes": 433,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/tsconfig.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/pathe/package.json.source",
+      "sha256": "98a737e727d439712d855ae69fd63634048aa51d1ac7ee0674acada0693a39cf",
+      "bytes": 1153,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/pathe/package.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/yocto-queue/index.js.source",
+      "sha256": "2eabf3096793c43934ef127fb50238dcba93074fb54f943fc62aeab616769dfc",
+      "bytes": 1587,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/index.js",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/yocto-queue/index.d.ts.source",
+      "sha256": "a760662b79da8ff47d9152d25b5641491b036a3762c3cd94645380c9f97288e7",
+      "bytes": 1991,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/index.d.ts",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "public/yocto-queue/package.json.source",
+      "sha256": "d5de75fe154851539d0adeac9731773ac5b93281ec4019c355cb330d20b176a7",
+      "bytes": 849,
+      "historical_source": "/private/tmp/semctx-t00-public-cases-20261017/inputs/yocto-queue/package.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "allocation/disjointness-original.json",
+      "sha256": "cc37f327df17665d8cc5a99c8105e4dc4e15bea2d9942dc27365029a69580efa",
+      "bytes": 20904,
+      "historical_source": "/private/tmp/semctx-t00-stage3-freeze-20261017/development-disjointness.v3.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    },
+    {
+      "path": "allocation/policy.json",
+      "sha256": "a732cdb98b48621910ea2c7e7bc6044fa0f33146f096d923a371743609b978df",
+      "bytes": 26118,
+      "historical_source": "/private/tmp/semctx-t00-stage3-freeze-20261017/allocation-policy.v3.json",
+      "role": "byte-preserved source provenance; historical absolute paths are non-operational"
+    }
+  ],
+  "source_manifest_sha256": "247f57fa27d3b105a5fb7d44fe87657366911bb5de7a863a1dc56505e05824f6",
+  "original_v3_source_count": 268,
+  "source_bytes_unchanged": true,
+  "pending_root_overlay": false,
+  "index": {
+    "path": "index.json",
+    "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1",
+    "bytes": 817245
+  },
+  "root_adopted_overlay": {
+    "path": "qualification/adoption-overlay.json",
+    "sha256": "d33dccd39b670759c32dbc6e1d808a7bb473a4522736229da15c290a17fc31a9",
+    "bytes": 14299
+  },
+  "root_review": {
+    "path": "annexes/stage3-global-freeze-review.json",
+    "sha256": "dfc84975e5b9ffd074e0f35241440d79829344f2d2911fbf23fa3d50c834db43",
+    "bytes": 41538
+  },
+  "effort_interval_end_utc": "2026-10-17T15:52:07.358428+00:00",
+  "portable_source_extraction": "31 reviewed omissions restored;26 evaluation snippets keep relPath:null with logical labels;five enum/namespace snippets keep authored src/x.ts.",
+  "root_adoption": {
+    "author": "/root",
+    "frozen_utc": "2026-10-17T15:53:22.507471+00:00",
+    "transformations": [
+      "Add byte-exact public reserved custody receipt; no private input included.",
+      "Adopt six explicit obligation associations and five consumer observations from independent review;268records/354scenarios/51supports/240obligations.",
+      "Move proposal-only statuses to historical metadata; effective expectations frozen, all native states remain unknown.",
+      "Refresh portable hashes only; original authored source/expected bytes unchanged.",
+      "Encode21 raw public/encoding payloads and the byte-exact upstream TypeScript license in base64, with stored/decoded identities and original logical paths; semantic bytes unchanged and Git whitespace checks unchanged.",
+      "Independent standards delta: mark all354 units and51supports frozen, preserve former false/proposed statuses as historical metadata; make execution_unit_ids equal explicit qualification associations for240rows. No inputs, projections or allocation changed."
+    ]
+  }
+}

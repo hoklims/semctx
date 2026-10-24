@@ -1,0 +1,415 @@
+{
+  "pairs": [
+    {
+      "name": "coercion-binary",
+      "activate": "PUBLIC-SEM-coercion-binary-activate",
+      "control": "PUBLIC-SEM-coercion-binary-control",
+      "obligations": [
+        61,
+        100
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "coercion-unary",
+      "activate": "PUBLIC-SEM-coercion-unary-activate",
+      "control": "PUBLIC-SEM-coercion-unary-control",
+      "obligations": [
+        97,
+        100
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "membership",
+      "activate": "PUBLIC-SEM-membership-activate",
+      "control": "PUBLIC-SEM-membership-control",
+      "obligations": [
+        62,
+        101,
+        102,
+        131
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "async-return",
+      "activate": "PUBLIC-SEM-async-return-activate",
+      "control": "PUBLIC-SEM-async-return-control",
+      "obligations": [
+        53,
+        109
+      ],
+      "decisionReason": "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+    },
+    {
+      "name": "async-alias",
+      "activate": "PUBLIC-SEM-async-alias-activate",
+      "control": "PUBLIC-SEM-async-alias-control",
+      "obligations": [
+        54
+      ],
+      "decisionReason": "SOURCE_AWAIT_UNSUPPORTED"
+    },
+    {
+      "name": "binding-nested",
+      "activate": "PUBLIC-SEM-binding-nested-activate",
+      "control": "PUBLIC-SEM-binding-nested-control",
+      "obligations": [
+        55,
+        91,
+        94
+      ],
+      "decisionReason": "SOURCE_ITERATION_UNSUPPORTED"
+    },
+    {
+      "name": "calltype",
+      "activate": "PUBLIC-SEM-calltype-activate",
+      "control": "PUBLIC-SEM-calltype-control",
+      "obligations": [
+        58,
+        59,
+        81,
+        113
+      ],
+      "decisionReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "callback-dictionary",
+      "activate": "PUBLIC-SEM-callback-dictionary-activate",
+      "control": "PUBLIC-SEM-callback-dictionary-control",
+      "obligations": [
+        112
+      ],
+      "decisionReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "function-helper",
+      "activate": "PUBLIC-SEM-function-helper-activate",
+      "control": "PUBLIC-SEM-function-helper-control",
+      "obligations": [
+        67,
+        88
+      ],
+      "decisionReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+    },
+    {
+      "name": "function-constructor",
+      "activate": "PUBLIC-SEM-function-constructor-activate",
+      "control": "PUBLIC-SEM-function-constructor-control",
+      "obligations": [
+        89
+      ],
+      "decisionReason": "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+    },
+    {
+      "name": "iteration-param",
+      "activate": "PUBLIC-SEM-iteration-param-activate",
+      "control": "PUBLIC-SEM-iteration-param-control",
+      "obligations": [
+        92,
+        93,
+        114
+      ],
+      "decisionReason": "SOURCE_SDK_ITERATION_UNSUPPORTED"
+    },
+    {
+      "name": "opaque-literal",
+      "activate": "PUBLIC-SEM-opaque-literal-activate",
+      "control": "PUBLIC-SEM-opaque-literal-control",
+      "obligations": [
+        95,
+        98
+      ],
+      "decisionReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "sdk-callable-mutation",
+      "activate": "PUBLIC-SEM-sdk-callable-mutation-activate",
+      "control": "PUBLIC-SEM-sdk-callable-mutation-control",
+      "obligations": [
+        52,
+        110,
+        111
+      ],
+      "decisionReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "sdk-global",
+      "activate": "PUBLIC-SEM-sdk-global-activate",
+      "control": "PUBLIC-SEM-sdk-global-control",
+      "obligations": [
+        115,
+        117
+      ],
+      "decisionReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "global-member",
+      "activate": "PUBLIC-SEM-global-member-activate",
+      "control": "PUBLIC-SEM-global-member-control",
+      "obligations": [
+        116
+      ],
+      "decisionReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "destructured-export",
+      "activate": "PUBLIC-SEM-destructured-export-activate",
+      "control": "PUBLIC-SEM-destructured-export-control",
+      "obligations": [
+        50,
+        64,
+        66,
+        99
+      ],
+      "decisionReason": "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED"
+    },
+    {
+      "name": "callable-export",
+      "activate": "PUBLIC-SEM-callable-export-activate",
+      "control": "PUBLIC-SEM-callable-export-control",
+      "obligations": [
+        51,
+        99
+      ],
+      "decisionReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+    },
+    {
+      "name": "date-copy",
+      "activate": "PUBLIC-SEM-date-copy-activate",
+      "control": "PUBLIC-SEM-date-copy-control",
+      "obligations": [
+        90
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "internal-base",
+      "activate": "PUBLIC-SEM-internal-base-activate",
+      "control": "PUBLIC-SEM-internal-base-control",
+      "obligations": [
+        86,
+        87
+      ],
+      "decisionReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+    },
+    {
+      "name": "meta-operation",
+      "activate": "PUBLIC-SEM-meta-operation-activate",
+      "control": "PUBLIC-SEM-meta-operation-control",
+      "obligations": [
+        120
+      ],
+      "decisionReason": "SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "meta-map",
+      "activate": "PUBLIC-SEM-meta-map-activate",
+      "control": "PUBLIC-SEM-meta-map-control",
+      "obligations": [
+        75,
+        103
+      ],
+      "decisionReason": "SOURCE_DESCRIPTOR_UNSUPPORTED"
+    },
+    {
+      "name": "script-element",
+      "activate": "PUBLIC-SEM-script-element-activate",
+      "control": "PUBLIC-SEM-script-element-control",
+      "obligations": [
+        80,
+        119,
+        121,
+        126
+      ],
+      "decisionReason": "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+    },
+    {
+      "name": "apply-coercion",
+      "activate": "PUBLIC-SEM-apply-coercion-activate",
+      "control": "PUBLIC-SEM-apply-coercion-control",
+      "obligations": [
+        82,
+        118
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "sdk-runtime",
+      "activate": "PUBLIC-SEM-sdk-runtime-activate",
+      "control": "PUBLIC-SEM-sdk-runtime-control",
+      "obligations": [
+        51,
+        129
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "protocol-mutation",
+      "activate": "PUBLIC-SEM-protocol-mutation-activate",
+      "control": "PUBLIC-SEM-protocol-mutation-control",
+      "obligations": [
+        123
+      ],
+      "decisionReason": "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "runtime-primitive",
+      "activate": "PUBLIC-SEM-runtime-primitive-activate",
+      "control": "PUBLIC-SEM-runtime-primitive-control",
+      "obligations": [
+        56,
+        107
+      ],
+      "decisionReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "returned-primitive",
+      "activate": "PUBLIC-SEM-returned-primitive-activate",
+      "control": "PUBLIC-SEM-returned-primitive-control",
+      "obligations": [
+        106
+      ],
+      "decisionReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "runtime-property",
+      "activate": "PUBLIC-SEM-runtime-property-activate",
+      "control": "PUBLIC-SEM-runtime-property-control",
+      "obligations": [
+        108
+      ],
+      "decisionReason": "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+    },
+    {
+      "name": "promise-combinator",
+      "activate": "PUBLIC-SEM-promise-combinator-activate",
+      "control": "PUBLIC-SEM-promise-combinator-control",
+      "obligations": [
+        71
+      ],
+      "decisionReason": "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+    },
+    {
+      "name": "syntax-decorator",
+      "activate": "PUBLIC-SEM-syntax-decorator-activate",
+      "control": "PUBLIC-SEM-syntax-decorator-control",
+      "obligations": [
+        84,
+        134
+      ],
+      "decisionReason": "SOURCE_DECORATOR_UNSUPPORTED"
+    },
+    {
+      "name": "source-reference",
+      "activate": "PUBLIC-SEM-source-reference-activate",
+      "control": "PUBLIC-SEM-source-reference-control",
+      "obligations": [
+        49
+      ],
+      "decisionReason": "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+    },
+    {
+      "name": "coercing-operator",
+      "activate": "PUBLIC-SEM-coercing-operator-activate",
+      "control": "PUBLIC-SEM-coercing-operator-control",
+      "obligations": [
+        61
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "unary-operator",
+      "activate": "PUBLIC-SEM-unary-operator-activate",
+      "control": "PUBLIC-SEM-unary-operator-control",
+      "obligations": [
+        97
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    },
+    {
+      "name": "async-owner",
+      "activate": "PUBLIC-SEM-async-owner-activate",
+      "control": "PUBLIC-SEM-async-owner-control",
+      "obligations": [
+        53
+      ],
+      "decisionReason": "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+    },
+    {
+      "name": "callable-export-initializer",
+      "activate": "PUBLIC-SEM-callable-export-initializer-activate",
+      "control": "PUBLIC-SEM-callable-export-initializer-control",
+      "obligations": [
+        50
+      ],
+      "decisionReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+    },
+    {
+      "name": "assignment-operator",
+      "activate": "PUBLIC-SEM-assignment-operator-activate",
+      "control": "PUBLIC-SEM-assignment-operator-control",
+      "obligations": [
+        52
+      ],
+      "decisionReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "callback-parameter",
+      "activate": "PUBLIC-SEM-callback-parameter-activate",
+      "control": "PUBLIC-SEM-callback-parameter-control",
+      "obligations": [
+        58,
+        59
+      ],
+      "decisionReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "property-name",
+      "activate": "PUBLIC-SEM-property-name-activate",
+      "control": "PUBLIC-SEM-property-name-control",
+      "obligations": [
+        103
+      ],
+      "decisionReason": "SOURCE_DESCRIPTOR_UNSUPPORTED"
+    },
+    {
+      "name": "member-name",
+      "activate": "PUBLIC-SEM-member-name-activate",
+      "control": "PUBLIC-SEM-member-name-control",
+      "obligations": [
+        131
+      ],
+      "decisionReason": "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "opaque-callee",
+      "activate": "PUBLIC-SEM-opaque-callee-activate",
+      "control": "PUBLIC-SEM-opaque-callee-control",
+      "obligations": [
+        98
+      ],
+      "decisionReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "callable-union",
+      "activate": "PUBLIC-SEM-callable-union-activate",
+      "control": "PUBLIC-SEM-callable-union-control",
+      "obligations": [
+        99
+      ],
+      "decisionReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+    },
+    {
+      "name": "numeric-options",
+      "activate": "PUBLIC-SEM-numeric-options-activate",
+      "control": "PUBLIC-SEM-numeric-options-control",
+      "obligations": [
+        82
+      ],
+      "decisionReason": "SOURCE_COERCION_UNSUPPORTED"
+    }
+  ],
+  "scope": "Each pair proposes a focal consumer decision; observed baseline reason and all-site activation are separately required before any credit."
+}

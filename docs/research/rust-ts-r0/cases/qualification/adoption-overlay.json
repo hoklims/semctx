@@ -1,0 +1,328 @@
+{
+  "status": "ROOT_ADOPTED_SOURCE_BACKED_BINDINGS_AND_CONSUMER_PROJECTIONS_NOT_NATIVE_PROOF",
+  "authority": {
+    "author": "/root",
+    "decision": "mechanical adoption authorized after baseline source verification",
+    "review": {
+      "path": "annexes/stage3-global-freeze-review.json",
+      "sha256": "dfc84975e5b9ffd074e0f35241440d79829344f2d2911fbf23fa3d50c834db43",
+      "bytes": 41538
+    }
+  },
+  "source_records_unchanged": true,
+  "source_v3_scenarios": 349,
+  "adopted_scenarios": 354,
+  "suggested_bindings": [
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+      "consumer": "assertSnapshotInputs",
+      "positive_qualification_unit_ids": [
+        "P01-retained-source::analyze-snapshot-consistent"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N01-snapshot-metadata-mismatch::base"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Existing N01 already calls analyzeRepository. Existing P01 directly calls extraction, so an explicit same-bytes analyze consumer observation is required to exercise the snapshot guard; no new fixture.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-escapeddependencyreason-54c513873b",
+      "consumer": "escapedDependencyReason",
+      "positive_qualification_unit_ids": [
+        "P03-confined-relative-source::discovery-confinement"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N03-relative-escape::discovery-confinement"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Existing P03/N03 operate extraction; explicit discovery projections distinguish selected in-root source from failed escaping import at the owning consumer without treating extraction as discovery proof.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-canonicaltypescriptfilekey-c3dd471648",
+      "consumer": "canonicalTypeScriptFileKey",
+      "positive_qualification_unit_ids": [
+        "ORD-CANONICAL-IDENTITY-PAIR::base"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "ORD-CANONICAL-IDENTITY-PAIR::base"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "One existing three-query record already states alias==target and other source distinct; no new path API or extra syntax required.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-typescriptlibrarydirectory-e9855a4e4f",
+      "consumer": "typeScriptLibraryDirectory",
+      "positive_qualification_unit_ids": [
+        "V3-SDK-01-01::base"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "V3-SDK-01-05::base"
+      ],
+      "support_unit_ids": [
+        "IDENTITY::base-sdk"
+      ],
+      "sufficiency_scope": "SDK-directory helper is dependency context for a default-library-sensitive product predicate. SDK Object.assign protocol mutation versus local Object shadow control requires the pinned SDK provenance; associate exact SDK closure and identity, no public directory-string output required.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-analyzer-identity-ts-analyzeridentity-530b120929",
+      "consumer": "analyzerIdentity",
+      "positive_qualification_unit_ids": [
+        "P25-byte-identity-relocation::identity-relation-01",
+        "P25-byte-identity-relocation::identity-relation-02",
+        "P25-byte-identity-relocation::identity-relation-03"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N25-crlf-implementation-identity-input::base"
+      ],
+      "support_unit_ids": [
+        "IDENTITY::base-capture",
+        "IDENTITY::base-producer",
+        "IDENTITY::base-sdk",
+        "IDENTITY::base-inputRequest",
+        "IDENTITY::I-source-byte",
+        "IDENTITY::I-config-absence",
+        "IDENTITY::I-directory-members",
+        "IDENTITY::I-case-semantics",
+        "IDENTITY::I-repository-binding",
+        "IDENTITY::I-artifact-byte",
+        "IDENTITY::I-producer-revision",
+        "IDENTITY::I-sdk-byte",
+        "IDENTITY::I-request-id",
+        "IDENTITY::I-scope-selection",
+        "IDENTITY::I-options",
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen"
+      ],
+      "sufficiency_scope": "Existing complete 290-path/101-compiler recipe, relocation/byte relations and CRLF rejection; minimal identity support vectors remain separate from a whole T02 service port.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "consumer": null,
+      "positive_qualification_unit_ids": [
+        "P01-retained-source::plane-a-runtime-consistent"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Indirect orchestration retains the analysis transport success/error boundary. QRECEIPT twenty receiver guards remain separate ownership boundary controls; no full Plane-A service port prerequisite.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    }
+  ],
+  "additional_execution_units": [
+    {
+      "unit_id": "P01-retained-source::analyze-snapshot-consistent",
+      "case_id": "P01-retained-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P01-retained-source",
+        "files": "input_scope.files",
+        "snapshot": "same authored retained map",
+        "discovered_file_content": "exact retained entry.ts bytes; live transient bytes remain present as authored",
+        "configuration": "same pinned fixture defaults/profile"
+      },
+      "operation": "analyzeRepository with the authored retained snapshot and DiscoveredFile content constructed from the retained capture, not post-capture live bytes",
+      "assertions": {
+        "snapshot_guard_passes": true,
+        "SOURCE_SNAPSHOT_MISMATCH": false,
+        "successful_extraction_projection": "reuse existing P01 retained leaf projection; no transient symbol"
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 103,
+          "end_line": 108,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "P03-confined-relative-source::discovery-confinement",
+      "case_id": "P03-confined-relative-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P03-confined-relative-source",
+        "files": "input_scope.files",
+        "outside_files": "none",
+        "configuration": "pinned normal discovery fixture defaults, both paths source-eligible"
+      },
+      "operation": "bounded discovery of src/main.ts and leaf.ts under the existing native root with TypeScript enabled and no selecting exclusion",
+      "assertions": {
+        "candidate_projection_contains": {
+          "relPath": "src/main.ts",
+          "selectionDecision": "selected",
+          "reason": "SELECTED"
+        },
+        "analysisOutcome": "absent before analysis, not invented as success",
+        "outside_repository_failure": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 263,
+          "end_line": 283,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 439,
+          "end_line": 450,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "N03-relative-escape::discovery-confinement",
+      "case_id": "N03-relative-escape",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "N03-relative-escape",
+        "files": "input_scope.files",
+        "outside_files": "input_scope.setup outside_repository_files unchanged",
+        "configuration": "pinned normal discovery fixture defaults; src/main.ts source-eligible"
+      },
+      "operation": "bounded discovery of src/main.ts under the same fixture discovery rules",
+      "assertions": {
+        "candidate_projection_contains": {
+          "relPath": "src/main.ts",
+          "selectionDecision": "selected",
+          "analysisOutcome": "failed",
+          "reason": "IMPORT_OUTSIDE_REPOSITORY"
+        },
+        "selected_discovered_files_contains_main": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 263,
+          "end_line": 283,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 439,
+          "end_line": 448,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "P01-retained-source::plane-a-runtime-consistent",
+      "case_id": "P01-retained-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P01-retained-source",
+        "files": "input_scope.files",
+        "discovery": "same retained-consistent discovery as analyze-snapshot-consistent",
+        "snapshot": "same retained map",
+        "configuration": "same P01 fixture defaults; no whole qualified admission implied"
+      },
+      "operation": "analyzePlaneARuntimeAsync with identical retained DiscoveredFile metadata/content, retained compiler inputs and existing worker selection; observe the analysis transport boundary only",
+      "assertions": {
+        "snapshot_mismatch_error": false,
+        "retained_leaf_analysis_projection_preserved": true,
+        "transient_symbol_forbidden": true,
+        "global_qualified_admission_inferred": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/plane-a-runtime.ts",
+          "line": 134,
+          "end_line": 148,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 116,
+          "end_line": 125,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch",
+      "case_id": "N01-snapshot-metadata-mismatch",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "N01-snapshot-metadata-mismatch",
+        "files": "input_scope.files",
+        "discovery": "input_scope.setup.discovery_content_override",
+        "snapshot": "same retained map",
+        "configuration": "same fixture defaults/profile"
+      },
+      "operation": "analyzePlaneARuntimeAsync with the unchanged authored retained snapshot and mismatching discovery override; observe propagated rejection",
+      "assertions": {
+        "rejects": true,
+        "error_contains": "SOURCE_SNAPSHOT_MISMATCH: entry.ts",
+        "successful_runtime_result": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/plane-a-runtime.ts",
+          "line": 134,
+          "end_line": 148,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 116,
+          "end_line": 125,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    }
+  ]
+}

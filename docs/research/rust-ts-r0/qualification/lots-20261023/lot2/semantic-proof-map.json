@@ -1,0 +1,547 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript": "5.9.3",
+  "sourceSha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782",
+  "mechanism": "Expression result identity wrapper, method calls wrapped as whole calls to preserve receivers; exact source site positions; original full reason equality checked for every input",
+  "baselineUnmodifiedInstrumentedEquality": {
+    "units": 18,
+    "passed": true,
+    "environment": "macOS arm64, Bun1.4.3, TypeScript5.9.3"
+  },
+  "inputs": {
+    "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-inputs.json",
+    "sha256": "f92e814c39d048f1bce24549f3c188500163767ceb9c1f464c11ad857af6be41",
+    "bytes": 8330
+  },
+  "previousAssessment": {
+    "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-proof-map.json",
+    "sha256": "5fee0cfcf764886352cbe302023a4c8e6e9bf3284076dc99e09093574a08eb31",
+    "bytes": 146394
+  },
+  "rawEvidence": [
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/semantic/final-activation.json",
+      "sha256": "6d52f952c4d3b820e4a388f2866250f3f616b69fe40eb50f918a39c15efc1d97",
+      "bytes": 2597881
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/semantic/final-manifest.json",
+      "sha256": "9ca5ec0894954fe88ce1e2212945cdcf9eb54c878044ad4b077fba49dae68dc4",
+      "bytes": 75156
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/semantic/final-baseline-identity-check.json",
+      "sha256": "fe5a42bc98b68989324e26d5fab5ad080856bacf0e48f3d23117fc1fc022ff6e",
+      "bytes": 1928
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/semantic/report.json",
+      "sha256": "024cbc3e6a707f2300466d6cbb003859a35d577e2b8cb092c24ad2945a3bdb1b",
+      "bytes": 96468
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/native-semantic-final/report.json",
+      "sha256": "2606a9b012bafbc756c470c7a8543c7022cc74c5cb18862533d84752884e1c4a",
+      "bytes": 95584
+    }
+  ],
+  "rows": [
+    {
+      "index": 49,
+      "consumer": "inspectSemanticDependencies",
+      "previousSitesActivated": 12,
+      "apiSitesTotal": 15,
+      "newObservedPreviousGaps": [],
+      "unionSitesActivated": 12,
+      "remainingMissingSiteIds": [
+        "49:2",
+        "49:4",
+        "49:5"
+      ],
+      "publicFiniteQualification": "not_qualified",
+      "formalR0Qualified": false,
+      "scope": "Exact baseline site observations and named finite native comparisons only; not terminal R0.",
+      "reason": "The frozen semantic invocation always supplies sourcePath and capturedInputs. Default source.fileName and absent-snapshot source.fileName/source.text paths remain unobserved. No alternate native observer invocation was supplied."
+    },
+    {
+      "index": 69,
+      "consumer": "inspectSemanticDependencies > inlineOwned",
+      "previousSitesActivated": 0,
+      "apiSitesTotal": 75,
+      "newObservedPreviousGaps": [],
+      "unionSitesActivated": 0,
+      "remainingMissingSiteIds": [
+        "69:0",
+        "69:1",
+        "69:2",
+        "69:3",
+        "69:4",
+        "69:5",
+        "69:6",
+        "69:7",
+        "69:8",
+        "69:9",
+        "69:10",
+        "69:11",
+        "69:12",
+        "69:13",
+        "69:14",
+        "69:15",
+        "69:16",
+        "69:17",
+        "69:18",
+        "69:19",
+        "69:20",
+        "69:21",
+        "69:22",
+        "69:23",
+        "69:24",
+        "69:25",
+        "69:26",
+        "69:27",
+        "69:28",
+        "69:29",
+        "69:30",
+        "69:31",
+        "69:32",
+        "69:33",
+        "69:34",
+        "69:35",
+        "69:36",
+        "69:37",
+        "69:38",
+        "69:39",
+        "69:40",
+        "69:41",
+        "69:42",
+        "69:43",
+        "69:44",
+        "69:45",
+        "69:46",
+        "69:47",
+        "69:48",
+        "69:49",
+        "69:50",
+        "69:51",
+        "69:52",
+        "69:53",
+        "69:54",
+        "69:55",
+        "69:56",
+        "69:57",
+        "69:58",
+        "69:59",
+        "69:60",
+        "69:61",
+        "69:62",
+        "69:63",
+        "69:64",
+        "69:65",
+        "69:66",
+        "69:67",
+        "69:68",
+        "69:69",
+        "69:70",
+        "69:71",
+        "69:72",
+        "69:73",
+        "69:74"
+      ],
+      "publicFiniteQualification": "not_qualified",
+      "formalR0Qualified": false,
+      "scope": "Exact baseline site observations and named finite native comparisons only; not terminal R0.",
+      "reason": "The reason-only oracle does not register a callback ownership graph for its capturedInputs object. inlineOwned returns before every listed API site. No public registration/assembly equivalence is established by these units."
+    },
+    {
+      "index": 77,
+      "consumer": "inspectSemanticDependencies > inspectOpaqueCallbacks",
+      "previousSitesActivated": 81,
+      "apiSitesTotal": 97,
+      "newObservedPreviousGaps": [
+        "77:10",
+        "77:23",
+        "77:30",
+        "77:31",
+        "77:32",
+        "77:33",
+        "77:39",
+        "77:40",
+        "77:74",
+        "77:83",
+        "77:84",
+        "77:85",
+        "77:87",
+        "77:88",
+        "77:89",
+        "77:90"
+      ],
+      "unionSitesActivated": 97,
+      "remainingMissingSiteIds": [],
+      "publicFiniteQualification": "not_qualified",
+      "formalR0Qualified": false,
+      "scope": "Exact baseline site observations and named finite native comparisons only; not terminal R0.",
+      "siteSpecificPairs": [
+        {
+          "name": "method-signature",
+          "siteIds": [
+            "77:10"
+          ],
+          "activate": "LOT2-SEM-method-signature-activate",
+          "control": "LOT2-SEM-method-signature-control",
+          "activateFullReasons": [],
+          "controlFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:10": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              },
+              "control": null
+            }
+          }
+        },
+        {
+          "name": "class-root",
+          "siteIds": [
+            "77:23",
+            "77:30",
+            "77:83"
+          ],
+          "activate": "LOT2-SEM-class-root-activate",
+          "control": "LOT2-SEM-class-root-control",
+          "activateFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:23": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "138"
+                ]
+              },
+              "control": null
+            },
+            "77:30": {
+              "activate": null,
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            },
+            "77:83": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "138"
+                ]
+              },
+              "control": null
+            }
+          }
+        },
+        {
+          "name": "default-import",
+          "siteIds": [
+            "77:31",
+            "77:84"
+          ],
+          "activate": "LOT2-SEM-default-import-activate",
+          "control": "LOT2-SEM-default-import-control",
+          "activateFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:31": {
+              "activate": null,
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            },
+            "77:84": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "false"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "namespace-import",
+          "siteIds": [
+            "77:32"
+          ],
+          "activate": "LOT2-SEM-namespace-import-activate",
+          "control": "LOT2-SEM-namespace-import-control",
+          "activateFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:32": {
+              "activate": null,
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "named-import",
+          "siteIds": [
+            "77:33",
+            "77:85"
+          ],
+          "activate": "LOT2-SEM-named-import-activate",
+          "control": "LOT2-SEM-named-import-control",
+          "activateFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:33": {
+              "activate": null,
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            },
+            "77:85": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "false"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "shorthand-binding",
+          "siteIds": [
+            "77:74"
+          ],
+          "activate": "LOT2-SEM-shorthand-binding-activate",
+          "control": "LOT2-SEM-shorthand-binding-control",
+          "activateFullReasons": [],
+          "controlFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:74": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "node:Identifier"
+                ]
+              },
+              "control": null
+            }
+          }
+        },
+        {
+          "name": "ambient-property",
+          "siteIds": [
+            "77:39",
+            "77:87",
+            "77:89",
+            "77:90"
+          ],
+          "activate": "LOT2-SEM-ambient-property-activate",
+          "control": "LOT2-SEM-ambient-property-control",
+          "activateFullReasons": [],
+          "controlFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:39": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            },
+            "77:87": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "node:PropertyAccessExpression"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "node:PropertyAccessExpression"
+                ]
+              }
+            },
+            "77:89": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "node:Identifier"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "node:Identifier"
+                ]
+              }
+            },
+            "77:90": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "node:PropertyAccessExpression"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "node:PropertyAccessExpression"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "ambient-element",
+          "siteIds": [
+            "77:40",
+            "77:88"
+          ],
+          "activate": "LOT2-SEM-ambient-element-activate",
+          "control": "LOT2-SEM-ambient-element-control",
+          "activateFullReasons": [],
+          "controlFullReasons": [
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+          ],
+          "focalReason": "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED",
+          "reasonToggles": true,
+          "sites": {
+            "77:40": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "true"
+                ]
+              }
+            },
+            "77:88": {
+              "activate": {
+                "count": 1,
+                "outcomes": [
+                  "node:ElementAccessExpression"
+                ]
+              },
+              "control": {
+                "count": 1,
+                "outcomes": [
+                  "node:ElementAccessExpression"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "reason": "All16 previously missing sites now have baseline activation and site-specific controls, including reviewer-confirmed causal shorthand and ambient controls. Native complete reasons mismatch on LOT2-SEM-shorthand-binding-activate on both platforms: TS5.9.3=[]; native=[SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED]. No qualification credit.",
+      "nativeCompleteReasonResults": {
+        "macos": {
+          "pass": 15,
+          "total": 16
+        },
+        "linux": {
+          "pass": 15,
+          "total": 16
+        }
+      }
+    },
+    {
+      "index": 82,
+      "consumer": "inspectSemanticDependencies > inspectSdkCoercion",
+      "previousSitesActivated": 27,
+      "apiSitesTotal": 29,
+      "newObservedPreviousGaps": [],
+      "unionSitesActivated": 27,
+      "remainingMissingSiteIds": [
+        "82:8",
+        "82:27"
+      ],
+      "publicFiniteQualification": "not_qualified",
+      "formalR0Qualified": false,
+      "scope": "Exact baseline site observations and named finite native comparisons only; not terminal R0.",
+      "partialPair": {
+        "activate": "LOT2-SEM-shorthand-options-activate",
+        "control": "LOT2-SEM-shorthand-options-control",
+        "activateFullReasons": [
+          "SOURCE_COERCION_UNSUPPORTED",
+          "SOURCE_SDK_ITERATION_UNSUPPORTED"
+        ],
+        "controlFullReasons": [
+          "SOURCE_SDK_ITERATION_UNSUPPORTED"
+        ],
+        "missingSitesObserved": false
+      },
+      "reason": "Const string shorthand remains rejected by literalData before the options property loop. Baseline checker resolves the shorthand name to ShorthandPropertyAssignment, while primitiveValue only follows const VariableDeclaration initializers. Sites82:8/27 remain unobserved. This explanation does not establish native execution or qualification."
+    }
+  ]
+}

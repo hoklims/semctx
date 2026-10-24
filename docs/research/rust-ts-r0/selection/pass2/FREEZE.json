@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "frozenUtc": "2026-10-17T20:28:07.669651+00:00",
+  "status": "SELECTED_C1_PASS2_OPTIMIZED_FROZEN_BEFORE_REPLAY",
+  "composition": "C1",
+  "correctionPass": 2,
+  "remainingCorrectionPassesForC1": 0,
+  "compositionsStarted": 1,
+  "maximumCompositions": 2,
+  "priorQualificationCampaigns": 1,
+  "reservedQueriesBeforeFreeze": 0,
+  "artifacts": [
+    {
+      "role": "optimized candidate",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-r0-probe",
+      "sourcePath": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/target/release/semctx-r0-probe",
+      "sha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+      "bytes": 32743824
+    },
+    {
+      "role": "independent #383 supervisor",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-gates",
+      "sourcePath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-gates",
+      "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+      "bytes": 1157952
+    },
+    {
+      "role": "capturedSDK",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/sdk/sdk-input.json",
+      "sourcePath": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/sdk/sdk-input.json",
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "bytes": 3218481
+    }
+  ],
+  "sourceManifest": {
+    "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source-manifest.json",
+    "sha256": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5",
+    "files": 44
+  },
+  "compiler": {
+    "rust": "1.95.0",
+    "cargoProfile": "release",
+    "optLevel": 3,
+    "upstream": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "checkerVersion": "7.1.0-dev",
+    "declarations": "TypeScript5.9.3"
+  },
+  "runtimeEnvironment": {
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0"
+  },
+  "host": "macOS ARM64 DEV",
+  "developmentEvidence": {
+    "releaseLog": "evidence/pass2-pre-freeze-final-release.log",
+    "releaseLogSha256": "6bc101c5e67ae642a7750a845dd19d0ecc2680062b5e7a202d936ace16afbf06",
+    "exitCode": 0,
+    "clippyLog": "evidence/pass2-pre-freeze-final-clippy.log",
+    "clippyLogSha256": "9eab630536f18f4834dc6f3544a1e7d24ed7fe9a637d7436d57ec0929e3f004a",
+    "clippyExitCode": 0
+  },
+  "reviews": [
+    "pass2-spec-review.json",
+    "pass2-spec-review-delta.json",
+    "pass2-worker-capture-fidelity-review.json",
+    "pass2-worker-boundary-review.json",
+    "pass2-receiver-identity-oracle-review.json",
+    "pass2-standards-review.json"
+  ],
+  "qualificationCredit": false,
+  "WindowsLinux": "NOT_RUN",
+  "r0": "NOT_RUN",
+  "claim": "Frozen private prototype and DEV observations only; not full T02 or production certification"
+}

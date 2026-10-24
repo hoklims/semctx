@@ -1,0 +1,22 @@
+{
+  "recordedUtc": "2026-10-18T06:51:36.108204+00:00",
+  "run": 39103858448,
+  "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "job": 117605579181,
+  "conclusion": "failure",
+  "failedStep": "tests",
+  "test": "Codex declarative plugin inventory > Codex sidecar snapshot observations reject same-bytes inode replacement",
+  "location": "packages/app-services/test/codex-plugin-metadata.test.ts:271",
+  "testSourceUnchangedFromBase": true,
+  "nativeCandidateFailureEstablished": false,
+  "scope": "Unrelated Windows test failure excluded from T00 correction scope by owner; failure preserved, no retry/skip/fix, no aggregate green inferred. This observation alone does not establish intermittency or root cause.",
+  "raw": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/windows-shard1.raw.log",
+    "sha256": "089d837e632fd2d45ae173785bc06efbd915d49e4cb687af1f1aab38998d356c"
+  },
+  "receipt": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/windows-shard1.raw.log.receipt.json",
+    "sha256": "cdc40b36f8f93503a39829e717b9f76aa9fd5e7b1b7bf6d7b2063c8e71a80ba7"
+  },
+  "retrieval": "gh run view --job --log unavailable while run active; direct completed-job logs API with output redirected to file succeeded."
+}

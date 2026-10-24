@@ -1,0 +1,21 @@
+{
+  "recordedUtc": "2026-10-18T07:02:42.539715+00:00",
+  "run": 39103858448,
+  "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "status": "completed",
+  "conclusion": "failure",
+  "snapshotSha256": "305619aa1e7c69fc0fb670d1536f613f8be31afde48f75c69cbe00b301ce3245",
+  "failedJobs": [
+    {
+      "id": 117605579181,
+      "name": "gates (3, lane-003-windows-latest-full, windows-latest, full, true, 1/4)",
+      "conclusion": "failure"
+    },
+    {
+      "id": 117610737989,
+      "name": "semctx-required",
+      "conclusion": "failure"
+    }
+  ],
+  "scope": "Completion addendum; original archive, publication manifest and independently reported platform observations remain unchanged. Only unrelated Windows shard1/4 and dependent semctx-required aggregate failed. All three rust-gates jobs succeeded. No aggregate green and no R0 pass."
+}
