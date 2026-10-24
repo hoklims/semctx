@@ -9,6 +9,14 @@ import { projectRuntimeReasons } from "./t00-ts7-q-semantic-runtime-projection";
 import type { ProjectionRun } from "./t00-ts7-q-semantic-projection";
 import { compareReasons, digest, record, selectIndices, selectShard, semanticObservation, verifyArtifact, verifyProducerCompletion } from "./t00-ts7-q-semantic-core";
 import type { Artifact, SemanticWitness } from "./t00-ts7-q-semantic-core";
+import { contractProjectionInventory, projectContract } from "./t00-ts7-q-semantic-contract-projector";
+import { closeContractProjection } from "./t00-ts7-q-semantic-contract-closure";
+import type { ContractClosureRun } from "./t00-ts7-q-semantic-contract-closure";
+import { resolveContractQueries } from "./t00-ts7-q-semantic-contract-queries";
+import { contractWitnesses, contractWitnessLimitations, verifyContractWitness } from "./t00-ts7-q-semantic-contract-witnesses";
+import type { ContractWitness } from "./t00-ts7-q-semantic-contract-witnesses";
+import { compareContractOwnership, projectContractOwnership } from "./t00-ts7-q-semantic-contract-ownership";
+import type { OwnershipProjection } from "./t00-ts7-q-semantic-contract-ownership";
 
 const read = (path: string): unknown => JSON.parse(readFileSync(path, "utf8")) as unknown;
 const save = (path: string, value: unknown): Artifact => {
@@ -65,7 +73,7 @@ function validateOracleLibraries(oraclePath: string, inventoryPath: string): voi
   }
 }
 
-function observe(witness: SemanticWitness, label: string, files: Record<string, string>, expected: string[] | null, artifacts: Record<string, Artifact>, out: string): { properties: Record<string, unknown>; evidence: Artifact[]; projection: ProjectionRun | null } {
+function observe(witness: SemanticWitness, label: "activate" | "control", files: Record<string, string>, expected: string[] | null, artifacts: Record<string, Artifact>, out: string, contractWitness?: ContractWitness): { properties: Record<string, unknown>; evidence: Artifact[]; projection: ProjectionRun | null; contractRun: ContractClosureRun | null } {
   const directory = resolve(out, String(witness.index), basename(witness.id), label);
   const absoluteFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => {
     if (path.startsWith("/") || path.split("/").includes("..")) throw Error("INVALID_WITNESS_PATH:" + path);
@@ -75,20 +83,44 @@ function observe(witness: SemanticWitness, label: string, files: Record<string, 
   const compilerOptions = { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, jsx: "Preserve", skipLibCheck: true, noEmit: true, strict: false };
   const request = { id: witness.id + ":" + label, cwd: "/project", sdk_directory: "/sdk/lib", case_sensitive: process.platform !== "darwin", roots, files: absoluteFiles, options: compilerOptions, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {} };
   const evidence = [save(resolve(directory, "producer-request.json"), request), save(resolve(directory, "oracle-request.json"), { files: absoluteFiles, roots })];
-  const oracle = invoke([artifacts["semanticOracle"]!.path, evidence[1]!.path, artifacts["sdk"]!.path]);
+  let oracle = invoke([artifacts["semanticOracle"]!.path, evidence[1]!.path, artifacts["sdk"]!.path]);
   const producer = invoke([artifacts["producer"]!.path, evidence[0]!.path, artifacts["sdk"]!.path]);
   evidence.push(save(resolve(directory, "oracle-capture.json"), oracle), save(resolve(directory, "producer-capture.json"), producer));
   if (oracle.error !== null || oracle.signal !== null || oracle.exitCode !== 0) throw Error("ORACLE_EXECUTION_FAILED:" + directory);
   verifyProducerCompletion(producer);
-  const oracleValue = record(decode(oracle.stdout)), producerValue = record(decode(producer.stdout));
+  let oracleValue = record(decode(oracle.stdout));
+  const producerValue = record(decode(producer.stdout));
   if (Object.keys(oracleValue).length === 0 || (producer.exitCode === 0 && Object.keys(producerValue).length === 0)) throw Error("INVALID_PROCESS_JSON:" + directory);
+  if (contractWitness !== undefined && (oracleValue["compilerVersion"] !== "7.1.0-dev" || oracleValue["revision"] !== "780dc512d64f40afebffa6a7028207649fb7ed1c")) throw Error("ORACLE_IDENTITY_MISMATCH:" + directory);
   const observed = semanticObservation(producerValue, witness.path);
+  const ownershipState: { projection: OwnershipProjection | null } = { projection: null };
+  const contractObservation = contractWitness === undefined ? null : resolveContractQueries(oracleValue, value => {
+    ownershipState.projection = null;
+    const projected = projectContract(value, "/project/" + witness.path, files);
+    if (!projected.gaps.includes("CONTRACT_EXTERNAL_UNAVAILABLE:ownership")) return projected;
+    const ownership = projectContractOwnership(value, witness.path, files);
+    ownershipState.projection = ownership;
+    return ownership.status === "projected" ? projectContract(value, "/project/" + witness.path, files, ownership.proof)
+      : { ...projected, gaps: ownership.gaps, ...(ownership.queries === undefined ? {} : { queries: ownership.queries }) };
+  }, (factQueries, round) => {
+    const nativeRequest = save(resolve(directory, `native-round-${round}`, "oracle-request.json"), { files: absoluteFiles, roots, factQueries });
+    oracle = invoke([artifacts["semanticOracle"]!.path, nativeRequest.path, artifacts["sdk"]!.path]);
+    evidence.push(nativeRequest, save(resolve(directory, `native-round-${round}`, "oracle-capture.json"), oracle));
+    if (oracle.error !== null || oracle.signal !== null || oracle.exitCode !== 0) throw Error("ORACLE_EXECUTION_FAILED:" + nativeRequest.path);
+    const value = record(decode(oracle.stdout));
+    if (value["compilerVersion"] !== "7.1.0-dev" || value["revision"] !== "780dc512d64f40afebffa6a7028207649fb7ed1c") throw Error("ORACLE_IDENTITY_MISMATCH:" + nativeRequest.path);
+    return value;
+  });
+  if (contractObservation !== null) oracleValue = record(contractObservation.oracle);
+  const contractProjection = contractObservation?.projection;
+  const contractVerification = contractWitness === undefined || contractProjection === undefined ? null : verifyContractWitness(oracleValue, contractProjection, contractWitness, label, witness.path);
   const oracleFiles = Array.isArray(oracleValue["files"]) ? oracleValue["files"] : [];
   const factsPresent = oracleFiles.some(value => { const file = record(value); return file["path"] === "/project/" + witness.path && Array.isArray(file["nodes"]) && file["nodes"].length > 0; });
   const projected = [61, 97, 102].includes(witness.index) ? projectOperators(oracleValue, "/project/" + witness.path) : null;
   const runtime = [68, 74, 82, 89, 135].includes(witness.index) ? projectRuntimeReasons(oracleValue, "/project/" + witness.path) : null;
-  const projectedReasons = projected?.status === "projected" ? projected.reasons : runtime?.reasons ?? expected;
+  const projectedReasons = contractProjection !== undefined ? contractProjection.status === "projected" ? contractProjection.reasons : null : projected?.status === "projected" ? projected.reasons : runtime?.reasons ?? expected;
   const exactReasons = compareReasons(observed, projectedReasons);
+  const exactOwnership = ownershipState.projection === null ? null : ownershipState.projection.status === "projected" ? compareContractOwnership(producerValue, ownershipState.projection) : null;
   const matrixWitness = operatorWitnesses.find(row => row.index === witness.index && witness.id.endsWith(":" + row.idSuffix));
   const expectedOperator = label === "activate" ? matrixWitness?.expectedOperator : matrixWitness?.controlOperator;
   const expectedKind = label === "activate" ? matrixWitness?.expectedKind : matrixWitness?.controlKind;
@@ -106,14 +138,22 @@ function observe(witness: SemanticWitness, label: string, files: Record<string, 
   };
   if (projected !== null) evidence.push(save(resolve(directory, "independent-projection.json"), projected));
   if (runtime !== null) evidence.push(save(resolve(directory, "independent-runtime-projection.json"), runtime));
-  return { evidence, projection, properties: {
+  const contractRun: ContractClosureRun | null = contractProjection === undefined ? null : {
+    scenario: witness.id, label, projected: contractProjection.status === "projected", exactReasons: exactReasons && exactOwnership !== false, processVerified,
+    witnessVerified: contractVerification?.passed === true, gaps: [...contractProjection.gaps, ...(contractVerification?.gaps ?? []), ...(exactOwnership === false ? ["OWNERSHIP_GRAPH_COMPARISON_FAILED"] : [])],
+    sites: contractProjection.sites, branches: contractProjection.branches,
+  };
+  if (contractProjection !== undefined) evidence.push(save(resolve(directory, "independent-contract-projection.json"), { ...contractProjection, rounds: contractObservation?.rounds, witnessVerification: contractVerification }));
+  if (ownershipState.projection !== null) evidence.push(save(resolve(directory, "independent-ownership-projection.json"), { ...ownershipState.projection, exactOwnership, ...(ownershipState.projection.status === "projected" ? { callbacks: [...ownershipState.projection.proof.callbacks] } : {}) }));
+  return { evidence, projection, contractRun, properties: {
     oracleProcess: oracle.exitCode === 0 && oracle.error === null,
     oracleIdentity: oracleValue["compilerVersion"] === "7.1.0-dev" && oracleValue["revision"] === "780dc512d64f40afebffa6a7028207649fb7ed1c",
     oracleFactsPresent: factsPresent,
     producerProcess: producer.exitCode === 0 && producer.error === null,
     exactReasons,
+    exactOwnership,
     expectedReasons: projectedReasons,
-    independentReasons: projected?.status === "projected" || (runtime !== null && runtime.reasons !== null),
+    independentReasons: contractProjection?.status === "projected" || projected?.status === "projected" || (runtime !== null && runtime.reasons !== null),
     observedReasons: observed["reasons"] ?? null,
     requiredFacts: witness.requiredFacts,
     independentCumulativeProjection: { status: "not_qualified", reason: witness.qualificationGap ?? "TS7 facts are captured; exhaustive API-site and independent Semctx graph/ownership projection has not been established." },
@@ -159,11 +199,15 @@ export function campaign(argv: string[]): void {
   const results = selected.map(witness => {
     const start = performance.now();
     const matrix = operatorWitnesses.filter(row => row.index === witness.index);
-    const scenarios: SemanticWitness[] = matrix.length === 0 ? [witness, ...semanticWitnessesAFocal.filter(row => row.index === witness.index)] : matrix.map(row => ({
+    const contractMatrix = matrix.length === 0 ? contractWitnesses.filter(row => row.index === witness.index) : [];
+    const projectedMatrix = [...matrix, ...contractMatrix];
+    const scenarios: SemanticWitness[] = projectedMatrix.length === 0 ? [witness, ...semanticWitnessesAFocal.filter(row => row.index === witness.index)] : projectedMatrix.map(row => ({
       ...witness, id: witness.id + ":" + row.idSuffix, files: row.files, controlFiles: row.controlFiles,
+      path: "path" in row && typeof row.path === "string" ? row.path : witness.path,
       expectedReasons: null, controlExpectedReasons: null,
     }));
     const projectionRuns: ProjectionRun[] = [];
+    const contractRuns: ContractClosureRun[] = [];
     const properties: { id: string; status: string; reason: string; evidence: Artifact[]; details?: unknown }[] = [], evidence: Artifact[] = [];
     const obligation = record(obligations[witness.index]), cumulative = obligation["cumulative_properties"];
     if (obligation["obligation_id"] !== witness.id || !Array.isArray(cumulative) || cumulative.length === 0) throw Error("INVALID_CUMULATIVE_PROPERTIES:" + String(witness.index));
@@ -174,14 +218,18 @@ export function campaign(argv: string[]): void {
     }
     for (const scenario of scenarios) {
       for (const label of ["activate", "control"] as const) {
-        const result = observe(scenario, label, label === "activate" ? scenario.files : scenario.controlFiles, label === "activate" ? scenario.expectedReasons : scenario.controlExpectedReasons, artifacts, out);
+        const contractWitness = contractMatrix.find(row => scenario.id === witness.id + ":" + row.idSuffix);
+        const result = observe(scenario, label, label === "activate" ? scenario.files : scenario.controlFiles, label === "activate" ? scenario.expectedReasons : scenario.controlExpectedReasons, artifacts, out, contractWitness);
         if (result.projection !== null) projectionRuns.push(result.projection);
+        if (result.contractRun !== null) contractRuns.push(result.contractRun);
         for (const key of ["oracleProcess", "oracleIdentity", "oracleFactsPresent", "producerProcess", "exactReasons"]) {
           const status = key === "exactReasons" && result.properties["expectedReasons"] === null ? "not_run" : result.properties[key] === true ? "passed" : "failed";
           properties.push({ id: scenario.id + ":" + label + ":" + key, status, reason: key === "exactReasons" ? (result.properties["independentReasons"] === true ? "Complete reason-array comparison against independent TS7 facts projected from the consumer contract." : "Complete Semctx reason-array comparison against the authored focal policy expectation; compiler predicate projection remains separate.") : "Fresh isolated process observation: " + key, evidence: result.evidence, details: result.properties });
         }
-        properties.push({ id: scenario.id + ":" + label + ":independentCumulativeProjection", status: result.projection?.projected === true ? "passed" : "not_run", reason: result.projection?.projected === true ? "Independent complete projection within the explicitly supported operator vocabulary; site closure assessed separately." : scenario.qualificationGap ?? "Exhaustive TS7 API-site and independent Semctx graph/ownership projection remains unestablished.", evidence: result.evidence, details: result.projection ?? { requiredFacts: scenario.requiredFacts } });
-        if (matrix.length === 0) for (const fact of scenario.requiredFacts) properties.push({ id: scenario.id + ":" + label + ":compilerPredicate:" + fact, status: "not_run", reason: "Raw TS7 facts are captured separately; this required consumer predicate has no complete independent comparison yet.", evidence: result.evidence });
+        if (result.properties["exactOwnership"] !== null) properties.push({ id: scenario.id + ":" + label + ":exactOwnership", status: result.properties["exactOwnership"] === true ? "passed" : "failed", reason: "Retained owner and target coordinates, calls edges and evidence lines compared to an independent native-source graph projection.", evidence: result.evidence });
+        const completeProjection = result.projection?.projected === true || (result.contractRun?.projected === true && result.contractRun.witnessVerified);
+        properties.push({ id: scenario.id + ":" + label + ":independentCumulativeProjection", status: completeProjection ? "passed" : "not_run", reason: completeProjection ? "Independent reason projection and native witness conditions executed; cumulative site and alternative closure assessed separately." : scenario.qualificationGap ?? "Exhaustive TS7 API-site and independent Semctx graph/ownership projection remains unestablished.", evidence: result.evidence, details: result.contractRun ?? result.projection ?? { requiredFacts: scenario.requiredFacts } });
+        if (projectedMatrix.length === 0) for (const fact of scenario.requiredFacts) properties.push({ id: scenario.id + ":" + label + ":compilerPredicate:" + fact, status: "not_run", reason: "Raw TS7 facts are captured separately; this required consumer predicate has no complete independent comparison yet.", evidence: result.evidence });
         evidence.push(...result.evidence);
       }
     }
@@ -189,18 +237,20 @@ export function campaign(argv: string[]): void {
     if (contract["id"] !== witness.id) throw Error("CONSUMER_CONTRACT_ID_MISMATCH");
     const apiSites = record(contract["source"])["apiSites"];
     if (!Array.isArray(apiSites) || apiSites.some(site => typeof record(site)["expression"] !== "string")) throw Error("MISSING_API_SITES");
-    const closure = closeProjection(witness.index, apiSites.map(site => String(record(site)["expression"])), matrix.length === 0 ? [] : scenarios.map(scenario => scenario.id), projectionRuns);
+    const closure = contractMatrix.length > 0
+      ? closeContractProjection(witness.index, apiSites.map((site, position) => ({ index: witness.index, site: `${witness.index}:${position}`, expression: String(record(site)["expression"]) })), contractProjectionInventory(), scenarios.map(scenario => scenario.id), contractRuns, contractWitnessLimitations.filter(limitation => limitation.index === witness.index))
+      : closeProjection(witness.index, apiSites.map(site => String(record(site)["expression"])), matrix.length === 0 ? [] : scenarios.map(scenario => scenario.id), projectionRuns);
     const closureEvidence = save(resolve(out, String(witness.index), "site-closure.json"), closure);
     evidence.push(contractEvidence, closureEvidence);
-    if (matrix.length > 0) {
+    if (projectedMatrix.length > 0) {
       for (const property of properties.slice(0, cumulative.length)) {
         property.status = closure.status;
-        property.reason = closure.status === "passed" ? "Every operator alternative and consumer API site has fresh activation/control comparisons." : closure.gaps.join("; ") || "Independent reason comparison failed";
+        property.reason = closure.status === "passed" ? "Every declared native witness, consumer API site and contract alternative has fresh independent comparisons." : closure.gaps.join("; ") || "Independent reason comparison failed";
         property.evidence = [inventoryEvidence, contractEvidence, closureEvidence, ...evidence];
       }
     }
-    const qualified = matrix.length > 0 && properties.every(property => property.status === "passed");
-    return { index: witness.index, id: witness.id, status: qualified ? "qualified" : "not_qualified", reason: qualified ? "Finite operator contract projected independently from TS7 facts, all declared alternatives and API sites compared." : witness.qualificationGap ?? "Independent cumulative projection and all required API-site coverage remain unestablished.", contractSource: witness.contractSource, properties, evidence, durationMs: performance.now() - start };
+    const qualified = projectedMatrix.length > 0 && properties.every(property => property.status === "passed");
+    return { index: witness.index, id: witness.id, status: qualified ? "qualified" : "not_qualified", reason: qualified ? "Consumer contract projected independently from TS7 facts, all declared alternatives and API sites compared." : closure.gaps.join("; ") || witness.qualificationGap || "Independent cumulative projection remains unestablished.", contractSource: witness.contractSource, properties, evidence, durationMs: performance.now() - start };
   });
   for (const artifact of Object.values(artifacts)) verifyArtifact(artifact);
   validateOracleLibraries(artifacts["oracle"]!.path, artifacts["oracleLibraries"]!.path);
