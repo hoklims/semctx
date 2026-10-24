@@ -1,5 +1,5 @@
 import { access, mkdir, readFile, realpath, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { posix, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { sha256, type CampaignContext, type Evidence, type ObligationResult, type PropertyResult } from "./t00-ts7-q-config-campaign";
 
@@ -13,7 +13,7 @@ const sortedReads = (reads: Read[]): Read[] => [...reads].sort((a, b) => canonic
 const namedReason = "SOURCE_NAMED_CONFIGURATION_UNSUPPORTED";
 
 export function normalizeNamedPath(root: string, path: string, sensitive: boolean): string {
-  const normalized = resolve(root, path).replaceAll("\\", "/");
+  const normalized = posix.resolve(root, path).replaceAll("\\", "/");
   return sensitive ? normalized : normalized.toLowerCase();
 }
 

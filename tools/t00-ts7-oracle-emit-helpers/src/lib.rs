@@ -319,9 +319,14 @@ pub fn observe(input: &Value) -> Result<Value, String> {
 }
 
 #[cfg(test)]
+#[path = "../tests/support/mod.rs"]
+mod test_support;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     fn fixture(source: &str, filename: &str, options: Value) -> Value {
+        test_support::install_sdk(&std::env::current_exe().unwrap());
         let input = json!({"source":source,"file_name":filename,"options":options});
         std::thread::Builder::new()
             .stack_size(16 * 1024 * 1024)

@@ -160,10 +160,8 @@ function observe(witness: SemanticWitness, label: "activate" | "control", files:
   } };
 }
 
-export function campaign(argv: string[]): void {
-  const started = performance.now(), args = options(argv), platform = args["--platform"]!;
-  if (process.arch !== "arm64" || process.platform !== (platform === "macos" ? "darwin" : "linux")) throw Error("PLATFORM_MISMATCH");
-  const manifestPath = resolve(args["--candidate"]!), manifestBytes = readFileSync(manifestPath), manifest = record(decode(manifestBytes.toString()));
+export function loadCandidateArtifacts(path: string, platform: "macos" | "linux") {
+  const manifestPath = resolve(path), manifestBytes = readFileSync(manifestPath), manifest = record(decode(manifestBytes.toString()));
   if (manifest["schemaVersion"] !== 1 || typeof manifest["sourceCommit"] !== "string" || !/^[a-f0-9]{40}$/.test(manifest["sourceCommit"])) throw Error("INVALID_CANDIDATE_MANIFEST");
   for (const target of ["macos", "linux"]) {
     const declared = record(record(manifest["platforms"])[target]);
@@ -175,6 +173,13 @@ export function campaign(argv: string[]): void {
     if (!Number.isSafeInteger(record(binding[name])["bytes"]) || Number(record(binding[name])["bytes"]) < 0) throw Error("ARTIFACT_SIZE_REQUIRED:" + name);
     artifacts[name] = verifyArtifact(binding[name]);
   }
+  return { manifestPath, manifestBytes, manifest, artifacts };
+}
+
+export function campaign(argv: string[]): void {
+  const started = performance.now(), args = options(argv), platform = args["--platform"]!;
+  if (process.arch !== "arm64" || process.platform !== (platform === "macos" ? "darwin" : "linux")) throw Error("PLATFORM_MISMATCH");
+  const { manifestPath, manifestBytes, manifest, artifacts } = loadCandidateArtifacts(args["--candidate"]!, platform as "macos" | "linux");
   validateSdk(artifacts["sdk"]!.path, artifacts["oracleLibraries"]!.path);
   validateOracleLibraries(artifacts["oracle"]!.path, artifacts["oracleLibraries"]!.path);
   const reference = record(read(resolve(import.meta.dir, "../docs/research/rust-ts-r0/oracle-ts7.json")));

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { chmod, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
-import { basename, dirname, resolve } from "node:path";
+import { basename, dirname, posix, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { asset, checkAsset, isolatedEnvironment, record, type Context, type Evidence, type Execution, type Json, type Observation, type Property } from "./t00-ts7-q-boundary-common";
 import { identityRuntimeObservations } from "./t00-ts7-q-boundary-identity-runtime";
@@ -101,8 +101,8 @@ export function missingEs5LibraryRefused(execution: Pick<Execution, "exitCode" |
   const libraries = lines.filter(line => /(?:^|\/)lib[^/]*\.d\.ts$/.test(line));
   return execution.exitCode === 2 && execution.stderr === ""
     && lines.some(line => /^error TS2318: Cannot find global type '[A-Za-z]+'\.$/.test(line))
-    && libraries.includes(resolve(sdkRoot, "lib/lib.es2022.full.d.ts"))
-    && libraries.every(path => dirname(path) === resolve(sdkRoot, "lib") && basename(path) !== "lib.es5.d.ts");
+    && libraries.includes(posix.resolve(sdkRoot, "lib/lib.es2022.full.d.ts"))
+    && libraries.every(path => posix.dirname(path) === posix.resolve(sdkRoot, "lib") && posix.basename(path) !== "lib.es5.d.ts");
 }
 
 async function acquisition(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {

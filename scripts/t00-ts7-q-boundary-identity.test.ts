@@ -76,6 +76,8 @@ test("native missing-library control requires TS7 global-type refusal and confin
     { ...execution, stdout: diagnostic },
     { ...execution, stdout: libraries },
     { ...execution, stdout: execution.stdout + "/foreign/lib/lib.es2015.d.ts\n" },
+    { ...execution, stdout: execution.stdout.replaceAll("/fixture/sdk", "/Fixture/sdk") },
+    { ...execution, stdout: execution.stdout.replace("lib.es2022.full.d.ts", "LIB.ES2022.FULL.D.TS") },
     { ...execution, stdout: execution.stdout + "/fixture/sdk/lib/lib.es5.d.ts\n" },
     { ...execution, stdout: execution.stdout + "/fixture/sdk/lib/../foreign/lib.es2015.d.ts\n" },
     { ...execution, stderr: "execution failed" },

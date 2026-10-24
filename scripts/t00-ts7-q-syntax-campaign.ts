@@ -30,7 +30,7 @@ function artifact(value: unknown): FileRef {
   return { path: text(item.path), sha256: text(item.sha256), bytes: item.bytes };
 }
 
-async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{
+export async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{
   manifest: CandidateManifest; artifacts: PlatformArtifacts; refs: FileRef[]; manifestHash: string;
 }> {
   const bytes = await readFile(path);

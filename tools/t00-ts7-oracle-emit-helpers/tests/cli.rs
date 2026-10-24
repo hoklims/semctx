@@ -1,3 +1,5 @@
+mod support;
+
 use serde_json::json;
 use std::{fs, process::Command};
 
@@ -72,7 +74,7 @@ fn invalid_requests_fail_without_fact_output() {
 #[test]
 fn absolute_source_paths_preserve_authored_casing_and_compiler_facts() {
     let executable = std::path::Path::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-emit-helpers"));
-    let sdk = executable.parent().unwrap();
+    let sdk = support::install_sdk(executable);
     let directory = std::env::temp_dir().join(format!(
         "t00-emit-helpers-oracle-absolute-{}",
         std::process::id()
