@@ -1,6 +1,9 @@
 use serde_json::json;
 use std::{fs, process::Command};
 
+#[path = "support/sdk.rs"]
+mod sdk;
+
 #[test]
 fn invalid_requests_fail_without_fact_output() {
     let directory = std::env::temp_dir().join(format!(
@@ -72,12 +75,15 @@ fn invalid_requests_fail_without_fact_output() {
 #[test]
 fn absolute_source_paths_preserve_authored_casing_and_compiler_facts() {
     let executable = std::path::Path::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-emit-helpers"));
-    let sdk = executable.parent().unwrap();
     let directory = std::env::temp_dir().join(format!(
         "t00-emit-helpers-oracle-absolute-{}",
         std::process::id()
     ));
     fs::create_dir_all(&directory).unwrap();
+    let sdk = sdk::prepare_test_sdk(&directory, true);
+    // Upstream noembed loads declarations beside the running executable.
+    let staged_executable = sdk.join(executable.file_name().unwrap());
+    fs::copy(executable, &staged_executable).unwrap();
     let mut observations = Vec::new();
     for (index, filename) in ["main.jsx", "/Users/CaseSensitive/Repository/Main.jsx"]
         .iter()
@@ -89,7 +95,7 @@ fn absolute_source_paths_preserve_authored_casing_and_compiler_facts() {
             "source":"export async function run() { return 1; }\n",
             "options":{"target":"es2015","module":"esnext","moduleResolution":"bundler","jsx":"preserve","importHelpers":true}
         }).to_string()).unwrap();
-        let output = Command::new(executable)
+        let output = Command::new(&staged_executable)
             .env_remove("GOPORT_BUILD_VERSION")
             .arg(request)
             .output()

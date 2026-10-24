@@ -1,11 +1,14 @@
 use serde_json::{Value, json};
 use std::{fs, process::Command};
 
+#[path = "../../t00-ts7-oracle-emit-helpers/tests/support/sdk.rs"]
+mod sdk;
+
 #[test]
 fn syntax_facts_preserve_native_text_imports_templates_and_control_flow() {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
     let dir = std::env::temp_dir().join(format!("t00-semantic-syntax-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
+    let sdk = sdk::prepare_test_sdk(&dir, false);
     let request = dir.join("request.json");
     fs::write(&request, json!({"files": {
         "/project/dep.ts": "export interface Thing {}",
@@ -15,7 +18,8 @@ import type {Thing as Alias} from './dep'; export type {Alias}; async function* 
     let output = Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
         .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
         .env("GOPORT_LIB_SNAPSHOT", "0")
-        .args([request.to_str().unwrap(), &sdk])
+        .arg(&request)
+        .arg(&sdk)
         .output()
         .unwrap();
     assert!(

@@ -1,14 +1,18 @@
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Command};
 
+#[path = "../../t00-ts7-oracle-emit-helpers/tests/support/sdk.rs"]
+mod sdk;
+
 fn invoke(directory: &Path, request: &Value) -> std::process::Output {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
+    let sdk = sdk::prepare_test_sdk(directory, false);
     let path = directory.join("request.json");
     fs::write(&path, request.to_string()).unwrap();
     Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
         .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
         .env("GOPORT_LIB_SNAPSHOT", "0")
-        .args([path.to_str().unwrap(), &sdk])
+        .arg(&path)
+        .arg(&sdk)
         .output()
         .unwrap()
 }

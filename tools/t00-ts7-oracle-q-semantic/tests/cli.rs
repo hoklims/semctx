@@ -1,11 +1,14 @@
 use serde_json::{Value, json};
 use std::{fs, process::Command};
 
+#[path = "../../t00-ts7-oracle-emit-helpers/tests/support/sdk.rs"]
+mod sdk;
+
 #[test]
 fn compiler_facts_preserve_sdk_origin_aliases_and_signatures() {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
     let dir = std::env::temp_dir().join(format!("t00-semantic-oracle-test-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
+    let sdk = sdk::prepare_test_sdk(&dir, false);
     let request = dir.join("request.json");
     fs::write(&request, serde_json::to_vec(&json!({"files": {
         "/project/dependency.ts": "export const identity = (value: number) => value;",
@@ -14,7 +17,8 @@ fn compiler_facts_preserve_sdk_origin_aliases_and_signatures() {
     let output = Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
         .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
         .env("GOPORT_LIB_SNAPSHOT", "0")
-        .args([request.to_str().unwrap(), &sdk])
+        .arg(&request)
+        .arg(&sdk)
         .output()
         .unwrap();
     assert!(
@@ -56,12 +60,12 @@ fn compiler_facts_preserve_sdk_origin_aliases_and_signatures() {
 
 #[test]
 fn invalid_inputs_fail_without_fact_output() {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
     let dir = std::env::temp_dir().join(format!(
         "t00-semantic-oracle-invalid-{}",
         std::process::id()
     ));
     fs::create_dir_all(&dir).unwrap();
+    let sdk = sdk::prepare_test_sdk(&dir, false);
     for (index, request) in [
         "not json".to_string(),
         json!({"files": {}}).to_string(),
@@ -78,7 +82,8 @@ fn invalid_inputs_fail_without_fact_output() {
         let output = Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
             .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
             .env("GOPORT_LIB_SNAPSHOT", "0")
-            .args([path.to_str().unwrap(), &sdk])
+            .arg(&path)
+            .arg(&sdk)
             .output()
             .unwrap();
         assert!(!output.status.success(), "invalid request {index} accepted");
@@ -119,9 +124,9 @@ fn invalid_inputs_fail_without_fact_output() {
 
 #[test]
 fn structured_facts_connect_syntax_types_and_signature_parameters() {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
     let dir = std::env::temp_dir().join(format!("t00-semantic-structured-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
+    let sdk = sdk::prepare_test_sdk(&dir, false);
     let request = dir.join("request.json");
     fs::write(&request, json!({"files": {
         "/project/main.ts": "declare const choice: string | number; declare const combined: {a: number} & {b: string}; const callback = (value: number) => value + 1; const result = Math.max(...[1, 2]); const object = new Date(); [1].map(callback); type Recursive = () => Recursive; declare const recursive: Recursive; recursive();"
@@ -129,7 +134,8 @@ fn structured_facts_connect_syntax_types_and_signature_parameters() {
     let output = Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
         .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
         .env("GOPORT_LIB_SNAPSHOT", "0")
-        .args([request.to_str().unwrap(), &sdk])
+        .arg(&request)
+        .arg(&sdk)
         .output()
         .unwrap();
     assert!(

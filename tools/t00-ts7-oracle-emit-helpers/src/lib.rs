@@ -319,8 +319,71 @@ pub fn observe(input: &Value) -> Result<Value, String> {
 }
 
 #[cfg(test)]
+#[path = "../tests/support/sdk.rs"]
+mod test_sdk;
+
+#[cfg(test)]
 mod tests {
     use super::*;
+
+    fn exactly_one_pass(stdout: &str, name: &str) -> bool {
+        stdout.lines().any(|line| line == "running 1 test")
+            && stdout
+                .lines()
+                .any(|line| line == format!("test {name} ... ok"))
+            && stdout.lines().any(|line| {
+                line.starts_with("test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; ")
+            })
+    }
+
+    fn reexecute_with_sdk(name: &str) -> bool {
+        const MARKER: &str = "T00_ORACLE_UNIT_TEST";
+        if let Some(expected) = std::env::var_os(MARKER) {
+            assert_eq!(expected, name, "staged SDK child test identity");
+            return false;
+        }
+        let directory = std::env::temp_dir().join(format!(
+            "t00-emit-unit-{}-{}",
+            std::process::id(),
+            name.replace(':', "-")
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        let sdk = test_sdk::prepare_test_sdk(&directory, true);
+        let current = std::env::current_exe().unwrap();
+        let executable = sdk.join(current.file_name().unwrap());
+        std::fs::copy(current, &executable).unwrap();
+        let stdout_path = directory.join("stdout");
+        let stderr_path = directory.join("stderr");
+        let mut child = std::process::Command::new(executable)
+            .args(["--exact", name, "--test-threads=1", "--color=never"])
+            .env(MARKER, name)
+            .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
+            .env("GOPORT_LIB_SNAPSHOT", "0")
+            .stdout(std::fs::File::create(&stdout_path).unwrap())
+            .stderr(std::fs::File::create(&stderr_path).unwrap())
+            .spawn()
+            .unwrap();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
+        let (status, timed_out) = loop {
+            if let Some(status) = child.try_wait().unwrap() {
+                break (status, false);
+            }
+            if std::time::Instant::now() >= deadline {
+                child.kill().unwrap();
+                break (child.wait().unwrap(), true);
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        };
+        let stdout = std::fs::read_to_string(stdout_path).unwrap();
+        let stderr = std::fs::read_to_string(stderr_path).unwrap();
+        std::fs::remove_dir_all(directory).unwrap();
+        assert!(
+            !timed_out && status.success() && exactly_one_pass(&stdout, name),
+            "staged test {name}: status={status}, timed_out={timed_out}\nstdout:\n{stdout}\nstderr:\n{stderr}"
+        );
+        true
+    }
+
     fn fixture(source: &str, filename: &str, options: Value) -> Value {
         let input = json!({"source":source,"file_name":filename,"options":options});
         std::thread::Builder::new()
@@ -335,6 +398,9 @@ mod tests {
     }
     #[test]
     fn refuses_unsupported_es5_target() {
+        if reexecute_with_sdk("tests::refuses_unsupported_es5_target") {
+            return;
+        }
         assert!(
             observe(&json!({"options":{"target":"ES5"}}))
                 .unwrap_err()
@@ -343,6 +409,11 @@ mod tests {
     }
     #[test]
     fn imports_runtime_helpers_only_when_the_transform_requires_them() {
+        if reexecute_with_sdk(
+            "tests::imports_runtime_helpers_only_when_the_transform_requires_them",
+        ) {
+            return;
+        }
         let source = "export async function read() { return await Promise.resolve(1); }";
         let active = fixture(
             source,
@@ -371,6 +442,9 @@ mod tests {
     }
     #[test]
     fn preserves_distinct_raw_jsx_and_synthesized_factory_spans() {
+        if reexecute_with_sdk("tests::preserves_distinct_raw_jsx_and_synthesized_factory_spans") {
+            return;
+        }
         let source = "const title = 'é😀'; export const view = /* trivia */ <section />;";
         let classic = fixture(source, "view.jsx", json!({"jsx":"react"}));
         assert_eq!(classic["automaticImportBase"], "");
@@ -400,6 +474,9 @@ mod tests {
     }
     #[test]
     fn authored_factory_calls_do_not_count_as_synthesized_jsx() {
+        if reexecute_with_sdk("tests::authored_factory_calls_do_not_count_as_synthesized_jsx") {
+            return;
+        }
         let output = fixture(
             "export const view=React.createElement('section', null);",
             "view.jsx",
@@ -414,6 +491,9 @@ mod tests {
     }
     #[test]
     fn lets_upstream_interpret_automatic_runtime_pragmas() {
+        if reexecute_with_sdk("tests::lets_upstream_interpret_automatic_runtime_pragmas") {
+            return;
+        }
         let active = fixture(
             "/** @jsxRuntime automatic */\nexport const view = <section />;",
             "view.jsx",
@@ -438,6 +518,11 @@ mod tests {
     }
     #[test]
     fn reports_javascript_annotation_diagnostics_from_transpile_module() {
+        if reexecute_with_sdk(
+            "tests::reports_javascript_annotation_diagnostics_from_transpile_module",
+        ) {
+            return;
+        }
         let active = fixture("export const answer: number = 42;", "answer.js", json!({}));
         assert!(active["diagnostics"].as_array().is_some_and(|diagnostics| {
             diagnostics
@@ -457,6 +542,11 @@ mod tests {
     }
     #[test]
     fn rejects_invalid_source_values_and_paths_before_compiler_entry() {
+        if reexecute_with_sdk(
+            "tests::rejects_invalid_source_values_and_paths_before_compiler_entry",
+        ) {
+            return;
+        }
         for input in [
             json!({"source":17,"file_name":"view.jsx"}),
             json!({"source":"export const value=1;"}),
@@ -471,6 +561,9 @@ mod tests {
     }
     #[test]
     fn rejects_invalid_option_types_and_removed_modules() {
+        if reexecute_with_sdk("tests::rejects_invalid_option_types_and_removed_modules") {
+            return;
+        }
         assert!(compiler_options(&json!({"options":{"importHelpers":"true"}})).is_err());
         assert!(compiler_options(&json!({"options":{"module":"amd"}})).is_err());
         assert!(compiler_options(&json!({"options":{"target":"unknown"}})).is_err());
