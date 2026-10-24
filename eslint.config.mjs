@@ -8,6 +8,8 @@ export default tseslint.config(
       "**/dist/**",
       "**/node_modules/**",
       "**/target/**",
+      "tools/rust-ts-r0/development-evidence/**",
+      "tools/rust-ts-r0-ts7-experimental/development-evidence/**",
       "**/.venv/**",
       ".semctx/**",
       "benchmarks/change-impact-eval/.semctx-bench/**",
