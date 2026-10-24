@@ -149,9 +149,18 @@ async function main(): Promise<void> {
   const context: CampaignContext = { producer: artifacts.producer.path, helper: artifacts.helper.path, sdk: artifacts.sdk.path, oracle: artifacts.oracle.path, emitHelpersOracle: artifacts.emitHelpersOracle?.path, out: options.out, platform: options.platform, run };
   const selected = selectIndices(options.shard);
   const { runConfigurationResolution } = await import("./t00-ts7-q-config-cr");
+  const { enrichConfigurationDiagnostics } = await import("./t00-ts7-q-config-diag");
+  const { enrichNamedConfigurations } = await import("./t00-ts7-q-config-named");
+  const { runConfigurationProgram } = await import("./t00-ts7-q-config-program");
   const { runProgramEmissionWorkers } = await import("./t00-ts7-q-config-pew");
   const { runEmitHelpers, emitHelpersIndices } = await import("./t00-ts7-q-config-emit-helpers");
-  const results = [...await runEmitHelpers(context, selected.filter(index => emitHelpersIndices.includes(index))), ...await runConfigurationResolution(context, selected.filter(index => configurationResolution.has(index))), ...await runProgramEmissionWorkers(context, selected.filter(index => !configurationResolution.has(index) && !emitHelpersIndices.includes(index)))].sort((a, b) => a.index - b.index);
+  const configurationRows = await runConfigurationResolution(context, selected.filter(index => configurationResolution.has(index)));
+  const results = [
+    ...await runEmitHelpers(context, selected.filter(index => emitHelpersIndices.includes(index))),
+    ...await enrichNamedConfigurations(context, await enrichConfigurationDiagnostics(context, configurationRows)),
+    ...await runConfigurationProgram(context, selected.filter(index => index === 167 || index === 171)),
+    ...await runProgramEmissionWorkers(context, selected.filter(index => !configurationResolution.has(index) && !emitHelpersIndices.includes(index) && index !== 167 && index !== 171)),
+  ].sort((a, b) => a.index - b.index);
   if (technicalFailure !== undefined) throw technicalFailure instanceof Error ? technicalFailure : new Error("non-Error technical process failure");
   validateResults(results, selected);
   await verifyArtifacts(artifacts);

@@ -1,5 +1,56 @@
 use super::*;
 
+fn localized_diagnostic(diagnostic: &core::Diagnostic) -> String {
+    std::iter::once(
+        diagnostic
+            .localize(&ts_goport::locale::DEFAULT)
+            .replace('\n', " "),
+    )
+    .chain(diagnostic.message_chain().iter().map(localized_diagnostic))
+    .collect::<Vec<_>>()
+    .join(" ")
+}
+
+fn invalid_configuration_reason(diagnostic: &core::Diagnostic) -> String {
+    format!(
+        "SOURCE_CONFIGURATION_INVALID:{}:{}",
+        diagnostic.code(),
+        localized_diagnostic(diagnostic)
+    )
+}
+
+fn compiler_option_diagnostics(
+    parsed: &tsoptions::ParsedCommandLine,
+    configuration: &Configuration,
+    repository: &str,
+    sensitive: bool,
+) -> Vec<core::Diagnostic> {
+    let (options, _) = merge_configured_options(&compiler_options(), configuration);
+    let mut config = tsoptions::new_parsed_command_line(
+        Rc::new(options),
+        vec![],
+        None,
+        ComparePathsOptions {
+            use_case_sensitive_file_names: sensitive,
+            current_directory: repository.into(),
+        },
+    );
+    config.config_file = parsed.config_file.clone();
+    let validation_fs = Rc::new(CaptureFs::new(BTreeMap::new(), sensitive));
+    let host = compiler::new_compiler_host(repository, validation_fs, repository, None, None, None);
+    compiler::new_program(compiler::ProgramOptions {
+        host,
+        config: Rc::new(config),
+        use_source_of_project_reference: false,
+        single_threaded: Tristate::True,
+        typings_location: String::new(),
+        project_name: String::new(),
+        create_module_resolver: None,
+        skip_module_resolution: true,
+    })
+    .program_diagnostics
+}
+
 pub struct Configuration {
     pub options: Rc<CompilerOptions>,
     pub raw: Option<tsoptions::CompilerOptionsValue>,
@@ -45,9 +96,6 @@ pub fn merge_configured_options(
         if values.contains_key("module") {
             final_module_none = module_none;
         }
-        if module_none {
-            values.shift_remove("module");
-        }
         let mut wrapper = raw.clone();
         wrapper.clear();
         wrapper.insert(
@@ -68,28 +116,7 @@ pub fn merge_configured_options(
             },
         );
         for error in errors {
-            reasons.insert(format!(
-                "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                error.code(),
-                error
-                    .localize(&ts_goport::locale::DEFAULT)
-                    .replace('\n', " ")
-            ));
-        }
-        if module_none {
-            for error in tsoptions::parse_compiler_options(
-                "module",
-                tsoptions::CompilerOptionsValue::ModuleKind(ModuleKind::NONE),
-                &mut merged,
-            ) {
-                reasons.insert(format!(
-                    "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                    error.code(),
-                    error
-                        .localize(&ts_goport::locale::DEFAULT)
-                        .replace('\n', " ")
-                ));
-            }
+            reasons.insert(invalid_configuration_reason(&error));
         }
     }
     if final_module_none {
@@ -98,25 +125,65 @@ pub fn merge_configured_options(
     (merged, reasons.into_iter().collect())
 }
 
+pub(super) trait System: Fs {
+    fn key(&self, path: &str) -> String;
+    fn sensitive(&self) -> bool;
+    fn probes(&self) -> Rc<RefCell<Vec<Probe>>>;
+    fn configuration_exists(&self, path: &str) -> bool;
+    fn workspace_profile(&self) -> bool {
+        false
+    }
+    fn contained(&self, repository: &str, path: &str) -> bool {
+        let root = self.key(repository);
+        let candidate = self.key(path);
+        candidate == root || candidate.starts_with(&format!("{root}/"))
+    }
+}
+
+impl System for CaptureFs {
+    fn key(&self, path: &str) -> String {
+        CaptureFs::key(self, path)
+    }
+    fn sensitive(&self) -> bool {
+        self.sensitive
+    }
+    fn probes(&self) -> Rc<RefCell<Vec<Probe>>> {
+        self.log.clone()
+    }
+    fn configuration_exists(&self, path: &str) -> bool {
+        let found = self.files.contains_key(&self.key(path));
+        self.record("configuration_discovery_file_exists", path, found);
+        found
+    }
+    fn workspace_profile(&self) -> bool {
+        self.workspace.is_some()
+    }
+}
+
 struct Host {
-    fs: Rc<CaptureFs>,
+    fs: Rc<dyn System>,
     cwd: String,
 }
 
 struct ConfigurationFs {
-    fs: Rc<CaptureFs>,
+    fs: Rc<dyn System>,
     root: String,
 }
 impl Fs for ConfigurationFs {
     fn use_case_sensitive_file_names(&self) -> bool {
-        self.fs.sensitive
+        self.fs.sensitive()
     }
     fn file_exists(&self, path: &str) -> bool {
         self.fs.file_exists(path)
     }
     fn read_file(&self, path: &str) -> (String, bool) {
-        if !contained(&self.fs, &self.root, path) {
-            self.fs.record("read_file", path, false);
+        if !self.fs.contained(&self.root, path) {
+            self.fs.probes().borrow_mut().push(Probe {
+                operation: "read_file".into(),
+                path: path.into(),
+                found: false,
+                content_id: None,
+            });
             return (String::new(), false);
         }
         self.fs.read_file(path)
@@ -192,24 +259,8 @@ impl tsoptions::ParseConfigHost for Host {
     }
 }
 
-fn contained(fs: &CaptureFs, repository: &str, path: &str) -> bool {
-    let root = fs.key(repository);
-    let candidate = fs.key(path);
-    candidate == root || candidate.starts_with(&format!("{root}/"))
-}
-
-fn module_none_value(raw: &tsoptions::CompilerOptionsValue) -> bool {
-    let tsoptions::CompilerOptionsValue::Map(raw) = raw else {
-        return false;
-    };
-    let Some(tsoptions::CompilerOptionsValue::Map(options)) = raw.get("compilerOptions") else {
-        return false;
-    };
-    matches!(options.get("module"),Some(tsoptions::CompilerOptionsValue::String(value)) if value.eq_ignore_ascii_case("none"))
-}
-
-fn negative_ancestor_package_directory(fs: &CaptureFs, repository: &str, probe: &Probe) -> bool {
-    if fs.workspace.is_none() || probe.operation != "directory_exists" || probe.found {
+fn negative_ancestor_package_directory(fs: &dyn System, repository: &str, probe: &Probe) -> bool {
+    if !fs.workspace_profile() || probe.operation != "directory_exists" || probe.found {
         return false;
     }
     let key = fs.key(&probe.path);
@@ -217,16 +268,19 @@ fn negative_ancestor_package_directory(fs: &CaptureFs, repository: &str, probe: 
         .is_some_and(|ancestor| fs.key(repository).starts_with(&format!("{ancestor}/")))
 }
 
-pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Configuration, String> {
-    if !contained(&fs, repository, path) {
-        return Err("source outside repository".into());
-    }
-    let first_probe = fs.log.borrow().len();
-    let mut dir = ts_goport::frontend::tspath::get_directory_path(path);
-    let config = loop {
+pub(super) fn find_configuration(fs: &dyn System, path: &str) -> Option<String> {
+    let directory = std::path::Path::new(path)
+        .parent()
+        .map(|parent| parent.to_string_lossy().into_owned())
+        .unwrap_or_else(|| path.into());
+    let mut dir = ts_goport::frontend::tspath::normalize_path(if directory.is_empty() {
+        "."
+    } else {
+        &directory
+    });
+    loop {
         let candidate = format!("{dir}/tsconfig.json");
-        let found = fs.files.contains_key(&fs.key(&candidate));
-        fs.record("configuration_discovery_file_exists", &candidate, found);
+        let found = fs.configuration_exists(&candidate);
         if found {
             break Some(candidate);
         }
@@ -235,7 +289,24 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
             break None;
         }
         dir = parent;
-    };
+    }
+}
+
+pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Configuration, String> {
+    inspect_system(fs, path, repository)
+}
+
+pub(super) fn inspect_system(
+    fs: Rc<dyn System>,
+    path: &str,
+    repository: &str,
+) -> Result<Configuration, String> {
+    if !fs.contained(repository, path) {
+        return Err("source outside repository".into());
+    }
+    let probe_log = fs.probes();
+    let first_probe = probe_log.borrow().len();
+    let config = find_configuration(fs.as_ref(), path);
     let Some(config) = config else {
         return Ok(Configuration {
             options: Rc::new(CompilerOptions::default()),
@@ -245,7 +316,7 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
             consumed: BTreeSet::new(),
         });
     };
-    if !contained(&fs, repository, &config) {
+    if !fs.contained(repository, &config) {
         return Ok(Configuration {
             options: Rc::new(CompilerOptions::default()),
             raw: None,
@@ -254,25 +325,43 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
             consumed: BTreeSet::new(),
         });
     }
-    let (text, found) = fs.read_file(&config);
-    if !found {
-        return Err("configuration disappeared from capture".into());
+    let (text, read_diagnostics) =
+        tsoptions::try_read_file(&config, &mut |path| fs.read_file(path), vec![]);
+    if !read_diagnostics.is_empty() {
+        return Ok(Configuration {
+            options: Rc::new(CompilerOptions::default()),
+            raw: None,
+            raw_chain: vec![],
+            reasons: read_diagnostics
+                .iter()
+                .map(invalid_configuration_reason)
+                .collect(),
+            consumed: BTreeSet::new(),
+        });
     }
     let _empty = core::enter_program(None);
-    let (json, mut diagnostics) = tsoptions::parse_config_file_text_to_json(
+    let source_file = tsoptions::new_tsconfig_source_file_from_file_path(
         &config,
         ts_goport::frontend::tspath::Path(config.clone()),
         &text,
     );
+    let (_, mut diagnostics) =
+        tsoptions::convert_config_file_to_object(source_file.source_file, None);
+    diagnostics.extend(
+        ts_goport::frontend::parser::parsed_source_file_diagnostics(source_file.source_file)
+            .iter()
+            .cloned(),
+    );
     let lineage = ConfigurationLineage::default();
     let parsed = if diagnostics.is_empty() {
-        Some(tsoptions::parse_json_config_file_content(
-            &json,
+        Some(tsoptions::parse_json_source_file_config_file_content(
+            source_file,
             &Host {
                 fs: fs.clone(),
                 cwd: repository.into(),
             },
             &ts_goport::frontend::tspath::get_directory_path(&config),
+            None,
             None,
             &config,
             &[],
@@ -289,32 +378,8 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
     if let Some(raw) = &raw {
         raw_chain.push((config.clone(), raw.clone()));
     }
-    let mut reasons = BTreeSet::new();
-    for diagnostic in diagnostics {
-        let diagnostic_path = if diagnostic.file().is_nil() {
-            config.as_str()
-        } else {
-            ast::source_file_file_name(diagnostic.file())
-        };
-        let removed_module_none = diagnostic.code() == 6046
-            && diagnostic
-                .message_args()
-                .first()
-                .is_some_and(|option| option == "--module")
-            && raw_chain.iter().any(|(path, raw)| {
-                fs.key(path) == fs.key(diagnostic_path) && module_none_value(raw)
-            });
-        if diagnostic.code() != 18003 && !removed_module_none {
-            reasons.insert(format!(
-                "SOURCE_CONFIGURATION_INVALID:{}:{}",
-                diagnostic.code(),
-                diagnostic
-                    .localize(&ts_goport::locale::DEFAULT)
-                    .replace('\n', " ")
-            ));
-        }
-    }
     let options = parsed
+        .as_ref()
         .map(|parsed| parsed.compiler_options().clone())
         .unwrap_or_else(|| Rc::new(CompilerOptions::default()));
     let provisional = Configuration {
@@ -324,6 +389,20 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
         reasons: vec![],
         consumed: BTreeSet::new(),
     };
+    if let Some(parsed) = &parsed {
+        diagnostics.extend(compiler_option_diagnostics(
+            parsed,
+            &provisional,
+            repository,
+            fs.sensitive(),
+        ));
+    }
+    let mut reasons = BTreeSet::new();
+    for diagnostic in diagnostics {
+        if diagnostic.code() != 18003 {
+            reasons.insert(invalid_configuration_reason(&diagnostic));
+        }
+    }
     let (normalized, additional) =
         merge_configured_options(&CompilerOptions::default(), &provisional);
     reasons.extend(additional);
@@ -360,12 +439,12 @@ pub fn inspect(fs: Rc<CaptureFs>, path: &str, repository: &str) -> Result<Config
             "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:{name}"
         ));
     }
-    let probes = fs.log.borrow();
+    let probes = probe_log.borrow();
     let new_probes = &probes[first_probe..];
     if new_probes.iter().any(|probe| {
         !probe.path.is_empty()
-            && !contained(&fs, repository, &probe.path)
-            && !negative_ancestor_package_directory(&fs, repository, probe)
+            && !fs.contained(repository, &probe.path)
+            && !negative_ancestor_package_directory(fs.as_ref(), repository, probe)
     }) {
         reasons.clear();
         reasons.insert("SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY".into());
@@ -389,52 +468,7 @@ pub fn unconsumed_named(
     repository: &str,
     paths: &[String],
 ) -> Result<Vec<String>, String> {
-    let named: Vec<_> = paths
-        .iter()
-        .filter(|path| {
-            let normalized = path.replace('\\', "/");
-            let name = normalized.rsplit('/').next().unwrap_or_default();
-            name.starts_with("tsconfig")
-                && name.ends_with(".json")
-                && name.len() > "tsconfig.json".len()
-        })
-        .collect();
-    if named.is_empty() {
-        return Ok(vec![]);
-    }
-    let mut consumed = BTreeSet::new();
-    for path in paths.iter().filter(|path| {
-        matches!(
-            path.rsplit('.').next(),
-            Some(
-                "ts" | "tsx"
-                    | "js"
-                    | "jsx"
-                    | "mts"
-                    | "mtsx"
-                    | "cts"
-                    | "ctsx"
-                    | "mjs"
-                    | "mjsx"
-                    | "cjs"
-                    | "cjsx"
-            )
-        )
-    }) {
-        consumed.extend(
-            inspect(fs.clone(), path, repository)?
-                .consumed
-                .into_iter()
-                .map(|path| fs.key(&path)),
-        );
-    }
-    Ok(
-        if named.iter().any(|path| !consumed.contains(&fs.key(path))) {
-            vec!["SOURCE_NAMED_CONFIGURATION_UNSUPPORTED".into()]
-        } else {
-            vec![]
-        },
-    )
+    crate::named_configuration::inspect_captured(fs, repository, paths)
 }
 
 #[cfg(test)]

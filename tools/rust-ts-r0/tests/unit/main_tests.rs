@@ -1649,7 +1649,7 @@ fn explicit_configured_query_cli_resolves_without_inserting_an_import() {
     assert_eq!(observed["resolved_relative_path"], "leaf.ts");
     assert_eq!(
         observed["configuration"],
-        serde_json::json!({"executed":true,"reasons":[],"unsupported":[]})
+        serde_json::json!({"executed":true,"reasons":["SOURCE_CONFIGURATION_INVALID:5102:Option 'baseUrl' has been removed. Please remove it from your configuration. Use '\"paths\": {\"*\": [\"./*\"]}' instead."],"unsupported":[]})
     );
     assert_eq!(
         observed["capturedDirectories"],
@@ -2037,6 +2037,7 @@ fn component_observation_keeps_snapshot_profile_out_of_ordinary_configuration() 
     let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
     let expected = serde_json::json!([
         "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED",
+        "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration.",
         "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
         "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10"
     ]);
@@ -2044,7 +2045,9 @@ fn component_observation_keeps_snapshot_profile_out_of_ordinary_configuration() 
     assert_eq!(modes["retainedWithSource"]["reasons"], expected);
     assert_eq!(
         modes["ordinaryWithoutSnapshot"]["reasons"],
-        serde_json::json!([])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration."
+        ])
     );
 }
 
@@ -2142,11 +2145,16 @@ fn component_observation_distinguishes_explicit_module_none_from_omission() {
     let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
     assert_eq!(
         modes["retainedWithoutSource"]["reasons"],
-        serde_json::json!(["SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+            "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None",
+        ])
     );
     assert_eq!(
         modes["ordinaryWithoutSnapshot"]["reasons"],
-        serde_json::json!([])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+        ])
     );
     request
         .files
