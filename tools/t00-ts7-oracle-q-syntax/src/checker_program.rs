@@ -151,8 +151,10 @@ pub fn test_sdk_directory() -> TestSdk {
     use std::sync::OnceLock;
     static DIRECTORY: OnceLock<std::path::PathBuf> = OnceLock::new();
     let path = DIRECTORY.get_or_init(|| {
-        let sdk: Value = serde_json::from_str(include_str!("../../rust-ts-r0/sdk/sdk-input.json"))
-            .expect("canonical SDK JSON");
+        let sdk: Value = serde_json::from_str(include_str!(
+            "../../rust-ts-r0-ts7-experimental/sdk/sdk-input.json"
+        ))
+        .expect("canonical SDK JSON");
         assert_eq!(sdk["version"], "7.1.0-dev");
         assert_eq!(sdk["files"].as_object().unwrap().len(), 115);
         let executable = std::env::current_exe().expect("test executable path");
