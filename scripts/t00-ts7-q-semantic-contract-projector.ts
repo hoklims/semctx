@@ -21,6 +21,7 @@ type Row = { index: number; consumer: string; inputContract: { consumerPredicate
 const rows = (JSON.parse(readFileSync(new URL("../docs/research/rust-ts-r0/qualification/suite-20261022/consumer-contracts.json", import.meta.url), "utf8")) as { rows: Row[] }).rows;
 const normalize = (value: string): string => value.replace(/\s+/g, "");
 const unavailable = (name: string): never => { throw new Error(`CONTRACT_EXTERNAL_UNAVAILABLE:${name}`); };
+const ordinaryNativeProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
 
 function compileContract(): { executable: string; inventory: Inventory } {
   const owner = rows.find(row => row.index === 49)!;
@@ -142,13 +143,13 @@ export function projectContract(oracle: unknown, path: string, files: Record<str
           return [...snapshot.keys()].some(key => sensitive ? key === normalized : key.toLowerCase() === normalized.toLowerCase());
         },
       }),
-      isOrdinaryNativeProcessMember: () => unavailable("isOrdinaryNativeProcessMember"),
-      sdkNodeInsertions: new Proxy([], { get: () => unavailable("sdkNodeInsertions") }),
+      isOrdinaryNativeProcessMember: (name: string) => ordinaryNativeProcessMembers.has(name),
       __site: (site: Site, value: unknown) => { result.sites.push({ ...site, value: facts.describe(value) }); return value; },
       __branch: (branch: Branch, value: unknown) => { result.branches.push({ ...branch, outcome: Boolean(value) }); return value; },
       __helper: (index: number, fn: (...args: unknown[]) => unknown) => (...args: unknown[]) => {
+        const argumentsBeforeCall = args.map(facts.describe);
         const value = fn(...args);
-        result.helperResults.push({ index, arguments: args.map(facts.describe), value: facts.describe(value) });
+        result.helperResults.push({ index, arguments: argumentsBeforeCall, value: facts.describe(value) });
         return value;
       },
     };

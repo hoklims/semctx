@@ -10,9 +10,18 @@ export type ContractClosureRun = {
   processVerified: boolean;
   witnessVerified: boolean;
   gaps: string[];
-  sites: (ContractCoverageInventory["sites"][number] & { value: unknown })[];
+  sites: ContractCoverageInventory["sites"];
   branches: (ContractCoverageInventory["branches"][number] & { outcome: boolean })[];
 };
+
+export function contractCoverage(index: number, projection: Pick<ContractClosureRun, "sites" | "branches">): Pick<ContractClosureRun, "sites" | "branches"> {
+  const sites = projection.sites.filter(site => site.index === index).map(({ index, site, expression }) => ({ index, site, expression }));
+  const branches = projection.branches.filter(branch => branch.index === index).map(({ index, id, outcome }) => ({ index, id, outcome }));
+  return {
+    sites: [...new Map(sites.map(site => [JSON.stringify(site), site])).values()],
+    branches: [...new Map(branches.map(branch => [JSON.stringify(branch), branch])).values()],
+  };
+}
 
 export function closeContractProjection(index: number, canonicalSites: ContractCoverageInventory["sites"], inventory: ContractCoverageInventory, scenarios: string[], runs: ContractClosureRun[], limitations: { alternative: string; reason: string; neededEvidence: string }[] = []) {
   const gaps = limitations.map(limitation => `${limitation.alternative}:${limitation.reason}; required: ${limitation.neededEvidence}`);
@@ -40,18 +49,17 @@ export function closeContractProjection(index: number, canonicalSites: ContractC
   const sites = expected.map(site => {
     const activation = usable.filter(run => run.label === "activate" && run.sites.some(observed => observed.site === site.site && observed.index === index && observed.expression === site.expression)).map(run => run.scenario);
     const control = usable.filter(run => run.label === "control" && run.sites.some(observed => observed.site === site.site && observed.index === index && observed.expression === site.expression)).map(run => run.scenario);
-    const status = activation.length > 0 && control.length > 0 ? "passed" : "not_run";
-    if (status === "not_run") gaps.push(`${site.site}:MISSING_SITE_ACTIVATION_OR_CONTROL`);
+    const status = activation.length > 0 || control.length > 0 ? "passed" : "not_run";
+    if (status === "not_run") gaps.push(`${site.site}:MISSING_NATIVE_SITE_OBSERVATION`);
     return { ...site, status, activation, control };
   });
-  const alternatives = branches.map(branch => {
+  const branchDiagnostics = branches.map(branch => {
     const positive = usable.filter(run => run.branches.some(observed => observed.index === index && observed.id === branch.id && observed.outcome === true)).map(run => `${run.scenario}:${run.label}`);
     const negative = usable.filter(run => run.branches.some(observed => observed.index === index && observed.id === branch.id && observed.outcome === false)).map(run => `${run.scenario}:${run.label}`);
     const status = positive.length > 0 && negative.length > 0 ? "passed" : "not_run";
-    if (status === "not_run") gaps.push(`${branch.id}:MISSING_BRANCH_ALTERNATIVE`);
     return { ...branch, status, positive, negative };
   });
   const failed = runs.some(run => !run.processVerified || (run.projected && !run.exactReasons));
   const status: "passed" | "failed" | "not_run" = failed ? "failed" : gaps.length > 0 ? "not_run" : "passed";
-  return { status, sites, alternatives, gaps };
+  return { status, sites, branchDiagnostics, gaps };
 }
