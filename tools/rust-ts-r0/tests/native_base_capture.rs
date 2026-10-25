@@ -58,6 +58,46 @@ fn fixture() -> (PathBuf, PathBuf, String) {
     (root, helper, head)
 }
 
+fn commit_with_path(root: &Path, helper: &Path, head: &str, path: &str) -> String {
+    let blob = git(root, helper, &["rev-parse", &format!("{head}:asset.bin")]);
+    let mut tree = format!("100644 {path}\0").into_bytes();
+    for offset in (0..blob.trim().len()).step_by(2) {
+        tree.push(u8::from_str_radix(&blob[offset..offset + 2], 16).unwrap());
+    }
+    fs::write(root.join("tree-input"), tree).unwrap();
+    let tree = git(
+        root,
+        helper,
+        &[
+            "hash-object",
+            "-w",
+            "-t",
+            "tree",
+            "--no-filters",
+            "tree-input",
+        ],
+    );
+    fs::remove_file(root.join("tree-input")).unwrap();
+    git(
+        root,
+        helper,
+        &[
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.test",
+            "commit-tree",
+            tree.trim(),
+            "-p",
+            head,
+            "-m",
+            "path fixture",
+        ],
+    )
+    .trim()
+    .into()
+}
+
 #[test]
 fn immutable_base_preserves_raw_bytes_ignored_tracking_and_current_policy() {
     let (root, helper, head) = fixture();
@@ -214,24 +254,22 @@ fn immutable_base_refuses_truncated_blobs_timeout_and_unbounded_error_output() {
 fn immutable_base_refuses_unsafe_paths_gitlinks_and_unresolved_revisions() {
     let (root, helper, head) = fixture();
     assert!(base_capture::capture(&root, "HEAD", &helper, None).is_err());
-    fs::write(root.join("unsafe:name.ts"), "export {};").unwrap();
-    git(&root, &helper, &["add", "unsafe:name.ts"]);
-    git(
-        &root,
-        &helper,
-        &[
-            "-c",
-            "user.name=Fixture",
-            "-c",
-            "user.email=fixture@example.test",
-            "commit",
-            "-qm",
-            "unsafe",
-        ],
+    let safe_head = commit_with_path(&root, &helper, &head, "safe-name.ts");
+    let safe = base_capture::capture(&root, &safe_head, &helper, None).unwrap();
+    assert_eq!(
+        fs::read(safe.root().join("safe-name.ts")).unwrap(),
+        [0, 255, 128, 10]
     );
-    let unsafe_head = git(&root, &helper, &["rev-parse", "HEAD"]);
-    assert!(base_capture::capture(&root, unsafe_head.trim(), &helper, None).is_err());
-    git(&root, &helper, &["reset", "--hard", &head]);
+    for path in ["unsafe:name.ts", r"unsafe\name.ts"] {
+        let unsafe_head = commit_with_path(&root, &helper, &head, path);
+        assert_eq!(
+            base_capture::capture(&root, &unsafe_head, &helper, None)
+                .err()
+                .unwrap(),
+            "immutable base tree path is unsafe or duplicated",
+            "{path}"
+        );
+    }
     let gitlink = format!("160000,{head},submodule");
     git(
         &root,
