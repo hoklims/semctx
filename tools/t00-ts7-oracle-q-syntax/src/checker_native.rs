@@ -481,6 +481,7 @@ mod tests {
 
     #[test]
     fn checker_distinguishes_ambient_factory_and_lexical_shadows() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert_eq!(
             inspect("require('x'); export {};"),
             json!({"commonJsUnsupported":true,"unmodeledMembers":[]})
@@ -493,6 +494,7 @@ mod tests {
 
     #[test]
     fn checker_tracks_imported_alias_shorthand_and_export_symbols() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for source in [
             "import {createRequire as create} from 'node:module'; const factory = create; factory('x');",
             "import * as mod from 'node:module'; const value = {mod};",
@@ -509,6 +511,7 @@ mod tests {
 
     #[test]
     fn erased_import_and_type_query_never_activate_native_origin() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for source in [
             "import type {createRequire} from 'node:module'; type Factory = typeof createRequire;",
             "import {type createRequire} from 'node:module'; type Factory = typeof createRequire;",
@@ -523,6 +526,7 @@ mod tests {
 
     #[test]
     fn unknown_process_and_module_members_preserve_distinct_native_reason() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert_eq!(
             inspect("import {register} from 'node:module'; register('x');"),
             json!({"commonJsUnsupported":false,"unmodeledMembers":["register"]})
@@ -539,6 +543,7 @@ mod tests {
 
     #[test]
     fn importmeta_require_and_destructured_require_are_factories() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for source in [
             "import.meta.require('x');",
             "const {require: load} = import.meta; load('x');",

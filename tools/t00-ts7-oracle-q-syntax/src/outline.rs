@@ -730,6 +730,7 @@ mod tests {
 
     #[test]
     fn projects_bindings_references_and_evaluation_from_native_syntax() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(&json!({"source":"export const { a: local, nested: [first,,...rest] } = source;\nconst deferred = () => run();\nclass C { static value = run(); }", "filename":"main.ts"})).unwrap();
         assert_eq!(
@@ -746,6 +747,7 @@ mod tests {
 
     #[test]
     fn distinguishes_module_loads_and_links() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(&json!({"source":"import type * as types from './types';\nimport { type X } from './mixed';\nexport * from './star';\nimport(path); require('./dep');", "filename":"main.ts"})).unwrap();
         assert_eq!(observed["statements"][0]["loadsModule"], "never");
@@ -762,6 +764,7 @@ mod tests {
 
     #[test]
     fn counts_lines_after_astral_text_comments_and_ecma_line_breaks() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(&json!({"source":"/** 😀 */\r\nconst value = source;\u{2028}class C {}", "filename":"main.ts"})).unwrap();
         assert_eq!(observed["statements"][0]["startLine"], 2);
@@ -772,6 +775,7 @@ mod tests {
 
     #[test]
     fn reports_syntax_recovery_and_directive_controls() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(&json!({"source":"// @ts-check\n// @ts-checkmate\n/** @invariant INV-1 */\nconst broken = ;", "filename":"main.ts"})).unwrap();
         assert_eq!(observed["directiveLines"], json!([1]));
@@ -781,6 +785,7 @@ mod tests {
 
     #[test]
     fn orders_names_by_utf16_code_units() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(
             &json!({"source":"const value = [𐐀, Ａ]; export {𐐀, Ａ};", "filename":"main.ts"}),
@@ -795,11 +800,13 @@ mod tests {
 
     #[test]
     fn rejects_missing_source() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert!(observe(&json!({"filename":"main.ts"})).is_err());
     }
 
     #[test]
     fn token_children_distinguish_semantic_edits_and_ignore_layout() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         for (left, right, equal) in [
             (
@@ -851,6 +858,7 @@ mod tests {
 
     #[test]
     fn digest_relation_requires_two_statements() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         assert!(
             observe(
@@ -868,6 +876,7 @@ mod tests {
 
     #[test]
     fn observes_yield_syntax_separately_from_accepted_execution() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let observed = observe(&json!({"filename":"main.ts", "source":"const value = yield 1;\nfunction* deferred() { yield 1; }", "yieldSyntax":true})).unwrap();
         assert_eq!(

@@ -183,6 +183,7 @@ mod tests {
 
     #[test]
     fn seven_literal_forms_join_endpoints_without_independent_root() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for source in [
             "export { value } from './target'",
             "export type { Shape } from './target'",
@@ -206,6 +207,7 @@ mod tests {
 
     #[test]
     fn intermediate_is_loaded_but_not_selected_and_controls_do_not_join() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = observation(json!({"roots":["a.ts","b.ts","independent.ts"],"files":{
             "a.ts":"import { middle } from './middle'; export const a = middle",
             "middle.ts":"import { b } from './b'; export const middle = b",
@@ -228,6 +230,7 @@ mod tests {
 
     #[test]
     fn commonjs_require_selects_require_condition_and_import_selects_import_condition() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for (source, expected) in [
             (
                 "const loaded = require('#choice'); export { loaded }",
@@ -248,6 +251,7 @@ mod tests {
 
     #[test]
     fn external_package_and_unresolved_links_do_not_connect_roots() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = observation(json!({"roots":["a.ts","b.ts"],"files":{
             "a.ts":"import { value } from 'external'; import './missing'; export const a = value",
             "b.ts":"import { value } from 'external'; export const b = value",
@@ -260,6 +264,7 @@ mod tests {
 
     #[test]
     fn selected_root_outside_repository_graph_refuses() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let sdk = crate::checker_program::test_sdk_directory();
         let _program = ts_goport::core::enter_program(None);
         let got = observe(&json!({"sdk_directory":sdk.path,
@@ -270,6 +275,7 @@ mod tests {
 
     #[test]
     fn missing_sources_refuse_instead_of_empty_success() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         assert!(observe(&json!({"files":{}})).is_err());
     }
