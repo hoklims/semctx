@@ -43,6 +43,9 @@ export type ContractWitness = {
   files: Record<string, string>;
   controlFiles: Record<string, string>;
   roles?: Record<string, "source" | "test">;
+  controlRoles?: Record<string, "source" | "test">;
+  selection?: Record<string, "selected" | "excluded">;
+  controlSelection?: Record<string, "selected" | "excluded">;
   requiredAlternatives: string[];
   nativeExpectations: NativeExpectation[];
 };

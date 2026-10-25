@@ -174,7 +174,7 @@ test("distinguishes shorthand value symbols from homonymous property symbols", (
 test.each([["TypeLiteral", true], ["InterfaceDeclaration", false]] as const)("requires the observed %s parent before crediting absence of descendant visits", (syntaxKind, isTypeNode) => {
   const native = { files: [{ path: "/project/main.ts", nodes: [{ kind: syntaxKind, text: "{value:number}", start: 0, end: 14, isTypeNode }] }] };
   const selected = witness(134, "type-boundary", "{value:number}", "", ["type-not-visited"], [{ kind: "helper-descendants-absent", variant: "activate", consumerIndex: 134, parent: { nodeText: "{value:number}", syntaxKind, nativeByteStart: 0 }, alternatives: ["type-not-visited"] }]);
-  const parent = { kind: "node", syntaxKind, path: "/project/main.ts", start: 0, end: 14, nativeByteStart: 0, nativeByteEnd: 14 };
+  const parent = { kind: "node", syntaxKind: syntaxKind as string, path: "/project/main.ts", start: 0, end: 14, nativeByteStart: 0, nativeByteEnd: 14 };
   const actual = { status: "projected", gaps: [], helperResults: [{ index: 134, arguments: [parent], value: { kind: "undefined" } }] };
   expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
   const child = { ...parent, syntaxKind: "Identifier", start: 1, end: 6, nativeByteStart: 1, nativeByteEnd: 6 };

@@ -9,15 +9,16 @@ import { projectRuntimeReasons } from "./t00-ts7-q-semantic-runtime-projection";
 import type { ProjectionRun } from "./t00-ts7-q-semantic-projection";
 import { compareReasons, digest, record, selectIndices, selectShard, semanticObservation, verifyArtifact, verifyProducerCompletion } from "./t00-ts7-q-semantic-core";
 import type { Artifact, SemanticWitness } from "./t00-ts7-q-semantic-core";
-import { contractProjectionInventory, projectContract } from "./t00-ts7-q-semantic-contract-projector";
+import { contractProjectionInventory } from "./t00-ts7-q-semantic-contract-projector";
 import { closeContractProjection, contractCoverage } from "./t00-ts7-q-semantic-contract-closure";
 import type { ContractClosureRun } from "./t00-ts7-q-semantic-contract-closure";
 import { resolveContractQueries } from "./t00-ts7-q-semantic-contract-queries";
-import { contractWitnesses, contractWitnessLimitations, verifyContractWitness } from "./t00-ts7-q-semantic-contract-witnesses";
+import { selectContractMatrix, contractWitnessLimitations } from "./t00-ts7-q-semantic-contract-witnesses";
 import type { ContractWitness } from "./t00-ts7-q-semantic-contract-witnesses";
-import { compareContractOwnership, projectContractOwnership } from "./t00-ts7-q-semantic-contract-ownership";
 import type { OwnershipProjection } from "./t00-ts7-q-semantic-contract-ownership";
-import { compareOwnershipPhases, projectOwnershipPhases, type OwnershipPhases } from "./t00-ts7-q-semantic-contract-ownership-phases";
+import type { OwnershipPhases } from "./t00-ts7-q-semantic-contract-ownership-phases";
+import { defaultSemanticContractSupport } from "./t00-ts7-q-semantic-contract-support";
+import { selectSemanticSublot, semanticSublotFor } from "./t00-ts7-q-semantic-sublots";
 
 const read = (path: string): unknown => JSON.parse(readFileSync(path, "utf8")) as unknown;
 const save = (path: string, value: unknown): Artifact => {
@@ -44,10 +45,12 @@ function options(argv: string[]): Record<string, string> {
   const result: Record<string, string> = {};
   for (let i = 0; i < argv.length; i += 2) {
     const key = argv[i], value = argv[i + 1];
-    if (!key || !["--candidate", "--platform", "--out", "--shard", "--indices"].includes(key) || !value || value.startsWith("--") || result[key] !== undefined) throw Error("INVALID_ARGUMENTS");
+    if (!key || !["--candidate", "--platform", "--out", "--shard", "--indices", "--sublot"].includes(key) || !value || value.startsWith("--") || result[key] !== undefined) throw Error("INVALID_ARGUMENTS");
     result[key] = value;
   }
-  if (!result["--candidate"] || !result["--out"] || !["macos", "linux"].includes(result["--platform"] ?? "")) throw Error("Usage: --candidate MANIFEST --platform macos|linux --out DIR [--shard i/n] [--indices first-last]");
+  if (!result["--candidate"] || !result["--out"] || !["macos", "linux"].includes(result["--platform"] ?? "")) throw Error("Usage: --candidate MANIFEST --platform macos|linux --out DIR [--shard i/n] [--indices first-last | --sublot a|b|c]");
+  if (result["--sublot"] !== undefined && !["a", "b", "c"].includes(result["--sublot"])) throw Error("INVALID_SEMANTIC_SUBLOT");
+  if (result["--sublot"] !== undefined && result["--indices"] !== undefined) throw Error("SEMANTIC_SELECTION_CONFLICT");
   return result;
 }
 
@@ -75,6 +78,8 @@ function validateOracleLibraries(oraclePath: string, inventoryPath: string): voi
 }
 
 function observe(witness: SemanticWitness, label: "activate" | "control", files: Record<string, string>, expected: string[] | null, artifacts: Record<string, Artifact>, out: string, contractWitness?: ContractWitness): { properties: Record<string, unknown>; evidence: Artifact[]; projection: ProjectionRun | null; contractRun: ContractClosureRun | null } {
+  const support = semanticSublotFor(witness.index)?.support ?? defaultSemanticContractSupport;
+  const context = contractWitness === undefined ? undefined : { witness: contractWitness, label };
   const directory = resolve(out, String(witness.index), basename(witness.id), label);
   const absoluteFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => {
     if (path.startsWith("/") || path.split("/").includes("..")) throw Error("INVALID_WITNESS_PATH:" + path);
@@ -82,7 +87,7 @@ function observe(witness: SemanticWitness, label: "activate" | "control", files:
   }));
   const roots = Object.keys(absoluteFiles).filter(path => /\.[cm]?[jt]sx?$/.test(path)).sort();
   const compilerOptions = { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, jsx: "Preserve", skipLibCheck: true, noEmit: true, strict: false };
-  const request = { id: witness.id + ":" + label, cwd: "/project", sdk_directory: "/sdk/lib", case_sensitive: process.platform !== "darwin", roots, files: absoluteFiles, options: compilerOptions, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {} };
+  const request = { id: witness.id + ":" + label, cwd: "/project", sdk_directory: "/sdk/lib", case_sensitive: process.platform !== "darwin", roots, files: absoluteFiles, options: compilerOptions, retained: true, qualified: true, roles: label === "control" ? contractWitness?.controlRoles ?? contractWitness?.roles ?? {} : contractWitness?.roles ?? {}, selection: label === "control" ? contractWitness?.controlSelection ?? contractWitness?.selection ?? {} : contractWitness?.selection ?? {}, disabled: [], utf16_files: {}, raw_files: {} };
   const evidence = [save(resolve(directory, "producer-request.json"), request), save(resolve(directory, "oracle-request.json"), { files: absoluteFiles, roots })];
   let oracle = invoke([artifacts["semanticOracle"]!.path, evidence[1]!.path, artifacts["sdk"]!.path]);
   const producer = invoke([artifacts["producer"]!.path, evidence[0]!.path, artifacts["sdk"]!.path]);
@@ -98,14 +103,14 @@ function observe(witness: SemanticWitness, label: "activate" | "control", files:
   const contractObservation = contractWitness === undefined ? null : resolveContractQueries(oracleValue, value => {
     ownershipState.projection = null;
     ownershipState.phases = null;
-    const projected = projectContract(value, "/project/" + witness.path, files);
+    const projected = support.project(value, "/project/" + witness.path, files, undefined, context);
     if (!projected.gaps.includes("CONTRACT_EXTERNAL_UNAVAILABLE:ownership") && (witness.index !== 69 || projected.status !== "projected")) return projected;
-    const ownership = projectContractOwnership(value, witness.path, files);
+    const ownership = support.ownership(value, witness.path, files, context);
     ownershipState.projection = ownership;
     if (ownership.status !== "projected") return { ...projected, status: "unsupported" as const, gaps: ownership.gaps, ...(ownership.queries === undefined ? {} : { queries: ownership.queries }) };
-    const retained = projectContract(value, "/project/" + witness.path, files, ownership.proof);
+    const retained = support.project(value, "/project/" + witness.path, files, ownership.proof, context);
     if (witness.index !== 69 || retained.status !== "projected") return retained;
-    const phases = projectOwnershipPhases(value, witness.path, files, ownership.proof);
+    const phases = support.ownershipPhases(value, witness.path, files, ownership.proof, context);
     ownershipState.phases = phases;
     const missing = Object.values(phases).filter(phase => phase.status !== "projected");
     if (missing.length > 0) return { ...retained, status: "unsupported" as const, gaps: missing.flatMap(phase => phase.gaps), queries: missing.flatMap(phase => phase.queries ?? []) };
@@ -121,15 +126,15 @@ function observe(witness: SemanticWitness, label: "activate" | "control", files:
   });
   if (contractObservation !== null) oracleValue = record(contractObservation.oracle);
   const contractProjection = contractObservation?.projection;
-  const contractVerification = contractWitness === undefined || contractProjection === undefined ? null : verifyContractWitness(oracleValue, contractProjection, contractWitness, label, witness.path);
+  const contractVerification = contractWitness === undefined || contractProjection === undefined ? null : support.verify(oracleValue, contractProjection, contractWitness, label, witness.path);
   const oracleFiles = Array.isArray(oracleValue["files"]) ? oracleValue["files"] : [];
   const factsPresent = oracleFiles.some(value => { const file = record(value); return file["path"] === "/project/" + witness.path && Array.isArray(file["nodes"]) && file["nodes"].length > 0; });
   const projected = [61, 97, 102].includes(witness.index) ? projectOperators(oracleValue, "/project/" + witness.path) : null;
   const runtime = [68, 74, 82, 89, 135].includes(witness.index) ? projectRuntimeReasons(oracleValue, "/project/" + witness.path) : null;
   const projectedReasons = contractProjection !== undefined ? contractProjection.status === "projected" ? contractProjection.reasons : null : projected?.status === "projected" ? projected.reasons : runtime?.reasons ?? expected;
   const exactReasons = compareReasons(observed, projectedReasons);
-  const exactOwnership = ownershipState.projection === null ? null : ownershipState.projection.status === "projected" ? compareContractOwnership(producerValue, ownershipState.projection) : null;
-  const exactOwnershipPhases = witness.index === 69 ? ownershipState.phases !== null && compareOwnershipPhases(producerValue, witness.path, ownershipState.phases) : null;
+  const exactOwnership = ownershipState.projection === null ? null : ownershipState.projection.status === "projected" ? support.compareOwnership(producerValue, ownershipState.projection) : null;
+  const exactOwnershipPhases = witness.index === 69 ? ownershipState.phases !== null && support.compareOwnershipPhases(producerValue, witness.path, ownershipState.phases) : null;
   const matrixWitness = operatorWitnesses.find(row => row.index === witness.index && witness.id.endsWith(":" + row.idSuffix));
   const expectedOperator = label === "activate" ? matrixWitness?.expectedOperator : matrixWitness?.controlOperator;
   const expectedKind = label === "activate" ? matrixWitness?.expectedKind : matrixWitness?.controlKind;
@@ -171,9 +176,10 @@ function observe(witness: SemanticWitness, label: "activate" | "control", files:
   } };
 }
 
-export function loadCandidateArtifacts(path: string, platform: "macos" | "linux") {
+export function loadCandidateArtifacts(path: string, platform: "macos" | "linux", sublot?: string) {
   const manifestPath = resolve(path), manifestBytes = readFileSync(manifestPath), manifest = record(decode(manifestBytes.toString()));
   if (manifest["schemaVersion"] !== 1 || typeof manifest["sourceCommit"] !== "string" || !/^[a-f0-9]{40}$/.test(manifest["sourceCommit"])) throw Error("INVALID_CANDIDATE_MANIFEST");
+  if (sublot !== undefined && manifest["mode"] !== "development") throw Error("SEMANTIC_SUBLOT_DEVELOPMENT_REQUIRED");
   for (const target of ["macos", "linux"]) {
     const declared = record(record(manifest["platforms"])[target]);
     for (const name of ["producer", "helper", "observer", "sdk", "oracle", "oracleLibraries"]) if (Object.keys(record(declared[name])).length === 0) throw Error("MISSING_PLATFORM_ARTIFACT:" + target + ":" + name);
@@ -190,7 +196,7 @@ export function loadCandidateArtifacts(path: string, platform: "macos" | "linux"
 export function campaign(argv: string[]): void {
   const started = performance.now(), args = options(argv), platform = args["--platform"]!;
   if (process.arch !== "arm64" || process.platform !== (platform === "macos" ? "darwin" : "linux")) throw Error("PLATFORM_MISMATCH");
-  const { manifestPath, manifestBytes, manifest, artifacts } = loadCandidateArtifacts(args["--candidate"]!, platform as "macos" | "linux");
+  const { manifestPath, manifestBytes, manifest, artifacts } = loadCandidateArtifacts(args["--candidate"]!, platform as "macos" | "linux", args["--sublot"]);
   validateSdk(artifacts["sdk"]!.path, artifacts["oracleLibraries"]!.path);
   validateOracleLibraries(artifacts["oracle"]!.path, artifacts["oracleLibraries"]!.path);
   const reference = record(read(resolve(import.meta.dir, "../docs/research/rust-ts-r0/oracle-ts7.json")));
@@ -209,13 +215,13 @@ export function campaign(argv: string[]): void {
   const contractBytes = readFileSync(contractPath), contracts = record(decode(contractBytes.toString()))["rows"];
   if (!Array.isArray(contracts)) throw Error("MISSING_CONSUMER_CONTRACTS");
   const contractEvidence = { path: contractPath, sha256: digest(contractBytes), bytes: contractBytes.length };
-  const selected = selectShard(selectIndices(witnesses, args["--indices"]), args["--shard"]), out = resolve(args["--out"]!);
+  const selected = selectShard(args["--sublot"] === undefined ? selectIndices(witnesses, args["--indices"]) : selectSemanticSublot(witnesses, args["--sublot"]), args["--shard"]), out = resolve(args["--out"]!);
   mkdirSync(out, { recursive: false });
   save(resolve(out, "candidate.json"), manifest);
   const results = selected.map(witness => {
     const start = performance.now();
     const matrix = operatorWitnesses.filter(row => row.index === witness.index);
-    const contractMatrix = witness.index === 52 ? contractWitnesses.filter(row => row.index === witness.index) : [];
+    const contractMatrix = matrix.length === 0 ? selectContractMatrix(witness.index, args["--sublot"]) : [];
     const projectedMatrix = [...matrix, ...contractMatrix];
     const scenarios: SemanticWitness[] = projectedMatrix.length === 0 ? [witness, ...semanticWitnessesAFocal.filter(row => row.index === witness.index)] : projectedMatrix.map(row => ({
       ...witness, id: witness.id + ":" + row.idSuffix, files: row.files, controlFiles: row.controlFiles,
@@ -273,7 +279,7 @@ export function campaign(argv: string[]): void {
   validateOracleLibraries(artifacts["oracle"]!.path, artifacts["oracleLibraries"]!.path);
   if (digest(readFileSync(manifestPath)) !== digest(manifestBytes)) throw Error("CANDIDATE_CHANGED_DURING_RUN");
   const [shardIndex, shardCount] = (args["--shard"] ?? "1/1").split("/").map(Number);
-  const summary = { schemaVersion: 1, lot: "q-semantic", mode: manifest["mode"] ?? "qualification", finalQualificationEvidence: false, sourceCommit: manifest["sourceCommit"], candidateManifestSha256: digest(manifestBytes), platform, architecture: process.arch, bun: Bun.version, shard: { index: shardIndex, count: shardCount }, obligations: results.length, qualified: results.filter(result => result.status === "qualified").length, notQualified: results.filter(result => result.status !== "qualified").length, durationMs: performance.now() - started, artifacts, cumulativePropertyInventory: inventoryEvidence };
+  const summary = { schemaVersion: 1, lot: "q-semantic", mode: manifest["mode"] ?? "qualification", finalQualificationEvidence: false, semanticSublot: args["--sublot"] ?? null, sourceCommit: manifest["sourceCommit"], candidateManifestSha256: digest(manifestBytes), platform, architecture: process.arch, bun: Bun.version, shard: { index: shardIndex, count: shardCount }, obligations: results.length, qualified: results.filter(result => result.status === "qualified").length, notQualified: results.filter(result => result.status !== "qualified").length, durationMs: performance.now() - started, artifacts, cumulativePropertyInventory: inventoryEvidence };
   save(resolve(out, "results.json"), { ...summary, results });
   save(resolve(out, "summary.json"), summary);
   process.stdout.write(JSON.stringify(summary) + "\n");
