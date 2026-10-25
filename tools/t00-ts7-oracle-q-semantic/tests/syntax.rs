@@ -1,9 +1,11 @@
+mod support;
+
 use serde_json::{Value, json};
 use std::{fs, process::Command};
 
 #[test]
 fn syntax_facts_preserve_native_text_imports_templates_and_control_flow() {
-    let sdk = std::env::var("T00_ORACLE_TEST_SDK").expect("explicit TS7 SDK test input");
+    let sdk = support::canonical_sdk();
     let dir = std::env::temp_dir().join(format!("t00-semantic-syntax-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let request = dir.join("request.json");
@@ -15,7 +17,7 @@ import type {Thing as Alias} from './dep'; export type {Alias}; async function* 
     let output = Command::new(env!("CARGO_BIN_EXE_t00-ts7-oracle-q-semantic"))
         .env("GOPORT_LIB_PARSE_SNAPSHOT", "0")
         .env("GOPORT_LIB_SNAPSHOT", "0")
-        .args([request.to_str().unwrap(), &sdk])
+        .args([request.to_str().unwrap(), sdk])
         .output()
         .unwrap();
     assert!(

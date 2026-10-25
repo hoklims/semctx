@@ -1649,7 +1649,7 @@ fn explicit_configured_query_cli_resolves_without_inserting_an_import() {
     assert_eq!(observed["resolved_relative_path"], "leaf.ts");
     assert_eq!(
         observed["configuration"],
-        serde_json::json!({"executed":true,"reasons":[],"unsupported":[]})
+        serde_json::json!({"executed":true,"reasons":["SOURCE_CONFIGURATION_INVALID:5102:Option 'baseUrl' has been removed. Please remove it from your configuration. Use '\"paths\": {\"*\": [\"./*\"]}' instead."],"unsupported":[]})
     );
     assert_eq!(
         observed["capturedDirectories"],
@@ -2037,6 +2037,7 @@ fn component_observation_keeps_snapshot_profile_out_of_ordinary_configuration() 
     let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
     let expected = serde_json::json!([
         "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED",
+        "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration.",
         "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
         "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10"
     ]);
@@ -2044,7 +2045,9 @@ fn component_observation_keeps_snapshot_profile_out_of_ordinary_configuration() 
     assert_eq!(modes["retainedWithSource"]["reasons"], expected);
     assert_eq!(
         modes["ordinaryWithoutSnapshot"]["reasons"],
-        serde_json::json!([])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration."
+        ])
     );
 }
 
@@ -2142,11 +2145,16 @@ fn component_observation_distinguishes_explicit_module_none_from_omission() {
     let modes = &observed["subjects"][0]["moduleConfigurationObservations"];
     assert_eq!(
         modes["retainedWithoutSource"]["reasons"],
-        serde_json::json!(["SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+            "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None",
+        ])
     );
     assert_eq!(
         modes["ordinaryWithoutSnapshot"]["reasons"],
-        serde_json::json!([])
+        serde_json::json!([
+            "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+        ])
     );
     request
         .files
@@ -2655,4 +2663,177 @@ fn analyzed_capability_distinguishes_compiler_and_sdk_content_identity() {
     );
     assert_eq!(scope["sdkIdentity"]["inventoryValidated"], true);
     assert_eq!(scope["sdkIdentity"]["allLibrariesConsumptionProven"], false);
+}
+
+#[test]
+fn loaded_module_partition_resolves_typescript_require_in_commonjs_mode() {
+    for (source, connected) in [
+        (
+            "const value = require('./cjs'); export { value };",
+            Some("cjs.ts"),
+        ),
+        (
+            "const value = require('#choice'); export { value };",
+            Some("cjs.ts"),
+        ),
+        ("export { value } from '#choice';", Some("esm.ts")),
+        (
+            "const path = './cjs'; require(path); object.require('./cjs'); require('./absent'); export {};",
+            None,
+        ),
+    ] {
+        let mut request = component_request("requirePartitionDev", "/repo/source.ts", source);
+        request.retained = false;
+        request
+            .roots
+            .extend(["/repo/cjs.ts".into(), "/repo/esm.ts".into()]);
+        request.files.extend([
+            ("/repo/cjs.ts".into(), "export const value = 1;".into()),
+            ("/repo/esm.ts".into(), "export const value = 2;".into()),
+            ("/repo/package.json".into(), r##"{"type":"module","imports":{"#choice":{"import":"./esm.ts","require":"./cjs.ts"}}}"##.into()),
+        ]);
+        let observed = analyze(request, component_sdk()).unwrap();
+        let partition = &observed["partitionObservation"];
+        assert_eq!(partition["executed"], true, "{partition}");
+        let expected = match connected {
+            Some("cjs.ts") => serde_json::json!([["cjs.ts", "source.ts"], ["esm.ts"]]),
+            Some("esm.ts") => serde_json::json!([["cjs.ts"], ["esm.ts", "source.ts"]]),
+            _ => serde_json::json!([["cjs.ts"], ["esm.ts"], ["source.ts"]]),
+        };
+        assert_eq!(partition["dependencyComponents"], expected, "{source}");
+        let targets = partition["resolvedEdges"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|edge| edge["to"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            targets,
+            connected.into_iter().collect::<Vec<_>>(),
+            "{source}"
+        );
+    }
+}
+
+#[test]
+fn loaded_module_partition_refuses_require_when_resolver_is_unavailable() {
+    let fs = Rc::new(CaptureFs::new(
+        BTreeMap::from([(
+            "/repo/a.ts".into(),
+            "require('./missing'); export {};".into(),
+        )]),
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    ));
+    let mut options = compiler_options();
+    options.no_lib = Tristate::True;
+    let mut frontend = native_frontend_with_options(
+        fs.clone(),
+        "/repo",
+        "/sdk/lib",
+        vec!["/repo/a.ts".into()],
+        false,
+        options,
+    );
+    Rc::get_mut(&mut frontend.program)
+        .unwrap()
+        .processed_files
+        .resolver = None;
+    let _current = native_program::NativeProgram::enter(&frontend.program);
+    program::bind_all();
+    let observed =
+        partition_observations::observe(&frontend.program, &fs, "/repo", &["/repo/a.ts".into()]);
+    assert_eq!(observed["executed"], false);
+    assert_eq!(
+        observed["unsupported"],
+        serde_json::json!(["PARTITION_MODULE_RESOLVER_UNAVAILABLE"])
+    );
+    assert!(observed.get("dependencyComponents").is_none());
+}
+
+#[test]
+fn loaded_module_partition_reports_late_require_resolution_errors() {
+    let fs = Rc::new(CaptureFs::new(
+        BTreeMap::from([
+            (
+                "/repo/a.ts".into(),
+                "require('./target'); export {};".into(),
+            ),
+            ("/repo/target.ts".into(), "export const value = 1;".into()),
+        ]),
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    ));
+    let mut options = compiler_options();
+    options.no_lib = Tristate::True;
+    let frontend = native_frontend_with_options(
+        fs.clone(),
+        "/resolver-root",
+        "/sdk/lib",
+        vec!["/repo/a.ts".into()],
+        true,
+        options,
+    );
+    assert!(frontend.program.module_resolution_error.is_none());
+    let _current = native_program::NativeProgram::enter(&frontend.program);
+    program::bind_all();
+    let observed =
+        partition_observations::observe(&frontend.program, &fs, "/repo", &["/repo/a.ts".into()]);
+    assert_eq!(observed["executed"], false, "{observed}");
+    assert!(
+        observed["unsupported"][0]
+            .as_str()
+            .unwrap()
+            .starts_with("PARTITION_MODULE_RESOLUTION_ERROR:")
+    );
+    assert!(observed.get("dependencyComponents").is_none());
+}
+
+#[test]
+fn retained_function_owner_observation_distinguishes_bodies_names_and_disabled_mode() {
+    let text = "export function ownerTriage() {} declare function signatureTriage(): void; export default function() {}";
+    let mut request = component_request("functionOwnerTriage", "/repo/main.ts", text);
+    request.retained = true;
+    let observed = analyze(request.clone(), component_sdk()).unwrap();
+    assert_eq!(
+        observed["subjects"][0]["retainedFunctionOwners"],
+        serde_json::json!({
+            "executed":true,"unsupported":[],"ownerAbsenceCases":[
+                {"bodyPresent":false,"namePresent":false,"ownerEligible":false},
+                {"bodyPresent":false,"namePresent":true,"ownerEligible":false},
+                {"bodyPresent":true,"namePresent":false,"ownerEligible":false},
+                {"bodyPresent":true,"namePresent":true,"ownerEligible":true}
+            ],"functions":[
+                {"bodyPresent":true,"namePresent":true,"coordinate":{"relPath":"main.ts","symbolPath":"ownerTriage"}},
+                {"bodyPresent":false,"namePresent":true,"coordinate":null},
+                {"bodyPresent":true,"namePresent":false,"coordinate":{"relPath":"main.ts","symbolPath":"default"}}
+            ]
+        })
+    );
+    request.retained = false;
+    let observed = analyze(request, component_sdk()).unwrap();
+    assert_eq!(
+        observed["subjects"][0]["retainedFunctionOwners"],
+        serde_json::json!({
+            "executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"functions":[],"ownerAbsenceCases":[]
+        })
+    );
+}
+
+#[test]
+fn raw_array_binding_holes_keep_ordered_names_without_missing_node_crashes() {
+    let source = "const [firstTriage,,[deepTriage],...tailTriage] = sourceTriage; export function leafTriage() {}";
+    let mut request = component_request("bindingHolesTriage", "/repo/main.ts", source);
+    request.retained = true;
+    let observed = analyze(request, component_sdk()).unwrap();
+    let statements = &observed["outlines"]["main.ts"]["outline"]["statements"];
+    assert_eq!(
+        statements[0]["declaredNames"],
+        serde_json::json!(["firstTriage", "deepTriage", "tailTriage"])
+    );
+    assert!(
+        observed["raw_extraction"]["symbols"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|symbol| symbol["name"] == "leafTriage")
+    );
 }

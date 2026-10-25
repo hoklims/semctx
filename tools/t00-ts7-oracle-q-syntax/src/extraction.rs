@@ -11,11 +11,14 @@ use ts_goport::{
     scanner_util,
 };
 
-fn function_value(node: Node) -> bool {
-    matches!(node.kind(), K::ArrowFunction | K::FunctionExpression)
+#[path = "extraction_callable.rs"]
+mod callable;
+
+pub(crate) fn function_value(node: Node) -> bool {
+    node.is_some() && matches!(node.kind(), K::ArrowFunction | K::FunctionExpression)
 }
 
-fn owner_name(node: Node) -> Option<String> {
+pub(crate) fn owner_name(node: Node) -> Option<String> {
     match node.kind() {
         K::FunctionDeclaration | K::ClassDeclaration => {
             if !node.name().is_nil() {
@@ -37,7 +40,7 @@ fn owner_name(node: Node) -> Option<String> {
     }
 }
 
-fn scope(node: Node, interfaces: bool) -> Vec<String> {
+pub(crate) fn scope(node: Node, interfaces: bool) -> Vec<String> {
     let mut names = Vec::new();
     let mut parent = node.parent();
     while !parent.is_nil() {
@@ -55,7 +58,7 @@ fn scope(node: Node, interfaces: bool) -> Vec<String> {
     names
 }
 
-fn unwrap(mut node: Node) -> Node {
+pub(crate) fn unwrap(mut node: Node) -> Node {
     while matches!(
         node.kind(),
         K::ParenthesizedExpression
@@ -69,7 +72,7 @@ fn unwrap(mut node: Node) -> Node {
     node
 }
 
-fn object_member_ancestor(node: Node) -> bool {
+pub(crate) fn object_member_ancestor(node: Node) -> bool {
     let mut ancestor = node.parent();
     while !ancestor.is_nil() {
         if matches!(
@@ -102,7 +105,7 @@ fn object_member_ancestor(node: Node) -> bool {
     false
 }
 
-fn line(source: Node, position: i32) -> i32 {
+pub(crate) fn line(source: Node, position: i32) -> i32 {
     scanner_util::get_ecma_line_and_utf16_character_of_position(source, position).0 + 1
 }
 
@@ -115,7 +118,7 @@ fn doc(text: &str, node: Node) -> Option<String> {
         .map(str::to_string)
 }
 
-fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Value> {
+pub(crate) fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Value> {
     let (kind, name, start_node) = match node.kind() {
         K::FunctionDeclaration => ("function", owner_name(node)?, node),
         K::ClassDeclaration => ("class", owner_name(node)?, node),
@@ -148,7 +151,7 @@ fn record_symbol(node: Node, source: Node, text: &str, path: &str) -> Option<Val
     Some(result)
 }
 
-fn import_names(node: Node) -> Vec<String> {
+pub(crate) fn import_names(node: Node) -> Vec<String> {
     let clause = node.import_clause();
     if clause.is_nil() || clause.is_type_only() {
         return vec![];
@@ -192,7 +195,7 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
             names.push(name.clone());
             json!({"relPath":path,"symbolPath":names.join(".")})
         });
-        out["functionOwners"].as_array_mut().unwrap().push(json!({"bodyPresent":!node.body().is_nil(),"namePresent":name.is_some(),"coordinate":coordinate}));
+        out["functionOwners"].as_array_mut().unwrap().push(json!({"bodyPresent":!node.body().is_nil(),"namePresent":!node.name().is_nil(),"coordinate":coordinate}));
     }
     if node.kind() == K::CallExpression {
         if retained && node.expression().kind() == K::ImportKeyword {
@@ -244,6 +247,11 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
 }
 
 pub fn observe(input: &Value) -> Result<Value, String> {
+    if input["callableInitializers"].as_bool() == Some(true)
+        || input["completeExtraction"].as_bool() == Some(true)
+    {
+        return callable::observe(input);
+    }
     let files = input["files"]
         .as_object()
         .ok_or("extraction oracle requires files object")?;
@@ -285,6 +293,15 @@ pub fn observe(input: &Value) -> Result<Value, String> {
             json!({"bodyPresent":!declaration.body().is_nil(),"namePresent":!declaration.name().is_nil(),"ownerEligible":!declaration.body().is_nil() && owner_name(declaration).is_some()})
         });
         result["ownerAbsenceCases"] = json!(cases);
+    }
+    if let Some(path) = input["historicalConsumerFile"].as_str() {
+        let source = files
+            .get(path)
+            .and_then(Value::as_str)
+            .ok_or("historical consumer file missing")?;
+        let request = json!({"source":source,"filename":path});
+        result["outline"] = crate::outline::observe(&request)?;
+        result["syntax"] = crate::syntax::observe(&request)?;
     }
     Ok(result)
 }

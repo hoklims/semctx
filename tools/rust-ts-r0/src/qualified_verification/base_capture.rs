@@ -207,12 +207,14 @@ fn scratch() -> Result<PathBuf, String> {
         std::process::id(),
         CAPTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed)
     ));
-    let mut builder = fs::DirBuilder::new();
+    let builder = fs::DirBuilder::new();
     #[cfg(unix)]
-    {
+    let builder = {
         use std::os::unix::fs::DirBuilderExt;
+        let mut builder = builder;
         builder.mode(0o700);
-    }
+        builder
+    };
     builder.create(&root).map_err(|error| error.to_string())?;
     root.canonicalize().map_err(|error| error.to_string())
 }

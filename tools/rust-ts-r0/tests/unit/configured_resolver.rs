@@ -149,7 +149,13 @@ fn configured_source_resolution_does_not_create_workspace_source_package_links()
         inherited.unwrap().resolved_file_name,
         "/repo/packages/config-dev/leaf.ts"
     );
-    assert!(observations.borrow().reasons["/repo/app/source.ts"].is_empty());
+    assert_eq!(
+        observations.borrow().reasons["/repo/app/source.ts"],
+        vec![
+            "SOURCE_CONFIGURATION_INVALID:5090:Non-relative paths are not allowed. Did you forget a leading './'?",
+            "SOURCE_CONFIGURATION_INVALID:5102:Option 'baseUrl' has been removed. Please remove it from your configuration. Use '\"paths\": {\"*\": [\"../packages/config-dev/*\"]}' instead."
+        ]
+    );
     for (specifier, refusal) in [
         ("../../outside-dev", "WORKSPACE_PATH_OUTSIDE_ROOT"),
         ("../nested/hidden", "WORKSPACE_NESTED_REPOSITORY"),
@@ -231,7 +237,7 @@ fn development_factory_uses_sdk59_node10_classic_and_null_effective_modes() {
 }
 
 #[test]
-fn development_modern_base_url_and_paths_use_inherited_sdk59_base() {
+fn development_modern_base_url_resolution_preserves_ts7_removed_option_diagnostic() {
     for (resolution, module) in [
         ("bundler", "esnext"),
         ("node16", "node16"),
@@ -261,10 +267,15 @@ fn development_modern_base_url_and_paths_use_inherited_sdk59_base() {
             assert!(error.is_none());
             assert_eq!(found.unwrap().resolved_file_name, expected, "{resolution}");
         }
-        assert!(
-            !observations.borrow().reasons[path]
+        assert_eq!(
+            observations.borrow().reasons[path]
                 .iter()
-                .any(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
+                .filter(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:"))
+                .map(String::as_str)
+                .collect::<Vec<_>>(),
+            vec![
+                "SOURCE_CONFIGURATION_INVALID:5102:Option 'baseUrl' has been removed. Please remove it from your configuration. Use '\"paths\": {\"*\": [\"../lookups/*\"]}' instead."
+            ]
         );
         let cleared = "/repo/t00DevelopmentModernAA/cleared/t00DevelopmentEntryAA.ts";
         let (found, _, error) = resolver.resolve_module_name(
@@ -505,7 +516,7 @@ fn development_containing_file_configuration_selects_alias_and_never_leaks_to_si
 }
 
 #[test]
-fn development_explicit_zero_option_overrides_base_and_inherited_value() {
+fn development_removed_none_preserves_native_error_without_overriding_base_module() {
     for inherited in [false, true] {
         let mut files = BTreeMap::from([("/repo/t00DevelopmentZeroM/tsconfig.json".into(), if inherited { "{\"extends\":\"../t00DevelopmentZeroFoundationM.json\",\"compilerOptions\":{\"module\":\"none\"}}" } else { "{\"compilerOptions\":{\"module\":\"none\"}}" }.into())]);
         if inherited {
@@ -525,7 +536,7 @@ fn development_explicit_zero_option_overrides_base_and_inherited_value() {
             "/repo",
         )
         .unwrap();
-        let (merged, _) = merge_configured_options(
+        let (merged, reasons) = merge_configured_options(
             &CompilerOptions {
                 module: ModuleKind::ES_NEXT,
                 target: ScriptTarget::ES2022,
@@ -533,7 +544,13 @@ fn development_explicit_zero_option_overrides_base_and_inherited_value() {
             },
             &configuration,
         );
-        assert_eq!(merged.module, ModuleKind::NONE);
+        assert_eq!(merged.module, ModuleKind::ES_NEXT);
+        assert!(
+            reasons
+                .iter()
+                .any(|reason| reason.starts_with("SOURCE_CONFIGURATION_INVALID:6046:"))
+        );
+        assert!(reasons.contains(&"SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None".into()));
     }
 }
 
@@ -699,14 +716,7 @@ fn development_raw_chain_order_preserves_inherited_zero_and_null_then_later_over
             },
             &configuration,
         );
-        assert_eq!(
-            merged.module,
-            if later {
-                ModuleKind::ES_NEXT
-            } else {
-                ModuleKind::NONE
-            }
-        );
+        assert_eq!(merged.module, ModuleKind::ES_NEXT);
         assert_eq!(
             merged.allow_js,
             if later {

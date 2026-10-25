@@ -13,6 +13,7 @@ pub struct ModuleConfigurationObservations {
     pub retained_without_source: Observation,
     pub retained_with_source: Observation,
     pub ordinary_without_snapshot: Observation,
+    pub ordinary_with_source: Observation,
 }
 
 pub struct ModuleConfigurationInputs<'a> {
@@ -44,7 +45,13 @@ fn not_executed() -> Observation {
     }
 }
 
-pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> Observation {
+pub fn retained_scope_syntax(
+    source: core::Node,
+    path: &str,
+    retained: bool,
+    retained_files: &BTreeMap<String, String>,
+    case_sensitive: bool,
+) -> Observation {
     if !retained {
         return not_executed();
     }
@@ -91,6 +98,23 @@ pub fn retained_scope_syntax(source: core::Node, path: &str, retained: bool) -> 
         });
     }
     let mut reasons = BTreeSet::new();
+    for reference in &ast::source_file_info(source).referenced_files {
+        let target = ts_goport::frontend::tspath::resolve_tripleslash_reference(
+            &reference.file_name,
+            ast::source_file_file_name(source),
+        );
+        let target = if case_sensitive {
+            target
+        } else {
+            target.to_lowercase()
+        };
+        if !retained_files.contains_key(&target) {
+            reasons.insert(format!(
+                "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:{path}:{}",
+                reference.file_name
+            ));
+        }
+    }
     visit(source, path, &mut reasons);
     observed(reasons.into_iter().collect(), BTreeSet::new())
 }
@@ -234,6 +258,20 @@ pub fn ordinary_module_configuration(
     observed(ordinary, unsupported)
 }
 
+fn source_default_reasons(source: core::Node) -> Vec<String> {
+    if source.is_nil() {
+        return vec![];
+    }
+    let mut reasons = vec![];
+    if javascript::has_unsupported_default_expression(source) {
+        reasons.push("SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED".into());
+    }
+    if javascript::has_semantic_jsdoc_import(source) {
+        reasons.push("SOURCE_JSDOC_IMPORT_UNSUPPORTED".into());
+    }
+    reasons
+}
+
 pub fn module_configuration(
     inputs: ModuleConfigurationInputs<'_>,
 ) -> ModuleConfigurationObservations {
@@ -246,11 +284,27 @@ pub fn module_configuration(
         inputs.ordinary_configuration,
         inputs.ordinary_unsupported.clone(),
     );
+    let source_available = inputs.source.is_some();
+    let ordinary_source_reasons = if ordinary_without_snapshot
+        .reasons
+        .iter()
+        .any(|reason| reason == "SOURCE_CONFIGURATION_OUTSIDE_REPOSITORY")
+    {
+        ordinary_without_snapshot.reasons.clone()
+    } else {
+        source_default_reasons(inputs.source)
+            .into_iter()
+            .chain(ordinary_without_snapshot.reasons.iter().cloned())
+            .collect()
+    };
+    let ordinary_with_source =
+        observed(ordinary_source_reasons, inputs.ordinary_unsupported.clone());
     if !inputs.retained {
         return ModuleConfigurationObservations {
             retained_without_source: not_executed(),
             retained_with_source: not_executed(),
             ordinary_without_snapshot,
+            ordinary_with_source,
         };
     }
     if outside {
@@ -264,20 +318,22 @@ pub fn module_configuration(
                 BTreeSet::new(),
             ),
             ordinary_without_snapshot,
+            ordinary_with_source,
         };
     }
-    let mut reasons = inputs.named_reasons.to_vec();
-    if javascript::has_unsupported_default_expression(inputs.source) {
-        reasons.push("SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED".into());
+    let mut reasons = if source_available {
+        inputs.named_reasons.to_vec()
+    } else {
+        vec![]
+    };
+    reasons.extend(source_default_reasons(inputs.source));
+    if source_available {
+        reasons.extend(javascript::inspect_unmodeled_invocations(inputs.source));
+        if inputs.javascript.native.common_js_unsupported {
+            reasons.push("SOURCE_COMMONJS_UNSUPPORTED".into());
+        }
+        reasons.extend(inputs.semantic.reasons.iter().cloned());
     }
-    if javascript::has_semantic_jsdoc_import(inputs.source) {
-        reasons.push("SOURCE_JSDOC_IMPORT_UNSUPPORTED".into());
-    }
-    reasons.extend(javascript::inspect_unmodeled_invocations(inputs.source));
-    if inputs.javascript.native.common_js_unsupported {
-        reasons.push("SOURCE_COMMONJS_UNSUPPORTED".into());
-    }
-    reasons.extend(inputs.semantic.reasons.iter().cloned());
     reasons.extend(
         configuration
             .reasons
@@ -287,8 +343,12 @@ pub fn module_configuration(
     );
     let has_configuration = !configuration.consumed.is_empty();
     let configuration_parsed = configuration.raw.is_some();
-    let mut unsupported = inputs.semantic.unsupported.clone();
-    if !has_configuration || configuration_parsed {
+    let mut unsupported = if source_available {
+        inputs.semantic.unsupported.clone()
+    } else {
+        BTreeSet::new()
+    };
+    if source_available && (!has_configuration || configuration_parsed) {
         reasons.extend(inputs.runtime.reasons.iter().cloned());
         unsupported.extend(inputs.runtime.unsupported.iter().cloned());
     }
@@ -307,14 +367,17 @@ pub fn module_configuration(
         }
     }
     let retained_without_source = observed(reasons.clone(), unsupported.clone());
-    reasons.extend(javascript::inspect_qualified_module_scope(
-        inputs.source,
-        inputs.path,
-    ));
+    if source_available {
+        reasons.extend(javascript::inspect_qualified_module_scope(
+            inputs.source,
+            inputs.path,
+        ));
+    }
     ModuleConfigurationObservations {
         retained_without_source,
         retained_with_source: observed(reasons, unsupported),
         ordinary_without_snapshot,
+        ordinary_with_source,
     }
 }
 
@@ -403,4 +466,32 @@ pub fn retained_callable_initializers(
         })
         .collect::<Vec<_>>();
     serde_json::json!({"executed":true,"unsupported":[],"variables":variables})
+}
+
+pub fn retained_function_owners(
+    source: core::Node,
+    root: &str,
+    retained: bool,
+) -> serde_json::Value {
+    if !retained {
+        return serde_json::json!({"executed":false,"unsupported":["COMPONENT_RETAINED_INPUTS_NOT_ENABLED"],"functions":[],"ownerAbsenceCases":[]});
+    }
+    let mut nodes = Vec::new();
+    all_nodes(source, &mut nodes);
+    let functions = nodes.into_iter().filter(|node| node.kind() == SyntaxKind::FunctionDeclaration).map(|node| {
+        let coordinate = ordinary::retained_function_owner_coordinate(node, root).map(|(path, symbol)| serde_json::json!({"relPath":path,"symbolPath":symbol}));
+        serde_json::json!({"bodyPresent":node.body().is_some(),"namePresent":node.name().is_some(),"coordinate":coordinate})
+    }).collect::<Vec<_>>();
+    let factory = ast::NodeFactory::new();
+    let owner_absence_cases = [(false,false),(false,true),(true,false),(true,true)].map(|(body, name)| {
+        let declaration = factory.new_function_declaration(
+            ast::ModifierList::NIL, core::Node::NIL,
+            if name {factory.new_identifier("named")} else {core::Node::NIL},
+            ast::NodeList::NIL, ast::NodeList::NIL, core::Node::NIL, core::Node::NIL,
+            if body {factory.new_block(ast::NodeList::NIL,false)} else {core::Node::NIL},
+        );
+        ast::set_node_parent(declaration, source);
+        serde_json::json!({"bodyPresent":body,"namePresent":name,"ownerEligible":ordinary::retained_function_owner_coordinate(declaration,root).is_some()})
+    });
+    serde_json::json!({"executed":true,"unsupported":[],"functions":functions,"ownerAbsenceCases":owner_absence_cases})
 }

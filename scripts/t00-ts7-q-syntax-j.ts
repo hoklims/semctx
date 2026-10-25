@@ -38,10 +38,10 @@ const javascriptChecks: CampaignCase["checks"] = [
 
 export const cases: CampaignCase[] = [
   ...[
-    ["type", '/** @type {import("./types.js").Shape} */\nexport let value;'],
-    ["typedef", '/** @typedef {import("./types.js").Shape} Shape */\nexport let value;'],
-    ["import-tag", '/** @import { Shape } from "./types.js" */\nexport let value;'],
-    ["nested", 'export function outer() { /** @type {import("./types.js").Shape} */ let value; return value; }'],
+    ["type", '/** @type {import("./types.js").Shape} */\nlet value; export {};'],
+    ["typedef", '/** @typedef {import("./types.js").Shape} Shape */\nlet value; export {};'],
+    ["import-tag", '/** @import { Shape } from "./types.js" */\nlet value; export {};'],
+    ["nested", 'export function outer() {\n/** @type {import("./types.js").Shape} */\nlet value; return value;\n}'],
     ["prose-control", '/** Import prose: import("./types.js") is text. */\nexport const value = 1;'],
     ["ordinary-control", '/** @type {number} */\nexport let value;'],
   ].map(([name, source]) => raw(`J-jsdoc-${name}`, [7, 8, 9], "main.js", source!, [scan, scope, parsing, exports, ...javascriptChecks])),
@@ -83,7 +83,7 @@ export const cases: CampaignCase[] = [
     ["conditional", "function a() {} function b() {} (true ? a : b)(); export {};"],
     ["element", "const value = { a() {} }; value['a'](); export {};"],
     ["tagged", "function tag() {} tag`value`; export {};"],
-  ].flatMap(([name, source]) => ["main.ts", "main.js"].map(filename => raw(`J-invocation-${name}-${filename}`, [19, 48], filename, source!, [scan, scope, parsing]))),
+  ].flatMap(([name, source]) => ["main.ts", "main.js"].map(filename => raw(`J-invocation-${name}-${filename}`, [19, 48], filename, source!, name === "element" ? [scan, parsing] : [scan, scope, parsing]))),
   ...["main.ts", "main.tsx", "main.js", "main.jsx"].map(filename => {
     const source = "\uFEFFexport const emoji = '😀';\r\nexport function broken( {\u2028";
     return {
@@ -103,7 +103,7 @@ export const gaps: Record<number, string> = Object.fromEntries<string>([
   [19, "Tagged/call traversal covered; computed import arity/string controls, with statement, static import/export link resolution and declared-external behavior remain unexercised."],
 ]);
 
-const jsdocWitnesses = ["J-jsdoc-type", "J-jsdoc-typedef", "J-jsdoc-import-tag", "J-jsdoc-prose-control", "J-jsdoc-typescript-control"];
+const jsdocWitnesses = ["J-jsdoc-type", "J-jsdoc-typedef", "J-jsdoc-import-tag", "J-jsdoc-nested", "J-jsdoc-prose-control", "J-jsdoc-ordinary-control", "J-jsdoc-typescript-control"];
 const defaultWitnesses = ["J-default-as-expression", "J-default-expression", "J-default-identifier", "J-default-declaration-control", "J-default-anonymous-declaration-control", "J-default-js-expression", "J-default-js-declaration-control", "J-default-js-anonymous-declaration-control"];
 const scopeWitnesses = ["J-scope-esm", "J-scope-script", "J-scope-mts", "J-scope-mjs", "J-scope-cts", "J-scope-cjs", "J-scope-global-augmentation", "J-scope-module-augmentation", "J-scope-namespace-control"];
 const parserWitnesses = ["J-parser-error-main.ts", "J-parser-error-main.tsx", "J-parser-error-main.js", "J-parser-error-main.jsx", "J-parser-type-control-main.ts", "J-parser-type-control-main.tsx", "J-parser-type-control-main.js", "J-parser-type-control-main.jsx"];
@@ -119,5 +119,5 @@ export const propertyWitnesses: Record<number, Record<string, string[]>> = {
   41: { "owning consumer observable rule(s) in canonical family/call-path contract": scopeWitnesses },
   42: { "owning consumer observable rule(s) in canonical family/call-path contract": parserWitnesses },
   43: { "owning consumer observable rule(s) in canonical family/call-path contract": parserWitnesses },
-  48: { "TS dynamic versus named callee and tagged template versus call": ["J-invocation-named-control-main.ts", "J-invocation-conditional-main.ts", "J-invocation-tagged-main.ts", "J-invocation-named-control-main.js", "J-invocation-conditional-main.js", "J-invocation-tagged-main.js"] },
+  48: { "TS dynamic versus named callee and tagged template versus call": ["J-invocation-named-control-main.ts", "J-invocation-wrapped-control-main.ts", "J-invocation-conditional-main.ts", "J-invocation-element-main.ts", "J-invocation-tagged-main.ts", "J-invocation-named-control-main.js", "J-invocation-wrapped-control-main.js", "J-invocation-conditional-main.js", "J-invocation-element-main.js", "J-invocation-tagged-main.js"] },
 };

@@ -83,12 +83,16 @@ fn javascript_operation_preserves_retained_and_ordinary_configuration_boundaries
         let expected = if retained {
             serde_json::json!([
                 "JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED",
+                "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration.",
                 "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS",
                 "SOURCE_CONFIGURATION_RESOLUTION_UNSUPPORTED:Node10",
                 "SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"
             ])
         } else {
-            serde_json::json!(["JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED"])
+            serde_json::json!([
+                "JAVASCRIPT_DEFAULT_EXPRESSION_UNSUPPORTED",
+                "SOURCE_CONFIGURATION_INVALID:5108:Option 'moduleResolution=node10' has been removed. Please remove it from your configuration."
+            ])
         };
         assert_eq!(observation["reasons"], expected);
         assert_eq!(

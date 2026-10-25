@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
-import { isDeepStrictEqual } from "node:util";
+import { combineCampaignCases, comparisonMatches, projectComparison } from "./t00-ts7-q-syntax-checker-cases.js";
 import { readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
 import type { CampaignCase, CandidateManifest, FileRef, PlatformArtifacts } from "./t00-ts7-q-syntax-types.js";
 
@@ -30,7 +30,7 @@ function artifact(value: unknown): FileRef {
   return { path: text(item.path), sha256: text(item.sha256), bytes: item.bytes };
 }
 
-async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{
+export async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{
   manifest: CandidateManifest; artifacts: PlatformArtifacts; refs: FileRef[]; manifestHash: string;
 }> {
   const bytes = await readFile(path);
@@ -133,15 +133,6 @@ async function materialize(item: CampaignCase, root: string): Promise<Record<str
     ...template, files: absolute, roots };
 }
 
-function comparisonValue(value: unknown, transform: CampaignCase["checks"][number]["transform"]): unknown {
-  if (!transform) return value;
-  return array(value).map(entry => {
-    const statement = { ...object(entry) };
-    delete statement.digest;
-    return statement;
-  });
-}
-
 async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtifacts) {
   const started = performance.now();
   await mkdir(dir);
@@ -165,9 +156,9 @@ async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtif
   const checks = item.checks.map(check => {
     try {
       if (producer.exitCode !== 0) throw new Error(`producer exit ${producer.exitCode}: ${producer.stderr.trim()}`);
-      const observed = comparisonValue(readAt(actual, check.actual), check.transform);
+      const observed = projectComparison(readAt(actual, check.actual), check.transform);
       const wanted = readAt(expected, check.expected);
-      const passed = isDeepStrictEqual(observed, wanted);
+      const passed = comparisonMatches(observed, wanted, check.comparison);
       return { ...check, status: passed ? "passed" : "failed", reason: passed ? "exact independent TS7 comparison" : "independent TS7 mismatch",
         actualValue: observed, expectedValue: wanted };
     } catch (error) {
@@ -197,12 +188,9 @@ async function main() {
   const out = resolve(text(options.get("--out")));
   const shard = options.get("--shard") ?? "1/1";
   const candidate = await loadCandidate(candidatePath, platform);
-  const modules = await Promise.all([import("./t00-ts7-q-syntax-j.js"), import("./t00-ts7-q-syntax-o.js"), import("./t00-ts7-q-syntax-x.js")]);
-  const allCases = modules.flatMap(module => module.cases);
+  const modules = await Promise.all([import("./t00-ts7-q-syntax-j.js"), import("./t00-ts7-q-syntax-o.js"), import("./t00-ts7-q-syntax-x.js"), import("./t00-ts7-q-syntax-checker-j.js"), import("./t00-ts7-q-syntax-checker-x.js"), import("./t00-ts7-q-syntax-checker-partition.js"), import("./t00-ts7-q-syntax-checker-parsing.js")]);
+  const { cases: allCases, gaps, propertyWitnesses: witnesses } = combineCampaignCases(modules);
   if (new Set(allCases.map(item => item.name)).size !== allCases.length) throw new Error("duplicate witness names");
-  const gaps = Object.assign({}, ...allCases.map(item => item.gaps ?? {}),
-    ...modules.map(module => "gaps" in module ? module.gaps : {})) as Record<number, string>;
-  const witnesses = Object.assign({}, ...modules.map(module => module.propertyWitnesses)) as Record<number, Record<string, string[]>>;
   const indices = [7,8,9,10,11,17,18,19,...Array.from({length:16},(_,i)=>28+i),48,
     ...Array.from({length:30},(_,i)=>137+i),...Array.from({length:16},(_,i)=>176+i),197,206,207,208,209,214,215,221,222];
   const selected = new Set(shardIndices(indices, shard));
@@ -214,7 +202,7 @@ async function main() {
   const version = await execute([candidate.artifacts.oracle.path, "--version"], out);
   if (version.exitCode !== 0 || version.stdout.trim() !== "Version 7.1.0-dev") throw new Error("upstream tsgo identity mismatch");
   const versionRef = await save(join(out, "tsgo-version.json"), version);
-  const runnerSources = await Promise.all(["campaign", "core", "types", "j", "o", "x"].map(async name => {
+  const runnerSources = await Promise.all(["campaign", "core", "types", "j", "o", "x", "checker-cases", "checker-graph", "checker-j", "checker-x", "checker-partition", "checker-parsing"].map(async name => {
     const path = join(import.meta.dir, `t00-ts7-q-syntax-${name}.ts`);
     const bytes = await readFile(path);
     return { path, sha256: hash(bytes), bytes: bytes.length };

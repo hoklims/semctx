@@ -1,7 +1,12 @@
 use serde_json::Value;
 use std::io::{Read, Write};
 
+mod checker_extraction;
+mod checker_native;
+mod checker_partition;
+mod checker_program;
 mod extraction;
+mod files;
 mod outline;
 mod syntax;
 
@@ -39,6 +44,9 @@ fn run() -> Result<Value, String> {
         Some("syntax") => syntax::observe(&input),
         Some("outline") => outline::observe(&input),
         Some("extraction") => extraction::observe(&input),
+        Some("checker-extraction") => checker_extraction::observe(&input),
+        Some("checker-native") => checker_native::observe(&input),
+        Some("checker-partition") => checker_partition::observe(&input),
         _ => Err("unsupported oracle operation".into()),
     }?;
     Ok(
@@ -47,7 +55,17 @@ fn run() -> Result<Value, String> {
 }
 
 fn main() {
-    match run() {
+    let outcome = std::thread::Builder::new()
+        .stack_size(16 * 1024 * 1024)
+        .spawn(run)
+        .map_err(|error| error.to_string())
+        .and_then(|worker| {
+            worker
+                .join()
+                .map_err(|_| "upstream compiler panicked; no observation qualified".to_string())
+        })
+        .and_then(|result| result);
+    match outcome {
         Ok(value) => {
             let result = serde_json::to_writer(std::io::stdout().lock(), &value);
             if let Err(error) = result {

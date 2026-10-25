@@ -1,6 +1,7 @@
 # T00 — TS7 reference contract
 
-Status: partially specified research contract, owner decisions of 2026-10-23.
+Status: partially specified research contract, owner decisions of 2026-10-23 and
+2026-10-24. The 2026-10-24 scope changes below still require Guillaume’s validation.
 This contract applies to the T00 experiment only. It does not migrate the delivered
 profiles in accepted ADRs [0034](../../adr/0034-javascript-static-esm.md) and
 [0035](../../adr/0035-qualified-static-analysis-admission.md), grant admission,
@@ -115,6 +116,40 @@ The approved diagnostic mode supplies no TS5-compatible emission promise or
 permission to accept incompatible qualified module settings. Preserve explicit
 Semctx configuration refusals and distinguish them from compiler code 6046.
 
+## Owner scope decisions of 2026-10-24
+
+Sébastien authorized the following experimental scope changes. **Guillaume must
+still validate both changes** before they can be presented as maintainer-approved
+contract changes. A local qualification result under this scope does not supply
+that validation or authorize delivery.
+
+For obligation **49**, API checkpoints **49:2, 49:4 and 49:5**, which require
+invocation without a captured snapshot or source path, are outside the Rust
+producer’s scope. Its stdin boundary supplies source text and a captured snapshot.
+This explicit boundary limitation does not qualify the remaining in-scope
+properties. The obligation stays in the 240-row denominator; excluding these
+three checkpoints grants no PASS by itself. Historical inventories remain unchanged.
+
+For obligations **12–14**, the contract covers targets supported by the pinned
+TS7 compiler. The historical **J04/J05 ES5 witnesses are explicitly replaced by
+the ES2015 variants** prepared by emit-helpers: enabled/disabled helper imports,
+inherited and leaf-overridden options, native-target control and manual-import
+controls. Qualification requires fresh activation and control comparisons against
+the independent TS7 API oracle on the frozen candidate on both platforms.
+**ARB-003 and `__generator` retain zero credit.** No ES5 compatibility promise is made.
+
+Obligations **145** (`yield`) and **166** (structural digest) remain pending a
+separate owner decision and are not qualified in this campaign. The unresolved
+choices concern a recovered immediate YieldExpression with TS1163 versus an
+accepted program, and TS7 digest equality/difference relations versus identical
+historical TS5 digest bytes. Neither choice is inferred from existing tests.
+
+The resumed wave-2 delivery includes only the committed semantic tranche **52**
+in addition to the previously prepared **61/97/102**. Other committed preparatory
+contract matrices are not activated for promotion. Their obligations retain
+baseline witnesses and remain unqualified until a separately delivered closure.
+Uncommitted live-fs, extraction and semantic continuation work is excluded.
+
 ## Obligation 229 — P2 acquisition
 
 The owner selected confined acquisition, no Bun or foreign-SDK fallback, an
@@ -181,6 +216,38 @@ different boundaries; neither grants qualification of obligation 229 by itself.
 The targeted `--observe-system` and `--observe-configured-resolution` primitives
 retain partial SDK fixtures and are outside this complete-inventory guarantee.
 
+## Native TS7 identity acquisition
+
+`native_analyzer_identity` takes explicit `repository_root` and
+`compiler_package_root` paths and preserves the P2 confinement and aggregate
+67,108,864-byte limit above. Historical TS5 acquisition remains separately routed
+through `baseline_analyzer_identity`. A native
+package is a local composition, not an npm package: its `package.json` declares
+`name: "ts_goport"`, `version: "7.1.0-dev"` and
+`sourceRevision: "780dc512d64f40afebffa6a7028207649fb7ed1c"`; `lib/tsgo` is the
+native entry, adjacent to the complete 115 `lib*.d.ts` names. Missing, extra or
+foreign inventory names refuse; there is no SDK or Bun fallback.
+
+The adopted implementation input domain retains the six fixed baseline inputs,
+package manifests and recursive `.ts`/`.js`/`.mjs` source selection, excluding the
+generated analyzer identity. Native identity schema 2 hashes those files and
+`compiler: {version, sourceRevision, digest}`. The compiler digest hashes
+`{entry, libraries}`: the entry's byte SHA256 and UTF-16-sorted library
+`{path, digest}` pairs, including `../package.json`. Package bytes count once.
+The identity digest hashes compact JSON in the stated field order, before adding
+its `digest` field; absolute paths do not enter it.
+
+Acquisition observes payload bytes and reports `compiler_executed: false` and
+`sdk_payload_authenticated: false`; a changed library or entry receives a changed
+identity rather than a claim of authenticity. A qualification witness must
+independently bind its positive package to the pinned TS7 binary and SDK bytes,
+execute that native entry with its adjacent default libraries, and compare a
+live independently computed manifest. Native acquisition errors use the
+`NATIVE_IDENTITY_` prefix with the historical P2 failure categories, except the
+retained `Noncanonical CRLF analyzer input:` diagnostic. Malformed or omitted
+request fields still use `PRIMITIVE_INVALID_REQUEST`. These acquisitions
+are neither analysis admission nor compiler execution evidence.
+
 ## Requalification
 
 All 240 obligations require fresh evidence on the integrated candidate. The 209
@@ -200,6 +267,24 @@ Obligations 4/235 retain their public composition gap. Obligations 198/204/209
 retain their unexercised branches; 220/229 need the explicit acquisition boundary.
 Refusal admission and post-emission receipt revalidation remain necessary for
 0/1/2/3/232–234/236–238. A version decision closes none of these proof gaps.
+
+For finite JSX runtime comparisons, the API oracle retains raw authored ranges
+and separately exposes the native transformer location. At the pinned revision,
+`JSXTransformer::trivia_skipped_location` skips leading trivia before assigning
+the factory call location (`jsxtransforms/jsx.rs`, lines 383–389, 415–436,
+1073 and 1107). Compare synthesized calls to this independently observed location;
+do not relabel it as the raw authored range. This is an owning-operation comparison,
+not AST coordinate-shape equivalence. The 2026-10-24 owner decision above replaces
+J04/J05 ES5 witnesses with the tested ES2015 variants for obligations 12–14, subject
+to Guillaume’s validation; neither ARB-003 nor `__generator` receives credit.
+
+The runtime API oracle uses upstream `noembed`: its real executable directory
+must contain the pinned 115 libraries, in addition to the explicit `sdk_directory`
+request. Before its default-profile `cargo test`, provision those same libraries
+in both `$CARGO_TARGET_DIR/debug/` and `$CARGO_TARGET_DIR/debug/deps/`
+(the CLI and unit-test executable directories). Cargo does not copy these inputs;
+a fresh target without this SDK setup is not a supported test invocation. Then run
+`cargo test --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked --offline -j 2`.
 
 Every obligation stays `not_qualified` until all its cumulative properties and
 negative controls pass on macOS arm64 and Linux aarch64 against the new reference.

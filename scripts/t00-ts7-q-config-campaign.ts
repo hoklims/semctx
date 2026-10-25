@@ -5,12 +5,12 @@ import { dirname, isAbsolute, resolve } from "node:path";
 export type Evidence = { path: string; sha256: string; bytes: number };
 export type PropertyResult = { property: string; status: "pass" | "fail" | "not_qualified"; reason: string; evidence?: Evidence[] };
 export type ObligationResult = { index: number; id: string; status: "qualified" | "not_qualified"; reason: string; properties: PropertyResult[]; evidence: Evidence[]; durationMs: number };
-export type CampaignContext = { producer: string; helper: string; sdk: string; oracle: string; out: string; platform: "macos" | "linux"; run: (name: string, argv: string[], cwd?: string) => Promise<{ exitCode: number; stdout: string; stderr: string; evidence: Evidence[] }> };
+export type CampaignContext = { producer: string; helper: string; sdk: string; oracle: string; emitHelpersOracle?: string; out: string; platform: "macos" | "linux"; run: (name: string, argv: string[], cwd?: string) => Promise<{ exitCode: number; stdout: string; stderr: string; evidence: Evidence[] }> };
 export const sha256 = (bytes: string | Uint8Array): string => createHash("sha256").update(bytes).digest("hex");
 const indices = [12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 26, 27, 44, 45, 46, 47, 167, 171, 172, 173, 174, 175, 192, 193, 194, 195, 196, 198, 199, 200, 201, 202, 203, 204, 205, 210, 211, 212, 213, 223, 224, 225, 226, 227, 228, 239];
 const configurationResolution = new Set([23, 24, 25, 26, 27, 44, 45, 46, 47, 198, 199, 200, 201, 202, 203, 204, 205, 223, 224, 225, 226, 227, 228]);
 type Artifact = Evidence;
-export type PlatformArtifacts = { producer: Artifact; helper: Artifact; observer: Artifact; sdk: Artifact; oracle: Artifact; oracleLibraries: Artifact };
+export type PlatformArtifacts = { producer: Artifact; helper: Artifact; observer: Artifact; sdk: Artifact; oracle: Artifact; oracleLibraries: Artifact; emitHelpersOracle?: Artifact };
 export type CandidateManifest = { schemaVersion: 1; sourceCommit: string; kind?: "development" | "frozen"; platforms: Partial<Record<"macos" | "linux", PlatformArtifacts>> };
 type Options = { candidate: string; platform: "macos" | "linux"; out: string; shard?: string };
 const object = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -49,7 +49,7 @@ export function parseManifest(value: unknown, platform: "macos" | "linux"): { ma
   if (!object(value) || value.schemaVersion !== 1 || typeof value.sourceCommit !== "string" || !/^[a-f0-9]{40}$/.test(value.sourceCommit) || (value.kind !== undefined && (typeof value.kind !== "string" || !["development", "frozen"].includes(value.kind))) || !object(value.platforms)) throw new Error("invalid candidate manifest identity");
   const cell = value.platforms[platform];
   if (!object(cell)) throw new Error(`missing candidate platform ${platform}`);
-  const artifacts = { producer: artifact(cell.producer, "producer"), helper: artifact(cell.helper, "helper"), observer: artifact(cell.observer, "observer"), sdk: artifact(cell.sdk, "sdk"), oracle: artifact(cell.oracle, "oracle"), oracleLibraries: artifact(cell.oracleLibraries, "oracleLibraries") };
+  const artifacts = { producer: artifact(cell.producer, "producer"), helper: artifact(cell.helper, "helper"), observer: artifact(cell.observer, "observer"), sdk: artifact(cell.sdk, "sdk"), oracle: artifact(cell.oracle, "oracle"), oracleLibraries: artifact(cell.oracleLibraries, "oracleLibraries"), ...(cell.emitHelpersOracle === undefined ? {} : { emitHelpersOracle: artifact(cell.emitHelpersOracle, "emitHelpersOracle") }) };
   return { manifest: { schemaVersion: 1, sourceCommit: value.sourceCommit, kind: value.kind as "development" | "frozen", platforms: { [platform]: artifacts } }, artifacts };
 }
 
@@ -146,11 +146,21 @@ async function main(): Promise<void> {
   };
   const version = await run("oracle-version", [artifacts.oracle.path, "--version"]);
   if (version.exitCode !== 0 || version.stdout.trim() !== "Version 7.1.0-dev") throw new Error("oracle runtime version mismatch");
-  const context: CampaignContext = { producer: artifacts.producer.path, helper: artifacts.helper.path, sdk: artifacts.sdk.path, oracle: artifacts.oracle.path, out: options.out, platform: options.platform, run };
+  const context: CampaignContext = { producer: artifacts.producer.path, helper: artifacts.helper.path, sdk: artifacts.sdk.path, oracle: artifacts.oracle.path, emitHelpersOracle: artifacts.emitHelpersOracle?.path, out: options.out, platform: options.platform, run };
   const selected = selectIndices(options.shard);
   const { runConfigurationResolution } = await import("./t00-ts7-q-config-cr");
+  const { enrichConfigurationDiagnostics } = await import("./t00-ts7-q-config-diag");
+  const { enrichNamedConfigurations } = await import("./t00-ts7-q-config-named");
+  const { runConfigurationProgram } = await import("./t00-ts7-q-config-program");
   const { runProgramEmissionWorkers } = await import("./t00-ts7-q-config-pew");
-  const results = [...await runConfigurationResolution(context, selected.filter(index => configurationResolution.has(index))), ...await runProgramEmissionWorkers(context, selected.filter(index => !configurationResolution.has(index)))].sort((a, b) => a.index - b.index);
+  const { runEmitHelpers, emitHelpersIndices } = await import("./t00-ts7-q-config-emit-helpers");
+  const configurationRows = await runConfigurationResolution(context, selected.filter(index => configurationResolution.has(index)));
+  const results = [
+    ...await runEmitHelpers(context, selected.filter(index => emitHelpersIndices.includes(index))),
+    ...await enrichNamedConfigurations(context, await enrichConfigurationDiagnostics(context, configurationRows)),
+    ...await runConfigurationProgram(context, selected.filter(index => index === 167 || index === 171)),
+    ...await runProgramEmissionWorkers(context, selected.filter(index => !configurationResolution.has(index) && !emitHelpersIndices.includes(index) && index !== 167 && index !== 171)),
+  ].sort((a, b) => a.index - b.index);
   if (technicalFailure !== undefined) throw technicalFailure instanceof Error ? technicalFailure : new Error("non-Error technical process failure");
   validateResults(results, selected);
   await verifyArtifacts(artifacts);

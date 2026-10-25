@@ -574,6 +574,61 @@ fn marker(text: &str) -> bool {
     })
 }
 
+fn structural_tokens(
+    node: Node,
+    file: Node,
+    source: &str,
+    tokens: &mut Vec<String>,
+) -> Result<(), String> {
+    use SyntaxKind::*;
+    if node.kind() as u32 >= JsDocTypeExpression as u32 {
+        return Ok(());
+    }
+    tokens.push(format!("{:?}", node.kind()));
+    match node.kind() {
+        Identifier
+        | PrivateIdentifier
+        | StringLiteral
+        | NumericLiteral
+        | BigIntLiteral
+        | RegularExpressionLiteral
+        | JsxText => tokens.push(node.text().into()),
+        NoSubstitutionTemplateLiteral | TemplateHead | TemplateMiddle | TemplateTail => {
+            let start = usize::try_from(astnav::get_start_of_node(node, file, false))
+                .map_err(|_| "negative native template start")?;
+            let end = usize::try_from(node.end()).map_err(|_| "negative native template end")?;
+            tokens.push(
+                source
+                    .get(start..end)
+                    .ok_or("native template span outside UTF-8 source")?
+                    .into(),
+            );
+        }
+        _ => {}
+    }
+    let children = ts_goport::ls::utilities::get_children_from_non_js_doc_node(node, file);
+    for (position, child) in children.iter().enumerate() {
+        if child.kind() == CommaToken
+            || child.kind() == SemicolonToken && position + 1 == children.len()
+        {
+            continue;
+        }
+        structural_tokens(*child, file, source, tokens)?;
+    }
+    tokens.push(")".into());
+    Ok(())
+}
+
+fn yield_expressions(node: Node, deferred: bool, result: &mut Vec<Value>) {
+    let deferred = deferred || ast::is_function_like(node);
+    if node.kind() == SyntaxKind::YieldExpression {
+        result.push(json!({"fileScope":!deferred}));
+    }
+    for child in children(node) {
+        yield_expressions(child, deferred, result);
+    }
+}
+
 pub fn observe(input: &Value) -> Result<Value, String> {
     let source = input["source"]
         .as_str()
@@ -581,6 +636,12 @@ pub fn observe(input: &Value) -> Result<Value, String> {
     let filename = input["filename"]
         .as_str()
         .ok_or("outline requires string filename")?;
+    let digest_relation = input.get("digestRelation").map_or(Ok(false), |value| {
+        value.as_bool().ok_or("digestRelation requires boolean")
+    })?;
+    let yield_syntax = input.get("yieldSyntax").map_or(Ok(false), |value| {
+        value.as_bool().ok_or("yieldSyntax requires boolean")
+    })?;
     let parsed = parse_source_file(
         &SourceFileParseOptions {
             file_name: filename.into(),
@@ -631,13 +692,35 @@ pub fn observe(input: &Value) -> Result<Value, String> {
         statements.push(description);
     }
     let source_lines: Vec<_> = source.split('\n').collect();
-    Ok(json!({
+    let mut observation = json!({
         "statements":statements,"exportedNames":sorted_names(exported),
         "hasSyntaxErrors":!ast::source_file_diagnostics(file).is_empty(),
         "directiveLines":source_lines.iter().enumerate().filter(|(_,text)| directive(text)).map(|(index,_)| index+1).collect::<Vec<_>>(),
         "markerLines":source_lines.iter().enumerate().filter(|(_,text)| marker(text)).map(|(index,_)| index+1).collect::<Vec<_>>(),
         "moduleLinks":module_links(file)
-    }))
+    });
+    if digest_relation {
+        let nodes: Vec<_> = file.statement_list().nodes().iter().collect();
+        if nodes.len() != 2 || !ast::source_file_diagnostics(file).is_empty() {
+            return Err("digestRelation requires exactly two syntax-clean statements".into());
+        }
+        let tokens: Vec<Vec<String>> = nodes
+            .into_iter()
+            .map(|node| {
+                let mut tokens = Vec::new();
+                structural_tokens(node, file, source, &mut tokens)?;
+                Ok(tokens)
+            })
+            .collect::<Result<_, String>>()?;
+        observation["digestEqual"] = json!(tokens[0] == tokens[1]);
+        observation["structuralTokens"] = json!(tokens);
+    }
+    if yield_syntax {
+        let mut expressions = Vec::new();
+        yield_expressions(file, false, &mut expressions);
+        observation["yieldExpressions"] = json!(expressions);
+    }
+    Ok(observation)
 }
 
 #[cfg(test)]
@@ -713,5 +796,85 @@ mod tests {
     #[test]
     fn rejects_missing_source() {
         assert!(observe(&json!({"filename":"main.ts"})).is_err());
+    }
+
+    #[test]
+    fn token_children_distinguish_semantic_edits_and_ignore_layout() {
+        let _program = ts_goport::core::enter_program(None);
+        for (left, right, equal) in [
+            (
+                "const value = left + right;",
+                "const value = left - right;",
+                false,
+            ),
+            (
+                "class Value extends Base {}",
+                "class Value implements Base {}",
+                false,
+            ),
+            ("let value = 1;", "const value = 1;", false),
+            (
+                "const value = String.raw`a\\nb`;",
+                "const value = String.raw`a\\x0ab`;",
+                false,
+            ),
+            (
+                "const value = String.raw`😀a\\nb`;",
+                "const value = String.raw`😀a\\x0ab`;",
+                false,
+            ),
+            (
+                "const value = String.raw`😀`;",
+                "const value = String.raw`😀`",
+                true,
+            ),
+            (
+                "class Value { #first = 1; }",
+                "class Value { #second = 1; }",
+                false,
+            ),
+            (
+                "const value = [1, 2];",
+                "const value = [ 1, /* keep */ 2, ]",
+                true,
+            ),
+            (
+                "interface Value { a: string; b: number }",
+                "interface Value { a: string, b: number, }",
+                true,
+            ),
+        ] {
+            let observed = observe(&json!({"filename":"main.ts", "source":format!("{left}\n{right}"), "digestRelation":true})).unwrap();
+            assert_eq!(observed["digestEqual"], equal, "{left} / {right}");
+        }
+    }
+
+    #[test]
+    fn digest_relation_requires_two_statements() {
+        let _program = ts_goport::core::enter_program(None);
+        assert!(
+            observe(
+                &json!({"filename":"main.ts", "source":"const value = 1;", "digestRelation":true})
+            )
+            .is_err()
+        );
+        assert!(observe(&json!({"filename":"main.ts", "source":"const value = ;\nconst other = ;", "digestRelation":true})).is_err());
+        for field in ["digestRelation", "yieldSyntax"] {
+            let mut input = json!({"filename":"main.ts", "source":"const value = 1;"});
+            input[field] = json!("true");
+            assert!(observe(&input).is_err());
+        }
+    }
+
+    #[test]
+    fn observes_yield_syntax_separately_from_accepted_execution() {
+        let _program = ts_goport::core::enter_program(None);
+        let observed = observe(&json!({"filename":"main.ts", "source":"const value = yield 1;\nfunction* deferred() { yield 1; }", "yieldSyntax":true})).unwrap();
+        assert_eq!(
+            observed["yieldExpressions"],
+            json!([{"fileScope":true}, {"fileScope":false}])
+        );
+        assert_eq!(observed["statements"][0]["executesOnLoad"], true);
+        assert_eq!(observed["statements"][1]["executesOnLoad"], false);
     }
 }

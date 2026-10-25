@@ -6,6 +6,7 @@ type Specimen = {
   filename: string;
   source: string;
   files: Record<string, string>;
+  digestRelation?: true;
 };
 
 const specimens: Specimen[] = [
@@ -177,9 +178,34 @@ const specimens: Specimen[] = [
   {"name":"utf16-name-order","indices":[143,159,160,161],"filename":"main.ts","source":"const value = [𐐀, Ａ]; export {𐐀, Ａ};","files":{"main.ts":"const value = [𐐀, Ａ]; export {𐐀, Ａ};"}},
 ];
 
+specimens.push(
+  ...([
+    ["operator", "const value = left + right;", "const value = left - right;"],
+    ["keyword", "class Value extends Base {}", "class Value implements Base {}"],
+    ["flag", "let value = 1;", "const value = 1;"],
+    ["raw-template", "const value = String.raw`a\\nb`;", "const value = String.raw`a\\x0ab`;"],
+    ["private-name", "class Value { #first = 1; }", "class Value { #second = 1; }"],
+    ["private-name-control", "class Value { #first = 1; }", "class Value { #first = 1; }"],
+    ["whitespace", "const value = left + right;", "const   value = left   + right;"],
+    ["comments", "const value = left + right;", "/** doc */ const value = left /* preserve */ + right;"],
+    ["array-comma", "const value = [1, 2];", "const value = [1, 2,];"],
+    ["call-comma", "const value = call(1, 2);", "const value = call(1, 2,);"],
+    ["member-comma", "interface Value { a: string; b: number }", "interface Value { a: string, b: number, }"],
+    ["final-semicolon", "const value = 1;", "const value = 1"],
+  ] satisfies [string, string, string][]).map(([name, left, right]): Specimen => {
+    const source = `${left}\n${right}`;
+    return { name: `digest-relation-${name}`, indices: [166], filename: "main.ts", source,
+      files: { "main.ts": source }, digestRelation: true };
+  }),
+  ...([
+    ["yield-file-scope-diagnostic", "const value = yield 1;"],
+    ["yield-generator-deferred", "function* deferred() { yield 1; }"],
+  ] satisfies [string, string][]).map(([name, source]): Specimen => ({ name, indices: [145], filename: "main.ts", source, files: { "main.ts": source } })),
+);
+
 export const coverageGaps: Record<number, string> = {
+  166: "Décision propriétaire en attente : relations de digest TS7 ou octets identiques au digest historique TS5 ; aucun crédit avant arbitrage explicite.",
   145: "Les contrôles couvrent les expressions immédiates et différées sauf un témoin positif indépendant YieldExpression accepté à portée fichier; l'obligation cumulative reste non qualifiée.",
-  166: "La représentation exacte getChildren/tokens/digest TS7 n'est pas figée; aucune preuve indépendante des octets ni des relations de digest n'est livrée.",
 };
 
 export const cases: CampaignCase[] = specimens.map((specimen) => ({
@@ -187,8 +213,16 @@ export const cases: CampaignCase[] = specimens.map((specimen) => ({
   indices: specimen.indices,
   mode: "raw",
   request: { files: specimen.files, roots: Object.keys(specimen.files).filter((path) => /\.(?:[cm]?[tj]sx?)$/.test(path)), qualified: false },
-  oracleInput: { operation: "outline", source: specimen.source, filename: specimen.filename },
+  oracleInput: { operation: "outline", source: specimen.source, filename: specimen.filename,
+    ...(specimen.digestRelation ? { digestRelation: true } : {}),
+    ...(specimen.name.startsWith("yield-") ? { yieldSyntax: true } : {}) },
   checks: [
+    ...(specimen.digestRelation ? [{
+      name: "digest-equality-from-independent-native-token-children",
+      actual: ["outlines", specimen.filename, "outline", "statements"],
+      expected: ["observation", "digestEqual"],
+      transform: "outline-digest-relation" as const,
+    }] : []),
     {
       name: "all-statement-fields-order-and-absence-except-unspecified-digest",
       actual: ["outlines", specimen.filename, "outline", "statements"],
@@ -357,36 +391,7 @@ export const propertyWitnesses: Record<number, Record<string, string[]>> = {
     ]
   },
   "145": {
-    "specific executable/deferred/recursive expression predicates": [
-      "O/ORD-OUTLINE-EVALUATION::variant-01",
-      "O/ORD-OUTLINE-EVALUATION::variant-02",
-      "O/ORD-OUTLINE-EVALUATION::variant-03",
-      "O/ORD-OUTLINE-EVALUATION::variant-04",
-      "O/ORD-OUTLINE-EVALUATION::variant-05",
-      "O/ORD-OUTLINE-EVALUATION::variant-06",
-      "O/ORD-OUTLINE-EVALUATION::variant-07",
-      "O/ORD-OUTLINE-EVALUATION::variant-08",
-      "O/ORD-OUTLINE-EVALUATION::variant-09",
-      "O/ORD-OUTLINE-EVALUATION::variant-10",
-      "O/ORD-OUTLINE-EVALUATION::variant-11",
-      "O/ORD-OUTLINE-EVALUATION::variant-12",
-      "O/ORD-OUTLINE-EVALUATION::variant-13",
-      "O/ORD-OUTLINE-EVALUATION::variant-14",
-      "O/ORD-OUTLINE-EVALUATION::variant-15",
-      "O/ORD-OUTLINE-EVALUATION::variant-16",
-      "O/ORD-OUTLINE-EVALUATION::variant-17",
-      "O/ORD-OUTLINE-EVALUATION::variant-18",
-      "O/ORD-OUTLINE-EVALUATION::variant-19",
-      "O/ORD-OUTLINE-EVALUATION::variant-20",
-      "O/ORD-OUTLINE-EVALUATION::variant-21",
-      "O/ORD-OUTLINE-EVALUATION::variant-22",
-      "O/ORD-OUTLINE-EVALUATION::variant-23",
-      "O/ORD-OUTLINE-EVALUATION::variant-24",
-      "O/ORD-OUTLINE-EVALUATION::variant-25",
-      "O/ORD-OUTLINE-EVALUATION::variant-26",
-      "O/OL-C18::base",
-      "O/OL-C16::base"
-    ],
+    "specific executable/deferred/recursive expression predicates": [],
     "deferred arrow initializer": [
       "O/OL-C18::base",
       "O/ORD-OUTLINE-EVALUATION::variant-24",
@@ -763,6 +768,17 @@ export const propertyWitnesses: Record<number, Record<string, string[]>> = {
     "enum call initializer true versus literal false": [
       "O/ORD-OUTLINE-ENUM-NAMESPACE::variant-01",
       "O/ORD-OUTLINE-ENUM-NAMESPACE::variant-02"
+    ]
+  },
+  "166": {
+    "operator/keyword/flag/raw-template edits yield distinct digest": [
+      "O/digest-relation-operator", "O/digest-relation-keyword", "O/digest-relation-flag", "O/digest-relation-raw-template", "O/digest-relation-whitespace"
+    ],
+    "whitespace/comments/list commas/final semicolon equal digest": [
+      "O/digest-relation-whitespace", "O/digest-relation-comments", "O/digest-relation-array-comma", "O/digest-relation-call-comma", "O/digest-relation-member-comma", "O/digest-relation-final-semicolon", "O/digest-relation-operator"
+    ],
+    "private identifier text changes digest": [
+      "O/digest-relation-private-name", "O/digest-relation-private-name-control"
     ]
   },
   "165": {

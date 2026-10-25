@@ -27,10 +27,23 @@ fn quoted(path: &Path) -> String {
 fn verification_helper(label: &str, dir: &Path, root: &Path, helper: &Path) -> PathBuf {
     use std::os::unix::fs::PermissionsExt;
     let effect = match label {
-        "malformed-statistics" => "if [ \"$2\" = git ] && [ \"$4\" = diff ] && [ \"$5\" = --numstat ]; then printf 'invalid'; exit 0; fi".to_string(),
-        "malformed-base-batch" => "if [ \"$3\" = --batch ]; then printf '{}'; exit 0; fi".to_string(),
-        "mutated-base" => format!("if [ \"$3\" = --batch ]; then {} \"$@\"; result=$?; printf '%s' 'export const selectedValue = 19;' > src/selected.ts; exit \"$result\"; fi", quoted(helper)),
-        "current-during-base" => format!("if [ \"$3\" = --batch ]; then {} \"$@\"; result=$?; printf '%s' 'export const selectedValue = 19;' > {}; exit \"$result\"; fi", quoted(helper), quoted(&root.join("src/selected.ts"))),
+        "malformed-statistics" => format!(
+            "if [ \"$2\" = git ] && [ \"$4\" = diff ] && [ \"$5\" = --numstat ]; then exec {} \"$1\" printf '%s' 'invalid'; fi",
+            quoted(helper)
+        ),
+        "malformed-base-batch" => format!(
+            "if [ \"$3\" = --batch ]; then exec {} \"$1\" printf '%s' '{{}}'; fi",
+            quoted(helper)
+        ),
+        "mutated-base" => format!(
+            "if [ \"$3\" = --batch ]; then {} \"$@\"; result=$?; printf '%s' 'export const selectedValue = 19;' > src/selected.ts; exit \"$result\"; fi",
+            quoted(helper)
+        ),
+        "current-during-base" => format!(
+            "if [ \"$3\" = --batch ]; then {} \"$@\"; result=$?; printf '%s' 'export const selectedValue = 19;' > {}; exit \"$result\"; fi",
+            quoted(helper),
+            quoted(&root.join("src/selected.ts"))
+        ),
         _ => return helper.to_path_buf(),
     };
     let wrapper = dir.join("process-helper");
@@ -41,6 +54,53 @@ fn verification_helper(label: &str, dir: &Path, root: &Path, helper: &Path) -> P
     .unwrap();
     fs::set_permissions(&wrapper, fs::Permissions::from_mode(0o755)).unwrap();
     wrapper
+}
+
+#[test]
+fn malformed_output_helpers_require_supervisor_acknowledgement() {
+    let helper = PathBuf::from(std::env::var_os("SEMCTX_PROCESS_HELPER").unwrap());
+    let root = std::env::temp_dir().join(format!(
+        "malformed-helper-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    for (label, argv, expected) in [
+        (
+            "malformed-statistics",
+            vec!["git", "--no-replace-objects", "diff", "--numstat"],
+            "invalid",
+        ),
+        ("malformed-base-batch", vec!["producer", "--batch"], "{}"),
+    ] {
+        let dir = root.join(label);
+        fs::create_dir_all(&dir).unwrap();
+        let wrapper = verification_helper(label, &dir, &root, &helper);
+        let without_ack = std::process::Command::new(&wrapper)
+            .arg("__exec")
+            .args(&argv)
+            .stdin(std::process::Stdio::null())
+            .output()
+            .unwrap();
+        assert!(without_ack.stdout.is_empty(), "{label}: {without_ack:?}");
+        assert!(!without_ack.status.success(), "{label}: {without_ack:?}");
+        assert!(
+            String::from_utf8_lossy(&without_ack.stderr)
+                .contains("read supervisor acknowledgement"),
+            "{label}: {without_ack:?}"
+        );
+        let acknowledged = invoke(
+            argv.into_iter().map(String::from).collect(),
+            &root,
+            &wrapper,
+        );
+        assert_eq!(acknowledged.exit_code, Some(0), "{label}: {acknowledged:?}");
+        assert_eq!(acknowledged.stdout, expected, "{label}");
+        assert!(acknowledged.stderr.is_empty(), "{label}: {acknowledged:?}");
+    }
+    fs::remove_dir_all(root).unwrap();
 }
 
 #[test]

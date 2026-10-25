@@ -9,10 +9,12 @@ export type Observation = { index: number; properties: Property[]; evidence: Evi
 export type Execution = { exitCode: number; stdout: string; stderr: string; value: Json; evidence: Evidence[] };
 export type Context = {
   root: string; sdk: Json; sdk5?: Json; platform: "macos" | "linux"; producerSha256: string; helper: string;
+  producerArtifact: Evidence; oracleArtifact: Evidence; identityReceiver?: Evidence;
   analysis(files: Record<string, string>, overrides?: Json): Json;
   run(label: string, mode: string, descriptor: Json, withSdk?: boolean, sdkOverride?: Json): Promise<Execution>;
   save(label: string, value: unknown): Promise<Evidence>;
   oracle(label: string, files: Record<string, string>, options?: Json): Promise<Execution>;
+  receiveIdentity(label: string, descriptor: Json): Promise<Execution>;
 };
 
 export async function asset(path: string): Promise<Evidence> {
@@ -79,7 +81,7 @@ function descriptor(value: unknown): Evidence {
   return { path: input.path, sha256: input.sha256, bytes: input.bytes };
 }
 
-export type PlatformAssets = { producer: Evidence; helper: Evidence; observer: Evidence; sdk: Evidence; oracle: Evidence; oracleLibraries: Evidence; transportFixture?: Evidence; ts5Sdk?: Evidence };
+export type PlatformAssets = { producer: Evidence; helper: Evidence; observer: Evidence; sdk: Evidence; oracle: Evidence; oracleLibraries: Evidence; transportFixture?: Evidence; ts5Sdk?: Evidence; identityReceiver?: Evidence };
 export type Candidate = { schemaVersion: 1; sourceCommit: string; dryRun: boolean; platforms: Partial<Record<"macos" | "linux", PlatformAssets>> };
 
 export async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{ candidate: Candidate; assets: PlatformAssets }> {
@@ -87,6 +89,7 @@ export async function loadCandidate(path: string, platform: "macos" | "linux"): 
   if (input.schemaVersion !== 1 || typeof input.sourceCommit !== "string" || !/^[a-f0-9]{40}$/.test(input.sourceCommit) || (input.dryRun !== undefined && typeof input.dryRun !== "boolean")) throw Error("invalid candidate schemaVersion/sourceCommit/dryRun");
   const selected = record(record(input.platforms)[platform]);
   const assets: PlatformAssets = { producer: descriptor(selected.producer), helper: descriptor(selected.helper), observer: descriptor(selected.observer), sdk: descriptor(selected.sdk), oracle: descriptor(selected.oracle), oracleLibraries: descriptor(selected.oracleLibraries), ...(selected.transportFixture === undefined ? {} : { transportFixture: descriptor(selected.transportFixture) }), ...(selected.ts5Sdk === undefined ? {} : { ts5Sdk: descriptor(selected.ts5Sdk) }) };
+  if (selected.identityReceiver !== undefined) assets.identityReceiver = descriptor(selected.identityReceiver);
   const candidate: Candidate = { schemaVersion: 1, sourceCommit: input.sourceCommit, dryRun: input.dryRun === true, platforms: { [platform]: assets } };
   await verifyAssets(assets, platform);
   return { candidate, assets };
@@ -96,6 +99,7 @@ export async function verifyAssets(assets: PlatformAssets, platform: "macos" | "
   for (const item of [assets.producer, assets.helper, assets.observer, assets.sdk, assets.oracle, assets.oracleLibraries]) await checkAsset(item);
   if (assets.transportFixture) await checkAsset(assets.transportFixture);
   if (assets.ts5Sdk) await checkAsset(assets.ts5Sdk);
+  if (assets.identityReceiver) await checkAsset(assets.identityReceiver);
   const pins = record(JSON.parse(await readFile(new URL("../docs/research/rust-ts-r0/oracle-ts7.json", import.meta.url), "utf8")) as unknown);
   const pinnedBinary = descriptor(record(record(pins.platforms)[platform === "macos" ? "macosArm64" : "linuxAarch64"]).binary);
   const pinnedManifest = descriptor(record(pins.oracleSdk).manifest);
@@ -137,6 +141,16 @@ export async function createContext(out: string, platform: "macos" | "linux", as
   };
   return {
     root, sdk, ...(sdk5 === undefined ? {} : { sdk5 }), platform, producerSha256: assets.producer.sha256, helper: assets.helper.path, save,
+    producerArtifact: assets.producer, oracleArtifact: assets.oracle, ...(assets.identityReceiver ? { identityReceiver: assets.identityReceiver } : {}),
+    async receiveIdentity(label, descriptor) {
+      if (!assets.identityReceiver) throw Error("candidate lacks independent identity receiver artifact");
+      await verifyAssets(assets, platform);
+      const id = `${++sequence}-identity-receiver-${label}`;
+      const request = await save(id + "-request", descriptor);
+      const result = await execute(id, [assets.identityReceiver.path, request.path], root);
+      result.evidence.push(request, assets.identityReceiver);
+      return result;
+    },
     analysis(files, overrides = {}) {
       return { id: "q-boundary", cwd: root, sdk_directory: "/sdk/lib", case_sensitive: platform === "linux", roots: Object.keys(files).filter(path => /\.[cm]?[jt]sx?$/.test(path) && !/\.d\.[cm]?ts$/.test(path)).map(path => resolve(root, path)).toSorted(), files: Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(root, path), text])), options: { target: "ES2022", module: "ESNext", moduleResolution: "Bundler", allowJs: true, jsx: "Preserve", skipLibCheck: true, noEmit: true, strict: false }, retained: true, qualified: true, roles: {}, selection: {}, disabled: [], utf16_files: {}, raw_files: {}, ...overrides };
     },

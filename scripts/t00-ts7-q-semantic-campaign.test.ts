@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { loadCandidateArtifacts } from "./t00-ts7-q-semantic-campaign";
 import { selectIndices, selectShard, verifyArtifact, compareReasons, semanticObservation, verifyProducerCompletion } from "./t00-ts7-q-semantic-core";
 
 test("bounded repetition selects only existing obligations and rejects gaps or duplicate indices", () => {
@@ -73,17 +74,27 @@ test("campaign rejects every changed candidate artifact before launching process
       writeFileSync(path, content, { mode: 0o755 });
       return [name, { path, sha256: createHash("sha256").update(content).digest("hex"), bytes: Buffer.byteLength(content) }];
     }));
-    const platform = process.platform === "darwin" ? "macos" : "linux";
+    const platform = "macos";
     const manifest = join(directory, "candidate.json");
     for (const name of names) {
       writeFileSync(manifest, JSON.stringify({ schemaVersion: 1, sourceCommit: "a".repeat(40), platforms: { macos: artifacts, linux: artifacts } }));
       writeFileSync(artifacts[name]!.path, content + "changed");
-      const result = spawnSync(process.execPath, [join(import.meta.dir, "t00-ts7-q-semantic-campaign.ts"), "--candidate", manifest, "--platform", platform, "--out", out], { env: { ...process.env, TEST_MARKER: marker }, timeout: 10_000 });
+      expect(() => loadCandidateArtifacts(manifest, platform)).toThrow("ARTIFACT_MISMATCH:");
+      const nativePlatform = process.platform === "darwin" ? "macos" : "linux";
+      const supported = process.arch === "arm64" && ["darwin", "linux"].includes(process.platform);
+      const result = spawnSync(process.execPath, [join(import.meta.dir, "t00-ts7-q-semantic-campaign.ts"), "--candidate", manifest, "--platform", nativePlatform, "--out", out], { env: { ...process.env, TEST_MARKER: marker }, timeout: 10_000 });
       expect(result.status).toBe(1);
-      expect(result.stderr.toString()).toContain("ARTIFACT_MISMATCH:");
+      expect(result.stderr.toString()).toContain(supported ? "ARTIFACT_MISMATCH:" : "PLATFORM_MISMATCH");
       expect(existsSync(marker)).toBe(false);
       expect(existsSync(out)).toBe(false);
       writeFileSync(artifacts[name]!.path, content);
+      expect(loadCandidateArtifacts(manifest, platform).artifacts[name]).toEqual(artifacts[name]);
     }
   } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+test("campaign still refuses a mismatched execution platform before reading the candidate", () => {
+  const platform = process.platform === "darwin" ? "linux" : "macos";
+  const result = spawnSync(process.execPath, [join(import.meta.dir, "t00-ts7-q-semantic-campaign.ts"), "--candidate", "absent.json", "--platform", platform, "--out", "unused"], { timeout: 10_000 });
+  expect(result.status).toBe(1);
+  expect(result.stderr.toString()).toContain("PLATFORM_MISMATCH");
 });

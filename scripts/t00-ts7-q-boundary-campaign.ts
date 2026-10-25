@@ -137,15 +137,33 @@ export const obligations = [
   }
 ] as const;
 
+export function parseCampaignArguments(args: string[]): ReturnType<typeof parseArguments> & { indices: number[] } {
+  const remaining: string[] = [];
+  let selection: string | undefined;
+  for (let offset = 0; offset < args.length; offset += 2) {
+    if (args[offset] === "--indices") {
+      if (selection !== undefined || args[offset + 1] === undefined) throw Error("duplicate or missing --indices");
+      selection = args[offset + 1];
+    } else {
+      remaining.push(...args.slice(offset, offset + 2));
+    }
+  }
+  const available: number[] = obligations.map(row => row.index);
+  if (selection !== undefined && !/^(?:0|[1-9]\d*)(?:,(?:0|[1-9]\d*))*$/.test(selection)) throw Error("--indices requires a nonempty comma-separated obligation list");
+  const indices = selection === undefined ? available : selection.split(",").map(Number);
+  if (new Set(indices).size !== indices.length || indices.some(index => !available.includes(index))) throw Error("--indices contains duplicate or foreign obligations");
+  return { ...parseArguments(remaining), indices };
+}
+
 export async function campaign(args: string[]): Promise<void> {
   const started = performance.now();
-  const flags = parseArguments(args);
+  const flags = parseCampaignArguments(args);
   if (process.arch !== "arm64" || process.platform !== (flags.platform === "macos" ? "darwin" : "linux") || Bun.version !== "1.4.3") throw Error("campaign requires selected arm64 platform and Bun 1.4.3");
   const { candidate, assets } = await loadCandidate(flags.candidate, flags.platform);
   await mkdir(flags.out, { recursive: true });
   if ((await readdir(flags.out)).length > 0) throw Error("output directory must be empty");
   const context = await createContext(flags.out, flags.platform, assets, candidate.dryRun);
-  const selected = selectShard(obligations.map(row => row.index), flags.shard);
+  const selected = selectShard(flags.indices, flags.shard);
   const sdkFiles = record(context.sdk.files);
   const sdkMatchesOracle = await sdkMatchesLibraries(context.sdk, dirname(assets.oracle.path), assets.oracleLibraries.path);
   const manifestEvidence = await asset(flags.candidate);
@@ -182,8 +200,8 @@ export async function campaign(args: string[]): Promise<void> {
     platform: flags.platform, sourceCommit: candidate.sourceCommit, dryRun: candidate.dryRun, campaignDurationMs: durationMs,
   }));
   const [shardIndex, shardCount] = flags.shard.split("/").map(Number);
-  await writeFile(resolve(flags.out, "results.json"), JSON.stringify({ schemaVersion: 1, lot: "q-boundary", platform: flags.platform, sourceCommit: candidate.sourceCommit, candidateManifestSha256: manifestEvidence.sha256, shard: { index: shardIndex, count: shardCount }, durationMs, dryRun: candidate.dryRun, results }, null, 2) + "\n");
-  await writeFile(resolve(flags.out, "run-summary.json"), JSON.stringify({ schemaVersion: 1, sourceCommit: candidate.sourceCommit, dryRun: candidate.dryRun, platform: flags.platform, arch: process.arch, bun: Bun.version, shard: flags.shard, durationMs, obligations: results.length, qualified: results.filter(row => row.status === "qualified").length, failedProperties: results.flatMap(row => row.properties.filter(property => property.status === "failed")).length, candidateManifest: manifestEvidence, networkIsolation: process.platform === "linux" ? "Required from container launcher (--network none); inspect launch evidence." : "Required from sandbox-exec launcher; inspect launch evidence.", scope: "Single-platform observations only; aggregate both required platforms before qualification credit." }, null, 2) + "\n");
+  await writeFile(resolve(flags.out, "results.json"), JSON.stringify({ schemaVersion: 1, lot: "q-boundary", selectedIndices: flags.indices, platform: flags.platform, sourceCommit: candidate.sourceCommit, candidateManifestSha256: manifestEvidence.sha256, shard: { index: shardIndex, count: shardCount }, durationMs, dryRun: candidate.dryRun, results }, null, 2) + "\n");
+  await writeFile(resolve(flags.out, "run-summary.json"), JSON.stringify({ schemaVersion: 1, sourceCommit: candidate.sourceCommit, dryRun: candidate.dryRun, platform: flags.platform, arch: process.arch, bun: Bun.version, selectedIndices: flags.indices, shard: flags.shard, durationMs, obligations: results.length, qualified: results.filter(row => row.status === "qualified").length, failedProperties: results.flatMap(row => row.properties.filter(property => property.status === "failed")).length, candidateManifest: manifestEvidence, networkIsolation: process.platform === "linux" ? "Required from container launcher (--network none); inspect launch evidence." : "Required from sandbox-exec launcher; inspect launch evidence.", scope: "Single-platform observations only; aggregate both required platforms before qualification credit." }, null, 2) + "\n");
   process.stdout.write(JSON.stringify({ out: flags.out, obligations: results.length, durationMs, dryRun: candidate.dryRun }) + "\n");
   if (technicalFailures.length) throw Error("Technical boundary failure: " + technicalFailures.join("; "));
 }
