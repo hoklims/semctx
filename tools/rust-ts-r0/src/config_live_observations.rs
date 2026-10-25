@@ -2,6 +2,15 @@ use super::*;
 
 use crate::configuration::System;
 
+fn normalized_path(path: &str) -> String {
+    ts_goport::frontend::tspath::normalize_path(&native_paths::compiler_path(path))
+}
+
+fn within(root: &str, path: &str) -> bool {
+    let root = root.trim_end_matches('/');
+    path.trim_end_matches('/') == root || path.starts_with(&format!("{root}/"))
+}
+
 #[derive(Clone, Copy, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum ReadFailure {
@@ -38,13 +47,18 @@ impl LiveFs {
         });
     }
     fn physical(&self, path: &str) -> String {
-        ts_goport::frontend::tspath::normalize_path(path)
+        normalized_path(path)
     }
 }
 
 impl System for LiveFs {
     fn key(&self, path: &str) -> String {
-        self.normalizer.key(path)
+        let path = normalized_path(path);
+        if self.sensitive() {
+            path
+        } else {
+            path.to_lowercase()
+        }
     }
     fn sensitive(&self) -> bool {
         self.normalizer.sensitive
@@ -60,15 +74,13 @@ impl System for LiveFs {
     fn contained(&self, repository: &str, path: &str) -> bool {
         let root = self.key(repository);
         let candidate = self.key(path);
-        if root != "/" && candidate != root && !candidate.starts_with(&format!("{root}/")) {
+        if !within(&root, &candidate) {
             return false;
         }
         std::fs::canonicalize(self.physical(path)).map_or(true, |canonical| {
             let canonical = self.key(&canonical.to_string_lossy());
             let canonical_root = self.key(&self.canonical_root);
-            canonical_root == "/"
-                || canonical == canonical_root
-                || canonical.starts_with(&format!("{canonical_root}/"))
+            within(&canonical_root, &canonical)
         })
     }
 }
@@ -137,7 +149,7 @@ impl Fs for LiveFs {
         if !self.contained(&self.root, path) {
             return path.into();
         }
-        self.native.realpath(&self.physical(path))
+        normalized_path(&self.native.realpath(&self.physical(path)))
     }
     fn write_file(&self, _: &str, _: &str) -> Result<(), FsError> {
         Err(FsError::Permission)
@@ -180,29 +192,29 @@ fn observe(descriptor: serde_json::Value) -> Result<serde_json::Value, String> {
     {
         return Err("CONFIGURATION_LIVE_ABSOLUTE_PATH_REQUIRED".into());
     }
-    let canonical_root = std::fs::canonicalize(&request.root)
+    let root = normalized_path(&request.root);
+    let source = normalized_path(&request.source);
+    let canonical_root = std::fs::canonicalize(&root)
         .map_err(|error| format!("CONFIGURATION_LIVE_ROOT_UNAVAILABLE:{error}"))?
         .to_string_lossy()
         .into_owned();
     let native = ts_goport::frontend::vfs::osvfs_fs();
     let normalizer = CaptureFs::new(BTreeMap::new(), native.use_case_sensitive_file_names());
-    let root = ts_goport::frontend::tspath::normalize_path(&request.root);
-    let source = ts_goport::frontend::tspath::normalize_path(&request.source);
-    let mut failures = BTreeMap::new();
-    for (path, failure) in request.read_failures {
-        if failures.insert(normalizer.key(&path), failure).is_some() {
-            return Err("CONFIGURATION_LIVE_CONFLICTING_FAILURE_KEY".into());
-        }
-    }
-    let fs = Rc::new(LiveFs {
+    let mut fs = LiveFs {
         root: root.clone(),
         canonical_root,
         native,
         normalizer,
-        failures,
+        failures: BTreeMap::new(),
         inputs: RefCell::new(BTreeMap::new()),
         errors: RefCell::new(BTreeMap::new()),
-    });
+    };
+    for (path, failure) in request.read_failures {
+        if fs.failures.insert(fs.key(&path), failure).is_some() {
+            return Err("CONFIGURATION_LIVE_CONFLICTING_FAILURE_KEY".into());
+        }
+    }
+    let fs = Rc::new(fs);
     let outcome = configuration::inspect_system(fs.clone(), &source, &root);
     let (reasons, consumed, error) = match outcome {
         Ok(configuration) => {

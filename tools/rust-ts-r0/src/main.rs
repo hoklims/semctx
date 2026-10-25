@@ -16,6 +16,7 @@ mod development;
 mod input_identity;
 mod javascript;
 mod named_configuration;
+mod native_paths;
 mod native_program;
 mod ordinary;
 mod outline;
