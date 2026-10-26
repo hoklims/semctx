@@ -1346,6 +1346,11 @@ fn analyze_with_identity(
     let mut runtime_module_trace = Vec::new();
     let mut runtime_module_inputs = BTreeMap::<String, Option<String>>::new();
     let mut extracted_source_keys = BTreeSet::new();
+    let runtime_fs: Rc<dyn Fs> = if retained {
+        Rc::new(CaptureFs::new(captured_files.as_ref().clone(), case_sensitive))
+    } else {
+        ts_goport::frontend::vfs::osvfs_fs()
+    };
     for path in &roots {
         if [".d.ts", ".d.mts", ".d.cts"]
             .iter()
@@ -1386,15 +1391,11 @@ fn analyze_with_identity(
             None
         };
         let runtime_configured = static_module_links;
+        let runtime_fs = runtime_fs.clone();
         let (mut raw, runtime_inputs, runtime_trace) =
             program::with_type_checker_for_file(file, move |checker| {
                 let inputs = Rc::new(RefCell::new(BTreeMap::new()));
                 let trace = Rc::new(RefCell::new(Vec::new()));
-                let runtime_fs: Rc<dyn Fs> = if retained {
-                    Rc::new(CaptureFs::new(captured.as_ref().clone(), case_sensitive))
-                } else {
-                    ts_goport::frontend::vfs::osvfs_fs()
-                };
                 let runtime_module = ordinary::RuntimeModuleResolver::new(
                     runtime_fs,
                     runtime_configured,
