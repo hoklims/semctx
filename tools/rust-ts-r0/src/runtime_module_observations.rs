@@ -81,7 +81,7 @@ fn observe(value: serde_json::Value, sdk: &Sdk) -> Result<serde_json::Value, Str
                 ts_goport::frontend::vfs::osvfs_fs()
             };
             let mut runtime_module = ordinary::RuntimeModuleResolver::new(
-                actual_fs,
+                move |path| actual_fs.file_exists(path),
                 configured,
                 retained,
                 repository_root,

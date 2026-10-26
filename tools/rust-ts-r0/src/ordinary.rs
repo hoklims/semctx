@@ -88,7 +88,7 @@ pub struct Call {
 }
 
 pub struct RuntimeModuleResolver {
-    actual_fs: std::rc::Rc<dyn ts_goport::frontend::vfs::Fs>,
+    file_exists: Box<dyn Fn(&str) -> bool>,
     configured: bool,
     retained: bool,
     repository_root: Option<String>,
@@ -111,7 +111,7 @@ impl std::fmt::Debug for RuntimeModuleResolver {
 
 impl RuntimeModuleResolver {
     pub fn new(
-        actual_fs: std::rc::Rc<dyn ts_goport::frontend::vfs::Fs>,
+        file_exists: impl Fn(&str) -> bool + 'static,
         configured: bool,
         retained: bool,
         repository_root: Option<String>,
@@ -119,7 +119,7 @@ impl RuntimeModuleResolver {
         trace: std::rc::Rc<std::cell::RefCell<Vec<serde_json::Value>>>,
     ) -> Self {
         Self {
-            actual_fs,
+            file_exists: Box::new(file_exists),
             configured,
             retained,
             repository_root,
@@ -209,7 +209,7 @@ impl RuntimeModuleResolver {
                 return Some(declaration.to_owned());
             };
             observation["runtime_path"] = serde_json::json!(runtime);
-            let exists = self.actual_fs.file_exists(&runtime);
+            let exists = (self.file_exists)(&runtime);
             observation["runtime_exists"] = serde_json::json!(exists);
             if !exists {
                 return Some(declaration.to_owned());

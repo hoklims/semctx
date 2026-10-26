@@ -203,7 +203,7 @@ fn extract(
                 let inputs = Rc::new(RefCell::new(BTreeMap::new()));
                 let trace = Rc::new(RefCell::new(Vec::new()));
                 let runtime_module = ordinary::RuntimeModuleResolver::new(
-                    ts_goport::frontend::vfs::osvfs_fs(),
+                    |path| ts_goport::frontend::vfs::osvfs_fs().file_exists(path),
                     configured,
                     false,
                     Some(repository.clone()),
