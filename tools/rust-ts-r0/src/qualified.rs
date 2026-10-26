@@ -508,7 +508,7 @@ impl Scan<'_> {
         }
         if value.kind() == K::Identifier
             && value.text() == "undefined"
-            && self.origins(value).is_empty()
+            && self.primitive_origins(value).is_empty()
         {
             let ty = self.checker.get_type_at_location(value);
             if self.checker.ty(ty).flags.intersects(TypeFlags::UNDEFINED) {
@@ -531,11 +531,32 @@ impl Scan<'_> {
             return value.operator() == K::ExclamationToken
                 || self.primitive_seen(value.operand(), &mut seen.clone());
         }
-        self.origins(value).into_iter().any(|origin| {
+        self.primitive_origins(value).into_iter().any(|origin| {
             is_const(origin)
                 && origin.initializer().is_some()
                 && self.primitive_seen(origin.initializer(), &mut seen.clone())
         })
+    }
+    fn primitive_origins(&mut self, node: Node) -> Vec<Node> {
+        let value = unwrap(node);
+        let parent = value.parent();
+        if value.kind() != K::Identifier
+            || !ast::is_shorthand_property_assignment(parent)
+            || parent.name() != value
+        {
+            return self.origins(value);
+        }
+        let mut symbol = self.checker.get_shorthand_assignment_value_symbol(parent);
+        if symbol.is_some()
+            && self
+                .checker
+                .sym(symbol)
+                .flags
+                .intersects(SymbolFlags::ALIAS)
+        {
+            symbol = self.checker.get_aliased_symbol(symbol);
+        }
+        self.symbol_origins(symbol)
     }
     fn property_key(&mut self, node: Node) -> bool {
         self.property_key_seen(node, &mut HashSet::new())
