@@ -46,6 +46,39 @@ fn live_windows_keys_keep_drive_and_share_roots_and_are_idempotent() {
     }
 }
 
+#[test]
+fn live_configuration_discovery_preserves_the_filesystem_root() {
+    for present in [false, true] {
+        let files = if present {
+            BTreeMap::from([("/tsconfig.json".into(), "{}".into())])
+        } else {
+            BTreeMap::new()
+        };
+        let fs = LiveFs {
+            root: "/repo".into(),
+            canonical_root: "/repo".into(),
+            native: Rc::new(CaptureFs::new(files, true)),
+            normalizer: CaptureFs::new(BTreeMap::new(), true),
+            failures: BTreeMap::new(),
+            inputs: RefCell::new(BTreeMap::new()),
+            errors: RefCell::new(BTreeMap::new()),
+        };
+        let found = configuration::find_configuration(&fs, "/repo/main.ts");
+        assert_eq!(
+            fs.probes()
+                .borrow()
+                .iter()
+                .map(|probe| (probe.path.clone(), probe.found))
+                .collect::<Vec<_>>(),
+            vec![
+                ("/repo/tsconfig.json".into(), false),
+                ("/tsconfig.json".into(), present)
+            ]
+        );
+        assert_eq!(found.as_deref(), present.then_some("/tsconfig.json"));
+    }
+}
+
 struct Fixture(std::path::PathBuf);
 impl Fixture {
     fn new() -> Self {
