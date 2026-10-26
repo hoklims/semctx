@@ -285,7 +285,7 @@ pub(super) fn find_configuration(fs: &dyn System, path: &str) -> Option<String> 
         &directory
     });
     loop {
-        let candidate = format!("{dir}/tsconfig.json");
+        let candidate = ts_goport::frontend::tspath::combine_paths(&dir, &["tsconfig.json"]);
         let found = fs.configuration_exists(&candidate);
         if found {
             break Some(candidate);
