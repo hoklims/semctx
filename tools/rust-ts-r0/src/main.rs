@@ -1347,7 +1347,10 @@ fn analyze_with_identity(
     let mut runtime_module_inputs = BTreeMap::<String, Option<String>>::new();
     let mut extracted_source_keys = BTreeSet::new();
     let runtime_fs: Rc<dyn Fs> = if retained {
-        Rc::new(CaptureFs::new(captured_files.as_ref().clone(), case_sensitive))
+        Rc::new(CaptureFs::new(
+            captured_files.as_ref().clone(),
+            case_sensitive,
+        ))
     } else {
         ts_goport::frontend::vfs::osvfs_fs()
     };
