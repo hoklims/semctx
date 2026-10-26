@@ -48,6 +48,7 @@ test("relative import qualification rejects failed producer processes with corre
     const execution = { exitCode: 0, stdout: "a.ts successfully resolved", stderr: "", value: {}, evidence: [evidence] };
     const context = {
       root: "/project", sdk: {}, platform: "macos" as const, producerSha256: "a".repeat(64), helperSha256: "b".repeat(64), helper: "/helper",
+      producerArtifact: evidence, oracleArtifact: evidence, receiveIdentity: () => Promise.resolve(execution),
       analysis: () => ({}), save: () => Promise.resolve(evidence), oracle: () => Promise.resolve(execution),
       extractionOracle: () => Promise.resolve({ ...execution, value: { relativeSpecifiers: { "fixture.tsx": sequence, "empty.tsx": [] } } }),
       applicationRuntime: () => Promise.resolve(execution),

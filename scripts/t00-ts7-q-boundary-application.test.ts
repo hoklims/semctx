@@ -3,6 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "bun:test";
+import { prepare } from "./t00-ts7-q-boundary-admission";
 import { applicationObservations, compareApplicationRuntime, compareApplicationRefusal, compareDynamicApplication, type ApplicationExpectation, type DynamicApplicationExpectation } from "./t00-ts7-q-boundary-application";
 import { isolatedEnvironment, type Context, type Execution, type Json } from "./t00-ts7-q-boundary-common";
 
@@ -216,6 +217,8 @@ test("application fixture establishes a local Git commit before oracle or qualif
   try {
     const context: Context = {
       root, sdk: {}, platform: "macos", producerSha256, helperSha256, helper: "/helper",
+      producerArtifact: { path: "/producer", sha256: producerSha256, bytes: 1 }, oracleArtifact: { path: "/oracle", sha256: producerSha256, bytes: 1 },
+      receiveIdentity: async () => { throw Error("unexpected identity receiver execution"); },
       analysis: () => ({}), save: async () => ({ path: "/proof", sha256: producerSha256, bytes: 1 }),
       run: async () => { throw Error("unexpected producer execution"); },
       applicationRuntime: async () => { throw Error("unexpected application execution"); },
@@ -352,4 +355,135 @@ test("adversarial compiler observation cannot rewrite the independent expected o
   expect(expectation.oracle).toEqual(expectedOracle);
   expect(dynamicPasses(execution, expectation)).toBe(false);
   assertDynamicBaseline("composed");
+});
+
+
+test("application campaign obtains separate native expectations for retained and ordinary extraction", async () => {
+  const root = await mkdtemp(join(tmpdir(), "t00-application-oracle-modes-"));
+  const retainedOracle = structuredClone(oracle);
+  Object.assign(retainedOracle.imports[0]!, { bindingTargets: [{ relPath: "src/leaf.ts", symbolPath: "leaf", runtimeUsed: true }] });
+  try {
+    const context: Context = {
+      root, sdk: {}, platform: "macos", producerSha256, helperSha256, helper: "/helper",
+      producerArtifact: { path: "/producer", sha256: producerSha256, bytes: 1 }, oracleArtifact: { path: "/oracle", sha256: producerSha256, bytes: 1 },
+      receiveIdentity: async () => { throw Error("unexpected identity receiver execution"); },
+      analysis: () => ({}), save: async () => ({ path: "/proof", sha256: producerSha256, bytes: 1 }),
+      run: async () => { throw Error("unexpected producer execution"); },
+      oracle: async () => { throw Error("unexpected compiler execution"); },
+      extractionOracle: async (_label, input) => ({ exitCode: 0, stdout: "", stderr: "", value: structuredClone(input.retained === true ? retainedOracle : oracle), evidence: [] }),
+      applicationRuntime: async (_label, input, workers) => {
+        const retained = input.retained === true;
+        const execution = positive(workers as 1 | 2, retained ? "qualified-retained" : "ordinary");
+        obj(execution.value.nativeObservation).raw_extraction = structuredClone(retained ? retainedOracle : oracle);
+        obj(execution.value.workerObservation).extraction = structuredClone(retained ? retainedOracle : oracle);
+        return execution;
+      },
+    };
+    const observed = await applicationObservations(context);
+    const imports = observed.properties.filter(property => /application\.(qualified-retained|ordinary)\.workers-[12]\.(native|worker)\.extraction\.imports\.exact$/.test(property.name));
+    expect(imports).toHaveLength(8);
+    expect(imports.every(property => property.pass)).toBe(true);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+
+const arrPaths = (value: unknown): string[] => obj(value).selectedPaths as string[];
+
+function failedDynamicFixture() {
+  const execution = dynamicExecution("ownership-refused");
+  const report = JSON.parse(execution.stderr) as Json;
+  const assembly = obj(report.diagnosticAssembly);
+  const graph = obj(obj(assembly.analysis).graph);
+  graph.edges = arr(graph.edges).filter(edge => edge.kind !== "imports");
+  const extraction = { ...structuredClone(dynamicOracle), imports: [] };
+  obj(assembly.nativeObservation).raw_extraction = structuredClone(extraction);
+  obj(assembly.nativeObservation).test_dynamic_import_keys = [];
+  obj(assembly.workerObservation).extraction = structuredClone(extraction);
+  assembly.integrityReasons = {};
+  const sidecar = obj(assembly.sidecar);
+  sidecar.factBatches = [{ facts: [...arr(graph.nodes).filter(node => node.filePath !== "src/main.test.ts").map(node => ({ ...node, factType: "node" })), ...arr(graph.edges).filter(edge => arr(edge.evidence)[0]?.filePath !== "src/main.test.ts").map(edge => ({ ...edge, factType: "edge" }))] }];
+  sidecar.capabilityProfiles = arr(sidecar.capabilityProfiles).filter(profile => arrPaths(profile.scope)[0] !== "src/main.test.ts");
+  const failedLedger = arr(sidecar.discoveryLedger).find(entry => arrPaths(entry.scope)[0] === "src/main.test.ts")!;
+  failedLedger.analysisOutcome = "failed";
+  failedLedger.analysisReasons = ["PRODUCER_FAILED", "SOURCE_ASYNC_RETURN_UNSUPPORTED"];
+  execution.stderr = JSON.stringify(report);
+  return { execution, expectation: { ...dynamicExpectation("ownership-refused"), oracle: extraction, keys: [], integrityReasons: {}, ledgerReasons: { "src/main.test.ts": ["PRODUCER_FAILED", "SOURCE_ASYNC_RETURN_UNSUPPORTED"] }, failedPaths: ["src/main.test.ts"] } };
+}
+
+test("dynamic configuration refusal preserves native graph while excluding failed producer facts and profiles", () => {
+  const { execution, expectation } = failedDynamicFixture();
+  expect(dynamicPasses(execution, expectation)).toBe(true);
+});
+
+test("dynamic configuration refusal requires the exact failed ledger and denies profiles for its failed scope", () => {
+  for (const mutate of [
+    (sidecar: Json) => { arr(sidecar.discoveryLedger)[0]!.analysisReasons = ["SOURCE_ASYNC_RETURN_UNSUPPORTED"]; },
+    (sidecar: Json) => { arr(sidecar.discoveryLedger)[0]!.analysisOutcome = "analyzed"; },
+    (sidecar: Json) => { arr(sidecar.capabilityProfiles).push({ scope: { language: "typescript", selectedPaths: ["src/main.test.ts"] }, negativeEvidenceEligible: false, completenessClaim: "partial", label: "partial" }); },
+    (sidecar: Json) => { arr(arr(sidecar.factBatches)[0]!.facts).push({ ...structuredClone(dynamicNodes[1]!), factType: "node" }); },
+  ]) {
+    const { execution, expectation } = failedDynamicFixture();
+    expect(dynamicPasses(execution, expectation)).toBe(true);
+    const report = JSON.parse(execution.stderr) as Json;
+    mutate(obj(obj(report.diagnosticAssembly).sidecar));
+    execution.stderr = JSON.stringify(report);
+    expect(dynamicPasses(execution, expectation)).toBe(false);
+    const baseline = failedDynamicFixture();
+    expect(dynamicPasses(baseline.execution, baseline.expectation)).toBe(true);
+  }
+});
+
+
+function mjsDynamicFixture(outcome: DynamicApplicationExpectation["outcome"] = "ownership-refused") {
+  const convert = <T>(value: T): T => JSON.parse(JSON.stringify(value)
+    .replaceAll("src/main.test.ts", "src/target.test.mjs")
+    .replaceAll("src/main.ts", "src/target.mjs")
+    .replaceAll("main.test.ts", "target.test.mjs")
+    .replaceAll('"main.ts"', '"target.mjs"')
+    .replaceAll("./main", "./target.mjs")
+    .replaceAll("typescript", "javascript")) as T;
+  const execution = dynamicExecution(outcome);
+  const converted = convert(execution);
+  if (outcome === "ownership-refused") converted.stderr = JSON.stringify(convert(JSON.parse(execution.stderr) as Json));
+  return { execution: converted, expectation: { ...convert(dynamicExpectation(outcome)), fixture: { sourcePath: "src/target.mjs", testPath: "src/target.test.mjs", language: "javascript" as const } } };
+}
+
+test("dynamic MJS comparison exercises its own exact source paths and JavaScript scopes", () => {
+  for (const outcome of ["composed", "ownership-refused"] as const) {
+    const { execution, expectation } = mjsDynamicFixture(outcome);
+    expect(dynamicPasses(execution, expectation)).toBe(true);
+  }
+});
+
+test("dynamic MJS comparison rejects a missing binding refusal and an unexpected TypeScript scope", () => {
+  for (const mutate of [
+    (assembly: Json) => { assembly.integrityReasons = {}; },
+    (assembly: Json) => { arr(obj(assembly.sidecar).discoveryLedger).push({ scope: { language: "typescript", selectedPaths: ["src/target.test.mjs"] }, selectionDecision: "selected", analysisOutcome: "analyzed", analysisReasons: [] }); },
+  ]) {
+    const { execution, expectation } = mjsDynamicFixture();
+    expect(dynamicPasses(execution, expectation)).toBe(true);
+    const report = JSON.parse(execution.stderr) as Json;
+    mutate(obj(report.diagnosticAssembly));
+    execution.stderr = JSON.stringify(report);
+    expect(dynamicPasses(execution, expectation)).toBe(false);
+    const baseline = mjsDynamicFixture();
+    expect(dynamicPasses(baseline.execution, baseline.expectation)).toBe(true);
+  }
+});
+
+
+test("MJS campaign fixture captures only its declared source paths and retains its initial control", async () => {
+  const root = await mkdtemp(join(tmpdir(), "t00-mjs-fixture-"));
+  const context = {
+    root, analysis: () => ({}), save: async () => ({ path: "/proof", sha256: producerSha256, bytes: 1 }),
+  } as unknown as Context;
+  try {
+    const fixture = await prepare(context, "mjs-shape", { "src/target.mjs": "export function helper(){return 1;}\n", "src/target.test.mjs": "export async function check(){const dep=await import('./target.mjs');return dep.helper();}\n", "package.json": '{"name":"qualified-fixture","type":"module"}\n' }, { "src/target.test.mjs": "export function check(){return 1;}\n" });
+    const tracked = Bun.spawnSync(["git", "-C", fixture.root, "ls-files"], { env: isolatedEnvironment(fixture.root) });
+    expect(tracked.exitCode).toBe(0);
+    expect(tracked.stdout.toString().trim().split("\n").filter(path => path.startsWith("src/"))).toEqual(["src/target.mjs", "src/target.test.mjs"]);
+    const initial = Bun.spawnSync(["git", "-C", fixture.root, "show", `${fixture.baseCommit}:src/target.test.mjs`], { env: isolatedEnvironment(fixture.root) });
+    expect(initial.exitCode).toBe(0);
+    expect(initial.stdout.toString()).toBe("export function check(){return 1;}\n");
+  } finally { await rm(root, { recursive: true, force: true }); }
 });

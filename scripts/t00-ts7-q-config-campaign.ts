@@ -126,6 +126,10 @@ export function createRunner(out: string): CampaignContext["run"] {
   };
 }
 
+export function createCampaignContext(artifacts: PlatformArtifacts, options: Pick<Options, "out" | "platform">, run: CampaignContext["run"]): CampaignContext {
+  return { producer: artifacts.producer.path, helper: artifacts.helper.path, sdk: artifacts.sdk.path, oracle: artifacts.oracle.path, emitHelpersOracle: artifacts.emitHelpersOracle?.path, extractionOracle: artifacts.extractionOracle?.path, out: options.out, platform: options.platform, run };
+}
+
 async function main(): Promise<void> {
   const started = performance.now();
   const options = parseOptions(process.argv.slice(2));
@@ -146,7 +150,7 @@ async function main(): Promise<void> {
   };
   const version = await run("oracle-version", [artifacts.oracle.path, "--version"]);
   if (version.exitCode !== 0 || version.stdout.trim() !== "Version 7.1.0-dev") throw new Error("oracle runtime version mismatch");
-  const context: CampaignContext = { producer: artifacts.producer.path, helper: artifacts.helper.path, sdk: artifacts.sdk.path, oracle: artifacts.oracle.path, emitHelpersOracle: artifacts.emitHelpersOracle?.path, out: options.out, platform: options.platform, run };
+  const context = createCampaignContext(artifacts, options, run);
   const selected = selectIndices(options.shard);
   const { runConfigurationResolution } = await import("./t00-ts7-q-config-cr");
   const { enrichConfigurationDiagnostics } = await import("./t00-ts7-q-config-diag");

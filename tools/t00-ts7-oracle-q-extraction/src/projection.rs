@@ -195,7 +195,7 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
         if retained && node.expression().kind() == K::ImportKeyword {
             let arguments = node.arguments();
             if arguments.len() == 1 && arguments.get(0).kind() == K::StringLiteral {
-                out["imports"].as_array_mut().unwrap().push(json!({"fromRelPath":path,"moduleSpecifier":arguments.get(0).text(),"names":[],"line":line(source,scanner_util::get_token_pos_of_node(node,source,false))}));
+                out["imports"].as_array_mut().unwrap().push(json!({"fromRelPath":path,"moduleSpecifier":arguments.get(0).text(),"names":[],"_startByte":scanner_util::get_token_pos_of_node(node,source,false),"line":line(source,scanner_util::get_token_pos_of_node(node,source,false))}));
             }
         }
         let callee = if retained {
@@ -231,8 +231,12 @@ fn walk(node: Node, source: Node, text: &str, path: &str, retained: bool, out: &
         }
     }
     if node.kind() == K::ImportDeclaration && node.module_specifier().kind() == K::StringLiteral {
-        out["imports"].as_array_mut().unwrap().push(json!({"fromRelPath":path,"moduleSpecifier":node.module_specifier().text(),"_startByte":scanner_util::get_token_pos_of_node(node,source,false),
-            "names":import_names(node, retained),"bindingTargets":[],"line":line(source,scanner_util::get_token_pos_of_node(node,source,false))}));
+        let mut import = json!({"fromRelPath":path,"moduleSpecifier":node.module_specifier().text(),"_startByte":scanner_util::get_token_pos_of_node(node,source,false),
+            "names":import_names(node, retained),"line":line(source,scanner_util::get_token_pos_of_node(node,source,false))});
+        if retained {
+            import["bindingTargets"] = json!([]);
+        }
+        out["imports"].as_array_mut().unwrap().push(import);
     }
     node.for_each_child(|child| {
         walk(child, source, text, path, retained, out);
@@ -265,7 +269,16 @@ pub fn ast_specifiers(source: Node, path: &str) -> Value {
         path: &str,
         relative: &mut Vec<Value>,
         dynamic: &mut Vec<Value>,
+        import_calls: &mut Vec<Value>,
     ) {
+        if node.kind() == K::CallExpression && node.expression().kind() == K::ImportKeyword {
+            let arguments = node.arguments();
+            let mut call = json!({"file":path,"line":line(source,scanner_util::get_token_pos_of_node(node,source,false)),"argumentCount":arguments.len()});
+            if !arguments.is_empty() && arguments.get(0).kind() == K::StringLiteral {
+                call["literalSpecifier"] = json!(arguments.get(0).text());
+            }
+            import_calls.push(call);
+        }
         let specifier = match node.kind() {
             K::ImportDeclaration | K::ExportDeclaration => node.module_specifier(),
             K::CallExpression
@@ -284,14 +297,22 @@ pub fn ast_specifiers(source: Node, path: &str) -> Value {
             }
         }
         node.for_each_child(|child| {
-            visit(child, source, path, relative, dynamic);
+            visit(child, source, path, relative, dynamic, import_calls);
             false
         });
     }
     let mut relative = Vec::new();
     let mut dynamic = Vec::new();
-    visit(source, source, path, &mut relative, &mut dynamic);
-    json!({"relativeSpecifiers":relative,"dynamicImports":dynamic})
+    let mut import_calls = Vec::new();
+    visit(
+        source,
+        source,
+        path,
+        &mut relative,
+        &mut dynamic,
+        &mut import_calls,
+    );
+    json!({"relativeSpecifiers":relative,"dynamicImports":dynamic,"importCalls":import_calls})
 }
 
 pub fn config_references(
@@ -368,6 +389,16 @@ mod tests {
             json!(["./a", "../b", "./c", "./no"])
         );
         assert_eq!(got["dynamicImports"].as_array().unwrap().len(), 2);
+        assert_eq!(
+            got["importCalls"],
+            json!([
+                {"file":"a.ts","line":1,"argumentCount":1,"literalSpecifier":"./c"},
+                {"file":"a.ts","line":1,"argumentCount":1,"literalSpecifier":"bare"},
+                {"file":"a.ts","line":1,"argumentCount":1},
+                {"file":"a.ts","line":1,"argumentCount":2,"literalSpecifier":"./no"},
+                {"file":"a.ts","line":1,"argumentCount":1}
+            ])
+        );
     }
     #[test]
     fn reads_jsonc_extends_strings_without_nested_or_nonstring_guesses() {

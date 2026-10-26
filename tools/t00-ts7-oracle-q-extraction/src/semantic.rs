@@ -172,7 +172,33 @@ pub fn enrich(node: Node, source: Node, checker: &mut Checker, root: &str, out: 
                 if let Some(ref resolved) = resolved {
                     import["resolvedRelPath"] = json!(resolved);
                 }
-                import["bindingTargets"] = json!(bindings);
+                if import.get("bindingTargets").is_some() {
+                    import["bindingTargets"] = json!(bindings);
+                }
+            }
+        }
+    }
+    if node.kind() == SyntaxKind::CallExpression
+        && node.expression().kind() == SyntaxKind::ImportKeyword
+        && node.arguments().len() == 1
+        && node.arguments().get(0).kind() == SyntaxKind::StringLiteral
+    {
+        let specifier = node.arguments().get(0);
+        if let Some(resolved) =
+            ts_goport::program::get_resolved_module_from_module_specifier(source, specifier)
+            && !resolved.resolved_file_name.is_empty()
+        {
+            for import in out["imports"]
+                .as_array_mut()
+                .unwrap()
+                .iter_mut()
+                .filter(|import| {
+                    import["fromRelPath"] == path
+                        && import["_startByte"] == get_token_pos_of_node(node, source, false)
+                        && import["moduleSpecifier"] == specifier.text()
+                })
+            {
+                import["resolvedRelPath"] = json!(relative(&resolved.resolved_file_name, root));
             }
         }
     }

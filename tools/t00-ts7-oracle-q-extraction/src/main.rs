@@ -162,7 +162,7 @@ fn run(request_path: &str, sdk_path: &str) -> Result<Value, String> {
     let config_references = projection::config_references(&config_files)?;
     let mut resolved_module_specifiers = Vec::new();
     let mut loaded_files = Vec::new();
-    let mut output = json!({"modules":[],"symbols":[],"calls":[],"imports":[],"functionOwners":[],"relativeSpecifiers":{},"dynamicImports":[]});
+    let mut output = json!({"modules":[],"symbols":[],"calls":[],"imports":[],"functionOwners":[],"relativeSpecifiers":{},"dynamicImports":[],"importCalls":[]});
     for file in source_files() {
         let path = source_file_file_name(file).to_string();
         loaded_files.push(path.clone());
@@ -204,6 +204,13 @@ fn run(request_path: &str, sdk_path: &str) -> Result<Value, String> {
             output["relativeSpecifiers"][&path] = specifiers["relativeSpecifiers"].clone();
             output["dynamicImports"].as_array_mut().unwrap().extend(
                 specifiers["dynamicImports"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .cloned(),
+            );
+            output["importCalls"].as_array_mut().unwrap().extend(
+                specifiers["importCalls"]
                     .as_array()
                     .unwrap()
                     .iter()
@@ -258,6 +265,88 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn observe(request: Value, name: &str) -> Value {
+        let path = std::env::temp_dir().join(format!(
+            "semctx-extraction-oracle-{name}-{}.json",
+            std::process::id()
+        ));
+        std::fs::write(&path, serde_json::to_vec(&request).unwrap()).unwrap();
+        let request_path = path.to_str().unwrap().to_string();
+        let sdk = format!(
+            "{}/../rust-ts-r0/sdk/sdk-input.json",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let observation = std::thread::Builder::new()
+            .stack_size(16 * 1024 * 1024)
+            .spawn(move || run(&request_path, &sdk))
+            .unwrap()
+            .join()
+            .unwrap()
+            .unwrap();
+        std::fs::remove_file(path).unwrap();
+        observation
+    }
+
+    #[test]
+    fn dynamic_literal_imports_keep_native_resolution_without_proven_bindings() {
+        let observation = observe(
+            json!({"files":{
+            "/project/spec.ts":"export async function spec() { return import('./main'); }\nexport async function missing() { return import('./absent'); }",
+            "/project/main.ts":"export function main(){return 1;}"
+        },"roots":["/project/spec.ts"]}),
+            "dynamic-resolution",
+        );
+        assert_eq!(
+            observation["imports"],
+            json!([
+                {"fromRelPath":"spec.ts","moduleSpecifier":"./main","names":[],"line":1,"resolvedRelPath":"main.ts"},
+                {"fromRelPath":"spec.ts","moduleSpecifier":"./absent","names":[],"line":2}
+            ])
+        );
+        let native = observation["resolvedModuleSpecifiers"].as_array().unwrap();
+        assert!(
+            native
+                .iter()
+                .any(|specifier| specifier["moduleSpecifier"] == "./main"
+                    && specifier["resolvedRelPath"] == "main.ts")
+        );
+        assert!(
+            native
+                .iter()
+                .any(|specifier| specifier["moduleSpecifier"] == "./absent"
+                    && specifier.get("resolvedRelPath").is_none())
+        );
+    }
+
+    #[test]
+    fn ordinary_imports_keep_local_names_and_omit_retained_binding_targets() {
+        for retained in [false, true] {
+            let observation = observe(
+                json!({"files":{
+                "/project/spec.ts":"import { main as renamed } from './main'; export function spec() { return renamed(); }",
+                "/project/main.ts":"export function main(){return 1;}"
+            },"roots":["/project/spec.ts"],"retained":retained}),
+                if retained {
+                    "retained-bindings"
+                } else {
+                    "ordinary-bindings"
+                },
+            );
+            let import = &observation["imports"][0];
+            assert_eq!(import["resolvedRelPath"], "main.ts");
+            if retained {
+                assert_eq!(import["names"], json!(["main"]));
+                assert_eq!(
+                    import["bindingTargets"],
+                    json!([{"relPath":"main.ts","symbolPath":"main"}])
+                );
+            } else {
+                assert_eq!(import["names"], json!(["renamed"]));
+                assert!(import.get("bindingTargets").is_none());
+            }
+        }
+    }
 
     #[test]
     fn ts7_checker_separates_runtime_alias_references_from_type_queries() {

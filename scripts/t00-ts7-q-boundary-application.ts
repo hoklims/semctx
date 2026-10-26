@@ -116,14 +116,19 @@ export async function applicationObservations(context: Context): Promise<{ prope
     if (exitCode !== 0) throw Error(`APPLICATION_FIXTURE_GIT_FAILED:${index + 1}:${stderr}`);
   }
   const request: Json = { ...context.analysis(files), cwd: root, files: Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(root, path), text])), roots: Object.keys(files).map(path => resolve(root, path)).sort() };
-  const independent = await context.extractionOracle("application-composition", { files: request.files, roots: request.roots, repoRoot: root, options: request.options, retained: true });
-  const properties: Property[] = [], evidence: Evidence[] = [...fixtureEvidence, ...independent.evidence];
-  for (const mode of ["qualified-retained", "ordinary"] as const) for (const workers of [1, 2] as const) {
-    const selectedRequest = { ...request, qualified: mode === "qualified-retained", retained: mode === "qualified-retained" };
-    const execution = await context.applicationRuntime(`application-composition-${mode}-workers-${workers}`, selectedRequest, workers);
-    const compared = compareApplicationRuntime(`application.${mode}.workers-${workers}`, { mode, oracle: independent.value, request: selectedRequest, workers, producerSha256: context.producerSha256, helperSha256: context.helperSha256 }, execution);
-    properties.push(...compared);
-    evidence.push(...execution.evidence, await context.save(`application-composition-${mode}-workers-${workers}-comparison`, compared));
+  const properties: Property[] = [], evidence: Evidence[] = [...fixtureEvidence];
+  for (const mode of ["qualified-retained", "ordinary"] as const) {
+    const retained = mode === "qualified-retained";
+    const independent = await context.extractionOracle(`application-composition-${mode}`, { files: request.files, roots: request.roots, repoRoot: root, options: request.options, retained });
+    properties.push(check(`application.${mode}.oracle.exit`, 0, independent.exitCode));
+    evidence.push(...independent.evidence);
+    for (const workers of [1, 2] as const) {
+      const selectedRequest = { ...request, qualified: retained, retained };
+      const execution = await context.applicationRuntime(`application-composition-${mode}-workers-${workers}`, selectedRequest, workers);
+      const compared = compareApplicationRuntime(`application.${mode}.workers-${workers}`, { mode, oracle: independent.value, request: selectedRequest, workers, producerSha256: context.producerSha256, helperSha256: context.helperSha256 }, execution);
+      properties.push(...compared);
+      evidence.push(...execution.evidence, await context.save(`application-composition-${mode}-workers-${workers}-comparison`, compared));
+    }
   }
   const missing = await context.applicationRuntime("application-snapshot-missing", { ...request, qualified: true, retained: false }, 2);
   const incompleteFiles = { ...record(request.files) };
@@ -144,12 +149,17 @@ export function compareApplicationRefusal(label: string, error: string, executio
   return [check(`${label}.exit`, 1, execution.exitCode), check(`${label}.stdout`, "", execution.stdout), check(`${label}.error`, { error }, stderr)];
 }
 
-export type DynamicApplicationExpectation = { outcome: "composed" | "ownership-refused"; oracle: Json; keys: readonly string[]; integrityReasons: Json; ledgerReasons: Readonly<Record<string, readonly string[]>> | undefined; coverage: readonly string[]; producerSha256: string };
+export type DynamicApplicationExpectation = { fixture?: { sourcePath: string; testPath: string; language: "typescript" | "javascript" }; outcome: "composed" | "ownership-refused"; oracle: Json; keys: readonly string[]; integrityReasons: Json; ledgerReasons: Readonly<Record<string, readonly string[]>> | undefined; failedPaths?: readonly string[]; coverage: readonly string[]; producerSha256: string };
 
-function compareDynamicGraph(label: string, expected: DynamicApplicationExpectation, graph: Json, integrityReasons: unknown): Property[] {
+const dynamicFixture = (expected: DynamicApplicationExpectation) => expected.fixture ?? { sourcePath: "src/main.ts", testPath: "src/main.test.ts", language: "typescript" as const };
+
+function compareDynamicGraph(label: string, expected: DynamicApplicationExpectation, graph: Json, integrityReasons: unknown, excludedPaths: readonly string[] = []): Property[] {
   const nodes = rows(graph.nodes), edges = rows(graph.edges);
   const modulePaths = list(expected.oracle.modules).map(String).sort();
-  const roleNodes = modulePaths.map(path => ({ kind: path === "src/main.test.ts" ? "test" : "module", filePath: path, name: path.split("/").at(-1), evidence: [{ filePath: path, sourceKind: path === "src/main.test.ts" ? "test" : "code" }] }));
+  const fixture = dynamicFixture(expected);
+  const included = (path: unknown): boolean => typeof path === "string" && !excludedPaths.includes(path);
+  const graphOracle = { ...expected.oracle, modules: modulePaths.filter(included), symbols: rows(expected.oracle.symbols).filter(symbol => included(symbol.relPath)), imports: rows(expected.oracle.imports).filter(entry => included(entry.fromRelPath) && (entry.resolvedRelPath === undefined || included(entry.resolvedRelPath))), calls: rows(expected.oracle.calls).filter(call => included(call.callerRelPath) && (call.calleeRelPath === undefined || included(call.calleeRelPath))) };
+  const roleNodes = modulePaths.filter(included).map(path => ({ kind: path === fixture.testPath ? "test" : "module", filePath: path, name: path.split("/").at(-1), evidence: [{ filePath: path, sourceKind: path === fixture.testPath ? "test" : "code" }] }));
   const normalized = {
     ...graph,
     nodes: nodes.map(node => node.kind === "test" ? { ...node, kind: "module", evidence: rows(node.evidence).map(evidence => ({ ...evidence, sourceKind: "code" })) } : node),
@@ -157,10 +167,10 @@ function compareDynamicGraph(label: string, expected: DynamicApplicationExpectat
     integrityReasons,
   };
   return [
-    check(`${label}.fixture-modules`, ["src/main.test.ts", "src/main.ts"], modulePaths),
+    check(`${label}.fixture-modules`, [fixture.sourcePath, fixture.testPath].sort(), modulePaths),
     check(`${label}.original-role-nodes`, ordered(roleNodes), ordered(nodes.filter(node => node.kind === "module" || node.kind === "test").map(node => ({ kind: node.kind, filePath: node.filePath, name: node.name, evidence: node.evidence })))),
-    ...compareSimpleGraph(`${label}.core`, expected.oracle, normalized).map(property => property.name === `${label}.core.integrity-reasons` ? check(property.name, expected.integrityReasons, integrityReasons) : property),
-    ...compareTestRelations(label, [...expected.coverage], graph, { path: "src/main.test.ts", line: 1 }),
+    ...compareSimpleGraph(`${label}.core`, graphOracle, normalized).map(property => property.name === `${label}.core.integrity-reasons` ? check(property.name, expected.integrityReasons, integrityReasons) : property),
+    ...compareTestRelations(label, [...expected.coverage], graph, { path: fixture.testPath, line: 1 }),
   ];
 }
 
@@ -171,8 +181,11 @@ export function compareDynamicApplication(label: string, expected: DynamicApplic
   const value = composed ? execution.value : record(errorReport.diagnosticAssembly);
   const graph = record(record(value.analysis).graph), sidecar = record(value.sidecar), native = record(value.nativeObservation), worker = record(value.workerObservation);
   const paths = list(expected.oracle.modules).map(String).sort();
-  const localLedger = rows(sidecar.discoveryLedger).filter(entry => record(entry.scope).language === "typescript");
-  const localProfiles = rows(sidecar.capabilityProfiles).filter(profile => record(profile.scope).language === "typescript");
+  const fixture = dynamicFixture(expected);
+  const failedPaths = expected.failedPaths ?? [];
+  const analyzedPaths = paths.filter(path => !failedPaths.includes(path));
+  const localLedger = rows(sidecar.discoveryLedger).filter(entry => record(entry.scope).language === fixture.language);
+  const localProfiles = rows(sidecar.capabilityProfiles).filter(profile => record(profile.scope).language === fixture.language);
   const facts = rows(sidecar.factBatches).flatMap(batch => rows(batch.facts));
   const properties = [
     check(`${label}.exit`, composed ? 0 : 1, execution.exitCode),
@@ -188,20 +201,20 @@ export function compareDynamicApplication(label: string, expected: DynamicApplic
     ...compareExtraction(`${label}.retained.extraction`, expected.oracle, record(worker.extraction)),
     ...compareDynamicGraph(`${label}.graph`, expected, graph, value.integrityReasons),
     check(`${label}.sidecar.fact-types`, true, facts.every(fact => fact.factType === "node" || fact.factType === "edge")),
-    ...compareDynamicGraph(`${label}.sidecar`, expected, { nodes: facts.filter(fact => fact.factType === "node"), edges: facts.filter(fact => fact.factType === "edge") }, value.integrityReasons),
-    check(`${label}.sidecar.local-typescript-scopes`, ordered(paths.map(path => ({ selectedPaths: [path], selectionDecision: "selected", analysisOutcome: "analyzed" }))), ordered(localLedger.map(entry => ({ selectedPaths: record(entry.scope).selectedPaths, selectionDecision: entry.selectionDecision, analysisOutcome: entry.analysisOutcome })))),
-    check(`${label}.sidecar.local-typescript-reasons-included`, true, localLedger.every(entry => Array.isArray(entry.analysisReasons) && entry.analysisReasons.every(reason => typeof reason === "string") && list(expected.integrityReasons[String(list(record(entry.scope).selectedPaths)[0])]).every(reason => list(entry.analysisReasons).includes(reason)))),
+    ...compareDynamicGraph(`${label}.sidecar`, expected, { nodes: facts.filter(fact => fact.factType === "node"), edges: facts.filter(fact => fact.factType === "edge") }, value.integrityReasons, failedPaths),
+    check(`${label}.sidecar.local-${fixture.language}-scopes`, ordered(paths.map(path => ({ selectedPaths: [path], selectionDecision: "selected", analysisOutcome: failedPaths.includes(path) ? "failed" : "analyzed" }))), ordered(localLedger.map(entry => ({ selectedPaths: record(entry.scope).selectedPaths, selectionDecision: entry.selectionDecision, analysisOutcome: entry.analysisOutcome })))),
+    check(`${label}.sidecar.local-${fixture.language}-reasons-included`, true, localLedger.every(entry => Array.isArray(entry.analysisReasons) && entry.analysisReasons.every(reason => typeof reason === "string") && list(expected.integrityReasons[String(list(record(entry.scope).selectedPaths)[0])]).every(reason => list(entry.analysisReasons).includes(reason)))),
     check(`${label}.sidecar.independent-exact-reasons-available`, true, expected.ledgerReasons !== undefined),
-    check(`${label}.sidecar.profiles.present-nonnegative`, true, paths.every(path => localProfiles.some(profile => isDeepStrictEqual(record(profile.scope).selectedPaths, [path]))) && localProfiles.every(profile => profile.negativeEvidenceEligible === false)),
-    check(`${label}.sidecar.refusal-partial-explicit`, true, composed || localProfiles.some(profile => isDeepStrictEqual(record(profile.scope).selectedPaths, ["src/main.test.ts"]) && profile.completenessClaim === "partial" && profile.label === "partial")),
-    check(`${label}.sidecar.no-javascript-scope`, false, rows(sidecar.discoveryLedger).some(entry => record(entry.scope).language === "javascript")),
+    check(`${label}.sidecar.profiles.present-nonnegative`, true, analyzedPaths.every(path => localProfiles.some(profile => isDeepStrictEqual(record(profile.scope).selectedPaths, [path]))) && localProfiles.every(profile => profile.negativeEvidenceEligible === false && list(record(profile.scope).selectedPaths).every(path => analyzedPaths.includes(String(path))))),
+    check(`${label}.sidecar.refusal-partial-explicit`, true, composed || (failedPaths.includes(fixture.testPath) ? localLedger.some(entry => isDeepStrictEqual(record(entry.scope).selectedPaths, [fixture.testPath]) && entry.analysisOutcome === "failed") : localProfiles.some(profile => isDeepStrictEqual(record(profile.scope).selectedPaths, [fixture.testPath]) && profile.completenessClaim === "partial" && profile.label === "partial"))),
+    check(`${label}.sidecar.no-${fixture.language === "typescript" ? "javascript" : "typescript"}-scope`, false, rows(sidecar.discoveryLedger).some(entry => record(entry.scope).language === (fixture.language === "typescript" ? "javascript" : "typescript"))),
     check(`${label}.retained.selection`, { requested: 2, used: 1, mode: "preflight-fallback", reason: "retained compiler input snapshot requires one semantic Program" }, worker.parallelism),
     check(`${label}.retained.worker-not-executed`, false, worker.executed),
     check(`${label}.retained.selection-source`, "retained-native-Program", worker.selectionSource),
     check(`${label}.retained.jobs`, [], worker.jobs),
     check(`${label}.retained.no-helper`, undefined, worker.helperArtifactId),
   ];
-  if (expected.ledgerReasons !== undefined) properties.push(check(`${label}.sidecar.local-typescript-reasons-exact`, ordered(paths.map(path => ({ selectedPaths: [path], analysisReasons: expected.ledgerReasons?.[path] ?? [] }))), ordered(localLedger.map(entry => ({ selectedPaths: record(entry.scope).selectedPaths, analysisReasons: entry.analysisReasons })))));
+  if (expected.ledgerReasons !== undefined) properties.push(check(`${label}.sidecar.local-${fixture.language}-reasons-exact`, ordered(paths.map(path => ({ selectedPaths: [path], analysisReasons: expected.ledgerReasons?.[path] ?? [] }))), ordered(localLedger.map(entry => ({ selectedPaths: record(entry.scope).selectedPaths, analysisReasons: entry.analysisReasons })))));
   if (composed) properties.push(
     check(`${label}.composed.executed`, true, value.executed),
     check(`${label}.composed.stderr`, "", execution.stderr),

@@ -92,10 +92,10 @@ async function git(root: string, args: string[]): Promise<Json> {
   return { args, exitCode, stdout, stderr };
 }
 
-export async function prepare(ctx: Context, id: string, files: Record<string, string>): Promise<{ root: string; analysis: Json; baseCommit: string; evidence: Evidence[] }> {
+export async function prepare(ctx: Context, id: string, files: Record<string, string>, initialFiles: Record<string, string> = { "src/main.ts": "export function main() { return 1; }\n" }): Promise<{ root: string; analysis: Json; baseCommit: string; evidence: Evidence[] }> {
   const root = resolve(ctx.root, `qa-${id}`);
   const complete = { "base.json": '{"compilerOptions":{"module":"ESNext","moduleResolution":"Bundler","target":"ES2022"}}', "tsconfig.json": '{"extends":"./base.json"}', ".gitignore": ".semctx/\n", ...files };
-  await filesAt(root, { ...complete, "src/main.ts": "export function main() { return 1; }\n" });
+  await filesAt(root, { ...complete, ...initialFiles });
   const setup: Json[] = [];
   for (const args of [["init", "-q"], ["add", "--", "."], ["-c", "user.name=T00Fixture", "-c", "user.email=t00@example.test", "commit", "-qm", "initial"]]) {
     const result = await git(root, args); setup.push(result);
@@ -111,8 +111,8 @@ export function outcome(execution: Execution): Json {
   return { kind: execution.exitCode === 0 ? "success" : "nonzero", exit_code: execution.exitCode, duration_ms: 0, stdout: execution.stdout, stderr: execution.stderr, stdout_bytes: Buffer.byteLength(execution.stdout), stderr_bytes: Buffer.byteLength(execution.stderr), stdout_hash: sha(execution.stdout), stderr_hash: sha(execution.stderr) };
 }
 
-export function descriptor(ctx: Context, fixture: { root: string; analysis: Json; baseCommit: string }, indexed: Json): Json {
-  return { repositoryRoot: fixture.root, processHelper: ctx.helper, include: ["src/**/*.ts"], exclude: ["node_modules", "dist", ".semctx", ".git", "coverage"], index: { analysis: fixture.analysis, outcome: indexed, baseCommit: fixture.baseCommit } };
+export function descriptor(ctx: Context, fixture: { root: string; analysis: Json; baseCommit: string }, indexed: Json, include: string[] = ["src/**/*.ts"]): Json {
+  return { repositoryRoot: fixture.root, processHelper: ctx.helper, include, exclude: ["node_modules", "dist", ".semctx", ".git", "coverage"], index: { analysis: fixture.analysis, outcome: indexed, baseCommit: fixture.baseCommit } };
 }
 
 async function scopeObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
@@ -196,36 +196,41 @@ async function receiptObservations(ctx: Context): Promise<{ properties: Property
 
 async function dynamicTestObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
   const properties: Property[] = [], evidence: Evidence[] = [];
-  const vectors: { id: "static" | "literal" | "computed" | "two-arguments" | "unresolved"; source: string; keys: string[]; reasons: Record<string, string[]>; coverage: string[] }[] = [
-    { id: "static", source: "import { main } from './main'; export function spec() { return main(); }\n", keys: [], reasons: {}, coverage: ["covers:test:src/main.test.ts:main.test.ts->function:src/main.ts:main", "tested_by:function:src/main.ts:main->test:src/main.test.ts:main.test.ts"] },
-    { id: "literal", source: "export async function spec() { return import('./main'); }\n", keys: ["src/main.test.ts:1:./main"], reasons: { "src/main.test.ts": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/main.ts"] }, coverage: [] },
-    { id: "computed", source: "const name = './main'; export async function spec() { return import(name); }\n", keys: [], reasons: {}, coverage: [] },
-    { id: "two-arguments", source: "export async function spec() { return import('./main', {}); }\n", keys: [], reasons: {}, coverage: [] },
-    { id: "unresolved", source: "export async function spec() { return import('./missing'); }\n", keys: ["src/main.test.ts:1:./missing"], reasons: {}, coverage: [] },
+  const vectors: { id: "static" | "literal" | "computed" | "two-arguments" | "unresolved" | "mjs-static" | "mjs-literal"; fixture?: { sourcePath: string; testPath: string; language: "javascript" }; files?: Record<string, string>; source: string; importCall?: { argumentCount: number; literalSpecifier?: string }; keys: string[]; reasons: Record<string, string[]>; ledgerReasons: Record<string, string[]>; failedPaths?: string[]; coverage: string[] }[] = [
+    { id: "static", source: "import { main } from './main'; export function spec() { return main(); }\n", keys: [], reasons: {}, ledgerReasons: {}, coverage: ["covers:test:src/main.test.ts:main.test.ts->function:src/main.ts:main", "tested_by:function:src/main.ts:main->test:src/main.test.ts:main.test.ts"] },
+    { id: "literal", source: "export async function spec() { return import('./main'); }\n", importCall: { argumentCount: 1, literalSpecifier: "./main" }, keys: ["src/main.test.ts:1:./main"], reasons: { "src/main.test.ts": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/main.ts"] }, ledgerReasons: { "src/main.test.ts": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/main.ts"] }, coverage: [] },
+    { id: "computed", source: "const name = './main'; export async function spec() { return import(name); }\n", importCall: { argumentCount: 1 }, keys: [], reasons: {}, ledgerReasons: { "src/main.test.ts": ["PRODUCER_FAILED", "SOURCE_ASYNC_RETURN_UNSUPPORTED"] }, failedPaths: ["src/main.test.ts"], coverage: [] },
+    { id: "two-arguments", source: "export async function spec() { return import('./main', {}); }\n", importCall: { argumentCount: 2, literalSpecifier: "./main" }, keys: [], reasons: {}, ledgerReasons: { "src/main.test.ts": ["PRODUCER_FAILED", "SOURCE_ASYNC_RETURN_UNSUPPORTED"] }, failedPaths: ["src/main.test.ts"], coverage: [] },
+    { id: "unresolved", source: "export async function spec() { return import('./missing'); }\n", importCall: { argumentCount: 1, literalSpecifier: "./missing" }, keys: ["src/main.test.ts:1:./missing"], reasons: {}, ledgerReasons: { "src/main.test.ts": ["DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.test.ts:./missing"] }, coverage: [] },
+    { id: "mjs-static", fixture: { sourcePath: "src/target.mjs", testPath: "src/target.test.mjs", language: "javascript" }, files: { "src/target.mjs": "export function helper(){return 1;}\n", "package.json": '{"name":"qualified-fixture","type":"module"}\n' }, source: "import { helper } from './target.mjs'; export function check(){return helper();}\n", keys: [], reasons: {}, ledgerReasons: {}, coverage: ["covers:test:src/target.test.mjs:target.test.mjs->function:src/target.mjs:helper", "tested_by:function:src/target.mjs:helper->test:src/target.test.mjs:target.test.mjs"] },
+    { id: "mjs-literal", fixture: { sourcePath: "src/target.mjs", testPath: "src/target.test.mjs", language: "javascript" }, files: { "src/target.mjs": "export function helper(){return 1;}\n", "package.json": '{"name":"qualified-fixture","type":"module"}\n' }, source: "export async function check(){const dep=await import('./target.mjs');return dep.helper();}\n", importCall: { argumentCount: 1, literalSpecifier: "./target.mjs" }, keys: ["src/target.test.mjs:1:./target.mjs"], reasons: { "src/target.test.mjs": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs"] }, ledgerReasons: { "src/target.test.mjs": ["JAVASCRIPT_ASYNC_RETURN_UNSUPPORTED", "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs", "SOURCE_ASYNC_RETURN_UNSUPPORTED"] }, coverage: [] },
   ];
   for (const vector of vectors) {
-    const fixture = await prepare(ctx, `dynamic-test-${vector.id}`, { "src/main.ts": baseline, "src/main.test.ts": vector.source });
-    const analysis: Json = { ...fixture.analysis, roles: { "src/main.ts": "source", "src/main.test.ts": "test" } };
+    const sourcePath = vector.fixture?.sourcePath ?? "src/main.ts", testPath = vector.fixture?.testPath ?? "src/main.test.ts";
+    const composed = vector.id === "static" || vector.id === "mjs-static";
+    const fixture = await prepare(ctx, `dynamic-test-${vector.id}`, { ...(vector.files ?? { [sourcePath]: baseline }), [testPath]: vector.source }, vector.fixture === undefined ? undefined : { [testPath]: "export function check(){return 1;}\n" });
+    const analysis: Json = { ...fixture.analysis, roles: { [sourcePath]: "source", [testPath]: "test" } };
     const independent = await ctx.extractionOracle(`dynamic-test-${vector.id}`, { files: analysis["files"], roots: analysis["roots"], repoRoot: fixture.root, options: analysis["options"], retained: true });
-    const independentKeys = list(independent.value["dynamicImports"]).map(record).filter(entry => entry["file"] === "src/main.test.ts").map(entry => `${String(entry["file"])}:${String(entry["line"])}:${String(entry["specifier"])}`).toSorted();
+    const independentKeys = list(independent.value["dynamicImports"]).map(record).filter(entry => entry["file"] === testPath).map(entry => `${String(entry["file"])}:${String(entry["line"])}:${String(entry["specifier"])}`).toSorted();
     const application = await ctx.applicationRuntime(`dynamic-test-${vector.id}`, analysis, 2);
-    const applicationProperties = compareDynamicApplication(`dynamic-test.${vector.id}.application`, { outcome: vector.id === "static" ? "composed" : "ownership-refused", oracle: independent.value, keys: independentKeys, integrityReasons: vector.reasons, ledgerReasons: vector.id === "static" || vector.id === "literal" ? vector.reasons : undefined, coverage: vector.coverage, producerSha256: ctx.producerSha256 }, application);
+    const applicationProperties = compareDynamicApplication(`dynamic-test.${vector.id}.application`, { outcome: composed ? "composed" : "ownership-refused", ...(vector.fixture === undefined ? {} : { fixture: vector.fixture }), oracle: independent.value, keys: independentKeys, integrityReasons: vector.reasons, ledgerReasons: vector.ledgerReasons, ...(vector.failedPaths === undefined ? {} : { failedPaths: vector.failedPaths }), coverage: vector.coverage, producerSha256: ctx.producerSha256 }, application);
     properties.push(...applicationProperties);
     evidence.push(...application.evidence, await ctx.save(`dynamic-test-${vector.id}-application-comparison`, applicationProperties));
     const analyzed = await ctx.run(`dynamic-test-${vector.id}`, "", analysis, true);
     properties.push(property(`dynamic-test.${vector.id}.independent-exit`, 0, independent.exitCode));
+    properties.push(property(`dynamic-test.${vector.id}.independent-import-call-shapes`, vector.importCall === undefined ? [] : [{ file: testPath, line: 1, ...vector.importCall }], independent.value["importCalls"]));
     properties.push(property(`dynamic-test.${vector.id}.independent-keys`, independentKeys, analyzed.value["test_dynamic_import_keys"]));
     properties.push(property(`dynamic-test.${vector.id}.exit`, 0, analyzed.exitCode));
     properties.push(property(`dynamic-test.${vector.id}.keys`, vector.keys, analyzed.value["test_dynamic_import_keys"]));
     properties.push(property(`dynamic-test.${vector.id}.integrity`, vector.reasons, record(analyzed.value["assembly"])["integrityReasons"]));
-    properties.push(...compareTestRelations(`dynamic-test.${vector.id}`, vector.coverage, record(analyzed.value["assembly"]), { path: "src/main.test.ts", line: 1 }));
+    properties.push(...compareTestRelations(`dynamic-test.${vector.id}`, vector.coverage, record(analyzed.value["assembly"]), { path: testPath, line: 1 }));
     const indexed = await ctx.run(`dynamic-test-${vector.id}-index`, "--batch", analysis, true);
-    const verified = await ctx.run(`dynamic-test-${vector.id}-verify`, "verify", descriptor(ctx, { ...fixture, analysis }, outcome(indexed)), true);
+    const verified = await ctx.run(`dynamic-test-${vector.id}-verify`, "verify", descriptor(ctx, { ...fixture, analysis }, outcome(indexed), vector.fixture === undefined ? undefined : ["src/**/*.mjs"]), true);
     const admission = record(verified.value["analysisAdmission"]);
-    properties.push(property(`dynamic-test.${vector.id}.public-exit`, vector.id === "static" ? 0 : 3, verified.exitCode));
-    properties.push(property(`dynamic-test.${vector.id}.public-status`, vector.id === "static" ? "admitted" : "rejected", admission["status"]));
-    properties.push(property(`dynamic-test.${vector.id}.public-verdict`, vector.id === "static" ? "NOT_ASSERTED" : "BLOCK", verified.value["verdict"]));
-    properties.push(property(`dynamic-test.${vector.id}.public-reasons`, true, Array.isArray(admission["reasons"]) && (vector.id === "static" ? list(admission["reasons"]).length === 0 : list(admission["reasons"]).some(value => typeof value === "string" && (value.startsWith("DEPENDENCY_SCOPE_") || value.startsWith("ANALYSIS_SCOPE_INCOMPLETE:"))))));
+    properties.push(property(`dynamic-test.${vector.id}.public-exit`, composed ? 0 : 3, verified.exitCode));
+    properties.push(property(`dynamic-test.${vector.id}.public-status`, composed ? "admitted" : "rejected", admission["status"]));
+    properties.push(property(`dynamic-test.${vector.id}.public-verdict`, composed ? "NOT_ASSERTED" : "BLOCK", verified.value["verdict"]));
+    properties.push(property(`dynamic-test.${vector.id}.public-reasons`, true, Array.isArray(admission["reasons"]) && (composed ? list(admission["reasons"]).length === 0 : list(admission["reasons"]).some(value => typeof value === "string" && (value.startsWith("DEPENDENCY_SCOPE_") || value.startsWith("ANALYSIS_SCOPE_INCOMPLETE:"))))));
     evidence.push(...fixture.evidence, ...independent.evidence, ...analyzed.evidence, ...indexed.evidence, ...verified.evidence);
     if (vector.id === "literal") {
       for (const targets of [[], [{ relPath: "src/main.ts", symbolPath: "main" }]]) {
@@ -292,7 +297,10 @@ export async function admissionObservations(ctx: Context, indices: number[]): Pr
     if (observed === undefined) throw Error(`Q_BOUNDARY_ADMISSION_INDEX_UNSUPPORTED:${index}`);
     if (assemblyIndices.has(index)) {
       const properties = index === 4 ? observed.properties.filter(row => row.name.startsWith("runtime.") || row.name.startsWith("ordinary.") || row.name.startsWith("assembly.independent.") || row.name.startsWith("application.") || row.name === "assembly.compiler" || row.name === "assembly.exit") : observed.properties;
-      return { index, ...observed, properties, complete: false, reason: "Experimental application composition and independent extraction witnesses require cumulative candidate-bound closure on both platforms." };
+      const complete = properties.length > 0 && observed.evidence.length > 0 && properties.every(row => row.pass);
+      return { index, ...observed, properties, complete, reason: complete
+        ? "Independent TS7 extraction and activation/control witnesses pass at the public application owner, including snapshot guards, workers, provenance and same-Receipt revalidation; single-platform rehearsal only, zero final qualification credit."
+        : "Cumulative extraction/application witnesses are incomplete or divergent; missing or failed observations prohibit closure." };
     }
     const cumulative = scopeIndices.has(index) ? [observed, receipt!, ...(index === 236 ? [base!] : [])] : [observed];
     const properties = cumulative.flatMap(item => item.properties), evidence = cumulative.flatMap(item => item.evidence);
