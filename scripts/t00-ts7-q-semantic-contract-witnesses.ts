@@ -7,7 +7,7 @@ export const contractWitnesses = [...baseContractWitnesses.filter(witness => wit
 export const contractWitnessLimitations = Object.values(semanticSublots).flatMap(sublot => sublot.limitations);
 
 export function selectContractMatrix(index: number, sublot?: string) {
-  if (sublot === undefined) return index === 52 ? contractWitnesses.filter(witness => witness.index === index) : [];
+  if (sublot === undefined) return contractWitnesses.filter(witness => witness.index === index);
   const selected = semanticSublotFor(index);
   if (selected?.name !== sublot) throw Error("SEMANTIC_SUBLOT_OBLIGATION_MISMATCH");
   return selected.witnesses.filter(witness => witness.index === index);
