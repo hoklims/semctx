@@ -35,8 +35,24 @@ fn parent(path: &str) -> &str {
         .map_or("/", |(head, _)| if head.is_empty() { "/" } else { head })
 }
 
+fn metadata_text(fs: &CaptureFs, path: &str) -> (String, bool) {
+    #[cfg(any(test, feature = "qualification-observer"))]
+    if let Some(live) = &fs.live {
+        return live.metadata_read(fs, path);
+    }
+    fs.read_file(path)
+}
+
+fn metadata_entry_exists(fs: &CaptureFs, path: &str) -> bool {
+    #[cfg(any(test, feature = "qualification-observer"))]
+    if let Some(live) = &fs.live {
+        return live.entry_exists(path);
+    }
+    fs.files.contains_key(&fs.key(path)) || fs.dirs.contains(&fs.key(path))
+}
+
 fn json_at(fs: &CaptureFs, path: &str) -> Option<serde_json::Value> {
-    let (text, found) = fs.read_file(path);
+    let (text, found) = metadata_text(fs, path);
     found
         .then(|| serde_json::from_str::<serde_json::Value>(&text).ok())
         .flatten()
@@ -44,6 +60,15 @@ fn json_at(fs: &CaptureFs, path: &str) -> Option<serde_json::Value> {
 }
 
 fn nested_repository(fs: &CaptureFs, root: &str, path: &str) -> bool {
+    #[cfg(any(test, feature = "qualification-observer"))]
+    if let Some(live) = &fs.live {
+        let directory = if std::fs::metadata(path).is_ok_and(|metadata| metadata.is_dir()) {
+            path
+        } else {
+            parent(path)
+        };
+        return live.nested_directory(root, directory);
+    }
     let mut directory = if fs.dirs.contains(path) {
         path
     } else {
@@ -84,15 +109,21 @@ fn declaration(
     let mut current = directory;
     while within(root, current) {
         let pnpm = format!("{current}/pnpm-workspace.yaml");
-        if fs.files.contains_key(&fs.key(&pnpm)) {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if fs.live.is_some() {
+            metadata_text(fs, &pnpm);
+        }
+        if metadata_entry_exists(fs, &pnpm) {
+            #[cfg(not(any(test, feature = "qualification-observer")))]
             fs.read_file(&pnpm);
+            #[cfg(any(test, feature = "qualification-observer"))]
+            if fs.live.is_none() {
+                fs.read_file(&pnpm);
+            }
             unsupported.insert("WORKSPACE_PNPM_DECLARATION_UNSUPPORTED".into());
             return None;
         }
-        if current == root
-            || fs.files.contains_key(&fs.key(&format!("{current}/.git")))
-            || fs.dirs.contains(&fs.key(&format!("{current}/.git")))
-        {
+        if current == root || metadata_entry_exists(fs, &format!("{current}/.git")) {
             break;
         }
         current = parent(current);
@@ -102,15 +133,16 @@ fn declaration(
         let path = format!("{current}/package.json");
         if let Some(value) = json_at(fs, &path) {
             if let Some(value) = value.get("workspaces") {
+                #[cfg(any(test, feature = "qualification-observer"))]
+                if let Some(live) = &fs.live {
+                    live.observe_workspace_root(current);
+                }
                 return Some((current.into(), patterns(value)));
             }
-        } else if fs.files.contains_key(&fs.key(&path)) {
+        } else if metadata_entry_exists(fs, &path) {
             return Some((current.into(), vec![]));
         }
-        if current == root
-            || fs.files.contains_key(&fs.key(&format!("{current}/.git")))
-            || fs.dirs.contains(&fs.key(&format!("{current}/.git")))
-        {
+        if current == root || metadata_entry_exists(fs, &format!("{current}/.git")) {
             break;
         }
         current = parent(current);
@@ -330,11 +362,25 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
         return result;
     };
     let mut members = BTreeSet::from([workspace_root.clone()]);
-    for path in fs
+    let manifests = fs
         .files
         .keys()
         .filter(|path| path.ends_with("/package.json") && within(&workspace_root, path))
-    {
+        .cloned()
+        .collect::<Vec<_>>();
+    #[cfg(any(test, feature = "qualification-observer"))]
+    let manifests = if let Some(live) = &fs.live {
+        match live.package_manifests(&workspace_root) {
+            Ok(found) => found,
+            Err(error) => {
+                result.unsupported.insert(error);
+                return result;
+            }
+        }
+    } else {
+        manifests
+    };
+    for path in &manifests {
         let directory = parent(path);
         let Some(relative) = directory.strip_prefix(&format!("{workspace_root}/")) else {
             continue;
@@ -346,12 +392,17 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
         {
             continue;
         }
+        let relative = if fs.sensitive {
+            relative.to_string()
+        } else {
+            relative.to_lowercase()
+        };
         if include
             .iter()
-            .any(|glob| workspace_path_matches(glob, relative))
+            .any(|glob| workspace_path_matches(glob, &relative))
             && !exclude
                 .iter()
-                .any(|glob| workspace_path_matches(glob, relative))
+                .any(|glob| workspace_path_matches(glob, &relative))
         {
             members.insert(directory.into());
         }
@@ -385,12 +436,25 @@ fn links_for(fs: &CaptureFs, consumer: &str, root: &str, requested_name: Option<
         let mut directory = consumer;
         let mut installed = false;
         loop {
-            let path = fs.key(&format!("{directory}/node_modules/{name}"));
-            if fs.dirs.contains(&path) || fs.files.contains_key(&path) {
+            let path = format!("{directory}/node_modules/{name}");
+            let present = fs.dirs.contains(&fs.key(&path)) || fs.files.contains_key(&fs.key(&path));
+            #[cfg(any(test, feature = "qualification-observer"))]
+            let present = fs.live.as_ref().map_or(present, |live| {
+                live.directory_present(&path).unwrap_or(true)
+            });
+            if present {
                 installed = true;
                 break;
             }
             if directory == "/" {
+                break;
+            }
+            #[cfg(any(test, feature = "qualification-observer"))]
+            if fs
+                .live
+                .as_ref()
+                .is_some_and(|live| directory == live.sandbox_root())
+            {
                 break;
             }
             directory = parent(directory);
@@ -462,7 +526,13 @@ impl Workspace {
         let key = format!("{consumer}\0{}", name.unwrap_or("*"));
         let cached = self.cache.borrow().get(&key).cloned();
         let mut links = cached.unwrap_or_else(|| {
-            let links = links_for(fs, consumer, &self.root, name);
+            let root = self.root.as_str();
+            #[cfg(any(test, feature = "qualification-observer"))]
+            let root = fs
+                .live
+                .as_ref()
+                .map_or(root, |live| live.workspace_boundary());
+            let links = links_for(fs, consumer, root, name);
             self.cache.borrow_mut().insert(key, links.clone());
             links
         });
@@ -498,6 +568,46 @@ impl Workspace {
         let key = self.admitted_key(fs, path)?;
         (fs.files.contains_key(&key) || fs.dirs.contains(&key)).then_some(key)
     }
+    #[cfg(any(test, feature = "qualification-observer"))]
+    pub(super) fn live_target(&self, fs: &CaptureFs, path: &str) -> Option<(String, String)> {
+        let lexical = path.replace('\\', "/");
+        for (marker, _) in lexical.match_indices("/node_modules/") {
+            let consumer = &lexical[..marker];
+            let segments = lexical[marker + "/node_modules/".len()..]
+                .split('/')
+                .collect::<Vec<_>>();
+            let count = if segments.first().is_some_and(|part| part.starts_with('@')) {
+                2
+            } else {
+                1
+            };
+            if segments.len() < count || segments[..count].iter().any(|part| part.is_empty()) {
+                continue;
+            }
+            let name = segments[..count].join("/");
+            let links = self.links(fs, consumer, path, Some(&name));
+            let virtual_root = fs.key(&format!("{consumer}/node_modules/{name}"));
+            if let Some(member) = links.aliases.get(&virtual_root) {
+                let tail = segments[count..].join("/");
+                let target = if tail.is_empty() {
+                    member.clone()
+                } else {
+                    format!("{member}/{tail}")
+                };
+                return Some((
+                    member.clone(),
+                    CaptureFs::new(BTreeMap::new(), true).key(&target),
+                ));
+            }
+        }
+        None
+    }
+    #[cfg(any(test, feature = "qualification-observer"))]
+    pub(super) fn live_node_modules(&self, fs: &CaptureFs, path: &str) -> bool {
+        path.strip_suffix("/node_modules")
+            .is_some_and(|consumer| !self.links(fs, consumer, path, None).aliases.is_empty())
+    }
+
     pub fn resolve(&self, fs: &CaptureFs, path: &str) -> Option<String> {
         let key = self.admitted_key(fs, path)?;
         if fs.files.contains_key(&key) || fs.dirs.contains(&key) {

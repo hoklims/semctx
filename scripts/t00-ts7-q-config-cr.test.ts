@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compilerDiagnostics, resolutionFromTrace, closeConfigurationResolution, runConfigurationResolution } from "./t00-ts7-q-config-cr";
+import { compilerDiagnostics, resolutionFromTrace, closeConfigurationResolution, preserveUnprovedConfigurationProperties, runConfigurationResolution } from "./t00-ts7-q-config-cr";
 
 describe("TS7 configuration/resolution evidence", () => {
   test("retains complete independent diagnostic messages and repeated codes", () => {
@@ -41,4 +41,11 @@ describe("TS7 configuration/resolution evidence", () => {
     expect(closeConfigurationResolution([{ property: "diagnostic", status: "fail", reason: "different" }])).toBe("not_qualified");
     expect(closeConfigurationResolution([{ property: "owned", status: "pass", reason: "complete" }])).toBe("qualified");
   });
+});
+
+test("successful native directory witnesses do not close the unproved optional delegate correspondence", () => {
+  const successful = [{ property: "native directory true/false", status: "pass" as const, reason: "observed" }];
+  expect(closeConfigurationResolution(preserveUnprovedConfigurationProperties(201, successful))).toBe("not_qualified");
+  expect(closeConfigurationResolution(preserveUnprovedConfigurationProperties(198, successful))).toBe("not_qualified");
+  expect(closeConfigurationResolution(preserveUnprovedConfigurationProperties(205, successful))).toBe("qualified");
 });

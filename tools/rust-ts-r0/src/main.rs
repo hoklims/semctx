@@ -11,10 +11,13 @@ mod config_source_observations;
 mod configuration;
 mod configured_resolution_observations;
 mod configured_resolver;
+mod declared_external;
 #[cfg(test)]
 mod development;
 mod input_identity;
 mod javascript;
+#[cfg(any(test, feature = "qualification-observer"))]
+mod live_system_observations;
 mod named_configuration;
 mod native_paths;
 mod native_program;
@@ -26,13 +29,18 @@ mod qualified;
 mod qualified_path_eligibility;
 mod qualified_verification;
 mod repository_discovery;
+#[cfg(any(test, feature = "qualification-observer"))]
+mod resolution_host_observations;
 mod retained_aliases;
 mod retained_discovery_observations;
 mod retained_manifest;
 mod runtime_configuration;
+#[cfg(any(test, feature = "qualification-observer"))]
+mod runtime_module_observations;
 mod scope_received;
 mod sdk_compatibility;
 mod sdk_inventory;
+mod source_identity;
 mod source_text;
 mod worker_observations;
 use captured::Captured;
@@ -111,6 +119,8 @@ struct Probe {
     content_id: Option<String>,
 }
 struct CaptureFs {
+    #[cfg(any(test, feature = "qualification-observer"))]
+    live: Option<live_system_observations::LiveBoundary>,
     captured: Captured,
     named_cache: named_configuration::Cache,
     workspace: Option<captured_system_observations::Workspace>,
@@ -151,6 +161,8 @@ impl CaptureFs {
     }
     fn new(files: BTreeMap<String, String>, sensitive: bool) -> Self {
         let mut result = Self {
+            #[cfg(any(test, feature = "qualification-observer"))]
+            live: None,
             captured: Captured::new(BTreeMap::new()),
             named_cache: Default::default(),
             workspace: None,
@@ -269,12 +281,30 @@ impl CaptureFs {
         Err(FsError::Permission)
     }
 }
+#[cfg(any(test, feature = "qualification-observer"))]
+impl CaptureFs {
+    fn live_for(&self, path: &str) -> Option<&live_system_observations::LiveBoundary> {
+        let key = self.key(path);
+        if self
+            .sdk_keys
+            .iter()
+            .any(|sdk| sdk == &key || sdk.starts_with(&format!("{key}/")))
+        {
+            return None;
+        }
+        self.live.as_ref()
+    }
+}
 impl Fs for CaptureFs {
     fn use_case_sensitive_file_names(&self) -> bool {
         self.record("case_sensitive", "", self.sensitive);
         self.sensitive
     }
     fn file_exists(&self, path: &str) -> bool {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.live_for(path) {
+            return live.file_exists(self, path);
+        }
         let physical = self.resolved_path(path);
         let closest_configuration = self.workspace.as_ref().is_some_and(|workspace| {
             let key = self.key(path);
@@ -290,6 +320,10 @@ impl Fs for CaptureFs {
         found
     }
     fn read_file(&self, path: &str) -> (String, bool) {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.live_for(path) {
+            return live.read_file(self, path);
+        }
         let physical = self.resolved_path(path);
         let value = physical
             .as_ref()
@@ -302,6 +336,10 @@ impl Fs for CaptureFs {
         (value.clone().unwrap_or_default(), value.is_some())
     }
     fn directory_exists(&self, path: &str) -> bool {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.live_for(path) {
+            return live.directory_exists(self, path);
+        }
         let physical = self.resolved_path(path);
         let found = physical.as_ref().is_some_and(|key| self.dirs.contains(key))
             || self
@@ -380,6 +418,10 @@ impl Fs for CaptureFs {
         })
     }
     fn realpath(&self, path: &str) -> String {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.live_for(path) {
+            return live.realpath(self, path);
+        }
         let physical = self.resolved_path(path);
         self.record_resolved("realpath", path, physical.as_deref(), physical.is_some());
         match physical {
@@ -636,50 +678,23 @@ fn ordinary_builtin(specifier: &str) -> Result<bool, String> {
 }
 
 fn declared_external(fs: &CaptureFs, path: &str, root: &str, specifier: &str) -> bool {
-    let parts = specifier.split('/').collect::<Vec<_>>();
-    let package = if specifier.starts_with('@') {
-        parts.iter().take(2).copied().collect::<Vec<_>>().join("/")
-    } else {
-        parts[0].into()
-    };
-    let mut directory = ts_goport::frontend::tspath::get_directory_path(path);
-    loop {
-        if relative_source_path(
-            root,
-            &format!("{directory}/__manifest_context__"),
-            fs.sensitive,
-        )
-        .is_err()
-        {
-            return false;
-        }
-        let (text, found) = fs.read_file(&format!("{directory}/package.json"));
-        if found {
-            let Ok(manifest) = serde_json::from_str::<serde_json::Value>(&text) else {
-                return false;
-            };
-            if manifest["name"].as_str() == Some(&package) {
-                return false;
-            }
-            for field in [
-                "dependencies",
-                "devDependencies",
-                "peerDependencies",
-                "optionalDependencies",
-            ] {
-                if let Some(version) = manifest[field][&package].as_str() {
-                    return !["workspace:", "file:", "link:"]
-                        .iter()
-                        .any(|prefix| version.starts_with(prefix));
-                }
-            }
-        }
-        let parent = ts_goport::frontend::tspath::get_directory_path(&directory);
-        if parent == directory {
-            return false;
-        }
-        directory = parent;
-    }
+    declared_external::inspect(
+        path,
+        Some(root),
+        specifier,
+        |path| {
+            let (text, found) = fs.read_file(path);
+            found.then_some(text)
+        },
+        |root, directory| {
+            relative_source_path(
+                root,
+                &format!("{directory}/__manifest_context__"),
+                fs.sensitive,
+            )
+            .is_ok()
+        },
+    )
 }
 
 #[expect(
@@ -868,6 +883,7 @@ fn inspect_subject(
                         node,
                         checker,
                         &ordinary::ExtractionContext {
+                            runtime_module: None,
                             repository_root: &root,
                             static_module_links: true,
                             retained: true,
@@ -891,6 +907,7 @@ fn inspect_subject(
                     file,
                     checker,
                     &ordinary::ExtractionContext {
+                        runtime_module: None,
                         repository_root: &root,
                         static_module_links: true,
                         retained: true,
@@ -1102,11 +1119,20 @@ fn inspect_subject(
     )
 }
 
+fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+    let identity = source_identity::SourceIdentity::new(request.case_sensitive, !request.retained);
+    analyze_with_identity(request, sdk, identity)
+}
+
 #[expect(
     clippy::excessive_nesting,
     reason = "The feasibility probe retains explicit captured request and fact assembly branches."
 )]
-fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
+fn analyze_with_identity(
+    request: Request,
+    sdk: Sdk,
+    source_identity: source_identity::SourceIdentity,
+) -> Result<serde_json::Value, String> {
     let compatibility = sdk_compatibility::classify(&sdk, &request.sdk_directory)?;
     if request.qualified && !request.retained {
         return Err("SOURCE_SNAPSHOT_REQUIRED".into());
@@ -1275,7 +1301,13 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     let _current = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let partition_observation = if !retained && !qualified {
-        partition_observations::observe(&frontend.program, &fs, &repository_root, &program_roots)
+        partition_observations::observe_with_identity(
+            &frontend.program,
+            &fs,
+            &source_identity,
+            &repository_root,
+            &program_roots,
+        )
     } else {
         serde_json::json!({"executed":false,"unsupported":["COMPONENT_ORDINARY_INPUTS_NOT_ENABLED"],"parallelSafetyEvaluated":false,"globalAdmissionInferred":false})
     };
@@ -1311,6 +1343,9 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
     let mut outlines = BTreeMap::new();
     let captured_files = std::sync::Arc::new(fs.files.clone());
     let case_sensitive = fs.sensitive;
+    let mut runtime_module_trace = Vec::new();
+    let mut runtime_module_inputs = BTreeMap::<String, Option<String>>::new();
+    let mut extracted_source_keys = BTreeSet::new();
     for path in &roots {
         if [".d.ts", ".d.mts", ".d.cts"]
             .iter()
@@ -1322,6 +1357,9 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         if selection.get(&relative) == Some(&wire::Selection::Excluded)
             || disabled.contains(&relative)
         {
+            continue;
+        }
+        if !extracted_source_keys.insert(source_identity.key(path)) {
             continue;
         }
         let file = program::get_source_file(path);
@@ -1347,26 +1385,52 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         } else {
             None
         };
-        let mut raw = program::with_type_checker_for_file(file, move |checker| {
-            let context = ordinary::ExtractionContext {
-                repository_root: &root,
-                static_module_links,
-                retained,
-                javascript_enabled,
-                captured_files: Some(&captured),
-                case_sensitive,
-            };
-            match module_resolutions.as_ref() {
-                Some(resolutions) => ordinary::extract_with_module_resolutions(
-                    file,
-                    checker,
-                    &relative,
-                    &context,
-                    Some(resolutions),
-                ),
-                None => ordinary::extract(file, checker, &relative, &context),
-            }
-        })?;
+        let runtime_configured = static_module_links;
+        let (mut raw, runtime_inputs, runtime_trace) =
+            program::with_type_checker_for_file(file, move |checker| {
+                let inputs = Rc::new(RefCell::new(BTreeMap::new()));
+                let trace = Rc::new(RefCell::new(Vec::new()));
+                let runtime_files = captured.clone();
+                let runtime_keys = CaptureFs::new(BTreeMap::new(), case_sensitive);
+                let runtime_module = ordinary::RuntimeModuleResolver::new(
+                    move |path| {
+                        if retained {
+                            runtime_files.contains_key(&runtime_keys.key(path))
+                        } else {
+                            ts_goport::frontend::vfs::osvfs_fs().file_exists(path)
+                        }
+                    },
+                    runtime_configured,
+                    retained,
+                    Some(root.clone()),
+                    inputs.clone(),
+                    trace.clone(),
+                );
+                let context = ordinary::ExtractionContext {
+                    runtime_module: Some(&runtime_module),
+                    repository_root: &root,
+                    static_module_links,
+                    retained,
+                    javascript_enabled,
+                    captured_files: Some(&captured),
+                    case_sensitive,
+                };
+                let extracted = match module_resolutions.as_ref() {
+                    Some(resolutions) => ordinary::extract_with_module_resolutions(
+                        file,
+                        checker,
+                        &relative,
+                        &context,
+                        Some(resolutions),
+                    ),
+                    None => ordinary::extract(file, checker, &relative, &context),
+                }?;
+                let recorded_inputs = inputs.borrow().clone();
+                let recorded_trace = trace.borrow().clone();
+                Ok::<_, String>((extracted, recorded_inputs, recorded_trace))
+            })?;
+        runtime_module_inputs.extend(runtime_inputs);
+        runtime_module_trace.extend(runtime_trace);
         extraction.modules.append(&mut raw.modules);
         extraction.symbols.append(&mut raw.symbols);
         extraction.imports.append(&mut raw.imports);
@@ -1575,7 +1639,7 @@ fn analyze(request: Request, sdk: Sdk) -> Result<serde_json::Value, String> {
         .map(|(path, line, specifier)| format!("{path}:{line}:{specifier}"))
         .collect::<Vec<_>>();
     Ok(
-        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
+        serde_json::json!({"schema_version":1,"request":request.id,"request_id":request_identity,"input_manifest_id":input_identity,"scope_id":identity::digest(&serde_json::json!({"roles":all_roles,"selection":selection})),"producer_artifact_id":artifact_identity,"engine_revision":"780dc512d64f40afebffa6a7028207649fb7ed1c","native_compiler_version":core::version(),"sdk_version":sdk.version,"calls":result,"raw_extraction":extraction,"runtimeModuleObservation":{"inputs":runtime_module_inputs,"trace":runtime_module_trace},"assembly":assembly,"test_dynamic_import_keys":test_dynamic_import_keys,"outlines":outlines,"partitionObservation":partition_observation,"sourceIdentityObservation":source_identity.observation(),"subjects":subjects,"complete":true,"global_admission_inferred":false,"capture_probes":fs.log.borrow().clone(),"ambient_cwd":std::env::current_dir().map_err(|e|e.to_string())?,"ambient_native_case_sensitive":native_case_sensitive,"status":"development_observation_not_qualification"}),
     )
 }
 fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, String> {
@@ -1591,6 +1655,64 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             serde_json::from_slice(&std::fs::read(&args[3]).map_err(|error| error.to_string())?)
                 .map_err(|error| error.to_string())?;
         return qualified_verification::receipt_observer::run(descriptor, &sdk).map(Some);
+    }
+    #[cfg(any(test, feature = "qualification-observer"))]
+    if args.get(1).is_some_and(|mode| {
+        matches!(
+            mode.as_str(),
+            "--observe-live-system"
+                | "--observe-live-configured-resolution"
+                | "--observe-resolution-host"
+                | "--observe-runtime-module"
+                | "--observe-source-identity"
+        )
+    }) {
+        let mode = args[1].as_str();
+        if args.len()
+            != if matches!(mode, "--observe-live-system" | "--observe-resolution-host") {
+                3
+            } else {
+                4
+            }
+        {
+            return Err("LIVE_COMMAND_ARITY_INVALID".into());
+        }
+        let descriptor: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&args[2]).map_err(|error| error.to_string())?)
+                .map_err(|error| error.to_string())?;
+        let sdk: Option<Sdk> = args
+            .get(3)
+            .map(|path| {
+                std::fs::read(path)
+                    .map_err(|error| error.to_string())
+                    .and_then(|bytes| {
+                        serde_json::from_slice(&bytes).map_err(|error| error.to_string())
+                    })
+            })
+            .transpose()?;
+        let mut observed = match mode {
+            "--observe-source-identity" => source_identity::run(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("SOURCE_IDENTITY_SDK_REQUIRED")?,
+            ),
+            "--observe-resolution-host" => resolution_host_observations::run(descriptor.clone()),
+            "--observe-runtime-module" => runtime_module_observations::run(
+                descriptor.clone(),
+                sdk.as_ref().ok_or("RUNTIME_MODULE_SDK_REQUIRED")?,
+            ),
+            _ => live_system_observations::run(descriptor.clone(), sdk.as_ref()),
+        };
+        observed["request_descriptor_id"] = serde_json::json!(identity::digest(&descriptor));
+        observed["producer_artifact_id"] = serde_json::json!(identity::digest_bytes(
+            &std::fs::read(std::env::current_exe().map_err(|error| error.to_string())?)
+                .map_err(|error| error.to_string())?
+        ));
+        if let Some(sdk) = &sdk {
+            observed["sdk_input_id"] = serde_json::json!(identity::digest(
+                &serde_json::to_value(sdk).map_err(|error| error.to_string())?
+            ));
+        }
+        return Ok(Some(observed));
     }
     let Some(mode) = args.get(1).map(String::as_str).filter(|mode| {
         matches!(
@@ -1703,6 +1825,13 @@ fn additional_observation(args: &[String]) -> Result<Option<serde_json::Value>, 
             "--discover-repository" => repository_discovery::run(descriptor.clone()),
             "--observe-path-eligibility" => qualified_path_eligibility::run(descriptor.clone()),
             "--observe-primitives" => {
+                #[cfg(any(test, feature = "qualification-observer"))]
+                if descriptor["operation"] == "declared_external_live" {
+                    declared_external::observe(&descriptor)?
+                } else {
+                    semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
+                }
+                #[cfg(not(any(test, feature = "qualification-observer")))]
                 semctx_r0_probe::primitive_observations::handle_observation(descriptor.clone())?
             }
             "--extract-worker" => worker_observations::run(
