@@ -6,8 +6,8 @@ import { materializeOracleLinks } from "./t00-ts7-q-boundary-common";
 import { selectedExtractionProperties, partitionProperties, sourceIdentityProperties } from "./t00-ts7-q-boundary-live-fs";
 
 const extraction = {
-  modules: ["a.ts", "c.ts"],
-  symbols: [{ relPath: "a.ts", name: "a", kind: "function", scope: [], exported: true }, { relPath: "c.ts", name: "c", kind: "function", scope: [], exported: true }],
+  modules: ["c.ts", "a.ts"],
+  symbols: [{ relPath: "c.ts", name: "c", kind: "function", scope: [], exported: true }, { relPath: "a.ts", name: "a", kind: "function", scope: [], exported: true }],
   imports: [{ fromRelPath: "a.ts", moduleSpecifier: "./bridge", names: ["c"], resolvedRelPath: "bridge.ts" }],
   calls: [{ callerRelPath: "a.ts", callerSymbolPath: "a", calleeName: "c", calleeRelPath: "c.ts", calleeSymbolPath: "c", line: 2 }],
 };
@@ -16,6 +16,7 @@ test("worker/direct evidence independently requires selected owners and the tran
   expect(selectedExtractionProperties("direct", extraction).every(value => value.pass)).toBe(true);
   for (const changed of [
     {}, { ...extraction, modules: ["a.ts"] }, { ...extraction, symbols: [] },
+    { ...extraction, modules: [...extraction.modules].reverse() }, { ...extraction, symbols: [...extraction.symbols].reverse() },
     { ...extraction, calls: [{ ...extraction.calls[0], calleeRelPath: "bridge.ts" }] },
     { ...extraction, imports: [] }, { ...extraction, symbols: [...extraction.symbols, extraction.symbols[0]] },
   ]) expect(selectedExtractionProperties("direct", changed).some(value => !value.pass)).toBe(true);

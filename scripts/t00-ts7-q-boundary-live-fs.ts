@@ -26,10 +26,10 @@ function analysis(ctx: Context, root: string, files: Record<string, string>, roo
 export function selectedExtractionProperties(label: string, value: unknown): Property[] {
   const observed = object(value);
   return [
-    property(`${label}-selected-modules`, observed.modules, ["a.ts", "c.ts"]),
+    property(`${label}-selected-modules`, observed.modules, ["c.ts", "a.ts"]),
     property(`${label}-selected-symbols`, array(observed.symbols).map(object).map(row => ({ relPath: row.relPath, name: row.name, kind: row.kind, scope: row.scope, exported: row.exported })), [
-      { relPath: "a.ts", name: "a", kind: "function", scope: [], exported: true },
       { relPath: "c.ts", name: "c", kind: "function", scope: [], exported: true },
+      { relPath: "a.ts", name: "a", kind: "function", scope: [], exported: true },
     ]),
     property(`${label}-selected-imports`, array(observed.imports).map(object).map(row => ({ from: row.fromRelPath, specifier: row.moduleSpecifier, names: row.names, resolved: row.resolvedRelPath })), [{ from: "a.ts", specifier: "./bridge", names: ["c"], resolved: "bridge.ts" }]),
     property(`${label}-transitive-call-target`, array(observed.calls).map(object).map(row => ({ from: row.callerRelPath, owner: row.callerSymbolPath, name: row.calleeName, target: row.calleeRelPath, symbol: row.calleeSymbolPath, line: row.line })), [{ from: "a.ts", owner: "a", name: "c", target: "c.ts", symbol: "c", line: 2 }]),

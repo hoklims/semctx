@@ -171,9 +171,9 @@ const semanticConfigurationProjections: Record<number, { activation: string[]; c
   135: { activation: ["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED", "SOURCE_WORKLET_LOADER_UNSUPPORTED"], control: [], basis: "TS7 resolves ambient Worklet.addModule to the DOM SDK method, but its receiver declaration remains retained ambient data with no runtime SDK provenance. Loader refusal and unresolved retained-receiver refusal both apply; retained method body control has neither." },
 };
 const shorthandLocaleProjection = {
-  activation: ["SOURCE_COERCION_UNSUPPORTED", "SOURCE_SDK_ITERATION_UNSUPPORTED"],
+  activation: ["SOURCE_SDK_ITERATION_UNSUPPORTED"],
   control: ["SOURCE_SDK_ITERATION_UNSUPPORTED"],
-  basis: "The SDK locales parameter is string | string[]; explicit undefined is not an intrinsic iterable, so canonical iterableParameter applies in both roles. TS7 resolves shorthand style to a ShorthandPropertyAssignment symbol, distinct from its shorthandValueSymbol VariableDeclaration; canonical primitiveValue does not follow that symbol, so only the shorthand activation also fails safeOptions.",
+  basis: "The SDK locales parameter is string | string[]; explicit undefined is not an intrinsic iterable, so canonical iterableParameter applies in both roles. Under owner-20261026-shorthand-value-symbol, canonical primitiveValue follows checker.getShorthandAssignmentValueSymbol to the const style initializer. The shorthand and explicit decimal values are therefore both safe options; neither adds a coercion refusal.",
 };
 for (const [ordinal, witness] of semanticComposition.entries()) {
   const incomplete = witness.expectedReasons === null || witness.controlExpectedReasons === null;
