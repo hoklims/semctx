@@ -50,7 +50,7 @@ pub fn retained_scope_syntax(
     path: &str,
     retained: bool,
     retained_files: &BTreeMap<String, String>,
-    case_sensitive: bool,
+    fs: &CaptureFs,
 ) -> Observation {
     if !retained {
         return not_executed();
@@ -103,11 +103,7 @@ pub fn retained_scope_syntax(
             &reference.file_name,
             ast::source_file_file_name(source),
         );
-        let target = if case_sensitive {
-            target
-        } else {
-            target.to_lowercase()
-        };
+        let target = fs.key(&target);
         if !retained_files.contains_key(&target) {
             reasons.insert(format!(
                 "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:{path}:{}",

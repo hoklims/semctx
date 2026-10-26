@@ -831,7 +831,7 @@ fn inspect_subject(
         &relative,
         retained,
         &retained_files,
-        case_sensitive,
+        &fs,
     );
     let (semantic, javascript, mut callable_initializers) = program::with_type_checker_for_file(
         file,

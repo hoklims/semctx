@@ -2837,3 +2837,43 @@ fn raw_array_binding_holes_keep_ordered_names_without_missing_node_crashes() {
             .any(|symbol| symbol["name"] == "leafTriage")
     );
 }
+
+#[test]
+fn retained_reference_windows_paths_preserve_presence_and_case_policy() {
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    for (reference, retained, missing) in [
+        ("../reference.ts", true, false),
+        ("../reference.ts", false, true),
+        ("../REFERENCE.ts", true, sensitive),
+    ] {
+        let path = "C:/repo/src/selected.ts";
+        let mut request = component_request(
+            "retainedWindowsReference",
+            path,
+            &format!("/// <reference path=\"{reference}\" />\nexport const selected = 1;"),
+        );
+        request.cwd = "C:/repo".into();
+        request.case_sensitive = sensitive;
+        request.retained = true;
+        if retained {
+            request.files.insert(
+                r"C:\repo\reference.ts".into(),
+                "export const reference = 1;".into(),
+            );
+        }
+        let observed = analyze(request, component_sdk()).unwrap();
+        let subject = &observed["subjects"][0];
+        let reasons = &subject["retainedScopeSyntaxObservation"]["reasons"];
+        assert_eq!(
+            reasons,
+            &if missing {
+                serde_json::json!([format!(
+                    "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/selected.ts:{reference}"
+                )])
+            } else {
+                serde_json::json!([])
+            },
+            "sensitive={sensitive}, retained={retained}: {reasons}"
+        );
+    }
+}

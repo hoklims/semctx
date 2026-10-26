@@ -72,23 +72,21 @@ fn roles(discovered: &Value) -> BTreeMap<String, String> {
 
 fn capture_request(
     template: &Request,
-    capture: &base_capture::BaseCapture,
+    cwd: &str,
+    captured_files: &BTreeMap<String, Vec<u8>>,
     selected: &Value,
     broad: &Value,
 ) -> Result<Request, String> {
     let mut request = template.clone();
     request.id = format!("{}:immutable-base", template.id);
-    request.cwd = capture
-        .root()
-        .to_str()
-        .ok_or("immutable base root is not UTF-8")?
-        .into();
+    request.cwd = cwd.into();
     request.roots = roots(selected)?;
     request.roles = roles(selected);
     request.files.clear();
     request.raw_files.clear();
     request.utf16_files.clear();
-    for (path, bytes) in capture.raw_files() {
+    for (path, bytes) in captured_files {
+        let path = path.replace('\\', "/");
         match std::str::from_utf8(bytes) {
             Ok(text) => {
                 request.files.insert(path.clone(), text.into());
@@ -254,7 +252,13 @@ pub(super) fn evaluate(
         .ok_or("immutable base root is not UTF-8")?;
     let selected = discovery(cwd, &spec.include, &spec.exclude, &paths)?;
     let broad = discovery(cwd, &["**/*".into()], &[], &paths)?;
-    let request = capture_request(&spec.index.analysis, &capture, &selected, &broad)?;
+    let request = capture_request(
+        &spec.index.analysis,
+        cwd,
+        capture.raw_files(),
+        &selected,
+        &broad,
+    )?;
     capture.revalidate()?;
     let (received, batch, selected_observation, outcome) =
         receive_base(&request, sdk, &spec.process_helper, artifact)?;
@@ -360,3 +364,7 @@ pub(super) fn evaluate(
         json!({"status":"analyzed","commit":spec.index.base_commit,"inventory":inventory,"expected":expected,"links":links,"input_manifest_id":identity::digest(context.input_manifest()),"externalModuleSpecifiers":import_scope.external_module_specifiers}),
     )
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/base_scope.rs"]
+mod tests;
