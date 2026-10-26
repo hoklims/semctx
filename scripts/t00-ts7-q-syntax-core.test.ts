@@ -3,7 +3,26 @@ import { createHash } from "node:crypto";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { comparisonValue, readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
+import { comparisonValue, readAt, shardIndices, verifyFile, validateYieldControl } from "./t00-ts7-q-syntax-core.js";
+
+test("yield control requires recovered file-scope AST plus TS1163 and a valid deferred generator", () => {
+  const oracle = (fileScope: boolean) => ({ observation: {
+    yieldExpressions: [{ fileScope }], statements: [{ executesOnLoad: fileScope }],
+  } });
+  const recovered = { exitCode: 2, stdout: "main.ts(1,15): error TS1163: yield outside generator\n", stderr: "" };
+  const accepted = { exitCode: 0, stdout: "", stderr: "" };
+  expect(() => validateYieldControl("file-scope-recovered", oracle(true), recovered)).not.toThrow();
+  expect(() => validateYieldControl("deferred-generator", oracle(false), accepted)).not.toThrow();
+  for (const process of [accepted, { ...recovered, exitCode: 0 }, { ...recovered, stdout: "" },
+    { ...recovered, stdout: recovered.stdout + "error TS9999: unrelated failure" }])
+    expect(() => validateYieldControl("file-scope-recovered", oracle(true), process)).toThrow();
+  for (const observed of [{}, { observation: { yieldExpressions: [] } }, oracle(false),
+    { observation: { yieldExpressions: [{ fileScope: true }], statements: [{ executesOnLoad: false }] } },
+    { observation: { yieldExpressions: [{ fileScope: true }, { fileScope: true }], statements: [{ executesOnLoad: true }] } }])
+    expect(() => validateYieldControl("file-scope-recovered", observed, recovered)).toThrow();
+  expect(() => validateYieldControl("deferred-generator", oracle(false), recovered)).toThrow();
+  expect(() => validateYieldControl("deferred-generator", oracle(true), accepted)).toThrow();
+});
 
 test("shards partition indices independently of input ordering and reject invalid slices", () => {
   expect(shardIndices([9, 2, 5, 0], "1/2")).toEqual([0, 5]);

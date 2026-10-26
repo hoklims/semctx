@@ -7,6 +7,7 @@ type Specimen = {
   source: string;
   files: Record<string, string>;
   digestRelation?: true;
+  yieldControl?: CampaignCase["yieldControl"];
 };
 
 const specimens: Specimen[] = [
@@ -200,12 +201,12 @@ specimens.push(
   ...([
     ["yield-file-scope-diagnostic", "const value = yield 1;"],
     ["yield-generator-deferred", "function* deferred() { yield 1; }"],
-  ] satisfies [string, string][]).map(([name, source]): Specimen => ({ name, indices: [145], filename: "main.ts", source, files: { "main.ts": source } })),
+  ] satisfies [string, string][]).map(([name, source]): Specimen => ({ name, indices: [145], filename: "main.ts", source, files: { "main.ts": source },
+    yieldControl: name === "yield-file-scope-diagnostic" ? "file-scope-recovered" : "deferred-generator" })),
 );
 
 export const coverageGaps: Record<number, string> = {
   166: "Décision propriétaire en attente : relations de digest TS7 ou octets identiques au digest historique TS5 ; aucun crédit avant arbitrage explicite.",
-  145: "Les contrôles couvrent les expressions immédiates et différées sauf un témoin positif indépendant YieldExpression accepté à portée fichier; l'obligation cumulative reste non qualifiée.",
 };
 
 export const cases: CampaignCase[] = specimens.map((specimen) => ({
@@ -216,6 +217,7 @@ export const cases: CampaignCase[] = specimens.map((specimen) => ({
   oracleInput: { operation: "outline", source: specimen.source, filename: specimen.filename,
     ...(specimen.digestRelation ? { digestRelation: true } : {}),
     ...(specimen.name.startsWith("yield-") ? { yieldSyntax: true } : {}) },
+  ...(specimen.yieldControl === undefined ? {} : { yieldControl: specimen.yieldControl }),
   checks: [
     ...(specimen.digestRelation ? [{
       name: "digest-equality-from-independent-native-token-children",
@@ -391,7 +393,8 @@ export const propertyWitnesses: Record<number, Record<string, string[]>> = {
     ]
   },
   "145": {
-    "specific executable/deferred/recursive expression predicates": [],
+    "specific executable/deferred/recursive expression predicates": specimens
+      .filter(specimen => specimen.indices.includes(145)).map(specimen => `O/${specimen.name}`),
     "deferred arrow initializer": [
       "O/OL-C18::base",
       "O/ORD-OUTLINE-EVALUATION::variant-24",

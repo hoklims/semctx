@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { combineCampaignCases, comparisonMatches, projectComparison } from "./t00-ts7-q-syntax-checker-cases.js";
-import { readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
+import { readAt, shardIndices, verifyFile, validateYieldControl } from "./t00-ts7-q-syntax-core.js";
 import type { CampaignCase, CandidateManifest, FileRef, PlatformArtifacts } from "./t00-ts7-q-syntax-types.js";
 
 const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
@@ -147,6 +147,13 @@ async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtif
   if (expected.compilerVersion !== "7.1.0-dev" || expected.sourceRevision !== revision || expected.sdkLibraryCount !== 115)
     throw new Error("oracle identity mismatch");
   const request = item.mode === "primitive" ? item.request : await materialize(item, root);
+  if (item.yieldControl) {
+    const compilation = await execute([artifacts.oracle.path, "--noEmit", "--target", "ES2022", "--module", "ESNext",
+      "--moduleResolution", "Bundler", "--skipLibCheck", join(root, text(item.oracleInput.filename))], root);
+    evidence.push(await save(join(dir, "yield-compiler-process.json"), compilation));
+    const control = validateYieldControl(item.yieldControl, expected, compilation);
+    evidence.push(await save(join(dir, "yield-control.json"), control));
+  }
   const requestPath = join(dir, "request.json");
   evidence.push(await save(requestPath, request));
   const args = item.mode === "primitive" ? ["--observe-primitives", requestPath] : [requestPath, artifacts.sdk.path];
@@ -207,9 +214,12 @@ async function main() {
     const bytes = await readFile(path);
     return { path, sha256: hash(bytes), bytes: bytes.length };
   }));
+  const referencePath = resolve(import.meta.dir, "../docs/research/rust-ts-r0/contract-ts7.md");
+  const referenceBytes = await readFile(referencePath);
+  const referenceContract = { path: referencePath, sha256: hash(referenceBytes), bytes: referenceBytes.length };
   const binding = await save(join(out, "campaign-binding.json"), { candidateManifestSha256: candidate.manifestHash,
     sourceCommit: candidate.manifest.sourceCommit, artifacts: candidate.artifacts, contracts: hash(await readFile(contractsPath)),
-    runnerSources,
+    runnerSources, referenceContract,
     purpose: candidate.manifest.purpose ?? "qualification", helperAndObserver: "fingerprints checked; historical TS5 observer not executed" });
   const observations: Awaited<ReturnType<typeof runCase>>[] = [];
   const errors: { name: string; error: string; evidence: FileRef[] }[] = [];
@@ -221,7 +231,7 @@ async function main() {
       errors.push({ ...detail, evidence: [await save(join(out, `case-${caseId}-error.json`), detail)] });
     }
   }
-  for (const ref of [...candidate.refs, ...runnerSources]) await verifyFile(ref);
+  for (const ref of [...candidate.refs, ...runnerSources, referenceContract]) await verifyFile(ref);
   if (hash(await readFile(candidatePath)) !== candidate.manifestHash) throw new Error("candidate manifest changed during campaign");
   const results = rows.map(row => {
     const index = Number(row.index);

@@ -4,6 +4,7 @@ export interface CampaignCase {
   mode: "raw" | "primitive";
   request: Record<string, unknown>;
   oracleInput: Record<string, unknown>;
+  yieldControl?: "file-scope-recovered" | "deferred-generator";
   checks: {
     name: string;
     actual: (string | number)[];
