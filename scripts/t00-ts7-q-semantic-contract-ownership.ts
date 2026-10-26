@@ -1,5 +1,6 @@
 import type ts from "typescript";
 import { isDeepStrictEqual } from "node:util";
+import { basename } from "node:path";
 import { createContractFacts, NativeFactsRequired } from "./t00-ts7-q-semantic-contract-facts";
 import { record } from "./t00-ts7-q-semantic-core";
 
@@ -14,7 +15,7 @@ export function projectContractOwnership(oracle: unknown, path: string, files: R
     const syntax = facts.ts as unknown as typeof ts;
     const checker = facts.checker as unknown as ts.TypeChecker;
     const program = facts.program as unknown as ts.Program;
-    const nodes: GraphNode[] = [];
+    const declarations: { node: GraphNode; signatureOnly: boolean }[] = [];
     const calls: { owner: string; targetPath: string; targetName: string; filePath: string; startLine: number }[] = [];
     const relative = (file: string): string => {
       if (!file.startsWith("/project/")) throw Error("OWNERSHIP_EXTERNAL_SOURCE");
@@ -23,7 +24,7 @@ export function projectContractOwnership(oracle: unknown, path: string, files: R
     const scopeName = (node: ts.Node): string | undefined => {
       if (syntax.isFunctionDeclaration(node) || syntax.isClassDeclaration(node)) {
         if (node.name !== undefined) return node.name.text;
-        throw Error("OWNERSHIP_ANONYMOUS_DECLARATION_OUTSIDE_DOMAIN");
+        return (syntax.getCombinedModifierFlags(node) & syntax.ModifierFlags.Default) !== 0 ? "default" : undefined;
       }
       if ((syntax.isMethodDeclaration(node) || syntax.isModuleDeclaration(node)) && syntax.isIdentifier(node.name)) return node.name.text;
       if (syntax.isVariableDeclaration(node) && syntax.isIdentifier(node.name) && node.initializer !== undefined && (syntax.isArrowFunction(node.initializer) || syntax.isFunctionExpression(node.initializer))) return node.name.text;
@@ -39,9 +40,9 @@ export function projectContractOwnership(oracle: unknown, path: string, files: R
       }
       return [...scope, name].join(".");
     };
-    const addNode = (kind: GraphNode["kind"], filePath: string, name: string, scope: string[]): string => {
+    const addNode = (kind: GraphNode["kind"], filePath: string, name: string, scope: string[], signatureOnly = false): string => {
       const id = JSON.stringify([filePath, kind, ...scope, name]);
-      nodes.push({ id, kind, filePath, name, metadata: scope.length > 0 ? { scope: scope.join(".") } : {} });
+      declarations.push({ node: { id, kind, filePath, name, metadata: scope.length > 0 ? { scope: scope.join(".") } : {} }, signatureOnly });
       return id;
     };
     for (const filename of Object.keys(files).filter(file => /\.[cm]?[jt]sx?$/.test(file) && !/\.d\.[cm]?ts$/.test(file))) {
@@ -50,14 +51,13 @@ export function projectContractOwnership(oracle: unknown, path: string, files: R
       if (/(?:^|\/)(?:__tests__|[^/]+\.(?:test|spec)\.[cm]?[jt]sx?$)/.test(filePath)) throw Error("OWNERSHIP_TEST_GRAPH_OUTSIDE_DOMAIN");
       const source = program.getSourceFile(absolute);
       if (source === undefined) throw Error("OWNERSHIP_SOURCE_UNAVAILABLE");
-      const module = addNode("module", filePath, filePath, []);
+      const module = addNode("module", filePath, basename(filePath), []);
       const visit = (node: ts.Node, scope: string[], owner: string): void => {
         let nextScope = scope;
         let nextOwner = owner;
-        if (syntax.isFunctionDeclaration(node) || syntax.isClassDeclaration(node)) {
-          if (syntax.isFunctionDeclaration(node) && node.body === undefined) throw Error("OWNERSHIP_SIGNATURE_ASSEMBLY_OUTSIDE_DOMAIN");
+        if ((syntax.isFunctionDeclaration(node) || syntax.isClassDeclaration(node)) && scopeName(node) !== undefined) {
           const name = scopeName(node)!;
-          nextOwner = addNode(syntax.isClassDeclaration(node) ? "class" : "function", filePath, name, scope);
+          nextOwner = addNode(syntax.isClassDeclaration(node) ? "class" : "function", filePath, name, scope, syntax.isFunctionDeclaration(node) && node.body === undefined);
           nextScope = [...scope, name];
         } else if ((syntax.isMethodDeclaration(node) || syntax.isModuleDeclaration(node)) && syntax.isIdentifier(node.name)) {
           nextScope = [...scope, node.name.text];
@@ -95,11 +95,22 @@ export function projectContractOwnership(oracle: unknown, path: string, files: R
       };
       syntax.forEachChild(source, node => visit(node, [], module));
     }
-    if (new Set(nodes.map(node => node.id)).size !== nodes.length) throw Error("OWNERSHIP_DUPLICATE_COORDINATE");
+    const groups = new Map<string, typeof declarations>();
+    for (const declaration of declarations) {
+      const group = groups.get(declaration.node.id) ?? [];
+      group.push(declaration);
+      groups.set(declaration.node.id, group);
+    }
+    const nodes = [...groups.values()].flatMap(group => {
+      const first = group[0]!.node;
+      return first.kind === "function" && group.filter(declaration => !declaration.signatureOnly).length > 1
+        ? group.map((declaration, index) => ({ ...declaration.node, id: `${first.id}#${index + 1}` }))
+        : [first];
+    });
     const edges: GraphEdge[] = [];
     for (const call of calls) {
       const targets = nodes.filter(node => node.kind !== "module" && node.filePath === call.targetPath && `${node.metadata.scope ? node.metadata.scope + "." : ""}${node.name}` === call.targetName);
-      if (targets.length === 1) edges.push({ kind: "calls", from: call.owner, to: targets[0]!.id, evidence: [{ filePath: call.filePath, startLine: call.startLine }] });
+      if (targets.length === 1 && nodes.some(node => node.id === call.owner)) edges.push({ kind: "calls", from: call.owner, to: targets[0]!.id, evidence: [{ filePath: call.filePath, startLine: call.startLine }] });
     }
     return { status: "projected", gaps: [], proof: { root: "/project", callbacks: new Map(), graph: { nodes, edges } } };
   } catch (error) {

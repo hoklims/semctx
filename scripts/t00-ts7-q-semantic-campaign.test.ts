@@ -76,6 +76,10 @@ test("campaign rejects every changed candidate artifact before launching process
     }));
     const platform = "macos";
     const manifest = join(directory, "candidate.json");
+    writeFileSync(manifest, JSON.stringify({ schemaVersion: 1, sourceCommit: "a".repeat(40), mode: "qualification", platforms: { macos: artifacts, linux: artifacts } }));
+    expect(() => loadCandidateArtifacts(manifest, platform, "a")).toThrow("SEMANTIC_SUBLOT_DEVELOPMENT_REQUIRED");
+    writeFileSync(manifest, JSON.stringify({ schemaVersion: 1, sourceCommit: "a".repeat(40), mode: "development", platforms: { macos: artifacts, linux: artifacts } }));
+    expect(loadCandidateArtifacts(manifest, platform, "a").artifacts["producer"]).toEqual(artifacts["producer"]);
     for (const name of names) {
       writeFileSync(manifest, JSON.stringify({ schemaVersion: 1, sourceCommit: "a".repeat(40), platforms: { macos: artifacts, linux: artifacts } }));
       writeFileSync(artifacts[name]!.path, content + "changed");
@@ -97,4 +101,16 @@ test("campaign still refuses a mismatched execution platform before reading the 
   const result = spawnSync(process.execPath, [join(import.meta.dir, "t00-ts7-q-semantic-campaign.ts"), "--candidate", "absent.json", "--platform", platform, "--out", "unused"], { timeout: 10_000 });
   expect(result.status).toBe(1);
   expect(result.stderr.toString()).toContain("PLATFORM_MISMATCH");
+});
+
+test("campaign refuses an unknown or conflicting sublot selection before reading artifacts", () => {
+  const platform = process.platform === "darwin" ? "macos" : "linux";
+  for (const [selection, expected] of [
+    [["--sublot", "d"], "INVALID_SEMANTIC_SUBLOT"],
+    [["--sublot", "a", "--indices", "50-50"], "SEMANTIC_SELECTION_CONFLICT"],
+  ] as const) {
+    const result = spawnSync(process.execPath, [join(import.meta.dir, "t00-ts7-q-semantic-campaign.ts"), "--candidate", "absent.json", "--platform", platform, "--out", "unused", ...selection], { timeout: 10_000 });
+    expect(result.status).toBe(1);
+    expect(result.stderr.toString()).toContain(expected);
+  }
 });

@@ -2,6 +2,29 @@ import { describe, expect, test } from "bun:test";
 import { contractProjectionInventory, projectContract } from "./t00-ts7-q-semantic-contract-projector";
 
 describe("contract projection", () => {
+  test.each([["cwd", []], ["dlopen", ["SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"]]] as const)("projects the frozen ordinary-process distinction for %s", (member, reasons) => {
+    const text = `process.${member}();`;
+    const source = { kind: "SourceFile", start: 0, end: text.length };
+    const statement = { kind: "ExpressionStatement", start: 0, end: text.length };
+    const call = { kind: "CallExpression", start: 0, end: text.length - 1 };
+    const property = { kind: "PropertyAccessExpression", start: 0, end: text.length - 3 };
+    const receiver = { kind: "Identifier", start: 0, end: 7 };
+    const name = { kind: "Identifier", start: 8, end: text.length - 3 };
+    const node = (reference: typeof source, parent: unknown, children: unknown[], fields: Record<string, unknown>, literalText = "") => ({
+      ...reference, pos: reference.start, text: text.slice(reference.start, reference.end), literalText, parent, children, fields,
+      symbol: null, typeId: "any", isTypeNode: false, canHaveModifiers: false, isExpression: true, isStringLiteralLike: false, isFunctionLike: false, isClassLike: false,
+    });
+    const native = { compilerConstants: { useCaseSensitiveFileNames: true, symbolFlags: { Alias: 2097152 }, typeFlags: { Any: 1, Unknown: 2, TypeParameter: 262144, Object: 1048576, StringLike: 96, NumberLike: 384, BigIntLike: 1536, BooleanLike: 3072, ESSymbolLike: 12288, Union: 2097152, Intersection: 4194304 } }, files: [{ path: "/project/main.ts", referencedFiles: [], isDeclarationFile: false, defaultLibrary: false, nodes: [
+      node(source, null, [statement], { statements: [statement] }),
+      node(statement, source, [call], { expression: call }),
+      node(call, statement, [property], { expression: property, arguments: [] }),
+      node(property, call, [receiver, name], { expression: receiver, name }),
+      node(receiver, property, [], {}, "process"), node(name, property, [], {}, member),
+    ], factsGraph: { types: [{ id: "any", flagsBits: 1, callSignatures: [], constructSignatures: [], unionTypes: [], intersectionTypes: [], properties: [], baseConstraint: null, symbol: null }], propertyLookups: [{ typeId: "any", name: member, symbolId: null }] } }] };
+    const projection = projectContract(native, "main.ts", { "main.ts": text });
+    expect(projection.gaps).toEqual([]);
+    expect(projection.reasons).toEqual([...reasons]);
+  });
   test("preserves optional member calls when a native symbol is absent", () => {
     const reference = { kind: "Identifier", start: 0, end: 8 };
     const statement = { kind: "ExpressionStatement", start: 0, end: 9 };
