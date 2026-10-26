@@ -38,3 +38,22 @@ test("dialect evidence requires exact candidate binding and every capability ver
     { ...observed, subjects: [{ ...subject, path: "" }] },
   ]) expect(dialectProperties(altered, "sha256:abc").some(check => !check.pass)).toBe(true);
 });
+
+test("relative import qualification rejects failed producer processes with correct JSON", async () => {
+  const { filesystemObservations } = await import("./t00-ts7-q-boundary-filesystem");
+  const { resultStatus } = await import("./t00-ts7-q-boundary-common");
+  const sequence = ["./a", "../b", "./a", "./dynamic", "./nested", "./dynamic", "./options"];
+  const evidence = { path: "/proof", sha256: "a".repeat(64), bytes: 1 };
+  for (const exitCode of [0, 1, 137]) {
+    const execution = { exitCode: 0, stdout: "a.ts successfully resolved", stderr: "", value: {}, evidence: [evidence] };
+    const context = {
+      root: "/project", sdk: {}, platform: "macos" as const, producerSha256: "a".repeat(64), helperSha256: "b".repeat(64), helper: "/helper",
+      analysis: () => ({}), save: () => Promise.resolve(evidence), oracle: () => Promise.resolve(execution),
+      extractionOracle: () => Promise.resolve({ ...execution, value: { relativeSpecifiers: { "fixture.tsx": sequence, "empty.tsx": [] } } }),
+      applicationRuntime: () => Promise.resolve(execution),
+      run: (label: string) => Promise.resolve({ ...execution, exitCode, value: { specifiers: label.includes("no-relative") ? [] : sequence } }),
+    };
+    const observations = await filesystemObservations(context, [230, 231]);
+    expect(observations.map(row => resultStatus(row, false))).toEqual(exitCode === 0 ? ["qualified", "qualified"] : ["not_qualified", "not_qualified"]);
+  }
+});

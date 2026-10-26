@@ -1,8 +1,10 @@
+import { compareExtraction, compareLeafGraph } from "./t00-ts7-q-boundary-extraction";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, realpath, symlink, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { Context, Evidence, Execution, Json, Observation, Property } from "./t00-ts7-q-boundary-common";
+import { retainedMetadataFromTs7 } from "./t00-ts7-q-boundary-paths";
 import { isolatedEnvironment } from "./t00-ts7-q-boundary-common";
 import { identityObservations } from "./t00-ts7-q-boundary-identity";
 
@@ -73,7 +75,7 @@ async function keys(ctx: Context, index: number): Promise<Observation> {
       ]) {
         const result = await ctx.run(`${index}-${name}-${sensitive}`, "--observe-primitives", { operation: "semantic_key", cwd: root, path, case_sensitive: sensitive });
         evidence.push(...result.evidence);
-        properties.push(property(`${name}-${sensitive}`, result.value.key, sensitive ? expectedPath : expectedPath?.toLowerCase(), "native path.resolve + independent contract case projection"));
+        properties.push(property(`${name}-${sensitive}-exit`, result.exitCode, 0), property(`${name}-${sensitive}`, result.value.key, sensitive ? expectedPath : expectedPath?.toLowerCase(), "native path.resolve + independent contract case projection"));
       }
     } else {
       for (const name of ["Source.ts", "alias.ts", "Other.ts"]) {
@@ -85,15 +87,41 @@ async function keys(ctx: Context, index: number): Promise<Observation> {
       }
     }
   }
-  return finish(index, properties, evidence, false, index === 136
-    ? "Finite lexical/case primitive vectors execute; the semantic-dependency owning operation and its retained-context usage pair are not independently composed in this witness."
+  if (index === 136) {
+    const main = "import { invoke } from './Leaf'; function callback() {} export function main() { invoke(callback); }";
+    const leaf = "export function invoke(callback: () => void) { callback(); }";
+    for (const vector of [
+      { name: "retained", path: "Leaf.ts", main, retained: true, reasons: [] },
+      { name: "dot-alias", path: "folder/../Leaf.ts", main, retained: true, reasons: [] },
+      { name: "backslash-alias", path: "folder\\Leaf.ts", main: main.replace("'./Leaf'", "'./folder/Leaf'"), retained: true, reasons: [] },
+      { name: "different-leaf", path: "Other.ts", main, retained: true, reasons: ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] },
+      { name: "ordinary-context", path: "Leaf.ts", main, retained: false, reasons: ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] },
+      { name: "native-case", path: "Leaf.ts", main: main.replace("'./Leaf'", "'./leaf'"), retained: true, reasons: ctx.platform === "linux" ? ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] : [] },
+    ]) {
+      const files = { "main.ts": vector.main, [vector.path]: leaf };
+      const input = ctx.analysis(files, { retained: vector.retained, qualified: vector.retained, roots: [resolve(ctx.root, "main.ts")] });
+      const actual = await ctx.run("136-context-" + vector.name, "", input);
+      const oracleFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(ctx.root, path).replaceAll("\\", "/"), text]));
+      const oracle = await ctx.extractionOracle("136-context-" + vector.name, { files: oracleFiles, roots: [resolve(ctx.root, "main.ts")], repoRoot: ctx.root, caseSensitive: ctx.platform === "linux", options: input.options });
+      evidence.push(...actual.evidence, ...oracle.evidence);
+      const subject = array(actual.value.subjects).map(object).find(row => row.path === "main.ts");
+      const semantic = object(subject?.semanticObservation);
+      properties.push(property(vector.name + "-owning-operation-executed", { exit: actual.exitCode, complete: actual.value.complete, executed: semantic.executed, unsupported: semantic.unsupported }, { exit: 0, complete: true, executed: true, unsupported: [] }));
+      properties.push(property(vector.name + "-retained-context-usage", semantic.reasons, vector.reasons, "consumer inspectSemanticDependencies: retained internal callable accepts callback; unresolved opaque callable refuses callback"));
+      const expectedLoaded = vector.name === "different-leaf" || vector.name === "native-case" && ctx.platform === "linux" ? ["main.ts"] : ["main.ts", vector.path.replaceAll("\\", "/").replace("folder/../", "")];
+      const nativeKey = (path: string): string => ctx.platform === "linux" ? path : path.toLowerCase();
+      properties.push(property(vector.name + "-independent-context-loaded", array(oracle.value.loadedFiles).filter(path => !String(path).startsWith("/sdk/")).map(path => nativeKey(String(path).replace(ctx.root + "/", ""))).toSorted(), expectedLoaded.map(nativeKey).toSorted(), "pinned TS7 Program source-file membership projected to native-case context keys"));
+    }
+  }
+  return finish(index, properties, evidence, index === 136, index === 136
+    ? "Lexical/native-case keys and semantic retained-context usage pairs execute: callable callback acceptance, opaque refusal, dot/backslash aliases, different leaf and ordinary-context controls; TS7 independently observes context membership."
     : "Real filesystem alias/target/distinct paths execute. The controlled primitive requires successful supplied realpath mappings and cannot activate the compiler realpath-exception fallback; worker/direct extraction parity and selected-root component continuity are also unexercised.");
 }
 
 async function retained(ctx: Context): Promise<Observation[]> {
   const root = resolve(ctx.root, "filesystem-retained");
-  await materialize(root, { "src/entry.ts": "export const origin = 'live';\n", "live-only.ts": "export const transient = true;\n" });
-  const retainedSource = "export const origin = 'captured';\n";
+  await materialize(root, { "src/entry.ts": "export function live() { return 3; }\n", "live-only.ts": "export const transient = true;\n" });
+  const retainedSource = "export function captured() { return 7; }\n";
   const source = resolve(root, "src/entry.ts");
   const live = resolve(root, "live-only.ts");
   const missing = resolve(root, "missing.ts");
@@ -134,18 +162,38 @@ async function retained(ctx: Context): Promise<Observation[]> {
     property("missing-directory-absent", value(8), false), property("explicit-sdk-directory-present", value(12), true),
     property("sibling-sdk-directory-denied", value(15), false),
   ];
-  const compilerFiles = { "entry.ts": retainedSource };
+  const compilerFiles = { "src/entry.ts": retainedSource };
   const oracle = await ctx.oracle("216-retained-sdk-consumption", compilerFiles, { args: ["--listFilesOnly"] });
-  const analyzed = await ctx.run("219-retained-source-leaf", "", ctx.analysis(compilerFiles));
+  const analysis = ctx.analysis(compilerFiles, { cwd: root, roots: [source], files: { [source]: retainedSource } });
+  const expected = await ctx.extractionOracle("216-retained-source", { files: analysis.files, roots: analysis.roots, repoRoot: root, options: analysis.options, retained: true });
+  const analyzed = await ctx.run("219-retained-source-leaf", "", analysis, true);
+  const ordinary = await ctx.run("219-ordinary-source-leaf", "", { ...analysis, retained: false, qualified: false }, true);
+  const runtime = await ctx.run("216-retained-runtime-composition", "--analyze-retained-runtime", { analysis, discovered_sources: [{ relPath: "src/entry.ts", content: retainedSource }] }, true);
   const assembly = object(analyzed.value.assembly);
-  const evidence = [...observed.evidence, ...oracle.evidence, ...analyzed.evidence, await ctx.save("216-live-vs-retained-inputs", { source, live, liveSource: await readFile(source, "utf8"), retainedSource, sdkFile: lib, sdkSha256: hash(sdkFiles[lib] as string) })];
+  const evidence = [...observed.evidence, ...oracle.evidence, ...expected.evidence, ...analyzed.evidence, ...ordinary.evidence, ...runtime.evidence, await ctx.save("216-live-vs-retained-inputs", { source, live, liveSource: await readFile(source, "utf8"), retainedSource, sdkFile: lib, sdkSha256: hash(sdkFiles[lib] as string) })];
   const subjectPaths = array(analyzed.value.subjects).map(subject => object(subject).path);
+  const composition = [
+    property("independent-extraction-oracle-exit", expected.exitCode, 0),
+    property("independent-leaf-symbol-activation", array(expected.value.symbols).map(value => { const symbol = object(value); return { path: symbol.relPath, name: symbol.name, kind: symbol.kind }; }), [{ path: "src/entry.ts", name: "captured", kind: "function" }], "hand-authored source leaf control independent of both extraction outputs"),
+    property("retained-source-analysis-exit", analyzed.exitCode, 0),
+    property("ordinary-source-analysis-exit", ordinary.exitCode, 0),
+    property("runtime-source-analysis-exit", runtime.exitCode, 0),
+    property("runtime-source-analysis-executed", runtime.value.executed, true),
+    property("runtime-source-snapshot-guard", runtime.value.snapshot_guard_passed, true),
+    property("retained-transient-source-hidden", subjectPaths, ["src/entry.ts"]),
+    ...compareExtraction("retained", expected.value, object(analyzed.value.raw_extraction)),
+    ...compareExtraction("ordinary", expected.value, object(ordinary.value.raw_extraction)),
+    ...compareExtraction("runtime", expected.value, object(object(runtime.value.native_analysis).raw_extraction)),
+    ...compareLeafGraph("retained", expected.value, assembly),
+    ...compareLeafGraph("ordinary", expected.value, object(ordinary.value.assembly)),
+    ...compareLeafGraph("runtime", expected.value, object(object(runtime.value.native_analysis).assembly)),
+  ];
   const independent = [property("independent-sdk-consumed", oracle.exitCode === 0 && oracle.stdout.includes("lib.es5.d.ts"), true, "independent TS7 --listFilesOnly")];
   return [
-    finish(216, [executed, denominator, bindings, ...reads, ...existence, ...directories, property("retained-directory-enumeration-empty", value(9), []), ...independent], evidence, false, "Retained/live absence, empty enumeration, ancestor directories and explicit pinned SDK-only reads/existence/directories execute; cumulative P01 source extraction and public snapshot composition are not completely compared here."),
+    finish(216, [executed, denominator, bindings, ...reads, ...existence, ...directories, property("retained-directory-enumeration-empty", value(9), []), ...independent, ...composition], evidence, true, "Retained bytes, live-only absence, directory and pinned SDK controls are composed with independent complete leaf extraction/graph in ordinary, qualified and snapshot-runtime paths."),
     finish(217, [executed, denominator, bindings, ...directories], evidence, true, "Retained ancestors, missing paths, explicit TS7 SDK directory and foreign-prefix negative control execute."),
     finish(218, [executed, denominator, bindings, ...existence], evidence, true, "Retained file, live-only/missing files and explicit TS7 SDK file with foreign-prefix negative control execute."),
-    finish(219, [executed, denominator, bindings, ...reads, property("actual-source-subject", subjectPaths, ["entry.ts"]), property("actual-source-analysis-complete", analyzed.value.complete, true), property("actual-source-assembly-observed", Object.keys(assembly).length > 0, true), ...independent], evidence, false, "Retained versus live bytes and SDK-only content are compared; full independently expected source leaf graph and ordinary/qualified extraction composition are not replayed."),
+    finish(219, [executed, denominator, bindings, ...reads, property("actual-source-subject", subjectPaths, ["src/entry.ts"]), property("actual-source-analysis-complete", analyzed.value.complete, true), property("actual-source-assembly-observed", Object.keys(assembly).length > 0, true), ...independent, ...composition], evidence, true, "Retained/live bytes and SDK content controls are composed with independent complete leaf extraction and graph in ordinary, qualified and snapshot-runtime paths."),
   ];
 }
 
@@ -219,19 +267,27 @@ async function eligibility(ctx: Context): Promise<Observation> {
   const expected = [true, false, false, false, false, true, true, true, true, true, true, true, false, false];
   const descriptor = { repositoryRoot: root, processHelper: ctx.helper, include: ["dist/chosen.ts", "dist/excluded.ts"], exclude: ["dist/excluded.ts"], queries };
   const result = await ctx.run("5-eligibility", "--observe-path-eligibility", descriptor);
+  const absoluteFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(root, path), text]));
+  const astOracle = await ctx.extractionOracle("eligibility-configurations", { files: absoluteFiles, roots: [], repoRoot: root });
+  const metadata = retainedMetadataFromTs7(root, Object.keys(absoluteFiles), astOracle.value.configReferences);
   const noGit = resolve(ctx.root, "filesystem-not-git");
   await mkdir(noGit, { recursive: true });
   const negative = await ctx.run("5-git-failure", "--observe-path-eligibility", { ...descriptor, repositoryRoot: noGit });
   const oracle = await ctx.oracle("5-jsonc-extends-compiler", { "entry.ts": "export {};\n", "tsconfig.base.json": '{"compilerOptions":{"strict":true}}\n' });
   return finish(5, [
+    property("eligibility-process-exit", result.exitCode, 0),
+    property("git-failure-process-exit", negative.exitCode, 0),
     property("eligible-finite-vector", result.value.eligible_results, expected),
     property("eligibility-established", result.value.eligibility_established, true),
+    property("independent-ts7-configuration-graph", result.value.retained_metadata, metadata, "pinned independent TS7 JSONC AST references + consumer metadata closure contract"),
+    property("configuration-closure-activated", metadata, ["dist/base.json", "dist/leaf.json", "dist/tsconfig.invalid.json", "dist/tsconfig.json"], "finite fixture closure including cycle, nonstrings and bare excludes"),
+    property("configuration-complete-read-set", array(result.value.reads).map(row => String(object(row).path)).toSorted(), metadata.map(path => resolve(root, path)).toSorted(), "complete independently derived configuration closure"),
     property("git-failure-no-eligibility", negative.value.eligibility_established, false),
     property("git-failure-error", object(negative.value.error).code, "IO_ERROR"),
     property("git-failure-no-results", negative.value.eligible_results, null),
     property("independent-compiler-control", oracle.exitCode, 0, "independent pinned TS7 CLI"),
-  ], [...result.evidence, ...negative.evidence, ...oracle.evidence, await fixtureEvidence(ctx, "5", files)], false,
-  "Git authored/ignored paths, hard exclusions, output selection, metadata JSONC/nonstrings/extends cycle and IO_ERROR control execute; full independent TS7 configuration graph observation is not available from this finite CLI control.");
+  ], [...result.evidence, ...negative.evidence, ...oracle.evidence, ...astOracle.evidence, await fixtureEvidence(ctx, "5", files)], true,
+  "Git authored/ignored paths, hard exclusions, selection, complete TS7 JSONC reference closure with cycles/nonstrings/bare controls and IO_ERROR projection are compared independently.");
 }
 
 async function imports(ctx: Context, indices: number[]): Promise<Observation[]> {
@@ -240,18 +296,24 @@ async function imports(ctx: Context, indices: number[]): Promise<Observation[]> 
     "import 'bare-package';", "import 'node:fs';", "const first = import('./dynamic');",
     "const computed = import('./' + 'computed');", "const template = import(`./template`);",
     "const required = require('./required');", "function nested() { return import('./nested'); }",
-    "const double = import('./dynamic');", "const view = <div />;", "export { a };",
+    "const double = import('./dynamic');", "const options = import('./options', {});", "type Only = import('./typeOnly');", "const view = <div />;", "export { a };",
   ].join("\n");
-  const expected = ["./a", "../b", "./a", "./dynamic", "./nested", "./dynamic"];
+  const expected = ["./a", "../b", "./a", "./dynamic", "./nested", "./dynamic", "./options"];
   const observed = await ctx.run("230-231-relative-specifiers", "--observe-primitives", { operation: "relative_import_specifiers", source, filename: "fixture.tsx" });
   const oracle = await ctx.oracle("230-231-ts7-parse-resolution", { "fixture.tsx": source, "a.ts": "export const a = 1;\n", "dynamic.ts": "export {};\n", "nested.ts": "export {};\n" }, { jsx: "preserve", args: ["--traceResolution"] });
-  const empty = await ctx.run("230-231-no-relative-specifiers", "--observe-primitives", { operation: "relative_import_specifiers", source: "import 'node:fs'; require('./required'); import(`./template`); import(name); export {};", filename: "empty.tsx" });
-  const evidence = [...observed.evidence, ...empty.evidence, ...oracle.evidence, await ctx.save("230-231-independent-contract-sequence", { source, expected, derivation: "Hand-authored exact finite sequence from the consumer literal AST rule, independent of producer output; CLI resolution does not provide AST visitation order." })];
+  const emptySource = "import 'node:fs'; import equal = require('./equal'); require('./required'); import(`./template`); import(name); import(); type Only = import('./typeOnly'); export {};";
+  const empty = await ctx.run("230-231-no-relative-specifiers", "--observe-primitives", { operation: "relative_import_specifiers", source: emptySource, filename: "empty.tsx" });
+  const astOracle = await ctx.extractionOracle("relative-specifiers", { files: { "/project/fixture.tsx": source, "/project/empty.tsx": emptySource }, roots: ["/project/fixture.tsx", "/project/empty.tsx"], repoRoot: "/project" });
+  const evidence = [...observed.evidence, ...empty.evidence, ...oracle.evidence, ...astOracle.evidence, await ctx.save("230-231-independent-contract-sequence", { source, expected, derivation: "Hand-authored exact finite sequence from the consumer literal AST rule, independent of producer output; Pinned TS7 AST traversal independently supplies the observed sequence; hand-authored fixture control guards its projection." })];
   return indices.map(index => finish(index, [
-    property("exact-relative-literal-sequence", observed.value.specifiers, expected),
+    property("relative-specifiers-process-exit", observed.exitCode, 0),
+    property("empty-specifiers-process-exit", empty.exitCode, 0),
+    property("independent-ast-activation", object(astOracle.value.relativeSpecifiers)["fixture.tsx"], expected, "pinned independent TS7 AST traversal"),
+    property("independent-ast-negative", object(astOracle.value.relativeSpecifiers)["empty.tsx"], [], "pinned independent TS7 AST traversal"),
+    property("exact-relative-literal-sequence", observed.value.specifiers, object(astOracle.value.relativeSpecifiers)["fixture.tsx"], "pinned independent TS7 AST traversal"),
     property("bare-require-computed-template-excluded", empty.value.specifiers, []),
     property("compiler-resolves-literal-module", oracle.stdout.includes("a.ts") && oracle.stdout.includes("successfully resolved"), true, "independent pinned TS7 --traceResolution"),
-  ], evidence, false, "Literal imports/reexports/import(), nested traversal, duplicate order and bare/node:fs/require/computed/template negatives execute; TS7 CLI resolution is not an independent AST visitation oracle, so 230/231 cannot yet receive qualification credit."));
+  ], evidence, true, "Exact independent TS7 AST visitation sequence and empty control cover static imports/reexports, nested and repeated import(), with bare/node:fs/require/computed/template exclusions."));
 }
 
 export async function filesystemObservations(ctx: Context, indices: number[]): Promise<Observation[]> {

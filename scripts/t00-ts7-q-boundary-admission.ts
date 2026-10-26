@@ -1,3 +1,5 @@
+import { applicationObservations, compareApplicationRefusal, compareDynamicApplication } from "./t00-ts7-q-boundary-application";
+import { compareExtraction, compareSimpleGraph, compareTestRelations } from "./t00-ts7-q-boundary-extraction";
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -192,49 +194,91 @@ async function receiptObservations(ctx: Context): Promise<{ properties: Property
   return { properties: [...properties, ...guards.properties], evidence: [...evidence, ...guards.evidence] };
 }
 
+async function dynamicTestObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
+  const properties: Property[] = [], evidence: Evidence[] = [];
+  const vectors: { id: "static" | "literal" | "computed" | "two-arguments" | "unresolved"; source: string; keys: string[]; reasons: Record<string, string[]>; coverage: string[] }[] = [
+    { id: "static", source: "import { main } from './main'; export function spec() { return main(); }\n", keys: [], reasons: {}, coverage: ["covers:test:src/main.test.ts:main.test.ts->function:src/main.ts:main", "tested_by:function:src/main.ts:main->test:src/main.test.ts:main.test.ts"] },
+    { id: "literal", source: "export async function spec() { return import('./main'); }\n", keys: ["src/main.test.ts:1:./main"], reasons: { "src/main.test.ts": ["QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/main.ts"] }, coverage: [] },
+    { id: "computed", source: "const name = './main'; export async function spec() { return import(name); }\n", keys: [], reasons: {}, coverage: [] },
+    { id: "two-arguments", source: "export async function spec() { return import('./main', {}); }\n", keys: [], reasons: {}, coverage: [] },
+    { id: "unresolved", source: "export async function spec() { return import('./missing'); }\n", keys: ["src/main.test.ts:1:./missing"], reasons: {}, coverage: [] },
+  ];
+  for (const vector of vectors) {
+    const fixture = await prepare(ctx, `dynamic-test-${vector.id}`, { "src/main.ts": baseline, "src/main.test.ts": vector.source });
+    const analysis: Json = { ...fixture.analysis, roles: { "src/main.ts": "source", "src/main.test.ts": "test" } };
+    const independent = await ctx.extractionOracle(`dynamic-test-${vector.id}`, { files: analysis["files"], roots: analysis["roots"], repoRoot: fixture.root, options: analysis["options"], retained: true });
+    const independentKeys = list(independent.value["dynamicImports"]).map(record).filter(entry => entry["file"] === "src/main.test.ts").map(entry => `${String(entry["file"])}:${String(entry["line"])}:${String(entry["specifier"])}`).toSorted();
+    const application = await ctx.applicationRuntime(`dynamic-test-${vector.id}`, analysis, 2);
+    const applicationProperties = compareDynamicApplication(`dynamic-test.${vector.id}.application`, { outcome: vector.id === "static" ? "composed" : "ownership-refused", oracle: independent.value, keys: independentKeys, integrityReasons: vector.reasons, ledgerReasons: vector.id === "static" || vector.id === "literal" ? vector.reasons : undefined, coverage: vector.coverage, producerSha256: ctx.producerSha256 }, application);
+    properties.push(...applicationProperties);
+    evidence.push(...application.evidence, await ctx.save(`dynamic-test-${vector.id}-application-comparison`, applicationProperties));
+    const analyzed = await ctx.run(`dynamic-test-${vector.id}`, "", analysis, true);
+    properties.push(property(`dynamic-test.${vector.id}.independent-exit`, 0, independent.exitCode));
+    properties.push(property(`dynamic-test.${vector.id}.independent-keys`, independentKeys, analyzed.value["test_dynamic_import_keys"]));
+    properties.push(property(`dynamic-test.${vector.id}.exit`, 0, analyzed.exitCode));
+    properties.push(property(`dynamic-test.${vector.id}.keys`, vector.keys, analyzed.value["test_dynamic_import_keys"]));
+    properties.push(property(`dynamic-test.${vector.id}.integrity`, vector.reasons, record(analyzed.value["assembly"])["integrityReasons"]));
+    properties.push(...compareTestRelations(`dynamic-test.${vector.id}`, vector.coverage, record(analyzed.value["assembly"]), { path: "src/main.test.ts", line: 1 }));
+    const indexed = await ctx.run(`dynamic-test-${vector.id}-index`, "--batch", analysis, true);
+    const verified = await ctx.run(`dynamic-test-${vector.id}-verify`, "verify", descriptor(ctx, { ...fixture, analysis }, outcome(indexed)), true);
+    const admission = record(verified.value["analysisAdmission"]);
+    properties.push(property(`dynamic-test.${vector.id}.public-exit`, vector.id === "static" ? 0 : 3, verified.exitCode));
+    properties.push(property(`dynamic-test.${vector.id}.public-status`, vector.id === "static" ? "admitted" : "rejected", admission["status"]));
+    properties.push(property(`dynamic-test.${vector.id}.public-verdict`, vector.id === "static" ? "NOT_ASSERTED" : "BLOCK", verified.value["verdict"]));
+    properties.push(property(`dynamic-test.${vector.id}.public-reasons`, true, Array.isArray(admission["reasons"]) && (vector.id === "static" ? list(admission["reasons"]).length === 0 : list(admission["reasons"]).some(value => typeof value === "string" && (value.startsWith("DEPENDENCY_SCOPE_") || value.startsWith("ANALYSIS_SCOPE_INCOMPLETE:"))))));
+    evidence.push(...fixture.evidence, ...independent.evidence, ...analyzed.evidence, ...indexed.evidence, ...verified.evidence);
+    if (vector.id === "literal") {
+      for (const targets of [[], [{ relPath: "src/main.ts", symbolPath: "main" }]]) {
+        const controlled = await ctx.run(`dynamic-test-controlled-${targets.length}`, "--observe-controlled-assembly", { analysis, control: { fromRelPath: "src/main.test.ts", moduleSpecifier: "./main", line: 1, bindingTargets: targets } }, true);
+        properties.push(property(`dynamic-test.controlled.${targets.length}.executed`, true, controlled.value["executed"]));
+        properties.push(property(`dynamic-test.controlled.${targets.length}.scope`, "PRIVATE_SUPPLIED_EXTRACTION_ONLY", controlled.value["control_scope"]));
+        properties.push(property(`dynamic-test.controlled.${targets.length}.integrity`, {}, record(controlled.value["assembly"])["integrityReasons"]));
+        properties.push(...compareTestRelations(`dynamic-test.controlled.${targets.length}`, targets.length ? vectors[0]!.coverage : [], record(controlled.value["assembly"]), { path: "src/main.test.ts", line: 1 }));
+        evidence.push(...controlled.evidence);
+      }
+      const missingFiles = { ...record(analysis.files) };
+      delete missingFiles[resolve(fixture.root, "src/main.test.ts")];
+      const missing = await ctx.run("dynamic-test-missing-retained-text", "--analyze-retained-runtime", { analysis: { ...analysis, files: missingFiles }, discovered_sources: [{ relPath: "src/main.ts", content: baseline }, { relPath: "src/main.test.ts", content: vector.source }] }, true);
+      properties.push(...compareSnapshot("dynamic-test.missing-retained-text", missing, "SOURCE_SNAPSHOT_MISMATCH: src/main.test.ts"));
+      const applicationMissing = await ctx.applicationRuntime("dynamic-test-missing-retained-text", { ...analysis, files: missingFiles }, 2);
+      const applicationMissingProperties = compareApplicationRefusal("dynamic-test.missing-retained-text.application", "SOURCE_SNAPSHOT_MISMATCH: src/main.test.ts", applicationMissing);
+      properties.push(...applicationMissingProperties);
+      evidence.push(...missing.evidence, ...applicationMissing.evidence, await ctx.save("dynamic-test-missing-retained-text-application-comparison", applicationMissingProperties));
+    }
+  }
+  return { properties, evidence };
+}
+
 async function assemblyObservations(ctx: Context): Promise<{ properties: Property[]; evidence: Evidence[] }> {
+  const dynamic = await dynamicTestObservations(ctx);
+  const application = await applicationObservations(ctx);
   const files = { "src/main.ts": baseline, "src/consumer.ts": "import { main } from './main'; export function consumer() { return main(); }\n" };
   const fixture = await prepare(ctx, "assembly", files);
   const compiler = await ctx.oracle("qa-assembly", files);
   const analyzed = await ctx.run("qa-assembly", "", fixture.analysis, true);
+  const independent = await ctx.extractionOracle("qa-assembly", { files: fixture.analysis["files"], roots: fixture.analysis["roots"], repoRoot: fixture.root, options: fixture.analysis["options"], retained: true });
   const extraction = record(analyzed.value["raw_extraction"]), assembly = record(analyzed.value["assembly"]);
-  const symbolCoordinates = list(extraction["symbols"]).map(value => { const symbol = record(value); return { path: symbol["relPath"], name: symbol["name"], kind: symbol["kind"] }; });
   const properties = [
+    ...dynamic.properties,
+    ...application.properties,
+    property("assembly.independent.exit", 0, independent.exitCode),
+    ...compareExtraction("assembly.independent", independent.value, extraction),
+    ...compareSimpleGraph("assembly.independent", independent.value, assembly),
     property("assembly.compiler", 0, compiler.exitCode, "Pinned independent TS7 CLI compilation of the two-file witness"),
     property("assembly.exit", 0, analyzed.exitCode),
-    property("assembly.modules", ["src/consumer.ts", "src/main.ts"], extraction["modules"]),
-    property("assembly.symbols", [{ path: "src/consumer.ts", name: "consumer", kind: "function" }, { path: "src/main.ts", name: "main", kind: "function" }], symbolCoordinates),
-    property("assembly.singleCall", [{ from: "src/consumer.ts", caller: "consumer", callee: "main", target: "src/main.ts" }], list(extraction["calls"]).map(value => { const call = record(value); return { from: call["callerRelPath"], caller: call["callerSymbolPath"], callee: call["calleeName"], target: call["calleeRelPath"] }; })),
-    property("assembly.noIntegrityReasons", {}, assembly["integrityReasons"]),
-    property("assembly.graph.nodes", ["function:src/consumer.ts:consumer", "function:src/main.ts:main", "module:src/consumer.ts:consumer.ts", "module:src/main.ts:main.ts", "repository"], list(assembly["nodes"]).map(value => {
-      const node = record(value);
-      return node["kind"] === "repository" ? "repository" : `${String(node["kind"])}:${String(node["filePath"])}:${String(node["name"])}`;
-    }).toSorted()),
   ];
-  const nodes = new Map(list(assembly["nodes"]).map(value => { const node = record(value); return [node["id"], node] as const; }));
-  const coordinate = (value: unknown): string => {
-    const node = nodes.get(value);
-    return node?.["kind"] === "repository" ? "repository" : `${String(node?.["kind"])}:${String(node?.["filePath"])}:${String(node?.["name"])}`;
-  };
-  properties.push(property("assembly.graph.edges", [
-    "belongs_to:module:src/consumer.ts:consumer.ts->repository",
-    "belongs_to:module:src/main.ts:main.ts->repository",
-    "calls:function:src/consumer.ts:consumer->function:src/main.ts:main",
-    "declares:module:src/consumer.ts:consumer.ts->function:src/consumer.ts:consumer",
-    "declares:module:src/main.ts:main.ts->function:src/main.ts:main",
-    "imports:module:src/consumer.ts:consumer.ts->module:src/main.ts:main.ts",
-  ], list(assembly["edges"]).map(value => { const edge = record(value); return `${String(edge["kind"])}:${coordinate(edge["from"])}->${coordinate(edge["to"])}`; }).toSorted()));
   const discovered = Object.entries(files).map(([relPath, content]) => ({ relPath, content }));
   const healthy = await ctx.run("qa-runtime-snapshot-consistent", "--analyze-retained-runtime", { analysis: fixture.analysis, discovered_sources: discovered }, true);
+  properties.push(...compareExtraction("runtime.consistent.independent", independent.value, record(record(healthy.value["native_analysis"])["raw_extraction"])));
   properties.push(property("runtime.consistent.exit", 0, healthy.exitCode), property("runtime.consistent.executed", true, healthy.value["executed"]), property("runtime.consistent.guard", true, healthy.value["snapshot_guard_passed"]));
   const mismatch = discovered.map(source => source.relPath === "src/main.ts" ? { ...source, content: source.content + "export const changed = 1;\n" } : source);
   const refused = await ctx.run("qa-runtime-snapshot-mismatch", "--analyze-retained-runtime", { analysis: fixture.analysis, discovered_sources: mismatch }, true);
   properties.push(...compareSnapshot("runtime.mismatch", refused, "SOURCE_SNAPSHOT_MISMATCH: src/main.ts"));
   const ordinary = await ctx.run("qa-ordinary-no-snapshot", "", { ...fixture.analysis, retained: false, qualified: false }, true);
-  properties.push(property("ordinary.noSnapshot.exit", 0, ordinary.exitCode), property("ordinary.noSnapshot.modules", ["src/consumer.ts", "src/main.ts"], record(ordinary.value["raw_extraction"])["modules"]));
+  properties.push(property("ordinary.noSnapshot.exit", 0, ordinary.exitCode), property("ordinary.noSnapshot.modules", independent.value["modules"], record(ordinary.value["raw_extraction"])["modules"]));
   const missing = await ctx.run("qa-qualified-no-snapshot", "--analyze-retained-runtime", { analysis: { ...fixture.analysis, retained: false }, discovered_sources: discovered }, true);
   properties.push(...compareSnapshot("runtime.missing", missing, "SOURCE_SNAPSHOT_REQUIRED"));
-  return { properties, evidence: [...fixture.evidence, ...compiler.evidence, ...analyzed.evidence, ...healthy.evidence, ...refused.evidence, ...ordinary.evidence, ...missing.evidence] };
+  return { properties, evidence: [...dynamic.evidence, ...application.evidence, ...fixture.evidence, ...compiler.evidence, ...independent.evidence, ...analyzed.evidence, ...healthy.evidence, ...refused.evidence, ...ordinary.evidence, ...missing.evidence] };
 }
 
 export async function admissionObservations(ctx: Context, indices: number[]): Promise<Observation[]> {
@@ -246,7 +290,10 @@ export async function admissionObservations(ctx: Context, indices: number[]): Pr
   return indices.map(index => {
     const observed = scopeIndices.has(index) ? scope : receiptIndices.has(index) ? receipt : assemblyIndices.has(index) ? assembly : undefined;
     if (observed === undefined) throw Error(`Q_BOUNDARY_ADMISSION_INDEX_UNSUPPORTED:${index}`);
-    if (assemblyIndices.has(index)) return { index, ...observed, complete: false, reason: "Préparation partielle : composition publique Plane-A, sélection workers et propriété/provenance composée non démontrées." };
+    if (assemblyIndices.has(index)) {
+      const properties = index === 4 ? observed.properties.filter(row => row.name.startsWith("runtime.") || row.name.startsWith("ordinary.") || row.name.startsWith("assembly.independent.") || row.name.startsWith("application.") || row.name === "assembly.compiler" || row.name === "assembly.exit") : observed.properties;
+      return { index, ...observed, properties, complete: false, reason: "Experimental application composition and independent extraction witnesses require cumulative candidate-bound closure on both platforms." };
+    }
     const cumulative = scopeIndices.has(index) ? [observed, receipt!, ...(index === 236 ? [base!] : [])] : [observed];
     const properties = cumulative.flatMap(item => item.properties), evidence = cumulative.flatMap(item => item.evidence);
     const complete = properties.length > 0 && evidence.length > 0 && properties.every(item => item.pass);

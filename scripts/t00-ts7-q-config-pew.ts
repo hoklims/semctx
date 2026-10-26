@@ -4,6 +4,8 @@ import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { CampaignContext, Evidence, ObligationResult } from "./t00-ts7-q-config-campaign";
 
+import { extractionIndices, runExtractionWorkers } from "./t00-ts7-q-config-extraction";
+
 type Value = Record<string, unknown>;
 type Property = ObligationResult["properties"][number];
 type Observation = { value: Value; exitCode: number; evidence: Evidence[]; stdout: string; stderr: string };
@@ -333,35 +335,13 @@ class Witnesses {
       return result;
     });
   }
-  worker(): Promise<Observation> {
-    return this.once("worker-protocol", async () => {
-      const fixture = this.fixture("worker-protocol", { "main.ts": "import { leaf } from './leaf'; export function main() { return leaf(); }\n", "leaf.ts": "export function leaf() { return 1; }\n" });
-      const paths = Object.keys(fixture.files).sort();
-      const request = { schemaVersion: 1, jobId: "pew-worker", repoRoot: fixture.root, rootAbsPaths: paths, emitAbsPaths: [resolve(fixture.root, "main.ts")] };
-      const result = await this.observe("worker-subset", "--extract-worker", request, true);
-      result.evidence.push(...fixture.evidence);
-      const malformed: unknown[] = [];
-      for (const [key, value] of [["schemaVersion", 2], ["jobId", 3], ["repoRoot", []], ["rootAbsPaths", [false]], ["emitAbsPaths", null]] as const) {
-        const observed = await this.observe("worker-malformed-" + key, "--extract-worker", { ...request, [key]: value }, true);
-        malformed.push({ exitCode: observed.exitCode, value: observed.value });
-        result.evidence.push(...observed.evidence);
-      }
-      result.value["malformedControls"] = malformed;
-      const response = { schemaVersion: 1, jobId: "pew-worker", ok: true, extraction: { modules: ["main.ts"], symbols: [], imports: [], calls: [] } };
-      const valid = await this.observe("parent-valid", "--consume-worker", { request, response });
-      const wrong = await this.observe("parent-wrong-job", "--consume-worker", { request, response: { ...response, jobId: "foreign" } });
-      const failed = await this.observe("parent-failed-worker", "--consume-worker", { request, response: { schemaVersion: 1, jobId: "pew-worker", ok: false, error: "controlled failure" } });
-      result.value["parentControls"] = [valid, wrong, failed].map(item => ({ exitCode: item.exitCode, value: item.value }));
-      result.evidence.push(...valid.evidence, ...wrong.evidence, ...failed.evidence);
-      return result;
-    });
-  }
+
 }
 
 export async function runProgramEmissionWorkers(ctx: CampaignContext, indices: number[]): Promise<ObligationResult[]> {
   const witnesses = new Witnesses(ctx);
-  const results: ObligationResult[] = [];
-  for (const definition of definitions.filter(item => indices.includes(item.index))) {
+  const results: ObligationResult[] = await runExtractionWorkers(ctx, definitions.filter(item => indices.includes(item.index)));
+  for (const definition of definitions.filter(item => indices.includes(item.index) && !extractionIndices.has(item.index))) {
     const started = performance.now();
     const properties: Property[] = [];
     const evidence: Evidence[] = [];
@@ -397,17 +377,6 @@ export async function runProgramEmissionWorkers(ctx: CampaignContext, indices: n
         add(definition.properties[0]!, pass, "Explicit TS7 SDK and independent CLI path mapping choose src/leaf.ts.");
         if (index === 175) add(definition.properties[1]!, programObservationSucceeded(missing.exitCode, missing.value) && missing.value["oracleSucceeded"] === true && unresolved.length === 1 && unresolved[0]?.["resolvedRelPath"] === undefined, "Missing alias target independently produces TS2307; the native Program must execute without unsupported operations and have no resolved target.");
         else properties.push({ property: definition.properties[1]!, status: "not_qualified", reason: "Complete configuration reason absence controls across ordinary and retained JSX not independently closed." });
-      } else if (index === 239) {
-        const observed = await witnesses.worker();
-        evidence.push(...observed.evidence);
-        const malformed = array(observed.value["malformedControls"]).map(record);
-        const parentCaptures = array(observed.value["parentControls"]).map(record);
-        const parents = parentCaptures.map(item => record(item["value"]));
-        properties.push({ property: definition.properties[0]!, status: "not_qualified", reason: "Nonempty import/call worker witness retained; complete TS7 extraction and external-target sanitization oracle not closed." });
-        add(definition.properties[1]!, malformed.length === 5 && malformed.every(item => { const value = record(item["value"]); return item["exitCode"] === 0 && value["schemaVersion"] === 1 && value["jobId"] === "unbound" && value["ok"] === false && value["error"] === "malformed extraction request" && value["extraction_started"] === false; }), "Five malformed field controls fail before extraction, independently specified protocol.");
-        const modules = record(observed.value["extraction"])["modules"];
-        add(definition.properties[2]!, observed.exitCode === 0 && observed.value["ok"] === true && isDeepStrictEqual(modules, ["main.ts"]) && array(record(observed.value["frontendCapabilityObservation"])["roots"]).length === 2 && array(record(observed.value["frontendCapabilityObservation"])["roots"]).every(item => record(item)["loaded"] === true) && isDeepStrictEqual(record(observed.value["frontendCapabilityObservation"])["unsupported"], []), "Both roots retained in worker context, only main.ts emitted.");
-        add(definition.properties[3]!, parents.length === 3 && parentCaptures.every(item => item["exitCode"] === 0) && parents[0]?.["accepted"] === true && parents[1]?.["valid"] === false && parents[1]?.["accepted"] === false && parents[2]?.["valid"] === true && parents[2]?.["worker_failed"] === true && parents[2]?.["accepted"] === false, "Parent accepts valid control, rejects wrong identity and preserves worker failure.");
       } else {
         const safe = await witnesses.parallel("safe"), augmentation = await witnesses.parallel("augmentation"), connected = await witnesses.parallel("connected");
         evidence.push(...safe.evidence, ...augmentation.evidence, ...connected.evidence);
@@ -421,12 +390,6 @@ export async function runProgramEmissionWorkers(ctx: CampaignContext, indices: n
           const mixed = await witnesses.parallel("mixed");
           evidence.push(...mixed.evidence);
           add(definition.properties[1]!, pewObservationSucceeded(mixed.exitCode, mixed.value) && mixed.value["oracleSucceeded"] === true && record(mixed.value["parallelism"])["mode"] === "preflight-fallback" && record(mixed.value["parallelism"])["used"] === 1, "Mixed JS activates single Program fallback against independent TS7 syntax control.");
-        } else if (index === 193) {
-          add("exact emitted modules", safePass && exact, "Exact independently authored modules/symbols/imports/calls for variable-only fixture.");
-          properties.push({ property: definition.properties[0]!, status: "not_qualified", reason: "Complete nonempty extraction parity and order oracle for workers 1/2 not closed." });
-        } else if (index === 194) {
-          add("valid graph activation", graphPass && pewObservationSucceeded(connected.exitCode, connected.value) && record(connected.value["parallelism"])["used"] === 1 && connected.value["oracleSucceeded"] === true, "Exact disconnected graph and connected-import countercase; independent fixture edges.");
-          properties.push({ property: definition.properties[0]!, status: "not_qualified", reason: "Outside-repository and node_modules root boundary countercases not independently closed." });
         }
         else if (index === 195) add(definition.properties[0]!, graphPass && exact && safePass && fallback, "Declaration context remains loaded; emission filters declaration; augmentation changes preflight.");
         else if (index === 196) {
@@ -434,10 +397,7 @@ export async function runProgramEmissionWorkers(ctx: CampaignContext, indices: n
           evidence.push(...moduleAugmentation.evidence);
           add(definition.properties[0]!, safePass && preflight["safe"] === true && fallback && pewObservationSucceeded(moduleAugmentation.exitCode, moduleAugmentation.value) && moduleAugmentation.value["oracleSucceeded"] === true && record(moduleAugmentation.value["parallelism"])["mode"] === "preflight-fallback" && record(moduleAugmentation.value["parallelism"])["used"] === 1, "Plain declaration interface permits parallel extraction; global and named module augmentation each refuse parallel dispatch.");
         }
-        else {
-          add("finite component activation and connected control", graphPass && pewObservationSucceeded(connected.exitCode, connected.value) && connected.value["oracleSucceeded"] === true && record(connected.value["parallelism"])["used"] === 1, "Independent repository graph fixtures exercise declaration filtering and import connectivity.");
-          properties.push({ property: definition.properties[0]!, status: "not_qualified", reason: "Complete extraction and exact worker selection reason oracle for cycles, loaded nonroots and resolution modes is not closed." });
-        }
+
       }
     const qualified = properties.length > 0 && properties.every(item => item.status === "pass");
     results.push({ index: definition.index, id: definition.id, status: qualified ? "qualified" : "not_qualified", reason: qualified ? "All named finite properties and activating controls passed in this platform run; aggregation still requires both platforms." : properties.filter(item => item.status !== "pass").map(item => item.property + ": " + item.reason).join("; "), properties, evidence: [...new Map(evidence.map(item => [item.path, item])).values()], durationMs: Math.round(performance.now() - started) });
