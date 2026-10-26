@@ -24,6 +24,7 @@ fn development_extract(files: BTreeMap<String, String>, relative: &str) -> Extra
                 checker,
                 &relative,
                 &ExtractionContext {
+                    runtime_module: None,
                     repository_root: "/repo",
                     static_module_links: true,
                     retained: true,
@@ -157,6 +158,7 @@ fn observed_unresolved_modules_do_not_fall_back_to_checker_symbols() {
         let source = program::get_source_file(path);
         program::with_type_checker_for_file(source, move |checker| {
             let context = ExtractionContext {
+                runtime_module: None,
                 repository_root: "/repo",
                 static_module_links: true,
                 retained: false,
@@ -197,6 +199,7 @@ fn development_callable_coordinate_requires_semantic_callable_and_owner_body() {
         let source = program::get_source_file(path);
         program::with_type_checker_for_file(source, move |checker| {
             let context = ExtractionContext {
+                runtime_module: None,
                 repository_root: "/repo",
                 static_module_links: true,
                 retained: true,
@@ -427,6 +430,7 @@ fn development_arrow_has_own_scope_and_data_has_no_callable_symbol() {
                     checker,
                     "t00DevelopmentOrdinaryA.ts",
                     &ExtractionContext {
+                        runtime_module: None,
                         repository_root: "/repo",
                         static_module_links: true,
                         retained: true,

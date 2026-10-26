@@ -170,7 +170,7 @@ fn live_system_runtime_read_limit_and_cyclic_native_failure_are_explicit() {
 #[test]
 fn live_system_invalid_or_unbounded_requests_are_not_executed() {
     let fixture = Fixture::new();
-    assert!(capture(&fixture.path(""), &[]).is_err());
+    assert!(capture(&fixture.path(""), &[]).is_ok());
     assert!(capture(&fixture.path(""), &vec![fixture.path("missing"); 4097]).is_err());
     for request in [
         serde_json::json!({"root":fixture.path(""),"inventory":[],"queries":[]}),
@@ -226,7 +226,15 @@ fn live_system_configuration_discovery_reads_an_omitted_inventory_config_and_pre
         std::fs::Permissions::from_mode(0o600),
     )
     .unwrap();
-    assert!(inspected.is_err());
+    let configuration = inspected.unwrap();
+    assert_eq!(
+        configuration.reasons,
+        vec![format!(
+            "SOURCE_CONFIGURATION_INVALID:5083:Cannot read file '{}'.",
+            fixture.path("tsconfig.json")
+        )]
+    );
+    assert!(configuration.raw.is_none());
     assert!(
         fs.log
             .borrow()

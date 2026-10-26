@@ -19,7 +19,7 @@ fn contained(fs: &CaptureFs, root: &str, path: &str) -> bool {
     path == root || relative_source_path(&root, &path, fs.sensitive).is_ok()
 }
 
-fn physical(path: &str) -> Result<std::path::PathBuf, String> {
+pub(super) fn physical(path: &str) -> Result<std::path::PathBuf, String> {
     let mut ancestor = std::path::absolute(tspath::normalize_path(path))
         .map_err(|error| format!("SOURCE_CANONICAL_PATH_UNAVAILABLE: {path}: {error}"))?;
     let mut tail = Vec::new();

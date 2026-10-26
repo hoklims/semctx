@@ -2063,6 +2063,7 @@ impl Scan<'_> {
             return None;
         };
         let context = crate::ordinary::ExtractionContext {
+            runtime_module: None,
             repository_root: &inputs.repository_root,
             static_module_links: true,
             retained: true,

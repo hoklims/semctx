@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { materializeOracleLinks } from "./t00-ts7-q-boundary-common";
-import { selectedExtractionProperties, partitionProperties } from "./t00-ts7-q-boundary-live-fs";
+import { selectedExtractionProperties, partitionProperties, sourceIdentityProperties } from "./t00-ts7-q-boundary-live-fs";
 
 const extraction = {
   modules: ["a.ts", "c.ts"],
@@ -41,5 +41,13 @@ test("independent oracle creates real links only inside its isolated fixture", a
     expect(await materializeOracleLinks(root, { absent: "missing.ts" }).then(() => false, () => true)).toBe(true);
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("source identity evidence requires the actual owner to consume the fault and preserve the lexical fallback", () => {
+  const valid = { sourceIdentityObservation: { enabled: true, trace: [{ path: "/repo/alias.ts", key: "/repo/alias.ts", failedStage: "native_realpath", injected: true }] } };
+  expect(sourceIdentityProperties("fault", valid, "/repo/alias.ts", "/repo/alias.ts", "native_realpath").every(row => row.pass)).toBe(true);
+  for (const changed of [{}, { sourceIdentityObservation: { enabled: true, trace: [] } }, { sourceIdentityObservation: { enabled: true, trace: [{ path: "/repo/alias.ts", key: "/repo/target.ts", failedStage: "native_realpath", injected: true }] } }, { sourceIdentityObservation: { enabled: true, trace: [{ path: "/repo/alias.ts", key: "/repo/alias.ts", failedStage: null, injected: false }] } }]) {
+    expect(sourceIdentityProperties("fault", changed, "/repo/alias.ts", "/repo/alias.ts", "native_realpath").some(row => !row.pass)).toBe(true);
   }
 });

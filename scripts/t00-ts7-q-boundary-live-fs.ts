@@ -1,4 +1,4 @@
-import { mkdir, realpath, symlink, writeFile } from "node:fs/promises";
+import { mkdir, realpath, symlink, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { compareSnapshot } from "./t00-ts7-q-boundary-admission";
@@ -161,6 +161,13 @@ export async function liveDiscoveryObservations(ctx: Context): Promise<Observati
   ];
 }
 
+export function sourceIdentityProperties(label: string, value: unknown, path: string, key: string, failedStage: string | null): Property[] {
+  const observation = object(object(value).sourceIdentityObservation);
+  const trace = array(observation.trace).map(object).filter(row => row.path === path);
+  return [property(`${label}-native-source-owner-enabled`, observation.enabled, true),
+    property(`${label}-source-identity-consumed`, trace.length > 0 && trace.every(row => row.key === key && row.failedStage === failedStage && row.injected === (failedStage !== null)), true)];
+}
+
 export async function liveCanonicalObservation(ctx: Context): Promise<Observation> {
   const evidence: Evidence[] = [], properties: Property[] = [];
   for (const joined of [true, false]) {
@@ -171,6 +178,10 @@ export async function liveCanonicalObservation(ctx: Context): Promise<Observatio
       "c.ts": "export function c() { return 1; }\n",
     };
     await materialize(root, files);
+    const alias = resolve(root, "a.ts");
+    const canonical = alias;
+    const identityKey = (path: string) => ctx.platform === "macos" ? path.toLowerCase() : path;
+    evidence.push(await ctx.save(`170-${joined}-canonical-control`, { alias, canonical: await realpath(alias), authority: "Native physical source path fixed before producer execution" }));
     const direct = await ctx.run(`170-${joined}-direct`, "", analysis(ctx, root, files, ["a.ts", "c.ts"], false));
     const worker = await ctx.run(`170-${joined}-worker`, "--extract-worker", { schemaVersion: 1, jobId: `170-${joined}`, repoRoot: root, rootAbsPaths: [resolve(root, "a.ts"), resolve(root, "c.ts")], emitAbsPaths: [resolve(root, "a.ts"), resolve(root, "c.ts")] }, true);
     const oracle = await ctx.oracle(`170-${joined}-ts7`, files, { args: ["--traceResolution"] });
@@ -184,6 +195,21 @@ export async function liveCanonicalObservation(ctx: Context): Promise<Observatio
       property(`${joined}-independent-ts7-c-edge`, traceResolves(oracle.stdout, "./c", "c.ts"), joined, "independent TS7 --traceResolution; expected graph edges follow the authored activation/control source"),
       ...partitionProperties(String(joined), direct.value.partitionObservation, joined),
     );
+    properties.push(...sourceIdentityProperties(`${joined}-direct-control`, direct.value, alias, identityKey(canonical), null), ...sourceIdentityProperties(`${joined}-worker-control`, worker.value, alias, identityKey(canonical), null));
+    for (const stage of ["native_realpath", "absolute"]) {
+      const requests = {
+        direct: analysis(ctx, root, files, ["a.ts", "c.ts"], false),
+        worker: { schemaVersion: 1, jobId: `170-${joined}-${stage}`, repoRoot: root, rootAbsPaths: [alias, resolve(root, "c.ts")], emitAbsPaths: [alias, resolve(root, "c.ts")] },
+      };
+      for (const kind of ["direct", "worker"] as const) {
+        const faulted = await ctx.run(`170-${joined}-${stage}-${kind}`, "--observe-source-identity", { kind, request: requests[kind], failures: { [alias]: stage } }, true);
+        evidence.push(...faulted.evidence);
+        properties.push(property(`${joined}-${stage}-${kind}-exit`, faulted.exitCode, 0), ...sourceIdentityProperties(`${joined}-${stage}-${kind}`, faulted.value, alias, identityKey(alias), stage));
+        const extraction = kind === "direct" ? faulted.value.raw_extraction : faulted.value.extraction;
+        properties.push(property(`${joined}-${stage}-${kind}-complete-extraction-preserved`, extraction, kind === "direct" ? direct.value.raw_extraction : worker.value.extraction));
+        if (kind === "direct") properties.push(...partitionProperties(`${joined}-${stage}`, faulted.value.partitionObservation, joined));
+      }
+    }
     if (joined) properties.push(...selectedExtractionProperties("direct", direct.value.raw_extraction), ...selectedExtractionProperties("worker", worker.value.extraction));
     else {
       for (const [label, extraction] of [["direct", direct.value.raw_extraction], ["worker", worker.value.extraction]] as const) {
@@ -191,5 +217,37 @@ export async function liveCanonicalObservation(ctx: Context): Promise<Observatio
       }
     }
   }
-  return { index: 170, complete: false, properties, evidence, reason: "Worker/direct extraction each meet independent source/contract expectations and joined/severed selected-root components pass through an unselected bridge. The TS7 Fs::realpath interface returns String and cannot expose the historical throwing optional JS callback; no independent owning-boundary exception fallback witness exists. Product decision is required before this obligation can close." };
+  const collisionRoot = resolve(ctx.root, "170-canonical-collision");
+  const collisionFiles = { "target.ts": "export function target() { return 7; }\n", "alias.ts": "export function target() { return 7; }\n", "distinct.ts": "export const distinct = 9;\n" };
+  await materialize(collisionRoot, collisionFiles);
+  await unlink(resolve(collisionRoot, "alias.ts"));
+  await symlink(resolve(collisionRoot, "target.ts"), resolve(collisionRoot, "alias.ts"));
+  const collision = await ctx.run("170-canonical-alias-target-graph", "", analysis(ctx, collisionRoot, collisionFiles, ["alias.ts", "target.ts", "distinct.ts"], false));
+  evidence.push(...collision.evidence);
+  properties.push(property("canonical-collision-partition", collision.value.partitionObservation, { executed: true, unsupported: [], loadedRepositorySources: ["distinct.ts", "target.ts"], selectedRoots: ["distinct.ts", "target.ts"], dependencyComponents: [["distinct.ts"], ["target.ts"]], resolvedEdges: [], observationScope: "native_loaded_repository_module_components", parallelSafetyEvaluated: false, globalAdmissionInferred: false }));
+  const sourceKey = (name: string) => ctx.platform === "macos" ? resolve(collisionRoot, name).toLowerCase() : resolve(collisionRoot, name);
+  properties.push(...sourceIdentityProperties("canonical-alias", collision.value, resolve(collisionRoot, "alias.ts"), sourceKey("target.ts"), null), ...sourceIdentityProperties("canonical-target", collision.value, resolve(collisionRoot, "target.ts"), sourceKey("target.ts"), null), ...sourceIdentityProperties("canonical-distinct", collision.value, resolve(collisionRoot, "distinct.ts"), sourceKey("distinct.ts"), null));
+  for (const stage of ["native_realpath", "absolute"]) {
+    const alias = resolve(collisionRoot, "alias.ts");
+    const roots = [alias, resolve(collisionRoot, "distinct.ts")];
+    const requests = {
+      direct: analysis(ctx, collisionRoot, collisionFiles, ["alias.ts", "distinct.ts"], false),
+      worker: { schemaVersion: 1, jobId: `canonical-alias-${stage}`, repoRoot: collisionRoot, rootAbsPaths: roots, emitAbsPaths: roots },
+    };
+    for (const kind of ["direct", "worker"] as const) {
+      const faulted = await ctx.run(`170-canonical-alias-${stage}-${kind}`, "--observe-source-identity", { kind, request: requests[kind], failures: { [alias]: stage } }, true);
+      evidence.push(...faulted.evidence);
+      properties.push(property(`canonical-alias-${stage}-${kind}-owner-executed`, { exit: faulted.exitCode, completed: kind === "direct" ? faulted.value.complete : faulted.value.ok }, { exit: 0, completed: true }), ...sourceIdentityProperties(`canonical-alias-${stage}-${kind}-lexical-fallback`, faulted.value, alias, sourceKey("alias.ts"), stage));
+    }
+  }
+  for (const disabled of [false, true]) {
+    const request = { ...analysis(ctx, collisionRoot, collisionFiles, ["alias.ts", "target.ts"], false), ...(disabled ? { disabled: ["alias.ts"] } : { selection: { "alias.ts": "excluded" } }) };
+    const direct = await ctx.run(`170-canonical-alias-${disabled ? "disabled" : "excluded"}`, "", request);
+    evidence.push(...direct.evidence);
+    properties.push(property(`canonical-alias-${disabled}-admissible-direct-module`, object(direct.value.raw_extraction).modules, ["target.ts"]));
+  }
+  const emitted = await ctx.run("170-canonical-alias-not-emitted", "--extract-worker", { schemaVersion: 1, jobId: "canonical-emission", repoRoot: collisionRoot, rootAbsPaths: [resolve(collisionRoot, "alias.ts"), resolve(collisionRoot, "target.ts")], emitAbsPaths: [resolve(collisionRoot, "target.ts")] }, true);
+  evidence.push(...emitted.evidence);
+  properties.push(property("canonical-alias-admissible-worker-module", object(emitted.value.extraction).modules, ["target.ts"]));
+  return { index: 170, complete: false, properties, evidence, reason: "Native canonical identity, direct/worker parity and joined/severed components execute with independent TS7 traces. Native realpath/absolute failure injection remains diagnostic: the contract does not establish its correspondence with the optional JavaScript realpath callback or its thrown-exception branch; obligation 170 remains not_qualified pending an owner decision." };
 }

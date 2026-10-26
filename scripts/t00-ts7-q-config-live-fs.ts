@@ -26,6 +26,8 @@ export async function runLiveFilesystem(ctx: CampaignContext, libraries: string[
   const started = performance.now();
   const evidence: Evidence[] = [];
   const properties: PropertyResult[] = [];
+  const producerId = `sha256:${sha(await readFile(ctx.producer))}`;
+  const sdkId = digest(JSON.parse(await readFile(ctx.sdk, "utf8")));
   for (const installed of [false, true]) {
     const name = installed ? "installed" : "uninstalled";
     const location = resolve(ctx.out, "live-fs", name);
@@ -91,7 +93,7 @@ export async function runLiveFilesystem(ctx: CampaignContext, libraries: string[
     evidence.push(...resolution.evidence);
     let actual: Record<string, unknown>;
     try { actual = object(JSON.parse(resolution.stdout)); } catch { actual = {}; }
-    properties.push({ property: `live ${name}: pinned TS7 configured resolution`, status: trace.exitCode === 0 && trace.stderr.trim() === "" && expectedResolution !== undefined && resolution.exitCode === 0 && resolution.stderr.trim() === "" && actual.executed === true && isDeepStrictEqual(actual.unsupported, []) && actual.resolved_file_name === expectedResolution && actual.request_descriptor_id === digest(resolutionRequest) ? "pass" : "fail", reason: `Separate pinned tsgo native-FS trace expected ${String(expectedResolution)}; no captured endpoint substitute.`, evidence: [...trace.evidence, ...resolution.evidence] });
+    properties.push({ property: `live ${name}: pinned TS7 configured resolution`, status: trace.exitCode === 0 && trace.stderr.trim() === "" && expectedResolution !== undefined && resolution.exitCode === 0 && resolution.stderr.trim() === "" && evaluateLiveResolution(actual, expectedResolution, digest(resolutionRequest), producerId, sdkId) ? "pass" : "fail", reason: `Separate pinned tsgo native-FS trace expected ${String(expectedResolution)}; no captured endpoint substitute.`, evidence: [...trace.evidence, ...resolution.evidence] });
     evidence.push(await save(resolve(location, "resolution-comparison.json"), { expected: expectedResolution, actual, property: properties.at(-1) }));
   }
   const additional = await runAdditionalLiveResolution(ctx, libraries);
