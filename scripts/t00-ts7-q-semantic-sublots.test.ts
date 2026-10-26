@@ -24,8 +24,10 @@ test("rejects unknown sublots, incomplete inputs and duplicate observations", ()
 });
 
 
-test("development sublots activate their local scenarios while default promotion remains limited to 52", () => {
-  expect(selectContractMatrix(51).length).toBe(0);
+test("integrated qualification activates all delivered matrices and preserves sublot isolation", () => {
+  expect(selectContractMatrix(51).some(witness => witness.idSuffix === "const-versus-let-alias")).toBe(true);
+  expect(selectContractMatrix(93)).toEqual(selectContractMatrix(93, "b"));
+  expect(selectContractMatrix(69)).toEqual(selectContractMatrix(69, "c"));
   expect(selectContractMatrix(52).length).toBeGreaterThan(0);
   expect(selectContractMatrix(51, "a").some(witness => witness.idSuffix === "const-versus-let-alias")).toBe(true);
   expect(selectContractMatrix(93, "b").length).toBeGreaterThan(0);
