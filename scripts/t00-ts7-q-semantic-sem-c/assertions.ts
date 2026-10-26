@@ -29,7 +29,7 @@ export const assertions: Record<string, NativeExpectation[]> = {
   "81:sdk-callback-sdk-value": [bool(121, "activate", "Math.abs", true, ["SDK-callable-callback-value"]), bool(100, "control", "()=>1", false, ["authored-callback-value"])],
   "82:baseline": [bool(100, "activate", "x", false, active), bool(100, "control", "x", true, control)],
   "82:baseline-numeric-rest-index-type": [bool(100, "activate", "{valueOf(){return 1}}", false, active), bool(100, "control", "1", true, control)],
-  "82:baseline-shorthand-locale-options": [bool(100, "activate", "style", false, active), bool(100, "control", '"decimal"', true, control)],
+  "82:baseline-shorthand-locale-options": [bool(100, "activate", "style", true, active), bool(100, "control", '"decimal"', true, control)],
   "82:numeric-rest-arguments": [bool(100, "activate", "{valueOf(){return 2}}", false, ["numeric-rest-slice"]), bool(100, "control", "3", true, ["primitive-rest-slice"])],
   "82:numeric-call-bind-and-missing": [normalized("Math.abs.call(null,{})", "call-normalized-numeric-argument"), normalized("Math.abs.bind(null,{})()", "bind-normalized-numeric-argument"), invocation("control", "Math.abs", [], ["numeric-argument-absent"])],
   "82:array-join-separator": [bool(100, "activate", "{toString(){return ','}}", false, ["nonprimitive-join-separator"]), bool(100, "control", "','", true, ["primitive-join-separator"])],
